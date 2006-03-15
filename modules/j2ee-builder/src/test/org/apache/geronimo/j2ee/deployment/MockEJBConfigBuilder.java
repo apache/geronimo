@@ -18,15 +18,15 @@ package org.apache.geronimo.j2ee.deployment;
 
 import junit.framework.Assert;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 import javax.naming.Reference;
 import java.io.File;
@@ -36,7 +36,7 @@ import java.util.jar.JarFile;
 
 
 /**
- * @version $Rev: 385487 $ $Date$
+ * @version $Rev:385692 $ $Date$
  */
 public class MockEJBConfigBuilder extends Assert implements ModuleBuilder, EJBReferenceBuilder {
     public EARContext earContext;
@@ -84,15 +84,7 @@ public class MockEJBConfigBuilder extends Assert implements ModuleBuilder, EJBRe
         return null;
     }
 
-    public Reference createEJBLocalReference(String objectName, GBeanData gbeanData, boolean isSession, String localHome, String local) throws DeploymentException {
-        return null;
-    }
-
-    public Reference createEJBRemoteReference(String objectName, GBeanData gbeanData, boolean isSession, String home, String remote) throws DeploymentException {
-        return null;
-    }
-
-    public Reference createCORBAReference(Artifact configId, AbstractNameQuery containerNameQuery, URI nsCorbaloc, String objectName, String home) throws DeploymentException {
+    public Reference createCORBAReference(Configuration configuration, AbstractNameQuery containerNameQuery, URI nsCorbaloc, String objectName, String home) throws DeploymentException {
         return null;
     }
 
@@ -100,11 +92,12 @@ public class MockEJBConfigBuilder extends Assert implements ModuleBuilder, EJBRe
         return null;
     }
 
-    public Reference getImplicitEJBRemoteRef(URI module, String refName, boolean isSession, String home, String remote, NamingContext context) throws DeploymentException {
+    public Reference createEJBRemoteRef(String requiredModule, String optionalModule, String name, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String home, String remote, Configuration configuration) throws DeploymentException {
         return null;
     }
 
-    public Reference getImplicitEJBLocalRef(URI module, String refName, boolean isSession, String localHome, String local, NamingContext context) throws DeploymentException {
+    public Reference createEJBLocalRef(String requiredModule, String optionalModule, String name, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String localHome, String local, Configuration configuration) throws DeploymentException {
         return null;
     }
+
 }

@@ -32,7 +32,7 @@ import java.util.Map;
 /**
  * @version $Rev$ $Date$
  */
-public class EARContext extends DeploymentContext implements NamingContext {
+public class EARContext extends DeploymentContext {
 
     private final AbstractNameQuery transactionContextManagerObjectName;
     private final AbstractNameQuery connectionTrackerObjectName;

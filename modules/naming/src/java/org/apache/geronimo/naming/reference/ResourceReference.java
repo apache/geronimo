@@ -31,6 +31,12 @@ import javax.naming.NameNotFoundException;
 public class ResourceReference extends ConfigurationAwareReference {
     private final Class iface;
 
+    /**
+     *
+     * @param configId the configId of the configuration that holds the reference, not the resource adapter.
+     * @param abstractNameQuery query for name of the resource adapter.
+     * @param iface
+     */
     public ResourceReference(Artifact configId, AbstractNameQuery abstractNameQuery, Class iface) {
         super(configId, abstractNameQuery);
         this.iface = iface;

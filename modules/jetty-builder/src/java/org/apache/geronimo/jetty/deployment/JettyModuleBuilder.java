@@ -117,7 +117,7 @@ import java.util.jar.JarFile;
 
 
 /**
- * @version $Rev: 385487 $ $Date$
+ * @version $Rev:385659 $ $Date$
  */
 public class JettyModuleBuilder extends AbstractWebModuleBuilder {
     private final static Log log = LogFactory.getLog(JettyModuleBuilder.class);
@@ -373,7 +373,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             // unsharableResources, applicationManagedSecurityResources
             GBeanResourceEnvironmentBuilder rebuilder = new GBeanResourceEnvironmentBuilder(webModuleData);
             //N.B. use earContext not moduleContext
-            ENCConfigBuilder.setResourceEnvironment(earContext, webModule.getModuleURI(), rebuilder, webApp.getResourceRefArray(), jettyWebApp.getResourceRefArray());
+            ENCConfigBuilder.setResourceEnvironment(webModule.getModuleURI(), rebuilder, webApp.getResourceRefArray(), jettyWebApp.getResourceRefArray());
 
             webModuleData.setAttribute("contextPath", webModule.getContextRoot());
 
@@ -868,7 +868,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
     private Map buildComponentContext(EARContext earContext, Module webModule, WebAppType webApp, JettyWebAppType jettyWebApp, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
         return ENCConfigBuilder.buildComponentContext(earContext,
-                earContext,
+                earContext.getConfiguration(),
                 webModule,
                 userTransaction,
                 webApp.getEnvEntryArray(),

@@ -464,7 +464,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                 setDynamicGBeanDataAttributes(resourceAdapterInstanceGBeanData, geronimoResourceAdapter.getResourceadapterInstance().getConfigPropertySettingArray(), cl);
 
                 // set the work manager name
-                AbstractNameQuery workManagerName = ENCConfigBuilder.getGBeanId(NameFactory.JCA_WORK_MANAGER, geronimoResourceAdapter.getResourceadapterInstance().getWorkmanager(), earContext);
+                AbstractNameQuery workManagerName = ENCConfigBuilder.getGBeanQuery(NameFactory.JCA_WORK_MANAGER, geronimoResourceAdapter.getResourceadapterInstance().getWorkmanager());
                 resourceAdapterInstanceGBeanData.setReferencePattern("WorkManager", workManagerName);
 
                 String resourceAdapterName = geronimoResourceAdapter.getResourceadapterInstance().getResourceadapterName();
@@ -825,22 +825,38 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
 
     //ResourceReferenceBuilder implementation
     public Reference createResourceRef(AbstractNameQuery containerId, Class iface, Configuration configuration) throws DeploymentException {
+        try {
+            configuration.findGBean(containerId);
+        } catch (GBeanNotFoundException e) {
+            throw new DeploymentException("Can not resolve resource ref " + containerId + " in configuration " + configuration.getId());
+        }
         return new ResourceReference(configuration.getId(), containerId, iface);
     }
 
     public Reference createAdminObjectRef(AbstractNameQuery containerId, Class iface, Configuration configuration) throws DeploymentException {
+        try {
+            configuration.findGBean(containerId);
+        } catch (GBeanNotFoundException e) {
+            throw new DeploymentException("Can not resolve admin object ref " + containerId + " in configuration " + configuration.getId());
+        }
         return new ResourceReference(configuration.getId(), containerId, iface);
     }
 
-    public GBeanData locateActivationSpecInfo(GBeanData resourceAdapterModuleData, String messageListenerInterface) throws DeploymentException {
-        Map activationSpecInfos = (Map) resourceAdapterModuleData.getAttribute("activationSpecInfoMap");
+    public GBeanData locateActivationSpecInfo(AbstractNameQuery nameQuery, String messageListenerInterface, Configuration configuration) throws DeploymentException {
+        GBeanData resourceModuleData;
+        try {
+            resourceModuleData = configuration.findGBeanData(nameQuery);
+        } catch (GBeanNotFoundException e) {
+            throw new DeploymentException("No resource module gbean found matching " + nameQuery + " from configuration " + configuration.getId());
+        }
+        Map activationSpecInfos = (Map) resourceModuleData.getAttribute("activationSpecInfoMap");
         if (activationSpecInfos == null) {
-            throw new DeploymentException("No activation spec info map found in resource adapter module: " + resourceAdapterModuleData.getName());
+            throw new DeploymentException("No activation spec info map found in resource adapter module: " + resourceModuleData.getName());
         }
         return (GBeanData) activationSpecInfos.get(messageListenerInterface);
     }
 
-    public GBeanData locateResourceAdapterGBeanData(GBeanData resourceAdapterModuleData) throws DeploymentException {
+    private GBeanData locateResourceAdapterGBeanData(GBeanData resourceAdapterModuleData) throws DeploymentException {
         GBeanData data = (GBeanData) resourceAdapterModuleData.getAttribute("resourceAdapterGBeanData");
         if (data == null) {
             throw new DeploymentException("No resource adapter info found for resource adapter module: " + resourceAdapterModuleData.getName());
@@ -848,7 +864,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         return data;
     }
 
-    public GBeanData locateAdminObjectInfo(GBeanData resourceAdapterModuleData, String adminObjectInterfaceName) throws DeploymentException {
+    private GBeanData locateAdminObjectInfo(GBeanData resourceAdapterModuleData, String adminObjectInterfaceName) throws DeploymentException {
         Map adminObjectInfos = (Map) resourceAdapterModuleData.getAttribute("adminObjectInfoMap");
         if (adminObjectInfos == null) {
             throw new DeploymentException("No admin object infos found for resource adapter module: " + resourceAdapterModuleData.getName());
@@ -856,7 +872,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         return (GBeanData) adminObjectInfos.get(adminObjectInterfaceName);
     }
 
-    public GBeanData locateConnectionFactoryInfo(GBeanData resourceAdapterModuleData, String connectionFactoryInterfaceName) throws DeploymentException {
+    private GBeanData locateConnectionFactoryInfo(GBeanData resourceAdapterModuleData, String connectionFactoryInterfaceName) throws DeploymentException {
         Map managedConnectionFactoryInfos = (Map) resourceAdapterModuleData.getAttribute("managedConnectionFactoryInfoMap");
         if (managedConnectionFactoryInfos == null) {
             throw new DeploymentException("No managed connection factory infos found for resource adapter module: " + resourceAdapterModuleData.getName());

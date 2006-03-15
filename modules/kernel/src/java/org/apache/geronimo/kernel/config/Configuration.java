@@ -87,7 +87,7 @@ import org.apache.geronimo.kernel.repository.MissingDependencyException;
  * a startRecursive() for all the GBeans it contains. Similarly, if the
  * Configuration is stopped then all of its GBeans will be stopped as well.
  *
- * @version $Rev: 384999 $ $Date$
+ * @version $Rev:385718 $ $Date$
  */
 public class Configuration implements GBeanLifecycle, ConfigurationParent {
     private static final Log log = LogFactory.getLog(Configuration.class);
@@ -479,6 +479,10 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         return findGBean(Collections.singleton(pattern));
     }
 
+    public GBeanData findGBeanData(AbstractNameQuery pattern) throws GBeanNotFoundException {
+        return findGBeanData(Collections.singleton(pattern));
+    }
+
     public AbstractName findGBean(ReferencePatterns referencePatterns) throws GBeanNotFoundException {
         if (referencePatterns.getAbstractName() != null) {
             // this pattern is already resolved
@@ -491,32 +495,33 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     }
 
     public AbstractName findGBean(Set patterns) throws GBeanNotFoundException {
-        Set result = findGBeans(this, patterns);
+        return findGBeanData(patterns).getAbstractName();
+    }
+
+    public GBeanData findGBeanData(Set patterns) throws GBeanNotFoundException {
+        Set result = findGBeanDatas(this, patterns);
         if (result.size() > 1) {
             throw new GBeanNotFoundException("More than one match to referencePatterns", patterns);
         } else if (result.size() == 1) {
-            return (AbstractName) result.iterator().next();
+            return (GBeanData) result.iterator().next();
         }
 
         // search all parents
         for (Iterator iterator = allServiceParents.iterator(); iterator.hasNext();) {
             Configuration configuration = (Configuration) iterator.next();
-            Set match = findGBeans(configuration, patterns);
+            result.addAll(findGBeanDatas(configuration, patterns));
 
             // if we already found a match we have an ambiguous query
-            if (match.size() > 1) {
+            if (result.size() > 1) {
                 throw new GBeanNotFoundException("More than one match to referencePatterns", patterns);
-            } else if (match.size() == 1) {
-                return (AbstractName) result.iterator().next();
             }
-            result = match;
         }
 
         if (result.isEmpty()) {
             throw new GBeanNotFoundException("No matches for referencePatterns", patterns);
         }
 
-        return (AbstractName) result.iterator().next();
+        return (GBeanData) result.iterator().next();
     }
 
     public LinkedHashSet findGBeans(AbstractNameQuery pattern) {
@@ -538,22 +543,32 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     }
 
     public LinkedHashSet findGBeans(Set patterns) {
-        LinkedHashSet result = findGBeans(this, patterns);
-
-        // search all parents
-        for (Iterator iterator = allServiceParents.iterator(); iterator.hasNext();) {
-            Configuration configuration = (Configuration) iterator.next();
-            Set match = findGBeans(configuration, patterns);
-            result.addAll(match);
+        LinkedHashSet datas = findGBeanDatas(patterns);
+        LinkedHashSet result = new LinkedHashSet(datas.size());
+        for (Iterator iterator = datas.iterator(); iterator.hasNext();) {
+            GBeanData gBeanData = (GBeanData) iterator.next();
+            result.add(gBeanData.getAbstractName());
         }
 
         return result;
     }
 
-    private LinkedHashSet findGBeans(Configuration configuration, Set patterns) {
+    public LinkedHashSet findGBeanDatas(Set patterns) {
+        LinkedHashSet datas = findGBeanDatas(this, patterns);
+
+        // search all parents
+        for (Iterator iterator = allServiceParents.iterator(); iterator.hasNext();) {
+            Configuration configuration = (Configuration) iterator.next();
+            Set match = findGBeanDatas(configuration, patterns);
+            datas.addAll(match);
+        }
+        return datas;
+    }
+
+    private LinkedHashSet findGBeanDatas(Configuration configuration, Set patterns) {
         LinkedHashSet result = new LinkedHashSet();
 
-        Set gbeanNames = configuration.getGBeans().keySet();
+        Set gbeanNames = configuration.getGBeans().entrySet();
         for (Iterator abstractNameQueries = patterns.iterator(); abstractNameQueries.hasNext();) {
             AbstractNameQuery abstractNameQuery =  (AbstractNameQuery) abstractNameQueries.next();
             Artifact queryArtifact = abstractNameQuery.getArtifact();
@@ -563,9 +578,10 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
 
                 // Search the GBeans
                 for (Iterator iterator = gbeanNames.iterator(); iterator.hasNext();) {
-                    AbstractName abstractName = (AbstractName) iterator.next();
+                    Map.Entry entry = (Map.Entry) iterator.next();
+                    AbstractName abstractName = (AbstractName) entry.getKey();
                     if (abstractNameQuery.matches(abstractName)) {
-                        result.add(abstractName);
+                        result.add(entry.getValue());
                     }
                 }
             }

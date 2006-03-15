@@ -92,7 +92,7 @@ import java.util.jar.JarFile;
 
 
 /**
- * @version $Rev: 385487 $ $Date$
+ * @version $Rev:385659 $ $Date$
  */
 public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
@@ -318,7 +318,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             // unsharableResources, applicationManagedSecurityResources
             GBeanResourceEnvironmentBuilder rebuilder = new GBeanResourceEnvironmentBuilder(webModuleData);
             //N.B. use earContext not moduleContext
-            ENCConfigBuilder.setResourceEnvironment(earContext, webModule.getModuleURI(), rebuilder, webApp.getResourceRefArray(), tomcatWebApp.getResourceRefArray());
+            ENCConfigBuilder.setResourceEnvironment(webModule.getModuleURI(), rebuilder, webApp.getResourceRefArray(), tomcatWebApp.getResourceRefArray());
 
             webModuleData.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
             webModuleData.setReferencePattern("TrackedConnectionAssociator", earContext.getConnectionTrackerObjectName());
@@ -455,7 +455,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
     private Map buildComponentContext(EARContext earContext, Module webModule, WebAppType webApp, TomcatWebAppType tomcatWebApp, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
         return ENCConfigBuilder.buildComponentContext(earContext,
-                earContext,
+                earContext.getConfiguration(),
                 webModule,
                 userTransaction,
                 webApp.getEnvEntryArray(),

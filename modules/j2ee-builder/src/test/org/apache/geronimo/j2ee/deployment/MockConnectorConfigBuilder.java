@@ -36,7 +36,7 @@ import java.net.URL;
 import java.util.jar.JarFile;
 
 /**
- * @version $Rev: 385487 $ $Date$
+ * @version $Rev:385692 $ $Date$
  */
 public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder, ResourceReferenceBuilder{
     public EARContext earContext;
@@ -96,7 +96,7 @@ public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder,
         return null;
     }
 
-    public GBeanData locateActivationSpecInfo(GBeanData resourceAdapterModuleData, String messageListenerInterface) throws DeploymentException {
+    public GBeanData locateActivationSpecInfo(AbstractNameQuery nameQuery, String messageListenerInterface, Configuration configuration) throws DeploymentException {
         return null;
     }
 

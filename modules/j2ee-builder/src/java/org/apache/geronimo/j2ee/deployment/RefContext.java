@@ -16,27 +16,23 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Collections;
-import javax.naming.Reference;
-import javax.xml.namespace.QName;
-
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.common.UnresolvedReferenceException;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.repository.Artifact;
+
+import javax.naming.Reference;
+import javax.xml.namespace.QName;
+import java.net.URI;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -47,11 +43,10 @@ public class RefContext {
     private final EJBReferenceBuilder ejbReferenceBuilder;
     private final ResourceReferenceBuilder resourceReferenceBuilder;
     private final ServiceReferenceBuilder serviceReferenceBuilder;
-    private final Kernel kernel;
 
     private final Map messageDestinations = new HashMap();
 
-    public RefContext(EJBReferenceBuilder ejbReferenceBuilder, ResourceReferenceBuilder resourceReferenceBuilder, ServiceReferenceBuilder serviceReferenceBuilder, Kernel kernel) {
+    public RefContext(EJBReferenceBuilder ejbReferenceBuilder, ResourceReferenceBuilder resourceReferenceBuilder, ServiceReferenceBuilder serviceReferenceBuilder) {
         assert ejbReferenceBuilder != null: "ejbReferenceBuilder is null";
         assert resourceReferenceBuilder != null: "resourceReferenceBuilder is null";
         assert serviceReferenceBuilder != null: "serviceReferenceBuilder is null";
@@ -59,7 +54,6 @@ public class RefContext {
         this.ejbReferenceBuilder = ejbReferenceBuilder;
         this.resourceReferenceBuilder = resourceReferenceBuilder;
         this.serviceReferenceBuilder = serviceReferenceBuilder;
-        this.kernel = kernel;
     }
 
     public static RefContext derivedClientRefContext(RefContext refContext, EJBReferenceBuilder ejbReferenceBuilder, ResourceReferenceBuilder resourceReferenceBuilder, ServiceReferenceBuilder serviceReferenceBuilder) {
@@ -74,7 +68,6 @@ public class RefContext {
         this.ejbReferenceBuilder = ejbReferenceBuilder;
         this.resourceReferenceBuilder = resourceReferenceBuilder;
         this.serviceReferenceBuilder = serviceReferenceBuilder;
-        this.kernel = refContext.kernel;
     }
 
     //registration methods
@@ -86,30 +79,19 @@ public class RefContext {
 
     //lookup methods
 
-    public Reference getEJBRemoteRef(String objectName, boolean isSession, String home, String remote) throws DeploymentException {
-        return ejbReferenceBuilder.createEJBRemoteReference(objectName, null, isSession, home, remote);
-    }
-
-    public Reference getCORBARemoteRef(Artifact configId, AbstractNameQuery containerNameQuery, URI nsCorbaloc, String objectName, String home) throws DeploymentException {
-        return ejbReferenceBuilder.createCORBAReference(configId, containerNameQuery, nsCorbaloc, objectName, home);
-    }
-
-    public Reference getEJBLocalRef(String objectName, boolean isSession, String localHome, String local) throws DeploymentException {
-        return ejbReferenceBuilder.createEJBLocalReference(objectName, null, isSession, localHome, local);
+    public Reference getCORBARemoteRef(Configuration configuration, AbstractNameQuery cssNameQuery, URI nsCorbaloc, String objectName, String home) throws DeploymentException {
+        return ejbReferenceBuilder.createCORBAReference(configuration, cssNameQuery, nsCorbaloc, objectName, home);
     }
 
     public Object getHandleDelegateReference() throws DeploymentException {
         return ejbReferenceBuilder.createHandleDelegateReference();
     }
-
-    public Reference getEJBRemoteRef(URI module, String ejbLink, boolean isSession, String home, String remote, NamingContext namingContext) throws DeploymentException {
-        GBeanData containerData = locateEjbInApplication(namingContext, isSession, ejbLink, module);
-        return ejbReferenceBuilder.createEJBRemoteReference(containerData.getName().getCanonicalName(), containerData, isSession, home, remote);
+    public Reference getEJBRemoteRef(String requiredModule, String optionalModule, String name, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String home, String remote, Configuration configuration) throws DeploymentException {
+        return ejbReferenceBuilder.createEJBRemoteRef(requiredModule,  optionalModule, name, targetConfigId, query, isSession, home, remote, configuration);
     }
 
-    public Reference getEJBLocalRef(URI module, String ejbLink, boolean isSession, String localHome, String local, NamingContext namingContext) throws DeploymentException {
-        GBeanData containerData = locateEjbInApplication(namingContext, isSession, ejbLink, module);
-        return ejbReferenceBuilder.createEJBLocalReference(containerData.getName().getCanonicalName(), containerData, isSession, localHome, local);
+    public Reference getEJBLocalRef(String requiredModule, String optionalModule, String name, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String localHome, String local, Configuration configuration) throws DeploymentException {
+        return ejbReferenceBuilder.createEJBLocalRef(requiredModule,  optionalModule, name, targetConfigId, query, isSession, localHome, local, configuration);
     }
 
     public Reference getConnectionFactoryRef(AbstractNameQuery containerId, Class iface, Configuration configuration) throws DeploymentException {
@@ -157,164 +139,17 @@ public class RefContext {
     }
 
 
-    public Reference getImplicitEJBRemoteRef(URI module, String refName, boolean isSession, String home, String remote, NamingContext namingContext) throws DeploymentException {
-        return ejbReferenceBuilder.getImplicitEJBRemoteRef(module, refName, isSession, home, remote, namingContext);
+    public GBeanData getActivationSpecInfo(AbstractNameQuery resourceAdapterModuleName, String messageListenerInterfaceName, Configuration configuration) throws DeploymentException {
+        return resourceReferenceBuilder.locateActivationSpecInfo(resourceAdapterModuleName, messageListenerInterfaceName, configuration);
     }
 
-    public Reference getImplicitEJBLocalRef(URI module, String refName, boolean isSession, String localHome, String local, NamingContext namingContext) throws DeploymentException {
-        return ejbReferenceBuilder.getImplicitEJBLocalRef(module, refName, isSession, localHome, local, namingContext);
-    }
-
-
-    //Resource adapter/activationspec support
-
-//    public GBeanData getResourceAdapterGBeanData(ObjectName resourceAdapterModuleName, NamingContext context) throws DeploymentException {
-//        GBeanData resourceModuleData = locateComponentData(resourceAdapterModuleName, context);
-//        return resourceReferenceBuilder.locateResourceAdapterGBeanData(resourceModuleData);
-//    }
-
-    public GBeanData getActivationSpecInfo(AbstractName resourceAdapterModuleName, String messageListenerInterfaceName, NamingContext context) throws DeploymentException {
-        GBeanData resourceModuleData = locateComponentData(resourceAdapterModuleName, context);
-        return resourceReferenceBuilder.locateActivationSpecInfo(resourceModuleData, messageListenerInterfaceName);
-    }
-
-//    //this relies on finding the resource adapter, not the admin object.
-//    public GBeanData getAdminObjectInfo(ObjectName resourceAdapterModuleName, String adminObjectInterfaceName, NamingContext context) throws DeploymentException {
-//        GBeanData resourceModuleData = locateComponentData(resourceAdapterModuleName, context);
-//        return resourceReferenceBuilder.locateAdminObjectInfo(resourceModuleData, adminObjectInterfaceName);
-//    }
-//
-//    public GBeanData getConnectionFactoryInfo(ObjectName resourceAdapterModuleName, String connectionFactoryInterfaceName, NamingContext context) throws DeploymentException {
-//        GBeanData resourceModuleData = locateComponentData(resourceAdapterModuleName, context);
-//        return resourceReferenceBuilder.locateConnectionFactoryInfo(resourceModuleData, connectionFactoryInterfaceName);
-//    }
-
-    public String getMEJBName() throws DeploymentException {
+    public AbstractName getMEJBName(Configuration configuration) throws DeploymentException {
         AbstractNameQuery query = new AbstractNameQuery(null, Collections.singletonMap("name", "ejb/mgmt/MEJB"), (String)null);
-        AbstractName mejbName = locateUniqueNameInKernel(query, "Management EJB");
-        return mejbName.toString();
-    }
-
-    private GBeanData locateComponentData(AbstractName name, NamingContext context) throws UnresolvedReferenceException {
         try {
-            return context.getGBeanInstance(name);
-        } catch (GBeanNotFoundException ignored) {
-        }
-        try {
-            return kernel.getGBeanData(name);
+            return configuration.findGBean(query);
         } catch (GBeanNotFoundException e) {
-            throw new UnresolvedReferenceException("GBean name: " + name + " not found in DeploymentContext: " + context.getConfigID() + " or in kernel", false, null);
+            throw new DeploymentException("Could not locate a MEJB in the configuration ancestors");
         }
-    }
-
-    private GBeanData locateEjbInApplication(NamingContext namingContext, boolean isSession, String ejbLink, URI module) throws UnresolvedReferenceException {
-        GBeanData gbeanData;
-        AbstractName moduleName = namingContext.getModuleName();
-        if (isSession) {
-            gbeanData = locateComponentInApplication(ejbLink, module, NameFactory.EJB_MODULE, NameFactory.STATELESS_SESSION_BEAN, moduleName, namingContext, false);
-            if (gbeanData == null) {
-                gbeanData = locateComponentInApplication(ejbLink, module, NameFactory.EJB_MODULE, NameFactory.STATEFUL_SESSION_BEAN, moduleName, namingContext, true);
-            }
-        } else {
-            gbeanData = locateComponentInApplication(ejbLink, module, NameFactory.EJB_MODULE, NameFactory.ENTITY_BEAN, moduleName, namingContext, true);
-        }
-        return gbeanData;
-    }
-
-    private GBeanData locateComponentInApplication(String resourceLink, URI moduleURI, String moduleType, String type, AbstractName j2eeContext, NamingContext context, boolean requireMatchInExplicitModule) throws UnresolvedReferenceException {
-        GBeanData match = locateComponentInModule(resourceLink, moduleURI, moduleType, type, j2eeContext, context, requireMatchInExplicitModule);
-        if (match == null) {
-            //if we got this far we resourceLink has no #.  look in "any module" in this application
-            match = locateGBeanInContext(null, "*", resourceLink, type, j2eeContext, context, false);
-        }
-        return match;
-    }
-
-    private GBeanData locateComponentInModule(String resourceLink, URI moduleURI, String moduleType, String type, AbstractName j2eeContext, NamingContext context, boolean requireMatchInExplicitModule) throws UnresolvedReferenceException {
-        String name = resourceLink.substring(resourceLink.lastIndexOf('#') + 1);
-
-        if (resourceLink.indexOf('#') > -1) {
-            //presence of # means they explicitly want only gbeans in specified module in this application.
-            String module = moduleURI.resolve(resourceLink).getPath();
-            return locateGBeanInContext(moduleType, module, name, type, j2eeContext, context, requireMatchInExplicitModule);
-        } else if (moduleURI == null || moduleURI.equals("")) {
-            return locateGBeanInContext(moduleType, "*", name, type, j2eeContext, context, false);
-        } else {
-            return locateGBeanInContext(moduleType, moduleURI.getPath(), name, type, j2eeContext, context, false);
-        }
-    }
-
-    private GBeanData locateGBeanInContext(String moduleType, String moduleName, String name, String type, AbstractName j2eeContext, NamingContext context, boolean requireMatch) throws UnresolvedReferenceException {
-        //TODO make sure this is reasonable
-        if (moduleType == null) {
-            moduleName = "*";
-        }
-
-        AbstractNameQuery query = NameFactory.getComponentNameQuery(moduleName, moduleType, name, type, j2eeContext);
-
-        AbstractName match = locateUniqueNameInContext(context, query);
-        if (match == null) {
-            if (!requireMatch) {
-                return null;
-            } else {
-                throw new UnresolvedReferenceException("Could not resolve reference: module: " + moduleName + ", component name: " + name, false, query.toString());
-            }
-        }
-        try {
-            GBeanData data = context.getGBeanInstance(match);
-            return data;
-        } catch (GBeanNotFoundException e) {
-            throw new IllegalStateException("BUG! context listed a gbean but could not get its gbeanData: " + match + " gbeans in context:" + context.getGBeanNames());
-        }
-    }
-
-    private AbstractName locateUniqueNameInContext(NamingContext context, AbstractNameQuery query) throws UnresolvedReferenceException {
-        Set matches = context.listGBeans(query);
-
-        // too big
-        if (matches.size() > 1) {
-            throw new UnresolvedReferenceException("More than one match for query " + matches, true, query.toString());
-        }
-
-        // just right
-        if (matches.size() == 1) {
-            return (AbstractName) matches.iterator().next();
-        }
-
-        // never mind
-        return null;
-    }
-
-    private GBeanData locateGBeanInKernel(String name, String type, AbstractName j2eeContext, String queryType) throws UnresolvedReferenceException {
-        AbstractNameQuery query = NameFactory.getComponentNameQuery(name, type, j2eeContext);
-        return locateUniqueGBeanData(query, queryType);
-    }
-
-
-    private AbstractName locateUniqueNameInKernel(AbstractNameQuery query, String type) throws UnresolvedReferenceException {
-        Set names = kernel.listGBeans(query);
-        if (names.size() != 1) {
-            throw new UnresolvedReferenceException(type, names.size() > 1, query.toString());
-        }
-        return (AbstractName) names.iterator().next();
-    }
-
-    private GBeanData locateUniqueGBeanData(AbstractNameQuery query, String type) throws UnresolvedReferenceException {
-        AbstractName match = locateUniqueNameInKernel(query, type);
-        try {
-            return kernel.getGBeanData(match);
-        } catch (GBeanNotFoundException e) {
-            throw new IllegalStateException("BUG! kernel listed a gbean but could not get its gbeanData: " + match);
-
-        }
-    }
-
-    public AbstractName locateUniqueName(NamingContext context, AbstractNameQuery query) throws UnresolvedReferenceException {
-        AbstractName match = locateUniqueNameInContext(context, query);
-        if (match == null) {
-            match = locateUniqueNameInKernel(query, "type unknown");
-        }
-        return match;
     }
 
 }

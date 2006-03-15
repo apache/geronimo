@@ -37,14 +37,13 @@ import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
-import org.apache.geronimo.j2ee.deployment.NamingContext;
 import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEAppClientModuleImpl;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
@@ -68,8 +67,8 @@ import org.apache.geronimo.xbeans.j2ee.MessageDestinationType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
-import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -587,10 +586,10 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         }
     }
 
-    private Map buildComponentContext(EARContext appClientContext, NamingContext ejbContext, AppClientModule appClientModule, ApplicationClientType appClient, GerApplicationClientType geronimoAppClient, ClassLoader cl) throws DeploymentException {
+    private Map buildComponentContext(EARContext appClientContext, EARContext ejbContext, AppClientModule appClientModule, ApplicationClientType appClient, GerApplicationClientType geronimoAppClient, ClassLoader cl) throws DeploymentException {
 
         return ENCConfigBuilder.buildComponentContext(appClientContext,
-                ejbContext,
+                ejbContext.getConfiguration(),
                 appClientModule,
                 null, //no user transaction yet
                 appClient.getEnvEntryArray(),

@@ -16,32 +16,23 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
-import java.net.URI;
-import javax.naming.Reference;
-
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Artifact;
+
+import javax.naming.Reference;
+import java.net.URI;
 
 /**
  * @version $Rev$ $Date$
  */
 public class UnavailableEJBReferenceBuilder implements EJBReferenceBuilder {
 
-    public Reference createEJBLocalReference(String objectName, GBeanData gbeanData, boolean isSession, String localHome, String local) throws DeploymentException {
-        throw new DeploymentException("EJB references are unavailable in this configuration");
-    }
-
-    public Reference createEJBRemoteReference(String objectName, GBeanData gbeanData, boolean isSession, String home, String remote) throws DeploymentException {
-        throw new DeploymentException("EJB references are unavailable in this configuration");
-    }
-
-    public Reference createCORBAReference(Artifact configId, AbstractNameQuery containerNameQuery, URI nsCorbaloc, String objectName, String home) throws DeploymentException {
+    public Reference createCORBAReference(Configuration configuration, AbstractNameQuery containerNameQuery, URI nsCorbaloc, String objectName, String home) throws DeploymentException {
         throw new DeploymentException("EJB references are unavailable in this configuration");
     }
 
@@ -49,13 +40,14 @@ public class UnavailableEJBReferenceBuilder implements EJBReferenceBuilder {
         throw new DeploymentException("EJB references are unavailable in this configuration");
     }
 
-    public Reference getImplicitEJBRemoteRef(URI module, String refName, boolean isSession, String home, String remote, NamingContext context) throws DeploymentException {
+    public Reference createEJBRemoteRef(String requiredModule, String optionalModule, String name, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String home, String remote, Configuration configuration) throws DeploymentException {
         throw new DeploymentException("EJB references are unavailable in this configuration");
     }
 
-    public Reference getImplicitEJBLocalRef(URI module, String refName, boolean isSession, String localHome, String local, NamingContext context) throws DeploymentException {
+    public Reference createEJBLocalRef(String requiredModule, String optionalModule, String name, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String localHome, String local, Configuration configuration) throws DeploymentException {
         throw new DeploymentException("EJB references are unavailable in this configuration");
     }
+
 
     public static final GBeanInfo GBEAN_INFO;
 

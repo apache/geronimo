@@ -324,7 +324,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                     transactionalTimerObjectName,
                     nonTransactionalTimerObjectName,
                     corbaGBeanObjectName,
-                    new RefContext(ejbReferenceBuilder, resourceReferenceBuilder, serviceReferenceBuilder, kernel));
+                    new RefContext(ejbReferenceBuilder, resourceReferenceBuilder, serviceReferenceBuilder));
 
             // Copy over all files that are _NOT_ modules
             Set moduleLocations = applicationInfo.getModuleLocations();
