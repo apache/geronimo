@@ -469,6 +469,11 @@
       </dependency>
       <dependency>
         <groupId>org.apache.geronimo</groupId>
+        <artifactId>geronimo-client</artifactId>
+        <version>${geronimoVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.geronimo</groupId>
         <artifactId>geronimo-common</artifactId>
         <version>${geronimoVersion}</version>
       </dependency>
