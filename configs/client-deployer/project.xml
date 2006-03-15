@@ -329,6 +329,12 @@
             </properties>
         </dependency>
 
+        <dependency>
+            <groupId>activecluster</groupId>
+            <artifactId>activecluster</artifactId>
+            <version>${wadi_activecluster_version}</version>
+        </dependency>
+
     </dependencies>
 </project>
 
