@@ -162,7 +162,7 @@ if "%_REQUIRE_JDK%" == "0" echo Using JRE_HOME:        %JRE_HOME%
 :skipEnvInfo
 
 @REM Capture any passed in arguments
-set ARGS=%*
+set CMD_LINE_ARGS=%*
 set _JARFILE="%GERONIMO_HOME%"\bin\deployer.jar
 
 %_RUNJAVA% %JAVA_OPTS% %GERONIMO_OPTS% -Dorg.apache.geronimo.base.dir="%GERONIMO_BASE%" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -jar %_JARFILE% %CMD_LINE_ARGS%
