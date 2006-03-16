@@ -62,7 +62,7 @@ import java.util.Collections;
 import java.util.jar.JarFile;
 
 /**
- * @version $Rev: 384933 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class ServiceConfigBuilder implements ConfigurationBuilder {
     private final Environment defaultEnvironment;
@@ -279,7 +279,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         infoFactory.addReference("XmlReferenceBuilders", XmlReferenceBuilder.class, "XmlReferenceBuilder");
         infoFactory.addAttribute("kernel", Kernel.class, false, false);
 
-        infoFactory.setConstructor(new String[]{"defaultEnvironment", "Repository", "XmlAttributeBuilders", "XmlReferenceBuilders"});
+        infoFactory.setConstructor(new String[]{"defaultEnvironment", "Repository", "XmlAttributeBuilders", "XmlReferenceBuilders", "kernel"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
