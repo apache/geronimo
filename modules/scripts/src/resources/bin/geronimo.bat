@@ -81,6 +81,17 @@
 @REM   JPDA_ADDRESS    (Optional) Java runtime options used when the "jpda start"
 @REM                   command is executed. The default is "8000".
 @REM
+@REM   JPDA_OPTS       (Optional) JPDA command line options.
+@REM                   Only set this if you need to use some unusual JPDA 
+@REM                   command line options.  This overrides the use of the
+@REM                   other JPDA_* environment variables.
+@REM                   Defaults to JPDA command line options contructed from
+@REM                   the JPDA_ADDRESS, JPDA_SUSPEND and JPDA_TRANSPORT 
+@REM                   environment variables.
+@REM
+@REM   JPDA_SUSPEND    (Optional) Suspend the JVM before the main class is loaded.
+@REM                   Valid values are 'y' and 'n'.  The default is "n".
+@REM
 @REM   JPDA_TRANSPORT  (Optional) JPDA transport used when the "jpda start"
 @REM                   command is executed. The default is "dt_socket".
 @REM                   Note that "dt_socket" is the default instead of "dt_shmem" 
@@ -177,15 +188,6 @@ if not "%GERONIMO_TMPDIR%" == "" goto gotTmpdir
 set GERONIMO_TMPDIR=%GERONIMO_BASE%\var\temp
 :gotTmpdir
 
-@REM ----- Execute The Requested Command ---------------------------------------
-@if "%GERONIMO_ENV_INFO%" == "off" goto skipEnvInfo
-echo Using GERONIMO_BASE:   %GERONIMO_BASE%
-echo Using GERONIMO_HOME:   %GERONIMO_HOME%
-echo Using GERONIMO_TMPDIR: %GERONIMO_TMPDIR%
-if "%_REQUIRE_JDK%" == "1" echo Using JAVA_HOME:       %JAVA_HOME%
-if "%_REQUIRE_JDK%" == "0" echo Using JRE_HOME:        %JRE_HOME%
-:skipEnvInfo
-
 set _EXECJAVA=%_RUNJAVA%
 @REM MAINCLASS required for jdb debugger as it requires the mainclass
 @REM parameter. For other commands, the main class is obtained from
@@ -196,6 +198,9 @@ set _JARFILE="%GERONIMO_HOME%"\bin\server.jar
 
 if not ""%1"" == ""jpda"" goto noJpda
 set JPDA=jpda
+if not "%JPDA_SUSPEND%" == "" goto gotJpdaSuspend
+set JPDA_SUSPEND=n
+:gotJpdaSuspend
 if not "%JPDA_TRANSPORT%" == "" goto gotJpdaTransport
 @REM Note that "dt_socket" is the default instead of "dt_shmem" 
 @REM because eclipse does not support "dt_shmem".
@@ -204,8 +209,25 @@ set JPDA_TRANSPORT=dt_socket
 if not "%JPDA_ADDRESS%" == "" goto gotJpdaAddress
 set JPDA_ADDRESS=8000
 :gotJpdaAddress
+if not "%JPDA_OPTS%" == "" goto gotJpdaOpts
+set JPDA_OPTS=-Xdebug -Xrunjdwp:transport=%JPDA_TRANSPORT%,address=%JPDA_ADDRESS%,server=y,suspend=%JPDA_SUSPEND%
+set GERONIMO_OPTS=%GERONIMO_OPTS% %JPDA_OPTS%
+:gotJpdaOpts
 shift
 :noJpda
+
+@REM ----- Execute The Requested Command ---------------------------------------
+@if "%GERONIMO_ENV_INFO%" == "off" goto skipEnvInfo
+echo Using GERONIMO_BASE:   %GERONIMO_BASE%
+echo Using GERONIMO_HOME:   %GERONIMO_HOME%
+echo Using GERONIMO_TMPDIR: %GERONIMO_TMPDIR%
+if "%_REQUIRE_JDK%" == "1" echo Using JAVA_HOME:       %JAVA_HOME%
+if "%_REQUIRE_JDK%" == "0" echo Using JRE_HOME:        %JRE_HOME%
+if not "%JPDA%" == "jpda" goto skipJpdaEnvInfo
+@REM output JPDA info to assist diagnosing JPDA debugger config issues.
+echo Using JPDA_OPTS:       %JPDA_OPTS%
+:skipJpdaEnvInfo
+:skipEnvInfo
 
 if ""%1"" == ""debug"" goto doDebug
 if ""%1"" == ""run"" goto doRun
@@ -286,16 +308,11 @@ goto setArgs
 
 @REM Execute Java with the applicable properties
 if not "%JDB%" == "" goto doJDB
-if not "%JPDA%" == "" goto doJpda
 %_EXECJAVA% %JAVA_OPTS% %GERONIMO_OPTS% -Dorg.apache.geronimo.base.dir="%GERONIMO_BASE%" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -jar %_JARFILE% %_LONG_OPT% %CMD_LINE_ARGS%
 goto end
 
 :doJDB
 %_EXECJAVA% %JAVA_OPTS% %GERONIMO_OPTS% -sourcepath "%JDB_SRCPATH%" -Dorg.apache.geronimo.base.dir="%GERONIMO_BASE%" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -classpath %_JARFILE% %MAINCLASS% %CMD_LINE_ARGS%
-goto end
-
-:doJpda
-%_EXECJAVA% %JAVA_OPTS% %GERONIMO_OPTS% -Xdebug -Xrunjdwp:transport=%JPDA_TRANSPORT%,address=%JPDA_ADDRESS%,server=y,suspend=n %DEBUG_OPTS% -Dorg.apache.geronimo.base.dir="%GERONIMO_BASE%" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -jar %_JARFILE% %_LONG_OPT% %CMD_LINE_ARGS%
 goto end
 
 :end
