@@ -78,11 +78,13 @@
 @REM   JDB_SRCPATH     (Optional) The Source Path to be used by jdb debugger.
 @REM                   Defaults to %GERONIMO_HOME%\src
 @REM
-@REM   JPDA_TRANSPORT  (Optional) JPDA transport used when the "jpda start"
-@REM                   command is executed. The default is "dt_shmem".
-@REM
 @REM   JPDA_ADDRESS    (Optional) Java runtime options used when the "jpda start"
-@REM                   command is executed. The default is "jdbconn".
+@REM                   command is executed. The default is "8000".
+@REM
+@REM   JPDA_TRANSPORT  (Optional) JPDA transport used when the "jpda start"
+@REM                   command is executed. The default is "dt_socket".
+@REM                   Note that "dt_socket" is the default instead of "dt_shmem" 
+@REM                   because eclipse does not support "dt_shmem".
 @REM
 @REM Troubleshooting execution of this batch file:
 @REM
@@ -195,10 +197,12 @@ set _JARFILE="%GERONIMO_HOME%"\bin\server.jar
 if not ""%1"" == ""jpda"" goto noJpda
 set JPDA=jpda
 if not "%JPDA_TRANSPORT%" == "" goto gotJpdaTransport
-set JPDA_TRANSPORT=dt_shmem
+@REM Note that "dt_socket" is the default instead of "dt_shmem" 
+@REM because eclipse does not support "dt_shmem".
+set JPDA_TRANSPORT=dt_socket
 :gotJpdaTransport
 if not "%JPDA_ADDRESS%" == "" goto gotJpdaAddress
-set JPDA_ADDRESS=jdbconn
+set JPDA_ADDRESS=8000
 :gotJpdaAddress
 shift
 :noJpda
