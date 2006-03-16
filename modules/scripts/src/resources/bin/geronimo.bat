@@ -211,12 +211,13 @@ if ""%1"" == ""stop"" goto doStop
 echo Usage:  geronimo command [args]
 echo commands:
 echo   debug             Debug Geronimo in jdb debugger
-echo   jpda start        Start Geronimo under JPDA debugger
+echo   jpda run          Start Geronimo in foreground under JPDA debugger
+echo   jpda start        Start Geronimo in background under JPDA debugger
 echo   run               Start Geronimo in the current window
 echo   start             Start Geronimo in a separate window
 echo   stop              Stop Geronimo
 echo. 
-echo args for debug, jpda start, run and start commands:
+echo args for debug, jpda run, jpda start, run and start commands:
 echo        --quiet       No startup progress
 echo        --long        Long startup progress
 echo   -v   --verbose     INFO log level
