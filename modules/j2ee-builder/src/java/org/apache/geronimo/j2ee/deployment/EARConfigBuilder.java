@@ -717,6 +717,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         infoFactory.addAttribute("transactionalTimerAbstractName", AbstractNameQuery.class, true);
         infoFactory.addAttribute("nonTransactionalTimerAbstractName", AbstractNameQuery.class, true);
         infoFactory.addAttribute("corbaGBeanAbstractName", AbstractNameQuery.class, true);
+        infoFactory.addAttribute("kernel", Kernel.class, false, false);
 
         infoFactory.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("EJBConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
@@ -743,7 +744,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 "ConnectorConfigBuilder",
                 "ResourceReferenceBuilder",
                 "AppClientConfigBuilder",
-                "ServiceReferenceBuilder"
+                "ServiceReferenceBuilder",
+                "kernel"
         });
 
         GBEAN_INFO = infoFactory.getBeanInfo();
