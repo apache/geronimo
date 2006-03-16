@@ -39,6 +39,7 @@ import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
 import org.apache.geronimo.xbeans.geronimo.loginconfig.GerAbstractLoginModuleType;
@@ -56,6 +57,16 @@ import org.apache.xmlbeans.XmlOptions;
  */
 public class LoginConfigBuilder implements XmlReferenceBuilder {
     public static final String LOGIN_CONFIG_NAMESPACE = "http://geronimo.apache.org/xml/ns/loginconfig-1.0";
+
+    private final Naming naming;
+
+    public LoginConfigBuilder(Kernel kernel) {
+        this.naming = kernel.getNaming();
+    }
+
+    public LoginConfigBuilder(Naming naming) {
+        this.naming = naming;
+    }
 
     public String getNamespace() {
         return LOGIN_CONFIG_NAMESPACE;
@@ -128,7 +139,7 @@ public class LoginConfigBuilder implements XmlReferenceBuilder {
                         String value = trim(gerOptionType.getStringValue());
                         options.setProperty(key, value);
                     }
-                    loginModuleName = Naming.createChildName(parentName, NameFactory.LOGIN_MODULE, name);
+                    loginModuleName = naming.createChildName(parentName, name, NameFactory.LOGIN_MODULE);
                     loginModuleReferencePatterns = new ReferencePatterns(loginModuleName);
                     GBeanData loginModuleGBeanData = new GBeanData(loginModuleName, LoginModuleGBean.GBEAN_INFO);
                     loginModuleGBeanData.setAttribute("loginDomainName", name);
@@ -142,7 +153,7 @@ public class LoginConfigBuilder implements XmlReferenceBuilder {
                     throw new DeploymentException("Unknown abstract login module type: " + abstractLoginModule.getClass());
                 }
                 AbstractName thisName;
-                thisName = Naming.createChildName(parentName, "LoginModuleUse", name);
+                thisName = naming.createChildName(parentName, name, "LoginModuleUse");
                 GBeanData loginModuleUseGBeanData = new GBeanData(thisName, JaasLoginModuleUse.GBEAN_INFO);
                 loginModuleUseGBeanData.setAttribute("controlFlag", controlFlag);
                 loginModuleUseGBeanData.setReferencePatterns("LoginModule", loginModuleReferencePatterns);
@@ -174,6 +185,8 @@ public class LoginConfigBuilder implements XmlReferenceBuilder {
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(LoginConfigBuilder.class, "XmlReferenceBuilder");
+        infoBuilder.addAttribute("kernel", Kernel.class, false, false);
+        infoBuilder.setConstructor(new String[] {"kernel"});
         infoBuilder.addInterface(XmlReferenceBuilder.class);
         GBEAN_INFO = infoBuilder.getBeanInfo();
 

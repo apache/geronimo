@@ -28,9 +28,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.Naming;
-
 /**
  * @version $Rev: 384686 $ $Date$
  */
@@ -49,14 +46,6 @@ public class GBeanData implements Externalizable {
 
     public GBeanData(GBeanInfo gbeanInfo) {
         this();
-        this.gbeanInfo = gbeanInfo;
-    }
-
-    public GBeanData(Artifact artifact, String name, GBeanInfo gbeanInfo) {
-        this();
-        String j2eeType = gbeanInfo.getJ2eeType();
-        if (j2eeType == null) j2eeType = "GBean";
-        this.abstractName = Naming.createRootName(artifact, name, j2eeType);
         this.gbeanInfo = gbeanInfo;
     }
 

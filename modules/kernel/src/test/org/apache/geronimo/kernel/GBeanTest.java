@@ -215,7 +215,7 @@ public class GBeanTest extends TestCase {
     }
 
     private GBeanData buildGBeanData(String name, String type, GBeanInfo info) {
-        AbstractName abstractName = Naming.createRootName(new Artifact("test", "foo", "1", "car"), name, type);
+        AbstractName abstractName = kernel.getNaming().createRootName(new Artifact("test", "foo", "1", "car"), name, type);
         return new GBeanData(abstractName, info);
     }
 }

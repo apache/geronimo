@@ -23,7 +23,6 @@ import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.MockGBean;
-import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
 
@@ -34,9 +33,9 @@ public class GBeanDependencyTest extends TestCase {
     private Kernel kernel;
 
     public void testGBeanDependency() throws Exception {
-        AbstractName parentName = Naming.createRootName(new Artifact("test", "foo", "1", "car"), "parent", "parent");
+        AbstractName parentName = kernel.getNaming().createRootName(new Artifact("test", "foo", "1", "car"), "parent", "parent");
         GBeanData gbeanDataParent = new GBeanData(parentName, MockGBean.getGBeanInfo());
-        GBeanData gbeanDataChild = new GBeanData(Naming.createChildName(parentName, "child", "child"), MockGBean.getGBeanInfo());
+        GBeanData gbeanDataChild = new GBeanData(kernel.getNaming().createChildName(parentName, "child", "child"), MockGBean.getGBeanInfo());
         gbeanDataChild.addDependency(new ReferencePatterns(parentName));
         kernel.loadGBean(gbeanDataChild, MockGBean.class.getClassLoader());
         kernel.startGBean(gbeanDataChild.getName());

@@ -43,7 +43,6 @@ import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEAppClientModuleImpl;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
@@ -94,7 +93,6 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     private final Environment defaultClientEnvironment;
     private final Environment defaultServerEnvironment;
     private final AbstractNameQuery corbaGBeanObjectName;
-    private final Kernel kernel;
 
     private final AbstractNameQuery transactionContextManagerObjectName;
     private final AbstractNameQuery connectionTrackerObjectName;
@@ -112,12 +110,10 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             EJBReferenceBuilder ejbReferenceBuilder,
             ModuleBuilder connectorModuleBuilder,
             ResourceReferenceBuilder resourceReferenceBuilder,
-            ServiceReferenceBuilder serviceReferenceBuilder,
-            Kernel kernel) {
+            ServiceReferenceBuilder serviceReferenceBuilder) {
         this.defaultClientEnvironment = defaultClientEnvironment;
         this.defaultServerEnvironment = defaultServerEnvironment;
         this.corbaGBeanObjectName = corbaGBeanObjectName;
-        this.kernel = kernel;
         this.transactionContextManagerObjectName = transactionContextManagerObjectName;
         this.connectionTrackerObjectName = connectionTrackerObjectName;
         this.ejbReferenceBuilder = ejbReferenceBuilder;
@@ -126,15 +122,15 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         this.serviceReferenceBuilder = serviceReferenceBuilder;
     }
 
-    public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
-        return createModule(plan, moduleFile, "app-client", null, null, true, null);
+    public Module createModule(File plan, JarFile moduleFile, Naming naming) throws DeploymentException {
+        return createModule(plan, moduleFile, "app-client", null, null, true, null, naming);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName) throws DeploymentException {
-        return createModule(plan, moduleFile, targetPath, specDDUrl, environment, false, earName);
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming) throws DeploymentException {
+        return createModule(plan, moduleFile, targetPath, specDDUrl, environment, false, earName, naming);
     }
 
-    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, boolean standAlone, AbstractName earName) throws DeploymentException {
+    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, boolean standAlone, AbstractName earName, Naming naming) throws DeploymentException {
         assert moduleFile != null: "moduleFile is null";
         assert targetPath != null: "targetPath is null";
         assert !targetPath.endsWith("/"): "targetPath must not end with a '/'";
@@ -180,7 +176,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 throw new DeploymentException("Could not construct standalone app client module name", e);
             }
         } else {
-            moduleName = Naming.createChildName(earName, NameFactory.APP_CLIENT_MODULE, targetPath);
+            moduleName = naming.createChildName(earName, targetPath, NameFactory.APP_CLIENT_MODULE);
         }
 
         return new AppClientModule(standAlone, moduleName, serverEnvironment, clientEnvironment, moduleFile, targetPath, appClient, gerAppClient, specDD);
@@ -291,7 +287,9 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             EARContext appClientDeploymentContext = new EARContext(appClientDir,
                     clientEnvironment,
                     ConfigurationModuleType.CAR,
-                    kernel,
+                    earContext.getNaming(),
+                    repository,
+                    configurationStore,
                     null, //no server name needed on client
                     clientBaseName,
                     transactionContextManagerObjectName,
@@ -299,7 +297,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                     null,
                     null,
                     corbaGBeanObjectName,
-                    RefContext.derivedClientRefContext(earContext.getRefContext(), ejbReferenceBuilder, resourceReferenceBuilder, serviceReferenceBuilder));
+                    new RefContext(ejbReferenceBuilder, resourceReferenceBuilder, serviceReferenceBuilder));
             appClientModule.setEarContext(appClientDeploymentContext);
         } catch (DeploymentException e) {
             DeploymentUtil.recursiveDelete(appClientDir);
@@ -418,7 +416,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                                 }
                             }
                             XmlObject connectorPlan = resource.getConnector();
-                            Module connectorModule = connectorModuleBuilder.createModule(connectorPlan, connectorFile, path, null, null, null, appClientDeploymentContext.getModuleName());
+                            Module connectorModule = connectorModuleBuilder.createModule(connectorPlan, connectorFile, path, null, null, null, appClientDeploymentContext.getModuleName(), earContext.getNaming());
                             resourceModules.add(connectorModule);
                             //TODO configStore == null is fishy, consider moving these stages for connectors into the corresponding stages for this module.
                             connectorModuleBuilder.installModule(connectorFile, appClientDeploymentContext, connectorModule, null, repository);
@@ -443,7 +441,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 }
 
                 // add the app client static jndi provider
-                AbstractName jndiContextName = Naming.createChildName(appClientDeploymentContext.getModuleName(), "StaticJndiContext", "StaticJndiContext");
+                AbstractName jndiContextName = earContext.getNaming().createChildName(appClientDeploymentContext.getModuleName(), "StaticJndiContext", "StaticJndiContext");
                 GBeanData jndiContextGBeanData = new GBeanData(jndiContextName, StaticJndiContextPlugin.GBEAN_INFO);
                 try {
                     componentContext = buildComponentContext(appClientDeploymentContext, earContext, appClientModule, appClient, geronimoAppClient, appClientClassLoader);
@@ -456,7 +454,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 appClientDeploymentContext.addGBean(jndiContextGBeanData);
 
                 // finally add the app client container
-                AbstractName appClientContainerName = Naming.createChildName(appClientDeploymentContext.getModuleName(), "ClientContainer", "ClientContainer");
+                AbstractName appClientContainerName = earContext.getNaming().createChildName(appClientDeploymentContext.getModuleName(), "ClientContainer", "ClientContainer");
                 GBeanData appClientContainerGBeanData = new GBeanData(appClientContainerName, AppClientContainer.GBEAN_INFO);
                 try {
                     appClientContainerGBeanData.setAttribute("mainClassName", mainClasss);
@@ -617,8 +615,6 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         infoBuilder.addReference("ResourceReferenceBuilder", ResourceReferenceBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ServiceReferenceBuilder", ServiceReferenceBuilder.class, NameFactory.MODULE_BUILDER);
 
-        infoBuilder.addAttribute("kernel", Kernel.class, false);
-
         infoBuilder.addInterface(ModuleBuilder.class);
 
         infoBuilder.setConstructor(new String[]{"defaultClientEnvironment",
@@ -629,8 +625,8 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 "EJBReferenceBuilder",
                 "ConnectorModuleBuilder",
                 "ResourceReferenceBuilder",
-                "ServiceReferenceBuilder",
-                "kernel"});
+                "ServiceReferenceBuilder"});
+
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

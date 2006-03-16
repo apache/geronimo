@@ -43,7 +43,7 @@ import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
+import org.apache.geronimo.kernel.config.KernelConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
@@ -170,7 +170,7 @@ public class TomcatModuleBuilderTest extends TestCase {
         File dest = new File(basedir, "target/test-resources/deployables/" + warName + "/war");
         recursiveCopy(path, dest);
         UnpackedJarFile jarFile = new UnpackedJarFile(path);
-        Module module = builder.createModule(null, jarFile);
+        Module module = builder.createModule(null, jarFile, kernel.getNaming());
 
         ObjectName jaccBeanName = NameFactory.getComponentName(null, null, null, null, "foo", NameFactory.JACC_MANAGER, moduleContext);
         GBeanData jaccBeanData = new GBeanData(jaccBeanName, ApplicationPolicyConfigurationManager.GBEAN_INFO);
@@ -227,7 +227,6 @@ public class TomcatModuleBuilderTest extends TestCase {
                 outputPath,
                 environment,
                 ConfigurationModuleType.WAR,
-                kernel,
                 serverName, moduleContext.getJ2eeApplicationName(),
                 tcmName,
                 ctcName,
@@ -373,7 +372,7 @@ public class TomcatModuleBuilderTest extends TestCase {
         kernel.startGBean(artifactResolver.getName());
 
         ObjectName configurationManagerName = new ObjectName(":j2eeType=ConfigurationManager,name=Basic");
-        GBeanData configurationManagerData = new GBeanData(configurationManagerName, ConfigurationManagerImpl.GBEAN_INFO);
+        GBeanData configurationManagerData = new GBeanData(configurationManagerName, KernelConfigurationManager.GBEAN_INFO);
         configurationManagerData.setReferencePatterns("Stores", Collections.singleton(store.getName()));
         configurationManagerData.setReferencePattern("ArtifactManager", artifactManager.getName());
         configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolver.getName());

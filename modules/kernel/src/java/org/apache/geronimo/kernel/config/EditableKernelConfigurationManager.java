@@ -20,6 +20,7 @@ import java.util.Collection;
 
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.ArtifactManager;
@@ -34,8 +35,8 @@ import org.apache.geronimo.gbean.AbstractName;
  *
  * @version $Rev: 384686 $ $Date$
  */
-public class EditableConfigurationManagerImpl extends ConfigurationManagerImpl implements EditableConfigurationManager {
-    public EditableConfigurationManagerImpl(Kernel kernel,
+public class EditableKernelConfigurationManager extends KernelConfigurationManager implements EditableConfigurationManager {
+    public EditableKernelConfigurationManager(Kernel kernel,
             Collection stores,
             ManageableAttributeStore attributeStore,
             PersistentConfigurationList configurationList,
@@ -48,13 +49,38 @@ public class EditableConfigurationManagerImpl extends ConfigurationManagerImpl i
 
     public void addGBeanToConfiguration(Artifact configurationId, GBeanData gbean, boolean start) throws InvalidConfigException {
         Configuration configuration = getConfiguration(configurationId);
-        ClassLoader configurationClassLoader = configuration.getConfigurationClassLoader();
 
+        try {
+            // add the gbean to the configuration
+            configuration.addGBean(gbean);
+        } catch (GBeanAlreadyExistsException e) {
+            throw new InvalidConfigException("Cound not add GBean " + gbean.getName() + " to configuration " + configurationId, e);
+        }
+
+        addGBeanToConfiguration(configuration, gbean, start);
+    }
+
+    public void addGBeanToConfiguration(Artifact configurationId, String name, GBeanData gbean, boolean start) throws InvalidConfigException {
+        Configuration configuration = getConfiguration(configurationId);
+
+        try {
+            // add the gbean to the configuration
+            configuration.addGBean(name, gbean);
+        } catch (GBeanAlreadyExistsException e) {
+            throw new InvalidConfigException("Cound not add GBean " + gbean.getName() + " to configuration " + configurationId, e);
+        }
+
+        addGBeanToConfiguration(configuration, gbean, start);
+    }
+
+    private void addGBeanToConfiguration(Configuration configuration, GBeanData gbean, boolean start) throws InvalidConfigException {
+        ClassLoader configurationClassLoader = configuration.getConfigurationClassLoader();
         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(configurationClassLoader);
 
             log.trace("Registering GBean " + gbean.getName());
+
 
             // preprocess the gbean data before loading it into the kernel
             preprocessGBeanData(configuration, gbean);
@@ -71,17 +97,34 @@ public class EditableConfigurationManagerImpl extends ConfigurationManagerImpl i
                 }
             }
 
-            configuration.addGBean(gbean);
-        } catch(InvalidConfigException e) {
-            throw e;
         } catch(Exception e) {
-            throw new InvalidConfigException("Cound not add GBean " + gbean.getName() + " to configuration " + configurationId, e);
+            // clean up failed gbean
+            try {
+                configuration.removeGBean(gbean.getAbstractName());
+            } catch (GBeanNotFoundException e1) {
+                // this is good
+            }
+            try {
+                kernel.stopGBean(gbean.getAbstractName());
+            } catch (GBeanNotFoundException e1) {
+                // this is good
+            }
+            try {
+                kernel.unloadGBean(gbean.getAbstractName());
+            } catch (GBeanNotFoundException e1) {
+                // this is good
+            }
+
+            if (e instanceof InvalidConfigException) {
+                throw (InvalidConfigException) e;
+            }
+            throw new InvalidConfigException("Cound not add GBean " + gbean.getName() + " to configuration " + configuration.getId(), e);
         } finally {
             Thread.currentThread().setContextClassLoader(oldCl);
         }
 
         if (attributeStore != null) {
-            attributeStore.addGBean(configurationId.toString(), gbean);
+            attributeStore.addGBean(configuration.getId().toString(), gbean);
         }
     }
 
@@ -112,7 +155,7 @@ public class EditableConfigurationManagerImpl extends ConfigurationManagerImpl i
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(EditableConfigurationManagerImpl.class, ConfigurationManagerImpl.GBEAN_INFO, "ConfigurationManager");
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(EditableKernelConfigurationManager.class, KernelConfigurationManager.GBEAN_INFO, "ConfigurationManager");
         infoFactory.addInterface(EditableConfigurationManager.class);
         infoFactory.setConstructor(new String[]{"kernel", "Stores", "AttributeStore", "PersistentConfigurationList", "ArtifactManager", "ArtifactResolver", "Repositories", "classLoader"});
         GBEAN_INFO = infoFactory.getBeanInfo();

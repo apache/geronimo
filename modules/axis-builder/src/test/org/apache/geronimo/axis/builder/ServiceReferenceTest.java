@@ -71,6 +71,7 @@ import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.naming.reference.DeserializingReference;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingDocument;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
@@ -100,6 +101,7 @@ public class ServiceReferenceTest extends TestCase {
     private boolean runExternalWSTest;
 
     protected void setUp() throws Exception {
+        super.setUp();
         tmpbasedir = File.createTempFile("car", "tmp");
         tmpbasedir.delete();
         tmpbasedir.mkdirs();
@@ -107,7 +109,7 @@ public class ServiceReferenceTest extends TestCase {
         Map nameKeys = new HashMap();
         nameKeys.put("domain", "geronimo");
         environment.setProperties(nameKeys);
-        context = new DeploymentContext(tmpbasedir, environment, ConfigurationModuleType.CAR, null);
+        context = new DeploymentContext(tmpbasedir, environment, ConfigurationModuleType.CAR, new Jsr77Naming());
 
         File moduleLocation = new File(tmpbasedir, "ejb");
         moduleLocation.mkdirs();
@@ -118,6 +120,7 @@ public class ServiceReferenceTest extends TestCase {
 
     protected void tearDown() throws Exception {
         recursiveDelete(tmpbasedir);
+        super.tearDown();
     }
 
     public void testServiceProxy() throws Exception {

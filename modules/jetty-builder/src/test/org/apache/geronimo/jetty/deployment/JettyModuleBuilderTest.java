@@ -44,7 +44,7 @@ import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
+import org.apache.geronimo.kernel.config.KernelConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
@@ -120,7 +120,7 @@ public class JettyModuleBuilderTest extends TestCase {
         new File(outputPath, "war").mkdir();
         File path = new File(basedir, "src/test-resources/deployables/war4");
         UnpackedJarFile jarFile = new UnpackedJarFile(path);
-        Module module = builder.createModule(null, jarFile);
+        Module module = builder.createModule(null, jarFile, kernel.getNaming());
         EARContext earContext = createEARContext(outputPath, defaultEnvironment);
         module.setEarContext(earContext);
         ObjectName serverName = earContext.getServerName();
@@ -159,7 +159,6 @@ public class JettyModuleBuilderTest extends TestCase {
         EARContext earContext = new EARContext(outputPath,
                 environment,
                 ConfigurationModuleType.WAR,
-                kernel,
                 serverName, moduleContext.getJ2eeApplicationName(),
                 tcmName,
                 ctcName,
@@ -265,7 +264,7 @@ public class JettyModuleBuilderTest extends TestCase {
         kernel.startGBean(artifactResolver.getName());
 
         ObjectName configurationManagerName = new ObjectName(":j2eeType=ConfigurationManager,name=Basic");
-        GBeanData configurationManagerData = new GBeanData(configurationManagerName, ConfigurationManagerImpl.GBEAN_INFO);
+        GBeanData configurationManagerData = new GBeanData(configurationManagerName, KernelConfigurationManager.GBEAN_INFO);
         configurationManagerData.setReferencePattern("Stores", store.getName());
         configurationManagerData.setReferencePattern("ArtifactManager", artifactManager.getName());
         configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolver.getName());

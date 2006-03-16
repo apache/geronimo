@@ -145,15 +145,15 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         this.defaultXAThreadCaching = defaultXAThreadCaching;
     }
 
-    public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
-        return createModule(plan, moduleFile, "rar", null, true, null);
+    public Module createModule(File plan, JarFile moduleFile, Naming naming) throws DeploymentException {
+        return createModule(plan, moduleFile, "rar", null, true, null, naming);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName) throws DeploymentException {
-        return createModule(plan, moduleFile, targetPath, specDDUrl, false, earName);
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming) throws DeploymentException {
+        return createModule(plan, moduleFile, targetPath, specDDUrl, false, earName, naming);
     }
 
-    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, AbstractName earName) throws DeploymentException {
+    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, AbstractName earName, Naming naming) throws DeploymentException {
         assert moduleFile != null: "moduleFile is null";
         assert targetPath != null: "targetPath is null";
         assert !targetPath.endsWith("/"): "targetPath must not end with a '/'";
@@ -238,7 +238,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                 throw new DeploymentException("Could not construct standalone connector module name", e);
             }
         } else {
-            moduleName = Naming.createChildName(earName, NameFactory.RESOURCE_ADAPTER_MODULE, targetPath);
+            moduleName = naming.createChildName(earName, targetPath, NameFactory.RESOURCE_ADAPTER_MODULE);
         }
 
         return new ConnectorModule(standAlone, moduleName, environment, moduleFile, targetPath, connector, gerConnector, specDD);
@@ -274,7 +274,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         ConnectorModule resourceModule = (ConnectorModule) module;
         AbstractName resourceAdapterModuleName = resourceModule.getModuleName();
 
-        AbstractName resourceName = Naming.createChildName(resourceAdapterModuleName, NameFactory.JCA_RESOURCE, module.getName());
+        AbstractName resourceName = earContext.getNaming().createChildName(resourceAdapterModuleName, module.getName(), NameFactory.JCA_RESOURCE);
 
         final ConnectorType connector = (ConnectorType) module.getSpecDD();
 
@@ -332,7 +332,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                 if (resourceadapter.isSetInboundResourceadapter() && resourceadapter.getInboundResourceadapter().isSetMessageadapter())
                 {
                     String resourceAdapterNameString = geronimoResourceAdapter.getResourceadapterInstance().getResourceadapterName();
-                    AbstractName resourceAdapterName = Naming.createChildName(resourceName, NameFactory.JCA_RESOURCE_ADAPTER, resourceAdapterNameString);
+                    AbstractName resourceAdapterName = earContext.getNaming().createChildName(resourceName, resourceAdapterNameString, NameFactory.JCA_RESOURCE_ADAPTER);
                     GBeanData resourceAdapterData = new GBeanData(resourceAdapterName, null);
                     try {
                         earContext.addGBean(resourceAdapterData);
@@ -348,7 +348,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                     GerConnectiondefinitionInstanceType[] connectionDefinitionInstances = connectionDefinition.getConnectiondefinitionInstanceArray();
                     for (int j = 0; j < connectionDefinitionInstances.length; j++) {
                         GerConnectiondefinitionInstanceType connectionDefinitionInstance = connectionDefinitionInstances[j];
-                        AbstractName connectionFactoryObjectName = Naming.createChildName(resourceName, NameFactory.JCA_MANAGED_CONNECTION_FACTORY, connectionDefinitionInstance.getName());
+                        AbstractName connectionFactoryObjectName = earContext.getNaming().createChildName(resourceName, connectionDefinitionInstance.getName(), NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
                         GBeanData connectionFactoryData = new GBeanData(connectionFactoryObjectName, null);
                         try {
                             earContext.addGBean(connectionFactoryData);
@@ -364,7 +364,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             for (int j = 0; j < gerAdminObject.getAdminobjectInstanceArray().length; j++) {
                 GerAdminobjectInstanceType gerAdminObjectInstance = gerAdminObject.getAdminobjectInstanceArray()[j];
 
-                AbstractName adminObjectObjectName = Naming.createChildName(resourceName, NameFactory.JCA_ADMIN_OBJECT, gerAdminObjectInstance.getMessageDestinationName());
+                AbstractName adminObjectObjectName = earContext.getNaming().createChildName(resourceName, gerAdminObjectInstance.getMessageDestinationName(), NameFactory.JCA_ADMIN_OBJECT);
                 GBeanData adminObjectData = new GBeanData(adminObjectObjectName, null);
                 try {
                     earContext.addGBean(adminObjectData);
@@ -383,7 +383,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             resourceAdapterModuleName = earContext.getModuleName();
         } else {
             AbstractName applicationName = earContext.getModuleName();
-            resourceAdapterModuleName = Naming.createChildName(applicationName, NameFactory.RESOURCE_ADAPTER_MODULE, module.getName());
+            resourceAdapterModuleName = earContext.getNaming().createChildName(applicationName, module.getName(), NameFactory.RESOURCE_ADAPTER_MODULE);
         }
         /*
         The chain of idiotic jsr-77 meaningless objects is:
@@ -395,7 +395,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         We also include:
         JCAResourceAdapter (n)  (from JCAResource) (actual instance of ResourceAdapter)
         */
-        AbstractName resourceAdapterjsr77Name = Naming.createChildName(resourceAdapterModuleName, NameFactory.RESOURCE_ADAPTER, module.getName());
+        AbstractName resourceAdapterjsr77Name = earContext.getNaming().createChildName(resourceAdapterModuleName, module.getName(), NameFactory.RESOURCE_ADAPTER);
 
         XmlObject specDD = module.getSpecDD();
 
@@ -419,7 +419,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
 
         //construct the bogus resource adapter and jca resource placeholders
         GBeanData resourceAdapterData = new GBeanData(resourceAdapterjsr77Name, ResourceAdapterImplGBean.GBEAN_INFO);
-        AbstractName jcaResourcejsr77Name = Naming.createChildName(resourceAdapterjsr77Name, NameFactory.JCA_RESOURCE, module.getName());
+        AbstractName jcaResourcejsr77Name = earContext.getNaming().createChildName(resourceAdapterjsr77Name, module.getName(), NameFactory.JCA_RESOURCE);
         resourceAdapterData.setReferencePattern("JCAResource", jcaResourcejsr77Name);
         try {
             earContext.addGBean(resourceAdapterData);
@@ -468,7 +468,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                 resourceAdapterInstanceGBeanData.setReferencePattern("WorkManager", workManagerName);
 
                 String resourceAdapterName = geronimoResourceAdapter.getResourceadapterInstance().getResourceadapterName();
-                resourceAdapterAbstractName = Naming.createChildName(jcaResourceName, NameFactory.JCA_RESOURCE_ADAPTER, resourceAdapterName);
+                resourceAdapterAbstractName = earContext.getNaming().createChildName(jcaResourceName, resourceAdapterName, NameFactory.JCA_RESOURCE_ADAPTER);
                 resourceAdapterInstanceGBeanData.setAbstractName(resourceAdapterAbstractName);
                 try {
                     earContext.addGBean(resourceAdapterInstanceGBeanData);
@@ -524,7 +524,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                 GerAdminobjectInstanceType gerAdminObjectInstance = gerAdminObject.getAdminobjectInstanceArray()[j];
                 setDynamicGBeanDataAttributes(adminObjectInstanceGBeanData, gerAdminObjectInstance.getConfigPropertySettingArray(), cl);
                 // add it
-                AbstractName adminObjectAbstractName = Naming.createChildName(jcaResourceName, NameFactory.JCA_ADMIN_OBJECT, gerAdminObjectInstance.getMessageDestinationName().trim());
+                AbstractName adminObjectAbstractName = earContext.getNaming().createChildName(jcaResourceName, gerAdminObjectInstance.getMessageDestinationName().trim(), NameFactory.JCA_ADMIN_OBJECT);
                 adminObjectInstanceGBeanData.setAbstractName(adminObjectAbstractName);
                 try {
                     earContext.addGBean(adminObjectInstanceGBeanData);
@@ -698,7 +698,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
 //        }
 
         // create the object name for our connection manager
-        AbstractName connectionManagerAbstractName = Naming.createChildName(jcaResourceName, NameFactory.JCA_CONNECTION_MANAGER, connectionfactoryInstance.getName().trim());
+        AbstractName connectionManagerAbstractName = earContext.getNaming().createChildName(jcaResourceName, connectionfactoryInstance.getName().trim(), NameFactory.JCA_CONNECTION_MANAGER);
 
         // create the data holder for our connection manager
         GBeanInfo gbeanInfo;
@@ -803,7 +803,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             throw new DeploymentException(e);
         }
 
-        AbstractName managedConnectionFactoryAbstractName = Naming.createChildName(jcaResourceName, NameFactory.JCA_MANAGED_CONNECTION_FACTORY, connectiondefinitionInstance.getName().trim());
+        AbstractName managedConnectionFactoryAbstractName = earContext.getNaming().createChildName(jcaResourceName, connectiondefinitionInstance.getName().trim(), NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
         managedConnectionFactoryInstanceGBeanData.setAbstractName(managedConnectionFactoryAbstractName);
         try {
             earContext.addGBean(managedConnectionFactoryInstanceGBeanData);
@@ -812,7 +812,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         }
 
         // ConnectionFactory
-        AbstractName connectionFactoryAbstractName = Naming.createChildName(jcaResourceName, NameFactory.JCA_CONNECTION_FACTORY, connectiondefinitionInstance.getName().trim());
+        AbstractName connectionFactoryAbstractName = earContext.getNaming().createChildName(jcaResourceName, connectiondefinitionInstance.getName().trim(), NameFactory.JCA_CONNECTION_FACTORY);
         GBeanData connectionFactoryGBeanData = new GBeanData(connectionFactoryAbstractName, JCAConnectionFactoryImplGBean.GBEAN_INFO);
         connectionFactoryGBeanData.setReferencePattern("JCAManagedConnectionFactory", managedConnectionFactoryAbstractName);
 
@@ -906,8 +906,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
-    public static GBeanInfo getGBeanInfo
-            () {
+    public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
 }

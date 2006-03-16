@@ -26,7 +26,6 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.EditableConfigurationManager;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
@@ -70,7 +69,7 @@ public class TomcatManagerImpl implements WebManager {
      * @return The ObjectName of the new connector.
      */
     public AbstractName addConnector(AbstractName containerName, String uniqueName, String protocol, String host, int port) {
-        AbstractName name = Naming.createChildName(containerName, NameFactory.GERONIMO_SERVICE, "TomcatWebConnector-" + protocol + "-" + uniqueName);
+        AbstractName name = kernel.getNaming().createChildName(containerName, "TomcatWebConnector-" + protocol + "-" + uniqueName, NameFactory.GERONIMO_SERVICE);
         GBeanData connector;
         if(protocol.equals(PROTOCOL_HTTP)) {
             connector = new GBeanData(name, ConnectorGBean.GBEAN_INFO);

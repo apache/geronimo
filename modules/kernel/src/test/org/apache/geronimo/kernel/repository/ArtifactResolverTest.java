@@ -24,6 +24,7 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -115,7 +116,8 @@ public class ArtifactResolverTest extends TestCase {
                 environment,
                 null,
                 null,
-                configurationResolver);
+                configurationResolver,
+                new Jsr77Naming());
 
         LinkedHashSet parents = new LinkedHashSet();
         parents.add(parent);

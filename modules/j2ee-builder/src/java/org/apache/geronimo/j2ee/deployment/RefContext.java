@@ -36,10 +36,9 @@ import java.util.Map;
 
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 386000 $ $Date$
  */
 public class RefContext {
-
     private final EJBReferenceBuilder ejbReferenceBuilder;
     private final ResourceReferenceBuilder resourceReferenceBuilder;
     private final ServiceReferenceBuilder serviceReferenceBuilder;
@@ -56,29 +55,12 @@ public class RefContext {
         this.serviceReferenceBuilder = serviceReferenceBuilder;
     }
 
-    public static RefContext derivedClientRefContext(RefContext refContext, EJBReferenceBuilder ejbReferenceBuilder, ResourceReferenceBuilder resourceReferenceBuilder, ServiceReferenceBuilder serviceReferenceBuilder) {
-        return new RefContext(refContext, ejbReferenceBuilder, resourceReferenceBuilder, serviceReferenceBuilder);
-    }
-
-    private RefContext(RefContext refContext, EJBReferenceBuilder ejbReferenceBuilder, ResourceReferenceBuilder resourceReferenceBuilder, ServiceReferenceBuilder serviceReferenceBuilder) {
-        assert ejbReferenceBuilder != null: "ejbReferenceBuilder is null";
-        assert resourceReferenceBuilder != null: "resourceReferenceBuilder is null";
-        assert refContext != null: "ejbRefContext is null";
-
-        this.ejbReferenceBuilder = ejbReferenceBuilder;
-        this.resourceReferenceBuilder = resourceReferenceBuilder;
-        this.serviceReferenceBuilder = serviceReferenceBuilder;
-    }
-
     //registration methods
-
     public void registerMessageDestionations(String moduleName, Map nameMap) throws DeploymentException {
         messageDestinations.put(moduleName, nameMap);
     }
 
-
     //lookup methods
-
     public Reference getCORBARemoteRef(Configuration configuration, AbstractNameQuery cssNameQuery, URI nsCorbaloc, String objectName, String home) throws DeploymentException {
         return ejbReferenceBuilder.createCORBAReference(configuration, cssNameQuery, nsCorbaloc, objectName, home);
     }
@@ -151,5 +133,4 @@ public class RefContext {
             throw new DeploymentException("Could not locate a MEJB in the configuration ancestors");
         }
     }
-
 }

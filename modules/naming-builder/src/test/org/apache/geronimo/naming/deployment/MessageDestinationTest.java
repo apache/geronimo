@@ -28,12 +28,13 @@ import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationResolver;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.naming.java.ComponentContextBuilder;
 import org.apache.geronimo.xbeans.geronimo.naming.GerMessageDestinationType;
 import org.apache.geronimo.xbeans.j2ee.MessageDestinationRefType;
@@ -47,7 +48,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 385372 $ $Date$
  */
 public class MessageDestinationTest extends TestCase {
     private RefContext refContext = new RefContext(new EJBReferenceBuilder() {
@@ -100,20 +101,23 @@ public class MessageDestinationTest extends TestCase {
     }
 
     );
+    private static final Naming naming = new Jsr77Naming();
     Configuration configuration;
     AbstractName baseName;
 
     ComponentContextBuilder builder = new ComponentContextBuilder();
 
     protected void setUp() throws Exception {
+        super.setUp();
         Artifact id = new Artifact("test", "test", "", "car");
         configuration = new Configuration(Collections.EMPTY_LIST,
                 ConfigurationModuleType.RAR,
                 new Environment(id),
                 Collections.EMPTY_LIST,
-                new byte[] {},
-                new ConfigurationResolver(id, null));
-        baseName = Naming.createRootName(configuration.getId(), "testRoot", NameFactory.RESOURCE_ADAPTER_MODULE);
+                new byte[]{},
+                new ConfigurationResolver(id, null),
+                naming);
+        baseName = naming.createRootName(configuration.getId(), "testRoot", NameFactory.RESOURCE_ADAPTER_MODULE);
     }
 
     public void testMessageDestinations() throws Exception {
@@ -121,8 +125,8 @@ public class MessageDestinationTest extends TestCase {
         GerMessageDestinationType[] gerdests = new GerMessageDestinationType[]{makeGerMD("d1", "l1"), makeGerMD("d2", "l2")};
         MessageDestinationRefType[] destRefs = new MessageDestinationRefType[]{makeMDR("n1", "d1"), makeMDR("n2", "d2")};
         ENCConfigBuilder.registerMessageDestinations(refContext, "module1", specdests, gerdests);
-        AbstractName n1 = Naming.createChildName(baseName, NameFactory.JCA_ADMIN_OBJECT, "l1");
-        AbstractName n2 = Naming.createChildName(baseName, NameFactory.JCA_ADMIN_OBJECT, "l2");
+        AbstractName n1 = naming.createChildName(baseName, "l1", NameFactory.JCA_ADMIN_OBJECT);
+        AbstractName n2 = naming.createChildName(baseName, "l2", NameFactory.JCA_ADMIN_OBJECT);
         configuration.addGBean(new GBeanData(n1, null));
         configuration.addGBean(new GBeanData(n2, null));
         ENCConfigBuilder.addMessageDestinationRefs(configuration, refContext, destRefs, this.getClass().getClassLoader(), builder);
@@ -135,8 +139,8 @@ public class MessageDestinationTest extends TestCase {
         GerMessageDestinationType[] gerdests = new GerMessageDestinationType[]{makeGerMD("d1", "module1", "l1"), makeGerMD("d2", "module1", "l2")};
         MessageDestinationRefType[] destRefs = new MessageDestinationRefType[]{makeMDR("n1", "d1"), makeMDR("n2", "d2")};
         ENCConfigBuilder.registerMessageDestinations(refContext, "module1", specdests, gerdests);
-        AbstractName n1 = Naming.createChildName(baseName, NameFactory.JCA_ADMIN_OBJECT, "l1");
-        AbstractName n2 = Naming.createChildName(baseName, NameFactory.JCA_ADMIN_OBJECT, "l2");
+        AbstractName n1 = naming.createChildName(baseName, "l1", NameFactory.JCA_ADMIN_OBJECT);
+        AbstractName n2 = naming.createChildName(baseName, "l2", NameFactory.JCA_ADMIN_OBJECT);
         configuration.addGBean(new GBeanData(n1, null));
         configuration.addGBean(new GBeanData(n2, null));
         ENCConfigBuilder.addMessageDestinationRefs(configuration, refContext, destRefs, this.getClass().getClassLoader(), builder);

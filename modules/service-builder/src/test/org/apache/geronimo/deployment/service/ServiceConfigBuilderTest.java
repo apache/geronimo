@@ -27,11 +27,10 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Naming;
 
 import javax.management.ObjectName;
@@ -40,7 +39,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.LinkedHashSet;
-import java.util.Collections;
 
 /**
  * @version $Rev: 384933 $ $Date$
@@ -54,7 +52,8 @@ public class ServiceConfigBuilderTest extends TestCase {
         JavaBeanXmlAttributeBuilder javaBeanXmlAttributeBuilder = new JavaBeanXmlAttributeBuilder();
         //this is kind of cheating, we rely on the builder to iterate through existing members of the collection.
         referenceCollection.add(javaBeanXmlAttributeBuilder);
-        new ServiceConfigBuilder(parentEnvironment, null, referenceCollection, null, null);
+        Naming naming = new Jsr77Naming();
+        new ServiceConfigBuilder(parentEnvironment, null, referenceCollection, null, naming);
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         final URL plan1 = cl.getResource("services/plan1.xml");
         ConfigurationDocument doc = ConfigurationDocument.Factory.parse(plan1);
@@ -67,14 +66,8 @@ public class ServiceConfigBuilderTest extends TestCase {
         try {
 
             Environment environment = EnvironmentBuilder.buildEnvironment(plan.getEnvironment());
-            Configuration configuration = new Configuration(null,
-                    ConfigurationModuleType.CAR,
-                    environment,
-                    null,
-                    null,
-                    new ConfigurationResolver(environment.getConfigId(), outFile, Collections.singleton(new MockRepository())));
-            DeploymentContext context = new DeploymentContext(configuration, outFile);
-            AbstractName j2eeContext = Naming.createRootName(environment.getConfigId(), environment.getConfigId().toString(), "Configuration");
+            DeploymentContext context = new DeploymentContext(outFile, environment, ConfigurationModuleType.CAR, naming, new MockRepository());
+            AbstractName j2eeContext = naming.createRootName(environment.getConfigId(), environment.getConfigId().toString(), "Configuration");
 
             GbeanType[] gbeans = plan.getGbeanArray();
             ServiceConfigBuilder.addGBeans(gbeans, cl, j2eeContext, context);

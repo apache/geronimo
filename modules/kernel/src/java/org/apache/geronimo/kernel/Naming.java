@@ -16,66 +16,16 @@
  */
 package org.apache.geronimo.kernel;
 
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Map;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
  * @version $Rev$ $Date$
  */
-public class Naming {
-    private static final String DEFAULT_DOMAIN_NAME = "geronimo";
-    private static final String DEFAULT_SERVER_NAME = "geronimo";
-    public static final String J2EE_TYPE = "j2eeType";
-    public static final String J2EE_NAME = "name";
+public abstract class Naming {
+    public abstract AbstractName createRootName(Artifact artifact, String name, String type);
 
-    public static AbstractName createRootName(Artifact artifact, String name, String type) {
-        Map nameMap = new HashMap();
-        nameMap.put(J2EE_TYPE, type);
-        nameMap.put(J2EE_NAME, name);
+    public abstract AbstractName createChildName(AbstractName parentAbstractName, String name, String type);
 
-        return new AbstractName(artifact,
-                nameMap,
-                createObjectName(nameMap));
-    }
-
-    public static AbstractName createChildName(AbstractName parentAbstractName, String type, String name) {
-        return createChildName(parentAbstractName, parentAbstractName.getArtifact(), type, name);
-    }
-
-    public static AbstractName createChildName(AbstractName parentAbstractName, Artifact artifact, String type, String name) {
-        Map nameMap = new HashMap(parentAbstractName.getName());
-
-        String parentType = (String) nameMap.remove(J2EE_TYPE);
-        String parentName = (String) nameMap.remove(J2EE_NAME);
-        nameMap.put(parentType, parentName);
-        nameMap.put(J2EE_TYPE, type);
-        nameMap.put(J2EE_NAME, name);
-
-        return new AbstractName(artifact,
-                nameMap,
-                createObjectName(nameMap));
-    }
-
-    /**
-     * @deprecated objectnames are being removed
-     */
-    private static ObjectName createObjectName(Map nameMap) {
-        Hashtable objectNameMap = new Hashtable(nameMap);
-        objectNameMap.put("J2EEServer", DEFAULT_SERVER_NAME);
-
-        ObjectName moduleObjectName = null;
-        try {
-            moduleObjectName = ObjectName.getInstance(DEFAULT_DOMAIN_NAME, objectNameMap);
-        } catch (MalformedObjectNameException e) {
-            throw new AssertionError(e);
-        }
-        return moduleObjectName;
-    }
-
+    public abstract AbstractName createChildName(AbstractName parentAbstractName, Artifact artifact, String name, String type);
 }

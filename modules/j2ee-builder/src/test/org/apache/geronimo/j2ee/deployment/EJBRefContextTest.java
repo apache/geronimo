@@ -34,8 +34,8 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.Jsr77Naming;
 
 /**
  * @version $Rev:385692 $ $Date$
@@ -168,23 +168,23 @@ public class EJBRefContextTest extends TestCase {
 
         refContext = new RefContext(new MockEjbReferenceBuilder(), new MockResourceReferenceBuilder(), new MockServiceReferenceBuilder());
 
-        AbstractName applicationName = Naming.createRootName(new Artifact("test", "stuff", "", "ear"), "app", NameFactory.J2EE_APPLICATION) ;
-        ConfigurationData bootstrap = new ConfigurationData(new Artifact("test", "test", "", "car"));
+        Naming naming = new Jsr77Naming();
+        AbstractName applicationName = naming.createRootName(new Artifact("test", "stuff", "", "ear"), "app", NameFactory.J2EE_APPLICATION) ;
 
-        configuration = null;
 
-        AbstractName coffeeName = Naming.createChildName(applicationName, NameFactory.EJB_MODULE, coffee);
-        coffee_peaberry = Naming.createChildName(coffeeName, NameFactory.STATELESS_SESSION_BEAN, "peaberry");
-        coffee_java = Naming.createChildName(coffeeName, NameFactory.STATELESS_SESSION_BEAN, "java");
+        AbstractName coffeeName = naming.createChildName(applicationName, coffee, NameFactory.EJB_MODULE);
+        coffee_peaberry = naming.createChildName(coffeeName, "peaberry", NameFactory.STATELESS_SESSION_BEAN);
+        coffee_java = naming.createChildName(coffeeName, "java", NameFactory.STATELESS_SESSION_BEAN);
 
-        AbstractName languageName = Naming.createChildName(applicationName, NameFactory.EJB_MODULE, language);
-        language_lisp = Naming.createChildName(languageName, NameFactory.STATELESS_SESSION_BEAN, "lisp");
-        language_java = Naming.createChildName(languageName, NameFactory.STATELESS_SESSION_BEAN, "java");
+        AbstractName languageName = naming.createChildName(applicationName, language, NameFactory.EJB_MODULE);
+        language_lisp = naming.createChildName(languageName, "lisp", NameFactory.STATELESS_SESSION_BEAN);
+        language_java = naming.createChildName(languageName, "java", NameFactory.STATELESS_SESSION_BEAN);
 
-        AbstractName carName = Naming.createChildName(applicationName, NameFactory.EJB_MODULE, car);
-        AbstractName car_gt = Naming.createChildName(carName, NameFactory.STATELESS_SESSION_BEAN, "gt");
-        car_enzo = Naming.createChildName(carName, NameFactory.STATELESS_SESSION_BEAN, "enzo");
+        AbstractName carName = naming.createChildName(applicationName, car, NameFactory.EJB_MODULE);
+        AbstractName car_gt = naming.createChildName(carName, "gt", NameFactory.STATELESS_SESSION_BEAN);
+        car_enzo = naming.createChildName(carName, "enzo", NameFactory.STATELESS_SESSION_BEAN);
 
+//        configuration = null;        
 //        configuration.addGBean(new GBeanData(coffee_peaberry, null));
 //        configuration.addGBean(new GBeanData(coffee_java, null));
 //

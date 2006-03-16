@@ -53,6 +53,7 @@ import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.ObjectInputStreamExt;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Dependency;
@@ -181,6 +182,11 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     private final LinkedHashSet classPath;
 
     /**
+     * Naming system used when generating a name for a new gbean
+     */
+    private final Naming naming;
+
+    /**
      * Only used to allow declaration as a reference.
      */
     public Configuration() {
@@ -191,6 +197,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         classPath = null;
         configurationResolver = null;
         configurationClassLoader = null;
+        naming = null;
     }
 
     /**
@@ -201,17 +208,25 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      * @param classPath    a List<URI> of locations that define the codebase for this Configuration
      * @param gbeanState   a byte array contain the Java Serialized form of the GBeans in this Configuration
      */
-    public Configuration(Collection parents, /*String objectName, */ConfigurationModuleType moduleType, Environment environment, List classPath, byte[] gbeanState, ConfigurationResolver configurationResolver/*, Collection repositories, ConfigurationStore configurationStore, ArtifactManager artifactManager, ArtifactResolver artifactResolver*/) throws MissingDependencyException, MalformedURLException, NoSuchConfigException, InvalidConfigException {
+    public Configuration(Collection parents,
+            ConfigurationModuleType moduleType,
+            Environment environment,
+            List classPath,
+            byte[] gbeanState,
+            ConfigurationResolver configurationResolver,
+            Naming naming) throws MissingDependencyException, MalformedURLException, NoSuchConfigException, InvalidConfigException {
         if (parents == null) parents = Collections.EMPTY_SET;
         if (moduleType == null) throw new NullPointerException("moduleType is null");
         if (environment == null) throw new NullPointerException("environment is null");
         if (classPath == null) classPath = Collections.EMPTY_LIST;
         if (configurationResolver == null) throw new NullPointerException("configurationResolver is null");
+        if (naming == null) throw new NullPointerException("naming is null");
 
         this.environment = environment;
         this.moduleType = moduleType;
         this.configurationResolver = configurationResolver;
         this.classPath = new LinkedHashSet(classPath);
+        this.naming = naming;
 
         this.id = environment.getConfigId();
         abstractName = getConfigurationAbstractName(id);
@@ -461,6 +476,24 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         return gbeans.containsKey(gbean);
     }
 
+    public synchronized AbstractName addGBean(String name, GBeanData gbean) throws GBeanAlreadyExistsException {
+        AbstractName abstractName = gbean.getAbstractName();
+        if (abstractName != null) {
+            throw new IllegalArgumentException("gbean already has an abstract name: " + abstractName);
+        }
+
+        String j2eeType = gbean.getGBeanInfo().getJ2eeType();
+        if (j2eeType == null) j2eeType = "GBean";
+        abstractName = naming.createRootName(id, name, j2eeType);
+        gbean.setAbstractName(abstractName);
+
+        if (gbeans.containsKey(abstractName)) {
+            throw new GBeanAlreadyExistsException(gbean.getName().getCanonicalName());
+        }
+        gbeans.put(abstractName, gbean);
+        return abstractName;
+    }
+
     public synchronized void addGBean(GBeanData gbean) throws GBeanAlreadyExistsException {
         if (gbeans.containsKey(gbean.getAbstractName())) {
             throw new GBeanAlreadyExistsException(gbean.getName().getCanonicalName());
@@ -476,14 +509,17 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     }
 
     public AbstractName findGBean(AbstractNameQuery pattern) throws GBeanNotFoundException {
+        if (pattern == null) throw new NullPointerException("pattern is null");
         return findGBean(Collections.singleton(pattern));
     }
 
     public GBeanData findGBeanData(AbstractNameQuery pattern) throws GBeanNotFoundException {
+        if (pattern == null) throw new NullPointerException("pattern is null");
         return findGBeanData(Collections.singleton(pattern));
     }
 
     public AbstractName findGBean(ReferencePatterns referencePatterns) throws GBeanNotFoundException {
+        if (referencePatterns == null) throw new NullPointerException("referencePatterns is null");
         if (referencePatterns.getAbstractName() != null) {
             // this pattern is already resolved
             return referencePatterns.getAbstractName();
@@ -495,10 +531,12 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     }
 
     public AbstractName findGBean(Set patterns) throws GBeanNotFoundException {
+        if (patterns == null) throw new NullPointerException("patterns is null");
         return findGBeanData(patterns).getAbstractName();
     }
 
     public GBeanData findGBeanData(Set patterns) throws GBeanNotFoundException {
+        if (patterns == null) throw new NullPointerException("patterns is null");
         Set result = findGBeanDatas(this, patterns);
         if (result.size() > 1) {
             throw new GBeanNotFoundException("More than one match to referencePatterns", patterns);
@@ -530,6 +568,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     }
 
     public LinkedHashSet findGBeans(ReferencePatterns referencePatterns) {
+        if (referencePatterns == null) throw new NullPointerException("referencePatterns is null");
         if (referencePatterns.getAbstractName() != null) {
             // this pattern is already resolved
             LinkedHashSet result = new LinkedHashSet();
@@ -543,6 +582,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     }
 
     public LinkedHashSet findGBeans(Set patterns) {
+        if (patterns == null) throw new NullPointerException("patterns is null");
         LinkedHashSet datas = findGBeanDatas(patterns);
         LinkedHashSet result = new LinkedHashSet(datas.size());
         for (Iterator iterator = datas.iterator(); iterator.hasNext();) {
@@ -554,6 +594,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     }
 
     public LinkedHashSet findGBeanDatas(Set patterns) {
+        if (patterns == null) throw new NullPointerException("patterns is null");
         LinkedHashSet datas = findGBeanDatas(this, patterns);
 
         // search all parents
@@ -666,6 +707,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         infoFactory.addAttribute("classPath", List.class, true, false);
         infoFactory.addAttribute("gBeanState", byte[].class, true, false);
         infoFactory.addAttribute("configurationResolver", ConfigurationResolver.class, true);
+        infoFactory.addAttribute("naming", Naming.class, true);
 
         infoFactory.addInterface(Configuration.class);
 
@@ -676,6 +718,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
                 "classPath",
                 "gBeanState",
                 "configurationResolver",
+                "naming",
         });
 
         GBEAN_INFO = infoFactory.getBeanInfo();

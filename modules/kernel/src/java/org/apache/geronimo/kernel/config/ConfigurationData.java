@@ -19,7 +19,10 @@ package org.apache.geronimo.kernel.config;
 
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.AbstractName;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -56,16 +59,14 @@ public class ConfigurationData {
     private final Environment environment;
 
     private final File configurationDir;
+    private final Naming naming;
 
-    public ConfigurationData(Artifact configId) {
-        this(null, null, null, null, new Environment(configId), null);
+    public ConfigurationData(Artifact configId, Naming naming) {
+        this(null, null, null, null, new Environment(configId), null, naming);
     }
 
-    public ConfigurationData(Environment environment) {
-        this(null, null, null, null, environment, null);
-    }
-
-    public ConfigurationData(ConfigurationModuleType moduleType, LinkedHashSet classPath, List gbeans, List childConfigurations, Environment environment, File configurationDir) {
+    public ConfigurationData(ConfigurationModuleType moduleType, LinkedHashSet classPath, List gbeans, List childConfigurations, Environment environment, File configurationDir, Naming naming) {
+        this.naming = naming;
         if (moduleType != null) {
             this.moduleType = moduleType;
         } else {
@@ -105,6 +106,15 @@ public class ConfigurationData {
 
     public void addGBean(GBeanData gbeanData) {
         gbeans.add(gbeanData);
+    }
+
+    public GBeanData addGBean(String name, GBeanInfo gbeanInfo) {
+        String j2eeType = gbeanInfo.getJ2eeType();
+        if (j2eeType == null) j2eeType = "GBean";
+        AbstractName abstractName = naming.createRootName(environment.getConfigId(), name, j2eeType);
+        GBeanData gBeanData = new GBeanData(abstractName, gbeanInfo);
+        addGBean(gBeanData);
+        return gBeanData;
     }
 
     public List getChildConfigurations() {

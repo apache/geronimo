@@ -171,7 +171,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         return kernel.getGBeanData(templateName);
     }
 
-    protected Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, String contextRoot, AbstractName earName) throws DeploymentException {
+    protected Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, String contextRoot, AbstractName earName, Naming naming) throws DeploymentException {
         assert moduleFile != null: "moduleFile is null";
         assert targetPath != null: "targetPath is null";
         assert !targetPath.endsWith("/"): "targetPath must not end with a '/'";
@@ -243,7 +243,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 throw new DeploymentException("Could not construct standalone web module name", e);
             }
         } else {
-            moduleName = Naming.createChildName(earName, NameFactory.WEB_MODULE, targetPath);
+            moduleName = naming.createChildName(earName, targetPath, NameFactory.WEB_MODULE);
         }
 
         return new WebModule(standAlone, moduleName, environment, moduleFile, targetPath, webApp, jettyWebApp, specDD, contextRoot, portMap, JETTY_NAMESPACE);
@@ -541,7 +541,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                     Object defaultFilter = iterator.next();
                     GBeanData filterGBeanData = getGBeanData(kernel, defaultFilter);
                     String filterName = (String) filterGBeanData.getAttribute("filterName");
-                    AbstractName defaultFilterAbstractName = Naming.createChildName(moduleName, NameFactory.WEB_FILTER, filterName);
+                    AbstractName defaultFilterAbstractName = earContext.getNaming().createChildName(moduleName, filterName, NameFactory.WEB_FILTER);
                     filterGBeanData.setAbstractName(defaultFilterAbstractName);
                     filterGBeanData.setReferencePattern("JettyServletRegistration", moduleName);
                     moduleContext.addGBean(filterGBeanData);
@@ -552,7 +552,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                     filterMappingGBeanData.setReferencePattern("JettyServletRegistration", moduleName);
                     String urlPattern = "/*";
                     filterMappingGBeanData.setAttribute("urlPattern", urlPattern);
-                    AbstractName filterMappingName = Naming.createChildName(defaultFilterAbstractName, NameFactory.URL_WEB_FILTER_MAPPING, urlPattern);
+                    AbstractName filterMappingName = earContext.getNaming().createChildName(defaultFilterAbstractName, urlPattern, NameFactory.URL_WEB_FILTER_MAPPING);
                     filterMappingGBeanData.setAbstractName(filterMappingName);
                     previous = filterMappingName;
 
@@ -598,19 +598,19 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 GBeanData filterMappingData = new GBeanData(JettyFilterMapping.GBEAN_INFO);
                 filterMappingData.setReferencePattern("Previous", previous);
                 filterMappingData.setReferencePattern("JettyServletRegistration", moduleName);
-                AbstractName filterAbstractName = Naming.createChildName(moduleName, NameFactory.WEB_FILTER, filterName);
+                AbstractName filterAbstractName = earContext.getNaming().createChildName(moduleName, filterName, NameFactory.WEB_FILTER);
 
                 AbstractName filterMappingName = null;
                 if (filterMappingType.isSetUrlPattern()) {
                     String urlPattern = filterMappingType.getUrlPattern().getStringValue().trim();
                     filterMappingData.setAttribute("urlPattern", urlPattern);
-                    filterMappingName = Naming.createChildName(filterAbstractName, NameFactory.URL_WEB_FILTER_MAPPING, urlPattern);
+                    filterMappingName = earContext.getNaming().createChildName(filterAbstractName, urlPattern, NameFactory.URL_WEB_FILTER_MAPPING);
                 }
                 if (filterMappingType.isSetServletName()) {
                     String servletName = filterMappingType.getServletName().getStringValue().trim();
-                    AbstractName servletAbstractName = Naming.createChildName(moduleName, NameFactory.SERVLET, servletName);
+                    AbstractName servletAbstractName = earContext.getNaming().createChildName(moduleName, servletName, NameFactory.SERVLET);
                     filterMappingData.setReferencePattern("Servlet", servletAbstractName);
-                    filterMappingName = Naming.createChildName(filterAbstractName, NameFactory.SERVLET_WEB_FILTER_MAPPING, servletName);
+                    filterMappingName = earContext.getNaming().createChildName(filterAbstractName, servletName, NameFactory.SERVLET_WEB_FILTER_MAPPING);
                 }
                 filterMappingData.setAbstractName(filterMappingName);
                 previous = filterMappingName;
@@ -643,7 +643,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             for (int i = 0; i < filterArray.length; i++) {
                 FilterType filterType = filterArray[i];
                 String filterName = filterType.getFilterName().getStringValue().trim();
-                AbstractName filterAbstractName = Naming.createChildName(moduleName, NameFactory.WEB_FILTER, filterName);
+                AbstractName filterAbstractName = earContext.getNaming().createChildName(moduleName, filterName, NameFactory.WEB_FILTER);
                 GBeanData filterData = new GBeanData(filterAbstractName, JettyFilterHolder.GBEAN_INFO);
                 filterData.setAttribute("filterName", filterName);
                 filterData.setAttribute("filterClass", filterType.getFilterClass().getStringValue().trim());
@@ -663,7 +663,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 for (Iterator iterator = defaultServlets.iterator(); iterator.hasNext();) {
                     Object defaultServlet = iterator.next();
                     GBeanData servletGBeanData = getGBeanData(kernel, defaultServlet);
-                    AbstractName defaultServletObjectName = Naming.createChildName(moduleName, NameFactory.SERVLET, (String) servletGBeanData.getAttribute("servletName"));
+                    AbstractName defaultServletObjectName = earContext.getNaming().createChildName(moduleName, (String) servletGBeanData.getAttribute("servletName"), NameFactory.SERVLET);
                     servletGBeanData.setAbstractName(defaultServletObjectName);
                     servletGBeanData.setReferencePattern("JettyServletRegistration", moduleName);
                     Set defaultServletMappings = new HashSet((Collection) servletGBeanData.getAttribute("servletMappings"));
@@ -787,7 +787,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                             ClassLoader webClassLoader,
                             EARContext earContext) throws DeploymentException {
         String servletName = servletType.getServletName().getStringValue().trim();
-        AbstractName servletObjectName = Naming.createChildName(webModuleName, NameFactory.SERVLET, servletName);
+        AbstractName servletObjectName = earContext.getNaming().createChildName(webModuleName, servletName, NameFactory.SERVLET);
         GBeanData servletData;
         if (servletType.isSetServletClass()) {
             String servletClassName = servletType.getServletClass().getStringValue().trim();
@@ -830,7 +830,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         // http://issues.apache.org/jira/browse/GERONIMO-645
         if (null != previousServlet) {
             String name = previousServlet.getServletName().getStringValue().trim();
-            AbstractName oName = Naming.createChildName(webModuleName, NameFactory.SERVLET, name);
+            AbstractName oName = earContext.getNaming().createChildName(webModuleName, name, NameFactory.SERVLET);
             servletData.setReferencePattern("Previous", oName);
         }
 

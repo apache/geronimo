@@ -90,7 +90,7 @@ import java.util.Set;
  * kernel. That may be an in-VM kernel or a remote kernel, we don't really
  * care.
  *
- * @version $Rev$ $Date$
+ * @version $Rev: 385886 $ $Date$
  */
 public class KernelManagementHelper implements ManagementHelper {
     private final static Log log = LogFactory.getLog(KernelManagementHelper.class);
@@ -109,7 +109,7 @@ public class KernelManagementHelper implements ManagementHelper {
         int i = 0;
         for (Iterator iterator = domainNames.iterator(); iterator.hasNext();) {
             ObjectName domainName = (ObjectName) iterator.next();
-            result[i++] = (J2EEDomain) pm.createProxy(domainName, J2EEDomain.class)
+            result[i++] = (J2EEDomain) pm.createProxy(domainName, J2EEDomain.class);
         }
         return result;
     }

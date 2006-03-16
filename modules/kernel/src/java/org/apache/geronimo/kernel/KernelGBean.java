@@ -30,7 +30,7 @@ import org.apache.geronimo.kernel.lifecycle.LifecycleMonitor;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 385487 $ $Date$
  */
 public class KernelGBean implements Kernel{
     private final Kernel kernel;
@@ -52,6 +52,10 @@ public class KernelGBean implements Kernel{
     }
 
     public void boot() throws Exception {
+        throw new UnsupportedOperationException();
+    }
+
+    public Naming getNaming() {
         throw new UnsupportedOperationException();
     }
 

@@ -21,12 +21,12 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.Naming;
 
 import javax.naming.Reference;
 import java.io.File;
@@ -39,18 +39,18 @@ import java.util.jar.JarFile;
  * @version $Rev:385692 $ $Date$
  */
 public class MockEJBConfigBuilder extends Assert implements ModuleBuilder, EJBReferenceBuilder {
-    public EARContext earContext;
+    private EARContext earContext;
+    private ClassLoader cl;
     public EJBModule ejbModule;
-    public ClassLoader cl;
 
-    public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
-        AbstractName earName = Naming.createRootName(new Artifact("test", "test-ejb-jar", "", "jar"), NameFactory.NULL, NameFactory.J2EE_APPLICATION) ;
-        AbstractName moduleName = Naming.createChildName(earName, NameFactory.EJB_MODULE, "ejb-jar");
+    public Module createModule(File plan, JarFile moduleFile, Naming naming) throws DeploymentException {
+        AbstractName earName = naming.createRootName(new Artifact("test", "test-ejb-jar", "", "jar"), NameFactory.NULL, NameFactory.J2EE_APPLICATION) ;
+        AbstractName moduleName = naming.createChildName(earName, "ejb-jar", NameFactory.EJB_MODULE);
         return new EJBModule(true, moduleName, null, moduleFile, "ejb.jar", null, null, null);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName) throws DeploymentException {
-        AbstractName moduleName = Naming.createChildName(earName, NameFactory.EJB_MODULE, "ejb-jar");
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming) throws DeploymentException {
+        AbstractName moduleName = naming.createChildName(earName, "ejb-jar", NameFactory.EJB_MODULE);
         return new EJBModule(false, moduleName, null, moduleFile, targetPath, null, null, null);
     }
 

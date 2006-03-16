@@ -36,7 +36,6 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
-import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactManager;
@@ -94,33 +93,33 @@ public class ConfigurationManagerTest extends TestCase {
 
         Environment e1 = new Environment();
         e1.setConfigId(artifact1);
-        ConfigurationData configurationData1 = new ConfigurationData(ConfigurationModuleType.CAR, null, null, null, e1, new File("."));
+        ConfigurationData configurationData1 = new ConfigurationData(ConfigurationModuleType.CAR, null, null, null, e1, new File("."), kernel.getNaming());
         GBeanData gbeanData1 = ConfigurationUtil.toConfigurationGBeanData(configurationData1, configStore, Collections.singleton(testRepository), artifactResolver);
         configurations.put(artifact1, gbeanData1);
 
         Environment e2 = new Environment();
         e2.setConfigId(artifact2);
         e2.addDependency(new Artifact("test", "1", (Version) null, "bar"), ImportType.ALL);
-        ConfigurationData configurationData2 = new ConfigurationData(ConfigurationModuleType.CAR, null, null, null, e2, new File("."));
+        ConfigurationData configurationData2 = new ConfigurationData(ConfigurationModuleType.CAR, null, null, null, e2, new File("."), kernel.getNaming());
         GBeanData gbeanData2 = ConfigurationUtil.toConfigurationGBeanData(configurationData2, configStore, Collections.singleton(testRepository), artifactResolver);
         configurations.put(artifact2, gbeanData2);
 
         Environment e3 = new Environment();
         e3.setConfigId(artifact3);
         e3.addDependency(new Artifact("test", "2", (Version) null, "bar"), ImportType.ALL);
-        ConfigurationData configurationData3 = new ConfigurationData(ConfigurationModuleType.CAR, null, null, null, e3, new File("."));
+        ConfigurationData configurationData3 = new ConfigurationData(ConfigurationModuleType.CAR, null, null, null, e3, new File("."), kernel.getNaming());
         GBeanData gbeanData3 = ConfigurationUtil.toConfigurationGBeanData(configurationData3, configStore, Collections.singleton(testRepository), artifactResolver);
         configurations.put(artifact3, gbeanData3);
 
 
-        configurationManager = new ConfigurationManagerImpl(kernel,
+        configurationManager = new KernelConfigurationManager(kernel,
                 Collections.singleton(configStore),
                 null,
                 null,
                 artifactManager,
                 artifactResolver,
                 Collections.singleton(testRepository),
-                ConfigurationManagerImpl.class.getClassLoader());
+                KernelConfigurationManager.class.getClassLoader());
     }
 
     private class TestConfigStore implements ConfigurationStore {
@@ -158,7 +157,7 @@ public class ConfigurationManagerTest extends TestCase {
     }
 
     private GBeanData buildGBeanData(String key, String value, GBeanInfo info) {
-        AbstractName abstractName = Naming.createRootName(new Artifact("test", "foo", "1", "car"), value, key);
+        AbstractName abstractName = kernel.getNaming().createRootName(new Artifact("test", "foo", "1", "car"), value, key);
         return new GBeanData(abstractName, info);
     }
 

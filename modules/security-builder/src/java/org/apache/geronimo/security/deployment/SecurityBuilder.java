@@ -227,8 +227,8 @@ public class SecurityBuilder {
         return new PrincipalInfo(principalType.getClass1(), principalType.getName(), principalType.isSetDesignatedRunAs());
     }
 
-    public static GBeanData configureApplicationPolicyManager(AbstractName moduleName, Map contextIDToPermissionsMap, SecurityConfiguration securityConfiguration) {
-        AbstractName jaccBeanName = Naming.createChildName(moduleName, NameFactory.JACC_MANAGER, NameFactory.JACC_MANAGER);
+    public static GBeanData configureApplicationPolicyManager(Naming naming, AbstractName moduleName, Map contextIDToPermissionsMap, SecurityConfiguration securityConfiguration) {
+        AbstractName jaccBeanName = naming.createChildName(moduleName, NameFactory.JACC_MANAGER, NameFactory.JACC_MANAGER);
         GBeanData jaccBeanData = new GBeanData(jaccBeanName, ApplicationPolicyConfigurationManager.GBEAN_INFO);
         jaccBeanData.setAttribute("contextIdToPermissionsMap", contextIDToPermissionsMap);
         jaccBeanData.setAttribute("principalRoleMap", securityConfiguration.getPrincipalRoleMap());

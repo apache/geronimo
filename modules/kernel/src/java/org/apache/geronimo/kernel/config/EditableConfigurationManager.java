@@ -25,7 +25,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
  * A specialized ConfigurationManager that can change the set of GBeans
  * included in the configuration at runtime.
  *
- * @version $Rev$ $Date$
+ * @version $Rev: 384351 $ $Date$
  */
 public interface EditableConfigurationManager extends ConfigurationManager {
     /**
@@ -35,6 +35,15 @@ public interface EditableConfigurationManager extends ConfigurationManager {
      * @param start     If true, the GBean should be started as part of this call.
      */
     void addGBeanToConfiguration(Artifact configID, GBeanData gbean, boolean start) throws InvalidConfigException;
+
+    /**
+     * Adds a new GBean to an existing Configuration.
+     * @param configID  The configuration to add the GBean to.
+     * @param name      The short name for the new GBean.
+     * @param gbean     The data representing the GBean to add. This must not have an abstract name set.
+     * @param start     If true, the GBean should be started as part of this call.
+     */
+    void addGBeanToConfiguration(Artifact configID, String name, GBeanData gbean, boolean start) throws InvalidConfigException;
 
     /**
      * Removes a GBean from a configuration.  Note: this may simply mark it to

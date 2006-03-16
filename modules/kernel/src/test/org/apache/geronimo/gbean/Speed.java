@@ -23,7 +23,6 @@ import org.apache.geronimo.gbean.runtime.RawInvoker;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.MockGBean;
-import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
@@ -95,11 +94,12 @@ public class Speed {
         // start a kernel
         Kernel kernel = KernelFactory.newInstance().createKernel("speed");
         kernel.boot();
-        GBeanData mockGBean = buildGBeanData();
+        AbstractName abstractName = kernel.getNaming().createRootName(new Artifact("test", "foo", "1", "car"), "test", "test");
+        GBeanData mockGBean = new GBeanData(abstractName, MockGBean.getGBeanInfo());
         mockGBean.setAttribute("Name", "bar");
         mockGBean.setAttribute("FinalInt", new Integer(57));
         kernel.loadGBean(mockGBean, Speed.class.getClassLoader());
-        kernel.startGBean(mockGBean.getAbstractName());
+        kernel.startGBean(abstractName);
 
         // reflect proxy
 //        ProxyFactory vmProxyFactory = new VMProxyFactory(MyInterface.class);
@@ -172,13 +172,6 @@ public class Speed {
 //        printResults("CGLibProxy", end, start, iterations);
     }
 
-    private static GBeanData buildGBeanData() {
-        AbstractName abstractName = Naming.createRootName(new Artifact("test", "foo", "1", "car"), "test", "test");
-        GBeanData mockGBean = new GBeanData(abstractName, MockGBean.getGBeanInfo());
-        return mockGBean;
-    }
-
-
     public static void echoTimings() throws Exception {
         Method myMethod = MockGBean.class.getMethod("echo", new Class[]{String.class});
 
@@ -230,7 +223,8 @@ public class Speed {
         // start a kernel
         Kernel kernel = KernelFactory.newInstance().createKernel("speed");
         kernel.boot();
-        GBeanData mockGBean = buildGBeanData();
+        AbstractName abstractName = kernel.getNaming().createRootName(new Artifact("test", "foo", "1", "car"), "test", "test");
+        GBeanData mockGBean = new GBeanData(abstractName, MockGBean.getGBeanInfo());
         mockGBean.setAttribute("Name", "bar");
         mockGBean.setAttribute("FinalInt", new Integer(57));
         kernel.loadGBean(mockGBean, Speed.class.getClassLoader());

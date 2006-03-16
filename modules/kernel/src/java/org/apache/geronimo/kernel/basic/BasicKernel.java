@@ -43,6 +43,8 @@ import org.apache.geronimo.kernel.KernelGBean;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.NoSuchAttributeException;
 import org.apache.geronimo.kernel.NoSuchOperationException;
+import org.apache.geronimo.kernel.Jsr77Naming;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.lifecycle.LifecycleMonitor;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 
@@ -66,7 +68,7 @@ import org.apache.geronimo.kernel.proxy.ProxyManager;
  * 
  * TODO: Describe the order of method invocation (e.g. if loadGbean may be before boot)
  *
- * @version $Rev$ $Date$
+ * @version $Rev: 385487 $ $Date$
  */
 public class BasicKernel implements Kernel {
     /**
@@ -121,6 +123,8 @@ public class BasicKernel implements Kernel {
      */
     private ProxyManager proxyManager;
 
+    private static final Naming INSTANCE = new Jsr77Naming();
+
     /**
      * Construct a Kernel with the specified name.
      *
@@ -136,6 +140,10 @@ public class BasicKernel implements Kernel {
 
     public String getKernelName() {
         return kernelName;
+    }
+
+    public Naming getNaming() {
+        return INSTANCE;
     }
 
     /**

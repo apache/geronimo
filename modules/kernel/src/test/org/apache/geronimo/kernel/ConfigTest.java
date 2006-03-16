@@ -25,7 +25,7 @@ import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.EditableConfigurationManager;
-import org.apache.geronimo.kernel.config.EditableConfigurationManagerImpl;
+import org.apache.geronimo.kernel.config.EditableKernelConfigurationManager;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
@@ -151,7 +151,7 @@ public class ConfigTest extends TestCase {
         Configuration configuration = configurationManager.loadConfiguration(configurationData);
         assertNotNull(configuration.getConfigurationClassLoader());
 
-        GBeanData mockBean3 = new GBeanData(configuration.getId(), "MyMockGMBean3", MockGBean.getGBeanInfo());
+        GBeanData mockBean3 = new GBeanData(MockGBean.getGBeanInfo());
         try {
             kernel.getGBeanState(mockBean3.getAbstractName());
             fail("Gbean should not be found yet");
@@ -160,7 +160,7 @@ public class ConfigTest extends TestCase {
         mockBean3.setAttribute("value", "1234");
         mockBean3.setAttribute("name", "child");
         mockBean3.setAttribute("finalInt", new Integer(1));
-        configurationManager.addGBeanToConfiguration(configuration.getId(), mockBean3, true);
+        configurationManager.addGBeanToConfiguration(configuration.getId(), "MyMockGMBean3", mockBean3, true);
 
         assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(mockBean3.getAbstractName()));
         assertEquals(new Integer(1), kernel.getAttribute(mockBean3.getAbstractName(), "finalInt"));
@@ -173,42 +173,37 @@ public class ConfigTest extends TestCase {
         kernel = KernelFactory.newInstance().createKernel("test");
         kernel.boot();
 
-        ConfigurationData bootstrap = new ConfigurationData(new Artifact("test", "test", "", "car"));
+        ConfigurationData bootstrap = new ConfigurationData(new Artifact("bootstrap", "bootstrap", "", "car"), kernel.getNaming());
 
-        GBeanData artifactManagerData = new GBeanData(bootstrap.getId(), "ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
-        bootstrap.addGBean(artifactManagerData);
+        GBeanData artifactManagerData = bootstrap.addGBean("ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
 
-        GBeanData artifactResolverData = new GBeanData(bootstrap.getId(), "ArtifactResolver", DefaultArtifactResolver.GBEAN_INFO);
+        GBeanData artifactResolverData = bootstrap.addGBean("ArtifactResolver", DefaultArtifactResolver.GBEAN_INFO);
         artifactResolverData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
-        bootstrap.addGBean(artifactResolverData);
 
-        GBeanData configurationManagerData = new GBeanData(bootstrap.getId(), "ConfigurationManager", EditableConfigurationManagerImpl.GBEAN_INFO);
+        GBeanData configurationManagerData = bootstrap.addGBean("ConfigurationManager", EditableKernelConfigurationManager.GBEAN_INFO);
         configurationManagerData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
         configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolverData.getAbstractName());
-        bootstrap.addGBean(configurationManagerData);
 
         ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, getClass().getClassLoader());
 
         configurationManager = ConfigurationUtil.getEditableConfigurationManager(kernel);
 
 
-        configurationData = new ConfigurationData(new Artifact("geronimo", "test", "1", "car"));
+        configurationData = new ConfigurationData(new Artifact("test", "test", "", "car"), kernel.getNaming());
 
-        GBeanData mockBean1 = new GBeanData(configurationData.getId(),"MyMockGMBean1", MockGBean.getGBeanInfo());
+        GBeanData mockBean1 = configurationData.addGBean("MyMockGMBean1", MockGBean.getGBeanInfo());
         gbeanName1 = mockBean1.getAbstractName();
         mockBean1.setAttribute("value", "1234");
         mockBean1.setAttribute("name", "child");
         mockBean1.setAttribute("finalInt", new Integer(1));
-        configurationData.addGBean(mockBean1);
 
-        GBeanData mockBean2 = new GBeanData(configurationData.getId(), "MyMockGMBean2", MockGBean.getGBeanInfo());
+        GBeanData mockBean2 = configurationData.addGBean("MyMockGMBean2", MockGBean.getGBeanInfo());
         gbeanName2 = mockBean2.getAbstractName();
         mockBean2.setAttribute("value", "5678");
         mockBean2.setAttribute("name", "Parent");
         mockBean2.setAttribute("finalInt", new Integer(3));
         mockBean2.setReferencePattern("MockEndpoint", gbeanName1);
         mockBean2.setReferencePattern("EndpointCollection", new AbstractNameQuery(gbeanName1));
-        configurationData.addGBean(mockBean2);
     }
 
     protected void tearDown() throws Exception {

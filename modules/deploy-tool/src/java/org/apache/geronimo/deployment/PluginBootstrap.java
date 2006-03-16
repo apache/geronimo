@@ -30,11 +30,12 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.repository.Maven1Repository;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 383067 $ $Date$
  */
 public class PluginBootstrap {
     private File localRepo;
@@ -66,7 +67,7 @@ public class PluginBootstrap {
         ConfigurationType config = ConfigurationDocument.Factory.parse(plan).getConfiguration();
 
         Maven1Repository repository = new Maven1Repository(localRepo);
-        ServiceConfigBuilder builder = new ServiceConfigBuilder(null, repository);
+        ServiceConfigBuilder builder = new ServiceConfigBuilder(null, repository, new Jsr77Naming());
         ConfigurationData configurationData = builder.buildConfiguration(config, null, new ConfigurationStore() {
             public void install(ConfigurationData configurationData) {
             }

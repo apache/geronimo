@@ -24,17 +24,19 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.Map;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -46,25 +48,31 @@ import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.config.SimpleConfigurationManager;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ArtifactManager;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.WritableListableRepository;
+import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
 
 /**
  * @version $Rev:385232 $ $Date$
  */
 public class DeploymentContext {
-    private static int deploymentCount = 42;
-
     private final File baseDir;
     private final URI baseUri;
     private final byte[] buffer = new byte[4096];
@@ -72,35 +80,50 @@ public class DeploymentContext {
     private final ConfigurationManager configurationManager;
     private final Configuration configuration;
     private final Environment environment;
+    private final Naming naming;
 
-    public DeploymentContext(File baseDir, Environment environment, ConfigurationModuleType moduleType, Kernel kernel) throws DeploymentException {
+    public DeploymentContext(File baseDir, Environment environment, ConfigurationModuleType moduleType, Naming naming) throws DeploymentException {
         this(baseDir,
                 environment,
                 moduleType,
-                ConfigurationUtil.getConfigurationManager(kernel));
+                naming,
+                Collections.EMPTY_SET);
     }
 
-    public DeploymentContext(File baseDir, Environment environment, ConfigurationModuleType moduleType, ConfigurationManager configurationManager) throws DeploymentException {
-        this(createTempConfiguration(environment, moduleType, baseDir, configurationManager),
-                baseDir,
+    public DeploymentContext(File baseDir, Environment environment, ConfigurationModuleType moduleType, Naming naming, Repository repository) throws DeploymentException {
+        this(baseDir,
                 environment,
                 moduleType,
-                configurationManager);
+                naming,
+                repository == null ? Collections.EMPTY_SET : Collections.singleton(repository));
     }
 
-    public DeploymentContext(Configuration configuration, File baseDir) throws DeploymentException {
-        this(configuration,
-                baseDir,
-                configuration.getEnvironment(),
-                configuration.getModuleType(),
-                null);
+    public DeploymentContext(File baseDir, Environment environment, ConfigurationModuleType moduleType, Naming naming, Collection repositories) throws DeploymentException {
+        this(baseDir,
+                environment,
+                moduleType,
+                naming,
+                repositories,
+                createRepositoryConfigurationStore(repositories));
     }
 
-    private DeploymentContext(Configuration configuration, File baseDir, Environment environment, ConfigurationModuleType moduleType, ConfigurationManager configurationManager) throws DeploymentException {
+    private static Collection createRepositoryConfigurationStore(Collection repositories) {
+        List stores = new ArrayList(repositories.size());
+        for (Iterator iterator = repositories.iterator(); iterator.hasNext();) {
+            Repository repository = (Repository) iterator.next();
+            if (repository instanceof WritableListableRepository) {
+                WritableListableRepository writableListableRepository = (WritableListableRepository) repository;
+                ConfigurationStore store = new RepositoryConfigurationStore(writableListableRepository);
+                stores.add(store);
+            }
+        }
+        return stores;
+    }
+
+    public DeploymentContext(File baseDir, Environment environment, ConfigurationModuleType moduleType, Naming naming, Collection repositories, Collection stores) throws DeploymentException {
         if (baseDir == null) throw new NullPointerException("baseDir is null");
         if (environment == null) throw new NullPointerException("environment is null");
         if (moduleType == null) throw new NullPointerException("type is null");
-        if (configuration == null) throw new NullPointerException("configuration is null");
 
         if (!baseDir.exists()) {
             baseDir.mkdirs();
@@ -112,29 +135,20 @@ public class DeploymentContext {
         this.baseUri = baseDir.toURI();
 
         this.environment = environment;
-        this.configurationManager = configurationManager;
-        this.configuration = configuration;
+        this.naming = naming;
+
+        ArtifactManager artifactManager = new DefaultArtifactManager();
+        ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, repositories);
+        this.configurationManager = new SimpleConfigurationManager(stores, artifactResolver, naming, repositories);
+        this.configuration = createTempConfiguration(environment, moduleType, baseDir, configurationManager, naming);
     }
 
-    private static Configuration createTempConfiguration(Environment environment, ConfigurationModuleType moduleType, File baseDir, ConfigurationManager configurationManager) throws DeploymentException {
-        // create a new environment object for use in our temporary configuration
-        // NOTE: the configuration class will resolve all dependencies and set them
-        // back into this environment object, so don't use this environment for the
-        // final configuration data
-        Environment deploymentEnvironment = new Environment(environment);
-
-        // use a modified configuration id for the configuration object in case this
-        // configuation is already running in the server
-        Artifact id = environment.getConfigId();
-        synchronized (DeploymentContext.class) {
-            id = new Artifact("geronimo-deployment", id.getArtifactId(), "" + deploymentCount++, id.getType());
-        }
-        deploymentEnvironment.setConfigId(id);
-
-        // Add a new temporary configuration to hold our data
-        ConfigurationData configurationData = new ConfigurationData(moduleType, null, null, null, deploymentEnvironment, baseDir);
+    private static Configuration createTempConfiguration(Environment environment, ConfigurationModuleType moduleType, File baseDir, ConfigurationManager configurationManager, Naming naming) throws DeploymentException {
         try {
-            return configurationManager.loadConfiguration(configurationData, new DeploymentContextConfigurationStore(baseDir));
+            // NOTE: the configuration class will resolve all dependencies and set them
+            // back into the environment object, so don't use this environment for the
+            // final configuration data
+            return configurationManager.loadConfiguration(new ConfigurationData(moduleType, null, null, null, new Environment(environment), baseDir, naming));
         } catch (Exception e) {
             throw new DeploymentException("Unable to create configuration for deployment", e);
         }
@@ -148,9 +162,21 @@ public class DeploymentContext {
         return baseDir;
     }
 
+    public Naming getNaming() {
+        return naming;
+    }
+
+    public GBeanData addGBean(String name, GBeanInfo gbeanInfo) throws GBeanAlreadyExistsException {
+        if (name == null) throw new NullPointerException("name is null");
+        if (gbeanInfo == null) throw new NullPointerException("gbean is null");
+        GBeanData gbean = new GBeanData(gbeanInfo);
+        configuration.addGBean(name, gbean);
+        return gbean;
+    }
+
     public void addGBean(GBeanData gbean) throws GBeanAlreadyExistsException {
         if (gbean == null) throw new NullPointerException("gbean is null");
-        if (gbean.getName() == null) throw new NullPointerException("gbean.getName() is null");
+        if (gbean.getAbstractName() == null) throw new NullPointerException("gbean.getAbstractName() is null");
         configuration.addGBean(gbean);
     }
 
@@ -430,45 +456,8 @@ public class DeploymentContext {
                 new ArrayList(configuration.getGBeans().values()),
                 childConfigurationDatas,
                 environment,
-                baseDir);
+                baseDir,
+                naming);
         return configurationData;
-    }
-
-    private static class DeploymentContextConfigurationStore implements ConfigurationStore {
-        private final File baseDir;
-
-        public DeploymentContextConfigurationStore(File baseDir) {
-            this.baseDir = baseDir;
-        }
-
-        public void install(ConfigurationData configurationData) {
-        }
-
-        public void uninstall(Artifact configID) {
-        }
-
-        public GBeanData loadConfiguration(Artifact configId) {
-            return null;
-        }
-
-        public boolean containsConfiguration(Artifact configID) {
-            return false;
-        }
-
-        public String getObjectName() {
-            return null;
-        }
-
-        public List listConfigurations() {
-            return null;
-        }
-
-        public File createNewConfigurationDir(Artifact configId) {
-            return null;
-        }
-
-        public URL resolve(Artifact configId, URI uri) throws MalformedURLException {
-            return new File(baseDir, uri.toString()).toURL();
-        }
     }
 }

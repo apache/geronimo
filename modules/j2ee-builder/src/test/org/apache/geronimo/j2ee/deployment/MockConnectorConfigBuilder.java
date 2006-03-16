@@ -39,18 +39,18 @@ import java.util.jar.JarFile;
  * @version $Rev:385692 $ $Date$
  */
 public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder, ResourceReferenceBuilder{
-    public EARContext earContext;
+    private EARContext earContext;
+    private ClassLoader cl;
     public Module connectorModule;
-    public ClassLoader cl;
 
-    public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
-        AbstractName earName = Naming.createRootName(new Artifact("test", "test-war", "", "rar"), NameFactory.NULL, NameFactory.J2EE_APPLICATION) ;
-        AbstractName moduleName = Naming.createChildName(earName, NameFactory.RESOURCE_ADAPTER_MODULE, "rar");
+    public Module createModule(File plan, JarFile moduleFile, Naming naming) throws DeploymentException {
+        AbstractName earName = naming.createRootName(new Artifact("test", "test-war", "", "rar"), NameFactory.NULL, NameFactory.J2EE_APPLICATION) ;
+        AbstractName moduleName = naming.createChildName(earName, "rar", NameFactory.RESOURCE_ADAPTER_MODULE);
         return new ConnectorModule(true, moduleName, null, moduleFile, "connector", null, null, null);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName) throws DeploymentException {
-        AbstractName moduleName = Naming.createChildName(earName, NameFactory.RESOURCE_ADAPTER_MODULE, "rar");
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming) throws DeploymentException {
+        AbstractName moduleName = naming.createChildName(earName, "rar", NameFactory.RESOURCE_ADAPTER_MODULE);
         return new ConnectorModule(false, moduleName, null, moduleFile, targetPath, null, null, null);
     }
 

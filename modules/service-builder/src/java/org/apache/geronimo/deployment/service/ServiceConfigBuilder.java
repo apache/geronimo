@@ -36,9 +36,9 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.ReferenceMap;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
@@ -58,6 +58,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Collections;
 import java.util.jar.JarFile;
 
 /**
@@ -66,7 +67,6 @@ import java.util.jar.JarFile;
 public class ServiceConfigBuilder implements ConfigurationBuilder {
     private final Environment defaultEnvironment;
     private final Repository repository;
-    private final Kernel kernel;
 
     //TODO this being static is a really good argument that all other builders should have a reference to this gbean, not use static methods on it.
     private static final Map xmlAttributeBuilderMap = new HashMap();
@@ -74,19 +74,24 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     private Map attrRefMap;
     private Map refRefMap;
     private static final QName SERVICE_QNAME = ConfigurationDocument.type.getDocumentElementName();
+    private final Naming naming;
 
 
-    public ServiceConfigBuilder(Environment defaultEnvironment, Repository repository) {
-        this(defaultEnvironment, repository, null, null, null);
+    public ServiceConfigBuilder(Environment defaultEnvironment, Repository repository, Naming naming) {
+        this(defaultEnvironment, repository, null, null, naming);
     }
 
     public ServiceConfigBuilder(Environment defaultEnvironment, Repository repository, Collection xmlAttributeBuilders, Collection xmlReferenceBuilders, Kernel kernel) {
+        this(defaultEnvironment, repository, xmlAttributeBuilders, xmlReferenceBuilders, kernel.getNaming());
+    }
+
+    public ServiceConfigBuilder(Environment defaultEnvironment, Repository repository, Collection xmlAttributeBuilders, Collection xmlReferenceBuilders, Naming naming) {
+        this.naming = naming;
         EnvironmentBuilder environmentBuilder = new EnvironmentBuilder();
         xmlAttributeBuilderMap.put(environmentBuilder.getNamespace(), environmentBuilder);
         this.defaultEnvironment = defaultEnvironment;
 
         this.repository = repository;
-        this.kernel = kernel;
         if (xmlAttributeBuilders != null) {
             ReferenceMap.Key key = new ReferenceMap.Key() {
 
@@ -165,7 +170,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         } catch (ConfigurationAlreadyExistsException e) {
             throw new DeploymentException(e);
         }
-        DeploymentContext context = new DeploymentContext(outfile, environment, ConfigurationModuleType.SERVICE, kernel);
+        DeploymentContext context = new DeploymentContext(outfile, environment, ConfigurationModuleType.SERVICE, naming, Collections.singleton(repository), Collections.singleton(configurationStore));
         ClassLoader cl = context.getClassLoader();
 
 
@@ -191,7 +196,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         GBeanInfo gBeanInfo = GBeanInfo.getGBeanInfo(gbean.getClass1(), cl);
         String namePart = gbean.getName();
         String j2eeType = gBeanInfo.getJ2eeType();
-        AbstractName abstractName = Naming.createChildName(moduleName, j2eeType, namePart);
+        AbstractName abstractName = context.getNaming().createChildName(moduleName, namePart, j2eeType);
         GBeanBuilder builder = new GBeanBuilder(abstractName, gBeanInfo, cl, context, moduleName, xmlAttributeBuilderMap, xmlReferenceBuilderMap);
 
         // set up attributes
@@ -272,9 +277,9 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         infoFactory.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("XmlAttributeBuilders", XmlAttributeBuilder.class, "XmlAttributeBuilder");
         infoFactory.addReference("XmlReferenceBuilders", XmlReferenceBuilder.class, "XmlReferenceBuilder");
-        infoFactory.addAttribute("kernel", Kernel.class, false);
+        infoFactory.addAttribute("kernel", Kernel.class, false, false);
 
-        infoFactory.setConstructor(new String[]{"defaultEnvironment", "Repository", "XmlAttributeBuilders", "XmlReferenceBuilders", "kernel"});
+        infoFactory.setConstructor(new String[]{"defaultEnvironment", "Repository", "XmlAttributeBuilders", "XmlReferenceBuilders"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

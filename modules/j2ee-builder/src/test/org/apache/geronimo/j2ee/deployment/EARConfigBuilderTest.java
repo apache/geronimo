@@ -17,10 +17,8 @@
 
 package org.apache.geronimo.j2ee.deployment;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -38,25 +36,20 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.Jsr77Naming;
 
 /**
  * @version $Rev: 385487 $ $Date$
@@ -80,16 +73,17 @@ public class EARConfigBuilderTest extends TestCase {
         }
     };
 
-    private static final AbstractName rootConfig = Naming.createRootName(new Artifact("test", "stuff", "", "car"), "test", "test") ;
-    private static final AbstractName transactionManagerObjectName = Naming.createChildName(rootConfig, "TransactionManager", "TransactionManager");
-    private static final AbstractName connectionTrackerObjectName = Naming.createChildName(rootConfig, "ConnectionTracker", "ConnectionTracker");
-    private static final AbstractName transactionalTimerObjectName = Naming.createChildName(rootConfig, "ThreadPooledTimer", "TransactionalThreaPooledTimer");
-    private static final AbstractName nonTransactionalTimerObjectName = Naming.createChildName(rootConfig, "ThreadPooledTimer", "NonTransactionalThreaPooledTimer");
+    private static final Naming naming = new Jsr77Naming();
+    private static final AbstractName rootConfig = naming.createRootName(new Artifact("test", "stuff", "", "car"), "test", "test") ;
+    private static final AbstractName transactionManagerObjectName = naming.createChildName(rootConfig, "TransactionManager", "TransactionManager");
+    private static final AbstractName connectionTrackerObjectName = naming.createChildName(rootConfig, "ConnectionTracker", "ConnectionTracker");
+    private static final AbstractName transactionalTimerObjectName = naming.createChildName(rootConfig, "TransactionalThreaPooledTimer", "ThreadPooledTimer");
+    private static final AbstractName nonTransactionalTimerObjectName = naming.createChildName(rootConfig, "NonTransactionalThreaPooledTimer", "ThreadPooledTimer");
 
-    private static final AbstractName earName = Naming.createRootName(new Artifact("test", "test-ear", "", "ear"), "test", NameFactory.J2EE_APPLICATION) ;
-    private static final AbstractName ejbModuleName = Naming.createChildName(earName, NameFactory.EJB_MODULE, "ejb-jar");
-    private static final AbstractName webModuleName = Naming.createChildName(earName, NameFactory.WEB_MODULE, "war");
-    private static final AbstractName raModuleName = Naming.createChildName(earName, NameFactory.RESOURCE_ADAPTER_MODULE, "rar");
+    private static final AbstractName earName = naming.createRootName(new Artifact("test", "test-ear", "", "ear"), "test", NameFactory.J2EE_APPLICATION) ;
+    private static final AbstractName ejbModuleName = naming.createChildName(earName, "ejb-jar", NameFactory.EJB_MODULE);
+    private static final AbstractName webModuleName = naming.createChildName(earName, "war", NameFactory.WEB_MODULE);
+    private static final AbstractName raModuleName = naming.createChildName(earName, "rar", NameFactory.RESOURCE_ADAPTER_MODULE);
 
     private Environment defaultParentId;
     private static String contextRoot = "test";
@@ -246,21 +240,8 @@ public class EARConfigBuilderTest extends TestCase {
     }
 
     public void testBuildConfiguration() throws Exception {
-        Kernel kernel = KernelFactory.newInstance().createKernel("foo");
-        kernel.boot();
-
         ConfigurationData configurationData = null;
         try {
-            ConfigurationData testConfig = new ConfigurationData(new Artifact("test", "test", "", "car"));
-            GBeanData storeData = new GBeanData(testConfig.getId(), "ConfigStore", MockConfigStore.GBEAN_INFO);
-            testConfig.addGBean(storeData);
-
-            GBeanData configurationManagerData = new GBeanData(testConfig.getId(), "ConfigurationManager", ConfigurationManagerImpl.GBEAN_INFO);
-            configurationManagerData.setReferencePattern("Stores", new AbstractNameQuery(storeData.getAbstractName()));
-            testConfig.addGBean(configurationManagerData);
-
-            ConfigurationUtil.loadBootstrapConfiguration(kernel, testConfig, getClass().getClassLoader());
-
             EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
                     new AbstractNameQuery(transactionManagerObjectName),
                     new AbstractNameQuery(connectionTrackerObjectName),
@@ -275,7 +256,7 @@ public class EARConfigBuilderTest extends TestCase {
                     resourceReferenceBuilder,
                     appClientConfigBuilder,
                     serviceReferenceBuilder,
-                    kernel);
+                    naming);
 
             Object plan = configBuilder.getDeploymentPlan(null, earFile);
             configurationData = configBuilder.buildConfiguration(plan, earFile, configStore);
@@ -283,7 +264,6 @@ public class EARConfigBuilderTest extends TestCase {
             if (configurationData != null) {
                 DeploymentUtil.recursiveDelete(configurationData.getConfigurationDir());
             }
-            kernel.shutdown();
         }
     }
 
@@ -302,7 +282,7 @@ public class EARConfigBuilderTest extends TestCase {
                 resourceReferenceBuilder,
                 appClientConfigBuilder,
                 serviceReferenceBuilder,
-                null);
+                naming);
 
         ConfigurationData configurationData = null;
         try {
@@ -335,7 +315,7 @@ public class EARConfigBuilderTest extends TestCase {
                 resourceReferenceBuilder,
                 appClientConfigBuilder,
                 serviceReferenceBuilder,
-                null);
+                naming);
 
         ConfigurationData configurationData = null;
         try {
@@ -368,7 +348,7 @@ public class EARConfigBuilderTest extends TestCase {
                 resourceReferenceBuilder,
                 appClientConfigBuilder,
                 serviceReferenceBuilder,
-                null);
+                naming);
 
         ConfigurationData configurationData = null;
         try {
@@ -401,7 +381,7 @@ public class EARConfigBuilderTest extends TestCase {
                 resourceReferenceBuilder,
                 appClientConfigBuilder,
                 serviceReferenceBuilder,
-                null);
+                naming);
 
         ConfigurationData configurationData = null;
         try {
@@ -434,7 +414,7 @@ public class EARConfigBuilderTest extends TestCase {
                 resourceReferenceBuilder,
                 appClientConfigBuilder,
                 serviceReferenceBuilder,
-                null);
+                naming);
 
 
         ConfigurationData configurationData = null;
@@ -466,7 +446,7 @@ public class EARConfigBuilderTest extends TestCase {
                 resourceReferenceBuilder,
                 appClientConfigBuilder,
                 serviceReferenceBuilder,
-                null);
+                naming);
 
         ConfigurationData configurationData = null;
         try {
@@ -497,7 +477,7 @@ public class EARConfigBuilderTest extends TestCase {
                 resourceReferenceBuilder,
                 appClientConfigBuilder,
                 serviceReferenceBuilder,
-                null);
+                naming);
 
         ConfigurationData configurationData = null;
         try {
@@ -534,7 +514,6 @@ public class EARConfigBuilderTest extends TestCase {
             environment.setConfigId(configId);
             environment.getProperties().put(NameFactory.JSR77_BASE_NAME_PROPERTY, "geronimo.test:J2EEServer=geronimo");
             configData.setAttribute("environment", environment);
-            configData.setAttribute("gBeanState", NO_OBJECTS_OS);
             configData.setAttribute("moduleType", ConfigurationModuleType.CAR);
 
             return configData;
@@ -569,25 +548,5 @@ public class EARConfigBuilderTest extends TestCase {
             }
             return new URL(file.toURL(), uri.toString());
         }
-
-        public final static GBeanInfo GBEAN_INFO;
-
-        private static final byte[] NO_OBJECTS_OS;
-
-        static {
-            GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(MockConfigStore.class, NameFactory.CONFIGURATION_STORE);
-            infoBuilder.addInterface(ConfigurationStore.class);
-            GBEAN_INFO = infoBuilder.getBeanInfo();
-
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            try {
-                ObjectOutputStream oos = new ObjectOutputStream(baos);
-                oos.flush();
-                NO_OBJECTS_OS = baos.toByteArray();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
     }
-
 }

@@ -20,6 +20,7 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.gbean.AbstractName;
 
 import java.io.File;
@@ -27,12 +28,12 @@ import java.net.URL;
 import java.util.jar.JarFile;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 385487 $ $Date$
  */
 public interface ModuleBuilder {
-    Module createModule(File plan, JarFile moduleFile) throws DeploymentException;
+    Module createModule(File plan, JarFile moduleFile, Naming naming) throws DeploymentException;
 
-    Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName) throws DeploymentException;
+    Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming) throws DeploymentException;
 
     void installModule(JarFile earFile, EARContext earContext, Module module, ConfigurationStore configurationStore, Repository repository) throws DeploymentException;
 

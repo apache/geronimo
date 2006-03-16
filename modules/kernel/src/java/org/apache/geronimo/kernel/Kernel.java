@@ -32,7 +32,7 @@ import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 385487 $ $Date$
  */
 public interface Kernel {
     /**
@@ -47,6 +47,12 @@ public interface Kernel {
      * @return the name of this kernel
      */
     String getKernelName();
+
+    /**
+     * Gets the naming system used by this kernel.
+     * @return the naming system used by this kernel
+     */
+    Naming getNaming();
 
     /**
      * Gets the dependency manager kernel service

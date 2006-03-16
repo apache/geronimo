@@ -28,6 +28,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -42,18 +43,17 @@ import java.util.Map;
 import java.util.jar.JarFile;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 385487 $ $Date$
  */
 public class SwitchingModuleBuilder implements ModuleBuilder {
 
-    private final ReferenceCollection builders;
     private final Map namespaceToBuilderMap = new HashMap();
 
     private String defaultNamespace;
 
     public SwitchingModuleBuilder(Collection builders) {
-        this.builders = (ReferenceCollection) builders;
-        this.builders.addReferenceCollectionListener(new ReferenceCollectionListener() {
+        ReferenceCollection buildersCollection = (ReferenceCollection) builders;
+        buildersCollection.addReferenceCollectionListener(new ReferenceCollectionListener() {
             public void memberAdded(ReferenceCollectionEvent event) {
                 ModuleBuilder builder = (ModuleBuilder) event.getMember();
                 String namespace = builder.getSchemaNamespace();
@@ -82,7 +82,7 @@ public class SwitchingModuleBuilder implements ModuleBuilder {
         this.defaultNamespace = defaultNamespace;
     }
 
-    public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
+    public Module createModule(File plan, JarFile moduleFile, Naming naming) throws DeploymentException {
         String namespace;
         if (plan == null) {
             namespace = defaultNamespace;
@@ -91,7 +91,7 @@ public class SwitchingModuleBuilder implements ModuleBuilder {
         }
         ModuleBuilder builder = getBuilderFromNamespace(namespace);
         if (builder != null) {
-            return builder.createModule(plan, moduleFile);
+            return builder.createModule(plan, moduleFile, naming);
         } else {
             return null;
         }
@@ -135,11 +135,11 @@ public class SwitchingModuleBuilder implements ModuleBuilder {
         return builder;
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName) throws DeploymentException {
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming) throws DeploymentException {
         String namespace = getNamespaceFromPlan(plan);
         ModuleBuilder builder = getBuilderFromNamespace(namespace);
         if (builder != null) {
-            return builder.createModule(plan, moduleFile, targetPath, specDDUrl, environment, moduleContextInfo, earName);
+            return builder.createModule(plan, moduleFile, targetPath, specDDUrl, environment, moduleContextInfo, earName, naming);
         } else {
             return null;
         }

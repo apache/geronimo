@@ -25,6 +25,7 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
@@ -102,15 +103,15 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         return dependencies;
     }
 
-    public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
-        return createModule(plan, moduleFile, "war", null, true, null, null);
+    public Module createModule(File plan, JarFile moduleFile, Naming naming) throws DeploymentException {
+        return createModule(plan, moduleFile, "war", null, true, null, null, naming);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName) throws DeploymentException {
-        return createModule(plan, moduleFile, targetPath, specDDUrl, false, (String) moduleContextInfo, earName);
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming) throws DeploymentException {
+        return createModule(plan, moduleFile, targetPath, specDDUrl, false, (String) moduleContextInfo, earName, naming);
     }
 
-    protected abstract Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, String contextRoot, AbstractName earName) throws DeploymentException;
+    protected abstract Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, String contextRoot, AbstractName earName, Naming naming) throws DeploymentException;
 
     /**
      * Some servlets will have multiple url patterns.  However, webservice servlets
@@ -185,7 +186,9 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
                 moduleContext = new EARContext(configurationDir,
                         environment,
                         ConfigurationModuleType.WAR,
-                        kernel,
+                        earContext.getNaming(),
+                        repository,
+                        configurationStore,
                         earContext.getServerName(),
                         module.getModuleName(),
                         earContext.getTransactionContextManagerObjectName(),

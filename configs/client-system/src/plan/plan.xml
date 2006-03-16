@@ -35,7 +35,7 @@ Configuration for root app client
     <gbean name="ServerInfo" class="org.apache.geronimo.system.serverinfo.BasicServerInfo"/>
 
     <!-- Configuration Manager service -->
-    <gbean name="ConfigurationManager" class="org.apache.geronimo.kernel.config.ConfigurationManagerImpl">
+    <gbean name="ConfigurationManager" class="org.apache.geronimo.kernel.config.KernelConfigurationManager">
         <reference name="Stores">
             <gbean-name>*:j2eeType=ConfigurationStore,*</gbean-name>
         </reference>

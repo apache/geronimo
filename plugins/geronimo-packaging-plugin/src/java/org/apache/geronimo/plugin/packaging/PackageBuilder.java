@@ -25,9 +25,8 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.KernelRegistry;
-import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
+import org.apache.geronimo.kernel.config.KernelConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
@@ -55,26 +54,6 @@ public class PackageBuilder {
     private static Log log = LogFactory.getLog(PackageBuilder.class);
 
     private static final String KERNEL_NAME = "geronimo.maven";
-    /**
-     * The name of the GBean that will load dependencies from the Maven repository.
-     */
-    private static final AbstractName REPOSITORY_NAME;
-    private static final AbstractName ARTIFACT_MANAGER_NAME;
-    private static final AbstractName ARTIFACT_RESOLVER_NAME;
-    /**
-     * The name of the GBean that will load Configurations from the Maven repository.
-     */
-    private static final AbstractName CONFIGSTORE_NAME;
-
-    /**
-     * The name of the GBean that will manage Configurations.
-     */
-    private static final AbstractName CONFIGMANAGER_NAME;
-
-    /**
-     * The name of the GBean that will provide values for managed attributes.
-     */
-    private static final AbstractName ATTRIBUTESTORE_NAME;
 
     /**
      * Reference to the kernel that will last the lifetime of this classloader.
@@ -92,26 +71,6 @@ public class PackageBuilder {
             String.class.getName(),
             String.class.getName(),
     };
-
-    static {
-        Artifact artifact = new Artifact("geronimo", "packaging", "fixed", "car");
-        Map nameMap = new HashMap();
-        nameMap.put("type", "plugin");
-        nameMap.put("name", "packaging");
-        ObjectName objectName;
-        try {
-            objectName = ObjectName.getInstance(KERNEL_NAME + "j2eeType=plugin,name=packaging");
-        } catch (MalformedObjectNameException e) {
-            throw (IllegalArgumentException)new IllegalArgumentException("Could not construct a fixed object name").initCause(e);
-        }
-        AbstractName rootName = new AbstractName(artifact, nameMap, objectName);
-        REPOSITORY_NAME = Naming.createChildName(rootName, "Repository", "Repository");
-        ARTIFACT_MANAGER_NAME = Naming.createChildName(rootName, "ArtifactManager", "ArtifactManager");
-        ARTIFACT_RESOLVER_NAME = Naming.createChildName(rootName, "ArtifactResolver", "ArtifactResolver");
-        CONFIGSTORE_NAME = Naming.createChildName(rootName, "ConfigurationStore", "PackageBuilderConfigStore");
-        CONFIGMANAGER_NAME = Naming.createChildName(rootName, "ConfigurationManager", "ConfigurationManager");
-        ATTRIBUTESTORE_NAME = Naming.createChildName(rootName, "ManagedAttributeStore", "ManagedAttributeStore");
-    }
 
     private String repositoryClass;
     private String configurationStoreClass;
@@ -332,49 +291,67 @@ public class PackageBuilder {
      * the local maven installation.
      */
     private static void bootDeployerSystem(Kernel kernel, File repository, String repoClass, String configStoreClass) throws Exception {
+        Artifact artifact = new Artifact("geronimo", "packaging", "fixed", "car");
+        Map nameMap = new HashMap();
+        nameMap.put("type", "plugin");
+        nameMap.put("name", "packaging");
+        ObjectName objectName;
+        try {
+            objectName = ObjectName.getInstance(KERNEL_NAME + "j2eeType=plugin,name=packaging");
+        } catch (MalformedObjectNameException e) {
+            throw (IllegalArgumentException)new IllegalArgumentException("Could not construct a fixed object name").initCause(e);
+        }
+        AbstractName rootName = new AbstractName(artifact, nameMap, objectName);
+        AbstractName repositoryName = kernel.getNaming().createChildName(rootName, "Repository", "Repository");
+        AbstractName artifactManagerName = kernel.getNaming().createChildName(rootName, "ArtifactManager", "ArtifactManager");
+        AbstractName artifactResolverName = kernel.getNaming().createChildName(rootName, "ArtifactResolver", "ArtifactResolver");
+        AbstractName configStoreName = kernel.getNaming().createChildName(rootName, "PackageBuilderConfigStore", "ConfigurationStore");
+        AbstractName configManagerName = kernel.getNaming().createChildName(rootName, "ConfigurationManager", "ConfigurationManager");
+        AbstractName attributeStoreName = kernel.getNaming().createChildName(rootName, "ManagedAttributeStore", "ManagedAttributeStore");
+
         ClassLoader cl = PackageBuilder.class.getClassLoader();
         GBeanInfo repoInfo = GBeanInfo.getGBeanInfo(repoClass, cl);
-        GBeanData repoGBean = new GBeanData(REPOSITORY_NAME, repoInfo);
+        GBeanData repoGBean = new GBeanData(repositoryName, repoInfo);
         URI repositoryURI = repository.toURI();
         repoGBean.setAttribute("root", repositoryURI);
         kernel.loadGBean(repoGBean, cl);
-        kernel.startGBean(REPOSITORY_NAME);
+        kernel.startGBean(repositoryName);
 
         //TODO parameterize these?
-        GBeanData artifactManagerGBean = new GBeanData(ARTIFACT_MANAGER_NAME, DefaultArtifactManager.GBEAN_INFO);
+        GBeanData artifactManagerGBean = new GBeanData(artifactManagerName, DefaultArtifactManager.GBEAN_INFO);
         kernel.loadGBean(artifactManagerGBean, cl);
-        kernel.startGBean(ARTIFACT_MANAGER_NAME);
+        kernel.startGBean(artifactManagerName);
 
-        GBeanData artifactResolverGBean = new GBeanData(ARTIFACT_RESOLVER_NAME, DefaultArtifactResolver.GBEAN_INFO);
-        artifactResolverGBean.setReferencePattern("Repositories", REPOSITORY_NAME);
-        artifactResolverGBean.setReferencePattern("ArtifactManager", ARTIFACT_MANAGER_NAME);
+        GBeanData artifactResolverGBean = new GBeanData(artifactResolverName, DefaultArtifactResolver.GBEAN_INFO);
+        artifactResolverGBean.setReferencePattern("Repositories", repositoryName);
+        artifactResolverGBean.setReferencePattern("ArtifactManager", artifactManagerName);
         kernel.loadGBean(artifactResolverGBean, cl);
-        kernel.startGBean(ARTIFACT_RESOLVER_NAME);
+        kernel.startGBean(artifactResolverName);
 
         GBeanInfo configStoreInfo = GBeanInfo.getGBeanInfo(configStoreClass, cl);
-        GBeanData storeGBean = new GBeanData(CONFIGSTORE_NAME, configStoreInfo);
+        GBeanData storeGBean = new GBeanData(configStoreName, configStoreInfo);
         Set refs = configStoreInfo.getReferences();
         for (Iterator iterator = refs.iterator(); iterator.hasNext();) {
             GReferenceInfo refInfo = (GReferenceInfo) iterator.next();
             if ("Repository".equals(refInfo.getName())) {
-                storeGBean.setReferencePattern("Repository", REPOSITORY_NAME);
+                storeGBean.setReferencePattern("Repository", repositoryName);
                 break;
             }
         }
         kernel.loadGBean(storeGBean, cl);
-        kernel.startGBean(CONFIGSTORE_NAME);
+        kernel.startGBean(configStoreName);
 
-        GBeanData configManagerGBean = new GBeanData(CONFIGMANAGER_NAME, ConfigurationManagerImpl.GBEAN_INFO);
-        configManagerGBean.setReferencePattern("Stores", CONFIGSTORE_NAME);
-        configManagerGBean.setReferencePattern("AttributeStore", ATTRIBUTESTORE_NAME);
-        configManagerGBean.setReferencePattern("ArtifactManager", ARTIFACT_MANAGER_NAME);
-        configManagerGBean.setReferencePattern("ArtifactResolver", ARTIFACT_RESOLVER_NAME);
+        GBeanData configManagerGBean = new GBeanData(configManagerName, KernelConfigurationManager.GBEAN_INFO);
+        configManagerGBean.setReferencePattern("Stores", configStoreName);
+        configManagerGBean.setReferencePattern("AttributeStore", attributeStoreName);
+        configManagerGBean.setReferencePattern("ArtifactManager", artifactManagerName);
+        configManagerGBean.setReferencePattern("ArtifactResolver", artifactResolverName);
         kernel.loadGBean(configManagerGBean, cl);
-        kernel.startGBean(CONFIGMANAGER_NAME);
+        kernel.startGBean(configManagerName);
 
-        GBeanData attrManagerGBean = new GBeanData(ATTRIBUTESTORE_NAME, MavenAttributeStore.GBEAN_INFO);
+        GBeanData attrManagerGBean = new GBeanData(attributeStoreName, MavenAttributeStore.GBEAN_INFO);
         kernel.loadGBean(attrManagerGBean, cl);
-        kernel.startGBean(ATTRIBUTESTORE_NAME);
+        kernel.startGBean(attributeStoreName);
     }
 
     /**

@@ -35,21 +35,21 @@ import java.util.jar.JarFile;
  * @version $Rev: 385487 $ $Date$
  */
 public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
-    public EARContext earContext;
-    public WebModule webModule;
-    public ClassLoader cl;
-    public String contextRoot;
+    private EARContext earContext;
+    private ClassLoader cl;
     private Map portMap = null;
     private String namespace = "foo";
+    public WebModule webModule;
+    public String contextRoot;
 
-    public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
-        AbstractName earName = Naming.createRootName(new Artifact("test", "test-war", "", "war"), NameFactory.NULL, NameFactory.J2EE_APPLICATION) ;
-        AbstractName moduleName = Naming.createChildName(earName, NameFactory.WEB_MODULE, "war");
+    public Module createModule(File plan, JarFile moduleFile, Naming naming) throws DeploymentException {
+        AbstractName earName = naming.createRootName(new Artifact("test", "test-war", "", "war"), NameFactory.NULL, NameFactory.J2EE_APPLICATION) ;
+        AbstractName moduleName = naming.createChildName(earName, "war", NameFactory.WEB_MODULE);
         return new WebModule(true, moduleName, null, moduleFile, "war", null, null, null, contextRoot, portMap, namespace);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName) throws DeploymentException {
-        AbstractName moduleName = Naming.createChildName(earName, NameFactory.EJB_MODULE, "war");
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming) throws DeploymentException {
+        AbstractName moduleName = naming.createChildName(earName, "war", NameFactory.EJB_MODULE);
         return new WebModule(false, moduleName, null, moduleFile, targetPath, null, null, null, contextRoot, portMap, namespace);
     }
 

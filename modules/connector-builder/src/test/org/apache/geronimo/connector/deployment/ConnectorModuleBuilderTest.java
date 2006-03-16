@@ -43,7 +43,7 @@ import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
+import org.apache.geronimo.kernel.config.KernelConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
@@ -179,13 +179,13 @@ public class ConnectorModuleBuilderTest extends TestCase {
             kernel.loadGBean(store, this.getClass().getClassLoader());
             kernel.startGBean(store.getName());
 
-            GBeanData configurationManagerData = new GBeanData(configurationManagerName, ConfigurationManagerImpl.GBEAN_INFO);
+            GBeanData configurationManagerData = new GBeanData(configurationManagerName, KernelConfigurationManager.GBEAN_INFO);
             configurationManagerData.setReferencePatterns("Stores", Collections.singleton(store.getName()));
             kernel.loadGBean(configurationManagerData, getClass().getClassLoader());
             kernel.startGBean(configurationManagerName);
 
             rarFile = DeploymentUtil.createJarFile(new File(basedir, "target/test-ear-noger.ear"));
-            EARConfigBuilder configBuilder = new EARConfigBuilder(defaultEnvironment, null, connectionTrackerName, null, null, null, null, null, ejbReferenceBuilder, null, new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, kernel), resourceReferenceBuilder, null, serviceReferenceBuilder, kernel);
+            EARConfigBuilder configBuilder = new EARConfigBuilder(defaultEnvironment, null, connectionTrackerName, null, null, null, null, null, ejbReferenceBuilder, null, new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching), resourceReferenceBuilder, null, serviceReferenceBuilder);
             ConfigurationData configData = null;
             try {
                 File planFile = new File(basedir, "src/test-data/data/external-application-plan.xml");
@@ -323,12 +323,12 @@ public class ConnectorModuleBuilderTest extends TestCase {
             kernel.loadGBean(store, this.getClass().getClassLoader());
             kernel.startGBean(store.getName());
 
-            GBeanData configurationManagerData = new GBeanData(configurationManagerName, ConfigurationManagerImpl.GBEAN_INFO);
+            GBeanData configurationManagerData = new GBeanData(configurationManagerName, KernelConfigurationManager.GBEAN_INFO);
             configurationManagerData.setReferencePatterns("Stores", Collections.singleton(store.getName()));
             kernel.loadGBean(configurationManagerData, getClass().getClassLoader());
             kernel.startGBean(configurationManagerName);
 
-            ConnectorModuleBuilder moduleBuilder = new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, kernel);
+            ConnectorModuleBuilder moduleBuilder = new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching);
             File rarFile = action.getRARFile();
 
             ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
@@ -337,7 +337,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
             Thread.currentThread().setContextClassLoader(cl);
 
             JarFile rarJarFile = DeploymentUtil.createJarFile(rarFile);
-            Module module = moduleBuilder.createModule(action.getVendorDD(), rarJarFile, j2eeContext.getJ2eeModuleName(), action.getSpecDD(), null, null, earName);
+            Module module = moduleBuilder.createModule(action.getVendorDD(), rarJarFile, j2eeContext.getJ2eeModuleName(), action.getSpecDD(), null, null, earName, naming);
             if (module == null) {
                 throw new DeploymentException("Was not a connector module");
             }
@@ -349,15 +349,14 @@ public class ConnectorModuleBuilderTest extends TestCase {
                 EARContext earContext = new EARContext(tempDir,
                         module.getEnvironment(),
                         module.getType(),
-                        kernel,
-                        serverName, j2eeContext.getJ2eeApplicationName(),
+                        serverName,
+                        j2eeContext.getJ2eeApplicationName(),
                         null,
                         connectionTrackerName,
                         null,
                         null,
-                        null, new RefContext(ejbReferenceBuilder,
-                        moduleBuilder,
-                        serviceReferenceBuilder));
+                        null,
+                        new RefContext(ejbReferenceBuilder, moduleBuilder, serviceReferenceBuilder));
 
                 action.install(moduleBuilder, earContext, module, configurationStore);
                 earContext.getClassLoader();
@@ -395,7 +394,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
             kernel.loadGBean(artifactResolver, this.getClass().getClassLoader());
             kernel.startGBean(artifactResolver.getName());
 
-            GBeanData configurationManagerData = new GBeanData(configurationManagerName, ConfigurationManagerImpl.GBEAN_INFO);
+            GBeanData configurationManagerData = new GBeanData(configurationManagerName, KernelConfigurationManager.GBEAN_INFO);
             configurationManagerData.setReferencePattern("Stores", store.getName());
             configurationManagerData.setReferencePattern("ArtifactManager", artifactManager.getName());
             configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolver.getName());

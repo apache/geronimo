@@ -68,6 +68,7 @@ public final class ConfigurationUtil {
         Artifact configId = environment.getConfigId();
         AbstractName configurationName = Configuration.getConfigurationAbstractName(configId);
         configuration.setAbstractName(configurationName);
+        configuration.setAttribute("naming", kernel.getNaming());
 
         // for a bootstrap we should have an empty kernel, so clear the references and dependencies
         configuration.setAttribute("artifactManager", null);

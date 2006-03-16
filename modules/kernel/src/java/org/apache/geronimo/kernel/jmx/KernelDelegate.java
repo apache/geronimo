@@ -37,11 +37,12 @@ import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.NoSuchAttributeException;
 import org.apache.geronimo.kernel.NoSuchOperationException;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.lifecycle.LifecycleMonitor;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 385487 $ $Date$
  */
 public class KernelDelegate implements Kernel {
     private final MBeanServerConnection mbeanServer;
@@ -58,6 +59,10 @@ public class KernelDelegate implements Kernel {
 
     public String getKernelName() {
         return (String) getKernelAttribute("kernelName");
+    }
+
+    public Naming getNaming() {
+        throw new UnsupportedOperationException();
     }
 
     public void loadGBean(GBeanData gbeanData, ClassLoader classLoader) throws GBeanAlreadyExistsException {

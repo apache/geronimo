@@ -35,9 +35,9 @@ import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.j2ee.ApplicationInfo;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEApplicationImpl;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
@@ -79,10 +79,9 @@ import java.util.zip.ZipEntry;
  * @version $Rev:385232 $ $Date$
  */
 public class EARConfigBuilder implements ConfigurationBuilder {
-
     private final static QName APPLICATION_QNAME = GerApplicationDocument.type.getDocumentElementName();
+    private static final String DEFAULT_GROUPID = "defaultGroupId";
 
-    private final Kernel kernel;
     private final Repository repository;
     private final ModuleBuilder ejbConfigBuilder;
     private final ModuleBuilder webConfigBuilder;
@@ -100,7 +99,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private final AbstractNameQuery transactionalTimerObjectName;
     private final AbstractNameQuery nonTransactionalTimerObjectName;
     private final AbstractNameQuery corbaGBeanObjectName;
-    private static final String DEFAULT_GROUPID = "defaultGroupId";
+    private final Naming naming;
 
 
     public EARConfigBuilder(Environment defaultEnvironment,
@@ -118,7 +117,38 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             ModuleBuilder appClientConfigBuilder,
             ServiceReferenceBuilder serviceReferenceBuilder,
             Kernel kernel) {
-        this.kernel = kernel;
+        this(defaultEnvironment,
+                transactionContextManagerAbstractName,
+                connectionTrackerAbstractName,
+                transactionalTimerAbstractName,
+                nonTransactionalTimerAbstractName,
+                corbaGBeanAbstractName,
+                repository,
+                ejbConfigBuilder,
+                ejbReferenceBuilder,
+                webConfigBuilder,
+                connectorConfigBuilder,
+                resourceReferenceBuilder,
+                appClientConfigBuilder,
+                serviceReferenceBuilder,
+                kernel.getNaming());
+    }
+
+    public EARConfigBuilder(Environment defaultEnvironment,
+            AbstractNameQuery transactionContextManagerAbstractName,
+            AbstractNameQuery connectionTrackerAbstractName,
+            AbstractNameQuery transactionalTimerAbstractName,
+            AbstractNameQuery nonTransactionalTimerAbstractName,
+            AbstractNameQuery corbaGBeanAbstractName,
+            Repository repository,
+            ModuleBuilder ejbConfigBuilder,
+            EJBReferenceBuilder ejbReferenceBuilder,
+            ModuleBuilder webConfigBuilder,
+            ModuleBuilder connectorConfigBuilder,
+            ResourceReferenceBuilder resourceReferenceBuilder,
+            ModuleBuilder appClientConfigBuilder,
+            ServiceReferenceBuilder serviceReferenceBuilder,
+            Naming naming) {
         this.repository = repository;
         this.defaultEnvironment = defaultEnvironment;
 
@@ -134,6 +164,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         this.transactionalTimerObjectName = transactionalTimerAbstractName;
         this.nonTransactionalTimerObjectName = nonTransactionalTimerAbstractName;
         this.corbaGBeanObjectName = corbaGBeanAbstractName;
+        this.naming = naming;
     }
 
     public Object getDeploymentPlan(File planFile, JarFile jarFile) throws DeploymentException {
@@ -152,16 +183,16 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         // get the modules either the application plan or for a stand alone module from the specific deployer
         Module module = null;
         if (webConfigBuilder != null) {
-            module = webConfigBuilder.createModule(planFile, jarFile);
+            module = webConfigBuilder.createModule(planFile, jarFile, naming);
         }
         if (module == null && ejbConfigBuilder != null) {
-            module = ejbConfigBuilder.createModule(planFile, jarFile);
+            module = ejbConfigBuilder.createModule(planFile, jarFile, naming);
         }
         if (module == null && connectorConfigBuilder != null) {
-            module = connectorConfigBuilder.createModule(planFile, jarFile);
+            module = connectorConfigBuilder.createModule(planFile, jarFile, naming);
         }
         if (module == null && appClientConfigBuilder != null) {
-            module = appClientConfigBuilder.createModule(planFile, jarFile);
+            module = appClientConfigBuilder.createModule(planFile, jarFile, naming);
         }
         if (module == null) {
             return null;
@@ -229,7 +260,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
 
         Artifact artifact = environment.getConfigId();
-        AbstractName earName = Naming.createRootName(artifact, artifact.toString(), NameFactory.J2EE_APPLICATION);
+        AbstractName earName = naming.createRootName(artifact, artifact.toString(), NameFactory.J2EE_APPLICATION);
 
         // get the modules either the application plan or for a stand alone module from the specific deployer
         // todo change module so you can extract the real module path back out.. then we can eliminate
@@ -316,7 +347,9 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             earContext = new EARContext(configurationDir,
                     applicationInfo.getEnvironment(),
                     applicationType,
-                    kernel,
+                    naming,
+                    repository,
+                    configurationStore,
                     serverName,
                     applicationInfo.getBaseName(),
                     transactionContextManagerObjectName,
@@ -390,7 +423,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             //add the JACC gbean if there is a principal-role mapping
             //TODO configid verify that the jaccManagerName is not needed before this.  cf. how this is handled in 1.2 branch.
             if (earContext.getSecurityConfiguration() != null) {
-                GBeanData jaccBeanData = SecurityBuilder.configureApplicationPolicyManager(earContext.getModuleName(), earContext.getContextIDToPermissionsMap(), earContext.getSecurityConfiguration());
+                GBeanData jaccBeanData = SecurityBuilder.configureApplicationPolicyManager(naming, earContext.getModuleName(), earContext.getContextIDToPermissionsMap(), earContext.getSecurityConfiguration());
                 earContext.addGBean(jaccBeanData);
                 earContext.setJaccManagerName(jaccBeanData.getAbstractName());
             }
@@ -528,7 +561,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                             altSpecDD,
                             environment,
                             moduleContextInfo,
-                            earName);
+                            earName, naming);
 
                     if (module == null) {
                         throw new DeploymentException("Module was not " + moduleTypeName + ": " + modulePath);
@@ -628,7 +661,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                         moduleName,
                         altSpecDD,
                         environment,
-                        moduleContextInfo, earName);
+                        moduleContextInfo, earName, naming);
 
                 if (module == null) {
                     throw new DeploymentException("Module was not " + moduleTypeName + ": " + moduleName);
@@ -694,8 +727,6 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         infoFactory.addReference("AppClientConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoFactory.addReference("ServiceReferenceBuilder", ServiceReferenceBuilder.class, NameFactory.MODULE_BUILDER);
 
-        infoFactory.addAttribute("kernel", Kernel.class, false);
-
         infoFactory.addInterface(ConfigurationBuilder.class);
 
         infoFactory.setConstructor(new String[]{
@@ -712,8 +743,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 "ConnectorConfigBuilder",
                 "ResourceReferenceBuilder",
                 "AppClientConfigBuilder",
-                "ServiceReferenceBuilder",
-                "kernel"
+                "ServiceReferenceBuilder"
         });
 
         GBEAN_INFO = infoFactory.getBeanInfo();

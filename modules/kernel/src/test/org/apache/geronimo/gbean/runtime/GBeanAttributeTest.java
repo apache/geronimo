@@ -24,7 +24,6 @@ import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.MockGBean;
-import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
@@ -331,7 +330,7 @@ public class GBeanAttributeTest extends TestCase {
         kernel = KernelFactory.newInstance().createKernel("test");
         kernel.boot();
 
-        AbstractName name = Naming.createRootName(new Artifact("test", "foo", "1", "car"), "test", "test");
+        AbstractName name = kernel.getNaming().createRootName(new Artifact("test", "foo", "1", "car"), "test", "test");
         gbeanInstance = new GBeanInstance(new GBeanData(name, MockGBean.getGBeanInfo()),
                 kernel,
                 kernel.getDependencyManager(),
