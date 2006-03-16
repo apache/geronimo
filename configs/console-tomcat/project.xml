@@ -177,6 +177,14 @@
         </properties>
     </dependency>
     <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-derby</artifactId>
+        <version>${pom.currentVersion}</version>
+        <properties>
+             <geronimo.dependency>true</geronimo.dependency>
+        </properties>
+    </dependency>
+    <dependency>
         <groupId>xmlbeans</groupId>
         <artifactId>xbean</artifactId>
         <version>${xmlbeans_version}</version>
