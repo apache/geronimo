@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.Arrays;
 
 import org.apache.geronimo.kernel.ClassLoading;
+import org.apache.geronimo.kernel.Kernel;
 
 /**
  * @version $Rev$ $Date$
@@ -212,6 +213,10 @@ public class GBeanInfoBuilder {
             String attributeName = persistentAttributes[i];
             GAttributeInfo attribute = (GAttributeInfo) attributes.get(attributeName);
             if (attribute != null) {
+                if (isMagicAttribute(attribute)) {
+                    // magic attributes can't be persistent
+                    continue;
+                }
                 attributes.put(attributeName,
                         new GAttributeInfo(attributeName,
                                 attribute.getType(),
@@ -237,6 +242,14 @@ public class GBeanInfoBuilder {
                                 attribute.getSetterName()));
             }
         }
+    }
+
+    private boolean isMagicAttribute(GAttributeInfo attributeInfo) {
+        String name = attributeInfo.getName();
+        String type = attributeInfo.getType();
+        return ("kernel".equals(name) && Kernel.class.getName().equals(type)) ||
+                ("classLoader".equals(name) && ClassLoader.class.getName().equals(type)) ||
+                ("objectName".equals(name) && String.class.getName().equals(type));
     }
 
     public void addInterface(Class intf) {
@@ -347,10 +360,13 @@ public class GBeanInfoBuilder {
     public void setConstructor(GConstructorInfo constructor) {
         assert constructor != null;
         this.constructor = constructor;
+        List names = constructor.getAttributeNames();
+        setPersistentAttributes((String[]) names.toArray(new String[names.size()]));
     }
 
     public void setConstructor(String[] names) {
         constructor = new GConstructorInfo(names);
+        setPersistentAttributes(names);
     }
 
     public void addOperation(GOperationInfo operationInfo) {
