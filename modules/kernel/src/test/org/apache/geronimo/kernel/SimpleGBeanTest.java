@@ -95,6 +95,7 @@ public class SimpleGBeanTest extends TestCase {
         private static final GBeanInfo GBEAN_INFO;
         static {
             GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(TestGBean.class);
+            infoBuilder.setPersistentAttributes(new String[] {"value"});
             infoBuilder.setConstructor(new String[] {"value"});
             GBEAN_INFO = infoBuilder.getBeanInfo();
         }

@@ -69,6 +69,7 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.deployment.util.UnpackedJarFile;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.Jsr77Naming;
@@ -77,6 +78,7 @@ import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingDocument;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
 import org.apache.geronimo.xbeans.j2ee.PackageMappingType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
+import org.apache.geronimo.gbean.AbstractName;
 
 /**
  * @version $Rev:385232 $ $Date$
@@ -109,10 +111,12 @@ public class ServiceReferenceTest extends TestCase {
         Map nameKeys = new HashMap();
         nameKeys.put("domain", "geronimo");
         environment.setProperties(nameKeys);
-        context = new DeploymentContext(tmpbasedir, environment, ConfigurationModuleType.CAR, new Jsr77Naming());
+        Jsr77Naming naming = new Jsr77Naming();
+        context = new DeploymentContext(tmpbasedir, environment, ConfigurationModuleType.CAR, naming);
 
         File moduleLocation = new File(tmpbasedir, "ejb");
         moduleLocation.mkdirs();
+        AbstractName moduleName = naming.createRootName(configID, "testejb", NameFactory.EJB_MODULE);
         module = new EJBModule(true, moduleName, environment, new UnpackedJarFile(moduleLocation), "ejb", null, null, null);
 
         runExternalWSTest = System.getProperty("geronimo.run.external.webservicetest", "false").equals("true");
