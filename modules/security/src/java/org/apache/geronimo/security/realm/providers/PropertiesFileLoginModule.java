@@ -17,6 +17,21 @@
 
 package org.apache.geronimo.security.realm.providers;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.common.GeronimoSecurityException;
+import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
+
+import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.login.FailedLoginException;
+import javax.security.auth.login.LoginException;
+import javax.security.auth.spi.LoginModule;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -27,23 +42,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.NameCallback;
-import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.security.auth.login.LoginException;
-import javax.security.auth.login.FailedLoginException;
-import javax.security.auth.spi.LoginModule;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.common.GeronimoSecurityException;
-import org.apache.geronimo.kernel.KernelRegistry;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 
 /**
@@ -69,7 +67,6 @@ public class PropertiesFileLoginModule implements LoginModule {
         this.subject = subject;
         this.handler = callbackHandler;
         try {
-            Kernel kernel = KernelRegistry.getKernel((String)options.get(JaasLoginModuleUse.KERNEL_NAME_LM_OPTION));
             ServerInfo serverInfo = (ServerInfo) options.get(JaasLoginModuleUse.SERVERINFO_LM_OPTION);
             final String users = (String)options.get(USERS_URI);
             final String groups = (String)options.get(GROUPS_URI);
@@ -78,14 +75,14 @@ public class PropertiesFileLoginModule implements LoginModule {
             }
             URI usersURI = new URI(users);
             URI groupsURI = new URI(groups);
-            loadProperties(kernel, serverInfo, usersURI, groupsURI);
+            loadProperties(serverInfo, usersURI, groupsURI);
         } catch (Exception e) {
             log.error("Initialization failed", e);
             throw new IllegalArgumentException("Unable to configure properties file login module: "+e.getMessage());
         }
     }
 
-    public void loadProperties(Kernel kernel, ServerInfo serverInfo, URI userURI, URI groupURI) throws GeronimoSecurityException {
+    public void loadProperties(ServerInfo serverInfo, URI userURI, URI groupURI) throws GeronimoSecurityException {
         try {
             URI userFile = serverInfo.resolve(userURI);
             URI groupFile = serverInfo.resolve(groupURI);

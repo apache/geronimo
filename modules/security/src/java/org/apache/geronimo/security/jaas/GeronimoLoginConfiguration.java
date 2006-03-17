@@ -65,8 +65,10 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(SecurityServiceImpl.CONFIGURE);
 
-        ReferenceCollection ref = (ReferenceCollection) configurations;
-        ref.addReferenceCollectionListener(this);
+        if (configurations instanceof ReferenceCollection) {
+            ReferenceCollection ref = (ReferenceCollection) configurations;
+            ref.addReferenceCollectionListener(this);
+        }
 
         this.configurations = configurations;
 

@@ -55,6 +55,7 @@ public class JaasLoginCoordinator implements LoginModule {
     public final static String OPTION_KERNEL = "kernel";
     public final static String OPTION_REALM = "realm";
     public final static String OPTION_SERVICENAME = "serviceName";
+    public final static String OPTION_SERVICE_INSTANCE = "serviceInstance";
     private String serverHost;
     private int serverPort;
     private String realmName;
@@ -82,7 +83,12 @@ public class JaasLoginCoordinator implements LoginModule {
         } catch (MalformedObjectNameException e) {
             throw new IllegalArgumentException("option " + OPTION_SERVICENAME + "is not a valid ObjectName: " + options.get(OPTION_SERVICENAME));
         }
-        service = connect();
+        if (port != null || kernelName != null) {
+            service = connect();
+        } else {
+            //primarily for testing without a kernel
+            service = (JaasLoginServiceMBean) options.get(OPTION_SERVICE_INSTANCE);
+        }
         handler = callbackHandler;
         if (subject == null) {
             this.subject = new Subject();

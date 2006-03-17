@@ -159,9 +159,16 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
     public JaasLoginModuleConfiguration generateConfiguration() {
         Map options = new HashMap();
         options.put(JaasLoginCoordinator.OPTION_REALM, realmName);
-        options.put(JaasLoginCoordinator.OPTION_KERNEL, kernel.getKernelName());
-        if (loginService != null) {
-            options.put(JaasLoginCoordinator.OPTION_SERVICENAME, loginService.getObjectName());
+        if (kernel != null) {
+            options.put(JaasLoginCoordinator.OPTION_KERNEL, kernel.getKernelName());
+            if (loginService != null) {
+                options.put(JaasLoginCoordinator.OPTION_SERVICENAME, loginService.getObjectName());
+            }
+        } else {
+            if (loginService != null) {
+                //this can be used for testing without a kernel.
+                options.put(JaasLoginCoordinator.OPTION_SERVICE_INSTANCE, loginService);
+            }
         }
 
         return new JaasLoginModuleConfiguration(JaasLoginCoordinator.class.getName(), LoginModuleControlFlag.REQUIRED, options, true, realmName, wrapPrincipals, JaasLoginCoordinator.class.getClassLoader());

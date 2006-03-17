@@ -37,27 +37,9 @@ import org.apache.geronimo.webservices.WebServiceContainer;
 /**
  * @version $Rev$ $Date$
  */
-public class ContainerTest extends TestCase {
-    private ClassLoader cl = this.getClass().getClassLoader();
-    private Kernel kernel;
-    private GBeanData container;
-    private ObjectName containerName;
-    private Set containerPatterns;
-    private ObjectName connectorName;
-
-    public void testServer() throws Exception {
-        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(containerName));
-    }
+public class ContainerTest extends AbstractWebModuleTest {
 
     public void testHTTPConnector() throws Exception {
-        GBeanData connector = new GBeanData(connectorName, HTTPConnector.GBEAN_INFO);
-        connector.setAttribute("port", new Integer(5678));
-        connector.setAttribute("maxThreads", new Integer(50));
-        connector.setAttribute("minThreads", new Integer(10));
-        connector.setReferencePatterns("JettyContainer", containerPatterns);
-        start(connector);
-
-        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(connectorName));
 
         HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:5678").openConnection();
         try {
@@ -68,22 +50,13 @@ public class ContainerTest extends TestCase {
             assertEquals(HttpURLConnection.HTTP_NOT_FOUND, connection.getResponseCode());
             connection.disconnect();
         }
-        stop(connectorName);
     }
 
     public void testWebServiceHandler() throws Exception {
-        GBeanData connector = new GBeanData(connectorName, HTTPConnector.GBEAN_INFO);
-        connector.setAttribute("port", new Integer(5678));
-        connector.setAttribute("maxThreads", new Integer(50));
-        connector.setAttribute("minThreads", new Integer(10));
-        connector.setReferencePatterns("JettyContainer", containerPatterns);
-        start(connector);
-
-        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(connectorName));
 
         String contextPath = "/foo/webservice.ws";
         MockWebServiceContainer webServiceInvoker = new MockWebServiceContainer();
-        kernel.invoke(containerName, "addWebService", new Object[] {contextPath, null, webServiceInvoker, null, null, null, null,cl}, new String[] {String.class.getName(), String[].class.getName(), WebServiceContainer.class.getName(), String.class.getName(), String.class.getName(), String.class.getName(), String.class.getName(), ClassLoader.class.getName()});
+        container.addWebService(contextPath, null, webServiceInvoker, null, null, null, null,cl);
 
         HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:5678" + contextPath).openConnection();
         try {
@@ -93,7 +66,7 @@ public class ContainerTest extends TestCase {
         } finally {
             connection.disconnect();
         }
-        kernel.invoke(containerName, "removeWebService", new Object[] {contextPath}, new String[] {String.class.getName()});
+        container.removeWebService(contextPath);
         connection = (HttpURLConnection) new URL("http://localhost:5678" + contextPath).openConnection();
         try {
             connection.getInputStream();
@@ -103,32 +76,6 @@ public class ContainerTest extends TestCase {
             assertEquals(HttpURLConnection.HTTP_NOT_FOUND, connection.getResponseCode());
             connection.disconnect();
         }
-        stop(connectorName);
     }
 
-    private void start(GBeanData instance) throws Exception {
-        kernel.loadGBean(instance, cl);
-        kernel.startGBean(instance.getName());
-    }
-
-    private void stop(ObjectName name) throws Exception {
-        kernel.stopGBean(name);
-        kernel.unloadGBean(name);
-    }
-
-    protected void setUp() throws Exception {
-        containerName = new ObjectName("geronimo.jetty:role=Container");
-        containerPatterns = new HashSet();
-        containerPatterns.add(containerName);
-        connectorName = new ObjectName("geronimo.jetty:role=Connector");
-        kernel = KernelFactory.newInstance().createKernel("test.kernel");
-        kernel.boot();
-        container = new GBeanData(containerName, JettyContainerImpl.GBEAN_INFO);
-        start(container);
-    }
-
-    protected void tearDown() throws Exception {
-        stop(containerName);
-        kernel.shutdown();
-    }
 }

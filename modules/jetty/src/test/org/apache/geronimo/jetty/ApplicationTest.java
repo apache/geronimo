@@ -28,9 +28,9 @@ import java.net.URL;
 public class ApplicationTest extends AbstractWebModuleTest {
 
     public void testApplication() throws Exception {
-        setUpInsecureAppContext();
+        JettyWebAppContext app = setUpAppContext(null, null, null, null, null, null, null, null, "war1/");
 
-        setUpStaticContentServlet();
+        setUpStaticContentServlet(app);
 
         HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:5678/test/hello.txt").openConnection();
         BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));

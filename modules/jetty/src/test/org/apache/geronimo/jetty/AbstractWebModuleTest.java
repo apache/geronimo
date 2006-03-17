@@ -17,15 +17,8 @@
 package org.apache.geronimo.jetty;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.jetty.connector.HTTPConnector;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelFactory;
-import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.security.SecurityServiceImpl;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deploy.PrincipalInfo;
@@ -35,20 +28,21 @@ import org.apache.geronimo.security.jaas.LoginModuleGBean;
 import org.apache.geronimo.security.jaas.server.JaasLoginService;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
+import org.apache.geronimo.security.jacc.RoleDesignateSource;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
-import org.apache.geronimo.transaction.context.TransactionContextManagerGBean;
-import org.apache.geronimo.transaction.manager.TransactionManagerImplGBean;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
+import org.mortbay.http.Authenticator;
 import org.mortbay.jetty.servlet.FormAuthenticator;
 
-import javax.management.ObjectName;
-import java.io.File;
 import java.net.URI;
+import java.net.URL;
 import java.security.PermissionCollection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -58,41 +52,16 @@ import java.util.Set;
  * @version $Rev$ $Date$
  */
 public class AbstractWebModuleTest extends TestCase {
-    protected Kernel kernel;
-    private GBeanData container;
-    private ObjectName containerName;
-    private ObjectName connectorName;
-    private GBeanData connector;
-    private ObjectName webModuleName;
-    private ObjectName tmName;
-    private ObjectName ctcName;
-    private GBeanData tm;
-    private GBeanData ctc;
-    private ObjectName tcmName;
-    private GBeanData tcm;
-    private ClassLoader cl;
-    private J2eeContext moduleContext = new J2eeContextImpl("jetty.test", "test", "null", NameFactory.WEB_MODULE, "jettyTest", null, null);
-    private GBeanData loginConfigurationGBean;
-    protected ObjectName loginConfigurationName;
-    private GBeanData securityServiceGBean;
-    protected ObjectName securityServiceName;
-    private ObjectName loginServiceName;
-    private GBeanData loginServiceGBean;
-    protected GBeanData propertiesLMGBean;
-    protected ObjectName propertiesLMName;
-    protected ObjectName propertiesRealmName;
-    private GBeanData propertiesRealmGBean;
-    private ObjectName serverInfoName;
-    private GBeanData serverInfoGBean;
+    protected ClassLoader cl;
     protected final static String securityRealmName = "demo-properties-realm";
+    private HTTPConnector connector;
+    protected JettyContainerImpl container;
+    private TransactionContextManager transactionContextManager;
+    private ConnectionTrackingCoordinator connectionTrackingCoordinator;
+    private URL configurationBaseURL;
 
-    public void testDummy() throws Exception {
-    }
 
-    protected void setUpStaticContentServlet() throws Exception {
-        GBeanData staticContentServletGBeanData = new GBeanData(JettyServletHolder.GBEAN_INFO);
-        staticContentServletGBeanData.setAttribute("servletName", "default");
-        staticContentServletGBeanData.setAttribute("servletClass", "org.mortbay.jetty.servlet.Default");
+    protected void setUpStaticContentServlet(JettyServletRegistration webModule) throws Exception {
         Map staticContentServletInitParams = new HashMap();
         staticContentServletInitParams.put("acceptRanges", "true");
         staticContentServletInitParams.put("dirAllowed", "true");
@@ -100,200 +69,139 @@ public class AbstractWebModuleTest extends TestCase {
         staticContentServletInitParams.put("delAllowed", "false");
         staticContentServletInitParams.put("redirectWelcome", "false");
         staticContentServletInitParams.put("minGzipLength", "8192");
-        staticContentServletGBeanData.setAttribute("initParams", staticContentServletInitParams);
-        staticContentServletGBeanData.setAttribute("loadOnStartup", new Integer(0));
-        staticContentServletGBeanData.setAttribute("servletMappings", Collections.singleton(new String("/")));
-        ObjectName staticContentServletObjectName = NameFactory.getComponentName(null, null, null, NameFactory.WEB_MODULE, null, (String) staticContentServletGBeanData.getAttribute("servletName"), NameFactory.SERVLET, moduleContext);
-        staticContentServletGBeanData.setName(staticContentServletObjectName);
-        staticContentServletGBeanData.setReferencePattern("JettyServletRegistration", webModuleName);
 
-        start(staticContentServletGBeanData);
+        new JettyServletHolder("test:name=staticservlet",
+                "default",
+                "org.mortbay.jetty.servlet.Default",
+                null,
+                staticContentServletInitParams,
+                null,
+                Collections.singleton("/"),
+                null,
+                null,
+                null,
+                webModule);
+
     }
 
-    protected void setUpInsecureAppContext() throws Exception {
-        GBeanData app = new GBeanData(webModuleName, JettyWebAppContext.GBEAN_INFO);
-        app.setAttribute("uri", URI.create("war1/"));
-        app.setAttribute("componentContext", Collections.EMPTY_MAP);
-        OnlineUserTransaction userTransaction = new OnlineUserTransaction();
-        app.setAttribute("userTransaction", userTransaction);
-        //we have no classes or libs.
-        app.setAttribute("configurationBaseUrl", new File("src/test-resources/deployables/").toURL());
-        app.setReferencePattern("TransactionContextManager", tcmName);
-        app.setReferencePattern("TrackedConnectionAssociator", ctcName);
-        app.setReferencePattern("JettyContainer", containerName);
+    protected JettyWebAppContext setUpAppContext(String realmName, String securityRealmName, Authenticator authenticator, String policyContextId, RoleDesignateSource roleDesignateSource, PermissionCollection excludedPermissions, DefaultPrincipal defaultPrincipal, PermissionCollection checkedPermissions, String uriString) throws Exception {
 
-        app.setAttribute("contextPath", "/test");
-
-        start(app);
+        JettyWebAppContext app = new JettyWebAppContext(null,
+                null,
+                URI.create(uriString),
+                null,
+                null,
+                Collections.EMPTY_MAP,
+                new OnlineUserTransaction(),
+                cl,
+                configurationBaseURL,
+                null,
+                null,
+                "context",
+                null,
+                null,
+                false,
+                null,
+                null,
+                null,
+                null,
+                authenticator,
+                realmName,
+                null,
+                0,
+                policyContextId,
+                securityRealmName,
+                defaultPrincipal,
+                checkedPermissions,
+                excludedPermissions,
+                transactionContextManager,
+                connectionTrackingCoordinator,
+                container,
+                roleDesignateSource,
+                null,
+                null,
+                null);
+        app.setContextPath("/test");
+        app.doStart();
+        return app;
     }
 
-    protected void setUpSecureAppContext(Map roleDesignates, Map principalRoleMap, ComponentPermissions componentPermissions, DefaultPrincipal defaultPrincipal, PermissionCollection checked, Set securityRoles) throws Exception {
-        ObjectName jaccBeanName = NameFactory.getComponentName(null, null, null, null, "foo", NameFactory.JACC_MANAGER, moduleContext);
-        GBeanData jaccBeanData = new GBeanData(jaccBeanName, ApplicationPolicyConfigurationManager.GBEAN_INFO);
+    protected JettyWebAppContext setUpSecureAppContext(Map roleDesignates, Map principalRoleMap, ComponentPermissions componentPermissions, DefaultPrincipal defaultPrincipal, PermissionCollection checked, Set securityRoles) throws Exception {
+        String policyContextId = "TEST";
         Map contextIDToPermissionsMap = new HashMap();
-        contextIDToPermissionsMap.put("TEST", componentPermissions);
-        jaccBeanData.setAttribute("contextIdToPermissionsMap", contextIDToPermissionsMap);
-        jaccBeanData.setAttribute("principalRoleMap", principalRoleMap);
-        jaccBeanData.setAttribute("roleDesignates", roleDesignates);
-        start(jaccBeanData);
-
-        GBeanData app = new GBeanData(webModuleName, JettyWebAppContext.GBEAN_INFO);
-        app.setAttribute("securityRealmName", "demo-properties-realm");
-        app.setAttribute("defaultPrincipal", defaultPrincipal);
-        app.setAttribute("checkedPermissions", checked);
-        app.setAttribute("excludedPermissions", componentPermissions.getExcludedPermissions());
-        app.setReferencePattern("RoleDesignateSource", jaccBeanName);
+        contextIDToPermissionsMap.put(policyContextId, componentPermissions);
+        ApplicationPolicyConfigurationManager jacc = new ApplicationPolicyConfigurationManager(contextIDToPermissionsMap, principalRoleMap, roleDesignates, cl);
+        jacc.doStart();
 
         FormAuthenticator formAuthenticator = new FormAuthenticator();
         formAuthenticator.setLoginPage("/auth/logon.html?param=test");
         formAuthenticator.setErrorPage("/auth/logonError.html?param=test");
-        app.setAttribute("realmName", "Test JAAS Realm");
-        app.setAttribute("authenticator", formAuthenticator);
-        app.setAttribute("policyContextID", "TEST");
-        app.setAttribute("uri", URI.create("war3/"));
-        app.setAttribute("componentContext", Collections.EMPTY_MAP);
+        return setUpAppContext("Test JAAS Realm",
+                "demo-properties-realm",
+                formAuthenticator,
+                policyContextId,
+                jacc,
+                componentPermissions.getExcludedPermissions(),
+                defaultPrincipal,
+                checked, "war3/");
 
-        OnlineUserTransaction userTransaction = new OnlineUserTransaction();
-        app.setAttribute("userTransaction", userTransaction);
-        app.setAttribute("configurationBaseUrl", new File("src/test-resources/deployables/").toURL());
-        app.setReferencePattern("TransactionContextManager", tcmName);
-        app.setReferencePattern("TrackedConnectionAssociator", ctcName);
-        app.setReferencePattern("JettyContainer", containerName);
-
-        app.setAttribute("contextPath", "/test");
-
-        start(app);
     }
 
     protected void setUpSecurity() throws Exception {
+        String domainName = "demo-properties-realm";
 
-        loginConfigurationName = new ObjectName("geronimo.security:type=LoginConfiguration");
-        loginConfigurationGBean = new GBeanData(loginConfigurationName, GeronimoLoginConfiguration.getGBeanInfo());
-        Set configurations = new HashSet();
-        configurations.add(new ObjectName("geronimo.server:j2eeType=SecurityRealm,*"));
-        configurations.add(new ObjectName("geronimo.server:j2eeType=ConfigurationEntry,*"));
-        loginConfigurationGBean.setReferencePatterns("Configurations", configurations);
+        ServerInfo serverInfo = new BasicServerInfo(".");
 
-        serverInfoName = new ObjectName("geronimo.system:name=ServerInfo");
-        serverInfoGBean = new GBeanData(serverInfoName, BasicServerInfo.GBEAN_INFO);
-        serverInfoGBean.setAttribute("baseDirectory", ".");
+        new SecurityServiceImpl(cl, serverInfo, "org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory", "org.apache.geronimo.security.jacc.GeronimoPolicy", null, null, null, null);
 
-        securityServiceName = new ObjectName("geronimo.server:j2eeType=SecurityService");
-        securityServiceGBean = new GBeanData(securityServiceName, SecurityServiceImpl.GBEAN_INFO);
-        securityServiceGBean.setReferencePattern("ServerInfo", serverInfoName);
-        securityServiceGBean.setAttribute("policyConfigurationFactory", "org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory");
-        securityServiceGBean.setAttribute("policyProvider", "org.apache.geronimo.security.jacc.GeronimoPolicy");
-
-        loginServiceName = new ObjectName("test:name=TestLoginService");
-        loginServiceGBean = new GBeanData(loginServiceName, JaasLoginService.GBEAN_INFO);
-        loginServiceGBean.setReferencePattern("Realms", new ObjectName("geronimo.server:j2eeType=SecurityRealm,*"));
-//        loginServiceGBean.setAttribute("reclaimPeriod", new Long(1000 * 1000));
-        loginServiceGBean.setAttribute("algorithm", "HmacSHA1");
-        loginServiceGBean.setAttribute("password", "secret");
-
-        propertiesLMName = new ObjectName("geronimo.security:type=LoginModule,name=demo-properties-login");
-        propertiesLMGBean = new GBeanData(propertiesLMName, LoginModuleGBean.GBEAN_INFO);
-        propertiesLMGBean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule");
-        propertiesLMGBean.setAttribute("serverSide", Boolean.TRUE);
         Properties options = new Properties();
         options.setProperty("usersURI", "src/test-resources/data/users.properties");
         options.setProperty("groupsURI", "src/test-resources/data/groups.properties");
-        propertiesLMGBean.setAttribute("options", options);
-        propertiesLMGBean.setAttribute("wrapPrincipals", Boolean.TRUE);
-        //TODO should this be called securityRealmName?
-        propertiesLMGBean.setAttribute("loginDomainName", "demo-properties-realm");
 
-        ObjectName testUseName = new ObjectName("geronimo.security:type=LoginModuleUse,name=properties");
-        GBeanData lmUseGBean = new GBeanData(testUseName, JaasLoginModuleUse.getGBeanInfo());
-        lmUseGBean.setAttribute("controlFlag", "REQUIRED");
-        lmUseGBean.setReferencePattern("LoginModule", propertiesLMName);
+        LoginModuleGBean loginModule = new LoginModuleGBean("org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule", null, true, true, cl);
+        loginModule.setLoginDomainName(domainName);
+        loginModule.setOptions(options);
 
-        propertiesRealmName = new ObjectName("geronimo.server:j2eeType=SecurityRealm,name=demo-properties-realm");
-        propertiesRealmGBean = new GBeanData(propertiesRealmName, GenericSecurityRealm.GBEAN_INFO);
-        propertiesRealmGBean.setReferencePattern("ServerInfo", serverInfoName);
-        propertiesRealmGBean.setAttribute("realmName", "demo-properties-realm");
-        propertiesRealmGBean.setReferencePattern("LoginService", loginServiceName);
-//        Properties config = new Properties();
-//        config.setProperty("LoginModule.1.REQUIRED", propertiesLMName.getCanonicalName());
-//        propertiesRealmGBean.setAttribute("loginModuleConfiguration", config);
-        propertiesRealmGBean.setReferencePattern("LoginModuleConfiguration", testUseName);
+        JaasLoginModuleUse loginModuleUse = new JaasLoginModuleUse(loginModule, null, "REQUIRED", null);
+
+        JaasLoginService loginService = new JaasLoginService("HmacSHA1", "secret", cl, null);
+
         PrincipalInfo.PrincipalEditor principalEditor = new PrincipalInfo.PrincipalEditor();
         principalEditor.setAsText("metro,org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal,false");
-        propertiesRealmGBean.setAttribute("defaultPrincipal", principalEditor.getValue());
+        GenericSecurityRealm realm = new GenericSecurityRealm(domainName, loginModuleUse, true, true, (PrincipalInfo) principalEditor.getValue(), serverInfo,  cl, null, loginService);
 
-        start(loginConfigurationGBean);
-        start(serverInfoGBean);
-        start(securityServiceGBean);
-        start(loginServiceGBean);
-        start(propertiesLMGBean);
-        start(lmUseGBean);
-        start(propertiesRealmGBean);
+        loginService.setRealms(Collections.singleton(realm));
+        loginService.doStart();
+
+        GeronimoLoginConfiguration loginConfiguration = new GeronimoLoginConfiguration();
+        loginConfiguration.setConfigurations(Collections.singleton(realm));
+        loginConfiguration.doStart();
 
     }
 
     protected void tearDownSecurity() throws Exception {
-        stop(propertiesRealmName);
-        stop(propertiesLMName);
-        stop(loginServiceName);
-        stop(securityServiceName);
-        stop(serverInfoName);
-        stop(loginConfigurationName);
-    }
-
-    private void start(GBeanData gbeanData) throws Exception {
-        kernel.loadGBean(gbeanData, cl);
-        kernel.startGBean(gbeanData.getName());
-        if (kernel.getGBeanState(gbeanData.getName()) != State.RUNNING_INDEX) {
-            fail("gbean not started: " + gbeanData.getName());
-        }
-    }
-
-    private void stop(ObjectName name) throws Exception {
-        kernel.stopGBean(name);
-        kernel.unloadGBean(name);
     }
 
     protected void setUp() throws Exception {
         cl = this.getClass().getClassLoader();
-        containerName = NameFactory.getWebComponentName(null, null, null, null, "jettyContainer", "WebResource", moduleContext);
-        connectorName = NameFactory.getWebComponentName(null, null, null, null, "jettyConnector", "WebResource", moduleContext);
-        webModuleName = NameFactory.getModuleName(null, null, null, null, "testModule", moduleContext);
 
-        tmName = NameFactory.getComponentName(null, null, null, null, null, "TransactionManager", NameFactory.TRANSACTION_MANAGER, moduleContext);
-        tcmName = NameFactory.getComponentName(null, null, null, null, null, "TransactionContextManager", NameFactory.TRANSACTION_CONTEXT_MANAGER, moduleContext);
-        ctcName = new ObjectName("geronimo.test:role=ConnectionTrackingCoordinator");
+        configurationBaseURL = cl.getResource("deployables/");
 
-        kernel = KernelFactory.newInstance().createKernel("test.kernel");
-        kernel.boot();
-        container = new GBeanData(containerName, JettyContainerImpl.GBEAN_INFO);
+        container = new JettyContainerImpl("test:name=JettyContainer");
+        container.doStart();
+        connector = new HTTPConnector(container);
+        connector.setPort(5678);
+        connector.setMaxThreads(50);
+        connector.setMinThreads(10);
+        connector.doStart();
 
-        connector = new GBeanData(connectorName, HTTPConnector.GBEAN_INFO);
-        connector.setAttribute("port", new Integer(5678));
-        connector.setAttribute("maxThreads", new Integer(50));
-        connector.setAttribute("minThreads", new Integer(10));
-        connector.setReferencePattern("JettyContainer", containerName);
+        TransactionManagerImpl tm = new TransactionManagerImpl(10, null, null, Collections.EMPTY_LIST);
+        transactionContextManager = new TransactionContextManager(tm, tm);
+        connectionTrackingCoordinator = new ConnectionTrackingCoordinator();
 
-        start(container);
-        start(connector);
-
-        tm = new GBeanData(tmName, TransactionManagerImplGBean.GBEAN_INFO);
-        Set patterns = new HashSet();
-        patterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
-        tm.setAttribute("defaultTransactionTimeoutSeconds", new Integer(10));
-        tm.setReferencePatterns("ResourceManagers", patterns);
-        start(tm);
-        tcm = new GBeanData(tcmName, TransactionContextManagerGBean.GBEAN_INFO);
-        tcm.setReferencePattern("TransactionManager", tmName);
-        start(tcm);
-        ctc = new GBeanData(ctcName, ConnectionTrackingCoordinatorGBean.GBEAN_INFO);
-        start(ctc);
     }
 
     protected void tearDown() throws Exception {
-        stop(ctcName);
-        stop(tmName);
-        stop(connectorName);
-        stop(containerName);
-        kernel.shutdown();
+        connector.doStop();
     }
 }

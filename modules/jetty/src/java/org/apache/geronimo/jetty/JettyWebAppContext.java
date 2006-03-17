@@ -204,8 +204,10 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         this.server = server;
         this.application = application;
         this.objectName = objectName;
-        ObjectName myObjectName = JMXUtil.getObjectName(objectName);
-        verifyObjectName(myObjectName);
+        if (objectName != null) {
+            ObjectName myObjectName = JMXUtil.getObjectName(objectName);
+            verifyObjectName(myObjectName);
+        }
 
         this.jettyContainer = jettyContainer;
 
