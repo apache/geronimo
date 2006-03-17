@@ -17,22 +17,18 @@
 
 package org.apache.geronimo.directory;
 
-import java.util.HashSet;
-import java.util.Hashtable;
+import junit.framework.TestCase;
+import org.apache.geronimo.system.serverinfo.BasicServerInfo;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 
-import javax.management.ObjectName;
 import javax.naming.Context;
 import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
-
-import junit.framework.TestCase;
-
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelFactory;
-import org.apache.geronimo.system.serverinfo.BasicServerInfo;
+import java.net.URL;
+import java.util.HashSet;
+import java.util.Hashtable;
 
 public class RunningTest extends TestCase {
 
@@ -40,15 +36,7 @@ public class RunningTest extends TestCase {
     private static final String CREDENTIALS = "secret";
     private ClassLoader cl = this.getClass().getClassLoader();
 
-    private Kernel kernel;
-
-    private ObjectName serverInfoName;
-
-    private GBeanData serverInfoGBean;
-
-    private ObjectName directoryName;
-
-    private GBeanData directoryGBean;
+    private DirectoryGBean directory;
 
     public void testRunning() throws Exception {
 
@@ -81,53 +69,29 @@ public class RunningTest extends TestCase {
 
     }
 
-    private void start(GBeanData instance) throws Exception {
-        kernel.loadGBean(instance, cl);
-        kernel.startGBean(instance.getName());
-    }
-
-    private void stop(ObjectName name) throws Exception {
-        kernel.stopGBean(name);
-        kernel.unloadGBean(name);
-    }
-
     protected void setUp() throws Exception {
-        super.setUp();
 
-        kernel = KernelFactory.newInstance().createKernel("test.kernel");
-        kernel.boot();
+        URL configURL = cl.getResource("directory.xml");
+        if (configURL == null) {
+            throw new Exception("Can't find config file on classpath");
+        }
+        String path = configURL.getPath();
+        path = path.substring(0, path.lastIndexOf("/"));
+        ServerInfo serverInfo = new BasicServerInfo(path);
+        directory = new DirectoryGBean(cl, null, true, "directory.xml", serverInfo);
+        directory.setEnableNetworking(true);
+        directory.setPort(9389);
+        directory.setProviderURL("ou=system");
+        directory.setSecurityAuthentication("simple");
+        directory.setSecurityCredentials(CREDENTIALS);
+        directory.setSecurityPrincipal(PRINCIPAL);
+        directory.doStart();
 
-        // ServerInfo
-        serverInfoName = new ObjectName("geronimo.system:role=ServerInfo");
-        serverInfoGBean = new GBeanData(serverInfoName,
-                BasicServerInfo.GBEAN_INFO);
-        serverInfoGBean.setAttribute("baseDirectory", "./target");
-        start(serverInfoGBean);
-
-        // DirectoryGBean
-        directoryName = new ObjectName("geronimo.system:type=Directory");
-        directoryGBean = new GBeanData(directoryName, DirectoryGBean.GBEAN_INFO);
-        directoryGBean.setReferencePattern("ServerInfo", serverInfoName);
-        directoryGBean.setAttribute("classLoader", cl);
-        directoryGBean.setAttribute("providerURL", "ou=system");
-        directoryGBean.setAttribute("securityAuthentication", "simple");
-        directoryGBean.setAttribute("securityPrincipal", PRINCIPAL);
-        directoryGBean.setAttribute("securityCredentials", CREDENTIALS);
-        directoryGBean.setAttribute("anonymousAccess", new Boolean(true));
-        directoryGBean.setAttribute("enableNetworking", new Boolean(true));
-        directoryGBean.setAttribute("port", new Integer(9389));
-        directoryGBean.setAttribute("configFile", "var/directory.xml");
-
-        start(directoryGBean);
 
     }
 
     protected void tearDown() throws Exception {
-        super.tearDown();
-
-        stop(directoryName);
-        stop(serverInfoName);
-        kernel.shutdown();
+        directory.doStop();
     }
 
 }
