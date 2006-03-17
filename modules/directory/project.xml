@@ -324,7 +324,7 @@ limitations under the License.
             </excludes>
             <resources>
                 <resource>
-                    <directory>${basedir}/target/var</directory>
+                    <directory>${basedir}/src/var</directory>
                     <includes>
                         <include>**/*</include>
                     </includes>
