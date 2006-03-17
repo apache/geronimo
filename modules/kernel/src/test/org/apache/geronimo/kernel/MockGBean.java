@@ -75,6 +75,7 @@ public class MockGBean implements MockEndpoint, MockParentInterface1, MockParent
         infoFactory.addOperation("checkEndpoint");
         infoFactory.addOperation("checkEndpointCollection");
         infoFactory.addOperation("doSomething", new Class[]{String.class});
+        infoFactory.addOperation("fetchValue");
 
         infoFactory.addInterface(MockEndpoint.class, new String[]{"mutableInt"});
         infoFactory.addInterface(MockParentInterface1.class, new String[]{"value"});
@@ -231,6 +232,10 @@ public class MockGBean implements MockEndpoint, MockParentInterface1, MockParent
     }
 
     public String getValue() {
+        return value;
+    }
+
+    public String fetchValue() {
         return value;
     }
 

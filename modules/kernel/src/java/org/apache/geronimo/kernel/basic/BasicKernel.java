@@ -45,6 +45,7 @@ import org.apache.geronimo.kernel.NoSuchAttributeException;
 import org.apache.geronimo.kernel.NoSuchOperationException;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.lifecycle.LifecycleMonitor;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 
@@ -179,6 +180,19 @@ public class BasicKernel implements Kernel {
         return gbeanInstance.getAttribute(attributeName);
     }
 
+    public Object getAttribute(String shortName, String attributeName) throws GBeanNotFoundException, NoSuchAttributeException, Exception {
+        return getAttribute(shortName, null, attributeName);
+    }
+
+    public Object getAttribute(Class type, String attributeName) throws GBeanNotFoundException, NoSuchAttributeException, Exception {
+        return getAttribute(null, type, attributeName);
+    }
+
+    public Object getAttribute(String shortName, Class type, String attributeName) throws GBeanNotFoundException, NoSuchAttributeException, Exception {
+        GBeanInstance gbeanInstance = registry.getGBeanInstance(shortName, type);
+        return gbeanInstance.getAttribute(attributeName);
+    }
+
     public void setAttribute(ObjectName objectName, String attributeName, Object attributeValue) throws GBeanNotFoundException, NoSuchAttributeException, Exception {
         GBeanInstance gbeanInstance = registry.getGBeanInstance(createGBeanName(objectName));
         gbeanInstance.setAttribute(attributeName, attributeValue);
@@ -189,12 +203,37 @@ public class BasicKernel implements Kernel {
         gbeanInstance.setAttribute(attributeName, attributeValue);
     }
 
+    public void setAttribute(String shortName, String attributeName, Object attributeValue) throws GBeanNotFoundException, NoSuchAttributeException, Exception {
+        setAttribute(shortName, null, attributeName, attributeValue);
+    }
+
+    public void setAttribute(Class type, String attributeName, Object attributeValue) throws GBeanNotFoundException, NoSuchAttributeException, Exception {
+        setAttribute(null, type, attributeName, attributeValue);
+    }
+
+    public void setAttribute(String shortName, Class type, String attributeName, Object attributeValue) throws GBeanNotFoundException, NoSuchAttributeException, Exception {
+        GBeanInstance gbeanInstance = registry.getGBeanInstance(shortName, type);
+        gbeanInstance.setAttribute(attributeName, attributeValue);
+    }
+
     public Object invoke(ObjectName objectName, String methodName) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception {
         return invoke(objectName, methodName, NO_ARGS, NO_TYPES);
     }
 
     public Object invoke(AbstractName abstractName, String methodName) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception {
         return invoke(abstractName, methodName, NO_ARGS, NO_TYPES);
+    }
+
+    public Object invoke(String shortName, String methodName) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception {
+        return invoke(shortName, null, methodName, NO_ARGS, NO_TYPES);
+    }
+
+    public Object invoke(Class type, String methodName) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception {
+        return invoke(null, type, methodName, NO_ARGS, NO_TYPES);
+    }
+
+    public Object invoke(String shortName, Class type, String methodName) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception {
+        return invoke(shortName, type, methodName, NO_ARGS, NO_TYPES);
     }
 
     public Object invoke(ObjectName objectName, String methodName, Object[] args, String[] types) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception {
@@ -207,12 +246,67 @@ public class BasicKernel implements Kernel {
         return gbeanInstance.invoke(methodName, args, types);
     }
 
+    public Object invoke(String shortName, String methodName, Object[] args, String[] types) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception {
+        return invoke(shortName, null, methodName, args, types);
+    }
+
+    public Object invoke(Class type, String methodName, Object[] args, String[] types) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception {
+        return invoke(null, type,methodName, args, types);
+    }
+
+    public Object invoke(String shortName, Class type, String methodName, Object[] args, String[] types) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception {
+        GBeanInstance gbeanInstance = registry.getGBeanInstance(shortName, type);
+        return gbeanInstance.invoke(methodName, args, types);
+    }
+
     public boolean isLoaded(ObjectName name) {
         return registry.isRegistered(createGBeanName(name));
     }
 
     public boolean isLoaded(AbstractName name) {
         return registry.isRegistered(name);
+    }
+
+    public boolean isLoaded(String shortName) {
+        return isLoaded(shortName, null);
+    }
+
+    public boolean isLoaded(Class type) {
+        return isLoaded(null, type);
+    }
+
+    public boolean isLoaded(String shortName, Class type) {
+        try {
+            registry.getGBeanInstance(shortName, type);
+            return true;
+        } catch (GBeanNotFoundException e) {
+            // Dain: yes this is flow control using exceptions, but I'm too lazy to add another isRegistered method to the basic registry
+            return false;
+        }
+    }
+
+    public Object getGBean(String shortName) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        return getGBean(shortName, null);
+    }
+
+    public Object getGBean(Class type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        return getGBean(null, type);
+    }
+
+    public Object getGBean(String shortName, Class type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        GBeanInstance gbeanInstance = registry.getGBeanInstance(shortName, type);
+        if (gbeanInstance.getState() != State.RUNNING_INDEX) {
+            throw new IllegalStateException("GBean is not running: " + gbeanInstance.getAbstractName());
+        }
+        return gbeanInstance.getTarget();
+    }
+
+    public Object getGBean(AbstractName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException  {
+        GBeanInstance gbeanInstance = registry.getGBeanInstance(name);
+        if (gbeanInstance.getState() != State.RUNNING_INDEX) {
+            throw new IllegalStateException("GBean is not running: " + name);
+        }
+        return gbeanInstance.getTarget();
     }
 
     public GBeanInfo getGBeanInfo(ObjectName name) throws GBeanNotFoundException {
@@ -225,6 +319,19 @@ public class BasicKernel implements Kernel {
         return gbeanInstance.getGBeanInfo();
     }
 
+    public GBeanInfo getGBeanInfo(String shortName) throws GBeanNotFoundException {
+        return getGBeanInfo(shortName, null);
+    }
+
+    public GBeanInfo getGBeanInfo(Class type) throws GBeanNotFoundException {
+        return getGBeanInfo(null, type);
+    }
+
+    public GBeanInfo getGBeanInfo(String shortName, Class type) throws GBeanNotFoundException {
+        GBeanInstance gbeanInstance = registry.getGBeanInstance(shortName, type);
+        return gbeanInstance.getGBeanInfo();
+    }
+
     public GBeanData getGBeanData(ObjectName name) throws GBeanNotFoundException, InternalKernelException {
         GBeanInstance gbeanInstance = registry.getGBeanInstance(createGBeanName(name));
         return gbeanInstance.getGBeanData();
@@ -232,6 +339,19 @@ public class BasicKernel implements Kernel {
 
     public GBeanData getGBeanData(AbstractName name) throws GBeanNotFoundException, InternalKernelException {
         GBeanInstance gbeanInstance = registry.getGBeanInstance(name);
+        return gbeanInstance.getGBeanData();
+    }
+
+    public GBeanData getGBeanData(String shortName) throws GBeanNotFoundException, InternalKernelException {
+        return getGBeanData(shortName, null);
+    }
+
+    public GBeanData getGBeanData(Class type) throws GBeanNotFoundException, InternalKernelException {
+        return getGBeanData(null, type);
+    }
+
+    public GBeanData getGBeanData(String shortName, Class type) throws GBeanNotFoundException, InternalKernelException {
+        GBeanInstance gbeanInstance = registry.getGBeanInstance(shortName, type);
         return gbeanInstance.getGBeanData();
     }
 
@@ -252,6 +372,19 @@ public class BasicKernel implements Kernel {
         gbeanInstance.start();
     }
 
+    public void startGBean(String shortName) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        startGBean(shortName, null);
+    }
+
+    public void startGBean(Class type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        startGBean(null, type);
+    }
+
+    public void startGBean(String shortName, Class type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        GBeanInstance gbeanInstance = registry.getGBeanInstance(shortName, type);
+        gbeanInstance.start();
+    }
+
     public void startRecursiveGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
         GBeanInstance gbeanInstance = registry.getGBeanInstance(createGBeanName(name));
         gbeanInstance.startRecursive();
@@ -262,6 +395,45 @@ public class BasicKernel implements Kernel {
         gbeanInstance.startRecursive();
     }
 
+    public void startRecursiveGBean(String shortName) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        startRecursiveGBean(shortName, null);
+    }
+
+    public void startRecursiveGBean(Class type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        startRecursiveGBean(null, type);
+    }
+
+    public void startRecursiveGBean(String shortName, Class type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        GBeanInstance gbeanInstance = registry.getGBeanInstance(shortName, type);
+        gbeanInstance.startRecursive();
+    }
+
+    public boolean isRunning(AbstractName name) {
+        try {
+            GBeanInstance gbeanInstance = registry.getGBeanInstance(name);
+            return gbeanInstance.getState() == State.RUNNING_INDEX;
+        } catch (GBeanNotFoundException e) {
+            return false;
+        }
+    }
+
+    public boolean isRunning(String shortName) {
+        return isRunning(shortName, null);
+    }
+
+    public boolean isRunning(Class type) {
+        return isRunning(null, type);
+    }
+
+    public boolean isRunning(String shortName, Class type) {
+        try {
+            GBeanInstance gbeanInstance = registry.getGBeanInstance(shortName, type);
+            return gbeanInstance.getState() == State.RUNNING_INDEX;
+        } catch (GBeanNotFoundException e) {
+            return false;
+        }
+    }
+
     public void stopGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
         GBeanInstance gbeanInstance = registry.getGBeanInstance(createGBeanName(name));
         gbeanInstance.stop();
@@ -269,6 +441,19 @@ public class BasicKernel implements Kernel {
 
     public void stopGBean(AbstractName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
         GBeanInstance gbeanInstance = registry.getGBeanInstance(name);
+        gbeanInstance.stop();
+    }
+
+    public void stopGBean(String shortName) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        stopGBean(shortName, null);
+    }
+
+    public void stopGBean(Class type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        stopGBean(null, type);
+    }
+
+    public void stopGBean(String shortName, Class type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        GBeanInstance gbeanInstance = registry.getGBeanInstance(shortName, type);
         gbeanInstance.stop();
     }
 
@@ -285,6 +470,21 @@ public class BasicKernel implements Kernel {
         registry.unregister(name);
     }
 
+    public void unloadGBean(String shortName) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        unloadGBean(shortName, null);
+    }
+
+    public void unloadGBean(Class type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        unloadGBean(null, type);
+    }
+
+    public void unloadGBean(String shortName, Class type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        GBeanInstance gbeanInstance = registry.getGBeanInstance(shortName, type);
+        AbstractName name = gbeanInstance.getAbstractName();
+        gbeanInstance.die();
+        registry.unregister(name);
+    }
+
     public int getGBeanState(ObjectName name) throws GBeanNotFoundException {
         GBeanInstance gbeanInstance = registry.getGBeanInstance(createGBeanName(name));
         return gbeanInstance.getState();
@@ -295,6 +495,19 @@ public class BasicKernel implements Kernel {
         return gbeanInstance.getState();
     }
 
+    public int getGBeanState(String shortName) throws GBeanNotFoundException {
+        return getGBeanState(shortName, null);
+    }
+
+    public int getGBeanState(Class type) throws GBeanNotFoundException {
+        return getGBeanState(null, type);
+    }
+
+    public int getGBeanState(String shortName, Class type) throws GBeanNotFoundException {
+        GBeanInstance gbeanInstance = registry.getGBeanInstance(shortName, type);
+        return gbeanInstance.getState();
+    }
+
     public long getGBeanStartTime(ObjectName name) throws GBeanNotFoundException {
         GBeanInstance gbeanInstance = registry.getGBeanInstance(createGBeanName(name));
         return gbeanInstance.getStartTime();
@@ -302,6 +515,19 @@ public class BasicKernel implements Kernel {
 
     public long getGBeanStartTime(AbstractName name) throws GBeanNotFoundException {
         GBeanInstance gbeanInstance = registry.getGBeanInstance(name);
+        return gbeanInstance.getStartTime();
+    }
+
+    public long getGBeanStartTime(String shortName) throws GBeanNotFoundException {
+        return getGBeanStartTime(shortName, null);
+    }
+
+    public long getGBeanStartTime(Class type) throws GBeanNotFoundException {
+        return getGBeanStartTime(null, type);
+    }
+
+    public long getGBeanStartTime(String shortName, Class type) throws GBeanNotFoundException {
+        GBeanInstance gbeanInstance = registry.getGBeanInstance(shortName, type);
         return gbeanInstance.getStartTime();
     }
 
@@ -418,8 +644,15 @@ public class BasicKernel implements Kernel {
     }
 
     public AbstractName getAbstractNameFor(Object service) {
+        // todo we need to keep an identity map for non proxied references
         if(!running) {return null;}
         return proxyManager.getProxyTarget(service);
+    }
+
+    public String getShortNameFor(Object service) {
+        // todo we need to keep an identity map for non proxied references
+        AbstractName name = getAbstractNameFor(service);
+        return (String) name.getName().get("name");
     }
 
     /**
@@ -519,6 +752,24 @@ public class BasicKernel implements Kernel {
 
     public ClassLoader getClassLoaderFor(ObjectName name) throws GBeanNotFoundException {
         GBeanInstance gbeanInstance = registry.getGBeanInstance(createGBeanName(name));
+        return gbeanInstance.getClassLoader();
+    }
+
+    public ClassLoader getClassLoaderFor(AbstractName name) throws GBeanNotFoundException {
+        GBeanInstance gbeanInstance = registry.getGBeanInstance(name);
+        return gbeanInstance.getClassLoader();
+    }
+
+    public ClassLoader getClassLoaderFor(String shortName) throws GBeanNotFoundException {
+        return getClassLoaderFor(shortName, null);
+    }
+
+    public ClassLoader getClassLoaderFor(Class type) throws GBeanNotFoundException {
+        return getClassLoaderFor(null, type);
+    }
+
+    public ClassLoader getClassLoaderFor(String shortName, Class type) throws GBeanNotFoundException {
+        GBeanInstance gbeanInstance = registry.getGBeanInstance(shortName, type);
         return gbeanInstance.getClassLoader();
     }
 

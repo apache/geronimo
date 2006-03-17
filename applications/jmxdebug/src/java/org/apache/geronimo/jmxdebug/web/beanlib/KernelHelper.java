@@ -25,10 +25,10 @@ import java.util.Set;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.jmxdebug.util.ObjectNameComparator;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.jmxdebug.util.ObjectNameComparator;
 
 /**
  * Little helper bean to deal w/ the mbean server

@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Collections;
 
 import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
@@ -32,11 +33,10 @@ import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.gbean.GBeanName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.runtime.GBeanInstance;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 386505 $ $Date$
  */
 public class BasicRegistry {
     private final Map objectNameRegistry = new HashMap();
@@ -140,6 +140,38 @@ public class BasicRegistry {
         if (instance == null) {
             throw new GBeanNotFoundException(abstractName);
         }
+        return instance;
+    }
+
+
+    public synchronized GBeanInstance getGBeanInstance(String shortName, Class type) throws GBeanNotFoundException {
+        if (shortName == null && type == null) throw new IllegalArgumentException("shortName and type are both null");
+
+        AbstractNameQuery nameQuery;
+        if (type == null) {
+            nameQuery = new AbstractNameQuery(null, Collections.singletonMap("name", shortName));
+        } else if (shortName == null) {
+            nameQuery = new AbstractNameQuery(null, Collections.EMPTY_MAP, type.getName());
+        } else {
+            nameQuery = new AbstractNameQuery(null, Collections.singletonMap("name", shortName), type.getName());
+        }
+        Set instances = listGBeans(nameQuery);
+
+        if (instances.size() == 0) {
+            throw new GBeanNotFoundException("No GBeans found", Collections.singleton(nameQuery));
+        }
+
+        if (instances.size() > 1) {
+            if (type == null) {
+                throw new GBeanNotFoundException("More then one GBean was found with shortName '" + shortName + "'", Collections.singleton(nameQuery));
+            }
+            if (shortName == null) {
+                throw new GBeanNotFoundException("More then one GBean was found with type '" + type.getName()+ "'", Collections.singleton(nameQuery));
+            }
+            throw new GBeanNotFoundException("More then one GBean was found with shortName '" + shortName + "' and type '" + type.getName()+ "'", Collections.singleton(nameQuery));
+        }
+
+        GBeanInstance instance = (GBeanInstance) instances.iterator().next();
         return instance;
     }
 

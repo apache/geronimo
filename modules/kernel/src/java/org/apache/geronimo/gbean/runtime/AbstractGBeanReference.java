@@ -20,18 +20,30 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.kernel.ClassLoading;
-import org.apache.geronimo.kernel.DependencyManager;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.State;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 384141 $ $Date$
  */
 public abstract class AbstractGBeanReference implements GBeanReference {
+    /**
+     * Should we proxy references.
+     */
+    protected static final boolean NO_PROXY = Boolean.getBoolean("org.apache.geronimo.gbean.NoProxy");
+    static {
+        if (NO_PROXY) {
+            Log log = LogFactory.getLog(AbstractGBeanReference.class);
+            log.warn("GBean reference proxies has been disabled:  This is an experimental and untested operating mode");
+        }
+    }
+
     /**
      * Name of this reference.
      */

@@ -31,23 +31,24 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 384141 $ $Date$
  */
 public class GBeanCollectionReference extends AbstractGBeanReference {
-
-
     /**
      * is this reference online
      */
     private boolean isOnline = false;
+
     /**
      * The target objectName patterns to watch for a connection.
      */
     private Set patterns = Collections.EMPTY_SET;
+
     /**
      * Current set of targets
      */
     private final Set targets = new HashSet();
+
     /**
      * Our listener for lifecycle events
      */
@@ -65,7 +66,7 @@ public class GBeanCollectionReference extends AbstractGBeanReference {
         // We only need to start if there are patterns and we don't already have a proxy
         if (!patterns.isEmpty() && getProxy() == null) {
             // add a dependency on our target and create the proxy
-            setProxy(new ProxyCollection(getName(), getReferenceType(), getKernel().getProxyManager(), getTargets()));
+            setProxy(new ProxyCollection(getName(), getReferenceType(), getTargets(), getKernel()));
         }
         return true;
     }
@@ -116,11 +117,11 @@ public class GBeanCollectionReference extends AbstractGBeanReference {
                 };
     }
 
-    public final Set getPatterns() {
+    public final synchronized Set getPatterns() {
         return patterns;
     }
 
-    public final void setPatterns(Set patterns) {
+    public final synchronized void setPatterns(Set patterns) {
         if (isOnline) {
             throw new IllegalStateException("Pattern set can not be modified while online");
         }

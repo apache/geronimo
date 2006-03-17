@@ -62,7 +62,55 @@ public class KernelDelegate implements Kernel {
     }
 
     public Naming getNaming() {
-        throw new UnsupportedOperationException();
+        return (Naming) getKernelAttribute("naming");
+    }
+
+    public Object getGBean(AbstractName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        try {
+            return invokeKernel("getGBean", new Object[] {name}, new String[] {AbstractName.class.getName()});
+        } catch (GBeanNotFoundException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
+    public Object getGBean(String shortName) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        try {
+            return invokeKernel("getGBean", new Object[] {shortName}, new String[] {String.class.getName()});
+        } catch (GBeanNotFoundException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
+    public Object getGBean(Class type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        try {
+            return invokeKernel("getGBean", new Object[] {type}, new String[] {Class.class.getName()});
+        } catch (GBeanNotFoundException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
+    public Object getGBean(String shortName, Class type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        try {
+            return invokeKernel("getGBean", new Object[] {shortName, type}, new String[] {String.class.getName(), Class.class.getName()});
+        } catch (GBeanNotFoundException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
     }
 
     public void loadGBean(GBeanData gbeanData, ClassLoader classLoader) throws GBeanAlreadyExistsException {
@@ -101,6 +149,42 @@ public class KernelDelegate implements Kernel {
         }
     }
 
+    public void startGBean(String shortName) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        try {
+            invokeKernel("startGBean", new Object[] {shortName}, new String[] {String.class.getName()});
+        } catch (GBeanNotFoundException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
+    public void startGBean(Class type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        try {
+            invokeKernel("startGBean", new Object[] {type}, new String[] {Class.class.getName()});
+        } catch (GBeanNotFoundException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
+    public void startGBean(String shortName, Class type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        try {
+            invokeKernel("startGBean", new Object[] {shortName, type}, new String[] {String.class.getName(), Class.class.getName()});
+        } catch (GBeanNotFoundException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
     public void startRecursiveGBean(ObjectName name) throws GBeanNotFoundException {
         try {
             invokeKernel("startRecursiveGBean", new Object[] {name}, new String[] {ObjectName.class.getName()});
@@ -125,6 +209,83 @@ public class KernelDelegate implements Kernel {
         }
     }
 
+    public void startRecursiveGBean(String shortName) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        try {
+            invokeKernel("startRecursiveGBean", new Object[] {shortName}, new String[] {String.class.getName()});
+        } catch (GBeanNotFoundException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
+    public void startRecursiveGBean(Class type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        try {
+            invokeKernel("startRecursiveGBean", new Object[] {type}, new String[] {Class.class.getName()});
+        } catch (GBeanNotFoundException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
+    public void startRecursiveGBean(String shortName, Class type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        try {
+            invokeKernel("startRecursiveGBean", new Object[] {shortName, type}, new String[] {String.class.getName(), Class.class.getName()});
+        } catch (GBeanNotFoundException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
+    public boolean isRunning(AbstractName name) {
+        try {
+            return ((Boolean) invokeKernel("isRunning", new Object[]{name}, new String[]{AbstractName.class.getName()})).booleanValue();
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+     }
+
+    public boolean isRunning(String shortName) {
+        try {
+            return ((Boolean) invokeKernel("isRunning", new Object[]{shortName}, new String[]{String.class.getName()})).booleanValue();
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
+    public boolean isRunning(Class type) {
+        try {
+            return ((Boolean) invokeKernel("isRunning", new Object[]{type}, new String[]{Class.class.getName()})).booleanValue();
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
+    public boolean isRunning(String shortName, Class type) {
+        try {
+            return ((Boolean) invokeKernel("isRunning", new Object[]{shortName, type}, new String[]{String.class.getName(), Class.class.getName()})).booleanValue();
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
+
     public void stopGBean(ObjectName name) throws GBeanNotFoundException {
         try {
             invokeKernel("stopGBean", new Object[] {name}, new String[] {ObjectName.class.getName()});
@@ -140,6 +301,42 @@ public class KernelDelegate implements Kernel {
     public void stopGBean(AbstractName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
         try {
             invokeKernel("stopGBean", new Object[] {name}, new String[] {AbstractName.class.getName()});
+        } catch (GBeanNotFoundException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
+    public void stopGBean(String shortName) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        try {
+            invokeKernel("stopGBean", new Object[] {shortName}, new String[] {String.class.getName()});
+        } catch (GBeanNotFoundException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
+    public void stopGBean(Class type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        try {
+            invokeKernel("stopGBean", new Object[] {type}, new String[] {Class.class.getName()});
+        } catch (GBeanNotFoundException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
+    public void stopGBean(String shortName, Class type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        try {
+            invokeKernel("stopGBean", new Object[] {shortName, type}, new String[] {String.class.getName(), Class.class.getName()});
         } catch (GBeanNotFoundException e) {
             throw e;
         } catch (RuntimeException e) {
@@ -173,6 +370,42 @@ public class KernelDelegate implements Kernel {
         }
     }
 
+    public void unloadGBean(String shortName) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        try {
+            invokeKernel("unloadGBean", new Object[] {shortName}, new String[] {String.class.getName()});
+        } catch (GBeanNotFoundException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
+    public void unloadGBean(Class type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        try {
+            invokeKernel("unloadGBean", new Object[] {type}, new String[] {Class.class.getName()});
+        } catch (GBeanNotFoundException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
+    public void unloadGBean(String shortName, Class type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        try {
+            invokeKernel("unloadGBean", new Object[] {shortName, type}, new String[] {String.class.getName(), Class.class.getName()});
+        } catch (GBeanNotFoundException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
     public int getGBeanState(ObjectName name) throws GBeanNotFoundException {
         try {
             return ((Integer) invokeKernel("getGBeanState", new Object[]{name}, new String[]{ObjectName.class.getName()})).intValue();
@@ -197,6 +430,42 @@ public class KernelDelegate implements Kernel {
         }
     }
 
+    public int getGBeanState(String shortName) throws GBeanNotFoundException {
+        try {
+            return ((Integer) invokeKernel("getGBeanState", new Object[]{shortName}, new String[]{String.class.getName()})).intValue();
+        } catch (GBeanNotFoundException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
+    public int getGBeanState(Class type) throws GBeanNotFoundException {
+        try {
+            return ((Integer) invokeKernel("getGBeanState", new Object[]{type}, new String[]{Class.class.getName()})).intValue();
+        } catch (GBeanNotFoundException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
+    public int getGBeanState(String shortName, Class type) throws GBeanNotFoundException {
+        try {
+            return ((Integer) invokeKernel("getGBeanState", new Object[]{shortName, type}, new String[]{String.class.getName(), Class.class.getName()})).intValue();
+        } catch (GBeanNotFoundException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
     public long getGBeanStartTime(ObjectName name) throws GBeanNotFoundException {
         try {
             return ((Long) invokeKernel("getGBeanStartTime", new Object[]{name}, new String[]{ObjectName.class.getName()})).longValue();
@@ -212,6 +481,42 @@ public class KernelDelegate implements Kernel {
     public long getGBeanStartTime(AbstractName name) throws GBeanNotFoundException {
         try {
             return ((Long) invokeKernel("getGBeanStartTime", new Object[]{name}, new String[]{AbstractName.class.getName()})).longValue();
+        } catch (GBeanNotFoundException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
+    public long getGBeanStartTime(String shortName) throws GBeanNotFoundException {
+        try {
+            return ((Long) invokeKernel("getGBeanStartTime", new Object[]{shortName}, new String[]{String.class.getName()})).longValue();
+        } catch (GBeanNotFoundException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
+    public long getGBeanStartTime(Class type) throws GBeanNotFoundException {
+        try {
+            return ((Long) invokeKernel("getGBeanStartTime", new Object[]{type}, new String[]{Class.class.getName()})).longValue();
+        } catch (GBeanNotFoundException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
+    public long getGBeanStartTime(String shortName, Class type) throws GBeanNotFoundException {
+        try {
+            return ((Long) invokeKernel("getGBeanStartTime", new Object[]{shortName, type}, new String[]{String.class.getName(), Class.class.getName()})).longValue();
         } catch (GBeanNotFoundException e) {
             throw e;
         } catch (RuntimeException e) {
@@ -277,12 +582,36 @@ public class KernelDelegate implements Kernel {
         return invokeKernel("getAttribute", new Object[]{abstractName, attributeName}, new String[]{AbstractName.class.getName(), String.class.getName()});
     }
 
+    public Object getAttribute(String shortName, String attributeName) throws GBeanNotFoundException, NoSuchAttributeException, Exception {
+        return invokeKernel("getAttribute", new Object[]{shortName, attributeName}, new String[]{String.class.getName(), String.class.getName()});
+    }
+
+    public Object getAttribute(Class type, String attributeName) throws GBeanNotFoundException, NoSuchAttributeException, Exception {
+        return invokeKernel("getAttribute", new Object[]{type, attributeName}, new String[]{Class.class.getName(), String.class.getName()});
+    }
+
+    public Object getAttribute(String shortName, Class type, String attributeName) throws GBeanNotFoundException, NoSuchAttributeException, Exception {
+        return invokeKernel("getAttribute", new Object[]{shortName, type, attributeName}, new String[]{String.class.getName(), Class.class.getName(), String.class.getName()});
+    }
+
     public void setAttribute(ObjectName objectName, String attributeName, Object attributeValue) throws Exception {
         invokeKernel("setAttribute", new Object[]{objectName, attributeName, attributeValue}, new String[]{ObjectName.class.getName(), String.class.getName(), Object.class.getName()});
     }
 
     public void setAttribute(AbstractName abstractName, String attributeName, Object attributeValue) throws GBeanNotFoundException, NoSuchAttributeException, Exception {
         invokeKernel("setAttribute", new Object[]{abstractName, attributeName, attributeValue}, new String[]{AbstractName.class.getName(), String.class.getName(), Object.class.getName()});
+    }
+
+    public void setAttribute(String shortName, String attributeName, Object attributeValue) throws GBeanNotFoundException, NoSuchAttributeException, Exception {
+        invokeKernel("setAttribute", new Object[]{shortName, attributeName, attributeValue}, new String[]{String.class.getName(), String.class.getName(), Object.class.getName()});
+    }
+
+    public void setAttribute(Class type, String attributeName, Object attributeValue) throws GBeanNotFoundException, NoSuchAttributeException, Exception {
+        invokeKernel("setAttribute", new Object[]{type, attributeName, attributeValue}, new String[]{Class.class.getName(), String.class.getName(), Object.class.getName()});
+    }
+
+    public void setAttribute(String shortName, Class type, String attributeName, Object attributeValue) throws GBeanNotFoundException, NoSuchAttributeException, Exception {
+        invokeKernel("setAttribute", new Object[]{shortName, type, attributeName, attributeValue}, new String[]{String.class.getName(), Class.class.getName(), String.class.getName(), Object.class.getName()});
     }
 
     public Object invoke(ObjectName objectName, String methodName) throws Exception {
@@ -293,12 +622,36 @@ public class KernelDelegate implements Kernel {
         return invokeKernel("invoke", new Object[]{abstractName, methodName}, new String[]{AbstractName.class.getName(), String.class.getName()});
     }
 
+    public Object invoke(String shortName, String methodName) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception {
+        return invokeKernel("invoke", new Object[]{shortName, methodName}, new String[]{String.class.getName(), String.class.getName()});
+    }
+
+    public Object invoke(Class type, String methodName) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception {
+        return invokeKernel("invoke", new Object[]{type, methodName}, new String[]{Class.class.getName(), String.class.getName()});
+    }
+
+    public Object invoke(String shortName, Class type, String methodName) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception {
+        return invokeKernel("invoke", new Object[]{shortName, type, methodName}, new String[]{String.class.getName(), Class.class.getName(), String.class.getName()});
+    }
+
     public Object invoke(ObjectName objectName, String methodName, Object[] args, String[] types) throws Exception {
         return invokeKernel("invoke", new Object[]{objectName, methodName, args, types}, new String[]{ObjectName.class.getName(), String.class.getName(), Object[].class.getName(), String[].class.getName()});
     }
 
     public Object invoke(AbstractName abstractName, String methodName, Object[] args, String[] types) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception {
         return invokeKernel("invoke", new Object[]{abstractName, methodName, args, types}, new String[]{AbstractName.class.getName(), String.class.getName(), Object[].class.getName(), String[].class.getName()});
+    }
+
+    public Object invoke(String shortName, String methodName, Object[] args, String[] types) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception {
+        return invokeKernel("invoke", new Object[]{shortName, methodName, args, types}, new String[]{String.class.getName(), String.class.getName(), Object[].class.getName(), String[].class.getName()});
+    }
+
+    public Object invoke(Class type, String methodName, Object[] args, String[] types) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception {
+        return invokeKernel("invoke", new Object[]{type, methodName, args, types}, new String[]{Class.class.getName(), String.class.getName(), Object[].class.getName(), String[].class.getName()});
+    }
+
+    public Object invoke(String shortName, Class type, String methodName, Object[] args, String[] types) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception {
+        return invokeKernel("invoke", new Object[]{shortName, type, methodName, args, types}, new String[]{String.class.getName(), Class.class.getName(), String.class.getName(), Object[].class.getName(), String[].class.getName()});
     }
 
     public boolean isLoaded(ObjectName name) {
@@ -321,6 +674,36 @@ public class KernelDelegate implements Kernel {
         }
      }
 
+    public boolean isLoaded(String shortName) {
+        try {
+            return ((Boolean) invokeKernel("isLoaded", new Object[]{shortName}, new String[]{String.class.getName()})).booleanValue();
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
+    public boolean isLoaded(Class type) {
+        try {
+            return ((Boolean) invokeKernel("isLoaded", new Object[]{type}, new String[]{Class.class.getName()})).booleanValue();
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
+    public boolean isLoaded(String shortName, Class type) {
+        try {
+            return ((Boolean) invokeKernel("isLoaded", new Object[]{shortName, type}, new String[]{String.class.getName(), Class.class.getName()})).booleanValue();
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
     public GBeanInfo getGBeanInfo(ObjectName name) throws GBeanNotFoundException {
         try {
             return (GBeanInfo) invokeKernel("getGBeanInfo", new Object[] {name}, new String[] {ObjectName.class.getName()});
@@ -336,6 +719,42 @@ public class KernelDelegate implements Kernel {
     public GBeanInfo getGBeanInfo(AbstractName name) throws GBeanNotFoundException {
         try {
             return (GBeanInfo) invokeKernel("getGBeanInfo", new Object[] {name}, new String[] {AbstractName.class.getName()});
+        } catch (GBeanNotFoundException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
+    public GBeanInfo getGBeanInfo(String shortName) throws GBeanNotFoundException {
+        try {
+            return (GBeanInfo) invokeKernel("getGBeanInfo", new Object[] {shortName}, new String[] {String.class.getName()});
+        } catch (GBeanNotFoundException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
+    public GBeanInfo getGBeanInfo(Class type) throws GBeanNotFoundException {
+        try {
+            return (GBeanInfo) invokeKernel("getGBeanInfo", new Object[] {type}, new String[] {Class.class.getName()});
+        } catch (GBeanNotFoundException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
+    public GBeanInfo getGBeanInfo(String shortName, Class type) throws GBeanNotFoundException {
+        try {
+            return (GBeanInfo) invokeKernel("getGBeanInfo", new Object[] {shortName, type}, new String[] {String.class.getName(), Class.class.getName()});
         } catch (GBeanNotFoundException e) {
             throw e;
         } catch (RuntimeException e) {
@@ -417,6 +836,54 @@ public class KernelDelegate implements Kernel {
         }
     }
 
+    public ClassLoader getClassLoaderFor(AbstractName name) throws GBeanNotFoundException {
+        try {
+            return (ClassLoader) invokeKernel("getClassLoaderFor", new Object[] {name}, new String[] {ObjectName.class.getName()});
+        } catch (GBeanNotFoundException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
+    public ClassLoader getClassLoaderFor(String shortName) throws GBeanNotFoundException {
+        try {
+            return (ClassLoader) invokeKernel("getClassLoaderFor", new Object[] {shortName}, new String[] {String.class.getName()});
+        } catch (GBeanNotFoundException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
+    public ClassLoader getClassLoaderFor(Class type) throws GBeanNotFoundException {
+        try {
+            return (ClassLoader) invokeKernel("getClassLoaderFor", new Object[] {type}, new String[] {Class.class.getName()});
+        } catch (GBeanNotFoundException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
+    public ClassLoader getClassLoaderFor(String shortName, Class type) throws GBeanNotFoundException {
+        try {
+            return (ClassLoader) invokeKernel("getClassLoaderFor", new Object[] {shortName, type}, new String[] {String.class.getName(), Class.class.getName()});
+        } catch (GBeanNotFoundException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
     public GBeanData getGBeanData(ObjectName name) throws GBeanNotFoundException {
         try {
             return (GBeanData) invokeKernel("getGBeanData", new Object[] {name}, new String[] {ObjectName.class.getName()});
@@ -441,8 +908,49 @@ public class KernelDelegate implements Kernel {
         }
     }
 
+    public GBeanData getGBeanData(String shortName) throws GBeanNotFoundException, InternalKernelException {
+        try {
+            return (GBeanData) invokeKernel("getGBeanData", new Object[] {shortName}, new String[] {String.class.getName()});
+        } catch (GBeanNotFoundException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
+    public GBeanData getGBeanData(Class type) throws GBeanNotFoundException, InternalKernelException {
+        try {
+            return (GBeanData) invokeKernel("getGBeanData", new Object[] {type}, new String[] {Class.class.getName()});
+        } catch (GBeanNotFoundException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
+    public GBeanData getGBeanData(String shortName, Class type) throws GBeanNotFoundException, InternalKernelException {
+        try {
+            return (GBeanData) invokeKernel("getGBeanData", new Object[] {shortName, type}, new String[] {String.class.getName(), Class.class.getName()});
+        } catch (GBeanNotFoundException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
     public AbstractName getAbstractNameFor(Object service) {
         return proxyManager.getProxyTarget(service);
+    }
+
+    public String getShortNameFor(Object service) {
+        AbstractName name = getAbstractNameFor(service);
+        return (String) name.getName().get("name");
     }
 
     public boolean isRunning() {

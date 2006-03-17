@@ -24,9 +24,10 @@ import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 384141 $ $Date$
  */
 public class GBeanSingleReference extends AbstractGBeanReference {
     private static final Log log = LogFactory.getLog(GBeanSingleReference.class);
@@ -51,15 +52,30 @@ public class GBeanSingleReference extends AbstractGBeanReference {
 
     public synchronized boolean start() {
         // We only need to start if there are patterns and we don't already have a proxy
-        if (proxyTarget != null) {
-            AbstractName abstractName = getGBeanInstance().getAbstractName();
-            if (!isRunning(getKernel(), proxyTarget)) {
+        if (proxyTarget == null) {
+            return true;
+        }
+
+        // assure the gbean is running
+        AbstractName abstractName = getGBeanInstance().getAbstractName();
+        if (!isRunning(getKernel(), proxyTarget)) {
+            log.debug("Waiting to start " + abstractName + " because no targets are running for reference " + getName() +" matching the patterns " + proxyTarget);
+            return false;
+        }
+
+        if (getProxy() != null) {
+            return true;
+        }
+
+        if (NO_PROXY) {
+            try {
+                setProxy(getKernel().getGBean(proxyTarget));
+            } catch (GBeanNotFoundException e) {
+                // gbean disappeard on us
                 log.debug("Waiting to start " + abstractName + " because no targets are running for reference " + getName() +" matching the patterns " + proxyTarget);
-                return false;
             }
-            if (getProxy() == null) {
-                setProxy(getKernel().getProxyManager().createProxy(proxyTarget, getReferenceType()));
-            }
+        } else {
+            setProxy(getKernel().getProxyManager().createProxy(proxyTarget, getReferenceType()));
         }
 
         return true;

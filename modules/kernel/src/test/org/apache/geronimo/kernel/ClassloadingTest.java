@@ -17,7 +17,12 @@
 
 package org.apache.geronimo.kernel;
 
+import java.util.Set;
+import java.util.LinkedHashSet;
+import java.io.Serializable;
+
 import junit.framework.TestCase;
+import org.apache.geronimo.kernel.basic.BasicKernel;
 
 /**
  * Unit test for {@link org.apache.geronimo.kernel.ClassLoading} class.
@@ -114,6 +119,83 @@ public class ClassloadingTest extends TestCase {
         y = loadClass(x);
         assertEquals(t, y);
 
+    }
+
+    public void testGetAllTypes() throws Exception {
+        Set allTypes = ClassLoading.getAllTypes(MockGBean.class);
+        assertTrue(allTypes.contains(MockGBean.class));
+        assertTrue(allTypes.contains(Object.class));
+        assertTrue(allTypes.contains(MockEndpoint.class));
+        assertTrue(allTypes.contains(MockParentInterface1.class));
+        assertTrue(allTypes.contains(MockParentInterface2.class));
+        assertTrue(allTypes.contains(MockChildInterface1.class));
+        assertTrue(allTypes.contains(MockChildInterface2.class));
+        assertFalse(allTypes.contains(Comparable.class));
+    }
+
+    public void testReduceInterfaces() throws Exception {
+        Set types = new LinkedHashSet();
+
+        // single class
+        types.add(MockGBean.class);
+        types = ClassLoading.reduceInterfaces(types);
+        assertTrue(types.contains(MockGBean.class));
+        assertFalse(types.contains(Object.class));
+        assertFalse(types.contains(MockEndpoint.class));
+        assertFalse(types.contains(MockParentInterface1.class));
+        assertFalse(types.contains(MockParentInterface2.class));
+        assertFalse(types.contains(MockChildInterface1.class));
+        assertFalse(types.contains(MockChildInterface2.class));
+        assertFalse(types.contains(Comparable.class));
+
+        // all types
+        types = ClassLoading.getAllTypes(MockGBean.class);
+        types = ClassLoading.reduceInterfaces(types);
+        assertTrue(types.contains(MockGBean.class));
+        assertFalse(types.contains(Object.class));
+        assertFalse(types.contains(MockEndpoint.class));
+        assertFalse(types.contains(MockParentInterface1.class));
+        assertFalse(types.contains(MockParentInterface2.class));
+        assertFalse(types.contains(MockChildInterface1.class));
+        assertFalse(types.contains(MockChildInterface2.class));
+        assertFalse(types.contains(Comparable.class));
+
+        // double all types
+        types = ClassLoading.getAllTypes(MockGBean.class);
+        types.addAll(ClassLoading.getAllTypes(MockGBean.class));
+        types = ClassLoading.reduceInterfaces(types);
+        assertTrue(types.contains(MockGBean.class));
+        assertFalse(types.contains(Object.class));
+        assertFalse(types.contains(MockEndpoint.class));
+        assertFalse(types.contains(MockParentInterface1.class));
+        assertFalse(types.contains(MockParentInterface2.class));
+        assertFalse(types.contains(MockChildInterface1.class));
+        assertFalse(types.contains(MockChildInterface2.class));
+        assertFalse(types.contains(Comparable.class));
+
+        // extra interfaces
+        types = ClassLoading.getAllTypes(MockGBean.class);
+        types.addAll(ClassLoading.getAllTypes(Kernel.class));
+        types.addAll(ClassLoading.getAllTypes(Serializable.class));
+        types = ClassLoading.reduceInterfaces(types);
+        assertTrue(types.contains(Kernel.class));
+        assertTrue(types.contains(Serializable.class));
+        assertTrue(types.contains(MockGBean.class));
+        assertFalse(types.contains(Object.class));
+        assertFalse(types.contains(MockEndpoint.class));
+        assertFalse(types.contains(MockParentInterface1.class));
+        assertFalse(types.contains(MockParentInterface2.class));
+        assertFalse(types.contains(MockChildInterface1.class));
+        assertFalse(types.contains(MockChildInterface2.class));
+        assertFalse(types.contains(Comparable.class));
+
+        // two different types
+        types = ClassLoading.getAllTypes(MockGBean.class);
+        try {
+            types.addAll(ClassLoading.getAllTypes(BasicKernel.class));
+        } catch (IllegalArgumentException e) {
+            // expected
+        }
     }
 
     private Class loadClass(String name) {

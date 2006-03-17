@@ -19,7 +19,6 @@ package org.apache.geronimo.gbean;
 import java.beans.Introspector;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,6 +26,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Arrays;
+
+import org.apache.geronimo.kernel.ClassLoading;
 
 /**
  * @version $Rev$ $Date$
@@ -193,6 +195,48 @@ public class GBeanInfoBuilder {
         } else {
             this.j2eeType = DEFAULT_J2EE_TYPE; //NameFactory.GERONIMO_SERVICE
         }
+
+        // add all interfaces based on GBean type
+        if (gbeanType.isArray()) {
+            throw new IllegalArgumentException("GBean is an array type: gbeanType=" + gbeanType);
+        }
+        Set allTypes = ClassLoading.getAllTypes(gbeanType);
+        for (Iterator iterator = allTypes.iterator(); iterator.hasNext();) {
+            Class type = (Class) iterator.next();
+            addInterface(type);
+        }
+    }
+
+    public void setPersistentAttributes(String[] persistentAttributes) {
+        for (int i = 0; i < persistentAttributes.length; i++) {
+            String attributeName = persistentAttributes[i];
+            GAttributeInfo attribute = (GAttributeInfo) attributes.get(attributeName);
+            if (attribute != null) {
+                attributes.put(attributeName,
+                        new GAttributeInfo(attributeName,
+                                attribute.getType(),
+                                true,
+                                attribute.isManageable(),
+                                attribute.getGetterName(),
+                                attribute.getSetterName()));
+            }
+        }
+    }
+
+    public void setManageableAttributes(String[] manageableAttributes) {
+        for (int i = 0; i < manageableAttributes.length; i++) {
+            String attributeName = manageableAttributes[i];
+            GAttributeInfo attribute = (GAttributeInfo) attributes.get(attributeName);
+            if (attribute != null) {
+                attributes.put(attributeName,
+                        new GAttributeInfo(attributeName,
+                                attribute.getType(),
+                                attribute.isPersistent(),
+                                true,
+                                attribute.getGetterName(),
+                                attribute.getSetterName()));
+            }
+        }
     }
 
     public void addInterface(Class intf) {
@@ -204,6 +248,7 @@ public class GBeanInfoBuilder {
     public void addInterface(Class intf, String[] persistentAttributes) {
         addInterface(intf, persistentAttributes, new String[0]);
     }
+
     public void addInterface(Class intf, String[] persistentAttributes, String[] manageableAttributes) {
         Set persistentNames = new HashSet(Arrays.asList(persistentAttributes));
         Set manageableNames = new HashSet(Arrays.asList(manageableAttributes));
@@ -229,8 +274,8 @@ public class GBeanInfoBuilder {
                     attributes.put(attributeName,
                             new GAttributeInfo(attributeName,
                                     attributeType,
-                                    attribute.isPersistent(),
-                                    attribute.isManageable(),
+                                    attribute.isPersistent() || persistentNames.contains(attributeName),
+                                    attribute.isManageable() || manageableNames.contains(attributeName),
                                     method.getName(),
                                     attribute.getSetterName()));
                 }
@@ -253,8 +298,8 @@ public class GBeanInfoBuilder {
                     attributes.put(attributeName,
                             new GAttributeInfo(attributeName,
                                     attributeType,
-                                    attribute.isPersistent(),
-                                    attribute.isManageable(),
+                                    attribute.isPersistent() || persistentNames.contains(attributeName),
+                                    attribute.isManageable() || manageableNames.contains(attributeName),
                                     attribute.getGetterName(),
                                     method.getName()));
                 }
@@ -262,9 +307,7 @@ public class GBeanInfoBuilder {
                 addOperation(new GOperationInfo(method.getName(), method.getParameterTypes()));
             }
         }
-//        if(intf.isInterface()) {
-            addInterface(interfaces, intf);
-//        }
+        addInterface(interfaces, intf);
     }
 
     private static void addInterface(Set set, Class intf) {

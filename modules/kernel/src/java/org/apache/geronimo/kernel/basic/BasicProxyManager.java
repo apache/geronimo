@@ -27,6 +27,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.kernel.proxy.ProxyFactory;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.kernel.proxy.ProxyCreationException;
@@ -212,7 +213,7 @@ public class BasicProxyManager implements ProxyManager {
         public ManagedProxyFactory(Class[] type, ClassLoader classLoader) {
             Enhancer enhancer = new Enhancer();
             if(type.length > 1) { // shrink first -- may reduce from many to one
-                type = reduceInterfaces(type);
+                type = ClassLoading.reduceInterfaces(type);
             }
             if(type.length == 0) {
                 throw new IllegalArgumentException("Cannot generate proxy for 0 interfaces!");
@@ -287,81 +288,6 @@ public class BasicProxyManager implements ProxyManager {
                   throw new ProxyCreationException(e);
                 }
             }
-        }
-
-        /**
-         * If there are multiple interfaces, and some of them extend each other,
-         * eliminate the superclass in favor of the subclasses that extend them.
-         *
-         * If one of the entries is a class (not an interface), make sure it's
-         * the first one in the array.  If more than one of the entries is a
-         * class, throws an IllegalArgumentException
-         *
-         * @param source the original list of interfaces
-         * @return the equal or smaller list of interfaces
-         */
-        private Class[] reduceInterfaces(Class[] source) {
-            boolean changed = false;
-            Class cls = null;
-            for (int i = 0; i < source.length-1; i++) {
-                Class original = source[i];
-                if(original == null) {
-                    continue;
-                }
-                if(!original.isInterface()) {
-                    if(cls != null) {
-                        throw new IllegalArgumentException(original.getName()+" is not an interface (already have "+cls.getName()+"); can only have one non-interface class for proxy");
-                    } else {
-                        cls = original;
-                    }
-                }
-                for (int j = i+1; j < source.length; j++) {
-                    Class other = source[j];
-                    if(other == null) {
-                        continue;
-                    }
-                    if(!other.isInterface()) {
-                        if(cls != null) {
-                            throw new IllegalArgumentException(other.getName()+" is not an interface (already have "+cls.getName()+"); can only have one non-interface class for proxy");
-                        } else {
-                            cls = other;
-                        }
-                    }
-                    if(other.isAssignableFrom(original)) {
-                        source[j] = null; // clear out "other"
-                        changed = true;
-                    } else if(original.isAssignableFrom(other)) {
-                        source[i] = null; // clear out "original"
-                        changed = true;
-                        break; // the original has been eliminated; move on to the next original
-                    }
-                }
-            }
-
-            if(cls != null) {
-                if(cls != source[0]) {
-                    for (int i = 0; i < source.length; i++) {
-                        if(cls == source[i]) {
-                            Class temp = source[0];
-                            source[0] = source[i];
-                            source[i] = temp;
-                            break;
-                        }
-                    }
-                    changed = true;
-                }
-            }
-
-            if(!changed) {
-                return source;
-            }
-            List list = new ArrayList(source.length);
-            for (int i = 0; i < source.length; i++) {
-                if(source[i] != null) {
-                    list.add(source[i]);
-                }
-            }
-            return (Class[]) list.toArray(new Class[list.size()]);
         }
     }
 

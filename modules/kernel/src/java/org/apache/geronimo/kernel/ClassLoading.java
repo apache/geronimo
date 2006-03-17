@@ -19,6 +19,12 @@ package org.apache.geronimo.kernel;
 
 import java.lang.reflect.Array;
 import java.util.HashMap;
+import java.util.Set;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Utility class for loading classes by a variety of name variations.
@@ -256,6 +262,103 @@ public class ClassLoading {
         int dimensions[] = new int[dimension];
         // create an instance and return the associated class object.
         return Array.newInstance(type, dimensions).getClass();
+    }
+
+    public static Set getAllTypes(Class type) {
+        Set allTypes = new LinkedHashSet();
+        allTypes.add(type);
+        allTypes.addAll(getAllSuperClasses(type));
+        allTypes.addAll(getAllInterfaces(type));
+        return allTypes;
+    }
+
+    private static Set getAllSuperClasses(Class clazz) {
+        Set allSuperClasses = new LinkedHashSet();
+        for (Class superClass = clazz.getSuperclass(); superClass != null; superClass = superClass.getSuperclass()) {
+            allSuperClasses.add(superClass);
+        }
+        return allSuperClasses;
+    }
+
+    private static Set getAllInterfaces(Class clazz) {
+        Set allInterfaces = new LinkedHashSet();
+        LinkedList stack = new LinkedList();
+        stack.addAll(Arrays.asList(clazz.getInterfaces()));
+        while (!stack.isEmpty()) {
+            Class intf = (Class) stack.removeFirst();
+            if (!allInterfaces.contains(intf)) {
+                allInterfaces.add(intf);
+                stack.addAll(Arrays.asList(intf.getInterfaces()));
+            }
+        }
+        return allInterfaces;
+    }
+
+    public static Set reduceInterfaces(Set source) {
+        Class[] classes = (Class[]) source.toArray(new Class[source.size()]);
+        classes = reduceInterfaces(classes);
+        return new LinkedHashSet(Arrays.asList(classes));
+    }
+
+    /**
+     * If there are multiple interfaces, and some of them extend each other,
+     * eliminate the superclass in favor of the subclasses that extend them.
+     *
+     * If one of the entries is a class (not an interface), make sure it's
+     * the first one in the array.  If more than one of the entries is a
+     * class, throws an IllegalArgumentException
+     *
+     * @param source the original list of interfaces
+     * @return the equal or smaller list of interfaces
+     */
+    public static Class[] reduceInterfaces(Class[] source) {
+        // use a copy of the sorce array
+        source = (Class[]) source.clone();
+
+        for (int leftIndex = 0; leftIndex < source.length-1; leftIndex++) {
+            Class left = source[leftIndex];
+            if(left == null) {
+                continue;
+            }
+
+            for (int rightIndex = leftIndex +1; rightIndex < source.length; rightIndex++) {
+                Class right = source[rightIndex];
+                if(right == null) {
+                    continue;
+                }
+
+                if(left == right || right.isAssignableFrom(left)) {
+                    // right is the same as class or a sub class of left
+                    source[rightIndex] = null;
+                } else if(left.isAssignableFrom(right)) {
+                    // left is the same as class or a sub class of right
+                    source[leftIndex] = null;
+
+                    // the left has been eliminated; move on to the next left
+                    break;
+                }
+            }
+        }
+
+        Class clazz = null;
+        for (int i = 0; i < source.length; i++) {
+            if (source[i] != null && !source[i].isInterface()) {
+                if (clazz != null) {
+                    throw new IllegalArgumentException("Source contains two classes which are not subclasses of each other: " + clazz.getName() + ", " + source[i].getName());
+                }
+                clazz = source[i];
+                source[i] = null;
+            }
+        }
+
+        List list = new ArrayList(source.length);
+        if (clazz != null) list.add(clazz);
+        for (int i = 0; i < source.length; i++) {
+            if(source[i] != null) {
+                list.add(source[i]);
+            }
+        }
+        return (Class[]) list.toArray(new Class[list.size()]);
     }
 }
 
