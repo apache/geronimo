@@ -66,7 +66,6 @@ import org.apache.geronimo.xbeans.j2ee.MessageDestinationType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import java.io.File;
 import java.io.IOException;
@@ -170,8 +169,8 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
         AbstractName moduleName;
         if (earName == null) {
-            earName = Naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
-            moduleName = Naming.createChildName(earName, NameFactory.APP_CLIENT_MODULE, environment.getConfigId().toString());
+            earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
+            moduleName = naming.createChildName(earName, NameFactory.APP_CLIENT_MODULE, environment.getConfigId().toString());
         } else {
             moduleName = naming.createChildName(earName, targetPath, NameFactory.APP_CLIENT_MODULE);
         }
@@ -265,7 +264,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             clientEnvironment.setConfigId(configId);
         }
 
-        AbstractName clientBaseName = Naming.createRootName(clientEnvironment.getConfigId(), clientEnvironment.getConfigId().toString(), NameFactory.APP_CLIENT_MODULE);
+        AbstractName clientBaseName = earContext.getNaming().createRootName(clientEnvironment.getConfigId(), clientEnvironment.getConfigId().toString(), NameFactory.APP_CLIENT_MODULE);
         File appClientDir;
         try {
             appClientDir = configurationStore.createNewConfigurationDir(clientEnvironment.getConfigId());
@@ -599,9 +598,9 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(AppClientModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("defaultClientEnvironment", Environment.class, true, true);
         infoBuilder.addAttribute("defaultServerEnvironment", Environment.class, true, true);
-        infoBuilder.addAttribute("transactionContextManagerObjectName", ObjectName.class, true);
-        infoBuilder.addAttribute("connectionTrackerObjectName", ObjectName.class, true);
-        infoBuilder.addAttribute("corbaGBeanObjectName", ObjectName.class, true);
+        infoBuilder.addAttribute("transactionContextManagerObjectName", AbstractNameQuery.class, true);
+        infoBuilder.addAttribute("connectionTrackerObjectName", AbstractNameQuery.class, true);
+        infoBuilder.addAttribute("corbaGBeanObjectName", AbstractNameQuery.class, true);
         infoBuilder.addReference("EJBReferenceBuilder", EJBReferenceBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ConnectorModuleBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ResourceReferenceBuilder", ResourceReferenceBuilder.class, NameFactory.MODULE_BUILDER);

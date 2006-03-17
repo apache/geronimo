@@ -21,7 +21,7 @@
     </dep:server-environment>
     <nam:resource-ref xmlns:nam="http://geronimo.apache.org/xml/ns/naming-1.1">
         <nam:ref-name>jdbc/DB1</nam:ref-name>
-        <nam:target-name>DefaultDatabase</nam:target-name>
+        <nam:resource-link>DefaultDatabase</nam:resource-link>
     </nam:resource-ref>
     <resource>
         <external-rar>tranql/rars/tranql-connector-1.0-SNAPSHOT</external-rar>

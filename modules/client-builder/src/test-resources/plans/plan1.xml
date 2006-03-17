@@ -21,7 +21,7 @@
     </dep:server-environment>
     <nam:resource-ref xmlns:nam="http://geronimo.apache.org/xml/ns/naming-1.1">
         <nam:ref-name>jdbc/DB1</nam:ref-name>
-        <nam:target-name>DefaultDatabase</nam:target-name>
+        <nam:resource-link>DefaultDatabase</nam:resource-link>
     </nam:resource-ref>
     <realm-name>default</realm-name>
     <callback-handler>org.apache.geronimo.client.DefaultCallbackHandler</callback-handler>

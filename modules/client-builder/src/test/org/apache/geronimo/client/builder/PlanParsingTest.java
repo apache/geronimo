@@ -39,12 +39,9 @@ public class PlanParsingTest extends TestCase {
         EnvironmentType serverEnvironmentType = appClient.addNewServerEnvironment();
         serverEnvironmentType.setConfigId(clientId);
 
-//        appClient.setClientConfigId("clientConfigId");
-//        appClient.setConfigId("configId");
-//        appClient.setParentId("parentId");
         GerResourceRefType ref = appClient.addNewResourceRef();
         ref.setRefName("ref");
-        ref.setTargetName("target");
+        ref.setResourceLink("target");
 
         SchemaConversionUtils.validateDD(appClient);
 //        System.out.println(appClient.toString());
