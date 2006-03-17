@@ -17,7 +17,6 @@
 
 package org.apache.geronimo.j2ee.management;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Hashtable;
@@ -27,7 +26,6 @@ import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.management.impl.J2EEDomainImpl;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.j2ee.management.impl.JVMImpl;
@@ -66,7 +64,7 @@ public abstract class Abstract77Test extends TestCase {
             String v = value[i];
             names.put(k, v);
         }
-        return new AbstractName(new Artifact("test", "foo", "1", "car"), names, info.getInterfaces(), JMXUtil.getObjectName(DOMAIN, names));
+        return new AbstractName(new Artifact("test", "foo", "1", "car"), names, JMXUtil.getObjectName(DOMAIN, names));
     }
 
     protected void setUp() throws Exception {

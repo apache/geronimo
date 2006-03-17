@@ -93,4 +93,16 @@
            class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean">
     </gbean>
 
+    <gbean name="TransactionContextManager"
+            class="org.apache.geronimo.transaction.context.TransactionContextManagerGBean">
+ <!--
+         <reference name="TransactionManager">
+             <name>TransactionManager</name>
+         </reference>
+         <reference name="XidImporter">
+             <name>TransactionManager</name>
+         </reference>
+ -->
+     </gbean>
+
 </connector>

@@ -23,6 +23,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.management.geronimo.JCAResourceAdapter;
 import org.apache.geronimo.management.geronimo.JCAResource;
+import org.apache.geronimo.management.JCAConnectionFactory;
 
 public class JCAResourceImplGBean {
 
@@ -31,7 +32,7 @@ public class JCAResourceImplGBean {
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(JCAResourceImplGBean.class, JCAResourceImpl.class, NameFactory.JCA_RESOURCE);
         infoBuilder.addAttribute("objectName", String.class, false);
-        infoBuilder.addReference("ConnectionFactories", JCAConnectionFactoryImpl.class, NameFactory.JCA_CONNECTION_FACTORY);
+        infoBuilder.addReference("ConnectionFactories", JCAConnectionFactory.class, NameFactory.JCA_CONNECTION_FACTORY);
         infoBuilder.addReference("ResourceAdapters", JCAResourceAdapter.class, NameFactory.JCA_RESOURCE_ADAPTER);
         infoBuilder.addInterface(JCAResource.class);
 

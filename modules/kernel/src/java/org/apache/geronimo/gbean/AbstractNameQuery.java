@@ -36,9 +36,13 @@ public class AbstractNameQuery implements Serializable {
     private final Set interfaceTypes;
 
     public AbstractNameQuery(AbstractName abstractName) {
+        this(abstractName, null);
+    }
+
+    public AbstractNameQuery(AbstractName abstractName, Set interfaceTypes) {
         this.artifact = abstractName.getArtifact();
         this.name = abstractName.getName();
-        this.interfaceTypes = abstractName.getInterfaceTypes();
+        this.interfaceTypes = interfaceTypes == null? Collections.EMPTY_SET: interfaceTypes;
     }
 
     public AbstractNameQuery(Artifact artifact, Map name) {
@@ -118,7 +122,27 @@ public class AbstractNameQuery implements Serializable {
     }
 
 
-    public boolean matches(AbstractName info) {
+    public boolean matches(AbstractName info, Set targetInterfaceTypes) {
+        if (!info.getName().entrySet().containsAll(name.entrySet())) {
+            return false;
+        }
+        if (!targetInterfaceTypes.containsAll(interfaceTypes)) {
+            return false;
+        }
+        if (artifact == null) {
+            return true;
+        }
+        Artifact otherArtifact = info.getArtifact();
+        return artifact.matches(otherArtifact);
+    }
+
+    /**
+     * N.B. parameter info is supposed to be more specific than this.
+     * This is the opposite of the meaning of Artifact.matches.
+     * @param info
+     * @return if info is a more specific version of this name query.
+     */
+    public boolean matches(AbstractNameQuery info) {
         if (!info.getName().entrySet().containsAll(name.entrySet())) {
             return false;
         }

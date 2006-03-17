@@ -121,7 +121,7 @@ public class ConfigurationDump {
     private static AbstractName buildAbstractName(String key, String value, GBeanInfo info) throws MalformedObjectNameException {
         Map names = new HashMap();
         names.put(key, value);
-        return new AbstractName(new Artifact("geronimo", "configdump", "1", "car"), names, info.getInterfaces(), new ObjectName("geronimo.configdump:" + key + "=" + value));
+        return new AbstractName(new Artifact("geronimo", "configdump", "1", "car"), names, new ObjectName("geronimo.configdump:" + key + "=" + value));
     }
 
     private static void startGBean(Kernel kernel, GBeanData gbeanData) throws Exception {

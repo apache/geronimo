@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.1" xmlns:nam="http://geronimo.apache.org/xml/ns/naming-1.0" xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+<openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.1" xmlns:nam="http://geronimo.apache.org/xml/ns/naming-1.1" xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
     <dep:environment>
         <dep:configId>
             <dep:groupId>test</dep:groupId>

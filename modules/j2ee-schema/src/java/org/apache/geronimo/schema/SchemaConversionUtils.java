@@ -41,7 +41,7 @@ import org.apache.xmlbeans.XmlOptions;
 public class SchemaConversionUtils {
     static final String J2EE_NAMESPACE = "http://java.sun.com/xml/ns/j2ee";
 
-    static final String GERONIMO_NAMING_NAMESPACE = "http://geronimo.apache.org/xml/ns/naming-1.0";
+    static final String GERONIMO_NAMING_NAMESPACE = "http://geronimo.apache.org/xml/ns/naming-1.1";
     private static final String GERONIMO_SECURITY_NAMESPACE = "http://geronimo.apache.org/xml/ns/security-1.1";
     private static final String GERONIMO_SERVICE_NAMESPACE = "http://geronimo.apache.org/xml/ns/deployment-1.1";
 

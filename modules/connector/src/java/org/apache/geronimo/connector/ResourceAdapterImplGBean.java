@@ -21,6 +21,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.management.ResourceAdapter;
+import org.apache.geronimo.management.geronimo.JCAResource;
 
 public class ResourceAdapterImplGBean {
 
@@ -29,13 +30,13 @@ public class ResourceAdapterImplGBean {
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(ResourceAdapterImplGBean.class, ResourceAdapterImpl.class, NameFactory.RESOURCE_ADAPTER);
         infoBuilder.addAttribute("objectName", String.class, false);
-        infoBuilder.addReference("JCAResourceImpl", JCAResourceImpl.class, NameFactory.JCA_RESOURCE);
-        infoBuilder.addAttribute("JCAResource", String.class, false);
+        infoBuilder.addReference("JCAResource", JCAResource.class, NameFactory.JCA_RESOURCE);
+        infoBuilder.addAttribute("JCAResources", String[].class, false);
         infoBuilder.addInterface(ResourceAdapter.class);
 
         infoBuilder.setConstructor(new String[]{
             "objectName",
-            "JCAResourceImpl"
+            "JCAResource"
         });
 
         GBEAN_INFO = infoBuilder.getBeanInfo();

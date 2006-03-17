@@ -46,7 +46,7 @@ public class GeronimoWorkManagerGBean extends GeronimoWorkManager implements GBe
 
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(GeronimoWorkManagerGBean.class, NameFactory.JCA_WORK_MANAGER);
-        infoFactory.addInterface(WorkManager.class);
+        infoFactory.addInterface(GeronimoWorkManager.class);
 
         infoFactory.addAttribute("syncMaximumPoolSize", Integer.TYPE, true);
         infoFactory.addAttribute("startMaximumPoolSize", Integer.TYPE, true);

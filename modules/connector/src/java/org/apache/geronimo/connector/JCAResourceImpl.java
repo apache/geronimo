@@ -40,31 +40,21 @@ public class JCAResourceImpl implements JCAResource  {
     }
 
     public String[] getConnectionFactories() {
-        Collection copy;
-        synchronized(connectionFactories) {
-            copy = new ArrayList(connectionFactories);
-        }
-        String[] result = new String[copy.size()];
-        int i = 0;
-        for (Iterator iterator = copy.iterator(); iterator.hasNext();) {
+        ArrayList temp = new ArrayList();
+        for (Iterator iterator = connectionFactories.iterator(); iterator.hasNext();) {
             JCAConnectionFactoryImpl jcaConnectionFactory = (JCAConnectionFactoryImpl) iterator.next();
-            result[i++] = jcaConnectionFactory.getObjectName();
+            temp.add(jcaConnectionFactory.getObjectName());
         }
-        return result;
+        return (String[])temp.toArray(new String[temp.size()]);
     }
 
     public String[] getResourceAdapterInstances() {
-        Collection copy;
-        synchronized(resourceAdapters) {
-            copy = new ArrayList(resourceAdapters);
-        }
-        String[] result = new String[copy.size()];
-        int i = 0;
-        for (Iterator iterator = copy.iterator(); iterator.hasNext();) {
+        ArrayList temp = new ArrayList();
+        for (Iterator iterator = resourceAdapters.iterator(); iterator.hasNext();) {
             JCAResourceAdapter resourceAdapter = (JCAResourceAdapter) iterator.next();
-            result[i++] = resourceAdapter.getObjectName();
+            temp.add(resourceAdapter.getObjectName());
         }
-        return result;
+        return (String[])temp.toArray(new String[temp.size()]);
     }
 
     public String getObjectName() {

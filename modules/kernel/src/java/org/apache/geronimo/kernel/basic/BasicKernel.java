@@ -68,7 +68,7 @@ import org.apache.geronimo.kernel.proxy.ProxyManager;
  * 
  * TODO: Describe the order of method invocation (e.g. if loadGbean may be before boot)
  *
- * @version $Rev: 385487 $ $Date$
+ * @version $Rev:386276 $ $Date$
  */
 public class BasicKernel implements Kernel {
     /**
@@ -237,7 +237,8 @@ public class BasicKernel implements Kernel {
 
     public void loadGBean(GBeanData gbeanData, ClassLoader classLoader) throws GBeanAlreadyExistsException, InternalKernelException {
         AbstractName abstractName = gbeanData.getAbstractName();
-        GBeanInstance gbeanInstance = new GBeanInstance(gbeanData, this, dependencyManager, lifecycleMonitor.createLifecycleBroadcaster(abstractName), classLoader);
+        Set interfaces = gbeanData.getGBeanInfo().getInterfaces();
+        GBeanInstance gbeanInstance = new GBeanInstance(gbeanData, this, dependencyManager, lifecycleMonitor.createLifecycleBroadcaster(abstractName, interfaces), classLoader);
         registry.register(gbeanInstance);
     }
 

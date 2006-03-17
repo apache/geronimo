@@ -237,11 +237,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         }
         AbstractName moduleName;
         if (earName == null) {
-            try {
-                moduleName = NameFactory.buildModuleName(environment.getProperties(), environment.getConfigId(), ConfigurationModuleType.WAR, null);
-            } catch (MalformedObjectNameException e) {
-                throw new DeploymentException("Could not construct standalone web module name", e);
-            }
+            earName = Naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
+            moduleName = Naming.createChildName(earName, NameFactory.WEB_MODULE, environment.getConfigId().toString());
         } else {
             moduleName = naming.createChildName(earName, targetPath, NameFactory.WEB_MODULE);
         }

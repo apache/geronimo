@@ -36,7 +36,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 
 /**
- * @version $Rev: 384141 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class GBeanTest extends TestCase {
     private Kernel kernel;
@@ -48,7 +48,7 @@ public class GBeanTest extends TestCase {
         kernel.startGBean(gbean.getAbstractName());
         assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(gbean.getAbstractName()));
 
-        Set gbeans = kernel.listGBeans(new AbstractNameQuery(gbean.getAbstractName()));
+        Set gbeans = kernel.listGBeans(new AbstractNameQuery(gbean.getAbstractName(), gbean.getGBeanInfo().getInterfaces()));
         assertEquals(1, gbeans.size());
         assertEquals(gbean.getAbstractName(), gbeans.iterator().next());
     }

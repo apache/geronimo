@@ -79,6 +79,7 @@ import java.util.zip.ZipEntry;
  * @version $Rev:385232 $ $Date$
  */
 public class EARConfigBuilder implements ConfigurationBuilder {
+
     private final static QName APPLICATION_QNAME = GerApplicationDocument.type.getDocumentElementName();
     private static final String DEFAULT_GROUPID = "defaultGroupId";
 
@@ -92,8 +93,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private final ServiceReferenceBuilder serviceReferenceBuilder;
 
     private final Environment defaultEnvironment;
-    //TODO configid FIXME
-    private final AbstractNameQuery serverName = null;
+    private final AbstractNameQuery serverName;
     private final AbstractNameQuery transactionContextManagerObjectName;
     private final AbstractNameQuery connectionTrackerObjectName;
     private final AbstractNameQuery transactionalTimerObjectName;
@@ -108,6 +108,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             AbstractNameQuery transactionalTimerAbstractName,
             AbstractNameQuery nonTransactionalTimerAbstractName,
             AbstractNameQuery corbaGBeanAbstractName,
+            AbstractNameQuery serverName,
             Repository repository,
             ModuleBuilder ejbConfigBuilder,
             EJBReferenceBuilder ejbReferenceBuilder,
@@ -123,6 +124,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 transactionalTimerAbstractName,
                 nonTransactionalTimerAbstractName,
                 corbaGBeanAbstractName,
+                serverName,
                 repository,
                 ejbConfigBuilder,
                 ejbReferenceBuilder,
@@ -140,6 +142,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             AbstractNameQuery transactionalTimerAbstractName,
             AbstractNameQuery nonTransactionalTimerAbstractName,
             AbstractNameQuery corbaGBeanAbstractName,
+            AbstractNameQuery serverName,
             Repository repository,
             ModuleBuilder ejbConfigBuilder,
             EJBReferenceBuilder ejbReferenceBuilder,
@@ -164,6 +167,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         this.transactionalTimerObjectName = transactionalTimerAbstractName;
         this.nonTransactionalTimerObjectName = nonTransactionalTimerAbstractName;
         this.corbaGBeanObjectName = corbaGBeanAbstractName;
+        this.serverName = serverName;
         this.naming = naming;
     }
 
@@ -561,7 +565,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                             altSpecDD,
                             environment,
                             moduleContextInfo,
-                            earName, naming);
+                            earName,
+                            naming);
 
                     if (module == null) {
                         throw new DeploymentException("Module was not " + moduleTypeName + ": " + modulePath);
@@ -661,7 +666,9 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                         moduleName,
                         altSpecDD,
                         environment,
-                        moduleContextInfo, earName, naming);
+                        moduleContextInfo,
+                        earName,
+                        naming);
 
                 if (module == null) {
                     throw new DeploymentException("Module was not " + moduleTypeName + ": " + moduleName);
@@ -717,7 +724,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         infoFactory.addAttribute("transactionalTimerAbstractName", AbstractNameQuery.class, true);
         infoFactory.addAttribute("nonTransactionalTimerAbstractName", AbstractNameQuery.class, true);
         infoFactory.addAttribute("corbaGBeanAbstractName", AbstractNameQuery.class, true);
-        infoFactory.addAttribute("kernel", Kernel.class, false, false);
+        infoFactory.addAttribute("serverName", AbstractNameQuery.class, true);
 
         infoFactory.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("EJBConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
@@ -728,6 +735,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         infoFactory.addReference("AppClientConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoFactory.addReference("ServiceReferenceBuilder", ServiceReferenceBuilder.class, NameFactory.MODULE_BUILDER);
 
+        infoFactory.addAttribute("kernel", Kernel.class, false);
+
         infoFactory.addInterface(ConfigurationBuilder.class);
 
         infoFactory.setConstructor(new String[]{
@@ -737,6 +746,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 "transactionalTimerAbstractName",
                 "nonTransactionalTimerAbstractName",
                 "corbaGBeanAbstractName",
+                "serverName",
                 "Repository",
                 "EJBConfigBuilder",
                 "EJBReferenceBuilder",

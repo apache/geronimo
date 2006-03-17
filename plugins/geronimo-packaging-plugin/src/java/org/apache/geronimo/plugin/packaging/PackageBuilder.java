@@ -47,7 +47,7 @@ import java.util.HashMap;
  * JellyBean that builds a Geronimo Configuration using the local Mavem
  * infrastructure.
  *
- * @version $Rev: 385487 $ $Date$
+ * @version $Rev:385659 $ $Date$
  */
 public class PackageBuilder {
 

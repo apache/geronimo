@@ -27,11 +27,13 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.lifecycle.LifecycleMonitor;
 import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
 import org.apache.geronimo.gbean.runtime.LifecycleBroadcaster;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.GBeanData;
 
 /**
  * @version $Rev$ $Date$
@@ -41,7 +43,14 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
 
 
     // todo we should only hold weak references to the listeners
+    /**
+     * Map of AbstractName to set of Listeners interested in this name.
+     */
     private final Map boundListeners = new HashMap();
+
+    /**
+     * Map of listener to patterns they are interested in.
+     */
     private final Map listenerPatterns = new HashMap();
 
     public BasicLifecycleMonitor(Kernel kernel) {
@@ -49,7 +58,15 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
         // register for state change notifications with all mbeans that match the target patterns
         Set names = kernel.listGBeans((AbstractNameQuery)null);
         for (Iterator objectNameIterator = names.iterator(); objectNameIterator.hasNext();) {
-            addSource((AbstractName) objectNameIterator.next());
+            AbstractName source = (AbstractName) objectNameIterator.next();
+            GBeanData gBeanData;
+            try {
+                gBeanData = kernel.getGBeanData(source);
+            } catch (GBeanNotFoundException e) {
+                //this should never happen
+                throw new AssertionError(e);
+            }
+            addSource(source, gBeanData.getGBeanInfo().getInterfaces());
         }
     }
 
@@ -58,27 +75,28 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
         listenerPatterns.clear();
     }
 
-    private synchronized void addSource(AbstractName source) {
+    private synchronized void addSource(AbstractName source, Set interfaceTypes) {
         if (boundListeners.containsKey(source)) {
             // already registered
             return;
         }
 
         // find all listeners interested in events from this source
-        HashSet listeners = new HashSet();
+        SourceInfo sourceInfo = new SourceInfo(interfaceTypes);
+        HashSet listeners = sourceInfo.getListeners();
         for (Iterator listenerIterator = listenerPatterns.entrySet().iterator(); listenerIterator.hasNext();) {
             Map.Entry entry = (Map.Entry) listenerIterator.next();
             Set patterns = (Set) entry.getValue();
             for (Iterator patternIterator = patterns.iterator(); patternIterator.hasNext();) {
                 AbstractNameQuery pattern = (AbstractNameQuery) patternIterator.next();
-                if (pattern.matches(source)) {
+                if (pattern.matches(source, interfaceTypes)) {
                     LifecycleListener listener = (LifecycleListener) entry.getKey();
                     listeners.add(listener);
                 }
             }
         }
 
-        boundListeners.put(source, listeners);
+        boundListeners.put(source, sourceInfo);
     }
 
     private synchronized void removeSource(AbstractName source) {
@@ -95,8 +113,9 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
             for (Iterator iterator = boundListeners.entrySet().iterator(); iterator.hasNext();) {
                 Map.Entry entry = (Map.Entry) iterator.next();
                 AbstractName source = (AbstractName) entry.getKey();
-                if (pattern.matches(source)) {
-                    Set listeners = (Set) entry.getValue();
+                SourceInfo sourceInfo = (SourceInfo) entry.getValue();
+                if (pattern.matches(source, sourceInfo.getInterfaceTypes())) {
+                    Set listeners = sourceInfo.getListeners();
                     listeners.add(listener);
                 }
             }
@@ -106,19 +125,19 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
 
     public synchronized void removeLifecycleListener(LifecycleListener listener) {
         for (Iterator iterator = boundListeners.values().iterator(); iterator.hasNext();) {
-            Set set = (Set) iterator.next();
-            set.remove(listener);
+            SourceInfo sourceInfo = (SourceInfo) iterator.next();
+            sourceInfo.getListeners().remove(listener);
         }
         listenerPatterns.remove(listener);
     }
 
     private synchronized Set getTargets(AbstractName source) {
-        Set targets = (Set) boundListeners.get(source);
+        SourceInfo targets = (SourceInfo) boundListeners.get(source);
         if (targets == null) {
             // no one is interested in this event
             return Collections.EMPTY_SET;
         } else {
-            return new HashSet(targets);
+            return new HashSet(targets.getListeners());
         }
     }
 
@@ -206,19 +225,21 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
         }
     }
 
-    public LifecycleBroadcaster createLifecycleBroadcaster(AbstractName abstractName) {
-        return new RawLifecycleBroadcaster(abstractName);
+    public LifecycleBroadcaster createLifecycleBroadcaster(AbstractName abstractName, Set interfaceTypes) {
+        return new RawLifecycleBroadcaster(abstractName, interfaceTypes);
     }
 
     private class RawLifecycleBroadcaster implements LifecycleBroadcaster {
         private final AbstractName abstractName;
+        private final Set interfaceTypes;
 
-        public RawLifecycleBroadcaster(AbstractName abstractName) {
+        public RawLifecycleBroadcaster(AbstractName abstractName, Set interfaceTypes) {
             this.abstractName = abstractName;
+            this.interfaceTypes = interfaceTypes;
         }
 
         public void fireLoadedEvent() {
-            addSource(abstractName);
+            addSource(abstractName, interfaceTypes);
             BasicLifecycleMonitor.this.fireLoadedEvent(abstractName);
         }
 
@@ -248,5 +269,21 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
         }
     }
 
+    private final class SourceInfo {
+        private final Set interfaceTypes;
+        private final HashSet listeners = new HashSet();
+
+        public SourceInfo(Set interfaceTypes) {
+            this.interfaceTypes = interfaceTypes;
+        }
+
+        public Set getInterfaceTypes() {
+            return interfaceTypes;
+        }
+
+        public HashSet getListeners() {
+            return listeners;
+        }
+    }
 
 }

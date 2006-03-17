@@ -26,6 +26,7 @@ import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.ClassLoading;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.naming.java.ComponentContextBuilder;
@@ -172,7 +173,6 @@ public class ENCConfigBuilder {
                 try {
                     AbstractNameQuery containerId = getResourceContainerId(name, j2eeType, moduleURI, gerResourceRef);
 
-                    //TODO configid not sure what knownParent is supposed to be
                     ref = refContext.getConnectionFactoryRef(containerId, iface, earContext);
                     builder.bind(name, ref);
                 } catch (UnresolvedReferenceException e) {
@@ -216,7 +216,6 @@ public class ENCConfigBuilder {
             GerResourceEnvRefType gerResourceEnvRef = (GerResourceEnvRefType) refMap.get(name);
             try {
                 AbstractNameQuery containerId = getAdminObjectContainerId(name, gerResourceEnvRef);
-                //TODO not sure what knownParent is supposed to be
                 Reference ref = refContext.getAdminObjectRef(containerId, iface, earContext);
 
                 builder.bind(name, ref);
@@ -278,7 +277,6 @@ public class ENCConfigBuilder {
             //try to resolve ref based only matching resource-ref-name
             //throws exception if it can't locate ref.
             AbstractNameQuery containerId = buildAbstractNameQuery(null, moduleURI, NameFactory.JCA_ADMIN_OBJECT, linkName);
-            //TODO configid not sure what knwonParent is suppsed to be
             Reference ref = refContext.getAdminObjectRef(containerId, iface, earContext);
             builder.bind(name, ref);
 
@@ -291,77 +289,85 @@ public class ENCConfigBuilder {
             EjbRefType ejbRef = ejbRefs[i];
 
             String ejbRefName = getStringValue(ejbRef.getEjbRefName());
+            GerEjbRefType remoteRef = (GerEjbRefType) ejbRefMap.get(ejbRefName);
 
-            String remote = getStringValue(ejbRef.getRemote());
-            try {
-                assureEJBObjectInterface(remote, cl);
-            } catch (DeploymentException e) {
-                throw new DeploymentException("Error processing 'remote' element for EJB Reference '" + ejbRefName + "' for module '" + moduleURI + "': " + e.getMessage());
-            }
-
-            String home = getStringValue(ejbRef.getHome());
-            try {
-                assureEJBHomeInterface(home, cl);
-            } catch (DeploymentException e) {
-                throw new DeploymentException("Error processing 'home' element for EJB Reference '" + ejbRefName + "' for module '" + moduleURI + "': " + e.getMessage());
-            }
-
-            Reference ejbReference;
-            boolean isSession = "Session".equals(getStringValue(ejbRef.getEjbRefType()));
-
-            if (isSession && remote.equals("javax.management.j2ee.Management") && home.equals("javax.management.j2ee.ManagementHome"))
-            {
-                AbstractNameQuery query = new AbstractNameQuery(null, Collections.singletonMap("name", "ejb/mgmt/MEJB"));
-                ejbReference = refContext.getEJBRemoteRef(null, null, null, null, query, isSession, home, remote, ejbContext);
-            } else {
-
-                String ejbLink = null;
-                GerEjbRefType remoteRef = (GerEjbRefType) ejbRefMap.get(ejbRefName);
-                if (remoteRef != null && remoteRef.isSetNsCorbaloc()) {
-                    try {
-                        AbstractNameQuery cssBean;
-                        if (remoteRef.isSetCssLink()) {
-                            String cssLink = remoteRef.getCssLink().trim();
-                            cssBean = buildAbstractNameQuery(null, null, NameFactory.CORBA_CSS, cssLink);
-                        } else {
-                            GerPatternType css = remoteRef.getCss();
-                            cssBean = buildAbstractNameQuery(css, NameFactory.CORBA_CSS);
-                        }
-                        ejbReference = refContext.getCORBARemoteRef(earContext,
-                                cssBean,
-                                new URI(getStringValue(remoteRef.getNsCorbaloc())),
-                                getStringValue(remoteRef.getName()),
-                                home);
-                    } catch (URISyntaxException e) {
-                        throw new DeploymentException("Could not construct CORBA NameServer URI: " + remoteRef.getNsCorbaloc(), e);
-                    }
-                } else {
-                    Artifact targetConfigId = null;
-                    String optionalModule = moduleURI == null ? null : moduleURI.toString();
-                    String requiredModule = null;
-                    AbstractNameQuery containerId = null;
-                    if (remoteRef != null && remoteRef.isSetEjbLink()) {
-                        ejbLink = remoteRef.getEjbLink();
-                    } else if (ejbRef.isSetEjbLink()) {
-                        ejbLink = getStringValue(ejbRef.getEjbLink());
-                        targetConfigId = ejbContext.getId();
-                    }
-                    if (ejbLink != null) {
-                        String[] bits = ejbLink.split("#");
-                        if (bits.length == 2) {
-                            //look only in specified module.
-                            requiredModule = bits[0];
-                            ejbLink = bits[1];
-                        }
-                    } else if (remoteRef != null) {
-                        GerPatternType patternType = remoteRef.getPattern();
-                        containerId = buildAbstractNameQuery(patternType, null);
-                    }
-                    ejbReference = refContext.getEJBRemoteRef(requiredModule, optionalModule, ejbLink, targetConfigId, containerId, isSession, home, remote, ejbContext);
-                }
-            }
+            Reference ejbReference = addEJBRef(earContext, ejbContext, refContext, moduleURI, ejbRef, remoteRef, cl);
             builder.bind(ejbRefName, ejbReference);
         }
+    }
+
+    static Reference addEJBRef(Configuration earContext, Configuration ejbContext, RefContext refContext, URI moduleURI, EjbRefType ejbRef, GerEjbRefType remoteRef, ClassLoader cl) throws DeploymentException {
+        String remote = getStringValue(ejbRef.getRemote());
+        try {
+            assureEJBObjectInterface(remote, cl);
+        } catch (DeploymentException e) {
+            throw new DeploymentException("Error processing 'remote' element for EJB Reference '" + getStringValue(ejbRef.getEjbRefName()) + "' for module '" + moduleURI + "': " + e.getMessage());
+        }
+
+        String home = getStringValue(ejbRef.getHome());
+        try {
+            assureEJBHomeInterface(home, cl);
+        } catch (DeploymentException e) {
+            throw new DeploymentException("Error processing 'home' element for EJB Reference '" + getStringValue(ejbRef.getEjbRefName()) + "' for module '" + moduleURI + "': " + e.getMessage());
+        }
+
+        Reference ejbReference;
+        boolean isSession = "Session".equals(getStringValue(ejbRef.getEjbRefType()));
+
+        if (isSession && remote.equals("javax.management.j2ee.Management") && home.equals("javax.management.j2ee.ManagementHome"))
+        {
+            AbstractNameQuery query = new AbstractNameQuery(null, Collections.singletonMap("name", "ejb/mgmt/MEJB"));
+            ejbReference = refContext.getEJBRemoteRef(null, null, null, null, query, isSession, home, remote, ejbContext);
+        } else {
+
+            String ejbLink = null;
+            if (remoteRef != null && remoteRef.isSetNsCorbaloc()) {
+                try {
+                    AbstractNameQuery cssBean;
+                    if (remoteRef.isSetCssLink()) {
+                        String cssLink = remoteRef.getCssLink().trim();
+                        cssBean = buildAbstractNameQuery(null, null, NameFactory.CORBA_CSS, cssLink);
+                    } else {
+                        GerPatternType css = remoteRef.getCss();
+                        cssBean = buildAbstractNameQuery(css, NameFactory.CORBA_CSS);
+                    }
+                    ejbReference = refContext.getCORBARemoteRef(earContext,
+                            cssBean,
+                            new URI(getStringValue(remoteRef.getNsCorbaloc())),
+                            getStringValue(remoteRef.getName()),
+                            home);
+                } catch (URISyntaxException e) {
+                    throw new DeploymentException("Could not construct CORBA NameServer URI: " + remoteRef.getNsCorbaloc(), e);
+                }
+            } else {
+                Artifact targetConfigId = null;
+                String optionalModule = moduleURI == null ? null : moduleURI.toString();
+                String requiredModule = null;
+                AbstractNameQuery containerId = null;
+                if (remoteRef != null && remoteRef.isSetEjbLink()) {
+                    ejbLink = remoteRef.getEjbLink();
+                } else if (ejbRef.isSetEjbLink()) {
+                    ejbLink = getStringValue(ejbRef.getEjbLink());
+                    targetConfigId = ejbContext.getId();
+                }
+                if (ejbLink != null) {
+                    String[] bits = ejbLink.split("#");
+                    if (bits.length == 2) {
+                        //look only in specified module.
+                        requiredModule = bits[0];
+                        if (moduleURI != null) {
+                            requiredModule = moduleURI.resolve(requiredModule).getPath();
+                        }
+                        ejbLink = bits[1];
+                    }
+                } else if (remoteRef != null) {
+                    GerPatternType patternType = remoteRef.getPattern();
+                    containerId = buildAbstractNameQuery(patternType, null);
+                }
+                ejbReference = refContext.getEJBRemoteRef(requiredModule, optionalModule, ejbLink, targetConfigId, containerId, isSession, home, remote, ejbContext);
+            }
+        }
+        return ejbReference;
     }
 
     static void addEJBLocalRefs(Configuration ejbContext, RefContext refContext, URI moduleURI, EjbLocalRefType[] ejbLocalRefs, Map ejbLocalRefMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
@@ -369,55 +375,59 @@ public class ENCConfigBuilder {
             EjbLocalRefType ejbLocalRef = ejbLocalRefs[i];
 
             String ejbRefName = getStringValue(ejbLocalRef.getEjbRefName());
-
-            String local = getStringValue(ejbLocalRef.getLocal());
-            try {
-                assureEJBLocalObjectInterface(local, cl);
-            } catch (DeploymentException e) {
-                throw new DeploymentException("Error processing 'local' element for EJB Local Reference '" + ejbRefName + "' for module '" + moduleURI + "': " + e.getMessage());
-            }
-
-            String localHome = getStringValue(ejbLocalRef.getLocalHome());
-            try {
-                assureEJBLocalHomeInterface(localHome, cl);
-            } catch (DeploymentException e) {
-                throw new DeploymentException("Error processing 'local-home' element for EJB Local Reference '" + ejbRefName + "' for module '" + moduleURI + "': " + e.getMessage());
-            }
-
-            boolean isSession = "Session".equals(getStringValue(ejbLocalRef.getEjbRefType()));
-
-            String ejbLink = null;
             GerEjbLocalRefType localRef = (GerEjbLocalRefType) ejbLocalRefMap.get(ejbRefName);
-            if (localRef != null && localRef.isSetEjbLink()) {
-                ejbLink = localRef.getEjbLink();
-            } else if (ejbLocalRef.isSetEjbLink()) {
-                ejbLink = getStringValue(ejbLocalRef.getEjbLink());
-            }
 
-            Artifact targetConfigId = null;
-            String optionalModule = moduleURI == null ? null : moduleURI.toString();
-            String requiredModule = null;
-            AbstractNameQuery containerId = null;
-            if (localRef != null && localRef.isSetEjbLink()) {
-                ejbLink = localRef.getEjbLink();
-            } else if (ejbLocalRef.isSetEjbLink()) {
-                ejbLink = getStringValue(ejbLocalRef.getEjbLink());
-                targetConfigId = ejbContext.getId();
-            }
-            if (ejbLink != null) {
-                String[] bits = ejbLink.split("#");
-                if (bits.length == 2) {
-                    //look only in specified module.
-                    requiredModule = bits[0];
-                    ejbLink = bits[1];
-                }
-            } else if (localRef != null) {
-                GerPatternType patternType = localRef.getPattern();
-                containerId = buildAbstractNameQuery(patternType, null);
-            }
-            Reference ejbReference = refContext.getEJBRemoteRef(requiredModule, optionalModule, ejbLink, targetConfigId, containerId, isSession, localHome, local, ejbContext);
+            Reference ejbReference = addEJBLocalRef(ejbContext, refContext, moduleURI, ejbLocalRef, localRef, cl);
             builder.bind(ejbRefName, ejbReference);
         }
+    }
+
+    static Reference addEJBLocalRef(Configuration ejbContext, RefContext refContext, URI moduleURI, EjbLocalRefType ejbLocalRef, GerEjbLocalRefType localRef, ClassLoader cl) throws DeploymentException {
+        String local = getStringValue(ejbLocalRef.getLocal());
+        try {
+            assureEJBLocalObjectInterface(local, cl);
+        } catch (DeploymentException e) {
+            throw new DeploymentException("Error processing 'local' element for EJB Local Reference '" + getStringValue(ejbLocalRef.getEjbRefName()) + "' for module '" + moduleURI + "': " + e.getMessage());
+        }
+
+        String localHome = getStringValue(ejbLocalRef.getLocalHome());
+        try {
+            assureEJBLocalHomeInterface(localHome, cl);
+        } catch (DeploymentException e) {
+            throw new DeploymentException("Error processing 'local-home' element for EJB Local Reference '" + getStringValue(ejbLocalRef.getEjbRefName()) + "' for module '" + moduleURI + "': " + e.getMessage());
+        }
+
+        boolean isSession = "Session".equals(getStringValue(ejbLocalRef.getEjbRefType()));
+
+        String ejbLink = null;
+        if (localRef != null && localRef.isSetEjbLink()) {
+            ejbLink = localRef.getEjbLink();
+        } else if (ejbLocalRef.isSetEjbLink()) {
+            ejbLink = getStringValue(ejbLocalRef.getEjbLink());
+        }
+
+        Artifact targetConfigId = null;
+        String optionalModule = moduleURI == null ? null : moduleURI.toString();
+        String requiredModule = null;
+        AbstractNameQuery containerId = null;
+        if (localRef != null && localRef.isSetEjbLink()) {
+            ejbLink = localRef.getEjbLink();
+        } else if (ejbLocalRef.isSetEjbLink()) {
+            ejbLink = getStringValue(ejbLocalRef.getEjbLink());
+            targetConfigId = ejbContext.getId();
+        }
+        if (ejbLink != null) {
+            String[] bits = ejbLink.split("#");
+            if (bits.length == 2) {
+                //look only in specified module.
+                requiredModule = bits[0];
+                ejbLink = bits[1];
+            }
+        } else if (localRef != null) {
+            GerPatternType patternType = localRef.getPattern();
+            containerId = buildAbstractNameQuery(patternType, null);
+        }
+        return refContext.getEJBRemoteRef(requiredModule, optionalModule, ejbLink, targetConfigId, containerId, isSession, localHome, local, ejbContext);
     }
 
 //TODO current implementation does not deal with portComponentRef links.
@@ -753,7 +763,7 @@ public class ENCConfigBuilder {
         Map nameMap = new HashMap();
         nameMap.put("name", name);
         if (type != null) {
-            nameMap.put("type", type);
+            nameMap.put("j2eeType", type);
         }
         if (module != null) {
             nameMap.put("module", module);
@@ -765,7 +775,7 @@ public class ENCConfigBuilder {
         Map nameMap = new HashMap();
         nameMap.put("name", name);
         if (type != null) {
-            nameMap.put("type", type);
+            nameMap.put("j2eeType", type);
         }
         if (module != null) {
             nameMap.put("module", module);

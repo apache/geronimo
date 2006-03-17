@@ -32,6 +32,7 @@ import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.gbean.GBeanName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.runtime.GBeanInstance;
 
 /**
@@ -175,9 +176,10 @@ public class BasicRegistry {
         Set result = new HashSet(clone.size());
         for (Iterator i = clone.entrySet().iterator(); i.hasNext();) {
             Map.Entry entry = (Map.Entry) i.next();
-            AbstractName name = (AbstractName) entry.getKey();
-            if (query == null || query.matches(name)) {
-                result.add(entry.getValue());
+            AbstractName abstractName = (AbstractName) entry.getKey();
+            GBeanInstance gbeanData = (GBeanInstance) entry.getValue();
+            if (query == null || query.matches(abstractName, gbeanData.getGBeanInfo().getInterfaces())) {
+                result.add(gbeanData);
             }
         }
         return result;

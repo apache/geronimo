@@ -24,6 +24,7 @@ import javax.management.ObjectName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
+import org.apache.geronimo.management.ResourceAdapter;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
@@ -35,7 +36,7 @@ public class ResourceAdapterModuleImpl implements ResourceAdapterModule {
     private final J2EEServer server;
     private final J2EEApplication application;
     private final String deploymentDescriptor;
-    private final ResourceAdapterImpl resourceAdapter;
+    private final ResourceAdapter resourceAdapter;
 
     private final GBeanData resourceAdapterGBeanData;
     private final Map activationSpecInfoMap;
@@ -49,7 +50,7 @@ public class ResourceAdapterModuleImpl implements ResourceAdapterModule {
     private final String eisType;
 
     public ResourceAdapterModuleImpl(String objectName,
-                                     ResourceAdapterImpl resourceAdapter,
+                                     ResourceAdapter resourceAdapter,
                                      J2EEServer server,
                                      J2EEApplication application,
                                      String deploymentDescriptor,

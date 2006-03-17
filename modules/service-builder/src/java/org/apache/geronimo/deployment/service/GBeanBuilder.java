@@ -30,6 +30,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.xmlbeans.XmlObject;
 
 import java.beans.PropertyEditor;
@@ -172,10 +173,10 @@ public class GBeanBuilder {
         Map nameMap = new HashMap();
         nameMap.put("name", name);
         if (type != null) {
-            nameMap.put("type", type);
+            nameMap.put("j2eeType", type);
         }
         if (module != null) {
-            nameMap.put("module", module);
+            nameMap.put("J2EEModule", module);
         }
         String interfaceType = referenceInfo.getProxyType();
         return new AbstractNameQuery(artifact, nameMap, Collections.singleton(interfaceType));

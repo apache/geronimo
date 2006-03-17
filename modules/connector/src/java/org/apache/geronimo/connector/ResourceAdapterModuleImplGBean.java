@@ -25,6 +25,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
+import org.apache.geronimo.management.ResourceAdapter;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 
 /**
@@ -41,7 +42,7 @@ public class ResourceAdapterModuleImplGBean {
 
         infoBuilder.addAttribute("deploymentDescriptor", String.class, true);
 
-        infoBuilder.addReference("ResourceAdapter", ResourceAdapterImpl.class, NameFactory.RESOURCE_ADAPTER);
+        infoBuilder.addReference("ResourceAdapter", ResourceAdapter.class, NameFactory.RESOURCE_ADAPTER);
         infoBuilder.addAttribute("objectName", String.class, false);
         infoBuilder.addAttribute("server", String.class, false);
         infoBuilder.addAttribute("application", String.class, false);

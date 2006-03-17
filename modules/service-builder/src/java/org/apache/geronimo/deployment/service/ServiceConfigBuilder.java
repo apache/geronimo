@@ -30,19 +30,19 @@ import org.apache.geronimo.deployment.xbeans.ReferenceType;
 import org.apache.geronimo.deployment.xbeans.ReferencesType;
 import org.apache.geronimo.deployment.xbeans.XmlAttributeType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.ReferenceMap;
-import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
-import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
@@ -50,15 +50,14 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
-import javax.management.MalformedObjectNameException;
 import javax.xml.namespace.QName;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Collections;
 import java.util.jar.JarFile;
 
 /**
@@ -174,12 +173,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         ClassLoader cl = context.getClassLoader();
 
 
-        AbstractName moduleName;
-        try {
-            moduleName = NameFactory.buildModuleName(environment.getProperties(), configId, ConfigurationModuleType.SERVICE, null);
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException(e);
-        }
+        AbstractName moduleName = naming.createRootName(configId, configId.toString(), NameFactory.SERVICE_MODULE);
         GbeanType[] gbeans = configurationType.getGbeanArray();
         addGBeans(gbeans, cl, moduleName, context);
         context.close();

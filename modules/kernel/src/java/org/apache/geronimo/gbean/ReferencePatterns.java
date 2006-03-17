@@ -77,4 +77,8 @@ public class ReferencePatterns implements Serializable {
         return abstractName;
     }
 
+    public boolean isResolved() {
+        return abstractName != null;
+    }
+
 }

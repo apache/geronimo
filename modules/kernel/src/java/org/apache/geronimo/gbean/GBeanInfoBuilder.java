@@ -262,9 +262,9 @@ public class GBeanInfoBuilder {
                 addOperation(new GOperationInfo(method.getName(), method.getParameterTypes()));
             }
         }
-        if(intf.isInterface()) {
+//        if(intf.isInterface()) {
             addInterface(interfaces, intf);
-        }
+//        }
     }
 
     private static void addInterface(Set set, Class intf) {

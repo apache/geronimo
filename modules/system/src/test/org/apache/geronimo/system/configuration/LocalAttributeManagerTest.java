@@ -81,7 +81,7 @@ public class LocalAttributeManagerTest extends TestCase {
 
     public void testGBeanShouldLoad() throws Exception {
         ObjectName objectName = ObjectName.getInstance(":name=gbean2");
-        AbstractName gbeanName2 = new AbstractName(configurationName, objectName.getKeyPropertyList(), LocalAttributeManagerTest.class.getName(), objectName);
+        AbstractName gbeanName2 = new AbstractName(configurationName, objectName.getKeyPropertyList(), objectName);
 
         // should load by default
         Set originalDatas = new HashSet();
@@ -128,7 +128,7 @@ public class LocalAttributeManagerTest extends TestCase {
 
     public void testSetReference() throws Exception {
         ObjectName referencePatternObjectName = new ObjectName(":name=referencePattern");
-        AbstractName referencePattern = new AbstractName(configurationName, referencePatternObjectName.getKeyPropertyList(), Collections.EMPTY_SET, referencePatternObjectName);
+        AbstractName referencePattern = new AbstractName(configurationName, referencePatternObjectName.getKeyPropertyList(), referencePatternObjectName);
         ReferencePatterns referencePatterns = new ReferencePatterns(referencePattern);
         localAttributeManager.setReferencePatterns(configurationName.toString(), gbeanName, referenceInfo, referencePatterns);
         Collection gbeanDatas = new ArrayList();
@@ -178,7 +178,7 @@ public class LocalAttributeManagerTest extends TestCase {
         localAttributeManager = new LocalAttributeManager("target/test-config.xml", false, new BasicServerInfo(basedir));
         configurationName = Artifact.create("configuration/name/1/car");
         ObjectName objectName = ObjectName.getInstance(":name=gbean");
-        gbeanName = new AbstractName(configurationName, objectName.getKeyPropertyList(), LocalAttributeManagerTest.class.getName(), objectName);
+        gbeanName = new AbstractName(configurationName, objectName.getKeyPropertyList(), objectName);
         attributeInfo = GBEAN_INFO.getAttribute("attribute");
         referenceInfo = GBEAN_INFO.getReference("reference");
     }

@@ -19,9 +19,9 @@ package org.apache.geronimo.connector.deployment;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -34,32 +34,28 @@ import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
+import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.KernelConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.EditableConfigurationManager;
+import org.apache.geronimo.kernel.config.EditableKernelConfigurationManager;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
-import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.tranql.sql.jdbc.JDBCUtil;
 
-import javax.management.ObjectName;
 import javax.naming.Reference;
 import javax.sql.DataSource;
 import javax.xml.namespace.QName;
@@ -93,7 +89,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
     private int defaultBlockingTimeoutMilliseconds = 5000;
     private int defaultidleTimeoutMinutes = 15;
     private Environment defaultEnvironment;
-    private ConfigurationStore configurationStore = new MockConfigStore(null);
+    private ConfigurationStore configurationStore = new MockConfigStore();
     private Repository repository = new Repository() {
         public boolean contains(Artifact artifact) {
             return false;
@@ -111,7 +107,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
     private EJBReferenceBuilder ejbReferenceBuilder = new EJBReferenceBuilder() {
 
 
-        public Reference createCORBAReference(Configuration configuration, AbstractNameQuery containerNameQuery, URI nsCorbaloc, String objectName, String home) throws DeploymentException {
+        public Reference createCORBAReference(Configuration configuration, AbstractNameQuery containerNameQuery, URI nsCorbaloc, String objectName, String home) {
             return null;
         }
 
@@ -119,11 +115,11 @@ public class ConnectorModuleBuilderTest extends TestCase {
             return null;
         }
 
-        public Reference createEJBRemoteRef(String requiredModule, String optionalModule, String name, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String home, String remote, Configuration configuration) throws DeploymentException {
+        public Reference createEJBRemoteRef(String requiredModule, String optionalModule, String name, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String home, String remote, Configuration configuration) {
             return null;
         }
 
-        public Reference createEJBLocalRef(String requiredModule, String optionalModule, String name, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String localHome, String local, Configuration configuration) throws DeploymentException {
+        public Reference createEJBLocalRef(String requiredModule, String optionalModule, String name, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String localHome, String local, Configuration configuration) {
             return null;
         }
 
@@ -139,53 +135,35 @@ public class ConnectorModuleBuilderTest extends TestCase {
             return null;
         }
 
-        public ObjectName locateResourceName(ObjectName query) {
-            return null;
-        }
-
         public GBeanData locateActivationSpecInfo(AbstractNameQuery nameQuery, String messageListenerInterface, Configuration configuration) {
             return null;
         }
-
-        public GBeanData locateResourceAdapterGBeanData(GBeanData resourceAdapterModuleData) {
-            return null;
-        }
-
-        public GBeanData locateAdminObjectInfo(GBeanData resourceAdapterModuleData, String adminObjectInterfaceName) {
-            return null;
-        }
-
-        public GBeanData locateConnectionFactoryInfo(GBeanData resourceAdapterModuleData, String connectionFactoryInterfaceName) {
-            return null;
-        }
     };
+
     private ServiceReferenceBuilder serviceReferenceBuilder = new ServiceReferenceBuilder() {
         //it could return a Service or a Reference, we don't care
         public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, Object serviceRefType, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) {
             return null;
         }
     };
-    private ObjectName configurationManagerName;
+
+    private Kernel kernel;
+    private EditableConfigurationManager configurationManager;
+    private static final Naming naming = new Jsr77Naming();
+    private static final Artifact bootId = new Artifact("test", "test", "", "car");
+
+    private static final AbstractNameQuery connectionTrackerName = new AbstractNameQuery(null, Collections.singletonMap("name", "ConnectionTracker"));
+    private static final AbstractName serverName = naming.createRootName(bootId, "Server", "J2EEServer");
+    private static final AbstractNameQuery transactionContextManagerName = new AbstractNameQuery(null, Collections.singletonMap("name", "TransactionContextManager"));
 
 
     public void testBuildEar() throws Exception {
-        ObjectName connectionTrackerName = new ObjectName("geronimo.connector:service=ConnectionTracker");
         JarFile rarFile = null;
-        Kernel kernel = KernelFactory.newInstance().createKernel("foo");
         try {
-            kernel.boot();
-
-            GBeanData store = new GBeanData(JMXUtil.getObjectName("foo:j2eeType=ConfigurationStore,name=mock"), MockConfigStore.GBEAN_INFO);
-            kernel.loadGBean(store, this.getClass().getClassLoader());
-            kernel.startGBean(store.getName());
-
-            GBeanData configurationManagerData = new GBeanData(configurationManagerName, KernelConfigurationManager.GBEAN_INFO);
-            configurationManagerData.setReferencePatterns("Stores", Collections.singleton(store.getName()));
-            kernel.loadGBean(configurationManagerData, getClass().getClassLoader());
-            kernel.startGBean(configurationManagerName);
-
             rarFile = DeploymentUtil.createJarFile(new File(basedir, "target/test-ear-noger.ear"));
-            EARConfigBuilder configBuilder = new EARConfigBuilder(defaultEnvironment, null, connectionTrackerName, null, null, null, null, null, ejbReferenceBuilder, null, new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching), resourceReferenceBuilder, null, serviceReferenceBuilder);
+            EARConfigBuilder configBuilder = new EARConfigBuilder(defaultEnvironment, transactionContextManagerName, connectionTrackerName, null, null, null, new AbstractNameQuery(serverName, J2EEServerImpl.GBEAN_INFO.getInterfaces()), null, null, ejbReferenceBuilder, null,
+                    new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching),
+                    resourceReferenceBuilder, null, serviceReferenceBuilder, kernel);
             ConfigurationData configData = null;
             try {
                 File planFile = new File(basedir, "src/test-data/data/external-application-plan.xml");
@@ -197,7 +175,6 @@ public class ConnectorModuleBuilderTest extends TestCase {
                 }
             }
         } finally {
-            kernel.shutdown();
             DeploymentUtil.close(rarFile);
         }
     }
@@ -309,25 +286,9 @@ public class ConnectorModuleBuilderTest extends TestCase {
 
 
     private void executeTestBuildModule(InstallAction action, boolean is15) throws Exception {
-        J2eeContext j2eeContext = new J2eeContextImpl("geronimo.test", "geronimo", "null", "JCAResource", "geronimo/test-ear/1.0/car", null, null);
         String resourceAdapterName = "testRA";
-        //N.B. short version of getComponentName
-        ObjectName connectionTrackerName = NameFactory.getComponentName(null, null, null, null, "ConnectionTracker", ConnectionTrackingCoordinatorGBean.GBEAN_INFO.getJ2eeType(), j2eeContext);
-        //new ObjectName("test:J2EEServer=bar,J2EEModule=org/apache/geronimo/j2ee/deployment/test,service=ConnectionTracker");
 
-        Kernel kernel = KernelFactory.newInstance().createKernel("foo");
         try {
-            kernel.boot();
-
-            GBeanData store = new GBeanData(JMXUtil.getObjectName("foo:j2eeType=ConfigurationStore,name=mock"), MockConfigStore.GBEAN_INFO);
-            kernel.loadGBean(store, this.getClass().getClassLoader());
-            kernel.startGBean(store.getName());
-
-            GBeanData configurationManagerData = new GBeanData(configurationManagerName, KernelConfigurationManager.GBEAN_INFO);
-            configurationManagerData.setReferencePatterns("Stores", Collections.singleton(store.getName()));
-            kernel.loadGBean(configurationManagerData, getClass().getClassLoader());
-            kernel.startGBean(configurationManagerName);
-
             ConnectorModuleBuilder moduleBuilder = new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching);
             File rarFile = action.getRARFile();
 
@@ -337,11 +298,13 @@ public class ConnectorModuleBuilderTest extends TestCase {
             Thread.currentThread().setContextClassLoader(cl);
 
             JarFile rarJarFile = DeploymentUtil.createJarFile(rarFile);
-            Module module = moduleBuilder.createModule(action.getVendorDD(), rarJarFile, j2eeContext.getJ2eeModuleName(), action.getSpecDD(), null, null, earName, naming);
+            AbstractName earName = null;
+            String moduleName = "geronimo/test-ear/1.0/car";
+            Module module = moduleBuilder.createModule(action.getVendorDD(), rarJarFile, moduleName, action.getSpecDD(), null, null, earName, naming);
             if (module == null) {
                 throw new DeploymentException("Was not a connector module");
             }
-            assertEquals(j2eeContext.getJ2eeModuleName(), module.getEnvironment().getConfigId().toString());
+            assertEquals(moduleName, module.getEnvironment().getConfigId().toString());
 
             File tempDir = null;
             try {
@@ -349,9 +312,12 @@ public class ConnectorModuleBuilderTest extends TestCase {
                 EARContext earContext = new EARContext(tempDir,
                         module.getEnvironment(),
                         module.getType(),
-                        serverName,
-                        j2eeContext.getJ2eeApplicationName(),
-                        null,
+                        naming,
+                        Collections.EMPTY_SET,
+                        Collections.singleton(configurationStore),
+                        new AbstractNameQuery(serverName, J2EEServerImpl.GBEAN_INFO.getInterfaces()),
+                        module.getModuleName(), //hardcode standalone here.
+                        transactionContextManagerName,
                         connectionTrackerName,
                         null,
                         null,
@@ -362,9 +328,12 @@ public class ConnectorModuleBuilderTest extends TestCase {
                 earContext.getClassLoader();
                 moduleBuilder.initContext(earContext, module, cl);
                 moduleBuilder.addGBeans(earContext, module, cl, repository);
+
+                ConfigurationData configurationData = earContext.getConfigurationData();
+                AbstractName moduleAbstractName = earContext.getModuleName();
                 earContext.close();
 
-                verifyDeployment(earContext.getConfigurationData(), tempDir, oldCl, j2eeContext, resourceAdapterName, is15);
+                verifyDeployment(configurationData, oldCl, moduleAbstractName, resourceAdapterName, is15, moduleName);
             } finally {
                 module.close();
                 DeploymentUtil.recursiveDelete(tempDir);
@@ -374,78 +343,30 @@ public class ConnectorModuleBuilderTest extends TestCase {
         }
     }
 
-    private void verifyDeployment(ConfigurationData configurationData, File unpackedDir, ClassLoader cl, J2eeContext j2eeContext, String resourceAdapterName, boolean is15) throws Exception {
+    private void verifyDeployment(ConfigurationData configurationData, ClassLoader cl, AbstractName moduleAbstractName, String resourceAdapterName, boolean is15, String moduleName) throws Exception {
         DataSource ds = null;
-        Kernel kernel = null;
         try {
-            kernel = KernelFactory.newInstance().createKernel("bar");
-            kernel.boot();
-
-            GBeanData store = new GBeanData(JMXUtil.getObjectName("foo:j2eeType=ConfigurationStore,name=mock"), MockConfigStore.GBEAN_INFO);
-            kernel.loadGBean(store, this.getClass().getClassLoader());
-            kernel.startGBean(store.getName());
-
-            GBeanData artifactManager = new GBeanData(JMXUtil.getObjectName("foo:name=ArtifactManager"), DefaultArtifactManager.GBEAN_INFO);
-            kernel.loadGBean(artifactManager, this.getClass().getClassLoader());
-            kernel.startGBean(artifactManager.getName());
-
-            GBeanData artifactResolver = new GBeanData(JMXUtil.getObjectName("foo:name=ArtifactResolver"), DefaultArtifactResolver.GBEAN_INFO);
-            artifactResolver.setReferencePattern("ArtifactManager", artifactManager.getName());
-            kernel.loadGBean(artifactResolver, this.getClass().getClassLoader());
-            kernel.startGBean(artifactResolver.getName());
-
-            GBeanData configurationManagerData = new GBeanData(configurationManagerName, KernelConfigurationManager.GBEAN_INFO);
-            configurationManagerData.setReferencePattern("Stores", store.getName());
-            configurationManagerData.setReferencePattern("ArtifactManager", artifactManager.getName());
-            configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolver.getName());
-            kernel.loadGBean(configurationManagerData, getClass().getClassLoader());
-            kernel.startGBean(configurationManagerName);
-            ConfigurationManager configurationManager = (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
-
-            Artifact parentID = ((Dependency) defaultEnvironment.getDependencies().iterator().next()).getArtifact();
-            configurationManager.loadConfiguration(parentID);
-            configurationManager.startConfiguration(parentID);
-
-            ObjectName serverInfoObjectName = ObjectName.getInstance(j2eeContext.getJ2eeDomainName() + ":name=ServerInfo");
-            GBeanData serverInfoGBean = new GBeanData(serverInfoObjectName, BasicServerInfo.GBEAN_INFO);
-            serverInfoGBean.setAttribute("baseDirectory", ".");
-            kernel.loadGBean(serverInfoGBean, cl);
-            kernel.startGBean(serverInfoObjectName);
-            assertRunning(kernel, serverInfoObjectName);
-
-            ObjectName j2eeServerObjectName = NameFactory.getServerName(null, null, j2eeContext);
-            GBeanData j2eeServerGBean = new GBeanData(j2eeServerObjectName, J2EEServerImpl.GBEAN_INFO);
-            j2eeServerGBean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfoObjectName));
-            kernel.loadGBean(j2eeServerGBean, cl);
-            kernel.startGBean(j2eeServerObjectName);
-            assertRunning(kernel, j2eeServerObjectName);
 
             // load the configuration
             Configuration configuration = configurationManager.loadConfiguration(configurationData);
             configurationManager.startConfiguration(configuration);
-            Set gb = kernel.listGBeans(JMXUtil.getObjectName("test:*"));
+            Set gb = configuration.getGBeans().keySet();
             for (Iterator iterator = gb.iterator(); iterator.hasNext();) {
-                ObjectName name = (ObjectName) iterator.next();
+                AbstractName name = (AbstractName) iterator.next();
                 if (State.RUNNING_INDEX != kernel.getGBeanState(name)) {
                     System.out.println("Not running: " + name);
                 }
             }
 
-            ObjectName applicationObjectName = NameFactory.getApplicationName(null, null, null, j2eeContext);
-            if (!j2eeContext.getJ2eeApplicationName().equals("null")) {
-                assertRunning(kernel, applicationObjectName);
-            } else {
-                Set applications = kernel.listGBeans(applicationObjectName);
-                assertTrue("No application object should be registered for a standalone module", applications.isEmpty());
-            }
-
-
-            ObjectName moduleName = NameFactory.getModuleName(null, null, null, NameFactory.RESOURCE_ADAPTER_MODULE, null, j2eeContext);
-            assertRunning(kernel, moduleName);
+            assertRunning(kernel, moduleAbstractName);
+            AbstractName resourceAdapterjsr77Name = naming.createChildName(moduleAbstractName, moduleName, NameFactory.RESOURCE_ADAPTER);
+            assertRunning(kernel, resourceAdapterjsr77Name);
+            AbstractName jcaResourcejsr77Name = naming.createChildName(resourceAdapterjsr77Name, moduleName, NameFactory.JCA_RESOURCE);
+            assertRunning(kernel, jcaResourcejsr77Name);
 
             //1.5 only
             if (is15) {
-                Map activationSpecInfoMap = (Map) kernel.getAttribute(moduleName, "activationSpecInfoMap");
+                Map activationSpecInfoMap = (Map) kernel.getAttribute(moduleAbstractName, "activationSpecInfoMap");
                 assertEquals(1, activationSpecInfoMap.size());
                 GBeanData activationSpecInfo = (GBeanData) activationSpecInfoMap.get("javax.jms.MessageListener");
                 assertNotNull(activationSpecInfo);
@@ -453,7 +374,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
                 List attributes1 = activationSpecGBeanInfo.getPersistentAttributes();
                 assertEquals(2, attributes1.size());
 
-                Map adminObjectInfoMap = (Map) kernel.getAttribute(moduleName, "adminObjectInfoMap");
+                Map adminObjectInfoMap = (Map) kernel.getAttribute(moduleAbstractName, "adminObjectInfoMap");
                 assertEquals(1, adminObjectInfoMap.size());
                 GBeanData adminObjectInfo = (GBeanData) adminObjectInfoMap.get("org.apache.geronimo.connector.mock.MockAdminObject");
                 assertNotNull(adminObjectInfo);
@@ -462,13 +383,13 @@ public class ConnectorModuleBuilderTest extends TestCase {
                 assertEquals(3, attributes2.size());
 
                 // ResourceAdapter
-                ObjectName resourceAdapterObjectName = NameFactory.getComponentName(null, null, null, null, null, resourceAdapterName, NameFactory.JCA_RESOURCE_ADAPTER, j2eeContext);
+                AbstractName resourceAdapterObjectName = naming.createChildName(jcaResourcejsr77Name, resourceAdapterName, NameFactory.JCA_RESOURCE_ADAPTER);
 
                 assertRunning(kernel, resourceAdapterObjectName);
                 assertAttributeValue(kernel, resourceAdapterObjectName, "RAStringProperty", "NewStringValue");
 
                 //both, except 1.0 has only one mcf type
-                Map managedConnectionFactoryInfoMap = (Map) kernel.getAttribute(moduleName, "managedConnectionFactoryInfoMap");
+                Map managedConnectionFactoryInfoMap = (Map) kernel.getAttribute(moduleAbstractName, "managedConnectionFactoryInfoMap");
                 assertEquals(2, managedConnectionFactoryInfoMap.size());
                 GBeanData managedConnectionFactoryInfo = (GBeanData) managedConnectionFactoryInfoMap.get("javax.resource.cci.ConnectionFactory");
                 assertNotNull(managedConnectionFactoryInfo);
@@ -478,53 +399,47 @@ public class ConnectorModuleBuilderTest extends TestCase {
             }
 
             // FirstTestOutboundConnectionFactory
-            ObjectName firstConnectionManagerFactory = NameFactory.getComponentName(null, null, null, null, null, "FirstTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_MANAGER, j2eeContext);
-            assertRunning(kernel, firstConnectionManagerFactory);
-
-
-            ObjectName firstOutCF = NameFactory.getComponentName(null, null, null, null, null, "FirstTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_FACTORY, j2eeContext);
+            AbstractName firstOutCF = naming.createChildName(jcaResourcejsr77Name, "FirstTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_FACTORY);
             assertRunning(kernel, firstOutCF);
 
-//            ObjectName firstOutSecurity = new ObjectName("geronimo.security:service=Realm,type=PasswordCredential,name=FirstTestOutboundConnectionFactory");
-//            assertRunning(kernel, firstOutSecurity);
-
-            ObjectName firstOutMCF = NameFactory.getComponentName(null, null, null, null, null, "FirstTestOutboundConnectionFactory", NameFactory.JCA_MANAGED_CONNECTION_FACTORY, j2eeContext);
+            AbstractName firstOutMCF = naming.createChildName(firstOutCF, "FirstTestOutboundConnectionFactory", NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
             assertRunning(kernel, firstOutMCF);
             assertAttributeValue(kernel, firstOutMCF, "OutboundStringProperty1", "newvalue1");
             assertAttributeValue(kernel, firstOutMCF, "OutboundStringProperty2", "originalvalue2");
             assertAttributeValue(kernel, firstOutMCF, "OutboundStringProperty3", "newvalue2");
 
+            AbstractName firstConnectionManagerFactory = naming.createChildName(firstOutMCF, "FirstTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_MANAGER);
+            assertRunning(kernel, firstConnectionManagerFactory);
+
             // SecondTestOutboundConnectionFactory
-            ObjectName secondConnectionManagerFactory = NameFactory.getComponentName(null, null, null, null, null, "SecondTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_MANAGER, j2eeContext);
-            assertRunning(kernel, secondConnectionManagerFactory);
-
-
-            ObjectName secondOutCF = NameFactory.getComponentName(null, null, null, null, null, "SecondTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_FACTORY, j2eeContext);
+            AbstractName secondOutCF = naming.createChildName(jcaResourcejsr77Name, "SecondTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_FACTORY);
             assertRunning(kernel, secondOutCF);
 
-            ObjectName secondOutMCF = NameFactory.getComponentName(null, null, null, null, null, "SecondTestOutboundConnectionFactory", NameFactory.JCA_MANAGED_CONNECTION_FACTORY, j2eeContext);
+            AbstractName secondOutMCF = naming.createChildName(secondOutCF, "SecondTestOutboundConnectionFactory", NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
             assertRunning(kernel, secondOutMCF);
 
+            AbstractName secondConnectionManagerFactory = naming.createChildName(secondOutMCF, "SecondTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_MANAGER);
+            assertRunning(kernel, secondConnectionManagerFactory);
+
             // ThirdTestOutboundConnectionFactory
-            ObjectName thirdConnectionManagerFactory = NameFactory.getComponentName(null, null, null, null, null, "ThirdTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_MANAGER, j2eeContext);
-            assertRunning(kernel, thirdConnectionManagerFactory);
-
-
-            ObjectName thirdOutCF = NameFactory.getComponentName(null, null, null, null, null, "ThirdTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_FACTORY, j2eeContext);
+            AbstractName thirdOutCF = naming.createChildName(jcaResourcejsr77Name, "ThirdTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_FACTORY);
             assertRunning(kernel, thirdOutCF);
 
-            ObjectName thirdOutMCF = NameFactory.getComponentName(null, null, null, null, null, "ThirdTestOutboundConnectionFactory", NameFactory.JCA_MANAGED_CONNECTION_FACTORY, j2eeContext);
+            AbstractName thirdOutMCF = naming.createChildName(thirdOutCF, "ThirdTestOutboundConnectionFactory", NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
             assertRunning(kernel, thirdOutMCF);
+
+            AbstractName thirdConnectionManagerFactory = naming.createChildName(thirdOutMCF, "ThirdTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_MANAGER);
+            assertRunning(kernel, thirdConnectionManagerFactory);
 
             // 1.5 only
             //  Admin objects
             //
 
             if (is15) {
-                ObjectName tweedledeeAdminObject = NameFactory.getComponentName(null, null, null, null, null, "tweedledee", NameFactory.JCA_ADMIN_OBJECT, j2eeContext);
+                AbstractName tweedledeeAdminObject = naming.createChildName(jcaResourcejsr77Name, "tweedledee", NameFactory.JCA_ADMIN_OBJECT);
                 assertRunning(kernel, tweedledeeAdminObject);
 
-                ObjectName tweedledumAdminObject = NameFactory.getComponentName(null, null, null, null, null, "tweedledum", NameFactory.JCA_ADMIN_OBJECT, j2eeContext);
+                AbstractName tweedledumAdminObject = naming.createChildName(jcaResourcejsr77Name, "tweedledum", NameFactory.JCA_ADMIN_OBJECT);
                 assertRunning(kernel, tweedledumAdminObject);
             }
 
@@ -552,20 +467,46 @@ public class ConnectorModuleBuilderTest extends TestCase {
         }
     }
 
-    private void assertAttributeValue(Kernel kernel, ObjectName objectName, String attributeName, String attributeValue) throws Exception {
-        Object value = kernel.getAttribute(objectName, attributeName);
+    private void assertAttributeValue(Kernel kernel, AbstractName name, String attributeName, String attributeValue) throws Exception {
+        Object value = kernel.getAttribute(name, attributeName);
         assertEquals(attributeValue, value);
     }
 
-    private void assertRunning(Kernel kernel, ObjectName objectName) throws Exception {
-        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(objectName));
+    private void assertRunning(Kernel kernel, AbstractName name) throws Exception {
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(name));
     }
 
     protected void setUp() throws Exception {
-        configurationManagerName = new ObjectName(":j2eeType=ConfigurationManager,name=Basic");
+        super.setUp();
+        kernel = KernelFactory.newInstance().createKernel("test");
+        kernel.boot();
+
+        ConfigurationData bootstrap = new ConfigurationData(bootId, naming);
+
+        GBeanData artifactManagerData = bootstrap.addGBean("ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
+
+        GBeanData artifactResolverData = bootstrap.addGBean("ArtifactResolver", DefaultArtifactResolver.GBEAN_INFO);
+        artifactResolverData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
+
+        GBeanData configurationManagerData = bootstrap.addGBean("ConfigurationManager", EditableKernelConfigurationManager.GBEAN_INFO);
+        configurationManagerData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
+        configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolverData.getAbstractName());
+        bootstrap.addGBean(configurationManagerData);
+
+        GBeanData serverData = new GBeanData(serverName, J2EEServerImpl.GBEAN_INFO);
+        bootstrap.addGBean(serverData);
+
+        ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, getClass().getClassLoader());
+
+        configurationManager = ConfigurationUtil.getEditableConfigurationManager(kernel);
+        configurationManager.getConfiguration(bootstrap.getId());
         defaultEnvironment = new Environment();
-        defaultEnvironment.addDependency(Artifact.create("org/apache/geronimo/Server"), ImportType.ALL);
-        defaultEnvironment.getProperties().put(NameFactory.JSR77_BASE_NAME_PROPERTY, "geronimo.test:J2EEServer=geronimo");
+
+    }
+
+    protected void tearDown() throws Exception {
+        kernel.shutdown();
+        super.tearDown();
     }
 
     private abstract class InstallAction {
@@ -585,10 +526,8 @@ public class ConnectorModuleBuilderTest extends TestCase {
     }
 
     public static class MockConfigStore implements ConfigurationStore {
-        private final Kernel kernel;
 
-        public MockConfigStore(Kernel kernel) {
-            this.kernel = kernel;
+        public MockConfigStore() {
         }
 
         public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
@@ -598,7 +537,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
         }
 
         public GBeanData loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
-            ObjectName configurationObjectName = Configuration.getConfigurationObjectName(configId);
+            AbstractName configurationObjectName = Configuration.getConfigurationAbstractName(configId);
             GBeanData configData = new GBeanData(configurationObjectName, Configuration.GBEAN_INFO);
             Environment environment = new Environment();
             environment.setConfigId(configId);
@@ -641,8 +580,6 @@ public class ConnectorModuleBuilderTest extends TestCase {
         static {
             GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(MockConfigStore.class, NameFactory.CONFIGURATION_STORE);
             infoBuilder.addInterface(ConfigurationStore.class);
-            infoBuilder.addAttribute("kernel", Kernel.class, false);
-            infoBuilder.setConstructor(new String[]{"kernel"});
             GBEAN_INFO = infoBuilder.getBeanInfo();
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();

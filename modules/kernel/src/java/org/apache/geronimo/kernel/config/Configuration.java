@@ -110,7 +110,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     }
 
     public static AbstractName getConfigurationAbstractName(Artifact configId) throws InvalidConfigException {
-        return new AbstractName(configId, Collections.EMPTY_MAP, Configuration.class.getName(), getConfigurationObjectName(configId));
+        return new AbstractName(configId, Collections.EMPTY_MAP, getConfigurationObjectName(configId));
     }
 
     public static boolean isConfigurationObjectName(ObjectName name) {
@@ -520,8 +520,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
 
     public AbstractName findGBean(ReferencePatterns referencePatterns) throws GBeanNotFoundException {
         if (referencePatterns == null) throw new NullPointerException("referencePatterns is null");
-        if (referencePatterns.getAbstractName() != null) {
-            // this pattern is already resolved
+        if (referencePatterns.isResolved()) {
             return referencePatterns.getAbstractName();
         }
 
@@ -621,8 +620,9 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
                 for (Iterator iterator = gbeanNames.iterator(); iterator.hasNext();) {
                     Map.Entry entry = (Map.Entry) iterator.next();
                     AbstractName abstractName = (AbstractName) entry.getKey();
-                    if (abstractNameQuery.matches(abstractName)) {
-                        result.add(entry.getValue());
+                    GBeanData gbeanData = (GBeanData) entry.getValue();
+                    if (abstractNameQuery.matches(abstractName, gbeanData.getGBeanInfo().getInterfaces())) {
+                        result.add(gbeanData);
                     }
                 }
             }

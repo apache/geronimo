@@ -52,12 +52,12 @@ import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.Jsr77Naming;
 
 /**
- * @version $Rev: 385487 $ $Date$
+ * @version $Rev:386276 $ $Date$
  */
 public class EARConfigBuilderTest extends TestCase {
     private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
 
-    private static String WEB_NAMESPACE="foo";
+    private static String WEB_NAMESPACE = "foo";
     private static JarFile earFile;
     private static MockConfigStore configStore = new MockConfigStore();
     private static MockEJBConfigBuilder ejbConfigBuilder = new MockEJBConfigBuilder();
@@ -74,11 +74,13 @@ public class EARConfigBuilderTest extends TestCase {
     };
 
     private static final Naming naming = new Jsr77Naming();
+
     private static final AbstractName rootConfig = naming.createRootName(new Artifact("test", "stuff", "", "car"), "test", "test") ;
     private static final AbstractName transactionManagerObjectName = naming.createChildName(rootConfig, "TransactionManager", "TransactionManager");
     private static final AbstractName connectionTrackerObjectName = naming.createChildName(rootConfig, "ConnectionTracker", "ConnectionTracker");
     private static final AbstractName transactionalTimerObjectName = naming.createChildName(rootConfig, "TransactionalThreaPooledTimer", "ThreadPooledTimer");
     private static final AbstractName nonTransactionalTimerObjectName = naming.createChildName(rootConfig, "NonTransactionalThreaPooledTimer", "ThreadPooledTimer");
+    private static final AbstractName serverName = naming.createChildName(rootConfig, "J2EEServer", "Server");
 
     private static final AbstractName earName = naming.createRootName(new Artifact("test", "test-ear", "", "ear"), "test", NameFactory.J2EE_APPLICATION) ;
     private static final AbstractName ejbModuleName = naming.createChildName(earName, "ejb-jar", NameFactory.EJB_MODULE);
@@ -88,6 +90,11 @@ public class EARConfigBuilderTest extends TestCase {
     private Environment defaultParentId;
     private static String contextRoot = "test";
     private static final Map portMap = null;
+    private final AbstractNameQuery transactionContextManagerAbstractNameQuery = new AbstractNameQuery(transactionManagerObjectName, null);
+    private final AbstractNameQuery connectionTrackerAbstractNameQuery = new AbstractNameQuery(connectionTrackerObjectName, null);
+    private final AbstractNameQuery transactionalTimerAbstractNameQuery = new AbstractNameQuery(transactionalTimerObjectName, null);
+    private final AbstractNameQuery nonTransactionalTimerAbstractNameQuery = new AbstractNameQuery(nonTransactionalTimerObjectName, null);
+    private final AbstractNameQuery corbaGBeanAbstractNameQuery = new AbstractNameQuery(serverName, null);
 
     protected void setUp() throws Exception {
         super.setUp();
@@ -243,10 +250,11 @@ public class EARConfigBuilderTest extends TestCase {
         ConfigurationData configurationData = null;
         try {
             EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
-                    new AbstractNameQuery(transactionManagerObjectName),
-                    new AbstractNameQuery(connectionTrackerObjectName),
-                    new AbstractNameQuery(transactionalTimerObjectName),
-                    new AbstractNameQuery(nonTransactionalTimerObjectName),
+                    transactionContextManagerAbstractNameQuery,
+                    connectionTrackerAbstractNameQuery,
+                    transactionalTimerAbstractNameQuery,
+                    nonTransactionalTimerAbstractNameQuery,
+                    corbaGBeanAbstractNameQuery,
                     null,
                     null,
                     ejbConfigBuilder,
@@ -269,10 +277,11 @@ public class EARConfigBuilderTest extends TestCase {
 
     public void testBadEJBJARConfiguration() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
-                new AbstractNameQuery(transactionManagerObjectName),
-                new AbstractNameQuery(connectionTrackerObjectName),
-                new AbstractNameQuery(transactionalTimerObjectName),
-                new AbstractNameQuery(nonTransactionalTimerObjectName),
+                transactionContextManagerAbstractNameQuery,
+                connectionTrackerAbstractNameQuery,
+                transactionalTimerAbstractNameQuery,
+                nonTransactionalTimerAbstractNameQuery,
+                corbaGBeanAbstractNameQuery,
                 null,
                 null,
                 ejbConfigBuilder,
@@ -290,7 +299,7 @@ public class EARConfigBuilderTest extends TestCase {
             configurationData = configBuilder.buildConfiguration(plan, earFile, configStore);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
-            if(e.getCause() instanceof IOException) {
+            if (e.getCause() instanceof IOException) {
                 fail("Should not be complaining about bad vendor DD for invalid module entry");
             }
         } finally {
@@ -302,10 +311,11 @@ public class EARConfigBuilderTest extends TestCase {
 
     public void testBadWARConfiguration() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
-                new AbstractNameQuery(transactionManagerObjectName),
-                new AbstractNameQuery(connectionTrackerObjectName),
-                new AbstractNameQuery(transactionalTimerObjectName),
-                new AbstractNameQuery(nonTransactionalTimerObjectName),
+                transactionContextManagerAbstractNameQuery,
+                connectionTrackerAbstractNameQuery,
+                transactionalTimerAbstractNameQuery,
+                nonTransactionalTimerAbstractNameQuery,
+                corbaGBeanAbstractNameQuery,
                 null,
                 null,
                 ejbConfigBuilder,
@@ -323,7 +333,7 @@ public class EARConfigBuilderTest extends TestCase {
             configurationData = configBuilder.buildConfiguration(plan, earFile, configStore);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
-            if(e.getCause() instanceof IOException) {
+            if (e.getCause() instanceof IOException) {
                 fail("Should not be complaining about bad vendor DD for invalid module entry");
             }
         } finally {
@@ -335,10 +345,11 @@ public class EARConfigBuilderTest extends TestCase {
 
     public void testBadRARConfiguration() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
-                new AbstractNameQuery(transactionManagerObjectName),
-                new AbstractNameQuery(connectionTrackerObjectName),
-                new AbstractNameQuery(transactionalTimerObjectName),
-                new AbstractNameQuery(nonTransactionalTimerObjectName),
+                transactionContextManagerAbstractNameQuery,
+                connectionTrackerAbstractNameQuery,
+                transactionalTimerAbstractNameQuery,
+                nonTransactionalTimerAbstractNameQuery,
+                corbaGBeanAbstractNameQuery,
                 null,
                 null,
                 ejbConfigBuilder,
@@ -356,7 +367,7 @@ public class EARConfigBuilderTest extends TestCase {
             configurationData = configBuilder.buildConfiguration(plan, earFile, configStore);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
-            if(e.getCause() instanceof IOException) {
+            if (e.getCause() instanceof IOException) {
                 fail("Should not be complaining about bad vendor DD for invalid module entry");
             }
         } finally {
@@ -368,10 +379,11 @@ public class EARConfigBuilderTest extends TestCase {
 
     public void testBadCARConfiguration() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
-                new AbstractNameQuery(transactionManagerObjectName),
-                new AbstractNameQuery(connectionTrackerObjectName),
-                new AbstractNameQuery(transactionalTimerObjectName),
-                new AbstractNameQuery(nonTransactionalTimerObjectName),
+                transactionContextManagerAbstractNameQuery,
+                connectionTrackerAbstractNameQuery,
+                transactionalTimerAbstractNameQuery,
+                nonTransactionalTimerAbstractNameQuery,
+                corbaGBeanAbstractNameQuery,
                 null,
                 null,
                 ejbConfigBuilder,
@@ -389,7 +401,7 @@ public class EARConfigBuilderTest extends TestCase {
             configurationData = configBuilder.buildConfiguration(plan, earFile, configStore);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
-            if(e.getCause() instanceof IOException) {
+            if (e.getCause() instanceof IOException) {
                 fail("Should not be complaining about bad vendor DD for invalid module entry");
             }
         } finally {
@@ -401,10 +413,11 @@ public class EARConfigBuilderTest extends TestCase {
 
     public void testNoEJBDeployer() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
-                new AbstractNameQuery(transactionManagerObjectName),
-                new AbstractNameQuery(connectionTrackerObjectName),
-                new AbstractNameQuery(transactionalTimerObjectName),
-                new AbstractNameQuery(nonTransactionalTimerObjectName),
+                transactionContextManagerAbstractNameQuery,
+                connectionTrackerAbstractNameQuery,
+                transactionalTimerAbstractNameQuery,
+                nonTransactionalTimerAbstractNameQuery,
+                corbaGBeanAbstractNameQuery,
                 null,
                 null,
                 null,
@@ -433,10 +446,11 @@ public class EARConfigBuilderTest extends TestCase {
 
     public void testNoWARDeployer() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
-                new AbstractNameQuery(transactionManagerObjectName),
-                new AbstractNameQuery(connectionTrackerObjectName),
-                new AbstractNameQuery(transactionalTimerObjectName),
-                new AbstractNameQuery(nonTransactionalTimerObjectName),
+                transactionContextManagerAbstractNameQuery,
+                connectionTrackerAbstractNameQuery,
+                transactionalTimerAbstractNameQuery,
+                nonTransactionalTimerAbstractNameQuery,
+                corbaGBeanAbstractNameQuery,
                 null,
                 null,
                 ejbConfigBuilder,
@@ -464,10 +478,11 @@ public class EARConfigBuilderTest extends TestCase {
 
     public void testNoConnectorDeployer() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
-                new AbstractNameQuery(transactionManagerObjectName),
-                new AbstractNameQuery(connectionTrackerObjectName),
-                new AbstractNameQuery(transactionalTimerObjectName),
-                new AbstractNameQuery(nonTransactionalTimerObjectName),
+                transactionContextManagerAbstractNameQuery,
+                connectionTrackerAbstractNameQuery,
+                transactionalTimerAbstractNameQuery,
+                nonTransactionalTimerAbstractNameQuery,
+                corbaGBeanAbstractNameQuery,
                 null,
                 null,
                 ejbConfigBuilder,
@@ -498,6 +513,7 @@ public class EARConfigBuilderTest extends TestCase {
             module.close();
         }
     }
+
     public static class MockConfigStore implements ConfigurationStore {
         private final Map locations = new HashMap();
 

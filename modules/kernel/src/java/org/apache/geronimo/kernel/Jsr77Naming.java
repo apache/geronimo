@@ -70,7 +70,9 @@ public class Jsr77Naming extends Naming {
      */
     private static ObjectName createObjectName(Map nameMap) {
         Hashtable objectNameMap = new Hashtable(nameMap);
-        objectNameMap.put("J2EEServer", DEFAULT_SERVER_NAME);
+        if (!"J2EEServer".equals(nameMap.get(J2EE_TYPE))) {
+            objectNameMap.put("J2EEServer", DEFAULT_SERVER_NAME);
+        }
 
         ObjectName moduleObjectName = null;
         try {

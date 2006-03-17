@@ -32,14 +32,14 @@ import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
- * @version $Rev: 385487 $ $Date$
+ * @version $Rev$ $Date$
  */
 public interface Kernel {
     /**
      * The JMX name used by a Kernel to register itself when it boots.
      */
     ObjectName KERNEL = JMXUtil.getObjectName(":role=Kernel");
-    AbstractName KERNEL_NAME = new AbstractName(new Artifact("geronimo", "boot", "none", "car"), Collections.EMPTY_MAP, Kernel.class.getName(), KERNEL);
+    AbstractName KERNEL_NAME = new AbstractName(new Artifact("geronimo", "boot", "none", "car"), Collections.EMPTY_MAP, KERNEL);
 
     /**
      * Get the name of this kernel

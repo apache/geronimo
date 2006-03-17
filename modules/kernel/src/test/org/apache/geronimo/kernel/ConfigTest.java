@@ -32,7 +32,7 @@ import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 
 /**
- * @version $Rev: 384999 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class ConfigTest extends TestCase {
     private Kernel kernel;
@@ -203,7 +203,7 @@ public class ConfigTest extends TestCase {
         mockBean2.setAttribute("name", "Parent");
         mockBean2.setAttribute("finalInt", new Integer(3));
         mockBean2.setReferencePattern("MockEndpoint", gbeanName1);
-        mockBean2.setReferencePattern("EndpointCollection", new AbstractNameQuery(gbeanName1));
+        mockBean2.setReferencePattern("EndpointCollection", new AbstractNameQuery(gbeanName1, MockGBean.getGBeanInfo().getInterfaces()));
     }
 
     protected void tearDown() throws Exception {

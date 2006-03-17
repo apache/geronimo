@@ -21,13 +21,11 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 
-import java.util.Properties;
-import java.util.Map;
-import java.util.Hashtable;
-import java.util.HashMap;
-import java.util.Collections;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * @version $Rev:385692 $ $Date$
@@ -81,6 +79,7 @@ public class NameFactory {
     public static final String NULL = "null";
 
     //geronimo extensions
+    public static final String SERVICE_MODULE = "ServiceModule";
     // todo should these really be j2eeType or should we have a Geronimo-specific property?
     public static final String TRANSACTION_MANAGER = "TransactionManager";
     public static final String TRANSACTION_CONTEXT_MANAGER = "TransactionContextManager";
@@ -90,7 +89,6 @@ public class NameFactory {
     public static final String JCA_CONNECTION_TRACKER = "JCAConnectionTracker";
     public static final String JCA_ADMIN_OBJECT = "JCAAdminObject";
     public static final String JCA_ACTIVATION_SPEC = "JCAActivationSpec";
-    //TODO shouldn't we use the RESOURCE_ADAPTER string?
     public static final String JCA_RESOURCE_ADAPTER = "JCAResourceAdapter";
     public static final String JCA_WORK_MANAGER = "JCAWorkManager";
     public static final String JCA_CONNECTION_MANAGER = "JCAConnectionManager";
@@ -122,61 +120,6 @@ public class NameFactory {
     public static final String CORBA_TSS = "CORBATSS";
     public static final String WEB_SERVICE_LINK = "WSLink";
 
-    private static String[] moduleTypeNames = new String[] {
-            J2EE_APPLICATION, //null?? this should never happen
-            EJB_MODULE,
-            APP_CLIENT_MODULE,
-            RESOURCE_ADAPTER_MODULE,
-            WEB_MODULE,
-            J2EE_MODULE,  //this is a bad name here
-            J2EE_MODULE   //should be SpringModule?
-    };
-
-    public static AbstractName buildModuleName(Map properties, Artifact artifact, ConfigurationModuleType moduleType, String moduleName) throws MalformedObjectNameException {
-        String moduleTypeString = moduleTypeNames[moduleType.getValue()];
-        String baseNameString = (String) properties.get(JSR77_BASE_NAME_PROPERTY);
-        ObjectName baseName = ObjectName.getInstance(baseNameString);
-        String domain = baseName.getDomain();
-        Hashtable keys = baseName.getKeyPropertyList();
-        String serverName = (String) keys.get(J2EE_SERVER);
-        if (serverName == null) {
-            throw new MalformedObjectNameException("No J2EEServer key in " + baseNameString);
-        }
-        Map nameMap = new HashMap();
-        if (moduleName == null) {
-            //this is a standalone module
-            keys.put(J2EE_APPLICATION, NULL);
-            keys.put(J2EE_TYPE, moduleTypeString);
-            keys.put(J2EE_NAME, artifact.toString());
-        } else {
-            //this is part of an application
-            keys.put(J2EE_APPLICATION, artifact.toString());
-            keys.put(J2EE_TYPE, moduleTypeString);
-            keys.put(J2EE_NAME, moduleName);
-            nameMap.put("module", moduleName);
-        }
-        ObjectName moduleObjectName = ObjectName.getInstance(domain, keys);
-        return new AbstractName(artifact, nameMap, Collections.EMPTY_SET, moduleObjectName);
-    }
-
-
-    /**
-     *
-     * @deprecated
-     * @param j2eeDomainName
-     * @param j2eeServerName
-     * @param j2eeApplicationName
-     * @param context
-     * @return
-     * @throws MalformedObjectNameException
-     */
-    public static ObjectName getApplicationName(String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, J2eeContext context) throws MalformedObjectNameException {
-        Properties props = new Properties();
-        props.put(J2EE_TYPE, J2EE_APPLICATION);
-        props.put(J2EE_SERVER, context.getJ2eeServerName(j2eeServerName));
-        props.put(J2EE_NAME, context.getJ2eeApplicationName(j2eeApplicationName));
-        return ObjectName.getInstance(context.getJ2eeDomainName(j2eeDomainName), props);
-    }
 
     /**
      *
@@ -241,52 +184,7 @@ public class NameFactory {
         return getComponentName(j2eeDomainName, j2eeServerName, j2eeApplicationName, EJB_MODULE, j2eeModuleName, j2eeName, j2eeType, context);
     }
 
-    /**
-     *
-     * @deprecated
-     * @param name
-     * @param type
-     * @param context
-     * @return AbstractNameQuery
-     */
-    public static AbstractNameQuery getComponentNameQuery(String name, String type, AbstractName context) {
-        return getComponentNameQuery(null, null, name, type, context);
-    }
 
-    /**
-     *
-     * @deprecated
-     * @param moduleName
-     * @param moduleType
-     * @param name
-     * @param type
-     * @param context
-     * @return AbstractNameQuery
-     */
-    public static AbstractNameQuery getComponentNameQuery(String moduleName, String moduleType, String name, String type, AbstractName context) {
-        Map nameProperties = new HashMap(context.getName());
-
-        // from the existing name properties define a new propertye ${j2eeType}=${name}
-        String parentName = (String) nameProperties.remove(J2EE_NAME);
-        String parentJ2eeType = (String) nameProperties.remove(J2EE_TYPE);
-        if (parentName != null && parentJ2eeType != null) {
-            nameProperties.put(parentJ2eeType, parentName);
-        }
-
-        if (!"*".equals(moduleName)) {
-            nameProperties.put(moduleType, moduleName);
-        }
-
-        if (!"*".equals(name)) {
-            nameProperties.put(J2EE_NAME, name);
-        }
-
-        if (type != null) {
-            nameProperties.put(J2EE_TYPE, type);
-        }
-
-        return new AbstractNameQuery(context.getArtifact(), nameProperties, (String) null);
-    }
 
     /**
      * @param j2eeDomainName

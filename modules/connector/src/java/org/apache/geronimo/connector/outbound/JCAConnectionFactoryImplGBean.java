@@ -38,7 +38,7 @@ public class JCAConnectionFactoryImplGBean {
         infoFactory.addReference("JCAManagedConnectionFactory", JCAManagedConnectionFactory.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
         infoFactory.addInterface(JCAConnectionFactory.class);
 
-        infoFactory.setConstructor(new String[]{"objectName", "managedConnectionFactory"});
+        infoFactory.setConstructor(new String[]{"objectName", "JCAManagedConnectionFactory"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

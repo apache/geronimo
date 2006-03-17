@@ -153,7 +153,7 @@ public abstract class AbstractTest extends TestCase {
     private AbstractName buildAbstractName(String key, String value, GBeanInfo info) throws MalformedObjectNameException {
         Map names = new HashMap();
         names.put(key, value);
-        return new AbstractName(new Artifact("test", "foo", "1", "car"), names, info.getInterfaces(), new ObjectName("test:" + key + "=" + value));
+        return new AbstractName(new Artifact("test", "foo", "1", "car"), names, new ObjectName("test:" + key + "=" + value));
     }
 
     public static class UsernamePasswordCallback implements CallbackHandler {

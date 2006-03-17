@@ -17,15 +17,16 @@
 package org.apache.geronimo.connector;
 
 import org.apache.geronimo.management.ResourceAdapter;
+import org.apache.geronimo.management.geronimo.JCAResource;
 
 /**
  * @version $Rev$ $Date$
  */
 public class ResourceAdapterImpl implements ResourceAdapter {
     private final String objectName;
-    private final JCAResourceImpl jcaResource;
+    private final JCAResource jcaResource;
 
-    public ResourceAdapterImpl(String objectName, JCAResourceImpl jcaResource) {
+    public ResourceAdapterImpl(String objectName, JCAResource jcaResource) {
         this.objectName = objectName;
         this.jcaResource = jcaResource;
     }

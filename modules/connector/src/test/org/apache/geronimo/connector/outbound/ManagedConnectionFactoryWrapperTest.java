@@ -149,7 +149,7 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
     private AbstractName buildAbstractName(String key, String value, GBeanInfo info, String type, J2eeContext j2eeContext) throws MalformedObjectNameException {
         Map names = new HashMap();
         names.put(key, value);
-        return new AbstractName(new Artifact("test", "foo", "1", "car"), names, info.getInterfaces(), NameFactory.getComponentName(null, null, null, type, null, null, value, j2eeContext));
+        return new AbstractName(new Artifact("test", "foo", "1", "car"), names, NameFactory.getComponentName(null, null, null, type, null, null, value, j2eeContext));
     }
 
 

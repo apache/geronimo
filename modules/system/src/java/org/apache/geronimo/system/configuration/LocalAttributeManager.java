@@ -50,12 +50,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -127,7 +125,7 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
                             " gbeanName=" + name);
                 }
                 GBeanInfo gbeanInfo = GBeanInfo.getGBeanInfo(gbean.getGBeanInfo(), classLoader);
-                AbstractName abstractName = new AbstractName(configurationName, ((ObjectName)name).getKeyPropertyList(), gbeanInfo.getInterfaces(), (ObjectName)name);
+                AbstractName abstractName = new AbstractName(configurationName, ((ObjectName)name).getKeyPropertyList(), (ObjectName)name);
                 GBeanData gBeanData = new GBeanData(abstractName, gbeanInfo);
                 gbeanDatas.add(gBeanData);
             }

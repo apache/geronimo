@@ -170,11 +170,8 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
         AbstractName moduleName;
         if (earName == null) {
-            try {
-                moduleName = NameFactory.buildModuleName(environment.getProperties(), environment.getConfigId(), ConfigurationModuleType.CAR, null);
-            } catch (MalformedObjectNameException e) {
-                throw new DeploymentException("Could not construct standalone app client module name", e);
-            }
+            earName = Naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
+            moduleName = Naming.createChildName(earName, NameFactory.APP_CLIENT_MODULE, environment.getConfigId().toString());
         } else {
             moduleName = naming.createChildName(earName, targetPath, NameFactory.APP_CLIENT_MODULE);
         }
@@ -268,12 +265,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             clientEnvironment.setConfigId(configId);
         }
 
-        AbstractName clientBaseName;
-        try {
-            clientBaseName = NameFactory.buildModuleName(clientEnvironment.getProperties(), clientEnvironment.getConfigId(), ConfigurationModuleType.CAR, moduleFile.getName());
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Could not construct abstract name for app client", e);
-        }
+        AbstractName clientBaseName = Naming.createRootName(clientEnvironment.getConfigId(), clientEnvironment.getConfigId().toString(), NameFactory.APP_CLIENT_MODULE);
         File appClientDir;
         try {
             appClientDir = configurationStore.createNewConfigurationDir(clientEnvironment.getConfigId());

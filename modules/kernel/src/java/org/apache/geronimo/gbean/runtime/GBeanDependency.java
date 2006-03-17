@@ -70,7 +70,8 @@ public final class GBeanDependency {
     }
 
     public final synchronized void online() {
-        AbstractNameQuery query = new AbstractNameQuery(targetName);
+        //TODO consider including interfaces in query
+        AbstractNameQuery query = new AbstractNameQuery(targetName, null);
         kernel.getLifecycleMonitor().addLifecycleListener(listener, query);
         targetRunning = isRunning(kernel, targetName);
     }

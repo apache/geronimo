@@ -34,27 +34,14 @@ public class AbstractName implements Serializable {
 
     private final Artifact artifact;
     private final Map name;
-    private final Set interfaceTypes;
-
     private final ObjectName objectName;
 
     public AbstractName(Artifact artifact, Map name, ObjectName objectName) {
-        this(artifact, name, Collections.EMPTY_SET, objectName);
-    }
-
-    public AbstractName(Artifact artifact, Map name, String interfaceType, ObjectName objectName) {
-        this(artifact, name, Collections.singleton(interfaceType), objectName);
-        assert interfaceType != null;
-    }
-
-    public AbstractName(Artifact artifact, Map name, Set interfaceTypes, ObjectName objectName) {
         assert artifact != null;
         assert name != null;
-        if (interfaceTypes == null) interfaceTypes = Collections.EMPTY_SET;
         assert objectName != null;
         this.artifact = artifact;
         this.name = name;
-        this.interfaceTypes = interfaceTypes;
         this.objectName = objectName;
     }
 
@@ -66,25 +53,17 @@ public class AbstractName implements Serializable {
         return Collections.unmodifiableMap(name);
     }
 
-    public Set getInterfaceTypes() {
-        return interfaceTypes;
-    }
-
     public ObjectName getObjectName() {
         return objectName;
     }
 
     public String toString() {
-        StringBuffer buf = new StringBuffer("AbstractName");
+        StringBuffer buf = new StringBuffer("AbstractName:");
         for (Iterator iterator = name.entrySet().iterator(); iterator.hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();
             buf.append(",").append(entry.getKey()).append("=").append(entry.getValue());
         }
         buf.append(",artifact=").append(artifact);
-        for (Iterator iterator = interfaceTypes.iterator(); iterator.hasNext();) {
-            String interfaceType = (String) iterator.next();
-            buf.append(",interface=").append(interfaceType);
-        }
         return buf.toString();
     }
 

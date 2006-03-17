@@ -63,9 +63,10 @@ public class GBeanDataRegistry {
         Set result = new HashSet();
         for (Iterator i = registry.entrySet().iterator(); i.hasNext();) {
             Map.Entry entry = (Map.Entry) i.next();
-            AbstractName name = (AbstractName) entry.getKey();
-            if (query == null || query.matches(name)) {
-                result.add(name);
+            AbstractName abstractName = (AbstractName) entry.getKey();
+            GBeanData gbeanData = (GBeanData) entry.getValue();
+            if (query == null || query.matches(abstractName, gbeanData.getGBeanInfo().getInterfaces())) {
+                result.add(abstractName);
             }
         }
         return result;

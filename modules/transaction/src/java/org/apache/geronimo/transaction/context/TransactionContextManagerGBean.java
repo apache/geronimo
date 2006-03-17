@@ -55,6 +55,7 @@ public class TransactionContextManagerGBean {
 
         infoFactory.addInterface(XATerminator.class);
         infoFactory.addInterface(XAWork.class);
+        infoFactory.addInterface(TransactionContextManager.class);
 
         infoFactory.setConstructor(new String[]{"TransactionManager", "XidImporter"});
         GBEAN_INFO = infoFactory.getBeanInfo();
