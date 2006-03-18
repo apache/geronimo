@@ -707,7 +707,7 @@
       <layout>legacy</layout>
       <snapshots>
         <enabled>true</enabled>
-        <updatePolicy>always</updatePolicy>
+        <updatePolicy>daily</updatePolicy>
         <checksumPolicy>ignore</checksumPolicy>
       </snapshots>
     </repository>
@@ -718,7 +718,7 @@
       <layout>default</layout>
       <snapshots>
         <enabled>true</enabled>
-        <updatePolicy>always</updatePolicy>
+        <updatePolicy>daily</updatePolicy>
         <checksumPolicy>ignore</checksumPolicy>
       </snapshots>
     </repository>
@@ -729,7 +729,7 @@
       <layout>legacy</layout>
       <snapshots>
         <enabled>true</enabled>
-        <updatePolicy>always</updatePolicy>
+        <updatePolicy>daily</updatePolicy>
         <checksumPolicy>ignore</checksumPolicy>
       </snapshots>
     </repository>
