@@ -602,6 +602,11 @@
         <artifactId>geronimo-webservices</artifactId>
         <version>${geronimoVersion}</version>
       </dependency>
+      <dependency>
+        <groupId>org.apache.geronimo</groupId>
+        <artifactId>geronimo-axis</artifactId>
+        <version>${geronimoVersion}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -756,6 +761,7 @@
         <module>modules/activation</module>
         <module>modules/activemq-embedded-rar</module>
         <module>modules/axis</module>
+        <module>modules/axis-builder</module>
         <module>modules/client</module>
         <module>modules/client-builder</module>
         <module>modules/common</module>
