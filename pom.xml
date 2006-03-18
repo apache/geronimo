@@ -607,6 +607,11 @@
         <artifactId>geronimo-axis</artifactId>
         <version>${geronimoVersion}</version>
       </dependency>
+      <dependency>
+        <groupId>org.apache.geronimo</groupId>
+        <artifactId>geronimo-axis-builder</artifactId>
+        <version>${geronimoVersion}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -800,6 +805,7 @@
         <module>modules/test-ddbean</module>
         <module>modules/timer</module>
         <module>modules/tomcat</module>
+        <module>modules/tomcat-builder</module>
         <module>modules/transaction</module>
         <module>modules/util</module>
         <module>modules/web-builder</module>
