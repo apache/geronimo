@@ -1,4 +1,5 @@
 /**
+ * 
  *
  * Copyright 2003-2004 The Apache Software Foundation
  *
@@ -87,6 +88,7 @@ public class AbstractWebModuleTest extends TestCase {
     private ObjectName serverInfoName;
     private GBeanData serverInfoGBean;
     protected final static String securityRealmName = "demo-properties-realm";
+    private String basedir = System.getProperty("basedir", System.getProperty("user.dir"));
 
     public void testDummy() throws Exception {
     }
@@ -178,7 +180,6 @@ public class AbstractWebModuleTest extends TestCase {
     }
 
     protected void setUpSecurity() throws Exception {
-
         loginConfigurationName = new ObjectName("geronimo.security:type=LoginConfiguration");
         loginConfigurationGBean = new GBeanData(loginConfigurationName, GeronimoLoginConfiguration.getGBeanInfo());
         Set configurations = new HashSet();
@@ -188,7 +189,7 @@ public class AbstractWebModuleTest extends TestCase {
 
         serverInfoName = new ObjectName("geronimo.system:name=ServerInfo");
         serverInfoGBean = new GBeanData(serverInfoName, BasicServerInfo.GBEAN_INFO);
-        serverInfoGBean.setAttribute("baseDirectory", ".");
+        serverInfoGBean.setAttribute("baseDirectory", basedir);
 
         securityServiceName = new ObjectName("geronimo.server:j2eeType=SecurityService");
         securityServiceGBean = new GBeanData(securityServiceName, SecurityServiceImpl.GBEAN_INFO);
@@ -308,4 +309,5 @@ public class AbstractWebModuleTest extends TestCase {
         stop(containerName);
         kernel.shutdown();
     }
+
 }

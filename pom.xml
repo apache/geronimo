@@ -163,7 +163,7 @@
     <javaccVersion>2.1</javaccVersion>
     <jdbmVersion>0.20-dev</jdbmVersion>
     <jdomVersion>1.0</jdomVersion>
-    <jettyVersion>5.1.5rc2</jettyVersion>
+    <jettyVersion>5.1.10</jettyVersion>
     <jstlVersion>1.1.1</jstlVersion>
     <juddiVersion>0.9rc4</juddiVersion>
     <junitVersion>3.8.1</junitVersion>
@@ -776,6 +776,7 @@
         <module>modules/j2ee</module>
         <module>modules/j2ee-builder</module>
         <module>modules/j2ee-schema</module>
+        <module>modules/jetty</module>
         <module>modules/javamail-transport</module>
         <module>modules/jmx-remoting</module>
         <module>modules/kernel</module>
