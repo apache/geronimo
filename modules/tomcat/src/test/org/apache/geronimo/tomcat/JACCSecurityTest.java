@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
 import javax.management.ObjectName;
 import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebUserDataPermission;
@@ -38,6 +39,7 @@ import org.apache.geronimo.security.deploy.Role;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
+import org.apache.geronimo.tomcat.util.SecurityHolder;
 
 
 /**
@@ -92,10 +94,10 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
         ComponentPermissions componentPermissions = new ComponentPermissions(excludedPermissions, uncheckedPermissions, rolePermissions);
 
         startWebApp(roleDesignates, principalRoleMap, componentPermissions,
-                    defaultPrincipal, permissions);
+                defaultPrincipal, permissions);
 
         //Begin the test
-        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8181/securetest/protected/hello.txt").openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8181/test/protected/hello.txt").openConnection();
         connection.setInstanceFollowRedirects(false);
         assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
 
@@ -106,16 +108,16 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
 
         String cookie = connection.getHeaderField("Set-Cookie");
         cookie = cookie.substring(0, cookie.lastIndexOf(';'));
-        String location = "http://localhost:8181/securetest/protected/j_security_check?j_username=alan&j_password=starcraft";
+        String location = "http://localhost:8181/test/protected/j_security_check?j_username=alan&j_password=starcraft";
 
         connection = (HttpURLConnection) new URL(location).openConnection();
         connection.setRequestMethod("POST");
-        connection.setRequestProperty("Referer","http://localhost:8181/securetest/auth/logon.html?param=test");
+        connection.setRequestProperty("Referer", "http://localhost:8181/test/auth/logon.html?param=test");
         connection.setRequestProperty("Cookie", cookie);
         connection.setInstanceFollowRedirects(false);
         assertEquals(HttpURLConnection.HTTP_MOVED_TEMP, connection.getResponseCode());
 
-        connection = (HttpURLConnection) new URL("http://localhost:8181/securetest/protected/hello.txt").openConnection();
+        connection = (HttpURLConnection) new URL("http://localhost:8181/test/protected/hello.txt").openConnection();
         connection.setRequestProperty("Cookie", cookie);
         connection.setInstanceFollowRedirects(false);
         reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -125,7 +127,7 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
         connection.disconnect();
 
         //Now lets try it with izumi
-        connection = (HttpURLConnection) new URL("http://localhost:8181/securetest/protected/hello.txt").openConnection();
+        connection = (HttpURLConnection) new URL("http://localhost:8181/test/protected/hello.txt").openConnection();
         connection.setInstanceFollowRedirects(false);
         assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
 
@@ -137,7 +139,7 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
         assertEquals("<!-- Login Page -->", reader.readLine());
         reader.close();
 
-        location = "http://localhost:8181/securetest/protected/j_security_check?j_username=izumi&j_password=violin";
+        location = "http://localhost:8181/test/protected/j_security_check?j_username=izumi&j_password=violin";
 
         connection = (HttpURLConnection) new URL(location).openConnection();
         connection.setRequestMethod("POST");
@@ -146,7 +148,7 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
         assertEquals(HttpURLConnection.HTTP_MOVED_TEMP, connection.getResponseCode());
 
         try {
-            connection = (HttpURLConnection) new URL("http://localhost:8181/securetest/protected/hello.txt").openConnection();
+            connection = (HttpURLConnection) new URL("http://localhost:8181/test/protected/hello.txt").openConnection();
             connection.setRequestProperty("Cookie", cookie);
             connection.setInstanceFollowRedirects(false);
             reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -162,22 +164,30 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
         stopWebApp();
     }
 
-    protected void startWebApp(
+    protected TomcatWebAppContext startWebApp(
             Map roleDesignates,
             Map principalRoleMap,
             ComponentPermissions componentPermissions,
             DefaultPrincipal defaultPrincipal,
-            PermissionCollection checked) throws Exception
-    {
+            PermissionCollection checked) throws Exception {
 
-        appName = setUpSecureAppContext(roleDesignates, principalRoleMap,
-                                        componentPermissions, defaultPrincipal, checked);
+        SecurityHolder securityHolder = new SecurityHolder();
+        securityHolder.setSecurity(true);
+        securityHolder.setChecked(checked);
+        securityHolder.setExcluded(componentPermissions.getExcludedPermissions());
+        securityHolder.setPolicyContextID(POLICY_CONTEXT_ID);
+        securityHolder.setDefaultPrincipal(defaultPrincipal);
+        securityHolder.setSecurityRealm(securityRealmName);
+        return setUpSecureAppContext(roleDesignates,
+                principalRoleMap,
+                componentPermissions,
+                null,
+                securityHolder);
 
 
     }
 
     protected void stopWebApp() throws Exception {
-        stop(appName);
     }
 
     public void buildPrincipalRoleMap(Security security, Map roleDesignates, Map principalRoleMap) {

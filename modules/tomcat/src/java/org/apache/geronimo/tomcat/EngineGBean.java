@@ -113,34 +113,36 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
         }
 
         //Add the hosts
-        ReferenceCollection refs = (ReferenceCollection)hosts;
-        refs.addReferenceCollectionListener(new ReferenceCollectionListener() {
+        if (hosts instanceof ReferenceCollection) {
+            ReferenceCollection refs = (ReferenceCollection)hosts;
+            refs.addReferenceCollectionListener(new ReferenceCollectionListener() {
 
-            public void memberAdded(ReferenceCollectionEvent event) {
-                Object o = event.getMember();
-                ObjectRetriever objectRetriever = (ObjectRetriever) o;
-                String hostName = ((Host)objectRetriever.getInternalObject()).getName();
-                if (!hostName.equals(defaultHostName))
-                    addHost(objectRetriever);
-            }
+                public void memberAdded(ReferenceCollectionEvent event) {
+                    Object o = event.getMember();
+                    ObjectRetriever objectRetriever = (ObjectRetriever) o;
+                    String hostName = ((Host)objectRetriever.getInternalObject()).getName();
+                    if (!hostName.equals(defaultHostName))
+                        addHost(objectRetriever);
+                }
 
-            public void memberRemoved(ReferenceCollectionEvent event) {
-                Object o = event.getMember();
-                ObjectRetriever objectRetriever = (ObjectRetriever) o;
-                String hostName = ((Host)objectRetriever.getInternalObject()).getName();
+                public void memberRemoved(ReferenceCollectionEvent event) {
+                    Object o = event.getMember();
+                    ObjectRetriever objectRetriever = (ObjectRetriever) o;
+                    String hostName = ((Host)objectRetriever.getInternalObject()).getName();
+                    if (!hostName.equals(defaultHostName))
+                        removeHost(objectRetriever);
+                }
+            });
+            Iterator iterator = refs.iterator();
+            while (iterator.hasNext()){
+                ObjectRetriever objRetriever = (ObjectRetriever)iterator.next();
+                String hostName = ((Host)objRetriever.getInternalObject()).getName();
                 if (!hostName.equals(defaultHostName))
-                    removeHost(objectRetriever);
+                    addHost(objRetriever);
             }
-        });
-        
-        Iterator iterator = refs.iterator();
-        while (iterator.hasNext()){
-            ObjectRetriever objRetriever = (ObjectRetriever)iterator.next();
-            String hostName = ((Host)objRetriever.getInternalObject()).getName();
-            if (!hostName.equals(defaultHostName))
-                addHost(objRetriever);
         }
-        
+
+
         //Add clustering
         if (clusterGBean != null){
             engine.setCluster((Cluster)clusterGBean.getInternalObject());

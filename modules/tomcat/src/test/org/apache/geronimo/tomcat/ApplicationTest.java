@@ -17,6 +17,7 @@
 package org.apache.geronimo.tomcat;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -28,7 +29,12 @@ import java.net.URL;
 public class ApplicationTest extends AbstractWebModuleTest {
 
     public void testApplication() throws Exception {
-        setUpInsecureAppContext();
+        setUpInsecureAppContext(new File("target/var/catalina/webapps/war1/").toURI(),
+                new File("target/var/catalina/webapps/war1/WEB-INF/web.xml").toURL(),
+                null,
+                null,
+                null,
+                null);
 
         HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8181/test/hello.txt")
                 .openConnection();

@@ -217,8 +217,10 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         this.classLoader = classLoader;
 
         this.kernel = kernel;
-        ObjectName myObjectName = JMXUtil.getObjectName(objectName);
-        verifyObjectName(myObjectName);
+        if (objectName != null) {
+            ObjectName myObjectName = JMXUtil.getObjectName(objectName);
+            verifyObjectName(myObjectName);
+        }
 
         if (securityHolder != null){
             if (roleDesignateSource == null) {
