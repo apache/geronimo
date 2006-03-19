@@ -30,9 +30,6 @@
   <version>${geronimoVersion}</version>
   <name>Geronimo :: Axis :: Builder</name>
   <description>Geronimo Axis Builder</description>
-  <properties>
-    <buildDir>${project.build.directory}</buildDir>
-  </properties>
   <build>
     <resources>
       <!-- This schema is NOT compiled to xmlobjects.  Do not remove!  Used by SchemaInfoBuilder -->
@@ -41,7 +38,7 @@
         <includes>
           <include>soap_encoding_1_1.xsd</include>
         </includes>
-        <targetPath>${buildDir}/classes/META-INF/schema</targetPath>
+        <targetPath>META-INF/schema</targetPath>
       </resource>
     </resources>
     <plugins>

@@ -18,6 +18,7 @@ package org.apache.geronimo.tomcat;
 
 import java.io.File;
 import java.net.URI;
+import java.net.URL;
 import java.security.PermissionCollection;
 import java.security.Permissions;
 import java.util.Collections;
@@ -100,15 +101,30 @@ public class AbstractWebModuleTest extends TestCase {
     private ObjectName serverInfoName;
     private GBeanData serverInfoGBean;
 
+    private String basedir;
+
+    private String filebasedir;
+
+    public AbstractWebModuleTest() {
+        basedir = System.getProperty("basedir", System.getProperty("user.dir"));
+        if (basedir.length() > 0 && !basedir.endsWith("/")) {
+            basedir += "/";
+            try {
+                filebasedir = new URL("file:/" + basedir).toString();
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
     public void testDummy() {
     }
 
     protected void setUpInsecureAppContext() throws Exception {
 
         GBeanData app = new GBeanData(webModuleName, TomcatWebAppContext.GBEAN_INFO);
-        app.setAttribute("webAppRoot", new File("target/var/catalina/webapps/war1/").toURI());
+        app.setAttribute("webAppRoot", new File(basedir + "target/var/catalina/webapps/war1/").toURI());
         app.setAttribute("webClassPath", new URI[]{});
-        app.setAttribute("configurationBaseUrl", new File("target/var/catalina/webapps/war1/WEB-INF/web.xml").toURL());
+        app.setAttribute("configurationBaseUrl", new File(basedir + "target/var/catalina/webapps/war1/WEB-INF/web.xml").toURL());
         app.setAttribute("componentContext", Collections.EMPTY_MAP);
         app.setReferencePattern("Container", containerName);
         OnlineUserTransaction userTransaction = new OnlineUserTransaction();
@@ -150,10 +166,10 @@ public class AbstractWebModuleTest extends TestCase {
         securityHolder.setSecurityRealm(REALM_NAME);
 
         GBeanData app = new GBeanData(webModuleName, TomcatWebAppContext.GBEAN_INFO);
-        app.setAttribute("webAppRoot", new File("target/var/catalina/webapps/war3/").toURI());
+        app.setAttribute("webAppRoot", new File(basedir + "target/var/catalina/webapps/war3/").toURI());
         app.setAttribute("webClassPath", new URI[]{});
         app.setAttribute("securityHolder", securityHolder);
-        app.setAttribute("configurationBaseUrl", new File("target/var/catalina/webapps/war3/WEB-INF/web.xml").toURL());
+        app.setAttribute("configurationBaseUrl", new File(basedir + "target/var/catalina/webapps/war3/WEB-INF/web.xml").toURL());
         app.setAttribute("contextPath", "/securetest");
         app.setReferencePattern("TomcatRealm", contextRealmName);
         app.setReferencePattern("RoleDesignateSource", jaccBeanName);
@@ -201,11 +217,11 @@ public class AbstractWebModuleTest extends TestCase {
         securityHolder.setSecurityRealm("Geronimo");
         GBeanData app = new GBeanData(webModuleName, TomcatWebAppContext.GBEAN_INFO);
         app.setAttribute("classLoader", cl);
-        app.setAttribute("webAppRoot", new File("target/var/catalina/webapps/war3/").toURI());
+        app.setAttribute("webAppRoot", new File(basedir + "target/var/catalina/webapps/war3/").toURI());
         app.setAttribute("webClassPath", new URI[]{});
         app.setAttribute("contextPriorityClassLoader", Boolean.FALSE);
         app.setAttribute("securityHolder", securityHolder);
-        app.setAttribute("configurationBaseUrl", new File("target/var/catalina/webapps/war3/WEB-INF/web.xml").toURL());
+        app.setAttribute("configurationBaseUrl", new File(basedir + "target/var/catalina/webapps/war3/WEB-INF/web.xml").toURL());
         app.setAttribute("contextPath", "/securetest");
         app.setReferencePattern("RoleDesignateSource", jaccBeanName);
 
@@ -247,8 +263,8 @@ public class AbstractWebModuleTest extends TestCase {
         propertiesLMGBean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule");
         propertiesLMGBean.setAttribute("serverSide", Boolean.TRUE);
         Properties options = new Properties();
-        options.setProperty("usersURI", "src/test-resources/data/users.properties");
-        options.setProperty("groupsURI", "src/test-resources/data/groups.properties");
+        options.setProperty("usersURI", filebasedir + "src/test-resources/data/users.properties");
+        options.setProperty("groupsURI", filebasedir + "src/test-resources/data/groups.properties");
         propertiesLMGBean.setAttribute("options", options);
         propertiesLMGBean.setAttribute("wrapPrincipals", Boolean.TRUE);
         propertiesLMGBean.setAttribute("loginDomainName", "geronimo-properties-realm");
@@ -377,7 +393,7 @@ public class AbstractWebModuleTest extends TestCase {
         // Need to override the constructor for unit tests
         container = new GBeanData(containerName, TomcatContainer.GBEAN_INFO);
         container.setAttribute("classLoader", cl);
-        container.setAttribute("catalinaHome", "target/var/catalina");
+        container.setAttribute("catalinaHome", basedir + "target/var/catalina");
         container.setReferencePattern("EngineGBean", engineName);
         container.setReferencePattern("ServerInfo", serverInfoName);
 

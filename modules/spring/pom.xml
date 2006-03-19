@@ -48,8 +48,9 @@
       <artifactId>mx4j</artifactId>
     </dependency>
     <dependency>
-      <groupId>springframework</groupId>
+      <groupId>org.springframework</groupId>
       <artifactId>spring</artifactId>
+      <version>${springVersion}</version>
     </dependency>
   </dependencies>
 </project>

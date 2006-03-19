@@ -84,6 +84,20 @@ public class ContainerTest extends TestCase {
     private ObjectName propertiesRealmName;
     private GBeanData propertiesRealmGBean;
 
+    private String basedir;
+
+    private String filebasedir;
+
+    public ContainerTest() {
+        basedir = System.getProperty("basedir", System.getProperty("user.dir"));
+        if (basedir.length() > 0 && !basedir.endsWith("/")) {
+            basedir += "/";
+            try {
+                filebasedir = new URL("file:/" + basedir).toString();
+            } catch (Exception ignored) {
+            }
+        }
+    }
 
     public void testWebServiceHandler() throws Exception {
 
@@ -204,8 +218,8 @@ public class ContainerTest extends TestCase {
         propertiesLMGBean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule");
         propertiesLMGBean.setAttribute("serverSide", Boolean.TRUE);
         Properties options = new Properties();
-        options.setProperty("usersURI", "src/test-resources/data/users.properties");
-        options.setProperty("groupsURI", "src/test-resources/data/groups.properties");
+        options.setProperty("usersURI", filebasedir + "src/test-resources/data/users.properties");
+        options.setProperty("groupsURI", filebasedir + "src/test-resources/data/groups.properties");
         propertiesLMGBean.setAttribute("options", options);
         propertiesLMGBean.setAttribute("loginDomainName", "geronimo-properties-realm");
 
@@ -256,7 +270,7 @@ public class ContainerTest extends TestCase {
         //ServerInfo
         serverInfoName = new ObjectName("geronimo.system:role=ServerInfo");
         serverInfoGBean = new GBeanData(serverInfoName, BasicServerInfo.GBEAN_INFO);
-        serverInfoGBean.setAttribute("baseDirectory", ".");
+        serverInfoGBean.setAttribute("baseDirectory", basedir);
         start(serverInfoGBean);
 
         Map initParams = new HashMap();
@@ -286,7 +300,7 @@ public class ContainerTest extends TestCase {
 
         container = new GBeanData(containerName, TomcatContainer.GBEAN_INFO);
         container.setAttribute("classLoader", cl);
-        container.setAttribute("catalinaHome", "target/var/catalina");
+        container.setAttribute("catalinaHome", basedir + "target/var/catalina");
         container.setReferencePattern("EngineGBean", engineName);
         container.setReferencePattern("ServerInfo", serverInfoName);
         start(container);

@@ -391,11 +391,6 @@
         <version>${scoutVersion}</version>
       </dependency>
       <dependency>
-        <groupId>springframework</groupId>
-        <artifactId>spring</artifactId>
-        <version>${springVersion}</version>
-      </dependency>
-      <dependency>
         <groupId>stax</groupId>
         <artifactId>stax</artifactId>
         <version>${staxVersion}</version>
@@ -669,7 +664,6 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-one-plugin</artifactId>
         <executions>
           <execution>
@@ -692,7 +686,6 @@
       </extension>
     </extensions>
   </build>
-
   <repositories>
     <repository>
       <snapshots>

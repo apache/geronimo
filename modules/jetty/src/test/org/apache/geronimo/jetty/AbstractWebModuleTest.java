@@ -19,6 +19,7 @@ package org.apache.geronimo.jetty;
 
 import java.io.File;
 import java.net.URI;
+import java.net.URL;
 import java.security.PermissionCollection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -56,39 +57,79 @@ import org.apache.geronimo.transaction.context.OnlineUserTransaction;
 import org.apache.geronimo.transaction.context.TransactionContextManagerGBean;
 import org.apache.geronimo.transaction.manager.TransactionManagerImplGBean;
 
-
 /**
  * @version $Rev$ $Date$
  */
 public class AbstractWebModuleTest extends TestCase {
     protected Kernel kernel;
+
     private GBeanData container;
+
     private ObjectName containerName;
+
     private ObjectName connectorName;
+
     private GBeanData connector;
+
     private ObjectName webModuleName;
+
     private ObjectName tmName;
+
     private ObjectName ctcName;
+
     private GBeanData tm;
+
     private GBeanData ctc;
+
     private ObjectName tcmName;
+
     private GBeanData tcm;
+
     private ClassLoader cl;
-    private J2eeContext moduleContext = new J2eeContextImpl("jetty.test", "test", "null", NameFactory.WEB_MODULE, "jettyTest", null, null);
+
+    private J2eeContext moduleContext = new J2eeContextImpl("jetty.test", "test", "null", NameFactory.WEB_MODULE,
+            "jettyTest", null, null);
+
     private GBeanData loginConfigurationGBean;
+
     protected ObjectName loginConfigurationName;
+
     private GBeanData securityServiceGBean;
+
     protected ObjectName securityServiceName;
+
     private ObjectName loginServiceName;
+
     private GBeanData loginServiceGBean;
+
     protected GBeanData propertiesLMGBean;
+
     protected ObjectName propertiesLMName;
+
     protected ObjectName propertiesRealmName;
+
     private GBeanData propertiesRealmGBean;
+
     private ObjectName serverInfoName;
+
     private GBeanData serverInfoGBean;
+
     protected final static String securityRealmName = "demo-properties-realm";
-    private String basedir = System.getProperty("basedir", System.getProperty("user.dir"));
+
+    private String basedir;
+
+    private String filebasedir;
+
+    public AbstractWebModuleTest() {
+        basedir = System.getProperty("basedir", System.getProperty("user.dir"));
+        if (basedir.length() > 0 && !basedir.endsWith("/")) {
+            basedir += "/";
+            try {
+                filebasedir = new URL("file:/" + basedir).toString();
+            } catch (Exception ignored) {
+            }
+        }
+    }
 
     public void testDummy() throws Exception {
     }
@@ -107,7 +148,9 @@ public class AbstractWebModuleTest extends TestCase {
         staticContentServletGBeanData.setAttribute("initParams", staticContentServletInitParams);
         staticContentServletGBeanData.setAttribute("loadOnStartup", new Integer(0));
         staticContentServletGBeanData.setAttribute("servletMappings", Collections.singleton("/"));
-        ObjectName staticContentServletObjectName = NameFactory.getComponentName(null, null, null, NameFactory.WEB_MODULE, null, (String) staticContentServletGBeanData.getAttribute("servletName"), NameFactory.SERVLET, moduleContext);
+        ObjectName staticContentServletObjectName = NameFactory.getComponentName(null, null, null,
+                NameFactory.WEB_MODULE, null, (String) staticContentServletGBeanData.getAttribute("servletName"),
+                NameFactory.SERVLET, moduleContext);
         staticContentServletGBeanData.setName(staticContentServletObjectName);
         staticContentServletGBeanData.setReferencePattern("JettyServletRegistration", webModuleName);
 
@@ -120,10 +163,10 @@ public class AbstractWebModuleTest extends TestCase {
         app.setAttribute("componentContext", Collections.EMPTY_MAP);
         OnlineUserTransaction userTransaction = new OnlineUserTransaction();
         app.setAttribute("userTransaction", userTransaction);
-        //we have no classes or libs.
-        app.setAttribute("webClassPath", new URI[]{});
+        // we have no classes or libs.
+        app.setAttribute("webClassPath", new URI[] {});
         app.setAttribute("contextPriorityClassLoader", Boolean.FALSE);
-        app.setAttribute("configurationBaseUrl", new File("src/test-resources/deployables/").toURL());
+        app.setAttribute("configurationBaseUrl", new File(basedir + "src/test-resources/deployables/").toURL());
         app.setReferencePattern("TransactionContextManager", tcmName);
         app.setReferencePattern("TrackedConnectionAssociator", ctcName);
         app.setReferencePattern("JettyContainer", containerName);
@@ -133,13 +176,17 @@ public class AbstractWebModuleTest extends TestCase {
         start(app);
     }
 
-    protected void setUpSecureAppContext(Map roleDesignates, Map principalRoleMap, ComponentPermissions componentPermissions, DefaultPrincipal defaultPrincipal, PermissionCollection checked, Set securityRoles) throws Exception {
-        ObjectName mapperName = NameFactory.getComponentName(null, null, null, null, "mapper", NameFactory.JACC_MANAGER, moduleContext);
+    protected void setUpSecureAppContext(Map roleDesignates, Map principalRoleMap,
+            ComponentPermissions componentPermissions, DefaultPrincipal defaultPrincipal, PermissionCollection checked,
+            Set securityRoles) throws Exception {
+        ObjectName mapperName = NameFactory.getComponentName(null, null, null, null, "mapper",
+                NameFactory.JACC_MANAGER, moduleContext);
         GBeanData mapperData = new GBeanData(mapperName, ApplicationPrincipalRoleConfigurationManager.GBEAN_INFO);
         mapperData.setAttribute("principalRoleMap", principalRoleMap);
         start(mapperData);
 
-        ObjectName jaccBeanName = NameFactory.getComponentName(null, null, null, null, "foo", NameFactory.JACC_MANAGER, moduleContext);
+        ObjectName jaccBeanName = NameFactory.getComponentName(null, null, null, null, "foo", NameFactory.JACC_MANAGER,
+                moduleContext);
         GBeanData jaccBeanData = new GBeanData(jaccBeanName, ApplicationPolicyConfigurationManager.GBEAN_INFO);
         Map contextIDToPermissionsMap = new HashMap();
         contextIDToPermissionsMap.put("TEST", componentPermissions);
@@ -166,10 +213,10 @@ public class AbstractWebModuleTest extends TestCase {
 
         OnlineUserTransaction userTransaction = new OnlineUserTransaction();
         app.setAttribute("userTransaction", userTransaction);
-        //we have no classes or libs.
-        app.setAttribute("webClassPath", new URI[]{});
+        // we have no classes or libs.
+        app.setAttribute("webClassPath", new URI[] {});
         app.setAttribute("contextPriorityClassLoader", Boolean.FALSE);
-        app.setAttribute("configurationBaseUrl", new File("src/test-resources/deployables/").toURL());
+        app.setAttribute("configurationBaseUrl", new File(basedir + "src/test-resources/deployables/").toURL());
         app.setReferencePattern("TransactionContextManager", tcmName);
         app.setReferencePattern("TrackedConnectionAssociator", ctcName);
         app.setReferencePattern("JettyContainer", containerName);
@@ -194,26 +241,29 @@ public class AbstractWebModuleTest extends TestCase {
         securityServiceName = new ObjectName("geronimo.server:j2eeType=SecurityService");
         securityServiceGBean = new GBeanData(securityServiceName, SecurityServiceImpl.GBEAN_INFO);
         securityServiceGBean.setReferencePattern("ServerInfo", serverInfoName);
-        securityServiceGBean.setAttribute("policyConfigurationFactory", "org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory");
+        securityServiceGBean.setAttribute("policyConfigurationFactory",
+                "org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory");
         securityServiceGBean.setAttribute("policyProvider", "org.apache.geronimo.security.jacc.GeronimoPolicy");
 
         loginServiceName = new ObjectName("test:name=TestLoginService");
         loginServiceGBean = new GBeanData(loginServiceName, JaasLoginService.GBEAN_INFO);
         loginServiceGBean.setReferencePattern("Realms", new ObjectName("geronimo.server:j2eeType=SecurityRealm,*"));
-//        loginServiceGBean.setAttribute("reclaimPeriod", new Long(1000 * 1000));
+        // loginServiceGBean.setAttribute("reclaimPeriod", new Long(1000 *
+        // 1000));
         loginServiceGBean.setAttribute("algorithm", "HmacSHA1");
         loginServiceGBean.setAttribute("password", "secret");
 
         propertiesLMName = new ObjectName("geronimo.security:type=LoginModule,name=demo-properties-login");
         propertiesLMGBean = new GBeanData(propertiesLMName, LoginModuleGBean.GBEAN_INFO);
-        propertiesLMGBean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule");
+        propertiesLMGBean.setAttribute("loginModuleClass",
+                "org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule");
         propertiesLMGBean.setAttribute("serverSide", Boolean.TRUE);
         Properties options = new Properties();
-        options.setProperty("usersURI", "src/test-resources/data/users.properties");
-        options.setProperty("groupsURI", "src/test-resources/data/groups.properties");
+        options.setProperty("usersURI", filebasedir + "src/test-resources/data/users.properties");
+        options.setProperty("groupsURI", filebasedir + "src/test-resources/data/groups.properties");
         propertiesLMGBean.setAttribute("options", options);
         propertiesLMGBean.setAttribute("wrapPrincipals", Boolean.TRUE);
-        //TODO should this be called securityRealmName?
+        // TODO should this be called securityRealmName?
         propertiesLMGBean.setAttribute("loginDomainName", "demo-properties-realm");
 
         ObjectName testUseName = new ObjectName("geronimo.security:type=LoginModuleUse,name=properties");
@@ -226,9 +276,11 @@ public class AbstractWebModuleTest extends TestCase {
         propertiesRealmGBean.setReferencePattern("ServerInfo", serverInfoName);
         propertiesRealmGBean.setAttribute("realmName", "demo-properties-realm");
         propertiesRealmGBean.setReferencePattern("LoginService", loginServiceName);
-//        Properties config = new Properties();
-//        config.setProperty("LoginModule.1.REQUIRED", propertiesLMName.getCanonicalName());
-//        propertiesRealmGBean.setAttribute("loginModuleConfiguration", config);
+        // Properties config = new Properties();
+        // config.setProperty("LoginModule.1.REQUIRED",
+        // propertiesLMName.getCanonicalName());
+        // propertiesRealmGBean.setAttribute("loginModuleConfiguration",
+        // config);
         propertiesRealmGBean.setReferencePattern("LoginModuleConfiguration", testUseName);
         PrincipalInfo.PrincipalEditor principalEditor = new PrincipalInfo.PrincipalEditor();
         principalEditor.setAsText("metro,org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal,false");
@@ -268,12 +320,16 @@ public class AbstractWebModuleTest extends TestCase {
 
     protected void setUp() throws Exception {
         cl = this.getClass().getClassLoader();
-        containerName = NameFactory.getWebComponentName(null, null, null, null, "jettyContainer", "WebResource", moduleContext);
-        connectorName = NameFactory.getWebComponentName(null, null, null, null, "jettyConnector", "WebResource", moduleContext);
+        containerName = NameFactory.getWebComponentName(null, null, null, null, "jettyContainer", "WebResource",
+                moduleContext);
+        connectorName = NameFactory.getWebComponentName(null, null, null, null, "jettyConnector", "WebResource",
+                moduleContext);
         webModuleName = NameFactory.getModuleName(null, null, null, null, "testModule", moduleContext);
 
-        tmName = NameFactory.getComponentName(null, null, null, null, null, "TransactionManager", NameFactory.TRANSACTION_MANAGER, moduleContext);
-        tcmName = NameFactory.getComponentName(null, null, null, null, null, "TransactionContextManager", NameFactory.TRANSACTION_CONTEXT_MANAGER, moduleContext);
+        tmName = NameFactory.getComponentName(null, null, null, null, null, "TransactionManager",
+                NameFactory.TRANSACTION_MANAGER, moduleContext);
+        tcmName = NameFactory.getComponentName(null, null, null, null, null, "TransactionContextManager",
+                NameFactory.TRANSACTION_CONTEXT_MANAGER, moduleContext);
         ctcName = new ObjectName("geronimo.test:role=ConnectionTrackingCoordinator");
 
         kernel = KernelFactory.newInstance().createKernel("test.kernel");

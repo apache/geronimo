@@ -29,24 +29,23 @@
   <name>Geronimo :: Jetty</name>
   <version>${geronimoVersion}</version>
   <description>Geronimo Jetty Integration</description>
-
   <build>
     <plugins>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <systemProperties>
-            <user.dir>${basedir}</user.dir>
-            <java.security.auth.login.config>src/test-data/data/login.config</java.security.auth.login.config>
+            <property>
+              <name>java.security.auth.login.config</name>
+              <value>${basedir}/src/test-resources/data/login.config</value>
+            </property>
           </systemProperties>
           <forkMode>once</forkMode>
-          <workingDirectory>${basedir}</workingDirectory>
-          <argLine>-enableassertions</argLine>
+          <argLine>-ea</argLine>
         </configuration>
       </plugin>
     </plugins>
   </build>
-
   <dependencies>
     <dependency>
       <groupId>org.apache.geronimo</groupId>

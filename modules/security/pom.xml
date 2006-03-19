@@ -1,14 +1,14 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
-  
+
     Copyright 2006 The Apache Software Foundation
-    
+
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
-    
+  
        http://www.apache.org/licenses/LICENSE-2.0
-    
+  
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,16 +29,23 @@
   <artifactId>geronimo-security</artifactId>
   <version>${geronimoVersion}</version>
   <name>Geronimo :: Security</name>
+  <description>Geronimo Security</description>
   <build>
     <plugins>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <systemProperties>
-            <java.security.auth.login.config>${basedir}/src/test-data/data/login.config</java.security.auth.login.config>
-            <log4j.configuration>${basedir}/log4j.properties</log4j.configuration>
+            <property>
+              <name>log4j.configuration</name>
+              <value>${basedir}/log4j.properties</value>
+            </property>
+            <property>
+              <name>java.security.auth.login.config</name>
+              <value>${basedir}/src/test-data/data/login.config</value>
+            </property>
           </systemProperties>
-          <forkMode>pertest</forkMode>
+          <forkMode>once</forkMode>
           <workingDirectory>${basedir}</workingDirectory>
         </configuration>
       </plugin>
@@ -48,77 +55,62 @@
     <dependency>
       <groupId>org.apache.geronimo</groupId>
       <artifactId>geronimo-common</artifactId>
-      <version>${geronimoVersion}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.geronimo</groupId>
       <artifactId>geronimo-interceptor</artifactId>
-      <version>${geronimoVersion}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.geronimo</groupId>
       <artifactId>geronimo-j2ee</artifactId>
-      <version>${geronimoVersion}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.geronimo</groupId>
       <artifactId>geronimo-management</artifactId>
-      <version>${geronimoVersion}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.geronimo</groupId>
       <artifactId>geronimo-kernel</artifactId>
-      <version>${geronimoVersion}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.geronimo</groupId>
       <artifactId>geronimo-system</artifactId>
-      <version>${geronimoVersion}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
       <artifactId>geronimo-j2ee-jacc_1.0_spec</artifactId>
-      <version>${geronimoSpecJ2eeJaccVersion}</version>
     </dependency>
     <dependency>
       <groupId>cglib</groupId>
       <artifactId>cglib-nodep</artifactId>
-      <version>${cglibVersion}</version>
     </dependency>
     <dependency>
       <groupId>concurrent</groupId>
       <artifactId>concurrent</artifactId>
-      <version>${concurrentVersion}</version>
     </dependency>
     <dependency>
       <groupId>activeio</groupId>
       <artifactId>activeio</artifactId>
-      <version>${activeIoVersion}</version>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <version>${commonsLoggingVersion}</version>
     </dependency>
     <dependency>
       <groupId>mx4j</groupId>
       <artifactId>mx4j</artifactId>
-      <version>${mx4jVersion}</version>
     </dependency>
     <dependency>
       <groupId>regexp</groupId>
       <artifactId>regexp</artifactId>
-      <version>${regexpVersion}</version>
     </dependency>
     <dependency>
       <groupId>hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
-      <version>${hsqldbVersion}</version>
     </dependency>
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
-      <version>${log4jVersion}</version>
     </dependency>
   </dependencies>
 </project>

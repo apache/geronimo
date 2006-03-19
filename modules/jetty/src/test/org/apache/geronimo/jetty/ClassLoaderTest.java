@@ -35,7 +35,11 @@ public class ClassLoaderTest extends TestCase {
     URL[] urls;
 
     public void setUp() throws MalformedURLException {
-        URL url = new File("src/test-resources/deployables/cltest/").toURL();
+    	String basedir = System.getProperty("basedir", "");
+    	if (basedir.length() > 0) {
+    		basedir += "/";
+    	}
+        URL url = new File(basedir + "src/test-resources/deployables/cltest/").toURL();
 //        URL url = getClass().getClassLoader().getResource("deployables/cltest/");
         System.err.println("URL: "+url);
         urls = new URL[]{url};
