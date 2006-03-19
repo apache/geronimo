@@ -5,8 +5,12 @@ import org.apache.geronimo.deployment.util.UnpackedJarFile;
 import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.Jsr77Naming;
+import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
@@ -19,7 +23,6 @@ import org.apache.geronimo.xbeans.j2ee.WebAppType;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 
-import javax.management.ObjectName;
 import javax.xml.namespace.QName;
 import java.io.File;
 import java.net.URL;
@@ -33,9 +36,12 @@ import java.util.jar.JarFile;
 public class PlanParsingTest extends TestCase {
     private ClassLoader classLoader = this.getClass().getClassLoader();
 
-    ObjectName jettyContainerObjectName = JMXUtil.getObjectName("test:type=JettyContainer");
-    ObjectName pojoWebServiceTemplate = null;
-    WebServiceBuilder webServiceBuilder = null;
+    private Naming naming = new Jsr77Naming();
+    private Artifact baseId = new Artifact("test", "base", "1", "car");
+    private AbstractName baseRootName = naming.createRootName(baseId, "root", NameFactory.SERVICE_MODULE);
+    private AbstractName jettyContainerObjectName = naming.createChildName(baseRootName, "jettyContainer", NameFactory.GERONIMO_SERVICE);
+    private AbstractName pojoWebServiceTemplate = null;
+    private WebServiceBuilder webServiceBuilder = null;
     private Environment defaultEnvironment = new Environment();
     private JettyModuleBuilder builder;
 
@@ -108,7 +114,7 @@ public class PlanParsingTest extends TestCase {
         webApp.setContextPriorityClassloader(false);
         GerResourceRefType ref = webApp.addNewResourceRef();
         ref.setRefName("ref");
-        ref.setTargetName("target");
+        ref.setResourceLink("target");
 
         SchemaConversionUtils.validateDD(webApp);
         System.out.println(webApp.toString());

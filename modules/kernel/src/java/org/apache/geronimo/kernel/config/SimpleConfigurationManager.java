@@ -16,6 +16,22 @@
  */
 package org.apache.geronimo.kernel.config;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.InvalidConfigurationException;
+import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.Dependency;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.ImportType;
+import org.apache.geronimo.kernel.repository.MissingDependencyException;
+
+import javax.management.ObjectName;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,21 +43,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import javax.management.ObjectName;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.InvalidConfigurationException;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.ArtifactResolver;
-import org.apache.geronimo.kernel.repository.Dependency;
-import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.ImportType;
-import org.apache.geronimo.kernel.repository.MissingDependencyException;
-import org.apache.geronimo.kernel.Naming;
 
 /**
  * @version $Rev$ $Date$
@@ -185,43 +186,48 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         try {
             Environment environment = (Environment) configurationData.getAttribute("environment");
 
-            LinkedHashMap parents = new LinkedHashMap();
-            List dependencies = new ArrayList(environment.getDependencies());
-            for (ListIterator iterator = dependencies.listIterator(); iterator.hasNext();) {
-                Dependency dependency = (Dependency) iterator.next();
-                Artifact resolvedArtifact = artifactResolver.resolve(dependency.getArtifact());
-
-                Configuration parent = null;
-                if (loadedConfigurations.containsKey(resolvedArtifact)) {
-                    parent = (Configuration) loadedConfigurations.get(resolvedArtifact);
-                } else if (isConfiguration(resolvedArtifact)) {
-                    parent = getConfiguration(resolvedArtifact);
-                } else if (dependency.getImportType() == ImportType.SERVICES) {
-                    // Service depdendencies require that the depdencency be a configuration
-                    throw new InvalidConfigException("Dependency does not have services: " + resolvedArtifact);
-                }
-
-                if (parent != null) {
-                    parents.put(resolvedArtifact, parent);
-
-                    // update the dependency list to contain the resolved artifact
-                    dependency = new Dependency(resolvedArtifact, dependency.getImportType());
-                    iterator.set(dependency);
-                }
-            }
-            environment.setDependencies(dependencies);
+            Collection parents = resolveParents(environment, loadedConfigurations);
 
             ConfigurationModuleType moduleType = (ConfigurationModuleType) configurationData.getAttribute("moduleType");
             List classPath = (List) configurationData.getAttribute("classPath");
             byte[] gbeanState = (byte[]) configurationData.getAttribute("gBeanState");
             ConfigurationResolver configurationResolver = (ConfigurationResolver) configurationData.getAttribute("configurationResolver");
 
-            Configuration configuration = new Configuration(parents.values(), moduleType, environment, classPath, gbeanState, configurationResolver, naming);
+            Configuration configuration = new Configuration(parents, moduleType, environment, classPath, gbeanState, configurationResolver, naming);
             configuration.doStart();
             return configuration;
         } catch (Exception e) {
             throw new InvalidConfigException("Error starting configuration gbean " + configurationId, e);
         }
+    }
+
+    private Collection resolveParents(Environment environment, Map loadedConfigurations) throws MissingDependencyException, InvalidConfigException {
+        LinkedHashMap parents = new LinkedHashMap();
+        List dependencies = new ArrayList(environment.getDependencies());
+        for (ListIterator iterator = dependencies.listIterator(); iterator.hasNext();) {
+            Dependency dependency = (Dependency) iterator.next();
+            Artifact resolvedArtifact = artifactResolver.resolve(dependency.getArtifact());
+
+            Configuration parent = null;
+            if (loadedConfigurations.containsKey(resolvedArtifact)) {
+                parent = (Configuration) loadedConfigurations.get(resolvedArtifact);
+            } else if (isConfiguration(resolvedArtifact)) {
+                parent = getConfiguration(resolvedArtifact);
+            } else if (dependency.getImportType() == ImportType.SERVICES) {
+                // Service depdendencies require that the depdencency be a configuration
+                throw new InvalidConfigException("Dependency does not have services: " + resolvedArtifact);
+            }
+
+            if (parent != null) {
+                parents.put(resolvedArtifact, parent);
+
+                // update the dependency list to contain the resolved artifact
+                dependency = new Dependency(resolvedArtifact, dependency.getImportType());
+                iterator.set(dependency);
+            }
+        }
+        environment.setDependencies(dependencies);
+        return parents.values();
     }
 
 
@@ -233,8 +239,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         LinkedHashSet loadParents = new LinkedHashSet(startParents);
         loadParents.addAll(getParentStatuses(configuration.getClassParents()));
 
-        ConfigurationStatus configurationStatus = new ConfigurationStatus(configuration, new ArrayList(loadParents), startParents);
-        return configurationStatus;
+        return new ConfigurationStatus(configuration, new ArrayList(loadParents), startParents);
     }
 
     private synchronized List getParentStatuses(List parents) {
@@ -329,7 +334,6 @@ public class SimpleConfigurationManager implements ConfigurationManager {
             }
         }
         environment.setDependencies(dependencies);
-
 
         // add parents to the parents reference collection
         gbeanData.addDependencies(parentNames);
@@ -428,7 +432,8 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         private int startCount = 0;
 
         public ConfigurationStatus(Configuration configuration, List loadParents, List startParents) {
-            if (!loadParents.containsAll(startParents)) throw new IllegalArgumentException("loadParents must contain all startParents");
+            if (!loadParents.containsAll(startParents))
+                throw new IllegalArgumentException("loadParents must contain all startParents");
             this.configuration = configuration;
             this.loadParents = loadParents;
             this.startParents = startParents;
@@ -444,7 +449,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
 
         public void load() {
             for (Iterator iterator = loadParents.iterator(); iterator.hasNext();) {
-                KernelConfigurationManager.ConfigurationStatus parent = (KernelConfigurationManager.ConfigurationStatus) iterator.next();
+                ConfigurationStatus parent = (ConfigurationStatus) iterator.next();
                 parent.load();
             }
             loadCount++;
@@ -458,7 +463,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
 
             LinkedList unloadList = new LinkedList();
             for (Iterator iterator = loadParents.iterator(); iterator.hasNext();) {
-                KernelConfigurationManager.ConfigurationStatus parent = (KernelConfigurationManager.ConfigurationStatus) iterator.next();
+                ConfigurationStatus parent = (ConfigurationStatus) iterator.next();
                 unloadList.addAll(parent.unload());
             }
             loadCount--;
@@ -476,7 +481,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         public List start() {
             List startList = new LinkedList();
             for (Iterator iterator = startParents.iterator(); iterator.hasNext();) {
-                KernelConfigurationManager.ConfigurationStatus parent = (KernelConfigurationManager.ConfigurationStatus) iterator.next();
+                ConfigurationStatus parent = (ConfigurationStatus) iterator.next();
                 startList.addAll(parent.start());
             }
             startCount++;
@@ -489,7 +494,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         public List stop() {
             LinkedList stopList = new LinkedList();
             for (Iterator iterator = startParents.iterator(); iterator.hasNext();) {
-                KernelConfigurationManager.ConfigurationStatus parent = (KernelConfigurationManager.ConfigurationStatus) iterator.next();
+                ConfigurationStatus parent = (ConfigurationStatus) iterator.next();
                 stopList.addAll(parent.stop());
             }
             startCount--;

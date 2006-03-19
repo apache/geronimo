@@ -129,9 +129,7 @@ public class GBeanInstanceState {
         for (Iterator iterator = dependents.iterator(); iterator.hasNext();) {
             AbstractName dependent = (AbstractName) iterator.next();
             try {
-                if (kernel.isGBeanEnabled(dependent)) {
-                    kernel.startRecursiveGBean(dependent);
-                }
+                kernel.startRecursiveGBean(dependent);
             } catch (GBeanNotFoundException e) {
                 // this is ok the gbean died before we could start it
             } catch (Exception e) {

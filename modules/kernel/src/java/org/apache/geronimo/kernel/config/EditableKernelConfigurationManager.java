@@ -33,7 +33,7 @@ import org.apache.geronimo.gbean.AbstractName;
 /**
  * Standard implementation of an editable ConfigurationManager.
  *
- * @version $Rev: 384686 $ $Date$
+ * @version $Rev:386276 $ $Date$
  */
 public class EditableKernelConfigurationManager extends KernelConfigurationManager implements EditableConfigurationManager {
     public EditableKernelConfigurationManager(Kernel kernel,
@@ -83,7 +83,7 @@ public class EditableKernelConfigurationManager extends KernelConfigurationManag
 
 
             // preprocess the gbean data before loading it into the kernel
-            preprocessGBeanData(configuration, gbean);
+            ConfigurationUtil.preprocessGBeanData(configuration, gbean);
 
             // register the bean with the kernel
             kernel.loadGBean(gbean, configurationClassLoader);

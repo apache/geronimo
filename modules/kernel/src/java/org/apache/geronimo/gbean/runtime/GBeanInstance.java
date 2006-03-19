@@ -45,7 +45,7 @@ import org.apache.geronimo.kernel.management.StateManageable;
 /**
  * A GBeanInstance is a J2EE Management Managed Object, and is standard base for Geronimo services.
  *
- * @version $Rev: 384351 $ $Date$
+ * @version $Rev:385718 $ $Date$
  */
 public final class GBeanInstance implements StateManageable {
     private static final Log log = LogFactory.getLog(GBeanInstance.class);
@@ -175,11 +175,6 @@ public final class GBeanInstance implements StateManageable {
      * The time this application started.
      */
     private long startTime;
-
-    /**
-     * Is this gbean enabled?  A disabled gbean can not be started.
-     */
-    private boolean enabled = true;
 
     /**
      * This is used to signal the creating thread that it should
@@ -347,13 +342,9 @@ public final class GBeanInstance implements StateManageable {
                 Map.Entry entry = (Map.Entry) iterator.next();
                 String attributeName = (String) entry.getKey();
                 Object attributeValue = entry.getValue();
-                if ("gbeanEnabled".equals(attributeName)) {
-                    enabled = ((Boolean) attributeValue).booleanValue();
-                } else {
                     if (entry.getValue() != null) {
                         setAttribute(attributeName, attributeValue, false);
                     }
-                }
             }
 
         } catch (Exception e) {
@@ -455,24 +446,6 @@ public final class GBeanInstance implements StateManageable {
         return abstractName;
     }
 
-    /**
-     * Is this gbean enabled.  A disabled gbean can not be started.
-     *
-     * @return true if the gbean is enabled and can be started
-     */
-    public synchronized final boolean isEnabled() {
-        return enabled;
-    }
-
-    /**
-     * Changes the enabled status.
-     *
-     * @param enabled the new enabled flag
-     */
-    public synchronized final void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
     public synchronized final long getStartTime() {
         return startTime;
     }
@@ -525,9 +498,6 @@ public final class GBeanInstance implements StateManageable {
             if (dead) {
                 throw new IllegalStateException("A dead GBean can not be started: abstractName=" + abstractName);
             }
-            if (!enabled) {
-                throw new IllegalStateException("A disabled GBean can not be started: abstractName=" + abstractName);
-            }
         }
         gbeanInstanceState.start();
     }
@@ -541,9 +511,6 @@ public final class GBeanInstance implements StateManageable {
         synchronized (this) {
             if (dead) {
                 throw new IllegalStateException("A dead GBean can not be started: abstractName=" + abstractName);
-            }
-            if (!enabled) {
-                throw new IllegalStateException("A disabled GBean can not be started: abstractName=" + abstractName);
             }
         }
         gbeanInstanceState.startRecursive();

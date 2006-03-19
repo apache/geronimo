@@ -33,7 +33,7 @@ import org.apache.geronimo.kernel.management.State;
 public final class GBeanDependency {
 
 
-    private static final Log log = LogFactory.getLog(GBeanSingleReference.class);
+    private static final Log log = LogFactory.getLog(GBeanDependency.class);
 
     /**
      * The GBeanInstance to which this reference belongs.
@@ -55,10 +55,6 @@ public final class GBeanDependency {
      */
     private final Kernel kernel;
 
-    /**
-     * Is the GBean waitng for me to start?
-     */
-//    private boolean waitingForMe = false;
     private boolean targetRunning = false;
     private boolean dependencyRegistered = false;
 
@@ -82,15 +78,6 @@ public final class GBeanDependency {
             kernel.getDependencyManager().addDependency(abstractName, targetName);
             dependencyRegistered = true;
         }
-        // We only need to start if there are targetName and we don't already have a proxy
-//        if (waitingForMe) {
-//            if (isRunning(kernel, targetName)) {
-//                AbstractName abstractName = gbeanInstance.getAbstractName();
-//                kernel.getDependencyManager().addDependency(abstractName, targetName);
-//                waitingForMe = false;
-//            }
-//        }
-
         return targetRunning;
     }
 
@@ -101,10 +88,6 @@ public final class GBeanDependency {
             kernel.getDependencyManager().removeDependency(abstractName, targetName);
             dependencyRegistered = false;
         }
-//        waitingForMe = true;
-//        AbstractName abstractName = gbeanInstance.getAbstractName();
-//
-//            kernel.getDependencyManager().removeDependency(abstractName, targetName);
     }
 
     public final synchronized void offline() {
@@ -113,7 +96,6 @@ public final class GBeanDependency {
 
         kernel.getLifecycleMonitor().removeLifecycleListener(listener);
         targetRunning = false;
-//        waitingForMe = true;
     }
 
     private synchronized void attemptFullStart() {
@@ -154,14 +136,10 @@ public final class GBeanDependency {
             targetRunning = true;
             GBeanInstance gbeanInstance1 = gbeanInstance;
             if (gbeanInstance1.getStateInstance() == State.RUNNING) {
-                log.error("Illegal state: two or more targets are running for a single valued reference: " + getDescription() +
-                        ", currentTarget=" + targetName +
-                        ", newTarget=" + abstractName);
-//                gbeanInstance1.referenceFailed();
-            } //else if (waitingForMe) {
-                // the gbean was waiting for me and not there is now just one target
-                attemptFullStart();
-//            }
+                log.error("Illegal state: two or more targets are running for a dependency: " + getDescription() +
+                        ",\n    newTarget=" + abstractName);
+            }
+            attemptFullStart();
         }
     }
 
@@ -172,7 +150,7 @@ public final class GBeanDependency {
             if (gbeanInstance1.getStateInstance() == State.RUNNING) {
                 // we no longer have a valid target, which is an illegal state so we need to fail
                 log.error("Illegal state: current target for a single valued reference stopped: " + getDescription() +
-                        ", currentTarget=" + abstractName);
+                        ",\n    stopped Target=" + abstractName);
                 gbeanInstance1.referenceFailed();
             }
         }
@@ -200,7 +178,7 @@ public final class GBeanDependency {
 
     protected final String getDescription() {
         return "\n    GBeanInstance: " + gbeanInstance.getName() +
-                "\n    Pattern Name: " + targetName;
+                "\n    Target Name: " + targetName;
     }
 
     public boolean equals(Object o) {

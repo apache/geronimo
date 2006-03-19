@@ -32,7 +32,7 @@
     <context-priority-classloader>false</context-priority-classloader>
     <resource-ref>
         <ref-name>jdbc/DB1</ref-name>
-        <target-name>DefaultDatabase</target-name>
+        <resource-link>DefaultDatabase</resource-link>
     </resource-ref>
     <security-realm-name>demo-properties-realm</security-realm-name>
     <sec:security>

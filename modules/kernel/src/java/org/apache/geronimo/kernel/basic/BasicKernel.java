@@ -531,26 +531,6 @@ public class BasicKernel implements Kernel {
         return gbeanInstance.getStartTime();
     }
 
-    public boolean isGBeanEnabled(ObjectName name) throws GBeanNotFoundException {
-        GBeanInstance gbeanInstance = registry.getGBeanInstance(createGBeanName(name));
-        return gbeanInstance.isEnabled();
-    }
-
-    public boolean isGBeanEnabled(AbstractName name) throws GBeanNotFoundException {
-        GBeanInstance gbeanInstance = registry.getGBeanInstance(name);
-        return gbeanInstance.isEnabled();
-    }
-
-    public void setGBeanEnabled(ObjectName name, boolean enabled) throws GBeanNotFoundException {
-        GBeanInstance gbeanInstance = registry.getGBeanInstance(createGBeanName(name));
-        gbeanInstance.setEnabled(enabled);
-    }
-
-    public void setGBeanEnabled(AbstractName name, boolean enabled) throws GBeanNotFoundException {
-        GBeanInstance gbeanInstance = registry.getGBeanInstance(name);
-        gbeanInstance.setEnabled(enabled);
-    }
-
     public Set listGBeans(ObjectName pattern) {
         String domain = (pattern == null || pattern.isDomainPattern()) ? null : pattern.getDomain();
         if (domain != null && domain.length() == 0) {

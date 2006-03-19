@@ -30,7 +30,7 @@ import org.apache.geronimo.kernel.lifecycle.LifecycleMonitor;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 
 /**
- * @version $Rev: 385487 $ $Date$
+ * @version $Rev:386515 $ $Date$
  */
 public class KernelGBean implements Kernel{
     private final Kernel kernel;
@@ -233,22 +233,6 @@ public class KernelGBean implements Kernel{
 
     public long getGBeanStartTime(String shortName, Class type) throws GBeanNotFoundException {
         return kernel.getGBeanStartTime(shortName, type);
-    }
-
-    public boolean isGBeanEnabled(ObjectName name) throws GBeanNotFoundException {
-        return kernel.isGBeanEnabled(name);
-    }
-
-    public boolean isGBeanEnabled(AbstractName name) throws GBeanNotFoundException {
-        return kernel.isGBeanEnabled(name);
-    }
-
-    public void setGBeanEnabled(ObjectName name, boolean enabled) throws GBeanNotFoundException {
-        kernel.setGBeanEnabled(name, enabled);
-    }
-
-    public void setGBeanEnabled(AbstractName name, boolean enabled) throws GBeanNotFoundException {
-        kernel.setGBeanEnabled(name, enabled);
     }
 
     public ClassLoader getClassLoaderFor(ObjectName name) throws GBeanNotFoundException {

@@ -26,6 +26,8 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 
 import javax.management.ObjectName;
@@ -139,9 +141,11 @@ public class LocalAttributeManagerTest extends TestCase {
     }
 
     public void testSetReferences() throws Exception {
-        ObjectName referencePattern1 = new ObjectName(":name=referencePattern1,*");
-        ObjectName referencePattern2 = new ObjectName(":name=referencePattern2,*");
-        ReferencePatterns referencePatterns = new ReferencePatterns(new LinkedHashSet(Arrays.asList(new ObjectName[] {referencePattern1, referencePattern2})));
+        Naming naming = new Jsr77Naming();
+
+        AbstractName referencePattern1 = naming.createRootName(gbeanName.getArtifact(), "name", "referencePattern1");
+        AbstractName referencePattern2 = naming.createRootName(gbeanName.getArtifact(), "name", "referencePattern2");
+        ReferencePatterns referencePatterns = new ReferencePatterns(new LinkedHashSet(Arrays.asList(new AbstractName[] {referencePattern1, referencePattern2})));
         localAttributeManager.setReferencePatterns(configurationName.toString(), gbeanName, referenceInfo, referencePatterns);
         Collection gbeanDatas = new ArrayList();
         GBeanData gbeanData = new GBeanData(gbeanName, GBEAN_INFO);

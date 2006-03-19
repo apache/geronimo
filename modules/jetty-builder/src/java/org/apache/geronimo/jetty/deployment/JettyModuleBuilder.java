@@ -45,7 +45,6 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
@@ -91,7 +90,7 @@ import org.mortbay.jetty.servlet.FormAuthenticator;
 
 import javax.servlet.Servlet;
 import javax.transaction.UserTransaction;
-import javax.management.MalformedObjectNameException;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -137,16 +136,16 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
     private static final String JETTY_NAMESPACE = JettyWebAppDocument.type.getDocumentElementName().getNamespaceURI();
 
     public JettyModuleBuilder(Environment defaultEnvironment,
-                              Integer defaultSessionTimeoutSeconds,
-                              boolean defaultContextPriorityClassloader,
-                              List defaultWelcomeFiles,
-                              AbstractName jettyContainerName,
-                              Collection defaultServlets,
-                              Collection defaultFilters,
-                              Collection defaultFilterMappings,
-                              Object pojoWebServiceTemplate,
-                              WebServiceBuilder webServiceBuilder,
-                              Kernel kernel) throws GBeanNotFoundException {
+            Integer defaultSessionTimeoutSeconds,
+            boolean defaultContextPriorityClassloader,
+            List defaultWelcomeFiles,
+            AbstractName jettyContainerName,
+            Collection defaultServlets,
+            Collection defaultFilters,
+            Collection defaultFilterMappings,
+            Object pojoWebServiceTemplate,
+            WebServiceBuilder webServiceBuilder,
+            Kernel kernel) throws GBeanNotFoundException {
         super(kernel);
         this.defaultEnvironment = defaultEnvironment;
         this.defaultSessionTimeoutSeconds = (defaultSessionTimeoutSeconds == null) ? new Integer(30 * 60) : defaultSessionTimeoutSeconds;
@@ -237,8 +236,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         }
         AbstractName moduleName;
         if (earName == null) {
-            earName = Naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
-            moduleName = Naming.createChildName(earName, NameFactory.WEB_MODULE, environment.getConfigId().toString());
+            earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
+            moduleName = naming.createChildName(earName, environment.getConfigId().toString(), NameFactory.WEB_MODULE);
         } else {
             moduleName = naming.createChildName(earName, targetPath, NameFactory.WEB_MODULE);
         }
@@ -305,7 +304,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         GerMessageDestinationType[] gerMessageDestinations = gerWebApp.getMessageDestinationArray();
 
         ENCConfigBuilder.registerMessageDestinations(moduleContext.getRefContext(), module.getName(), messageDestinations, gerMessageDestinations);
-        if((webApp.getSecurityConstraintArray().length > 0 || webApp.getSecurityRoleArray().length > 0) &&
+        if ((webApp.getSecurityConstraintArray().length > 0 || webApp.getSecurityRoleArray().length > 0) &&
                 !gerWebApp.isSetSecurityRealmName()) {
             throw new DeploymentException("web.xml includes security elements but Geronimo deployment plan is not provided or does not contain <security-realm-name> element necessary to configure security accordingly.");
         }
@@ -402,8 +401,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
             webModuleData.setAttribute("sessionTimeoutSeconds",
                     (webApp.getSessionConfigArray().length == 1 && webApp.getSessionConfigArray(0).getSessionTimeout() != null) ?
-                    new Integer(webApp.getSessionConfigArray(0).getSessionTimeout().getBigIntegerValue().intValue() * 60) :
-                    defaultSessionTimeoutSeconds);
+                            new Integer(webApp.getSessionConfigArray(0).getSessionTimeout().getBigIntegerValue().intValue() * 60) :
+                            defaultSessionTimeoutSeconds);
 
             MimeMappingType[] mimeMappingArray = webApp.getMimeMappingArray();
             Map mimeMappingMap = new HashMap();
@@ -513,8 +512,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             for (int i = 0; i < servletMappingArray.length; i++) {
                 ServletMappingType servletMappingType = servletMappingArray[i];
                 String servletName = servletMappingType.getServletName().getStringValue().trim();
-                if(!knownServlets.contains(servletName)) {
-                    throw new DeploymentException("Servlet mapping refers to servlet '"+servletName+"' but no such servlet was found!");
+                if (!knownServlets.contains(servletName)) {
+                    throw new DeploymentException("Servlet mapping refers to servlet '" + servletName + "' but no such servlet was found!");
                 }
                 String urlPattern = servletMappingType.getUrlPattern().getStringValue().trim();
                 if (!knownServletMappings.contains(urlPattern)) {
@@ -545,7 +544,9 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                     //add a mapping to /*
 
                     GBeanData filterMappingGBeanData = new GBeanData(JettyFilterMapping.GBEAN_INFO);
-                    filterMappingGBeanData.setReferencePattern("Previous", previous);
+                    if (previous != null) {
+                        filterMappingGBeanData.setReferencePattern("Previous", previous);
+                    }
                     filterMappingGBeanData.setReferencePattern("JettyServletRegistration", moduleName);
                     String urlPattern = "/*";
                     filterMappingGBeanData.setAttribute("urlPattern", urlPattern);
@@ -593,7 +594,9 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 FilterMappingType filterMappingType = filterMappingArray[i];
                 String filterName = filterMappingType.getFilterName().getStringValue().trim();
                 GBeanData filterMappingData = new GBeanData(JettyFilterMapping.GBEAN_INFO);
-                filterMappingData.setReferencePattern("Previous", previous);
+                if (previous != null) {
+                    filterMappingData.setReferencePattern("Previous", previous);
+                }
                 filterMappingData.setReferencePattern("JettyServletRegistration", moduleName);
                 AbstractName filterAbstractName = earContext.getNaming().createChildName(moduleName, filterName, NameFactory.WEB_FILTER);
 
@@ -677,7 +680,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
             if (jettyWebApp.isSetSecurityRealmName()) {
                 if (earContext.getSecurityConfiguration() == null) {
-                     throw new DeploymentException("You have specified a <security-realm-name> for the webapp " + moduleName + " but no <security> configuration (role mapping) is supplied in the Geronimo plan for the web application (or the Geronimo plan for the EAR if the web app is in an EAR)");
+                    throw new DeploymentException("You have specified a <security-realm-name> for the webapp " + moduleName + " but no <security> configuration (role mapping) is supplied in the Geronimo plan for the web application (or the Geronimo plan for the EAR if the web app is in an EAR)");
                 }
                 String securityRealmName = jettyWebApp.getSecurityRealmName().trim();
                 webModuleData.setAttribute("securityRealmName", securityRealmName);
@@ -725,25 +728,25 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
     /**
      * Adds the provided servlets, taking into account the load-on-startup ordering.
      *
-     * @param webModuleName     an <code>ObjectName</code> value
-     * @param moduleFile        a <code>JarFile</code> value
-     * @param servletTypes      a <code>ServletType[]</code> value, contains the <code>servlet</code> entries from <code>web.xml</code>.
-     * @param servletMappings   a <code>Map</code> value
-     * @param securityRoles     a <code>Set</code> value
-     * @param rolePermissions   a <code>Map</code> value
-     * @param portMap           a <code>Map</code> value
-     * @param webClassLoader    a <code>ClassLoader</code> value
-     * @param earContext        an <code>EARContext</code> value
-     * @throws DeploymentException          if an error occurs
+     * @param webModuleName   an <code>ObjectName</code> value
+     * @param moduleFile      a <code>JarFile</code> value
+     * @param servletTypes    a <code>ServletType[]</code> value, contains the <code>servlet</code> entries from <code>web.xml</code>.
+     * @param servletMappings a <code>Map</code> value
+     * @param securityRoles   a <code>Set</code> value
+     * @param rolePermissions a <code>Map</code> value
+     * @param portMap         a <code>Map</code> value
+     * @param webClassLoader  a <code>ClassLoader</code> value
+     * @param earContext      an <code>EARContext</code> value
+     * @throws DeploymentException if an error occurs
      */
     private void addServlets(AbstractName webModuleName,
-                             JarFile moduleFile,
-                             ServletType[] servletTypes,
-                             Map servletMappings,
-                             Set securityRoles,
-                             Map rolePermissions, Map portMap,
-                             ClassLoader webClassLoader,
-                             EARContext earContext) throws DeploymentException {
+            JarFile moduleFile,
+            ServletType[] servletTypes,
+            Map servletMappings,
+            Set securityRoles,
+            Map rolePermissions, Map portMap,
+            ClassLoader webClassLoader,
+            EARContext earContext) throws DeploymentException {
 
         // this TreeSet will order the ServletTypes based on whether
         // they have a load-on-startup element and what its value is
@@ -763,28 +766,41 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         // o.a.g.jetty.JettyFilterMapping which provided the example
         // of how to do this.
         // http://issues.apache.org/jira/browse/GERONIMO-645
-        ServletType previousServlet = null;
+        AbstractName previousServlet = null;
         for (Iterator servlets = loadOrder.iterator(); servlets.hasNext();) {
             ServletType servletType = (ServletType) servlets.next();
-            addServlet(webModuleName, moduleFile, previousServlet, servletType, servletMappings, securityRoles, rolePermissions, portMap, webClassLoader, earContext);
-            previousServlet = servletType;
+            previousServlet = addServlet(webModuleName, moduleFile, previousServlet, servletType, servletMappings, securityRoles, rolePermissions, portMap, webClassLoader, earContext);
         }
 
         // JACC v1.0 secion B.19
         addUnmappedJSPPermissions(securityRoles, rolePermissions);
     }
 
-    private void addServlet(AbstractName webModuleName,
-                            JarFile moduleFile,
-                            ServletType previousServlet,
-                            ServletType servletType,
-                            Map servletMappings,
-                            Set securityRoles,
-                            Map rolePermissions, Map portMap,
-                            ClassLoader webClassLoader,
-                            EARContext earContext) throws DeploymentException {
+    /**
+     * @param webModuleName
+     * @param moduleFile
+     * @param previousServlet
+     * @param servletType
+     * @param servletMappings
+     * @param securityRoles
+     * @param rolePermissions
+     * @param portMap
+     * @param webClassLoader
+     * @param earContext
+     * @return AbstractName of servlet gbean added
+     * @throws DeploymentException
+     */
+    private AbstractName addServlet(AbstractName webModuleName,
+            JarFile moduleFile,
+            AbstractName previousServlet,
+            ServletType servletType,
+            Map servletMappings,
+            Set securityRoles,
+            Map rolePermissions, Map portMap,
+            ClassLoader webClassLoader,
+            EARContext earContext) throws DeploymentException {
         String servletName = servletType.getServletName().getStringValue().trim();
-        AbstractName servletObjectName = earContext.getNaming().createChildName(webModuleName, servletName, NameFactory.SERVLET);
+        AbstractName servletAbstractName = earContext.getNaming().createChildName(webModuleName, servletName, NameFactory.SERVLET);
         GBeanData servletData;
         if (servletType.isSetServletClass()) {
             String servletClassName = servletType.getServletClass().getStringValue().trim();
@@ -801,11 +817,11 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 throw new DeploymentException("Could not load javax.servlet.Servlet in web classloader", e);
             }
             if (baseServletClass.isAssignableFrom(servletClass)) {
-                servletData = new GBeanData(servletObjectName, JettyServletHolder.GBEAN_INFO);
+                servletData = new GBeanData(servletAbstractName, JettyServletHolder.GBEAN_INFO);
                 servletData.setAttribute("servletClass", servletClassName);
             } else {
                 servletData = new GBeanData(pojoWebServiceTemplate);
-                servletData.setAbstractName(servletObjectName);
+                servletData.setAbstractName(servletAbstractName);
                 //let the web service builder deal with configuring the gbean with the web service stack
                 Object portInfo = portMap.get(servletName);
                 if (portInfo == null) {
@@ -814,7 +830,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 webServiceBuilder.configurePOJO(servletData, moduleFile, portInfo, servletClassName, webClassLoader);
             }
         } else if (servletType.isSetJspFile()) {
-            servletData = new GBeanData(servletObjectName, JettyServletHolder.GBEAN_INFO);
+            servletData = new GBeanData(servletAbstractName, JettyServletHolder.GBEAN_INFO);
             servletData.setAttribute("jspFile", servletType.getJspFile().getStringValue().trim());
             //TODO MAKE THIS CONFIGURABLE!!! Jetty uses the servlet mapping set up from the default-web.xml
             servletData.setAttribute("servletClass", "org.apache.jasper.servlet.JspServlet");
@@ -826,9 +842,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         // preserve the <load-on-startup> ordering.
         // http://issues.apache.org/jira/browse/GERONIMO-645
         if (null != previousServlet) {
-            String name = previousServlet.getServletName().getStringValue().trim();
-            AbstractName oName = earContext.getNaming().createChildName(webModuleName, name, NameFactory.SERVLET);
-            servletData.setReferencePattern("Previous", oName);
+            servletData.setReferencePattern("Previous", previousServlet);
         }
 
         //TODO in init param setter, add classpath if jspFile is not null.
@@ -861,6 +875,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         } catch (GBeanAlreadyExistsException e) {
             throw new DeploymentException("Could not add servlet gbean to context", e);
         }
+        return servletAbstractName;
     }
 
     private Map buildComponentContext(EARContext earContext, Module webModule, WebAppType webApp, JettyWebAppType jettyWebApp, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
@@ -896,17 +911,17 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         infoBuilder.addInterface(ModuleBuilder.class);
 
         infoBuilder.setConstructor(new String[]{
-            "defaultEnvironment",
-            "defaultSessionTimeoutSeconds",
-            "defaultContextPriorityClassloader",
-            "defaultWelcomeFiles",
-            "jettyContainerObjectName",
-            "DefaultServlets",
-            "DefaultFilters",
-            "DefaultFilterMappings",
-            "PojoWebServiceTemplate",
-            "WebServiceBuilder",
-            "kernel"});
+                "defaultEnvironment",
+                "defaultSessionTimeoutSeconds",
+                "defaultContextPriorityClassloader",
+                "defaultWelcomeFiles",
+                "jettyContainerObjectName",
+                "DefaultServlets",
+                "DefaultFilters",
+                "DefaultFilterMappings",
+                "PojoWebServiceTemplate",
+                "WebServiceBuilder",
+                "kernel"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

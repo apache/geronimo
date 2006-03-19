@@ -21,6 +21,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.ReferencePatterns;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
 import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
@@ -31,7 +32,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * @version $Rev: 384141 $ $Date$
+ * @version $Rev:386515 $ $Date$
  */
 public class GBeanCollectionReference extends AbstractGBeanReference {
     /**
@@ -55,11 +56,21 @@ public class GBeanCollectionReference extends AbstractGBeanReference {
     private final LifecycleListener listener;
 
     public GBeanCollectionReference(GBeanInstance gbeanInstance, GReferenceInfo referenceInfo, Kernel kernel, ReferencePatterns referencePatterns) throws InvalidConfigurationException {
-        super(gbeanInstance, referenceInfo, kernel, !(referencePatterns == null || referencePatterns.getPatterns().isEmpty()));
+        super(gbeanInstance, referenceInfo, kernel, hasTargets(referencePatterns));
         listener = createLifecycleListener();
         if (referencePatterns != null) {
-            setPatterns(referencePatterns.getPatterns());
+            setReferencePatterns(referencePatterns);
         }
+    }
+
+    private static boolean hasTargets(ReferencePatterns referencePatterns) {
+        if (referencePatterns == null) {
+            return false;
+        }
+        if (referencePatterns.isResolved()) {
+            return true;
+        }
+        return !referencePatterns.getPatterns().isEmpty();
     }
 
     public synchronized boolean start() {
@@ -95,49 +106,40 @@ public class GBeanCollectionReference extends AbstractGBeanReference {
 
     protected LifecycleListener createLifecycleListener() {
         return new LifecycleAdapter() {
-                    public void running(AbstractName abstractName) {
-                        addTarget(abstractName);
-                    }
+            public void running(AbstractName abstractName) {
+                addTarget(abstractName);
+            }
 
-                    public void stopping(AbstractName abstractName) {
-                        removeTarget(abstractName);
-                    }
+            public void stopping(AbstractName abstractName) {
+                removeTarget(abstractName);
+            }
 
-                    public void stopped(AbstractName abstractName) {
-                        removeTarget(abstractName);
-                    }
+            public void stopped(AbstractName abstractName) {
+                removeTarget(abstractName);
+            }
 
-                    public void failed(AbstractName abstractName) {
-                        removeTarget(abstractName);
-                    }
+            public void failed(AbstractName abstractName) {
+                removeTarget(abstractName);
+            }
 
-                    public void unloaded(AbstractName abstractName) {
-                        removeTarget(abstractName);
-                    }
-                };
+            public void unloaded(AbstractName abstractName) {
+                removeTarget(abstractName);
+            }
+        };
     }
 
     public final synchronized Set getPatterns() {
         return patterns;
     }
 
-    public final synchronized void setPatterns(Set patterns) {
+    public final synchronized void setReferencePatterns(ReferencePatterns referencePatterns) {
         if (isOnline) {
             throw new IllegalStateException("Pattern set can not be modified while online");
         }
-
-        if (patterns == null || patterns.isEmpty() || (patterns.size() == 1 && patterns.iterator().next() == null)) {
-            this.patterns = Collections.EMPTY_SET;
+        if (referencePatterns.isResolved()) {
+            this.patterns = Collections.unmodifiableSet(Collections.singleton(new AbstractNameQuery(referencePatterns.getAbstractName())));
         } else {
-            patterns = new HashSet(patterns);
-            for (Iterator iterator = this.patterns.iterator(); iterator.hasNext();) {
-                if (iterator.next() == null) {
-                    iterator.remove();
-                    //there can be at most one null value in a set.
-                    break;
-                }
-            }
-            this.patterns = Collections.unmodifiableSet(patterns);
+            this.patterns = Collections.unmodifiableSet(referencePatterns.getPatterns());
         }
     }
 

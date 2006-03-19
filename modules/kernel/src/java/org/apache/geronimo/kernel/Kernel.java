@@ -32,7 +32,7 @@ import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
- * @version $Rev: 386505 $ $Date$
+ * @version $Rev:386515 $ $Date$
  */
 public interface Kernel {
     /**
@@ -196,29 +196,6 @@ public interface Kernel {
     long getGBeanStartTime(String shortName) throws GBeanNotFoundException;
     long getGBeanStartTime(Class type) throws GBeanNotFoundException;
     long getGBeanStartTime(String shortName, Class type) throws GBeanNotFoundException;
-
-    /**
-     * Is the specified GBean enabled?
-     * @param name the name if the GBean
-     * @return true if the gbean is enabled
-     * @throws GBeanNotFoundException if the GBean could not be found
-     * @deprecated Use attribute store instead of disabling gbeans
-     */
-    boolean isGBeanEnabled(ObjectName name) throws GBeanNotFoundException;
-    /** @deprecated Use attribute store instead of disabling gbeans */
-    boolean isGBeanEnabled(AbstractName name) throws GBeanNotFoundException;
-
-    /**
-     * Sets the eneabled status of the specified GBean.  A disabled gbean can not be started, and
-     * will not be started via startRecursive.
-     * @param name the name if the GBean
-     * @param enabled the new enabled status
-     * @throws GBeanNotFoundException if the GBean could not be found
-     * @deprecated Use attribute store instead of disabling gbeans
-     */
-    void setGBeanEnabled(ObjectName name, boolean enabled) throws GBeanNotFoundException;
-    /** @deprecated Use attribute store instead of disabling gbeans */
-    void setGBeanEnabled(AbstractName name, boolean enabled) throws GBeanNotFoundException;
 
     /**
      * Gets the ClassLoader used to register the specified GBean

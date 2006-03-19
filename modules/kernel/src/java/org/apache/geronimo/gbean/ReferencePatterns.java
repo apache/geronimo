@@ -17,12 +17,11 @@
 
 package org.apache.geronimo.gbean;
 
-import java.util.Set;
+import java.io.Serializable;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.Collections;
-import java.io.Serializable;
-import javax.management.ObjectName;
+import java.util.Set;
 
 /**
  * @version $Rev:$ $Date:$
@@ -43,9 +42,6 @@ public class ReferencePatterns implements Serializable {
             } else if (pattern instanceof AbstractNameQuery) {
                 AbstractNameQuery nameQuery = (AbstractNameQuery) pattern;
                 this.patterns.add(nameQuery);
-            } else if (pattern instanceof ObjectName) {
-                ObjectName objectName = (ObjectName) pattern;
-                this.patterns.add(objectName);
             } else {
                 throw new IllegalArgumentException("Unknown pattern type: " + pattern);
             }
@@ -59,20 +55,23 @@ public class ReferencePatterns implements Serializable {
     }
 
     public ReferencePatterns(AbstractName abstractName) {
+        if (abstractName == null) {
+            throw new IllegalArgumentException("parameter abstractName is null");
+        }
         this.abstractName = abstractName;
         this.patterns = null;
     }
 
     public Set getPatterns() {
         if (patterns == null) {
-            throw new IllegalStateException("This is resolved");
+            throw new IllegalStateException("This is resolved to: " + abstractName);
         }
         return patterns;
     }
 
     public AbstractName getAbstractName() {
         if (abstractName == null) {
-            throw new IllegalStateException("This is not resolved");
+            throw new IllegalStateException("This is not resolved with patterns: " + patterns);
         }
         return abstractName;
     }

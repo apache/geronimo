@@ -110,7 +110,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     }
 
     public static AbstractName getConfigurationAbstractName(Artifact configId) throws InvalidConfigException {
-        return new AbstractName(configId, Collections.EMPTY_MAP, getConfigurationObjectName(configId));
+        return new AbstractName(configId, Collections.singletonMap("configurationName", configId.toString()), getConfigurationObjectName(configId));
     }
 
     public static boolean isConfigurationObjectName(ObjectName name) {
