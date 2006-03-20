@@ -125,7 +125,7 @@ public class AbstractWebModuleTest extends TestCase {
         if (basedir.length() > 0 && !basedir.endsWith("/")) {
             basedir += "/";
             try {
-                filebasedir = new URL("file:/" + basedir).toString();
+                filebasedir = new File(basedir).toURL().toString();
             } catch (Exception ignored) {
             }
         }
