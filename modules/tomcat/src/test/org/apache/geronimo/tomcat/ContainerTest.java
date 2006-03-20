@@ -18,6 +18,7 @@
 package org.apache.geronimo.tomcat;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -93,7 +94,7 @@ public class ContainerTest extends TestCase {
         if (basedir.length() > 0 && !basedir.endsWith("/")) {
             basedir += "/";
             try {
-                filebasedir = new URL("file:/" + basedir).toString();
+                filebasedir = new File(basedir).toURL().toString();
             } catch (Exception ignored) {
             }
         }
