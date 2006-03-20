@@ -781,6 +781,7 @@
         <module>modules/j2ee-builder</module>
         <module>modules/j2ee-schema</module>
         <module>modules/jetty</module>
+        <module>modules/jetty-builder</module>
         <module>modules/javamail-transport</module>
         <module>modules/jmx-remoting</module>
         <module>modules/kernel</module>
