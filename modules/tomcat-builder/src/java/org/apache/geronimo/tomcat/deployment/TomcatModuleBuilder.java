@@ -17,6 +17,25 @@
 
 package org.apache.geronimo.tomcat.deployment;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.security.Permission;
+import java.security.PermissionCollection;
+import java.security.Permissions;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.jar.JarFile;
+
+import javax.transaction.UserTransaction;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
@@ -37,10 +56,9 @@ import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.StoredObject;
 import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.StoredObject;
 import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
@@ -70,25 +88,6 @@ import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-
-import javax.transaction.UserTransaction;
-import javax.management.MalformedObjectNameException;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.security.Permission;
-import java.security.PermissionCollection;
-import java.security.Permissions;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.jar.JarFile;
 
 
 /**
@@ -186,8 +185,8 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         }
         AbstractName moduleName;
         if (earName == null) {
-            earName = Naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
-            moduleName = Naming.createChildName(earName, NameFactory.WEB_MODULE, environment.getConfigId().toString());
+            earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
+            moduleName = naming.createChildName(earName, environment.getConfigId().toString(), NameFactory.WEB_MODULE);
         } else {
             moduleName = naming.createChildName(earName, targetPath, NameFactory.WEB_MODULE);
         }

@@ -16,13 +16,34 @@
  */
 package org.apache.geronimo.tomcat.deployment;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.security.PermissionCollection;
+import java.security.Permissions;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.management.ObjectName;
+import javax.naming.Reference;
+import javax.xml.namespace.QName;
+
 import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
-import org.apache.geronimo.axis.builder.AxisBuilder;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.util.UnpackedJarFile;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -33,30 +54,34 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
+import org.apache.geronimo.j2ee.deployment.UnavailableWebServiceBuilder;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
+import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.KernelConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.ConfigurationResolver;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.EditableKernelConfigurationManager;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.security.SecurityServiceImpl;
+import org.apache.geronimo.kernel.repository.ImportType;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
+import org.apache.geronimo.security.SecurityServiceImpl;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.tomcat.ConnectorGBean;
 import org.apache.geronimo.tomcat.EngineGBean;
@@ -66,29 +91,6 @@ import org.apache.geronimo.tomcat.TomcatContainer;
 import org.apache.geronimo.transaction.context.TransactionContextManagerGBean;
 import org.apache.geronimo.transaction.manager.TransactionManagerImplGBean;
 
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.naming.Reference;
-import javax.xml.namespace.QName;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.security.PermissionCollection;
-import java.security.Permissions;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 /**
  * @version $Rev:385232 $ $Date$
  */
@@ -97,60 +99,20 @@ public class TomcatModuleBuilderTest extends TestCase {
     private String SERVER_NAME = "geronimo";
     private String BASE_NAME = DOMAIN_NAME + ":J2EEServer=" + SERVER_NAME;
 
+    private Naming naming = new Jsr77Naming();
+    private Artifact baseId = new Artifact("test", "base", "1", "car");
+    private final AbstractName serverName = naming.createRootName(baseId, "Server", "J2EEServer");
+
     protected Kernel kernel;
-
-    private GBeanData container;
-
-    private ObjectName containerName;
-
-    private ObjectName connectorName;
-
-    private GBeanData connector;
-
-    private ObjectName engineName;
-
-    private GBeanData engine;
-
-    private ObjectName hostName;
-
-    private GBeanData host;
-
-    private ObjectName realmName;
-
-    private GBeanData realm;
-
-    private GBeanData securityServiceGBean;
-
-    private ObjectName securityServiceName;
-
-    private ObjectName serverInfoName;
-
-    private GBeanData serverInfoGBean;
-
-    private ObjectName tmName;
-
-    private ObjectName ctcName;
-
-    private GBeanData tm;
-
-    private GBeanData ctc;
-
-    private ObjectName tcmName;
-
-    private GBeanData tcm;
-
+    private AbstractName ctcName;
+    private AbstractName tcmName;
     private ClassLoader cl;
-
-    private J2eeContext moduleContext = new J2eeContextImpl(DOMAIN_NAME,
-            SERVER_NAME, "null", NameFactory.WEB_MODULE, "Test", null, null);
-
     private TomcatModuleBuilder builder;
-
     private File basedir = new File(System.getProperty("basedir", "."));
-
-    private List parentId = Arrays.asList(new Artifact[] {Artifact.create("geronimo/Foo/1/car")});
+    private Artifact webModuleArtifact = new Artifact("foo", "bar", "1", "car");
     private Environment defaultEnvironment = new Environment();
     private ConfigurationManager configurationManager;
+    private ConfigurationStore configStore;
 
     public void testDeployWar4() throws Exception {
         deployWar("war4", "foo/bar/1/car");
@@ -171,8 +133,11 @@ public class TomcatModuleBuilderTest extends TestCase {
         recursiveCopy(path, dest);
         UnpackedJarFile jarFile = new UnpackedJarFile(path);
         Module module = builder.createModule(null, jarFile, kernel.getNaming());
+        Repository repository = null;
 
-        ObjectName jaccBeanName = NameFactory.getComponentName(null, null, null, null, "foo", NameFactory.JACC_MANAGER, moduleContext);
+        AbstractName moduleName = module.getModuleName();
+        EARContext earContext = createEARContext(outputPath, defaultEnvironment, repository, configStore, moduleName);
+        AbstractName jaccBeanName = kernel.getNaming().createChildName(moduleName, "foo", NameFactory.JACC_MANAGER);
         GBeanData jaccBeanData = new GBeanData(jaccBeanName, ApplicationPolicyConfigurationManager.GBEAN_INFO);
         PermissionCollection excludedPermissions= new Permissions();
         PermissionCollection uncheckedPermissions= new Permissions();
@@ -182,135 +147,113 @@ public class TomcatModuleBuilderTest extends TestCase {
         jaccBeanData.setAttribute("contextIdToPermissionsMap", contextIDToPermissionsMap);
         jaccBeanData.setAttribute("principalRoleMap", new HashMap());
         jaccBeanData.setAttribute("roleDesignates", new HashMap());
-        start(jaccBeanData);
-
-        EARContext earContext = createEARContext(outputPath, defaultEnvironment);
+        earContext.addGBean(jaccBeanData);
         earContext.setJaccManagerName(jaccBeanName);
         module.setEarContext(earContext);
-        ObjectName serverName = earContext.getServerName();
-        GBeanData server = new GBeanData(serverName, J2EEServerImpl.GBEAN_INFO);
-        start(server);
-        builder.installModule(jarFile, earContext, module, new MockConfigStore(), null);
         builder.initContext(earContext, module, cl);
         builder.addGBeans(earContext, module, cl, null);
+        ConfigurationData configurationData = earContext.getConfigurationData();
         earContext.close();
         module.close();
 
-        ConfigurationStore configurationStore = new MockConfigStore();
-        Configuration configuration = configurationManager.loadConfiguration(earContext.getConfigurationData(), configurationStore);
+        Configuration configuration = configurationManager.loadConfiguration(configurationData);
         configurationManager.startConfiguration(configuration);
 
-        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(ObjectName.getInstance(BASE_NAME + ",J2EEApplication=null,j2eeType=WebModule,name=" + name)));
-        Set names = kernel.listGBeans(ObjectName.getInstance(DOMAIN_NAME + ":J2EEApplication=null,WebModule=" + name + ",*"));
-        System.out.println("Object names: " + names);
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(moduleName));
+        Set names = configuration.findGBeans(new AbstractNameQuery(moduleName.getArtifact(), Collections.EMPTY_MAP));
+        System.out.println("names: " + names);
         for (Iterator iterator = names.iterator(); iterator.hasNext();) {
-            ObjectName objectName = (ObjectName) iterator.next();
-            System.out.println("STATE: " + kernel.getGBeanState(objectName) + " - " + objectName.getCanonicalName());
+            AbstractName objectName = (AbstractName) iterator.next();
             assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(objectName));
         }
 
-        //If we got here with no errors, then Tomcat deployed the war and loaded the classes
-
-        configurationManager.stopConfiguration(configuration);
-        configurationManager.unloadConfiguration(configuration);
-
-
-        //what is this testing?
-        configuration = configurationManager.loadConfiguration(earContext.getConfigurationData(), configurationStore);
-        configurationManager.startConfiguration(configuration);
         configurationManager.stopConfiguration(configuration);
         configurationManager.unloadConfiguration(configuration);
     }
 
-    private EARContext createEARContext(File outputPath, Environment environment) throws MalformedObjectNameException, DeploymentException {
-        EARContext earContext = new EARContext(
-                outputPath,
+    private EARContext createEARContext(File outputPath, Environment environment, Repository repository, ConfigurationStore configStore, AbstractName moduleName) throws DeploymentException {
+        return new EARContext(outputPath,
                 environment,
                 ConfigurationModuleType.WAR,
-                serverName, moduleContext.getJ2eeApplicationName(),
-                tcmName,
-                ctcName,
+                naming,
+                repository,
+                configStore,
+                new AbstractNameQuery(serverName),
+                moduleName,
+                new AbstractNameQuery(tcmName),
+                new AbstractNameQuery(ctcName),
                 null,
                 null,
                 null,
                 new RefContext(new EJBReferenceBuilder() {
 
-                    public Reference createCORBAReference(Configuration configuration, AbstractNameQuery containerNameQuery, URI nsCorbaloc, String objectName, String home) throws DeploymentException {
+
+                    public Reference createCORBAReference(Configuration configuration, AbstractNameQuery containerNameQuery, URI nsCorbaloc, String objectName, String home) {
                         return null;
                     }
 
-                    public Object createHandleDelegateReference() throws DeploymentException {
+                    public Object createHandleDelegateReference() {
                         return null;
                     }
 
-                    public Reference createEJBRemoteRef(String requiredModule, String optionalModule, String name, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String home, String remote, Configuration configuration) throws DeploymentException {
+                    public Reference createEJBRemoteRef(String requiredModule, String optionalModule, String name, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String home, String remote, Configuration configuration) {
                         return null;
                     }
 
-                    public Reference createEJBLocalRef(String requiredModule, String optionalModule, String name, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String localHome, String local, Configuration configuration) throws DeploymentException {
-                        return null;
-                    }
-                }, new ResourceReferenceBuilder() {
-
-                    public Reference createResourceRef(AbstractNameQuery containerId,
-                                                       Class iface, Configuration configuration) throws DeploymentException {
+                    public Reference createEJBLocalRef(String requiredModule, String optionalModule, String name, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String localHome, String local, Configuration configuration) {
                         return null;
                     }
 
-                    public Reference createAdminObjectRef(AbstractNameQuery containerId,
-                                                          Class iface, Configuration configuration) throws DeploymentException {
-                        return null;
-                    }
+                },
+                        new ResourceReferenceBuilder() {
 
-                    public ObjectName locateResourceName(ObjectName query)
-                            throws DeploymentException {
-                        return null;
-                    }
+                            public Reference createResourceRef(AbstractNameQuery containerId, Class iface, Configuration configuration) {
+                                return null;
+                            }
 
-                    public GBeanData locateActivationSpecInfo(
-                            AbstractNameQuery nameQuery,
-                            String messageListenerInterface, Configuration configuration)
-                            throws DeploymentException {
-                        return null;
-                    }
+                            public Reference createAdminObjectRef(AbstractNameQuery containerId, Class iface, Configuration configuration) {
+                                return null;
+                            }
 
-                    public GBeanData locateResourceAdapterGBeanData(
-                            GBeanData resourceAdapterModuleData)
-                            throws DeploymentException {
-                        return null;
-                    }
+                            public ObjectName locateResourceName(ObjectName query) {
+                                return null;
+                            }
 
-                    public GBeanData locateAdminObjectInfo(
-                            GBeanData resourceAdapterModuleData,
-                            String adminObjectInterfaceName)
-                            throws DeploymentException {
-                        return null;
-                    }
+                            public GBeanData locateActivationSpecInfo(AbstractNameQuery nameQuery, String messageListenerInterface, Configuration configuration) {
+                                return null;
+                            }
 
-                    public GBeanData locateConnectionFactoryInfo(
-                            GBeanData resourceAdapterModuleData,
-                            String connectionFactoryInterfaceName)
-                            throws DeploymentException {
-                        return null;
-                    }
-                }, new ServiceReferenceBuilder() {
-                    //it could return a Service or a Reference, we don't care
-                    public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, Object serviceRefType, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
-                        return null;
-                    }
-                }));
-        return earContext;
+                            public GBeanData locateResourceAdapterGBeanData(GBeanData resourceAdapterModuleData) {
+                                return null;
+                            }
+
+                            public GBeanData locateAdminObjectInfo(GBeanData resourceAdapterModuleData, String adminObjectInterfaceName) {
+                                return null;
+                            }
+
+                            public GBeanData locateConnectionFactoryInfo(GBeanData resourceAdapterModuleData, String connectionFactoryInterfaceName) {
+                                return null;
+                            }
+                        },
+                        new ServiceReferenceBuilder() {
+                            //it could return a Service or a Reference, we don't care
+                            public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, Object serviceRefType, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) {
+                                return null;
+                            }
+                        }));
     }
 
     private void recursiveDelete(File path) {
-        // does not delete top level dir passed in
+        //does not delete top level dir passed in
         File[] listing = path.listFiles();
-        for (int i = 0; i < ((listing == null) ? 0 : listing.length); i++) {
-            File file = listing[i];
-            if (file.isDirectory()) {
-                recursiveDelete(file);
+        if (listing != null) {
+            for (int i = 0; i < listing.length; i++) {
+                File file = listing[i];
+                if (file.isDirectory()) {
+                    recursiveDelete(file);
+                }
+                file.delete();
             }
-            file.delete();
         }
     }
 
@@ -328,82 +271,36 @@ public class TomcatModuleBuilderTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
-        Artifact artifact = Artifact.create("test/foo/1/car");
-        defaultEnvironment.setConfigId(artifact);
-        Map properties = new HashMap();
-        properties.put(NameFactory.JSR77_BASE_NAME_PROPERTY, BASE_NAME);
-        defaultEnvironment.addProperties(properties);
+        defaultEnvironment.getProperties().put(NameFactory.JSR77_BASE_NAME_PROPERTY, BASE_NAME);
         cl = this.getClass().getClassLoader();
-        containerName = NameFactory.getWebComponentName(null, null, null, null,
-                "tomcatContainer", "WebResource", moduleContext);
-        connectorName = NameFactory.getWebComponentName(null, null, null, null,
-                "tomcatConnector", "WebResource", moduleContext);
-        realmName = NameFactory.getWebComponentName(null, null, null, null,
-                "tomcatRealm", "WebResource", moduleContext);
-        engineName = NameFactory.getWebComponentName(null, null, null, null,
-                "tomcatEngine", "WebResource", moduleContext);
-        hostName = NameFactory.getWebComponentName(null, null, null, null,
-                "tomcatHost", "WebResource", moduleContext);
-
-        tmName = NameFactory.getComponentName(null, null, null, null, null,
-                "TransactionManager", NameFactory.TRANSACTION_MANAGER, moduleContext);
-        tcmName = NameFactory.getComponentName(null, null, null, null, null,
-                "TransactionContextManager", NameFactory.TRANSACTION_CONTEXT_MANAGER,
-                moduleContext);
-        ctcName = new ObjectName(
-                "geronimo.server:role=ConnectionTrackingCoordinator");
-
-        kernel = KernelFactory.newInstance().createKernel("foo");
+        kernel = KernelFactory.newInstance().createKernel("test");
         kernel.boot();
 
-        GBeanData store = new GBeanData(JMXUtil
-                .getObjectName("foo:j2eeType=ConfigurationStore,name=mock"),
-                MockConfigStore.GBEAN_INFO);
-        kernel.loadGBean(store, this.getClass().getClassLoader());
-        kernel.startGBean(store.getName());
+        ConfigurationData bootstrap = new ConfigurationData(baseId, naming);
 
-        GBeanData artifactManager = new GBeanData(JMXUtil.getObjectName("foo:name=ArtifactManager"), DefaultArtifactManager.GBEAN_INFO);
-        kernel.loadGBean(artifactManager, this.getClass().getClassLoader());
-        kernel.startGBean(artifactManager.getName());
+        GBeanData serverInfo = bootstrap.addGBean("ServerInfo", BasicServerInfo.GBEAN_INFO);
+        serverInfo.setAttribute("baseDirectory", ".");
 
-        GBeanData artifactResolver = new GBeanData(JMXUtil.getObjectName("foo:name=ArtifactResolver"), DefaultArtifactResolver.GBEAN_INFO);
-        artifactResolver.setReferencePattern("ArtifactManager", artifactManager.getName());
-        kernel.loadGBean(artifactResolver, this.getClass().getClassLoader());
-        kernel.startGBean(artifactResolver.getName());
+        AbstractName configStoreName = bootstrap.addGBean("MockConfigurationStore", MockConfigStore.GBEAN_INFO).getAbstractName();
 
-        ObjectName configurationManagerName = new ObjectName(":j2eeType=ConfigurationManager,name=Basic");
-        GBeanData configurationManagerData = new GBeanData(configurationManagerName, KernelConfigurationManager.GBEAN_INFO);
-        configurationManagerData.setReferencePatterns("Stores", Collections.singleton(store.getName()));
-        configurationManagerData.setReferencePattern("ArtifactManager", artifactManager.getName());
-        configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolver.getName());
-        kernel.loadGBean(configurationManagerData, getClass().getClassLoader());
-        kernel.startGBean(configurationManagerName);
+        GBeanData artifactManagerData = bootstrap.addGBean("ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
 
-        configurationManager = (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
+        GBeanData artifactResolverData = bootstrap.addGBean("ArtifactResolver", DefaultArtifactResolver.GBEAN_INFO);
+        artifactResolverData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
 
-        configurationManager.loadConfiguration((Artifact) parentId.get(0));
-        configurationManager.startConfiguration((Artifact) parentId.get(0));
+        GBeanData configurationManagerData = bootstrap.addGBean("ConfigurationManager", EditableKernelConfigurationManager.GBEAN_INFO);
+        configurationManagerData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
+        configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolverData.getAbstractName());
+        configurationManagerData.setReferencePattern("Stores", configStoreName);
+        bootstrap.addGBean(configurationManagerData);
 
-        serverInfoName = new ObjectName("geronimo.system:name=ServerInfo");
-        serverInfoGBean = new GBeanData(serverInfoName, BasicServerInfo.GBEAN_INFO);
-        serverInfoGBean.setAttribute("baseDirectory", ".");
-        start(serverInfoGBean);
+        GBeanData serverData = new GBeanData(serverName, J2EEServerImpl.GBEAN_INFO);
+        bootstrap.addGBean(serverData);
 
-        // install the policy configuration factory
-        securityServiceName = new ObjectName("foo:j2eeType=SecurityService");
-        securityServiceGBean = new GBeanData(securityServiceName,
-                SecurityServiceImpl.GBEAN_INFO);
-        securityServiceGBean.setReferencePattern("ServerInfo", serverInfoName);
-        securityServiceGBean
-                .setAttribute("policyConfigurationFactory",
-                        "org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory");
-        securityServiceGBean.setAttribute("policyProvider",
-                "org.apache.geronimo.security.jacc.GeronimoPolicy");
-        start(securityServiceGBean);
-
-        WebServiceBuilder webServiceBuilder = new AxisBuilder();
-
-        builder = new TomcatModuleBuilder(defaultEnvironment, true, containerName, webServiceBuilder, null);
+        GBeanData securityService = bootstrap.addGBean("SecurityService", SecurityServiceImpl.GBEAN_INFO);
+        securityService.setAttribute("policyConfigurationFactory", "org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory");
+        securityService.setAttribute("policyProvider", "org.apache.geronimo.security.jacc.GeronimoPolicy");
+        securityService.setReferencePattern("ServerInfo", serverInfo.getAbstractName());
 
         // Default Realm
         Map initParams = new HashMap();
@@ -412,105 +309,108 @@ public class TomcatModuleBuilderTest extends TestCase {
                         "org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
         initParams.put("roleClassNames",
                         "org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
-        realm = new GBeanData(realmName, RealmGBean.GBEAN_INFO);
+        GBeanData realm = bootstrap.addGBean("tomcatRealm", RealmGBean.GBEAN_INFO);
         realm.setAttribute("className",
                 "org.apache.geronimo.tomcat.realm.TomcatJAASRealm");
         realm.setAttribute("initParams", initParams);
-        start(realm);
 
         // Default Host
-        initParams.clear();
+        initParams = new HashMap();
         initParams.put("workDir", "work");
         initParams.put("name", "localhost");
         initParams.put("appBase", "");
-        host = new GBeanData(hostName, HostGBean.GBEAN_INFO);
+        GBeanData host = bootstrap.addGBean("tomcatHost", HostGBean.GBEAN_INFO);
         host.setAttribute("className", "org.apache.catalina.core.StandardHost");
         host.setAttribute("initParams", initParams);
-        start(host);
 
         // Default Engine
-        initParams.clear();
+        initParams = new HashMap();
         initParams.put("name", "Geronimo");
-        engine = new GBeanData(engineName, EngineGBean.GBEAN_INFO);
+        GBeanData engine = bootstrap.addGBean("tomcatEngine", EngineGBean.GBEAN_INFO);
         engine.setAttribute("className", "org.apache.geronimo.tomcat.TomcatEngine");
         engine.setAttribute("initParams", initParams);
-        engine.setReferencePattern("DefaultHost", hostName);
-        engine.setReferencePattern("RealmGBean", realmName);
-        engine.setReferencePattern("Hosts", hostName);
-        start(engine);
+        engine.setReferencePattern("DefaultHost", host.getAbstractName());
+        engine.setReferencePattern("RealmGBean", realm.getAbstractName());
+        engine.setReferencePattern("Hosts", host.getAbstractName());
 
-        container = new GBeanData(containerName, TomcatContainer.GBEAN_INFO);
-        container.setAttribute("classLoader", cl);
-        container.setAttribute("catalinaHome", "target/var/catalina");
-        container.setReferencePattern("EngineGBean", engineName);
-        container.setReferencePattern("ServerInfo", serverInfoName);
+        WebServiceBuilder webServiceBuilder = new UnavailableWebServiceBuilder();
 
-        connector = new GBeanData(connectorName, ConnectorGBean.GBEAN_INFO);
+        GBeanData containerData = bootstrap.addGBean("TomcatContainer", TomcatContainer.GBEAN_INFO);
+        containerData.setAttribute("catalinaHome", "target/var/catalina");
+        containerData.setReferencePattern("EngineGBean", engine.getAbstractName());
+        containerData.setReferencePattern("ServerInfo", serverInfo.getAbstractName());
+        AbstractName containerName = containerData.getAbstractName();
+
+        GBeanData connector = bootstrap.addGBean("TomcatConnector", ConnectorGBean.GBEAN_INFO);
         connector.setAttribute("name", "HTTP");
         connector.setAttribute("port", new Integer(8181));
         connector.setReferencePattern("TomcatContainer", containerName);
 
-        start(container);
-        start(connector);
-
-        tm = new GBeanData(tmName, TransactionManagerImplGBean.GBEAN_INFO);
-        Set patterns = new HashSet();
-        patterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
+        GBeanData tm = bootstrap.addGBean("TransactionManager", TransactionManagerImplGBean.GBEAN_INFO);
         tm.setAttribute("defaultTransactionTimeoutSeconds", new Integer(10));
-        tm.setReferencePatterns("ResourceManagers", patterns);
-        start(tm);
-        tcm = new GBeanData(tcmName, TransactionContextManagerGBean.GBEAN_INFO);
-        tcm.setReferencePattern("TransactionManager", tmName);
-        start(tcm);
-        ctc = new GBeanData(ctcName, ConnectionTrackingCoordinatorGBean.GBEAN_INFO);
-        start(ctc);
 
+        GBeanData tcm = bootstrap.addGBean("TransactionContextManager", TransactionContextManagerGBean.GBEAN_INFO);
+        tcm.setReferencePattern("TransactionManager", tm.getAbstractName());
+        tcmName = tcm.getAbstractName();
+        ctcName = bootstrap.addGBean("ConnectionTrackingCoordinator", ConnectionTrackingCoordinatorGBean.GBEAN_INFO).getAbstractName();
+
+        ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, getClass().getClassLoader());
+
+        configurationManager = ConfigurationUtil.getEditableConfigurationManager(kernel);
+        configStore = (ConfigurationStore) kernel.getGBean(configStoreName);
+        configStore.install(bootstrap);
+
+        defaultEnvironment.addDependency(baseId, ImportType.ALL);
+        defaultEnvironment.setConfigId(webModuleArtifact);
+        builder = new TomcatModuleBuilder(defaultEnvironment, true, containerName, webServiceBuilder, null);
     }
 
     protected void tearDown() throws Exception {
-        stop(ctcName);
-        stop(tmName);
-        stop(serverInfoName);
-        stop(securityServiceName);
-        stop(connectorName);
-        stop(containerName);
         kernel.shutdown();
     }
 
-    private void start(GBeanData gbeanData) throws Exception {
-        kernel.loadGBean(gbeanData, cl);
-        kernel.startGBean(gbeanData.getName());
-        if (kernel.getGBeanState(gbeanData.getName()) != State.RUNNING_INDEX) {
-            fail("gbean not started: " + gbeanData.getName());
-        }
-    }
-
-    private void stop(ObjectName name) throws Exception {
-        kernel.stopGBean(name);
-        kernel.unloadGBean(name);
-    }
-
     public static class MockConfigStore implements ConfigurationStore {
+        private Map configs = new HashMap();
+
+        URL baseURL;
 
         public MockConfigStore() {
         }
 
+        public MockConfigStore(URL baseURL) {
+            this.baseURL = baseURL;
+        }
+
         public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
+            configs.put(configurationData.getId(), configurationData);
         }
 
         public void uninstall(Artifact configID) throws NoSuchConfigException, IOException {
+            configs.remove(configID);
         }
 
         public GBeanData loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
-            ObjectName configurationObjectName = Configuration.getConfigurationObjectName(configId);
+            AbstractName configurationObjectName = Configuration.getConfigurationAbstractName(configId);
             GBeanData configData = new GBeanData(configurationObjectName, Configuration.GBEAN_INFO);
-            Environment environment = new Environment();
-            environment.setConfigId(configId);
-            environment.getProperties().put(NameFactory.JSR77_BASE_NAME_PROPERTY, "geronimo.test:J2EEServer=geronimo");
-            configData.setAttribute("environment", environment);
-            configData.setAttribute("gBeanState", NO_OBJECTS_OS);
-            configData.setAttribute("configurationStore", this);
+            if (configs.containsKey(configId)) {
+                ConfigurationData configurationData = (ConfigurationData) configs.get(configId);
+                configData.setAttribute("moduleType", configurationData.getModuleType());
+                Environment environment = configurationData.getEnvironment();
+                configData.setAttribute("environment", environment);
+                configData.setAttribute("gBeanState", Configuration.storeGBeans(configurationData.getGBeans()));
+                configData.setAttribute("classPath", configurationData.getClassPath());
 
+                ConfigurationResolver configurationResolver = new ConfigurationResolver(configurationData.getEnvironment().getConfigId(), this, Collections.EMPTY_SET, new DefaultArtifactResolver(null, Collections.EMPTY_SET));
+                configData.setAttribute("configurationResolver", configurationResolver);
+
+            } else {
+                Environment environment = new Environment();
+                environment.setConfigId(configId);
+                environment.getProperties().put(NameFactory.JSR77_BASE_NAME_PROPERTY, "geronimo.test:J2EEServer=geronimo");
+                configData.setAttribute("environment", environment);
+                configData.setAttribute("moduleType", ConfigurationModuleType.WAR);
+                configData.setAttribute("gBeanState", NO_OBJECTS_OS);
+            }
             return configData;
         }
 
@@ -531,7 +431,7 @@ public class TomcatModuleBuilderTest extends TestCase {
         }
 
         public URL resolve(Artifact configId, URI uri) throws NoSuchConfigException, MalformedURLException {
-            return new File("foo").toURL();
+            return baseURL;
         }
 
         public final static GBeanInfo GBEAN_INFO;

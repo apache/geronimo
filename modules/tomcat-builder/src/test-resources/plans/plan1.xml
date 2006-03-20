@@ -39,6 +39,6 @@
     </security>
     <resource-ref>
         <ref-name>jdbc/DB1</ref-name>
-        <target-name>DefaultDatabase</target-name>
+        <resource-link>DefaultDatabase</resource-link>
     </resource-ref>
 </web-app>
