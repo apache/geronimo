@@ -44,6 +44,7 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.URLName;
 import javax.mail.event.TransportEvent;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.NewsAddress;
 import javax.mail.internet.MimeMessage;
 
@@ -67,6 +68,7 @@ public class NNTPTransport extends Transport {
      */
     protected static final String NNTP_AUTH = "mail.nntp.auth";
     protected static final String NNTP_PORT = "mail.nntp.port";
+    protected static final String NNTP_FROM = "mail.nntp.from";
 
     protected static final int DEFAULT_NNTP_PORT = 119;
 
@@ -167,6 +169,22 @@ public class NNTPTransport extends Transport {
         // NNTP only handles instances of MimeMessage, not the more general message case.
         if (!(message instanceof MimeMessage)) {
             throw new MessagingException("NNTP can only send MimeMessages");
+        }
+
+        // need to sort the from value out from a variety of sources.
+        InternetAddress from = null;
+
+
+        Address[] fromAddresses = message.getFrom();
+
+        // If the message has a From address set, we just use that.  Otherwise, we set a From using
+        // the property version, if available.
+        if (fromAddresses == null || fromAddresses.length == 0) {
+            // the from value can be set explicitly as a property
+            String defaultFrom = session.getProperty(NNTP_FROM);
+            if (defaultFrom == null) {
+                message.setFrom(new InternetAddress(defaultFrom));
+            }
         }
 
         // we must have a message list.

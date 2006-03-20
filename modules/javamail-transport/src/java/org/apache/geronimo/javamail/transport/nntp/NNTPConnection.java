@@ -82,7 +82,6 @@ public class NNTPConnection  {
      */
     protected static final String MAIL_NNTP_AUTH = "mail.nntp.auth";
     protected static final String MAIL_NNTP_PORT = "mail.nntp.port";
-    protected static final String MAIL_NNTP_LOCALHOST = "mail.nntp.localhost";
     protected static final String MAIL_NNTP_TIMEOUT = "mail.nntp.timeout";
     protected static final String MAIL_NNTP_SASL_REALM = "mail.nntp.sasl.realm";
     protected static final String MAIL_NNTP_FACTORY_CLASS = "mail.nntp.socketFactory.class";
@@ -109,9 +108,6 @@ public class NNTPConnection  {
 
     // the connection socket...can be a plain socket or SSLSocket, if TLS is being used.
     protected Socket socket;
-
-    // our local host name
-    protected String localHost;
 
     // input stream used to read data.  If Sasl is in use, this might be other than the
     // direct access to the socket input stream.
