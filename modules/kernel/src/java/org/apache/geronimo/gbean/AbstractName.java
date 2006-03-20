@@ -43,6 +43,25 @@ public class AbstractName implements Serializable {
     private final ObjectName objectName;
     private final URI uri;
 
+    public AbstractName(Artifact artifact, Map name) {
+        if (artifact == null) throw new NullPointerException("artifact is null");
+        if (name == null) throw new NullPointerException("name is null");
+        if (name.isEmpty()) throw new IllegalArgumentException("name is empty");
+
+        this.artifact = artifact;
+        this.name = name;
+
+        try {
+            objectName = new ObjectName("geronimo", new Hashtable(name));
+        } catch (MalformedObjectNameException e) {
+            IllegalArgumentException illegalArgumentException = new IllegalArgumentException();
+            illegalArgumentException.initCause(e);
+            throw illegalArgumentException;
+        }
+
+        this.uri = createURI(artifact, name);
+    }
+
     public AbstractName(Artifact artifact, Map name, ObjectName objectName) {
         if (artifact == null) throw new NullPointerException("artifact is null");
         if (name == null) throw new NullPointerException("name is null");
