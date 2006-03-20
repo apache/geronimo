@@ -143,7 +143,25 @@ public class Artifact implements Comparable, Serializable {
     }
 
     public String toString() {
-        return groupId + "/" + artifactId + "/" + version + "/" + type;
+        StringBuffer buffer = new StringBuffer();
+
+        if (groupId != null) {
+            buffer.append(groupId);
+        }
+        buffer.append("/");
+
+        buffer.append(artifactId);
+        buffer.append("/");
+
+        if (version != null) {
+            buffer.append(version);
+        }
+        buffer.append("/");
+
+        if (type != null) {
+            buffer.append(type);
+        }
+        return buffer.toString();
     }
 
     /**
