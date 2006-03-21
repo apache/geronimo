@@ -39,6 +39,24 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
  */
 public class POP3StoreGBean extends ProtocolGBean {
 
+    // the POP3 configuration property names
+    static public final String POP3_PORT = "mail.pop3.port";
+    static public final String POP3_CONNECTION_TIMEOUT = "mail.pop3.connectiontimeout";
+    static public final String POP3_TIMEOUT = "mail.pop3.timeout";
+    static public final String POP3_FACTORY_CLASS = "mail.pop3.socketFactory.class";
+    static public final String POP3_FACTORY_FALLBACK = "mail.pop3.socketFactory.fallback";
+    static public final String POP3_FACTORY_PORT = "mail.pop3.socketFactory.port";
+    static public final String POP3_LOCALHOST = "mail.pop3.localhost";
+    static public final String POP3_LOCALADDRESS = "mail.pop3.localaddress";
+    static public final String POP3_LOCALPORT = "mail.pop3.localport";
+    static public final String POP3_RESET = "mail.pop3.resetbeforequit";
+    static public final String POP3_MESSAGE_CLASS = "mail.pop3.message.class";
+    static public final String POP3_APOP = "mail.pop3.apop.enable";
+
+    static public final String GBEAN_RESET = "rsetBeforeQuit";
+    static public final String GBEAN_APOP = "apopEnable";
+    static public final String GBEAN_MESSAGE_CLASS = "messageClass";
+
     private final Log log = LogFactory.getLog(POP3StoreGBean.class);
 
     private Integer port;
@@ -398,17 +416,17 @@ public class POP3StoreGBean extends ProtocolGBean {
     public void addOverrides(Properties props) {
         super.addOverrides(props);
 
-        if (port != null) props.put("mail.pop3.port", port);
-        if (connectionTimeout != null) props.put("mail.pop3.connectiontimeout", connectionTimeout);
-        if (timeout != null) props.put("mail.pop3.timeout", timeout);
-        if (rsetBeforeQuit != null) props.put("mail.pop3.rsetbeforequit", rsetBeforeQuit);
-        if (messageClass != null) props.put("mail.pop3.message.class", messageClass);
-        if (localaddress != null) props.put("mail.pop3.localaddress", localaddress);
-        if (localport != null) props.put("mail.pop3.localport", localport);
-        if (apopEnable != null) props.put("mail.pop3.apop.enable", apopEnable);
-        if (socketFactoryClass != null) props.put("mail.pop3.socketFactory.class", socketFactoryClass);
-        if (socketFactoryFallback != null) props.put("mail.pop3.socketFactory.fallback", socketFactoryFallback);
-        if (socketFactoryPort != null) props.put("mail.pop3.socketFactory.port", socketFactoryPort);
+        if (port != null) props.put(POP3_PORT, port);
+        if (connectionTimeout != null) props.put(POP3_CONNECTION_TIMEOUT, connectionTimeout);
+        if (timeout != null) props.put(POP3_TIMEOUT, timeout);
+        if (rsetBeforeQuit != null) props.put(POP3_RESET, rsetBeforeQuit);
+        if (messageClass != null) props.put(POP3_MESSAGE_CLASS, messageClass);
+        if (localaddress != null) props.put(POP3_LOCALADDRESS, localaddress);
+        if (localport != null) props.put(POP3_LOCALPORT, localport);
+        if (apopEnable != null) props.put(POP3_APOP, apopEnable);
+        if (socketFactoryClass != null) props.put(POP3_FACTORY_CLASS, socketFactoryClass);
+        if (socketFactoryFallback != null) props.put(POP3_FACTORY_FALLBACK, socketFactoryFallback);
+        if (socketFactoryPort != null) props.put(POP3_FACTORY_PORT, socketFactoryPort);
     }
 
     public void doStart() throws Exception {
@@ -428,30 +446,37 @@ public class POP3StoreGBean extends ProtocolGBean {
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(POP3StoreGBean.class, ProtocolGBean.GBEAN_INFO);
 
-        infoFactory.addAttribute("port", Integer.class, true);
-        infoFactory.addAttribute("connectionTimeout", Integer.class, true);
-        infoFactory.addAttribute("timeout", Integer.class, true);
-        infoFactory.addAttribute("rsetBeforeQuit", Boolean.class, true);
-        infoFactory.addAttribute("messageClass", String.class, true);
-        infoFactory.addAttribute("localaddress", String.class, true);
-        infoFactory.addAttribute("localport", Integer.class, true);
-        infoFactory.addAttribute("apopEnable", Boolean.class, true);
-        infoFactory.addAttribute("socketFactoryClass", String.class, true);
-        infoFactory.addAttribute("socketFactoryFallback", Boolean.class, true);
-        infoFactory.addAttribute("socketFactoryPort", Integer.class, true);
+        infoFactory.addAttribute(GBEAN_PORT, Integer.class, true);
+        infoFactory.addAttribute(GBEAN_CONNECTION_TIMEOUT, Integer.class, true);
+        infoFactory.addAttribute(GBEAN_TIMEOUT, Integer.class, true);
+        infoFactory.addAttribute(GBEAN_RESET, Boolean.class, true);
+        infoFactory.addAttribute(GBEAN_MESSAGE_CLASS, String.class, true);
+        infoFactory.addAttribute(GBEAN_LOCALADDRESS, String.class, true);
+        infoFactory.addAttribute(GBEAN_LOCALPORT, Integer.class, true);
+        infoFactory.addAttribute(GBEAN_APOP, Boolean.class, true);
+        infoFactory.addAttribute(GBEAN_FACTORY_CLASS, String.class, true);
+        infoFactory.addAttribute(GBEAN_FACTORY_FALLBACK, Boolean.class, true);
+        infoFactory.addAttribute(GBEAN_FACTORY_PORT, Integer.class, true);
 
-        infoFactory.setConstructor(new String[]{"objectName", "properties", "host", "user",
-                                                "port",
-                                                "connectionTimeout",
-                                                "timeout",
-                                                "rsetBeforeQuit",
-                                                "messageClass",
-                                                "localaddress",
-                                                "localport",
-                                                "apopEnable",
-                                                "socketFactoryClass",
-                                                "socketFactoryFallback",
-                                                "socketFactoryPort"});
+        infoFactory.addAttribute(GBEAN_OBJECTNAME, String.class, false);
+        infoFactory.addAttribute(GBEAN_PROTOCOL, String.class, true);
+        infoFactory.addAttribute(GBEAN_PROPERTIES, Properties.class, true);
+        infoFactory.addAttribute(GBEAN_HOST, String.class, true);
+        infoFactory.addAttribute(GBEAN_USER, String.class, true);
+        infoFactory.addOperation(GBEAN_ADD_OVERRIDES, new Class[]{Properties.class});
+
+        infoFactory.setConstructor(new String[]{GBEAN_OBJECTNAME, GBEAN_PROPERTIES, GBEAN_HOST, GBEAN_USER,
+                                                GBEAN_PORT,
+                                                GBEAN_CONNECTION_TIMEOUT,
+                                                GBEAN_TIMEOUT,
+                                                GBEAN_RESET,
+                                                GBEAN_MESSAGE_CLASS,
+                                                GBEAN_LOCALADDRESS,
+                                                GBEAN_LOCALPORT,
+                                                GBEAN_APOP,
+                                                GBEAN_FACTORY_CLASS,
+                                                GBEAN_FACTORY_FALLBACK,
+                                                GBEAN_FACTORY_PORT});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

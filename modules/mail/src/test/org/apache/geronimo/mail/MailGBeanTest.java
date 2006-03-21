@@ -140,6 +140,49 @@ public class MailGBeanTest extends TestCase {
         kernel.stopGBean(mailName);
     }
 
+    public void testSMTPSOverrides() throws Exception {
+        Properties properties = new Properties();
+        properties.put("mail.store.protocol", "POOKIE");
+        properties.put("mail.transport.protocol", "BEAR");
+        properties.put("mail.smtps.ehlo", "true");
+
+        mailName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,J2EEType=JavaMailResource,name=default");
+        GBeanData cmf = new GBeanData(mailName, MailGBean.getGBeanInfo());
+        cmf.setReferencePattern("Protocols", new ObjectName("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,type=JavaMailProtocol,*"));
+        cmf.setAttribute("useDefault", new Boolean(true));
+        cmf.setAttribute("properties", properties);
+        cmf.setAttribute("storeProtocol", "test");
+        cmf.setAttribute("transportProtocol", "test");
+
+
+        kernel.loadGBean(cmf, MailGBean.class.getClassLoader());
+        kernel.startGBean(mailName);
+
+        protocolName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,type=JavaMailProtocol,name=smtps");
+        GBeanData smtp = new GBeanData(protocolName, SMTPSTransportGBean.getGBeanInfo());
+        kernel.loadGBean(smtp, SMTPSTransportGBean.class.getClassLoader());
+        kernel.startGBean(protocolName);
+
+        Object proxy = kernel.invoke(mailName, "$getResource");
+
+        assertNotNull(proxy);
+        assertTrue(proxy instanceof Session);
+
+        Store store = ((Session) proxy).getStore();
+        assertNotNull(store);
+        assertTrue(store instanceof TestStore);
+
+        Transport transport = ((Session) proxy).getTransport();
+        assertNotNull(transport);
+        assertTrue(transport instanceof TestTransport);
+
+        TestTransport testTransport = (TestTransport) transport;
+        assertFalse(testTransport.isEHLO());
+
+        kernel.stopGBean(protocolName);
+        kernel.stopGBean(mailName);
+    }
+
     public void testNNTPPostOverrides() throws Exception {
         Properties properties = new Properties();
         properties.put("mail.store.protocol", "POOKIE");

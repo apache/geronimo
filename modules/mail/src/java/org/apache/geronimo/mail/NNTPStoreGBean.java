@@ -36,7 +36,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
  * @version $Rev$ $Date$
  * @see MailGBean
  */
-public class NNTPStoreGBean extends ProtocolGBean {
+public class NNTPStoreGBean extends ProtocolGBean implements NNTPGBeanConstants {
 
     private final Log log = LogFactory.getLog(NNTPTransportGBean.class);
 
@@ -319,15 +319,15 @@ public class NNTPStoreGBean extends ProtocolGBean {
     public void addOverrides(Properties props) {
         super.addOverrides(props);
 
-        if (port != null) props.put("mail.nntp.port", port);
-        if (connectionTimeout != null) props.put("mail.nntp.connectiontimeout", connectionTimeout);
-        if (timeout != null) props.put("mail.nntp.timeout", timeout);
-        if (auth != null) props.put("mail.nntp.auth", auth);
-        if (saslRealm != null) props.put("mail.nntp.sasl.realm", saslRealm);
-        if (quitWait != null) props.put("mail.nntp.quitwait", quitWait);
-        if (socketFactoryClass != null) props.put("mail.nntp.socketFactory.class", socketFactoryClass);
-        if (socketFactoryFallback != null) props.put("mail.nntp.socketFactory.fallback", socketFactoryFallback);
-        if (socketFactoryPort != null) props.put("mail.nntp.socketFactory.port", socketFactoryPort);
+        if (port != null) props.put(NNTP_PORT, port);
+        if (connectionTimeout != null) props.put(NNTP_CONNECTION_TIMEOUT, connectionTimeout);
+        if (timeout != null) props.put(NNTP_TIMEOUT, timeout);
+        if (auth != null) props.put(NNTP_AUTH, auth);
+        if (saslRealm != null) props.put(NNTP_REALM, saslRealm);
+        if (quitWait != null) props.put(NNTP_QUITWAIT, quitWait);
+        if (socketFactoryClass != null) props.put(NNTP_FACTORY_CLASS, socketFactoryClass);
+        if (socketFactoryFallback != null) props.put(NNTP_FACTORY_FALLBACK, socketFactoryFallback);
+        if (socketFactoryPort != null) props.put(NNTP_FACTORY_PORT, socketFactoryPort);
     }
 
     public void doStart() throws Exception {
@@ -347,33 +347,33 @@ public class NNTPStoreGBean extends ProtocolGBean {
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(NNTPStoreGBean.class);
 
-        infoFactory.addAttribute("port", Integer.class, true);
-        infoFactory.addAttribute("connectionTimeout", Integer.class, true);
-        infoFactory.addAttribute("timeout", Integer.class, true);
-        infoFactory.addAttribute("auth", Boolean.class, true);
-        infoFactory.addAttribute("saslRealm", String.class, true);
-        infoFactory.addAttribute("quitWait", Boolean.class, true);
-        infoFactory.addAttribute("socketFactoryClass", String.class, true);
-        infoFactory.addAttribute("socketFactoryFallback", Boolean.class, true);
-        infoFactory.addAttribute("socketFactoryPort", Integer.class, true);
+        infoFactory.addAttribute(GBEAN_PORT, Integer.class, true);
+        infoFactory.addAttribute(GBEAN_CONNECTION_TIMEOUT, Integer.class, true);
+        infoFactory.addAttribute(GBEAN_TIMEOUT, Integer.class, true);
+        infoFactory.addAttribute(GBEAN_AUTH, Boolean.class, true);
+        infoFactory.addAttribute(GBEAN_REALM, String.class, true);
+        infoFactory.addAttribute(GBEAN_QUITWAIT, Boolean.class, true);
+        infoFactory.addAttribute(GBEAN_FACTORY_CLASS, String.class, true);
+        infoFactory.addAttribute(GBEAN_FACTORY_FALLBACK, Boolean.class, true);
+        infoFactory.addAttribute(GBEAN_FACTORY_PORT, Integer.class, true);
 
-        infoFactory.addAttribute("objectName", String.class, false);
-        infoFactory.addAttribute("protocol", String.class, false);
-        infoFactory.addAttribute("properties", Properties.class, true);
-        infoFactory.addAttribute("host", String.class, true);
-        infoFactory.addAttribute("user", String.class, true);
-        infoFactory.addOperation("addOverrides", new Class[]{Properties.class});
+        infoFactory.addAttribute(GBEAN_OBJECTNAME, String.class, false);
+        infoFactory.addAttribute(GBEAN_PROTOCOL, String.class, true);
+        infoFactory.addAttribute(GBEAN_PROPERTIES, Properties.class, true);
+        infoFactory.addAttribute(GBEAN_HOST, String.class, true);
+        infoFactory.addAttribute(GBEAN_USER, String.class, true);
+        infoFactory.addOperation(GBEAN_ADD_OVERRIDES, new Class[]{Properties.class});
 
-        infoFactory.setConstructor(new String[]{"objectName", "properties", "host", "user",
-                                                "port",
-                                                "connectionTimeout",
-                                                "timeout",
-                                                "auth",
-                                                "saslRealm",
-                                                "quitWait",
-                                                "socketFactoryClass",
-                                                "socketFactoryFallback",
-                                                "socketFactoryPort"});
+        infoFactory.setConstructor(new String[]{GBEAN_OBJECTNAME, GBEAN_PROPERTIES, GBEAN_HOST, GBEAN_USER,
+                                                GBEAN_PORT,
+                                                GBEAN_CONNECTION_TIMEOUT,
+                                                GBEAN_TIMEOUT,
+                                                GBEAN_AUTH,
+                                                GBEAN_REALM,
+                                                GBEAN_QUITWAIT,
+                                                GBEAN_FACTORY_CLASS,
+                                                GBEAN_FACTORY_FALLBACK,
+                                                GBEAN_FACTORY_PORT});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
