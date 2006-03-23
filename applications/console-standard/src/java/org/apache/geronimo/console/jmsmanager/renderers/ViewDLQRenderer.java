@@ -37,11 +37,10 @@ import javax.portlet.RenderResponse;
 import org.activemq.service.DeadLetterPolicy;
 import org.apache.geronimo.console.jmsmanager.AbstractJMSManager;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.gbean.AbstractName;
 
 public class ViewDLQRenderer extends AbstractJMSManager implements
         PortletRenderer {
-
-    private Destination destination = null;
 
     private Destination dlq = null;
 
@@ -64,13 +63,14 @@ public class ViewDLQRenderer extends AbstractJMSManager implements
         String destinationName = request.getParameter("destinationName");
 
         try {
-            ObjectName adminObjectName = NameFactory.getComponentName(null,
-                    null, destinationApplicationName, NameFactory.JCA_RESOURCE,
-                    destinationModuleName, destinationName, null, baseContext);
-            destination = (Destination) kernel.invoke(adminObjectName,
+            //TODO configid disabled
+            AbstractName adminObjectName = null;//NameFactory.getComponentName(null,
+//                    null, destinationApplicationName, NameFactory.JCA_RESOURCE,
+//                    destinationModuleName, destinationName, null, baseContext);
+            Destination destination = (Destination) kernel.invoke(adminObjectName,
                     "$getResource");
             ConnectionFactory connectionFactory = (ConnectionFactory) kernel
-                    .invoke(ObjectName.getInstance(CONNECTION_FACTORY_NAME),
+                    .invoke(JCA_MANAGED_CONNECTION_FACTORY_NAME,
                             "$getResource");
             connection = connectionFactory.createConnection();
             session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);

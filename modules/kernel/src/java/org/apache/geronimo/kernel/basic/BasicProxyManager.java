@@ -45,7 +45,7 @@ import java.lang.reflect.InvocationTargetException;
  * Creates proxies that communicate directly with a Kernel located in the same
  * JVM as the client.
  *
- * @version $Rev: 385487 $ $Date$
+ * @version $Rev:386515 $ $Date$
  */
 public class BasicProxyManager implements ProxyManager {
     private final static String MANAGED_BEAN_NAME = "org.apache.geronimo.kernel.proxy.GeronimoManagedBean";
@@ -175,6 +175,13 @@ public class BasicProxyManager implements ProxyManager {
         Object[] result = new Object[objectNameStrings.length];
         for (int i = 0; i < result.length; i++) {
             result[i] = createProxy(ObjectName.getInstance(objectNameStrings[i]), classLoader);
+        }
+        return result;
+    }
+    public Object[] createProxies(AbstractName[] names, ClassLoader classLoader) {
+        Object[] result = new Object[names.length];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = createProxy(names[i], classLoader);
         }
         return result;
     }

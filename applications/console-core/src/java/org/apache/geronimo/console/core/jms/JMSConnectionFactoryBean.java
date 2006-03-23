@@ -22,6 +22,7 @@ import javax.jms.ConnectionFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
+import org.apache.geronimo.connector.outbound.ConnectionFactorySource;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -30,14 +31,14 @@ public class JMSConnectionFactoryBean implements GBeanLifecycle {
 
     private static Log log = LogFactory.getLog(JMSConnectionFactoryBean.class);
 
-    private final ManagedConnectionFactoryWrapper managedConnectionFactoryWrapper;
+    private final ConnectionFactorySource managedConnectionFactoryWrapper;
 
     private String connectionFactoryName = "jms/DefaultActiveMQConnectionFactory";
 
     private ConnectionFactory connectionFactory;
 
     public JMSConnectionFactoryBean(
-            ManagedConnectionFactoryWrapper managedConnectionFactoryWrapper) {
+            ConnectionFactorySource managedConnectionFactoryWrapper) {
         this.managedConnectionFactoryWrapper = managedConnectionFactoryWrapper;
 
     }
@@ -73,7 +74,7 @@ public class JMSConnectionFactoryBean implements GBeanLifecycle {
                 false);
 
         infoFactory.addReference("ManagedConnectionFactoryWrapper",
-                ManagedConnectionFactoryWrapper.class);
+                ConnectionFactorySource.class);
         infoFactory.addOperation("getConnectionFactory");
 
         infoFactory

@@ -740,14 +740,14 @@ public final class GBeanInstance implements StateManageable {
         if (configName != null) {
             manageableStore.setValue(configName, abstractName, attribute.getAttributeInfo(), value);
         } else {
-            log.error("Unable to identify Configuration for GBean " + abstractName.getObjectName() + ".  Manageable attribute " + attribute.getName() + " was not updated in persistent store.");
+            log.error("Unable to identify Configuration for GBean " + abstractName + ".  Manageable attribute " + attribute.getName() + " was not updated in persistent store.");
         }
     }
 
     private GBeanAttribute getAttributeByName(String name) throws NoSuchAttributeException {
         Integer index = (Integer) attributeIndex.get(name);
         if (index == null) {
-            throw new NoSuchAttributeException("Unknown attribute \"" + name + "\" in gbean " + abstractName.getObjectName());
+            throw new NoSuchAttributeException("Unknown attribute \"" + name + "\" in gbean " + abstractName);
         }
         return attributes[index.intValue()];
     }
@@ -775,7 +775,7 @@ public final class GBeanInstance implements StateManageable {
         }
 
         if (state == DESTROYED && !operation.isFramework()) {
-            throw new IllegalStateException("Operations can only be invoke while the GBean instance is running: " + abstractName.getObjectName());
+            throw new IllegalStateException("Operations can only be invoke while the GBean instance is running: " + abstractName);
         }
         return operation.invoke(instance, arguments);
     }
@@ -887,7 +887,7 @@ public final class GBeanInstance implements StateManageable {
                 }
                 throw e;
             } catch (IllegalArgumentException e) {
-                log.warn("Constructor mismatch for " + abstractName.getObjectName(), e);
+                log.warn("Constructor mismatch for " + abstractName, e);
                 throw e;
             }
 
@@ -933,7 +933,7 @@ public final class GBeanInstance implements StateManageable {
                 try {
                     ((GBeanLifecycle) instance).doFail();
                 } catch (Throwable ignored) {
-                    log.error("Problem in doFail of " + abstractName.getObjectName(), ignored);
+                    log.error("Problem in doFail of " + abstractName, ignored);
                 }
             }
 
@@ -1057,13 +1057,13 @@ public final class GBeanInstance implements StateManageable {
                     try {
                         ((GBeanLifecycle) instance).doStop();
                     } catch (Throwable ignored) {
-                        log.error("Problem in doStop of " + abstractName.getObjectName(), ignored);
+                        log.error("Problem in doStop of " + abstractName, ignored);
                     }
                 } else {
                     try {
                         ((GBeanLifecycle) instance).doFail();
                     } catch (Throwable ignored) {
-                        log.error("Problem in doFail of " + abstractName.getObjectName(), ignored);
+                        log.error("Problem in doFail of " + abstractName, ignored);
                     }
                 }
             }

@@ -17,7 +17,7 @@
 
 package org.apache.geronimo.connector.outbound.transactionlog;
 
-import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
+import org.apache.geronimo.connector.outbound.ConnectionFactorySource;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -38,9 +38,9 @@ public class JDBCLogGBean {
 
         infoFactory.addInterface(TransactionLog.class);
 
-        infoFactory.addReference("ManagedConnectionFactoryWrapper", ManagedConnectionFactoryWrapper.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
+        infoFactory.addReference("ConnectionFactorySource", ConnectionFactorySource.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
 
-        infoFactory.setConstructor(new String[]{"systemId", "DataSource"});
+        infoFactory.setConstructor(new String[]{"systemId", "ConnectionFactorySource"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

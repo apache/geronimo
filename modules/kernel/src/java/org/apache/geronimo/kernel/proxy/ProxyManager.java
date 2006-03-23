@@ -80,6 +80,7 @@ public interface ProxyManager {
      *         GBeanInfo declares no interfaces
      */
     public Object[] createProxies(String[] objectNameStrings, ClassLoader loader) throws MalformedObjectNameException;
+    public Object[] createProxies(AbstractName[] Names, ClassLoader loader) ;
 
     /**
      * Create a proxy for the specified target, implementing the specified

@@ -72,14 +72,18 @@ public class JaasLoginModuleUse implements JaasLoginModuleChain {
     }
 
     public String getLoginModuleName() {
-        return kernel.getAbstractNameFor(loginModule).getObjectName().getCanonicalName();
+        //TODO configId which is correct?
+//        return kernel.getAbstractNameFor(loginModule).getObjectName().getCanonicalName();
+        return kernel.getAbstractNameFor(loginModule).toURI().toString();
     }
 
     public String getNextName() {
         if(next == null) {
             return null;
         }
-        return kernel.getAbstractNameFor(next).getObjectName().getCanonicalName();
+        //TODO configId which is correct?
+//        return kernel.getAbstractNameFor(next).getObjectName().getCanonicalName();
+        return kernel.getAbstractNameFor(next).toURI().toString();
     }
 
     public String getControlFlag() {

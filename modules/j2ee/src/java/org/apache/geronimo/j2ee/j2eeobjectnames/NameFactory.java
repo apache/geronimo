@@ -119,6 +119,7 @@ public class NameFactory {
     public static final String CORBA_CSS = "CORBACSS";
     public static final String CORBA_TSS = "CORBATSS";
     public static final String WEB_SERVICE_LINK = "WSLink";
+    public static final String KEY_GENERATOR = "KeyGenerator";
 
 
     /**

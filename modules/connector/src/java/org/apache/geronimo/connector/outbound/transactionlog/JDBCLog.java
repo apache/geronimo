@@ -29,7 +29,7 @@ import java.util.List;
 import javax.sql.DataSource;
 import javax.transaction.xa.Xid;
 
-import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
+import org.apache.geronimo.connector.outbound.ConnectionFactorySource;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.transaction.manager.LogException;
 import org.apache.geronimo.transaction.manager.Recovery;
@@ -52,9 +52,9 @@ public class JDBCLog implements TransactionLog, GBeanLifecycle {
 
     private DataSource dataSource;
     private final String systemId;
-    private final ManagedConnectionFactoryWrapper managedConnectionFactoryWrapper;
+    private final ConnectionFactorySource managedConnectionFactoryWrapper;
 
-    public JDBCLog(String systemId, ManagedConnectionFactoryWrapper managedConnectionFactoryWrapper) {
+    public JDBCLog(String systemId, ConnectionFactorySource managedConnectionFactoryWrapper) {
         this.systemId = systemId;
         this.managedConnectionFactoryWrapper = managedConnectionFactoryWrapper;
     }

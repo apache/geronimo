@@ -170,7 +170,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         AbstractName moduleName;
         if (earName == null) {
             earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
-            moduleName = naming.createChildName(earName, NameFactory.APP_CLIENT_MODULE, environment.getConfigId().toString());
+            moduleName = naming.createChildName(earName, environment.getConfigId().toString(), NameFactory.APP_CLIENT_MODULE);
         } else {
             moduleName = naming.createChildName(earName, targetPath, NameFactory.APP_CLIENT_MODULE);
         }

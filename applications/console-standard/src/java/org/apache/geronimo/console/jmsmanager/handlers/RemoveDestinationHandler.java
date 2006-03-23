@@ -30,13 +30,11 @@ import javax.portlet.PortletException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.jmsmanager.AbstractJMSManager;
-import org.apache.geronimo.console.util.ObjectNameConstants;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.DependencyManager;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 public class RemoveDestinationHandler extends AbstractJMSManager implements
         PortletResponseHandler {
@@ -64,7 +62,7 @@ public class RemoveDestinationHandler extends AbstractJMSManager implements
             // "getConfiguration", new Object[]{destinationConfigURI}, new
             // String[]{URI.class.getName()});
             GBeanData topicBrowser = kernel.getGBeanData(configurationObjectName);
-            java.util.Set children = dm.getChildren(topicBrowser.getName());
+            java.util.Set children = dm.getChildren(topicBrowser.getAbstractName());
             for (Iterator i = children.iterator(); i.hasNext();) {
                 ObjectName o = (ObjectName) i.next();
                 if ("TopicBrowser".equals(o.getKeyProperty("j2eeType"))) {

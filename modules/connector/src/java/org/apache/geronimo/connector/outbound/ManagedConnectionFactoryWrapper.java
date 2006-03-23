@@ -46,7 +46,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 /**
  * @version $Rev$ $Date$
  */
-public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicGBean, ResourceManager, JCAManagedConnectionFactory {
+public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicGBean, ResourceManager, JCAManagedConnectionFactory, ConnectionFactorySource {
 
     private static final Log log = LogFactory.getLog(ManagedConnectionFactoryWrapper.class);
 

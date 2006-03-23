@@ -33,7 +33,7 @@ import java.lang.reflect.Constructor;
  *
  * @version $Rev$ $Date$
  */
-public class AdminObjectWrapper implements DynamicGBean, JCAAdminObject {
+public class AdminObjectWrapper implements DynamicGBean, JCAAdminObject, AdminObjectSource {
 
     private final String adminObjectInterface;
     private final String adminObjectClass;

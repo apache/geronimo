@@ -26,7 +26,6 @@ import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.ClassLoading;
-import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.naming.java.ComponentContextBuilder;
@@ -102,7 +101,7 @@ public class ENCConfigBuilder {
         if (gerGbeanLocator.isSetGbeanLink()) {
             //exact match
             String linkName = gerGbeanLocator.getGbeanLink().trim();
-            abstractNameQuery = buildAbstractNameQuery(null, null, j2eeType, linkName);
+            abstractNameQuery = buildAbstractNameQuery(null, null, linkName, j2eeType);
 
         } else {
             GerPatternType patternType = gerGbeanLocator.getPattern();
@@ -187,9 +186,9 @@ public class ENCConfigBuilder {
         AbstractNameQuery containerId;
         String module = moduleURI == null ? null : moduleURI.toString();
         if (gerResourceRef == null) {
-            containerId = buildAbstractNameQuery(null, module, type, name);
+            containerId = buildAbstractNameQuery(null, module, name, type);
         } else if (gerResourceRef.isSetResourceLink()) {
-            containerId = buildAbstractNameQuery(null, module, type, gerResourceRef.getResourceLink().trim());
+            containerId = buildAbstractNameQuery(null, module, gerResourceRef.getResourceLink().trim(), type);
         } else {
             //construct name from components
             GerPatternType patternType = gerResourceRef.getPattern();
@@ -228,15 +227,15 @@ public class ENCConfigBuilder {
     private static AbstractNameQuery getAdminObjectContainerId(String name, GerResourceEnvRefType gerResourceEnvRef) {
         AbstractNameQuery containerId;
         if (gerResourceEnvRef == null) {
-            containerId = buildAbstractNameQuery(null, null, NameFactory.JCA_ADMIN_OBJECT, name);
+            containerId = buildAbstractNameQuery(null, null, name, NameFactory.JCA_ADMIN_OBJECT);
         } else if (gerResourceEnvRef.isSetMessageDestinationLink()) {
-            containerId = buildAbstractNameQuery(null, null, NameFactory.JCA_ADMIN_OBJECT, gerResourceEnvRef.getMessageDestinationLink().trim());
+            containerId = buildAbstractNameQuery(null, null, gerResourceEnvRef.getMessageDestinationLink().trim(), NameFactory.JCA_ADMIN_OBJECT);
         } else if (gerResourceEnvRef.isSetAdminObjectLink()) {
             String moduleURI = null;
             if (gerResourceEnvRef.isSetAdminObjectModule()) {
                 moduleURI = gerResourceEnvRef.getAdminObjectModule().trim();
             }
-            containerId = buildAbstractNameQuery(null, moduleURI, NameFactory.JCA_ADMIN_OBJECT, gerResourceEnvRef.getAdminObjectLink().trim());
+            containerId = buildAbstractNameQuery(null, moduleURI, gerResourceEnvRef.getAdminObjectLink().trim(), NameFactory.JCA_ADMIN_OBJECT);
         } else {
             //construct name from components
             GerPatternType patternType = gerResourceEnvRef.getPattern();
@@ -276,7 +275,7 @@ public class ENCConfigBuilder {
 
             //try to resolve ref based only matching resource-ref-name
             //throws exception if it can't locate ref.
-            AbstractNameQuery containerId = buildAbstractNameQuery(null, moduleURI, NameFactory.JCA_ADMIN_OBJECT, linkName);
+            AbstractNameQuery containerId = buildAbstractNameQuery(null, moduleURI, linkName, NameFactory.JCA_ADMIN_OBJECT);
             Reference ref = refContext.getAdminObjectRef(containerId, iface, earContext);
             builder.bind(name, ref);
 
@@ -326,7 +325,7 @@ public class ENCConfigBuilder {
                     AbstractNameQuery cssBean;
                     if (remoteRef.isSetCssLink()) {
                         String cssLink = remoteRef.getCssLink().trim();
-                        cssBean = buildAbstractNameQuery(null, null, NameFactory.CORBA_CSS, cssLink);
+                        cssBean = buildAbstractNameQuery(null, null, cssLink, NameFactory.CORBA_CSS);
                     } else {
                         GerPatternType css = remoteRef.getCss();
                         cssBean = buildAbstractNameQuery(css, NameFactory.CORBA_CSS);
@@ -771,7 +770,7 @@ public class ENCConfigBuilder {
         return new AbstractNameQuery(artifact, nameMap);
     }
 
-    public static AbstractNameQuery buildAbstractNameQuery(Artifact configId, String module, String type, String name) {
+    public static AbstractNameQuery buildAbstractNameQuery(Artifact configId, String module, String name, String type) {
         Map nameMap = new HashMap();
         nameMap.put("name", name);
         if (type != null) {

@@ -23,22 +23,22 @@ import java.sql.SQLException;
 import javax.sql.DataSource;
 
 import EDU.oswego.cs.dl.util.concurrent.Executor;
-import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
+import org.apache.geronimo.connector.outbound.ConnectionFactorySource;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.timer.NontransactionalExecutorTaskFactory;
 import org.apache.geronimo.timer.PersistentTimer;
 import org.apache.geronimo.timer.ThreadPooledTimer;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * @version $Rev$ $Date$
  */
 public class JDBCStoreThreadPooledNonTransactionalTimer extends ThreadPooledTimer {
 
-    public JDBCStoreThreadPooledNonTransactionalTimer(ManagedConnectionFactoryWrapper managedConnectionFactoryWrapper,
+    public JDBCStoreThreadPooledNonTransactionalTimer(ConnectionFactorySource managedConnectionFactoryWrapper,
                                                       TransactionContextManager transactionContextManager,
                                                       Executor threadPool,
                                                       Serializable derbySystem,
@@ -54,7 +54,7 @@ public class JDBCStoreThreadPooledNonTransactionalTimer extends ThreadPooledTime
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(JDBCStoreThreadPooledNonTransactionalTimer.class);
         infoFactory.addInterface(PersistentTimer.class);
 
-        infoFactory.addReference("ManagedConnectionFactoryWrapper", ManagedConnectionFactoryWrapper.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
+        infoFactory.addReference("ManagedConnectionFactoryWrapper", ConnectionFactorySource.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
         infoFactory.addReference("ThreadPool", Executor.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
         infoFactory.addReference("DerbySystem", Serializable.class, NameFactory.GERONIMO_SERVICE);

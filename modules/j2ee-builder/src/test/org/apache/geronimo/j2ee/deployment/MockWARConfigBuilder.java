@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.jar.JarFile;
 
 /**
- * @version $Rev: 385487 $ $Date$
+ * @version $Rev:386276 $ $Date$
  */
 public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
     private EARContext earContext;
@@ -49,7 +49,7 @@ public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
     }
 
     public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming) throws DeploymentException {
-        AbstractName moduleName = naming.createChildName(earName, "war", NameFactory.EJB_MODULE);
+        AbstractName moduleName = naming.createChildName(earName, "war", NameFactory.WEB_MODULE);
         return new WebModule(false, moduleName, null, moduleFile, targetPath, null, null, null, contextRoot, portMap, namespace);
     }
 

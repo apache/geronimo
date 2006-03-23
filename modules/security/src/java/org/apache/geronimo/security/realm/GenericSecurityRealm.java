@@ -110,7 +110,9 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
     }
 
     public String getLoginModuleChainName() {
-        return kernel.getAbstractNameFor(loginModuleUse).getObjectName().getCanonicalName();
+        //TODO configid which is correct?
+//        return kernel.getAbstractNameFor(loginModuleUse).getObjectName().getCanonicalName();
+        return kernel.getAbstractNameFor(loginModuleUse).toURI().toString();
     }
 
     /**

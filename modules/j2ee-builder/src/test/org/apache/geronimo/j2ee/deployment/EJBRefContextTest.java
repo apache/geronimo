@@ -212,7 +212,7 @@ public class EJBRefContextTest extends TestCase {
         if (fakeReference != null) {
             containerId = fakeReference.containerId;
         }
-        assertEquals(expected.getObjectName().getCanonicalName(), containerId);
+        assertEquals(expected.toURI().toString(), containerId);
     }
 //    private void assertReferenceEqual(String expected, Reference reference) {
 //        FakeReference fakeReference = (FakeReference) reference;

@@ -16,14 +16,36 @@
  */
 package org.apache.geronimo.console.util;
 
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.login.LoginException;
+import javax.security.auth.spi.LoginModule;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanQuery;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.j2ee.management.impl.Util;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Repository;
@@ -65,37 +87,17 @@ import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.geronimo.system.logging.SystemLog;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.NameCallback;
-import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.security.auth.login.LoginException;
-import javax.security.auth.spi.LoginModule;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 /**
  * An implementation of the ManagementHelper interface that uses a Geronimo
  * kernel. That may be an in-VM kernel or a remote kernel, we don't really
  * care.
  *
- * @version $Rev: 385886 $ $Date$
+ * @version $Rev:386276 $ $Date$
  */
 public class KernelManagementHelper implements ManagementHelper {
     private final static Log log = LogFactory.getLog(KernelManagementHelper.class);
-    private Kernel kernel;
-    private ProxyManager pm;
+    private final Kernel kernel;
+    private final ProxyManager pm;
 
     public KernelManagementHelper(Kernel kernel) {
         this.kernel = kernel;
@@ -103,12 +105,11 @@ public class KernelManagementHelper implements ManagementHelper {
     }
 
     public J2EEDomain[] getDomains() {
-        //currently returns ObjectNames
-        Set domainNames = kernel.listGBeans(new GBeanQuery(null, J2EEDomain.class.getName()));
+        Set domainNames = kernel.listGBeans(new AbstractNameQuery(J2EEDomain.class.getName()));
         J2EEDomain[] result = new J2EEDomain[domainNames.size()];
         int i = 0;
         for (Iterator iterator = domainNames.iterator(); iterator.hasNext();) {
-            ObjectName domainName = (ObjectName) iterator.next();
+            AbstractName domainName = (AbstractName) iterator.next();
             result[i++] = (J2EEDomain) pm.createProxy(domainName, J2EEDomain.class);
         }
         return result;
@@ -549,14 +550,14 @@ public class KernelManagementHelper implements ManagementHelper {
     }
 
     public WebAccessLog getWebAccessLog(WebManager manager, WebContainer container) {
-        return getWebAccessLog(manager, kernel.getAbstractNameFor(container).getCanonicalName());
+        return getWebAccessLog(manager, kernel.getAbstractNameFor(container).getObjectName().getCanonicalName());
     }
 
     public WebAccessLog getWebAccessLog(WebManager manager, String container) {
         WebAccessLog result = null;
         try {
-            String name = manager.getAccessLog(container);
-            Object temp = pm.createProxy(ObjectName.getInstance(name), KernelManagementHelper.class.getClassLoader());
+            AbstractName name = manager.getAccessLog(container);
+            Object temp = pm.createProxy(name, KernelManagementHelper.class.getClassLoader());
             result = (WebAccessLog) temp;
         } catch (Exception e) {
             log.error("Unable to look up related GBean", e);
@@ -567,7 +568,7 @@ public class KernelManagementHelper implements ManagementHelper {
     public WebContainer[] getWebContainers(WebManager manager) {
         WebContainer[] result = new WebContainer[0];
         try {
-            String[] names = manager.getContainers();
+            AbstractName[] names = manager.getContainers();
             Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
             result = new WebContainer[temp.length];
             System.arraycopy(temp, 0, result, 0, temp.length);
@@ -578,17 +579,18 @@ public class KernelManagementHelper implements ManagementHelper {
     }
 
     public WebConnector[] getWebConnectorsForContainer(WebManager manager, WebContainer container, String protocol) {
-        return getWebConnectorsForContainer(manager, kernel.getAbstractNameFor(container).getCanonicalName(), protocol);
+        return getWebConnectorsForContainer(manager, kernel.getAbstractNameFor(container).getObjectName().getCanonicalName(), protocol);
     }
 
     public WebConnector[] getWebConnectorsForContainer(WebManager manager, WebContainer container) {
-        return getWebConnectorsForContainer(manager, kernel.getAbstractNameFor(container).getCanonicalName());
+        return getWebConnectorsForContainer(manager, kernel.getAbstractNameFor(container).getObjectName().getCanonicalName());
     }
 
     public WebConnector[] getWebConnectorsForContainer(WebManager manager, String containerObjectName, String protocol) {
         WebConnector[] result = new WebConnector[0];
         try {
-            String[] names = manager.getConnectorsForContainer(containerObjectName, protocol);
+            AbstractName name = new AbstractName(URI.create(containerObjectName));
+            AbstractName[] names = manager.getConnectorsForContainer(name, protocol);
             Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
             result = new WebConnector[temp.length];
             System.arraycopy(temp, 0, result, 0, temp.length);
@@ -601,7 +603,8 @@ public class KernelManagementHelper implements ManagementHelper {
     public WebConnector[] getWebConnectorsForContainer(WebManager manager, String containerObjectName) {
         WebConnector[] result = new WebConnector[0];
         try {
-            String[] names = manager.getConnectorsForContainer(containerObjectName);
+            AbstractName name = new AbstractName(URI.create(containerObjectName));
+            AbstractName[] names = manager.getConnectorsForContainer(name);
             Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
             result = new WebConnector[temp.length];
             System.arraycopy(temp, 0, result, 0, temp.length);
@@ -614,7 +617,7 @@ public class KernelManagementHelper implements ManagementHelper {
     public WebConnector[] getWebConnectors(WebManager manager, String protocol) {
         WebConnector[] result = new WebConnector[0];
         try {
-            String[] names = manager.getConnectors(protocol);
+            AbstractName[] names = manager.getConnectors(protocol);
             Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
             result = new WebConnector[temp.length];
             System.arraycopy(temp, 0, result, 0, temp.length);
@@ -627,7 +630,7 @@ public class KernelManagementHelper implements ManagementHelper {
     public WebConnector[] getWebConnectors(WebManager manager) {
         WebConnector[] result = new WebConnector[0];
         try {
-            String[] names = manager.getConnectors();
+            AbstractName[] names = manager.getConnectors();
             Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
             result = new WebConnector[temp.length];
             System.arraycopy(temp, 0, result, 0, temp.length);
@@ -653,7 +656,7 @@ public class KernelManagementHelper implements ManagementHelper {
     public EJBConnector[] getEJBConnectors(EJBManager container, String protocol) {
         EJBConnector[] result = new EJBConnector[0];
         try {
-            String[] names = container.getConnectors(protocol);
+            AbstractName[] names = container.getConnectors(protocol);
             Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
             result = new EJBConnector[temp.length];
             System.arraycopy(temp, 0, result, 0, temp.length);
@@ -666,7 +669,7 @@ public class KernelManagementHelper implements ManagementHelper {
     public EJBConnector[] getEJBConnectors(EJBManager container) {
         EJBConnector[] result = new EJBConnector[0];
         try {
-            String[] names = container.getConnectors();
+            AbstractName[] names = container.getConnectors();
             Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
             result = new EJBConnector[temp.length];
             System.arraycopy(temp, 0, result, 0, temp.length);
@@ -692,7 +695,7 @@ public class KernelManagementHelper implements ManagementHelper {
     public JMSBroker[] getJMSBrokers(JMSManager manager) {
         JMSBroker[] result = null;
         try {
-            String[] names = manager.getContainers();
+            AbstractName[] names = manager.getContainers();
             Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
             result = new JMSBroker[temp.length];
             System.arraycopy(temp, 0, result, 0, temp.length);
@@ -705,7 +708,7 @@ public class KernelManagementHelper implements ManagementHelper {
     public JMSConnector[] getJMSConnectors(JMSManager manager, String protocol) {
         JMSConnector[] result = null;
         try {
-            String[] names = manager.getConnectors(protocol);
+            AbstractName[] names = manager.getConnectors(protocol);
             Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
             result = new JMSConnector[temp.length];
             System.arraycopy(temp, 0, result, 0, temp.length);
@@ -718,7 +721,7 @@ public class KernelManagementHelper implements ManagementHelper {
     public JMSConnector[] getJMSConnectors(JMSManager manager) {
         JMSConnector[] result = null;
         try {
-            String[] names = manager.getConnectors();
+            AbstractName[] names = manager.getConnectors();
             Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
             result = new JMSConnector[temp.length];
             System.arraycopy(temp, 0, result, 0, temp.length);
@@ -729,17 +732,18 @@ public class KernelManagementHelper implements ManagementHelper {
     }
 
     public JMSConnector[] getJMSConnectorsForContainer(JMSManager manager, JMSBroker broker, String protocol) {
-        return getJMSConnectorsForContainer(manager, kernel.getAbstractNameFor(broker).getCanonicalName(), protocol);
+        return getJMSConnectorsForContainer(manager, kernel.getAbstractNameFor(broker).getObjectName().getCanonicalName(), protocol);
     }
 
     public JMSConnector[] getJMSConnectorsForContainer(JMSManager manager, JMSBroker broker) {
-        return getJMSConnectorsForContainer(manager, kernel.getAbstractNameFor(broker).getCanonicalName());
+        return getJMSConnectorsForContainer(manager, kernel.getAbstractNameFor(broker).getObjectName().getCanonicalName());
     }
 
     public JMSConnector[] getJMSConnectorsForContainer(JMSManager manager, String brokerObjectName, String protocol) {
         JMSConnector[] result = null;
         try {
-            String[] names = manager.getConnectorsForContainer(brokerObjectName, protocol);
+            AbstractName name = new AbstractName(URI.create(brokerObjectName));
+            AbstractName[] names = manager.getConnectorsForContainer(name, protocol);
             Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
             result = new JMSConnector[temp.length];
             System.arraycopy(temp, 0, result, 0, temp.length);
@@ -752,7 +756,8 @@ public class KernelManagementHelper implements ManagementHelper {
     public JMSConnector[] getJMSConnectorsForContainer(JMSManager manager, String brokerObjectName) {
         JMSConnector[] result = null;
         try {
-            String[] names = manager.getConnectorsForContainer(brokerObjectName);
+            AbstractName name = new AbstractName(URI.create(brokerObjectName));
+            AbstractName[] names = manager.getConnectorsForContainer(name);
             Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
             result = new JMSConnector[temp.length];
             System.arraycopy(temp, 0, result, 0, temp.length);
@@ -1008,16 +1013,19 @@ public class KernelManagementHelper implements ManagementHelper {
 
     public Artifact getConfigurationNameFor(String objectName) {
         try {
-            Set parents = kernel.getDependencyManager().getParents(ObjectName.getInstance(objectName));
-            if(parents.size() == 0) {
-                throw new IllegalStateException("No parents for GBean '"+objectName+"'");
-            }
-            for (Iterator it = parents.iterator(); it.hasNext();) {
-                ObjectName name = (ObjectName) it.next();
-                if(Configuration.isConfigurationObjectName(name)) {
-                    return Configuration.getConfigurationID(name);
-                }
-            }
+            //TODO the code that calls this does not supply an abstract name
+            AbstractName abstractName = new AbstractName(URI.create(objectName));
+            return abstractName.getArtifact();
+//            Set parents = kernel.getDependencyManager().getParents(ObjectName.getInstance(objectName));
+//            if(parents.size() == 0) {
+//                throw new IllegalStateException("No parents for GBean '"+objectName+"'");
+//            }
+//            for (Iterator it = parents.iterator(); it.hasNext();) {
+//                ObjectName name = (ObjectName) it.next();
+//                if(Configuration.isConfigurationObjectName(name)) {
+//                    return Configuration.getConfigurationID(name);
+//                }
+//            }
         } catch (Exception e) {
             log.error("Unable to look up related GBean", e);
         }

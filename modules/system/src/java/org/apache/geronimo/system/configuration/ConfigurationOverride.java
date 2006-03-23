@@ -83,6 +83,7 @@ class ConfigurationOverride {
     }
 
     public GBeanOverride getGBean(AbstractName gbeanName) {
+        //TODO configid should this use URI?
         return (GBeanOverride) gbeans.get(gbeanName.getObjectName());
     }
 
