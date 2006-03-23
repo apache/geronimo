@@ -215,6 +215,16 @@ public class J2EEServerImpl implements J2EEServer {
         return null;
     }
 
+    public String getKeystoreManager() {
+        GBeanQuery query = new GBeanQuery(null, "org.apache.geronimo.security.keystore.KeystoreManager");
+        Set set = kernel.listGBeans(query);
+        for (Iterator it = set.iterator(); it.hasNext();) {
+            ObjectName name = (ObjectName) it.next();
+            return name.getCanonicalName();
+        }
+        return null;
+    }
+
     public String getServerVendor() {
         return SERVER_VENDOR;
     }

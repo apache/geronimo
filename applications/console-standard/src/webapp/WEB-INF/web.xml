@@ -193,7 +193,20 @@ limitations under the License.
         </init-param>
     </servlet>
     <servlet>
-        <display-name>Pluto Wrapper for Keystore Portlet</display-name>
+        <display-name>Pluto Wrapper for Apache mod_jk Portlet</display-name>
+        <servlet-name>ApacheJK</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.apache.jk.ApacheConfigPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.ApacheJK</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <display-name>Pluto Wrapper for Old Keystore Portlet</display-name>
         <servlet-name>Keystore</servlet-name>
         <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
         <init-param>
@@ -203,6 +216,19 @@ limitations under the License.
         <init-param>
             <param-name>portlet-guid</param-name>
             <param-value>console-standard.Keystore</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <display-name>Pluto Wrapper for New Keystore Portlet</display-name>
+        <servlet-name>Keystores</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.keystores.KeystoresPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.Keystores</param-value>
         </init-param>
     </servlet>
 
@@ -761,8 +787,16 @@ limitations under the License.
         <url-pattern>/SecurityRealms/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
+        <servlet-name>ApacheJK</servlet-name>
+        <url-pattern>/ApacheJK/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
         <servlet-name>Keystore</servlet-name>
         <url-pattern>/Keystore/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Keystores</servlet-name>
+        <url-pattern>/Keystores/*</url-pattern>
     </servlet-mapping>
 
 

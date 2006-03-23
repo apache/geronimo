@@ -32,12 +32,14 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.Collections;
 
 /**
  * The standard non-editable ConfigurationManager implementation.  That is,
@@ -92,6 +94,91 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
             }
         }
         throw new NoSuchStoreException("No such store: " + storeName);
+    }
+
+    public List listChildConfigurations(ConfigurationInfo ear) {
+        try {
+            String configName = ear.getConfigID().toString();
+            List kids = new ArrayList();
+            Set test = kernel.listGBeans(new ObjectName("*:J2EEApplication="+configName+",j2eeType=WebModule,*"));
+            for (Iterator it = test.iterator(); it.hasNext();) {
+                ObjectName child = (ObjectName) it.next();
+                String childName = child.getKeyProperty("name");
+                State state;
+                if (kernel.isLoaded(child)) {
+                    try {
+                        state = State.fromInt(kernel.getGBeanState(child));
+                    } catch (Exception e) {
+                        state = null;
+                    }
+                } else {
+                    // If the configuration is not loaded by the kernel
+                    // and defined by the store, then it is stopped.
+                    state = State.STOPPED;
+                }
+                kids.add(new ConfigurationInfo(ear.getStoreName(), ear.getConfigID(), new URI(childName), state, ConfigurationModuleType.WAR));
+            }
+            test = kernel.listGBeans(new ObjectName("*:J2EEApplication="+configName+",j2eeType=EJBModule,*"));
+            for (Iterator it = test.iterator(); it.hasNext();) {
+                ObjectName child = (ObjectName) it.next();
+                String childName = child.getKeyProperty("name");
+                State state;
+                if (kernel.isLoaded(child)) {
+                    try {
+                        state = State.fromInt(kernel.getGBeanState(child));
+                    } catch (Exception e) {
+                        state = null;
+                    }
+                } else {
+                    // If the configuration is not loaded by the kernel
+                    // and defined by the store, then it is stopped.
+                    state = State.STOPPED;
+                }
+                kids.add(new ConfigurationInfo(ear.getStoreName(), ear.getConfigID(), new URI(childName), state, ConfigurationModuleType.EJB));
+            }
+            test = kernel.listGBeans(new ObjectName("*:J2EEApplication="+configName+",j2eeType=AppClientModule,*"));
+            for (Iterator it = test.iterator(); it.hasNext();) {
+                ObjectName child = (ObjectName) it.next();
+                String childName = child.getKeyProperty("name");
+                State state;
+                if (kernel.isLoaded(child)) {
+                    try {
+                        state = State.fromInt(kernel.getGBeanState(child));
+                    } catch (Exception e) {
+                        state = null;
+                    }
+                } else {
+                    // If the configuration is not loaded by the kernel
+                    // and defined by the store, then it is stopped.
+                    state = State.STOPPED;
+                }
+                kids.add(new ConfigurationInfo(ear.getStoreName(), ear.getConfigID(), new URI(childName), state, ConfigurationModuleType.CAR));
+            }
+            test = kernel.listGBeans(new ObjectName("*:J2EEApplication="+configName+",j2eeType=ResourceAdapterModule,*"));
+            for (Iterator it = test.iterator(); it.hasNext();) {
+                ObjectName child = (ObjectName) it.next();
+                String childName = child.getKeyProperty("name");
+                State state;
+                if (kernel.isLoaded(child)) {
+                    try {
+                        state = State.fromInt(kernel.getGBeanState(child));
+                    } catch (Exception e) {
+                        state = null;
+                    }
+                } else {
+                    // If the configuration is not loaded by the kernel
+                    // and defined by the store, then it is stopped.
+                    state = State.STOPPED;
+                }
+                kids.add(new ConfigurationInfo(ear.getStoreName(), ear.getConfigID(), new URI(childName), state, ConfigurationModuleType.RAR));
+            }
+            return kids;
+        } catch (MalformedObjectNameException e) {
+            log.error("Unexpected error loading child configurations", e);
+        } catch (URISyntaxException e) {
+            log.error("Unexpected error loading child configurations", e);
+        }
+        return Collections.EMPTY_LIST;
     }
 
     public boolean isLoaded(URI configID) {

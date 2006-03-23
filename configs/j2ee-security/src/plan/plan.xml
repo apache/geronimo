@@ -26,8 +26,6 @@ Configuration for the security of a Geronimo server.
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
                configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
     >
-
-
     <!--runtime dependencies-->
 
     <gbean name="SecurityService" class="org.apache.geronimo.security.SecurityServiceImpl">
@@ -100,4 +98,13 @@ Configuration for the security of a Geronimo server.
         <reference name="LoginService"><name>JaasLoginService</name></reference>
     </gbean>
 
+    <gbean name="KeystoreManager" class="org.apache.geronimo.security.keystore.FileKeystoreManager">
+        <attribute name="keystoreDir">var/security/keystores</attribute>
+        <reference name="ServerInfo"><module>geronimo/j2ee-system/${pom.currentVersion}/car</module><name>ServerInfo</name></reference>
+        <references name="KeystoreInstances">
+          <pattern>
+            <gbean-name>geronimo.server:j2eeType=Keystore,*</gbean-name>
+          </pattern>
+        </references>
+    </gbean>
 </configuration>

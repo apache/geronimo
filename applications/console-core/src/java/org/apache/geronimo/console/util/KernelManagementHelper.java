@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
@@ -44,6 +46,11 @@ import org.apache.geronimo.j2ee.management.impl.Util;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationInfo;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.management.AppClientModule;
@@ -81,6 +88,7 @@ import org.apache.geronimo.pool.GeronimoExecutor;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.server.JaasLoginServiceMBean;
 import org.apache.geronimo.security.realm.SecurityRealm;
+import org.apache.geronimo.security.keystore.KeystoreManager;
 import org.apache.geronimo.system.logging.SystemLog;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
@@ -527,10 +535,20 @@ public class KernelManagementHelper implements ManagementHelper {
 
     public JaasLoginServiceMBean getLoginService(J2EEServer server) {
         try {
-            String name = server.getServerInfo();
+            String name = server.getLoginService();
             return (JaasLoginServiceMBean) pm.createProxy(ObjectName.getInstance(name), KernelManagementHelper.class.getClassLoader());
         } catch (Exception e) {
             log.error("Unable to look up LoginService for J2EEServer", e);
+            return null;
+        }
+    }
+
+    public KeystoreManager getKeystoreManager(J2EEServer server) {
+        try {
+            String name = server.getKeystoreManager();
+            return (KeystoreManager) pm.createProxy(ObjectName.getInstance(name), KernelManagementHelper.class.getClassLoader());
+        } catch (Exception e) {
+            log.error("Unable to look up KeystoreManager for J2EEServer", e);
             return null;
         }
     }
@@ -1086,6 +1104,44 @@ public class KernelManagementHelper implements ManagementHelper {
             result[i++] = kernel.getProxyManager().createProxy(name, iface.getClassLoader());
         }
         return result;
+    }
+
+    public ConfigurationInfo[] getConfigurations(ConfigurationModuleType type, boolean includeChildModules) {
+        ConfigurationManager mgr = ConfigurationUtil.getConfigurationManager(kernel);
+        List stores = mgr.listStores();
+        List results = new ArrayList();
+        for (Iterator i = stores.iterator(); i.hasNext();) {
+            ObjectName storeName = (ObjectName) i.next();
+            try {
+                List infos = mgr.listConfigurations(storeName);
+                for (Iterator j = infos.iterator(); j.hasNext();) {
+                    ConfigurationInfo info = (ConfigurationInfo) j.next();
+                    if(type == null || type.getValue() == info.getType().getValue()) {
+                        results.add(info);
+                    }
+                    if(includeChildModules && (type == null || info.getType().getValue() == ConfigurationModuleType.EAR.getValue())) {
+                        List kids = mgr.listChildConfigurations(info);
+                        for (Iterator k = kids.iterator(); k.hasNext();) {
+                            ConfigurationInfo child = (ConfigurationInfo) k.next();
+                            if(type == null || type.getValue() == child.getType().getValue()) {
+                                results.add(child);
+                            }
+                        }
+                    }
+                }
+            } catch (NoSuchStoreException e) {
+                // we just got this list so this should not happen
+                // in the unlikely event it does, just continue
+            }
+        }
+        Collections.sort(results, new Comparator() {
+            public int compare(Object o1, Object o2) {
+                ConfigurationInfo ci1 = (ConfigurationInfo) o1;
+                ConfigurationInfo ci2 = (ConfigurationInfo) o2;
+                return ci1.getConfigID().toString().compareTo(ci2.getConfigID().toString());
+            }
+        });
+        return (ConfigurationInfo[]) results.toArray(new ConfigurationInfo[results.size()]);
     }
 
     /**

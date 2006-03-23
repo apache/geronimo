@@ -21,6 +21,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.kernel.config.ConfigurationInfo;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.Repository;
@@ -30,6 +32,8 @@ import org.apache.geronimo.management.ResourceAdapter;
 import org.apache.geronimo.management.geronimo.*;
 import org.apache.geronimo.pool.GeronimoExecutor;
 import org.apache.geronimo.security.realm.SecurityRealm;
+import org.apache.geronimo.security.jaas.server.JaasLoginServiceMBean;
+import org.apache.geronimo.security.keystore.KeystoreManager;
 import org.apache.geronimo.system.logging.SystemLog;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
@@ -158,6 +162,16 @@ public class PortletManager {
         return helper.getServerInfo(getCurrentServer(request));
     }
 
+    public static JaasLoginServiceMBean getLoginService(PortletRequest request) {
+        ManagementHelper helper = getManagementHelper(request);
+        return helper.getLoginService(getCurrentServer(request));
+    }
+
+    public static KeystoreManager getKeystoreManager(PortletRequest request) {
+        ManagementHelper helper = getManagementHelper(request);
+        return helper.getKeystoreManager(getCurrentServer(request));
+    }
+
     public static void testLoginModule(PortletRequest request, LoginModule module, Map options) {
         ManagementHelper helper = getManagementHelper(request);
         helper.testLoginModule(getCurrentServer(request), module, options);
@@ -269,6 +283,11 @@ public class PortletManager {
         ManagementHelper helper = getManagementHelper(request);
         WebManager manager = (WebManager) helper.getObject(managerObjectName);
         return helper.getWebAccessLog(manager, containerObjectName);
+    }
+
+    public static WebConnector getWebConnector(PortletRequest request, String connectorObjectName) {
+        ManagementHelper helper = getManagementHelper(request);
+        return (WebConnector) helper.getObject(connectorObjectName);
     }
 
     public static WebContainer getWebContainer(PortletRequest request, String containerObjectName) {
@@ -436,6 +455,11 @@ public class PortletManager {
         return null;
     }
 
+    public static ConfigurationInfo[] getConfigurations(PortletRequest request, ConfigurationModuleType type, boolean includeChildModules) {
+        ManagementHelper helper = getManagementHelper(request);
+        return helper.getConfigurations(type, includeChildModules);
+    }
+
     /**
      * Looks up the context prefix used by the portal, even if the thing running
      * is in one of the portlets.  We're kind of hacking our way there, but hey,
@@ -448,6 +472,9 @@ public class PortletManager {
             RenderResponse renderResponse = (RenderResponse)o;
             contextPath = renderResponse.createRenderURL().toString();
             int index = contextPath.indexOf(request.getPathInfo());
+            if(index == -1) { // todo: Hack!  But this doesn't always work otherwise if invoked from a page that was invoked from another portlet instead of a page accessed by top-level navigation
+                index = contextPath.indexOf(request.getPathInfo().substring(0, 20));
+            }
             contextPath = contextPath.substring(0,index);
         } else { // request did not come from a portlet
             contextPath = request.getContextPath();

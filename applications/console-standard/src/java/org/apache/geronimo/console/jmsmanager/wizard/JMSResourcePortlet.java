@@ -55,6 +55,10 @@ public class JMSResourcePortlet extends MultiPagePortlet {
         addHelper(new ReviewHandler(), config);
     }
 
+    protected String getModelJSPVariableName() {
+        return "data";
+    }
+
     protected MultiPageModel getModel(PortletRequest request) {
         return new AbstractHandler.JMSResourceData(request);
     }

@@ -22,6 +22,8 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.config.ConfigurationInfo;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.management.AppClientModule;
 import org.apache.geronimo.management.EJB;
 import org.apache.geronimo.management.EJBModule;
@@ -56,6 +58,7 @@ import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.pool.GeronimoExecutor;
 import org.apache.geronimo.security.jaas.server.JaasLoginServiceMBean;
 import org.apache.geronimo.security.realm.SecurityRealm;
+import org.apache.geronimo.security.keystore.KeystoreManager;
 import org.apache.geronimo.system.logging.SystemLog;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
@@ -93,6 +96,7 @@ public interface ManagementHelper {
     SecurityRealm[] getSecurityRealms(J2EEServer server);
     ServerInfo getServerInfo(J2EEServer server);
     JaasLoginServiceMBean getLoginService(J2EEServer server);
+    KeystoreManager getKeystoreManager(J2EEServer server);
     WebManager[] getWebManagers(J2EEServer server);
     WebAccessLog getWebAccessLog(WebManager manager, WebContainer container);
     WebAccessLog getWebAccessLog(WebManager manager, String containerObjectName);
@@ -162,4 +166,5 @@ public interface ManagementHelper {
     void testLoginModule(J2EEServer server, LoginModule module, Map options);
     Subject testLoginModule(J2EEServer server, LoginModule module, Map options, String username, String password) throws LoginException;
     Object[] findByInterface(Class iface);
+    ConfigurationInfo[] getConfigurations(ConfigurationModuleType type, boolean includeChildModules);
 }

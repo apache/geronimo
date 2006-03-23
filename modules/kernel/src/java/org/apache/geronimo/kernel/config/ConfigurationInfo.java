@@ -29,12 +29,22 @@ import org.apache.geronimo.kernel.management.State;
  */
 public class ConfigurationInfo implements Serializable {
     private final ObjectName storeName;
+    private final URI parentID;
     private final URI configID;
     private final State state;
     private final ConfigurationModuleType type;
 
     public ConfigurationInfo(ObjectName storeName, URI configID, State state, ConfigurationModuleType type) {
         this.storeName = storeName;
+        this.configID = configID;
+        this.state = state;
+        this.type = type;
+        this.parentID = null;
+    }
+
+    public ConfigurationInfo(ObjectName storeName, URI parentID, URI configID, State state, ConfigurationModuleType type) {
+        this.storeName = storeName;
+        this.parentID = parentID;
         this.configID = configID;
         this.state = state;
         this.type = type;
@@ -55,5 +65,8 @@ public class ConfigurationInfo implements Serializable {
     public ConfigurationModuleType getType() {
         return type;
     }
-    
+
+    public URI getParentID() {
+        return parentID;
+    }
 }

@@ -17,6 +17,7 @@
 package org.apache.geronimo.kernel.config;
 
 import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
@@ -47,6 +48,13 @@ public interface ConfigurationManager {
      * @throws NoSuchStoreException if the store could not be located
      */
     List listConfigurations(ObjectName store) throws NoSuchStoreException;
+
+    /**
+     * Return a list of the module information within an EAR configuration.
+     * @param ear The EAR to lda children for
+     * @return a List<ConfigurationInfo> of all the configurations in the EAR
+     */
+    public List listChildConfigurations(ConfigurationInfo ear);
 
     /**
      * Load the specified configuration into the kernel. This does not start the configuration gbean
