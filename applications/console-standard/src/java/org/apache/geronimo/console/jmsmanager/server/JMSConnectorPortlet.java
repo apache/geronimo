@@ -19,6 +19,8 @@ package org.apache.geronimo.console.jmsmanager.server;
 import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
+import java.net.URI;
+
 import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -34,6 +36,7 @@ import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
 import org.apache.geronimo.management.geronimo.JMSConnector;
 import org.apache.geronimo.management.geronimo.JMSManager;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -116,7 +119,7 @@ public class JMSConnectorPortlet extends BaseJMSPortlet {
                 actionResponse.setRenderParameter("mode", "edit");
             } else if(mode.equals("delete")) {
                 String objectName = actionRequest.getParameter("objectName");
-                PortletManager.getJMSManager(actionRequest, managerName).removeConnector(objectName);
+                PortletManager.getJMSManager(actionRequest, managerName).removeConnector(new AbstractName(URI.create(objectName)));
                 actionResponse.setRenderParameter("mode", "list");
             }
         } catch (Throwable e) {

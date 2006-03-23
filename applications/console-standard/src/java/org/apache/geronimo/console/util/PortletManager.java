@@ -46,6 +46,7 @@ import org.apache.geronimo.pool.GeronimoExecutor;
 import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.geronimo.system.logging.SystemLog;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.gbean.AbstractName;
 
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
@@ -63,6 +64,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.net.URI;
 
 /**
  * @version $Rev$ $Date$
@@ -272,7 +274,17 @@ public class PortletManager {
     public static String[] getWebContainerNames(PortletRequest request, String managerObjectName) {
         ManagementHelper helper = getManagementHelper(request);
         WebManager manager = (WebManager) helper.getObject(managerObjectName);
-        return manager.getContainers();
+        AbstractName[] names =  manager.getContainers();
+        return namesToStrings(names);
+    }
+
+    private static String[] namesToStrings(AbstractName[] names) {
+        String[] result = new String[names.length];
+        for (int i = 0; i < names.length; i++) {
+            AbstractName name = names[i];
+            result[i] = name.toURI().toString();
+        }
+        return result;
     }
 
     public static WebAccessLog getWebAccessLog(PortletRequest request, String managerObjectName, String containerObjectName) {
@@ -289,7 +301,7 @@ public class PortletManager {
     public static WebConnector createWebConnector(PortletRequest request, String managerObjectName, String containerObjectName, String name, String protocol, String host, int port) {
         ManagementHelper helper = getManagementHelper(request);
         WebManager manager = (WebManager) helper.getObject(managerObjectName);
-        String objectName = manager.addConnector(containerObjectName, name, protocol, host, port);
+        String objectName = manager.addConnector(new AbstractName(URI.create(containerObjectName)), name, protocol, host, port).toURI().toString();
         return (WebConnector) helper.getObject(objectName);
     }
 
@@ -339,7 +351,8 @@ public class PortletManager {
     public static String[] getJMSBrokerNames(PortletRequest request, String managerObjectName) {
         ManagementHelper helper = getManagementHelper(request);
         JMSManager manager = (JMSManager) helper.getObject(managerObjectName);
-        return manager.getContainers();
+        AbstractName[] names =  manager.getContainers();
+        return namesToStrings(names);
     }
 
     public static JMSBroker getJMSBroker(PortletRequest request, String brokerObjectName) {

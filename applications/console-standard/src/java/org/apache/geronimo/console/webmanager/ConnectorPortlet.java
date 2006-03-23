@@ -27,6 +27,7 @@ import org.apache.geronimo.management.geronimo.SecureConnector;
 import org.apache.geronimo.management.geronimo.WebConnector;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebManager;
+import org.apache.geronimo.gbean.AbstractName;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -42,6 +43,7 @@ import javax.portlet.WindowState;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.net.URI;
 
 /**
  * A portlet that lets you list, add, remove, start, stop, and edit web
@@ -265,7 +267,7 @@ public class ConnectorPortlet extends BasePortlet {
 
         } else if(mode.equals("delete")) { // User chose to delete a connector
             String objectName = actionRequest.getParameter("name");
-            PortletManager.getWebManager(actionRequest, managerName).removeConnector(objectName);
+            PortletManager.getWebManager(actionRequest, managerName).removeConnector(new AbstractName(URI.create(objectName)));
             actionResponse.setRenderParameter("mode", "list");
         }
     }

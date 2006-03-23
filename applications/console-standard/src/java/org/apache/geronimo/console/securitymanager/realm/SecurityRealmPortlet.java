@@ -343,10 +343,12 @@ public class SecurityRealmPortlet extends BasePortlet {
         realmName.setStringValue(data.getName());
         ReferenceType serverInfo = realm.addNewReference();
         serverInfo.setName2("ServerInfo");
-        serverInfo.setGbeanName(PortletManager.getCurrentServer(request).getServerInfo());
+        //TODO configid unlikely to be correct
+        serverInfo.setName(PortletManager.getCurrentServer(request).getServerInfo());
         ReferenceType loginService = realm.addNewReference();
         loginService.setName2("LoginService");
-        loginService.setGbeanName(PortletManager.getCurrentServer(request).getLoginService());
+        //TODO configid unlikely to be correct
+        loginService.setName(PortletManager.getCurrentServer(request).getLoginService());
         XmlAttributeType config = realm.addNewXmlReference();
         // Construct the content to put in the XmlAttributeType
         GerLoginConfigDocument lcDoc = GerLoginConfigDocument.Factory.newInstance();
