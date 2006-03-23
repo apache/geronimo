@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.console.jmsmanager.wizard;
 
+import org.apache.geronimo.console.MultiPageModel;
+
 import java.io.IOException;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -33,16 +35,18 @@ public class ConfigureRAInstanceHandler extends AbstractHandler {
         super(CONFIGURE_RA_MODE, "/WEB-INF/view/jmswizard/raInstance.jsp");
     }
 
-    public String actionBeforeView(ActionRequest request, ActionResponse response, JMSResourceData data) throws PortletException, IOException {
+    public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
         return getMode();
     }
 
-    public void renderView(RenderRequest request, RenderResponse response, JMSResourceData data) throws PortletException, IOException {
+    public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
+        JMSResourceData data = (JMSResourceData) model;
         JMSProviderData provider = JMSProviderData.getProviderData(data.getRarURI(), request);
         request.setAttribute("provider", provider);
     }
 
-    public String actionAfterView(ActionRequest request, ActionResponse response, JMSResourceData data) throws PortletException, IOException {
+    public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
+        JMSResourceData data = (JMSResourceData) model;
         if(isEmpty(data.getInstanceName())) {
             return getMode()+BEFORE_ACTION;
         }
