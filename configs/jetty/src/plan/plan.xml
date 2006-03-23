@@ -93,7 +93,7 @@ Configuration for Jetty server.
     <gbean name="JettySSLConnector" class="org.apache.geronimo.jetty.connector.HTTPSConnector">
         <attribute name="host">${PlanServerHostname}</attribute>
         <attribute name="port">${PlanHTTPSPort}</attribute>
-        <attribute name="keystoreFileName">var/security/keystore</attribute>
+        <attribute name="keystoreFileName">var/security/keystores/geronimo-default</attribute>
         <attribute name="keystoreType">JKS</attribute>
         <attribute name="keystorePassword">secret</attribute>
         <attribute name="keyPassword">secret</attribute>
