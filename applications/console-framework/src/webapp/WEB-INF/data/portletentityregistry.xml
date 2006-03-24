@@ -145,5 +145,8 @@ limitations under the License.
         <portlet id="69">
             <definition-id>console-standard.Keystores</definition-id>
         </portlet>
+        <portlet id="70">
+            <definition-id>console-standard.ImportExport</definition-id>
+        </portlet>
     </application>
 </portlet-entity-registry>

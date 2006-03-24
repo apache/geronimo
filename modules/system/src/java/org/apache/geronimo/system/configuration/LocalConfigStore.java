@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -431,6 +432,49 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         }
     }
 
+    public void exportConfiguration(String configId, OutputStream output) throws IOException, NoSuchConfigException {
+        String dirName = index.getProperty(configId);
+        if(dirName == null) {
+            throw new NoSuchConfigException("No such config: " + configId);
+        }
+        File dir = new File(rootDir, dirName);
+        if(!dir.exists() || !dir.canRead()) {
+            throw new IOException("Cannot read config store directory for "+configId+" ("+dir.getAbsolutePath()+")");
+        }
+        ZipOutputStream out = new ZipOutputStream(output);
+        byte[] buf = new byte[10240];
+        writeToZip(dir, out, "", buf);
+        out.closeEntry();
+        out.finish();
+        out.flush();
+    }
+
+    private void writeToZip(File dir, ZipOutputStream out, String prefix, byte[] buf) throws IOException {
+        File[] all = dir.listFiles();
+        for (int i = 0; i < all.length; i++) {
+            File file = all[i];
+            if(file.isDirectory()) {
+                writeToZip(file, out, prefix+file.getName()+"/", buf);
+            } else {
+                ZipEntry entry = new ZipEntry(prefix+file.getName());
+                out.putNextEntry(entry);
+                writeToZipStream(file, out, buf);
+            }
+        }
+    }
+
+    private void writeToZipStream(File file, OutputStream out, byte[] buf) throws IOException {
+        FileInputStream in = new FileInputStream(file);
+        int count;
+        try {
+            while((count = in.read(buf, 0, buf.length)) > -1) {
+                out.write(buf, 0, count);
+            }
+        } finally {
+            in.close();
+        }
+    }
+
     private static void delete(File root) throws IOException {
         File[] files = root.listFiles();
         if ( null == files ) {
@@ -457,6 +501,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("root", URI.class, true);
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
+        infoFactory.addOperation("exportConfiguration", new Class[]{String.class, OutputStream.class});
         infoFactory.addInterface(ConfigurationStore.class);
 
         infoFactory.setConstructor(new String[]{"kernel", "objectName", "root", "ServerInfo"});

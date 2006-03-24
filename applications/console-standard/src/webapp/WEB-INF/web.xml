@@ -714,6 +714,20 @@ limitations under the License.
             <param-value>console-standard.RunSQL</param-value>
         </init-param>
     </servlet>
+    <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for CAR Import/Export Portlet</display-name>
+        <servlet-name>ImportExport</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.car.ImportExportPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.ImportExport</param-value>
+        </init-param>
+    </servlet>
 
 
 
@@ -726,10 +740,19 @@ limitations under the License.
      <param-value>true</param-value>
   </init-param>
 </servlet>
+<servlet>
+  <display-name>CAR Export Servlet</display-name>
+  <servlet-name>car-export</servlet-name>
+  <servlet-class>org.apache.geronimo.console.car.CARExportServlet</servlet-class>
+</servlet>
 
 <servlet-mapping>
   <servlet-name>dwr-invoker</servlet-name>
   <url-pattern>/dwr/*</url-pattern>
+</servlet-mapping>
+<servlet-mapping>
+  <servlet-name>car-export</servlet-name>
+  <url-pattern>/car-export</url-pattern>
 </servlet-mapping>
 
 
@@ -943,6 +966,10 @@ limitations under the License.
     <servlet-mapping>
         <servlet-name>RunSQL</servlet-name>
         <url-pattern>/RunSQL/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ImportExport</servlet-name>
+        <url-pattern>/ImportExport/*</url-pattern>
     </servlet-mapping>
 
 <!-- org.apache.geronimo.console.core.securitymanager.SecurityRealmsPortlet

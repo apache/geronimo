@@ -123,7 +123,9 @@ public abstract class MultiPagePortlet extends BasePortlet {
         if(mode != null) {
             actionResponse.setRenderParameter(MODE_KEY, mode);
         }
-        model.save(actionResponse);
+        if(model != null) {
+            model.save(actionResponse);
+        }
     }
 
     protected void doView(RenderRequest renderRequest, RenderResponse renderResponse) throws IOException, PortletException {
@@ -158,8 +160,8 @@ public abstract class MultiPagePortlet extends BasePortlet {
     }
 
     protected String getDefaultMode() {
-        if(helpers.containsKey("list")) return "list";
         if(helpers.containsKey("index")) return "index";
+        if(helpers.containsKey("list")) return "list";
         return null;
     }
 
