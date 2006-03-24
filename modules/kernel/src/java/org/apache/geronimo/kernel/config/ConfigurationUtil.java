@@ -103,6 +103,10 @@ public final class ConfigurationUtil {
         ObjectOutputStream objectOutputStream = null;
         try {
             GBeanData configurationGBeanData = toConfigurationGBeanData(configurationData, null, null, null);
+            //TODO configid DAIN please review!!
+            //configurationResolver is not serializable in principle, but is useful for local manipulation of
+            //ConfigurationData/ configuration as a GBeanData.
+            configurationGBeanData.setAttribute("configurationResolver", null);
             objectOutputStream = new ObjectOutputStream(out);
             configurationGBeanData.writeExternal(objectOutputStream);
         } catch (IOException e) {

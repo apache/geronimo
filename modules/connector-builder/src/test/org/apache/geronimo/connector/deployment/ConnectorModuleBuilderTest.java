@@ -168,7 +168,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
             try {
                 File planFile = new File(basedir, "src/test-data/data/external-application-plan.xml");
                 Object plan = configBuilder.getDeploymentPlan(planFile, rarFile);
-                configData = configBuilder.buildConfiguration(plan, rarFile, configurationStore);
+                configData = configBuilder.buildConfiguration(plan, rarFile, Collections.singleton(configurationStore), configurationStore);
             } finally {
                 if (configData != null) {
                     DeploymentUtil.recursiveDelete(configData.getConfigurationDir());
@@ -327,7 +327,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
                 action.install(moduleBuilder, earContext, module, configurationStore);
                 earContext.getClassLoader();
                 moduleBuilder.initContext(earContext, module, cl);
-                moduleBuilder.addGBeans(earContext, module, cl, repository);
+                moduleBuilder.addGBeans(earContext, module, cl, Collections.singleton(repository));
 
                 ConfigurationData configurationData = earContext.getConfigurationData();
                 AbstractName moduleAbstractName = earContext.getModuleName();
@@ -521,7 +521,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
         public abstract File getRARFile();
 
         public void install(ModuleBuilder moduleBuilder, EARContext earContext, Module module, ConfigurationStore configurationStore) throws Exception {
-            moduleBuilder.installModule(module.getModuleFile(), earContext, module, configurationStore, repository);
+            moduleBuilder.installModule(module.getModuleFile(), earContext, module, Collections.singleton(configurationStore), configurationStore, Collections.singleton(repository));
         }
     }
 

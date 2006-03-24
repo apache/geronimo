@@ -32,7 +32,6 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
-import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.util.URLPattern;
 import org.apache.geronimo.xbeans.j2ee.FilterMappingType;
@@ -65,6 +64,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Collection;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
@@ -164,7 +164,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         return path;
     }
 
-    public void installModule(JarFile earFile, EARContext earContext, Module module, ConfigurationStore configurationStore, Repository repository) throws DeploymentException {
+    public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repositories) throws DeploymentException {
         EARContext moduleContext;
         if (module.isStandAlone()) {
             moduleContext = earContext;
@@ -173,9 +173,10 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             Artifact earConfigId = earContext.getConfigID();
             Artifact configId = new Artifact(earConfigId.getGroupId(), earConfigId.getArtifactId() + "_" + module.getTargetPath(), earConfigId.getVersion(), "car");
             environment.setConfigId(configId);
+            environment.addDependency(earConfigId, ImportType.ALL);
             File configurationDir;
             try {
-                configurationDir = configurationStore.createNewConfigurationDir(environment.getConfigId());
+                configurationDir = targetConfigurationStore.createNewConfigurationDir(environment.getConfigId());
             } catch (ConfigurationAlreadyExistsException e) {
                 throw new DeploymentException(e);
             }
@@ -187,8 +188,8 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
                         environment,
                         ConfigurationModuleType.WAR,
                         earContext.getNaming(),
-                        repository,
-                        configurationStore,
+                        repositories,
+                        configurationStores,
                         earContext.getServerName(),
                         module.getModuleName(),
                         earContext.getTransactionContextManagerObjectName(),

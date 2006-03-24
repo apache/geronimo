@@ -120,7 +120,7 @@ public class JettyModuleBuilderTest extends TestCase {
         EARContext earContext = createEARContext(outputPath, defaultEnvironment, repository, configStore, moduleName);
         module.setEarContext(earContext);
         builder.initContext(earContext, module, cl);
-        builder.addGBeans(earContext, module, cl, null);
+        builder.addGBeans(earContext, module, cl, Collections.EMPTY_SET);
         ConfigurationData configurationData = earContext.getConfigurationData();
         earContext.close();
         module.close();
@@ -284,7 +284,7 @@ public class JettyModuleBuilderTest extends TestCase {
 
         defaultEnvironment.addDependency(baseId, ImportType.ALL);
         defaultEnvironment.setConfigId(webModuleArtifact);
-        builder = new JettyModuleBuilder(defaultEnvironment, new Integer(1800), false, Collections.EMPTY_LIST, containerName, defaultServlets, defaultFilters, defaultFilterMappings, pojoWebServiceTemplate, webServiceBuilder, kernel);
+        builder = new JettyModuleBuilder(defaultEnvironment, new Integer(1800), false, Collections.EMPTY_LIST, new AbstractNameQuery(containerName), defaultServlets, defaultFilters, defaultFilterMappings, pojoWebServiceTemplate, webServiceBuilder, kernel);
     }
 
     protected void tearDown() throws Exception {

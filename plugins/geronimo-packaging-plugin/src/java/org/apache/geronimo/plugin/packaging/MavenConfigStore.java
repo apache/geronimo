@@ -86,7 +86,7 @@ public class MavenConfigStore extends RepositoryConfigurationStore {
     }
 
     static {
-        GBeanInfoBuilder builder = GBeanInfoBuilder.createStatic(MavenConfigStore.class);
+        GBeanInfoBuilder builder = GBeanInfoBuilder.createStatic(MavenConfigStore.class, "ConfigurationStore");
         builder.addInterface(ConfigurationStore.class);
         builder.addInterface(ConfigurationStore.class);
         builder.addAttribute("objectName", String.class, false);

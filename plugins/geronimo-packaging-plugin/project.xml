@@ -42,6 +42,7 @@
                 <packaging.classpath>true</packaging.classpath>
             </properties>
         </dependency>
+<!--
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee</artifactId>
@@ -50,6 +51,7 @@
                 <packaging.classpath>true</packaging.classpath>
             </properties>
         </dependency>
+-->
 
         <dependency>
             <groupId>cglib</groupId>

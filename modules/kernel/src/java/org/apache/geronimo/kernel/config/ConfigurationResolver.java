@@ -42,6 +42,9 @@ public class ConfigurationResolver {
     private final Artifact configurationId;
     private final ArtifactResolver artifactResolver;
     private final Collection repositories;
+    /**
+     * file or configstore used to resolve classpath parts
+     */
     private final File baseDir;
     private final ConfigurationStore configurationStore;
 

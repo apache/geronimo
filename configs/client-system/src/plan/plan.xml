@@ -37,13 +37,13 @@ Configuration for root app client
     <!-- Configuration Manager service -->
     <gbean name="ConfigurationManager" class="org.apache.geronimo.kernel.config.KernelConfigurationManager">
         <reference name="Stores">
-            <gbean-name>*:j2eeType=ConfigurationStore,*</gbean-name>
+            <!--<gbean-name>*:j2eeType=ConfigurationStore,*</gbean-name>-->
         </reference>
         <reference name="AttributeStore">
             <name>AttributeManager</name>
         </reference>
         <reference name="PersistentConfigurationList">
-            <type>AttributeStore</type>
+            <!--<type>AttributeStore</type>-->
             <name>AttributeManager</name>
         </reference>
     </gbean>

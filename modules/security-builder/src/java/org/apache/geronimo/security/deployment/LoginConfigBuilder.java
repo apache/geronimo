@@ -47,16 +47,17 @@ import org.apache.geronimo.xbeans.geronimo.loginconfig.GerLoginConfigType;
 import org.apache.geronimo.xbeans.geronimo.loginconfig.GerLoginModuleRefType;
 import org.apache.geronimo.xbeans.geronimo.loginconfig.GerLoginModuleType;
 import org.apache.geronimo.xbeans.geronimo.loginconfig.GerOptionType;
+import org.apache.geronimo.xbeans.geronimo.loginconfig.GerLoginConfigDocument;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 
 
 /**
- * @version $Rev: 384933 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class LoginConfigBuilder implements XmlReferenceBuilder {
-    public static final String LOGIN_CONFIG_NAMESPACE = "http://geronimo.apache.org/xml/ns/loginconfig-1.0";
+    public static final String LOGIN_CONFIG_NAMESPACE = GerLoginConfigDocument.type.getDocumentElementName().getNamespaceURI();
 
     private final Naming naming;
 

@@ -267,7 +267,7 @@
                 <xs:element name="version" type="xs:string" minOccurs="0"/>
                 <xs:element name="module" type="xs:string" minOccurs="0"/>
                 <xs:element name="type" type="xs:string" minOccurs="0"/>
-                <xs:element name="name" type="xs:string"/>
+                <xs:element name="name" type="xs:string" minOccurs="0"/>
             </xs:sequence>
         </xs:sequence>
     </xs:complexType>

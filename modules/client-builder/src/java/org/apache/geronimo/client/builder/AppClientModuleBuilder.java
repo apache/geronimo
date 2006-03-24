@@ -66,7 +66,6 @@ import org.apache.geronimo.xbeans.j2ee.MessageDestinationType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
-import javax.management.ObjectName;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -246,7 +245,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         return geronimoAppClient;
     }
 
-    public void installModule(JarFile earFile, EARContext earContext, Module module, ConfigurationStore configurationStore, Repository repository) throws DeploymentException {
+    public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repositories) throws DeploymentException {
         // extract the app client jar file into a standalone packed jar file and add the contents to the output
         JarFile moduleFile = module.getModuleFile();
         try {
@@ -267,7 +266,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         AbstractName clientBaseName = earContext.getNaming().createRootName(clientEnvironment.getConfigId(), clientEnvironment.getConfigId().toString(), NameFactory.APP_CLIENT_MODULE);
         File appClientDir;
         try {
-            appClientDir = configurationStore.createNewConfigurationDir(clientEnvironment.getConfigId());
+            appClientDir = targetConfigurationStore.createNewConfigurationDir(clientEnvironment.getConfigId());
         } catch (ConfigurationAlreadyExistsException e) {
             throw new DeploymentException(e);
         }
@@ -279,8 +278,8 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                     clientEnvironment,
                     ConfigurationModuleType.CAR,
                     earContext.getNaming(),
-                    repository,
-                    configurationStore,
+                    repositories,
+                    configurationStores,
                     null, //no server name needed on client
                     clientBaseName,
                     transactionContextManagerObjectName,
@@ -300,7 +299,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     public void initContext(EARContext earContext, Module clientModule, ClassLoader cl) {
     }
 
-    public void addGBeans(EARContext earContext, Module module, ClassLoader earClassLoader, Repository repository) throws DeploymentException {
+    public void addGBeans(EARContext earContext, Module module, ClassLoader earClassLoader, Collection repositories) throws DeploymentException {
 
         AppClientModule appClientModule = (AppClientModule) module;
 
@@ -389,10 +388,17 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                             if (resource.isSetExternalRar()) {
                                 path = resource.getExternalRar().trim();
                                 Artifact artifact = Artifact.create(path);
-                                if (!repository.contains(artifact)) {
-                                    throw new DeploymentException("Missing rar in repository: " + path);
+                                File file = null;
+                                for (Iterator iterator = repositories.iterator(); iterator.hasNext();) {
+                                    Repository repository = (Repository) iterator.next();
+                                    if (repository.contains(artifact)) {
+                                        file = repository.getLocation(artifact);
+                                        break;
+                                    }
                                 }
-                                File file = repository.getLocation(artifact);
+                                if (file == null) {
+                                    throw new DeploymentException("Missing rar in repositories: " + path);
+                                }
                                 try {
                                     connectorFile = new JarFile(file);
                                 } catch (IOException e) {
@@ -410,7 +416,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                             Module connectorModule = connectorModuleBuilder.createModule(connectorPlan, connectorFile, path, null, null, null, appClientDeploymentContext.getModuleName(), earContext.getNaming());
                             resourceModules.add(connectorModule);
                             //TODO configStore == null is fishy, consider moving these stages for connectors into the corresponding stages for this module.
-                            connectorModuleBuilder.installModule(connectorFile, appClientDeploymentContext, connectorModule, null, repository);
+                            connectorModuleBuilder.installModule(connectorFile, appClientDeploymentContext, connectorModule, null, null, repositories);
                         }
                         //the install step could have added more dependencies... we need a new cl.
                         appClientClassLoader = appClientDeploymentContext.getClassLoader();
@@ -421,7 +427,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
                         for (Iterator iterator = resourceModules.iterator(); iterator.hasNext();) {
                             Module connectorModule = (Module) iterator.next();
-                            connectorModuleBuilder.addGBeans(appClientDeploymentContext, connectorModule, appClientClassLoader, repository);
+                            connectorModuleBuilder.addGBeans(appClientDeploymentContext, connectorModule, appClientClassLoader, repositories);
                         }
                     } finally {
                         for (Iterator iterator = resourceModules.iterator(); iterator.hasNext();) {

@@ -17,6 +17,16 @@
 
 package org.apache.geronimo.deployment.service;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.jar.JarFile;
+
+import javax.xml.namespace.QName;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -50,22 +60,12 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
-import javax.xml.namespace.QName;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.jar.JarFile;
-
 /**
  * @version $Rev$ $Date$
  */
 public class ServiceConfigBuilder implements ConfigurationBuilder {
     private final Environment defaultEnvironment;
-    private final Repository repository;
+    private final Collection repositories;
 
     //TODO this being static is a really good argument that all other builders should have a reference to this gbean, not use static methods on it.
     private static final Map xmlAttributeBuilderMap = new HashMap();
@@ -76,21 +76,21 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     private final Naming naming;
 
 
-    public ServiceConfigBuilder(Environment defaultEnvironment, Repository repository, Naming naming) {
-        this(defaultEnvironment, repository, null, null, naming);
+    public ServiceConfigBuilder(Environment defaultEnvironment, Collection repositories, Naming naming) {
+        this(defaultEnvironment, repositories, null, null, naming);
     }
 
-    public ServiceConfigBuilder(Environment defaultEnvironment, Repository repository, Collection xmlAttributeBuilders, Collection xmlReferenceBuilders, Kernel kernel) {
-        this(defaultEnvironment, repository, xmlAttributeBuilders, xmlReferenceBuilders, kernel.getNaming());
+    public ServiceConfigBuilder(Environment defaultEnvironment, Collection repositories, Collection xmlAttributeBuilders, Collection xmlReferenceBuilders, Kernel kernel) {
+        this(defaultEnvironment, repositories, xmlAttributeBuilders, xmlReferenceBuilders, kernel.getNaming());
     }
 
-    public ServiceConfigBuilder(Environment defaultEnvironment, Repository repository, Collection xmlAttributeBuilders, Collection xmlReferenceBuilders, Naming naming) {
+    public ServiceConfigBuilder(Environment defaultEnvironment, Collection repositories, Collection xmlAttributeBuilders, Collection xmlReferenceBuilders, Naming naming) {
         this.naming = naming;
         EnvironmentBuilder environmentBuilder = new EnvironmentBuilder();
         xmlAttributeBuilderMap.put(environmentBuilder.getNamespace(), environmentBuilder);
         this.defaultEnvironment = defaultEnvironment;
 
-        this.repository = repository;
+        this.repositories = repositories;
         if (xmlAttributeBuilders != null) {
             ReferenceMap.Key key = new ReferenceMap.Key() {
 
@@ -153,31 +153,34 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         return environment.getConfigId();
     }
 
-    public ConfigurationData buildConfiguration(Object plan, JarFile unused, ConfigurationStore configurationStore) throws IOException, DeploymentException {
+    public ConfigurationData buildConfiguration(Object plan, JarFile unused, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException {
         ConfigurationType configType = (ConfigurationType) plan;
 
-        return buildConfiguration(configType, configurationStore);
+        return buildConfiguration(configType, configurationStores, targetConfigurationStore);
     }
 
-    public ConfigurationData buildConfiguration(ConfigurationType configurationType, ConfigurationStore configurationStore) throws DeploymentException, IOException {
+    public ConfigurationData buildConfiguration(ConfigurationType configurationType, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws DeploymentException, IOException {
 
         Environment environment = EnvironmentBuilder.buildEnvironment(configurationType.getEnvironment(), defaultEnvironment);
         Artifact configId = environment.getConfigId();
         File outfile;
         try {
-            outfile = configurationStore.createNewConfigurationDir(configId);
+            outfile = targetConfigurationStore.createNewConfigurationDir(configId);
         } catch (ConfigurationAlreadyExistsException e) {
             throw new DeploymentException(e);
         }
-        DeploymentContext context = new DeploymentContext(outfile, environment, ConfigurationModuleType.SERVICE, naming, Collections.singleton(repository), Collections.singleton(configurationStore));
+        DeploymentContext context = new DeploymentContext(outfile, environment, ConfigurationModuleType.SERVICE, naming, repositories, configurationStores);
         ClassLoader cl = context.getClassLoader();
 
 
         AbstractName moduleName = naming.createRootName(configId, configId.toString(), NameFactory.SERVICE_MODULE);
         GbeanType[] gbeans = configurationType.getGbeanArray();
-        addGBeans(gbeans, cl, moduleName, context);
-        context.close();
-        return context.getConfigurationData();
+        try {
+            addGBeans(gbeans, cl, moduleName, context);
+            return context.getConfigurationData();
+        } finally {
+            context.close();
+        }
     }
 
     public static void addGBeans(GbeanType[] gbeans, ClassLoader cl, AbstractName moduleName, DeploymentContext context) throws DeploymentException {
@@ -268,7 +271,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         infoFactory.addInterface(ConfigurationBuilder.class);
 
         infoFactory.addAttribute("defaultEnvironment", Environment.class, true);
-        infoFactory.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("Repository", Repository.class, "Repository");
         infoFactory.addReference("XmlAttributeBuilders", XmlAttributeBuilder.class, "XmlAttributeBuilder");
         infoFactory.addReference("XmlReferenceBuilders", XmlReferenceBuilder.class, "XmlReferenceBuilder");
         infoFactory.addAttribute("kernel", Kernel.class, false, false);

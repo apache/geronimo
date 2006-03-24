@@ -246,12 +246,12 @@ public class DeploymentContext {
      * @throws IOException if there's a problem copying the ZIP entry
      */
     public void addInclude(URI targetPath, ZipFile zipFile, ZipEntry zipEntry) throws IOException {
-        if (!targetPath.getPath().endsWith("/")) throw new IllegalStateException("target path must end with a '/' character: " + targetPath);
+//        if (!targetPath.getPath().endsWith("/")) throw new IllegalStateException("target path must end with a '/' character: " + targetPath);
 
         File targetFile = getTargetFile(targetPath);
         addFile(targetFile, zipFile, zipEntry);
 
-        if (!targetFile.isDirectory()) throw new IllegalStateException("target file should be a directory: " + targetFile);
+//        if (!targetFile.isDirectory()) throw new IllegalStateException("target file should be a directory: " + targetFile);
         configuration.addToClassPath(targetPath);
     }
 

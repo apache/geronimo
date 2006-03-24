@@ -199,7 +199,7 @@ public class GBeanInfoBuilder {
 
         // add all interfaces based on GBean type
         if (gbeanType.isArray()) {
-            throw new IllegalArgumentException("GBean is an array type: gbeanType=" + gbeanType);
+            throw new IllegalArgumentException("GBean is an array type: gbeanType=" + gbeanType.getName());
         }
         Set allTypes = ClassLoading.getAllTypes(gbeanType);
         for (Iterator iterator = allTypes.iterator(); iterator.hasNext();) {
@@ -282,7 +282,7 @@ public class GBeanInfoBuilder {
                                     null));
                 } else {
                     if (!attributeType.equals(attribute.getType())) {
-                        throw new IllegalArgumentException("Getter and setter type do not match: " + attributeName);
+                        throw new IllegalArgumentException("Getter and setter type do not match: " + attributeName + " for gbeanType: " + gbeanType.getName());
                     }
                     attributes.put(attributeName,
                             new GAttributeInfo(attributeName,
@@ -306,7 +306,7 @@ public class GBeanInfoBuilder {
                                     method.getName()));
                 } else {
                     if (!attributeType.equals(attribute.getType())) {
-                        throw new IllegalArgumentException("Getter and setter type do not match: " + attributeName);
+                        throw new IllegalArgumentException("Getter and setter type do not match: " + attributeName + " for gbeanType: " + gbeanType.getName());
                     }
                     attributes.put(attributeName,
                             new GAttributeInfo(attributeName,
@@ -420,7 +420,7 @@ public class GBeanInfoBuilder {
                 if (setter == null) {
                     setter = searchForSetterMethod(referenceName, Collection.class.getName(), gbeanType);
                     if (setter == null) {
-                        throw new InvalidConfigurationException("Reference must be a constructor argument or have a setter: name=" + referenceName);
+                        throw new InvalidConfigurationException("Reference must be a constructor argument or have a setter: name=" + referenceName + " for gbeanType: " + gbeanType);
                     }
                 }
                 proxyType = setter.getParameterTypes()[0].getName();
@@ -429,7 +429,7 @@ public class GBeanInfoBuilder {
             }
 
             if (!proxyType.equals(Collection.class.getName()) && !proxyType.equals(referenceType)) {
-                throw new InvalidConfigurationException("Reference proxy type must be Collection or " + referenceType + ": name=" + referenceName);
+                throw new InvalidConfigurationException("Reference proxy type must be Collection or " + referenceType + ": name=" + referenceName + " for gbeanType: " + gbeanType.getName());
             }
 
             referenceInfos.add(new GReferenceInfo(referenceName, referenceType, proxyType, setterName, namingType));

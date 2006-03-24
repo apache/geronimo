@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 
-<!-- $Rev: 377921 $ $Date$ -->
+<!-- $Rev$ $Date$ -->
 
 <!--
 Configuration for the main ring of a Geronimo app client.
@@ -66,10 +66,10 @@ by the app client.
         <reference name="XidFactory"><name>XidFactory</name></reference>
         <references name="ResourceManagers">
             <pattern>
-                <gbean-name>*:j2eeType=JCAManagedConnectionFactory,*</gbean-name>
+                <type>JCAManagedConnectionFactory</type>
             </pattern>
             <pattern>
-                <gbean-name>*:j2eeType=ActivationSpec,*</gbean-name>
+                <type>ActivationSpec</type>
             </pattern>
         </references>
     </gbean>

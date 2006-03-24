@@ -163,7 +163,7 @@ public class GBeanBuilder {
         String version = pattern.isSetVersion() ? pattern.getVersion().trim() : null;
         String module = pattern.isSetModule() ? pattern.getModule().trim() : null;
         String type = pattern.isSetType() ? pattern.getType().trim() : null;
-        String name = pattern.getName().trim();
+        String name = pattern.isSetName() ? pattern.getName().trim() : null;
 
         Artifact artifact = artifactid != null? new Artifact(groupId, artifactid, version, "car"): null;
         //get the type from the gbean info if not supplied explicitly
@@ -171,14 +171,16 @@ public class GBeanBuilder {
             type = referenceInfo.getNameTypeName();
         }
         Map nameMap = new HashMap();
-        nameMap.put("name", name);
+        if (name != null) {
+            nameMap.put("name", name);
+        }
         if (type != null) {
             nameMap.put("j2eeType", type);
         }
         if (module != null) {
             nameMap.put("J2EEModule", module);
         }
-        String interfaceType = referenceInfo.getProxyType();
+        String interfaceType = referenceInfo.getReferenceType();
         return new AbstractNameQuery(artifact, nameMap, Collections.singleton(interfaceType));
     }
 

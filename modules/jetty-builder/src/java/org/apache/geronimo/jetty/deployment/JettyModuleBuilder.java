@@ -30,6 +30,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
@@ -47,7 +48,6 @@ import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
 import org.apache.geronimo.schema.SchemaConversionUtils;
@@ -121,7 +121,7 @@ import java.util.jar.JarFile;
 public class JettyModuleBuilder extends AbstractWebModuleBuilder {
     private final static Log log = LogFactory.getLog(JettyModuleBuilder.class);
     private final Environment defaultEnvironment;
-    private final AbstractName jettyContainerObjectName;
+    private final AbstractNameQuery jettyContainerObjectName;
     private final Collection defaultServlets;
     private final Collection defaultFilters;
     private final Collection defaultFilterMappings;
@@ -139,7 +139,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             Integer defaultSessionTimeoutSeconds,
             boolean defaultContextPriorityClassloader,
             List defaultWelcomeFiles,
-            AbstractName jettyContainerName,
+            AbstractNameQuery jettyContainerName,
             Collection defaultServlets,
             Collection defaultFilters,
             Collection defaultFilterMappings,
@@ -317,7 +317,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         }
     }
 
-    public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Repository repository) throws DeploymentException {
+    public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Collection repository) throws DeploymentException {
         EARContext moduleContext = module.getEarContext();
         ClassLoader moduleClassLoader = moduleContext.getClassLoader();
         AbstractName moduleName = moduleContext.getModuleName();
@@ -336,7 +336,9 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
         GBeanData webModuleData = new GBeanData(moduleName, JettyWebAppContext.GBEAN_INFO);
         try {
-            webModuleData.setReferencePattern("J2EEServer", moduleContext.getServerName());
+            if (moduleContext.getServerName() != null) {
+                webModuleData.setReferencePattern("J2EEServer", moduleContext.getServerName());
+            }
             if (!module.isStandAlone()) {
                 webModuleData.setReferencePattern("J2EEApplication", moduleContext.getModuleName());
             }
@@ -901,7 +903,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         infoBuilder.addAttribute("defaultSessionTimeoutSeconds", Integer.class, true, true);
         infoBuilder.addAttribute("defaultContextPriorityClassloader", boolean.class, true, true);
         infoBuilder.addAttribute("defaultWelcomeFiles", List.class, true, true);
-        infoBuilder.addAttribute("jettyContainerObjectName", AbstractName.class, true, true);
+        infoBuilder.addAttribute("jettyContainerObjectName", AbstractNameQuery.class, true, true);
         infoBuilder.addReference("DefaultServlets", Object.class, NameFactory.DEFAULT_SERVLET);
         infoBuilder.addReference("DefaultFilters", Object.class);
         infoBuilder.addReference("DefaultFilterMappings", Object.class);

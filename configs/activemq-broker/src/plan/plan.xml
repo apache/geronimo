@@ -23,18 +23,18 @@
 
 
     <!-- management -->
-    <gbean name="ActiveMQ" class="org.activemq.gbean.management.ActiveMQManagerGBean" />
+    <!-- TODO configid interface change -->
+    <!--<gbean name="ActiveMQ" class="org.activemq.gbean.management.ActiveMQManagerGBean" />-->
 
     <!-- message broker -->
     <gbean name="ActiveMQ" class="org.activemq.gbean.ActiveMQContainerGBean">
         <attribute name="brokerName">possibly-unique-broker</attribute>
-        <reference name="persistenceAdapter"><gbean-name>geronimo.server:j2eeType=JMSPersistence,name=ActiveMQ.cache,*</gbean-name></reference>
-<!--        <reference name="ConnectorCollection"><gbean-name>geronimo.server:j2eeType=JMSConnector,broker=ActiveMQ,*</gbean-name></reference>-->
+        <reference name="persistenceAdapter"><name>ActiveMQ.cache</name></reference>
     </gbean>
 
     <gbean name="ActiveMQ.cache" class="org.activemq.store.cache.SimpleCachePersistenceAdapterGBean">
         <attribute name="cacheSize">10000</attribute>
-        <reference name="longTermPersistence"><gbean-name>geronimo.server:j2eeType=JMSPersistence,name=ActiveMQ.journal,*</gbean-name></reference>
+        <reference name="longTermPersistence"><name>ActiveMQ.journal</name></reference>
     </gbean>
 
     <gbean name="ActiveMQ.journal" class="org.activemq.store.journal.JournalPersistenceAdapterGBean">
@@ -42,25 +42,25 @@
         <reference name="serverInfo"><module>geronimo/j2ee-system/${pom.currentVersion}/car</module><type>GBean</type><name>ServerInfo</name></reference>
         <attribute name="directory">var/activemq/journal</attribute>
         <attribute name="journalType">default</attribute>
-        <reference name="longTermPersistence"><gbean-name>geronimo.server:j2eeType=JMSPersistence,name=ActiveMQ.jdbc,*</gbean-name></reference>
+        <reference name="longTermPersistence"><name>ActiveMQ.jdbc</name></reference>
     </gbean>
 
     <gbean name="ActiveMQ.jdbc" class="org.activemq.store.jdbc.JDBCPersistenceAdapterGBean">
-        <reference name="dataSource"><gbean-name>geronimo.server:J2EEApplication=null,J2EEServer=geronimo,JCAResource=geronimo/system-database/${pom.currentVersion}/car,j2eeType=JCAManagedConnectionFactory,name=SystemDatasource</gbean-name></reference>
+        <reference name="dataSource"><name>SystemDatasource</name></reference>
     </gbean>
 
-    <gbean gbeanName="geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/ActiveMQServer,J2EEServer=geronimo,j2eeType=JMSConnector,broker=ActiveMQ,name=ActiveMQ.tcp.default" class="org.activemq.gbean.ActiveMQConnectorGBean">
+    <gbean name="ActiveMQ.tcp.default" class="org.activemq.gbean.ActiveMQConnectorGBean">
         <attribute name="protocol">tcp</attribute>
         <attribute name="host">localhost</attribute>
         <attribute name="port">61616</attribute>
-        <reference name="activeMQContainer"><gbean-name>geronimo.server:j2eeType=JMSServer,name=ActiveMQ,*</gbean-name></reference>
+        <reference name="activeMQContainer"><name>ActiveMQ</name></reference>
     </gbean>
 
-    <gbean gbeanName="geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/ActiveMQServer,J2EEServer=geronimo,j2eeType=JMSConnector,broker=ActiveMQ,name=ActiveMQ.vm.localhost" class="org.activemq.gbean.ActiveMQConnectorGBean">
+    <gbean name="ActiveMQ.vm.localhost" class="org.activemq.gbean.ActiveMQConnectorGBean">
         <attribute name="protocol">vm</attribute>
         <attribute name="host">localhost</attribute>
         <attribute name="port">-1</attribute>
-        <reference name="activeMQContainer"><gbean-name>geronimo.server:j2eeType=JMSServer,name=ActiveMQ,*</gbean-name></reference>
+        <reference name="activeMQContainer"><name>ActiveMQ</name></reference>
     </gbean>
 
     <gbean name="SystemProperties" class="org.apache.geronimo.system.properties.SystemProperties">

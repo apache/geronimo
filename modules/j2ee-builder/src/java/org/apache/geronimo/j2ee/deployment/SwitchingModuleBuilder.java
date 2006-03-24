@@ -25,10 +25,9 @@ import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -43,7 +42,7 @@ import java.util.Map;
 import java.util.jar.JarFile;
 
 /**
- * @version $Rev: 385487 $ $Date$
+ * @version $Rev:386276 $ $Date$
  */
 public class SwitchingModuleBuilder implements ModuleBuilder {
 
@@ -116,8 +115,7 @@ public class SwitchingModuleBuilder implements ModuleBuilder {
         try {
             while (cursor.hasNextToken()){
                 if (cursor.isStart()) {
-                    String namespace = cursor.getName().getNamespaceURI();
-                    return namespace;
+                    return cursor.getName().getNamespaceURI();
                 }
                 cursor.toNextToken();
             }
@@ -145,10 +143,10 @@ public class SwitchingModuleBuilder implements ModuleBuilder {
         }
     }
 
-    public void installModule(JarFile earFile, EARContext earContext, Module module, ConfigurationStore configurationStore, Repository repository) throws DeploymentException {
+    public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repositories) throws DeploymentException {
         String namespace = module.getNamespace();
         ModuleBuilder builder = getBuilderFromNamespace(namespace);
-        builder.installModule(earFile, earContext, module, configurationStore, repository);
+        builder.installModule(earFile, earContext, module, configurationStores, targetConfigurationStore, repositories);
     }
 
     public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
@@ -157,10 +155,10 @@ public class SwitchingModuleBuilder implements ModuleBuilder {
         builder.initContext(earContext, module, cl);
     }
 
-    public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Repository repository) throws DeploymentException {
+    public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Collection repositories) throws DeploymentException {
         String namespace = module.getNamespace();
         ModuleBuilder builder = getBuilderFromNamespace(namespace);
-        builder.addGBeans(earContext, module, cl, repository);
+        builder.addGBeans(earContext, module, cl, repositories);
     }
 
     public String getSchemaNamespace() {

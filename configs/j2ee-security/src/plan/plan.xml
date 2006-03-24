@@ -40,8 +40,8 @@ Configuration for the security of a Geronimo server.
     <!-- Register GeronimoLoginConfiguration as the LoginConfiguration handler -->
     <gbean name="LoginConfiguration" class="org.apache.geronimo.security.jaas.GeronimoLoginConfiguration">
         <references name="Configurations">
-            <pattern><gbean-name>geronimo.server:j2eeType=SecurityRealm,*</gbean-name></pattern>
-            <pattern><gbean-name>geronimo.server:j2eeType=ConfigurationEntry,*</gbean-name></pattern>
+            <pattern><type>SecurityRealm</type></pattern>
+            <pattern><type>ConfigurationEntry</type></pattern>
         </references>
     </gbean>
 

@@ -21,10 +21,9 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -34,6 +33,7 @@ import javax.naming.Reference;
 import java.io.File;
 import java.net.URL;
 import java.util.jar.JarFile;
+import java.util.Collection;
 
 /**
  * @version $Rev:385692 $ $Date$
@@ -54,7 +54,7 @@ public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder,
         return new ConnectorModule(false, moduleName, null, moduleFile, targetPath, null, null, null);
     }
 
-    public void installModule(JarFile earFile, EARContext earContext, Module connectorModule, ConfigurationStore configurationStore, Repository repository) {
+    public void installModule(JarFile earFile, EARContext earContext, Module connectorModule, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) {
         assertNotNull(earFile);
         assertNotNull(earContext);
         this.earContext = earContext;
@@ -74,7 +74,7 @@ public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder,
         this.cl = cl;
     }
 
-    public void addGBeans(EARContext earContext, Module connectorModule, ClassLoader cl, Repository repository) {
+    public void addGBeans(EARContext earContext, Module connectorModule, ClassLoader cl, Collection repository) {
         assertEquals(this.earContext, earContext);
 //        assertEquals(this.connectorModule, connectorModule);
         assertEquals(this.cl, cl);

@@ -21,6 +21,7 @@ import java.io.FileOutputStream;
 import java.net.URI;
 import java.net.URL;
 import java.util.List;
+import java.util.Collections;
 import java.util.jar.JarOutputStream;
 
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
@@ -35,7 +36,7 @@ import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.repository.Maven1Repository;
 
 /**
- * @version $Rev: 383067 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class PluginBootstrap {
     private File localRepo;
@@ -67,8 +68,8 @@ public class PluginBootstrap {
         ConfigurationType config = ConfigurationDocument.Factory.parse(plan).getConfiguration();
 
         Maven1Repository repository = new Maven1Repository(localRepo);
-        ServiceConfigBuilder builder = new ServiceConfigBuilder(null, repository, new Jsr77Naming());
-        ConfigurationData configurationData = builder.buildConfiguration(config, null, new ConfigurationStore() {
+        ServiceConfigBuilder builder = new ServiceConfigBuilder(null, Collections.singleton(repository), new Jsr77Naming());
+        ConfigurationStore targetConfigurationStore = new ConfigurationStore() {
             public void install(ConfigurationData configurationData) {
             }
 
@@ -98,7 +99,8 @@ public class PluginBootstrap {
             public URL resolve(Artifact configId, URI uri) {
                 return null;
             }
-        });
+        };
+        ConfigurationData configurationData = builder.buildConfiguration(config, null, Collections.singleton(targetConfigurationStore), targetConfigurationStore);
 
         JarOutputStream out = new JarOutputStream(new FileOutputStream(carFile));
         ExecutableConfigurationUtil.writeConfiguration(configurationData, out);

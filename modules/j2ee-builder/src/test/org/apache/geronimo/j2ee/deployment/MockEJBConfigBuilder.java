@@ -25,7 +25,6 @@ import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.Naming;
 
 import javax.naming.Reference;
@@ -33,6 +32,7 @@ import java.io.File;
 import java.net.URI;
 import java.net.URL;
 import java.util.jar.JarFile;
+import java.util.Collection;
 
 
 /**
@@ -54,7 +54,7 @@ public class MockEJBConfigBuilder extends Assert implements ModuleBuilder, EJBRe
         return new EJBModule(false, moduleName, null, moduleFile, targetPath, null, null, null);
     }
 
-    public void installModule(JarFile earFile, EARContext earContext, Module ejbModule, ConfigurationStore configurationStore, Repository repository) {
+    public void installModule(JarFile earFile, EARContext earContext, Module ejbModule, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) {
         assertNotNull(earFile);
         assertNotNull(earContext);
         this.earContext = earContext;
@@ -74,7 +74,7 @@ public class MockEJBConfigBuilder extends Assert implements ModuleBuilder, EJBRe
         this.cl = cl;
     }
 
-    public void addGBeans(EARContext earContext, Module ejbModule, ClassLoader cl, Repository repository) {
+    public void addGBeans(EARContext earContext, Module ejbModule, ClassLoader cl, Collection repository) {
         assertEquals(this.earContext, earContext);
 //        assertEquals(this.ejbModule, ejbModule);
         assertEquals(this.cl, cl);

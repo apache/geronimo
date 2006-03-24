@@ -65,12 +65,12 @@ public class Deployer {
     private final Properties pendingDeletionIndex = new Properties();
     private DeployerReaper reaper;
     private final Collection builders;
-    private final ConfigurationStore store;
+    private final Collection stores;
     private final Kernel kernel;
 
-    public Deployer(Collection builders, ConfigurationStore store, Kernel kernel) {
+    public Deployer(Collection builders, Collection stores, Kernel kernel) {
         this.builders = builders;
-        this.store = store;
+        this.stores = stores;
         this.kernel = kernel;
 
         // Create and start the reaper...
@@ -271,22 +271,19 @@ public class Deployer {
                 manifest = null;
             }
 
-//TODO this is ludicrous!  give the builder a location factory!
-            // create a configuration dir to write the configuration during the building proces
-//            configurationDir = store.createNewConfigurationDir();
-
-            // create te meta-inf dir
-//            File metaInf = new File(configurationDir, "META-INF");
-//            metaInf.mkdirs();
-
-            ConfigurationData configurationData = builder.buildConfiguration(plan, module, store);
+            //TODO adapt to multiple config stores!
+            if (stores.isEmpty()) {
+                throw new DeploymentException("No ConfigurationStores!");
+            }
+            ConfigurationStore store = (ConfigurationStore) stores.iterator().next();
+            ConfigurationData configurationData = builder.buildConfiguration(plan, module, stores, store);
             try {
                 if (targetFile != null) {
                     ExecutableConfigurationUtil.createExecutableConfiguration(configurationData, manifest, targetFile);
                 }
                 if (install) {
                     List deployedURIs = new ArrayList();
-                    recursiveInstall(configurationData, deployedURIs);
+                    recursiveInstall(configurationData, deployedURIs, store);
                     return deployedURIs;
                 } else {
                     cleanupConfigurationDirs(configurationData);
@@ -335,12 +332,12 @@ public class Deployer {
         }
     }
 
-    private void recursiveInstall(ConfigurationData configurationData, List deployedURIs) throws IOException, InvalidConfigException {
+    private void recursiveInstall(ConfigurationData configurationData, List deployedURIs, ConfigurationStore store) throws IOException, InvalidConfigException {
         store.install(configurationData);
         deployedURIs.add(configurationData.getId().toString());
         for (Iterator iterator = configurationData.getChildConfigurations().iterator(); iterator.hasNext();) {
             ConfigurationData childConfiguration = (ConfigurationData) iterator.next();
-            recursiveInstall(childConfiguration, deployedURIs);
+            recursiveInstall(childConfiguration, deployedURIs, store);
         }
     }
 

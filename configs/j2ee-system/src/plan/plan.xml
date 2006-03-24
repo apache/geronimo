@@ -75,14 +75,14 @@ specific services - those should be provided by children.
       <name>ArtifactManager</name>
     </reference>
     <reference name="Repositories">
-      <gbean-name>*:name=Repository,*</gbean-name>
+      <!--<gbean-name>*:name=Repository,*</gbean-name>-->
     </reference>
   </gbean>
 
   <!--Configuration Manager service-->
   <gbean name="ConfigurationManager" class="org.apache.geronimo.kernel.config.EditableKernelConfigurationManager">
     <reference name="Stores">
-      <gbean-name>*:j2eeType=ConfigurationStore,*</gbean-name>
+      <!--<gbean-name>*:j2eeType=ConfigurationStore,*</gbean-name>-->
     </reference>
     <reference name="AttributeStore">
       <name>AttributeManager</name>

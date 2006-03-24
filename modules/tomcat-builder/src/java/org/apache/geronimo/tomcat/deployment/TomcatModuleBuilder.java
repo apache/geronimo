@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Collection;
 import java.util.jar.JarFile;
 
 import javax.transaction.UserTransaction;
@@ -61,7 +62,6 @@ import org.apache.geronimo.kernel.StoredObject;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
 import org.apache.geronimo.schema.SchemaConversionUtils;
@@ -268,7 +268,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         }
     }
 
-    public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Repository repository) throws DeploymentException {
+    public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Collection repository) throws DeploymentException {
         EARContext moduleContext = module.getEarContext();
         ClassLoader moduleClassLoader = moduleContext.getClassLoader();
         AbstractName moduleName = moduleContext.getModuleName();

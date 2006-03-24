@@ -6,6 +6,7 @@ import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Jsr77Naming;
@@ -39,7 +40,7 @@ public class PlanParsingTest extends TestCase {
     private Naming naming = new Jsr77Naming();
     private Artifact baseId = new Artifact("test", "base", "1", "car");
     private AbstractName baseRootName = naming.createRootName(baseId, "root", NameFactory.SERVICE_MODULE);
-    private AbstractName jettyContainerObjectName = naming.createChildName(baseRootName, "jettyContainer", NameFactory.GERONIMO_SERVICE);
+    private AbstractNameQuery jettyContainerObjectName = new AbstractNameQuery(naming.createChildName(baseRootName, "jettyContainer", NameFactory.GERONIMO_SERVICE));
     private AbstractName pojoWebServiceTemplate = null;
     private WebServiceBuilder webServiceBuilder = null;
     private Environment defaultEnvironment = new Environment();

@@ -72,6 +72,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.Collection;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
@@ -83,7 +84,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private final static QName APPLICATION_QNAME = GerApplicationDocument.type.getDocumentElementName();
     private static final String DEFAULT_GROUPID = "defaultGroupId";
 
-    private final Repository repository;
+    private final Collection repositories;
     private final ModuleBuilder ejbConfigBuilder;
     private final ModuleBuilder webConfigBuilder;
     private final ModuleBuilder connectorConfigBuilder;
@@ -109,7 +110,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             AbstractNameQuery nonTransactionalTimerAbstractName,
             AbstractNameQuery corbaGBeanAbstractName,
             AbstractNameQuery serverName,
-            Repository repository,
+            Collection repositories,
             ModuleBuilder ejbConfigBuilder,
             EJBReferenceBuilder ejbReferenceBuilder,
             ModuleBuilder webConfigBuilder,
@@ -125,7 +126,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 nonTransactionalTimerAbstractName,
                 corbaGBeanAbstractName,
                 serverName,
-                repository,
+                repositories,
                 ejbConfigBuilder,
                 ejbReferenceBuilder,
                 webConfigBuilder,
@@ -143,7 +144,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             AbstractNameQuery nonTransactionalTimerAbstractName,
             AbstractNameQuery corbaGBeanAbstractName,
             AbstractNameQuery serverName,
-            Repository repository,
+            Collection repositories,
             ModuleBuilder ejbConfigBuilder,
             EJBReferenceBuilder ejbReferenceBuilder,
             ModuleBuilder webConfigBuilder,
@@ -152,7 +153,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             ModuleBuilder appClientConfigBuilder,
             ServiceReferenceBuilder serviceReferenceBuilder,
             Naming naming) {
-        this.repository = repository;
+        this.repositories = repositories;
         this.defaultEnvironment = defaultEnvironment;
 
         this.ejbConfigBuilder = ejbConfigBuilder;
@@ -333,7 +334,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         return applicationInfo.getEnvironment().getConfigId();
     }
 
-    public ConfigurationData buildConfiguration(Object plan, JarFile earFile, ConfigurationStore configurationStore) throws IOException, DeploymentException {
+    public ConfigurationData buildConfiguration(Object plan, JarFile earFile, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException {
         assert plan != null;
         ApplicationInfo applicationInfo = (ApplicationInfo) plan;
         try {
@@ -344,7 +345,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             Artifact configId = environment.getConfigId();
             File configurationDir;
             try {
-                configurationDir = configurationStore.createNewConfigurationDir(configId);
+                configurationDir = targetConfigurationStore.createNewConfigurationDir(configId);
             } catch (ConfigurationAlreadyExistsException e) {
                 throw new DeploymentException(e);
             }
@@ -352,8 +353,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                     applicationInfo.getEnvironment(),
                     applicationType,
                     naming,
-                    repository,
-                    configurationStore,
+                    repositories,
+                    configurationStores,
                     serverName,
                     applicationInfo.getBaseName(),
                     transactionContextManagerObjectName,
@@ -380,7 +381,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             Set modules = applicationInfo.getModules();
             for (Iterator iterator = modules.iterator(); iterator.hasNext();) {
                 Module module = (Module) iterator.next();
-                getBuilder(module).installModule(earFile, earContext, module, configurationStore, repository);
+                getBuilder(module).installModule(earFile, earContext, module, configurationStores, targetConfigurationStore, repositories);
             }
 
             // give each module a chance to populate the earContext now that a classloader is available
@@ -418,19 +419,19 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 earContext.setSecurityConfiguration(securityConfiguration);
             }
 
-            // each module can now add it's GBeans
-            for (Iterator iterator = modules.iterator(); iterator.hasNext();) {
-                Module module = (Module) iterator.next();
-                getBuilder(module).addGBeans(earContext, module, cl, repository);
-            }
-
             //add the JACC gbean if there is a principal-role mapping
-            //TODO configid verify that the jaccManagerName is not needed before this.  cf. how this is handled in 1.2 branch.
             if (earContext.getSecurityConfiguration() != null) {
                 GBeanData jaccBeanData = SecurityBuilder.configureApplicationPolicyManager(naming, earContext.getModuleName(), earContext.getContextIDToPermissionsMap(), earContext.getSecurityConfiguration());
                 earContext.addGBean(jaccBeanData);
                 earContext.setJaccManagerName(jaccBeanData.getAbstractName());
             }
+
+            // each module can now add it's GBeans
+            for (Iterator iterator = modules.iterator(); iterator.hasNext();) {
+                Module module = (Module) iterator.next();
+                getBuilder(module).addGBeans(earContext, module, cl, repositories);
+            }
+
             ConfigurationData configurationData = earContext.getConfigurationData();
             earContext.close();
             return configurationData;
@@ -637,10 +638,17 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 } else {
                     String path = gerExtModule.getExternalPath().trim();
                     Artifact artifact = Artifact.create(path);
-                    if (!repository.contains(artifact)) {
-                        throw new DeploymentException(moduleTypeName + " is missing in repository: " + path);
+                    File location = null;
+                    for (Iterator iterator = repositories.iterator(); iterator.hasNext();) {
+                        Repository repository = (Repository) iterator.next();
+                        if (repository.contains(artifact)) {
+                             location = repository.getLocation(artifact);
+                            break;
+                        }
                     }
-                    File location = repository.getLocation(artifact);
+                    if (location == null) {
+                        throw new DeploymentException(moduleTypeName + " is missing in repositories: " + path);
+                    }
                     try {
                         moduleFile = new JarFile(location);
                     } catch (IOException e) {
@@ -726,7 +734,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         infoFactory.addAttribute("corbaGBeanAbstractName", AbstractNameQuery.class, true);
         infoFactory.addAttribute("serverName", AbstractNameQuery.class, true);
 
-        infoFactory.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("Repositories", Repository.class, "Repository");
         infoFactory.addReference("EJBConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoFactory.addReference("EJBReferenceBuilder", EJBReferenceBuilder.class, NameFactory.MODULE_BUILDER);
         infoFactory.addReference("WebConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
@@ -747,7 +755,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 "nonTransactionalTimerAbstractName",
                 "corbaGBeanAbstractName",
                 "serverName",
-                "Repository",
+                "Repositories",
                 "EJBConfigBuilder",
                 "EJBReferenceBuilder",
                 "WebConfigBuilder",

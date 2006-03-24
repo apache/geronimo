@@ -22,12 +22,15 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.KernelConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
@@ -78,7 +81,7 @@ public class PackageBuilder {
     private File repository;
     private String deploymentConfigString;
     private Artifact[] deploymentConfig;
-    private ObjectName deployerName;
+    private AbstractName deployerName;
 
     private File planFile;
     private File moduleFile;
@@ -147,11 +150,7 @@ public class PackageBuilder {
      * @param deployerName the name of the Deployer GBean
      */
     public void setDeployerName(String deployerName) {
-        try {
-            this.deployerName = new ObjectName(deployerName);
-        } catch (MalformedObjectNameException e) {
-            throw new IllegalArgumentException("deployerName is not a valid ObjectName: " + deployerName);
-        }
+            this.deployerName = new AbstractName(URI.create(deployerName));
     }
 
     public File getPlanFile() {
@@ -251,7 +250,7 @@ public class PackageBuilder {
                 ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
             }
 
-            ObjectName deployer = locateDeployer(kernel);
+            AbstractName deployer = locateDeployer(kernel);
             invokeDeployer(kernel, deployer);
             System.out.println("Generated package " + packageFile);
         } catch (Exception e) {
@@ -291,67 +290,108 @@ public class PackageBuilder {
      * the local maven installation.
      */
     private static void bootDeployerSystem(Kernel kernel, File repository, String repoClass, String configStoreClass) throws Exception {
-        Artifact artifact = new Artifact("geronimo", "packaging", "fixed", "car");
-        Map nameMap = new HashMap();
-        nameMap.put("type", "plugin");
-        nameMap.put("name", "packaging");
-        ObjectName objectName;
-        try {
-            objectName = ObjectName.getInstance(KERNEL_NAME + "j2eeType=plugin,name=packaging");
-        } catch (MalformedObjectNameException e) {
-            throw (IllegalArgumentException)new IllegalArgumentException("Could not construct a fixed object name").initCause(e);
-        }
-        AbstractName rootName = new AbstractName(artifact, nameMap, objectName);
-        AbstractName repositoryName = kernel.getNaming().createChildName(rootName, "Repository", "Repository");
-        AbstractName artifactManagerName = kernel.getNaming().createChildName(rootName, "ArtifactManager", "ArtifactManager");
-        AbstractName artifactResolverName = kernel.getNaming().createChildName(rootName, "ArtifactResolver", "ArtifactResolver");
-        AbstractName configStoreName = kernel.getNaming().createChildName(rootName, "PackageBuilderConfigStore", "ConfigurationStore");
-        AbstractName configManagerName = kernel.getNaming().createChildName(rootName, "ConfigurationManager", "ConfigurationManager");
-        AbstractName attributeStoreName = kernel.getNaming().createChildName(rootName, "ManagedAttributeStore", "ManagedAttributeStore");
-
+        Artifact baseId = new Artifact("geronimo", "packaging", "fixed", "car");
+        Naming naming = kernel.getNaming();
+        ConfigurationData bootstrap = new ConfigurationData(baseId, naming);
         ClassLoader cl = PackageBuilder.class.getClassLoader();
-        GBeanInfo repoInfo = GBeanInfo.getGBeanInfo(repoClass, cl);
-        GBeanData repoGBean = new GBeanData(repositoryName, repoInfo);
+
+        GBeanData repoGBean = bootstrap.addGBean("Repository", GBeanInfo.getGBeanInfo(repoClass, cl));
         URI repositoryURI = repository.toURI();
         repoGBean.setAttribute("root", repositoryURI);
-        kernel.loadGBean(repoGBean, cl);
-        kernel.startGBean(repositoryName);
 
-        //TODO parameterize these?
-        GBeanData artifactManagerGBean = new GBeanData(artifactManagerName, DefaultArtifactManager.GBEAN_INFO);
-        kernel.loadGBean(artifactManagerGBean, cl);
-        kernel.startGBean(artifactManagerName);
+        GBeanData artifactManagerGBean = bootstrap.addGBean("ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
 
-        GBeanData artifactResolverGBean = new GBeanData(artifactResolverName, DefaultArtifactResolver.GBEAN_INFO);
-        artifactResolverGBean.setReferencePattern("Repositories", repositoryName);
-        artifactResolverGBean.setReferencePattern("ArtifactManager", artifactManagerName);
-        kernel.loadGBean(artifactResolverGBean, cl);
-        kernel.startGBean(artifactResolverName);
+        GBeanData artifactResolverGBean = bootstrap.addGBean("ArtifactResolver", DefaultArtifactResolver.GBEAN_INFO);
+        artifactResolverGBean.setReferencePattern("Repositories", repoGBean.getAbstractName());
+        artifactResolverGBean.setReferencePattern("ArtifactManager", artifactManagerGBean.getAbstractName());
 
         GBeanInfo configStoreInfo = GBeanInfo.getGBeanInfo(configStoreClass, cl);
-        GBeanData storeGBean = new GBeanData(configStoreName, configStoreInfo);
-        Set refs = configStoreInfo.getReferences();
-        for (Iterator iterator = refs.iterator(); iterator.hasNext();) {
-            GReferenceInfo refInfo = (GReferenceInfo) iterator.next();
-            if ("Repository".equals(refInfo.getName())) {
-                storeGBean.setReferencePattern("Repository", repositoryName);
-                break;
-            }
+        GBeanData storeGBean = bootstrap.addGBean("ConfigStore", configStoreInfo);
+        if (configStoreInfo.getReference("Repository") != null) {
+            storeGBean.setReferencePattern("Repository", repoGBean.getAbstractName());
         }
-        kernel.loadGBean(storeGBean, cl);
-        kernel.startGBean(configStoreName);
+//        Set refs = configStoreInfo.getReferences();
+//        for (Iterator iterator = refs.iterator(); iterator.hasNext();) {
+//            GReferenceInfo refInfo = (GReferenceInfo) iterator.next();
+//            if ("Repository".equals(refInfo.getName())) {
+//                storeGBean.setReferencePattern("Repository", repositoryName);
+//                break;
+//            }
+//        }
 
-        GBeanData configManagerGBean = new GBeanData(configManagerName, KernelConfigurationManager.GBEAN_INFO);
-        configManagerGBean.setReferencePattern("Stores", configStoreName);
-        configManagerGBean.setReferencePattern("AttributeStore", attributeStoreName);
-        configManagerGBean.setReferencePattern("ArtifactManager", artifactManagerName);
-        configManagerGBean.setReferencePattern("ArtifactResolver", artifactResolverName);
-        kernel.loadGBean(configManagerGBean, cl);
-        kernel.startGBean(configManagerName);
+        GBeanData attrManagerGBean = bootstrap.addGBean("AttributeStore", MavenAttributeStore.GBEAN_INFO);
 
-        GBeanData attrManagerGBean = new GBeanData(attributeStoreName, MavenAttributeStore.GBEAN_INFO);
-        kernel.loadGBean(attrManagerGBean, cl);
-        kernel.startGBean(attributeStoreName);
+        GBeanData configManagerGBean = bootstrap.addGBean("ConfigManager", KernelConfigurationManager.GBEAN_INFO);
+        configManagerGBean.setReferencePattern("Stores", storeGBean.getAbstractName());
+        configManagerGBean.setReferencePattern("AttributeStore", attrManagerGBean.getAbstractName());
+        configManagerGBean.setReferencePattern("ArtifactManager", artifactManagerGBean.getAbstractName());
+        configManagerGBean.setReferencePattern("ArtifactResolver", artifactResolverGBean.getAbstractName());
+        configManagerGBean.setReferencePattern("Repositories", repoGBean.getAbstractName());
+
+        ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, cl);
+
+//        Map nameMap = new HashMap();
+//        nameMap.put("type", "plugin");
+//        nameMap.put("name", "packaging");
+//        ObjectName objectName;
+//        try {
+//            objectName = ObjectName.getInstance(KERNEL_NAME + "j2eeType=plugin,name=packaging");
+//        } catch (MalformedObjectNameException e) {
+//            throw (IllegalArgumentException)new IllegalArgumentException("Could not construct a fixed object name").initCause(e);
+//        }
+//        AbstractName rootName = new AbstractName(baseId, nameMap, objectName);
+//        AbstractName repositoryName = kernel.getNaming().createChildName(rootName, "Repository", "Repository");
+//        AbstractName artifactManagerName = kernel.getNaming().createChildName(rootName, "ArtifactManager", "ArtifactManager");
+//        AbstractName artifactResolverName = kernel.getNaming().createChildName(rootName, "ArtifactResolver", "ArtifactResolver");
+//        AbstractName configStoreName = kernel.getNaming().createChildName(rootName, "PackageBuilderConfigStore", "ConfigurationStore");
+//        AbstractName configManagerName = kernel.getNaming().createChildName(rootName, "ConfigurationManager", "ConfigurationManager");
+//        AbstractName attributeStoreName = kernel.getNaming().createChildName(rootName, "ManagedAttributeStore", "ManagedAttributeStore");
+//
+//        GBeanInfo repoInfo = GBeanInfo.getGBeanInfo(repoClass, cl);
+//        GBeanData repoGBean = new GBeanData(repositoryName, repoInfo);
+//        URI repositoryURI = repository.toURI();
+//        repoGBean.setAttribute("root", repositoryURI);
+//        kernel.loadGBean(repoGBean, cl);
+//        kernel.startGBean(repositoryName);
+
+        //TODO parameterize these?
+//        GBeanData artifactManagerGBean = new GBeanData(artifactManagerName, DefaultArtifactManager.GBEAN_INFO);
+//        kernel.loadGBean(artifactManagerGBean, cl);
+//        kernel.startGBean(artifactManagerName);
+
+//        GBeanData artifactResolverGBean = new GBeanData(artifactResolverName, DefaultArtifactResolver.GBEAN_INFO);
+//        artifactResolverGBean.setReferencePattern("Repositories", repositoryName);
+//        artifactResolverGBean.setReferencePattern("ArtifactManager", artifactManagerName);
+//        kernel.loadGBean(artifactResolverGBean, cl);
+//        kernel.startGBean(artifactResolverName);
+
+//        GBeanInfo configStoreInfo = GBeanInfo.getGBeanInfo(configStoreClass, cl);
+//        GBeanData storeGBean = new GBeanData(configStoreName, configStoreInfo);
+//        Set refs = configStoreInfo.getReferences();
+//        for (Iterator iterator = refs.iterator(); iterator.hasNext();) {
+//            GReferenceInfo refInfo = (GReferenceInfo) iterator.next();
+//            if ("Repository".equals(refInfo.getName())) {
+//                storeGBean.setReferencePattern("Repository", repositoryName);
+//                break;
+//            }
+//        }
+//        kernel.loadGBean(storeGBean, cl);
+//        kernel.startGBean(configStoreName);
+
+//        GBeanData configManagerGBean = new GBeanData(configManagerName, KernelConfigurationManager.GBEAN_INFO);
+//        configManagerGBean.setReferencePattern("Stores", configStoreName);
+//        configManagerGBean.setReferencePattern("AttributeStore", attributeStoreName);
+//        configManagerGBean.setReferencePattern("ArtifactManager", artifactManagerName);
+//        configManagerGBean.setReferencePattern("ArtifactResolver", artifactResolverName);
+//        kernel.loadGBean(configManagerGBean, cl);
+//        kernel.startGBean(configManagerName);
+//
+//        GBeanData attrManagerGBean = new GBeanData(attributeStoreName, MavenAttributeStore.GBEAN_INFO);
+//        kernel.loadGBean(attrManagerGBean, cl);
+//        kernel.startGBean(attributeStoreName);
+
+
+
     }
 
     /**
@@ -361,19 +401,19 @@ public class PackageBuilder {
      * @return the ObjectName of the Deployer GBean
      * @throws IllegalStateException if there is not exactly one GBean matching the deployerName pattern
      */
-    private ObjectName locateDeployer(Kernel kernel) {
-        Iterator i = kernel.listGBeans(deployerName).iterator();
+    private AbstractName locateDeployer(Kernel kernel) {
+        Iterator i = kernel.listGBeans(new AbstractNameQuery(deployerName)).iterator();
         if (!i.hasNext()) {
             throw new IllegalStateException("No deployer found matching deployerName: " + deployerName);
         }
-        ObjectName deployer = (ObjectName) i.next();
+        AbstractName deployer = (AbstractName) i.next();
         if (i.hasNext()) {
             throw new IllegalStateException("Multiple deployers found matching deployerName: " + deployerName);
         }
         return deployer;
     }
 
-    private List invokeDeployer(Kernel kernel, ObjectName deployer) throws Exception {
+    private List invokeDeployer(Kernel kernel, AbstractName deployer) throws Exception {
         boolean isExecutable = mainClass != null;
         Object[] args = {planFile, moduleFile, isExecutable ? packageFile : null, Boolean.valueOf(!isExecutable), mainClass, classPath, endorsedDirs, extensionDirs};
         return (List) kernel.invoke(deployer, "deploy", args, ARG_TYPES);

@@ -124,7 +124,7 @@ Configuration for Tomcat server.
         </reference>
         <references name="Hosts">
             <pattern>
-                <gbean-name>geronimo.server:j2eeType=Host,*</gbean-name>
+                <type>Host</type>
             </pattern>
         </references>
         <reference name="RealmGBean">
@@ -141,12 +141,12 @@ Configuration for Tomcat server.
 
     <gbean name="TomcatAccessLogManager" class="org.apache.geronimo.tomcat.TomcatLogManagerImpl">
         <reference name="ServerInfo">
-            <module>geronimo/j2ee-system/${pom.currentVersion}/car</module>
+            <!--<module>geronimo/j2ee-system/${pom.currentVersion}/car</module>-->
             <name>ServerInfo</name>
         </reference>
         <references name="LogGBeans">
             <pattern>
-                <gbean-name>geronimo.server:name=FirstValve,*</gbean-name>
+                <name>FirstValve</name>
             </pattern>
         </references>
     </gbean>

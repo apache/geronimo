@@ -76,7 +76,7 @@ public class AbstractName implements Serializable {
     }
 
     public AbstractName(URI uri) {
-        if (uri == null) new NullPointerException("uri is null");
+        if (uri == null) throw new NullPointerException("uri is null");
 
         //
         // Artifact
@@ -165,6 +165,7 @@ public class AbstractName implements Serializable {
         }
     }
 
+    //TODO why not use String.split?
     private static List split(String source, char delim) {
         List parts = new ArrayList();
         for (int index = source.indexOf(delim); index >= 0; index = source.indexOf(delim)) {
@@ -193,13 +194,14 @@ public class AbstractName implements Serializable {
     }
 
     public String toString() {
-        StringBuffer buf = new StringBuffer("AbstractName:");
-        for (Iterator iterator = name.entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            buf.append(",").append(entry.getKey()).append("=").append(entry.getValue());
-        }
-        buf.append(",artifact=").append(artifact);
-        return buf.toString();
+//        StringBuffer buf = new StringBuffer("AbstractName:");
+//        for (Iterator iterator = name.entrySet().iterator(); iterator.hasNext();) {
+//            Map.Entry entry = (Map.Entry) iterator.next();
+//            buf.append(",").append(entry.getKey()).append("=").append(entry.getValue());
+//        }
+//        buf.append(",artifact=").append(artifact);
+//        return buf.toString();
+        return uri.toString();
     }
 
     public boolean equals(Object o) {

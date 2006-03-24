@@ -23,15 +23,14 @@
     <gbean name="EARBuilder" class="org.apache.geronimo.j2ee.deployment.EARConfigBuilder">
         <!--domain set to wildcard so datasources may be deployed independently on client. -->
         <!--a better solution is to get the domain and server from the parent configuration -->
-        <attribute name="transactionContextManagerObjectName">*:name=TransactionContextManager,*</attribute>
-        <attribute name="connectionTrackerObjectName">*:name=ConnectionTracker,*</attribute>
-        <attribute name="transactionalTimerObjectName">geronimo.server:name=TransactionalThreadPooledTimer,*</attribute>
-        <attribute name="nonTransactionalTimerObjectName">
-            geronimo.server:name=NonTransactionalThreadPooledTimer,*</attribute>
-        <attribute name="corbaGBeanObjectName">
-            geronimo.server:J2EEApplication=null,J2EEModule=geronimo/server-corba/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=CORBABean,name=Server</attribute>
-        <reference name="Repository">
-            <gbean-name>*:name=Repository,*</gbean-name>
+        <attribute name="transactionContextManagerAbstractName">?name=TransactionContextManager</attribute>
+        <attribute name="connectionTrackerAbstractName">?name=ConnectionTracker</attribute>
+        <attribute name="transactionalTimerAbstractName">?name=TransactionalThreadPooledTimer</attribute>
+        <attribute name="nonTransactionalTimerAbstractName">?name=NonTransactionalThreadPooledTimer</attribute>
+        <attribute name="corbaGBeanAbstractName">?name=Server</attribute>
+        <attribute name="serverName">?j2eeType=J2EEServer#org.apache.geronimo.management.geronimo.J2EEServer</attribute>
+        <reference name="Repositories">
+            <!--<gbean-name>*:name=Repository,*</gbean-name>-->
         </reference>
         <reference name="WebConfigBuilder">
             <name>WebBuilder</name>
@@ -73,27 +72,21 @@
         <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.1</attribute>
         <references name="ModuleBuilders">
             <pattern>
-                <gbean-name>
-                    geronimo.maven:J2EEApplication=null,J2EEModule=${pom.groupId}/jetty-deployer/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=ModuleBuilder,name=JettyWebBuilder</gbean-name>
+                <name>JettyWebBuilder</name>
             </pattern>
             <pattern>
-                <gbean-name>
-                    geronimo.maven:J2EEApplication=null,J2EEModule=${pom.groupId}/tomcat-deployer/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=ModuleBuilder,name=TomcatWebBuilder</gbean-name>
+                <name>TomcatWebBuilder</name>
             </pattern>
         </references>
     </gbean>
 
     <gbean name="EJBBuilder" class="org.openejb.deployment.OpenEJBModuleBuilder">
-        <attribute name="listener">
-            geronimo.server:J2EEApplication=null,J2EEModule=${pom.groupId}/j2ee-server/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=GBean,name=WebContainer</attribute>
+        <attribute name="listener">?name=WebContainer</attribute>
         <reference name="WebServiceLinkTemplate">
             <name>WebServiceEJBLinkTemplate</name>
         </reference>
         <reference name="WebServiceBuilder">
             <name>WebServiceBuilder</name>
-        </reference>
-        <reference name="Repository">
-            <gbean-name>*:name=Repository,*</gbean-name>
         </reference>
         <xml-attribute name="defaultEnvironment">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
@@ -131,11 +124,9 @@
     </gbean>
 
     <gbean name="AppClientBuilder" class="org.apache.geronimo.client.builder.AppClientModuleBuilder">
-        <attribute name="transactionContextManagerObjectName">
-            geronimo.client:name=TransactionContextManager,*</attribute>
-        <attribute name="connectionTrackerObjectName">geronimo.client:name=ConnectionTracker,*</attribute>
-        <attribute name="corbaGBeanObjectName">
-            geronimo.client:J2EEApplication=null,J2EEModule=geronimo/client-corba/${pom.currentVersion}/car,J2EEServer=client,j2eeType=CORBABean,name=Server</attribute>
+        <attribute name="transactionContextManagerObjectName">?name=TransactionContextManager</attribute>
+        <attribute name="connectionTrackerObjectName">?name=ConnectionTracker</attribute>
+        <attribute name="corbaGBeanObjectName">?name=Server</attribute>
         <reference name="EJBReferenceBuilder">
             <name>ClientEJBReferenceBuilder</name>
         </reference>
