@@ -61,6 +61,7 @@ import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.geronimo.security.keystore.KeystoreManager;
 import org.apache.geronimo.system.logging.SystemLog;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.system.configuration.ConfigurationInstaller;
 
 /**
  * A helper interface to navigate between management objects.  This is not
@@ -97,6 +98,7 @@ public interface ManagementHelper {
     ServerInfo getServerInfo(J2EEServer server);
     JaasLoginServiceMBean getLoginService(J2EEServer server);
     KeystoreManager getKeystoreManager(J2EEServer server);
+    ConfigurationInstaller getConfigurationInstaller(J2EEServer server);
     WebManager[] getWebManagers(J2EEServer server);
     WebAccessLog getWebAccessLog(WebManager manager, WebContainer container);
     WebAccessLog getWebAccessLog(WebManager manager, String containerObjectName);

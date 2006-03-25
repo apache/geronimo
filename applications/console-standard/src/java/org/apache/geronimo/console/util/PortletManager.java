@@ -36,6 +36,7 @@ import org.apache.geronimo.security.jaas.server.JaasLoginServiceMBean;
 import org.apache.geronimo.security.keystore.KeystoreManager;
 import org.apache.geronimo.system.logging.SystemLog;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.system.configuration.ConfigurationInstaller;
 
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
@@ -170,6 +171,11 @@ public class PortletManager {
     public static KeystoreManager getKeystoreManager(PortletRequest request) {
         ManagementHelper helper = getManagementHelper(request);
         return helper.getKeystoreManager(getCurrentServer(request));
+    }
+
+    public static ConfigurationInstaller getConfigurationInstaller(PortletRequest request) {
+        ManagementHelper helper = getManagementHelper(request);
+        return helper.getConfigurationInstaller(getCurrentServer(request));
     }
 
     public static void testLoginModule(PortletRequest request, LoginModule module, Map options) {

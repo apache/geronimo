@@ -16,32 +16,23 @@
  */
 package org.apache.geronimo.console.car;
 
-import org.apache.geronimo.console.keystores.BaseKeystoreHandler;
-import org.apache.geronimo.console.MultiPageModel;
-import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.security.keystore.KeystoreManager;
-import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.console.MultiPageModel;
+import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.system.configuration.ConfigurationMetadata;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
-import javax.portlet.PortletSession;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
 import java.net.URL;
-import java.util.Properties;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.ArrayList;
-import java.util.Set;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Handler for the import export list screen.
@@ -75,64 +66,18 @@ public class ListHandler extends BaseImportExportHandler {
     }
 
     private void loadFromRepository(RenderRequest request, String repository) throws IOException {
-        if(!repository.endsWith("/")) {
-            repository = repository+"/";
-        }
-        URL url = new URL(repository+"geronimo-configurations.properties");
-        Set set = new HashSet();
-        ConfigurationInfo[] installed = PortletManager.getConfigurations(request, null, false);
-        for (int i = 0; i < installed.length; i++) {
-            ConfigurationInfo info = installed[i];
-            set.add(info.getConfigID().toString());
-        }
-        InputStream in = url.openStream();
-        Properties props = new Properties();
-        props.load(in);
-        in.close();
+        ConfigurationMetadata[] data = PortletManager.getConfigurationInstaller(request).listConfigurations(new URL(repository));
+
         Map results = new HashMap();
-        for (Iterator it = props.keySet().iterator(); it.hasNext();) {
-            String key = (String) it.next();
-            int pos = key.indexOf('.');
-            String type = key.substring(0, pos);
-            List values = (List) results.get(type);
+        for (int i = 0; i < data.length; i++) {
+            ConfigurationMetadata metadata = data[i];
+            List values = (List) results.get(metadata.getCategory());
             if(values == null) {
                 values = new ArrayList();
-                results.put(type, values);
+                results.put(metadata.getCategory(), values);
             }
-            String configId = key.substring(pos + 1);
-            values.add(new RepositoryEntry(configId, props.getProperty(key), set.contains(configId)));
+            values.add(metadata);
         }
         request.setAttribute("categories", results);
-    }
-
-    public static class RepositoryEntry implements Serializable {
-        private String configId;
-        private String name;
-        private boolean installed;
-        private String version;
-
-        public RepositoryEntry(String configId, String name, boolean installed) {
-            this.configId = configId;
-            this.name = name;
-            this.installed = installed;
-            String[] parts = configId.split("/");
-            version = parts[2];
-        }
-
-        public String getConfigId() {
-            return configId;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public boolean isInstalled() {
-            return installed;
-        }
-
-        public String getVersion() {
-            return version;
-        }
     }
 }

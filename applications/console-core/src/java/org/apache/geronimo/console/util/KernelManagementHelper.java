@@ -91,6 +91,7 @@ import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.geronimo.security.keystore.KeystoreManager;
 import org.apache.geronimo.system.logging.SystemLog;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.system.configuration.ConfigurationInstaller;
 
 /**
  * An implementation of the ManagementHelper interface that uses a Geronimo
@@ -549,6 +550,16 @@ public class KernelManagementHelper implements ManagementHelper {
             return (KeystoreManager) pm.createProxy(ObjectName.getInstance(name), KernelManagementHelper.class.getClassLoader());
         } catch (Exception e) {
             log.error("Unable to look up KeystoreManager for J2EEServer", e);
+            return null;
+        }
+    }
+
+    public ConfigurationInstaller getConfigurationInstaller(J2EEServer server) {
+        try {
+            String name = server.getConfigurationInstaller();
+            return (ConfigurationInstaller) pm.createProxy(ObjectName.getInstance(name), KernelManagementHelper.class.getClassLoader());
+        } catch (Exception e) {
+            log.error("Unable to look up ConfigurationInstaller for J2EEServer", e);
             return null;
         }
     }

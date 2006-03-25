@@ -26,7 +26,7 @@ import java.io.InputStream;
  *
  * @version $Rev$ $Date$
  */
-public interface WriteableRepository {
+public interface WriteableRepository extends Repository {
     /**
      * Copies a file from the server's filesystem into the repository.
      * Obviously to use this remotely, you must have some other way

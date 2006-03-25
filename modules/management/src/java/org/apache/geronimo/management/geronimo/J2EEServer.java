@@ -108,4 +108,14 @@ public interface J2EEServer extends org.apache.geronimo.management.J2EEServer {
      */
     public String getKeystoreManager();
 
+    /**
+     * Gets the ObjectName of the ConfigurationInstaller associated with this
+     * J2EEServer.
+     *
+     * @see org.apache.geronimo.system.configuration.ConfigurationInstaller
+     *
+     * @return The ObjectName of the ConfigurationInstaller, in String form.
+     */
+    public String getConfigurationInstaller();
+
 }

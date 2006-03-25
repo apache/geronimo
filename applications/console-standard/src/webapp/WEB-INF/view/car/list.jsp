@@ -15,10 +15,10 @@ already available in the local server.</p>
     <c:forEach var="entry" items="${category.value}">
       <c:choose>
         <c:when test="${entry.installed}">
-          <li>${entry.name}</li>
+          <li>${entry.description}</li>
         </c:when>
         <c:otherwise>
-          <li><a href="<portlet:actionURL><portlet:param name="configId" value="${entry.configId}"/><portlet:param name="repository" value="${repository}"/><portlet:param name="mode" value="download-before"/></portlet:actionURL>">${entry.name} (${entry.version})</a></li>
+          <li><a href="<portlet:actionURL><portlet:param name="configId" value="${entry.configId}"/><portlet:param name="repository" value="${repository}"/><portlet:param name="mode" value="download-before"/></portlet:actionURL>">${entry.description} (${entry.version})</a></li>
         </c:otherwise>
       </c:choose>
     </c:forEach>
