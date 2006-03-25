@@ -121,6 +121,11 @@ public class DeploymentContext {
     }
 
     public DeploymentContext(File baseDir, Environment environment, ConfigurationModuleType moduleType, Naming naming, Collection repositories, Collection stores) throws DeploymentException {
+        this(baseDir, environment,  moduleType, naming, createConfigurationManager(repositories, stores, naming));
+    }
+
+    public DeploymentContext(File baseDir, Environment environment, ConfigurationModuleType moduleType, Naming naming, ConfigurationManager configurationManager) throws DeploymentException {
+        this.configurationManager = configurationManager;
         if (baseDir == null) throw new NullPointerException("baseDir is null");
         if (environment == null) throw new NullPointerException("environment is null");
         if (moduleType == null) throw new NullPointerException("type is null");
@@ -137,10 +142,14 @@ public class DeploymentContext {
         this.environment = environment;
         this.naming = naming;
 
+        this.configuration = createTempConfiguration(environment, moduleType, baseDir, configurationManager, naming);
+    }
+
+    private static ConfigurationManager createConfigurationManager(Collection repositories, Collection stores, Naming naming) {
         ArtifactManager artifactManager = new DefaultArtifactManager();
         ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, repositories);
-        this.configurationManager = new SimpleConfigurationManager(stores, artifactResolver, naming, repositories);
-        this.configuration = createTempConfiguration(environment, moduleType, baseDir, configurationManager, naming);
+        ConfigurationManager configurationManager = new SimpleConfigurationManager(stores, artifactResolver, naming, repositories);
+        return configurationManager;
     }
 
     private static Configuration createTempConfiguration(Environment environment, ConfigurationModuleType moduleType, File baseDir, ConfigurationManager configurationManager, Naming naming) throws DeploymentException {
@@ -152,6 +161,10 @@ public class DeploymentContext {
         } catch (Exception e) {
             throw new DeploymentException("Unable to create configuration for deployment", e);
         }
+    }
+
+    protected ConfigurationManager getConfigurationManager() {
+        return configurationManager;
     }
 
     public Artifact getConfigID() {

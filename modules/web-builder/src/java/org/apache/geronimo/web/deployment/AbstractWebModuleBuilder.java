@@ -187,24 +187,15 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
                 moduleContext = new EARContext(configurationDir,
                         environment,
                         ConfigurationModuleType.WAR,
-                        earContext.getNaming(),
-                        repositories,
-                        configurationStores,
-                        earContext.getServerName(),
                         module.getModuleName(),
-                        earContext.getTransactionContextManagerObjectName(),
-                        earContext.getConnectionTrackerObjectName(),
-                        earContext.getTransactedTimerName(),
-                        earContext.getNonTransactedTimerName(),
-                        earContext.getCORBAGBeanObjectName(),
-                        earContext.getRefContext());
+                        earContext);
             } catch (DeploymentException e) {
                 DeploymentUtil.recursiveDelete(configurationDir);
                 throw e;
             }
             //TODO this is extremely fishy
             //Add the ear parent here since it can't be loaded by any config store.
-            environment.addDependency(earConfigId, ImportType.ALL);
+//            environment.addDependency(earConfigId, ImportType.ALL);
         }
         module.setEarContext(moduleContext);
 

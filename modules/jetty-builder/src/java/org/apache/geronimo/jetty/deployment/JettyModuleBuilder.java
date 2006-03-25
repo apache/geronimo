@@ -90,6 +90,7 @@ import org.mortbay.jetty.servlet.FormAuthenticator;
 
 import javax.servlet.Servlet;
 import javax.transaction.UserTransaction;
+import javax.management.ObjectName;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -297,13 +298,12 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
     }
 
     public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
-        EARContext moduleContext = module.getEarContext();
         WebAppType webApp = (WebAppType) module.getSpecDD();
         MessageDestinationType[] messageDestinations = webApp.getMessageDestinationArray();
         JettyWebAppType gerWebApp = (JettyWebAppType) module.getVendorDD();
         GerMessageDestinationType[] gerMessageDestinations = gerWebApp.getMessageDestinationArray();
 
-        ENCConfigBuilder.registerMessageDestinations(moduleContext.getRefContext(), module.getName(), messageDestinations, gerMessageDestinations);
+        ENCConfigBuilder.registerMessageDestinations(earContext.getRefContext(), module.getName(), messageDestinations, gerMessageDestinations);
         if ((webApp.getSecurityConstraintArray().length > 0 || webApp.getSecurityRoleArray().length > 0) &&
                 !gerWebApp.isSetSecurityRealmName()) {
             throw new DeploymentException("web.xml includes security elements but Geronimo deployment plan is not provided or does not contain <security-realm-name> element necessary to configure security accordingly.");
@@ -606,7 +606,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 if (filterMappingType.isSetUrlPattern()) {
                     String urlPattern = filterMappingType.getUrlPattern().getStringValue().trim();
                     filterMappingData.setAttribute("urlPattern", urlPattern);
-                    filterMappingName = earContext.getNaming().createChildName(filterAbstractName, urlPattern, NameFactory.URL_WEB_FILTER_MAPPING);
+                    filterMappingName = earContext.getNaming().createChildName(filterAbstractName, ObjectName.quote(urlPattern), NameFactory.URL_WEB_FILTER_MAPPING);
                 }
                 if (filterMappingType.isSetServletName()) {
                     String servletName = filterMappingType.getServletName().getStringValue().trim();

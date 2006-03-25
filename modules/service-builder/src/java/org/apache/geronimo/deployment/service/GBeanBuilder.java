@@ -17,6 +17,14 @@
 
 package org.apache.geronimo.deployment.service;
 
+import java.beans.PropertyEditor;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -30,16 +38,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.Naming;
 import org.apache.xmlbeans.XmlObject;
-
-import java.beans.PropertyEditor;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * @version $Rev$ $Date$
@@ -132,7 +131,7 @@ public class GBeanBuilder {
     }
 
     public void addDependency(PatternType patternType) throws DeploymentException {
-        AbstractNameQuery refInfo = buildAbstractNameQuery(null, patternType);
+        AbstractNameQuery refInfo = buildAbstractNameQuery(patternType, null);
         gbean.addDependency(refInfo);
     }
 
@@ -167,7 +166,7 @@ public class GBeanBuilder {
 
         Artifact artifact = artifactid != null? new Artifact(groupId, artifactid, version, "car"): null;
         //get the type from the gbean info if not supplied explicitly
-        if (type == null) {
+        if (type == null && referenceInfo != null) {
             type = referenceInfo.getNameTypeName();
         }
         Map nameMap = new HashMap();
@@ -180,7 +179,7 @@ public class GBeanBuilder {
         if (module != null) {
             nameMap.put("J2EEModule", module);
         }
-        String interfaceType = referenceInfo.getReferenceType();
+        String interfaceType = referenceInfo == null? null: referenceInfo.getReferenceType();
         return new AbstractNameQuery(artifact, nameMap, Collections.singleton(interfaceType));
     }
 

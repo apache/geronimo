@@ -131,6 +131,7 @@ public class ENCConfigBuilder {
     }
 
     static void addResourceRefs(Configuration earContext, RefContext refContext, URI moduleURI, ResourceRefType[] resourceRefs, Map refMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
+        //TODO configid remove URI parameter?
         if (refMap == null) {
             refMap = Collections.EMPTY_MAP;
         }
@@ -170,7 +171,7 @@ public class ENCConfigBuilder {
                     j2eeType = NameFactory.JCA_MANAGED_CONNECTION_FACTORY;
                 }
                 try {
-                    AbstractNameQuery containerId = getResourceContainerId(name, j2eeType, moduleURI, gerResourceRef);
+                    AbstractNameQuery containerId = getResourceContainerId(name, j2eeType, null, gerResourceRef);
 
                     ref = refContext.getConnectionFactoryRef(containerId, iface, earContext);
                     builder.bind(name, ref);
@@ -601,6 +602,7 @@ public class ENCConfigBuilder {
 
 
     public static void setResourceEnvironment(URI uri, ResourceEnvironmentBuilder builder, ResourceRefType[] resourceRefs, GerResourceRefType[] gerResourceRefs) {
+        //TODO configid remove URI parameter?
         Map refMap = mapResourceRefs(gerResourceRefs);
         Set unshareableResources = new HashSet();
         Set applicationManagedSecurityResources = new HashSet();
@@ -614,7 +616,7 @@ public class ENCConfigBuilder {
                     && !JAXR_CONNECTION_FACTORY_CLASS.equals(type)) {
 
                 GerResourceRefType gerResourceRef = (GerResourceRefType) refMap.get(resourceRefType.getResRefName().getStringValue());
-                AbstractNameQuery containerId = getResourceContainerId(getStringValue(resourceRefType.getResRefName()), NameFactory.JCA_MANAGED_CONNECTION_FACTORY, uri, gerResourceRef);
+                AbstractNameQuery containerId = getResourceContainerId(getStringValue(resourceRefType.getResRefName()), NameFactory.JCA_MANAGED_CONNECTION_FACTORY, null, gerResourceRef);
 
                 if ("Unshareable".equals(getStringValue(resourceRefType.getResSharingScope()))) {
                     unshareableResources.add(containerId);

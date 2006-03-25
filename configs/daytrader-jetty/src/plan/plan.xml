@@ -280,7 +280,8 @@
                 <message-driven>
                     <ejb-name>TradeStreamerMDB</ejb-name>
                     <resource-adapter>
-                        <resource-link>TradeJMSResources</resource-link>
+                        <resource-link>TradeJMS</resource-link>
+                        <!--<resource-link>TradeJMSResources</resource-link>-->
                     </resource-adapter>
                     <activation-config>
                         <activation-config-property>
@@ -305,7 +306,8 @@
                 <message-driven>
                     <ejb-name>TradeBrokerMDB</ejb-name>
                     <resource-adapter>
-                        <resource-link>TradeJMSResources</resource-link>
+                        <resource-link>TradeJMS</resource-link>
+                        <!--<resource-link>TradeJMSResources</resource-link>-->
                     </resource-adapter>
                     <activation-config>
                         <activation-config-property>
@@ -691,9 +693,6 @@
                 <attribute name="prefix">META-INF/geronimo-daytrader-derby-db</attribute>
                 <attribute name="path">var/derby</attribute>
                 <reference name="ServerInfo">
-                    <application>null</application>
-                    <moduleType>J2EEModule</moduleType>
-                    <module>geronimo/j2ee-system/${pom.currentVersion}/car</module>
                     <name>ServerInfo</name>
                 </reference>
             </gbean>

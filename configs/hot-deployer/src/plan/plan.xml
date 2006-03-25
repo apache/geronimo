@@ -26,28 +26,13 @@ Child of the geronimo/j2ee-server/${pom.currentVersion}/car configuration that i
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
 
     >
-<!--
-    <dependency>
-        <uri>geronimo/geronimo-hot-deploy/${geronimo_version}/jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/geronimo-deploy-tool/${geronimo_version}/jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/geronimo-deploy-jsr88/${geronimo_version}/jar</uri>
-    </dependency>
--->
     <gbean name="HotDeployer" class="org.apache.geronimo.deployment.hot.DirectoryHotDeployer">
         <reference name="ServerInfo">
-            <module>geronimo/j2ee-system/${pom.currentVersion}/car</module>
             <name>ServerInfo</name>
         </reference>
 		<attribute name="path">deploy/</attribute>
         <attribute name="pollIntervalMillis">2000</attribute>
         <dependency>
-            <domain>geronimo.maven</domain>
-            <module>geronimo/j2ee-deployer/${pom.currentVersion}/car</module>
-            <type>ConfigBuilder</type>
             <name>EARBuilder</name>
         </dependency>
     </gbean>

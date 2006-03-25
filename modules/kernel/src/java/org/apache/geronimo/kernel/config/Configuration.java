@@ -240,7 +240,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         //
         // Process transtive dependencies splitting it into classParents, serviceParents and artifactDependencies
         //
-        if (parents == null) parents = Collections.EMPTY_SET;
         Map parentsById = new HashMap();
         for (Iterator iterator = parents.iterator(); iterator.hasNext();) {
             Configuration configuration = (Configuration) iterator.next();

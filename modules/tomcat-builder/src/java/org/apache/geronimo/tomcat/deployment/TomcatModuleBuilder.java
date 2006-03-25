@@ -50,6 +50,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
@@ -99,7 +100,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
     private final Environment defaultEnvironment;
     private final boolean defaultContextPriorityClassloader;
-    private final AbstractName tomcatContainerObjectName;
+    private final AbstractNameQuery tomcatContainerName;
 
     private final WebServiceBuilder webServiceBuilder;
 
@@ -107,14 +108,14 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
     public TomcatModuleBuilder(Environment defaultEnvironment,
                                boolean defaultContextPriorityClassloader,
-                               AbstractName tomcatContainerName,
+                               AbstractNameQuery tomcatContainerName,
                                WebServiceBuilder webServiceBuilder,
                                Kernel kernel) {
         super(kernel);
         this.defaultEnvironment = defaultEnvironment;
 
         this.defaultContextPriorityClassloader = defaultContextPriorityClassloader;
-        this.tomcatContainerObjectName = tomcatContainerName;
+        this.tomcatContainerName = tomcatContainerName;
         this.webServiceBuilder = webServiceBuilder;
     }
 
@@ -248,13 +249,12 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
 
     public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
-        EARContext moduleContext = module.getEarContext();
         WebAppType webApp = (WebAppType) module.getSpecDD();
         MessageDestinationType[] messageDestinations = webApp.getMessageDestinationArray();
         TomcatWebAppType gerWebApp = (TomcatWebAppType) module.getVendorDD();
         GerMessageDestinationType[] gerMessageDestinations = gerWebApp.getMessageDestinationArray();
 
-        ENCConfigBuilder.registerMessageDestinations(moduleContext.getRefContext(), module.getName(), messageDestinations, gerMessageDestinations);
+        ENCConfigBuilder.registerMessageDestinations(earContext.getRefContext(), module.getName(), messageDestinations, gerMessageDestinations);
         if((webApp.getSecurityConstraintArray().length > 0 || webApp.getSecurityRoleArray().length > 0) &&
                 !gerWebApp.isSetSecurityRealmName()) {
             throw new DeploymentException("web.xml includes security elements but Geronimo deployment plan is not provided or does not contain <security-realm-name> element necessary to configure security accordingly.");
@@ -318,7 +318,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
             webModuleData.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
             webModuleData.setReferencePattern("TrackedConnectionAssociator", earContext.getConnectionTrackerObjectName());
-            webModuleData.setReferencePattern("Container", tomcatContainerObjectName);
+            webModuleData.setReferencePattern("Container", tomcatContainerName);
 
             // Process the Tomcat container-config elements
             if (tomcatWebApp.isSetHost()) {
@@ -469,7 +469,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(TomcatModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
         infoBuilder.addAttribute("defaultContextPriorityClassloader", boolean.class, true, true);
-        infoBuilder.addAttribute("tomcatContainerObjectName", AbstractName.class, true, true);
+        infoBuilder.addAttribute("tomcatContainerName", AbstractNameQuery.class, true, true);
         infoBuilder.addReference("WebServiceBuilder", WebServiceBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
         infoBuilder.addInterface(ModuleBuilder.class);
@@ -477,7 +477,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         infoBuilder.setConstructor(new String[]{
             "defaultEnvironment",
             "defaultContextPriorityClassloader",
-            "tomcatContainerObjectName",
+            "tomcatContainerName",
             "WebServiceBuilder",
             "kernel"});
         GBEAN_INFO = infoBuilder.getBeanInfo();

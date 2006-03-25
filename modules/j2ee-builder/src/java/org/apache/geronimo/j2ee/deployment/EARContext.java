@@ -20,21 +20,18 @@ import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Collections;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 
 /**
- * @version $Rev: 386000 $ $Date$
+ * @version $Rev:386276 $ $Date$
  */
 public class EARContext extends DeploymentContext {
 
@@ -54,23 +51,6 @@ public class EARContext extends DeploymentContext {
     private AbstractName jaccManagerName;
     private SecurityConfiguration securityConfiguration;
 
-    public EARContext(File baseDir, Environment environment, ConfigurationModuleType moduleType, Naming naming, Repository repository, ConfigurationStore configurationStore, AbstractNameQuery serverName, AbstractName baseName, AbstractNameQuery transactionContextManagerObjectName, AbstractNameQuery connectionTrackerObjectName, AbstractNameQuery transactedTimerName, AbstractNameQuery nonTransactedTimerName, AbstractNameQuery corbaGBeanObjectName, RefContext refContext) throws DeploymentException {
-        this(baseDir,
-                environment,
-                moduleType,
-                naming,
-                repository == null ? Collections.EMPTY_SET : Collections.singleton(repository),
-                configurationStore == null ? Collections.EMPTY_SET : Collections.singleton(configurationStore), 
-                serverName,
-                baseName,
-                transactionContextManagerObjectName,
-                connectionTrackerObjectName,
-                transactedTimerName,
-                nonTransactedTimerName,
-                corbaGBeanObjectName,
-                refContext);
-    }
-
     public EARContext(File baseDir, Environment environment, ConfigurationModuleType moduleType, Naming naming, Collection repositories, Collection configurationStores, AbstractNameQuery serverName, AbstractName baseName, AbstractNameQuery transactionContextManagerObjectName, AbstractNameQuery connectionTrackerObjectName, AbstractNameQuery transactedTimerName, AbstractNameQuery nonTransactedTimerName, AbstractNameQuery corbaGBeanObjectName, RefContext refContext) throws DeploymentException {
         super(baseDir, environment, moduleType, naming, repositories, configurationStores);
         moduleName = baseName;
@@ -82,6 +62,19 @@ public class EARContext extends DeploymentContext {
         this.nonTransactedTimerName = nonTransactedTimerName;
         this.corbaGBeanObjectName = corbaGBeanObjectName;
         this.refContext = refContext;
+    }
+
+    public EARContext(File baseDir, Environment environment, ConfigurationModuleType moduleType, AbstractName baseName, EARContext parent) throws DeploymentException {
+        super(baseDir, environment, moduleType, parent.getNaming(), parent.getConfigurationManager());
+        moduleName = baseName;
+        this.serverName = parent.getServerName();
+
+        this.transactionContextManagerObjectName = parent.getTransactionContextManagerObjectName();
+        this.connectionTrackerObjectName = parent.getConnectionTrackerObjectName();
+        this.transactedTimerName = parent.getTransactedTimerName();
+        this.nonTransactedTimerName = parent.getNonTransactedTimerName();
+        this.corbaGBeanObjectName = parent.getCORBAGBeanObjectName();
+        this.refContext = parent.getRefContext();
     }
 
     public AbstractNameQuery getServerName() {

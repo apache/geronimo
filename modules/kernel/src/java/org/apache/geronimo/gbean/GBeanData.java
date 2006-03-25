@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @version $Rev: 384686 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class GBeanData implements Externalizable {
     private GBeanInfo gbeanInfo;
@@ -203,8 +203,8 @@ public class GBeanData implements Externalizable {
         //write the dependencies
         out.writeInt(dependencies.size());
         for (Iterator iterator = dependencies.iterator(); iterator.hasNext();) {
-            ObjectName objectName = (ObjectName) iterator.next();
-            out.writeObject(objectName);
+            ReferencePatterns referencePatterns = (ReferencePatterns) iterator.next();
+            out.writeObject(referencePatterns);
         }
 
     }
@@ -239,8 +239,8 @@ public class GBeanData implements Externalizable {
             //read the dependencies
             int dependencyCount = in.readInt();
             for (int i = 0; i < dependencyCount; i++) {
-                ObjectName objectName = (ObjectName) in.readObject();
-                dependencies.add(objectName);
+                ReferencePatterns referencePatterns = (ReferencePatterns) in.readObject();
+                dependencies.add(referencePatterns);
             }
         } catch (IOException e) {
             throw (IOException) new IOException("Unable to deserialize GBeanData " + abstractName).initCause(e);

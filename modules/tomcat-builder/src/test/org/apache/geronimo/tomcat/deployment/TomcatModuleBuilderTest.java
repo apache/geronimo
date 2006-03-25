@@ -176,8 +176,8 @@ public class TomcatModuleBuilderTest extends TestCase {
                 environment,
                 ConfigurationModuleType.WAR,
                 naming,
-                repository,
-                configStore,
+                repository == null? Collections.EMPTY_SET: Collections.singleton(repository),
+                Collections.singleton(configStore),
                 new AbstractNameQuery(serverName),
                 moduleName,
                 new AbstractNameQuery(tcmName),
@@ -362,7 +362,7 @@ public class TomcatModuleBuilderTest extends TestCase {
 
         defaultEnvironment.addDependency(baseId, ImportType.ALL);
         defaultEnvironment.setConfigId(webModuleArtifact);
-        builder = new TomcatModuleBuilder(defaultEnvironment, true, containerName, webServiceBuilder, null);
+        builder = new TomcatModuleBuilder(defaultEnvironment, true, new AbstractNameQuery(containerName), webServiceBuilder, null);
     }
 
     protected void tearDown() throws Exception {
