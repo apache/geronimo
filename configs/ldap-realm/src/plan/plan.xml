@@ -31,12 +31,10 @@
             	<name>ldap-login</name>
         </reference> 
         <reference name="ServerInfo">
-            <module>geronimo/j2ee-system/${pom.currentVersion}/car</module>
             <name>ServerInfo</name>
         </reference>
         <!-- Add -->
         <reference name="LoginService">
-            <module>geronimo/j2ee-security/${pom.currentVersion}/car</module>
             <name>JaasLoginService</name>
          </reference>
     </gbean>
@@ -53,7 +51,6 @@
         <attribute name="applicationConfigName">ldaptest</attribute>
         <attribute name="realmName">ldap-realm</attribute>
         <reference name="LoginService">
-            <module>geronimo/j2ee-security/${pom.currentVersion}/car</module>
             <name>JaasLoginService</name>
          </reference>
     </gbean>

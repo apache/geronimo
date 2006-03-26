@@ -62,6 +62,8 @@ public final class ConfigurationUtil {
         } finally {
             ois.close();
         }
+        ConfigurationResolver configurationResolver = new ConfigurationResolver(configuration.getAbstractName().getArtifact(), null);
+        configuration.setAttribute("configurationResolver", configurationResolver);
 
         return loadBootstrapConfiguration(kernel, configuration, classLoader);
     }

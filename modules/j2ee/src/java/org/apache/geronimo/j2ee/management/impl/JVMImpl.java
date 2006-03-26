@@ -96,7 +96,7 @@ public class JVMImpl implements JVM, StatisticsProvider {
             throw new InvalidObjectNameException("JVM object must contain a J2EEServer property", objectName);
         }
         if (keyPropertyList.size() != 3) {
-            throw new InvalidObjectNameException("J2EEServer object name can only have J2EEServer, j2eeType, and name", objectName);
+            throw new InvalidObjectNameException("JVM object name can only have J2EEServer, j2eeType, and name", objectName);
         }
     }
 

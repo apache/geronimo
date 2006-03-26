@@ -22,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.GeronimoEnvironment;
 import org.apache.geronimo.gbean.GBeanQuery;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
@@ -41,7 +42,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * @version $Rev: 384141 $ $Date$
+ * @version $Rev:385659 $ $Date$
  */
 public class Daemon {
     private final static String ARGUMENT_NO_PROGRESS = "--quiet";
@@ -253,7 +254,7 @@ public class Daemon {
 
             monitor.systemStarted(kernel);
 
-            GBeanQuery query = new GBeanQuery(null, PersistentConfigurationList.class.getName());
+            AbstractNameQuery query = new AbstractNameQuery(PersistentConfigurationList.class.getName());
 
             if (configs.isEmpty()) {
                 // --override wasn't used (nothing explicit), see what was running before

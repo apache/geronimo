@@ -64,14 +64,14 @@
         <reference name="TransactionContextManager"><name>TransactionContextManager</name></reference>
         <reference name="ManagedConnectionFactoryWrapper"><name>SystemDatasource</name></reference>
         <reference name="ThreadPool"><name>DefaultThreadPool</name></reference>
-        <reference name="DerbySystem"><name>DerbySystem</name></reference>
+        <dependency><name>DerbySystem</name></dependency>
     </gbean>
 
     <gbean name="NonTransactionalThreadPooledTimer" class="org.apache.geronimo.timer.jdbc.JDBCStoreThreadPooledNonTransactionalTimer">
         <reference name="TransactionContextManager"><name>TransactionContextManager</name></reference>
         <reference name="ManagedConnectionFactoryWrapper"><name>SystemDatasource</name></reference>
         <reference name="ThreadPool"><name>DefaultThreadPool</name></reference>
-        <reference name="DerbySystem"><name>DerbySystem</name></reference>
+        <dependency><name>DerbySystem</name></dependency>
     </gbean>
 
 </connector>

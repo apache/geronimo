@@ -54,7 +54,6 @@ after the system GBeans but before the server GBeans.
             javax.net.ssl.trustStore=var/security/keystore
         </attribute>
         <reference name="ServerInfo">
-            <module>geronimo/j2ee-system/${pom.currentVersion}/car</module>
             <name>ServerInfo</name>
         </reference>
     </gbean>

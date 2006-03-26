@@ -156,7 +156,7 @@ public class AbstractNameQuery implements Serializable {
 
     private static List split(String source, char delim) {
         List parts = new ArrayList();
-        if (source != null) {
+        if (source != null && source.length() > 0) {
             for (int index = source.indexOf(delim); index >= 0; index = source.indexOf(delim)) {
                 String part = source.substring(0, index);
                 source = source.substring(index + 1);

@@ -41,7 +41,6 @@ public class JDBCStoreThreadPooledNonTransactionalTimer extends ThreadPooledTime
     public JDBCStoreThreadPooledNonTransactionalTimer(ConnectionFactorySource managedConnectionFactoryWrapper,
                                                       TransactionContextManager transactionContextManager,
                                                       Executor threadPool,
-                                                      Serializable derbySystem,
                                                       Kernel kernel) throws SQLException {
         super(new NontransactionalExecutorTaskFactory(transactionContextManager),
                 new JDBCWorkerPersistence(kernel.getKernelName(), (DataSource)managedConnectionFactoryWrapper.$getResource(), false), threadPool, transactionContextManager);
@@ -57,11 +56,10 @@ public class JDBCStoreThreadPooledNonTransactionalTimer extends ThreadPooledTime
         infoFactory.addReference("ManagedConnectionFactoryWrapper", ConnectionFactorySource.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
         infoFactory.addReference("ThreadPool", Executor.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
-        infoFactory.addReference("DerbySystem", Serializable.class, NameFactory.GERONIMO_SERVICE);
-        
+
         infoFactory.addAttribute("kernel", Kernel.class, false);
 
-        infoFactory.setConstructor(new String[]{"ManagedConnectionFactoryWrapper", "TransactionContextManager", "ThreadPool", "DerbySystem", "kernel"});
+        infoFactory.setConstructor(new String[]{"ManagedConnectionFactoryWrapper", "TransactionContextManager", "ThreadPool", "kernel"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

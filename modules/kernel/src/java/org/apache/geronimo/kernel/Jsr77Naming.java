@@ -19,6 +19,9 @@ package org.apache.geronimo.kernel;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.HashSet;
+import java.util.Arrays;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -70,11 +73,26 @@ public class Jsr77Naming extends Naming {
      */
     private static ObjectName createObjectName(Map nameMap) {
         Hashtable objectNameMap = new Hashtable(nameMap);
-        if (!"J2EEServer".equals(nameMap.get(J2EE_TYPE))) {
+        String type = (String) nameMap.get(J2EE_TYPE);
+        if ("JVM".equals(type)) {
+            objectNameMap.keySet().retainAll(Arrays.asList(new String[] {J2EE_TYPE, J2EE_NAME, "J2EEServer"}));
+            objectNameMap.put("J2EEServer", DEFAULT_SERVER_NAME);
+        } else if ("J2EEDomain".equals(type)) {
+            //special case J2EEDomain gbean
+            objectNameMap.clear();
+            objectNameMap.put(J2EE_TYPE, "J2EEDomain");
+            objectNameMap.put(J2EE_NAME, DEFAULT_DOMAIN_NAME);
+            objectNameMap.put("J2EEServer", DEFAULT_SERVER_NAME);
+        } else if ("J2EEServer".equals(type)) {
+            //special case J2EEServer gbean
+            objectNameMap.clear();
+            objectNameMap.put(J2EE_TYPE, "J2EEServer");
+            objectNameMap.put(J2EE_NAME, DEFAULT_SERVER_NAME);
+        } else {
             objectNameMap.put("J2EEServer", DEFAULT_SERVER_NAME);
         }
 
-        ObjectName moduleObjectName = null;
+        ObjectName moduleObjectName;
         try {
             moduleObjectName = ObjectName.getInstance(DEFAULT_DOMAIN_NAME, objectNameMap);
         } catch (MalformedObjectNameException e) {

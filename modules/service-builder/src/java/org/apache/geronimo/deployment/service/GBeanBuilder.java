@@ -179,8 +179,8 @@ public class GBeanBuilder {
         if (module != null) {
             nameMap.put("J2EEModule", module);
         }
-        String interfaceType = referenceInfo == null? null: referenceInfo.getReferenceType();
-        return new AbstractNameQuery(artifact, nameMap, Collections.singleton(interfaceType));
+        Set interfaceTypes = referenceInfo == null? null: Collections.singleton(referenceInfo.getReferenceType());
+        return new AbstractNameQuery(artifact, nameMap, interfaceTypes);
     }
 
     public GBeanData getGBeanData() {

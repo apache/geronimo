@@ -41,7 +41,6 @@ Configuration for Jetty server.
             </pattern>
         </references>
         <reference name="ServerInfo">
-            <module>geronimo/j2ee-system/${pom.currentVersion}/car</module>
             <name>ServerInfo</name>
         </reference>
     </gbean>
@@ -56,7 +55,6 @@ Configuration for Jetty server.
             <name>JettyWebContainer</name>
         </reference>
         <reference name="ServerInfo">
-            <!--<module>geronimo/j2ee-system/${pom.currentVersion}/car</module>-->
             <name>ServerInfo</name>
         </reference>
         <attribute name="filename">var/log/jetty_yyyy_mm_dd.log</attribute>
@@ -103,7 +101,6 @@ Configuration for Jetty server.
             <name>JettyWebContainer</name>
         </reference>
         <reference name="ServerInfo">
-            <!--<module>geronimo/j2ee-system/${pom.currentVersion}/car</module>-->
             <name>ServerInfo</name>
         </reference>
     </gbean>

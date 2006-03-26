@@ -16,35 +16,29 @@
  */
 package org.apache.geronimo.plugin.packaging;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GReferenceInfo;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelFactory;
-import org.apache.geronimo.kernel.KernelRegistry;
-import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.KernelConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
-import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
-import org.apache.log4j.BasicConfigurator;
-
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import java.io.File;
 import java.net.URI;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-import java.util.Map;
-import java.util.HashMap;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.KernelConfigurationManager;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
+import org.apache.log4j.BasicConfigurator;
 
 /**
  * JellyBean that builds a Geronimo Configuration using the local Mavem
