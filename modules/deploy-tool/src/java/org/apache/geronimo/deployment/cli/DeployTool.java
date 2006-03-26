@@ -74,6 +74,7 @@ public class DeployTool {
         registerCommand(new CommandStart());
         registerCommand(new CommandStop());
         registerCommand(new CommandUndeploy());
+        registerCommand(new CommandListConfigurations());
     }
 
     private boolean failed = false;

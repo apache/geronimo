@@ -24,6 +24,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.repository.WriteableRepository;
 
 import java.io.File;
@@ -53,13 +54,13 @@ import java.util.zip.ZipFile;
  */
 public class ConfigInstallerGBean implements ConfigurationInstaller {
     private final static Log log = LogFactory.getLog(ConfigInstallerGBean.class);
-    private Collection configurations;
+    private Collection configStores;
     private WriteableRepository writeableRepo;
     private ConfigurationStore configStore;
     private Map configIdToFile = new HashMap();
 
-    public ConfigInstallerGBean(Collection configurations, WriteableRepository writeableRepo, ConfigurationStore configStore) {
-        this.configurations = configurations;
+    public ConfigInstallerGBean(Collection configStores, WriteableRepository writeableRepo, ConfigurationStore configStore) {
+        this.configStores = configStores;
         this.writeableRepo = writeableRepo;
         this.configStore = configStore;
     }
@@ -71,9 +72,13 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
         }
         URL url = new URL(repository+"geronimo-configurations.properties");
         Set set = new HashSet();
-        for (Iterator it = configurations.iterator(); it.hasNext();) {
-            Configuration config = (Configuration) it.next();
-            set.add(config.getId().toString());
+        for (Iterator it = configStores.iterator(); it.hasNext();) {
+            ConfigurationStore store = (ConfigurationStore) it.next();
+            List list = store.listConfigurations();
+            for (int i = 0; i < list.size(); i++) {
+                ConfigurationInfo info = (ConfigurationInfo) list.get(i);
+                set.add(info.getConfigID().toString());
+            }
         }
         InputStream in = url.openStream();
         Properties props = new Properties();
@@ -121,9 +126,13 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
 
     public DownloadResults install(URL mavenRepository, URI configId) throws IOException {
         Set set = new HashSet();
-        for (Iterator it = configurations.iterator(); it.hasNext();) {
-            Configuration next = (Configuration) it.next();
-            set.add(next.getId());
+        for (Iterator it = configStores.iterator(); it.hasNext();) {
+            ConfigurationStore store = (ConfigurationStore) it.next();
+            List list = store.listConfigurations();
+            for (int i = 0; i < list.size(); i++) {
+                ConfigurationInfo info = (ConfigurationInfo) list.get(i);
+                set.add(info.getConfigID());
+            }
         }
         DownloadResults results = new DownloadResults();
         processConfiguration(configId,writeableRepo,mavenRepository.toString(),set,results);
@@ -134,6 +143,9 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
 
 
     private String getURL(String configId, String baseRepositoryURL) {
+        if(!baseRepositoryURL.endsWith("/")) {
+            baseRepositoryURL += "/";
+        }
         String[] parts = configId.split("/");
         return baseRepositoryURL+parts[0]+"/"+parts[3]+"s/"+parts[1]+"-"+parts[2]+"."+parts[3];
     }
@@ -152,6 +164,9 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
     }
 
     private void processConfiguration(URI configId, WriteableRepository repo, String repoURL, Set configurations, DownloadResults results) throws IOException {
+        if(!repoURL.endsWith("/")) {
+            repoURL += "/";
+        }
         // Make sure we have a local copy of the CAR
         String id = configId.toString();
         File file;
@@ -187,13 +202,15 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
                 results.addDependencyInstalled(dep);
             }
             // Download the parents
-            for (int i = 0; i < parentIds.length; i++) {
-                URI uri = parentIds[i];
-                if(configurations.contains(uri)) {
-                    results.addConfigurationPresent(uri);
-                    continue;
+            if(parentIds != null) {
+                for (int i = 0; i < parentIds.length; i++) {
+                    URI uri = parentIds[i];
+                    if(configurations.contains(uri)) {
+                        results.addConfigurationPresent(uri);
+                        continue;
+                    }
+                    processConfiguration(uri, repo, repoURL, configurations, results);
                 }
-                processConfiguration(uri, repo, repoURL, configurations, results);
             }
             // Install the configuration
             configStore.install(file.toURL());
@@ -210,12 +227,12 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
 
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(ConfigInstallerGBean.class);
-        infoFactory.addReference("AllConfigurations", Configuration.class);
         infoFactory.addReference("DependencyInstallTarget", WriteableRepository.class, "GBean");
         infoFactory.addReference("ConfigurationInstallTarget", ConfigurationStore.class, "ConfigurationStore");
+        infoFactory.addReference("AllConfigStores", ConfigurationStore.class, "ConfigurationStore");
         infoFactory.addInterface(ConfigurationInstaller.class);
 
-        infoFactory.setConstructor(new String[]{"AllConfigurations", "DependencyInstallTarget", "ConfigurationInstallTarget"});
+        infoFactory.setConstructor(new String[]{"AllConfigStores", "DependencyInstallTarget", "ConfigurationInstallTarget"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

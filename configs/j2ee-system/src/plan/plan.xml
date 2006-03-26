@@ -82,9 +82,9 @@ specific services - those should be provided by children.
         <reference name="ConfigurationInstallTarget">
             <name>Local</name>
         </reference>
-        <references name="AllConfigurations">
+        <references name="AllConfigStores">
           <pattern>
-            <gbean-name>geronimo.config:*</gbean-name>
+            <gbean-name>*:j2eeType=ConfigurationStore,*</gbean-name>
           </pattern>
         </references>
     </gbean>
