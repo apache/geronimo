@@ -47,7 +47,7 @@ import java.util.Collections;
  * Jetty implementation of WebManager.  Knows how to manipulate
  * other Jetty objects for management purposes.
  *
- * @version $Rev: 385372 $ $Date$
+ * @version $Rev:386276 $ $Date$
  */
 public class JettyManagerImpl implements WebManager {
     private final static Log log = LogFactory.getLog(JettyManagerImpl.class);
@@ -229,7 +229,7 @@ public class JettyManagerImpl implements WebManager {
             }
             return (AbstractName[]) results.toArray(new AbstractName[results.size()]);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Unable to look up connectors for Jetty container '"+containerName +"': "+e);
+            throw (IllegalArgumentException)new IllegalArgumentException("Unable to look up connectors for Jetty container '"+containerName +"': ").initCause(e);
         }
     }
 

@@ -22,23 +22,25 @@ import java.util.Properties;
  * @version $Rev$ $Date$
  */
 public interface LoginModuleSettings {
-    public String getLoginDomainName();
+    String getLoginDomainName();
 
-    public void setLoginDomainName(String loginDomainName);
+    void setLoginDomainName(String loginDomainName);
 
-    public Properties getOptions();
+    Properties getOptions();
 
-    public void setOptions(Properties options);
+    void setOptions(Properties options);
 
-    public String getLoginModuleClass();
+    String getLoginModuleClass();
 
-    public void setLoginModuleClass(String loginModuleClass);
+    void setLoginModuleClass(String loginModuleClass);
 
-    public boolean isServerSide();
+    boolean isServerSide();
 
-    public void setServerSide(boolean serverSide);
+    void setServerSide(boolean serverSide);
 
-    public boolean isWrapPrincipals();
+    boolean isWrapPrincipals();
 
-    public void setWrapPrincipals(boolean wrapPrincipals);
+    void setWrapPrincipals(boolean wrapPrincipals);
+
+    ClassLoader getClassLoader();
 }

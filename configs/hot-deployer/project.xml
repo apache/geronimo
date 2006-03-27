@@ -42,6 +42,16 @@
                  <geronimo.import>true</geronimo.import>
              </properties>
         </dependency>
+        <!-- should be services-only dependency -->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>j2ee-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+            <properties>
+                 <geronimo.reference>true</geronimo.reference>
+             </properties>
+        </dependency>
 
 
         <dependency>

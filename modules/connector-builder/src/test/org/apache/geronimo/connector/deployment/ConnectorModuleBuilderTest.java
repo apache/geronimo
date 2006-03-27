@@ -48,12 +48,16 @@ import org.apache.geronimo.kernel.config.EditableConfigurationManager;
 import org.apache.geronimo.kernel.config.EditableKernelConfigurationManager;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.config.ConfigurationResolver;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.ImportType;
+import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.tranql.sql.jdbc.JDBCUtil;
 
 import javax.naming.Reference;
@@ -75,6 +79,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.HashMap;
 import java.util.jar.JarFile;
 
 /**
@@ -153,7 +158,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
     private static final Artifact bootId = new Artifact("test", "test", "", "car");
 
     private static final AbstractNameQuery connectionTrackerName = new AbstractNameQuery(null, Collections.singletonMap("name", "ConnectionTracker"));
-    private static final AbstractName serverName = naming.createRootName(bootId, "Server", "J2EEServer");
+    private AbstractName serverName;
     private static final AbstractNameQuery transactionContextManagerName = new AbstractNameQuery(null, Collections.singletonMap("name", "TransactionContextManager"));
 
 
@@ -483,6 +488,19 @@ public class ConnectorModuleBuilderTest extends TestCase {
 
         ConfigurationData bootstrap = new ConfigurationData(bootId, naming);
 
+//        GBeanData artifactManagerData = bootstrap.addGBean("ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
+//
+//        GBeanData artifactResolverData = bootstrap.addGBean("ArtifactResolver", DefaultArtifactResolver.GBEAN_INFO);
+//        artifactResolverData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
+//
+//        GBeanData configurationManagerData = bootstrap.addGBean("ConfigurationManager", EditableKernelConfigurationManager.GBEAN_INFO);
+//        configurationManagerData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
+//        configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolverData.getAbstractName());
+//        bootstrap.addGBean(configurationManagerData);
+        bootstrap.addGBean("ServerInfo", BasicServerInfo.GBEAN_INFO).setAttribute("baseDirectory", ".");
+
+        AbstractName configStoreName = bootstrap.addGBean("MockConfigurationStore", MockConfigStore.GBEAN_INFO).getAbstractName();
+
         GBeanData artifactManagerData = bootstrap.addGBean("ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
 
         GBeanData artifactResolverData = bootstrap.addGBean("ArtifactResolver", DefaultArtifactResolver.GBEAN_INFO);
@@ -491,16 +509,22 @@ public class ConnectorModuleBuilderTest extends TestCase {
         GBeanData configurationManagerData = bootstrap.addGBean("ConfigurationManager", EditableKernelConfigurationManager.GBEAN_INFO);
         configurationManagerData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
         configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolverData.getAbstractName());
+        configurationManagerData.setReferencePattern("Stores", configStoreName);
         bootstrap.addGBean(configurationManagerData);
 
-        GBeanData serverData = new GBeanData(serverName, J2EEServerImpl.GBEAN_INFO);
+        GBeanData serverData = bootstrap.addGBean("geronimo", J2EEServerImpl.GBEAN_INFO);
+        serverName = serverData.getAbstractName();
         bootstrap.addGBean(serverData);
 
         ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, getClass().getClassLoader());
 
         configurationManager = ConfigurationUtil.getEditableConfigurationManager(kernel);
-        configurationManager.getConfiguration(bootstrap.getId());
+//        configurationManager.getConfiguration(bootstrap.getId());
+        ConfigurationStore configStore = (ConfigurationStore) kernel.getGBean(configStoreName);
+        configStore.install(bootstrap);
+
         defaultEnvironment = new Environment();
+        defaultEnvironment.addDependency(bootstrap.getId(), ImportType.ALL);
 
     }
 
@@ -526,26 +550,47 @@ public class ConnectorModuleBuilderTest extends TestCase {
     }
 
     public static class MockConfigStore implements ConfigurationStore {
+        private Map configs = new HashMap();
+
+        URL baseURL;
 
         public MockConfigStore() {
         }
 
+        public MockConfigStore(URL baseURL) {
+            this.baseURL = baseURL;
+        }
+
         public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
+            configs.put(configurationData.getId(), configurationData);
         }
 
         public void uninstall(Artifact configID) throws NoSuchConfigException, IOException {
+            configs.remove(configID);
         }
 
         public GBeanData loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
             AbstractName configurationObjectName = Configuration.getConfigurationAbstractName(configId);
             GBeanData configData = new GBeanData(configurationObjectName, Configuration.GBEAN_INFO);
-            Environment environment = new Environment();
-            environment.setConfigId(configId);
-            environment.getProperties().put(NameFactory.JSR77_BASE_NAME_PROPERTY, "geronimo.test:J2EEServer=geronimo");
-            configData.setAttribute("environment", environment);
-            configData.setAttribute("gBeanState", NO_OBJECTS_OS);
+            if (configs.containsKey(configId)) {
+                ConfigurationData configurationData = (ConfigurationData) configs.get(configId);
+                configData.setAttribute("moduleType", configurationData.getModuleType());
+                Environment environment = configurationData.getEnvironment();
+                configData.setAttribute("environment", environment);
+                configData.setAttribute("gBeanState", Configuration.storeGBeans(configurationData.getGBeans()));
+                configData.setAttribute("classPath", configurationData.getClassPath());
 
+                ConfigurationResolver configurationResolver = new ConfigurationResolver(configurationData.getEnvironment().getConfigId(), this, Collections.EMPTY_SET, new DefaultArtifactResolver(null, Collections.EMPTY_SET));
+                configData.setAttribute("configurationResolver", configurationResolver);
 
+            } else {
+                Environment environment = new Environment();
+                environment.setConfigId(configId);
+                environment.getProperties().put(NameFactory.JSR77_BASE_NAME_PROPERTY, "geronimo.test:J2EEServer=geronimo");
+                configData.setAttribute("environment", environment);
+                configData.setAttribute("moduleType", ConfigurationModuleType.WAR);
+                configData.setAttribute("gBeanState", NO_OBJECTS_OS);
+            }
             return configData;
         }
 
@@ -570,7 +615,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
         }
 
         public URL resolve(Artifact configId, URI uri) throws NoSuchConfigException, MalformedURLException {
-            return null;
+            return baseURL;
         }
 
         public final static GBeanInfo GBEAN_INFO;

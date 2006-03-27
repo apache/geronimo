@@ -130,28 +130,6 @@ public class NameFactory {
      * @param j2eeApplicationName
      * @param j2eeModuleType
      * @param j2eeModuleName
-     * @param context
-     * @return
-     * @throws MalformedObjectNameException
-     */
-    public static ObjectName getModuleName(String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleType, String j2eeModuleName, J2eeContext context) throws MalformedObjectNameException {
-        Properties props = new Properties();
-        //N.B.! module context will have the module's j2eeType as its module type attribute.
-        props.put(J2EE_TYPE, context.getJ2eeModuleType(j2eeModuleType));
-        props.put(J2EE_SERVER, context.getJ2eeServerName(j2eeServerName));
-        props.put(J2EE_APPLICATION, context.getJ2eeApplicationName(j2eeApplicationName));
-        props.put(J2EE_NAME, context.getJ2eeModuleName(j2eeModuleName));
-        return ObjectName.getInstance(context.getJ2eeDomainName(j2eeDomainName), props);
-    }
-
-    /**
-     *
-     * @deprecated
-     * @param j2eeDomainName
-     * @param j2eeServerName
-     * @param j2eeApplicationName
-     * @param j2eeModuleType
-     * @param j2eeModuleName
      * @param j2eeName
      * @param j2eeType
      * @param context
@@ -165,68 +143,6 @@ public class NameFactory {
         props.put(J2EE_APPLICATION, context.getJ2eeApplicationName(j2eeApplicationName));
         props.put(context.getJ2eeModuleType(j2eeModuleType), context.getJ2eeModuleName(j2eeModuleName));
         props.put(J2EE_NAME, context.getJ2eeName(j2eeName));
-        return ObjectName.getInstance(context.getJ2eeDomainName(j2eeDomainName), props);
-    }
-
-    /**
-     *
-     * @deprecated
-     * @param j2eeDomainName
-     * @param j2eeServerName
-     * @param j2eeApplicationName
-     * @param j2eeModuleName
-     * @param j2eeName
-     * @param j2eeType
-     * @param context
-     * @return
-     * @throws MalformedObjectNameException
-     */
-    public static ObjectName getEjbComponentName(String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleName, String j2eeName, String j2eeType, J2eeContext context) throws MalformedObjectNameException {
-        return getComponentName(j2eeDomainName, j2eeServerName, j2eeApplicationName, EJB_MODULE, j2eeModuleName, j2eeName, j2eeType, context);
-    }
-
-
-
-    /**
-     * @param j2eeDomainName
-     * @param j2eeServerName
-     * @param j2eeApplicationName
-     * @param j2eeModuleName
-     * @param j2eeName
-     * @param j2eeType
-     * @param context
-     * @return
-     * @throws MalformedObjectNameException
-     * @deprecated
-     */
-    public static ObjectName getWebComponentName(String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleName, String j2eeName, String j2eeType, J2eeContext context) throws MalformedObjectNameException {
-        return getComponentName(j2eeDomainName, j2eeServerName, j2eeApplicationName, WEB_MODULE, j2eeModuleName, j2eeName, j2eeType, context);
-    }
-
-
-    /**
-     * @param j2eeDomainName
-     * @param j2eeServerName
-     * @param j2eeApplicationName
-     * @param j2eeModuleName
-     * @param j2eeName
-     * @param j2eeType
-     * @param context
-     * @return
-     * @throws MalformedObjectNameException
-     * @deprecated
-     */
-    //for non-j2ee-deployable resources such as the transaction manager
-    public static ObjectName getComponentName(String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleName, String j2eeName, String j2eeType, J2eeContext context) throws MalformedObjectNameException {
-        Properties props = new Properties();
-        props.put(J2EE_TYPE, context.getJ2eeType(j2eeType));
-        props.put(J2EE_SERVER, context.getJ2eeServerName(j2eeServerName));
-        props.put(J2EE_NAME, context.getJ2eeName(j2eeName));
-        props.put(J2EE_APPLICATION, context.getJ2eeApplicationName(j2eeApplicationName));
-        //TODO add module type
-        if (context.getJ2eeModuleName(j2eeModuleName) != null) {
-            props.put(J2EE_MODULE, context.getJ2eeModuleName(j2eeModuleName));
-        }
         return ObjectName.getInstance(context.getJ2eeDomainName(j2eeDomainName), props);
     }
 

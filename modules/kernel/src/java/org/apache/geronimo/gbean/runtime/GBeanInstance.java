@@ -27,18 +27,29 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.*;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.GConstructorInfo;
+import org.apache.geronimo.gbean.GOperationInfo;
+import org.apache.geronimo.gbean.GOperationSignature;
+import org.apache.geronimo.gbean.GReferenceInfo;
+import org.apache.geronimo.gbean.InvalidConfigurationException;
+import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.DependencyManager;
-import org.apache.geronimo.kernel.NoSuchAttributeException;
-import org.apache.geronimo.kernel.NoSuchOperationException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.NoSuchAttributeException;
+import org.apache.geronimo.kernel.NoSuchOperationException;
 import org.apache.geronimo.kernel.config.ManageableAttributeStore;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.management.StateManageable;
 
@@ -721,22 +732,14 @@ public final class GBeanInstance implements StateManageable {
 
     private void updateManageableAttribute(GBeanAttribute attribute, Object value) {
         if (manageableStore == null) {
-            Set set = kernel.listGBeans(new GBeanQuery(null, ManageableAttributeStore.class.getName()));
+            Set set = kernel.listGBeans(new AbstractNameQuery(ManageableAttributeStore.class.getName()));
             if (set.size() == 0) {
                 return;
             }
-            manageableStore = (ManageableAttributeStore) kernel.getProxyManager().createProxy((ObjectName) set.iterator().next(),
+            manageableStore = (ManageableAttributeStore) kernel.getProxyManager().createProxy((AbstractName) set.iterator().next(),
                     ManageableAttributeStore.class);
         }
-        String configName = null;
-        Set set = kernel.getDependencyManager().getParents(abstractName);
-        for (Iterator iterator = set.iterator(); iterator.hasNext();) {
-            ObjectName name = (ObjectName) iterator.next();
-            if (Configuration.isConfigurationObjectName(name)) {
-                configName = ObjectName.unquote(name.getKeyProperty("name"));
-                break;
-            }
-        }
+        String configName = abstractName.getArtifact().toString();
         if (configName != null) {
             manageableStore.setValue(configName, abstractName, attribute.getAttributeInfo(), value);
         } else {

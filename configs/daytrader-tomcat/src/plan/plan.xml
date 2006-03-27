@@ -280,8 +280,8 @@
                 <message-driven>
                     <ejb-name>TradeStreamerMDB</ejb-name>
                     <resource-adapter>
-                        <resource-link>TradeJMS</resource-link>
-                        <!--<resource-link>TradeJMSResources</resource-link>-->
+                        <!--<resource-link>TradeJMS</resource-link>-->
+                        <resource-link>TradeJMSResources</resource-link>
                     </resource-adapter>
                     <activation-config>
                         <activation-config-property>
@@ -306,8 +306,8 @@
                 <message-driven>
                     <ejb-name>TradeBrokerMDB</ejb-name>
                     <resource-adapter>
-                        <resource-link>TradeJMS</resource-link>
-                        <!--<resource-link>TradeJMSResources</resource-link>-->
+                        <!--<resource-link>TradeJMS</resource-link>-->
+                        <resource-link>TradeJMSResources</resource-link>
                     </resource-adapter>
                     <activation-config>
                         <activation-config-property>

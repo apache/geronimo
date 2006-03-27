@@ -16,32 +16,30 @@
  */
 package org.apache.geronimo.system.configuration;
 
-import org.apache.geronimo.common.propertyeditor.PropertyEditors;
-import org.apache.geronimo.gbean.GAttributeInfo;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.ReferencePatterns;
-import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.util.EncryptionManager;
-import org.apache.geronimo.kernel.InvalidGBeanException;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import java.beans.PropertyEditor;
 import java.io.PrintWriter;
+import java.net.URI;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.HashMap;
-import java.util.List;
+
+import org.apache.geronimo.common.propertyeditor.PropertyEditors;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.ReferencePatterns;
+import org.apache.geronimo.kernel.InvalidGBeanException;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.util.EncryptionManager;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * @version $Rev$ $Date$
@@ -90,10 +88,10 @@ class GBeanOverride {
         references.putAll(gbeanData.getReferences());
     }
 
-    public GBeanOverride(Element gbean) throws MalformedObjectNameException, InvalidGBeanException {
+    public GBeanOverride(Element gbean) throws InvalidGBeanException {
         String nameString = gbean.getAttribute("name");
-        if (nameString.indexOf(':') > -1) {
-            name = ObjectName.getInstance(nameString);
+        if (nameString.indexOf('?') > -1) {
+            name = new AbstractName(URI.create(nameString));
         } else {
             name = nameString;
         }
@@ -104,8 +102,8 @@ class GBeanOverride {
         } else {
             gbeanInfo = null;
         }
-        if (gbeanInfo != null && !(name instanceof ObjectName)) {
-            throw new MalformedObjectNameException("A gbean element using the gbeanInfo attribute must be specified using a full ObjectName: name=" + nameString);
+        if (gbeanInfo != null && !(name instanceof AbstractName)) {
+            throw new InvalidGBeanException("A gbean element using the gbeanInfo attribute must be specified using a full AbstractName: name=" + nameString);
         }
 
         String loadString = gbean.getAttribute("load");
@@ -230,7 +228,7 @@ class GBeanOverride {
         if (name instanceof String) {
             gbeanName = (String) name;
         } else {
-            gbeanName = ((ObjectName) name).getCanonicalName();
+            gbeanName = name.toString();
         }
 
         out.print("    <gbean name=\"" + gbeanName + "\"");

@@ -41,7 +41,7 @@ public class JaasLoginModuleUse implements JaasLoginModuleChain {
     public final static String SERVERINFO_LM_OPTION = "org.apache.geronimo.security.realm.GenericSecurityRealm.SERVERINFO";
     public final static String CLASSLOADER_LM_OPTION = "org.apache.geronimo.security.realm.GenericSecurityRealm.CLASSLOADER";
 
-    private final LoginModuleGBean loginModule;
+    private final LoginModuleSettings loginModule;
     private final JaasLoginModuleUse next;
     private LoginModuleControlFlag controlFlag;
     private final Kernel kernel;
@@ -54,7 +54,7 @@ public class JaasLoginModuleUse implements JaasLoginModuleChain {
         kernel = null;
     }
 
-    public JaasLoginModuleUse(LoginModuleGBean loginModule, JaasLoginModuleUse next, String controlFlag, Kernel kernel) {
+    public JaasLoginModuleUse(LoginModuleSettings loginModule, JaasLoginModuleUse next, String controlFlag, Kernel kernel) {
         this.loginModule = loginModule;
         this.next = next;
         LoginModuleControlFlagEditor editor = new LoginModuleControlFlagEditor();
@@ -63,7 +63,7 @@ public class JaasLoginModuleUse implements JaasLoginModuleChain {
         this.kernel = kernel;
     }
 
-    public LoginModuleGBean getLoginModule() {
+    public LoginModuleSettings getLoginModule() {
         return loginModule;
     }
 
@@ -133,7 +133,7 @@ public class JaasLoginModuleUse implements JaasLoginModuleChain {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(JaasLoginModuleUse.class, "LoginModuleUse");
         infoBuilder.addAttribute("controlFlag", String.class, true);
         infoBuilder.addAttribute("kernel", Kernel.class, false, false);
-        infoBuilder.addReference("LoginModule", LoginModuleGBean.class, NameFactory.LOGIN_MODULE);
+        infoBuilder.addReference("LoginModule", LoginModuleSettings.class, NameFactory.LOGIN_MODULE);
         infoBuilder.addReference("Next", JaasLoginModuleUse.class);
 
         infoBuilder.addOperation("configure", new Class[]{Set.class, List.class, Kernel.class, ServerInfo.class, ClassLoader.class});

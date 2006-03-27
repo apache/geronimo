@@ -343,7 +343,7 @@ public class ENCConfigBuilder {
                 Artifact targetConfigId = null;
                 String optionalModule = moduleURI == null ? null : moduleURI.toString();
                 String requiredModule = null;
-                AbstractNameQuery containerId = null;
+                AbstractNameQuery containerQuery = null;
                 if (remoteRef != null && remoteRef.isSetEjbLink()) {
                     ejbLink = remoteRef.getEjbLink();
                 } else if (ejbRef.isSetEjbLink()) {
@@ -362,9 +362,9 @@ public class ENCConfigBuilder {
                     }
                 } else if (remoteRef != null) {
                     GerPatternType patternType = remoteRef.getPattern();
-                    containerId = buildAbstractNameQuery(patternType, null);
+                    containerQuery = buildAbstractNameQuery(patternType, null);
                 }
-                ejbReference = refContext.getEJBRemoteRef(requiredModule, optionalModule, ejbLink, targetConfigId, containerId, isSession, home, remote, ejbContext);
+                ejbReference = refContext.getEJBRemoteRef(requiredModule, optionalModule, ejbLink, targetConfigId, containerQuery, isSession, home, remote, ejbContext);
             }
         }
         return ejbReference;
@@ -409,7 +409,7 @@ public class ENCConfigBuilder {
         Artifact targetConfigId = null;
         String optionalModule = moduleURI == null ? null : moduleURI.toString();
         String requiredModule = null;
-        AbstractNameQuery containerId = null;
+        AbstractNameQuery containerQuery = null;
         if (localRef != null && localRef.isSetEjbLink()) {
             ejbLink = localRef.getEjbLink();
         } else if (ejbLocalRef.isSetEjbLink()) {
@@ -425,9 +425,9 @@ public class ENCConfigBuilder {
             }
         } else if (localRef != null) {
             GerPatternType patternType = localRef.getPattern();
-            containerId = buildAbstractNameQuery(patternType, null);
+            containerQuery = buildAbstractNameQuery(patternType, null);
         }
-        return refContext.getEJBRemoteRef(requiredModule, optionalModule, ejbLink, targetConfigId, containerId, isSession, localHome, local, ejbContext);
+        return refContext.getEJBRemoteRef(requiredModule, optionalModule, ejbLink, targetConfigId, containerQuery, isSession, localHome, local, ejbContext);
     }
 
 //TODO current implementation does not deal with portComponentRef links.

@@ -20,6 +20,8 @@ package org.apache.geronimo.deployment.plugin.local;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager.CommandContext;
 import org.apache.geronimo.gbean.GBeanQuery;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
@@ -361,16 +363,16 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
      */
     public static Map mapContainersToURLs(Kernel kernel) throws Exception {
         Map containers = new HashMap();
-        Set set = kernel.listGBeans(new GBeanQuery(null, "org.apache.geronimo.management.geronimo.WebManager"));
+        Set set = kernel.listGBeans(new AbstractNameQuery("org.apache.geronimo.management.geronimo.WebManager"));
         for (Iterator it = set.iterator(); it.hasNext();) {
-            ObjectName mgrName = (ObjectName) it.next();
-            String[] cntNames = (String[]) kernel.getAttribute(mgrName, "containers");
+            AbstractName mgrName = (AbstractName) it.next();
+            AbstractName[] cntNames = (AbstractName[]) kernel.getAttribute(mgrName, "containers");
             for (int i = 0; i < cntNames.length; i++) {
-                String cntName = cntNames[i];
-                String[] cncNames = (String[]) kernel.invoke(mgrName, "getConnectorsForContainer", new Object[]{cntName}, new String[]{"java.lang.String"});
+                AbstractName cntName = cntNames[i];
+                AbstractName[] cncNames = (AbstractName[]) kernel.invoke(mgrName, "getConnectorsForContainer", new Object[]{cntName}, new String[]{AbstractName.class.getName()});
                 Map map = new HashMap();
                 for (int j = 0; j < cncNames.length; j++) {
-                    ObjectName cncName = ObjectName.getInstance(cncNames[j]);
+                    AbstractName cncName = cncNames[j];
                     String protocol = (String) kernel.getAttribute(cncName, "protocol");
                     String url = (String) kernel.getAttribute(cncName, "connectUrl");
                     map.put(protocol, url);

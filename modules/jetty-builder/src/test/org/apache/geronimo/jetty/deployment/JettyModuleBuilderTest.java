@@ -21,6 +21,7 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.util.UnpackedJarFile;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
@@ -350,7 +351,11 @@ public class JettyModuleBuilderTest extends TestCase {
         }
 
         public File createNewConfigurationDir(Artifact configId) {
-            return null;
+            try {
+                return DeploymentUtil.createTempDir();
+            } catch (IOException e) {
+                return null;
+            }
         }
 
         public URL resolve(Artifact configId, URI uri) throws NoSuchConfigException, MalformedURLException {

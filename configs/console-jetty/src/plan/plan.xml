@@ -52,15 +52,9 @@
     <!-- Console specific server info -->
     <gbean name="PropertiesLoginManager" class="org.apache.geronimo.console.core.security.PropertiesLoginModuleManager">
         <reference name="ServerInfo">
-            <!--<application>null</application>-->
-            <!--<moduleType>J2EEModule</moduleType>-->
-            <!--<module>${pom.groupId}/j2ee-system/${pom.currentVersion}/car</module>-->
             <name>ServerInfo</name>
         </reference>
         <reference name="LoginModule">
-            <!--<application>null</application>-->
-            <!--<moduleType>J2EEModule</moduleType>-->
-            <!--<module>${pom.groupId}/j2ee-security/${pom.currentVersion}/car</module>-->
             <name>properties-login</name>
         </reference>
     </gbean>
@@ -72,9 +66,6 @@
         <attribute name="keyStoreProvider">SUN</attribute>
         <attribute name="keyStorePassword">password</attribute>
         <reference name="serverInfo">
-            <!--<application>null</application>-->
-            <!--<moduleType>J2EEModule</moduleType>-->
-            <!--<module>${pom.groupId}/j2ee-system/${pom.currentVersion}/car</module>-->
             <name>ServerInfo</name>
         </reference>
     </gbean>

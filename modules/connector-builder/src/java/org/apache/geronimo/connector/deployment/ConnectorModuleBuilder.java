@@ -85,6 +85,7 @@ import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
 import org.apache.geronimo.xbeans.j2ee.ConnectorType;
 import org.apache.geronimo.xbeans.j2ee.MessagelistenerType;
 import org.apache.geronimo.xbeans.j2ee.ResourceadapterType;
+import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -289,8 +290,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         //set up the metadata for the ResourceAdapterModule
         GBeanData resourceAdapterModuleData = new GBeanData(resourceAdapterModuleName, ResourceAdapterModuleImplGBean.GBEAN_INFO);
         // initalize the GBean
-        //TODO configid when we figure out how to install the J2EEServer gbean, uncomment this
-//        resourceAdapterModuleData.setReferencePattern(NameFactory.J2EE_SERVER, earContext.getServerName());
+        resourceAdapterModuleData.setReferencePattern(NameFactory.J2EE_SERVER, earContext.getServerName());
         if (!earContext.getModuleName().equals(resourceAdapterModuleName)) {
             resourceAdapterModuleData.setReferencePattern(NameFactory.J2EE_APPLICATION, earContext.getModuleName());
         }
@@ -760,7 +760,22 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         return new ResourceReference(configuration.getId(), containerId, iface);
     }
 
-    public GBeanData locateActivationSpecInfo(AbstractNameQuery nameQuery, String messageListenerInterface, Configuration configuration) throws DeploymentException {
+    public GBeanData locateActivationSpecInfo(AbstractNameQuery resourceAdapterInstanceQuery, String messageListenerInterface, Configuration configuration) throws DeploymentException {
+        //First, locate the module gbean from the JCAResourceAdapter instance
+        AbstractName instanceName = null;
+        try {
+            instanceName = configuration.findGBean(resourceAdapterInstanceQuery);
+        } catch (GBeanNotFoundException e) {
+            throw new DeploymentException("No resource adapter instance gbean found matching " + resourceAdapterInstanceQuery + " from configuration " + configuration.getId());
+        }
+        String moduleName = (String) instanceName.getName().get(NameFactory.RESOURCE_ADAPTER_MODULE);
+        Map moduleNameMap = new HashMap(instanceName.getName());
+        moduleNameMap.remove(NameFactory.JCA_RESOURCE);
+        moduleNameMap.remove(NameFactory.RESOURCE_ADAPTER);
+        moduleNameMap.put(NameFactory.J2EE_TYPE, NameFactory.RESOURCE_ADAPTER_MODULE);
+        moduleNameMap.put(NameFactory.J2EE_NAME, moduleName);
+        AbstractNameQuery nameQuery = new AbstractNameQuery(instanceName.getArtifact(), moduleNameMap, ResourceAdapterModule.class.getName());
+        //now find the gbeandata and extract the activation spec info.
         GBeanData resourceModuleData;
         try {
             resourceModuleData = configuration.findGBeanData(nameQuery);

@@ -36,7 +36,7 @@ import java.util.Map;
 
 
 /**
- * @version $Rev: 386000 $ $Date$
+ * @version $Rev:386276 $ $Date$
  */
 public class RefContext {
     private final EJBReferenceBuilder ejbReferenceBuilder;
@@ -121,8 +121,8 @@ public class RefContext {
     }
 
 
-    public GBeanData getActivationSpecInfo(AbstractNameQuery resourceAdapterModuleName, String messageListenerInterfaceName, Configuration configuration) throws DeploymentException {
-        return resourceReferenceBuilder.locateActivationSpecInfo(resourceAdapterModuleName, messageListenerInterfaceName, configuration);
+    public GBeanData getActivationSpecInfo(AbstractNameQuery resourceAdapterInstanceName, String messageListenerInterfaceName, Configuration configuration) throws DeploymentException {
+        return resourceReferenceBuilder.locateActivationSpecInfo(resourceAdapterInstanceName, messageListenerInterfaceName, configuration);
     }
 
     public AbstractName getMEJBName(Configuration configuration) throws DeploymentException {

@@ -340,7 +340,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 webModuleData.setReferencePattern("J2EEServer", moduleContext.getServerName());
             }
             if (!module.isStandAlone()) {
-                webModuleData.setReferencePattern("J2EEApplication", moduleContext.getModuleName());
+                webModuleData.setReferencePattern("J2EEApplication", earContext.getModuleName());
             }
 
             webModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());

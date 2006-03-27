@@ -52,7 +52,8 @@
             <version>${geronimo_version}</version>
             <type>car</type>
             <properties>
-                 <geronimo.import>true</geronimo.import>
+                <!--presumably temporary, till broker gbeans are fixed-->
+                 <!--<geronimo.import>true</geronimo.import>-->
             </properties>
         </dependency>
         <dependency>

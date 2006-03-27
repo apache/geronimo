@@ -31,7 +31,6 @@ Configuration for Tomcat server.
         <attribute name="prefix">META-INF/geronimo-tomcat</attribute>
         <attribute name="path">var/catalina</attribute>
         <reference name="ServerInfo">
-            <module>geronimo/j2ee-system/${pom.currentVersion}/car</module>
             <name>ServerInfo</name>
         </reference>
     </gbean>
@@ -50,7 +49,6 @@ Configuration for Tomcat server.
             <name>TomcatEngine</name>
         </reference>
         <reference name="ServerInfo">
-            <module>geronimo/j2ee-system/${pom.currentVersion}/car</module>
             <name>ServerInfo</name>
         </reference>
     </gbean>
@@ -108,7 +106,6 @@ Configuration for Tomcat server.
             <name>TomcatWebContainer</name>
         </reference>
         <reference name="ServerInfo">
-            <module>geronimo/j2ee-system/${pom.currentVersion}/car</module>
             <name>ServerInfo</name>
         </reference>
     </gbean>
@@ -134,14 +131,12 @@ Configuration for Tomcat server.
             <name>FirstValve</name>
         </reference>
         <dependency>
-            <type>GBean</type>
             <name>TomcatResources</name>
         </dependency>
     </gbean>
 
     <gbean name="TomcatAccessLogManager" class="org.apache.geronimo.tomcat.TomcatLogManagerImpl">
         <reference name="ServerInfo">
-            <!--<module>geronimo/j2ee-system/${pom.currentVersion}/car</module>-->
             <name>ServerInfo</name>
         </reference>
         <references name="LogGBeans">

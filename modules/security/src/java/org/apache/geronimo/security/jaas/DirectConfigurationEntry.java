@@ -33,7 +33,7 @@ import org.apache.geronimo.security.jaas.server.JaasLoginModuleConfiguration;
 public class DirectConfigurationEntry implements ConfigurationEntryFactory {
     private final String applicationConfigName;
     private final LoginModuleControlFlag controlFlag;
-    private final LoginModuleGBean module;
+    private final LoginModuleSettings module;
     private final boolean wrapPrincipals;
 
     public DirectConfigurationEntry() {
@@ -43,7 +43,7 @@ public class DirectConfigurationEntry implements ConfigurationEntryFactory {
         this.wrapPrincipals = false;
     }
 
-    public DirectConfigurationEntry(String applicationConfigName, LoginModuleControlFlag controlFlag, LoginModuleGBean module, boolean wrapPrincipals) {
+    public DirectConfigurationEntry(String applicationConfigName, LoginModuleControlFlag controlFlag, LoginModuleSettings module, boolean wrapPrincipals) {
         this.applicationConfigName = applicationConfigName;
         this.controlFlag = controlFlag;
         this.module = module;
@@ -67,7 +67,7 @@ public class DirectConfigurationEntry implements ConfigurationEntryFactory {
         infoFactory.addAttribute("controlFlag", LoginModuleControlFlag.class, true);
         infoFactory.addAttribute("wrapPrincipals", boolean.class, true);
 
-        infoFactory.addReference("Module", LoginModuleGBean.class, NameFactory.LOGIN_MODULE);
+        infoFactory.addReference("Module", LoginModuleSettings.class, NameFactory.LOGIN_MODULE);
 
         infoFactory.setConstructor(new String[]{"applicationConfigName", "controlFlag", "Module", "wrapPrincipals"});
         GBEAN_INFO = infoFactory.getBeanInfo();

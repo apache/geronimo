@@ -33,15 +33,15 @@ import java.util.Set;
 import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.security.jaas.LoginModuleGBean;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.security.jaas.LoginModuleSettings;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 public class PropertiesLoginModuleManager {
 
     private ServerInfo serverInfo;
 
-    private LoginModuleGBean loginModule;
+    private LoginModuleSettings loginModule;
 
     private Properties users = new Properties();
 
@@ -51,8 +51,7 @@ public class PropertiesLoginModuleManager {
 
     private static final String groupsKey = "groupsURI";
 
-    public PropertiesLoginModuleManager(ServerInfo serverInfo,
-            LoginModuleGBean loginModule) {
+    public PropertiesLoginModuleManager(ServerInfo serverInfo, LoginModuleSettings loginModule) {
         this.serverInfo = serverInfo;
         this.loginModule = loginModule;
     }
@@ -103,7 +102,7 @@ public class PropertiesLoginModuleManager {
             throws GeronimoSecurityException {
         if (users.getProperty((String) properties.get("UserName")) != null) {
             throw new GeronimoSecurityException("User principal "
-                    + (String) properties.get("UserName") + " already exists.");
+                    + properties.get("UserName") + " already exists.");
         }
         try {
             refreshUsers();
@@ -147,7 +146,7 @@ public class PropertiesLoginModuleManager {
         refreshGroups();
         if (groups.getProperty((String) properties.get("GroupName")) != null) {
             throw new GeronimoSecurityException("Group "
-                    + (String) properties.get("GroupName") + " already exists.");
+                    + properties.get("GroupName") + " already exists.");
         }
         try {
             groups.setProperty((String) properties.get("GroupName"),
@@ -211,7 +210,7 @@ public class PropertiesLoginModuleManager {
         if (groups.getProperty(groupPrincipal) == null) {
             return memberSet;
         }
-        String[] members = ((String) groups.getProperty(groupPrincipal))
+        String[] members = groups.getProperty(groupPrincipal)
                 .split(",");
 
         memberSet.addAll(Arrays.asList(members));
@@ -226,58 +225,14 @@ public class PropertiesLoginModuleManager {
         return loginModule.getOptions().getProperty(groupsKey);
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("PropertiesLoginModuleManager", PropertiesLoginModuleManager.class);
-
-        infoFactory.addOperation("addUserPrincipal",
-                new Class[] { Hashtable.class });
-        infoFactory.addOperation("removeUserPrincipal",
-                new Class[] { String.class });
-        infoFactory.addOperation("updateUserPrincipal",
-                new Class[] { Hashtable.class });
-        infoFactory.addOperation("getGroups");
-        infoFactory.addOperation("getUsers");
-
-        infoFactory.addOperation("updateUserPrincipal",
-                new Class[] { Hashtable.class });
-
-        infoFactory.addOperation("getPassword", new Class[] { String.class });
-        infoFactory.addOperation("getGroupMembers",
-                new Class[] { String.class });
-        infoFactory.addOperation("addGroupPrincipal",
-                new Class[] { Hashtable.class });
-        infoFactory.addOperation("removeGroupPrincipal",
-                new Class[] { String.class });
-        infoFactory.addOperation("updateGroupPrincipal",
-                new Class[] { Hashtable.class });
-        infoFactory.addOperation("addToGroup", new Class[] { String.class,
-                String.class });
-        infoFactory.addOperation("removeFromGroup", new Class[] { String.class,
-                String.class });
-
-        infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.addReference("LoginModule", LoginModuleGBean.class, NameFactory.LOGIN_MODULE);
-
-        infoFactory
-                .setConstructor(new String[] { "ServerInfo", "LoginModule" });
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
-    private void store(Properties props, URL url) throws Exception{
-        OutputStream out = null;
+    private void store(Properties props, URL url) throws Exception {
+        OutputStream out;
         try {
             URLConnection con = url.openConnection();
             con.setDoOutput(true);
             out = con.getOutputStream();
-        } catch(Exception e){
-            if("file".equalsIgnoreCase(url.getProtocol()) && e instanceof UnknownServiceException) {
+        } catch (Exception e) {
+            if ("file".equalsIgnoreCase(url.getProtocol()) && e instanceof UnknownServiceException) {
                 out = new FileOutputStream(new File(url.getFile()));
             } else {
                 throw e;
@@ -286,8 +241,42 @@ public class PropertiesLoginModuleManager {
         props.store(out, null);
         try {
             out.close();
-        } catch(IOException ie) {
+        } catch (IOException ie) {
             // Ignore
         }
     }
+
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("PropertiesLoginModuleManager", PropertiesLoginModuleManager.class);
+
+        infoFactory.addOperation("addUserPrincipal", new Class[]{Hashtable.class});
+        infoFactory.addOperation("removeUserPrincipal", new Class[]{String.class});
+        infoFactory.addOperation("updateUserPrincipal", new Class[]{Hashtable.class});
+        infoFactory.addOperation("getGroups");
+        infoFactory.addOperation("getUsers");
+
+        infoFactory.addOperation("updateUserPrincipal", new Class[]{Hashtable.class});
+
+        infoFactory.addOperation("getPassword", new Class[]{String.class});
+        infoFactory.addOperation("getGroupMembers", new Class[]{String.class});
+        infoFactory.addOperation("addGroupPrincipal", new Class[]{Hashtable.class});
+        infoFactory.addOperation("removeGroupPrincipal", new Class[]{String.class});
+        infoFactory.addOperation("updateGroupPrincipal", new Class[]{Hashtable.class});
+        infoFactory.addOperation("addToGroup", new Class[]{String.class, String.class});
+        infoFactory.addOperation("removeFromGroup", new Class[]{String.class, String.class});
+
+        infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("LoginModule", LoginModuleSettings.class, NameFactory.LOGIN_MODULE);
+
+        infoFactory.setConstructor(new String[]{"ServerInfo", "LoginModule"});
+
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
+
 }

@@ -212,18 +212,6 @@ public class AbstractNameQuery implements Serializable {
 
     public String toString() {
         return uri.toString();
-        //TODO configid need a URI format
-//        StringBuffer buf = new StringBuffer("artifact=");
-//        buf.append(artifact);
-//        for (Iterator iterator = interfaceTypes.iterator(); iterator.hasNext();) {
-//            String interfaceType = (String) iterator.next();
-//            buf.append(",interface=").append(interfaceType);
-//        }
-//        for (Iterator iterator = name.entrySet().iterator(); iterator.hasNext();) {
-//            Map.Entry entry = (Map.Entry) iterator.next();
-//            buf.append(",").append(entry.getKey()).append("=").append(entry.getValue());
-//        }
-//        return buf.toString();
     }
 
     public URI toURI() {
