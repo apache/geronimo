@@ -41,6 +41,7 @@ import org.apache.geronimo.jetty.JettyFilterHolder;
 import org.apache.geronimo.jetty.JettyFilterMapping;
 import org.apache.geronimo.jetty.JettyServletHolder;
 import org.apache.geronimo.jetty.JettyWebAppContext;
+import org.apache.geronimo.jetty.JettyDefaultServletHolder;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
@@ -904,7 +905,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         infoBuilder.addAttribute("defaultContextPriorityClassloader", boolean.class, true, true);
         infoBuilder.addAttribute("defaultWelcomeFiles", List.class, true, true);
         infoBuilder.addAttribute("jettyContainerObjectName", AbstractNameQuery.class, true, true);
-        infoBuilder.addReference("DefaultServlets", Object.class, NameFactory.DEFAULT_SERVLET);
+        infoBuilder.addReference("DefaultServlets", JettyDefaultServletHolder.class, NameFactory.SERVLET);
         infoBuilder.addReference("DefaultFilters", Object.class);
         infoBuilder.addReference("DefaultFilterMappings", Object.class);
         infoBuilder.addReference("PojoWebServiceTemplate", Object.class, "ServletWebServiceTemplate");

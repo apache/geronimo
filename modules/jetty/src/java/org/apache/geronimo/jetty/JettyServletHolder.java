@@ -130,7 +130,7 @@ public class JettyServletHolder extends ServletHolder implements Servlet {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(JettyServletHolder.class, NameFactory.DEFAULT_SERVLET);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(JettyServletHolder.class, NameFactory.SERVLET);
         //todo replace with interface
         infoBuilder.addInterface(ServletHolder.class);
 

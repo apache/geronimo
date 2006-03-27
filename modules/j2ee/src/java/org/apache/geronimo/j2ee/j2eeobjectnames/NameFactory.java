@@ -16,16 +16,10 @@
  */
 package org.apache.geronimo.j2ee.j2eeobjectnames;
 
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import java.util.Properties;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
 
 /**
  * @version $Rev:385692 $ $Date$
@@ -114,7 +108,6 @@ public class NameFactory {
     public static final String CONFIGURATION_ENTRY = "ConfigurationEntry";
     public static final String PERSISTENT_CONFIGURATION_LIST = "PersistentConfigurationList"; //duplicated in FileConfigurationList
 //    public static final String URL_PATTERN = "URLPattern";
-    public static final String DEFAULT_SERVLET = "DefaultServlet";
     public static final String SERVLET_WEB_SERVICE_TEMPLATE = "ServletWebServiceTemplate";
     public static final String CORBA_CSS = "CORBACSS";
     public static final String CORBA_TSS = "CORBATSS";

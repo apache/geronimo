@@ -30,7 +30,7 @@
         <attribute name="jettyContainerObjectName">?name=JettyWebContainer</attribute>
         <reference name="DefaultServlets">
             <!--gbean-name>geronimo.maven:j2eeType=DefaultServlet,J2EEModule=${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car,*</gbean-name-->
-            <name>*</name>
+            <!--<name>*</name>-->
         </reference>
         <reference name="PojoWebServiceTemplate">
             <name>POJOTemplate</name>
@@ -67,7 +67,7 @@
         </xml-attribute>
     </gbean>
 
-    <gbean name="StaticContent" class="org.apache.geronimo.jetty.JettyServletHolder">
+    <gbean name="StaticContent" class="org.apache.geronimo.jetty.JettyDefaultServletHolder">
         <attribute name="servletName">default</attribute>
         <attribute name="servletClass">org.mortbay.jetty.servlet.Default</attribute>
         <attribute name="loadOnStartup">0</attribute>
@@ -81,7 +81,7 @@
         <attribute name="servletMappings">/</attribute>
     </gbean>
 
-    <gbean name="JSPServlet" class="org.apache.geronimo.jetty.JettyServletHolder">
+    <gbean name="JSPServlet" class="org.apache.geronimo.jetty.JettyDefaultServletHolder">
         <attribute name="servletName">jsp</attribute>
         <attribute name="servletClass">org.apache.jasper.servlet.JspServlet</attribute>
         <attribute name="loadOnStartup">0</attribute>
