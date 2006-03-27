@@ -1,5 +1,49 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ page import="org.apache.geronimo.console.util.PortletManager" %>
+
+<% String dwrForwarderServlet = PortletManager.getConsoleFrameworkServletPath(request) + "/../dwr"; %>
+<script type='text/javascript' src='<%= dwrForwarderServlet %>/interface/DownloadMonitor.js'></script>
+<script type='text/javascript' src='<%= dwrForwarderServlet %>/engine.js'></script>
+<script type='text/javascript' src='<%= dwrForwarderServlet %>/util.js'></script>
+
+<script>
+function refreshProgress()
+{
+    DownloadMonitor.getDownloadInfo(updateProgress);
+}
+
+function updateProgress(downloadInfo)
+{
+    if (downloadInfo.downloadStarted) {
+        var kbDownloaded = Math.ceil(downloadInfo.bytesDownloaded / 1024);
+        document.getElementById('progressMeterText').innerHTML = 'Download in progress: ' 
+              + kbDownloaded
+              + ' Kb downloaded' ;
+        if (downloadInfo.totalBytes > 0) {
+            document.getElementById('progressMeterShell').style.display = 'block';
+            var progressPercent = Math.ceil((downloadInfo.bytesDownloaded / downloadInfo.totalBytes) * 100);
+            document.getElementById('progressMeterBar').style.width = parseInt(progressPercent * 3.5) + 'px';
+        } else {
+            // if total bytes are unknown then hide the progress meter since calculating % complete is not possible
+            document.getElementById('progressMeterShell').style.display = 'none';
+        }
+    }
+    window.setTimeout('refreshProgress()', 1000);
+    return true;
+}
+
+function startProgress()
+{
+    document.getElementById('progressMeter').style.display = 'block';
+    document.getElementById('progressMeterText').innerHTML = 'Download in progress: 0 Kb downloaded';
+    window.setTimeout("refreshProgress()", 500);
+    document.getElementById('nextButton').disabled=true;
+    document.getElementById('cancelButton').disabled=true;
+    return true;
+}
+</script>
+
 <portlet:defineObjects/>
 
 <p><b>Create Database Pool</b> -- Step 2: Select Driver, JAR, Parameters</p>
@@ -13,7 +57,8 @@ download configuration file.  Sorry for the inconvenience, you'll have to try ag
 install the driver by hand (copy it to a directory under geronimo/repository/)</i></p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
-<form name="<portlet:namespace/>DatabaseForm" action="<portlet:actionURL/>" method="POST">
+<form name="<portlet:namespace/>DatabaseForm" action="<portlet:actionURL/>" method="POST"
+onsubmit="startProgress()">
     <input type="hidden" name="mode" value="process-download" />
     <input type="hidden" name="name" value="${pool.name}" />
     <input type="hidden" name="dbtype" value="${pool.dbtype}" />
@@ -57,12 +102,23 @@ install the driver by hand (copy it to a directory under geronimo/repository/)</
       <tr>
         <td></td>
         <td>
-          <input type="submit" value="Next" />
-          <input type="button" value="Cancel" onclick="document.<portlet:namespace/>DatabaseForm.mode.value='params';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
+          <input type="submit" value="Next" id="nextButton"/>
+          <input id="cancelButton" type="button" value="Cancel" onclick="document.<portlet:namespace/>DatabaseForm.mode.value='params';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
         </td>
       </tr>
     </table>
+    <div id="progressMeter" style="display: none; padding-top: 5px;">
+        <br/>
+        <div>
+            <div id="progressMeterText"></div>
+            <div id="progressMeterShell" style="display: none; width: 350px; height: 20px; border: 1px inset; background: #eee; text-align: center;">
+                <div id="progressMeterBar" style="width: 0; height: 20px; border-right: 1px solid #444; background: #9ACB34; text-align: center;"></div>
+            </div>
+        </div>
+    </div>
 </form>
+
+
 <!--   END OF FORM TO COLLECT DATA FOR THIS PAGE   -->
 
 <%--

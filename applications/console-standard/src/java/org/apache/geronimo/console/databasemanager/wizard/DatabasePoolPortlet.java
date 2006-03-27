@@ -276,19 +276,28 @@ public class DatabasePoolPortlet extends BasePortlet {
                 DriverDownloader downloader = new DriverDownloader();
                 WriteableRepository repo = PortletManager.getWritableRepositories(actionRequest)[0];
                 try {
-                    downloader.loadDriver(repo, found, new FileWriteMonitor() {
+                    DownloadInfo downloadInfo = new DownloadInfo();
+                    final PortletSession session = actionRequest.getPortletSession();
+                    session.setAttribute(DownloadInfo.DOWNLOAD_INFO_KEY, downloadInfo, PortletSession.APPLICATION_SCOPE);
+                    downloader.loadDriver(repo, found, downloadInfo, new FileWriteMonitor() {
                         public void writeStarted(String fileDescription) {
                             System.out.println("Downloading "+fileDescription);
+                            DownloadInfo downloadInfo = (DownloadInfo)session.getAttribute(DownloadInfo.DOWNLOAD_INFO_KEY);
+                            downloadInfo.setDownloadStarted(true);
                         }
 
                         public void writeProgress(int bytes) {
                             System.out.print("\rDownload progress: "+(bytes/1024)+"kB");
                             System.out.flush();
+                            DownloadInfo downloadInfo = (DownloadInfo)session.getAttribute(DownloadInfo.DOWNLOAD_INFO_KEY);
+                            downloadInfo.setBytesDownloaded(bytes);
                         }
 
                         public void writeComplete(int bytes) {
                             System.out.println();
                             System.out.println("Finished downloading "+bytes+"b");
+                            DownloadInfo downloadInfo = (DownloadInfo)session.getAttribute(DownloadInfo.DOWNLOAD_INFO_KEY);
+                            downloadInfo.setDownloadFinished(true);
                         }
                     });
                     data.jar1 = found.getRepositoryURI();

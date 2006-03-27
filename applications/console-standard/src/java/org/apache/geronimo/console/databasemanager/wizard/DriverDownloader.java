@@ -26,6 +26,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -116,7 +117,7 @@ public class DriverDownloader {
     /**
      * Downloads a driver and loads it into the local repository.
      */
-    public void loadDriver(WriteableRepository repo, DriverInfo driver, FileWriteMonitor monitor) throws IOException {
+    public void loadDriver(WriteableRepository repo, DriverInfo driver, DownloadInfo downloadInfo, FileWriteMonitor monitor) throws IOException {
         try {
             int urlIndex = 0;
             if(driver.urls.length > 1) {
@@ -133,7 +134,9 @@ public class DriverDownloader {
                 int size;
                 int total = 0;
                 int threshold = 10240;
-                InputStream net = url.openStream();
+                URLConnection uc = url.openConnection();
+                downloadInfo.setTotalBytes(uc.getContentLength());
+                InputStream net = uc.getInputStream();
                 JarFile jar = null;
                 File download = null;
                 try {

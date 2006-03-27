@@ -1,9 +1,12 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ page import="org.apache.geronimo.console.util.PortletManager" %>
 
-<script type='text/javascript' src='/console-standard/dwr/interface/Jsr77Stats.js'></script>
-<script type='text/javascript' src='/console-standard/dwr/engine.js'></script>
-<script type='text/javascript' src='/console-standard/dwr/util.js'></script>
+<% String dwrForwarderServlet = PortletManager.getConsoleFrameworkServletPath(request) + "/../dwr"; %>
+<script type='text/javascript' src='<%= dwrForwarderServlet %>/interface/Jsr77Stats.js'></script>
+<script type='text/javascript' src='<%= dwrForwarderServlet %>/engine.js'></script>
+<script type='text/javascript' src='<%= dwrForwarderServlet %>/util.js'></script>
+
 
 <portlet:defineObjects/>
 
