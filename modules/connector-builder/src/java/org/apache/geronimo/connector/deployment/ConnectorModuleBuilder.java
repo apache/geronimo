@@ -290,7 +290,10 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         //set up the metadata for the ResourceAdapterModule
         GBeanData resourceAdapterModuleData = new GBeanData(resourceAdapterModuleName, ResourceAdapterModuleImplGBean.GBEAN_INFO);
         // initalize the GBean
-        resourceAdapterModuleData.setReferencePattern(NameFactory.J2EE_SERVER, earContext.getServerName());
+        if (earContext.getServerName() != null) {
+            //app clients don't have a Server gbean
+            resourceAdapterModuleData.setReferencePattern(NameFactory.J2EE_SERVER, earContext.getServerName());
+        }
         if (!earContext.getModuleName().equals(resourceAdapterModuleName)) {
             resourceAdapterModuleData.setReferencePattern(NameFactory.J2EE_APPLICATION, earContext.getModuleName());
         }
@@ -772,6 +775,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         Map moduleNameMap = new HashMap(instanceName.getName());
         moduleNameMap.remove(NameFactory.JCA_RESOURCE);
         moduleNameMap.remove(NameFactory.RESOURCE_ADAPTER);
+        moduleNameMap.remove(NameFactory.RESOURCE_ADAPTER_MODULE);
         moduleNameMap.put(NameFactory.J2EE_TYPE, NameFactory.RESOURCE_ADAPTER_MODULE);
         moduleNameMap.put(NameFactory.J2EE_NAME, moduleName);
         AbstractNameQuery nameQuery = new AbstractNameQuery(instanceName.getArtifact(), moduleNameMap, ResourceAdapterModule.class.getName());
