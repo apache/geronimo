@@ -16,7 +16,12 @@
  */
 package org.apache.geronimo.security.keystore;
 
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.TrustManager;
 import java.security.cert.Certificate;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.KeyStoreException;
 
 /**
  * Management interface for dealing with a specific Keystore
@@ -69,6 +74,19 @@ public interface KeystoreInstance {
      * @return True if the key was unlocked successfully
      */
     public boolean unlockPrivateKey(String alias, char[] password) throws KeystoreIsLocked;
+
+    /**
+     * Gets the aliases for all the private keys that are currently unlocked.
+     * This only works if the keystore is unlocked.
+     */
+    public String[] getUnlockedKeys() throws KeystoreIsLocked;
+
+    /**
+     * Checks whether this keystore can be used as a trust store (e.g. has at
+     * least one trust certificate).  This only works if the keystore is
+     * unlocked.
+     */
+    public boolean isTrustStore() throws KeystoreIsLocked;
 
     /**
      * Clears any saved password for the specified private key, meaning this
@@ -130,4 +148,22 @@ public interface KeystoreInstance {
     public boolean generateKeyPair(String alias, char[] storePassword, char[] keyPassword, String keyAlgorithm, int keySize,
                                    String signatureAlgorithm, int validity, String commonName, String orgUnit,
                                    String organization, String locality, String state, String country);
+
+
+    /**
+     * Gets a KeyManager for a key in this Keystore.  This only works if both
+     * the keystore and the private key in question have been unlocked,
+     * allowing other components in the server to access them.
+     * @param algorithm The SSL algorithm to use for this key manager
+     * @param alias     The alias of the key to use in the keystore
+     */
+    public KeyManager[] getKeyManager(String algorithm, String alias) throws NoSuchAlgorithmException,
+            UnrecoverableKeyException, KeyStoreException, KeystoreIsLocked;
+
+    /**
+     * Gets a TrustManager for this keystore.  This only works if the keystore
+     * has been unlocked, allowing other components in the server to access it.
+     * @param algorithm The SSL algorithm to use for this trust manager
+     */
+    public TrustManager[] getTrustManager(String algorithm) throws KeyStoreException, NoSuchAlgorithmException, KeystoreIsLocked;
 }

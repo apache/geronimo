@@ -27,6 +27,8 @@ import org.apache.geronimo.management.geronimo.SecureConnector;
 import org.apache.geronimo.management.geronimo.WebConnector;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebManager;
+import org.apache.geronimo.security.keystore.KeystoreManager;
+import org.apache.geronimo.security.keystore.KeystoreIsLocked;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -42,6 +44,8 @@ import javax.portlet.WindowState;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * A portlet that lets you list, add, remove, start, stop, and edit web
@@ -62,7 +66,7 @@ public class ConnectorPortlet extends BasePortlet {
     protected PortletRequestDispatcher editHttpsView;
 
     public void processAction(ActionRequest actionRequest,
-            ActionResponse actionResponse) throws PortletException, IOException {
+                              ActionResponse actionResponse) throws PortletException, IOException {
         String mode = actionRequest.getParameter("mode");
         String managerName = actionRequest.getParameter("managerObjectName");
         String containerName = actionRequest.getParameter("containerObjectName");
@@ -101,11 +105,9 @@ public class ConnectorPortlet extends BasePortlet {
                 if(minThreads != null) {
                     setProperty(connector, "minThreads", minThreads);
                 }
-            }
-            else if (server.equals(WEB_SERVER_TOMCAT)) {
+            } else if (server.equals(WEB_SERVER_TOMCAT)) {
                 //todo:   Any Tomcat specific processing?
-            }
-            else {
+            } else {
                 //todo:   Handle "should not occur" condition
             }
             if(protocol.equals(WebManager.PROTOCOL_HTTPS)) {
@@ -128,13 +130,25 @@ public class ConnectorPortlet extends BasePortlet {
                 secure.setClientAuthRequired(clientAuth);
                 if(server.equals(WEB_SERVER_JETTY)) {
                     if(isValid(privateKeyPass)) {setProperty(secure, "keyPassword", privateKeyPass);}
-                }
-                else if (server.equals(WEB_SERVER_TOMCAT)) {
+                    String keyStore = actionRequest.getParameter("unlockKeyStore");
+                    setProperty(secure, "keyStore", keyStore);
+                    try {
+                        String[] keys = PortletManager.getKeystoreManager(actionRequest).getKeystore(keyStore).getUnlockedKeys();
+                        if(keys.length == 1) {
+                            setProperty(secure, "keyAlias", keys[0]);
+                        } else {
+                            throw new PortletException("Cannot handle keystores with anything but 1 unlocked private key");
+                        }
+                    } catch (KeystoreIsLocked locked) {
+                        throw new PortletException(locked.getMessage());
+                    }
+                    String trustStore = actionRequest.getParameter("unlockTrustStore");
+                    if(isValid(trustStore)) {setProperty(secure, "trustStore", trustStore);}
+                } else if (server.equals(WEB_SERVER_TOMCAT)) {
                     if(isValid(truststoreType)) {setProperty(secure, "truststoreType", truststoreType);}
                     if(isValid(truststoreFile)) {setProperty(secure, "truststoreFileName", truststoreFile);}
                     if(isValid(truststorePass)) {setProperty(secure, "truststorePassword", truststorePass);}
-                }
-                else {
+                } else {
                     //todo:   Handle "should not occur" condition
                 }
             }
@@ -279,7 +293,7 @@ public class ConnectorPortlet extends BasePortlet {
     }
 
     protected void doView(RenderRequest renderRequest,
-            RenderResponse renderResponse) throws IOException, PortletException {
+                          RenderResponse renderResponse) throws IOException, PortletException {
         if (WindowState.MINIMIZED.equals(renderRequest.getWindowState())) {
             return;
         }
@@ -307,6 +321,18 @@ public class ConnectorPortlet extends BasePortlet {
                 renderRequest.setAttribute("maxThreads", "50");
                 if(server.equals(WEB_SERVER_JETTY)) {
                     renderRequest.setAttribute("minThreads", "10");
+                    KeystoreManager mgr = PortletManager.getKeystoreManager(renderRequest);
+                    String[] stores = mgr.getUnlockedKeyStores();
+                    renderRequest.setAttribute("keyStores", stores);
+                    renderRequest.setAttribute("trustStores", mgr.getUnlockedTrustStores());
+                    Map aliases = new HashMap();
+                    for (int i = 0; i < stores.length; i++) {
+                        String store = stores[i];
+                        try {
+                            aliases.put(store, mgr.getKeystore(store).getUnlockedKeys());
+                        } catch (KeystoreIsLocked locked) {}
+                    }
+                    renderRequest.setAttribute("unlockedKeys", aliases);
                 }
                 else if (server.equals(WEB_SERVER_TOMCAT)) {
                     //todo:   Any Tomcat specific processing?
@@ -494,7 +520,7 @@ public class ConnectorPortlet extends BasePortlet {
     }
 
     protected void doHelp(RenderRequest renderRequest,
-            RenderResponse renderResponse) throws PortletException, IOException {
+                          RenderResponse renderResponse) throws PortletException, IOException {
         helpView.include(renderRequest, renderResponse);
     }
 

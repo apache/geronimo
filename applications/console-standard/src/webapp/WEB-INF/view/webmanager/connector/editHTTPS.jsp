@@ -88,6 +88,46 @@
     <th colspan="2"><div align="left">SSL Settings</div></th>
   </tr>
 
+<!-- ====================================== JETTY ONLY ====================================== -->
+<c:if test="${server eq 'jetty'}">
+    <!-- Key Store Field -->
+      <tr>
+        <td><div align="right">Key Store: </div></td>
+        <td>
+          <select name="unlockKeyStore">
+              <c:forEach var="store" items="${keyStores}">
+                  <option>${store}</option>
+              </c:forEach>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td><div align="right"></div></td>
+        <td>The keystore to use for accessing the server's private key</td>
+      </tr>
+
+    <!-- Trust Store Field -->
+      <tr>
+        <td><div align="right">Trust Store: </div></td>
+        <td>
+          <select name="unlockTrustStore">
+              <option />
+              <c:forEach var="store" items="${trustStores}">
+                  <option>${store}</option>
+              </c:forEach>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td><div align="right"></div></td>
+        <td>The keystore to use for accessing the server's private key</td>
+      </tr>
+
+</c:if>
+
+
+<!-- ========================== TOMCAT ONLY ====================================== -->
+<c:if test="${server eq 'tomcat'}">
 <!-- Keystore File Field -->
   <tr>
     <td><div align="right">Keystore File: </div></td>
@@ -116,41 +156,23 @@
       this empty if you don't want to change the current password.</c:if></td>
   </tr>
 
-<!-- Key Password Field (Jetty only) -->
-<c:if test="${server eq 'jetty'}">
-  <tr>
-    <td><div align="right"><c:if test="${mode eq 'save'}">Change </c:if>Server Key Password: </div></td>
-    <td>
-      <input name="privateKeyPassword" type="password" size="10">
-	</td>
-  </tr>
-  <tr>
-    <td><div align="right"></div></td>
-    <td><c:choose><c:when test="${mode eq 'save'}">Change</c:when><c:otherwise>Set</c:otherwise></c:choose>
-      the password used to access the private key in the keystore.<c:if test="${mode eq 'save'}">  Leave
-      this empty if you don't want to change the current password.</c:if></td>
-  </tr>
-</c:if>
+    <!-- Keystore Type Field -->
+      <tr>
+        <td><div align="right">Keystore Type: </div></td>
+        <td>
+          <select name="keystoreType">
+            <option<c:if test="${keystoreType eq 'JKS' || logLevel eq ''}"> selected</c:if>>JKS</option>
+            <option<c:if test="${keystoreType eq 'PKCS12'}"> selected</c:if>>PKCS12</option>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td><div align="right"></div></td>
+        <td><c:choose><c:when test="${mode eq 'save'}">Change</c:when><c:otherwise>Set</c:otherwise></c:choose>
+          the keystore type.  There is normally no reason not to use the default (<tt>JKS</tt>).</td>
+      </tr>
 
-<!-- Keystore Type Field -->
-  <tr>
-    <td><div align="right">Keystore Type: </div></td>
-    <td>
-      <select name="keystoreType">
-        <option<c:if test="${keystoreType eq 'JKS' || logLevel eq ''}"> selected</c:if>>JKS</option>
-        <option<c:if test="${keystoreType eq 'PKCS12'}"> selected</c:if>>PKCS12</option>
-      </select>
-	</td>
-  </tr>
-  <tr>
-    <td><div align="right"></div></td>
-    <td><c:choose><c:when test="${mode eq 'save'}">Change</c:when><c:otherwise>Set</c:otherwise></c:choose>
-      the keystore type.  There is normally no reason not to use the default (<tt>JKS</tt>).</td>
-  </tr>
-
-<!-- Trust material (Tomcat only) -->
-<c:if test="${server eq 'tomcat'}">
-<!-- Truststore File Field -->
+  <!-- Truststore File Field -->
   <tr>
     <td><div align="right">Truststore File: </div></td>
     <td>

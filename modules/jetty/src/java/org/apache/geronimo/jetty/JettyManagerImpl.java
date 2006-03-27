@@ -43,6 +43,7 @@ import org.apache.geronimo.jetty.requestlog.JettyLogManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.j2ee.management.impl.Util;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.security.keystore.KeystoreManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -82,9 +83,9 @@ public class JettyManagerImpl implements WebManager {
             connector = new GBeanData(name, HTTPConnector.GBEAN_INFO);
         } else if (protocol.equals(PROTOCOL_HTTPS)) {
             connector = new GBeanData(name, HTTPSConnector.GBEAN_INFO);
-            GBeanQuery query = new GBeanQuery(null, ServerInfo.class.getName());
+            GBeanQuery query = new GBeanQuery(null, KeystoreManager.class.getName());
             Set set = kernel.listGBeans(query);
-            connector.setReferencePattern("ServerInfo", (ObjectName) set.iterator().next());
+            connector.setReferencePattern("KeystoreManager", (ObjectName) set.iterator().next());
             //todo: default HTTPS settings
         } else if (protocol.equals(PROTOCOL_AJP)) {
             connector = new GBeanData(name, AJP13Connector.GBEAN_INFO);

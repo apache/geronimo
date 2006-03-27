@@ -16,53 +16,54 @@
  */
 package org.apache.geronimo.security.keystore;
 
-import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.Util;
-import org.apache.geronimo.kernel.config.EditableConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.util.jce.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.EditableConfigurationManager;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.util.jce.X509Principal;
+import org.apache.geronimo.util.jce.X509V1CertificateGenerator;
 
-import javax.net.ServerSocketFactory;
-import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
-import java.io.File;
-import java.io.OutputStream;
+import javax.management.ObjectName;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLServerSocketFactory;
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Hashtable;
-import java.util.Vector;
-import java.util.Date;
+import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.KeyPairGenerator;
-import java.security.KeyPair;
-import java.security.PublicKey;
+import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
-import java.security.SignatureException;
-import java.security.InvalidKeyException;
+import java.security.PublicKey;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.security.cert.Certificate;
-import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * An implementation of KeystoreManager that assumes every file in a specified
@@ -144,7 +145,16 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
             throw new IllegalArgumentException("Invalid keystore name '"+name+"' ("+e.getMessage()+")");
         }
         GBeanData data = new GBeanData(oName, FileKeystoreInstance.getGBeanInfo());
-        data.setAttribute("keystoreFile", test);
+        try {
+            String path = configuredDir.toString();
+            if(!path.endsWith("/")) {
+                path += "/";
+            }
+            data.setAttribute("keystorePath", new URI(path +name));
+        } catch (URISyntaxException e) {
+            throw new IllegalStateException("Can't resolve keystore path: "+e.getMessage());
+        }
+        data.setReferencePattern("ServerInfo", kernel.getObjectNameFor(serverInfo));
         data.setAttribute("keystoreName", name);
         EditableConfigurationManager mgr = ConfigurationUtil.getEditableConfigurationManager(kernel);
         if(mgr != null) {
@@ -167,8 +177,35 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
         }
     }
 
-    public ServerSocketFactory createSSLFactory(String keyStore, String keyAlias, String trustStore) throws KeystoreIsLocked, KeyIsLocked {
-        throw new UnsupportedOperationException();
+    public SSLServerSocketFactory createSSLFactory(String provider, String protocol, String algorithm, String keyStore, String keyAlias, String trustStore, ClassLoader loader) throws KeystoreIsLocked, KeyIsLocked, NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException, KeyManagementException, NoSuchProviderException {
+        KeystoreInstance keyInstance = getKeystore(keyStore);
+        if(keyInstance.isKeystoreLocked()) {
+            throw new KeystoreIsLocked("Keystore '"+keyStore+"' is locked; please use the keystore page in the admin console to unlock it");
+        }
+        if(keyInstance.isKeyUnlocked(keyAlias)) {
+            throw new KeystoreIsLocked("Key '"+keyAlias+"' in keystore '"+keyStore+"' is locked; please use the keystore page in the admin console to unlock it");
+        }
+        KeystoreInstance trustInstance = trustStore == null ? null : getKeystore(trustStore);
+        if(trustInstance != null && trustInstance.isKeystoreLocked()) {
+            throw new KeystoreIsLocked("Keystore '"+trustStore+"' is locked; please use the keystore page in the admin console to unlock it");
+        }
+
+        // OMG this hurts, but it causes ClassCastExceptions elsewhere unless done this way!
+        try {
+            Class cls = loader.loadClass("javax.net.ssl.SSLContext");
+            Object ctx = cls.getMethod("getInstance", new Class[] {String.class}).invoke(null, new Object[]{protocol});
+            Class kmc = loader.loadClass("[Ljavax.net.ssl.KeyManager;");
+            Class tmc = loader.loadClass("[Ljavax.net.ssl.TrustManager;");
+            Class src = loader.loadClass("java.security.SecureRandom");
+            cls.getMethod("init", new Class[]{kmc, tmc, src}).invoke(ctx, new Object[]{keyInstance.getKeyManager(algorithm, keyAlias),
+                                                                            trustInstance == null ? null : trustInstance.getTrustManager(algorithm),
+                                                                            new java.security.SecureRandom()});
+            Object result = cls.getMethod("getServerSocketFactory", new Class[0]).invoke(ctx, new Object[0]);
+            return (SSLServerSocketFactory) result;
+        } catch (Exception e) {
+            log.error("Unable to dynamically load", e);
+            return null;
+        }
     }
 
     public KeystoreInstance createKeystore(String name, char[] password) {
@@ -194,6 +231,32 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
             log.error("Unable to create keystore", e);
         }
         return null;
+    }
+
+    public String[] getUnlockedKeyStores() {
+        List results = new ArrayList();
+        for (Iterator it = keystores.iterator(); it.hasNext();) {
+            KeystoreInstance instance = (KeystoreInstance) it.next();
+            try {
+                if(!instance.isKeystoreLocked() && instance.getUnlockedKeys().length > 0) {
+                    results.add(instance.getKeystoreName());
+                }
+            } catch (KeystoreIsLocked locked) {}
+        }
+        return (String[]) results.toArray(new String[results.size()]);
+    }
+
+    public String[] getUnlockedTrustStores() {
+        List results = new ArrayList();
+        for (Iterator it = keystores.iterator(); it.hasNext();) {
+            KeystoreInstance instance = (KeystoreInstance) it.next();
+            try {
+                if(!instance.isKeystoreLocked() && instance.isTrustStore()) {
+                    results.add(instance.getKeystoreName());
+                }
+            } catch (KeystoreIsLocked locked) {}
+        }
+        return (String[]) results.toArray(new String[results.size()]);
     }
 
     public static final GBeanInfo GBEAN_INFO;

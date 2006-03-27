@@ -53,21 +53,31 @@ been saved in order to make the keystore available to other components in the se
         <c:when test="${keystore.locked}">
           <a href="<portlet:actionURL portletMode="view">
             <portlet:param name="mode" value="unlockEdit-before" />
-            <portlet:param name="id" value="${keystore.instance.keystoreName}" />
+            <portlet:param name="keystore" value="${keystore.instance.keystoreName}" />
             </portlet:actionURL>"><img src="<%=consoleServletPath%>/../images/ico_lock_16x16.gif" alt="Locked" /></a>
         </c:when>
         <c:otherwise>
-          <img src="<%=consoleServletPath%>/../images/ico_unlock3_16x16.gif" alt="Unlocked" />
+          <a href="<portlet:actionURL portletMode="view">
+            <portlet:param name="mode" value="lockEdit-before" />
+            <portlet:param name="keystore" value="${keystore.instance.keystoreName}" />
+            </portlet:actionURL>"><img src="<%=consoleServletPath%>/../images/ico_unlock3_16x16.gif" alt="Unlocked" /></a>
         </c:otherwise>
       </c:choose>
     </td>
     <td>
       <c:choose>
         <c:when test="${keystore.instance.keystoreLocked}">
-          <img src="<%=consoleServletPath%>/../images/ico_lock_16x16.gif" alt="Locked" />
+          <a href="<portlet:actionURL portletMode="view">
+            <portlet:param name="mode" value="unlockKeystore-before" />
+            <portlet:param name="keystore" value="${keystore.instance.keystoreName}" />
+            </portlet:actionURL>"><img src="<%=consoleServletPath%>/../images/ico_lock_16x16.gif" alt="Locked" /></a>
         </c:when>
         <c:otherwise>
-          <img src="<%=consoleServletPath%>/../images/ico_unlock3_16x16.gif" alt="Unlocked" />
+          <a href="<portlet:actionURL portletMode="view">
+            <portlet:param name="mode" value="lockKeystore-before" />
+            <portlet:param name="keystore" value="${keystore.instance.keystoreName}" />
+            </portlet:actionURL>"><img src="<%=consoleServletPath%>/../images/ico_unlock3_16x16.gif" alt="Unlocked" /></a>
+            ${keys[keystore.instance.keystoreName]}
         </c:otherwise>
       </c:choose>
     </td>

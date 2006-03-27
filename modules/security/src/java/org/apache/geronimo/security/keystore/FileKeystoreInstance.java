@@ -18,16 +18,21 @@ package org.apache.geronimo.security.keystore;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.util.jce.X509Principal;
 import org.apache.geronimo.util.jce.X509V1CertificateGenerator;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -45,6 +50,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SignatureException;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -53,9 +59,11 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.net.URI;
 
 /**
  * Implementation of KeystoreInstance that accesses a keystore file on the
@@ -64,27 +72,52 @@ import java.util.Vector;
  *
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
-public class FileKeystoreInstance implements KeystoreInstance, DynamicGBean {
+public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
     private static final Log log = LogFactory.getLog(FileKeystoreInstance.class);
-    private final static String MAGIC_KEYSTORE_PWD_KEY = "#KeystorePW";
     final static String JKS = "JKS";
-    private File keystoreFile;
+    private URI keystorePath; // relative path
+    private ServerInfo serverInfo; // used to decode relative path
+    private File keystoreFile; // Only valid after startup
     private String keystoreName;
-    private Map unlockKeyPasswords = new HashMap();
+    private char[] keystorePassword; // Used to "unlock" the keystore for other services
+    private Map keyPasswords = new HashMap();
     private Kernel kernel;
     private ObjectName objectName;
-    private char[] openPassword;
+    private char[] openPassword; // The password last used to open the keystore for editing
     // The following variables are the state of the keystore, which should be chucked if the file on disk changes
     private List privateKeys = new ArrayList();
     private List trustCerts = new ArrayList();
     private KeyStore keystore;
     private long keystoreReadDate = Long.MIN_VALUE;
 
-    public FileKeystoreInstance(File keystoreFile, String keystoreName, Kernel kernel, String objectName) throws MalformedObjectNameException {
-        this.keystoreFile = keystoreFile;
+    public FileKeystoreInstance(ServerInfo serverInfo, URI keystorePath, String keystoreName, String keystorePassword, String keyPasswords, Kernel kernel, String objectName) throws MalformedObjectNameException {
+        this.serverInfo = serverInfo;
+        this.keystorePath = keystorePath;
         this.keystoreName = keystoreName;
         this.kernel = kernel;
         this.objectName = ObjectName.getInstance(objectName);
+        this.keystorePassword = keystorePassword == null ? null : keystorePassword.toCharArray();
+        if(keyPasswords != null) {
+            String[] keys = keyPasswords.split("\\]\\!\\[");
+            for (int i = 0; i < keys.length; i++) {
+                String key = keys[i];
+                int pos = key.indexOf('=');
+                this.keyPasswords.put(key.substring(0, pos), key.substring(pos+1).toCharArray());
+            }
+        }
+    }
+
+    public void doStart() throws Exception {
+        keystoreFile = new File(serverInfo.resolve(keystorePath));
+        if(!keystoreFile.exists() || !keystoreFile.canRead()) {
+            throw new IllegalArgumentException("Invalid keystore file ("+keystorePath+" = "+keystoreFile.getAbsolutePath()+")");
+        }
+    }
+
+    public void doStop() throws Exception {
+    }
+
+    public void doFail() {
     }
 
     public String getKeystoreName() {
@@ -93,25 +126,16 @@ public class FileKeystoreInstance implements KeystoreInstance, DynamicGBean {
 
     public boolean unlockKeystore(char[] password) {
         //todo: test whether password is correct and if not return false
-        try {
-            kernel.setAttribute(objectName, MAGIC_KEYSTORE_PWD_KEY, password);
-        } catch (Exception e) {
-            log.error("Unable to save keystore password for keystore '"+keystoreName+"'", e);
-            return false;
-        }
+        keystorePassword = password;
         return true;
     }
 
     public void lockKeystore() {
-        try {
-            kernel.setAttribute(objectName, MAGIC_KEYSTORE_PWD_KEY, null);
-        } catch (Exception e) {
-            log.error("Unable to clear keystore password for keystore '"+keystoreName+"'", e);
-        }
+        keystorePassword = null;
     }
 
     public boolean isKeystoreLocked() {
-        return unlockKeyPasswords.get(MAGIC_KEYSTORE_PWD_KEY) == null;
+        return keystorePassword == null;
     }
 
     public String[] listPrivateKeys(char[] storePassword) {
@@ -128,25 +152,56 @@ public class FileKeystoreInstance implements KeystoreInstance, DynamicGBean {
             throw new KeystoreIsLocked("Keystore '"+keystoreName+"' is locked!");
         }
         //todo: test whether password is correct and if not return false
-        try {
-            kernel.setAttribute(objectName, alias, password);
-        } catch (Exception e) {
-            log.error("Unable to save key password for key '"+alias+"' in keystore '"+keystoreName+"'", e);
-            return false;
-        }
+        keyPasswords.put(alias, password);
+        storePasswords();
         return true;
     }
 
+    public String[] getUnlockedKeys() throws KeystoreIsLocked {
+        if(isKeystoreLocked()) {
+            throw new KeystoreIsLocked("Keystore '"+keystoreName+"' is locked; please unlock it in the console.");
+        }
+        if(keystore == null || keystoreReadDate < keystoreFile.lastModified()) {
+            loadKeystoreData(keystorePassword);
+        }
+        return (String[]) keyPasswords.keySet().toArray(new String[keyPasswords.size()]);
+    }
+
+    public boolean isTrustStore() throws KeystoreIsLocked {
+        if(isKeystoreLocked()) {
+            throw new KeystoreIsLocked("Keystore '"+keystoreName+"' is locked; please unlock it in the console.");
+        }
+        if(keystore == null || keystoreReadDate < keystoreFile.lastModified()) {
+            loadKeystoreData(keystorePassword);
+        }
+        return trustCerts.size() > 0;
+    }
+
     public void lockPrivateKey(String alias) {
+        storePasswords();
+        keyPasswords.remove(alias);
+    }
+
+    private void storePasswords() {
+        StringBuffer buf = new StringBuffer();
+        for (Iterator it = keyPasswords.entrySet().iterator(); it.hasNext();) {
+            if(buf.length() > 0) {
+                buf.append("]![");
+            }
+            Map.Entry entry = (Map.Entry) it.next();
+            buf.append(entry.getKey()).append("=").append(entry.getValue());
+        }
         try {
-            kernel.setAttribute(objectName, alias, null);
+            kernel.setAttribute(objectName, "keyPasswords", buf.toString());
         } catch (Exception e) {
-            log.error("Unable to clear keystore password for keystore '"+keystoreName+"'", e);
+            log.error("Unable to save key passwords in keystore '"+keystoreName+"'", e);
         }
     }
 
+    public void setKeyPasswords(String passwords) {} // Just so the kernel sees the new value
+
     public boolean isKeyUnlocked(String alias) {
-        return unlockKeyPasswords.get(alias) == null;
+        return keyPasswords.get(alias) == null;
     }
 
     public String[] listTrustCertificates(char[] storePassword) {
@@ -211,6 +266,29 @@ public class FileKeystoreInstance implements KeystoreInstance, DynamicGBean {
         return false;
     }
 
+    public KeyManager[] getKeyManager(String algorithm, String alias) throws NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException, KeystoreIsLocked {
+        if(isKeystoreLocked()) {
+            throw new KeystoreIsLocked("Keystore '"+keystoreName+"' is locked; please unlock it in the console.");
+        }
+        if(keystore == null || keystoreReadDate < keystoreFile.lastModified()) {
+            loadKeystoreData(keystorePassword);
+        }
+        KeyManagerFactory keyFactory = KeyManagerFactory.getInstance(algorithm);
+        keyFactory.init(keystore, (char[]) keyPasswords.get(alias));
+        return keyFactory.getKeyManagers();
+    }
+
+    public TrustManager[] getTrustManager(String algorithm) throws KeyStoreException, NoSuchAlgorithmException, KeystoreIsLocked {
+        if(isKeystoreLocked()) {
+            throw new KeystoreIsLocked("Keystore '"+keystoreName+"' is locked; please unlock it in the console.");
+        }
+        if(keystore == null || keystoreReadDate < keystoreFile.lastModified()) {
+            loadKeystoreData(keystorePassword);
+        }
+        TrustManagerFactory trustFactory = TrustManagerFactory.getInstance(algorithm);
+        trustFactory.init(keystore);
+        return trustFactory.getTrustManagers();
+    }
 
     private boolean saveKeystore(char[] password) {
         try {
@@ -232,30 +310,19 @@ public class FileKeystoreInstance implements KeystoreInstance, DynamicGBean {
         return false;
     }
 
-    // ==================== Should only be accessed by the Kernel =================
-
-    public Object getAttribute(String name) throws Exception {
-        return unlockKeyPasswords.get(name);
-    }
-
-    public void setAttribute(String name, Object value) throws Exception {
-        unlockKeyPasswords.put(name, value);
-    }
-
-    public Object invoke(String name, Object[] arguments, String[] types) throws Exception {
-        throw new UnsupportedOperationException();
-    }
-
     public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(FileKeystoreInstance.class, NameFactory.KEYSTORE_INSTANCE);
-        infoFactory.addAttribute("keystoreFile", File.class, true, false);
+        infoFactory.addAttribute("keystorePath", URI.class, true, false);
         infoFactory.addAttribute("keystoreName", String.class, true, false);
+        infoFactory.addAttribute("keystorePassword", String.class, true, true);
+        infoFactory.addAttribute("keyPasswords", String.class, true, true);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("objectName", String.class, false);
+        infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addInterface(KeystoreInstance.class);
-        infoFactory.setConstructor(new String[]{"keystoreFile", "keystoreName", "kernel", "objectName"});
+        infoFactory.setConstructor(new String[]{"ServerInfo","keystorePath", "keystoreName", "keystorePassword", "keyPasswords", "kernel", "objectName"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
@@ -298,10 +365,6 @@ public class FileKeystoreInstance implements KeystoreInstance, DynamicGBean {
             log.error("Unable to open keystore with provided password", e);
         }
         return false;
-    }
-
-    private char[] getKeystorePassword() {
-        return (char[])unlockKeyPasswords.get(MAGIC_KEYSTORE_PWD_KEY);
     }
 
     private boolean isLoaded(char[] password) {

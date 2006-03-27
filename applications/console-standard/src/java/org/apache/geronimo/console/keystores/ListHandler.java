@@ -19,6 +19,7 @@ package org.apache.geronimo.console.keystores;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.security.keystore.KeystoreManager;
+import org.apache.geronimo.security.keystore.KeystoreIsLocked;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -27,6 +28,8 @@ import javax.portlet.PortletSession;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import java.io.IOException;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * Handler for the keystore list screen.
@@ -47,6 +50,7 @@ public class ListHandler extends BaseKeystoreHandler {
         String[] names = manager.listKeystores();
         PortletSession session = request.getPortletSession(true);
         KeystoreData[] keystores = new KeystoreData[names.length];
+        Map keys = new HashMap();
         for (int i = 0; i < names.length; i++) {
             String name = names[i];
             KeystoreData data = (KeystoreData) session.getAttribute(KEYSTORE_DATA_PREFIX+name);
@@ -56,8 +60,19 @@ public class ListHandler extends BaseKeystoreHandler {
                 session.setAttribute(KEYSTORE_DATA_PREFIX+name, data);
             }
             keystores[i] = data;
+            if(!data.getInstance().isKeystoreLocked()) {
+                try {
+                    String[] all = data.getInstance().getUnlockedKeys();
+                    if(all.length > 0) {
+                        keys.put(data.getInstance().getKeystoreName(), all.length+" key"+(all.length > 1 ? "s" : "")+" ready");
+                    } else {
+                        keys.put(data.getInstance().getKeystoreName(), "NO KEYS READY");
+                    }
+                } catch (KeystoreIsLocked locked) {}
+            }
         }
         request.setAttribute("keystores", keystores);
+        request.setAttribute("keys", keys);
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
