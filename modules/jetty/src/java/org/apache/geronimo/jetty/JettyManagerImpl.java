@@ -166,6 +166,9 @@ public class JettyManagerImpl implements WebManager {
      * @param protocol A protocol as returned by getSupportedProtocols
      */
     public AbstractName[] getConnectors(String protocol) {
+        if(protocol == null) {
+            return getConnectors();
+        }
         AbstractNameQuery query = new AbstractNameQuery(JettyWebConnector.class.getName());
         Set names = kernel.listGBeans(query);
         List result = new ArrayList();

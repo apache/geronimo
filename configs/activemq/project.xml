@@ -52,8 +52,7 @@
             <version>${geronimo_version}</version>
             <type>car</type>
             <properties>
-                <!--presumably temporary, till broker gbeans are fixed-->
-                 <!--<geronimo.import>true</geronimo.import>-->
+                 <geronimo.import>true</geronimo.import>
             </properties>
         </dependency>
         <dependency>
@@ -68,11 +67,11 @@
             <version>${geronimo_spec_j2ee_version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>activemq</groupId>
-            <artifactId>activemq-gbean-management</artifactId>
-            <version>${activemq_version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>activemq</groupId>-->
+            <!--<artifactId>activemq-gbean-management-g1_1</artifactId>-->
+            <!--<version>${activemq_version}</version>-->
+        <!--</dependency>-->
         <dependency>
              <groupId>activemq</groupId>
              <artifactId>activemq-ra</artifactId>

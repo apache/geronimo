@@ -23,8 +23,7 @@
 
 
     <!-- management -->
-    <!-- TODO configid interface change -->
-    <!--<gbean name="ActiveMQ" class="org.activemq.gbean.management.ActiveMQManagerGBean" />-->
+    <gbean name="ActiveMQ" class="org.activemq.gbean.management.ActiveMQManagerGBean" />
 
     <!-- message broker -->
     <gbean name="ActiveMQ" class="org.activemq.gbean.ActiveMQContainerGBean">
