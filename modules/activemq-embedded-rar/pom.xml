@@ -45,12 +45,12 @@
   </build>
   <dependencies>
     <dependency>
-      <groupId>activemq</groupId>
+      <groupId>incubator-activemq</groupId>
       <artifactId>activemq-core</artifactId>
       <version>${activeMqVersion}</version>
     </dependency>
     <dependency>
-      <groupId>activemq</groupId>
+      <groupId>incubator-activemq</groupId>
       <artifactId>activemq-ra</artifactId>
       <version>${activeMqVersion}</version>
       <!--  Can't be found anywhere -->

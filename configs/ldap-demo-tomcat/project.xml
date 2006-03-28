@@ -213,7 +213,7 @@
             <version>${asm_version}</version>
         </dependency>
         <dependency>
-            <groupId>activemq</groupId>
+            <groupId>incubator-activemq</groupId>
             <artifactId>activemq-gbean-management</artifactId>
             <version>${activemq_version}</version>
         </dependency>

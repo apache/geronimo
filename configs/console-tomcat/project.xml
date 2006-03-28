@@ -201,7 +201,7 @@
         </properties>
     </dependency>
         <dependency>
-            <groupId>activemq</groupId>
+            <groupId>incubator-activemq</groupId>
             <artifactId>activemq-gbean-management</artifactId>
             <version>${activemq_version}</version>
             <properties>
@@ -209,7 +209,7 @@
             </properties>
         </dependency>
         <dependency>
-            <groupId>activemq</groupId>
+            <groupId>incubator-activemq</groupId>
             <artifactId>activemq-gbean</artifactId>
             <version>${activemq_version}</version>
             <properties>
@@ -217,13 +217,22 @@
             </properties>
         </dependency>
         <dependency>
-            <groupId>activemq</groupId>
+            <groupId>incubator-activemq</groupId>
             <artifactId>activemq-core</artifactId>
             <version>${activemq_version}</version>
             <properties>
                 <geronimo.dependency>true</geronimo.dependency>
             </properties>
         </dependency>
+        <dependency>
+            <groupId>incubator-activemq</groupId>
+            <artifactId>activeio-core</artifactId>
+            <version>${activemq_activeio_version}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-converter</artifactId>

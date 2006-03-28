@@ -518,7 +518,7 @@
             configId="foo"
             clientConfigId="tradeStreamerAppclient">
             <resource>
-                <!-- $MRH --> <external-rar>activemq/activemq-ra/3.2.1/rar</external-rar>
+                <!-- $MRH --> <external-rar>geronimo/geronimo-activemq-embedded-rar/2.2-SNAPSHOT/rar</external-rar>
                 <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
            configId="org/apache/geronimo/SystemJMS"
            parentId="org/apache/geronimo/ActiveMQServer">
@@ -617,7 +617,7 @@
 
     <ext-module>
         <connector>TradeJMS</connector>
-        <!-- $MRH --> <external-path>activemq/activemq-ra/3.2.1/rar</external-path>
+        <!-- $MRH --> <external-path>geronimo/geronimo-activemq-embedded-rar/2.2-SNAPSHOT/rar</external-path>
         <connector
             xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
             xmlns:naming="http://geronimo.apache.org/xml/ns/naming"

@@ -48,7 +48,8 @@ public class ActiveMQConnectorHelper {
 
     private static String MODULE_FILE;
 
-    private final static String ACTIVEMQ_RAR = "repository/activemq/rars/activemq-ra-3.2.1.rar";
+    //TODO: I feel so dirty updating this.
+    private final static String ACTIVEMQ_RAR = "repository/geronimo/rars/geronimo-activemq-embedded-rar-2.2-SNAPSHOT.rar";
 
     private static final String LINE_SEP = System.getProperty("line.separator");
 

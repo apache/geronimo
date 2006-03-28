@@ -22,7 +22,7 @@
     <pomVersion>3</pomVersion>
     <extend>../../etc/project.xml</extend>
     <id>activemq</id>
-    <name>Activemq configuration</name>
+    <name>ActiveMQ configuration</name>
 
     <dependencies>
         <!-- dependency on deployer -->
@@ -80,20 +80,25 @@
         </dependency>
 
         <dependency>
-            <groupId>activemq</groupId>
+            <groupId>incubator-activemq</groupId>
             <artifactId>activemq-gbean-management</artifactId>
             <version>${activemq_version}</version>
         </dependency>
         <dependency>
-             <groupId>activemq</groupId>
-             <artifactId>activemq-ra</artifactId>
-             <version>${activemq_version}</version>
+             <groupId>geronimo</groupId>
+             <artifactId>geronimo-activemq-embedded-rar</artifactId>
+             <version>${geronimo_version}</version>
              <type>rar</type>
          </dependency>
         <dependency>
-            <groupId>activeio</groupId>
-            <artifactId>activeio</artifactId>
-            <version>${activeio_version}</version>
+            <groupId>incubator-activemq</groupId>
+            <artifactId>activeio-core</artifactId>
+            <version>${activemq_activeio_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>backport-util-concurrent</groupId>
+            <artifactId>backport-util-concurrent</artifactId>
+            <version>${backport_util_concurrent_version}</version>
         </dependency>
 
     </dependencies>

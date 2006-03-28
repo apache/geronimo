@@ -510,7 +510,7 @@
             configId="foo"
             clientConfigId="${pom.groupId}/${pom.artifactId}-streamer-client/${daytrader_version}/car">
             <resource>
-                <external-rar>activemq/activemq-ra/${activemq_version}/rar</external-rar>
+                <external-rar>geronimo/geronimo-activemq-embedded-rar/${geronimo_version}/rar</external-rar>
                 <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
            configId="org/apache/geronimo/SystemJMS"
            parentId="org/apache/geronimo/ActiveMQServer">
@@ -603,7 +603,7 @@
 
     <ext-module>
         <connector>TradeJMS</connector>
-        <external-path>activemq/activemq-ra/${activemq_version}/rar</external-path>
+        <external-path>geronimo/geronimo-activemq-embedded-rar/${geronimo_version}/rar</external-path>
         <connector
             xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.0"
             xmlns:naming="http://geronimo.apache.org/xml/ns/naming-1.0"

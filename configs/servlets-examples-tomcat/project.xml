@@ -206,7 +206,7 @@
             <version>${asm_version}</version>
         </dependency>
         <dependency>
-            <groupId>activemq</groupId>
+            <groupId>incubator-activemq</groupId>
             <artifactId>activemq-gbean-management</artifactId>
             <version>${activemq_version}</version>
         </dependency>
@@ -215,6 +215,7 @@
             <artifactId>activeio</artifactId>
             <version>${activeio_version}</version>
         </dependency>
+
         <dependency>
             <groupId>geronimo-samples</groupId>
             <artifactId>geronimo-servlet-examples-tomcat</artifactId>

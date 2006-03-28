@@ -383,19 +383,19 @@
 
         <!-- Dependencies that should be resolved by transitive dependencies and are loaded by the assembly plugin into the repository -->
         <dependency>
-            <groupId>activemq</groupId>
+            <groupId>incubator-activemq</groupId>
             <artifactId>activemq-core</artifactId>
             <version>${activemq_version}</version>
         </dependency>
 
         <dependency>
-            <groupId>activemq</groupId>
+            <groupId>incubator-activemq</groupId>
             <artifactId>activemq-gbean</artifactId>
             <version>${activemq_version}</version>
         </dependency>
 
         <dependency>
-            <groupId>activemq</groupId>
+            <groupId>incubator-activemq</groupId>
             <artifactId>activemq-gbean-management</artifactId>
             <version>${activemq_version}</version>
         </dependency>

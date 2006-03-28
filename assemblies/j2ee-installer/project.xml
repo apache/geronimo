@@ -672,9 +672,9 @@
         <!-- packages we include for others to use, mostly rars -->
         <dependency>
             <!-- included to make additional deployments easier -->
-            <groupId>activemq</groupId>
-            <artifactId>activemq-ra</artifactId>
-            <version>${activemq_version}</version>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-activemq-embedded-rar</artifactId>
+            <version>${geronimo_version}</version>
             <type>rar</type>
             <properties>
                 <geronimo.assemble>repository</geronimo.assemble>
@@ -890,19 +890,19 @@
 
         <!-- Dependencies that should be resolved by transitive dependencies and are loaded by the assembly plugin into the repository -->
         <dependency>
-            <groupId>activemq</groupId>
+            <groupId>incubator-activemq</groupId>
             <artifactId>activemq-core</artifactId>
             <version>${activemq_version}</version>
         </dependency>
 
         <dependency>
-            <groupId>activemq</groupId>
+            <groupId>incubator-activemq</groupId>
             <artifactId>activemq-gbean</artifactId>
             <version>${activemq_version}</version>
         </dependency>
 
         <dependency>
-            <groupId>activemq</groupId>
+            <groupId>incubator-activemq</groupId>
             <artifactId>activemq-gbean-management</artifactId>
             <version>${activemq_version}</version>
         </dependency>
