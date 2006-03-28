@@ -16,7 +16,7 @@ function refreshProgress()
 function updateProgress(downloadInfo)
 {
     if (downloadInfo.downloadStarted) {
-        var kbDownloaded = Math.ceil(downloadInfo.bytesDownloaded / 1024);
+        var kbDownloaded = Math.floor(downloadInfo.bytesDownloaded / 1024);
         document.getElementById('progressMeterText').innerHTML = 'Download in progress: ' 
               + kbDownloaded
               + ' Kb downloaded' ;
