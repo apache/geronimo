@@ -111,8 +111,8 @@ onsubmit="startProgress()">
         <br/>
         <div>
             <div id="progressMeterText"></div>
-            <div id="progressMeterShell" style="display: none; width: 350px; height: 20px; border: 1px inset; background: #eee; text-align: center;">
-                <div id="progressMeterBar" style="width: 0; height: 20px; border-right: 1px solid #444; background: #9ACB34; text-align: center;"></div>
+            <div id="progressMeterShell" style="display: none; width: 350px; height: 20px; border: 1px inset; background: #eee;">
+                <div id="progressMeterBar" style="width: 0; height: 20px; border-right: 1px solid #444; background: #9ACB34;"></div>
             </div>
         </div>
     </div>
