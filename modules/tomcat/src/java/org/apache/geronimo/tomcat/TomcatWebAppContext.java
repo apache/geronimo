@@ -84,6 +84,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private final Manager manager;
 
     private final boolean crossContext;
+    
+    private final boolean disableCookies;
 
     private final Map componentContext;
 
@@ -134,6 +136,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             CatalinaClusterGBean cluster,
             ManagerGBean manager,
             boolean crossContext,
+            boolean disableCookies,
             Map webServices,
             J2EEServer server,
             J2EEApplication application,
@@ -211,6 +214,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             this.manager = null;
 
         this.crossContext = crossContext;
+        
+        this.disableCookies = disableCookies;
 
         this.webServices = webServices;
 
@@ -343,6 +348,11 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     public boolean isCrossContext() {
         return crossContext;
     }
+    
+    public boolean isDisableCookies() {
+        return disableCookies;
+    }
+
 
     public Map getWebServices(){
         return webServices;
@@ -459,6 +469,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         infoBuilder.addReference("Cluster", CatalinaClusterGBean.class, CatalinaClusterGBean.J2EE_TYPE);
         infoBuilder.addReference("Manager", ManagerGBean.class);
         infoBuilder.addAttribute("crossContext", boolean.class, true);
+        infoBuilder.addAttribute("disableCookies", boolean.class, true);
         infoBuilder.addAttribute("webServices", Map.class, true);
         infoBuilder.addReference("J2EEServer", J2EEServer.class);
         infoBuilder.addReference("J2EEApplication", J2EEApplication.class);
@@ -489,6 +500,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
                 "Cluster",
                 "Manager",
                 "crossContext",
+                "disableCookies",
                 "webServices",
                 "J2EEServer",
                 "J2EEApplication",
