@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application
+    xmlns="http://geronimo.apache.org/xml/ns/j2ee/application"
+    configId="appclient_ejb_1"
+    parentId="${pom.groupId}/server-security/${pom.currentVersion}/car">
+    <module>
+        <ejb>appclient_ejb_1_ejb.jar</ejb>
+        <openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar" configId="ejb">
+            <cmp-connection-factory>
+                <resource-link>jdbc/DB1</resource-link>
+            </cmp-connection-factory>
+            <enterprise-beans>
+                <entity>
+                    <ejb-name>CMP20</ejb-name>
+                    <table-name>CMP20_APPCLIENT_TABLE1</table-name>
+                    <cmp-field-mapping>
+                        <cmp-field-name>id</cmp-field-name>
+                        <table-column>ID</table-column>
+                    </cmp-field-mapping>
+                </entity>
+                <entity>
+                    <ejb-name>CMP11</ejb-name>
+                    <table-name>CMP20_APPCLIENT_TABLE2</table-name>
+                    <cmp-field-mapping>
+                        <cmp-field-name>KEY_ID</cmp-field-name>
+                        <table-column>ID</table-column>
+                    </cmp-field-mapping>
+                </entity>
+            </enterprise-beans>
+        </openejb-jar>
+    </module>
+    <module>
+        <java>appclient_ejb_1_client.jar</java>
+        <application-client xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client"
+            configId="bar"
+            clientConfigId="appclient_ejb_1/appclient_ejb_1_client"
+            clientParentId="${pom.groupId}/client-database/${pom.currentVersion}/car">
+
+        </application-client>
+    </module>
+</application>
