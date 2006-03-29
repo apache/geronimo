@@ -19,28 +19,23 @@ package org.apache.geronimo.j2ee.management;
 import org.apache.geronimo.management.J2EEDomain;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 383682 $ $Date$
  */
 public class DomainTest extends Abstract77Test {
     private J2EEDomain domain;
 
     public void testStandardInterface() throws Exception {
-        assertEquals(DOMAIN_DATA.getName().toString(), domain.getObjectName());
-        assertObjectNamesEqual(new String[]{SERVER_DATA.getName().toString()}, domain.getServers());
+        assertEquals(DOMAIN_DATA.getAbstractName().getObjectName().toString(), domain.getObjectName());
+        assertObjectNamesEqual(new String[]{SERVER_DATA.getAbstractName().getObjectName().toString()}, domain.getServers());
     }
 
     public void testStandardAttributes() throws Exception {
-        assertEquals(DOMAIN_DATA.getName().toString(), kernel.getAttribute(DOMAIN_DATA.getAbstractName(), "objectName"));
-        assertObjectNamesEqual(new String[]{SERVER_DATA.getName().toString()}, (String[]) kernel.getAttribute(DOMAIN_DATA.getAbstractName(), "servers"));
+        assertEquals(DOMAIN_DATA.getAbstractName().getObjectName().toString(), kernel.getAttribute(DOMAIN_DATA.getAbstractName(), "objectName"));
+        assertObjectNamesEqual(new String[]{SERVER_DATA.getAbstractName().getObjectName().toString()}, (String[]) kernel.getAttribute(DOMAIN_DATA.getAbstractName(), "servers"));
     }
 
     protected void setUp() throws Exception {
         super.setUp();
-        domain = (J2EEDomain) kernel.getProxyManager().createProxy(DOMAIN_DATA.getAbstractName(), J2EEDomain.class);
-    }
-
-    protected void tearDown() throws Exception {
-        kernel.getProxyManager().destroyProxy(domain);
-        super.tearDown();
+        domain = (J2EEDomain) kernel.getGBean(DOMAIN_DATA.getAbstractName());
     }
 }

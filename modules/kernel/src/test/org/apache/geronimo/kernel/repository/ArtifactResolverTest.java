@@ -175,7 +175,6 @@ public class ArtifactResolverTest extends TestCase {
             GBeanData configData = new GBeanData(configurationName, Configuration.GBEAN_INFO);
             Environment environment = new Environment();
             environment.setConfigId(configId);
-            environment.getProperties().put("foo", "geronimo.test:J2EEServer=geronimo");
             configData.setAttribute("environment", environment);
             configData.setAttribute("gBeanState", NO_OBJECTS_OS);
             configData.setAttribute("configurationStore", this);

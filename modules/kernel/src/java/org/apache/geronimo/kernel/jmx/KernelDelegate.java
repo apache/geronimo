@@ -27,7 +27,6 @@ import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanQuery;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.DependencyManager;
@@ -63,6 +62,18 @@ public class KernelDelegate implements Kernel {
 
     public Naming getNaming() {
         return (Naming) getKernelAttribute("naming");
+    }
+
+    public Object getGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        try {
+            return invokeKernel("getGBean", new Object[] {name}, new String[] {ObjectName.class.getName()});
+        } catch (GBeanNotFoundException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
     }
 
     public Object getGBean(AbstractName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
@@ -176,18 +187,6 @@ public class KernelDelegate implements Kernel {
     public void startGBean(String shortName, Class type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
         try {
             invokeKernel("startGBean", new Object[] {shortName, type}, new String[] {String.class.getName(), Class.class.getName()});
-        } catch (GBeanNotFoundException e) {
-            throw e;
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new InternalKernelException(e);
-        }
-    }
-
-    public void startRecursiveGBean(ObjectName name) throws GBeanNotFoundException {
-        try {
-            invokeKernel("startRecursiveGBean", new Object[] {name}, new String[] {ObjectName.class.getName()});
         } catch (GBeanNotFoundException e) {
             throw e;
         } catch (RuntimeException e) {
@@ -346,18 +345,6 @@ public class KernelDelegate implements Kernel {
         }
     }
 
-    public void unloadGBean(ObjectName name) throws GBeanNotFoundException {
-        try {
-            invokeKernel("unloadGBean", new Object[] {name}, new String[] {ObjectName.class.getName()});
-        } catch (GBeanNotFoundException e) {
-            throw e;
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new InternalKernelException(e);
-        }
-    }
-
     public void unloadGBean(AbstractName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
         try {
             invokeKernel("unloadGBean", new Object[] {name}, new String[] {AbstractName.class.getName()});
@@ -457,18 +444,6 @@ public class KernelDelegate implements Kernel {
     public int getGBeanState(String shortName, Class type) throws GBeanNotFoundException {
         try {
             return ((Integer) invokeKernel("getGBeanState", new Object[]{shortName, type}, new String[]{String.class.getName(), Class.class.getName()})).intValue();
-        } catch (GBeanNotFoundException e) {
-            throw e;
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new InternalKernelException(e);
-        }
-    }
-
-    public long getGBeanStartTime(ObjectName name) throws GBeanNotFoundException {
-        try {
-            return ((Long) invokeKernel("getGBeanStartTime", new Object[]{name}, new String[]{ObjectName.class.getName()})).longValue();
         } catch (GBeanNotFoundException e) {
             throw e;
         } catch (RuntimeException e) {
@@ -777,16 +752,6 @@ public class KernelDelegate implements Kernel {
     public Set listGBeans(Set patterns) {
         try {
             return (Set) invokeKernel("listGBeans", new Object[] {patterns}, new String[] {Set.class.getName()});
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new InternalKernelException(e);
-        }
-    }
-
-    public Set listGBeans(GBeanQuery query) {
-        try {
-            return (Set) invokeKernel("listGBeans", new Object[] {query}, new String[] {GBeanQuery.class.getName()});
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {

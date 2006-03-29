@@ -31,7 +31,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.jmsmanager.AbstractJMSManager;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.DependencyManager;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
@@ -49,8 +51,8 @@ public class RemoveDestinationHandler extends AbstractJMSManager implements
         try {
             ConfigurationManager configurationManager = ConfigurationUtil
                     .getConfigurationManager(kernel);
-            URI destinationConfigURI = new URI(destinationConfigURIName);
-            ObjectName configurationObjectName = Configuration.getConfigurationObjectName(destinationConfigURI);
+            Artifact destinationConfigArtifact = Artifact.create(destinationConfigURIName);
+            AbstractName configurationObjectName = Configuration.getConfigurationAbstractName(destinationConfigArtifact);
 
             List stores = configurationManager.listStores();
             assert stores.size() == 1 :"Piling one hack on another, this code only works with exactly one store";
@@ -75,7 +77,7 @@ public class RemoveDestinationHandler extends AbstractJMSManager implements
             //kernel.stopConfiguration(destinationConfigURI);
             kernel.stopGBean(configurationObjectName);
             kernel.invoke(storeName, "uninstall",
-                    new Object[] {destinationConfigURI},
+                    new Object[] {destinationConfigArtifact},
                     new String[] {URI.class.getName()});
         } catch (Exception e) {
             log.error("problem removing destination: "

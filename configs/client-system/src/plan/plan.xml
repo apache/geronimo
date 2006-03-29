@@ -21,16 +21,6 @@
 Configuration for root app client
 -->
 <configuration xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
-
-    <environment>
-        <properties>
-            <property>
-                <name>org.apache.geronimo.name.javax.management.j2ee.BaseName</name>
-                <value>geronimo.client:J2EEServer=client</value>
-            </property>
-        </properties>
-    </environment>
-
     <!-- ServerInfo service -->
     <gbean name="ServerInfo" class="org.apache.geronimo.system.serverinfo.BasicServerInfo"/>
 

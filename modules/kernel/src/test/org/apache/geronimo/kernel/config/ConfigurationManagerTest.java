@@ -81,7 +81,7 @@ public class ConfigurationManagerTest extends TestCase {
         kernel.loadGBean(artifactManagerData, getClass().getClassLoader());
         kernel.startGBean(artifactManagerData.getAbstractName());
         assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(artifactManagerData.getAbstractName()));
-        ArtifactManager artifactManager = (ArtifactManager) kernel.getProxyManager().createProxy(artifactManagerData.getAbstractName(), ArtifactManager.class);
+        ArtifactManager artifactManager = (ArtifactManager) kernel.getGBean(artifactManagerData.getAbstractName());
 
         TestConfigStore configStore = new TestConfigStore();
         TestRepository testRepository = new TestRepository();

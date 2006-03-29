@@ -16,18 +16,17 @@
  */
 package org.apache.geronimo.system.configuration;
 
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.apache.geronimo.kernel.InvalidGBeanException;
-
-import javax.management.MalformedObjectNameException;
 import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.geronimo.kernel.InvalidGBeanException;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 384351 $ $Date$
  */
 class ServerOverride {
     private final Map configurations = new LinkedHashMap();
@@ -35,7 +34,7 @@ class ServerOverride {
     public ServerOverride() {
     }
 
-    public ServerOverride(Element element) throws MalformedObjectNameException, InvalidGBeanException {
+    public ServerOverride(Element element) throws InvalidGBeanException {
         NodeList configs = element.getElementsByTagName("configuration");
         for (int i = 0; i < configs.getLength(); i++) {
             Element configurationElement = (Element) configs.item(i);

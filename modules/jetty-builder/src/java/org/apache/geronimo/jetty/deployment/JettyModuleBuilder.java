@@ -168,7 +168,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         if (template == null) {
             return null;
         }
-        AbstractName templateName = kernel.getProxyManager().getProxyTarget(template);
+        AbstractName templateName = kernel.getAbstractNameFor(template);
         return kernel.getGBeanData(templateName);
     }
 

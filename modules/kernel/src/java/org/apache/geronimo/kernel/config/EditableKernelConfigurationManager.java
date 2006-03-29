@@ -54,7 +54,7 @@ public class EditableKernelConfigurationManager extends KernelConfigurationManag
             // add the gbean to the configuration
             configuration.addGBean(gbean);
         } catch (GBeanAlreadyExistsException e) {
-            throw new InvalidConfigException("Cound not add GBean " + gbean.getName() + " to configuration " + configurationId, e);
+            throw new InvalidConfigException("Cound not add GBean " + gbean.getAbstractName() + " to configuration " + configurationId, e);
         }
 
         addGBeanToConfiguration(configuration, gbean, start);
@@ -67,7 +67,7 @@ public class EditableKernelConfigurationManager extends KernelConfigurationManag
             // add the gbean to the configuration
             configuration.addGBean(name, gbean);
         } catch (GBeanAlreadyExistsException e) {
-            throw new InvalidConfigException("Cound not add GBean " + gbean.getName() + " to configuration " + configurationId, e);
+            throw new InvalidConfigException("Cound not add GBean " + gbean.getAbstractName() + " to configuration " + configurationId, e);
         }
 
         addGBeanToConfiguration(configuration, gbean, start);
@@ -79,7 +79,7 @@ public class EditableKernelConfigurationManager extends KernelConfigurationManag
         try {
             Thread.currentThread().setContextClassLoader(configurationClassLoader);
 
-            log.trace("Registering GBean " + gbean.getName());
+            log.trace("Registering GBean " + gbean.getAbstractName());
 
 
             // preprocess the gbean data before loading it into the kernel
@@ -91,9 +91,9 @@ public class EditableKernelConfigurationManager extends KernelConfigurationManag
             // start the configuration
             if (start) {
                 try {
-                    kernel.startRecursiveGBean(gbean.getName());
+                    kernel.startRecursiveGBean(gbean.getAbstractName());
                 } catch (GBeanNotFoundException e) {
-                    throw new InvalidConfigException("How could we not find a GBean that we just loaded ('" + gbean.getName() + "')?");
+                    throw new InvalidConfigException("How could we not find a GBean that we just loaded ('" + gbean.getAbstractName() + "')?");
                 }
             }
 
@@ -118,7 +118,7 @@ public class EditableKernelConfigurationManager extends KernelConfigurationManag
             if (e instanceof InvalidConfigException) {
                 throw (InvalidConfigException) e;
             }
-            throw new InvalidConfigException("Cound not add GBean " + gbean.getName() + " to configuration " + configuration.getId(), e);
+            throw new InvalidConfigException("Cound not add GBean " + gbean.getAbstractName() + " to configuration " + configuration.getId(), e);
         } finally {
             Thread.currentThread().setContextClassLoader(oldCl);
         }

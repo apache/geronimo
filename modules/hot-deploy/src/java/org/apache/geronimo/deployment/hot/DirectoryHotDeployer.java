@@ -19,7 +19,8 @@ package org.apache.geronimo.deployment.hot;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanQuery;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
 import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
@@ -36,7 +37,6 @@ import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 import javax.enterprise.deploy.spi.factories.DeploymentFactory;
-import javax.management.ObjectName;
 import java.io.File;
 import java.util.Set;
 import java.util.Iterator;
@@ -177,10 +177,9 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
         }
 
         // a bit of a hack, but the PersistentConfigurationList is the only thing that knows whether the server is full started!
-        GBeanQuery query = new GBeanQuery(null, PersistentConfigurationList.class.getName());
-        Set configLists = kernel.listGBeans(query);
+        Set configLists = kernel.listGBeans(new AbstractNameQuery(PersistentConfigurationList.class.getName()));
         for (Iterator i = configLists.iterator(); i.hasNext();) {
-            ObjectName configListName = (ObjectName) i.next();
+            AbstractName configListName = (AbstractName) i.next();
             try {
                 Boolean result = (Boolean) kernel.getAttribute(configListName, "kernelFullyStarted");
                 if(!result.booleanValue()) {

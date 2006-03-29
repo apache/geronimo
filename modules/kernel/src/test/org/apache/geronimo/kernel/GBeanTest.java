@@ -41,7 +41,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 
 /**
- * @version $Rev: 386505 $ $Date$
+ * @version $Rev:386515 $ $Date$
  */
 public class GBeanTest extends TestCase {
     private static KernelWraper kernelWraper = new KernelWraper();
@@ -214,22 +214,22 @@ public class GBeanTest extends TestCase {
         // abstract name
         MockGBean mockGBean = (MockGBean) kernel.getGBean(gbean.getAbstractName());
         assertEquals(123, mockGBean.getFinalInt());
-        assertNull(kernel.getProxyManager().getProxyTarget(mockGBean));
+        assertNull(kernel.getAbstractNameFor(mockGBean));
 
         // short name
         mockGBean = (MockGBean) kernel.getGBean("name");
         assertEquals(123, mockGBean.getFinalInt());
-        assertNull(kernel.getProxyManager().getProxyTarget(mockGBean));
+        assertNull(kernel.getAbstractNameFor(mockGBean));
 
         // type
         mockGBean = (MockGBean) kernel.getGBean(MockGBean.class);
         assertEquals(123, mockGBean.getFinalInt());
-        assertNull(kernel.getProxyManager().getProxyTarget(mockGBean));
+        assertNull(kernel.getAbstractNameFor(mockGBean));
 
         // short name and type
         mockGBean = (MockGBean) kernel.getGBean("name", MockGBean.class);
         assertEquals(123, mockGBean.getFinalInt());
-        assertNull(kernel.getProxyManager().getProxyTarget(mockGBean));
+        assertNull(kernel.getAbstractNameFor(mockGBean));
     }
 
     public void testInvoke() throws Exception {

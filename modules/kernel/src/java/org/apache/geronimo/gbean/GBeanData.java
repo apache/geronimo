@@ -16,7 +16,6 @@
  */
 package org.apache.geronimo.gbean;
 
-import javax.management.ObjectName;
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -61,10 +60,6 @@ public class GBeanData implements Externalizable {
         references = new HashMap(gbeanData.references);
         dependencies = new HashSet(gbeanData.dependencies);
         abstractName = gbeanData.abstractName;
-    }
-
-    public ObjectName getName() {
-        return abstractName == null? null: abstractName.getObjectName();
     }
 
     public AbstractName getAbstractName() {

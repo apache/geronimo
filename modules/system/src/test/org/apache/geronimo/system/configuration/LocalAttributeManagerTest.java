@@ -40,7 +40,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 386907 $ $Date$
  */
 public class LocalAttributeManagerTest extends TestCase {
     private static final String basedir = System.getProperties().getProperty("basedir", ".");
@@ -172,7 +172,7 @@ public class LocalAttributeManagerTest extends TestCase {
 
         assertNotSame(gbeanData, newGBeanData);
         assertSame(gbeanData.getGBeanInfo(), newGBeanData.getGBeanInfo());
-        assertSame(gbeanData.getName(), newGBeanData.getName());
+        assertSame(gbeanData.getAbstractName(), newGBeanData.getAbstractName());
         assertEquals(Collections.singleton(referencePattern), newGBeanData.getReferencePatterns(referenceInfo.getName()).getPatterns());
         assertEquals(attributeValue, newGBeanData.getAttribute(attributeInfo.getName()));
     }

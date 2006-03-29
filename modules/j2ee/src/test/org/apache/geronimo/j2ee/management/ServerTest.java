@@ -21,38 +21,33 @@ import org.apache.geronimo.management.J2EEServer;
 
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 383682 $ $Date$
  */
 public class ServerTest extends Abstract77Test {
     private J2EEServer server;
     private String version;
 
     public void testStandardInterface() throws Exception {
-        assertEquals(SERVER_DATA.getName().toString(), server.getObjectName());
+        assertEquals(SERVER_DATA.getAbstractName().getObjectName().getCanonicalName(), server.getObjectName());
         assertEquals(0, server.getDeployedObjects().length);
         assertEquals(0, server.getResources().length);
-        assertObjectNamesEqual(new String[]{JVM_DATA.getName().toString()}, server.getJavaVMs());
+        assertObjectNamesEqual(new String[]{JVM_DATA.getAbstractName().getObjectName().getCanonicalName()}, server.getJavaVMs());
         assertEquals("The Apache Software Foundation", server.getServerVendor());
         assertEquals(version, server.getServerVersion());
     }
 
     public void testStandardAttributes() throws Exception {
-        assertEquals(SERVER_DATA.getName().toString(), kernel.getAttribute(SERVER_DATA.getName(), "objectName"));
-        assertEquals(0, ((String[]) kernel.getAttribute(SERVER_DATA.getName(), "deployedObjects")).length);
-        assertEquals(0, ((String[]) kernel.getAttribute(SERVER_DATA.getName(), "resources")).length);
-        assertObjectNamesEqual(new String[]{JVM_DATA.getName().toString()}, (String[]) kernel.getAttribute(SERVER_DATA.getName(), "javaVMs"));
-        assertEquals("The Apache Software Foundation", kernel.getAttribute(SERVER_DATA.getName(), "serverVendor"));
-        assertEquals(version, kernel.getAttribute(SERVER_DATA.getName(), "serverVersion"));
+        assertEquals(SERVER_DATA.getAbstractName().getObjectName().getCanonicalName(), kernel.getAttribute(SERVER_DATA.getAbstractName(), "objectName"));
+        assertEquals(0, ((String[]) kernel.getAttribute(SERVER_DATA.getAbstractName(), "deployedObjects")).length);
+        assertEquals(0, ((String[]) kernel.getAttribute(SERVER_DATA.getAbstractName(), "resources")).length);
+        assertObjectNamesEqual(new String[]{JVM_DATA.getAbstractName().getObjectName().getCanonicalName()}, (String[]) kernel.getAttribute(SERVER_DATA.getAbstractName(), "javaVMs"));
+        assertEquals("The Apache Software Foundation", kernel.getAttribute(SERVER_DATA.getAbstractName(), "serverVendor"));
+        assertEquals(version, kernel.getAttribute(SERVER_DATA.getAbstractName(), "serverVersion"));
     }
 
     protected void setUp() throws Exception {
         super.setUp();
-        server = (J2EEServer) kernel.getProxyManager().createProxy(SERVER_DATA.getName(), J2EEServer.class);
-        version = (String) kernel.getAttribute(SERVER_INFO_DATA.getName(), "version");
-    }
-
-    protected void tearDown() throws Exception {
-        kernel.getProxyManager().destroyProxy(server);
-        super.tearDown();
+        server = (J2EEServer) kernel.getGBean(SERVER_DATA.getAbstractName());
+        version = (String) kernel.getAttribute(SERVER_INFO_DATA.getAbstractName(), "version");
     }
 }

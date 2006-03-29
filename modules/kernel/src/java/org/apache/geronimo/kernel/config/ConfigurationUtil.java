@@ -19,10 +19,10 @@ package org.apache.geronimo.kernel.config;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanQuery;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.ReferencePatterns;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
@@ -30,8 +30,6 @@ import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
-
-import javax.management.ObjectName;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -89,7 +87,7 @@ public final class ConfigurationUtil {
         kernel.loadGBean(configurationGBeanData, classLoader);
         kernel.startGBean(configurationName);
 
-        Configuration configuration = (Configuration) kernel.getProxyManager().createProxy(configurationName, Configuration.class);
+        Configuration configuration = (Configuration) kernel.getGBean(configurationName);
 
         // get the gbeans and classloader
         Collection gbeans = configuration.getGBeans().values();
@@ -157,15 +155,10 @@ public final class ConfigurationUtil {
      * @throws IllegalStateException Occurs if a ConfigurationManager cannot be identified
      */
     public static ConfigurationManager getConfigurationManager(Kernel kernel) {
-        Set names = kernel.listGBeans(new GBeanQuery(null, ConfigurationManager.class.getName()));
+        Set names = kernel.listGBeans(new AbstractNameQuery(ConfigurationManager.class.getName()));
         for (Iterator iterator = names.iterator(); iterator.hasNext();) {
-            ObjectName objectName = (ObjectName) iterator.next();
-            try {
-                if (kernel.getGBeanState(objectName) != State.RUNNING_INDEX) {
-                    iterator.remove();
-                }
-            } catch (GBeanNotFoundException e) {
-                // bean died
+            AbstractName abstractName = (AbstractName) iterator.next();
+            if (!kernel.isRunning(abstractName)) {
                 iterator.remove();
             }
         }
@@ -175,7 +168,7 @@ public final class ConfigurationUtil {
         if (names.size() > 1) {
             throw new IllegalStateException("More than one Configuration Manager was found in the kernel");
         }
-        ObjectName configurationManagerName = (ObjectName) names.iterator().next();
+        AbstractName configurationManagerName = (AbstractName) names.iterator().next();
         return (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
     }
 
@@ -186,15 +179,10 @@ public final class ConfigurationUtil {
      * @throws IllegalStateException Occurs if there are multiple EditableConfigurationManagers in the kernel.
      */
     public static EditableConfigurationManager getEditableConfigurationManager(Kernel kernel) {
-        Set names = kernel.listGBeans(new GBeanQuery(null, EditableConfigurationManager.class.getName()));
+        Set names = kernel.listGBeans(new AbstractNameQuery(EditableConfigurationManager.class.getName()));
         for (Iterator iterator = names.iterator(); iterator.hasNext();) {
-            ObjectName objectName = (ObjectName) iterator.next();
-            try {
-                if (kernel.getGBeanState(objectName) != State.RUNNING_INDEX) {
-                    iterator.remove();
-                }
-            } catch (GBeanNotFoundException e) {
-                // bean died
+            AbstractName abstractName = (AbstractName) iterator.next();
+            if (!kernel.isRunning(abstractName)) {
                 iterator.remove();
             }
         }
@@ -204,7 +192,7 @@ public final class ConfigurationUtil {
         if (names.size() > 1) {
             throw new IllegalStateException("More than one Configuration Manager was found in the kernel");
         }
-        ObjectName configurationManagerName = (ObjectName) names.iterator().next();
+        AbstractName configurationManagerName = (AbstractName) names.iterator().next();
         return (EditableConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, EditableConfigurationManager.class);
     }
 

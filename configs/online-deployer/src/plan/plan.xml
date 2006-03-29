@@ -17,13 +17,5 @@
 -->
 
 <configuration xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
-
-    <environment>
-        <properties>
-            <property>
-                <name>org.apache.geronimo.name.javax.management.j2ee.BaseName</name>
-                <value>geronimo.online.deployer:J2EEServer=geronimo</value>
-            </property>
-        </properties>
-    </environment>
+    <environment/>
 </configuration>

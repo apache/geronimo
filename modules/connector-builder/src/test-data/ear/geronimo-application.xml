@@ -24,12 +24,5 @@
             <version>1.0</version>
             <type>car</type>
         </configId>
-        <properties>
-            <property>
-                <name>org.apache.geronimo.name.javax.management.j2ee.BaseName</name>
-                <value>geronimo.test:J2EEServer=geronimo</value>
-            </property>
-        </properties>
     </environment>
-
 </application>

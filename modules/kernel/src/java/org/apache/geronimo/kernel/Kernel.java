@@ -23,7 +23,6 @@ import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanQuery;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
@@ -88,7 +87,6 @@ public interface Kernel {
      * @param name the name to check
      * @return true if there is a gbean registered under the specified name; false otherwise
      */
-    boolean isLoaded(ObjectName name);
     boolean isLoaded(AbstractName name);
     boolean isLoaded(String shortName);
     boolean isLoaded(Class type);
@@ -115,7 +113,6 @@ public interface Kernel {
      * @throws InternalKernelException if there GBean is not state manageable or if there is a general error
      * @throws IllegalStateException If the gbean is disabled
      */
-    void startGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException;
     void startGBean(AbstractName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException;
     void startGBean(String shortName) throws GBeanNotFoundException, InternalKernelException, IllegalStateException;
     void startGBean(Class type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException;
@@ -129,7 +126,6 @@ public interface Kernel {
      * @throws InternalKernelException if there GBean is not state manageable or if there is a general error
      * @throws IllegalStateException If the gbean is disabled
      */
-    void startRecursiveGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException;
     void startRecursiveGBean(AbstractName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException;
     void startRecursiveGBean(String shortName) throws GBeanNotFoundException, InternalKernelException, IllegalStateException;
     void startRecursiveGBean(Class type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException;
@@ -153,7 +149,6 @@ public interface Kernel {
      * @throws InternalKernelException if there GBean is not state manageable or if there is a general error
      * @throws IllegalStateException If the gbean is disabled
      */
-    void stopGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException;
     void stopGBean(AbstractName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException;
     void stopGBean(String shortName) throws GBeanNotFoundException, InternalKernelException, IllegalStateException;
     void stopGBean(Class type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException;
@@ -167,7 +162,6 @@ public interface Kernel {
      * @throws GBeanNotFoundException if the GBean could not be found
      * @throws InternalKernelException if there GBean is a problem while unloading the GBean
      */
-    void unloadGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException;
     void unloadGBean(AbstractName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException;
     void unloadGBean(String shortName) throws GBeanNotFoundException, InternalKernelException, IllegalStateException;
     void unloadGBean(Class type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException;
@@ -179,7 +173,6 @@ public interface Kernel {
      * @return the state of the GBean
      * @throws GBeanNotFoundException if the GBean could not be found
      */
-    int getGBeanState(ObjectName name) throws GBeanNotFoundException;
     int getGBeanState(AbstractName name) throws GBeanNotFoundException;
     int getGBeanState(String shortName) throws GBeanNotFoundException;
     int getGBeanState(Class type) throws GBeanNotFoundException;
@@ -191,7 +184,6 @@ public interface Kernel {
      * @return the start time of the GBean or 0 if not running
      * @throws GBeanNotFoundException if the GBean could not be found
      */
-    long getGBeanStartTime(ObjectName name) throws GBeanNotFoundException;
     long getGBeanStartTime(AbstractName name) throws GBeanNotFoundException;
     long getGBeanStartTime(String shortName) throws GBeanNotFoundException;
     long getGBeanStartTime(Class type) throws GBeanNotFoundException;
@@ -203,7 +195,6 @@ public interface Kernel {
      * @return the class loader associated with the specified GBean
      * @throws GBeanNotFoundException if the specified GBean is not registered with the kernel
      */
-    ClassLoader getClassLoaderFor(ObjectName name) throws GBeanNotFoundException;
     ClassLoader getClassLoaderFor(AbstractName name) throws GBeanNotFoundException;
     ClassLoader getClassLoaderFor(String shortName) throws GBeanNotFoundException;
     ClassLoader getClassLoaderFor(Class type) throws GBeanNotFoundException;
@@ -215,7 +206,6 @@ public interface Kernel {
      * @return the info for that instance
      * @throws GBeanNotFoundException if there is no instance with the supplied name
      */
-    GBeanInfo getGBeanInfo(ObjectName name) throws GBeanNotFoundException;
     GBeanInfo getGBeanInfo(AbstractName name) throws GBeanNotFoundException;
     GBeanInfo getGBeanInfo(String shortName) throws GBeanNotFoundException;
     GBeanInfo getGBeanInfo(Class type) throws GBeanNotFoundException;
@@ -227,63 +217,56 @@ public interface Kernel {
      * @return the info for that instance
      * @throws GBeanNotFoundException if there is no instance with the supplied name
      */
-    GBeanData getGBeanData(ObjectName name) throws GBeanNotFoundException, InternalKernelException;
     GBeanData getGBeanData(AbstractName name) throws GBeanNotFoundException, InternalKernelException;
     GBeanData getGBeanData(String shortName) throws GBeanNotFoundException, InternalKernelException;
     GBeanData getGBeanData(Class type) throws GBeanNotFoundException, InternalKernelException;
     GBeanData getGBeanData(String shortName, Class type) throws GBeanNotFoundException, InternalKernelException;
 
     /**
-     * Returns a Set of all GBeans matching the object name pattern
-     * @return a List of javax.management.ObjectName of matching GBeans registered with this kernel
+     * Gets the AbstractNames of all GBeans matching the abstractNameQuery.
+     * @param abstractNameQuery the query to execute
+     * @return the AbstractNames of all matching GBeans
      */
-    Set listGBeans(ObjectName pattern);
+    Set listGBeans(AbstractNameQuery abstractNameQuery);
 
     /**
      * Returns a Set of all GBeans matching the set of object name pattern
-     * @return a List of javax.management.ObjectName of matching GBeans registered with this kernel
+     * @param abstractNameQueries the queries to execute
+     * @return a List of AbstractNameName of matching GBeans registered with this kernel
      */
-    Set listGBeans(Set patterns);
-
-    /**
-     * Returns a Set of all GBeans matching any of the specified criteria
-     * @return a List of javax.management.ObjectName of matching GBeans registered with this kernel
-     */
-    Set listGBeans(GBeanQuery query);
+    Set listGBeans(Set abstractNameQueries);
 
     /**
      * Gets the value of an attribute on the specified gbean
-     * @param objectName the name of the gbean from which the attribute will be retrieved
+     * @param name the name of the gbean from which the attribute will be retrieved
      * @param attributeName the name of the attribute to fetch
      * @return the value of the attribute
      * @throws GBeanNotFoundException if there is not a gbean under the specified name
      * @throws NoSuchAttributeException if the gbean does not contain the specified attribute
      * @throws Exception if the gbean throws an exception from the getter
      */
-    Object getAttribute(ObjectName objectName, String attributeName) throws GBeanNotFoundException, NoSuchAttributeException, Exception;
-    Object getAttribute(AbstractName abstractName, String attributeName) throws GBeanNotFoundException, NoSuchAttributeException, Exception;
+    Object getAttribute(AbstractName name, String attributeName) throws GBeanNotFoundException, NoSuchAttributeException, Exception;
     Object getAttribute(String shortName, String attributeName) throws GBeanNotFoundException, NoSuchAttributeException, Exception;
     Object getAttribute(Class type, String attributeName) throws GBeanNotFoundException, NoSuchAttributeException, Exception;
     Object getAttribute(String shortName, Class type, String attributeName) throws GBeanNotFoundException, NoSuchAttributeException, Exception;
 
     /**
      * Sets the value of an attribute on the specified gbean
-     * @param objectName the name of the gbean from in which the new attribute value will be set
+     * @param name the name of the gbean from in which the new attribute value will be set
      * @param attributeName the name of the attribute to set
      * @param attributeValue the new value of the attribute
      * @throws GBeanNotFoundException if there is not a gbean under the specified name
      * @throws NoSuchAttributeException if the gbean does not contain the specified attribute
      * @throws Exception if the gbean throws an exception from the setter
      */
-    void setAttribute(ObjectName objectName, String attributeName, Object attributeValue) throws GBeanNotFoundException, NoSuchAttributeException, Exception;
-    void setAttribute(AbstractName abstractName, String attributeName, Object attributeValue) throws GBeanNotFoundException, NoSuchAttributeException, Exception;
+    void setAttribute(AbstractName name, String attributeName, Object attributeValue) throws GBeanNotFoundException, NoSuchAttributeException, Exception;
     void setAttribute(String shortName, String attributeName, Object attributeValue) throws GBeanNotFoundException, NoSuchAttributeException, Exception;
     void setAttribute(Class type, String attributeName, Object attributeValue) throws GBeanNotFoundException, NoSuchAttributeException, Exception;
     void setAttribute(String shortName, Class type, String attributeName, Object attributeValue) throws GBeanNotFoundException, NoSuchAttributeException, Exception;
 
     /**
      * Invokes a no-argument method on the specified GBean
-     * @param objectName the name of the gbean from in which the new attribute value will be set
+     * @param name the name of the gbean from in which the new attribute value will be set
      * @param methodName the name of the method to invoke
      * @return the return value of the method or null if the specified method does not return a value
      * @throws GBeanNotFoundException if there is not a gbean under the specified name
@@ -291,15 +274,14 @@ public interface Kernel {
      * @throws InternalKernelException if an error occurs within the kernel itself
      * @throws Exception if the method throws an exception
      */
-    Object invoke(ObjectName objectName, String methodName) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception;
-    Object invoke(AbstractName abstractName, String methodName) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception;
+    Object invoke(AbstractName name, String methodName) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception;
     Object invoke(String shortName, String methodName) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception;
     Object invoke(Class type, String methodName) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception;
     Object invoke(String shortName, Class type, String methodName) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception;
 
     /**
      * Invokes a method on the specified GBean with the specified arguments
-     * @param objectName the name of the gbean from in which the new attribute value will be set
+     * @param name the name of the gbean from in which the new attribute value will be set
      * @param methodName the name of the method to invoke
      * @param args the arguments to pass to the method
      * @param types the types of the arguments; the types are used to determine the signature of the mehod that should be invoked
@@ -309,8 +291,7 @@ public interface Kernel {
      * @throws InternalKernelException if an error occurs within the kernel itself
      * @throws Exception if the method throws an exception
      */
-    Object invoke(ObjectName objectName, String methodName, Object[] args, String[] types) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception;
-    Object invoke(AbstractName abstractName, String methodName, Object[] args, String[] types) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception;
+    Object invoke(AbstractName name, String methodName, Object[] args, String[] types) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception;
     Object invoke(String shortName, String methodName, Object[] args, String[] types) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception;
     Object invoke(Class type, String methodName, Object[] args, String[] types) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception;
     Object invoke(String shortName, Class type, String methodName, Object[] args, String[] types) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception;
@@ -363,5 +344,56 @@ public interface Kernel {
      */
     boolean isRunning();
 
-    Set listGBeans(AbstractNameQuery refInfoQuery);
+    /**
+     * @deprecated Use AbstractName version instead
+     */
+    boolean isLoaded(ObjectName name);
+    /**
+     * @deprecated Use AbstractName version instead
+     */
+    Object getGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException;
+    /**
+     * @deprecated Use AbstractName version instead
+     */
+    void startGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException;
+    /**
+     * @deprecated Use AbstractName version instead
+     */
+    void stopGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException;
+    /**
+     * @deprecated Use AbstractName version instead
+     */
+    int getGBeanState(ObjectName name) throws GBeanNotFoundException;
+    /**
+     * @deprecated Use AbstractName version instead
+     */
+    ClassLoader getClassLoaderFor(ObjectName name) throws GBeanNotFoundException;
+    /**
+     * @deprecated Use AbstractName version instead
+     */
+    GBeanInfo getGBeanInfo(ObjectName name) throws GBeanNotFoundException;
+    /**
+     * @deprecated Use AbstractName version instead
+     */
+    GBeanData getGBeanData(ObjectName name) throws GBeanNotFoundException, InternalKernelException;
+    /**
+     * @deprecated Use AbstractNameQuery version instead
+     */
+    Set listGBeans(ObjectName pattern);
+    /**
+     * @deprecated Use AbstractName version instead
+     */
+    Object getAttribute(ObjectName name, String attributeName) throws GBeanNotFoundException, NoSuchAttributeException, Exception;
+    /**
+     * @deprecated Use AbstractName version instead
+     */
+    void setAttribute(ObjectName name, String attributeName, Object attributeValue) throws GBeanNotFoundException, NoSuchAttributeException, Exception;
+    /**
+     * @deprecated Use AbstractName version instead
+     */
+    Object invoke(ObjectName name, String methodName) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception;
+    /**
+     * @deprecated Use AbstractName version instead
+     */
+    Object invoke(ObjectName name, String methodName, Object[] args, String[] types) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception;
 }

@@ -95,10 +95,6 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImplGBean;
  * @version $Rev:385232 $ $Date$
  */
 public class TomcatModuleBuilderTest extends TestCase {
-    private String DOMAIN_NAME = "geronimo.test";
-    private String SERVER_NAME = "geronimo";
-    private String BASE_NAME = DOMAIN_NAME + ":J2EEServer=" + SERVER_NAME;
-
     private Naming naming = new Jsr77Naming();
     private Artifact baseId = new Artifact("test", "base", "1", "car");
     private final AbstractName serverName = naming.createRootName(baseId, "Server", "J2EEServer");
@@ -271,7 +267,7 @@ public class TomcatModuleBuilderTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
-        defaultEnvironment.getProperties().put(NameFactory.JSR77_BASE_NAME_PROPERTY, BASE_NAME);
+        super.setUp();
         cl = this.getClass().getClassLoader();
         kernel = KernelFactory.newInstance().createKernel("test");
         kernel.boot();
@@ -306,9 +302,9 @@ public class TomcatModuleBuilderTest extends TestCase {
         Map initParams = new HashMap();
 
         initParams.put("userClassNames",
-                        "org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
+                "org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
         initParams.put("roleClassNames",
-                        "org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
+                "org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
         GBeanData realm = bootstrap.addGBean("tomcatRealm", RealmGBean.GBEAN_INFO);
         realm.setAttribute("className",
                 "org.apache.geronimo.tomcat.realm.TomcatJAASRealm");
@@ -367,6 +363,7 @@ public class TomcatModuleBuilderTest extends TestCase {
 
     protected void tearDown() throws Exception {
         kernel.shutdown();
+        super.tearDown();
     }
 
     public static class MockConfigStore implements ConfigurationStore {
@@ -406,7 +403,6 @@ public class TomcatModuleBuilderTest extends TestCase {
             } else {
                 Environment environment = new Environment();
                 environment.setConfigId(configId);
-                environment.getProperties().put(NameFactory.JSR77_BASE_NAME_PROPERTY, "geronimo.test:J2EEServer=geronimo");
                 configData.setAttribute("environment", environment);
                 configData.setAttribute("moduleType", ConfigurationModuleType.WAR);
                 configData.setAttribute("gBeanState", NO_OBJECTS_OS);

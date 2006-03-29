@@ -68,7 +68,6 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="properties" type="sys:propertiesType" minOccurs="0"/>
             <xs:element name="dependencies" type="sys:dependenciesType" minOccurs="0">
                 <xs:annotation>
                     <xs:documentation>
@@ -110,27 +109,6 @@
             </xs:element>
             <xs:element name="inverse-classloading" type="sys:emptyType" minOccurs="0"/>
             <xs:element name="suppress-default-environment" type="sys:emptyType" minOccurs="0"/>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="propertiesType">
-        <xs:sequence>
-            <xs:element name="property" type="sys:propertyType" minOccurs="0" maxOccurs="unbounded"/>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="propertyType">
-        <xs:annotation>
-            <xs:documentation>
-                property holds name and value for the deployment system.  When written the only use for this
-                is to supply part of an object-name like name for the gbeans in the configuration
-                These name-keys will be repeated in child configurations of this configuration.  Normally these
-                are domain and server for jsr-77 style object names.
-            </xs:documentation>
-        </xs:annotation>
-        <xs:sequence>
-            <xs:element name="name" type="xs:string"/>
-            <xs:element name="value" type="xs:string"/>
         </xs:sequence>
     </xs:complexType>
 

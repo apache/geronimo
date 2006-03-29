@@ -398,10 +398,7 @@ public final class GBeanInstance implements StateManageable {
         // tell everyone we are done
         lifecycleBroadcaster.fireUnloadedEvent();
 
-        if (manageableStore != null) {
-            kernel.getProxyManager().destroyProxy(manageableStore);
-            manageableStore = null;
-        }
+        manageableStore = null;
     }
 
     /**
@@ -732,12 +729,10 @@ public final class GBeanInstance implements StateManageable {
 
     private void updateManageableAttribute(GBeanAttribute attribute, Object value) {
         if (manageableStore == null) {
-            Set set = kernel.listGBeans(new AbstractNameQuery(ManageableAttributeStore.class.getName()));
-            if (set.size() == 0) {
+            manageableStore = getManageableAttributeStore();
+            if (manageableStore == null) {
                 return;
             }
-            manageableStore = (ManageableAttributeStore) kernel.getProxyManager().createProxy((AbstractName) set.iterator().next(),
-                    ManageableAttributeStore.class);
         }
         String configName = abstractName.getArtifact().toString();
         if (configName != null) {
@@ -745,6 +740,19 @@ public final class GBeanInstance implements StateManageable {
         } else {
             log.error("Unable to identify Configuration for GBean " + abstractName + ".  Manageable attribute " + attribute.getName() + " was not updated in persistent store.");
         }
+    }
+
+    private ManageableAttributeStore getManageableAttributeStore() {
+        Set set = kernel.listGBeans(new AbstractNameQuery(ManageableAttributeStore.class.getName()));
+        for (Iterator iterator = set.iterator(); iterator.hasNext();) {
+            AbstractName abstractName1 = (AbstractName) iterator.next();
+            try {
+                return (ManageableAttributeStore) kernel.getGBean(abstractName1);
+            } catch (GBeanNotFoundException e) {
+                // ignored... gbean was unregistered
+            }
+        }
+        return null;
     }
 
     private GBeanAttribute getAttributeByName(String name) throws NoSuchAttributeException {

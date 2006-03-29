@@ -20,18 +20,16 @@ import java.io.File;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.HashMap;
-import java.util.Map;
 import javax.sql.DataSource;
 
 import junit.framework.TestCase;
 import net.sf.cglib.core.DefaultGeneratorStrategy;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
+import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.Jsr77Naming;
 
 /**
  * @version $Rev: 384686 $ $Date$
@@ -48,9 +46,6 @@ public class DeploymentContextTest extends TestCase {
             Environment environment = new Environment();
             Artifact configId = new Artifact("foo", "artifact", "1", "car");
             environment.setConfigId(configId);
-            Map nameKeys = new HashMap();
-            nameKeys.put("domain", "d");
-            environment.setProperties(nameKeys);
             DeploymentContext context = new DeploymentContext(basedir, environment, ConfigurationModuleType.CAR, new Jsr77Naming());
             Enhancer enhancer = new Enhancer();
             enhancer.setInterfaces(new Class[]{DataSource.class});

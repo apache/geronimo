@@ -70,7 +70,7 @@ public class GBeanBuilder {
             if (type == null) {
                 GAttributeInfo attribute = gbean.getGBeanInfo().getAttribute(name);
                 if (attribute == null) {
-                    throw new DeploymentException("Unknown attribute " + name + " on " + gbean.getName());
+                    throw new DeploymentException("Unknown attribute " + name + " on " + gbean.getAbstractName());
                 }
                 type = attribute.getType();
             }
@@ -99,7 +99,7 @@ public class GBeanBuilder {
         }
         GAttributeInfo attribute = gbean.getGBeanInfo().getAttribute(name);
         if (attribute == null) {
-            throw new DeploymentException("Unknown attribute " + name + " on " + gbean.getName());
+            throw new DeploymentException("Unknown attribute " + name + " on " + gbean.getAbstractName());
         }
         String type = attribute.getType();
         Object value = builder.getValue(xmlObject, type, classLoader);
@@ -150,7 +150,7 @@ public class GBeanBuilder {
             }
         }
         if (referenceInfo == null) {
-            throw new DeploymentException("No reference named " + refName + " in gbean " + gbean.getName());
+            throw new DeploymentException("No reference named " + refName + " in gbean " + gbean.getAbstractName());
         }
 
         return buildAbstractNameQuery(pattern, referenceInfo);

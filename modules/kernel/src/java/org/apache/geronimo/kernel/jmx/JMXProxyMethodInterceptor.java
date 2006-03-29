@@ -30,13 +30,12 @@ import org.apache.geronimo.kernel.basic.ProxyInvoker;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.proxy.DeadProxyException;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
-import org.apache.geronimo.kernel.proxy.ProxyManager;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 385487 $ $Date$
  */
 public class JMXProxyMethodInterceptor implements MethodInterceptor {
     /**
@@ -105,7 +104,7 @@ public class JMXProxyMethodInterceptor implements MethodInterceptor {
 
         // handle equals, hashCode and toString directly here
         try {
-            invokers[getSuperIndex(proxyType, proxyType.getMethod("equals", new Class[]{Object.class}))] = new EqualsInvoke(kernel.getProxyManager());
+            invokers[getSuperIndex(proxyType, proxyType.getMethod("equals", new Class[]{Object.class}))] = new EqualsInvoke(kernel);
             invokers[getSuperIndex(proxyType, proxyType.getMethod("hashCode", null))] = new HashCodeInvoke();
             invokers[getSuperIndex(proxyType, proxyType.getMethod("toString", null))] = new ToStringInvoke(proxyType.getName());
             if(GeronimoManagedBean.class.isAssignableFrom(proxyType)) {
@@ -178,14 +177,14 @@ public class JMXProxyMethodInterceptor implements MethodInterceptor {
     }
 
     static final class EqualsInvoke implements ProxyInvoker {
-        private final ProxyManager proxyManager;
+        private final Kernel kernel;
 
-        public EqualsInvoke(ProxyManager proxyManager) {
-            this.proxyManager = proxyManager;
+        public EqualsInvoke(Kernel kernel) {
+            this.kernel = kernel;
         }
 
         public Object invoke(AbstractName abstractName, Object[] arguments) throws Throwable {
-            AbstractName proxyTarget = proxyManager.getProxyTarget(arguments[0]);
+            AbstractName proxyTarget = kernel.getAbstractNameFor(arguments[0]);
             return Boolean.valueOf(abstractName.equals(proxyTarget));
         }
     }

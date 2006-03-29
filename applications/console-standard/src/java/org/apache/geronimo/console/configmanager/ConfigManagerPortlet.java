@@ -29,7 +29,6 @@ import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
-import org.apache.geronimo.kernel.management.State;
 
 import javax.management.ObjectName;
 import javax.portlet.ActionRequest;
@@ -153,8 +152,7 @@ public class ConfigManagerPortlet extends BasePortlet {
             if (result.booleanValue()) {
                 // stop config if running
                 if (configManager.isLoaded(configURI)) {
-                    int state = kernel.getGBeanState(Configuration.getConfigurationObjectName(configURI));
-                    if (state == State.RUNNING.toInt()) {
+                    if (kernel.isRunning(Configuration.getConfigurationAbstractName(configURI))) {
 
                         configManager.stopConfiguration(configURI);
                         configManager.unloadConfiguration(configURI);

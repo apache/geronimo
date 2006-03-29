@@ -42,7 +42,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 384686 $ $Date$
  */
 public class PlanProcessor {
     private static Log log = LogFactory.getLog(PlanProcessor.class);
@@ -164,7 +164,7 @@ public class PlanProcessor {
                 xmlCursor.toFirstChild();
                 QName childName = xmlCursor.getName();
                 Environment oldEnvironment = null;
-                if (childName.equals(ENVIRONMENT_QNAME)) {
+                if (childName != null && childName.equals(ENVIRONMENT_QNAME)) {
                     XmlObject xmlObject = xmlCursor.getObject();
                     EnvironmentType environmentType = (EnvironmentType) xmlObject.copy().changeType(EnvironmentType.type);
                     oldEnvironment = EnvironmentBuilder.buildEnvironment(environmentType);

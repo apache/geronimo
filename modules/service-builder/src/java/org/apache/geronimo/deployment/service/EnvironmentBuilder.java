@@ -17,6 +17,14 @@
 
 package org.apache.geronimo.deployment.service;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.ClassFilterType;
@@ -24,24 +32,12 @@ import org.apache.geronimo.deployment.xbeans.DependenciesType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentDocument;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xbeans.ImportType;
-import org.apache.geronimo.deployment.xbeans.PropertiesType;
-import org.apache.geronimo.deployment.xbeans.PropertyType;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Dependency;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * @version $Rev:$ $Date:$
@@ -56,18 +52,6 @@ public class EnvironmentBuilder implements XmlAttributeBuilder {
             if (environmentType.isSetConfigId()) {
                 environment.setConfigId(toArtifact(environmentType.getConfigId()));
             }
-
-            Map propertiesMap = new HashMap();
-            if (environmentType.isSetProperties()) {
-                PropertyType[] propertiesArray = environmentType.getProperties().getPropertyArray();
-                for (int i = 0; i < propertiesArray.length; i++) {
-                    PropertyType property = propertiesArray[i];
-                    String key = property.getName().trim();
-                    String value = property.getValue().trim();
-                    propertiesMap.put(key, value);
-                }
-            }
-            environment.setProperties(propertiesMap);
 
             if (environmentType.isSetDependencies()) {
                 ArtifactType[] dependencyArray = environmentType.getDependencies().getDependencyArray();
@@ -90,7 +74,6 @@ public class EnvironmentBuilder implements XmlAttributeBuilder {
                 environment.setConfigId(additionalEnvironment.getConfigId());
             }
             environment.addDependencies(additionalEnvironment.getDependencies());
-            environment.addProperties(additionalEnvironment.getProperties());
             environment.setInverseClassLoading(environment.isInverseClassLoading() || additionalEnvironment.isInverseClassLoading());
             environment.setSuppressDefaultEnvironment(environment.isSuppressDefaultEnvironment() || additionalEnvironment.isSuppressDefaultEnvironment());
             environment.addHiddenClasses(additionalEnvironment.getHiddenClasses());
@@ -109,17 +92,6 @@ public class EnvironmentBuilder implements XmlAttributeBuilder {
         ArtifactType configId = toArtifactType(environment.getConfigId());
         environmentType.setConfigId(configId);
 
-        if (environment.getProperties().size() >0) {
-            PropertiesType propertiesType = environmentType.addNewProperties();
-            for (Iterator iterator = environment.getProperties().entrySet().iterator(); iterator.hasNext();) {
-                Map.Entry entry = (Map.Entry) iterator.next();
-                String name = (String) entry.getKey();
-                String value = (String) entry.getValue();
-                PropertyType propertyType = propertiesType.addNewProperty();
-                propertyType.setName(name);
-                propertyType.setValue(value);
-            }
-        }
         List dependencies = toArtifactTypes(environment.getDependencies());
         ArtifactType[] artifactTypes = (ArtifactType[]) dependencies.toArray(new ArtifactType[dependencies.size()]);
         DependenciesType dependenciesType = environmentType.addNewDependencies();

@@ -101,7 +101,6 @@ public class EARConfigBuilderTest extends TestCase {
         super.setUp();
         defaultParentId = new Environment();
         defaultParentId.addDependency(new Artifact("geronimo", "test", "1", "car"), ImportType.ALL);
-        defaultParentId.getProperties().put(NameFactory.JSR77_BASE_NAME_PROPERTY, "geronimo.test:J2EEServer=geronimo");
     }
 
     public static Test suite() throws Exception {
@@ -529,7 +528,6 @@ public class EARConfigBuilderTest extends TestCase {
             GBeanData configData = new GBeanData(configurationName, Configuration.GBEAN_INFO);
             Environment environment = new Environment();
             environment.setConfigId(configId);
-            environment.getProperties().put(NameFactory.JSR77_BASE_NAME_PROPERTY, "geronimo.test:J2EEServer=geronimo");
             configData.setAttribute("environment", environment);
             configData.setAttribute("moduleType", ConfigurationModuleType.CAR);
 

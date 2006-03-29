@@ -19,10 +19,8 @@ package org.apache.geronimo.kernel.repository;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.List;
 import java.util.Collections;
@@ -38,8 +36,6 @@ public class Environment implements Serializable {
     private static final long serialVersionUID = 7075760873629376317L;
 
     private Artifact configId;
-
-    private final Map properties = new HashMap();
 
     private final LinkedHashSet dependencies = new LinkedHashSet();
 
@@ -71,19 +67,6 @@ public class Environment implements Serializable {
 
     public void setConfigId(Artifact configId) {
         this.configId = configId;
-    }
-
-    public Map getProperties() {
-        return properties;
-    }
-
-    public void addProperties(Map nameKeys) {
-        this.properties.putAll(nameKeys);
-    }
-
-    public void setProperties(Map properties) {
-        this.properties.clear();
-        addProperties(properties);
     }
 
     public List getDependencies() {

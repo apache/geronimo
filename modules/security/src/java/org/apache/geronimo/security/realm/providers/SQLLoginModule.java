@@ -34,18 +34,19 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.security.auth.login.LoginException;
 import javax.security.auth.login.FailedLoginException;
+import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
-import javax.management.ObjectName;
 import javax.sql.DataSource;
 
-import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
-import org.apache.geronimo.gbean.GBeanQuery;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
+import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 
 
 /**
@@ -108,17 +109,21 @@ public class SQLLoginModule implements LoginModule {
             }
             String kernelName = (String) options.get(JaasLoginModuleUse.KERNEL_NAME_LM_OPTION);
             Kernel kernel = KernelRegistry.getKernel(kernelName);
-            Set set = kernel.listGBeans(new GBeanQuery(null, JCAManagedConnectionFactory.class.getName()));
+            Set set = kernel.listGBeans(new AbstractNameQuery(JCAManagedConnectionFactory.class.getName()));
             JCAManagedConnectionFactory factory;
             for (Iterator it = set.iterator(); it.hasNext();) {
-                ObjectName name = (ObjectName) it.next();
-                if(name.getKeyProperty(NameFactory.J2EE_APPLICATION).equals(dataSourceAppName) &&
-                    name.getKeyProperty(NameFactory.J2EE_NAME).equals(dataSourceName)) {
-                    factory = (JCAManagedConnectionFactory) kernel.getProxyManager().createProxy(name, JCAManagedConnectionFactory.class.getClassLoader());
-                    String type = factory.getConnectionFactoryInterface();
-                    if(type.equals(DataSource.class.getName())) {
-                        this.factory = factory;
-                        break;
+                AbstractName name = (AbstractName) it.next();
+                if(name.getName().get(NameFactory.J2EE_APPLICATION).equals(dataSourceAppName) &&
+                    name.getName().get(NameFactory.J2EE_NAME).equals(dataSourceName)) {
+                    try {
+                        factory = (JCAManagedConnectionFactory) kernel.getGBean(name);
+                        String type = factory.getConnectionFactoryInterface();
+                        if(type.equals(DataSource.class.getName())) {
+                            this.factory = factory;
+                            break;
+                        }
+                    } catch (GBeanNotFoundException e) {
+                        // ignore... GBean was unregistered
                     }
                 }
             }

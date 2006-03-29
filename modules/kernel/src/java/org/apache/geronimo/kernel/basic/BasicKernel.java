@@ -30,7 +30,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanName;
-import org.apache.geronimo.gbean.GBeanQuery;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.runtime.GBeanInstance;
@@ -301,6 +300,14 @@ public class BasicKernel implements Kernel {
         return gbeanInstance.getTarget();
     }
 
+    public Object getGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException  {
+        GBeanInstance gbeanInstance = registry.getGBeanInstance(createGBeanName(name));
+        if (gbeanInstance.getState() != State.RUNNING_INDEX) {
+            throw new IllegalStateException("GBean is not running: " + name);
+        }
+        return gbeanInstance.getTarget();
+    }
+
     public Object getGBean(AbstractName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException  {
         GBeanInstance gbeanInstance = registry.getGBeanInstance(name);
         if (gbeanInstance.getState() != State.RUNNING_INDEX) {
@@ -385,11 +392,6 @@ public class BasicKernel implements Kernel {
         gbeanInstance.start();
     }
 
-    public void startRecursiveGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
-        GBeanInstance gbeanInstance = registry.getGBeanInstance(createGBeanName(name));
-        gbeanInstance.startRecursive();
-    }
-
     public void startRecursiveGBean(AbstractName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
         GBeanInstance gbeanInstance = registry.getGBeanInstance(name);
         gbeanInstance.startRecursive();
@@ -457,13 +459,6 @@ public class BasicKernel implements Kernel {
         gbeanInstance.stop();
     }
 
-    public void unloadGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
-        GBeanName gbeanName = createGBeanName(name);
-        GBeanInstance gbeanInstance = registry.getGBeanInstance(gbeanName);
-        gbeanInstance.die();
-        registry.unregister(gbeanName);
-    }
-
     public void unloadGBean(AbstractName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
         GBeanInstance gbeanInstance = registry.getGBeanInstance(name);
         gbeanInstance.die();
@@ -506,11 +501,6 @@ public class BasicKernel implements Kernel {
     public int getGBeanState(String shortName, Class type) throws GBeanNotFoundException {
         GBeanInstance gbeanInstance = registry.getGBeanInstance(shortName, type);
         return gbeanInstance.getState();
-    }
-
-    public long getGBeanStartTime(ObjectName name) throws GBeanNotFoundException {
-        GBeanInstance gbeanInstance = registry.getGBeanInstance(createGBeanName(name));
-        return gbeanInstance.getStartTime();
     }
 
     public long getGBeanStartTime(AbstractName name) throws GBeanNotFoundException {
@@ -605,22 +595,6 @@ public class BasicKernel implements Kernel {
             } catch (GBeanNotFoundException e) {}
         }
         return gbeans;
-    }
-
-    /**
-     * Returns a Set of all GBeans matching the specified criteria
-     *
-     * @return a List of javax.management.ObjectName of matching GBeans registered with this kernel
-     */
-    public Set listGBeans(GBeanQuery query) {
-        Set results = new HashSet();
-        if(query.getGBeanNames() != null && query.getGBeanNames().length > 0) {
-            results.addAll(listGBeans(query.getGBeanNames()));
-        }
-        if(query.getInterfaces() != null && query.getInterfaces().length > 0) {
-            results.addAll(listGBeansByInterface(query.getInterfaces()));
-        }
-        return results;
     }
 
     public AbstractName getAbstractNameFor(Object service) {

@@ -28,6 +28,7 @@ import javax.security.auth.spi.LoginModule;
 
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.security.jaas.server.JaasSessionId;
 import org.apache.geronimo.security.jaas.server.JaasLoginModuleConfiguration;
 import org.apache.geronimo.security.jaas.LoginModuleControlFlag;
@@ -47,7 +48,7 @@ import org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingClient;
  * case the client/server distinction is somewhat less important, and the
  * communication is optimized by avoiding network traffic.
  *
- * @version $Rev$ $Date$
+ * @version $Rev: 386763 $ $Date$
  */
 public class JaasLoginCoordinator implements LoginModule {
     public final static String OPTION_HOST = "host";
@@ -156,10 +157,7 @@ public class JaasLoginCoordinator implements LoginModule {
     }
 
     private void clear() {
-        Kernel kernel = KernelRegistry.getKernel(kernelName);
-        if (kernel != null) {
-            kernel.getProxyManager().destroyProxy(service);
-        }
+        service = null;
         serverHost = null;
         serverPort = 0;
         realmName = null;
@@ -176,7 +174,13 @@ public class JaasLoginCoordinator implements LoginModule {
             return JaasLoginServiceRemotingClient.create(serverHost, serverPort);
         } else {
             Kernel kernel = KernelRegistry.getKernel(kernelName);
-            return (JaasLoginServiceMBean) kernel.getProxyManager().createProxy(serviceName, JaasLoginServiceMBean.class);
+            try {
+                return (JaasLoginServiceMBean) kernel.getGBean(serviceName);
+            } catch (GBeanNotFoundException e) {
+                IllegalStateException illegalStateException = new IllegalStateException();
+                illegalStateException.initCause(e);
+                throw illegalStateException;
+            }
         }
     }
 

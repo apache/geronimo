@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,22 +16,20 @@
  */
 package org.apache.geronimo.naming.reference;
 
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.proxy.ProxyManager;
-import org.apache.geronimo.kernel.repository.Artifact;
-
 import javax.naming.NameNotFoundException;
 
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.AbstractName;
+
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 385372 $ $Date: 2006-03-12 13:44:50 -0800 (Sun, 12 Mar 2006) $
  */
-public class GBeanProxyReference extends ConfigurationAwareReference {
+public class GBeanReference extends ConfigurationAwareReference {
     private final Class type;
 
-    public GBeanProxyReference(Artifact configId, AbstractNameQuery abstractNameQuery, Class type) {
+    public GBeanReference(Artifact configId, AbstractNameQuery abstractNameQuery, Class type) {
         super(configId, abstractNameQuery);
         this.type = type;
     }
@@ -47,9 +45,12 @@ public class GBeanProxyReference extends ConfigurationAwareReference {
         } catch (GBeanNotFoundException e) {
             throw (NameNotFoundException)new NameNotFoundException("Could not resolve gbean from name query: " + abstractNameQuery).initCause(e);
         }
-        Kernel kernel = getKernel();
-        // todo HACK: this is a very bad idea
-        ProxyManager proxyManager = kernel.getProxyManager();
-        return proxyManager.createProxy(target, type);
+        try {
+            return getKernel().getGBean(target);
+        } catch (GBeanNotFoundException e) {
+            IllegalStateException illegalStateException = new IllegalStateException();
+            illegalStateException.initCause(e);
+            throw illegalStateException;
+        }
     }
 }

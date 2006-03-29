@@ -42,7 +42,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.gbean.GBeanQuery;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
@@ -1086,11 +1085,11 @@ public class KernelManagementHelper implements ManagementHelper {
     }
 
     public Object[] findByInterface(Class iface) {
-        Set set = kernel.listGBeans(new GBeanQuery(null, iface.getName()));
+        Set set = kernel.listGBeans(new AbstractNameQuery(iface.getName()));
         Object[] result = new Object[set.size()];
         int i=0;
         for (Iterator it = set.iterator(); it.hasNext();) {
-            ObjectName name = (ObjectName) it.next();
+            AbstractName name = (AbstractName) it.next();
             result[i++] = kernel.getProxyManager().createProxy(name, iface.getClassLoader());
         }
         return result;

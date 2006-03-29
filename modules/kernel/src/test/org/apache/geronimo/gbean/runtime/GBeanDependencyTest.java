@@ -38,12 +38,12 @@ public class GBeanDependencyTest extends TestCase {
         GBeanData gbeanDataChild = new GBeanData(kernel.getNaming().createChildName(parentName, "child", "child"), MockGBean.getGBeanInfo());
         gbeanDataChild.addDependency(new ReferencePatterns(parentName));
         kernel.loadGBean(gbeanDataChild, MockGBean.class.getClassLoader());
-        kernel.startGBean(gbeanDataChild.getName());
-        assertEquals(State.STARTING_INDEX, kernel.getGBeanState(gbeanDataChild.getName()));
+        kernel.startGBean(gbeanDataChild.getAbstractName());
+        assertEquals(State.STARTING_INDEX, kernel.getGBeanState(gbeanDataChild.getAbstractName()));
         kernel.loadGBean(gbeanDataParent, MockGBean.class.getClassLoader());
-        assertEquals(State.STARTING_INDEX, kernel.getGBeanState(gbeanDataChild.getName()));
+        assertEquals(State.STARTING_INDEX, kernel.getGBeanState(gbeanDataChild.getAbstractName()));
         kernel.startGBean(parentName);
-        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(gbeanDataChild.getName()));
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(gbeanDataChild.getAbstractName()));
     }
 
     protected void setUp() throws Exception {

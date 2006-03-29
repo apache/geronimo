@@ -23,7 +23,6 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanQuery;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
@@ -170,9 +169,9 @@ public class Deployer {
      * means it goes through a web server listening on an unknown port).
      */
     private String getURLFor(String containerName) throws Exception {
-        Set set = kernel.listGBeans(new GBeanQuery(null, "org.apache.geronimo.management.geronimo.WebManager"));
+        Set set = kernel.listGBeans(new AbstractNameQuery("org.apache.geronimo.management.geronimo.WebManager"));
         for (Iterator it = set.iterator(); it.hasNext();) {
-            ObjectName mgrName = (ObjectName) it.next();
+            AbstractName mgrName = (AbstractName) it.next();
             String[] cntNames = (String[]) kernel.getAttribute(mgrName, "containers");
             for (int i = 0; i < cntNames.length; i++) {
                 String cntName = cntNames[i];
@@ -243,7 +242,7 @@ public class Deployer {
             // Make sure this configuration doesn't already exist
             Artifact configID = builder.getConfigurationID(plan, module);
             try {
-                kernel.getGBeanState(Configuration.getConfigurationObjectName(configID));
+                kernel.getGBeanState(Configuration.getConfigurationAbstractName(configID));
                 throw new DeploymentException("Module "+configID+" already exists in the server.  Try to undeploy it first or use the redeploy command.");
             } catch (GBeanNotFoundException e) {
                 // this is good

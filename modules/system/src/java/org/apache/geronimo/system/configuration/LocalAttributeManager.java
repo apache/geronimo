@@ -38,8 +38,6 @@ import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.beans.PropertyEditor;
@@ -60,7 +58,7 @@ import java.util.TimerTask;
 /**
  * Stores managed attributes in an XML file on the local filesystem.
  *
- * @version $Rev$ $Date$
+ * @version $Rev: 386505 $ $Date$
  */
 public class LocalAttributeManager implements ManageableAttributeStore, PersistentConfigurationList, GBeanLifecycle {
     private final static Log log = LogFactory.getLog(LocalAttributeManager.class);
@@ -119,13 +117,13 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
             Object name = entry.getKey();
             GBeanOverride gbean = (GBeanOverride) entry.getValue();
             if (!datasByName.containsKey(name) && gbean.getGBeanInfo() != null && gbean.isLoad()) {
-                if (!(name instanceof ObjectName)) {
+                if (!(name instanceof AbstractName)) {
                     throw new InvalidConfigException("New GBeans must be specified with a full abstractName:" +
                             " configuration=" + configName +
                             " gbeanName=" + name);
                 }
                 GBeanInfo gbeanInfo = GBeanInfo.getGBeanInfo(gbean.getGBeanInfo(), classLoader);
-                AbstractName abstractName = new AbstractName(configurationName, ((ObjectName)name).getKeyPropertyList(), (ObjectName)name);
+                AbstractName abstractName = (AbstractName)name;
                 GBeanData gBeanData = new GBeanData(abstractName, gbeanInfo);
                 gbeanDatas.add(gBeanData);
             }
@@ -177,7 +175,7 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
             String attributeName = (String) entry.getKey();
             GAttributeInfo attributeInfo = gbeanInfo.getAttribute(attributeName);
             if (attributeInfo == null) {
-                throw new InvalidConfigException("No attribute: " + attributeName + " for gbean: " + data.getName());
+                throw new InvalidConfigException("No attribute: " + attributeName + " for gbean: " + data.getAbstractName());
             }
             String valueString = (String) entry.getValue();
             Object value = getValue(attributeInfo, valueString, configName, gbeanName, classLoader);
@@ -191,7 +189,7 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
             String referenceName = (String) entry.getKey();
             GReferenceInfo referenceInfo = gbeanInfo.getReference(referenceName);
             if (referenceInfo == null) {
-                throw new InvalidConfigException("No reference: " + referenceName + " for gbean: " + data.getName());
+                throw new InvalidConfigException("No reference: " + referenceName + " for gbean: " + data.getAbstractName());
             }
 
             ReferencePatterns referencePatterns = (ReferencePatterns) entry.getValue();
@@ -317,8 +315,6 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
         } catch (SAXException e) {
             log.error("Unable to read saved manageable attributes", e);
         } catch (ParserConfigurationException e) {
-            log.error("Unable to read saved manageable attributes", e);
-        } catch (MalformedObjectNameException e) {
             log.error("Unable to read saved manageable attributes", e);
         } catch (InvalidGBeanException e) {
             log.error("Unable to read saved manageable attributes", e);

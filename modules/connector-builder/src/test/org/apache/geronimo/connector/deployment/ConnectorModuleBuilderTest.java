@@ -586,7 +586,6 @@ public class ConnectorModuleBuilderTest extends TestCase {
             } else {
                 Environment environment = new Environment();
                 environment.setConfigId(configId);
-                environment.getProperties().put(NameFactory.JSR77_BASE_NAME_PROPERTY, "geronimo.test:J2EEServer=geronimo");
                 configData.setAttribute("environment", environment);
                 configData.setAttribute("moduleType", ConfigurationModuleType.WAR);
                 configData.setAttribute("gBeanState", NO_OBJECTS_OS);

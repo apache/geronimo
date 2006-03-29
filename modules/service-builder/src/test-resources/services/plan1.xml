@@ -28,12 +28,6 @@
             <version>DEV</version>
             <type>car</type>
         </configId>
-        <properties>
-            <property>
-                <name>org.apache.geronimo.name.javax.management.j2ee.BaseName</name>
-                <value>domain:J2EEServer=test</value>
-            </property>
-        </properties>
         <dependencies>
             <dependency>
                 <groupId>geronimo</groupId>

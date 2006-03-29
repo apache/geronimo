@@ -108,9 +108,6 @@ public class ServiceReferenceTest extends TestCase {
         tmpbasedir.delete();
         tmpbasedir.mkdirs();
         environment.setConfigId(configID);
-        Map nameKeys = new HashMap();
-        nameKeys.put("domain", "geronimo");
-        environment.setProperties(nameKeys);
         Jsr77Naming naming = new Jsr77Naming();
         context = new DeploymentContext(tmpbasedir, environment, ConfigurationModuleType.CAR, naming);
 

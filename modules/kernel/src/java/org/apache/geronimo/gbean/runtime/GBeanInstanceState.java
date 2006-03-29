@@ -24,12 +24,11 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.State;
 
-import javax.management.ObjectName;
 import java.util.Iterator;
 import java.util.Set;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 386907 $ $Date$
  */
 public class GBeanInstanceState {
     private static final Log log = LogFactory.getLog(GBeanInstanceState.class);
@@ -313,7 +312,7 @@ public class GBeanInstanceState {
             // check if all of the mbeans depending on us are stopped
             Set children = dependencyManager.getChildren(abstractName);
             for (Iterator i = children.iterator(); i.hasNext();) {
-                ObjectName child = (ObjectName) i.next();
+                AbstractName child = (AbstractName) i.next();
                 if (kernel.isLoaded(child)) {
                     try {
                         log.trace("Checking if child is stopped: child=" + child);

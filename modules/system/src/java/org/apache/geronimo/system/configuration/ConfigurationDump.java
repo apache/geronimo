@@ -46,7 +46,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 386505 $ $Date$
  */
 public class ConfigurationDump {
     static {
@@ -97,7 +97,7 @@ public class ConfigurationDump {
 
             startGBean(kernel, configStoreData);
 
-            ConfigurationStore configurationStore = (ConfigurationStore) kernel.getProxyManager().createProxy(configStoreData.getAbstractName(), classLoader);
+            ConfigurationStore configurationStore = (ConfigurationStore) kernel.getGBean(configStoreData.getAbstractName());
             List configurationInfos = configurationStore.listConfigurations();
             for (Iterator iterator = configurationInfos.iterator(); iterator.hasNext();) {
                 ConfigurationInfo configurationInfo = (ConfigurationInfo) iterator.next();
@@ -114,11 +114,11 @@ public class ConfigurationDump {
     }
 
     private static GBeanData buildGBeanData(String key, String value, GBeanInfo info) throws MalformedObjectNameException {
-        AbstractName abstractName = buildAbstractName(key, value, info);
+        AbstractName abstractName = buildAbstractName(key, value);
         return new GBeanData(abstractName, info);
     }
 
-    private static AbstractName buildAbstractName(String key, String value, GBeanInfo info) throws MalformedObjectNameException {
+    private static AbstractName buildAbstractName(String key, String value) throws MalformedObjectNameException {
         Map names = new HashMap();
         names.put(key, value);
         return new AbstractName(new Artifact("geronimo", "configdump", "1", "car"), names, new ObjectName("geronimo.configdump:" + key + "=" + value));
@@ -126,9 +126,9 @@ public class ConfigurationDump {
 
     private static void startGBean(Kernel kernel, GBeanData gbeanData) throws Exception {
         kernel.loadGBean(gbeanData, classLoader);
-        kernel.startGBean(gbeanData.getName());
-        if (kernel.getGBeanState(gbeanData.getName()) != State.RUNNING_INDEX) {
-            System.out.println("Failed to start " + gbeanData.getName());
+        kernel.startGBean(gbeanData.getAbstractName());
+        if (!kernel.isRunning(gbeanData.getAbstractName())) {
+            System.out.println("Failed to start " + gbeanData.getAbstractName());
             throw new StartUpError();
         }
     }
@@ -139,8 +139,8 @@ public class ConfigurationDump {
         out.println("==================================================");
 
         loadRecursive(kernel, configurationStore, id);
-        ObjectName name;
-        name = Configuration.getConfigurationObjectName(id);
+        AbstractName name;
+        name = Configuration.getConfigurationAbstractName(id);
         out.println("objectName: " + name);
 
         GBeanData config = kernel.getGBeanData(name);
@@ -218,13 +218,13 @@ public class ConfigurationDump {
             return;
         }
 
-        Configuration configuration = (Configuration) kernel.getProxyManager().createProxy(name, Configuration.class);
+        Configuration configuration = (Configuration) kernel.getGBean(name);
         Collection gbeans = configuration.getGBeans().values();
         for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
             GBeanData gbeanData = (GBeanData) iterator.next();
             out.println();
             out.println();
-            out.println("gbean: " + gbeanData.getName());
+            out.println("gbean: " + gbeanData.getAbstractName());
             out.println("gbeanInfo: " + gbeanData.getGBeanInfo().getSourceClass());
 
             Map attributes = gbeanData.getAttributes();
@@ -279,13 +279,13 @@ public class ConfigurationDump {
 
         for (Iterator iterator = ancestors.iterator(); iterator.hasNext();) {
             Artifact id = (Artifact) iterator.next();
-            ObjectName configName = Configuration.getConfigurationObjectName(id);
+            AbstractName configName = Configuration.getConfigurationAbstractName(id);
             kernel.startGBean(configName);
         }
     }
 
     private static void loadRecursive(Kernel kernel, ConfigurationStore configurationStore, Artifact configId, LinkedList ancestors, Set preloaded) throws Exception {
-        ObjectName name = Configuration.getConfigurationObjectName(configId);
+        AbstractName name = Configuration.getConfigurationAbstractName(configId);
         if (preloaded.contains(name)) {
             return;
         }

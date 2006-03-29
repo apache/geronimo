@@ -788,7 +788,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         }
         Map activationSpecInfos = (Map) resourceModuleData.getAttribute("activationSpecInfoMap");
         if (activationSpecInfos == null) {
-            throw new DeploymentException("No activation spec info map found in resource adapter module: " + resourceModuleData.getName());
+            throw new DeploymentException("No activation spec info map found in resource adapter module: " + resourceModuleData.getAbstractName());
         }
         return (GBeanData) activationSpecInfos.get(messageListenerInterface);
     }
@@ -796,7 +796,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
     private GBeanData locateResourceAdapterGBeanData(GBeanData resourceAdapterModuleData) throws DeploymentException {
         GBeanData data = (GBeanData) resourceAdapterModuleData.getAttribute("resourceAdapterGBeanData");
         if (data == null) {
-            throw new DeploymentException("No resource adapter info found for resource adapter module: " + resourceAdapterModuleData.getName());
+            throw new DeploymentException("No resource adapter info found for resource adapter module: " + resourceAdapterModuleData.getAbstractName());
         }
         return data;
     }
@@ -804,7 +804,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
     private GBeanData locateAdminObjectInfo(GBeanData resourceAdapterModuleData, String adminObjectInterfaceName) throws DeploymentException {
         Map adminObjectInfos = (Map) resourceAdapterModuleData.getAttribute("adminObjectInfoMap");
         if (adminObjectInfos == null) {
-            throw new DeploymentException("No admin object infos found for resource adapter module: " + resourceAdapterModuleData.getName());
+            throw new DeploymentException("No admin object infos found for resource adapter module: " + resourceAdapterModuleData.getAbstractName());
         }
         return (GBeanData) adminObjectInfos.get(adminObjectInterfaceName);
     }
@@ -812,7 +812,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
     private GBeanData locateConnectionFactoryInfo(GBeanData resourceAdapterModuleData, String connectionFactoryInterfaceName) throws DeploymentException {
         Map managedConnectionFactoryInfos = (Map) resourceAdapterModuleData.getAttribute("managedConnectionFactoryInfoMap");
         if (managedConnectionFactoryInfos == null) {
-            throw new DeploymentException("No managed connection factory infos found for resource adapter module: " + resourceAdapterModuleData.getName());
+            throw new DeploymentException("No managed connection factory infos found for resource adapter module: " + resourceAdapterModuleData.getAbstractName());
         }
         return (GBeanData) managedConnectionFactoryInfos.get(connectionFactoryInterfaceName);
     }

@@ -238,7 +238,11 @@ public class GBeanAttribute {
                     if (!getterMethod.getReturnType().equals(type)) {
                         throw new InvalidConfigurationException("Getter method of wrong type: " + getterMethod.getReturnType() + " expected " +getDescription());
                     }
-                    getInvoker = new FastMethodInvoker(getterMethod);
+                    if (AbstractGBeanReference.NO_PROXY) {
+                        getInvoker = new ReflectionMethodInvoker(getterMethod);
+                    } else {
+                        getInvoker = new FastMethodInvoker(getterMethod);
+                    }
                 } catch (NoSuchMethodException e) {
                     throw new InvalidConfigurationException("Getter method not found " +getDescription());
                 }
@@ -252,7 +256,11 @@ public class GBeanAttribute {
                 try {
                     String setterName = attributeInfo.getSetterName();
                     Method setterMethod = gbeanInstance.getType().getMethod(setterName, new Class[] {type});
-                    setInvoker = new FastMethodInvoker(setterMethod);
+                    if (AbstractGBeanReference.NO_PROXY) {
+                        setInvoker = new ReflectionMethodInvoker(setterMethod);
+                    } else {
+                        setInvoker = new FastMethodInvoker(setterMethod);
+                    }
                 } catch (NoSuchMethodException e) {
                     throw new InvalidConfigurationException("Setter method not found " + getDescription());
                 }

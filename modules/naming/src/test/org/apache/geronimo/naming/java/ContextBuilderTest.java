@@ -17,34 +17,24 @@
 
 package org.apache.geronimo.naming.java;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import javax.management.ObjectName;
+import javax.naming.Context;
 import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.Context;
 
 import junit.framework.TestCase;
-
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.kernel.KernelRegistry;
-import org.apache.geronimo.kernel.KernelFactory;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 385372 $ $Date$
  */
 public class ContextBuilderTest extends TestCase {
     private ComponentContextBuilder builder;
-
-    private List proxy;
 
     public void testEnvEntries() throws Exception {
         String stringVal = "Hello World";
@@ -83,27 +73,6 @@ public class ContextBuilderTest extends TestCase {
         assertEquals(floatVal, context.lookup("env/float"));
         assertEquals(doubleVal, context.lookup("env/double"));
         assertEquals(booleanVal, context.lookup("env/boolean"));
-    }
-
-    public void xtestResourceEnv() throws Exception {
-        proxy = new ArrayList();
-//        builder.addResourceEnvRef("resourceenvref", List.class, localRef);
-
-        Context context = EnterpriseNamingContext.createEnterpriseNamingContext(builder.getContext());
-        Kernel kernel = KernelFactory.newInstance().createKernel("test.kernel");
-        kernel.boot();
-        try {
-            assertEquals(kernel, KernelRegistry.getKernel("test.kernel"));
-            ObjectName proxyFactoryName = null;//referenceFactory.createAdminObjectObjectName("testAdminObject");
-            GBeanData gbean = null;//new GBeanData(proxyFactoryName, getGbeanInfo());
-            gbean.setAttribute("Content", proxy);
-            kernel.loadGBean(gbean, Class.forName(gbean.getGBeanInfo().getClassName()).getClassLoader());
-            kernel.startGBean(proxyFactoryName);
-            Object o = context.lookup("env/resourceenvref");
-            assertEquals(proxy, o);
-        } finally {
-            kernel.shutdown();
-        }
     }
 
     public void testEmptyEnvironment() throws NamingException {

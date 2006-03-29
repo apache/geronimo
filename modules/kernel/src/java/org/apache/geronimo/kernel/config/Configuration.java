@@ -54,7 +54,6 @@ import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.ObjectInputStreamExt;
 import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
@@ -94,21 +93,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     private static final Log log = LogFactory.getLog(Configuration.class);
     public static final Object JSR77_BASE_NAME_PROPERTY = "org.apache.geronimo.name.javax.management.j2ee.BaseName";
 
-    /**
-     * @deprecated Use artifact version of this method
-     */
-    public static ObjectName getConfigurationObjectName(URI configId) throws MalformedObjectNameException {
-        return new ObjectName("geronimo.config:name=" + ObjectName.quote(configId.toString()));
-    }
-
-    public static ObjectName getConfigurationObjectName(Artifact configId) throws InvalidConfigException {
-        try {
-            return new ObjectName("geronimo.config:name=" + ObjectName.quote(configId.toString()));
-        } catch (MalformedObjectNameException e) {
-            throw new InvalidConfigException("Could not construct object name for configuration", e);
-        }
-    }
-
     public static AbstractName getConfigurationAbstractName(Artifact configId) throws InvalidConfigException {
         return new AbstractName(configId, Collections.singletonMap("configurationName", configId.toString()), getConfigurationObjectName(configId));
     }
@@ -123,6 +107,14 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             return Artifact.create(name);
         } else {
             throw new IllegalArgumentException("ObjectName " + objectName + " is not a Configuration name");
+        }
+    }
+
+    private static ObjectName getConfigurationObjectName(Artifact configId) throws InvalidConfigException {
+        try {
+            return new ObjectName("geronimo.config:name=" + ObjectName.quote(configId.toString()));
+        } catch (MalformedObjectNameException e) {
+            throw new InvalidConfigException("Could not construct object name for configuration", e);
         }
     }
 
@@ -377,11 +369,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         return abstractName;
     }
 
-    public ObjectName getBaseName() {
-        String baseNameString = (String) environment.getProperties().get(JSR77_BASE_NAME_PROPERTY);
-        return JMXUtil.getObjectName(baseNameString);
-    }
-
     /**
      * Gets the parent configurations used for class loading.
      * @return the parents of this configuration used for class loading
@@ -487,7 +474,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         gbean.setAbstractName(abstractName);
 
         if (gbeans.containsKey(abstractName)) {
-            throw new GBeanAlreadyExistsException(gbean.getName().getCanonicalName());
+            throw new GBeanAlreadyExistsException(gbean.getAbstractName().toString());
         }
         gbeans.put(abstractName, gbean);
         return abstractName;
@@ -495,7 +482,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
 
     public synchronized void addGBean(GBeanData gbean) throws GBeanAlreadyExistsException {
         if (gbeans.containsKey(gbean.getAbstractName())) {
-            throw new GBeanAlreadyExistsException(gbean.getName().getCanonicalName());
+            throw new GBeanAlreadyExistsException(gbean.getAbstractName().toString());
         }
         gbeans.put(gbean.getAbstractName(), gbean);
     }
@@ -685,7 +672,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             try {
                 gbeanData.writeExternal(oos);
             } catch (Exception e) {
-                throw new InvalidConfigException("Unable to serialize GBeanData for " + gbeanData.getName(), e);
+                throw new InvalidConfigException("Unable to serialize GBeanData for " + gbeanData.getAbstractName(), e);
             }
         }
         try {

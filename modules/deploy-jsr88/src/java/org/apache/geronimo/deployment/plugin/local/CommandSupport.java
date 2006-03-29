@@ -19,7 +19,6 @@ package org.apache.geronimo.deployment.plugin.local;
 
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager.CommandContext;
-import org.apache.geronimo.gbean.GBeanQuery;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.InternalKernelException;
@@ -301,11 +300,11 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
             TargetModuleIDImpl id = (TargetModuleIDImpl) moduleIDs.get(i);
             if(id.getType() != null && id.getType().getValue() == ModuleType.WAR.getValue()) {
                 if(webApps == null) {
-                    webApps = kernel.listGBeans(new GBeanQuery(null, "org.apache.geronimo.management.geronimo.WebModule"));
+                    webApps = kernel.listGBeans(new AbstractNameQuery("org.apache.geronimo.management.geronimo.WebModule"));
                 }
                 for (Iterator it = webApps.iterator(); it.hasNext();) {
-                    ObjectName name = (ObjectName) it.next();
-                    if(name.getKeyProperty("name").equals(id.getModuleID())) {
+                    AbstractName name = (AbstractName) it.next();
+                    if(name.getName().get("name").equals(id.getModuleID())) {
                         try {
                             String container = (String) kernel.getAttribute(name, "containerName");
                             String context = (String) kernel.getAttribute(name, "contextPath");

@@ -113,7 +113,11 @@ public abstract class AbstractGBeanReference implements GBeanReference {
             try {
                 String setterName = referenceInfo.getSetterName();
                 Method setterMethod = gbeanInstance.getType().getMethod(setterName, new Class[] {proxyType});
-                setInvoker = new FastMethodInvoker(setterMethod);
+                if (NO_PROXY) {
+                    setInvoker = new ReflectionMethodInvoker(setterMethod);
+                } else {
+                    setInvoker = new FastMethodInvoker(setterMethod);
+                }
             } catch (NoSuchMethodException e) {
                 throw new InvalidConfigurationException("Setter method not found " + getDescription());
             }

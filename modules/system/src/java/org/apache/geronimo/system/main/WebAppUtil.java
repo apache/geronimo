@@ -17,11 +17,9 @@
 package org.apache.geronimo.system.main;
 
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.gbean.GBeanQuery;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 
-import javax.management.ObjectName;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;

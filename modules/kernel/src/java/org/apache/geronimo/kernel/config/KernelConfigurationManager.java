@@ -23,6 +23,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.InternalKernelException;
@@ -95,14 +96,18 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
     public synchronized Configuration loadConfiguration(Artifact configurationId) throws NoSuchConfigException, IOException, InvalidConfigException {
         // todo hack for bootstrap deploy
         ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(configurationId);
-        if (configurationStatus == null && kernel.isLoaded(Configuration.getConfigurationObjectName(configurationId))) {
-            Configuration configuration = (Configuration) kernel.getProxyManager().createProxy(Configuration.getConfigurationObjectName(configurationId), Configuration.class);
-            configurationStatus = createConfigurationStatus(configuration);
-            configurationStatus.load();
-            //even worse hack
-            configurationStatus.start();
-            configurations.put(configurationId, configurationStatus);
-            return configurationStatus.getConfiguration();
+        if (configurationStatus == null && kernel.isLoaded(Configuration.getConfigurationAbstractName(configurationId))) {
+            try {
+                Configuration configuration = (Configuration) kernel.getGBean(Configuration.getConfigurationAbstractName(configurationId));
+                configurationStatus = createConfigurationStatus(configuration);
+                configurationStatus.load();
+                //even worse hack
+                configurationStatus.start();
+                configurations.put(configurationId, configurationStatus);
+                return configurationStatus.getConfiguration();
+            } catch (GBeanNotFoundException e) {
+                // configuration was unloaded, just continue as normal
+            }
         }
 
         return super.loadConfiguration(configurationId);
@@ -126,8 +131,8 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
                 throw new InvalidConfigurationException("Configuration gbean failed to start " + configurationId);
             }
 
-            // create a proxy to the configuration
-            configuration = (Configuration) kernel.getProxyManager().createProxy(configurationName, Configuration.class);
+            // get the configuration
+            configuration = (Configuration) kernel.getGBean(configurationName);
 
             // declare the dependencies as loaded
             if (artifactManager != null) {
@@ -236,12 +241,12 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
 
         public void run() {
             while (true) {
-                Set configs = kernel.listGBeans(CONFIG_QUERY);
+                Set configs = kernel.listGBeans(new AbstractNameQuery(Configuration.class.getName()));
                 if (configs.isEmpty()) {
                     return;
                 }
                 for (Iterator i = configs.iterator(); i.hasNext();) {
-                    ObjectName configName = (ObjectName) i.next();
+                    AbstractName configName = (AbstractName) i.next();
                     if (kernel.isLoaded(configName)) {
                         try {
                             kernel.stopGBean(configName);

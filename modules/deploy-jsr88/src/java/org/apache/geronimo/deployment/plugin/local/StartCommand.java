@@ -17,24 +17,22 @@
 
 package org.apache.geronimo.deployment.plugin.local;
 
+import java.util.List;
+import javax.enterprise.deploy.shared.CommandType;
+import javax.enterprise.deploy.shared.ModuleType;
+import javax.enterprise.deploy.spi.TargetModuleID;
+
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
-
-import javax.enterprise.deploy.shared.CommandType;
-import javax.enterprise.deploy.shared.ModuleType;
-import javax.enterprise.deploy.spi.TargetModuleID;
-import java.util.List;
 
 /**
  *
  *
- * @version $Rev$ $Date$
+ * @version $Rev: 383519 $ $Date$
  */
 public class StartCommand extends CommandSupport {
     private final Kernel kernel;
@@ -55,15 +53,10 @@ public class StartCommand extends CommandSupport {
 
                     // Check to see whether the module is already started
                     Artifact moduleID = Artifact.create(module.getModuleID());
-                    try {
-                        if(kernel.getGBeanState(Configuration.getConfigurationObjectName(moduleID)) == State.RUNNING_INDEX) {
-                            updateStatus("Module "+moduleID+" is already running");
-                            Thread.sleep(100);
-                            continue;
-                        }
-                    } catch (GBeanNotFoundException e) {
-                        // That means that the configuration may have been distributed but has not yet been loaded.
-                        // That's fine, we'll load it next.
+                    if(kernel.isRunning(Configuration.getConfigurationAbstractName(moduleID))) {
+                        updateStatus("Module "+moduleID+" is already running");
+                        Thread.sleep(100);
+                        continue;
                     }
 
                     // Load and start the module

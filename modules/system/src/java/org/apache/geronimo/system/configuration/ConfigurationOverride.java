@@ -21,7 +21,6 @@ import org.apache.geronimo.kernel.InvalidGBeanException;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import javax.management.MalformedObjectNameException;
 import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -40,7 +39,7 @@ class ConfigurationOverride {
         this.load = load;
     }
 
-    public ConfigurationOverride(Element element) throws MalformedObjectNameException, InvalidGBeanException {
+    public ConfigurationOverride(Element element) throws InvalidGBeanException {
         name = element.getAttribute("name");
 
         String loadConfigString = element.getAttribute("load");
@@ -83,12 +82,11 @@ class ConfigurationOverride {
     }
 
     public GBeanOverride getGBean(AbstractName gbeanName) {
-        //TODO configid should this use URI?
-        return (GBeanOverride) gbeans.get(gbeanName.getObjectName());
+        return (GBeanOverride) gbeans.get(gbeanName);
     }
 
     public void addGBean(AbstractName gbeanName, GBeanOverride gbean) {
-        gbeans.put(gbeanName.getObjectName(), gbean);
+        gbeans.put(gbeanName, gbean);
     }
 
     public void writeXml(PrintWriter out) {

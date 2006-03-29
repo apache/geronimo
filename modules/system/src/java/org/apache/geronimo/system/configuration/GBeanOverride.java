@@ -69,7 +69,7 @@ class GBeanOverride {
         if (this.gbeanInfo == null) {
             throw new IllegalArgumentException("GBeanInfo must have a source class set");
         }
-        name = gbeanData.getName();
+        name = gbeanData.getAbstractName();
         load = true;
 
         // set attributes
@@ -78,7 +78,7 @@ class GBeanOverride {
             String attributeName = (String) entry.getKey();
             GAttributeInfo attributeInfo = gbeanInfo.getAttribute(attributeName);
             if (attributeInfo == null) {
-                throw new InvalidAttributeException("No attribute: " + attributeName + " for gbean: " + gbeanData.getName());
+                throw new InvalidAttributeException("No attribute: " + attributeName + " for gbean: " + gbeanData.getAbstractName());
             }
             Object attributeValue = entry.getValue();
             setAttribute(attributeName, attributeValue, attributeInfo.getType());

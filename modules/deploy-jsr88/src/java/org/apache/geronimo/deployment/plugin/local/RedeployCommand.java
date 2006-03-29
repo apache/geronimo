@@ -27,6 +27,7 @@ import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.gbean.AbstractName;
 
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.spi.TargetModuleID;
@@ -36,7 +37,7 @@ import java.io.InputStream;
 import java.net.URI;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 383519 $ $Date$
  */
 public class RedeployCommand extends AbstractDeployCommand {
     private static final String[] UNINSTALL_SIG = {URI.class.getName()};
@@ -75,7 +76,7 @@ public class RedeployCommand extends AbstractDeployCommand {
                     TargetModuleIDImpl module = (TargetModuleIDImpl) modules[i];
 
                     Artifact configID = Artifact.create(module.getModuleID());
-                    ObjectName configName = Configuration.getConfigurationObjectName(configID);
+                    AbstractName configName = Configuration.getConfigurationAbstractName(configID);
                     try {
                         kernel.stopGBean(configName);
                         updateStatus("Stopped "+configID);

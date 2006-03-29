@@ -165,7 +165,9 @@ public class AbstractName implements Serializable {
         }
     }
 
-    //TODO why not use String.split?
+    // why not use String.split? Because String.split works using regular expressions
+    // and this should be way faster, but write a benchmark it out if you have time.
+    // Also this code is way simpler.
     private static List split(String source, char delim) {
         List parts = new ArrayList();
         for (int index = source.indexOf(delim); index >= 0; index = source.indexOf(delim)) {
@@ -194,13 +196,6 @@ public class AbstractName implements Serializable {
     }
 
     public String toString() {
-//        StringBuffer buf = new StringBuffer("AbstractName:");
-//        for (Iterator iterator = name.entrySet().iterator(); iterator.hasNext();) {
-//            Map.Entry entry = (Map.Entry) iterator.next();
-//            buf.append(",").append(entry.getKey()).append("=").append(entry.getValue());
-//        }
-//        buf.append(",artifact=").append(artifact);
-//        return buf.toString();
         return uri.toString();
     }
 

@@ -88,7 +88,11 @@ public final class GBeanOperation {
         } else {
             try {
                 Method javaMethod = gbeanInstance.getType().getMethod(operationInfo.getMethodName(), types);
-                methodInvoker = new FastMethodInvoker(javaMethod);
+                if (AbstractGBeanReference.NO_PROXY) {
+                    methodInvoker = new ReflectionMethodInvoker(javaMethod);
+                } else {
+                    methodInvoker = new FastMethodInvoker(javaMethod);
+                }
             } catch (Exception e) {
                 throw new InvalidConfigurationException("Target does not have specified method (declared in a GBeanInfo operation):" +
                         " name=" + operationInfo.getName() +
