@@ -88,6 +88,10 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     }
 
     public boolean isConfiguration(Artifact artifact) {
+        if (configurations.containsKey(artifact)) {
+            return true;
+        }
+        
         List storeSnapshot = getStores();
         for (int i = 0; i < storeSnapshot.size(); i++) {
             ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
