@@ -258,39 +258,14 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         }
 
         //
-        // Propagate non-overridable classes from class parents
-        //
-        for (Iterator iterator = classParents.iterator(); iterator.hasNext();) {
-            Configuration parent = (Configuration) iterator.next();
-
-            Environment parentEnvironment = parent.getEnvironment();
-            Set nonOverridableClasses = parentEnvironment.getNonOverrideableClasses();
-            environment.addNonOverrideableClasses(nonOverridableClasses);
-        }
-
-        //
         // Build the configuration class loader
         //
-        URL[] urls = buildClassPath(classPath);
-        log.debug("ClassPath for " + id + " resolved to " + Arrays.asList(urls));
-        if (parents.size() == 0 && classParents.size() == 0) {
-            // no explicit parent set, so use the class loader of this class as
-            // the parent... this class should be in the root geronimo classloader,
-            // which is normally the system class loader but not always, so be safe
-            configurationClassLoader = new MultiParentClassLoader(environment.getConfigId(), urls, getClass().getClassLoader());
-        } else {
-            ClassLoader[] parentClassLoaders = new ClassLoader[classParents.size()];
-            for (ListIterator iterator = classParents.listIterator(); iterator.hasNext();) {
-                Configuration configuration = (Configuration) iterator.next();
-                parentClassLoaders[iterator.previousIndex()] = configuration.getConfigurationClassLoader();
-            }
-            configurationClassLoader = new MultiParentClassLoader(environment.getConfigId(), urls, parentClassLoaders);
-        }
+        configurationClassLoader = createConfigurationClasssLoader(parents, environment, classPath);
 
         //
         // Get all service parents in depth first order
         //
-        getDepthFirstServiceParents(this, allServiceParents);
+        addDepthFirstServiceParents(this, allServiceParents);
 
         //
         // Deserialize the GBeans
@@ -321,11 +296,54 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         }
     }
 
-    private void getDepthFirstServiceParents(Configuration configuration, List ancestors) {
+    private MultiParentClassLoader createConfigurationClasssLoader(Collection parents, Environment environment, List classPath) throws MalformedURLException, MissingDependencyException, NoSuchConfigException {
+        // create the URL list
+        URL[] urls = buildClassPath(classPath);
+
+        // parents
+        ClassLoader[] parentClassLoaders;
+        if (parents.size() == 0 && classParents.size() == 0) {
+            // no explicit parent set, so use the class loader of this class as
+            // the parent... this class should be in the root geronimo classloader,
+            // which is normally the system class loader but not always, so be safe
+            parentClassLoaders = new ClassLoader[] {getClass().getClassLoader()};
+        } else {
+            parentClassLoaders = new ClassLoader[classParents.size()];
+            for (ListIterator iterator = classParents.listIterator(); iterator.hasNext();) {
+                Configuration configuration = (Configuration) iterator.next();
+                parentClassLoaders[iterator.previousIndex()] = configuration.getConfigurationClassLoader();
+            }
+        }
+
+        // hidden classes
+        Set hiddenClassesSet = environment.getHiddenClasses();
+        String[] hiddenClasses = (String[]) hiddenClassesSet.toArray(new String[hiddenClassesSet.size()]);
+
+        // we need to propagate the non-overrideable classes from parents
+        LinkedHashSet nonOverridableSet = new LinkedHashSet();
+        for (Iterator iterator = classParents.iterator(); iterator.hasNext();) {
+            Configuration parent = (Configuration) iterator.next();
+
+            Environment parentEnvironment = parent.getEnvironment();
+            nonOverridableSet.addAll(parentEnvironment.getNonOverrideableClasses());
+        }
+        String[] nonOverridableClasses = (String[]) nonOverridableSet.toArray(new String[nonOverridableSet.size()]);
+
+        log.debug("ClassPath for " + id + " resolved to " + Arrays.asList(urls));
+
+        return new MultiParentClassLoader(environment.getConfigId(),
+                urls,
+                parentClassLoaders,
+                environment.isInverseClassLoading(),
+                hiddenClasses,
+                nonOverridableClasses);
+    }
+
+    private void addDepthFirstServiceParents(Configuration configuration, List ancestors) {
         ancestors.add(configuration);
         for (Iterator parents = configuration.getServiceParents().iterator(); parents.hasNext();) {
             Configuration parent = (Configuration) parents.next();
-            getDepthFirstServiceParents(parent, ancestors);
+            addDepthFirstServiceParents(parent, ancestors);
         }
     }
 

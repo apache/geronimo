@@ -132,6 +132,11 @@ public class DefaultArtifactResolver implements ArtifactResolver {
         for (Iterator iterator = parentConfigurations.iterator(); iterator.hasNext();) {
             Configuration configuration = (Configuration) iterator.next();
 
+            // check if this parent matches the groupId, artifactId, and type
+            if (matches(configuration.getId(), groupId, artifactId, type)) {
+                return configuration.getId().getVersion();
+            }
+
             Environment environment = configuration.getEnvironment();
             if (environment.isInverseClassLoading()) {
                 // Search dependencies of the configuration before searching the parents
@@ -166,13 +171,17 @@ public class DefaultArtifactResolver implements ArtifactResolver {
     private Version getArtifactVersion(Collection artifacts, String groupId, String artifactId, String type) {
         for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
             Artifact artifact = (Artifact) iterator.next();
-            if (groupId.equals(artifact.getGroupId()) &&
-                    artifactId.equals(artifact.getArtifactId()) &&
-                    type.equals(artifact.getType())) {
+            if (matches(artifact, groupId, artifactId, type)) {
                 return artifact.getVersion();
             }
         }
         return null;
+    }
+
+    private boolean matches(Artifact artifact, String groupId, String artifactId, String type) {
+        return groupId.equals(artifact.getGroupId()) &&
+                artifactId.equals(artifact.getArtifactId()) &&
+                type.equals(artifact.getType());
     }
 
     public static final GBeanInfo GBEAN_INFO;
