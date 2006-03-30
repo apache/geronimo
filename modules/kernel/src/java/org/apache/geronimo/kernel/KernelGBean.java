@@ -102,10 +102,6 @@ public class KernelGBean implements Kernel{
         return kernel.getGBean(shortName, type);
     }
 
-    public void startGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
-        kernel.startGBean(name);
-    }
-
     public void startGBean(AbstractName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
         kernel.startGBean(name);
     }
@@ -152,10 +148,6 @@ public class KernelGBean implements Kernel{
 
     public boolean isRunning(String shortName, Class type) {
         return kernel.isRunning(shortName, type);
-    }
-
-    public void stopGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
-        kernel.stopGBean(name);
     }
 
     public void stopGBean(AbstractName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {

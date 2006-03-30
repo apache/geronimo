@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.management.ObjectName;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
@@ -31,6 +30,7 @@ import javax.portlet.RenderResponse;
 
 import org.apache.geronimo.console.certmanager.CertManagerPortlet;
 import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.gbean.AbstractName;
 
 public class ViewKeyStore {
     public static void action(CertManagerPortlet portlet,
@@ -46,14 +46,14 @@ public class ViewKeyStore {
         PortletRequestDispatcher rd = null;
 
         try {
-            ObjectName objname = portlet.getKeyStoreObjectName();
+            AbstractName name = portlet.getKeyStoreObjectName();
 
             String keyStoreType = (String) KernelRegistry.getSingleKernel()
-                    .getAttribute(objname, "keyStoreType");
+                    .getAttribute(name, "keyStoreType");
             String keyStoreProvider = (String) KernelRegistry.getSingleKernel()
-                    .getAttribute(objname, "keyStoreProvider");
+                    .getAttribute(name, "keyStoreProvider");
             String keyStoreLocation = (String) KernelRegistry.getSingleKernel()
-                    .getAttribute(objname, "keyStoreLocation");
+                    .getAttribute(name, "keyStoreLocation");
 
             request.setAttribute("org.apache.geronimo.console.keystore.type", keyStoreType);
             request.setAttribute("org.apache.geronimo.console.keystore.provider",
@@ -62,7 +62,7 @@ public class ViewKeyStore {
                     keyStoreLocation);
 
             List storelist = (List) KernelRegistry.getSingleKernel().invoke(
-                    objname, "getKeyStoreEntries");
+                    name, "getKeyStoreEntries");
 
             Iterator iter = storelist.iterator();
             while (iter.hasNext()) {

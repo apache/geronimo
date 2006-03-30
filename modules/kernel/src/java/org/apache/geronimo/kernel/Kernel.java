@@ -355,14 +355,6 @@ public interface Kernel {
     /**
      * @deprecated Use AbstractName version instead
      */
-    void startGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException;
-    /**
-     * @deprecated Use AbstractName version instead
-     */
-    void stopGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException;
-    /**
-     * @deprecated Use AbstractName version instead
-     */
     int getGBeanState(ObjectName name) throws GBeanNotFoundException;
     /**
      * @deprecated Use AbstractName version instead

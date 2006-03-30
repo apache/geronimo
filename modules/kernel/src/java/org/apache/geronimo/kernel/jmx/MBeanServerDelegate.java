@@ -41,6 +41,7 @@ import javax.management.ReflectionException;
 import javax.management.loading.ClassLoaderRepository;
 
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.NoSuchAttributeException;
@@ -97,7 +98,7 @@ public class MBeanServerDelegate implements MBeanServer {
     }
 
     public Integer getMBeanCount() {
-        return new Integer(kernel.listGBeans((ObjectName)null).size());
+        return new Integer(kernel.listGBeans((AbstractNameQuery)null).size());
     }
 
     public MBeanInfo getMBeanInfo(ObjectName name) throws InstanceNotFoundException, ReflectionException {

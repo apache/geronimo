@@ -21,19 +21,20 @@ import javax.management.ObjectName;
 
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.gbean.AbstractName;
 
 public class KernelHelper {
 
     protected static Kernel kernel = KernelRegistry.getSingleKernel();
 
-    protected static Object invoke(ObjectName mBeanName, String function)
+    protected static Object invoke(AbstractName mBeanName, String function)
             throws Exception {
         Object[] NO_ARGS = new Object[0];
         String[] NO_PARAMS = new String[0];
         return invoke(mBeanName, function, NO_ARGS, NO_PARAMS);
     }
 
-    protected static Object invoke(ObjectName mBeanName, String function,
+    protected static Object invoke(AbstractName mBeanName, String function,
             Object[] args, String[] types) throws Exception {
         Object ret = null;
         ret = kernel.invoke(mBeanName, function, args, types);

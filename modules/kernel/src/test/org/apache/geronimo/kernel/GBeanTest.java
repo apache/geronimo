@@ -214,22 +214,26 @@ public class GBeanTest extends TestCase {
         // abstract name
         MockGBean mockGBean = (MockGBean) kernel.getGBean(gbean.getAbstractName());
         assertEquals(123, mockGBean.getFinalInt());
-        assertNull(kernel.getAbstractNameFor(mockGBean));
+        assertEquals(gbean.getAbstractName(), kernel.getAbstractNameFor(mockGBean));
+        assertEquals("name", kernel.getShortNameFor(mockGBean));
 
         // short name
         mockGBean = (MockGBean) kernel.getGBean("name");
         assertEquals(123, mockGBean.getFinalInt());
-        assertNull(kernel.getAbstractNameFor(mockGBean));
+        assertEquals(gbean.getAbstractName(), kernel.getAbstractNameFor(mockGBean));
+        assertEquals("name", kernel.getShortNameFor(mockGBean));
 
         // type
         mockGBean = (MockGBean) kernel.getGBean(MockGBean.class);
         assertEquals(123, mockGBean.getFinalInt());
-        assertNull(kernel.getAbstractNameFor(mockGBean));
+        assertEquals(gbean.getAbstractName(), kernel.getAbstractNameFor(mockGBean));
+        assertEquals("name", kernel.getShortNameFor(mockGBean));
 
         // short name and type
         mockGBean = (MockGBean) kernel.getGBean("name", MockGBean.class);
         assertEquals(123, mockGBean.getFinalInt());
-        assertNull(kernel.getAbstractNameFor(mockGBean));
+        assertEquals(gbean.getAbstractName(), kernel.getAbstractNameFor(mockGBean));
+        assertEquals("name", kernel.getShortNameFor(mockGBean));
     }
 
     public void testInvoke() throws Exception {
@@ -401,7 +405,7 @@ public class GBeanTest extends TestCase {
 
         MockGBean mockGBean1 = (MockGBean) kernel.getGBean(gbean1.getAbstractName());
         MockGBean mockGBean2 = (MockGBean) kernel.getGBean(gbean2.getAbstractName());
-        // this can only be tested of no proxy is on
+        // this can only be tested if no proxy is on
 //        assertSame(mockGBean2.getMockEndpoint(), mockGBean1);
     }
 

@@ -23,7 +23,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -369,11 +368,6 @@ public class BasicKernel implements Kernel {
         registry.register(gbeanInstance);
     }
 
-    public void startGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
-        GBeanInstance gbeanInstance = registry.getGBeanInstance(createGBeanName(name));
-        gbeanInstance.start();
-    }
-
     public void startGBean(AbstractName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
         GBeanInstance gbeanInstance = registry.getGBeanInstance(name);
         gbeanInstance.start();
@@ -434,11 +428,6 @@ public class BasicKernel implements Kernel {
         } catch (GBeanNotFoundException e) {
             return false;
         }
-    }
-
-    public void stopGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
-        GBeanInstance gbeanInstance = registry.getGBeanInstance(createGBeanName(name));
-        gbeanInstance.stop();
     }
 
     public void stopGBean(AbstractName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
@@ -550,20 +539,8 @@ public class BasicKernel implements Kernel {
         return gbeans;
     }
 
-    public Set listGBeans(String[] patterns) {
-        Set gbeans = new HashSet();
-        for(int i=0; i<patterns.length; i++) {
-            ObjectName pattern = null;
-            try {
-                pattern = ObjectName.getInstance(patterns[i]);
-            } catch (MalformedObjectNameException e) {}
-            gbeans.addAll(listGBeans(pattern));
-        }
-        return gbeans;
-    }
-
-    public Set listGBeans(AbstractNameQuery refInfoQuery) {
-        Set gbeans = registry.listGBeans(refInfoQuery);
+    public Set listGBeans(AbstractNameQuery query) {
+        Set gbeans = registry.listGBeans(query);
         Set result = new HashSet(gbeans.size());
         for (Iterator i = gbeans.iterator(); i.hasNext();) {
             GBeanInstance instance = (GBeanInstance) i.next();
@@ -574,14 +551,9 @@ public class BasicKernel implements Kernel {
 
     public Set listGBeansByInterface(String[] interfaces) {
         Set gbeans = new HashSet();
-        Set all;
-        try {
-            all = listGBeans(ObjectName.getInstance("*:*"));
-        } catch (MalformedObjectNameException e) {
-            throw new IllegalStateException("How can *:* be an invalid pattern");
-        }
+        Set all = listGBeans((AbstractNameQuery)null);
         for (Iterator it = all.iterator(); it.hasNext();) {
-            ObjectName name = (ObjectName) it.next();
+            AbstractName name = (AbstractName) it.next();
             try {
                 GBeanInfo info = getGBeanInfo(name);
                 Set intfs = info.getInterfaces();
@@ -598,15 +570,32 @@ public class BasicKernel implements Kernel {
     }
 
     public AbstractName getAbstractNameFor(Object service) {
-        // todo we need to keep an identity map for non proxied references
-        if(!running) {return null;}
-        return proxyManager.getProxyTarget(service);
+        if(!running) {
+            return null;
+        }
+
+        // check if service is a proxy
+        AbstractName name = proxyManager.getProxyTarget(service);
+        if (name != null) {
+            return name;
+        }
+
+        // try the registry
+        GBeanInstance gbeanInstance = registry.getGBeanInstanceByInstance(service);
+        if (gbeanInstance != null) {
+            return gbeanInstance.getAbstractName();
+        }
+
+        // didn't fing the name
+        return null;
     }
 
     public String getShortNameFor(Object service) {
-        // todo we need to keep an identity map for non proxied references
         AbstractName name = getAbstractNameFor(service);
-        return (String) name.getName().get("name");
+        if (name != null) {
+            return (String) name.getName().get("name");
+        }
+        return null;
     }
 
     /**

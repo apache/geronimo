@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Collections;
+import java.util.IdentityHashMap;
 
 import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
@@ -34,13 +35,15 @@ import org.apache.geronimo.gbean.GBeanName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.runtime.GBeanInstance;
+import org.apache.geronimo.gbean.runtime.InstanceRegistry;
 
 /**
  * @version $Rev: 386505 $ $Date$
  */
-public class BasicRegistry {
+public class BasicRegistry implements InstanceRegistry {
     private final Map objectNameRegistry = new HashMap();
     private final Map infoRegistry = new HashMap();
+    private final IdentityHashMap instanceRegistry = new IdentityHashMap();
     private String kernelName = "";
 
     /**
@@ -87,6 +90,7 @@ public class BasicRegistry {
         }
         objectNameRegistry.put(name, gbeanInstance);
         infoRegistry.put(gbeanInstance.getAbstractName(), gbeanInstance);
+        gbeanInstance.setInstanceRegistry(this);
     }
 
     /**
@@ -105,6 +109,7 @@ public class BasicRegistry {
             }
         }
         infoRegistry.remove(gbeanInstance.getAbstractName());
+        gbeanInstance.setInstanceRegistry(null);
     }
 
     public synchronized void unregister(AbstractName abstractName) throws GBeanNotFoundException {
@@ -114,6 +119,18 @@ public class BasicRegistry {
         }
         GBeanName name = createGBeanName(gbeanInstance.getObjectNameObject());
         objectNameRegistry.remove(name);
+    }
+
+    public synchronized void instanceCreated(Object instance, GBeanInstance gbeanInstance) {
+        instanceRegistry.put(instance, gbeanInstance);
+    }
+
+    public synchronized void instanceDestroyed(Object instance) {
+        instanceRegistry.remove(instance);
+    }
+
+    public synchronized GBeanInstance getGBeanInstanceByInstance(Object instance) {
+        return (GBeanInstance) instanceRegistry.get(instance);
     }
 
     /**

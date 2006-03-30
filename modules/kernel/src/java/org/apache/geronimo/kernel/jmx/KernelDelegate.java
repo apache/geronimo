@@ -136,18 +136,6 @@ public class KernelDelegate implements Kernel {
         }
     }
 
-    public void startGBean(ObjectName name) throws GBeanNotFoundException {
-        try {
-            invokeKernel("startGBean", new Object[] {name}, new String[] {ObjectName.class.getName()});
-        } catch (GBeanNotFoundException e) {
-            throw e;
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new InternalKernelException(e);
-        }
-    }
-
     public void startGBean(AbstractName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
         try {
             invokeKernel("startGBean", new Object[] {name}, new String[] {AbstractName.class.getName()});
@@ -284,18 +272,6 @@ public class KernelDelegate implements Kernel {
         }
     }
 
-
-    public void stopGBean(ObjectName name) throws GBeanNotFoundException {
-        try {
-            invokeKernel("stopGBean", new Object[] {name}, new String[] {ObjectName.class.getName()});
-        } catch (GBeanNotFoundException e) {
-            throw e;
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new InternalKernelException(e);
-        }
-    }
 
     public void stopGBean(AbstractName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
         try {
@@ -910,7 +886,17 @@ public class KernelDelegate implements Kernel {
     }
 
     public AbstractName getAbstractNameFor(Object service) {
-        return proxyManager.getProxyTarget(service);
+        AbstractName name = proxyManager.getProxyTarget(service);
+        if (name != null) {
+            return name;
+        }
+        try {
+            return (AbstractName) invokeKernel("getAbstractNameFor", new Object[] {service}, new String[] {Object.class.getName()});
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
     }
 
     public String getShortNameFor(Object service) {

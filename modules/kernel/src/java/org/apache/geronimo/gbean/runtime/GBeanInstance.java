@@ -194,6 +194,8 @@ public final class GBeanInstance implements StateManageable {
      */
     private boolean shouldFail = false;
 
+    private InstanceRegistry instanceRegistry;
+
     /**
      * Construct a GBeanMBean using the supplied GBeanData and class loader
      *
@@ -399,6 +401,10 @@ public final class GBeanInstance implements StateManageable {
         lifecycleBroadcaster.fireUnloadedEvent();
 
         manageableStore = null;
+    }
+
+    public void setInstanceRegistry(InstanceRegistry instanceRegistry) {
+        this.instanceRegistry = instanceRegistry;
     }
 
     /**
@@ -926,12 +932,17 @@ public final class GBeanInstance implements StateManageable {
                 ((GBeanLifecycle) instance).doStart();
             }
 
+
             // all done... we are now fully running
             synchronized (this) {
                 checkIfShouldFail();
+                if (instanceRegistry != null) {
+                    instanceRegistry.instanceCreated(instance, this);
+                }
                 instanceState = RUNNING;
                 this.notifyAll();
             }
+
 
             return true;
         } catch (Throwable t) {
@@ -1094,6 +1105,9 @@ public final class GBeanInstance implements StateManageable {
 
             target = null;
             instanceState = DESTROYED;
+            if (instanceRegistry != null) {
+                instanceRegistry.instanceDestroyed(instance);
+            }
             startTime = 0;
         }
 

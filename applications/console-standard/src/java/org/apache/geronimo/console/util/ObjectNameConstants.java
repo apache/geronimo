@@ -17,38 +17,43 @@
 
 package org.apache.geronimo.console.util;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
-
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import java.util.Set;
 
 public final class ObjectNameConstants {
 
     // Security object names
-    public static final ObjectName SE_REALM_MBEAN_NAME;
-    public static final ObjectName DEPLOYER_OBJECT_NAME;
-    public static final ObjectName KEYSTORE_OBJ_NAME;
+    public static final AbstractName SE_REALM_MBEAN_NAME;
+    public static final AbstractName DEPLOYER_OBJECT_NAME;
+    public static final AbstractName KEYSTORE_OBJ_NAME;
 
     static {
         Kernel kernel = KernelRegistry.getSingleKernel();
-        try {
-            SE_REALM_MBEAN_NAME = getUniquename("*:J2EEModule=null,j2eeType=GBean,name=PropertiesLoginManager,*", kernel);
-            DEPLOYER_OBJECT_NAME = getUniquename("*:J2EEApplication=null,j2eeType=Deployer,name=Deployer,*", kernel);
-            KEYSTORE_OBJ_NAME = getUniquename("*:J2EEModule=null,j2eeType=GBean,name=KeyStore,*", kernel);
-        } catch (MalformedObjectNameException e) {
-            throw new RuntimeException(e);
-        }
+        SE_REALM_MBEAN_NAME = getUniquename("PropertiesLoginManager", "GBean", kernel);
+        DEPLOYER_OBJECT_NAME = getUniquename("Deployer", "Deployer", kernel);
+        KEYSTORE_OBJ_NAME = getUniquename("KeyStore", "GBean", kernel);
     }
 
-    private static ObjectName getUniquename(String queryPattern, Kernel kernel) throws MalformedObjectNameException {
-        ObjectName query = ObjectName.getInstance(queryPattern);
+    private static AbstractName getUniquename(String name, String type, Kernel kernel) {
+        Map properties = new HashMap(2);
+        properties.put(NameFactory.J2EE_NAME, name);
+        properties.put(NameFactory.J2EE_TYPE, type);
+        AbstractNameQuery query = new AbstractNameQuery(null, properties);
         Set results = kernel.listGBeans(query);
-        if (results.size() != 1) {
-            throw new RuntimeException("Invalid query: " + queryPattern + ", returns: " + results);
+        if (results.isEmpty()) {
+            throw new RuntimeException("No services found with name " + name + " and type " + type);
         }
-        return (ObjectName) results.iterator().next();
+        if (results.size() != 1) {
+            throw new RuntimeException("More than one service was found with name " + name + " and type " + type + ", returns: " + results);
+        }
+        return (AbstractName) results.iterator().next();
     }
 
 }
