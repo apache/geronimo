@@ -78,7 +78,7 @@ public class Upgrade1_0To1_1 {
     private static final String DEFAULT_GROUPID = "default";
     private static final String DEFAULT_VERSION = "1-default";
     private static final QName CLIENT_ENVIRONMENT_QNAME = new QName("http://geronimo.apache.org/xml/ns/deployment-1.1", "client-environment");
-    private static final QName PARENT_ENVIRONMENT_QNAME = new QName("http://geronimo.apache.org/xml/ns/deployment-1.1", "parent-environment");
+    private static final QName SERVER_ENVIRONMENT_QNAME = new QName("http://geronimo.apache.org/xml/ns/deployment-1.1", "server-environment");
 
     public static void upgrade(InputStream source, Writer target) throws IOException, XmlException {
         XmlObject xmlObject = parse(source);
@@ -94,7 +94,7 @@ public class Upgrade1_0To1_1 {
 
                     insertEnvironment(clientConfigId, clientParentId, cursor, CLIENT_ENVIRONMENT_QNAME);
 
-                    insertEnvironment(configId, parentId, cursor, PARENT_ENVIRONMENT_QNAME);
+                    insertEnvironment(configId, parentId, cursor, SERVER_ENVIRONMENT_QNAME);
 
                 } else if (configId != null) {
 
