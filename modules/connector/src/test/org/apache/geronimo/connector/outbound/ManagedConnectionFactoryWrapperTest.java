@@ -17,6 +17,16 @@
 
 package org.apache.geronimo.connector.outbound;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import javax.resource.cci.Connection;
+import javax.resource.cci.ConnectionFactory;
+
 import junit.framework.TestCase;
 import org.apache.geronimo.connector.mock.ConnectionFactoryExtension;
 import org.apache.geronimo.connector.mock.MockConnection;
@@ -29,33 +39,17 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.repository.Artifact;
 
-import javax.management.MalformedObjectNameException;
-import javax.resource.cci.Connection;
-import javax.resource.cci.ConnectionFactory;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 386505 $ $Date$
  */
 public class ManagedConnectionFactoryWrapperTest extends TestCase {
 
     private Kernel kernel;
     private AbstractName managedConnectionFactoryName;
-    private AbstractName ctcName;
-    private AbstractName cmfName;
     private static final String KERNEL_NAME = "testKernel";
     private static final String TARGET_NAME = "testCFName";
 
@@ -107,28 +101,28 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
+        super.setUp();
         kernel = KernelFactory.newInstance().createKernel(KERNEL_NAME);
         kernel.boot();
         ClassLoader cl = MockConnectionTrackingCoordinator.class.getClassLoader();
-        J2eeContext j2eeContext = new J2eeContextImpl("test.domain", "geronimo", "testapplication", "noModuleType", "testmodule", TARGET_NAME, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
 
-        GBeanData ctc = buildGBeanData("name", "ConnectionTrackingCoordinator", MockConnectionTrackingCoordinator.getGBeanInfo(), "ConnectionTrackingCoordinator", j2eeContext);
-        ctcName = ctc.getAbstractName();
+        GBeanData ctc = buildGBeanData("name", "ConnectionTrackingCoordinator", MockConnectionTrackingCoordinator.getGBeanInfo());
+        AbstractName ctcName = ctc.getAbstractName();
         kernel.loadGBean(ctc, cl);
 
-        GBeanData cmf = buildGBeanData("name", "ConnectionManagerContainer", GenericConnectionManagerGBean.getGBeanInfo(), "ConnectionManagerContainer", j2eeContext);
-        cmfName = cmf.getAbstractName();
+        GBeanData cmf = buildGBeanData("name", "ConnectionManagerContainer", GenericConnectionManagerGBean.getGBeanInfo());
+        AbstractName cmfName = cmf.getAbstractName();
         cmf.setAttribute("transactionSupport", NoTransactions.INSTANCE);
         cmf.setAttribute("pooling", new NoPool());
         cmf.setReferencePattern("ConnectionTracker", ctcName);
         kernel.loadGBean(cmf, cl);
 
 
-        GBeanData mcfw = buildGBeanData("name", TARGET_NAME, ManagedConnectionFactoryWrapperGBean.getGBeanInfo(), NameFactory.JCA_RESOURCE, j2eeContext);
+        GBeanData mcfw = buildGBeanData("name", TARGET_NAME, ManagedConnectionFactoryWrapperGBean.getGBeanInfo());
         managedConnectionFactoryName = mcfw.getAbstractName();
         mcfw.setAttribute("managedConnectionFactoryClass", MockManagedConnectionFactory.class.getName());
         mcfw.setAttribute("connectionFactoryInterface", ConnectionFactory.class.getName());
-        mcfw.setAttribute("implementedInterfaces", new String[] {Serializable.class.getName(), ConnectionFactoryExtension.class.getName()});
+        mcfw.setAttribute("implementedInterfaces", new String[]{Serializable.class.getName(), ConnectionFactoryExtension.class.getName()});
         mcfw.setAttribute("connectionFactoryImplClass", MockConnectionFactory.class.getName());
         mcfw.setAttribute("connectionInterface", Connection.class.getName());
         mcfw.setAttribute("connectionImplClass", MockConnection.class.getName());
@@ -141,21 +135,22 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
         kernel.startGBean(cmfName);
         kernel.startGBean(managedConnectionFactoryName);
     }
-    private GBeanData buildGBeanData(String key, String value, GBeanInfo info, String type, J2eeContext j2eeContext) throws MalformedObjectNameException {
-        AbstractName abstractName = buildAbstractName(key, value, info, type, j2eeContext);
+    private GBeanData buildGBeanData(String key, String value, GBeanInfo info) {
+        AbstractName abstractName = buildAbstractName(key, value);
         return new GBeanData(abstractName, info);
     }
 
-    private AbstractName buildAbstractName(String key, String value, GBeanInfo info, String type, J2eeContext j2eeContext) throws MalformedObjectNameException {
+    private AbstractName buildAbstractName(String key, String value) {
         Map names = new HashMap();
         names.put(key, value);
-        return new AbstractName(new Artifact("test", "foo", "1", "car"), names, NameFactory.getComponentName(null, null, null, type, null, null, value, j2eeContext));
+        return new AbstractName(new Artifact("test", "foo", "1", "car"), names);
     }
 
 
     protected void tearDown() throws Exception {
         kernel.stopGBean(managedConnectionFactoryName);
         kernel.shutdown();
+        super.tearDown();
     }
 
     public static class MockConnectionTrackingCoordinator implements ConnectionTracker {

@@ -16,11 +16,6 @@
  */
 package org.apache.geronimo.j2ee.j2eeobjectnames;
 
-import java.util.Properties;
-
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-
 /**
  * @version $Rev:385692 $ $Date$
  */
@@ -113,30 +108,4 @@ public class NameFactory {
     public static final String CORBA_TSS = "CORBATSS";
     public static final String WEB_SERVICE_LINK = "WSLink";
     public static final String KEY_GENERATOR = "KeyGenerator";
-
-
-    /**
-     *
-     * @deprecated
-     * @param j2eeDomainName
-     * @param j2eeServerName
-     * @param j2eeApplicationName
-     * @param j2eeModuleType
-     * @param j2eeModuleName
-     * @param j2eeName
-     * @param j2eeType
-     * @param context
-     * @return
-     * @throws MalformedObjectNameException
-     */
-    public static ObjectName getComponentName(String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleType, String j2eeModuleName, String j2eeName, String j2eeType, J2eeContext context) throws MalformedObjectNameException {
-        Properties props = new Properties();
-        props.put(J2EE_TYPE, context.getJ2eeType(j2eeType));
-        props.put(J2EE_SERVER, context.getJ2eeServerName(j2eeServerName));
-        props.put(J2EE_APPLICATION, context.getJ2eeApplicationName(j2eeApplicationName));
-        props.put(context.getJ2eeModuleType(j2eeModuleType), context.getJ2eeModuleName(j2eeModuleName));
-        props.put(J2EE_NAME, context.getJ2eeName(j2eeName));
-        return ObjectName.getInstance(context.getJ2eeDomainName(j2eeDomainName), props);
-    }
-
 }

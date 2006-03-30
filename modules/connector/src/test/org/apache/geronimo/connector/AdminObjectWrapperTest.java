@@ -21,25 +21,24 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.Map;
 import java.util.HashMap;
-import javax.management.MalformedObjectNameException;
+import java.util.Map;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.connector.mock.MockAdminObject;
 import org.apache.geronimo.connector.mock.MockAdminObjectImpl;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 386505 $ $Date$
  */
 public class AdminObjectWrapperTest extends TestCase {
 
@@ -53,14 +52,6 @@ public class AdminObjectWrapperTest extends TestCase {
         assertTrue(proxy instanceof MockAdminObject);
         MockAdminObject mockAdminObject = ((MockAdminObject) proxy).getSomething();
         assertNotNull(mockAdminObject);
-//        kernel.stopGBean(selfName);
-//        try {
-//            ((MockAdminObject) proxy).getSomething();
-//            fail();
-//        } catch (IllegalStateException ise) {
-//        }
-//        kernel.startGBean(selfName);
-//        ((MockAdminObject) proxy).getSomething();
     }
 
     public void testSerialization() throws Exception {
@@ -80,38 +71,18 @@ public class AdminObjectWrapperTest extends TestCase {
         kernel.stopGBean(selfName);
         ObjectInputStream ois2 = new ObjectInputStream(new ByteArrayInputStream(bytes));
         MockAdminObject proxy3 = (MockAdminObject) ois2.readObject();
-//        try {
-//            proxy3.getSomething();
-//            fail();
-//        } catch (IllegalStateException ise) {
-//        }
         kernel.startGBean(selfName);
         proxy3.getSomething();
 
     }
 
-//this should be in ENCConfigBuilder tests.
-//    public void testLocalLookup() throws Exception {
-//        ComponentContextBuilder builder = new ComponentContextBuilder();
-//        ENCConfigBuilder.addResourceEnvRefs(earContext, uri, resEnvRefs, cl, refMap, builder);
-//        GerLocalRefType localRef = GerLocalRefType.Factory.newInstance();
-//        localRef.setRefName("resourceenvref");
-//        localRef.setKernelName(KERNEL_NAME);
-//        localRef.setTargetName(TARGET_NAME);
-//        builder.
-//                addResourceEnvRef("resourceenvref", MockAdminObject.class, localRef);
-//        ReadOnlyContext roc = builder.getContext();
-//        Object o = roc.lookup("env/resourceenvref");
-//        assertNotNull(o);
-//        assertTrue(o instanceof MockAdminObject);
-//    }
-
     protected void setUp() throws Exception {
+        super.setUp();
         J2eeContext j2eeContext = new J2eeContextImpl("test.domain", "geronimo.server", "testapp", NameFactory.RESOURCE_ADAPTER_MODULE, "testmodule", TARGET_NAME, NameFactory.JMS_RESOURCE);
         kernel = KernelFactory.newInstance().createKernel(j2eeContext.getJ2eeDomainName());
         kernel.boot();
 
-        GBeanData aow = buildGBeanData("name", TARGET_NAME, AdminObjectWrapperGBean.getGBeanInfo(), NameFactory.JCA_RESOURCE, j2eeContext);
+        GBeanData aow = buildGBeanData("name", TARGET_NAME, AdminObjectWrapperGBean.getGBeanInfo());
         selfName = aow.getAbstractName();
         aow.setAttribute("adminObjectInterface", MockAdminObject.class.getName());
         aow.setAttribute("adminObjectClass", MockAdminObjectImpl.class.getName());
@@ -120,19 +91,20 @@ public class AdminObjectWrapperTest extends TestCase {
         kernel.startGBean(selfName);
     }
 
-    private GBeanData buildGBeanData(String key, String value, GBeanInfo info, String type, J2eeContext j2eeContext) throws MalformedObjectNameException {
-        AbstractName abstractName = buildAbstractName(key, value, info, type, j2eeContext);
+    private GBeanData buildGBeanData(String key, String value, GBeanInfo info) {
+        AbstractName abstractName = buildAbstractName(key, value);
         return new GBeanData(abstractName, info);
     }
 
-    private AbstractName buildAbstractName(String key, String value, GBeanInfo info, String type, J2eeContext j2eeContext) throws MalformedObjectNameException {
+    private AbstractName buildAbstractName(String key, String value) {
         Map names = new HashMap();
         names.put(key, value);
-        return new AbstractName(new Artifact("test", "foo", "1", "car"), names, NameFactory.getComponentName(null, null, null, type, null, null, value, j2eeContext));
+        return new AbstractName(new Artifact("test", "foo", "1", "car"), names);
     }
 
     protected void tearDown() throws Exception {
         kernel.stopGBean(selfName);
         kernel.shutdown();
+        super.tearDown();
     }
 }
