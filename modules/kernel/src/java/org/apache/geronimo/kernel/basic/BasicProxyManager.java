@@ -40,6 +40,8 @@ import java.util.Set;
 import java.util.Map;
 import java.util.Collections;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
 
 /**
  * Creates proxies that communicate directly with a Kernel located in the same
@@ -68,6 +70,9 @@ public class BasicProxyManager implements ProxyManager {
      */
     public ProxyFactory createProxyFactory(Class type) {
         if (type == null) throw new NullPointerException("type is null");
+        if (!type.isInterface() && !hasDefaultConstructor(type)) {
+            throw new IllegalArgumentException("Type class does not have a default constructor " + type.getName());
+        }
 
         ClassLoader classLoader = type.getClassLoader();
         if(classLoader == null) {
@@ -131,15 +136,18 @@ public class BasicProxyManager implements ProxyManager {
                 return null;
             }
             String[] names = (String[]) interfaces.toArray(new String[0]);
-            List intfs = new ArrayList();
+            List types = new ArrayList();
             for (int i = 0; i < names.length; i++) {
                 try {
-                    intfs.add(classLoader.loadClass(names[i]));
+                    Class type = classLoader.loadClass(names[i]);
+                    if (type.isInterface() || hasDefaultConstructor(type)) {
+                        types.add(type);
+                    }
                 } catch (ClassNotFoundException e) {
                     log.warn("Could not load interface "+names[i]+" in provided ClassLoader for "+target.getKeyProperty("name"));
                 }
             }
-            return createProxyFactory((Class[]) intfs.toArray(new Class[intfs.size()]), classLoader).createProxy(target);
+            return createProxyFactory((Class[]) types.toArray(new Class[types.size()]), classLoader).createProxy(target);
         } catch (GBeanNotFoundException e) {
             throw new IllegalArgumentException("Could not get GBeanInfo for target object: " + target);
         }
@@ -157,15 +165,18 @@ public class BasicProxyManager implements ProxyManager {
                 return null;
             }
             String[] names = (String[]) interfaces.toArray(new String[0]);
-            List intfs = new ArrayList();
+            List types = new ArrayList();
             for (int i = 0; i < names.length; i++) {
                 try {
-                    intfs.add(classLoader.loadClass(names[i]));
+                    Class type = classLoader.loadClass(names[i]);
+                    if (type.isInterface() || hasDefaultConstructor(type)) {
+                        types.add(type);
+                    }
                 } catch (ClassNotFoundException e) {
                     log.warn("Could not load interface "+names[i]+" in provided ClassLoader for "+target);
                 }
             }
-            return createProxyFactory((Class[]) intfs.toArray(new Class[intfs.size()]), classLoader).createProxy(target);
+            return createProxyFactory((Class[]) types.toArray(new Class[types.size()]), classLoader).createProxy(target);
         } catch (GBeanNotFoundException e) {
             throw new IllegalArgumentException("Could not get GBeanInfo for target object: " + target);
         }
@@ -317,5 +328,21 @@ public class BasicProxyManager implements ProxyManager {
     private AbstractName getAbstractName(ObjectName objectName, Kernel kernel) throws GBeanNotFoundException {
         GBeanData gBeanData = kernel.getGBeanData(objectName);
         return gBeanData.getAbstractName();
+    }
+
+    public static boolean hasDefaultConstructor(Class type) {
+        if (!Modifier.isPublic(type.getModifiers())) {
+            return false;
+        }
+        Constructor[] constructors = type.getDeclaredConstructors();
+        for (int i = 0; i < constructors.length; i++) {
+            Constructor constructor = constructors[i];
+            boolean accessible = Modifier.isPublic(constructor.getModifiers()) ||
+                    Modifier.isProtected(constructor.getModifiers());
+            if (accessible && constructor.getParameterTypes().length == 0) {
+                return true;
+            }
+        }
+        return false;
     }
 }

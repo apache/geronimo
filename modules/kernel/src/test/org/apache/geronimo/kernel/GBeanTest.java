@@ -21,20 +21,21 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Set;
 
+import junit.extensions.TestSetup;
+import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import junit.framework.Test;
-import junit.extensions.TestSetup;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.kernel.jmx.KernelDelegate;
+import org.apache.geronimo.kernel.jmx.MBeanServerDelegate;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.proxy.ProxyFactory;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.jmx.KernelDelegate;
-import org.apache.geronimo.kernel.jmx.MBeanServerDelegate;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -514,6 +515,34 @@ public class GBeanTest extends TestCase {
         }
     }
 
+    public void testProxyClass() throws Exception {
+        ClassLoader cl = getClass().getClassLoader();
+        ClassLoader myCl = new URLClassLoader(new URL[0], cl);
+
+        GBeanData gbean = buildGBeanData("name", "test", ClassGBean.getGBeanInfo());
+        gbean.setAttribute("name", "Test");
+        kernel.loadGBean(gbean, myCl);
+        kernel.startGBean(gbean.getAbstractName());
+        ProxyManager mgr = kernel.getProxyManager();
+
+        Object test = mgr.createProxy(gbean.getAbstractName(), Named.class);
+        assertTrue(test instanceof Named);
+        assertFalse(test instanceof ClassGBean);
+        assertEquals("Test", ((Named)test).getName());
+
+        test = mgr.createProxy(gbean.getAbstractName(), myCl);
+        assertTrue(test instanceof Named);
+        assertFalse(test instanceof ClassGBean);
+        assertEquals("Test", ((Named)test).getName());
+
+        try {
+            mgr.createProxy(gbean.getAbstractName(), ClassGBean.class);
+            fail("expected an IllegalArgumentException");
+        } catch (IllegalArgumentException ignored) {
+            // expected
+        }
+    }
+
     protected void setUp() throws Exception {
         super.setUp();
         Logger.getRootLogger().addAppender(new ConsoleAppender(new PatternLayout("%p [%t] %m %n")));
@@ -533,5 +562,34 @@ public class GBeanTest extends TestCase {
     private GBeanData buildGBeanData(String name, String type, GBeanInfo info) {
         AbstractName abstractName = kernel.getNaming().createRootName(new Artifact("test", "foo", "1", "car"), name, type);
         return new GBeanData(abstractName, info);
+    }
+
+    public static interface Named {
+        String getName();
+    }
+
+    public static class ClassGBean implements Named {
+        private final String name;
+
+        public ClassGBean(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        private static final GBeanInfo GBEAN_INFO;
+
+        static {
+            GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(ClassGBean.class);
+            infoFactory.setConstructor(new String[]{"name"});
+
+            GBEAN_INFO = infoFactory.getBeanInfo();
+        }
+
+        public static GBeanInfo getGBeanInfo() {
+            return GBEAN_INFO;
+        }
     }
 }
