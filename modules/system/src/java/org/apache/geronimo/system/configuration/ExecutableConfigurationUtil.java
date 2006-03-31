@@ -33,16 +33,15 @@ import java.util.zip.ZipEntry;
 
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 383067 $ $Date$
  */
 public final class ExecutableConfigurationUtil {
     private ExecutableConfigurationUtil() {
     }
 
-    public static void createExecutableConfiguration(ConfigurationData configurationData, Manifest manifest, File destinationFile) throws IOException, InvalidConfigException {
+    public static void createExecutableConfiguration(ConfigurationData configurationData, Manifest manifest, File destinationFile) throws IOException {
         File configurationDir = configurationData.getConfigurationDir();
         JarOutputStream out = null;
         try {
@@ -86,17 +85,17 @@ public final class ExecutableConfigurationUtil {
         }
     }
 
-    public static void writeConfiguration(ConfigurationData configurationData, JarOutputStream out) throws IOException, InvalidConfigException {
+    public static void writeConfiguration(ConfigurationData configurationData, JarOutputStream out) throws IOException {
         // save the persisted form in the source directory
         out.putNextEntry(new ZipEntry("META-INF/config.ser"));
         try {
-            ConfigurationUtil.storeBootstrapConfiguration(configurationData, out);
+            ConfigurationUtil.writeConfigurationData(configurationData, out);
         } finally {
             out.closeEntry();
         }
     }
 
-    public static void writeConfiguration(ConfigurationData configurationData, File source) throws InvalidConfigException, IOException {
+    public static void writeConfiguration(ConfigurationData configurationData, File source) throws IOException {
         // save the persisted form in the source directory
         File metaInf = new File(source, "META-INF");
         metaInf.mkdirs();
@@ -104,7 +103,7 @@ public final class ExecutableConfigurationUtil {
 
         OutputStream out = new FileOutputStream(configSer);
         try {
-            ConfigurationUtil.storeBootstrapConfiguration(configurationData, out);
+            ConfigurationUtil.writeConfigurationData(configurationData, out);
         } finally {
             if (out != null) {
                 try {

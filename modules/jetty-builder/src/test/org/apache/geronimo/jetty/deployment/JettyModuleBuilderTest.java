@@ -16,12 +16,29 @@
  */
 package org.apache.geronimo.jetty.deployment;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.management.ObjectName;
+import javax.naming.Reference;
+import javax.xml.namespace.QName;
+
 import junit.framework.TestCase;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.deployment.util.UnpackedJarFile;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.deployment.util.UnpackedJarFile;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
@@ -52,43 +69,22 @@ import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.EditableKernelConfigurationManager;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.config.ConfigurationResolver;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.ImportType;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.transaction.context.TransactionContextManagerGBean;
 import org.apache.geronimo.transaction.manager.TransactionManagerImplGBean;
-
-import javax.management.ObjectName;
-import javax.naming.Reference;
-import javax.xml.namespace.QName;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * @version $Rev:385232 $ $Date$
  */
 public class JettyModuleBuilderTest extends TestCase {
-    private Naming naming = new Jsr77Naming();
+    private static Naming naming = new Jsr77Naming();
     private Artifact baseId = new Artifact("test", "base", "1", "car");
     private final AbstractName serverName = naming.createRootName(baseId, "Server", "J2EEServer");
 
@@ -310,28 +306,16 @@ public class JettyModuleBuilderTest extends TestCase {
             configs.remove(configID);
         }
 
-        public GBeanData loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
-            AbstractName configurationObjectName = Configuration.getConfigurationAbstractName(configId);
-            GBeanData configData = new GBeanData(configurationObjectName, Configuration.GBEAN_INFO);
+        public ConfigurationData loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
             if (configs.containsKey(configId)) {
                 ConfigurationData configurationData = (ConfigurationData) configs.get(configId);
-                configData.setAttribute("moduleType", configurationData.getModuleType());
-                Environment environment = configurationData.getEnvironment();
-                configData.setAttribute("environment", environment);
-                configData.setAttribute("gBeanState", Configuration.storeGBeans(configurationData.getGBeans()));
-                configData.setAttribute("classPath", configurationData.getClassPath());
-
-                ConfigurationResolver configurationResolver = new ConfigurationResolver(configurationData.getEnvironment().getConfigId(), this, Collections.EMPTY_SET, new DefaultArtifactResolver(null, Collections.EMPTY_SET));
-                configData.setAttribute("configurationResolver", configurationResolver);
-
+                configurationData.setConfigurationStore(this);
+                return configurationData;
             } else {
-                Environment environment = new Environment();
-                environment.setConfigId(configId);
-                configData.setAttribute("environment", environment);
-                configData.setAttribute("moduleType", ConfigurationModuleType.WAR);
-                configData.setAttribute("gBeanState", NO_OBJECTS_OS);
+                ConfigurationData configurationData = new ConfigurationData(configId, naming);
+                configurationData.setConfigurationStore(this);
+                return configurationData;
             }
-            return configData;
         }
 
         public boolean containsConfiguration(Artifact configID) {
@@ -360,21 +344,10 @@ public class JettyModuleBuilderTest extends TestCase {
 
         public final static GBeanInfo GBEAN_INFO;
 
-        private static final byte[] NO_OBJECTS_OS;
-
         static {
             GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(MockConfigStore.class, NameFactory.CONFIGURATION_STORE);
             infoBuilder.addInterface(ConfigurationStore.class);
             GBEAN_INFO = infoBuilder.getBeanInfo();
-
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            try {
-                ObjectOutputStream oos = new ObjectOutputStream(baos);
-                oos.flush();
-                NO_OBJECTS_OS = baos.toByteArray();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
         }
     }
 }

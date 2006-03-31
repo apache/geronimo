@@ -16,22 +16,6 @@
  */
 package org.apache.geronimo.kernel.config;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.InvalidConfigurationException;
-import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.ArtifactResolver;
-import org.apache.geronimo.kernel.repository.Dependency;
-import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.ImportType;
-import org.apache.geronimo.kernel.repository.MissingDependencyException;
-
-import javax.management.ObjectName;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,6 +27,18 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import javax.management.ObjectName;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.InvalidConfigurationException;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.Dependency;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.ImportType;
+import org.apache.geronimo.kernel.repository.MissingDependencyException;
 
 /**
  * @version $Rev$ $Date$
@@ -53,16 +49,13 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     protected final ArtifactResolver artifactResolver;
     protected final Map configurations = new LinkedHashMap();
     protected final Collection repositories;
-    private final Naming naming;
 
-    public SimpleConfigurationManager(Collection stores, ArtifactResolver artifactResolver, Naming naming, Collection repositories) {
-        if (naming == null) throw new NullPointerException("naming is null");
+    public SimpleConfigurationManager(Collection stores, ArtifactResolver artifactResolver, Collection repositories) {
         if (stores == null) stores = Collections.EMPTY_SET;
         if (repositories == null) repositories = Collections.EMPTY_SET;
 
         this.stores = stores;
         this.artifactResolver = artifactResolver;
-        this.naming = naming;
         this.repositories = repositories;
     }
 
@@ -91,7 +84,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         if (configurations.containsKey(artifact)) {
             return true;
         }
-        
+
         List storeSnapshot = getStores();
         for (int i = 0; i < storeSnapshot.size(); i++) {
             ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
@@ -107,10 +100,6 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return configurationStatus.getConfiguration();
     }
 
-    protected Artifact getConfigurationId(Configuration configuration) {
-        return configuration.getEnvironment().getConfigId();
-    }
-
     public synchronized boolean isLoaded(Artifact configId) {
         return configurations.containsKey(configId);
     }
@@ -123,24 +112,15 @@ public class SimpleConfigurationManager implements ConfigurationManager {
             return configurationStatus.getConfiguration();
         }
 
-        // load the GBeanData for the new configuration
-        GBeanData gbeanData = loadConfigurationGBeanData(configurationId);
+        // load the ConfigurationData for the new configuration
+        ConfigurationData configurationData = loadConfigurationGBeanData(configurationId);
 
         // load the configuration
-        return loadConfiguration(gbeanData);
+        return loadConfiguration(configurationData);
     }
 
-    public Configuration loadConfiguration(ConfigurationData configurationData) throws NoSuchConfigException, IOException, InvalidConfigException {
-        return loadConfiguration(configurationData, null);
-    }
-
-    public Configuration loadConfiguration(ConfigurationData configurationData, ConfigurationStore configurationStore) throws NoSuchConfigException, IOException, InvalidConfigException {
-        GBeanData gbeanData = ConfigurationUtil.toConfigurationGBeanData(configurationData, configurationStore, repositories, artifactResolver);
-        return loadConfiguration(gbeanData);
-    }
-
-    private synchronized Configuration loadConfiguration(GBeanData gbeanData) throws NoSuchConfigException, IOException, InvalidConfigException {
-        Artifact id = getConfigurationId(gbeanData);
+    public synchronized Configuration loadConfiguration(ConfigurationData configurationData) throws NoSuchConfigException, IOException, InvalidConfigException {
+        Artifact id = configurationData.getId();
         if (configurations.containsKey(id)) {
             // already loaded, so just update the load count
             ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(id);
@@ -150,7 +130,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
 
         // load configurations from the new child to the parents
         LinkedHashMap unloadedConfigurations = new LinkedHashMap();
-        loadDepthFirst(gbeanData, unloadedConfigurations);
+        loadDepthFirst(configurationData, unloadedConfigurations);
 
         // load and start the unloaded configurations depth first
         Map loadedConfigurations = new LinkedHashMap(unloadedConfigurations.size());
@@ -158,8 +138,8 @@ public class SimpleConfigurationManager implements ConfigurationManager {
             for (Iterator iterator = unloadedConfigurations.entrySet().iterator(); iterator.hasNext();) {
                 Map.Entry entry = (Map.Entry) iterator.next();
                 Artifact configurationId = (Artifact) entry.getKey();
-                GBeanData configurationData = (GBeanData) entry.getValue();
-                Configuration configuration = load(configurationData, loadedConfigurations);
+                UnloadedContiguration unloadedConfiguration = (UnloadedContiguration) entry.getValue();
+                Configuration configuration = load(unloadedConfiguration.getConfigurationData(), unloadedConfiguration.getResolvedParentIds(), loadedConfigurations);
                 loadedConfigurations.put(configurationId, configuration);
             }
         } catch (Exception e) {
@@ -177,7 +157,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         for (Iterator iterator = loadedConfigurations.values().iterator(); iterator.hasNext();) {
             Configuration configuration = (Configuration) iterator.next();
             ConfigurationStatus configurationStatus = createConfigurationStatus(configuration);
-            configurations.put(getConfigurationId(configuration), configurationStatus);
+            configurations.put(configuration.getId(), configurationStatus);
         }
 
         ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(id);
@@ -185,19 +165,12 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return configurationStatus.getConfiguration();
     }
 
-    protected Configuration load(GBeanData configurationData, Map loadedConfigurations) throws InvalidConfigException {
-        Artifact configurationId = getConfigurationId(configurationData);
+    protected Configuration load(ConfigurationData configurationData, LinkedHashSet resolvedParentIds, Map loadedConfigurations) throws InvalidConfigException {
+        Artifact configurationId = configurationData.getId();
         try {
-            Environment environment = (Environment) configurationData.getAttribute("environment");
+            Collection parents = findParentConfigurations(resolvedParentIds, loadedConfigurations);
 
-            Collection parents = resolveParents(environment, loadedConfigurations);
-
-            ConfigurationModuleType moduleType = (ConfigurationModuleType) configurationData.getAttribute("moduleType");
-            List classPath = (List) configurationData.getAttribute("classPath");
-            byte[] gbeanState = (byte[]) configurationData.getAttribute("gBeanState");
-            ConfigurationResolver configurationResolver = (ConfigurationResolver) configurationData.getAttribute("configurationResolver");
-
-            Configuration configuration = new Configuration(parents, moduleType, environment, classPath, gbeanState, configurationResolver, naming);
+            Configuration configuration = new Configuration(parents, configurationData, new ConfigurationResolver(configurationData, repositories, artifactResolver));
             configuration.doStart();
             return configuration;
         } catch (Exception e) {
@@ -205,32 +178,22 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         }
     }
 
-    private Collection resolveParents(Environment environment, Map loadedConfigurations) throws MissingDependencyException, InvalidConfigException {
+    private Collection findParentConfigurations(LinkedHashSet resolvedParentIds, Map loadedConfigurations) throws InvalidConfigException {
         LinkedHashMap parents = new LinkedHashMap();
-        List dependencies = new ArrayList(environment.getDependencies());
-        for (ListIterator iterator = dependencies.listIterator(); iterator.hasNext();) {
-            Dependency dependency = (Dependency) iterator.next();
-            Artifact resolvedArtifact = artifactResolver.resolve(dependency.getArtifact());
+        for (Iterator iterator = resolvedParentIds.iterator(); iterator.hasNext();) {
+            Artifact resolvedArtifact = (Artifact) iterator.next();
 
             Configuration parent = null;
             if (loadedConfigurations.containsKey(resolvedArtifact)) {
                 parent = (Configuration) loadedConfigurations.get(resolvedArtifact);
             } else if (isConfiguration(resolvedArtifact)) {
                 parent = getConfiguration(resolvedArtifact);
-            } else if (dependency.getImportType() == ImportType.SERVICES) {
-                // Service depdendencies require that the depdencency be a configuration
-                throw new InvalidConfigException("Dependency does not have services: " + resolvedArtifact);
+            } else {
+                throw new InvalidConfigException("Cound not find parent configuration: " + resolvedArtifact);
             }
 
-            if (parent != null) {
-                parents.put(resolvedArtifact, parent);
-
-                // update the dependency list to contain the resolved artifact
-                dependency = new Dependency(resolvedArtifact, dependency.getImportType());
-                iterator.set(dependency);
-            }
+            parents.put(resolvedArtifact, parent);
         }
-        environment.setDependencies(dependencies);
         return parents.values();
     }
 
@@ -250,10 +213,9 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         List parentStatuses = new ArrayList(parents.size());
         for (Iterator iterator = parents.iterator(); iterator.hasNext();) {
             Configuration parent = (Configuration) iterator.next();
-            Artifact parentId = getConfigurationId(parent);
-            ConfigurationStatus parentStatus = (ConfigurationStatus) configurations.get(parentId);
+            ConfigurationStatus parentStatus = (ConfigurationStatus) configurations.get(parent.getId());
             if (parentStatus == null) {
-                throw new IllegalStateException("Parent status not found " + parentId);
+                throw new IllegalStateException("Parent status not found " + parent.getId());
             }
 
             parentStatuses.add(parentStatus);
@@ -261,31 +223,24 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return parentStatuses;
     }
 
-    protected static Artifact getConfigurationId(GBeanData gbeanData) {
-        Environment environment = (Environment) gbeanData.getAttribute("environment");
-        return environment.getConfigId();
-    }
-
-    private synchronized void loadDepthFirst(GBeanData gbeanData, LinkedHashMap unloadedConfigurations) throws NoSuchConfigException, IOException, InvalidConfigException {
+    private synchronized void loadDepthFirst(ConfigurationData configurationData, LinkedHashMap unloadedConfigurations) throws NoSuchConfigException, IOException, InvalidConfigException {
         try {
             // if this parent hasn't already been processed, iterate into the parent
-            Artifact configurationId = getConfigurationId(gbeanData);
+            Artifact configurationId = configurationData.getId();
             if (!unloadedConfigurations.containsKey(configurationId)) {
-                preprocessConfiguration(gbeanData);
+                LinkedHashSet resolvedParentIds = resolveParentIds(configurationData);
 
-                Environment environment = (Environment) gbeanData.getAttribute("environment");
-                for (Iterator iterator = environment.getDependencies().iterator(); iterator.hasNext();) {
-                    Dependency dependency = (Dependency) iterator.next();
-                    Artifact parentId = dependency.getArtifact();
+                for (Iterator iterator = resolvedParentIds.iterator(); iterator.hasNext();) {
+                    Artifact parentId = (Artifact) iterator.next();
                     if (!configurations.containsKey(parentId) && isConfiguration(parentId)) {
-                        GBeanData parentGBeanData = loadConfigurationGBeanData(parentId);
-                        loadDepthFirst(parentGBeanData, unloadedConfigurations);
+                        ConfigurationData parentConfigurationData = loadConfigurationGBeanData(parentId);
+                        loadDepthFirst(parentConfigurationData, unloadedConfigurations);
                     }
                 }
-            }
 
-            // depth first - all unloaded parents have been added, now add this configuration
-            unloadedConfigurations.put(configurationId, gbeanData);
+                // depth first - all unloaded parents have been added, now add this configuration
+                unloadedConfigurations.put(configurationId, new UnloadedContiguration(configurationData, resolvedParentIds));
+            }
         } catch (NoSuchConfigException e) {
             throw e;
         } catch (IOException e) {
@@ -297,37 +252,29 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         }
     }
 
-    private GBeanData loadConfigurationGBeanData(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
+    private ConfigurationData loadConfigurationGBeanData(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
         List storeSnapshot = getStores();
 
         for (int i = 0; i < storeSnapshot.size(); i++) {
             ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
             if (store.containsConfiguration(configId)) {
-                GBeanData configurationGBean = store.loadConfiguration(configId);
-                AbstractName configurationName = Configuration.getConfigurationAbstractName(configId);
-                configurationGBean.setAbstractName(configurationName);
-
-                Environment environment = (Environment) configurationGBean.getAttribute("environment");
-                ConfigurationResolver configurationResolver = new ConfigurationResolver(environment.getConfigId(), store, repositories, artifactResolver);
-                configurationGBean.setAttribute("configurationResolver", configurationResolver);
-
-                return configurationGBean;
+                ConfigurationData configurationData = store.loadConfiguration(configId);
+                return configurationData;
             }
         }
         throw new NoSuchConfigException("No configuration with id: " + configId);
     }
 
-    private void preprocessConfiguration(GBeanData gbeanData) throws MissingDependencyException, InvalidConfigException {
-        Environment environment = (Environment) gbeanData.getAttribute("environment");
+    private LinkedHashSet resolveParentIds(ConfigurationData configurationData) throws MissingDependencyException, InvalidConfigException {
+        Environment environment = configurationData.getEnvironment();
 
-        LinkedHashSet parentNames = new LinkedHashSet();
+        LinkedHashSet parentIds = new LinkedHashSet();
         List dependencies = new ArrayList(environment.getDependencies());
         for (ListIterator iterator = dependencies.listIterator(); iterator.hasNext();) {
             Dependency dependency = (Dependency) iterator.next();
             Artifact resolvedArtifact = artifactResolver.resolve(dependency.getArtifact());
             if (isConfiguration(resolvedArtifact)) {
-                AbstractName parentName = Configuration.getConfigurationAbstractName(resolvedArtifact);
-                parentNames.add(parentName);
+                parentIds.add(resolvedArtifact);
 
                 // update the dependency list to contain the resolved artifact
                 dependency = new Dependency(resolvedArtifact, dependency.getImportType());
@@ -337,17 +284,35 @@ public class SimpleConfigurationManager implements ConfigurationManager {
                 throw new InvalidConfigException("Dependency does not have services: " + resolvedArtifact);
             }
         }
-        environment.setDependencies(dependencies);
 
-        // add parents to the parents reference collection
-        gbeanData.addDependencies(parentNames);
-        gbeanData.setReferencePatterns("Parents", parentNames);
+//        // add parents to the parents reference collection
+//        configurationData.addDependencies(parentNames);
+//        configurationData.setReferencePatterns("Parents", parentNames);
+//
+//        configurationData.setAttribute("naming", naming);
+        return parentIds;
+    }
 
-        gbeanData.setAttribute("naming", naming);
+    private static class UnloadedContiguration {
+        private final ConfigurationData configurationData;
+        private final LinkedHashSet resolvedParentIds;
+
+        public UnloadedContiguration(ConfigurationData configurationData, LinkedHashSet resolvedParentIds) {
+            this.configurationData = configurationData;
+            this.resolvedParentIds = resolvedParentIds;
+        }
+
+        public ConfigurationData getConfigurationData() {
+            return configurationData;
+        }
+
+        public LinkedHashSet getResolvedParentIds() {
+            return resolvedParentIds;
+        }
     }
 
     public void startConfiguration(Configuration configuration) throws InvalidConfigException {
-        startConfiguration(getConfigurationId(configuration));
+        startConfiguration(configuration.getId());
     }
 
     public synchronized void startConfiguration(Artifact id) throws InvalidConfigException {
@@ -381,7 +346,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     }
 
     public void stopConfiguration(Configuration configuration) throws InvalidConfigException {
-        stopConfiguration(getConfigurationId(configuration));
+        stopConfiguration(configuration.getId());
     }
 
     public synchronized void stopConfiguration(Artifact id) throws InvalidConfigException {
@@ -402,7 +367,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     }
 
     public void unloadConfiguration(Configuration configuration) throws NoSuchConfigException {
-        unloadConfiguration(getConfigurationId(configuration));
+        unloadConfiguration(configuration.getId());
     }
 
     public synchronized void unloadConfiguration(Artifact id) throws NoSuchConfigException {
@@ -410,9 +375,8 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         List unloadList = configurationStatus.unload();
         for (Iterator iterator = unloadList.iterator(); iterator.hasNext();) {
             Configuration configuration = (Configuration) iterator.next();
-            Artifact configurationId = getConfigurationId(configuration);
             unload(configuration);
-            configurations.remove(configurationId);
+            configurations.remove(configuration.getId());
         }
     }
 
@@ -420,7 +384,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         try {
             configuration.doStop();
         } catch (Exception e) {
-            log.debug("Problem unloading config: " + getConfigurationId(configuration), e);
+            log.debug("Problem unloading config: " + configuration.getId(), e);
         }
     }
 
@@ -436,8 +400,9 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         private int startCount = 0;
 
         public ConfigurationStatus(Configuration configuration, List loadParents, List startParents) {
-            if (!loadParents.containsAll(startParents))
+            if (!loadParents.containsAll(startParents)) {
                 throw new IllegalArgumentException("loadParents must contain all startParents");
+            }
             this.configuration = configuration;
             this.loadParents = loadParents;
             this.startParents = startParents;

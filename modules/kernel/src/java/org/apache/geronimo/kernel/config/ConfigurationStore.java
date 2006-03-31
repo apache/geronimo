@@ -24,7 +24,6 @@ import java.net.URI;
 import java.net.URL;
 import java.util.List;
 
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
@@ -58,7 +57,7 @@ public interface ConfigurationStore {
      * @throws IOException if a problem occurs loading the configuration from the store
      * @throws InvalidConfigException if the configuration is corrupt
      */
-    GBeanData loadConfiguration(Artifact configId) throws IOException, InvalidConfigException, NoSuchConfigException;
+    ConfigurationData loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException;
 
     /**
      * Determines if the store contains a configuration with the spedified ID.

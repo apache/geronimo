@@ -16,9 +16,9 @@
  */
 package org.apache.geronimo.plugin.assembly;
 
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactManager;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
@@ -41,7 +41,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 384686 $ $Date$
  */
 public class BaseConfigInstaller {
     public static final FileWriteMonitor LOG_COPY_START = new StartFileWriteMonitor();
@@ -161,8 +161,8 @@ public class BaseConfigInstaller {
 
             // Determine the dependencies of this configuration
             try {
-                GBeanData config = targetStore.loadConfiguration(configId);
-                Environment environment = (Environment) config.getAttribute("environment");
+                ConfigurationData configurationData = targetStore.loadConfiguration(configId);
+                Environment environment = configurationData.getEnvironment();
                 dependencies = new LinkedHashSet();
                 for (Iterator iterator = environment.getDependencies().iterator(); iterator.hasNext();) {
                     Dependency dependency = (Dependency) iterator.next();

@@ -17,29 +17,43 @@
 
 package org.apache.geronimo.kernel.config;
 
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.AbstractName;
-
+import java.io.File;
+import java.io.Serializable;
+import java.io.IOException;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.EOFException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.io.File;
+import java.util.Iterator;
+
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.ObjectInputStreamExt;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Environment;
 
 /**
  * @version $Rev: 382645 $ $Date$
  */
-public class ConfigurationData {
+public class ConfigurationData implements Serializable {
+    private static final long serialVersionUID = 4324193220056650732L;
 
     /**
      * Identifies the type of configuration (WAR, RAR et cetera)
      */
     private final ConfigurationModuleType moduleType;
 
+    /**
+     * Defines the configuration id, parent configurations, and classpath
+     */
+    private final Environment environment;
 
     /**
      * List of URIs in this configuration's classpath.  These are for the classes directly included in the configuration
@@ -52,20 +66,40 @@ public class ConfigurationData {
     private final List gbeans = new ArrayList();
 
     /**
+     * The serialized form of the gbeans.  Once this is set on more gbeans can be added.
+     */
+    private byte[] gbeanState;
+
+    /**
      * Child configurations of this configuration
      */
     private final List childConfigurations = new ArrayList();
 
-    private final Environment environment;
+    /**
+     * The base file of the configuation
+     */
+    private transient File configurationDir;
 
-    private final File configurationDir;
-    private final Naming naming;
+    /**
+     * The naming system
+     */
+    private transient Naming naming;
+
+    /**
+     * The configuration store from which this configuration was loaded, or null if it was not loaded from a configuration store.
+     */
+    private transient ConfigurationStore configurationStore;
 
     public ConfigurationData(Artifact configId, Naming naming) {
-        this(null, null, null, null, new Environment(configId), null, naming);
+        this(new Environment(configId), naming);
+    }
+
+    public ConfigurationData(Environment environment, Naming naming) {
+        this(null, null, null, null, environment, null, naming);
     }
 
     public ConfigurationData(ConfigurationModuleType moduleType, LinkedHashSet classPath, List gbeans, List childConfigurations, Environment environment, File configurationDir, Naming naming) {
+        if (naming == null) throw new NullPointerException("naming is null");
         this.naming = naming;
         if (moduleType != null) {
             this.moduleType = moduleType;
@@ -100,15 +134,27 @@ public class ConfigurationData {
         return Collections.unmodifiableList(new ArrayList(classPath));
     }
 
-    public List getGBeans() {
+    public List getGBeans(ClassLoader classLoader) throws InvalidConfigException {
+        if (gbeanState == null) {
+            return Collections.unmodifiableList(gbeans);
+        }
+        gbeans.addAll(loadGBeans(gbeanState, classLoader));
         return Collections.unmodifiableList(gbeans);
     }
 
     public void addGBean(GBeanData gbeanData) {
+        if (gbeanState != null) {
+            throw new IllegalStateException("GBeans have been serialized, so no more GBeans can be added");
+        }
+
         gbeans.add(gbeanData);
     }
 
     public GBeanData addGBean(String name, GBeanInfo gbeanInfo) {
+        if (gbeanState != null) {
+            throw new IllegalStateException("GBeans have been serialized, so no more GBeans can be added");
+        }
+
         String j2eeType = gbeanInfo.getJ2eeType();
         if (j2eeType == null) j2eeType = "GBean";
         AbstractName abstractName = naming.createRootName(environment.getConfigId(), name, j2eeType);
@@ -127,6 +173,88 @@ public class ConfigurationData {
 
     public File getConfigurationDir() {
         return configurationDir;
+    }
+
+    public void setConfigurationDir(File configurationDir) {
+        this.configurationDir = configurationDir;
+    }
+
+    public Naming getNaming() {
+        return naming;
+    }
+
+    public void setNaming(Naming naming) {
+        this.naming = naming;
+    }
+
+    public ConfigurationStore getConfigurationStore() {
+        return configurationStore;
+    }
+
+    public void setConfigurationStore(ConfigurationStore configurationStore) {
+        this.configurationStore = configurationStore;
+    }
+
+    private void writeObject(java.io.ObjectOutputStream stream) throws IOException {
+        if (gbeanState == null) {
+            gbeanState = storeGBeans(gbeans);
+            gbeans.clear();
+        }
+
+        stream.defaultWriteObject();
+    }
+
+    private static List loadGBeans(byte[] gbeanState, ClassLoader classLoader) throws InvalidConfigException {
+        List gbeans = new ArrayList();
+        if (gbeanState != null && gbeanState.length > 0) {
+            // Set the thread context classloader so deserializing classes can grab the cl from the thread
+            ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
+            try {
+                Thread.currentThread().setContextClassLoader(classLoader);
+
+                ObjectInputStream ois = new ObjectInputStreamExt(new ByteArrayInputStream(gbeanState), classLoader);
+                try {
+                    while (true) {
+                        GBeanData gbeanData = new GBeanData();
+                        gbeanData.readExternal(ois);
+                        gbeans.add(gbeanData);
+                    }
+                } catch (EOFException e) {
+                    // ok
+                } finally {
+                    ois.close();
+                }
+            } catch (Exception e) {
+                throw new InvalidConfigException("Unable to deserialize GBeanState", e);
+            } finally {
+                Thread.currentThread().setContextClassLoader(oldCl);
+            }
+        }
+        return gbeans;
+    }
+
+    private static byte[] storeGBeans(List gbeans) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos;
+        try {
+            oos = new ObjectOutputStream(baos);
+        } catch (IOException e) {
+            throw (AssertionError) new AssertionError("Unable to initialize ObjectOutputStream").initCause(e);
+        }
+        for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
+            GBeanData gbeanData = (GBeanData) iterator.next();
+            try {
+                gbeanData.writeExternal(oos);
+            } catch (Exception e) {
+                throw (IOException) new IOException("Unable to serialize GBeanData for " + gbeanData.getAbstractName()).initCause(e);
+            }
+        }
+        try {
+            oos.flush();
+        } catch (IOException e) {
+            throw (AssertionError) new AssertionError("Unable to flush ObjectOutputStream").initCause(e);
+        }
+        return baos.toByteArray();
     }
 
 }

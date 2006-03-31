@@ -17,34 +17,30 @@
 
 package org.apache.geronimo.kernel.config;
 
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.LinkedHashSet;
+
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
-import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactManager;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
-import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.kernel.repository.Repository;
-
-import javax.management.ObjectName;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * The standard non-editable ConfigurationManager implementation.  That is,
@@ -74,7 +70,6 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
 
         super(stores,
                 createArtifactResolver(artifactResolver, artifactManager, repositories),
-                kernel == null? null: kernel.getNaming(),
                 repositories);
 
         this.kernel = kernel;
@@ -113,12 +108,26 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
         return super.loadConfiguration(configurationId);
     }
 
-    protected Configuration load(GBeanData configurationData, Map loadedConfigurations) throws InvalidConfigException {
-        Artifact configurationId = getConfigurationId(configurationData);
+    protected Configuration load(ConfigurationData configurationData, LinkedHashSet resolvedParentIds, Map loadedConfigurations) throws InvalidConfigException {
+        Artifact configurationId = configurationData.getId();
         AbstractName configurationName = Configuration.getConfigurationAbstractName(configurationId);
+        GBeanData gbeanData = new GBeanData(configurationName, Configuration.GBEAN_INFO);
+        gbeanData.setAttribute("configurationData", configurationData);
+        gbeanData.setAttribute("configurationResolver", new ConfigurationResolver(configurationData, repositories, artifactResolver));
+
+        // add parents to the parents reference collection
+        LinkedHashSet parentNames = new LinkedHashSet();
+        for (Iterator iterator = resolvedParentIds.iterator(); iterator.hasNext();) {
+            Artifact resolvedParentId = (Artifact) iterator.next();
+            AbstractName parentName = Configuration.getConfigurationAbstractName(resolvedParentId);
+            parentNames.add(parentName);
+        }
+        gbeanData.addDependencies(parentNames);
+        gbeanData.setReferencePatterns("Parents", parentNames);
+
         // load the configuration
         try {
-            kernel.loadGBean(configurationData, classLoader);
+            kernel.loadGBean(gbeanData, classLoader);
         } catch (GBeanAlreadyExistsException e) {
             throw new InvalidConfigException("Unable to load configuration gbean " + configurationId, e);
         }
@@ -154,13 +163,13 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
         // load the attribute overrides from the attribute store
         Collection gbeans = configuration.getGBeans().values();
         if (attributeStore != null) {
-            gbeans = attributeStore.applyOverrides(getConfigurationId(configuration), gbeans, configuration.getConfigurationClassLoader());
+            gbeans = attributeStore.applyOverrides(configuration.getId(), gbeans, configuration.getConfigurationClassLoader());
         }
 
         ConfigurationUtil.startConfigurationGBeans(gbeans, configuration, kernel);
 
         if (configurationList != null) {
-            configurationList.addConfiguration(getConfigurationId(configuration).toString());
+            configurationList.addConfiguration(configuration.getId().toString());
         }
     }
 
@@ -184,12 +193,12 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
             throw new InvalidConfigException("Could not stop gbeans in configuration", e);
         }
         if (configurationList != null) {
-            configurationList.removeConfiguration(getConfigurationId(configuration).toString());
+            configurationList.removeConfiguration(configuration.getId().toString());
         }
     }
 
     protected void unload(Configuration configuration) {
-        Artifact configurationId = getConfigurationId(configuration);
+        Artifact configurationId = configuration.getId();
         unload(configurationId);
     }
 
@@ -232,7 +241,6 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
     }
 
     private static class ShutdownHook implements Runnable {
-        private static final ObjectName CONFIG_QUERY = JMXUtil.getObjectName("geronimo.config:*");
         private final Kernel kernel;
 
         public ShutdownHook(Kernel kernel) {

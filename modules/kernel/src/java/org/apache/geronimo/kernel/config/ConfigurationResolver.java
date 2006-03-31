@@ -33,7 +33,6 @@ import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.ImportType;
-import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 
 /**
  * @version $Rev$ $Date$
@@ -58,42 +57,15 @@ public class ConfigurationResolver {
         configurationStore = null;
     }
 
-    public ConfigurationResolver(Artifact configurationId, File baseDir, Collection repositories) {
-        if (configurationId == null)  throw new NullPointerException("configurationId is null");
+    public ConfigurationResolver(ConfigurationData configurationData, Collection repositories, ArtifactResolver artifactResolver) {
+        if (configurationData == null)  throw new NullPointerException("configurationData is null");
         if (repositories == null) repositories = Collections.EMPTY_SET;
 
-        this.configurationId = configurationId;
-        if (!repositories.isEmpty()) {
-            this.artifactResolver = new DefaultArtifactResolver(null, repositories);
-        } else {
-            this.artifactResolver = null;
-        }
-        this.repositories = repositories;
-        this.baseDir = baseDir;
-        configurationStore = null;
-    }
-
-    public ConfigurationResolver(Artifact configurationId, File baseDir, Collection repositories, ArtifactResolver artifactResolver) {
-        if (configurationId == null)  throw new NullPointerException("configurationId is null");
-        if (repositories == null) repositories = Collections.EMPTY_SET;
-
-        this.configurationId = configurationId;
+        configurationId = configurationData.getId();
         this.artifactResolver = artifactResolver;
         this.repositories = repositories;
-        this.baseDir = baseDir;
-        configurationStore = null;
-    }
-
-    public ConfigurationResolver(Artifact configurationId, ConfigurationStore configurationStore, Collection repositories, ArtifactResolver artifactResolver) {
-        if (configurationId == null)  throw new NullPointerException("configurationId is null");
-        if (repositories == null) repositories = Collections.EMPTY_SET;
-        if (configurationStore == null)  throw new NullPointerException("configurationStore is null");
-
-        this.configurationId = configurationId;
-        this.artifactResolver = artifactResolver;
-        this.repositories = repositories;
-        this.configurationStore = configurationStore;
-        baseDir = null;
+        configurationStore = configurationData.getConfigurationStore();
+        baseDir = configurationData.getConfigurationDir();
     }
 
     public File resolve(Artifact artifact) throws MissingDependencyException {

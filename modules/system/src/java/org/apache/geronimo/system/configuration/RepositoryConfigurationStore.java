@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -32,24 +31,24 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.WritableListableRepository;
 import org.apache.geronimo.kernel.repository.FileWriteMonitor;
+import org.apache.geronimo.kernel.repository.WritableListableRepository;
 import org.apache.geronimo.system.repository.IOUtil;
 
 /**
@@ -78,14 +77,14 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         return objectName.toString();
     }
 
-    public GBeanData loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
+    public ConfigurationData loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
         File location = repository.getLocation(configId);
 
         if (!location.exists() && location.canRead()) {
             throw new NoSuchConfigException("Configuration not found: " + configId);
         }
 
-        GBeanData config = new GBeanData();
+        ConfigurationData configurationData;
         try {
             if (location.isDirectory()) {
                 File serFile = new File(location, "META-INF");
@@ -99,8 +98,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
 
                 InputStream in = new FileInputStream(serFile);
                 try {
-                    ObjectInputStream ois = new ObjectInputStream(in);
-                    config.readExternal(ois);
+                    configurationData = ConfigurationUtil.readConfigurationData(in);
                 } finally {
                     IOUtil.close(in);
                 }
@@ -110,8 +108,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
                 try {
                     ZipEntry entry = jarFile.getEntry("META-INF/config.ser");
                     in = jarFile.getInputStream(entry);
-                    ObjectInputStream ois = new ObjectInputStream(in);
-                    config.readExternal(ois);
+                    configurationData = ConfigurationUtil.readConfigurationData(in);
                 } finally {
                     IOUtil.close(in);
                     IOUtil.close(jarFile);
@@ -121,7 +118,13 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
             throw new InvalidConfigException("Unable to load class from config: " + configId, e);
         }
 
-        return config;
+        configurationData.setConfigurationDir(location);
+        configurationData.setConfigurationStore(this);
+        if (kernel != null) {
+            configurationData.setNaming(kernel.getNaming());
+        }
+
+        return configurationData;
     }
 
 
@@ -242,8 +245,8 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
                             state = State.STOPPED;
                         }
 
-                        GBeanData bean = loadConfiguration(configId);
-                        ConfigurationModuleType type = (ConfigurationModuleType) bean.getAttribute("type");
+                        ConfigurationData configurationData = loadConfiguration(configId);
+                        ConfigurationModuleType type = configurationData.getModuleType();
 
                         configs.add(new ConfigurationInfo(objectName, configId, state, type));
                     } catch (Exception e) {
@@ -331,7 +334,6 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
 
     static {
         GBeanInfoBuilder builder = GBeanInfoBuilder.createStatic(RepositoryConfigurationStore.class, "ConfigurationStore");
-        builder.addInterface(ConfigurationStore.class);
         builder.addAttribute("kernel", Kernel.class, false);
         builder.addAttribute("objectName", String.class, false);
         builder.addReference("Repository", WritableListableRepository.class, "Repository");

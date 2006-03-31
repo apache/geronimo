@@ -26,6 +26,7 @@ import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -290,9 +291,9 @@ public class ConfigurationDump {
             return;
         }
         if (!kernel.isLoaded(name)) {
-            GBeanData gbeanData = configurationStore.loadConfiguration(configId);
-            kernel.loadGBean(gbeanData, ConfigurationDump.class.getClassLoader());
-            kernel.startGBean(name);
+            ConfigurationData configurationData = configurationStore.loadConfiguration(configId);
+//            kernel.loadGBean(gbeanData, ConfigurationDump.class.getClassLoader());
+//            kernel.startGBean(name);
         }
         //put the earliest ancestors first, even if we have already started them.
         ancestors.remove(configId);

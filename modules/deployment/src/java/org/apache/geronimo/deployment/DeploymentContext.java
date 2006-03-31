@@ -79,7 +79,6 @@ public class DeploymentContext {
     private final List childConfigurationDatas = new ArrayList();
     private final ConfigurationManager configurationManager;
     private final Configuration configuration;
-    private final Environment environment;
     private final Naming naming;
 
     public DeploymentContext(File baseDir, Environment environment, ConfigurationModuleType moduleType, Naming naming) throws DeploymentException {
@@ -121,7 +120,7 @@ public class DeploymentContext {
     }
 
     public DeploymentContext(File baseDir, Environment environment, ConfigurationModuleType moduleType, Naming naming, Collection repositories, Collection stores) throws DeploymentException {
-        this(baseDir, environment,  moduleType, naming, createConfigurationManager(repositories, stores, naming));
+        this(baseDir, environment,  moduleType, naming, createConfigurationManager(repositories, stores));
     }
 
     public DeploymentContext(File baseDir, Environment environment, ConfigurationModuleType moduleType, Naming naming, ConfigurationManager configurationManager) throws DeploymentException {
@@ -139,25 +138,21 @@ public class DeploymentContext {
         this.baseDir = baseDir;
         this.baseUri = baseDir.toURI();
 
-        this.environment = environment;
         this.naming = naming;
 
         this.configuration = createTempConfiguration(environment, moduleType, baseDir, configurationManager, naming);
     }
 
-    private static ConfigurationManager createConfigurationManager(Collection repositories, Collection stores, Naming naming) {
+    private static ConfigurationManager createConfigurationManager(Collection repositories, Collection stores) {
         ArtifactManager artifactManager = new DefaultArtifactManager();
         ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, repositories);
-        ConfigurationManager configurationManager = new SimpleConfigurationManager(stores, artifactResolver, naming, repositories);
+        ConfigurationManager configurationManager = new SimpleConfigurationManager(stores, artifactResolver, repositories);
         return configurationManager;
     }
 
     private static Configuration createTempConfiguration(Environment environment, ConfigurationModuleType moduleType, File baseDir, ConfigurationManager configurationManager, Naming naming) throws DeploymentException {
         try {
-            // NOTE: the configuration class will resolve all dependencies and set them
-            // back into the environment object, so don't use this environment for the
-            // final configuration data
-            return configurationManager.loadConfiguration(new ConfigurationData(moduleType, null, null, null, new Environment(environment), baseDir, naming));
+            return configurationManager.loadConfiguration(new ConfigurationData(moduleType, null, null, null, environment, baseDir, naming));
         } catch (Exception e) {
             throw new DeploymentException("Unable to create configuration for deployment", e);
         }
@@ -461,14 +456,11 @@ public class DeploymentContext {
     }
 
     public ConfigurationData getConfigurationData() {
-        //
-        // DO NOT use the environment in the configuration, it is modifed by the configuration
-        //
         ConfigurationData configurationData = new ConfigurationData(configuration.getModuleType(),
                 new LinkedHashSet(configuration.getClassPath()),
                 new ArrayList(configuration.getGBeans().values()),
                 childConfigurationDatas,
-                environment,
+                configuration.getEnvironment(),
                 baseDir,
                 naming);
         return configurationData;

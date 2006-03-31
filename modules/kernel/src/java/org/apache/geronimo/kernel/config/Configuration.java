@@ -17,13 +17,8 @@
 
 package org.apache.geronimo.kernel.config;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -52,7 +47,6 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.ObjectInputStreamExt;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Dependency;
@@ -133,9 +127,8 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     private final Environment environment;
 
     /**
-     * Identifies the type of configuration (WAR, RAR et cetera)
+     * Used to resolve dependecies and paths
      */
-    private final ConfigurationModuleType moduleType;
     private final ConfigurationResolver configurationResolver;
 
     /**
@@ -178,13 +171,14 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      */
     private final Naming naming;
 
+    private ConfigurationData configurationData;
+
     /**
      * Only used to allow declaration as a reference.
      */
     public Configuration() {
         id = null;
         abstractName = null;
-        moduleType = null;
         environment = null;
         classPath = null;
         configurationResolver = null;
@@ -195,30 +189,21 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     /**
      * Creates a configuration.
      * @param parents parents of this configuation (not ordered)
-     * @param moduleType   the module type identifier
-     * @param environment
-     * @param classPath    a List<URI> of locations that define the codebase for this Configuration
-     * @param gbeanState   a byte array contain the Java Serialized form of the GBeans in this Configuration
+     * @param configurationData the module type, environment and classpath of the configuration
+     * @param configurationResolver used to resolve dependecies and paths
      */
     public Configuration(Collection parents,
-            ConfigurationModuleType moduleType,
-            Environment environment,
-            List classPath,
-            byte[] gbeanState,
-            ConfigurationResolver configurationResolver,
-            Naming naming) throws MissingDependencyException, MalformedURLException, NoSuchConfigException, InvalidConfigException {
+            ConfigurationData configurationData,
+            ConfigurationResolver configurationResolver) throws MissingDependencyException, MalformedURLException, NoSuchConfigException, InvalidConfigException {
         if (parents == null) parents = Collections.EMPTY_SET;
-        if (moduleType == null) throw new NullPointerException("moduleType is null");
-        if (environment == null) throw new NullPointerException("environment is null");
-        if (classPath == null) classPath = Collections.EMPTY_LIST;
+        if (configurationData == null) throw new NullPointerException("configurationData is null");
         if (configurationResolver == null) throw new NullPointerException("configurationResolver is null");
-        if (naming == null) throw new NullPointerException("naming is null");
 
-        this.environment = environment;
-        this.moduleType = moduleType;
+        this.configurationData = configurationData;
+        this.environment = this.configurationData.getEnvironment();
         this.configurationResolver = configurationResolver;
-        this.classPath = new LinkedHashSet(classPath);
-        this.naming = naming;
+        this.classPath = new LinkedHashSet(configurationData.getClassPath());
+        this.naming = configurationData.getNaming();
 
         this.id = environment.getConfigId();
         abstractName = getConfigurationAbstractName(id);
@@ -227,7 +212,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         // Transitively resolve all the dependencies in the environment
         //
         List transtiveDependencies = configurationResolver.resolveTransitiveDependencies(parents, environment.getDependencies());
-        environment.setDependencies(transtiveDependencies);
 
         //
         // Process transtive dependencies splitting it into classParents, serviceParents and artifactDependencies
@@ -268,35 +252,16 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         addDepthFirstServiceParents(this, allServiceParents);
 
         //
-        // Deserialize the GBeans
+        // Deserialize the GBeans in the configurationData
         //
-        if (gbeanState != null && gbeanState.length > 0) {
-            // Set the thread context classloader so deserializing classes can grab the cl from the thread
-            ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
-            try {
-                Thread.currentThread().setContextClassLoader(configurationClassLoader);
-
-                ObjectInputStream ois = new ObjectInputStreamExt(new ByteArrayInputStream(gbeanState), configurationClassLoader);
-                try {
-                    while (true) {
-                        GBeanData gbeanData = new GBeanData();
-                        gbeanData.readExternal(ois);
-                        gbeans.put(gbeanData.getAbstractName(), gbeanData);
-                    }
-                } catch (EOFException e) {
-                    // ok
-                } finally {
-                    ois.close();
-                }
-            } catch (Exception e) {
-                throw new InvalidConfigException("Unable to deserialize GBeanState", e);
-            } finally {
-                Thread.currentThread().setContextClassLoader(oldCl);
-            }
+        List gbeans = configurationData.getGBeans(configurationClassLoader);
+        for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
+            GBeanData gbeanData = (GBeanData) iterator.next();
+            this.gbeans.put(gbeanData.getAbstractName(), gbeanData);
         }
     }
 
-    private MultiParentClassLoader createConfigurationClasssLoader(Collection parents, Environment environment, List classPath) throws MalformedURLException, MissingDependencyException, NoSuchConfigException {
+    private MultiParentClassLoader createConfigurationClasssLoader(Collection parents, Environment environment, LinkedHashSet classPath) throws MalformedURLException, MissingDependencyException, NoSuchConfigException {
         // create the URL list
         URL[] urls = buildClassPath(classPath);
 
@@ -347,7 +312,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         }
     }
 
-    private URL[] buildClassPath(List classPath) throws MalformedURLException, MissingDependencyException, NoSuchConfigException {
+    private URL[] buildClassPath(LinkedHashSet classPath) throws MalformedURLException, MissingDependencyException, NoSuchConfigException {
         List urls = new ArrayList();
         for (Iterator i = dependencies.iterator(); i.hasNext();) {
             Artifact artifact = (Artifact) i.next();
@@ -452,7 +417,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      * @return Type of the configuration.
      */
     public ConfigurationModuleType getModuleType() {
-        return moduleType;
+        return configurationData.getModuleType();
     }
 
     /**
@@ -659,70 +624,20 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         }
     }
 
-    /**
-     * Return a byte array containing the persisted form of the supplied GBeans
-     *
-     * @param gbeans the gbean data to persist
-     * @return the persisted GBeans
-     * @throws InvalidConfigException if there is a problem serializing the state
-     */
-    public static byte[] storeGBeans(GBeanData[] gbeans) throws InvalidConfigException {
-        return storeGBeans(Arrays.asList(gbeans));
-    }
-
-    /**
-     * Return a byte array containing the persisted form of the supplied GBeans
-     *
-     * @param gbeans the gbean data to persist
-     * @return the persisted GBeans
-     * @throws InvalidConfigException if there is a problem serializing the state
-     */
-    public static byte[] storeGBeans(List gbeans) throws InvalidConfigException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos;
-        try {
-            oos = new ObjectOutputStream(baos);
-        } catch (IOException e) {
-            throw (AssertionError) new AssertionError("Unable to initialize ObjectOutputStream").initCause(e);
-        }
-        for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
-            GBeanData gbeanData = (GBeanData) iterator.next();
-            try {
-                gbeanData.writeExternal(oos);
-            } catch (Exception e) {
-                throw new InvalidConfigException("Unable to serialize GBeanData for " + gbeanData.getAbstractName(), e);
-            }
-        }
-        try {
-            oos.flush();
-        } catch (IOException e) {
-            throw (AssertionError) new AssertionError("Unable to flush ObjectOutputStream").initCause(e);
-        }
-        return baos.toByteArray();
-    }
-
     public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(Configuration.class);//does not use jsr-77 naming
         infoFactory.addReference("Parents", Configuration.class);
-        infoFactory.addAttribute("moduleType", ConfigurationModuleType.class, true, false);
-        infoFactory.addAttribute("environment", Environment.class, true, false);
-        infoFactory.addAttribute("classPath", List.class, true, false);
-        infoFactory.addAttribute("gBeanState", byte[].class, true, false);
+        infoFactory.addAttribute("configurationData", ConfigurationData.class, true, false);
         infoFactory.addAttribute("configurationResolver", ConfigurationResolver.class, true);
-        infoFactory.addAttribute("naming", Naming.class, true);
 
         infoFactory.addInterface(Configuration.class);
 
         infoFactory.setConstructor(new String[]{
                 "Parents",
-                "moduleType",
-                "environment",
-                "classPath",
-                "gBeanState",
-                "configurationResolver",
-                "naming",
+                "configurationData",
+                "configurationResolver"
         });
 
         GBEAN_INFO = infoFactory.getBeanInfo();

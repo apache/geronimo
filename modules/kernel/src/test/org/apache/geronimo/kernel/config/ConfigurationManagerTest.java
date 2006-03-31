@@ -93,23 +93,23 @@ public class ConfigurationManagerTest extends TestCase {
 
         Environment e1 = new Environment();
         e1.setConfigId(artifact1);
-        ConfigurationData configurationData1 = new ConfigurationData(ConfigurationModuleType.CAR, null, null, null, e1, new File("."), kernel.getNaming());
-        GBeanData gbeanData1 = ConfigurationUtil.toConfigurationGBeanData(configurationData1, configStore, Collections.singleton(testRepository), artifactResolver);
-        configurations.put(artifact1, gbeanData1);
+        ConfigurationData configurationData1 = new ConfigurationData(e1, kernel.getNaming());
+        configurationData1.setConfigurationStore(configStore);
+        configurations.put(artifact1, configurationData1);
 
         Environment e2 = new Environment();
         e2.setConfigId(artifact2);
         e2.addDependency(new Artifact("test", "1", (Version) null, "bar"), ImportType.ALL);
-        ConfigurationData configurationData2 = new ConfigurationData(ConfigurationModuleType.CAR, null, null, null, e2, new File("."), kernel.getNaming());
-        GBeanData gbeanData2 = ConfigurationUtil.toConfigurationGBeanData(configurationData2, configStore, Collections.singleton(testRepository), artifactResolver);
-        configurations.put(artifact2, gbeanData2);
+        ConfigurationData configurationData2 = new ConfigurationData(e2, kernel.getNaming());
+        configurationData2.setConfigurationStore(configStore);
+        configurations.put(artifact2, configurationData2);
 
         Environment e3 = new Environment();
         e3.setConfigId(artifact3);
         e3.addDependency(new Artifact("test", "2", (Version) null, "bar"), ImportType.ALL);
-        ConfigurationData configurationData3 = new ConfigurationData(ConfigurationModuleType.CAR, null, null, null, e3, new File("."), kernel.getNaming());
-        GBeanData gbeanData3 = ConfigurationUtil.toConfigurationGBeanData(configurationData3, configStore, Collections.singleton(testRepository), artifactResolver);
-        configurations.put(artifact3, gbeanData3);
+        ConfigurationData configurationData3 = new ConfigurationData(e3, kernel.getNaming());
+        configurationData3.setConfigurationStore(configStore);
+        configurations.put(artifact3, configurationData3);
 
 
         configurationManager = new KernelConfigurationManager(kernel,
@@ -131,8 +131,8 @@ public class ConfigurationManagerTest extends TestCase {
             throw new UnsupportedOperationException();
         }
 
-        public GBeanData loadConfiguration(Artifact configId) throws IOException, InvalidConfigException, NoSuchConfigException {
-            return (GBeanData) configurations.get(configId);
+        public ConfigurationData loadConfiguration(Artifact configId) throws IOException, InvalidConfigException, NoSuchConfigException {
+            return (ConfigurationData) configurations.get(configId);
         }
 
         public boolean containsConfiguration(Artifact configId) {

@@ -20,18 +20,17 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.net.URI;
 import java.net.URL;
-import java.util.List;
 import java.util.Collections;
+import java.util.List;
 import java.util.jar.JarOutputStream;
 
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
 import org.apache.geronimo.deployment.xbeans.ConfigurationType;
-import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.repository.Maven1Repository;
 
@@ -76,7 +75,7 @@ public class PluginBootstrap {
             public void uninstall(Artifact configID) {
             }
 
-            public GBeanData loadConfiguration(Artifact configId) {
+            public ConfigurationData loadConfiguration(Artifact configId) {
                 return null;
             }
 

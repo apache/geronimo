@@ -222,20 +222,24 @@ public class GBeanData implements Externalizable {
             // read the attributes
             int attributeCount = in.readInt();
             for (int i = 0; i < attributeCount; i++) {
-                setAttribute((String) in.readObject(), in.readObject());
+                String attributeName = (String) in.readObject();
+                Object attributeValue = in.readObject();
+                setAttribute(attributeName, attributeValue);
             }
 
             // read the references
             int endpointCount = in.readInt();
             for (int i = 0; i < endpointCount; i++) {
-                setReferencePatterns((String) in.readObject(), (ReferencePatterns) in.readObject());
+                String referenceName = (String) in.readObject();
+                ReferencePatterns referencePattern = (ReferencePatterns) in.readObject();
+                setReferencePatterns(referenceName, referencePattern);
             }
 
             //read the dependencies
             int dependencyCount = in.readInt();
             for (int i = 0; i < dependencyCount; i++) {
-                ReferencePatterns referencePatterns = (ReferencePatterns) in.readObject();
-                dependencies.add(referencePatterns);
+                ReferencePatterns depdendencyPattern = (ReferencePatterns) in.readObject();
+                dependencies.add(depdendencyPattern);
             }
         } catch (IOException e) {
             throw (IOException) new IOException("Unable to deserialize GBeanData " + abstractName).initCause(e);

@@ -22,10 +22,10 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Collections;
 import java.util.jar.JarFile;
 import javax.xml.namespace.QName;
 
@@ -38,19 +38,16 @@ import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.Jsr77Naming;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
-import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.kernel.Jsr77Naming;
 
 /**
  * @version $Rev:386276 $ $Date$
@@ -523,15 +520,10 @@ public class EARConfigBuilderTest extends TestCase {
         public void uninstall(Artifact configID) throws NoSuchConfigException, IOException {
         }
 
-        public GBeanData loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
-            AbstractName configurationName = Configuration.getConfigurationAbstractName(configId);
-            GBeanData configData = new GBeanData(configurationName, Configuration.GBEAN_INFO);
-            Environment environment = new Environment();
-            environment.setConfigId(configId);
-            configData.setAttribute("environment", environment);
-            configData.setAttribute("moduleType", ConfigurationModuleType.CAR);
-
-            return configData;
+        public ConfigurationData loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
+            ConfigurationData configurationData = new ConfigurationData(configId, naming);
+            configurationData.setConfigurationStore(this);
+            return configurationData;
         }
 
         public boolean containsConfiguration(Artifact configID) {

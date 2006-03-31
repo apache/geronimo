@@ -29,10 +29,9 @@ import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationResolver;
+import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.naming.java.ComponentContextBuilder;
@@ -111,12 +110,8 @@ public class MessageDestinationTest extends TestCase {
         super.setUp();
         Artifact id = new Artifact("test", "test", "", "car");
         configuration = new Configuration(Collections.EMPTY_LIST,
-                ConfigurationModuleType.RAR,
-                new Environment(id),
-                Collections.EMPTY_LIST,
-                new byte[]{},
-                new ConfigurationResolver(id, null),
-                naming);
+                new ConfigurationData(id, naming),
+                new ConfigurationResolver(id, null));
         baseName = naming.createRootName(configuration.getId(), "testRoot", NameFactory.RESOURCE_ADAPTER_MODULE);
     }
 

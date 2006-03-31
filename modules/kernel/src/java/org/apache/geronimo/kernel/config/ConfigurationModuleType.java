@@ -18,6 +18,8 @@
 package org.apache.geronimo.kernel.config;
 
 import java.io.Serializable;
+import java.util.Map;
+import java.util.LinkedHashMap;
 
 /**
  * Configuration types.
@@ -25,10 +27,9 @@ import java.io.Serializable;
  * @version $Rev$ $Date$
  */
 public class ConfigurationModuleType implements Serializable {
-    /**
-     * 
-     */
     private static final long serialVersionUID = -4121586344416418391L;
+
+    private static final Map typesByName = new LinkedHashMap();
 
     public static final ConfigurationModuleType EAR = new ConfigurationModuleType("EAR", 0);
 
@@ -47,7 +48,7 @@ public class ConfigurationModuleType implements Serializable {
     private static final ConfigurationModuleType[] fromInt = {EAR, EJB, CAR, RAR, WAR, SERVICE, SPR};
 
     private final String name;
-    
+
     private final int value;
 
     public static ConfigurationModuleType getFromValue(int index) {
@@ -61,6 +62,11 @@ public class ConfigurationModuleType implements Serializable {
         return getFromValue(index.intValue());
     }
 
+    public static ConfigurationModuleType getByName(String name) {
+        return (ConfigurationModuleType) typesByName.get(name);
+    }
+
+
     /**
      * This constructor is intentionally public: this class is not a type-safe
      * enumeration.
@@ -68,27 +74,28 @@ public class ConfigurationModuleType implements Serializable {
     public ConfigurationModuleType(String name, int value) {
         this.name = name;
         this.value = value;
+        typesByName.put(name, this);
     }
 
     public String getName() {
         return name;
     }
-    
+
     /**
      * Gets the identifier of this type. For a configuration associated to
      * a J2EE ModuleType, this value MUST be equal to ModuleType.getValue().
      * 
-     * @return
+     * @return the index
      */
     public int getValue() {
         return value;
     }
-    
+
     public String toString() {
         return name;
     }
 
-    private Object readResolve() {
+    protected Object readResolve() {
         return fromInt[value];
     }
 

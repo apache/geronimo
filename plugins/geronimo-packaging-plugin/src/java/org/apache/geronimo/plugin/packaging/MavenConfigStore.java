@@ -23,11 +23,11 @@ import java.util.List;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
 
@@ -39,8 +39,8 @@ import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
  * @version $Rev$ $Date$
  */
 public class MavenConfigStore extends RepositoryConfigurationStore {
-    public MavenConfigStore(String objectName, WritableListableRepository repository) {
-        super(null, objectName, repository);
+    public MavenConfigStore(Kernel kernel, String objectName, WritableListableRepository repository) {
+        super(kernel, objectName, repository);
     }
 
     public File createNewConfigurationDir(Artifact configId) {
@@ -87,11 +87,10 @@ public class MavenConfigStore extends RepositoryConfigurationStore {
 
     static {
         GBeanInfoBuilder builder = GBeanInfoBuilder.createStatic(MavenConfigStore.class, "ConfigurationStore");
-        builder.addInterface(ConfigurationStore.class);
-        builder.addInterface(ConfigurationStore.class);
+        builder.addAttribute("kernel", Kernel.class, false);
         builder.addAttribute("objectName", String.class, false);
         builder.addReference("Repository", WritableListableRepository.class, "Repository");
-        builder.setConstructor(new String[]{"objectName", "Repository"});
+        builder.setConstructor(new String[]{"kernel", "objectName", "Repository"});
         GBEAN_INFO = builder.getBeanInfo();
     }
 }

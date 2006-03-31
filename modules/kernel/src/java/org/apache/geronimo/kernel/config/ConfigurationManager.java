@@ -79,8 +79,6 @@ public interface ConfigurationManager {
 
     Configuration loadConfiguration(ConfigurationData configurationData) throws NoSuchConfigException, IOException, InvalidConfigException;
 
-    Configuration loadConfiguration(ConfigurationData configurationData, ConfigurationStore configurationStore) throws NoSuchConfigException, IOException, InvalidConfigException;
-
     /**
      * Unloads the gbeans of the specified configuration, stops the configuration gbean, and unloads the
      * configuration gbean from the kernel.  Stop should always be called first.

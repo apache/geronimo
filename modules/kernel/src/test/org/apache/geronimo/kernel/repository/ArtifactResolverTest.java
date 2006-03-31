@@ -16,34 +16,29 @@
  */
 package org.apache.geronimo.kernel.repository;
 
-import junit.framework.TestCase;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.config.ConfigurationResolver;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.Jsr77Naming;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-
 import java.io.File;
 import java.io.IOException;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.List;
-import java.net.URL;
-import java.net.MalformedURLException;
-import java.net.URI;
+
+import junit.framework.TestCase;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.kernel.Jsr77Naming;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationResolver;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
 
 /**
  * @version $Rev$ $Date$
@@ -103,21 +98,20 @@ public class ArtifactResolverTest extends TestCase {
         ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, mockRepository);
 
         // create parent which uses version1 explicitly
-        ConfigurationResolver configurationResolver = new ConfigurationResolver(loader,
-                new MockConfigStore(new File("foo").toURL()),
-                Collections.singleton(mockRepository),
-                artifactResolver);
-
         Environment environment = new Environment();
         environment.setConfigId(loader);
         environment.addDependency(version1, ImportType.CLASSES);
+
+        ConfigurationData parentConfigurationData = new ConfigurationData(environment, new Jsr77Naming());
+        parentConfigurationData.setConfigurationStore(new MockConfigStore(new File("foo").toURL()));
+
+        ConfigurationResolver configurationResolver = new ConfigurationResolver(parentConfigurationData,
+                Collections.singleton(mockRepository),
+                artifactResolver);
+
         Configuration parent = new Configuration(null,
-                ConfigurationModuleType.SERVICE,
-                environment,
-                null,
-                null,
-                configurationResolver,
-                new Jsr77Naming());
+                parentConfigurationData,
+                configurationResolver);
 
         LinkedHashSet parents = new LinkedHashSet();
         parents.add(parent);
@@ -170,15 +164,10 @@ public class ArtifactResolverTest extends TestCase {
         public void uninstall(Artifact configID) throws NoSuchConfigException, IOException {
         }
 
-        public GBeanData loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
-            AbstractName configurationName = Configuration.getConfigurationAbstractName(configId);
-            GBeanData configData = new GBeanData(configurationName, Configuration.GBEAN_INFO);
-            Environment environment = new Environment();
-            environment.setConfigId(configId);
-            configData.setAttribute("environment", environment);
-            configData.setAttribute("gBeanState", NO_OBJECTS_OS);
-            configData.setAttribute("configurationStore", this);
-            return configData;
+        public ConfigurationData loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
+            ConfigurationData configurationData = new ConfigurationData(configId, new Jsr77Naming());
+            configurationData.setConfigurationStore(this);
+            return configurationData;
         }
 
         public boolean containsConfiguration(Artifact configID) {
@@ -203,21 +192,10 @@ public class ArtifactResolverTest extends TestCase {
 
         public final static GBeanInfo GBEAN_INFO;
 
-        private static final byte[] NO_OBJECTS_OS;
-
         static {
             GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(MockConfigStore.class, "ConfigurationStore");
             infoBuilder.addInterface(ConfigurationStore.class);
             GBEAN_INFO = infoBuilder.getBeanInfo();
-
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            try {
-                ObjectOutputStream oos = new ObjectOutputStream(baos);
-                oos.flush();
-                NO_OBJECTS_OS = baos.toByteArray();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
         }
     }
 }
