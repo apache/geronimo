@@ -24,24 +24,23 @@ import javax.mail.Session;
 import org.apache.geronimo.javamail.store.pop3.POP3Connection;
 
 /**
- * light-weight Message object
- * will be created in response to FetchProfile.CONTENT_INFO
- * other details will be filled on demand
+ * light-weight Message object will be created in response to
+ * FetchProfile.CONTENT_INFO other details will be filled on demand *
  * 
- * * @version $Rev$ $Date$ 
- *  
+ * @version $Rev$ $Date$
+ * 
  */
 
 public class POP3MessageWithContentInfo extends POP3Message {
 
-	public POP3MessageWithContentInfo(Folder folder, int msgnum,
-			Session session,POP3Connection pop3Con) throws MessagingException{
-		super(folder, msgnum, null, pop3Con);
-		this.getContentType();
-		this.getDisposition();
-		this.getDescription();
-		this.getSize();
-		this.getLineCount();
-	}
+    public POP3MessageWithContentInfo(Folder folder, int msgnum, Session session, POP3Connection pop3Con)
+            throws MessagingException {
+        super(folder, msgnum, null, pop3Con);
+        this.getContentType();
+        this.getDisposition();
+        this.getDescription();
+        this.getSize();
+        this.getLineCount();
+    }
 
 }

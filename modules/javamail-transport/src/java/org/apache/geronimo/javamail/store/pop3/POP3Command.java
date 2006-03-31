@@ -19,22 +19,22 @@ package org.apache.geronimo.javamail.store.pop3;
 
 /**
  * An abstraction for POP3Commands
+ * 
  * @see org.apache.geronimo.javamail.store.pop3.POP3CommandFactory
  * 
  * @version $Rev$ $Date$
  */
 public interface POP3Command {
-	
-	
-	/**
-	 * This method will get the POP3 command in string format
-	 * according o rfc1939
-	 */
-	public String getCommand();
-	
-	/**
-	 * Indicates wether this command expects a multiline response or not
-	 * 
-	 */
-	public boolean isMultiLineResponse();
+
+    /**
+     * This method will get the POP3 command in string format according o
+     * rfc1939
+     */
+    public String getCommand();
+
+    /**
+     * Indicates wether this command expects a multiline response or not
+     * 
+     */
+    public boolean isMultiLineResponse();
 }

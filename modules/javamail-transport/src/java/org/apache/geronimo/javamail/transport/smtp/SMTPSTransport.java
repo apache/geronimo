@@ -17,11 +17,8 @@
 
 package org.apache.geronimo.javamail.transport.smtp;
 
-import javax.mail.MessagingException;
 import javax.mail.Session;
-import javax.mail.Transport;
 import javax.mail.URLName;
-
 
 public class SMTPSTransport extends SMTPTransport {
     /**

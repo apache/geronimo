@@ -16,7 +16,6 @@
  */
 package org.apache.geronimo.javamail.transport.nntp;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -28,13 +27,18 @@ import java.util.List;
 public class StringListInputStream extends InputStream {
     // the list of lines we're reading from
     protected List lines;
+
     // the next line to process.
     protected int nextLine = 0;
+
     // current buffer of bytes to read from
     byte[] buffer;
+
     // current offset within the buffer;
     int offset;
-    // indicator that we've left off at a split between the CR and LF of a line break.
+
+    // indicator that we've left off at a split between the CR and LF of a line
+    // break.
     boolean atLineBreak = false;
 
     public StringListInputStream(List lines) throws IOException {
@@ -51,20 +55,21 @@ public class StringListInputStream extends InputStream {
     }
 
     /**
-     * Just override the single byte read version, which handles all
-     * of the lineend markers correctly.
-     *
+     * Just override the single byte read version, which handles all of the
+     * lineend markers correctly.
+     * 
      * @return The next byte from the stream or -1 if we've hit the EOF.
      */
     public int read() throws IOException {
         // leave off at the split between a line?
         if (atLineBreak) {
-            // flip this off and return the second line end character.  Also step to the next line.
+            // flip this off and return the second line end character. Also step
+            // to the next line.
             atLineBreak = false;
             nextBuffer();
             return '\n';
         }
-        // gone past the end?  Got an EOF
+        // gone past the end? Got an EOF
         if (buffer == null) {
             return -1;
         }
@@ -82,17 +87,16 @@ public class StringListInputStream extends InputStream {
 
     /**
      * Step to the next buffer of string data.
-     *
+     * 
      * @exception IOException
      */
     protected void nextBuffer() throws IOException {
         // give an eof check.
         if (nextLine >= lines.size()) {
             buffer = null;
-        }
-        else {
+        } else {
             try {
-                String next = (String)lines.get(nextLine++);
+                String next = (String) lines.get(nextLine++);
                 buffer = next.getBytes("US-ASCII");
 
             } catch (UnsupportedEncodingException e) {
@@ -103,4 +107,3 @@ public class StringListInputStream extends InputStream {
         offset = 0;
     }
 }
-

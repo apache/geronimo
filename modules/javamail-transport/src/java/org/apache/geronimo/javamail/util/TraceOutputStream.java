@@ -29,56 +29,62 @@ import org.apache.geronimo.mail.util.QuotedPrintableEncoderStream;
 public class TraceOutputStream extends FilterOutputStream {
     // the current debug setting
     protected boolean debug = false;
+
     // the target trace output stream.
     protected OutputStream traceStream;
 
     /**
      * Construct a debug trace stream.
-     *
-     * @param out    The target out put stream.
+     * 
+     * @param out
+     *            The target out put stream.
      * @param traceStream
-     *               The side trace stream to which trace data gets written.
-     * @param encode Indicates whether we wish the Trace data to be Q-P encoded.
+     *            The side trace stream to which trace data gets written.
+     * @param encode
+     *            Indicates whether we wish the Trace data to be Q-P encoded.
      */
     public TraceOutputStream(OutputStream out, OutputStream traceStream, boolean debug, boolean encode) {
         super(out);
         this.debug = debug;
         if (encode) {
             this.traceStream = new QuotedPrintableEncoderStream(traceStream);
-        }
-        else {
+        } else {
             this.traceStream = traceStream;
         }
     }
 
     /**
      * Set the current setting of the debug trace stream debug flag.
-     *
-     * @param d      The new debug flag settings.
+     * 
+     * @param d
+     *            The new debug flag settings.
      */
     public void setDebug(boolean d) {
         debug = d;
     }
 
     /**
-     * Writes <code>len</code> bytes from the specified
-     * <code>byte</code> array starting at offset <code>off</code> to
-     * this output stream.
+     * Writes <code>len</code> bytes from the specified <code>byte</code>
+     * array starting at offset <code>off</code> to this output stream.
      * <p>
      * The <code>write</code> method of <code>FilterOutputStream</code>
      * calls the <code>write</code> method of one argument on each
      * <code>byte</code> to output.
      * <p>
-     * Note that this method does not call the <code>write</code> method
-     * of its underlying input stream with the same arguments. Subclasses
-     * of <code>FilterOutputStream</code> should provide a more efficient
+     * Note that this method does not call the <code>write</code> method of
+     * its underlying input stream with the same arguments. Subclasses of
+     * <code>FilterOutputStream</code> should provide a more efficient
      * implementation of this method.
-     *
-     * @param      b     the data.
-     * @param      off   the start offset in the data.
-     * @param      len   the number of bytes to write.
-     * @exception  IOException  if an I/O error occurs.
-     * @see        java.io.FilterOutputStream#write(int)
+     * 
+     * @param b
+     *            the data.
+     * @param off
+     *            the start offset in the data.
+     * @param len
+     *            the number of bytes to write.
+     * @exception IOException
+     *                if an I/O error occurs.
+     * @see java.io.FilterOutputStream#write(int)
      */
     public void write(byte b[], int off, int len) throws IOException {
         if (debug) {
@@ -97,9 +103,11 @@ public class TraceOutputStream extends FilterOutputStream {
      * that is, it performs <tt>out.write(b)</tt>.
      * <p>
      * Implements the abstract <tt>write</tt> method of <tt>OutputStream</tt>.
-     *
-     * @param      b   the <code>byte</code>.
-     * @exception  IOException  if an I/O error occurs.
+     * 
+     * @param b
+     *            the <code>byte</code>.
+     * @exception IOException
+     *                if an I/O error occurs.
      */
     public void write(int b) throws IOException {
         if (debug) {
@@ -108,4 +116,3 @@ public class TraceOutputStream extends FilterOutputStream {
         super.write(b);
     }
 }
-

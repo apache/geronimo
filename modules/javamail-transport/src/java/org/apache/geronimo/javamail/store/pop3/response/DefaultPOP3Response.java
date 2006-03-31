@@ -23,35 +23,36 @@ import org.apache.geronimo.javamail.store.pop3.POP3Constants;
 import org.apache.geronimo.javamail.store.pop3.POP3Response;
 
 /**
- * This class provides the basic implementation for the
- * POP3Response.
+ * This class provides the basic implementation for the POP3Response.
  * 
- * @see  org.apache.geronimo.javamail.store.pop3.POP3Response
- * @version $Rev$ $Date$ 
+ * @see org.apache.geronimo.javamail.store.pop3.POP3Response
+ * @version $Rev$ $Date$
  */
 
-public class DefaultPOP3Response implements POP3Response,POP3Constants{
-	
-	private int status = ERR;
-	private String firstLine;
-	private InputStream data;
-	
-	DefaultPOP3Response(int status, String firstLine, InputStream data){
-		this.status = status;
-		this.firstLine = firstLine; 
-		this.data = data;
-	}
+public class DefaultPOP3Response implements POP3Response, POP3Constants {
 
-	public int getStatus() {
-		return status;
-	}
+    private int status = ERR;
 
-	public InputStream getData() {
-		return data;
-	}
+    private String firstLine;
 
-	public String getFirstLine() {
-		return firstLine;
-	}
-	
+    private InputStream data;
+
+    DefaultPOP3Response(int status, String firstLine, InputStream data) {
+        this.status = status;
+        this.firstLine = firstLine;
+        this.data = data;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public InputStream getData() {
+        return data;
+    }
+
+    public String getFirstLine() {
+        return firstLine;
+    }
+
 }

@@ -21,12 +21,11 @@ import java.io.UnsupportedEncodingException;
 
 import javax.mail.MessagingException;
 
-import org.apache.geronimo.mail.util.Base64;
-
 public class PlainAuthenticator implements ClientAuthenticator {
 
     // the user we're authenticating
     protected String username;
+
     // the user's password (the "shared secret")
     protected String password;
 
@@ -35,9 +34,11 @@ public class PlainAuthenticator implements ClientAuthenticator {
 
     /**
      * Main constructor.
-     *
-     * @param username The login user name.
-     * @param password The login password.
+     * 
+     * @param username
+     *            The login user name.
+     * @param password
+     *            The login password.
      */
     public PlainAuthenticator(String username, String password) {
         this.username = username;
@@ -45,9 +46,9 @@ public class PlainAuthenticator implements ClientAuthenticator {
     }
 
     /**
-     * Respond to the hasInitialResponse query.  This mechanism
-     * does have an initial response, which is the entire challenge sequence.
-     *
+     * Respond to the hasInitialResponse query. This mechanism does have an
+     * initial response, which is the entire challenge sequence.
+     * 
      * @return Always returns true.
      */
     public boolean hasInitialResponse() {
@@ -56,7 +57,7 @@ public class PlainAuthenticator implements ClientAuthenticator {
 
     /**
      * Indicate whether the challenge/response process is complete.
-     *
+     * 
      * @return True if the last challenge has been processed, false otherwise.
      */
     public boolean isComplete() {
@@ -65,30 +66,32 @@ public class PlainAuthenticator implements ClientAuthenticator {
 
     /**
      * Retrieve the authenticator mechanism name.
-     *
+     * 
      * @return Always returns the string "PLAIN"
      */
     public String getMechanismName() {
         return "PLAIN";
     }
 
-
     /**
-     * Evaluate a PLAIN login challenge, returning the a result
-     * string that should satisfy the clallenge.
-     *
-     * @param challenge The decoded challenge data, as byte array.
-     *
+     * Evaluate a PLAIN login challenge, returning the a result string that
+     * should satisfy the clallenge.
+     * 
+     * @param challenge
+     *            The decoded challenge data, as byte array.
+     * 
      * @return A formatted challege response, as an array of bytes.
      * @exception MessagingException
      */
     public byte[] evaluateChallenge(byte[] challenge) throws MessagingException {
         try {
-            // get the username and password in an UTF-8 encoding to create the token
+            // get the username and password in an UTF-8 encoding to create the
+            // token
             byte[] userBytes = username.getBytes("UTF-8");
             byte[] passBytes = password.getBytes("UTF-8");
 
-            // our token has two copies of the username, one copy of the password, and nulls
+            // our token has two copies of the username, one copy of the
+            // password, and nulls
             // between
             byte[] tokenBytes = new byte[(userBytes.length * 2) + passBytes.length + 2];
 
@@ -105,5 +108,3 @@ public class PlainAuthenticator implements ClientAuthenticator {
         }
     }
 }
-
-

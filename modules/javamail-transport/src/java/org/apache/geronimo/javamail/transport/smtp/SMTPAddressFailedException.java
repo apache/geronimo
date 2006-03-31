@@ -18,25 +18,29 @@
 package org.apache.geronimo.javamail.transport.smtp;
 
 import javax.mail.MessagingException;
-import javax.mail.Address;
 import javax.mail.internet.InternetAddress;
-
 
 public class SMTPAddressFailedException extends MessagingException {
     // the failing address
     InternetAddress addr;
+
     // the failing command
     protected String cmd;
+
     // the error code for the failure
     protected int rc;
 
     /**
      * Constructor for an SMTPAddressFailingException.
-     *
-     * @param addr   The failing address.
-     * @param cmd    The failing command string.
-     * @param rc     The error code for the command.
-     * @param err    An error message for the exception.
+     * 
+     * @param addr
+     *            The failing address.
+     * @param cmd
+     *            The failing command string.
+     * @param rc
+     *            The error code for the command.
+     * @param err
+     *            An error message for the exception.
      */
     SMTPAddressFailedException(InternetAddress addr, java.lang.String cmd, int rc, java.lang.String err) {
         super(err);
@@ -47,7 +51,7 @@ public class SMTPAddressFailedException extends MessagingException {
 
     /**
      * Get the failing command string for the exception.
-     *
+     * 
      * @return The string value of the failing command.
      */
     public String getCommand() {
@@ -56,7 +60,7 @@ public class SMTPAddressFailedException extends MessagingException {
 
     /**
      * The failing command return code.
-     *
+     * 
      * @return The failure return code.
      */
     public int getReturnCode() {
@@ -65,12 +69,10 @@ public class SMTPAddressFailedException extends MessagingException {
 
     /**
      * Retrieve the internet address associated with this exception.
-     *
+     * 
      * @return The provided InternetAddress object.
      */
     public InternetAddress getAddress() {
         return addr;
     }
 }
-
-

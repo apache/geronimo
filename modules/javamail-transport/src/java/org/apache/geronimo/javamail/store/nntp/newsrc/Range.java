@@ -19,28 +19,23 @@ package org.apache.geronimo.javamail.store.nntp.newsrc;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
-
-
-
 
 /**
- * Represent a single Range in a newsrc file.  A Range can be
- * either a single number (start == end) or a span of article
- * numbers.
+ * Represent a single Range in a newsrc file. A Range can be either a single
+ * number (start == end) or a span of article numbers.
  */
 public class Range {
     // the low end of the range
     int start;
+
     // the high end of the range (start and end are inclusive);
     int end;
 
     /**
      * Construct a Range item for a single digit range.
-     *
-     * @param spot   The location of the singleton.
+     * 
+     * @param spot
+     *            The location of the singleton.
      */
     public Range(int spot) {
         this(spot, spot);
@@ -48,9 +43,12 @@ public class Range {
 
     /**
      * Construct a Range item.
-     *
-     * @param start  The starting point of the Range.
-     * @param end    The Range end point (which may be equal to the starting point).
+     * 
+     * @param start
+     *            The starting point of the Range.
+     * @param end
+     *            The Range end point (which may be equal to the starting
+     *            point).
      */
     public Range(int start, int end) {
         this.start = start;
@@ -58,16 +56,18 @@ public class Range {
     }
 
     /**
-     * Parse a section of a .newsrc range string into a single
-     * Range item.  The range is either a single number, or a pair of
-     * numbers separated by a hyphen.
-     *
-     * @param range  The range string.
-     *
+     * Parse a section of a .newsrc range string into a single Range item. The
+     * range is either a single number, or a pair of numbers separated by a
+     * hyphen.
+     * 
+     * @param range
+     *            The range string.
+     * 
      * @return A constructed Range item, or null if there is a parsing error.
      */
     static public Range parse(String range) {
-        // a range from a newsrc file is either a single number or in the format 'nnnn-mmmm'.  We need
+        // a range from a newsrc file is either a single number or in the format
+        // 'nnnn-mmmm'. We need
         // to figure out which type this is.
         int marker = range.indexOf('-');
 
@@ -82,8 +82,7 @@ public class Range {
                 if (start >= 0 && end >= 0) {
                     return new Range(start, end);
                 }
-            }
-            else {
+            } else {
                 // use the entire token
                 int start = Integer.parseInt(range);
                 // and start and the end are the same
@@ -98,7 +97,7 @@ public class Range {
 
     /**
      * Get the starting point for the Range.
-     *
+     * 
      * @return The beginning of the mark range.
      */
     public int getStart() {
@@ -107,8 +106,9 @@ public class Range {
 
     /**
      * Set the starting point for a Range.
-     *
-     * @param start  The new start value.
+     * 
+     * @param start
+     *            The new start value.
      */
     public void setStart(int start) {
         this.start = start;
@@ -116,7 +116,7 @@ public class Range {
 
     /**
      * Get the ending point for the Range.
-     *
+     * 
      * @return The end of the mark range.
      */
     public int getEnd() {
@@ -125,8 +125,9 @@ public class Range {
 
     /**
      * Set the ending point for a Range.
-     *
-     * @param end    The new end value.
+     * 
+     * @param end
+     *            The new end value.
      */
     public void setEnd(int end) {
         this.end = end;
@@ -134,10 +135,12 @@ public class Range {
 
     /**
      * Test if a range contains a point value.
-     *
-     * @param target The article location to test.
-     *
-     * @return True if the target is between the start and end values, inclusive.
+     * 
+     * @param target
+     *            The article location to test.
+     * 
+     * @return True if the target is between the start and end values,
+     *         inclusive.
      */
     public boolean contains(int target) {
         return target >= start && target <= end;
@@ -145,10 +148,12 @@ public class Range {
 
     /**
      * Test if one range is completely contained within another Range.
-     *
-     * @param other  The other test range.
-     *
-     * @return true if the other start and end points are contained within this range.
+     * 
+     * @param other
+     *            The other test range.
+     * 
+     * @return true if the other start and end points are contained within this
+     *         range.
      */
     public boolean contains(Range other) {
         return contains(other.getStart()) && contains(other.getEnd());
@@ -156,9 +161,10 @@ public class Range {
 
     /**
      * Tests if two ranges overlap
-     *
-     * @param other  The other test range.
-     *
+     * 
+     * @param other
+     *            The other test range.
+     * 
      * @return true if the start or end points of either range are contained
      *         within the range of the other.
      */
@@ -168,9 +174,10 @@ public class Range {
 
     /**
      * Test if two ranges exactly abutt each other.
-     *
-     * @param other  The other Range to test.
-     *
+     * 
+     * @param other
+     *            The other Range to test.
+     * 
      * @return true if the end of one range abutts the start of the other range.
      */
     public boolean abutts(Range other) {
@@ -178,11 +185,11 @@ public class Range {
     }
 
     /**
-     * Tests if a single point abutts either the start or end of this
-     * Range.
-     *
-     * @param article The point to test.
-     *
+     * Tests if a single point abutts either the start or end of this Range.
+     * 
+     * @param article
+     *            The point to test.
+     * 
      * @return true if test point is equal to start - 1 or end + 1.
      */
     public boolean abutts(int article) {
@@ -191,9 +198,10 @@ public class Range {
 
     /**
      * Test if a point is below the test Range.
-     *
-     * @param article The point to test.
-     *
+     * 
+     * @param article
+     *            The point to test.
+     * 
      * @return true if the entire range is less than the test point.
      */
     public boolean lessThan(int article) {
@@ -202,66 +210,67 @@ public class Range {
 
     /**
      * Test if another Range is less than this Range.
-     *
-     * @param other  The other Range to test.
-     *
+     * 
+     * @param other
+     *            The other Range to test.
+     * 
      * @return true if the other Range lies completely below this Range.
      */
     public boolean lessThan(Range other) {
         return end < other.start;
     }
 
-
     /**
      * Test if a point is above the test Range.
-     *
-     * @param article The point to test.
-     *
+     * 
+     * @param article
+     *            The point to test.
+     * 
      * @return true if the entire range is greater than the test point.
      */
     public boolean greaterThan(int article) {
         return start > article;
     }
 
-
     /**
      * Test if another Range is greater than this Range.
-     *
-     * @param other  The other Range to test.
-     *
+     * 
+     * @param other
+     *            The other Range to test.
+     * 
      * @return true if the other Range lies completely below this Range.
      */
     public boolean greaterThan(Range other) {
         return start > other.end;
     }
 
-
     /**
-     * Merge another Range into this one.  Merging will increase the
-     * bounds of this Range to encompass the entire span of the two.
-     * If the Ranges do not overlap, the newly created range will
-     * include the gap between the two.
-     *
-     * @param other  The Range to merge.
+     * Merge another Range into this one. Merging will increase the bounds of
+     * this Range to encompass the entire span of the two. If the Ranges do not
+     * overlap, the newly created range will include the gap between the two.
+     * 
+     * @param other
+     *            The Range to merge.
      */
     public void merge(Range other) {
         if (other.start < start) {
             start = other.start;
         }
 
-        if (other.end > end ) {
+        if (other.end > end) {
             end = other.end;
         }
     }
 
     /**
-     * Split a range at a given split point.  Splitting will truncate
-     * at the split location - 1 and return a new range beginning
-     * at location + 1;  This code assumes that the split location
-     * is at neither end poing.
-     *
-     * @param location The split location.  Location must be in the range start < location < end.
-     *
+     * Split a range at a given split point. Splitting will truncate at the
+     * split location - 1 and return a new range beginning at location + 1; This
+     * code assumes that the split location is at neither end poing.
+     * 
+     * @param location
+     *            The split location. Location must be in the range start <
+     *            location < end.
+     * 
      * @return A new Range object for the split portion of the range.
      */
     public Range split(int location) {
@@ -272,22 +281,20 @@ public class Range {
         return new Range(location + 1, newEnd);
     }
 
-
     /**
-     * Save an individual range element to a newsrc file.  The range
-     * is expressed either as a single number, or a hypenated pair
-     * of numbers.
-     *
-     * @param out    The output writer used to save the data.
-     *
+     * Save an individual range element to a newsrc file. The range is expressed
+     * either as a single number, or a hypenated pair of numbers.
+     * 
+     * @param out
+     *            The output writer used to save the data.
+     * 
      * @exception IOException
      */
     public void save(Writer out) throws IOException {
         // do we have a single data point range?
         if (start == end) {
             out.write(Integer.toString(start));
-        }
-        else {
+        } else {
             out.write(Integer.toString(start));
             out.write("-");
             out.write(Integer.toString(end));
@@ -295,15 +302,14 @@ public class Range {
     }
 
     /**
-     * Convert a Range into String form.  Used mostly for debugging.
-     *
+     * Convert a Range into String form. Used mostly for debugging.
+     * 
      * @return The String representation of the Range.
      */
     public String toString() {
         if (start == end) {
             return Integer.toString(start);
-        }
-        else {
+        } else {
             return Integer.toString(start) + "-" + Integer.toString(end);
         }
     }

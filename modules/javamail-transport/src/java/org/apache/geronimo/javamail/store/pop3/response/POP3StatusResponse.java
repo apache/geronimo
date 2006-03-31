@@ -18,49 +18,50 @@
 package org.apache.geronimo.javamail.store.pop3.response;
 
 import javax.mail.MessagingException;
+
 import org.apache.geronimo.javamail.store.pop3.POP3Response;
 
 /**
- * This class adds functionality to the basic response
- * by parsing the status line and obtaining specific
- * information about num of msgs and the size
+ * This class adds functionality to the basic response by parsing the status
+ * line and obtaining specific information about num of msgs and the size
  * 
- * @see  org.apache.geronimo.javamail.store.pop3.POP3Response
- * @see  org.apache.geronimo.javamail.store.pop3.response.DefaultPOP3Response
- *  
- * @version $Rev$ $Date$ 
+ * @see org.apache.geronimo.javamail.store.pop3.POP3Response
+ * @see org.apache.geronimo.javamail.store.pop3.response.DefaultPOP3Response
+ * 
+ * @version $Rev$ $Date$
  */
 
 public class POP3StatusResponse extends DefaultPOP3Response {
 
-	private int numMessages = 0;
-	private int size = 0;
-	
-	POP3StatusResponse(POP3Response baseRes) throws MessagingException{
-		super(baseRes.getStatus(),baseRes.getFirstLine(),baseRes.getData());
-		
-		// if ERR not worth proceeding any further
-		if(OK == getStatus()){			
-			String[] args = getFirstLine().split(SPACE);
-			try {
-				numMessages = Integer.parseInt(args[0]);
-			} catch (NumberFormatException e) {
-				throw new MessagingException("Invalid response for STAT command",e);
-			}
-			try {
-				size = Integer.parseInt(args[1]);
-			} catch (NumberFormatException e) {
-				throw new MessagingException("Invalid response for STAT command",e);
-			}
-		}
-	}
+    private int numMessages = 0;
 
-	public int getNumMessages() {
-		return numMessages;
-	}
+    private int size = 0;
 
-	public int getSize() {
-		return size;
-	}
+    POP3StatusResponse(POP3Response baseRes) throws MessagingException {
+        super(baseRes.getStatus(), baseRes.getFirstLine(), baseRes.getData());
+
+        // if ERR not worth proceeding any further
+        if (OK == getStatus()) {
+            String[] args = getFirstLine().split(SPACE);
+            try {
+                numMessages = Integer.parseInt(args[0]);
+            } catch (NumberFormatException e) {
+                throw new MessagingException("Invalid response for STAT command", e);
+            }
+            try {
+                size = Integer.parseInt(args[1]);
+            } catch (NumberFormatException e) {
+                throw new MessagingException("Invalid response for STAT command", e);
+            }
+        }
+    }
+
+    public int getNumMessages() {
+        return numMessages;
+    }
+
+    public int getSize() {
+        return size;
+    }
 
 }

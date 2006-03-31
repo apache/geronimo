@@ -19,16 +19,19 @@ package org.apache.geronimo.javamail.transport.smtp;
 
 /**
  * Util class to represent a reply from a SMTP server
- *
+ * 
  * @version $Rev$ $Date$
  */
 class SMTPReply {
     // The original reply string
     private final String reply;
+
     // returned message code
     private final int code;
+
     // the returned message text
     private final String message;
+
     // indicates that this is a continuation response
     private boolean continued;
 
@@ -36,9 +39,11 @@ class SMTPReply {
         // save the reply
         reply = s;
 
-        // In a normal response, the first 3 must be the return code.  However,
-        // the response back from a QUIT command is frequently a null string.  Therefore, if the result is
-        // too short, just default the code to -1 and use the entire text for the message.
+        // In a normal response, the first 3 must be the return code. However,
+        // the response back from a QUIT command is frequently a null string.
+        // Therefore, if the result is
+        // too short, just default the code to -1 and use the entire text for
+        // the message.
         if (s == null || s.length() < 3) {
             code = -1;
             message = s;
@@ -49,7 +54,8 @@ class SMTPReply {
             continued = false;
             code = Integer.parseInt(s.substring(0, 3));
 
-            // message should be separated by a space OR a continuation character if this is a
+            // message should be separated by a space OR a continuation
+            // character if this is a
             // multi-line response.
             if (s.length() > 4) {
                 //
@@ -67,7 +73,7 @@ class SMTPReply {
 
     /**
      * Return the code value associated with the reply.
-     *
+     * 
      * @return The integer code associated with the reply.
      */
     public int getCode() {
@@ -76,7 +82,7 @@ class SMTPReply {
 
     /**
      * Get the message text associated with the reply.
-     *
+     * 
      * @return The string value of the message from the reply.
      */
     public String getMessage() {
@@ -85,13 +91,12 @@ class SMTPReply {
 
     /**
      * Retrieve the raw reply string for the reponse.
-     *
+     * 
      * @return The original reply string from the server.
      */
     public String getReply() {
         return reply;
     }
-
 
     /**
      * Indicates if reply is an error condition
@@ -101,13 +106,12 @@ class SMTPReply {
         return code >= 400;
     }
 
-
     /**
-     * Indicates whether this response is flagged as part of a
-     * multiple line response.
-     *
-     * @return true if the response has multiple lines, false if this is
-     *         the last line of the response.
+     * Indicates whether this response is flagged as part of a multiple line
+     * response.
+     * 
+     * @return true if the response has multiple lines, false if this is the
+     *         last line of the response.
      */
     public boolean isContinued() {
         return continued;

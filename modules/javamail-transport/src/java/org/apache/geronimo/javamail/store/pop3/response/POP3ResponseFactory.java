@@ -24,25 +24,24 @@ import org.apache.geronimo.javamail.store.pop3.POP3Constants;
 import org.apache.geronimo.javamail.store.pop3.POP3Response;
 
 /**
- * This factory provides a uniform way of handling the 
- * creation of response objects.
- *  
- * @version $Rev$ $Date$ 
+ * This factory provides a uniform way of handling the creation of response
+ * objects.
+ * 
+ * @version $Rev$ $Date$
  */
 
-public final class POP3ResponseFactory implements POP3Constants{
-	
-	public static POP3Response getDefaultResponse(int status,String line,InputStream data){
-		return new DefaultPOP3Response(status,line,data);
-	}
-	
-	public static POP3Response getStatusResponse(POP3Response baseRes) throws MessagingException{
-		return new POP3StatusResponse(baseRes);
-	}
-	
-	public static POP3Response getListResponse(POP3Response baseRes) throws MessagingException{
-		return new POP3StatusResponse(baseRes);
-	}
-	
+public final class POP3ResponseFactory implements POP3Constants {
+
+    public static POP3Response getDefaultResponse(int status, String line, InputStream data) {
+        return new DefaultPOP3Response(status, line, data);
+    }
+
+    public static POP3Response getStatusResponse(POP3Response baseRes) throws MessagingException {
+        return new POP3StatusResponse(baseRes);
+    }
+
+    public static POP3Response getListResponse(POP3Response baseRes) throws MessagingException {
+        return new POP3StatusResponse(baseRes);
+    }
 
 }

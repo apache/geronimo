@@ -19,29 +19,30 @@ package org.apache.geronimo.javamail.store.nntp.newsrc;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
-
 
 public class NNTPNewsrcGroup {
     // the newsrc database we're part of
     NNTPNewsrc newsrc;
+
     // the name of the group
     protected String name;
+
     // the subscription flage
     protected boolean subscribed;
+
     // the range of already seen articles.
     protected RangeList ranges;
 
     /**
-     * Construct a NNTPNewsrcGroup item associated with a given
-     * .newsrc database.
-     *
-     * @param newsrc The owning .newsrc database.
-     * @param line   The .newsrc range entries in .newsrc format.  These ranges are
-     *               parsed to create a set of seen flags.
-     *
+     * Construct a NNTPNewsrcGroup item associated with a given .newsrc
+     * database.
+     * 
+     * @param newsrc
+     *            The owning .newsrc database.
+     * @param line
+     *            The .newsrc range entries in .newsrc format. These ranges are
+     *            parsed to create a set of seen flags.
+     * 
      * @return A created NNTPNewsrcGroup item.
      */
     public static NNTPNewsrcGroup parse(NNTPNewsrc newsrc, String line) {
@@ -70,15 +71,17 @@ public class NNTPNewsrcGroup {
         return null;
     }
 
-
     /**
      * Construct a .newsrc group item.
-     *
-     * @param newsrc     The owning newsrc database.
-     * @param name       The group name.
+     * 
+     * @param newsrc
+     *            The owning newsrc database.
+     * @param name
+     *            The group name.
      * @param newsrcRanges
-     *                   The initial set of seen ranges for the group (may be null).
-     * @param subscribed The initial group subscription state.
+     *            The initial set of seen ranges for the group (may be null).
+     * @param subscribed
+     *            The initial group subscription state.
      */
     public NNTPNewsrcGroup(NNTPNewsrc newsrc, String name, String newsrcRanges, boolean subscribed) {
         this.newsrc = newsrc;
@@ -87,10 +90,9 @@ public class NNTPNewsrcGroup {
         this.ranges = new RangeList(newsrcRanges);
     }
 
-
     /**
      * Get the group name.
-     *
+     * 
      * @return The String name of the group.
      */
     public String getName() {
@@ -99,7 +101,7 @@ public class NNTPNewsrcGroup {
 
     /**
      * Get the newsrc subscribed status for an article.
-     *
+     * 
      * @return The current subscription flag.
      */
     public boolean isSubscribed() {
@@ -108,17 +110,18 @@ public class NNTPNewsrcGroup {
 
     /**
      * Set the subscription status for an article.
-     *
-     * @param flag   The new subscription value.
+     * 
+     * @param flag
+     *            The new subscription value.
      */
     public void setSubscribed(boolean flag) {
-        // we don't blindly set this to the new value since we only want to resave the newsrc file if
+        // we don't blindly set this to the new value since we only want to
+        // resave the newsrc file if
         // something changes.
         if (flag && !subscribed) {
             subscribed = true;
             newsrc.setDirty();
-        }
-        else if (!flag && subscribed) {
+        } else if (!flag && subscribed) {
             subscribed = false;
             newsrc.setDirty();
         }
@@ -126,9 +129,10 @@ public class NNTPNewsrcGroup {
 
     /**
      * Test if an article has been seen yet.
-     *
-     * @param article The target article.
-     *
+     * 
+     * @param article
+     *            The target article.
+     * 
      * @return The seen mark for the article.
      */
     public boolean isArticleSeen(int article) {
@@ -137,8 +141,9 @@ public class NNTPNewsrcGroup {
 
     /**
      * Mark an article as seen.
-     *
-     * @param article The target article number.
+     * 
+     * @param article
+     *            The target article number.
      */
     public void markArticleSeen(int article) {
         ranges.setMarked(article);
@@ -149,8 +154,9 @@ public class NNTPNewsrcGroup {
 
     /**
      * Mark an article as unseen.
-     *
-     * @param article The target article number.
+     * 
+     * @param article
+     *            The target article number.
      */
     public void markArticleUnseen(int article) {
         ranges.setUnmarked(article);
@@ -159,12 +165,12 @@ public class NNTPNewsrcGroup {
         }
     }
 
-
     /**
      * Save this group definition to a .newsrc file.
-     *
-     * @param out    The output writer to send the information to.
-     *
+     * 
+     * @param out
+     *            The output writer to send the information to.
+     * 
      * @exception IOException
      */
     public void save(Writer out) throws IOException {
@@ -175,4 +181,3 @@ public class NNTPNewsrcGroup {
         out.write("\r\n");
     }
 }
-

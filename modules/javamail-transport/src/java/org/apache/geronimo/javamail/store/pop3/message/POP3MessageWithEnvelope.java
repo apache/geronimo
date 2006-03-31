@@ -20,30 +20,27 @@ package org.apache.geronimo.javamail.store.pop3.message;
 import javax.mail.Folder;
 import javax.mail.MessagingException;
 import javax.mail.Session;
-import javax.mail.internet.MimeMessage.RecipientType;
 
 import org.apache.geronimo.javamail.store.pop3.POP3Connection;
 
 /**
- * light-weight Message object
- * will be created in response to FetchProfile.ENVELOPE
- * other details will be filled on demand
+ * light-weight Message object will be created in response to
+ * FetchProfile.ENVELOPE other details will be filled on demand *
  * 
- * * @version $Rev$ $Date$   
+ * @version $Rev$ $Date$
  */
-
 
 public class POP3MessageWithEnvelope extends POP3Message {
 
-	protected POP3MessageWithEnvelope(Folder folder, int msgnum,
-			Session session,POP3Connection pop3Con) throws MessagingException {
-		super(folder, msgnum, session, pop3Con);
-		this.getAllHeaders();
-		this.getSender();
-		this.getSentDate();
-		this.getSubject();
-		this.getReplyTo();
-		this.getReceivedDate();
-		this.getRecipients(RecipientType.TO);
-	}
+    protected POP3MessageWithEnvelope(Folder folder, int msgnum, Session session, POP3Connection pop3Con)
+            throws MessagingException {
+        super(folder, msgnum, session, pop3Con);
+        this.getAllHeaders();
+        this.getSender();
+        this.getSentDate();
+        this.getSubject();
+        this.getReplyTo();
+        this.getReceivedDate();
+        this.getRecipients(RecipientType.TO);
+    }
 }

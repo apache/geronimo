@@ -21,17 +21,18 @@ import java.io.UnsupportedEncodingException;
 
 import javax.mail.MessagingException;
 
-import org.apache.geronimo.mail.util.Base64;
-
 public class LoginAuthenticator implements ClientAuthenticator {
 
     // constants for the authentication stages
     protected static final int USERNAME = 0;
+
     protected static final int PASSWORD = 1;
+
     protected static final int COMPLETE = 2;
 
     // the user we're authenticating
     protected String username;
+
     // the user's password (the "shared secret")
     protected String password;
 
@@ -40,9 +41,11 @@ public class LoginAuthenticator implements ClientAuthenticator {
 
     /**
      * Main constructor.
-     *
-     * @param username The login user name.
-     * @param password The login password.
+     * 
+     * @param username
+     *            The login user name.
+     * @param password
+     *            The login password.
      */
     public LoginAuthenticator(String username, String password) {
         this.username = username;
@@ -50,9 +53,9 @@ public class LoginAuthenticator implements ClientAuthenticator {
     }
 
     /**
-     * Respond to the hasInitialResponse query.  This mechanism
-     * does not have an initial response.
-     *
+     * Respond to the hasInitialResponse query. This mechanism does not have an
+     * initial response.
+     * 
      * @return Always returns false;
      */
     public boolean hasInitialResponse() {
@@ -61,7 +64,7 @@ public class LoginAuthenticator implements ClientAuthenticator {
 
     /**
      * Indicate whether the challenge/response process is complete.
-     *
+     * 
      * @return True if the last challenge has been processed, false otherwise.
      */
     public boolean isComplete() {
@@ -70,20 +73,20 @@ public class LoginAuthenticator implements ClientAuthenticator {
 
     /**
      * Retrieve the authenticator mechanism name.
-     *
+     * 
      * @return Always returns the string "LOGIN"
      */
     public String getMechanismName() {
         return "LOGIN";
     }
 
-
     /**
-     * Evaluate a PLAIN login challenge, returning the a result
-     * string that should satisfy the clallenge.
-     *
-     * @param challenge The decoded challenge data, as a byte array
-     *
+     * Evaluate a PLAIN login challenge, returning the a result string that
+     * should satisfy the clallenge.
+     * 
+     * @param challenge
+     *            The decoded challenge data, as a byte array
+     * 
      * @return A formatted challege response, as an array of bytes.
      * @exception MessagingException
      */
@@ -91,44 +94,45 @@ public class LoginAuthenticator implements ClientAuthenticator {
 
         // process the correct stage for the challenge
         switch (stage) {
-            // should never happen
-            case COMPLETE:
-                throw new MessagingException("Invalid LOGIN challenge");
+        // should never happen
+        case COMPLETE:
+            throw new MessagingException("Invalid LOGIN challenge");
 
-            case USERNAME: {
-                byte[] userBytes;
+        case USERNAME: {
+            byte[] userBytes;
 
-                try {
-                    // get the username and password in an UTF-8 encoding to create the token
-                    userBytes = username.getBytes("UTF-8");
-                } catch (UnsupportedEncodingException e) {
-                    // got an error, fail this (this should never happen).
-                    throw new MessagingException("Invalid encoding");
-                }
-
-                // next time through we're looking for a password.
-                stage = PASSWORD;
-                // the user bytes are the entire challenge respose.
-                return userBytes;
+            try {
+                // get the username and password in an UTF-8 encoding to create
+                // the token
+                userBytes = username.getBytes("UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                // got an error, fail this (this should never happen).
+                throw new MessagingException("Invalid encoding");
             }
 
-            case PASSWORD: {
-                byte[] passBytes;
+            // next time through we're looking for a password.
+            stage = PASSWORD;
+            // the user bytes are the entire challenge respose.
+            return userBytes;
+        }
 
-                try {
-                    // get the username and password in an UTF-8 encoding to create the token
-                    passBytes = password.getBytes("UTF-8");
-                } catch (UnsupportedEncodingException e) {
-                    // got an error, fail this (this should never happen).
-                    throw new MessagingException("Invalid encoding");
-                }
-                // we're finished
-                stage = COMPLETE;
-                return passBytes;
+        case PASSWORD: {
+            byte[] passBytes;
+
+            try {
+                // get the username and password in an UTF-8 encoding to create
+                // the token
+                passBytes = password.getBytes("UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                // got an error, fail this (this should never happen).
+                throw new MessagingException("Invalid encoding");
             }
+            // we're finished
+            stage = COMPLETE;
+            return passBytes;
+        }
         }
         // should never get here.
         throw new MessagingException("Invalid LOGIN challenge");
     }
 }
-

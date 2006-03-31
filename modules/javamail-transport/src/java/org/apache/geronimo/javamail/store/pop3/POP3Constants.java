@@ -18,20 +18,23 @@
 package org.apache.geronimo.javamail.store.pop3;
 
 /**
- * Defines a few constants that are used throught
- * the implementation.
+ * Defines a few constants that are used throught the implementation.
  * 
- * @version $Rev$ $Date$ 
+ * @version $Rev$ $Date$
  */
 
 public interface POP3Constants {
-	public final static String SPACE = " ";
-	public final static String CRLF = "\r\n";
-	
-	public final static int LF = '\n';
-	public final static int CR = '\r';
-	public final static int DOT = '.';
-	
-	public final static int OK = 0;
-	public final static int ERR = 1;
+    public final static String SPACE = " ";
+
+    public final static String CRLF = "\r\n";
+
+    public final static int LF = '\n';
+
+    public final static int CR = '\r';
+
+    public final static int DOT = '.';
+
+    public final static int OK = 0;
+
+    public final static int ERR = 1;
 }

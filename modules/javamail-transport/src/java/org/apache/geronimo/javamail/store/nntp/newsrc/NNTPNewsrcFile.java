@@ -22,10 +22,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.Reader;
 import java.io.Writer;
 
 public class NNTPNewsrcFile extends NNTPNewsrc {
@@ -33,10 +31,11 @@ public class NNTPNewsrcFile extends NNTPNewsrc {
     File source;
 
     /**
-     * Construct a NNTPNewsrc object that is targetted at a
-     * file-based backing store.
-     *
-     * @param source The source File for the .newsrc data.
+     * Construct a NNTPNewsrc object that is targetted at a file-based backing
+     * store.
+     * 
+     * @param source
+     *            The source File for the .newsrc data.
      */
     public NNTPNewsrcFile(File source) {
         this.source = source;
@@ -44,7 +43,7 @@ public class NNTPNewsrcFile extends NNTPNewsrc {
 
     /**
      * Retrieve an input reader for loading the newsrc file.
-     *
+     * 
      * @return A BufferedReader object for reading from the newsrc file.
      * @exception IOException
      */
@@ -54,7 +53,7 @@ public class NNTPNewsrcFile extends NNTPNewsrc {
 
     /**
      * Obtain a writer for saving a newsrc file.
-     *
+     * 
      * @return The output writer targetted to the newsrc file.
      * @exception IOException
      */
@@ -63,4 +62,3 @@ public class NNTPNewsrcFile extends NNTPNewsrc {
         return new OutputStreamWriter(new FileOutputStream(source, false));
     }
 }
-

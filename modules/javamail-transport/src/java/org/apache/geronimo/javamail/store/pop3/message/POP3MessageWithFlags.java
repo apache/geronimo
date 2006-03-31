@@ -24,18 +24,17 @@ import javax.mail.Session;
 import org.apache.geronimo.javamail.store.pop3.POP3Connection;
 
 /**
- * light-weight Message object
- * will be created in response to FetchProfile.FLAGS
- * other details will be filled on demand
- *  
- *  * @version $Rev$ $Date$ 
+ * light-weight Message object will be created in response to FetchProfile.FLAGS
+ * other details will be filled on demand *
+ * 
+ * @version $Rev$ $Date$
  */
 
-public class POP3MessageWithFlags extends POP3Message{
+public class POP3MessageWithFlags extends POP3Message {
 
-	protected POP3MessageWithFlags(Folder folder, int msgnum,
-			Session session,POP3Connection pop3Con) throws MessagingException {
-		super(folder, msgnum, session, pop3Con);
-		this.getFlags();
-	}
+    protected POP3MessageWithFlags(Folder folder, int msgnum, Session session, POP3Connection pop3Con)
+            throws MessagingException {
+        super(folder, msgnum, session, pop3Con);
+        this.getFlags();
+    }
 }
