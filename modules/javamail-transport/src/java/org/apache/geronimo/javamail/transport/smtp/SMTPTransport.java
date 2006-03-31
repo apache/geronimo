@@ -49,10 +49,13 @@ import org.apache.geronimo.javamail.authentication.CramMD5Authenticator;
 import org.apache.geronimo.javamail.authentication.DigestMD5Authenticator;
 import org.apache.geronimo.javamail.authentication.LoginAuthenticator;
 import org.apache.geronimo.javamail.authentication.PlainAuthenticator;
+import org.apache.geronimo.javamail.authentication.PlainAuthenticator;
 import org.apache.geronimo.mail.util.Base64;
 import org.apache.geronimo.mail.util.XText;
 
 import org.apache.geronimo.javamail.util.MIMEOutputStream;
+import org.apache.geronimo.javamail.util.TraceInputStream;
+import org.apache.geronimo.javamail.util.TraceOutputStream;
 
 /**
  * Simple implementation of SMTP transport.  Just does plain RFC821-ish
@@ -115,6 +118,7 @@ public class SMTPTransport extends Transport {
     protected static final String MAIL_SMTP_SUBMITTER = "submitter";
     protected static final String MAIL_SMTP_EXTENSION = "mailextension";
     protected static final String MAIL_SMTP_EHLO = "ehlo";
+    protected static final String MAIL_SMTP_ENCODE_TRACE = "encodetrace";
 
 
     protected static final int MIN_MILLIS = 1000 * 60;
@@ -250,6 +254,8 @@ public class SMTPTransport extends Transport {
 
         // get our debug output.
         debugStream = session.getDebugOut();
+
+        System.out.println("Debug value in transport = " + debug);
     }
 
 
@@ -770,8 +776,8 @@ public class SMTPTransport extends Transport {
             host = socket.getInetAddress().getHostName();
         }
         // now set up the input/output streams.
-        inputStream = socket.getInputStream();
-        outputStream = socket.getOutputStream();
+        inputStream = new TraceInputStream(socket.getInputStream(), debugStream, debug, isProtocolPropertyTrue(MAIL_SMTP_ENCODE_TRACE)); ;
+        outputStream = new TraceOutputStream(socket.getOutputStream(), debugStream, debug, isProtocolPropertyTrue(MAIL_SMTP_ENCODE_TRACE));
     }
 
     /**
@@ -1226,8 +1232,9 @@ public class SMTPTransport extends Transport {
 
 
             // and finally, as a last step, replace our input streams with the secure ones.
-            inputStream = sslSocket.getInputStream();
-            outputStream = sslSocket.getOutputStream();
+            // now set up the input/output streams.
+            inputStream = new TraceInputStream(sslSocket.getInputStream(), debugStream, debug, isProtocolPropertyTrue(MAIL_SMTP_ENCODE_TRACE)); ;
+            outputStream = new TraceOutputStream(sslSocket.getOutputStream(), debugStream, debug, isProtocolPropertyTrue(MAIL_SMTP_ENCODE_TRACE));
             // this is our active socket now
             socket = sslSocket;
 
@@ -1532,9 +1539,6 @@ public class SMTPTransport extends Transport {
      * appropriate CRLF
      */
     protected void sendLine(String data) throws MessagingException {
-        if (debug) {
-            debugOut("sending line to server >>>" + data + "<<<");
-        }
         if (socket == null || !socket.isConnected()) {
             throw new MessagingException("no connection");
         }
@@ -1629,9 +1633,6 @@ public class SMTPTransport extends Transport {
             }
 
             String line = buff.toString();
-            if (debug) {
-                debugOut("received line from server >>>" + line + "<<<");
-            }
             return line;
 
         } catch (SocketException e) {
