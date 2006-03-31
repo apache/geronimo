@@ -17,17 +17,14 @@
 
 package org.apache.geronimo.javamail.store.pop3.message;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Enumeration;
 
 import javax.mail.Flags;
 import javax.mail.Folder;
-import javax.mail.Header;
 import javax.mail.IllegalWriteException;
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -41,7 +38,6 @@ import org.apache.geronimo.javamail.store.pop3.POP3Folder;
 import org.apache.geronimo.javamail.store.pop3.POP3Response;
 import org.apache.geronimo.javamail.store.pop3.response.POP3ListResponse;
 import org.apache.geronimo.javamail.store.pop3.response.POP3ResponseFactory;
-import org.apache.geronimo.javamail.store.pop3.response.POP3StatusResponse;
 
 
 /**
@@ -245,6 +241,24 @@ public class POP3Message extends MimeMessage {
 			loadHeaders();
 		return headers.getNonMatchingHeaderLines(names);
 	}
+
+    // the following are overrides for header modification methods.  These messages are read only,
+    // so the headers cannot be modified.
+    public void addHeader(String name, String value) throws MessagingException {
+        throw new IllegalWriteException("POP3 messages are read-only");
+    }
+
+    public void setHeader(String name, String value) throws MessagingException {
+        throw new IllegalWriteException("POP3 messages are read-only");
+    }
+
+    public void removeHeader(String name) throws MessagingException {
+        throw new IllegalWriteException("POP3 messages are read-only");
+    }
+
+    public void addHeaderLine(String line) throws MessagingException {
+        throw new IllegalWriteException("POP3 messages are read-only");
+    }
 
 	/**
 	 * We cannot modify these messages
