@@ -17,27 +17,10 @@
 
 package org.apache.geronimo.javamail.transport.nntp;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintStream;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.StringTokenizer;
 
 import javax.mail.Address;
-import javax.mail.AuthenticationFailedException;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -45,8 +28,8 @@ import javax.mail.Transport;
 import javax.mail.URLName;
 import javax.mail.event.TransportEvent;
 import javax.mail.internet.InternetAddress;
-import javax.mail.internet.NewsAddress;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.NewsAddress;
 
 import org.apache.geronimo.mail.util.SessionUtil;
 
@@ -66,9 +49,11 @@ public class NNTPTransport extends Transport {
     /**
      * property keys for protocol properties.
      */
-    protected static final String NNTP_AUTH = "mail.nntp.auth";
-    protected static final String NNTP_PORT = "mail.nntp.port";
-    protected static final String NNTP_FROM = "mail.nntp.from";
+    protected static final String NNTP_AUTH = "auth";
+    protected static final String NNTP_PORT = "port";
+    protected static final String NNTP_FROM = "from";
+
+    protected static final String protocol = "nntp-post";
 
     protected static final int DEFAULT_NNTP_PORT = 119;
 
@@ -137,7 +122,7 @@ public class NNTPTransport extends Transport {
 
 
         // create socket and connect to server.
-        connection = new NNTPConnection(session, host, port, username, password, debug);
+        connection = new NNTPConnection(protocol, session, host, port, username, password, debug);
         connection.connect();
 
         // we're going to return success here, but in truth, the server may end up asking for our
@@ -292,5 +277,73 @@ public class NNTPTransport extends Transport {
         debugOut("Received exception -> " + message);
         debugOut("Exception message -> " + e.getMessage());
         e.printStackTrace(debugStream);
+    }
+
+
+    /**
+     * Get a property associated with this mail protocol.
+     *
+     * @param name   The name of the property.
+     *
+     * @return The property value (returns null if the property has not been set).
+     */
+    String getProperty(String name) {
+        // the name we're given is the least qualified part of the name.  We construct the full property name
+        // using the protocol (either "nntp" or "nntp-post").
+        String fullName = "mail." + protocol + "." + name;
+        return session.getProperty(fullName);
+    }
+
+    /**
+     * Get a property associated with this mail session.  Returns
+     * the provided default if it doesn't exist.
+     *
+     * @param name   The name of the property.
+     * @param defaultValue
+     *               The default value to return if the property doesn't exist.
+     *
+     * @return The property value (returns defaultValue if the property has not been set).
+     */
+    String getProperty(String name, String defaultValue) {
+        // the name we're given is the least qualified part of the name.  We construct the full property name
+        // using the protocol (either "nntp" or "nntp-post").
+        String fullName = "mail." + protocol + "." + name;
+        return SessionUtil.getProperty(session, fullName, defaultValue);
+    }
+
+
+    /**
+     * Get a property associated with this mail session as an integer value.  Returns
+     * the default value if the property doesn't exist or it doesn't have a valid int value.
+     *
+     * @param name   The name of the property.
+     * @param defaultValue
+     *               The default value to return if the property doesn't exist.
+     *
+     * @return The property value converted to an int.
+     */
+    int getIntProperty(String name, int defaultValue) {
+        // the name we're given is the least qualified part of the name.  We construct the full property name
+        // using the protocol (either "nntp" or "nntp-post").
+        String fullName = "mail." + protocol + "." + name;
+        return SessionUtil.getIntProperty(session, fullName, defaultValue);
+    }
+
+
+    /**
+     * Get a property associated with this mail session as an boolean value.  Returns
+     * the default value if the property doesn't exist or it doesn't have a valid int value.
+     *
+     * @param name   The name of the property.
+     * @param defaultValue
+     *               The default value to return if the property doesn't exist.
+     *
+     * @return The property value converted to a boolean
+     */
+    boolean getBooleanProperty(String name, boolean defaultValue) {
+        // the name we're given is the least qualified part of the name.  We construct the full property name
+        // using the protocol (either "nntp" or "nntp-post").
+        String fullName = "mail." + protocol + "." + name;
+        return SessionUtil.getBooleanProperty(session, fullName, defaultValue);
     }
 }

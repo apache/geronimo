@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2005 The Apache Software Foundation
+ * Copyright 2006 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,24 +19,19 @@
 package org.apache.geronimo.javamail.store.nntp;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintStream;
-
 import java.util.Iterator;
 
-import javax.mail.AuthenticationFailedException;
 import javax.mail.Folder;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.URLName;
 
-import org.apache.geronimo.javamail.transport.nntp.NNTPConnection;
-import org.apache.geronimo.javamail.transport.nntp.NNTPReply;
-
 import org.apache.geronimo.javamail.store.nntp.newsrc.NNTPNewsrc;
 import org.apache.geronimo.javamail.store.nntp.newsrc.NNTPNewsrcFile;
 import org.apache.geronimo.javamail.store.nntp.newsrc.NNTPNewsrcGroup;
+import org.apache.geronimo.javamail.transport.nntp.NNTPConnection;
 import org.apache.geronimo.mail.util.SessionUtil;
 
 /**
@@ -46,12 +41,13 @@ import org.apache.geronimo.mail.util.SessionUtil;
  *
  * @version $Rev$ $Date$
  */
-
 public class NNTPStore extends Store{
 
-    protected static final String NNTP_AUTH = "mail.nntp.auth";
-    protected static final String NNTP_PORT = "mail.nntp.port";
-    protected static final String NNTP_NEWSRC = "mail.nntp.newsrc";
+    protected static final String NNTP_AUTH = "auth";
+    protected static final String NNTP_PORT = "port";
+    protected static final String NNTP_NEWSRC = "newsrc";
+
+    protected static final String protocol = "nntp";
 
     protected static final int DEFAULT_NNTP_PORT = 119;
 
@@ -120,7 +116,7 @@ public class NNTPStore extends Store{
 
         // first check to see if we need to authenticate.  If we need this, then we must have a username and
         // password specified.  Failing this may result in a user prompt to collect the information.
-        boolean mustAuthenticate = SessionUtil.getBooleanProperty(session, NNTP_AUTH, false);
+        boolean mustAuthenticate = getBooleanProperty(NNTP_AUTH, false);
 
         // if we need to authenticate, and we don't have both a userid and password, then we fail this
         // immediately.  The Service.connect() method will try to obtain the user information and retry the
@@ -134,16 +130,16 @@ public class NNTPStore extends Store{
         // if not configured, we just use the default default.
         if (port == -1) {
             // check for a property and fall back on the default if it's not set.
-            port = SessionUtil.getIntProperty(session, NNTP_PORT, DEFAULT_NNTP_PORT);
+            port = getIntProperty(NNTP_PORT, DEFAULT_NNTP_PORT);
         }
 
 
         // create socket and connect to server.
-        connection = new NNTPConnection(session, host, port, username, password, debug);
+        connection = new NNTPConnection(protocol, session, host, port, username, password, debug);
         connection.connect();
 
         // see if we have a newsrc file location specified
-        String newsrcFile = session.getProperty(NNTP_NEWSRC);
+        String newsrcFile = getProperty(NNTP_NEWSRC);
 
         File source = null;
 
@@ -257,4 +253,71 @@ public class NNTPStore extends Store{
         return newsrc.getGroup(name);
     }
 
+
+    /**
+     * Get a property associated with this mail protocol.
+     *
+     * @param name   The name of the property.
+     *
+     * @return The property value (returns null if the property has not been set).
+     */
+    String getProperty(String name) {
+        // the name we're given is the least qualified part of the name.  We construct the full property name
+        // using the protocol (either "nntp" or "nntp-post").
+        String fullName = "mail." + protocol + "." + name;
+        return session.getProperty(fullName);
+    }
+
+    /**
+     * Get a property associated with this mail session.  Returns
+     * the provided default if it doesn't exist.
+     *
+     * @param name   The name of the property.
+     * @param defaultValue
+     *               The default value to return if the property doesn't exist.
+     *
+     * @return The property value (returns defaultValue if the property has not been set).
+     */
+    String getProperty(String name, String defaultValue) {
+        // the name we're given is the least qualified part of the name.  We construct the full property name
+        // using the protocol (either "nntp" or "nntp-post").
+        String fullName = "mail." + protocol + "." + name;
+        return SessionUtil.getProperty(session, fullName, defaultValue);
+    }
+
+
+    /**
+     * Get a property associated with this mail session as an integer value.  Returns
+     * the default value if the property doesn't exist or it doesn't have a valid int value.
+     *
+     * @param name   The name of the property.
+     * @param defaultValue
+     *               The default value to return if the property doesn't exist.
+     *
+     * @return The property value converted to an int.
+     */
+    int getIntProperty(String name, int defaultValue) {
+        // the name we're given is the least qualified part of the name.  We construct the full property name
+        // using the protocol (either "nntp" or "nntp-post").
+        String fullName = "mail." + protocol + "." + name;
+        return SessionUtil.getIntProperty(session, fullName, defaultValue);
+    }
+
+
+    /**
+     * Get a property associated with this mail session as an boolean value.  Returns
+     * the default value if the property doesn't exist or it doesn't have a valid int value.
+     *
+     * @param name   The name of the property.
+     * @param defaultValue
+     *               The default value to return if the property doesn't exist.
+     *
+     * @return The property value converted to a boolean
+     */
+    boolean getBooleanProperty(String name, boolean defaultValue) {
+        // the name we're given is the least qualified part of the name.  We construct the full property name
+        // using the protocol (either "nntp" or "nntp-post").
+        String fullName = "mail." + protocol + "." + name;
+        return SessionUtil.getBooleanProperty(session, fullName, defaultValue);
+    }
 }

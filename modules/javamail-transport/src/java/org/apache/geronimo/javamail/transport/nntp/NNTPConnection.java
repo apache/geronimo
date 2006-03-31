@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2005 The Apache Software Foundation
+ * Copyright 2006 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,46 +17,34 @@
 
 package org.apache.geronimo.javamail.transport.nntp;
 
-import java.io.IOException;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintStream;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.SocketException;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.StringTokenizer;
 
-import javax.mail.Address;
-import javax.mail.AuthenticationFailedException;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.URLName;
-import javax.mail.event.TransportEvent;
-import javax.mail.internet.NewsAddress;
-import javax.mail.internet.MimeMessage;
 
 import org.apache.geronimo.javamail.authentication.ClientAuthenticator;
 import org.apache.geronimo.javamail.authentication.CramMD5Authenticator;
 import org.apache.geronimo.javamail.authentication.DigestMD5Authenticator;
 import org.apache.geronimo.javamail.authentication.LoginAuthenticator;
 import org.apache.geronimo.javamail.authentication.PlainAuthenticator;
+import org.apache.geronimo.javamail.util.MIMEOutputStream;
+import org.apache.geronimo.javamail.util.TraceInputStream;
+import org.apache.geronimo.javamail.util.TraceOutputStream;
 import org.apache.geronimo.mail.util.Base64;
 import org.apache.geronimo.mail.util.SessionUtil;
-import org.apache.geronimo.javamail.util.MIMEOutputStream;
 
 /**
  * Simple implementation of NNTP transport.  Just does plain RFC977-ish
@@ -80,16 +68,17 @@ public class NNTPConnection  {
     /**
      * property keys for protocol properties.
      */
-    protected static final String MAIL_NNTP_AUTH = "mail.nntp.auth";
-    protected static final String MAIL_NNTP_PORT = "mail.nntp.port";
-    protected static final String MAIL_NNTP_TIMEOUT = "mail.nntp.timeout";
-    protected static final String MAIL_NNTP_SASL_REALM = "mail.nntp.sasl.realm";
-    protected static final String MAIL_NNTP_FACTORY_CLASS = "mail.nntp.socketFactory.class";
-    protected static final String MAIL_NNTP_FACTORY_FALLBACK = "socketFactory.fallback";
+    protected static final String MAIL_NNTP_AUTH = "auth";
+    protected static final String MAIL_NNTP_PORT = "port";
+    protected static final String MAIL_NNTP_TIMEOUT = "timeout";
+    protected static final String MAIL_NNTP_SASL_REALM = "sasl.realm";
+    protected static final String MAIL_NNTP_FACTORY_CLASS = "socketFactory.class";
+    protected static final String MAIL_NNTP_FACTORY_FALLBACK = "fallback";
     protected static final String MAIL_NNTP_LOCALADDRESS = "localaddress";
     protected static final String MAIL_NNTP_LOCALPORT = "localport";
     protected static final String MAIL_NNTP_QUITWAIT = "quitwait";
     protected static final String MAIL_NNTP_FACTORY_PORT = "socketFactory.port";
+    protected static final String MAIL_NNTP_ENCODE_TRACE = "encodetrace";
 
     protected static final int MIN_MILLIS = 1000 * 60;
     protected static final int TIMEOUT = MIN_MILLIS * 5;
@@ -101,6 +90,8 @@ public class NNTPConnection  {
     protected static final String AUTHENTICATION_CRAMMD5 = "CRAM-MD5";
     protected static final String AUTHENTICATION_DIGESTMD5 = "DIGEST-MD5";
 
+    // the protocol in use (either nntp or nntp-post).
+    String protocol;
     // the target host
     protected String host;
     // the target server port.
@@ -159,7 +150,8 @@ public class NNTPConnection  {
      *                 authentication is not required.
      * @param debug    The session debug flag.
      */
-    public NNTPConnection(Session session, String host, int port, String username, String password, boolean debug) {
+    public NNTPConnection(String protocol, Session session, String host, int port, String username, String password, boolean debug) {
+        this.protocol = protocol;
         this.session = session;
         this.host = host;
         this.port = port;
@@ -234,9 +226,10 @@ public class NNTPConnection  {
             port = socket.getPort();
             host = socket.getInetAddress().getHostName();
         }
+
         // now set up the input/output streams.
-        inputStream = socket.getInputStream();
-        outputStream = socket.getOutputStream();
+        inputStream = new TraceInputStream(socket.getInputStream(), debugStream, debug, getBooleanProperty(MAIL_NNTP_ENCODE_TRACE, false)); ;
+        outputStream = new TraceOutputStream(socket.getOutputStream(), debugStream, debug, getBooleanProperty(MAIL_NNTP_ENCODE_TRACE, false));
 
         // get a reader to read the input as lines
         in = new BufferedReader(new InputStreamReader(inputStream));
@@ -272,20 +265,20 @@ public class NNTPConnection  {
 
         // the socket factory can be specified via a session property.  By default, we just directly
         // instantiate a socket without using a factor.
-        String socketFactory = session.getProperty(MAIL_NNTP_FACTORY_CLASS);
+        String socketFactory = getProperty(MAIL_NNTP_FACTORY_CLASS);
 
         // there are several protocol properties that can be set to tune the created socket.  We need to
         // retrieve those bits before creating the socket.
-        int timeout = SessionUtil.getIntProperty(session, MAIL_NNTP_TIMEOUT, -1);
+        int timeout = getIntProperty(MAIL_NNTP_TIMEOUT, -1);
         InetAddress localAddress = null;
         // see if we have a local address override.
-        String localAddrProp = session.getProperty(MAIL_NNTP_LOCALADDRESS);
+        String localAddrProp = getProperty(MAIL_NNTP_LOCALADDRESS);
         if (localAddrProp != null) {
             localAddress = InetAddress.getByName(localAddrProp);
         }
 
         // check for a local port...default is to allow socket to choose.
-        int localPort = SessionUtil.getIntProperty(session, MAIL_NNTP_LOCALPORT, 0);
+        int localPort = getIntProperty(MAIL_NNTP_LOCALPORT, 0);
 
         socket = null;
 
@@ -296,7 +289,7 @@ public class NNTPConnection  {
 
         else {
             try {
-                int socketFactoryPort = SessionUtil.getIntProperty(session, MAIL_NNTP_FACTORY_PORT, -1);
+                int socketFactoryPort = getIntProperty(MAIL_NNTP_FACTORY_PORT, -1);
 
                 // we choose the port used by the socket based on overrides.
                 Integer portArg = new Integer(socketFactoryPort == -1 ? port : socketFactoryPort);
@@ -332,7 +325,7 @@ public class NNTPConnection  {
             } catch (Throwable e) {
                 // if a socket factor is specified, then we may need to fall back to a default.  This behavior
                 // is controlled by (surprise) more session properties.
-                if (SessionUtil.getBooleanProperty(session, MAIL_NNTP_FACTORY_FALLBACK, false)) {
+                if (getBooleanProperty(MAIL_NNTP_FACTORY_FALLBACK, false)) {
                     if (debug) {
                         debugOut("First plain socket attempt faile, falling back to default factory", e);
                     }
@@ -395,7 +388,7 @@ public class NNTPConnection  {
     public void sendQuit() throws MessagingException {
         // there's yet another property that controls whether we should wait for a
         // reply for a QUIT command.  If on, just send the command and get outta here.
-        if (SessionUtil.getBooleanProperty(session, MAIL_NNTP_QUITWAIT, false)) {
+        if (getBooleanProperty(MAIL_NNTP_QUITWAIT, false)) {
             sendLine("QUIT");
         }
         else {
@@ -648,9 +641,6 @@ public class NNTPConnection  {
      * appropriate CRLF
      */
     public void sendLine(String data) throws MessagingException {
-        if (debug) {
-            debugOut("sending line to server >>>" + data + "<<<");
-        }
         if (socket == null || !socket.isConnected()) {
             throw new MessagingException("no connection");
         }
@@ -722,7 +712,7 @@ public class NNTPConnection  {
     public String getSASLRealm() {
         // if the realm is null, retrieve it using the realm session property.
         if (realm == null) {
-            realm = session.getProperty(MAIL_NNTP_SASL_REALM);
+            realm = getProperty(MAIL_NNTP_SASL_REALM);
         }
         return realm;
     }
@@ -965,6 +955,74 @@ public class NNTPConnection  {
      */
     public String getHost() {
         return host;
+    }
+
+
+    /**
+     * Get a property associated with this mail protocol.
+     *
+     * @param name   The name of the property.
+     *
+     * @return The property value (returns null if the property has not been set).
+     */
+    String getProperty(String name) {
+        // the name we're given is the least qualified part of the name.  We construct the full property name
+        // using the protocol (either "nntp" or "nntp-post").
+        String fullName = "mail." + protocol + "." + name;
+        return session.getProperty(fullName);
+    }
+
+    /**
+     * Get a property associated with this mail session.  Returns
+     * the provided default if it doesn't exist.
+     *
+     * @param name   The name of the property.
+     * @param defaultValue
+     *               The default value to return if the property doesn't exist.
+     *
+     * @return The property value (returns defaultValue if the property has not been set).
+     */
+    String getProperty(String name, String defaultValue) {
+        // the name we're given is the least qualified part of the name.  We construct the full property name
+        // using the protocol (either "nntp" or "nntp-post").
+        String fullName = "mail." + protocol + "." + name;
+        return SessionUtil.getProperty(session, fullName, defaultValue);
+    }
+
+
+    /**
+     * Get a property associated with this mail session as an integer value.  Returns
+     * the default value if the property doesn't exist or it doesn't have a valid int value.
+     *
+     * @param name   The name of the property.
+     * @param defaultValue
+     *               The default value to return if the property doesn't exist.
+     *
+     * @return The property value converted to an int.
+     */
+    int getIntProperty(String name, int defaultValue) {
+        // the name we're given is the least qualified part of the name.  We construct the full property name
+        // using the protocol (either "nntp" or "nntp-post").
+        String fullName = "mail." + protocol + "." + name;
+        return SessionUtil.getIntProperty(session, fullName, defaultValue);
+    }
+
+
+    /**
+     * Get a property associated with this mail session as an boolean value.  Returns
+     * the default value if the property doesn't exist or it doesn't have a valid int value.
+     *
+     * @param name   The name of the property.
+     * @param defaultValue
+     *               The default value to return if the property doesn't exist.
+     *
+     * @return The property value converted to a boolean
+     */
+    boolean getBooleanProperty(String name, boolean defaultValue) {
+        // the name we're given is the least qualified part of the name.  We construct the full property name
+        // using the protocol (either "nntp" or "nntp-post").
+        String fullName = "mail." + protocol + "." + name;
+        return SessionUtil.getBooleanProperty(session, fullName, defaultValue);
     }
 }
 
