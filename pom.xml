@@ -88,6 +88,16 @@
   <properties>
     <!--
       |
+      | Maven properties
+      |
+    -->
+    <maven.compile.source>1.4</maven.compile.source>
+    <maven.compile.target>1.4</maven.compile.target>
+    <maven.compile.deprecation>true</maven.compile.deprecation>
+    <maven.compile.optimize>true</maven.compile.optimize>
+    <maven.compiler.debug>true</maven.compiler.debug>
+    <!--
+      |
       | Geronimo module versions
       |
     -->
@@ -128,6 +138,7 @@
     -->
     <activeIoVersion>2.0-r118</activeIoVersion>
     <activeMqVersion>4.0-SNAPSHOT</activeMqVersion>
+    <antVersion>1.6.5</antVersion>
     <antlrVersion>2.7.2</antlrVersion>
     <apachedsVersion>0.9.2</apachedsVersion>
     <asmVersion>1.4.3</asmVersion>
@@ -659,8 +670,9 @@
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
-          <source>1.4</source>
-          <target>1.4</target>
+          <source>${maven.compile.source}</source>
+          <target>${maven.compile.target}</target>
+          <optimize>${maven.compile.optimize}</optimize>
         </configuration>
       </plugin>
       <plugin>
@@ -774,6 +786,27 @@
         <module>modules/${module}</module>
       </modules>
     </profile>
+    <profile>
+      <id>singleplugin</id>
+      <activation>
+        <property>
+          <name>plugin</name>
+        </property>
+      </activation>
+      <modules>
+        <module>plugins-m2/${plugin}</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>singleapp</id>
+      <activation>
+        <property>
+          <name>application</name>
+        </property>
+      </activation>
+      <modules>
+        <module>applications/${application}</module>
+      </modules>
+    </profile>
   </profiles>
-
 </project>
