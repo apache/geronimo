@@ -26,6 +26,7 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.repository.WriteableRepository;
 import org.apache.geronimo.util.encoders.Base64;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -65,12 +66,14 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
     private Collection configStores;
     private WriteableRepository writeableRepo;
     private ConfigurationStore configStore;
+    private ServerInfo serverInfo;
     private Map configIdToFile = new HashMap();
 
-    public ConfigInstallerGBean(Collection configStores, WriteableRepository writeableRepo, ConfigurationStore configStore) {
+    public ConfigInstallerGBean(Collection configStores, WriteableRepository writeableRepo, ConfigurationStore configStore, ServerInfo serverInfo) {
         this.configStores = configStores;
         this.writeableRepo = writeableRepo;
         this.configStore = configStore;
+        this.serverInfo = serverInfo;
     }
 
     public ConfigurationMetadata[] listConfigurations(URL mavenRepository, String username, String password) throws IOException {
@@ -109,24 +112,39 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
         for (int i = 0; i < configs.getLength(); i++) {
             Element config = (Element) configs.item(i);
             String configId = getChildText(config, "config-id");
-            boolean eligible = true;
+            String[] versions = getChildrenText(config, "geronimo-version");
             String[] prereqs = getChildrenText(config, "prerequisite");
-            for (int j = 0; j < prereqs.length; j++) {
-                boolean found = false;
-                for (Iterator it = set.iterator(); it.hasNext();) {
-                    String id = (String) it.next();
-                    if(id.startsWith(prereqs[j])) {
-                        found = true;
+            boolean eligible = true;
+            // If the config has versions listed, make sure one of them matches
+            if(versions != null && versions.length > 0) {
+                eligible = false;
+                String mine = serverInfo.getVersion();
+                for (int j = 0; j < versions.length; j++) {
+                    String version = versions[j];
+                    if(version.equals(mine)) {
+                        eligible = true;
+                    }
+                }
+            }
+            // If the config has prereqs listed, make sure we have them all
+            if(eligible) {
+                for (int j = 0; j < prereqs.length; j++) {
+                    boolean found = false;
+                    for (Iterator it = set.iterator(); it.hasNext();) {
+                        String id = (String) it.next();
+                        if(id.startsWith(prereqs[j])) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if(!found) {
+                        eligible = false;
                         break;
                     }
                 }
-                if(!found) {
-                    eligible = false;
-                    break;
-                }
             }
             ConfigurationMetadata data = new ConfigurationMetadata(new URI(configId), getChildText(config, "name"), getChildText(config, "category"), set.contains(configId), eligible);
-            data.setGeronimoVersions(getChildrenText(config, "geronimo-version"));
+            data.setGeronimoVersions(versions);
             data.setPrerequisites(prereqs);
             results.add(data);
         }
@@ -324,9 +342,10 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
         infoFactory.addReference("DependencyInstallTarget", WriteableRepository.class, "GBean");
         infoFactory.addReference("ConfigurationInstallTarget", ConfigurationStore.class, "ConfigurationStore");
         infoFactory.addReference("AllConfigStores", ConfigurationStore.class, "ConfigurationStore");
+        infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
         infoFactory.addInterface(ConfigurationInstaller.class);
 
-        infoFactory.setConstructor(new String[]{"AllConfigStores", "DependencyInstallTarget", "ConfigurationInstallTarget"});
+        infoFactory.setConstructor(new String[]{"AllConfigStores", "DependencyInstallTarget", "ConfigurationInstallTarget", "ServerInfo"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

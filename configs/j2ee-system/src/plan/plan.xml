@@ -87,6 +87,9 @@ specific services - those should be provided by children.
             <gbean-name>*:j2eeType=ConfigurationStore,*</gbean-name>
           </pattern>
         </references>
+        <reference name="ServerInfo">
+            <name>ServerInfo</name>
+        </reference>
     </gbean>
 
     <!-- Logging service -->
