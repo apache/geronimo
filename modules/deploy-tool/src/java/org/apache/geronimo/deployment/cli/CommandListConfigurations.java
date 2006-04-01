@@ -97,7 +97,7 @@ public class CommandListConfigurations extends AbstractCommand {
                 for (int i = 0; i < items.size(); i++) {
                     ConfigurationMetadata metadata = (ConfigurationMetadata) items.get(i);
                     String prefix = "    ";
-                    if(!metadata.isInstalled()) {
+                    if(!metadata.isInstalled() && metadata.isEligible()) {
                         available.add(metadata);
                         prefix = Integer.toString(available.size());
                         if(available.size() < 10) {
