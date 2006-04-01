@@ -745,6 +745,11 @@ limitations under the License.
   <servlet-name>car-export</servlet-name>
   <servlet-class>org.apache.geronimo.console.car.CARExportServlet</servlet-class>
 </servlet>
+<servlet>
+  <display-name>Geronimo as Maven Repo Servlet</display-name>
+  <servlet-name>maven-repo</servlet-name>
+  <servlet-class>org.apache.geronimo.console.car.GeronimoAsMavenServlet</servlet-class>
+</servlet>
 
 <servlet-mapping>
   <servlet-name>dwr-invoker</servlet-name>
@@ -753,6 +758,10 @@ limitations under the License.
 <servlet-mapping>
   <servlet-name>car-export</servlet-name>
   <url-pattern>/car-export</url-pattern>
+</servlet-mapping>
+<servlet-mapping>
+  <servlet-name>maven-repo</servlet-name>
+  <url-pattern>/maven-repo/*</url-pattern>
 </servlet-mapping>
 
 

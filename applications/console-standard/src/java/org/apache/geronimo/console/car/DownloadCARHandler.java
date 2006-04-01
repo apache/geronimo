@@ -51,8 +51,12 @@ public class DownloadCARHandler extends BaseImportExportHandler {
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
         String configId = request.getParameter("configId");
         String repo = request.getParameter("repository");
+        String user = request.getParameter("repo-user");
+        String pass = request.getParameter("repo-pass");
         response.setRenderParameter("configId", configId);
         response.setRenderParameter("repository", repo);
+        if(!isEmpty(user)) response.setRenderParameter("repo-user", user);
+        if(!isEmpty(pass)) response.setRenderParameter("repo-pass", pass);
 
         return getMode();
     }
@@ -60,9 +64,11 @@ public class DownloadCARHandler extends BaseImportExportHandler {
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
         String configId = request.getParameter("configId");
         String repo = request.getParameter("repository");
+        String user = request.getParameter("repo-user");
+        String pass = request.getParameter("repo-pass");
         ConfigurationMetadata config;
         try {
-            config = PortletManager.getConfigurationInstaller(request).loadDependencies(new URL(repo), new ConfigurationMetadata(new URI(configId), null, null, false));
+            config = PortletManager.getConfigurationInstaller(request).loadDependencies(new URL(repo), user, pass, new ConfigurationMetadata(new URI(configId), null, null, false, true));
         } catch (URISyntaxException e) {
             throw new PortletException("Unable to format URI", e);
         }
@@ -70,16 +76,20 @@ public class DownloadCARHandler extends BaseImportExportHandler {
         request.setAttribute("parents", config.getParents());
         request.setAttribute("dependencies", config.getDependencies());
         request.setAttribute("repository", repo);
+        request.setAttribute("repouser", user);
+        request.setAttribute("repopass", pass);
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
         String repo = request.getParameter("repository");
+        String user = request.getParameter("repo-user");
+        String pass = request.getParameter("repo-pass");
         boolean proceed = Boolean.valueOf(request.getParameter("proceed")).booleanValue();
         if(proceed) {
             String configId = request.getParameter("configId");
             DownloadResults results;
             try {
-                results = PortletManager.getConfigurationInstaller(request).install(new URL(repo), new URI(configId));
+                results = PortletManager.getConfigurationInstaller(request).install(new URL(repo), user, pass, new URI(configId));
             } catch (URISyntaxException e) {
                 throw new PortletException("Unable to format URI", e);
             }
@@ -104,6 +114,9 @@ public class DownloadCARHandler extends BaseImportExportHandler {
             request.getPortletSession(true).setAttribute("car.install.configurations", configs);
             request.getPortletSession(true).setAttribute("car.install.dependencies", deps);
             response.setRenderParameter("configId", configId);
+            response.setRenderParameter("repository", repo);
+            if(!isEmpty(user)) response.setRenderParameter("repo-user", user);
+            if(!isEmpty(pass)) response.setRenderParameter("repo-pass", pass);
         }
         return RESULTS_MODE+BEFORE_ACTION;
     }

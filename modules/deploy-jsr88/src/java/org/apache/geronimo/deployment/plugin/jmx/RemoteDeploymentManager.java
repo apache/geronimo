@@ -126,12 +126,12 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
         }
     }
 
-    public ConfigurationMetadata[] listConfigurations(URL mavenRepository) throws IOException {
+    public ConfigurationMetadata[] listConfigurations(URL mavenRepository, String username, String password) throws IOException {
         Set set = kernel.listGBeans(new GBeanQuery(null, "org.apache.geronimo.system.configuration.ConfigurationInstaller"));
         for (Iterator it = set.iterator(); it.hasNext();) {
             ObjectName name = (ObjectName) it.next();
             try {
-                return (ConfigurationMetadata[]) kernel.invoke(name, "listConfigurations", new Object[]{mavenRepository}, new String[]{URL.class.getName()});
+                return (ConfigurationMetadata[]) kernel.invoke(name, "listConfigurations", new Object[]{mavenRepository, username, password}, new String[]{URL.class.getName(), String.class.getName(), String.class.getName()});
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new IOException("Unable to list configurations: "+e.getMessage());
@@ -140,12 +140,12 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
         return null;
     }
 
-    public ConfigurationMetadata loadDependencies(URL mavenRepository, ConfigurationMetadata source) throws IOException {
+    public ConfigurationMetadata loadDependencies(URL mavenRepository, String username, String password, ConfigurationMetadata source) throws IOException {
         Set set = kernel.listGBeans(new GBeanQuery(null, "org.apache.geronimo.system.configuration.ConfigurationInstaller"));
         for (Iterator it = set.iterator(); it.hasNext();) {
             ObjectName name = (ObjectName) it.next();
             try {
-                return (ConfigurationMetadata) kernel.invoke(name, "loadDependencies", new Object[]{mavenRepository, source}, new String[]{URL.class.getName(), ConfigurationMetadata.class.getName()});
+                return (ConfigurationMetadata) kernel.invoke(name, "loadDependencies", new Object[]{mavenRepository, username, password, source}, new String[]{URL.class.getName(), ConfigurationMetadata.class.getName(), String.class.getName(), String.class.getName()});
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new IOException("Unable to load dependencies: "+e.getMessage());
@@ -154,12 +154,12 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
         return null;
     }
 
-    public DownloadResults install(URL mavenRepository, URI configId) throws IOException {
+    public DownloadResults install(URL mavenRepository, String username, String password, URI configId) throws IOException {
         Set set = kernel.listGBeans(new GBeanQuery(null, "org.apache.geronimo.system.configuration.ConfigurationInstaller"));
         for (Iterator it = set.iterator(); it.hasNext();) {
             ObjectName name = (ObjectName) it.next();
             try {
-                return (DownloadResults) kernel.invoke(name, "install", new Object[]{mavenRepository, configId}, new String[]{URL.class.getName(), URI.class.getName()});
+                return (DownloadResults) kernel.invoke(name, "install", new Object[]{mavenRepository, username, password, configId}, new String[]{URL.class.getName(), String.class.getName(), String.class.getName(), URI.class.getName()});
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new IOException("Unable to install configurations: "+e.getMessage());

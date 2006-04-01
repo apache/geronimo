@@ -44,6 +44,20 @@ limitations under the License.
         </init-param>
     </servlet>
 
+    <servlet>
+        <display-name>CAR Export Forward Servlet</display-name>
+        <servlet-name>car-export-forward</servlet-name>
+        <servlet-class>org.apache.geronimo.console.servlet.ContextForwardServlet</servlet-class>
+        <init-param>
+           <param-name>context-path</param-name>
+           <param-value>/console-standard</param-value>
+        </init-param>
+        <init-param>
+           <param-name>servlet-path</param-name>
+           <param-value>/car-export</param-value>
+        </init-param>
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>se-console</servlet-name>
         <url-pattern>/portal/*</url-pattern>

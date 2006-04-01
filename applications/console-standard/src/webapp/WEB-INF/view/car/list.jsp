@@ -18,9 +18,11 @@ already available in the local server.</p>
           <li>${entry.description}</li>
         </c:when>
         <c:otherwise>
-          <li><a href="<portlet:actionURL><portlet:param name="configId" value="${entry.configId}"/><portlet:param name="repository" value="${repository}"/><portlet:param name="mode" value="download-before"/></portlet:actionURL>">${entry.description} (${entry.version})</a></li>
+          <li><a href="<portlet:actionURL><portlet:param name="configId" value="${entry.configId}"/><portlet:param name="repository" value="${repository}"/><portlet:param name="repo-user" value="${repouser}"/><portlet:param name="repo-pass" value="${repopass}"/><portlet:param name="mode" value="download-before"/></portlet:actionURL>">${entry.description}<c:if test="${entry.description ne entry.configId}"> (${entry.version})</c:if></a></li>
         </c:otherwise>
       </c:choose>
     </c:forEach>
   </ul>
 </c:forEach>
+
+<p><a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="index-before" /></portlet:actionURL>">Cancel</a></p>

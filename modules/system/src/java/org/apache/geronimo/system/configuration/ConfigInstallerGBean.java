@@ -21,12 +21,20 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.repository.WriteableRepository;
+import org.apache.geronimo.util.encoders.Base64;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -35,6 +43,7 @@ import java.io.ObjectInputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -42,7 +51,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -65,12 +73,22 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
         this.configStore = configStore;
     }
 
-    public ConfigurationMetadata[] listConfigurations(URL mavenRepository) throws IOException {
+    public ConfigurationMetadata[] listConfigurations(URL mavenRepository, String username, String password) throws IOException {
         String repository = mavenRepository.toString();
         if(!repository.endsWith("/")) {
             repository = repository+"/";
         }
-        URL url = new URL(repository+"geronimo-configurations.properties");
+        URL url = new URL(repository+"geronimo-configs.xml");
+        InputStream in = openStream(url, username, password);
+        try {
+            return loadConfiguration(in);
+        } catch (Exception e) {
+            log.error("Unable to load repository configuration data", e);
+            return new ConfigurationMetadata[0];
+        }
+    }
+
+    private ConfigurationMetadata[] loadConfiguration(InputStream in) throws ParserConfigurationException, URISyntaxException, IOException, SAXException {
         Set set = new HashSet();
         for (Iterator it = configStores.iterator(); it.hasNext();) {
             ConfigurationStore store = (ConfigurationStore) it.next();
@@ -80,31 +98,92 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
                 set.add(info.getConfigID().toString());
             }
         }
-        InputStream in = url.openStream();
-        Properties props = new Properties();
-        props.load(in);
+
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc = builder.parse(in);
         in.close();
+        Element root = doc.getDocumentElement();
+        NodeList configs = root.getElementsByTagName("configuration");
         List results = new ArrayList();
-        for (Iterator it = props.keySet().iterator(); it.hasNext();) {
-            String key = (String) it.next();
-            int pos = key.indexOf('.');
-            String type = key.substring(0, pos);
-            String configId = key.substring(pos + 1);
-            try {
-                results.add(new ConfigurationMetadata(new URI(configId), props.getProperty(key), type, set.contains(configId)));
-            } catch (URISyntaxException e) {
-                throw new IOException("Unable to create configID URI: "+e.getMessage());
+        for (int i = 0; i < configs.getLength(); i++) {
+            Element config = (Element) configs.item(i);
+            String configId = getChildText(config, "config-id");
+            boolean eligible = true;
+            String[] prereqs = getChildrenText(config, "prerequisite");
+            for (int j = 0; j < prereqs.length; j++) {
+                boolean found = false;
+                for (Iterator it = set.iterator(); it.hasNext();) {
+                    String id = (String) it.next();
+                    if(id.startsWith(prereqs[j])) {
+                        found = true;
+                        break;
+                    }
+                }
+                if(!found) {
+                    eligible = false;
+                    break;
+                }
             }
+            ConfigurationMetadata data = new ConfigurationMetadata(new URI(configId), getChildText(config, "name"), getChildText(config, "category"), set.contains(configId), eligible);
+            data.setGeronimoVersions(getChildrenText(config, "geronimo-version"));
+            data.setPrerequisites(prereqs);
+            results.add(data);
         }
         return (ConfigurationMetadata[]) results.toArray(new ConfigurationMetadata[results.size()]);
     }
 
-    public ConfigurationMetadata loadDependencies(URL mavenRepository, ConfigurationMetadata source) throws IOException {
+    private String getChildText(Element root, String property) {
+        NodeList children = root.getChildNodes();
+        for(int i=0; i<children.getLength(); i++) {
+            Node check = children.item(i);
+            if(check.getNodeType() == Node.ELEMENT_NODE && check.getNodeName().equals(property)) {
+                NodeList nodes = check.getChildNodes();
+                StringBuffer buf = null;
+                for(int j=0; j<nodes.getLength(); j++) {
+                    Node node = nodes.item(j);
+                    if(node.getNodeType() == Node.TEXT_NODE) {
+                        if(buf == null) {
+                            buf = new StringBuffer();
+                        }
+                        buf.append(node.getNodeValue());
+                    }
+                }
+                return buf == null ? null : buf.toString();
+            }
+        }
+        return null;
+    }
+
+    private String[] getChildrenText(Element root, String property) {
+        NodeList children = root.getChildNodes();
+        List results = new ArrayList();
+        for(int i=0; i<children.getLength(); i++) {
+            Node check = children.item(i);
+            if(check.getNodeType() == Node.ELEMENT_NODE && check.getNodeName().equals(property)) {
+                NodeList nodes = check.getChildNodes();
+                StringBuffer buf = null;
+                for(int j=0; j<nodes.getLength(); j++) {
+                    Node node = nodes.item(j);
+                    if(node.getNodeType() == Node.TEXT_NODE) {
+                        if(buf == null) {
+                            buf = new StringBuffer();
+                        }
+                        buf.append(node.getNodeValue());
+                    }
+                }
+                results.add(buf == null ? null : buf.toString());
+            }
+        }
+        return (String[]) results.toArray(new String[results.size()]);
+    }
+
+    public ConfigurationMetadata loadDependencies(URL mavenRepository, String username, String password, ConfigurationMetadata source) throws IOException {
         String conf = source.getConfigId().toString();
         File file = File.createTempFile("geronimo-download", "." + conf.substring(conf.lastIndexOf("/")+1));
         file.deleteOnExit();
         String url = getURL(conf, mavenRepository.toString());
-        downloadFile(url, file); //todo: download only SNAPSHOTS if previously available?
+        downloadFile(url, username, password, file); //todo: download only SNAPSHOTS if previously available?
         configIdToFile.put(source.getConfigId(), file);
         ZipFile zip = new ZipFile(file);
         try {
@@ -124,7 +203,7 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
         }
     }
 
-    public DownloadResults install(URL mavenRepository, URI configId) throws IOException {
+    public DownloadResults install(URL mavenRepository, String username, String password, URI configId) throws IOException {
         Set set = new HashSet();
         for (Iterator it = configStores.iterator(); it.hasNext();) {
             ConfigurationStore store = (ConfigurationStore) it.next();
@@ -135,7 +214,7 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
             }
         }
         DownloadResults results = new DownloadResults();
-        processConfiguration(configId,writeableRepo,mavenRepository.toString(),set,results);
+        processConfiguration(configId,writeableRepo,mavenRepository.toString(),username,password,set,results);
         return results;
     }
 
@@ -150,10 +229,23 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
         return baseRepositoryURL+parts[0]+"/"+parts[3]+"s/"+parts[1]+"-"+parts[2]+"."+parts[3];
     }
 
-    private void downloadFile(String url, File target) throws IOException {
-        log.info("Downloading "+url+" to "+target.getAbsolutePath());
+    private InputStream openStream(URL url, String username, String password) throws IOException {
+        InputStream in;
+        if(username != null) { //todo: try connecting first and only use authentication if challenged
+            URLConnection con = url.openConnection();
+            con.setRequestProperty("Authorization", "Basic " + new String(Base64.encode((username + ":" + password).getBytes())));
+            in = con.getInputStream();
+        } else {
+            in = url.openStream();
+        }
+        return in;
+    }
+
+    private void downloadFile(String urlSource, String username, String password, File target) throws IOException {
+        log.info("Downloading "+urlSource+" to "+target.getAbsolutePath());
         byte[] buf = new byte[10240];
-        InputStream in = new URL(url).openStream();
+        URL url = new URL(urlSource);
+        InputStream in = openStream(url, username, password);
         FileOutputStream out = new FileOutputStream(target);
         int count;
         while((count = in.read(buf)) > -1) {
@@ -163,7 +255,7 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
         out.close();
     }
 
-    private void processConfiguration(URI configId, WriteableRepository repo, String repoURL, Set configurations, DownloadResults results) throws IOException {
+    private void processConfiguration(URI configId, WriteableRepository repo, String repoURL, String username, String password, Set configurations, DownloadResults results) throws IOException {
         if(!repoURL.endsWith("/")) {
             repoURL += "/";
         }
@@ -177,7 +269,9 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
             file.deleteOnExit();
         }
         String configUrl = getURL(id, repoURL);
-        downloadFile(configUrl, file);
+        if(!file.exists() || file.length() == 0) {
+            downloadFile(configUrl, username, password, file);
+        }
         results.addConfigurationInstalled(configId);
 
         // Process the contents of the CAR
@@ -198,7 +292,7 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
                 }
                 String url = getURL(dep.toString(), repoURL);
                 log.info("Downloading "+url+" to local repository");
-                repo.copyToRepository(new URL(url).openStream(), dep, null);
+                repo.copyToRepository(openStream(new URL(url), username, password), dep, null);
                 results.addDependencyInstalled(dep);
             }
             // Download the parents
@@ -209,7 +303,7 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
                         results.addConfigurationPresent(uri);
                         continue;
                     }
-                    processConfiguration(uri, repo, repoURL, configurations, results);
+                    processConfiguration(uri, repo, repoURL, username, password, configurations, results);
                 }
             }
             // Install the configuration

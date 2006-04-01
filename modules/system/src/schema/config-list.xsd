@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2004 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<xs:schema
+    targetNamespace="http://geronimo.apache.org/xml/ns/config-list-1.0"
+    xmlns:list="http://geronimo.apache.org/xml/ns/config-list-1.0"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified"
+    >
+    <xs:annotation>
+        <xs:documentation>
+            Schema for a list of Geronimo configurations available at some
+            external site (namely, a Maven repository).
+        </xs:documentation>
+    </xs:annotation>
+
+    <xs:element name="geronimo-config-list" type="list:config-listType"/>
+
+    <xs:complexType name="config-listType">
+        <xs:sequence>
+            <xs:element name="configuration" type="list:configurationType" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="configurationType">
+        <xs:sequence>
+            <xs:element name="name" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>
+                        A human-readable name for this configuration.  This will be used to identify
+                        the configuration to a user when giving them a list of configurations to
+                        select from.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="config-id" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>
+                        The Geronimo configId for this configuration, which uniquely identifies
+                        it, and also is used to construct a path to download it if necessary
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="category" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>
+                        A category name for this configuration.  The user interface typically groups
+                        configurations by their category name, so this should match the value for other
+                        configurations in the same category.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="geronimo-version" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        Indicates a version of the Geronimo base server that this component can run in.
+                        If no geronimo-version is listed, that means the component can run in any version
+                        of Geronimo so long as the prerequisites, parents, and dependencies are present.
+                        If one or more geronimo-version elements are listed, then the current version of
+                        Geronimo must match one of them in order for this component to be installable.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="prerequisite" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        The configId of a configuration that must be previously installed if this configuration
+                        is to be considered to be installable.  This is currently used for a web application
+                        to specify the web container it runs in (so we don't show Tomcat downloads for
+                        a Jetty installation, etc.).  It may be used for similar things in the future
+                        if more distribution choices are added to Geronimo.
+
+                        Normally parent should be used instead, indicating that if this configuration
+                        is installed, the parent configuration should also be downloaded and installed.
+                        This is only for cases where that doesn't make sense (again, Tomcat vs Jetty).
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="parent" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        The configId of a configuration that is a parent of this one.  That means that
+                        if this conifugration is selected, the parents (and their parents, etc.) must
+                        also be downloaded and installed so that this configuration can be run.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="dependency" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        The repository URI of a 3rd party JAR that is a dependency of this
+                        configuration.  That means that the JAR must be downloaded and installed if this
+                        configuration is selectee.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

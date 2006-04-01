@@ -26,7 +26,38 @@ import java.io.IOException;
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
 public interface ConfigurationInstaller {
-    public ConfigurationMetadata[] listConfigurations(URL mavenRepository) throws IOException;
-    public ConfigurationMetadata loadDependencies(URL mavenRepository, ConfigurationMetadata source) throws IOException;
-    public DownloadResults install(URL mavenRepository, URI configId) throws IOException;
+    /**
+     * Lists the configurations available for download in a particular Geronimo repository.
+     * @param mavenRepository The base URL to the maven repository
+     * @param username Optional username, if the maven repo uses HTTP Basic authentication.
+     *                 Set this to null if no authentication is required.
+     * @param password Optional password, if the maven repo uses HTTP Basic authentication.
+     *                 Set this to null if no authentication is required.
+     */
+    public ConfigurationMetadata[] listConfigurations(URL mavenRepository, String username, String password) throws IOException;
+
+    /**
+     * Populates the dependency information for a particular configuration descriptor.
+     * @param mavenRepository The base URL to the maven repository
+     * @param username Optional username, if the maven repo uses HTTP Basic authentication.
+     *                 Set this to null if no authentication is required.
+     * @param password Optional password, if the maven repo uses HTTP Basic authentication.
+     *                 Set this to null if no authentication is required.
+     * @param source   The configuration descriptor that should have dependency
+     *                 information added (though if this is a remote call a different
+     *                 object will be returned).
+     */
+    public ConfigurationMetadata loadDependencies(URL mavenRepository, String username, String password, ConfigurationMetadata source) throws IOException;
+
+    /**
+     * Installs a configuration from a remote repository into the local Geronimo server,
+     * including all its dependencies.
+     * @param mavenRepository The base URL to the maven repository
+     * @param username Optional username, if the maven repo uses HTTP Basic authentication.
+     *                 Set this to null if no authentication is required.
+     * @param password Optional password, if the maven repo uses HTTP Basic authentication.
+     *                 Set this to null if no authentication is required.
+     * @param configId The identifier of the configuration to install.
+     */
+    public DownloadResults install(URL mavenRepository, String username, String password, URI configId) throws IOException;
 }

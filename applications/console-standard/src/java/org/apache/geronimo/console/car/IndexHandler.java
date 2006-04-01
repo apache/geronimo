@@ -48,6 +48,8 @@ public class IndexHandler extends BaseImportExportHandler {
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
         request.setAttribute("repository", request.getParameter("repository"));
+        request.setAttribute("repo-user", request.getParameter("username"));
+        request.setAttribute("repo-pass", request.getParameter("password"));
         return LIST_MODE+BEFORE_ACTION;
     }
 }

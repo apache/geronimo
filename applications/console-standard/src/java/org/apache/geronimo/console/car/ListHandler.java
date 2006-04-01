@@ -33,6 +33,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Collections;
+import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * Handler for the import export list screen.
@@ -52,21 +55,29 @@ public class ListHandler extends BaseImportExportHandler {
             return INDEX_MODE+BEFORE_ACTION;
         }
         response.setRenderParameter("repository", repository);
+        String user = (String) request.getAttribute("repo-user");
+        String pass = (String) request.getAttribute("repo-pass");
+        if(!isEmpty(user)) response.setRenderParameter("repo-user", user);
+        if(!isEmpty(pass)) response.setRenderParameter("repo-pass", pass);
         return getMode();
     }
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
         String repository = request.getParameter("repository");
-        loadFromRepository(request, repository);
+        String user = request.getParameter("repo-user");
+        String pass = request.getParameter("repo-pass");
+        loadFromRepository(request, repository, user, pass);
         request.setAttribute("repository", repository);
+        request.setAttribute("repouser", user);
+        request.setAttribute("repopass", pass);
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
         return getMode()+BEFORE_ACTION;
     }
 
-    private void loadFromRepository(RenderRequest request, String repository) throws IOException {
-        ConfigurationMetadata[] data = PortletManager.getConfigurationInstaller(request).listConfigurations(new URL(repository));
+    private void loadFromRepository(RenderRequest request, String repository, String username, String password) throws IOException {
+        ConfigurationMetadata[] data = PortletManager.getConfigurationInstaller(request).listConfigurations(new URL(repository), username, password);
 
         Map results = new HashMap();
         for (int i = 0; i < data.length; i++) {
@@ -77,6 +88,11 @@ public class ListHandler extends BaseImportExportHandler {
                 results.put(metadata.getCategory(), values);
             }
             values.add(metadata);
+        }
+        Collection values = results.values();
+        for (Iterator it = values.iterator(); it.hasNext();) {
+            List list = (List) it.next();
+            Collections.sort(list);
         }
         request.setAttribute("categories", results);
     }

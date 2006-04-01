@@ -25,19 +25,23 @@ import java.net.URI;
  *
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
-public class ConfigurationMetadata implements Serializable {
+public class ConfigurationMetadata implements Serializable, Comparable {
     private URI configId;
     private String description;
     private String category;
     private boolean installed;
+    private boolean eligible;
     private URI[] parents;
     private URI[] dependencies;
+    private String[] geronimoVersions;
+    private String[] prerequisites;
 
-    public ConfigurationMetadata(URI configId, String description, String category, boolean installed) {
+    public ConfigurationMetadata(URI configId, String description, String category, boolean installed, boolean eligible) {
         this.configId = configId;
         this.description = description;
         this.category = category;
         this.installed = installed;
+        this.eligible = eligible;
     }
 
     public void setParents(URI[] parents) {
@@ -84,5 +88,35 @@ public class ConfigurationMetadata implements Serializable {
      */
     public URI[] getDependencies() {
         return dependencies;
+    }
+
+    public String[] getGeronimoVersions() {
+        return geronimoVersions;
+    }
+
+    public void setGeronimoVersions(String[] geronimoVersions) {
+        this.geronimoVersions = geronimoVersions;
+    }
+
+    public String[] getPrerequisites() {
+        return prerequisites;
+    }
+
+    public void setPrerequisites(String[] prerequisites) {
+        this.prerequisites = prerequisites;
+    }
+
+    public boolean isEligible() {
+        return eligible;
+    }
+
+
+    public int compareTo(Object o) {
+        ConfigurationMetadata other = (ConfigurationMetadata) o;
+        int test = category.compareTo(other.category);
+        if(test != 0) return test;
+        test = description.compareTo(other.description);
+
+        return test;
     }
 }

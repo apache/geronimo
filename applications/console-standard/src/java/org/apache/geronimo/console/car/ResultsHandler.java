@@ -72,16 +72,28 @@ public class ResultsHandler extends BaseImportExportHandler {
     }
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
+        String repo = request.getParameter("repository");
+        String user = request.getParameter("repo-user");
+        String pass = request.getParameter("repo-pass");
         String configId = request.getParameter("configId");
         request.setAttribute("configId", configId);
         List configs = (List) request.getPortletSession(true).getAttribute("car.install.configurations");
         List deps = (List) request.getPortletSession(true).getAttribute("car.install.dependencies");
         request.setAttribute("dependencies", deps);
         request.setAttribute("configurations", configs);
+        request.setAttribute("repository", repo);
+        request.setAttribute("repouser", user);
+        request.setAttribute("repopass", pass);
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
         String configId = request.getParameter("configId");
+        String repo = request.getParameter("repository");
+        String user = request.getParameter("repo-user");
+        String pass = request.getParameter("repo-pass");
+        response.setRenderParameter("repository", repo);
+        if(!isEmpty(user)) response.setRenderParameter("repo-user", user);
+        if(!isEmpty(pass)) response.setRenderParameter("repo-pass", pass);
         try {
             ConfigurationManager mgr = ConfigurationUtil.getConfigurationManager(KernelRegistry.getSingleKernel());
             List list = mgr.loadRecursive(new URI(configId));
@@ -90,7 +102,7 @@ public class ResultsHandler extends BaseImportExportHandler {
                 mgr.loadGBeans(uri);
                 mgr.start(uri);
             }
-            return LIST_MODE+BEFORE_ACTION;
+            return LIST_MODE;
         } catch (Exception e) {
             log.error("Unable to start configuration "+configId, e);
             response.setRenderParameter("configId", configId);

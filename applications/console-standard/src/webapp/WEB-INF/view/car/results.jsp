@@ -26,5 +26,8 @@
 <form name="<portlet:namespace/>KeystoreForm" action="<portlet:actionURL/>">
     <input type="hidden" name="mode" value="results-after" />
     <input type="hidden" name="configId" value="${configId}" />
+    <input type="hidden" name="repository" value="${repository}" />
+    <input type="hidden" name="repo-user" value="${repouser}" />
+    <input type="hidden" name="repo-pass" value="${repopass}" />
     <input type="submit" value="Start ${configId}" />
 </form>

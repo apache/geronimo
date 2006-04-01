@@ -56,6 +56,8 @@ public class CommandListConfigurations extends AbstractCommand {
                 "is used to add new functionality to the Geronimo server.");
     }
 
+    //todo: provide a way to handle a username and password for the remote repo?
+
     public CommandListConfigurations(String command, String group, String helpArgumentList, String helpText) {
         super(command, group, helpArgumentList, helpText);
     }
@@ -71,7 +73,7 @@ public class CommandListConfigurations extends AbstractCommand {
             URL repository;
             try {
                 repository = new URL(args[0]);
-                data = mgr.listConfigurations(repository);
+                data = mgr.listConfigurations(repository, null, null);
             } catch (IOException e) {
                 throw new DeploymentException("Unable to list configurations", e);
             }
@@ -118,7 +120,7 @@ public class CommandListConfigurations extends AbstractCommand {
                 }
                 int selection = Integer.parseInt(answer);
                 ConfigurationMetadata target = ((ConfigurationMetadata) available.get(selection - 1));
-                DownloadResults results = mgr.install(repository, target.getConfigId());
+                DownloadResults results = mgr.install(repository, null, null, target.getConfigId());
                 for (int i = 0; i < results.getConfigurationsPresent().length; i++) {
                     URI uri = results.getConfigurationsPresent()[i];
                     System.out.print(DeployUtils.reformat("Using existing configuration "+uri, 4, 72));
