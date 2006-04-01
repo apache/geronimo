@@ -58,12 +58,6 @@
       <artifactId>geronimo-jaxrpc_1.1_spec</artifactId>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>org.apache.geronimo.plugins</groupId>
-      <artifactId>geronimo-deployment-plugin</artifactId>
-      <version>${geronimoVersion}</version>
-      <scope>provided</scope>
-    </dependency>
   </dependencies>
 
   <modules>

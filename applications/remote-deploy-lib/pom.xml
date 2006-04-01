@@ -20,23 +20,28 @@
 
 <project>
   <parent>
-    <groupId>org.apache.geronimo.applications.magicGball</groupId>
+    <groupId>org.apache.geronimo.applications</groupId>
+    <artifactId>applications-parent</artifactId>
     <version>1.2-SNAPSHOT</version>
-    <artifactId>magicGball-parent</artifactId>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>magicGball-web</artifactId>
+  <groupId>org.apache.geronimo.applications</groupId>
+  <artifactId>geronimo-remote-deploy-lib</artifactId>
   <version>1.2-SNAPSHOT</version>
-  <packaging>war</packaging>
-  <name>Geronimo :: The Magic G Ball Sample :: WAR</name>
+  <name>Geronimo :: Remote Deploy GBean</name>
+  <description>
+    Geronimo Remote Deploy GBean
+    A GBean for the remote deployment web app.  Unfortunately this can't
+    be built and pacakged into the WAR due to an outstanding classloader
+    issue with GBeans and WAR files.
+  </description>
 
   <dependencies>
     <dependency>
-      <groupId>org.apache.geronimo.applications.magicGball</groupId>
-      <artifactId>magicGball-ejb</artifactId>
-      <version>1.2-SNAPSHOT</version>
+       <groupId>org.apache.geronimo</groupId>
+       <artifactId>geronimo-kernel</artifactId>
+       <version>${geronimoVersion}</version>
     </dependency>
   </dependencies>
-
 </project>
