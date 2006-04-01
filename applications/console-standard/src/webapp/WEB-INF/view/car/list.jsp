@@ -14,7 +14,7 @@ already available in the local server.</p>
   <ul>
     <c:forEach var="entry" items="${category.value}">
       <c:choose>
-        <c:when test="${entry.installed}">
+        <c:when test="${entry.installed || !entry.eligible}">
           <li>${entry.description}</li>
         </c:when>
         <c:otherwise>
