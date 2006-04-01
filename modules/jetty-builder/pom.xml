@@ -20,15 +20,16 @@
 
 <project>
   <parent>
-    <groupId>org.apache.geronimo</groupId>
-    <artifactId>geronimo</artifactId>
+    <groupId>org.apache.geronimo.modules</groupId>
+    <artifactId>modules-parent</artifactId>
     <version>1.2-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>geronimo-jetty-builder</artifactId>
   <name>Geronimo :: Jetty :: Builder</name>
   <version>${geronimoVersion}</version>
-  <description>Geronimo Jetty Deployer</description>
+  
+
   <build>
     <plugins>
       <plugin>
@@ -74,14 +75,13 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.apache.geronimo</groupId>
+      <groupId>org.apache.geronimo.modules</groupId>
       <artifactId>geronimo-web-builder</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.geronimo</groupId>
+      <groupId>org.apache.geronimo.modules</groupId>
       <artifactId>geronimo-jetty</artifactId>
       <version>${geronimoVersion}</version>
     </dependency>
   </dependencies>
 </project>
-

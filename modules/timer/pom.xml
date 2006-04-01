@@ -21,34 +21,33 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.apache.geronimo</groupId>
-    <artifactId>geronimo</artifactId>
+    <groupId>org.apache.geronimo.modules</groupId>
+    <artifactId>modules-parent</artifactId>
     <version>1.2-SNAPSHOT</version>
   </parent>
-  <groupId>org.apache.geronimo</groupId>
   <artifactId>geronimo-timer</artifactId>
   <version>${geronimoVersion}</version>
   <name>Geronimo :: Timer</name>
   <description>Geronimo Timer</description>
   <dependencies>
     <dependency>
-      <groupId>org.apache.geronimo</groupId>
+      <groupId>org.apache.geronimo.modules</groupId>
       <artifactId>geronimo-connector</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.geronimo</groupId>
+      <groupId>org.apache.geronimo.modules</groupId>
       <artifactId>geronimo-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.geronimo</groupId>
+      <groupId>org.apache.geronimo.modules</groupId>
       <artifactId>geronimo-j2ee</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.geronimo</groupId>
+      <groupId>org.apache.geronimo.modules</groupId>
       <artifactId>geronimo-kernel</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.geronimo</groupId>
+      <groupId>org.apache.geronimo.modules</groupId>
       <artifactId>geronimo-transaction</artifactId>
     </dependency>
     <dependency>

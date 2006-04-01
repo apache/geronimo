@@ -21,11 +21,10 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.apache.geronimo</groupId>
-    <artifactId>geronimo</artifactId>
+    <groupId>org.apache.geronimo.modules</groupId>
+    <artifactId>modules-parent</artifactId>
     <version>1.2-SNAPSHOT</version>
   </parent>
-  <groupId>org.apache.geronimo</groupId>
   <artifactId>geronimo-deploy-tool</artifactId>
   <version>${geronimoVersion}</version>
   <name>Geronimo :: Deploy :: CLI Tool</name>
@@ -49,27 +48,27 @@
     </dependency>
 
     <dependency>
-      <groupId>org.apache.geronimo</groupId>
+      <groupId>org.apache.geronimo.modules</groupId>
       <artifactId>geronimo-common</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>org.apache.geronimo</groupId>
+      <groupId>org.apache.geronimo.modules</groupId>
       <artifactId>geronimo-util</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>org.apache.geronimo</groupId>
+      <groupId>org.apache.geronimo.modules</groupId>
       <artifactId>geronimo-system</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>org.apache.geronimo</groupId>
+      <groupId>org.apache.geronimo.modules</groupId>
       <artifactId>geronimo-deployment</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>org.apache.geronimo</groupId>
+      <groupId>org.apache.geronimo.modules</groupId>
       <artifactId>geronimo-deploy-jsr88</artifactId>
     </dependency>
   </dependencies>

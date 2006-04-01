@@ -21,11 +21,10 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.apache.geronimo</groupId>
-    <artifactId>geronimo</artifactId>
+    <groupId>org.apache.geronimo.modules</groupId>
+    <artifactId>modules-parent</artifactId>
     <version>1.2-SNAPSHOT</version>
   </parent>
-  <groupId>org.apache.geronimo</groupId>
   <artifactId>geronimo-client</artifactId>
   <version>${geronimoVersion}</version>
   <packaging>jar</packaging>
@@ -38,37 +37,37 @@
   <dependencies>
     <!--for GeronimoSecurityException-->
     <dependency>
-      <groupId>org.apache.geronimo</groupId>
+      <groupId>org.apache.geronimo.modules</groupId>
       <artifactId>geronimo-common</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>org.apache.geronimo</groupId>
+      <groupId>org.apache.geronimo.modules</groupId>
       <artifactId>geronimo-kernel</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>org.apache.geronimo</groupId>
+      <groupId>org.apache.geronimo.modules</groupId>
       <artifactId>geronimo-j2ee</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>org.apache.geronimo</groupId>
+      <groupId>org.apache.geronimo.modules</groupId>
       <artifactId>geronimo-naming</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>org.apache.geronimo</groupId>
+      <groupId>org.apache.geronimo.modules</groupId>
       <artifactId>geronimo-security</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>org.apache.geronimo</groupId>
+      <groupId>org.apache.geronimo.modules</groupId>
       <artifactId>geronimo-system</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>org.apache.geronimo</groupId>
+      <groupId>org.apache.geronimo.modules</groupId>
       <artifactId>geronimo-transaction</artifactId>
     </dependency>
 

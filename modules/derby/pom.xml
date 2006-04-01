@@ -21,26 +21,25 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.apache.geronimo</groupId>
-    <artifactId>geronimo</artifactId>
+    <groupId>org.apache.geronimo.modules</groupId>
+    <artifactId>modules-parent</artifactId>
     <version>1.2-SNAPSHOT</version>
   </parent>
-  <groupId>org.apache.geronimo</groupId>
   <artifactId>geronimo-derby</artifactId>
   <version>${geronimoVersion}</version>
   <name>Geronimo :: Derby</name>
   <description>Wrapper for using Apache Derby as a bundled database.</description>
   <dependencies>
     <dependency>
-      <groupId>org.apache.geronimo</groupId>
+      <groupId>org.apache.geronimo.modules</groupId>
       <artifactId>geronimo-kernel</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.geronimo</groupId>
+      <groupId>org.apache.geronimo.modules</groupId>
       <artifactId>geronimo-system</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.geronimo</groupId>
+      <groupId>org.apache.geronimo.modules</groupId>
       <artifactId>geronimo-management</artifactId>
     </dependency>
 

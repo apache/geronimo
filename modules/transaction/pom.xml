@@ -21,11 +21,10 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.apache.geronimo</groupId>
-    <artifactId>geronimo</artifactId>
+    <groupId>org.apache.geronimo.modules</groupId>
+    <artifactId>modules-parent</artifactId>
     <version>1.2-SNAPSHOT</version>
   </parent>
-  <groupId>org.apache.geronimo</groupId>
   <artifactId>geronimo-transaction</artifactId>
   <version>${geronimoVersion}</version>
   <packaging>jar</packaging>
@@ -34,20 +33,20 @@
   <dependencies>
     <!-- temp, for ServerInfo. Remove when it is moved to Kernel-->
     <dependency>
-      <groupId>org.apache.geronimo</groupId>
+      <groupId>org.apache.geronimo.modules</groupId>
       <artifactId>geronimo-system</artifactId>
     </dependency>
     <!-- thread pool, for timer -->
     <dependency>
-      <groupId>org.apache.geronimo</groupId>
+      <groupId>org.apache.geronimo.modules</groupId>
       <artifactId>geronimo-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.geronimo</groupId>
+      <groupId>org.apache.geronimo.modules</groupId>
       <artifactId>geronimo-j2ee</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.geronimo</groupId>
+      <groupId>org.apache.geronimo.modules</groupId>
       <artifactId>geronimo-kernel</artifactId>
     </dependency>
     <dependency>

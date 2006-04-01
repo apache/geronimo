@@ -20,8 +20,8 @@
 
 <project>
   <parent>
-    <groupId>org.apache.geronimo</groupId>
-    <artifactId>geronimo</artifactId>
+    <groupId>org.apache.geronimo.modules</groupId>
+    <artifactId>modules-parent</artifactId>
     <version>1.2-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
@@ -74,48 +74,48 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.apache.geronimo</groupId>
+      <groupId>org.apache.geronimo.modules</groupId>
       <artifactId>geronimo-common</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.geronimo</groupId>
+      <groupId>org.apache.geronimo.modules</groupId>
       <artifactId>geronimo-deploy-config</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.geronimo</groupId>
+      <groupId>org.apache.geronimo.modules</groupId>
       <artifactId>geronimo-j2ee-builder</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.geronimo</groupId>
+      <groupId>org.apache.geronimo.modules</groupId>
       <artifactId>geronimo-security-builder</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.geronimo</groupId>
+      <groupId>org.apache.geronimo.modules</groupId>
       <artifactId>geronimo-service-builder</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.geronimo</groupId>
+      <groupId>org.apache.geronimo.modules</groupId>
       <artifactId>geronimo-naming-builder</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo.modules</groupId>
+      <artifactId>geronimo-j2ee-schema</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo.modules</groupId>
+      <artifactId>geronimo-test-ddbean</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo.modules</groupId>
+      <artifactId>geronimo-deployment</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo.modules</groupId>
+      <artifactId>geronimo-j2ee</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
       <artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.geronimo</groupId>
-      <artifactId>geronimo-j2ee-schema</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.geronimo</groupId>
-      <artifactId>geronimo-test-ddbean</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.geronimo</groupId>
-      <artifactId>geronimo-deployment</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.geronimo</groupId>
-      <artifactId>geronimo-j2ee</artifactId>
     </dependency>
     <dependency>
       <groupId>mx4j</groupId>
