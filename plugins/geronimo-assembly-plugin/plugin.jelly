@@ -163,8 +163,9 @@
                 <ant:include name="schemaorg_apache_xmlbeans/src/**/*.dtd"/>
             </ant:patternset>
             <ant:fileset dir="${geronimo.assembly.dest}/repository">
-                <ant:include name="*/jars/*-builder-*.jar"/>
-                <ant:include name="geronimo/jars/geronimo-j2ee-schema-*.jar"/>
+                <ant:include name="geronimo/geronimo*-builder/*/*.jar"/>
+                <ant:include name="geronimo/geronimo-j2ee-schema/*/*.jar"/>
+                <ant:include name="openejb/openejb*-builder/*/*.jar"/>
             </ant:fileset>
         </ant:unjar>
         <ant:copy todir="${geronimo.assembly.dest}/schema" flatten="true">
