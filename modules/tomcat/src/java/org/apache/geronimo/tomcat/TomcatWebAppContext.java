@@ -55,7 +55,7 @@ import java.util.Set;
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
  *
- * @version $Rev$ $Date$
+ * @version $Rev: 387050 $ $Date$
  */
 public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebModule {
 
@@ -66,8 +66,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private final ClassLoader classLoader;
 
     protected Context context = null;
-
-//    private final URI webAppRoot;
 
     private String path = null;
 
@@ -115,9 +113,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             ClassLoader classLoader,
             String objectName,
             String originalSpecDD,
-            URI relativeWebAppRoot,
-            URI[] webClassPath,
-            boolean contextPriorityClassLoader,
             URL configurationBaseUrl,
             SecurityHolder securityHolder,
             String virtualServer,
@@ -141,8 +136,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             throws Exception {
 
         assert classLoader != null;
-        assert relativeWebAppRoot != null;
-//        assert webClassPath != null;
         assert configurationBaseUrl != null;
         assert transactionContextManager != null;
         assert trackedConnectionAssociator != null;
@@ -158,8 +151,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         } else {
             root = URI.create(configurationBaseUrl.toString());
         }
-        URI webAppRoot = root.resolve(relativeWebAppRoot);
-        this.setDocBase(webAppRoot.getPath());
+        this.setDocBase(root.getPath());
         this.container = container;
         this.originalSpecDD = originalSpecDD;
 
@@ -429,9 +421,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
         infoBuilder.addAttribute("objectName", String.class, false);
         infoBuilder.addAttribute("deploymentDescriptor", String.class, true);
-        infoBuilder.addAttribute("webAppRoot", URI.class, true);
-        infoBuilder.addAttribute("webClassPath", URI[].class, true);
-        infoBuilder.addAttribute("contextPriorityClassLoader", boolean.class, true);
         infoBuilder.addAttribute("configurationBaseUrl", URL.class, true);
 
         infoBuilder.addAttribute("contextPath", String.class, true);
@@ -463,9 +452,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
                 "classLoader",
                 "objectName",
                 "deploymentDescriptor",
-                "webAppRoot",
-                "webClassPath",
-                "contextPriorityClassLoader",
                 "configurationBaseUrl",
                 "securityHolder",
                 "virtualServer",

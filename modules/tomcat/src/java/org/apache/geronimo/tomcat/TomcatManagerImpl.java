@@ -261,7 +261,7 @@ public class TomcatManagerImpl implements WebManager {
             }
             return (AbstractName[]) results.toArray(new AbstractName[results.size()]);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Unable to look up connectors for Jetty container '"+containerName +"': "+e);
+            throw new IllegalArgumentException("Unable to look up connectors for Tomcat container '"+containerName +"': "+e);
         }
     }
 

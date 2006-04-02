@@ -27,6 +27,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.LinkedHashSet;
+import java.io.StringWriter;
+import java.io.PrintWriter;
 
 import javax.management.ObjectName;
 
@@ -194,7 +197,12 @@ public final class GBeanInstance implements StateManageable {
      */
     private boolean shouldFail = false;
 
+    /**
+     * Used to track instance
+     */
     private InstanceRegistry instanceRegistry;
+
+    private String stateReason;
 
     /**
      * Construct a GBeanMBean using the supplied GBeanData and class loader
@@ -403,7 +411,7 @@ public final class GBeanInstance implements StateManageable {
         manageableStore = null;
     }
 
-    public void setInstanceRegistry(InstanceRegistry instanceRegistry) {
+    public synchronized void setInstanceRegistry(InstanceRegistry instanceRegistry) {
         this.instanceRegistry = instanceRegistry;
     }
 
@@ -433,6 +441,14 @@ public final class GBeanInstance implements StateManageable {
      */
     public synchronized boolean isDead() {
         return dead;
+    }
+
+    /**
+     * Gets the reason we are in the current state.
+     * @return the reason we are in the current state
+     */
+    public String getStateReason() {
+        return stateReason;
     }
 
     /**
@@ -849,19 +865,34 @@ public final class GBeanInstance implements StateManageable {
             } else if (instanceState == DESTROYING) {
                 // this should never ever happen... this method is protected by the GBeanState class which should
                 // prevent stuff like this happening, but check anyway
+                stateReason = "an internal error has occurred.  An was made to start an instance that was still stopping which is an illegal state transition.";
                 throw new IllegalStateException("A stopping instance can not be started until fully stopped");
             }
             assert instanceState == DESTROYED;
 
+            stateReason = null;
+
             // Call all start on every reference.  This way the dependecies are held until we can start
-            boolean allStarted = true;
+            LinkedHashSet unstarted = new LinkedHashSet();
             for (int i = 0; i < dependencies.length; i++) {
-                allStarted = dependencies[i].start() && allStarted;
+                if (!dependencies[i].start()) {
+                    unstarted.add(dependencies[i].getTargetName());
+                }
             }
             for (int i = 0; i < references.length; i++) {
-                allStarted = references[i].start() && allStarted;
+                if (!references[i].start()) {
+                    if (references[i] instanceof GBeanSingleReference) {
+                        GBeanSingleReference reference = (GBeanSingleReference) references[i];
+                        unstarted.add(reference.getTargetName());
+                    }
+                }
             }
-            if (!allStarted) {
+            if (!unstarted.isEmpty()) {
+                if (unstarted.size() == 1) {
+                    stateReason = unstarted.iterator().next() + " did not start.";
+                } else {
+                    stateReason = "the following dependent services did not start: " + unstarted;
+                }
                 return false;
             }
 
@@ -888,6 +919,7 @@ public final class GBeanInstance implements StateManageable {
                 } else if (referenceIndex.containsKey(name)) {
                     parameters[i] = getReferenceByName(name).getProxy();
                 } else {
+                    stateReason = "the service constructor definition contained the name '" + name + "' which is not a known attribute or reference of the service.";
                     throw new InvalidConfigurationException("Unknown attribute or reference name in constructor: name=" + name);
                 }
             }
@@ -902,8 +934,10 @@ public final class GBeanInstance implements StateManageable {
                 } else if (targetException instanceof Error) {
                     throw (Error) targetException;
                 }
+                stateReason = "the service constructor threw an exception. \n" + printException(e);
                 throw e;
             } catch (IllegalArgumentException e) {
+                stateReason = "the service constructor threw an exception due to a parameter type mismatch. \n" + printException(e);
                 log.warn("Constructor mismatch for " + abstractName, e);
                 throw e;
             }
@@ -918,18 +952,33 @@ public final class GBeanInstance implements StateManageable {
             // inject the persistent attribute value into the new instance
             for (int i = 0; i < attributes.length; i++) {
                 checkIfShouldFail();
-                attributes[i].inject(instance);
+                try {
+                    attributes[i].inject(instance);
+                } catch (Exception e) {
+                    stateReason = "the setter for attribute '" + attributes[i].getName() + "' threw an exception. \n" + printException(e);
+                    throw e;
+                }
             }
 
             // inject the proxies into the new instance
             for (int i = 0; i < references.length; i++) {
                 checkIfShouldFail();
-                references[i].inject(instance);
+                try {
+                    references[i].inject(instance);
+                } catch (Exception e) {
+                    stateReason = "the setter for reference '" + references[i].getName() + "' threw an exception. \n" + printException(e);
+                    throw e;
+                }
             }
 
             if (instance instanceof GBeanLifecycle) {
                 checkIfShouldFail();
-                ((GBeanLifecycle) instance).doStart();
+                try {
+                    ((GBeanLifecycle) instance).doStart();
+                } catch (Exception e) {
+                    stateReason = "the doStart method threw an exception. \n" + printException(e);
+                    throw e;
+                }
             }
 
 
@@ -944,6 +993,7 @@ public final class GBeanInstance implements StateManageable {
             }
 
 
+            stateReason = null;
             return true;
         } catch (Throwable t) {
             // something went wrong... we need to destroy this instance
@@ -987,6 +1037,14 @@ public final class GBeanInstance implements StateManageable {
         }
     }
 
+    private String printException(Throwable t) {
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(stringWriter);
+        t.printStackTrace(printWriter);
+        printWriter.flush();
+        return stringWriter.toString();
+    }
+
     private synchronized void checkIfShouldFail() throws Exception {
         if (shouldFail) {
             shouldFail = false;
@@ -1022,7 +1080,8 @@ public final class GBeanInstance implements StateManageable {
                 return false;
             }
             assert instanceState == RUNNING;
-
+            stateReason = null;
+            
             // we are definately going to stop... if this fails the must clean up these variables
             instanceState = DESTROYING;
             instance = target;
@@ -1177,7 +1236,7 @@ public final class GBeanInstance implements StateManageable {
 
     public boolean equals(Object obj) {
         if (obj == this) return true;
-        if (obj instanceof GBeanInstance == false) return false;
+        if (!(obj instanceof GBeanInstance)) return false;
         return abstractName.equals(((GBeanInstance) obj).abstractName);
     }
 

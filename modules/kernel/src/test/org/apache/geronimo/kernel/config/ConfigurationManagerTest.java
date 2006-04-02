@@ -151,7 +151,7 @@ public class ConfigurationManagerTest extends TestCase {
             throw new UnsupportedOperationException();
         }
 
-        public URL resolve(Artifact configId, URI uri) throws NoSuchConfigException, MalformedURLException {
+        public URL resolve(Artifact configId, String moduleName, URI uri) throws NoSuchConfigException, MalformedURLException {
             throw new UnsupportedOperationException();
         }
     }

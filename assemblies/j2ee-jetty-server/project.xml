@@ -266,24 +266,6 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>webconsole-jetty_geronimo-console-framework-${pom.currentVersion}.war</artifactId>
-            <type>car</type>
-            <version>${pom.currentVersion}</version>
-            <properties>
-                <geronimo.assemble>install</geronimo.assemble>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>webconsole-jetty_geronimo-console-standard-${pom.currentVersion}.war</artifactId>
-            <type>car</type>
-            <version>${pom.currentVersion}</version>
-            <properties>
-                <geronimo.assemble>install</geronimo.assemble>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
             <artifactId>jmxdebug-jetty</artifactId>
             <type>car</type>
             <version>${pom.currentVersion}</version>
@@ -312,15 +294,6 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>daytrader-derby-jetty</artifactId>
-            <type>car</type>
-            <version>${pom.currentVersion}</version>
-            <properties>
-                <geronimo.assemble>install</geronimo.assemble>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>daytrader-derby-jetty_daytrader-web-${pom.currentVersion}.war</artifactId>
             <type>car</type>
             <version>${pom.currentVersion}</version>
             <properties>

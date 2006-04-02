@@ -95,12 +95,9 @@
     <configuration name="geronimo/servlets-examples-jetty/${pom.currentVersion}/car"/>
     <configuration name="geronimo/jsp-examples-jetty/${pom.currentVersion}/car"/>
     <configuration name="geronimo/webconsole-jetty/${pom.currentVersion}/car"/>
-    <configuration name="geronimo/webconsole-jetty_geronimo-console-framework-${pom.currentVersion}.war/${pom.currentVersion}/car"/>
-    <configuration name="geronimo/webconsole-jetty_geronimo-console-standard-${pom.currentVersion}.war/${pom.currentVersion}/car"/>
     <configuration name="geronimo/uddi-jetty/${pom.currentVersion}/car"/>
     <configuration name="geronimo/jmxdebug-jetty/${pom.currentVersion}/car"/>
     <configuration name="geronimo/daytrader-derby-jetty/${pom.currentVersion}/car"/>
-    <configuration name="geronimo/daytrader-derby-jetty_daytrader-web-${pom.currentVersion}.war/${pom.currentVersion}/car"/>
     <configuration name="geronimo/remote-deploy-jetty/${pom.currentVersion}/car"/>
     <configuration name="geronimo/hot-deployer/${pom.currentVersion}/car" />
 </attributes>

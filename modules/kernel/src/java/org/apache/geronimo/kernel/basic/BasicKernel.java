@@ -722,4 +722,17 @@ public class BasicKernel implements Kernel {
         }
         return new GBeanName(objectName);
     }
+
+
+    /**
+     * @deprecated Experimental feature
+     */
+    public String getStateReason(AbstractName abstractName) {
+        try {
+            GBeanInstance gbeanInstance = registry.getGBeanInstance(abstractName);
+            return gbeanInstance.getStateReason();
+        } catch (GBeanNotFoundException e) {
+            return null;
+        }
+    }
 }

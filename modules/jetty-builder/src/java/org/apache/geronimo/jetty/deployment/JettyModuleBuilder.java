@@ -97,7 +97,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.security.Permission;
 import java.security.PermissionCollection;
@@ -347,8 +346,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             webModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
             Set securityRoles = collectRoleNames(webApp);
             Map rolePermissions = new HashMap();
-
-            webModuleData.setAttribute("uri", URI.create(module.getTargetPath() + "/"));
 
             String[] hosts = jettyWebApp.getVirtualHostArray();
             for (int i = 0; i < hosts.length; i++) {
@@ -715,7 +712,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             }
             if (!module.isStandAlone()) {
                 ConfigurationData moduleConfigurationData = moduleContext.getConfigurationData();
-                earContext.addChildConfiguration(moduleConfigurationData);
+                earContext.addChildConfiguration(module.getTargetPath(), moduleConfigurationData);
             }
         } catch (DeploymentException de) {
             throw de;

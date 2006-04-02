@@ -30,6 +30,8 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.LinkedHashMap;
 
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
@@ -73,7 +75,7 @@ public class ConfigurationData implements Serializable {
     /**
      * Child configurations of this configuration
      */
-    private final List childConfigurations = new ArrayList();
+    private final Map childConfigurations = new LinkedHashMap();
 
     /**
      * The base file of the configuation
@@ -98,7 +100,7 @@ public class ConfigurationData implements Serializable {
         this(null, null, null, null, environment, null, naming);
     }
 
-    public ConfigurationData(ConfigurationModuleType moduleType, LinkedHashSet classPath, List gbeans, List childConfigurations, Environment environment, File configurationDir, Naming naming) {
+    public ConfigurationData(ConfigurationModuleType moduleType, LinkedHashSet classPath, List gbeans, Map childConfigurations, Environment environment, File configurationDir, Naming naming) {
         if (naming == null) throw new NullPointerException("naming is null");
         this.naming = naming;
         if (moduleType != null) {
@@ -113,7 +115,7 @@ public class ConfigurationData implements Serializable {
             this.gbeans.addAll(gbeans);
         }
         if (childConfigurations != null) {
-            this.childConfigurations.addAll(childConfigurations);
+            this.childConfigurations.putAll(childConfigurations);
         }
 
         if (environment == null) throw new NullPointerException("environment is null");
@@ -163,8 +165,8 @@ public class ConfigurationData implements Serializable {
         return gBeanData;
     }
 
-    public List getChildConfigurations() {
-        return Collections.unmodifiableList(childConfigurations);
+    public Map getChildConfigurations() {
+        return Collections.unmodifiableMap(childConfigurations);
     }
 
     public Environment getEnvironment() {

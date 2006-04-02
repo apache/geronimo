@@ -121,6 +121,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      * The registered abstractName for this configuraion.
      */
     private final AbstractName abstractName;
+
     /**
      * Defines the environment requred for this configuration.
      */
@@ -171,7 +172,15 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      */
     private final Naming naming;
 
+    /**
+     * Environment, classpath, gbeans and other data for this configuration.
+     */
     private ConfigurationData configurationData;
+
+    /**
+     * The nested configurations of this configuration.
+     */
+    List children = new ArrayList();
 
     /**
      * Only used to allow declaration as a reference.
@@ -258,6 +267,19 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
             GBeanData gbeanData = (GBeanData) iterator.next();
             this.gbeans.put(gbeanData.getAbstractName(), gbeanData);
+        }
+
+        //
+        // Create child configurations
+        //
+        LinkedHashSet childParents = new LinkedHashSet(parents);
+        childParents.add(this);
+        for (Iterator iterator = configurationData.getChildConfigurations().entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            String moduleName = (String) entry.getKey();
+            ConfigurationData childConfigurationData = (ConfigurationData) entry.getValue();
+            Configuration childConfiguration = new Configuration(childParents, childConfigurationData, configurationResolver.createChildResolver(moduleName));
+            children.add(childConfiguration);
         }
     }
 
@@ -402,7 +424,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     public void addToClassPath(URI path) throws IOException {
         if (!classPath.contains(path)) {
             try {
-                configurationResolver.resolve(path);
                 URL url = configurationResolver.resolve(path);
                 configurationClassLoader.addURL(url);
                 classPath.add(path);
@@ -426,6 +447,14 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      */
     public ClassLoader getConfigurationClassLoader() {
         return configurationClassLoader;
+    }
+
+    /**
+     * Gets the nested configurations of this configuration.
+     * @return the nested configuration of this configuration
+     */
+    public List getChildren() {
+        return Collections.unmodifiableList(children);
     }
 
     /**
@@ -615,6 +644,11 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     }
 
     private void shutdown() {
+        for (Iterator iterator = children.iterator(); iterator.hasNext();) {
+            Configuration configuration = (Configuration) iterator.next();
+            configuration.shutdown();
+        }
+
         // clear references to GBeanDatas
         gbeans.clear();
 

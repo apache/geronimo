@@ -45,9 +45,9 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 387050 $ $Date$
  */
-public class AbstractWebModuleTest extends TestCase {
+public abstract class AbstractWebModuleTest extends TestCase {
 
     protected ClassLoader cl;
     protected final static String securityRealmName = "demo-properties-realm";
@@ -64,10 +64,7 @@ public class AbstractWebModuleTest extends TestCase {
         TomcatWebAppContext app = new TomcatWebAppContext(cl,
                 null,
                 null,
-                relativeWebAppRoot,
-                new URI[]{},
-                false,
-                configurationBaseURL,
+                new URL(configurationBaseURL, relativeWebAppRoot.getPath()),
                 securityHolder,
                 null,
                 Collections.EMPTY_MAP,
@@ -143,7 +140,7 @@ public class AbstractWebModuleTest extends TestCase {
         loginConfiguration.doStop();
     }
 
-    protected void setUp(String realmClass) throws Exception {
+    protected void init(String realmClass) throws Exception {
         cl = this.getClass().getClassLoader();
 
         RealmGBean realm = null;
@@ -189,5 +186,6 @@ public class AbstractWebModuleTest extends TestCase {
 
     protected void tearDown() throws Exception {
         connector.doStop();
+        super.tearDown();
     }
 }

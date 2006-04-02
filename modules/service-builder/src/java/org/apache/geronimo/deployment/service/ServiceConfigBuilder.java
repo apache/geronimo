@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+import java.util.Collections;
 import java.util.jar.JarFile;
 
 import javax.xml.namespace.QName;
@@ -153,10 +155,10 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         return environment.getConfigId();
     }
 
-    public ConfigurationData buildConfiguration(Object plan, JarFile unused, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException {
+    public List buildConfiguration(Object plan, JarFile unused, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException {
         ConfigurationType configType = (ConfigurationType) plan;
 
-        return buildConfiguration(configType, configurationStores, targetConfigurationStore);
+        return Collections.singletonList(buildConfiguration(configType, configurationStores, targetConfigurationStore));
     }
 
     public ConfigurationData buildConfiguration(ConfigurationType configurationType, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws DeploymentException, IOException {

@@ -252,7 +252,7 @@ public class JettyManagerImpl implements WebManager {
             }
             return (AbstractName[]) results.toArray(new AbstractName[results.size()]);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Unable to look up connectors for Jetty container '"+containerName +"': "+e);
+            throw (IllegalArgumentException) new IllegalArgumentException("Unable to look up connectors for Jetty container '"+containerName).initCause(e);
         }
     }
 

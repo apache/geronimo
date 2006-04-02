@@ -16,21 +16,20 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.xmlbeans.XmlObject;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.jar.JarFile;
 
+import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.xmlbeans.XmlObject;
+
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 385487 $ $Date$
  */
 public class AppClientModule extends Module {
     private final Environment clientEnvironment;
@@ -38,7 +37,7 @@ public class AppClientModule extends Module {
     private Collection resourceModules;
 
 
-    public AppClientModule(boolean standAlone, AbstractName moduleName, Environment serverEnvironment, Environment clientEnvironment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) throws DeploymentException {
+    public AppClientModule(boolean standAlone, AbstractName moduleName, Environment serverEnvironment, Environment clientEnvironment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
         super(standAlone, moduleName, serverEnvironment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null);
         this.clientEnvironment = clientEnvironment;
     }

@@ -38,7 +38,6 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.mortbay.http.Authenticator;
 import org.mortbay.jetty.servlet.FormAuthenticator;
 
-import java.net.URI;
 import java.net.URL;
 import java.security.PermissionCollection;
 import java.util.Collections;
@@ -49,7 +48,7 @@ import java.util.Set;
 
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 386763 $ $Date$
  */
 public class AbstractWebModuleTest extends TestCase {
     protected ClassLoader cl;
@@ -88,13 +87,12 @@ public class AbstractWebModuleTest extends TestCase {
 
         JettyWebAppContext app = new JettyWebAppContext(null,
                 null,
-                URI.create(uriString),
                 null,
                 null,
                 Collections.EMPTY_MAP,
                 new OnlineUserTransaction(),
                 cl,
-                configurationBaseURL,
+                new URL(configurationBaseURL, uriString),
                 null,
                 null,
                 "context",

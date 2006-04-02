@@ -160,14 +160,24 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         return location;
     }
 
-    public URL resolve(Artifact configId, URI uri) throws NoSuchConfigException, MalformedURLException {
+    public URL resolve(Artifact configId, String moduleName, URI uri) throws NoSuchConfigException, MalformedURLException {
         File location = repository.getLocation(configId);
         if (location.isDirectory()) {
-            URL locationUrl = location.toURL();
-            URL resolvedUrl = new URL(locationUrl, uri.toString());
-            return resolvedUrl;
+            if (moduleName != null) {
+                location = new File(location, moduleName);
+            }
+            if (location.isDirectory()) {
+                URL locationUrl = location.toURL();
+                URL resolvedUrl = new URL(locationUrl, uri.toString());
+                return resolvedUrl;
+            }
+            URL baseURL = new URL("jar:" + repository.getLocation(configId).toURL().toString() + "!/");
+            return new URL(baseURL, uri.toString());
         } else {
             URL baseURL = new URL("jar:" + repository.getLocation(configId).toURL().toString() + "!/");
+            if (moduleName != null) {
+                baseURL = new URL(baseURL, moduleName + "/");
+            }
             return new URL(baseURL, uri.toString());
         }
     }

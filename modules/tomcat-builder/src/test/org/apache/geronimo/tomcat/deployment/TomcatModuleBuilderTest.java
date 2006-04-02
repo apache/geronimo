@@ -410,7 +410,7 @@ public class TomcatModuleBuilderTest extends TestCase {
             return null;
         }
 
-        public URL resolve(Artifact configId, URI uri) throws NoSuchConfigException, MalformedURLException {
+        public URL resolve(Artifact configId, String moduleName, URI uri) throws NoSuchConfigException, MalformedURLException {
             return baseURL;
         }
 

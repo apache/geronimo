@@ -285,11 +285,13 @@ public class SimpleConfigurationManager implements ConfigurationManager {
             }
         }
 
-//        // add parents to the parents reference collection
-//        configurationData.addDependencies(parentNames);
-//        configurationData.setReferencePatterns("Parents", parentNames);
-//
-//        configurationData.setAttribute("naming", naming);
+        for (Iterator iterator = configurationData.getChildConfigurations().values().iterator(); iterator.hasNext();) {
+            ConfigurationData childConfigurationData = (ConfigurationData) iterator.next();
+            LinkedHashSet childParentIds = resolveParentIds(childConfigurationData);
+            // remove this configuration's id from the parent Ids since it will cause an infinite loop
+            childParentIds.remove(configurationData.getId());
+            parentIds.addAll(childParentIds);
+        }
         return parentIds;
     }
 

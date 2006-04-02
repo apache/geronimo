@@ -95,11 +95,12 @@ public class PluginBootstrap {
                 return buildDir;
             }
 
-            public URL resolve(Artifact configId, URI uri) {
+            public URL resolve(Artifact configId, String moduleName, URI uri) {
                 return null;
             }
         };
-        ConfigurationData configurationData = builder.buildConfiguration(config, null, Collections.singleton(targetConfigurationStore), targetConfigurationStore);
+        List configurations = builder.buildConfiguration(config, null, Collections.singleton(targetConfigurationStore), targetConfigurationStore);
+        ConfigurationData configurationData = (ConfigurationData) configurations.get(0);
 
         JarOutputStream out = new JarOutputStream(new FileOutputStream(carFile));
         ExecutableConfigurationUtil.writeConfiguration(configurationData, out);

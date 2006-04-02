@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.LinkedHashMap;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -76,10 +77,11 @@ public class DeploymentContext {
     private final File baseDir;
     private final URI baseUri;
     private final byte[] buffer = new byte[4096];
-    private final List childConfigurationDatas = new ArrayList();
+    private final Map childConfigurationDatas = new LinkedHashMap();
     private final ConfigurationManager configurationManager;
     private final Configuration configuration;
     private final Naming naming;
+    private final List additionalDeployment = new ArrayList();
 
     public DeploymentContext(File baseDir, Environment environment, ConfigurationModuleType moduleType, Naming naming) throws DeploymentException {
         this(baseDir,
@@ -132,15 +134,20 @@ public class DeploymentContext {
         if (!baseDir.exists()) {
             baseDir.mkdirs();
         }
-        if (!baseDir.isDirectory()) {
-            throw new DeploymentException("Base directory is not a directory: " + baseDir.getAbsolutePath());
-        }
         this.baseDir = baseDir;
         this.baseUri = baseDir.toURI();
 
         this.naming = naming;
 
         this.configuration = createTempConfiguration(environment, moduleType, baseDir, configurationManager, naming);
+
+        if (baseDir.isFile()) {
+            try {
+                configuration.addToClassPath(URI.create(""));
+            } catch (IOException e) {
+                throw new DeploymentException(e);
+            }
+        }
     }
 
     private static ConfigurationManager createConfigurationManager(Collection repositories, Collection stores) {
@@ -451,8 +458,8 @@ public class DeploymentContext {
         }
     }
 
-    public void addChildConfiguration(ConfigurationData configurationData) {
-        childConfigurationDatas.add(configurationData);
+    public void addChildConfiguration(String moduleName, ConfigurationData configurationData) {
+        childConfigurationDatas.put(moduleName, configurationData);
     }
 
     public ConfigurationData getConfigurationData() {
@@ -464,5 +471,13 @@ public class DeploymentContext {
                 baseDir,
                 naming);
         return configurationData;
+    }
+
+    public void addAdditionalDeployment(ConfigurationData configurationData) {
+        additionalDeployment.add(configurationData);
+    }
+
+    public List getAdditionalDeployment() {
+        return additionalDeployment;
     }
 }

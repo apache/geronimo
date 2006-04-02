@@ -28,7 +28,7 @@ import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
 import org.apache.geronimo.kernel.management.State;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 386907 $ $Date$
  */
 public final class GBeanDependency {
 
@@ -63,6 +63,10 @@ public final class GBeanDependency {
         this.kernel = kernel;
         this.targetName = targetName;
         listener = createLifecycleListener();
+    }
+
+    public AbstractName getTargetName() {
+        return targetName;
     }
 
     public final synchronized void online() {
@@ -187,8 +191,9 @@ public final class GBeanDependency {
 
         final GBeanDependency that = (GBeanDependency) o;
 
-        if (gbeanInstance != null ? !gbeanInstance.equals(that.gbeanInstance) : that.gbeanInstance != null)
+        if (gbeanInstance != null ? !gbeanInstance.equals(that.gbeanInstance) : that.gbeanInstance != null) {
             return false;
+        }
         return !(targetName != null ? !targetName.equals(that.targetName) : that.targetName != null);
 
     }

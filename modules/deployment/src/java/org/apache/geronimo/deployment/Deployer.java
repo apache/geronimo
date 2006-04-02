@@ -275,21 +275,32 @@ public class Deployer {
                 throw new DeploymentException("No ConfigurationStores!");
             }
             ConfigurationStore store = (ConfigurationStore) stores.iterator().next();
-            ConfigurationData configurationData = builder.buildConfiguration(plan, module, stores, store);
+            List configurations = builder.buildConfiguration(plan, module, stores, store);
+            if (configurations.isEmpty()) {
+                throw new DeploymentException("Deployer did not create any configuration");
+            }
             try {
                 if (targetFile != null) {
+                    if (configurations.size() > 1) {
+                        throw new DeploymentException("Deployer created more than one configuration");
+                    }
+                    ConfigurationData configurationData = (ConfigurationData) configurations.get(0);
                     ExecutableConfigurationUtil.createExecutableConfiguration(configurationData, manifest, targetFile);
                 }
                 if (install) {
                     List deployedURIs = new ArrayList();
-                    recursiveInstall(configurationData, deployedURIs, store);
+                    for (Iterator iterator = configurations.iterator(); iterator.hasNext();) {
+                        ConfigurationData configurationData = (ConfigurationData) iterator.next();
+                        store.install(configurationData);
+                        deployedURIs.add(configurationData.getId().toString());
+                    }
                     return deployedURIs;
                 } else {
-                    cleanupConfigurationDirs(configurationData);
+                    cleanupConfigurations(configurations);
                     return Collections.EMPTY_LIST;
                 }
             } catch (InvalidConfigException e) {
-                cleanupConfigurationDirs(configurationData);
+                cleanupConfigurations(configurations);
                 // unlikely as we just built this
                 throw new DeploymentException(e);
             }
@@ -319,24 +330,14 @@ public class Deployer {
         }
     }
 
-    private void cleanupConfigurationDirs(ConfigurationData configurationData) {
-        File configurationDir = configurationData.getConfigurationDir();
-        if (!DeploymentUtil.recursiveDelete(configurationDir)) {
-            pendingDeletionIndex.setProperty(configurationDir.getName(), "delete");
-            log.debug("Queued deployment directory to be reaped " + configurationDir);
-        }
-        for (Iterator iterator = configurationData.getChildConfigurations().iterator(); iterator.hasNext();) {
-            ConfigurationData data = (ConfigurationData) iterator.next();
-            cleanupConfigurationDirs(data);
-        }
-    }
-
-    private void recursiveInstall(ConfigurationData configurationData, List deployedURIs, ConfigurationStore store) throws IOException, InvalidConfigException {
-        store.install(configurationData);
-        deployedURIs.add(configurationData.getId().toString());
-        for (Iterator iterator = configurationData.getChildConfigurations().iterator(); iterator.hasNext();) {
-            ConfigurationData childConfiguration = (ConfigurationData) iterator.next();
-            recursiveInstall(childConfiguration, deployedURIs, store);
+    private void cleanupConfigurations(List configurations) {
+        for (Iterator iterator = configurations.iterator(); iterator.hasNext();) {
+            ConfigurationData configurationData = (ConfigurationData) iterator.next();
+            File configurationDir = configurationData.getConfigurationDir();
+            if (!DeploymentUtil.recursiveDelete(configurationDir)) {
+                pendingDeletionIndex.setProperty(configurationDir.getName(), "delete");
+                log.debug("Queued deployment directory to be reaped " + configurationDir);
+            }
         }
     }
 

@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.jar.JarFile;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
@@ -58,9 +59,9 @@ public interface ConfigurationBuilder {
      * @param module the module to build
      * @param configurationStores
      * @param targetConfigurationStore
-     * @return the Configuration information
+     * @return the configuration datas created from the deployment
      * @throws IOException if there was a problem reading or writing the files
      * @throws org.apache.geronimo.common.DeploymentException if there was a problem with the configuration
      */
-    ConfigurationData buildConfiguration(Object plan, JarFile module, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException;
+    List buildConfiguration(Object plan, JarFile module, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException;
 }

@@ -75,7 +75,7 @@ import java.util.Set;
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
  *
- * @version $Rev$ $Date$
+ * @version $Rev: 386763 $ $Date$
  */
 public class JettyWebAppContext extends WebApplicationContext implements GBeanLifecycle, JettyServletRegistration, WebModule {
     private static Log log = LogFactory.getLog(JettyWebAppContext.class);
@@ -154,45 +154,43 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     }
 
     public JettyWebAppContext(String objectName,
-                              String originalSpecDD,
-                              URI uri,
-                              String[] virtualHosts,
-                              String sessionManager,
-                              Map componentContext,
-                              OnlineUserTransaction userTransaction,
-                              ClassLoader classLoader,
-                              URL configurationBaseUrl,
-                              Set unshareableResources,
-                              Set applicationManagedSecurityResources,
+            String originalSpecDD,
+            String[] virtualHosts,
+            String sessionManager,
+            Map componentContext,
+            OnlineUserTransaction userTransaction,
+            ClassLoader classLoader,
+            URL configurationBaseUrl,
+            Set unshareableResources,
+            Set applicationManagedSecurityResources,
 
-                              String displayName,
-                              Map contextParamMap,
-                              Collection listenerClassNames,
-                              boolean distributable,
-                              Map mimeMap,
-                              String[] welcomeFiles,
-                              Map localeEncodingMapping,
-                              Map errorPages,
-                              Authenticator authenticator,
-                              String realmName,
-                              Map tagLibMap,
-                              int sessionTimeoutSeconds,
+            String displayName,
+            Map contextParamMap,
+            Collection listenerClassNames,
+            boolean distributable,
+            Map mimeMap,
+            String[] welcomeFiles,
+            Map localeEncodingMapping,
+            Map errorPages,
+            Authenticator authenticator,
+            String realmName,
+            Map tagLibMap,
+            int sessionTimeoutSeconds,
 
-                              String policyContextID,
-                              String securityRealmName,
-                              DefaultPrincipal defaultPrincipal,
-                              PermissionCollection checkedPermissions,
-                              PermissionCollection excludedPermissions,
+            String policyContextID,
+            String securityRealmName,
+            DefaultPrincipal defaultPrincipal,
+            PermissionCollection checkedPermissions,
+            PermissionCollection excludedPermissions,
 
-                              TransactionContextManager transactionContextManager,
-                              TrackedConnectionAssociator trackedConnectionAssociator,
-                              JettyContainer jettyContainer,
-                              RoleDesignateSource roleDesignateSource,
-                              J2EEServer server,
-                              J2EEApplication application,
-                              Kernel kernel) throws Exception, IllegalAccessException, InstantiationException, ClassNotFoundException {
+            TransactionContextManager transactionContextManager,
+            TrackedConnectionAssociator trackedConnectionAssociator,
+            JettyContainer jettyContainer,
+            RoleDesignateSource roleDesignateSource,
+            J2EEServer server,
+            J2EEApplication application,
+            Kernel kernel) throws Exception, IllegalAccessException, InstantiationException, ClassNotFoundException {
 
-        assert uri != null;
         assert componentContext != null;
         assert userTransaction != null;
         assert classLoader != null;
@@ -215,7 +213,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
         setConfigurationClassNames(new String[]{});
 
-        webAppRoot = new URL(configurationBaseUrl, uri.toString()).toString();
+        webAppRoot = configurationBaseUrl.toString();
         this.webClassLoader = classLoader;
         setClassLoader(this.webClassLoader);
 
@@ -576,7 +574,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         infoBuilder.addAttribute("sessionTimeoutSeconds", int.class, true);
 
 
-        infoBuilder.addAttribute("uri", URI.class, true);
         infoBuilder.addAttribute("virtualHosts", String[].class, true);
         infoBuilder.addAttribute("sessionManager", String.class, true);
         infoBuilder.addAttribute("componentContext", Map.class, true);
@@ -617,7 +614,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         infoBuilder.setConstructor(new String[]{
                 "objectName",
                 "deploymentDescriptor",
-                "uri",
                 "virtualHosts",
                 "sessionManager",
                 "componentContext",

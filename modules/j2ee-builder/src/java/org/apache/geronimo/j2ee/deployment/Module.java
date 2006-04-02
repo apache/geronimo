@@ -31,7 +31,7 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.AbstractName;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 385487 $ $Date$
  */
 public abstract class Module {
     private final boolean standAlone;
@@ -52,7 +52,7 @@ public abstract class Module {
 
     private URI uniqueModuleLocation;
 
-    protected Module(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String namespace) throws DeploymentException {
+    protected Module(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String namespace) {
         assert targetPath != null: "targetPath is null";
         assert moduleName != null: "moduleName is null";
 
@@ -158,7 +158,7 @@ public abstract class Module {
             File candidateFile;
             int i = 1;
             do {
-                candidateURI = URI.create(targetPath + "-generated" + suffix + "/");
+                candidateURI = URI.create("/META-INF/geronimo-generated" + suffix + "/");
                 candidateFile = context.getTargetFile(candidateURI);
                 suffix = "" + i++;
             } while (candidateFile.exists());

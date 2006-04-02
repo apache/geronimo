@@ -45,7 +45,6 @@ import org.apache.geronimo.j2ee.management.impl.J2EEAppClientModuleImpl;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
-import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -350,7 +349,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         }
 
         EARContext appClientDeploymentContext = appClientModule.getEarContext();
-        ConfigurationData appClientConfigurationData = null;
+//        ConfigurationData appClientConfigurationData = null;
         try {
             try {
 
@@ -485,7 +484,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 appClientDeploymentContext.addGBean(appClientContainerGBeanData);
 
                 // get the configuration data
-                appClientConfigurationData = appClientDeploymentContext.getConfigurationData();
+                earContext.addAdditionalDeployment(appClientDeploymentContext.getConfigurationData());
             } finally {
                 if (appClientDeploymentContext != null) {
                     try {
@@ -496,7 +495,6 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 }
             }
 
-            earContext.addChildConfiguration(appClientConfigurationData);
         } catch (Throwable e) {
             File appClientDir = appClientDeploymentContext.getBaseDir();
             DeploymentUtil.recursiveDelete(appClientDir);

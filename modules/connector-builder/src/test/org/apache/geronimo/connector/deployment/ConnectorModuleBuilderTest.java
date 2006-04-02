@@ -169,7 +169,8 @@ public class ConnectorModuleBuilderTest extends TestCase {
             try {
                 File planFile = new File(basedir, "src/test-data/data/external-application-plan.xml");
                 Object plan = configBuilder.getDeploymentPlan(planFile, rarFile);
-                configData = configBuilder.buildConfiguration(plan, rarFile, Collections.singleton(configurationStore), configurationStore);
+                List configurations = configBuilder.buildConfiguration(plan, rarFile, Collections.singleton(configurationStore), configurationStore);
+                configData = (ConfigurationData) configurations.get(0);
             } finally {
                 if (configData != null) {
                     DeploymentUtil.recursiveDelete(configData.getConfigurationDir());
@@ -597,7 +598,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
             }
         }
 
-        public URL resolve(Artifact configId, URI uri) throws NoSuchConfigException, MalformedURLException {
+        public URL resolve(Artifact configId, String moduleName, URI uri) throws NoSuchConfigException, MalformedURLException {
             return baseURL;
         }
 

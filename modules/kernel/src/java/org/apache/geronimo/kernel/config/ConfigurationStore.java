@@ -92,8 +92,9 @@ public interface ConfigurationStore {
     /**
      * Locate the classpath component for the supplied uri in the given artifact
      * @param configId
+     * @param moduleName
      * @param uri
      * @return URL for the configuration component.
      */
-    URL resolve(Artifact configId, URI uri) throws NoSuchConfigException, MalformedURLException;
+    URL resolve(Artifact configId, String moduleName, URI uri) throws NoSuchConfigException, MalformedURLException;
 }

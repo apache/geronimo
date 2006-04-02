@@ -35,11 +35,15 @@ public class GBeanSingleReference extends AbstractGBeanReference {
     /**
      * The object to which the proxy is bound
      */
-    private final AbstractName proxyTarget;
+    private final AbstractName targetName;
 
     public GBeanSingleReference(GBeanInstance gbeanInstance, GReferenceInfo referenceInfo, Kernel kernel, ReferencePatterns referencePatterns) throws InvalidConfigurationException {
         super(gbeanInstance, referenceInfo, kernel, referencePatterns != null && referencePatterns.getAbstractName() != null);
-        proxyTarget = referencePatterns != null? referencePatterns.getAbstractName(): null;
+        targetName = referencePatterns != null? referencePatterns.getAbstractName(): null;
+    }
+
+    public AbstractName getTargetName() {
+        return targetName;
     }
 
     public final synchronized void online() {
@@ -52,14 +56,14 @@ public class GBeanSingleReference extends AbstractGBeanReference {
 
     public synchronized boolean start() {
         // We only need to start if there are patterns and we don't already have a proxy
-        if (proxyTarget == null) {
+        if (targetName == null) {
             return true;
         }
 
         // assure the gbean is running
         AbstractName abstractName = getGBeanInstance().getAbstractName();
-        if (!isRunning(getKernel(), proxyTarget)) {
-            log.debug("Waiting to start " + abstractName + " because no targets are running for reference " + getName() +" matching the patterns " + proxyTarget);
+        if (!isRunning(getKernel(), targetName)) {
+            log.debug("Waiting to start " + abstractName + " because no targets are running for reference " + getName() +" matching the patterns " + targetName);
             return false;
         }
 
@@ -69,13 +73,13 @@ public class GBeanSingleReference extends AbstractGBeanReference {
 
         if (NO_PROXY) {
             try {
-                setProxy(getKernel().getGBean(proxyTarget));
+                setProxy(getKernel().getGBean(targetName));
             } catch (GBeanNotFoundException e) {
                 // gbean disappeard on us
-                log.debug("Waiting to start " + abstractName + " because no targets are running for reference " + getName() +" matching the patterns " + proxyTarget);
+                log.debug("Waiting to start " + abstractName + " because no targets are running for reference " + getName() +" matching the patterns " + targetName);
             }
         } else {
-            setProxy(getKernel().getProxyManager().createProxy(proxyTarget, getReferenceType()));
+            setProxy(getKernel().getProxyManager().createProxy(targetName, getReferenceType()));
         }
 
         return true;

@@ -26,7 +26,6 @@ import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -104,7 +103,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     }
 
     public Module createModule(File plan, JarFile moduleFile, Naming naming) throws DeploymentException {
-        return createModule(plan, moduleFile, "war", null, true, null, null, naming);
+        return createModule(plan, moduleFile, ".", null, true, null, null, naming);
     }
 
     public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming) throws DeploymentException {
@@ -174,16 +173,11 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             Artifact configId = new Artifact(earConfigId.getGroupId(), earConfigId.getArtifactId() + "_" + module.getTargetPath(), earConfigId.getVersion(), "car");
             environment.setConfigId(configId);
             environment.addDependency(earConfigId, ImportType.ALL);
-            File configurationDir;
-            try {
-                configurationDir = targetConfigurationStore.createNewConfigurationDir(environment.getConfigId());
-            } catch (ConfigurationAlreadyExistsException e) {
-                throw new DeploymentException(e);
-            }
+            File configurationDir = new File(earContext.getBaseDir(), module.getTargetPath());
+            configurationDir.mkdirs();
 
             // construct the web app deployment context... this is the same class used by the ear context
             try {
-
                 moduleContext = new EARContext(configurationDir,
                         environment,
                         ConfigurationModuleType.WAR,
@@ -193,21 +187,16 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
                 DeploymentUtil.recursiveDelete(configurationDir);
                 throw e;
             }
-            //TODO this is extremely fishy
-            //Add the ear parent here since it can't be loaded by any config store.
-//            environment.addDependency(earConfigId, ImportType.ALL);
         }
         module.setEarContext(moduleContext);
 
         try {
-            URI baseDir = URI.create(module.getTargetPath() + "/");
-
             // add the warfile's content to the configuration
             JarFile warFile = module.getModuleFile();
             Enumeration entries = warFile.entries();
             while (entries.hasMoreElements()) {
                 ZipEntry entry = (ZipEntry) entries.nextElement();
-                URI targetPath = baseDir.resolve(new URI(null, entry.getName(), null));
+                URI targetPath = new URI(null, entry.getName(), null);
                 if (entry.getName().equals("WEB-INF/web.xml")) {
                     moduleContext.addFile(targetPath, module.getOriginalSpecDD());
                 } else if (entry.getName().startsWith("WEB-INF/lib") && entry.getName().endsWith(".jar")) {

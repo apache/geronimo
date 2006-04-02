@@ -45,7 +45,7 @@ import org.apache.geronimo.tomcat.util.SecurityHolder;
 /**
  * Tests the JACC security for Tomcat
  *
- * @version $Revision$ $Date$
+ * @version $Revision: 387050 $ $Date$
  */
 public class JACCSecurityTest extends AbstractWebModuleTest {
 
@@ -216,7 +216,8 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
     }
 
     protected void setUp() throws Exception {
-        super.setUp("org.apache.geronimo.tomcat.realm.TomcatGeronimoRealm");
+        super.setUp();
+        super.init("org.apache.geronimo.tomcat.realm.TomcatGeronimoRealm");
         setUpSecurity();
     }
 

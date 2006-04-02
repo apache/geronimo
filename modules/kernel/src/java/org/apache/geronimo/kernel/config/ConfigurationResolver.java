@@ -41,11 +41,17 @@ public class ConfigurationResolver {
     private final Artifact configurationId;
     private final ArtifactResolver artifactResolver;
     private final Collection repositories;
+
     /**
      * file or configstore used to resolve classpath parts
      */
     private final File baseDir;
     private final ConfigurationStore configurationStore;
+
+    /**
+     * For nested configurations, the module name will be non-null.
+     */
+    private final String moduleName;
 
     public ConfigurationResolver(Artifact configurationId, File baseDir) {
         if (configurationId == null)  throw new NullPointerException("configurationId is null");
@@ -55,6 +61,7 @@ public class ConfigurationResolver {
         artifactResolver = null;
         repositories = Collections.EMPTY_SET;
         configurationStore = null;
+        moduleName = null;
     }
 
     public ConfigurationResolver(ConfigurationData configurationData, Collection repositories, ArtifactResolver artifactResolver) {
@@ -66,6 +73,29 @@ public class ConfigurationResolver {
         this.repositories = repositories;
         configurationStore = configurationData.getConfigurationStore();
         baseDir = configurationData.getConfigurationDir();
+        moduleName = null;
+    }
+
+    private ConfigurationResolver(Artifact configurationId, ArtifactResolver artifactResolver, Collection repositories, File baseDir, ConfigurationStore configurationStore, String moduleName) {
+        this.configurationId = configurationId;
+        this.artifactResolver = artifactResolver;
+        this.repositories = repositories;
+        this.baseDir = baseDir;
+        this.configurationStore = configurationStore;
+        this.moduleName = moduleName;
+    }
+
+    public ConfigurationResolver createChildResolver(String moduleName) {
+        if (moduleName == null) throw new NullPointerException("moduleName is null");
+        if (this.moduleName != null) {
+            moduleName = this.moduleName + '/' + moduleName;
+        }
+
+        File childBaseDir = null;
+        if (baseDir != null) {
+            childBaseDir = new File(baseDir, moduleName);
+        }
+        return new ConfigurationResolver(configurationId, artifactResolver, repositories, childBaseDir, configurationStore, moduleName);
     }
 
     public File resolve(Artifact artifact) throws MissingDependencyException {
@@ -81,7 +111,7 @@ public class ConfigurationResolver {
 
     public URL resolve(URI uri) throws MalformedURLException, NoSuchConfigException {
         if (configurationStore != null) {
-            return configurationStore.resolve(configurationId, uri);
+            return configurationStore.resolve(configurationId, moduleName, uri);
         } else if (baseDir != null) {
             return new File(baseDir, uri.toString()).toURL();
         } else {

@@ -33,7 +33,7 @@ import org.apache.geronimo.security.jacc.ComponentPermissions;
 /**
  * Tests the JAAS security for Tomcat
  *
- * @version $Revision$ $Date$
+ * @version $Revision: 387050 $ $Date$
  */
 public class JAASSecurityTest extends AbstractWebModuleTest {
 
@@ -174,9 +174,10 @@ public class JAASSecurityTest extends AbstractWebModuleTest {
     }
 
     protected void setUp() throws Exception {
-        super.setUp("org.apache.geronimo.tomcat.realm.TomcatJAASRealm");
+        super.setUp();
+        super.init("org.apache.geronimo.tomcat.realm.TomcatJAASRealm");
         setUpSecurity();
-   }
+    }
 
     protected void tearDown() throws Exception {
         tearDownSecurity();

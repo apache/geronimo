@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.security.Permission;
 import java.security.PermissionCollection;
@@ -297,8 +296,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             Set securityRoles = collectRoleNames(webApp);
             Map rolePermissions = new HashMap();
 
-            URI baseUri = URI.create(webModule.getTargetPath() + "/");
-            webModuleData.setAttribute("webAppRoot", baseUri);
             webModuleData.setAttribute("contextPath", webModule.getContextRoot());
 
             //Add dependencies on managed connection factories and ejbs in this app
@@ -309,8 +306,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
             webModuleData.setAttribute("componentContext", compContext);
             webModuleData.setAttribute("userTransaction", userTransaction);
-            //classpath may have been augmented with enhanced classes
-//            webModuleData.setAttribute("webClassPath", webModule.getWebClasspath());
             // unsharableResources, applicationManagedSecurityResources
             GBeanResourceEnvironmentBuilder rebuilder = new GBeanResourceEnvironmentBuilder(webModuleData);
             //N.B. use earContext not moduleContext
@@ -425,7 +420,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
             if (!module.isStandAlone()) {
                 ConfigurationData moduleConfigurationData = moduleContext.getConfigurationData();
-                earContext.addChildConfiguration(moduleConfigurationData);
+                earContext.addChildConfiguration(module.getTargetPath(), moduleConfigurationData);
             }
         } catch (DeploymentException de) {
             throw de;

@@ -338,7 +338,7 @@ public class JettyModuleBuilderTest extends TestCase {
             }
         }
 
-        public URL resolve(Artifact configId, URI uri) throws NoSuchConfigException, MalformedURLException {
+        public URL resolve(Artifact configId, String moduleName, URI uri) throws NoSuchConfigException, MalformedURLException {
             return baseURL;
         }
 

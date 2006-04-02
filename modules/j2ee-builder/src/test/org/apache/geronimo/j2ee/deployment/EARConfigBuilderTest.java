@@ -264,7 +264,8 @@ public class EARConfigBuilderTest extends TestCase {
                     naming);
 
             Object plan = configBuilder.getDeploymentPlan(null, earFile);
-            configurationData = configBuilder.buildConfiguration(plan, earFile, Collections.singleton(configStore), configStore);
+            List configurations = configBuilder.buildConfiguration(plan, earFile, Collections.singleton(configStore), configStore);
+            configurationData = (ConfigurationData) configurations.get(0);
         } finally {
             if (configurationData != null) {
                 DeploymentUtil.recursiveDelete(configurationData.getConfigurationDir());
@@ -293,7 +294,8 @@ public class EARConfigBuilderTest extends TestCase {
         ConfigurationData configurationData = null;
         try {
             Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-ejb-jar.xml"), earFile);
-            configurationData = configBuilder.buildConfiguration(plan, earFile, Collections.singleton(configStore), configStore);
+            List configurations = configBuilder.buildConfiguration(plan, earFile, Collections.singleton(configStore), configStore);
+            configurationData = (ConfigurationData) configurations.get(0);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
             if (e.getCause() instanceof IOException) {
@@ -327,7 +329,8 @@ public class EARConfigBuilderTest extends TestCase {
         ConfigurationData configurationData = null;
         try {
             Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-war.xml"), earFile);
-            configurationData = configBuilder.buildConfiguration(plan, earFile, Collections.singleton(configStore), configStore);
+            List configurations = configBuilder.buildConfiguration(plan, earFile, Collections.singleton(configStore), configStore);
+            configurationData = (ConfigurationData) configurations.get(0);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
             if (e.getCause() instanceof IOException) {
@@ -361,7 +364,8 @@ public class EARConfigBuilderTest extends TestCase {
         ConfigurationData configurationData = null;
         try {
             Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-rar.xml"), earFile);
-            configurationData = configBuilder.buildConfiguration(plan, earFile, Collections.singleton(configStore), configStore);
+            List configurations = configBuilder.buildConfiguration(plan, earFile, Collections.singleton(configStore), configStore);
+            configurationData = (ConfigurationData) configurations.get(0);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
             if (e.getCause() instanceof IOException) {
@@ -395,7 +399,8 @@ public class EARConfigBuilderTest extends TestCase {
         ConfigurationData configurationData = null;
         try {
             Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-car.xml"), earFile);
-            configurationData = configBuilder.buildConfiguration(plan, earFile, Collections.singleton(configStore), configStore);
+            List configurations = configBuilder.buildConfiguration(plan, earFile, Collections.singleton(configStore), configStore);
+            configurationData = (ConfigurationData) configurations.get(0);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
             if (e.getCause() instanceof IOException) {
@@ -430,7 +435,8 @@ public class EARConfigBuilderTest extends TestCase {
         ConfigurationData configurationData = null;
         try {
             Object plan = configBuilder.getDeploymentPlan(null, earFile);
-            configurationData = configBuilder.buildConfiguration(plan, earFile, Collections.singleton(configStore), configStore);
+            List configurations = configBuilder.buildConfiguration(plan, earFile, Collections.singleton(configStore), configStore);
+            configurationData = (ConfigurationData) configurations.get(0);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
             // expected
@@ -462,7 +468,8 @@ public class EARConfigBuilderTest extends TestCase {
         ConfigurationData configurationData = null;
         try {
             Object plan = configBuilder.getDeploymentPlan(null, earFile);
-            configurationData = configBuilder.buildConfiguration(plan, earFile, Collections.singleton(configStore), configStore);
+            List configurations = configBuilder.buildConfiguration(plan, earFile, Collections.singleton(configStore), configStore);
+            configurationData = (ConfigurationData) configurations.get(0);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
             // expected
@@ -494,7 +501,8 @@ public class EARConfigBuilderTest extends TestCase {
         ConfigurationData configurationData = null;
         try {
             Object plan = configBuilder.getDeploymentPlan(null, earFile);
-            configurationData = configBuilder.buildConfiguration(plan, earFile, Collections.singleton(configStore), configStore);
+            List configurations = configBuilder.buildConfiguration(plan, earFile, Collections.singleton(configStore), configStore);
+            configurationData = (ConfigurationData) configurations.get(0);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
             // expected
@@ -548,7 +556,7 @@ public class EARConfigBuilderTest extends TestCase {
             }
         }
 
-        public URL resolve(Artifact configId, URI uri) throws NoSuchConfigException, MalformedURLException {
+        public URL resolve(Artifact configId, String moduleName, URI uri) throws NoSuchConfigException, MalformedURLException {
             File file = (File) locations.get(configId);
             if (file == null) {
                 throw new NoSuchConfigException("nothing for configid " + configId);

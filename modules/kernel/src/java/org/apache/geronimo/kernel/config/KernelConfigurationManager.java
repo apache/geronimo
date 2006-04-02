@@ -160,13 +160,7 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
     }
 
     public void start(Configuration configuration) throws InvalidConfigException {
-        // load the attribute overrides from the attribute store
-        Collection gbeans = configuration.getGBeans().values();
-        if (attributeStore != null) {
-            gbeans = attributeStore.applyOverrides(configuration.getId(), gbeans, configuration.getConfigurationClassLoader());
-        }
-
-        ConfigurationUtil.startConfigurationGBeans(gbeans, configuration, kernel);
+        ConfigurationUtil.startConfigurationGBeans(configuration.getAbstractName(), configuration, kernel, attributeStore);
 
         if (configurationList != null) {
             configurationList.addConfiguration(configuration.getId().toString());
@@ -174,6 +168,12 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
     }
 
     protected void stop(Configuration configuration) throws InvalidConfigException {
+        // stop all of the child configurations first
+        for (Iterator iterator = configuration.getChildren().iterator(); iterator.hasNext();) {
+            Configuration childConfiguration = (Configuration) iterator.next();
+            stop(childConfiguration);
+        }
+
         try {
             Collection gbeans = configuration.getGBeans().values();
 
@@ -184,6 +184,7 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
                 kernel.stopGBean(gbeanName);
             }
 
+            // unload the gbeans
             for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
                 GBeanData gbeanData = (GBeanData) iterator.next();
                 AbstractName gbeanName = gbeanData.getAbstractName();

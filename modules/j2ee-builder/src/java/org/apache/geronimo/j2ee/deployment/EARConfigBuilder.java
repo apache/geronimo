@@ -73,6 +73,8 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Collection;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
@@ -334,7 +336,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         return applicationInfo.getEnvironment().getConfigId();
     }
 
-    public ConfigurationData buildConfiguration(Object plan, JarFile earFile, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException {
+    public List buildConfiguration(Object plan, JarFile earFile, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException {
         assert plan != null;
         ApplicationInfo applicationInfo = (ApplicationInfo) plan;
         try {
@@ -432,9 +434,11 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 getBuilder(module).addGBeans(earContext, module, cl, repositories);
             }
 
-            ConfigurationData configurationData = earContext.getConfigurationData();
+            List configurations = new ArrayList();
+            configurations.add(earContext.getConfigurationData());
+            configurations.addAll(earContext.getAdditionalDeployment());
             earContext.close();
-            return configurationData;
+            return configurations;
         } catch (GBeanAlreadyExistsException e) {
             throw new DeploymentException(e);
         } finally {
