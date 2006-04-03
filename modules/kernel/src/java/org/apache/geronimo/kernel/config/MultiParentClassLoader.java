@@ -211,7 +211,8 @@ public class MultiParentClassLoader extends URLClassLoader {
         return parents;
     }
 
-    protected void addURL(URL url) {
+    public void addURL(URL url) {
+        // todo this needs a security check
         super.addURL(url);
     }
 
