@@ -28,7 +28,7 @@ import javax.naming.Reference;
 import java.net.URI;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 386000 $ $Date$
  */
 public class UnavailableEJBReferenceBuilder implements EJBReferenceBuilder {
 
@@ -40,11 +40,11 @@ public class UnavailableEJBReferenceBuilder implements EJBReferenceBuilder {
         throw new DeploymentException("EJB references are unavailable in this configuration");
     }
 
-    public Reference createEJBRemoteRef(String requiredModule, String optionalModule, String name, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String home, String remote, Configuration configuration) throws DeploymentException {
+    public Reference createEJBRemoteRef(String refName, Configuration configuration, String name, String requiredModule, String optionalModule, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String home, String remote) throws DeploymentException {
         throw new DeploymentException("EJB references are unavailable in this configuration");
     }
 
-    public Reference createEJBLocalRef(String requiredModule, String optionalModule, String name, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String localHome, String local, Configuration configuration) throws DeploymentException {
+    public Reference createEJBLocalRef(String refName, Configuration configuration, String name, String requiredModule, String optionalModule, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String localHome, String local) throws DeploymentException {
         throw new DeploymentException("EJB references are unavailable in this configuration");
     }
 

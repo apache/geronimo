@@ -68,12 +68,12 @@ public class RefContext {
     public Object getHandleDelegateReference() throws DeploymentException {
         return ejbReferenceBuilder.createHandleDelegateReference();
     }
-    public Reference getEJBRemoteRef(String requiredModule, String optionalModule, String name, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String home, String remote, Configuration configuration) throws DeploymentException {
-        return ejbReferenceBuilder.createEJBRemoteRef(requiredModule,  optionalModule, name, targetConfigId, query, isSession, home, remote, configuration);
+    public Reference getEJBRemoteRef(String refName, Configuration configuration, String name, String requiredModule, String optionalModule, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String home, String remote) throws DeploymentException {
+        return ejbReferenceBuilder.createEJBRemoteRef(refName, configuration, name, requiredModule,  optionalModule, targetConfigId, query, isSession, home, remote);
     }
 
-    public Reference getEJBLocalRef(String requiredModule, String optionalModule, String name, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String localHome, String local, Configuration configuration) throws DeploymentException {
-        return ejbReferenceBuilder.createEJBLocalRef(requiredModule,  optionalModule, name, targetConfigId, query, isSession, localHome, local, configuration);
+    public Reference getEJBLocalRef(String refName, Configuration configuration, String name, String requiredModule, String optionalModule, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String localHome, String local) throws DeploymentException {
+        return ejbReferenceBuilder.createEJBLocalRef(refName, configuration, name, requiredModule,  optionalModule, targetConfigId, query, isSession, localHome, local);
     }
 
     public Reference getConnectionFactoryRef(AbstractNameQuery containerId, Class iface, Configuration configuration) throws DeploymentException {

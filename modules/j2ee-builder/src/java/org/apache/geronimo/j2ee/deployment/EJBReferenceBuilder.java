@@ -30,7 +30,7 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 386000 $ $Date$
  */
 public interface EJBReferenceBuilder {
 
@@ -38,7 +38,7 @@ public interface EJBReferenceBuilder {
 
     Object createHandleDelegateReference() throws DeploymentException;
 
-    Reference createEJBRemoteRef(String requiredModule, String optionalModule, String name, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String home, String remote, Configuration configuration) throws DeploymentException;
+    Reference createEJBRemoteRef(String refName, Configuration configuration, String name, String requiredModule, String optionalModule, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String home, String remote) throws DeploymentException;
 
-    Reference createEJBLocalRef(String requiredModule, String optionalModule, String name, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String localHome, String local, Configuration configuration) throws DeploymentException;
+    Reference createEJBLocalRef(String refName, Configuration configuration, String name, String requiredModule, String optionalModule, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String localHome, String local) throws DeploymentException;
 }

@@ -298,26 +298,26 @@ public class ENCConfigBuilder {
 
     static Reference addEJBRef(Configuration earContext, Configuration ejbContext, RefContext refContext, URI moduleURI, EjbRefType ejbRef, GerEjbRefType remoteRef, ClassLoader cl) throws DeploymentException {
         String remote = getStringValue(ejbRef.getRemote());
+        String refName = getStringValue(ejbRef.getEjbRefName());
         try {
             assureEJBObjectInterface(remote, cl);
         } catch (DeploymentException e) {
-            throw new DeploymentException("Error processing 'remote' element for EJB Reference '" + getStringValue(ejbRef.getEjbRefName()) + "' for module '" + moduleURI + "': " + e.getMessage());
+            throw new DeploymentException("Error processing 'remote' element for EJB Reference '" + refName + "' for module '" + moduleURI + "': " + e.getMessage());
         }
 
         String home = getStringValue(ejbRef.getHome());
         try {
             assureEJBHomeInterface(home, cl);
         } catch (DeploymentException e) {
-            throw new DeploymentException("Error processing 'home' element for EJB Reference '" + getStringValue(ejbRef.getEjbRefName()) + "' for module '" + moduleURI + "': " + e.getMessage());
+            throw new DeploymentException("Error processing 'home' element for EJB Reference '" + refName + "' for module '" + moduleURI + "': " + e.getMessage());
         }
 
         Reference ejbReference;
         boolean isSession = "Session".equals(getStringValue(ejbRef.getEjbRefType()));
 
-        if (isSession && remote.equals("javax.management.j2ee.Management") && home.equals("javax.management.j2ee.ManagementHome"))
-        {
+        if (isSession && remote.equals("javax.management.j2ee.Management") && home.equals("javax.management.j2ee.ManagementHome")) {
             AbstractNameQuery query = new AbstractNameQuery(null, Collections.singletonMap("name", "ejb/mgmt/MEJB"));
-            ejbReference = refContext.getEJBRemoteRef(null, null, null, null, query, isSession, home, remote, ejbContext);
+            ejbReference = refContext.getEJBRemoteRef(null, ejbContext, null, null, null, null, query, isSession, home, remote);
         } else {
 
             String ejbLink = null;
@@ -364,7 +364,7 @@ public class ENCConfigBuilder {
                     GerPatternType patternType = remoteRef.getPattern();
                     containerQuery = buildAbstractNameQuery(patternType, null);
                 }
-                ejbReference = refContext.getEJBRemoteRef(requiredModule, optionalModule, ejbLink, targetConfigId, containerQuery, isSession, home, remote, ejbContext);
+                ejbReference = refContext.getEJBRemoteRef(refName, ejbContext, ejbLink, requiredModule, optionalModule, targetConfigId, containerQuery, isSession, home, remote);
             }
         }
         return ejbReference;
@@ -384,17 +384,18 @@ public class ENCConfigBuilder {
 
     static Reference addEJBLocalRef(Configuration ejbContext, RefContext refContext, URI moduleURI, EjbLocalRefType ejbLocalRef, GerEjbLocalRefType localRef, ClassLoader cl) throws DeploymentException {
         String local = getStringValue(ejbLocalRef.getLocal());
+        String refName = getStringValue(ejbLocalRef.getEjbRefName());
         try {
             assureEJBLocalObjectInterface(local, cl);
         } catch (DeploymentException e) {
-            throw new DeploymentException("Error processing 'local' element for EJB Local Reference '" + getStringValue(ejbLocalRef.getEjbRefName()) + "' for module '" + moduleURI + "': " + e.getMessage());
+            throw new DeploymentException("Error processing 'local' element for EJB Local Reference '" + refName + "' for module '" + moduleURI + "': " + e.getMessage());
         }
 
         String localHome = getStringValue(ejbLocalRef.getLocalHome());
         try {
             assureEJBLocalHomeInterface(localHome, cl);
         } catch (DeploymentException e) {
-            throw new DeploymentException("Error processing 'local-home' element for EJB Local Reference '" + getStringValue(ejbLocalRef.getEjbRefName()) + "' for module '" + moduleURI + "': " + e.getMessage());
+            throw new DeploymentException("Error processing 'local-home' element for EJB Local Reference '" + refName + "' for module '" + moduleURI + "': " + e.getMessage());
         }
 
         boolean isSession = "Session".equals(getStringValue(ejbLocalRef.getEjbRefType()));
@@ -427,7 +428,7 @@ public class ENCConfigBuilder {
             GerPatternType patternType = localRef.getPattern();
             containerQuery = buildAbstractNameQuery(patternType, null);
         }
-        return refContext.getEJBRemoteRef(requiredModule, optionalModule, ejbLink, targetConfigId, containerQuery, isSession, localHome, local, ejbContext);
+        return refContext.getEJBLocalRef(refName, ejbContext, ejbLink, requiredModule, optionalModule, targetConfigId, containerQuery, isSession, localHome, local);
     }
 
 //TODO current implementation does not deal with portComponentRef links.
