@@ -27,7 +27,6 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.AbstractName;
 
 /**
@@ -151,19 +150,46 @@ public abstract class Module {
         addClass(location, fqcn, bytes, context);
     }
 
-    private URI getUniqueModuleLocation(DeploymentContext context) {
+    private URI getUniqueModuleLocation(DeploymentContext context) throws IOException {
         if (uniqueModuleLocation == null) {
+            URI metainfUri = URI.create("META-INF/");
+            File metainfDir = context.getTargetFile(metainfUri);
+            if (!metainfDir.exists()) {
+                metainfDir.mkdirs();
+            }
+            if (!metainfDir.isDirectory()) {
+                throw new IOException("META-INF directory exists but is not a directory: " + metainfDir.getAbsolutePath());
+            }
+            if (!metainfDir.canRead()) {
+                throw new IOException("META-INF directory is not readable: " + metainfDir.getAbsolutePath());
+            }
+            if (!metainfDir.canWrite()) {
+                throw new IOException("META-INF directory is not wirtable: " + metainfDir.getAbsolutePath());
+            }
+
             String suffix = "";
-            URI candidateURI;
-            File candidateFile;
-            int i = 1;
+            URI generatedUri;
+            File generatedDir;
+            int i = 0;
             do {
-                candidateURI = URI.create("/META-INF/geronimo-generated" + suffix + "/");
-                candidateFile = context.getTargetFile(candidateURI);
+                generatedUri = metainfUri.resolve("geronimo-generated" + suffix + "/");
+                generatedDir = context.getTargetFile(generatedUri);
                 suffix = "" + i++;
-            } while (candidateFile.exists());
-            candidateFile.mkdirs();
-            uniqueModuleLocation = candidateURI;
+            } while (generatedDir.exists());
+            generatedDir.mkdirs();
+
+            // these shouldn't ever happen, but let's check anyway
+            if (!generatedDir.isDirectory()) {
+                throw new IOException("Geronimo generated classes directory exists but is not a directory: " + generatedDir.getAbsolutePath());
+            }
+            if (!generatedDir.canRead()) {
+                throw new IOException("Geronimo generated classes directory is not readable: " + generatedDir.getAbsolutePath());
+            }
+            if (!generatedDir.canWrite()) {
+                throw new IOException("Geronimo generated classes directory is not wirtable: " + generatedDir.getAbsolutePath());
+            }
+
+            uniqueModuleLocation = generatedUri;
         }
         return uniqueModuleLocation;
     }
