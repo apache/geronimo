@@ -17,44 +17,20 @@
 
 package org.apache.geronimo.gbean.runtime;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.LinkedHashSet;
-import java.io.StringWriter;
-import java.io.PrintWriter;
-
-import javax.management.ObjectName;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.gbean.GAttributeInfo;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GOperationInfo;
-import org.apache.geronimo.gbean.GOperationSignature;
-import org.apache.geronimo.gbean.GReferenceInfo;
-import org.apache.geronimo.gbean.InvalidConfigurationException;
-import org.apache.geronimo.gbean.ReferencePatterns;
-import org.apache.geronimo.kernel.DependencyManager;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.NoSuchAttributeException;
-import org.apache.geronimo.kernel.NoSuchOperationException;
+import org.apache.geronimo.gbean.*;
+import org.apache.geronimo.kernel.*;
 import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.management.StateManageable;
+
+import javax.management.ObjectName;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
 
 /**
  * A GBeanInstance is a J2EE Management Managed Object, and is standard base for Geronimo services.
@@ -600,13 +576,23 @@ public final class GBeanInstance implements StateManageable {
         }
 
         // add the references
-        //TODO is it possible to extract the references?
-//        for (int i = 0; i < references.length; i++) {
-//            GBeanReference reference = references[i];
-//            String name = reference.getName();
-//            Set patterns = reference.getPatterns();
-//            gbeanData.setReferencePatterns(name, patterns);
-//        }
+        for (int i = 0; i < references.length; i++) {
+            GBeanReference reference = references[i];
+            String name = reference.getName();
+            if(reference instanceof GBeanSingleReference) {
+                AbstractName abstractName = ((GBeanSingleReference) reference).getTargetName();
+                if(abstractName != null) {
+                    gbeanData.setReferencePattern(name, abstractName);
+                }
+            } else if(reference instanceof GBeanCollectionReference) {
+                Set patterns = ((GBeanCollectionReference) reference).getPatterns();
+                if(patterns != null) {
+                    gbeanData.setReferencePatterns(name, patterns);
+                }
+            } else {
+                throw new IllegalStateException("Unrecognized GBeanReference '"+reference.getClass().getName()+"'");
+            }
+        }
         //TODO copy the dependencies??
         return gbeanData;
     }

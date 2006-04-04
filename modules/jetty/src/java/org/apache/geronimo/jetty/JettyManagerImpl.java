@@ -217,7 +217,6 @@ public class JettyManagerImpl implements WebManager {
                 AbstractName name = (AbstractName) it.next(); // a single Jetty connector
                 GBeanData data = kernel.getGBeanData(name);
                 ReferencePatterns refs = data.getReferencePatterns(JettyConnector.CONNECTOR_CONTAINER_REFERENCE);
-                //TODO configid need to verify that the refpattern is resolved
                 if(containerName.equals(refs.getAbstractName())) {
                     try {
                         String testProtocol = (String) kernel.getAttribute(name, "protocol");
@@ -245,7 +244,6 @@ public class JettyManagerImpl implements WebManager {
                 AbstractName name = (AbstractName) it.next(); // a single Jetty connector
                 GBeanData data = kernel.getGBeanData(name);
                 ReferencePatterns refs = data.getReferencePatterns(JettyConnector.CONNECTOR_CONTAINER_REFERENCE);
-                //TODO configid need to verify that the refpattern is resolved
                 if (containerName.equals(refs.getAbstractName())) {
                     results.add(name);
                 }

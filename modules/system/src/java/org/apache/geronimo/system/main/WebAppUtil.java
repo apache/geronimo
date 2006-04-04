@@ -63,7 +63,7 @@ public class WebAppUtil {
                         urlPrefix = (String) map.get("AJP");
                     }
                 }
-                containers.put(cntName, urlPrefix);
+                containers.put(cntName.getObjectName().getCanonicalName(), urlPrefix);
             }
         }
         return containers;
