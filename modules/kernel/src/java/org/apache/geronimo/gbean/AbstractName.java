@@ -22,15 +22,14 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.Jsr77Naming;
 
 /**
  * @version $Rev:$ $Date:$
@@ -51,13 +50,7 @@ public class AbstractName implements Serializable {
         this.artifact = artifact;
         this.name = name;
 
-        try {
-            objectName = new ObjectName("geronimo", new Hashtable(name));
-        } catch (MalformedObjectNameException e) {
-            IllegalArgumentException illegalArgumentException = new IllegalArgumentException();
-            illegalArgumentException.initCause(e);
-            throw illegalArgumentException;
-        }
+        this.objectName = Jsr77Naming.createObjectName(name);
 
         this.uri = createURI(artifact, name);
     }
@@ -135,13 +128,7 @@ public class AbstractName implements Serializable {
         //
         // object name
         //
-        try {
-            objectName = new ObjectName("geronimo", new Hashtable(name));
-        } catch (MalformedObjectNameException e) {
-            IllegalArgumentException illegalArgumentException = new IllegalArgumentException();
-            illegalArgumentException.initCause(e);
-            throw illegalArgumentException;
-        }
+        this.objectName = Jsr77Naming.createObjectName(name);
     }
 
     private static URI createURI(Artifact artifact, Map name) {

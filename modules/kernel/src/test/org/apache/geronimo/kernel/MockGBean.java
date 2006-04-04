@@ -48,6 +48,8 @@ public class MockGBean implements MockEndpoint, MockParentInterface1, MockParent
 
     private String value;
 
+    private Object someObject;
+
     private MockEndpoint endpoint;
 
     private Collection endpointCollection = Collections.EMPTY_SET;
@@ -70,6 +72,7 @@ public class MockGBean implements MockEndpoint, MockParentInterface1, MockParent
         infoFactory.addAttribute("mutableInt", Integer.TYPE, false);
         infoFactory.addAttribute("exceptionMutableInt", Integer.TYPE, true);
         infoFactory.addAttribute("endpointMutableInt", Integer.TYPE, false);
+        infoFactory.addAttribute("someObject", Object.class, true);
 
         infoFactory.addOperation("echo", new Class[]{String.class});
         infoFactory.addOperation("checkEndpoint");
@@ -107,6 +110,14 @@ public class MockGBean implements MockEndpoint, MockParentInterface1, MockParent
         this.objectName = objectName;
         this.classLoader = classLoader;
         this.kernel = kernel;
+    }
+
+    public Object getSomeObject() {
+        return someObject;
+    }
+
+    public void setSomeObject(Object someObject) {
+        this.someObject = someObject;
     }
 
     public String getActualObjectName() {

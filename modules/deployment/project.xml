@@ -104,6 +104,18 @@
             <version>${xml_resolver_version}</version>
             <url>http://xml.apache.org/commons</url>
         </dependency>
+
+        <dependency>
+            <groupId>xstream</groupId>
+            <artifactId>xstream</artifactId>
+            <version>${xstream_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>xpp3</groupId>
+            <artifactId>xpp3</artifactId>
+            <version>${xpp3_version}</version>
+        </dependency>
     </dependencies>
 
 

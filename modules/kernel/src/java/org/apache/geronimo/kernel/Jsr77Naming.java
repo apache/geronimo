@@ -71,7 +71,7 @@ public class Jsr77Naming extends Naming {
     /**
      * @deprecated objectnames are being removed
      */
-    private static ObjectName createObjectName(Map nameMap) {
+    public static ObjectName createObjectName(Map nameMap) {
         Hashtable objectNameMap = new Hashtable(nameMap);
         String type = (String) nameMap.get(J2EE_TYPE);
         if ("JVM".equals(type)) {

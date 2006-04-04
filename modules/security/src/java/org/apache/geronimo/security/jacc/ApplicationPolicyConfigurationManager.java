@@ -157,7 +157,7 @@ public class ApplicationPolicyConfigurationManager implements GBeanLifecycle, Ro
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
-    public GBeanInfo getGBeanInfo() {
+    public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
 }

@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 
-<!-- $Rev$ $Date$ -->
+<!-- $Rev: 385372 $ $Date$ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -148,6 +148,18 @@
             <version>${mx4j_version}</version>
         </dependency>
 
+
+        <dependency>
+            <groupId>xstream</groupId>
+            <artifactId>xstream</artifactId>
+            <version>${xstream_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>xpp3</groupId>
+            <artifactId>xpp3</artifactId>
+            <version>${xpp3_version}</version>
+        </dependency>
     </dependencies>
 
 </project>

@@ -434,6 +434,24 @@
             </properties>
         </dependency>
 
+        <dependency>
+            <groupId>xstream</groupId>
+            <artifactId>xstream</artifactId>
+            <version>${xstream_version}</version>
+            <properties>
+                 <geronimo.assemble>library</geronimo.assemble>
+             </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>xpp3</groupId>
+            <artifactId>xpp3</artifactId>
+            <version>${xpp3_version}</version>
+            <properties>
+                 <geronimo.assemble>library</geronimo.assemble>
+             </properties>
+        </dependency>
+
         <!-- endorsed -->
         <dependency>
             <groupId>xerces</groupId>
@@ -1081,19 +1099,6 @@
             <artifactId>xbean</artifactId>
             <version>${xmlbeans_version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>xpp3</groupId>
-            <artifactId>xpp3</artifactId>
-            <version>${xpp3_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>xstream</groupId>
-            <artifactId>xstream</artifactId>
-            <version>${xstream_version}</version>
-        </dependency>
-
 
 <!-- stuff that has no clear purpose -->
         <dependency>

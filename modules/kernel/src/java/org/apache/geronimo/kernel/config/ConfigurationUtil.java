@@ -18,8 +18,6 @@ package org.apache.geronimo.kernel.config;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URL;
@@ -41,15 +39,67 @@ import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * @version $Rev:386276 $ $Date$
  */
 public final class ConfigurationUtil {
+    private static final ConfigurationMarshaler configurationMarshaler;
+
+    static {
+        Log log = LogFactory.getLog(ConfigurationUtil.class);
+
+        ConfigurationMarshaler marshaler = null;
+        String marshalerClass = System.getProperty("org.apache.geronimo.kernel.config.Marshaler");
+        if (marshalerClass != null) {
+            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+            Class clazz = null;
+            if (classLoader != null) {
+                try {
+                    clazz = ClassLoading.loadClass(marshalerClass, classLoader);
+                } catch (ClassNotFoundException ignored) {
+                    // doesn't matter
+                }
+            }
+            if (clazz == null) {
+                classLoader = ConfigurationUtil.class.getClassLoader();
+                try {
+                    clazz = ClassLoading.loadClass(marshalerClass, classLoader);
+                } catch (ClassNotFoundException ignored) {
+                    // doesn't matter
+                }
+            }
+            if (clazz != null) {
+                try {
+                    Object object = clazz.newInstance();
+                    if (object instanceof ConfigurationMarshaler) {
+                        marshaler = (ConfigurationMarshaler) object;
+                    } else {
+                        log.warn("Configuration marshaler class is not an istance of ConfigurationMarshaler " + marshalerClass + ": using default configuration ");
+                    }
+                } catch (Exception e) {
+                    log.error("Error creating configuration marshaler class " + marshalerClass , e);
+                }
+            }
+        }
+        if (marshaler != null) {
+            configurationMarshaler = marshaler;
+        } else {
+            configurationMarshaler = new SerializedConfigurationMarshaler();
+        }
+    }
+
     private ConfigurationUtil() {
+    }
+
+    public static GBeanState newGBeanState(Collection gbeans) {
+        return configurationMarshaler.newGBeanState(gbeans);
     }
 
     public static AbstractName loadBootstrapConfiguration(Kernel kernel, InputStream in, ClassLoader classLoader) throws Exception {
@@ -91,26 +141,11 @@ public final class ConfigurationUtil {
     }
 
     public static void writeConfigurationData(ConfigurationData configurationData, OutputStream out) throws IOException {
-        ObjectOutputStream oout = new ObjectOutputStream(out);
-        try {
-            oout.writeObject(configurationData);
-        } finally {
-            if (oout != null) {
-                try {
-                    oout.flush();
-                } catch (IOException ignored) {
-                }
-            }
-        }
+        configurationMarshaler.writeConfigurationData(configurationData, out);
     }
 
     public static ConfigurationData readConfigurationData(InputStream in) throws IOException, ClassNotFoundException {
-        ObjectInputStream oin = new ObjectInputStream(in);
-        try {
-            return (ConfigurationData) oin.readObject();
-        } finally {
-            oin.close();
-        }
+        return configurationMarshaler.readConfigurationData(in);
     }
 
     /**

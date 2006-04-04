@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 386505 $ $Date$
  */
 public class JCAResourceImpl implements JCAResource  {
     private final String objectName;

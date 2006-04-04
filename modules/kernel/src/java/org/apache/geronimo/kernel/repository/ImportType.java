@@ -33,6 +33,12 @@ public class ImportType implements Serializable {
     public static final ImportType CLASSES = new ImportType("CLASSES");
     public static final ImportType SERVICES = new ImportType("SERVICES");
 
+    public static Object getByName(String name) {
+        ImportType type = (ImportType) typesByName.get(name);
+        if (type == null) throw new IllegalStateException("Unknown import type: " + name);
+        return type;
+    }
+
     private final String name;
 
     private ImportType(String name) {
@@ -49,8 +55,7 @@ public class ImportType implements Serializable {
     }
 
     protected Object readResolve() {
-        ImportType type = (ImportType) typesByName.get(name);
-        if (type == null) throw new IllegalStateException("Unknown import type: " + name);
-        return type;
+        String name = this.name;
+        return getByName(name);
     }
 }
