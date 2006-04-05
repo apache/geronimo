@@ -22,6 +22,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
 import org.apache.catalina.connector.Request;
+import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.tomcat.realm.TomcatGeronimoRealm;
 
 public class PolicyContextBeforeAfter implements BeforeAfter{
@@ -41,6 +42,7 @@ public class PolicyContextBeforeAfter implements BeforeAfter{
         //Save the old
         PolicyObject policyObject = new PolicyObject();
         policyObject.setContextId(PolicyContext.getContextID());
+        policyObject.setSubject(ContextManager.getCurrentCaller());
         //Save the old Request object in case it gets changed 
         //with a x-context Dispatch
         policyObject.setRequest(TomcatGeronimoRealm.getRequest());
@@ -65,11 +67,13 @@ public class PolicyContextBeforeAfter implements BeforeAfter{
         PolicyObject policyObject = (PolicyObject)context[policyContextIDIndex];
         
         PolicyContext.setContextID(policyObject.getContextId());
+        ContextManager.setCurrentCaller(policyObject.getSubject());
         TomcatGeronimoRealm.setRequest(policyObject.getRequest());
     }
     
     class PolicyObject{
         private String contextId = null;
+        private Subject subject = null;
         private Request request = null;
         
         public String getContextId() {
@@ -77,6 +81,12 @@ public class PolicyContextBeforeAfter implements BeforeAfter{
         }
         public void setContextId(String contextId) {
             this.contextId = contextId;
+        }
+        public Subject getSubject() {
+            return subject;
+        }
+        public void setSubject(Subject subject) {
+            this.subject = subject;
         }
         public Request getRequest() {
             return request;
