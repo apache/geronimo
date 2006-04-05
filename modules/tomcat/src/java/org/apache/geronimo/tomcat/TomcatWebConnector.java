@@ -10,6 +10,12 @@ import org.apache.geronimo.management.geronimo.WebConnector;
  * @version $Revision: 1.0$
  */
 public interface TomcatWebConnector extends WebConnector {
+    public boolean isEmptySessionPath();
+    public void setEmptySessionPath(boolean emptySessionPath);
+    public int getMaxPostSize();
+    public void setMaxPostSize(int bytes);
+    public int getMaxSavePostSize();
+    public void setMaxSavePostSize(int kbytes);
     public int getMinSpareThreads();
     public void setMinSpareThreads(int threads);
     public int getMaxSpareThreads();

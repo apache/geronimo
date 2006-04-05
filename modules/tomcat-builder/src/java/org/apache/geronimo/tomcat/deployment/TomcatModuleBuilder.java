@@ -323,6 +323,9 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             if (tomcatWebApp.isSetCrossContext()) {
                 webModuleData.setAttribute("crossContext", Boolean.TRUE);
             }
+            if (tomcatWebApp.isSetDisableCookies()) {
+                webModuleData.setAttribute("disableCookies", Boolean.TRUE);
+            }
             if (tomcatWebApp.isSetTomcatRealm()) {
                 String tomcatRealm = tomcatWebApp.getTomcatRealm().trim();
                 AbstractName realmName = earContext.getNaming().createChildName(moduleName, tomcatRealm, RealmGBean.GBEAN_INFO.getJ2eeType());

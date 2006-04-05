@@ -37,7 +37,6 @@ import org.apache.geronimo.management.J2EEServer;
 import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.security.jacc.RoleDesignateSource;
 import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
-import org.apache.geronimo.tomcat.cluster.WADIGBean;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
@@ -55,7 +54,7 @@ import java.util.Set;
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
  *
- * @version $Rev: 387050 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebModule {
 
@@ -82,6 +81,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private final Manager manager;
 
     private final boolean crossContext;
+
+    private final boolean disableCookies;
 
     private final Map componentContext;
 
@@ -127,8 +128,9 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             ObjectRetriever tomcatRealm,
             ValveGBean tomcatValveChain,
             CatalinaClusterGBean cluster,
-            WADIGBean manager,
+            ManagerGBean manager,
             boolean crossContext,
+            boolean disableCookies,
             Map webServices,
             J2EEServer server,
             J2EEApplication application,
@@ -204,6 +206,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
         this.crossContext = crossContext;
 
+        this.disableCookies = disableCookies;
+
         this.webServices = webServices;
 
         this.classLoader = classLoader;
@@ -270,6 +274,10 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
     public Kernel getKernel() {
         return kernel;
+    }
+
+    public boolean isDisableCookies() {
+        return disableCookies;
     }
 
     public TransactionContextManager getTransactionContextManager() {
@@ -439,8 +447,9 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         infoBuilder.addReference("TomcatRealm", ObjectRetriever.class);
         infoBuilder.addReference("TomcatValveChain", ValveGBean.class);
         infoBuilder.addReference("Cluster", CatalinaClusterGBean.class, CatalinaClusterGBean.J2EE_TYPE);
-        infoBuilder.addReference("Manager", WADIGBean.class);
+        infoBuilder.addReference("Manager", ManagerGBean.class);
         infoBuilder.addAttribute("crossContext", boolean.class, true);
+        infoBuilder.addAttribute("disableCookies", boolean.class, true);
         infoBuilder.addAttribute("webServices", Map.class, true);
         infoBuilder.addReference("J2EEServer", J2EEServer.class);
         infoBuilder.addReference("J2EEApplication", J2EEApplication.class);
@@ -468,6 +477,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
                 "Cluster",
                 "Manager",
                 "crossContext",
+                "disableCookies",
                 "webServices",
                 "J2EEServer",
                 "J2EEApplication",

@@ -21,8 +21,7 @@ import javax.security.jacc.PolicyContext;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import org.apache.catalina.connector.Request;
-import org.apache.geronimo.tomcat.realm.TomcatGeronimoRealm;
+import org.apache.geronimo.security.ContextManager;
 
 public class PolicyContextBeforeAfter implements BeforeAfter{
     
@@ -39,13 +38,11 @@ public class PolicyContextBeforeAfter implements BeforeAfter{
     public void before(Object[] context, ServletRequest httpRequest, ServletResponse httpResponse) {
         
         //Save the old
-        PolicyObject policyObject = new PolicyObject();
-        policyObject.setContextId(PolicyContext.getContextID());
-        //Save the old Request object in case it gets changed 
-        //with a x-context Dispatch
-        policyObject.setRequest(TomcatGeronimoRealm.getRequest());
+        PolicyHolder policyHolder = new PolicyHolder();
+        policyHolder.setContextId(PolicyContext.getContextID());
+        policyHolder.setSubject(ContextManager.getCurrentCaller());
         
-        context[policyContextIDIndex] = policyObject;
+        context[policyContextIDIndex] = policyHolder;
         
         //Set the new
         PolicyContext.setContextID(policyContextID);
@@ -62,15 +59,15 @@ public class PolicyContextBeforeAfter implements BeforeAfter{
         }
         
         //Replace the old
-        PolicyObject policyObject = (PolicyObject)context[policyContextIDIndex];
-        
-        PolicyContext.setContextID(policyObject.getContextId());
-        TomcatGeronimoRealm.setRequest(policyObject.getRequest());
+        PolicyHolder policyHolder = (PolicyHolder)context[policyContextIDIndex];
+        PolicyContext.setContextID(policyHolder.getContextId());
+        ContextManager.setCurrentCaller(policyHolder.getSubject());
     }
     
-    class PolicyObject{
-        private String contextId = null;
-        private Request request = null;
+    class PolicyHolder{
+        
+        private Subject subject;
+        private String contextId;
         
         public String getContextId() {
             return contextId;
@@ -78,12 +75,13 @@ public class PolicyContextBeforeAfter implements BeforeAfter{
         public void setContextId(String contextId) {
             this.contextId = contextId;
         }
-        public Request getRequest() {
-            return request;
+        public Subject getSubject() {
+            return subject;
         }
-        public void setRequest(Request request) {
-            this.request = request;
+        public void setSubject(Subject subject) {
+            this.subject = subject;
         }
     }
 
 }
+

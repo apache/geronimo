@@ -45,7 +45,7 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 
 
 /**
- * @version $Rev: 387050 $ $Date$
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractWebModuleTest extends TestCase {
 
@@ -79,6 +79,7 @@ public abstract class AbstractWebModuleTest extends TestCase {
                 valveChain,
                 null,
                 null,
+                false,
                 false,
                 null,
                 null,

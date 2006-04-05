@@ -69,6 +69,8 @@ public interface TomcatContext {
     public Manager getManager();
     
     public boolean isCrossContext();
+
+    public boolean isDisableCookies();
     
     public Map getWebServices();
 }
