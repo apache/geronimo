@@ -30,7 +30,7 @@ import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.AbstractName;
 
 /**
- * @version $Rev: 385487 $ $Date$
+ * @version $Rev$ $Date$
  */
 public abstract class Module {
     private final boolean standAlone;
@@ -164,7 +164,7 @@ public abstract class Module {
                 throw new IOException("META-INF directory is not readable: " + metainfDir.getAbsolutePath());
             }
             if (!metainfDir.canWrite()) {
-                throw new IOException("META-INF directory is not wirtable: " + metainfDir.getAbsolutePath());
+                throw new IOException("META-INF directory is not writable: " + metainfDir.getAbsolutePath());
             }
 
             String suffix = "";
@@ -186,7 +186,7 @@ public abstract class Module {
                 throw new IOException("Geronimo generated classes directory is not readable: " + generatedDir.getAbsolutePath());
             }
             if (!generatedDir.canWrite()) {
-                throw new IOException("Geronimo generated classes directory is not wirtable: " + generatedDir.getAbsolutePath());
+                throw new IOException("Geronimo generated classes directory is not writable: " + generatedDir.getAbsolutePath());
             }
 
             uniqueModuleLocation = generatedUri;
