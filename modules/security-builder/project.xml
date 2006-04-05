@@ -79,12 +79,6 @@
             <version>${pom.currentVersion}</version>
         </dependency>
 
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-service-builder</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-
         <!--needed only because security schema references j2ee 1.4 schema for description element -->
 <!--
         <dependency>
