@@ -16,9 +16,12 @@
  */
 package org.apache.geronimo.tomcat.interceptor;
 
+import javax.security.auth.Subject;
 import javax.security.jacc.PolicyContext;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+
+import org.apache.geronimo.security.ContextManager;
 
 public class PolicyContextBeforeAfter implements BeforeAfter{
     
@@ -35,7 +38,11 @@ public class PolicyContextBeforeAfter implements BeforeAfter{
     public void before(Object[] context, ServletRequest httpRequest, ServletResponse httpResponse) {
         
         //Save the old
-        context[policyContextIDIndex] = PolicyContext.getContextID();
+        PolicyHolder policyHolder = new PolicyHolder();
+        policyHolder.setContextId(PolicyContext.getContextID());
+        policyHolder.setSubject(ContextManager.getCurrentCaller());
+        
+        context[policyContextIDIndex] = policyHolder;
         
         //Set the new
         PolicyContext.setContextID(policyContextID);
@@ -52,7 +59,28 @@ public class PolicyContextBeforeAfter implements BeforeAfter{
         }
         
         //Replace the old
-        PolicyContext.setContextID((String)context[policyContextIDIndex]);
+        PolicyHolder policyHolder = (PolicyHolder)context[policyContextIDIndex];
+        PolicyContext.setContextID(policyHolder.getContextId());
+        ContextManager.setCurrentCaller(policyHolder.getSubject());
+    }
+    
+    class PolicyHolder{
+        
+        private Subject subject;
+        private String contextId;
+        
+        public String getContextId() {
+            return contextId;
+        }
+        public void setContextId(String contextId) {
+            this.contextId = contextId;
+        }
+        public Subject getSubject() {
+            return subject;
+        }
+        public void setSubject(Subject subject) {
+            this.subject = subject;
+        }
     }
 
 }
