@@ -96,6 +96,8 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
                     throw new InvalidConfigException("Can not read configuration META-INF/config.ser file: " + serFile);
                 }
 
+                ConfigurationStoreUtil.verifyChecksum(serFile);
+
                 InputStream in = new FileInputStream(serFile);
                 try {
                     configurationData = ConfigurationUtil.readConfigurationData(in);
@@ -126,7 +128,6 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
 
         return configurationData;
     }
-
 
     public boolean containsConfiguration(Artifact configId) {
         File location = repository.getLocation(configId);

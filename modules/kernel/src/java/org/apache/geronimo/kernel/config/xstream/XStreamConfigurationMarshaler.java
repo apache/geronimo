@@ -43,7 +43,7 @@ public class XStreamConfigurationMarshaler implements ConfigurationMarshaler {
     public ConfigurationData readConfigurationData(InputStream in) throws IOException, ClassNotFoundException {
         PushbackInputStream pushbackInputStream = new PushbackInputStream(in, 2);
         byte[] streamHeader = new byte[2];
-        pushbackInputStream.read(streamHeader);
+        if (pushbackInputStream.read(streamHeader) != 2) throw new AssertionError("Cound not read stream header");
         pushbackInputStream.unread(streamHeader);
 
         // if this is a serialized config, fallback to the serialization marshaler

@@ -132,6 +132,10 @@ public class ConfigurationData implements Serializable {
         return gbeanState.addGBean(name, gbeanInfo, naming, environment);
     }
 
+    public GBeanState getGbeanState() {
+        return gbeanState;
+    }
+
     public Map getChildConfigurations() {
         return Collections.unmodifiableMap(childConfigurations);
     }

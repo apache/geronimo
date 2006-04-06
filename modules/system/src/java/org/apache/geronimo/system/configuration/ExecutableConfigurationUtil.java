@@ -22,6 +22,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
@@ -88,8 +89,19 @@ public final class ExecutableConfigurationUtil {
     public static void writeConfiguration(ConfigurationData configurationData, JarOutputStream out) throws IOException {
         // save the persisted form in the source directory
         out.putNextEntry(new ZipEntry("META-INF/config.ser"));
+        ConfigurationStoreUtil.ChecksumOutputStream sumOut = new ConfigurationStoreUtil.ChecksumOutputStream(out);
         try {
-            ConfigurationUtil.writeConfigurationData(configurationData, out);
+            ConfigurationUtil.writeConfigurationData(configurationData, sumOut);
+        } finally {
+            out.closeEntry();
+        }
+
+        // write the checksum file
+        out.putNextEntry(new ZipEntry("META-INF/config.ser.sha1"));
+        try {
+            OutputStreamWriter writer = new OutputStreamWriter(out);
+            writer.write(sumOut.getChecksum());
+            writer.flush();
         } finally {
             out.closeEntry();
         }
@@ -116,6 +128,7 @@ public final class ExecutableConfigurationUtil {
                 }
             }
         }
+        ConfigurationStoreUtil.writeChecksumFor(configSer);
     }
 
     private static Collection listRecursiveFiles(File file) {
