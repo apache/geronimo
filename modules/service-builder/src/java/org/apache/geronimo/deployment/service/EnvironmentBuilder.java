@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.deployment.service;
 
+import java.beans.PropertyEditorSupport;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -25,7 +26,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.xml.namespace.QName;
+
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.common.propertyeditor.PropertyEditorException;
 import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.ClassFilterType;
 import org.apache.geronimo.deployment.xbeans.DependenciesType;
@@ -42,9 +46,9 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  * @version $Rev:$ $Date:$
  */
-public class EnvironmentBuilder implements XmlAttributeBuilder {
-    private final static String NAMESPACE = EnvironmentDocument.type.getDocumentElementName().getNamespaceURI();
-
+public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttributeBuilder {
+    private final static QName QNAME = EnvironmentDocument.type.getDocumentElementName();
+    private final static String NAMESPACE = QNAME.getNamespaceURI();
 
     public static Environment buildEnvironment(EnvironmentType environmentType) {
         Environment environment = new Environment();
@@ -70,7 +74,7 @@ public class EnvironmentBuilder implements XmlAttributeBuilder {
     public static void mergeEnvironments(Environment environment, Environment additionalEnvironment) {
         if (additionalEnvironment != null) {
             //TODO merge configIds??
-            if (environment.getConfigId() == null){
+            if (environment.getConfigId() == null) {
                 environment.setConfigId(additionalEnvironment.getConfigId());
             }
             environment.addDependencies(additionalEnvironment.getDependencies());
@@ -89,8 +93,10 @@ public class EnvironmentBuilder implements XmlAttributeBuilder {
 
     public static EnvironmentType buildEnvironmentType(Environment environment) {
         EnvironmentType environmentType = EnvironmentType.Factory.newInstance();
-        ArtifactType configId = toArtifactType(environment.getConfigId());
-        environmentType.setConfigId(configId);
+        if (environmentType.isSetConfigId()) {
+            ArtifactType configId = toArtifactType(environment.getConfigId());
+            environmentType.setConfigId(configId);
+        }
 
         List dependencies = toArtifactTypes(environment.getDependencies());
         ArtifactType[] artifactTypes = (ArtifactType[]) dependencies.toArray(new ArtifactType[dependencies.size()]);
@@ -109,7 +115,7 @@ public class EnvironmentBuilder implements XmlAttributeBuilder {
 
     private static ClassFilterType toFilterType(Set filters) {
         String[] classFilters = (String[]) filters.toArray(new String[filters.size()]);
-        ClassFilterType classFilter  = ClassFilterType.Factory.newInstance();
+        ClassFilterType classFilter = ClassFilterType.Factory.newInstance();
         classFilter.setFilterArray(classFilters);
         return classFilter;
     }
@@ -199,7 +205,7 @@ public class EnvironmentBuilder implements XmlAttributeBuilder {
             throw new IllegalArgumentException("Unknown import type: " + artifactType.getImport());
         }
     }
-    
+
     //TODO make private
     static Artifact toArtifact(ArtifactType artifactType) {
         String groupId = artifactType.isSetGroupId() ? artifactType.getGroupId().trim() : null;
@@ -236,6 +242,30 @@ public class EnvironmentBuilder implements XmlAttributeBuilder {
 
         return buildEnvironment(environmentType);
     }
+
+    public String getAsText() {
+        Environment environment = (Environment) getValue();
+        EnvironmentType environmentType = buildEnvironmentType(environment);
+        XmlOptions xmlOptions = new XmlOptions();
+        xmlOptions.setSaveSyntheticDocumentElement(QNAME);
+        xmlOptions.setSavePrettyPrint();
+        return environmentType.xmlText(xmlOptions);
+    }
+
+    public void setAsText(String text) {
+        try {
+            EnvironmentDocument environmentDocument = EnvironmentDocument.Factory.parse(text);
+            EnvironmentType environmentType = environmentDocument.getEnvironment();
+            Environment environment = (Environment) getValue(environmentType, null, null);
+            setValue(environment);
+
+        } catch (XmlException e) {
+            throw new PropertyEditorException(e);
+        } catch (DeploymentException e) {
+            throw new PropertyEditorException(e);
+        }
+    }
+
 
     //This is added by hand to the xmlAttributeBuilders since it is needed to bootstrap the ServiceConfigBuilder.
 }

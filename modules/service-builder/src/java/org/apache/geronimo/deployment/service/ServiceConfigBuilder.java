@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.List;
 import java.util.Collections;
 import java.util.jar.JarFile;
+import java.beans.PropertyEditorManager;
 
 import javax.xml.namespace.QName;
 
@@ -90,6 +91,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         this.naming = naming;
         EnvironmentBuilder environmentBuilder = new EnvironmentBuilder();
         xmlAttributeBuilderMap.put(environmentBuilder.getNamespace(), environmentBuilder);
+        //cf registering EnvironmentBuilder as a property editor in the static gbeaninfo block.
         this.defaultEnvironment = defaultEnvironment;
 
         this.repositories = repositories;
@@ -268,6 +270,8 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
+        PropertyEditorManager.registerEditor(Environment.class, EnvironmentBuilder.class);
+
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(ServiceConfigBuilder.class, NameFactory.CONFIG_BUILDER);
 
         infoFactory.addInterface(ConfigurationBuilder.class);

@@ -17,15 +17,18 @@
 package org.apache.geronimo.deployment.service;
 
 import java.util.LinkedHashSet;
+import java.beans.PropertyEditor;
+import java.beans.PropertyEditorManager;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Environment;
 
 /**
  * @version $Rev$ $Date$
  */
-public class ParentIDTest extends TestCase {
+public class EnvironmentBuilderTest extends TestCase {
 
     public void testNoParents() throws Exception {
         LinkedHashSet parentId = EnvironmentBuilder.toArtifacts(new ArtifactType[] {});
@@ -43,4 +46,31 @@ public class ParentIDTest extends TestCase {
         assertEquals("groupId/artifactId/version/type", ((Artifact)parentId.iterator().next()).toURI().getPath());
     }
 
+    private static final String ENV_1 = "<dep:environment xmlns:dep=\"http://geronimo.apache.org/xml/ns/deployment-1.1\">\n" +
+            "  <dep:dependencies>\n" +
+            "    <dep:dependency>\n" +
+            "      <dep:groupId>${pom.groupId}</dep:groupId>\n" +
+            "      <dep:artifactId>j2ee-server</dep:artifactId>\n" +
+            "      <dep:version>${pom.currentVersion}</dep:version>\n" +
+            "      <dep:type>car</dep:type>\n" +
+            "    </dep:dependency>\n" +
+            "  </dep:dependencies>\n" +
+            "  <dep:hidden-classes/>\n" +
+            "  <dep:non-overridable-classes/>\n" +
+            "</dep:environment>";
+
+    public void testPropertyEditor() throws Exception {
+        PropertyEditor editor = new EnvironmentBuilder();
+        editor.setAsText(ENV_1);
+        Environment environment = (Environment) editor.getValue();
+        editor.setValue(environment);
+        String text = editor.getAsText();
+        assertEquals(text, ENV_1);
+    }
+
+    public void testPropertyEditorRegistration() throws Exception {
+        ServiceConfigBuilder.getGBeanInfo();
+        PropertyEditor propertyEditor = PropertyEditorManager.findEditor(Environment.class);
+        assertTrue(propertyEditor instanceof EnvironmentBuilder);
+    }
 }
