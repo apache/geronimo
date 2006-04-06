@@ -25,7 +25,8 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.management.J2EEDomain;
+import org.apache.geronimo.management.geronimo.J2EEDomain;
+import org.apache.geronimo.management.geronimo.J2EEServer;
 
 /**
  * @version $Rev$ $Date$
@@ -82,6 +83,10 @@ public class J2EEDomainImpl implements J2EEDomain {
 
     public String[] getServers() {
         return Util.getObjectNames(kernel, baseName, new String[]{"J2EEServer"});
+    }
+
+    public J2EEServer[] getServerInstances() {
+        return (J2EEServer[]) Util.getObjects(kernel, baseName, new String[]{"J2EEServer"}, J2EEServer.class);
     }
 
     public static final GBeanInfo GBEAN_INFO;

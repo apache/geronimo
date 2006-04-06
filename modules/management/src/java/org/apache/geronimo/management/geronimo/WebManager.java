@@ -16,7 +16,7 @@
  */
 package org.apache.geronimo.management.geronimo;
 
-import org.apache.geronimo.gbean.AbstractName;
+import java.util.Map;
 
 /**
  * Specialization of NetworkManager for web containers.
@@ -29,34 +29,35 @@ public interface WebManager extends NetworkManager {
     public final static String PROTOCOL_AJP = "AJP";
 
     /**
-     * Gets the name of the product that this manager manages.
-     */
-    public String getProductName(); //todo: move into NetworkManager
-
-    /**
-     * Creates a new connector, and returns the ObjectName for it.  Note that
-     * the connector may well require further customization before being fully
-     * functional (e.g. SSL settings for a secure connector).  This may need
-     * to be done before starting the resulting connector.
+     * Creates and returns a new web connector.  Note that the connector may
+     * well require further customization before being fully functional (e.g.
+     * SSL settings for a secure connector).  This may need to be done before
+     * starting the resulting connector.
      *
-     * @param containerName
-     * @param uniqueName          A name fragment that's unique to this
-     *                            connector
-     * @param protocol            The protocol that the connector should use
-     * @param host                The host name or IP that the connector should
-     *                            listen on
-     * @param port                The port that the connector should listen on
+     * @param container    The container to add the connector to
+     * @param uniqueName   A name fragment that's unique to this connector
+     * @param protocol     The protocol that the connector should use
+     * @param host         The host name or IP that the connector should listen on
+     * @param port         The port that the connector should listen on
      *
      * @return The ObjectName of the new connector.
      */
-    public AbstractName addConnector(AbstractName containerName, String uniqueName, String protocol, String host, int port);
+    public WebConnector addConnector(WebContainer container, String uniqueName, String protocol, String host, int port);
 
     /**
-     * Gets the ObjectName of the WebAccessLog implementation for a web
-     * container.  May be null if the access log cannot be managed.
+     * Gets the WebAccessLog implementation for a web container.
+     * May be null if the access log cannot be managed.
      *
-     * @param containerObjectName The ObjectName of the container whose access
+     * @param container The container whose access log is interesting
      *
      */
-    public AbstractName getAccessLog(String containerObjectName);
+    public WebAccessLog getAccessLog(WebContainer container);
+
+    /**
+     * Generates a Map where the keys are web container object names (as Strings)
+     * and the values are URLs (as Strings) to connect to a web app running in
+     * the matching container (though the web app context needs to be added to
+     * the end to be complete).
+     */
+    public Map mapContainersToURLs();
 }

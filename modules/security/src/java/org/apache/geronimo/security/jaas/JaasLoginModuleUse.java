@@ -67,7 +67,7 @@ public class JaasLoginModuleUse implements JaasLoginModuleChain {
         return loginModule;
     }
 
-    public JaasLoginModuleUse getNext() {
+    public JaasLoginModuleChain getNext() {
         return next;
     }
 

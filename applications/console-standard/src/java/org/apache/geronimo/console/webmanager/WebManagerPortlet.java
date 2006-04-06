@@ -17,7 +17,10 @@
 
 package org.apache.geronimo.console.webmanager;
 
-import java.io.IOException;
+import org.apache.geronimo.console.BasePortlet;
+import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.management.geronimo.WebContainer;
+import org.apache.geronimo.management.geronimo.WebManager;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -27,10 +30,7 @@ import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
-
-import org.apache.geronimo.console.BasePortlet;
-import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.management.geronimo.WebContainer;
+import java.io.IOException;
 
 /**
  * Basic portlet showing statistics for a web container
@@ -45,15 +45,14 @@ public class WebManagerPortlet extends BasePortlet {
     private PortletRequestDispatcher helpView;
 
     public void processAction(ActionRequest actionRequest,
-            ActionResponse actionResponse) throws PortletException, IOException {
+                              ActionResponse actionResponse) throws PortletException, IOException {
         try {
-            String[] names = PortletManager.getWebManagerNames(actionRequest);  //todo: handle multiple
-            if (names != null) {
-                String managerName = names[0];  //todo: handle multiple
-                String[] containers = PortletManager.getWebContainerNames(actionRequest, managerName);  //todo: handle multiple
+            WebManager[] managers = PortletManager.getCurrentServer(actionRequest).getWebManagers();
+            if (managers != null) {
+                WebManager manager = managers[0];  //todo: handle multiple
+                WebContainer[] containers = (WebContainer[]) manager.getContainers();
                 if (containers != null) {
-                    String containerName = containers[0];  //todo: handle multiple
-                    WebContainer container = PortletManager.getWebContainer(actionRequest, containerName);
+                    WebContainer container = containers[0];  //todo: handle multiple
                     String server = getWebServerType(container.getClass());
                     String action = actionRequest.getParameter("stats");
                     if (action != null) {
@@ -93,18 +92,17 @@ public class WebManagerPortlet extends BasePortlet {
     }
 
     protected void doView(RenderRequest renderRequest,
-            RenderResponse renderResponse) throws IOException, PortletException {
+                          RenderResponse renderResponse) throws IOException, PortletException {
         if (WindowState.MINIMIZED.equals(renderRequest.getWindowState())) {
             return;
         }
         try {
-            String[] names = PortletManager.getWebManagerNames(renderRequest);  //todo: handle multiple
-            if (names != null) {
-                String managerName = names[0];  //todo: handle multiple
-                String[] containers = PortletManager.getWebContainerNames(renderRequest, managerName);  //todo: handle multiple
+            WebManager[] managers = PortletManager.getCurrentServer(renderRequest).getWebManagers();
+            if (managers != null) {
+                WebManager manager = managers[0];  //todo: handle multiple
+                WebContainer[] containers = (WebContainer[]) manager.getContainers();
                 if (containers != null) {
-                    String containerName = containers[0];  //todo: handle multiple
-                    WebContainer container = PortletManager.getWebContainer(renderRequest, containerName);
+                    WebContainer container = containers[0];  //todo: handle multiple
                     String server = getWebServerType(container.getClass());
                     StatisticsHelper helper = null;
                     if(server.equals(WEB_SERVER_JETTY)) {
@@ -138,7 +136,7 @@ public class WebManagerPortlet extends BasePortlet {
     }
 
     protected void doHelp(RenderRequest renderRequest,
-            RenderResponse renderResponse) throws PortletException, IOException {
+                          RenderResponse renderResponse) throws PortletException, IOException {
         helpView.include(renderRequest, renderResponse);
     }
 

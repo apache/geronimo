@@ -18,20 +18,15 @@
 package org.apache.geronimo.security.realm;
 
 import org.apache.geronimo.security.jaas.server.JaasLoginModuleConfiguration;
+import org.apache.geronimo.security.jaas.JaasLoginModuleChain;
 
 
 /**
  * @version $Rev$ $Date$
  */
-public interface SecurityRealm {
+public interface SecurityRealm extends org.apache.geronimo.management.geronimo.SecurityRealm {
 
     static final String BASE_OBJECT_NAME = "geronimo.security:type=SecurityRealm";
-
-    /**
-     * The name of the realm, which must be unique across all realms in the
-     * server.
-     */
-    public String getRealmName();
 
     /**
      * Gets the JAAS configuration for this security realm.
@@ -61,10 +56,8 @@ public interface SecurityRealm {
     public String[] getLoginDomains();
 
     /**
-     * Gets the ObjectName of the first JaasLoginModuleChain node in the
-     * chain of LoginModules for this realm.
-     *
-     * @return The ObjectName, in String form.
+     * Gets the first JaasLoginModuleChain node in the chain of LoginModules
+     * for this realm.
      */
-    public String getLoginModuleChainName();
+    public JaasLoginModuleChain getLoginModuleChain();
 }

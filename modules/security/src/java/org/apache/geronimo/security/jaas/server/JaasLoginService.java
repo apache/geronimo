@@ -90,7 +90,7 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
     /**
      * GBean property
      */
-    public Collection getRealms() throws GeronimoSecurityException {
+    public Collection getRealms() {
         return realms;
     }
 

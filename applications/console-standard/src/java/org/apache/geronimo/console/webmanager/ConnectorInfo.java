@@ -26,7 +26,7 @@ import org.apache.geronimo.kernel.management.State;
 public class ConnectorInfo implements Serializable {
     private String description;
     private String displayName;
-    private String objectName;
+    private String abstractName;
     private String protocol;
     private int port;
     private int state;
@@ -47,16 +47,23 @@ public class ConnectorInfo implements Serializable {
         this.protocol = protocol;
     }
 
+    /**
+     * @deprecated Use getAbstractName
+     */
     public String getObjectName() {
-        return objectName;
+        return abstractName;
+    }
+
+    public String getAbstractName() {
+        return abstractName;
     }
 
     public String getDisplayName() {
         return displayName;
     }
 
-    public void setObjectName(String objectName) {
-        this.objectName = objectName;
+    public void setAbstractName(String objectName) {
+        this.abstractName = objectName;
     }
 
     public void setDisplayName(String displayName) {

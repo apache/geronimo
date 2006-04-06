@@ -26,10 +26,15 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.EditableConfigurationManager;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.management.geronimo.WebManager;
+import org.apache.geronimo.management.geronimo.NetworkConnector;
+import org.apache.geronimo.management.geronimo.WebContainer;
+import org.apache.geronimo.management.geronimo.WebConnector;
+import org.apache.geronimo.management.geronimo.WebAccessLog;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
@@ -37,12 +42,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * Tomcat implementation of the WebManager management API.  Knows how to
  * manipulate other Tomcat objects for management purposes.
  *
- * @version $Rev: 385487 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class TomcatManagerImpl implements WebManager {
     private final static Log log = LogFactory.getLog(TomcatManagerImpl.class);
@@ -57,18 +64,19 @@ public class TomcatManagerImpl implements WebManager {
     }
 
     /**
-     * Creates a new connector, and returns the ObjectName for it.  Note that the connector may well require further
-     * customization before being fully functional (e.g. SSL settings for a secure connector).  This may need to be done
-     * before starting the resulting connector.
+     * Creates and returns a new connector.  Note that the connector may well
+     * require further customization before being fully functional (e.g. SSL
+     * settings for a secure connector).  This may need to be done before
+     * starting the resulting connector.
      *
-     * @param containerName
-     * @param uniqueName          A name fragment that's unique to this connector
-     * @param protocol            The protocol that the connector should use
-     * @param host                The host name or IP that the connector should listen on
-     * @param port                The port that the connector should listen on
-     * @return The ObjectName of the new connector.
+     * @param container    The container to add the connector to
+     * @param uniqueName   A name fragment that's unique to this connector
+     * @param protocol     The protocol that the connector should use
+     * @param host         The host name or IP that the connector should listen on
+     * @param port         The port that the connector should listen on
      */
-    public AbstractName addConnector(AbstractName containerName, String uniqueName, String protocol, String host, int port) {
+    public WebConnector addConnector(WebContainer container, String uniqueName, String protocol, String host, int port) {
+        AbstractName containerName = kernel.getAbstractNameFor(container);
         AbstractName name = kernel.getNaming().createChildName(containerName, "TomcatWebConnector-" + protocol + "-" + uniqueName, NameFactory.GERONIMO_SERVICE);
         GBeanData connector;
         if(protocol.equals(PROTOCOL_HTTP)) {
@@ -95,7 +103,7 @@ public class TomcatManagerImpl implements WebManager {
         if(mgr != null) {
             try {
                 mgr.addGBeanToConfiguration(containerName.getArtifact(), connector, false);
-                return name;
+                return (WebConnector) kernel.getProxyManager().createProxy(name, TomcatWebConnector.class.getClassLoader());
             } catch (InvalidConfigException e) {
                 log.error("Unable to add GBean", e);
                 return null;
@@ -111,10 +119,17 @@ public class TomcatManagerImpl implements WebManager {
     /**
      * Gets the network containers.
      */
-    public AbstractName[] getContainers() {
+    public Object[] getContainers() {
+        ProxyManager proxyManager = kernel.getProxyManager();
         AbstractNameQuery query = new AbstractNameQuery(TomcatWebContainer.class.getName());
         Set names = kernel.listGBeans(query);
-        return (AbstractName[]) names.toArray(new AbstractName[names.size()]);
+        TomcatWebContainer[] results = new TomcatWebContainer[names.size()];
+        int i=0;
+        for (Iterator it = names.iterator(); it.hasNext(); i++) {
+            AbstractName name = (AbstractName) it.next();
+            results[i] = (TomcatWebContainer) proxyManager.createProxy(name, TomcatWebContainer.class.getClassLoader());
+        }
+        return results;
     }
 
     /**
@@ -167,67 +182,78 @@ public class TomcatManagerImpl implements WebManager {
      *
      * @param protocol A protocol as returned by getSupportedProtocols
      */
-    public AbstractName[] getConnectors(String protocol) {
+    public NetworkConnector[] getConnectors(String protocol) {
+        if(protocol == null) {
+            return getConnectors();
+        }
+        List result = new ArrayList();
+        ProxyManager proxyManager = kernel.getProxyManager();
         AbstractNameQuery query = new AbstractNameQuery(TomcatWebConnector.class.getName());
         Set names = kernel.listGBeans(query);
-        List result = new ArrayList();
         for (Iterator it = names.iterator(); it.hasNext();) {
             AbstractName name = (AbstractName) it.next();
             try {
                 if (kernel.getAttribute(name, "protocol").equals(protocol)) {
-                    result.add(name);
+                    result.add(proxyManager.createProxy(name, TomcatWebConnector.class.getClassLoader()));
                 }
             } catch (Exception e) {
                 log.error("Unable to check the protocol for a connector", e);
             }
         }
-        return (AbstractName[]) result.toArray(new AbstractName[result.size()]);
+        return (TomcatWebConnector[]) result.toArray(new TomcatWebConnector[names.size()]);
     }
 
-    public AbstractName getAccessLog(String containerObjectName) {
+    public WebAccessLog getAccessLog(WebContainer container) {
         AbstractNameQuery query = new AbstractNameQuery(TomcatLogManager.class.getName());
         Set names = kernel.listGBeans(query);
         if(names.size() == 0) {
             return null;
         } else if(names.size() > 1) {
-            throw new IllegalStateException("Should not be more than one Jetty access log manager");
+            throw new IllegalStateException("Should not be more than one Tomcat access log manager");
         }
-        return (AbstractName)names.iterator().next();
+        return (WebAccessLog) kernel.getProxyManager().createProxy((AbstractName)names.iterator().next(), TomcatLogManager.class.getClassLoader());
     }
 
     /**
      * Gets the ObjectNames of any existing connectors associated with this network technology.
      */
-    public AbstractName[] getConnectors() {
+    public NetworkConnector[] getConnectors() {
+        ProxyManager proxyManager = kernel.getProxyManager();
         AbstractNameQuery query = new AbstractNameQuery(TomcatWebConnector.class.getName());
         Set names = kernel.listGBeans(query);
-        return (AbstractName[]) names.toArray(new AbstractName[names.size()]);
+        TomcatWebConnector[] results = new TomcatWebConnector[names.size()];
+        int i=0;
+        for (Iterator it = names.iterator(); it.hasNext(); i++) {
+            AbstractName name = (AbstractName) it.next();
+            results[i] = (TomcatWebConnector) proxyManager.createProxy(name, TomcatWebConnector.class.getClassLoader());
+        }
+        return results;
     }
 
     /**
      * Gets the ObjectNames of any existing connectors for the specified container for the specified protocol.
      *
-     * @param containerName
      * @param protocol A protocol as returned by getSupportedProtocols
      */
-    public AbstractName[] getConnectorsForContainer(AbstractName containerName, String protocol) {
+    public NetworkConnector[] getConnectorsForContainer(Object container, String protocol) {
         if(protocol == null) {
-            return getConnectorsForContainer(containerName);
+            return getConnectorsForContainer(container);
         }
+        AbstractName containerName = kernel.getAbstractNameFor(container);
+        ProxyManager mgr = kernel.getProxyManager();
         try {
             List results = new ArrayList();
             AbstractNameQuery query = new AbstractNameQuery(TomcatWebConnector.class.getName());
-            Set set = kernel.listGBeans(query); // all Jetty connectors
+            Set set = kernel.listGBeans(query); // all Tomcat connectors
             for (Iterator it = set.iterator(); it.hasNext();) {
-                AbstractName name = (AbstractName) it.next(); // a single Jetty connector
+                AbstractName name = (AbstractName) it.next(); // a single Tomcat connector
                 GBeanData data = kernel.getGBeanData(name);
                 ReferencePatterns refs = data.getReferencePatterns(ConnectorGBean.CONNECTOR_CONTAINER_REFERENCE);
-                //TODO configid need to verify that the refpattern is resolved
                 if(containerName.equals(refs.getAbstractName())) {
                     try {
                         String testProtocol = (String) kernel.getAttribute(name, "protocol");
                         if(testProtocol != null && testProtocol.equals(protocol)) {
-                            results.add(name);
+                            results.add(mgr.createProxy(name, TomcatWebConnector.class.getClassLoader()));
                         }
                     } catch (Exception e) {
                         log.error("Unable to look up protocol for connector '"+name+"'",e);
@@ -235,34 +261,58 @@ public class TomcatManagerImpl implements WebManager {
                     break;
                 }
             }
-            return (AbstractName[]) results.toArray(new AbstractName[results.size()]);
+            return (TomcatWebConnector[]) results.toArray(new TomcatWebConnector[results.size()]);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Unable to look up connectors for Jetty container '"+containerName +"': "+e);
+            throw (IllegalArgumentException)new IllegalArgumentException("Unable to look up connectors for Tomcat container '"+containerName +"': ").initCause(e);
         }
     }
 
     /**
      * Gets the ObjectNames of any existing connectors for the specified container.
-     * @param containerName
      */
-    public AbstractName[] getConnectorsForContainer(AbstractName containerName) {
+    public NetworkConnector[] getConnectorsForContainer(Object container) {
+        AbstractName containerName = kernel.getAbstractNameFor(container);
+        ProxyManager mgr = kernel.getProxyManager();
         try {
             List results = new ArrayList();
             AbstractNameQuery query = new AbstractNameQuery(TomcatWebConnector.class.getName());
-            Set set = kernel.listGBeans(query); // all Jetty connectors
+            Set set = kernel.listGBeans(query); // all Tomcat connectors
             for (Iterator it = set.iterator(); it.hasNext();) {
-                AbstractName name = (AbstractName) it.next(); // a single Jetty connector
+                AbstractName name = (AbstractName) it.next(); // a single Tomcat connector
                 GBeanData data = kernel.getGBeanData(name);
                 ReferencePatterns refs = data.getReferencePatterns(ConnectorGBean.CONNECTOR_CONTAINER_REFERENCE);
-                //TODO configid need to verify that the refpattern is resolved
                 if (containerName.equals(refs.getAbstractName())) {
-                    results.add(name);
+                    results.add(mgr.createProxy(name, TomcatWebConnector.class.getClassLoader()));
                 }
             }
-            return (AbstractName[]) results.toArray(new AbstractName[results.size()]);
+            return (TomcatWebConnector[]) results.toArray(new TomcatWebConnector[results.size()]);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Unable to look up connectors for Tomcat container '"+containerName +"': "+e);
+            throw (IllegalArgumentException) new IllegalArgumentException("Unable to look up connectors for Tomcat container '"+containerName).initCause(e);
         }
+    }
+
+    public Map mapContainersToURLs() {
+        WebContainer[] webContainers = (WebContainer[]) getContainers();
+        Map results = new HashMap();
+        for (int i = 0; i < webContainers.length; i++) {
+            WebContainer container = webContainers[i];
+            WebConnector[] connectors = (WebConnector[]) getConnectorsForContainer(container);
+            Map map = new HashMap();
+            for (int j = 0; j < connectors.length; j++) {
+                WebConnector connector = connectors[j];
+                String protocol = connector.getProtocol();
+                String url = connector.getConnectUrl();
+                map.put(protocol, url);
+            }
+            String urlPrefix;
+            if((urlPrefix = (String) map.get("HTTP")) == null) {
+                if((urlPrefix = (String) map.get("HTTPS")) == null) {
+                    urlPrefix = (String) map.get("AJP");
+                }
+            }
+            results.put(kernel.getAbstractNameFor(container).getObjectName().getCanonicalName(), urlPrefix);
+        }
+        return results;
     }
 
     public static final GBeanInfo GBEAN_INFO;

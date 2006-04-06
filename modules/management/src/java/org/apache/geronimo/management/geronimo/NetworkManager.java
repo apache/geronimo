@@ -30,9 +30,14 @@ import org.apache.geronimo.gbean.AbstractName;
  */
 public interface NetworkManager {
     /**
-     * Gets the network containers.
+     * Gets the name of the product that this manager manages.
      */
-    public AbstractName[] getContainers();
+    public String getProductName();
+
+    /**
+     * Gets the network containers (web, EJB, JMS, etc.)
+     */
+    public Object[] getContainers();
 
     /**
      * Gets the protocols which this container can configure connectors for.
@@ -48,32 +53,32 @@ public interface NetworkManager {
     public void removeConnector(AbstractName connectorName);
 
     /**
-     * Gets the ObjectNames of any existing connectors for this network
+     * Gets any existing connectors for this network
      * technology for the specified protocol.
      *
      * @param protocol A protocol as returned by getSupportedProtocols
      */
-    public AbstractName[] getConnectors(String protocol);
+    public NetworkConnector[] getConnectors(String protocol);
 
     /**
-     * Gets the ObjectNames of any existing connectors associated with this
+     * Gets any existing connectors associated with this
      * network technology.
      */
-    public AbstractName[] getConnectors();
+    public NetworkConnector[] getConnectors();
 
     /**
      * Gets the ObjectNames of any existing connectors for the specified
      * container for the specified protocol.
      *
-     * @param containerName
+     * @param container The container to get connectors for
      * @param protocol A protocol as returned by getSupportedProtocols
      */
-    public AbstractName[] getConnectorsForContainer(AbstractName containerName, String protocol);
+    public NetworkConnector[] getConnectorsForContainer(Object container, String protocol);
 
     /**
      * Gets the ObjectNames of any existing connectors for the specified
      * container.
-     * @param containerName
+     * @param container The container to get connectors for
      */
-    public AbstractName[] getConnectorsForContainer(AbstractName containerName);
+    public NetworkConnector[] getConnectorsForContainer(Object container);
 }

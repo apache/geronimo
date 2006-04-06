@@ -34,6 +34,7 @@ import org.apache.geronimo.security.jaas.client.JaasLoginCoordinator;
 import org.apache.geronimo.security.jaas.server.JaasLoginModuleConfiguration;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.LoginModuleControlFlag;
+import org.apache.geronimo.security.jaas.JaasLoginModuleChain;
 import org.apache.geronimo.security.jaas.server.JaasLoginServiceMBean;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
@@ -109,10 +110,8 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
         return config;
     }
 
-    public String getLoginModuleChainName() {
-        //TODO configid which is correct?
-//        return kernel.getAbstractNameFor(loginModuleUse).getObjectName().getCanonicalName();
-        return kernel.getAbstractNameFor(loginModuleUse).toURI().toString();
+    public JaasLoginModuleChain getLoginModuleChain() {
+        return loginModuleUse;
     }
 
     /**

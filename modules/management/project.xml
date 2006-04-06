@@ -49,6 +49,16 @@
             <artifactId>geronimo-kernel</artifactId>
             <version>${geronimo_version}</version>
         </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-core</artifactId>
+            <version>${geronimo_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-system</artifactId>
+            <version>${geronimo_version}</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -20,6 +20,7 @@ package org.apache.geronimo.j2ee.management.impl;
 import java.util.Hashtable;
 import java.util.Set;
 import java.util.Iterator;
+import java.lang.reflect.Array;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -27,6 +28,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -35,6 +37,11 @@ import org.apache.geronimo.management.geronimo.J2EEServer;
 import org.apache.geronimo.management.geronimo.EJBManager;
 import org.apache.geronimo.management.geronimo.JMSManager;
 import org.apache.geronimo.management.geronimo.WebManager;
+import org.apache.geronimo.management.geronimo.SecurityRealm;
+import org.apache.geronimo.management.geronimo.LoginService;
+import org.apache.geronimo.management.geronimo.JVM;
+import org.apache.geronimo.management.J2EEDeployedObject;
+import org.apache.geronimo.management.J2EEResource;
 import org.apache.geronimo.pool.GeronimoExecutor;
 
 /**
@@ -105,46 +112,60 @@ public class J2EEServerImpl implements J2EEServer {
                 new String[]{"J2EEApplication", "AppClientModule", "EJBModule", "WebModule", "ResourceAdapterModule"});
     }
 
+    public J2EEDeployedObject[] getDeployedObjectInstances() {
+        return (J2EEDeployedObject[]) Util.getObjects(kernel, baseName,
+                new String[]{"J2EEApplication", "AppClientModule", "EJBModule", "WebModule", "ResourceAdapterModule"}, J2EEDeployedObject.class);
+    }
+
     public String[] getResources() {
         return Util.getObjectNames(kernel,
                 baseName,
                 new String[]{"JCAResource", "JavaMailResource", "JDBCResource", "JMSResource", "JNDIResource", "JTAResource", "RMI_IIOPResource", "URLResource"});
     }
 
+    public J2EEResource[] getResourceInstances() {
+        return (J2EEResource[]) Util.getObjects(kernel, baseName,
+                new String[]{"JCAResource", "JavaMailResource", "JDBCResource", "JMSResource", "JNDIResource", "JTAResource", "RMI_IIOPResource", "URLResource"}, J2EEResource.class);
+    }
+
     public String[] getJavaVMs() {
         return Util.getObjectNames(kernel, baseName, new String[]{"JVM"});
     }
 
-    public String[] getWebManagers() {
-        return getObjectNames(WebManager.class.getName(), false);
+    public JVM[] getJavaVMInstances() {
+        return (JVM[]) Util.getObjects(kernel, baseName, new String[]{"JVM"}, JVM.class);
     }
 
-    public String[] getEJBManagers() {
-        return getObjectNames(EJBManager.class.getName(), false);
+    public WebManager[] getWebManagers() {
+        return (WebManager[]) getObjects(WebManager.class, false);
     }
 
-    public String[] getJMSManagers() {
-        return getObjectNames(JMSManager.class.getName(), false);
+    public EJBManager[] getEJBManagers() {
+        return (EJBManager[]) getObjects(EJBManager.class, false);
     }
 
-    public String[] getThreadPools() {
-        return getObjectNames(GeronimoExecutor.class.getName(), true);
+    public JMSManager[] getJMSManagers() {
+        return (JMSManager[]) getObjects(JMSManager.class, false);
     }
 
-    public String[] getRepositories() {
-        return getObjectNames(Repository.class.getName(), true);
+    public GeronimoExecutor[] getThreadPools() {
+        return (GeronimoExecutor[]) getObjects(GeronimoExecutor.class, true);
     }
 
-    public String[] getSecurityRealms() {
-        return getObjectNames("org.apache.geronimo.security.realm.SecurityRealm", true);
+    public Repository[] getRepositories() {
+        return (Repository[]) getObjects(Repository.class, true);
     }
 
-    public String getServerInfo() {
-        return getObjectName(ServerInfo.class.getName());
+    public SecurityRealm[] getSecurityRealms() {
+        return (SecurityRealm[]) getObjects(SecurityRealm.class, true);
     }
 
-    public String getLoginService() {
-        return getObjectName("org.apache.geronimo.security.jaas.server.JaasLoginServiceMBean");
+    public ServerInfo getServerInfo() {
+        return (ServerInfo) getObject(ServerInfo.class);
+    }
+
+    public LoginService getLoginService() {
+        return (LoginService) getObject(LoginService.class);
     }
 
     public String getServerVendor() {
@@ -155,31 +176,32 @@ public class J2EEServerImpl implements J2EEServer {
         return serverInfo.getVersion();
     }
 
-    private String getObjectName(String type) {
-        Set names = kernel.listGBeans(new AbstractNameQuery(type));
+    private Object getObject(Class type) {
+        Set names = kernel.listGBeans(new AbstractNameQuery(type.getName()));
         if (names.isEmpty()) {
             return null;
         }
         AbstractName name = (AbstractName) names.iterator().next();
-        return name.getObjectName().getCanonicalName();
+        return kernel.getProxyManager().createProxy(name, type);
     }
 
-    private String[] getObjectNames(String type, boolean returnEmpty) {
-        Set names = kernel.listGBeans(new AbstractNameQuery(type));
+    private Object[] getObjects(Class type, boolean returnEmpty) {
+        Set names = kernel.listGBeans(new AbstractNameQuery(type.getName()));
 
         if(names.size() == 0) {
             if (returnEmpty) {
-                return new String[0];
+                return (Object[]) Array.newInstance(type, 0);
             } else {
                 return null;
             }
         }
 
-        String[] results = new String[names.size()];
+        Object[] results = (Object[]) Array.newInstance(type, names.size());
+        ProxyManager mgr = kernel.getProxyManager();
         int i=0;
         for (Iterator it = names.iterator(); it.hasNext();) {
             AbstractName name = (AbstractName) it.next();
-            results[i++] = name.getObjectName().getCanonicalName();
+            results[i++] = mgr.createProxy(name, type.getClassLoader());
         }
         return results;
     }

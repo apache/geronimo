@@ -45,26 +45,9 @@ public class WebAppUtil {
         Map containers = new HashMap();
         Set set = kernel.listGBeans(new AbstractNameQuery("org.apache.geronimo.management.geronimo.WebManager"));
         for (Iterator it = set.iterator(); it.hasNext();) {
-            AbstractName mgrName = (AbstractName) it.next();
-            AbstractName[] cntNames = (AbstractName[]) kernel.getAttribute(mgrName, "containers");
-            for (int i = 0; i < cntNames.length; i++) {
-                AbstractName cntName = cntNames[i];
-                AbstractName[] cncNames = (AbstractName[]) kernel.invoke(mgrName, "getConnectorsForContainer", new Object[]{cntName}, new String[]{AbstractName.class.getName()});
-                Map map = new HashMap();
-                for (int j = 0; j < cncNames.length; j++) {
-                    AbstractName cncName = cncNames[j];
-                    String protocol = (String) kernel.getAttribute(cncName, "protocol");
-                    String url = (String) kernel.getAttribute(cncName, "connectUrl");
-                    map.put(protocol, url);
-                }
-                String urlPrefix = "";
-                if((urlPrefix = (String) map.get("HTTP")) == null) {
-                    if((urlPrefix = (String) map.get("HTTPS")) == null) {
-                        urlPrefix = (String) map.get("AJP");
-                    }
-                }
-                containers.put(cntName.getObjectName().getCanonicalName(), urlPrefix);
-            }
+            AbstractName manager = (AbstractName) it.next();
+            Map results = (Map)kernel.invoke(manager, "mapContainersToURLs");
+            containers.putAll(results);
         }
         return containers;
     }

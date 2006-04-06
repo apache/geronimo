@@ -98,7 +98,7 @@ public class ListScreenHandler extends AbstractHandler {
                     if(name == null) {
                         name = ObjectName.getInstance(module.getObjectName()).getKeyProperty(NameFactory.J2EE_NAME);
                     }
-                    target = new JMSResourceSummary(PortletManager.getConfigurationFor(renderRequest, module.getObjectName()).toString(),
+                    target = new JMSResourceSummary(PortletManager.getConfigurationFor(renderRequest, PortletManager.getNameFor(renderRequest, module)).toString(),
                                                     module.getObjectName(), name, ((GeronimoManagedBean)module).getState());
                     resources.add(target);
                 }
@@ -138,7 +138,7 @@ public class ListScreenHandler extends AbstractHandler {
                     if(name == null) {
                         name = ObjectName.getInstance(module.getObjectName()).getKeyProperty(NameFactory.J2EE_NAME);
                     }
-                    target = new JMSResourceSummary(PortletManager.getConfigurationFor(renderRequest, module.getObjectName()).toString(),
+                    target = new JMSResourceSummary(PortletManager.getConfigurationFor(renderRequest, PortletManager.getNameFor(renderRequest, module)).toString(),
                                                     module.getObjectName(), name, ((GeronimoManagedBean)module).getState());
                     resources.add(target);
                 }

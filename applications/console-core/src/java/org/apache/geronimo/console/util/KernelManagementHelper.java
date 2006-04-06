@@ -16,16 +16,39 @@
  */
 package org.apache.geronimo.console.util;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.proxy.ProxyManager;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.management.AppClientModule;
+import org.apache.geronimo.management.EJB;
+import org.apache.geronimo.management.EJBModule;
+import org.apache.geronimo.management.J2EEDeployedObject;
+import org.apache.geronimo.management.J2EEModule;
+import org.apache.geronimo.management.J2EEResource;
+import org.apache.geronimo.management.JCAConnectionFactory;
+import org.apache.geronimo.management.JDBCDataSource;
+import org.apache.geronimo.management.JDBCDriver;
+import org.apache.geronimo.management.JDBCResource;
+import org.apache.geronimo.management.JMSResource;
+import org.apache.geronimo.management.ResourceAdapter;
+import org.apache.geronimo.management.Servlet;
+import org.apache.geronimo.management.WebModule;
+import org.apache.geronimo.management.geronimo.J2EEApplication;
+import org.apache.geronimo.management.geronimo.J2EEDomain;
+import org.apache.geronimo.management.geronimo.J2EEServer;
+import org.apache.geronimo.management.geronimo.JCAAdminObject;
+import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
+import org.apache.geronimo.management.geronimo.JCAResource;
+import org.apache.geronimo.management.geronimo.JVM;
+import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
+import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
+import org.apache.geronimo.system.logging.SystemLog;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -37,54 +60,14 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.proxy.ProxyManager;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.management.AppClientModule;
-import org.apache.geronimo.management.EJB;
-import org.apache.geronimo.management.EJBModule;
-import org.apache.geronimo.management.J2EEDeployedObject;
-import org.apache.geronimo.management.J2EEDomain;
-import org.apache.geronimo.management.J2EEModule;
-import org.apache.geronimo.management.J2EEResource;
-import org.apache.geronimo.management.JCAConnectionFactory;
-import org.apache.geronimo.management.JDBCDataSource;
-import org.apache.geronimo.management.JDBCDriver;
-import org.apache.geronimo.management.JDBCResource;
-import org.apache.geronimo.management.JMSResource;
-import org.apache.geronimo.management.ResourceAdapter;
-import org.apache.geronimo.management.Servlet;
-import org.apache.geronimo.management.WebModule;
-import org.apache.geronimo.management.geronimo.EJBConnector;
-import org.apache.geronimo.management.geronimo.EJBManager;
-import org.apache.geronimo.management.geronimo.J2EEApplication;
-import org.apache.geronimo.management.geronimo.J2EEServer;
-import org.apache.geronimo.management.geronimo.JCAAdminObject;
-import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
-import org.apache.geronimo.management.geronimo.JCAResource;
-import org.apache.geronimo.management.geronimo.JMSBroker;
-import org.apache.geronimo.management.geronimo.JMSConnector;
-import org.apache.geronimo.management.geronimo.JMSManager;
-import org.apache.geronimo.management.geronimo.JVM;
-import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
-import org.apache.geronimo.management.geronimo.WebAccessLog;
-import org.apache.geronimo.management.geronimo.WebConnector;
-import org.apache.geronimo.management.geronimo.WebContainer;
-import org.apache.geronimo.management.geronimo.WebManager;
-import org.apache.geronimo.pool.GeronimoExecutor;
-import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
-import org.apache.geronimo.security.jaas.server.JaasLoginServiceMBean;
-import org.apache.geronimo.security.realm.SecurityRealm;
-import org.apache.geronimo.system.logging.SystemLog;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * An implementation of the ManagementHelper interface that uses a Geronimo
@@ -489,296 +472,6 @@ public class KernelManagementHelper implements ManagementHelper {
         return result;
     }
 
-    public Repository[] getRepositories(J2EEServer server) {
-        Repository[] result = new Repository[0];
-        try {
-            String[] names = server.getRepositories();
-            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
-            result = new Repository[temp.length];
-            System.arraycopy(temp, 0, result, 0, temp.length);
-        } catch (Exception e) {
-            log.error("Unable to look up repositories for J2EEServer", e);
-        }
-        return result;
-    }
-
-    public SecurityRealm[] getSecurityRealms(J2EEServer server) {
-        SecurityRealm[] result = new SecurityRealm[0];
-        try {
-            String[] names = server.getSecurityRealms();
-            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
-            result = new SecurityRealm[temp.length];
-            System.arraycopy(temp, 0, result, 0, temp.length);
-        } catch (Exception e) {
-            log.error("Unable to look up security realms for J2EEServer", e);
-        }
-        return result;
-    }
-
-    public ServerInfo getServerInfo(J2EEServer server) {
-        try {
-            String name = server.getServerInfo();
-            return (ServerInfo) pm.createProxy(ObjectName.getInstance(name), KernelManagementHelper.class.getClassLoader());
-        } catch (Exception e) {
-            log.error("Unable to look up ServerInfo for J2EEServer", e);
-            return null;
-        }
-    }
-
-    public JaasLoginServiceMBean getLoginService(J2EEServer server) {
-        try {
-            String name = server.getServerInfo();
-            return (JaasLoginServiceMBean) pm.createProxy(ObjectName.getInstance(name), KernelManagementHelper.class.getClassLoader());
-        } catch (Exception e) {
-            log.error("Unable to look up LoginService for J2EEServer", e);
-            return null;
-        }
-    }
-
-    public WebManager[] getWebManagers(J2EEServer server) {
-        WebManager[] result = new WebManager[0];
-        try {
-            String[] names = server.getWebManagers();
-            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
-            result = new WebManager[temp.length];
-            System.arraycopy(temp, 0, result, 0, temp.length);
-        } catch (Exception e) {
-            log.error("Unable to look up WebManagers for J2EEServer", e);
-        }
-        return result;
-    }
-
-    public WebAccessLog getWebAccessLog(WebManager manager, WebContainer container) {
-        return getWebAccessLog(manager, kernel.getAbstractNameFor(container).getObjectName().getCanonicalName());
-    }
-
-    public WebAccessLog getWebAccessLog(WebManager manager, String container) {
-        WebAccessLog result = null;
-        try {
-            AbstractName name = manager.getAccessLog(container);
-            Object temp = pm.createProxy(name, KernelManagementHelper.class.getClassLoader());
-            result = (WebAccessLog) temp;
-        } catch (Exception e) {
-            log.error("Unable to look up related GBean", e);
-        }
-        return result;
-    }
-
-    public WebContainer[] getWebContainers(WebManager manager) {
-        WebContainer[] result = new WebContainer[0];
-        try {
-            AbstractName[] names = manager.getContainers();
-            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
-            result = new WebContainer[temp.length];
-            System.arraycopy(temp, 0, result, 0, temp.length);
-        } catch (Exception e) {
-            log.error("Unable to look up related GBean", e);
-        }
-        return result;
-    }
-
-    public WebConnector[] getWebConnectorsForContainer(WebManager manager, WebContainer container, String protocol) {
-        return getWebConnectorsForContainer(manager, kernel.getAbstractNameFor(container).getObjectName().getCanonicalName(), protocol);
-    }
-
-    public WebConnector[] getWebConnectorsForContainer(WebManager manager, WebContainer container) {
-        return getWebConnectorsForContainer(manager, kernel.getAbstractNameFor(container).getObjectName().getCanonicalName());
-    }
-
-    public WebConnector[] getWebConnectorsForContainer(WebManager manager, String containerObjectName, String protocol) {
-        WebConnector[] result = new WebConnector[0];
-        try {
-            AbstractName name = new AbstractName(URI.create(containerObjectName));
-            AbstractName[] names = manager.getConnectorsForContainer(name, protocol);
-            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
-            result = new WebConnector[temp.length];
-            System.arraycopy(temp, 0, result, 0, temp.length);
-        } catch (Exception e) {
-            log.error("Unable to look up related GBean", e);
-        }
-        return result;
-    }
-
-    public WebConnector[] getWebConnectorsForContainer(WebManager manager, String containerObjectName) {
-        WebConnector[] result = new WebConnector[0];
-        try {
-            AbstractName name = new AbstractName(URI.create(containerObjectName));
-            AbstractName[] names = manager.getConnectorsForContainer(name);
-            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
-            result = new WebConnector[temp.length];
-            System.arraycopy(temp, 0, result, 0, temp.length);
-        } catch (Exception e) {
-            log.error("Unable to look up related GBean", e);
-        }
-        return result;
-    }
-
-    public WebConnector[] getWebConnectors(WebManager manager, String protocol) {
-        WebConnector[] result = new WebConnector[0];
-        try {
-            AbstractName[] names = manager.getConnectors(protocol);
-            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
-            result = new WebConnector[temp.length];
-            System.arraycopy(temp, 0, result, 0, temp.length);
-        } catch (Exception e) {
-            log.error("Unable to look up related GBean", e);
-        }
-        return result;
-    }
-
-    public WebConnector[] getWebConnectors(WebManager manager) {
-        WebConnector[] result = new WebConnector[0];
-        try {
-            AbstractName[] names = manager.getConnectors();
-            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
-            result = new WebConnector[temp.length];
-            System.arraycopy(temp, 0, result, 0, temp.length);
-        } catch (Exception e) {
-            log.error("Unable to look up related GBean", e);
-        }
-        return result;
-    }
-
-    public EJBManager[] getEJBManagers(J2EEServer server) {
-        EJBManager[] result = null;
-        try {
-            String names[] = server.getEJBManagers();
-            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
-            result = new EJBManager[temp.length];
-            System.arraycopy(temp, 0, result, 0, temp.length);
-        } catch (Exception e) {
-            log.error("Unable to look up related GBean", e);
-        }
-        return result;
-    }
-
-    public EJBConnector[] getEJBConnectors(EJBManager container, String protocol) {
-        EJBConnector[] result = new EJBConnector[0];
-        try {
-            AbstractName[] names = container.getConnectors(protocol);
-            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
-            result = new EJBConnector[temp.length];
-            System.arraycopy(temp, 0, result, 0, temp.length);
-        } catch (Exception e) {
-            log.error("Unable to look up related GBean", e);
-        }
-        return result;
-    }
-
-    public EJBConnector[] getEJBConnectors(EJBManager container) {
-        EJBConnector[] result = new EJBConnector[0];
-        try {
-            AbstractName[] names = container.getConnectors();
-            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
-            result = new EJBConnector[temp.length];
-            System.arraycopy(temp, 0, result, 0, temp.length);
-        } catch (Exception e) {
-            log.error("Unable to look up related GBean", e);
-        }
-        return result;
-    }
-
-    public JMSManager[] getJMSManagers(J2EEServer server) {
-        JMSManager[] result = null;
-        try {
-            String[] names = server.getJMSManagers();
-            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
-            result = new JMSManager[temp.length];
-            System.arraycopy(temp, 0, result, 0, temp.length);
-        } catch (Exception e) {
-            log.error("Unable to look up related GBean", e);
-        }
-        return result;
-    }
-
-    public JMSBroker[] getJMSBrokers(JMSManager manager) {
-        JMSBroker[] result = null;
-        try {
-            AbstractName[] names = manager.getContainers();
-            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
-            result = new JMSBroker[temp.length];
-            System.arraycopy(temp, 0, result, 0, temp.length);
-        } catch (Exception e) {
-            log.error("Unable to look up related GBean", e);
-        }
-        return result;
-    }
-
-    public JMSConnector[] getJMSConnectors(JMSManager manager, String protocol) {
-        JMSConnector[] result = null;
-        try {
-            AbstractName[] names = manager.getConnectors(protocol);
-            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
-            result = new JMSConnector[temp.length];
-            System.arraycopy(temp, 0, result, 0, temp.length);
-        } catch (Exception e) {
-            log.error("Unable to look up related GBean", e);
-        }
-        return result;
-    }
-
-    public JMSConnector[] getJMSConnectors(JMSManager manager) {
-        JMSConnector[] result = null;
-        try {
-            AbstractName[] names = manager.getConnectors();
-            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
-            result = new JMSConnector[temp.length];
-            System.arraycopy(temp, 0, result, 0, temp.length);
-        } catch (Exception e) {
-            log.error("Unable to look up related GBean", e);
-        }
-        return result;
-    }
-
-    public JMSConnector[] getJMSConnectorsForContainer(JMSManager manager, JMSBroker broker, String protocol) {
-        return getJMSConnectorsForContainer(manager, kernel.getAbstractNameFor(broker).getObjectName().getCanonicalName(), protocol);
-    }
-
-    public JMSConnector[] getJMSConnectorsForContainer(JMSManager manager, JMSBroker broker) {
-        return getJMSConnectorsForContainer(manager, kernel.getAbstractNameFor(broker).getObjectName().getCanonicalName());
-    }
-
-    public JMSConnector[] getJMSConnectorsForContainer(JMSManager manager, String brokerObjectName, String protocol) {
-        JMSConnector[] result = null;
-        try {
-            AbstractName name = new AbstractName(URI.create(brokerObjectName));
-            AbstractName[] names = manager.getConnectorsForContainer(name, protocol);
-            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
-            result = new JMSConnector[temp.length];
-            System.arraycopy(temp, 0, result, 0, temp.length);
-        } catch (Exception e) {
-            log.error("Unable to look up related GBean", e);
-        }
-        return result;
-    }
-
-    public JMSConnector[] getJMSConnectorsForContainer(JMSManager manager, String brokerObjectName) {
-        JMSConnector[] result = null;
-        try {
-            AbstractName name = new AbstractName(URI.create(brokerObjectName));
-            AbstractName[] names = manager.getConnectorsForContainer(name);
-            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
-            result = new JMSConnector[temp.length];
-            System.arraycopy(temp, 0, result, 0, temp.length);
-        } catch (Exception e) {
-            log.error("Unable to look up related GBean", e);
-        }
-        return result;
-    }
-
-    public GeronimoExecutor[] getThreadPools(J2EEServer server) {
-        GeronimoExecutor[] result = new GeronimoExecutor[0];
-        try {
-            String[] names = server.getThreadPools();
-            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
-            result = new GeronimoExecutor[temp.length];
-            System.arraycopy(temp, 0, result, 0, temp.length);
-        } catch (Exception e) {
-            log.error("Unable to look up related GBean", e);
-        }
-        return result;
-    }
-
     public SystemLog getSystemLog(JVM jvm) {
         SystemLog result = null;
         try {
@@ -1001,19 +694,12 @@ public class KernelManagementHelper implements ManagementHelper {
         }
     }
 
-    public Object getObject(String objectName) {
-        try {
-            return kernel.getProxyManager().createProxy(ObjectName.getInstance(objectName), KernelManagementHelper.class.getClassLoader());
-        } catch (MalformedObjectNameException e) {
-            log.error("Unable to look up related GBean", e);
-            return null;
-        }
+    public Object getObject(AbstractName objectName) {
+        return kernel.getProxyManager().createProxy(objectName, KernelManagementHelper.class.getClassLoader());
     }
 
-    public Artifact getConfigurationNameFor(String objectName) {
+    public Artifact getConfigurationNameFor(AbstractName abstractName) {
         try {
-            //TODO the code that calls this does not supply an abstract name
-            AbstractName abstractName = new AbstractName(URI.create(objectName));
             return abstractName.getArtifact();
 //            Set parents = kernel.getDependencyManager().getParents(ObjectName.getInstance(objectName));
 //            if(parents.size() == 0) {
@@ -1031,35 +717,25 @@ public class KernelManagementHelper implements ManagementHelper {
         return null;
     }
 
-    public String getGBeanDescription(String objectName) {
+    public String getGBeanDescription(AbstractName abstractName) {
         try {
-            return kernel.getGBeanInfo(ObjectName.getInstance(objectName)).getName();
+            return kernel.getGBeanInfo(abstractName).getName();
         } catch (GBeanNotFoundException e) {
             return null;
-        } catch (MalformedObjectNameException e) {
-            return "Invalid object name";
         }
     }
 
     public void testLoginModule(J2EEServer server, LoginModule module, Map options) {
         options.put(JaasLoginModuleUse.KERNEL_NAME_LM_OPTION, kernel.getKernelName());
         options.put(JaasLoginModuleUse.CLASSLOADER_LM_OPTION, module.getClass().getClassLoader());
-        try {
-            options.put(JaasLoginModuleUse.SERVERINFO_LM_OPTION, pm.createProxy(ObjectName.getInstance(server.getServerInfo()),module.getClass().getClassLoader()));
-        } catch (MalformedObjectNameException e) {
-            throw new IllegalStateException("Unable to look up server info: "+e.getMessage());
-        }
+        options.put(JaasLoginModuleUse.SERVERINFO_LM_OPTION, server.getServerInfo());
         module.initialize(null, null, new HashMap(), options);
     }
 
     public Subject testLoginModule(final J2EEServer server, final LoginModule module, final Map options, final String username, final String password) throws LoginException {
         options.put(JaasLoginModuleUse.KERNEL_NAME_LM_OPTION, kernel.getKernelName());
         options.put(JaasLoginModuleUse.CLASSLOADER_LM_OPTION, module.getClass().getClassLoader());
-        try {
-            options.put(JaasLoginModuleUse.SERVERINFO_LM_OPTION, pm.createProxy(ObjectName.getInstance(server.getServerInfo()),module.getClass().getClassLoader()));
-        } catch (MalformedObjectNameException e) {
-            throw new IllegalStateException("Unable to look up server info: "+e.getMessage());
-        }
+        options.put(JaasLoginModuleUse.SERVERINFO_LM_OPTION, server.getServerInfo());
         Subject sub = new Subject();
         CallbackHandler handler = new CallbackHandler() {
             public void handle(Callback[] callbacks) throws UnsupportedCallbackException {
@@ -1095,6 +771,10 @@ public class KernelManagementHelper implements ManagementHelper {
         return result;
     }
 
+    public AbstractName getNameFor(Object component) {
+        return kernel.getAbstractNameFor(component);
+    }
+
     /**
      * Helper method to connect to a remote kernel.
      */
@@ -1108,42 +788,5 @@ public class KernelManagementHelper implements ManagementHelper {
         javax.management.MBeanServerConnection mbServerConnection = jmxConnector.getMBeanServerConnection();
         Kernel kernel = new org.apache.geronimo.kernel.jmx.KernelDelegate(mbServerConnection);
         return new KernelManagementHelper(kernel);
-    }
-
-    /**
-     * For test purposes; start the server, deploy an app or two, and run this.
-     * Should be changed to a JUnit test with the Maven plugin to start and
-     * stop the server.
-     */
-    public static void main(String[] args) {
-        try {
-            ManagementHelper mgr = getRemoteKernelManager("localhost", "system", "manager");
-            J2EEDomain domain = mgr.getDomains()[0];
-            System.out.println("Found domain "+domain.getObjectName()+" with "+domain.getServers().length+" servers");
-            J2EEServer server = mgr.getServers(domain)[0];
-            System.out.println("Found server "+server.getObjectName()+" with "+server.getDeployedObjects().length+" deployments");
-            System.out.println("  "+mgr.getApplications(server).length+" applications");
-            System.out.println("  "+mgr.getAppClients(server).length+" app clients");
-            System.out.println("  "+mgr.getEJBModules(server).length+" EJB JARs");
-            System.out.println("  "+mgr.getWebModules(server).length+" web apps");
-            System.out.println("  "+mgr.getRAModules(server).length+" RA modules");
-            J2EEDeployedObject[] deployments = mgr.getDeployedObjects(server);
-            for (int i = 0; i < deployments.length; i++) {
-                J2EEDeployedObject deployment = deployments[i];
-                System.out.println("Deployment "+i+": "+deployment.getObjectName());
-            }
-            J2EEApplication[] applications = mgr.getApplications(server);
-            for (int i = 0; i < applications.length; i++) {
-                J2EEApplication app = applications[i];
-                System.out.println("Application "+i+": "+app.getObjectName());
-                J2EEModule[] modules = mgr.getModules(app);
-                for (int j = 0; j < modules.length; j++) {
-                    J2EEModule deployment = modules[j];
-                    System.out.println("  Module "+j+": "+deployment.getObjectName());
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }

@@ -73,7 +73,7 @@ public class ConnectorPortlet extends BasePortlet {
 
         String server = null;
         if(containerName != null) {
-            WebContainer container = PortletManager.getWebContainer(actionRequest, containerName);
+            WebContainer container = PortletManager.getWebContainer(actionRequest, new AbstractName(URI.create(containerName)));
             server = getWebServerType(container.getClass());
         } else {
             server = "unknown";
@@ -96,7 +96,7 @@ public class ConnectorPortlet extends BasePortlet {
             Integer minThreads = getInteger(actionRequest, "minThreads");
             String name = actionRequest.getParameter("name");
             // Create and configure the connector
-            WebConnector connector = PortletManager.createWebConnector(actionRequest, managerName, containerName, name, protocol, host, port);
+            WebConnector connector = PortletManager.createWebConnector(actionRequest, new AbstractName(URI.create(managerName)), new AbstractName(URI.create(containerName)), name, protocol, host, port);
             connector.setMaxThreads(maxThreads);
             // todo: more configurable HTTP/Jetty values
             if(server.equals(WEB_SERVER_JETTY)) {
@@ -157,7 +157,7 @@ public class ConnectorPortlet extends BasePortlet {
             String objectName = actionRequest.getParameter("objectName");
             // Identify and update the connector
             WebConnector connector = null;
-            WebConnector all[] = PortletManager.getWebConnectors(actionRequest, managerName);
+            WebConnector all[] = PortletManager.getWebConnectors(actionRequest, new AbstractName(URI.create(managerName)));
             for (int i = 0; i < all.length; i++) {
                 WebConnector conn = all[i];
                 if(((GeronimoManagedBean)conn).getObjectName().equals(objectName)) {
@@ -216,7 +216,7 @@ public class ConnectorPortlet extends BasePortlet {
             String objectName = actionRequest.getParameter("name");
             // work with the current connector to start it.
             WebConnector connector = null;
-            WebConnector all[] = PortletManager.getWebConnectors(actionRequest, managerName);
+            WebConnector all[] = PortletManager.getWebConnectors(actionRequest, new AbstractName(URI.create(managerName)));
             for (int i = 0; i < all.length; i++) {
                 WebConnector conn = all[i];
                 if(((GeronimoManagedBean)conn).getObjectName().equals(objectName)) {
@@ -240,7 +240,7 @@ public class ConnectorPortlet extends BasePortlet {
             String objectName = actionRequest.getParameter("name");
             // work with the current connector to stop it.
             WebConnector connector = null;
-            WebConnector all[] = PortletManager.getWebConnectors(actionRequest, managerName);
+            WebConnector all[] = PortletManager.getWebConnectors(actionRequest, new AbstractName(URI.create(managerName)));
             for (int i = 0; i < all.length; i++) {
                 WebConnector conn = all[i];
                 if(((GeronimoManagedBean)conn).getObjectName().equals(objectName)) {
@@ -267,7 +267,7 @@ public class ConnectorPortlet extends BasePortlet {
 
         } else if(mode.equals("delete")) { // User chose to delete a connector
             String objectName = actionRequest.getParameter("name");
-            PortletManager.getWebManager(actionRequest, managerName).removeConnector(new AbstractName(URI.create(objectName)));
+            PortletManager.getWebManager(actionRequest, new AbstractName(URI.create(managerName))).removeConnector(new AbstractName(URI.create(objectName)));
             actionResponse.setRenderParameter("mode", "list");
         }
     }
@@ -299,7 +299,7 @@ public class ConnectorPortlet extends BasePortlet {
             if(managerName != null) renderRequest.setAttribute("managerObjectName", managerName);
             if(containerName != null) renderRequest.setAttribute("containerObjectName", containerName);
 
-            WebContainer container = PortletManager.getWebContainer(renderRequest, containerName);
+            WebContainer container = PortletManager.getWebContainer(renderRequest, new AbstractName(URI.create(containerName)));
             String server = getWebServerType(container.getClass());
             renderRequest.setAttribute("server", server);
 
@@ -328,7 +328,7 @@ public class ConnectorPortlet extends BasePortlet {
             } else if(mode.equals("edit")) {
                 String objectName = renderRequest.getParameter("objectName");
                 WebConnector connector = null;
-                WebConnector all[] = PortletManager.getWebConnectors(renderRequest, managerName);
+                WebConnector all[] = PortletManager.getWebConnectors(renderRequest, new AbstractName(URI.create(managerName)));
                 for (int i = 0; i < all.length; i++) {
                     WebConnector conn = all[i];
                     if(((GeronimoManagedBean)conn).getObjectName().equals(objectName)) {
@@ -339,7 +339,7 @@ public class ConnectorPortlet extends BasePortlet {
                 if(connector == null) {
                     doList(renderRequest, renderResponse);
                 } else {
-                    String displayName = PortletManager.getGBeanDescription(renderRequest, objectName);
+                    String displayName = PortletManager.getGBeanDescription(renderRequest, new AbstractName(URI.create(objectName)));
                     try {
                         ObjectName realName = ObjectName.getInstance(objectName);
                         displayName = realName.getKeyProperty("name");
@@ -397,51 +397,41 @@ public class ConnectorPortlet extends BasePortlet {
         List all = new ArrayList();
         for (int i = 0; i < managers.length; i++) {
             WebManager manager = managers[i];
-            String webManagerName = ((GeronimoManagedBean)manager).getObjectName();
+            AbstractName webManagerName = PortletManager.getNameFor(renderRequest, manager);
 
-            String[] containers = PortletManager.getWebContainerNames(renderRequest, webManagerName);
+            WebContainer[] containers = (WebContainer[]) manager.getContainers();
             for (int j = 0; j < containers.length; j++) {
-                try {
-                    List beans = new ArrayList();
-                    String containerName = containers[j];
-                    String id;
-                    if(containers.length == 1) {
-                        id = manager.getProductName();
-                    } else {
-                        ObjectName containerON = ObjectName.getInstance(containerName);
-                        id = manager.getProductName() + " (" + containerON.getKeyProperty(NameFactory.J2EE_NAME) + ")";
-                    }
-                    ContainerStatus result = new ContainerStatus(id, webManagerName, containerName);
-
-                    WebConnector[] connectors = PortletManager.getWebConnectorsForContainer(renderRequest, webManagerName, containerName);
-                    for (int k = 0; k < connectors.length; k++) {
-                        WebConnector connector = connectors[k];
-                        ConnectorInfo info = new ConnectorInfo();
-                            String objectName = ((GeronimoManagedBean)connector).getObjectName();
-                            info.setObjectName(objectName);
-                            info.setDescription(PortletManager.getGBeanDescription(renderRequest, objectName));
-                            try {
-                                ObjectName realName = ObjectName.getInstance(objectName);
-                                info.setDisplayName(realName.getKeyProperty("name"));
-                            } catch (MalformedObjectNameException e) {
-                                log.error("Bad object name for web connector", e);
-                                info.setDisplayName(info.getDescription());
-                            }
-                            info.setState(((GeronimoManagedBean)connector).getState());
-                            info.setPort(connector.getPort());
-                        try {
-                            info.setProtocol(connector.getProtocol());
-                        } catch (IllegalStateException e) {
-                            info.setProtocol("unknown");
-                        }
-                        beans.add(info);
-                    }
-                    result.setConnectors(beans);
-                    result.setProtocols(manager.getSupportedProtocols());
-                    all.add(result);
-                } catch (MalformedObjectNameException e) {
-                    log.error("Unable to parse ObjectName", e);
+                List beans = new ArrayList();
+                WebContainer container = containers[j];
+                AbstractName containerName = PortletManager.getNameFor(renderRequest, container);
+                String id;
+                if(containers.length == 1) {
+                    id = manager.getProductName();
+                } else {
+                    id = manager.getProductName() + " (" + containerName.getName().get(NameFactory.J2EE_NAME) + ")";
                 }
+                ContainerStatus result = new ContainerStatus(id, webManagerName.toString(), containerName.toString());
+
+                WebConnector[] connectors = (WebConnector[]) manager.getConnectorsForContainer(container);
+                for (int k = 0; k < connectors.length; k++) {
+                    WebConnector connector = connectors[k];
+                    ConnectorInfo info = new ConnectorInfo();
+                    AbstractName abstractName = PortletManager.getNameFor(renderRequest, connector);
+                    info.setAbstractName(abstractName.toString());
+                    info.setDescription(PortletManager.getGBeanDescription(renderRequest, abstractName));
+                    info.setDisplayName((String)abstractName.getName().get(NameFactory.J2EE_NAME));
+                    info.setState(((GeronimoManagedBean)connector).getState());
+                    info.setPort(connector.getPort());
+                    try {
+                        info.setProtocol(connector.getProtocol());
+                    } catch (IllegalStateException e) {
+                        info.setProtocol("unknown");
+                    }
+                    beans.add(info);
+                }
+                result.setConnectors(beans);
+                result.setProtocols(manager.getSupportedProtocols());
+                all.add(result);
             }
         }
         renderRequest.setAttribute("containers", all);
@@ -455,15 +445,15 @@ public class ConnectorPortlet extends BasePortlet {
 
     public final static class ContainerStatus {
         private String name;
-        private String managerObjectName;
-        private String containerObjectName;
+        private String managerAbstractName;
+        private String containerAbstractName;
         private String[] protocols;
         private List connectors;
 
-        public ContainerStatus(String name, String managerObjectName, String containerObjectName) {
+        public ContainerStatus(String name, String managerAbstractName, String containerAbstractName) {
             this.name = name;
-            this.managerObjectName = managerObjectName;
-            this.containerObjectName = containerObjectName;
+            this.managerAbstractName = managerAbstractName;
+            this.containerAbstractName = containerAbstractName;
         }
 
         public String getName() {
@@ -486,12 +476,26 @@ public class ConnectorPortlet extends BasePortlet {
             this.connectors = connectors;
         }
 
+        /**
+         * @deprecated Use getManagerAbstractName
+         */
         public String getManagerObjectName() {
-            return managerObjectName;
+            return managerAbstractName;
         }
 
+        /**
+         * @deprecated Use getContainerAbstractName
+         */
         public String getContainerObjectName() {
-            return containerObjectName;
+            return containerAbstractName;
+        }
+
+        public String getManagerAbstractName() {
+            return managerAbstractName;
+        }
+
+        public String getContainerAbstractName() {
+            return containerAbstractName;
         }
     }
 
@@ -519,7 +523,7 @@ public class ConnectorPortlet extends BasePortlet {
         super.destroy();
     }
 
-    public final static boolean isValid(String s) {
+    public static boolean isValid(String s) {
         return s != null && !s.equals("");
     }
 

@@ -108,14 +108,12 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
     }
 
     public void addProgressListener(ProgressListener pol) {
-        ProgressEvent event = null;
+        ProgressEvent event;
         synchronized (this) {
             listeners.add(pol);
             event = this.event;
         }
-        if (event != null) {
-            pol.handleProgressEvent(event);
-        }
+        pol.handleProgressEvent(event);
     }
 
     public synchronized void removeProgressListener(ProgressListener pol) {
@@ -136,7 +134,7 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
 
     public void doFail(Exception e) {
         if (e instanceof InternalKernelException) {
-            Exception test = (Exception)((InternalKernelException)e).getCause();
+            Exception test = (Exception)e.getCause();
             if(test != null) {
                 e = test;
             }
@@ -289,7 +287,7 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
      */
     public static void addWebURLs(Kernel kernel, List moduleIDs) {
         Set webApps = null;
-        Map containers = null;
+        Map containers;
         try {
             containers = mapContainersToURLs(kernel);
         } catch (Exception e) {
@@ -364,26 +362,9 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
         Map containers = new HashMap();
         Set set = kernel.listGBeans(new AbstractNameQuery("org.apache.geronimo.management.geronimo.WebManager"));
         for (Iterator it = set.iterator(); it.hasNext();) {
-            AbstractName mgrName = (AbstractName) it.next();
-            AbstractName[] cntNames = (AbstractName[]) kernel.getAttribute(mgrName, "containers");
-            for (int i = 0; i < cntNames.length; i++) {
-                AbstractName cntName = cntNames[i];
-                AbstractName[] cncNames = (AbstractName[]) kernel.invoke(mgrName, "getConnectorsForContainer", new Object[]{cntName}, new String[]{AbstractName.class.getName()});
-                Map map = new HashMap();
-                for (int j = 0; j < cncNames.length; j++) {
-                    AbstractName cncName = cncNames[j];
-                    String protocol = (String) kernel.getAttribute(cncName, "protocol");
-                    String url = (String) kernel.getAttribute(cncName, "connectUrl");
-                    map.put(protocol, url);
-                }
-                String urlPrefix = "";
-                if((urlPrefix = (String) map.get("HTTP")) == null) {
-                    if((urlPrefix = (String) map.get("HTTPS")) == null) {
-                        urlPrefix = (String) map.get("AJP");
-                    }
-                }
-                containers.put(cntName, urlPrefix);
-            }
+            AbstractName manager = (AbstractName) it.next();
+            Map results = (Map)kernel.invoke(manager, "mapContainersToURLs");
+            containers.putAll(results);
         }
         return containers;
     }

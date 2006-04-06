@@ -32,16 +32,23 @@ import org.apache.geronimo.jetty.connector.JettyConnector;
 import org.apache.geronimo.jetty.requestlog.JettyLogManager;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.EditableConfigurationManager;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.management.geronimo.WebManager;
+import org.apache.geronimo.management.geronimo.NetworkConnector;
+import org.apache.geronimo.management.geronimo.WebConnector;
+import org.apache.geronimo.management.geronimo.WebContainer;
+import org.apache.geronimo.management.geronimo.WebAccessLog;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.Collections;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * Jetty implementation of WebManager.  Knows how to manipulate
@@ -66,7 +73,8 @@ public class JettyManagerImpl implements WebManager {
      * the connector may well require further customization before being fully
      * functional (e.g. SSL settings for an HTTPS connector).
      */
-    public AbstractName addConnector(AbstractName containerName, String uniqueName, String protocol, String host, int port) {
+    public WebConnector addConnector(WebContainer container, String uniqueName, String protocol, String host, int port) {
+        AbstractName containerName = kernel.getAbstractNameFor(container);
         AbstractName name = kernel.getNaming().createChildName(containerName, "JettyWebConnector-" + protocol + "-" + uniqueName, NameFactory.GERONIMO_SERVICE);
         GBeanData connector;
         if (protocol.equals(PROTOCOL_HTTP)) {
@@ -90,7 +98,7 @@ public class JettyManagerImpl implements WebManager {
         if(mgr != null) {
             try {
                 mgr.addGBeanToConfiguration(containerName.getArtifact(), connector, false);
-                return name;
+                return (WebConnector) kernel.getProxyManager().createProxy(name, JettyWebConnector.class.getClassLoader());
             } catch (InvalidConfigException e) {
                 log.error("Unable to add GBean", e);
                 return null;
@@ -106,10 +114,17 @@ public class JettyManagerImpl implements WebManager {
     /**
      * Get a list of containers for this web implementation.
      */
-    public AbstractName[] getContainers() {
+    public Object[] getContainers() {
+        ProxyManager proxyManager = kernel.getProxyManager();
         AbstractNameQuery query = new AbstractNameQuery(JettyContainer.class.getName());
         Set names = kernel.listGBeans(query);
-        return (AbstractName[]) names.toArray(new AbstractName[names.size()]);
+        JettyContainer[] results = new JettyContainer[names.size()];
+        int i=0;
+        for (Iterator it = names.iterator(); it.hasNext(); i++) {
+            AbstractName name = (AbstractName) it.next();
+            results[i] = (JettyContainer) proxyManager.createProxy(name, JettyContainer.class.getClassLoader());
+        }
+        return results;
     }
 
     /**
@@ -165,27 +180,28 @@ public class JettyManagerImpl implements WebManager {
      *
      * @param protocol A protocol as returned by getSupportedProtocols
      */
-    public AbstractName[] getConnectors(String protocol) {
+    public NetworkConnector[] getConnectors(String protocol) {
         if(protocol == null) {
             return getConnectors();
         }
+        List result = new ArrayList();
+        ProxyManager proxyManager = kernel.getProxyManager();
         AbstractNameQuery query = new AbstractNameQuery(JettyWebConnector.class.getName());
         Set names = kernel.listGBeans(query);
-        List result = new ArrayList();
         for (Iterator it = names.iterator(); it.hasNext();) {
             AbstractName name = (AbstractName) it.next();
             try {
                 if (kernel.getAttribute(name, "protocol").equals(protocol)) {
-                    result.add(name);
+                    result.add(proxyManager.createProxy(name, JettyWebConnector.class.getClassLoader()));
                 }
             } catch (Exception e) {
                 log.error("Unable to check the protocol for a connector", e);
             }
         }
-        return (AbstractName[]) result.toArray(new AbstractName[result.size()]);
+        return (JettyWebConnector[]) result.toArray(new JettyWebConnector[names.size()]);
     }
 
-    public AbstractName getAccessLog(String containerObjectName) {
+    public WebAccessLog getAccessLog(WebContainer container) {
         AbstractNameQuery query = new AbstractNameQuery(JettyLogManager.class.getName());
         Set names = kernel.listGBeans(query);
         if(names.size() == 0) {
@@ -193,22 +209,31 @@ public class JettyManagerImpl implements WebManager {
         } else if(names.size() > 1) {
             throw new IllegalStateException("Should not be more than one Jetty access log manager");
         }
-        return (AbstractName)names.iterator().next();
+        return (WebAccessLog) kernel.getProxyManager().createProxy((AbstractName)names.iterator().next(), JettyLogManager.class.getClassLoader());
     }
 
     /**
      * Gets the ObjectNames of any existing connectors.
      */
-    public AbstractName[] getConnectors() {
+    public NetworkConnector[] getConnectors() {
+        ProxyManager proxyManager = kernel.getProxyManager();
         AbstractNameQuery query = new AbstractNameQuery(JettyWebConnector.class.getName());
         Set names = kernel.listGBeans(query);
-        return (AbstractName[]) names.toArray(new AbstractName[names.size()]);
+        JettyWebConnector[] results = new JettyWebConnector[names.size()];
+        int i=0;
+        for (Iterator it = names.iterator(); it.hasNext(); i++) {
+            AbstractName name = (AbstractName) it.next();
+            results[i] = (JettyWebConnector) proxyManager.createProxy(name, JettyWebConnector.class.getClassLoader());
+        }
+        return results;
     }
 
-    public AbstractName[] getConnectorsForContainer(AbstractName containerName, String protocol) {
+    public NetworkConnector[] getConnectorsForContainer(Object container, String protocol) {
         if(protocol == null) {
-            return getConnectorsForContainer(containerName);
+            return getConnectorsForContainer(container);
         }
+        AbstractName containerName = kernel.getAbstractNameFor(container);
+        ProxyManager mgr = kernel.getProxyManager();
         try {
             List results = new ArrayList();
             AbstractNameQuery query = new AbstractNameQuery(JettyWebConnector.class.getName());
@@ -221,7 +246,7 @@ public class JettyManagerImpl implements WebManager {
                     try {
                         String testProtocol = (String) kernel.getAttribute(name, "protocol");
                         if(testProtocol != null && testProtocol.equals(protocol)) {
-                            results.add(name);
+                            results.add(mgr.createProxy(name, JettyWebConnector.class.getClassLoader()));
                         }
                     } catch (Exception e) {
                         log.error("Unable to look up protocol for connector '"+name+"'",e);
@@ -229,13 +254,15 @@ public class JettyManagerImpl implements WebManager {
                     break;
                 }
             }
-            return (AbstractName[]) results.toArray(new AbstractName[results.size()]);
+            return (JettyWebConnector[]) results.toArray(new JettyWebConnector[results.size()]);
         } catch (Exception e) {
             throw (IllegalArgumentException)new IllegalArgumentException("Unable to look up connectors for Jetty container '"+containerName +"': ").initCause(e);
         }
     }
 
-    public AbstractName[] getConnectorsForContainer(AbstractName containerName) {
+    public NetworkConnector[] getConnectorsForContainer(Object container) {
+        AbstractName containerName = kernel.getAbstractNameFor(container);
+        ProxyManager mgr = kernel.getProxyManager();
         try {
             List results = new ArrayList();
             AbstractNameQuery query = new AbstractNameQuery(JettyWebConnector.class.getName());
@@ -245,13 +272,37 @@ public class JettyManagerImpl implements WebManager {
                 GBeanData data = kernel.getGBeanData(name);
                 ReferencePatterns refs = data.getReferencePatterns(JettyConnector.CONNECTOR_CONTAINER_REFERENCE);
                 if (containerName.equals(refs.getAbstractName())) {
-                    results.add(name);
+                    results.add(mgr.createProxy(name, JettyWebConnector.class.getClassLoader()));
                 }
             }
-            return (AbstractName[]) results.toArray(new AbstractName[results.size()]);
+            return (JettyWebConnector[]) results.toArray(new JettyWebConnector[results.size()]);
         } catch (Exception e) {
-            throw (IllegalArgumentException) new IllegalArgumentException("Unable to look up connectors for Jetty container '"+containerName).initCause(e);
+            throw (IllegalArgumentException) new IllegalArgumentException("Unable to look up connectors for Jetty container '"+containerName+"'").initCause(e);
         }
+    }
+
+    public Map mapContainersToURLs() {
+        WebContainer[] webContainers = (WebContainer[]) getContainers();
+        Map results = new HashMap();
+        for (int i = 0; i < webContainers.length; i++) {
+            WebContainer container = webContainers[i];
+            WebConnector[] connectors = (WebConnector[]) getConnectorsForContainer(container);
+            Map map = new HashMap();
+            for (int j = 0; j < connectors.length; j++) {
+                WebConnector connector = connectors[j];
+                String protocol = connector.getProtocol();
+                String url = connector.getConnectUrl();
+                map.put(protocol, url);
+            }
+            String urlPrefix;
+            if((urlPrefix = (String) map.get("HTTP")) == null) {
+                if((urlPrefix = (String) map.get("HTTPS")) == null) {
+                    urlPrefix = (String) map.get("AJP");
+                }
+            }
+            results.put(kernel.getAbstractNameFor(container).getObjectName().getCanonicalName(), urlPrefix);
+        }
+        return results;
     }
 
     public static final GBeanInfo GBEAN_INFO;

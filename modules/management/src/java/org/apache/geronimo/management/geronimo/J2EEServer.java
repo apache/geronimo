@@ -16,6 +16,12 @@
  */
 package org.apache.geronimo.management.geronimo;
 
+import org.apache.geronimo.management.J2EEDeployedObject;
+import org.apache.geronimo.management.J2EEResource;
+import org.apache.geronimo.pool.GeronimoExecutor;
+import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
+
 /**
  * Geronimo-specific extensions to the standard J2EE server management
  * interface.
@@ -24,31 +30,43 @@ package org.apache.geronimo.management.geronimo;
  */
 public interface J2EEServer extends org.apache.geronimo.management.J2EEServer {
     /**
-     * Gets the ObjectName of the Web Container associated with this
-     * J2EEServer, or null if there is none in the current server
-     * configuration.
-     *
-     * @return The ObjectName of the web container, in String form.
+     * A list of all of the J2EEApplication and J2EEModule types deployed on this J2EEServer.
+     * @see "JSR77.3.3.1.1"
+     * @return the deployed objects on this server
      */
-    public String[] getWebManagers();
+    J2EEDeployedObject[] getDeployedObjectInstances();
 
     /**
-     * Gets the ObjectName of the EJB Container associated with this
-     * J2EEServer, or null if there is none in the current server
-     * configuration.
-     *
-     * @return The ObjectName of the EJB container, in String form.
+     * A list of resources available to this server.
+     * @see "JSR77.3.3.1.2"
+     * @return the resources available to this server
      */
-    public String[] getEJBManagers();
+    J2EEResource[] getResourceInstances();
 
     /**
-     * Gets the ObjectName of the JMS Manager associated with this
-     * J2EEServer, or null if there is none in the current server
-     * configuration.
-     *
-     * @return The ObjectName of the JMS Manager, in String form.
+     * A list of all Java virtual machines on which this J2EEServer has running threads.
+     * @see "JSR77.3.3.1.3"
+     * @return the JVMs for this server
      */
-    public String[] getJMSManagers();
+    JVM[] getJavaVMInstances();
+
+    /**
+     * Gets the Web Managers associated with this J2EEServer, or null if
+     * there are none in the current server configuration.
+     */
+    public WebManager[] getWebManagers();
+
+    /**
+     * Gets the EJB Managers associated with this J2EEServer, or null if
+     * there are none in the current server configuration.
+     */
+    public EJBManager[] getEJBManagers();
+
+    /**
+     * Gets the JMS Managers associated with this J2EEServer, or null if
+     * there are none in the current server configuration.
+     */
+    public JMSManager[] getJMSManagers();
 
     /**
      * Gets the ObjectNames of the thread pools associated with this
@@ -56,37 +74,26 @@ public interface J2EEServer extends org.apache.geronimo.management.J2EEServer {
      *
      * @return The ObjectNames of the thread pools, in String form.
      */
-    public String[] getThreadPools();
+    public GeronimoExecutor[] getThreadPools();
 
     /**
-     * Gets the ObjectNames of the Repositories associated with this
-     * J2EEServer.
-     *
-     * @see org.apache.geronimo.kernel.repository.Repository
-     *
-     * @return The ObjectNames of the repositories, in String form.
+     * Gets the Repositories associated with this J2EEServer.
      */
-    public String[] getRepositories();
+    public Repository[] getRepositories();
 
     /**
-     * Gets the ObjectNames of the SecurityRealms associated with this
-     * J2EEServer.
+     * Gets the SecurityRealms associated with this J2EEServer.
      *
      * @see org.apache.geronimo.security.realm.SecurityRealm
      *
      * @return The ObjectNames of the realms, in String form.
      */
-    public String[] getSecurityRealms();
+    public SecurityRealm[] getSecurityRealms();
 
     /**
-     * Gets the ObjectName of the ServerInfo associated with this
-     * J2EEServer.
-     *
-     * @see org.apache.geronimo.system.serverinfo.ServerInfo
-     *
-     * @return The ObjectName of the ServerInfo, in String form.
+     * Gets the ServerInfo associated with this J2EEServer.
      */
-    public String getServerInfo();
+    public ServerInfo getServerInfo();
 
     /**
      * Gets the ObjectName of the LoginService associated with this
@@ -96,5 +103,5 @@ public interface J2EEServer extends org.apache.geronimo.management.J2EEServer {
      *
      * @return The ObjectName of the LoginService, in String form.
      */
-    public String getLoginService();
+    public LoginService getLoginService();
 }

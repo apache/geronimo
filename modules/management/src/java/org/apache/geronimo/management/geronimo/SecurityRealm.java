@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,12 +16,20 @@
  */
 package org.apache.geronimo.management.geronimo;
 
-import org.apache.geronimo.management.J2EEManagedObject;
-
 /**
- * Represents a JMS broker
+ * A security realm in the server.
  *
- * @version $Rev$ $Date$
+ * todo: I'm not yet sure what should reasonably go in here -- it's not clear what's necessary
+ * for a portable security layer and what's Geronimo-specific.  Currently the meaty extension
+ * interface is in o.a.g.security
+ *
+ * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
-public interface JMSBroker extends J2EEManagedObject {
+public interface SecurityRealm {
+    /**
+     * The name of the realm, which must be unique across all realms in the
+     * server.
+     */
+    public String getRealmName();
+
 }

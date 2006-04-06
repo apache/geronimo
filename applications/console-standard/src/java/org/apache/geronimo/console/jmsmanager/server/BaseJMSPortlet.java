@@ -16,15 +16,16 @@
  */
 package org.apache.geronimo.console.jmsmanager.server;
 
-import java.util.Map;
-import java.util.LinkedHashMap;
-import javax.portlet.RenderRequest;
-import javax.portlet.PortletException;
-import javax.management.ObjectName;
 import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.management.geronimo.JMSBroker;
-import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
+import org.apache.geronimo.management.geronimo.JMSManager;
+
+import javax.portlet.PortletException;
+import javax.portlet.RenderRequest;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Common methods for JMS portlets
@@ -32,18 +33,17 @@ import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
  * @version $Rev$ $Date$
  */
 public class BaseJMSPortlet extends BasePortlet {
-    protected static Map getBrokerMap(RenderRequest renderRequest, String managerObjectName) throws PortletException {
-        JMSBroker[] brokers;
+    /**
+     * Gets a Map relating broker name to JMSBroker instance
+     */
+    protected static Map getBrokerMap(RenderRequest renderRequest, JMSManager manager) throws PortletException {
+
+        JMSBroker[] brokers = (JMSBroker[]) manager.getContainers();
         Map map = new LinkedHashMap();
         try {
-            String[] names = PortletManager.getJMSBrokerNames(renderRequest, managerObjectName);
-            brokers = new JMSBroker[names.length];
-            for (int i = 0; i < names.length; i++) {
-                String name = names[i];
-                JMSBroker broker = PortletManager.getJMSBroker(renderRequest, name);
-                brokers[i] = broker;
-                ObjectName objectName = ObjectName.getInstance(name);
-                map.put(objectName.getKeyProperty("name"), broker);
+            for (int i = 0; i < brokers.length; i++) {
+                AbstractName name = PortletManager.getNameFor(renderRequest, brokers[i]);
+                map.put(name.getName().get("name"), brokers[i]);
             }
         } catch (Exception e) {
             throw new PortletException(e);

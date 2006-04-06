@@ -134,7 +134,7 @@ public class ActiveMQConnectorHelper {
             file.deleteOnExit();
             savePlan(file, args);
             if(MODULE_FILE == null) {
-                MODULE_FILE = PortletManager.getServerInfo(request).resolvePath(ACTIVEMQ_RAR);
+                MODULE_FILE = PortletManager.getCurrentServer(request).getServerInfo().resolvePath(ACTIVEMQ_RAR);
             }
             deployPlan(new File(MODULE_FILE), file);
         } catch (IOException e) {

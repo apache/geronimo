@@ -18,12 +18,14 @@
 package org.apache.geronimo.j2ee.management.impl;
 
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.proxy.ProxyManager;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.lang.reflect.Array;
 
 /**
  * @version $Rev$ $Date$
@@ -47,6 +49,27 @@ public class Util {
             names[i] = iterator.next().toString();
         }
         return names;
+    }
+
+
+    public static Object[] getObjects(Kernel kernel, Object parentName, String[] j2eeTypes, Class target) {
+        List objectNames = new LinkedList();
+        for (int i = 0; i < j2eeTypes.length; i++) {
+            String j2eeType = j2eeTypes[i];
+            String name = parentName + "j2eeType=" + j2eeType + ",*";
+            try {
+                objectNames.addAll(kernel.listGBeans(new ObjectName(name)));
+            } catch (MalformedObjectNameException e) {
+                throw new IllegalArgumentException("Malformed ObjectName: " + name);
+            }
+        }
+        Object[] objects = (Object[]) Array.newInstance(target,objectNames.size());
+        ProxyManager pm = kernel.getProxyManager();
+        Iterator iterator = objectNames.iterator();
+        for (int i = 0; iterator.hasNext(); i++) {
+            objects[i] = pm.createProxy((ObjectName)iterator.next(), target.getClassLoader());
+        }
+        return objects;
     }
 
 

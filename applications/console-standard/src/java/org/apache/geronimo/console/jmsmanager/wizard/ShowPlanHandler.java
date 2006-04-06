@@ -46,7 +46,7 @@ public class ShowPlanHandler extends AbstractHandler {
         JMSResourceData data = (JMSResourceData) model;
         request.setAttribute("deploymentPlan", request.getPortletSession().getAttribute("deploymentPlan"));
         String path = PortletManager.getRepositoryEntry(request, data.getRarURI()).getPath();
-        String base = PortletManager.getServerInfo(request).getCurrentBaseDirectory();
+        String base = PortletManager.getCurrentServer(request).getServerInfo().getCurrentBaseDirectory();
         if(base != null && path.startsWith(base)) {
             path = path.substring(base.length());
             if(path.startsWith("/")) {
