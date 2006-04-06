@@ -73,6 +73,13 @@ public class GBeanData implements Externalizable {
     public GBeanInfo getGBeanInfo() {
         return gbeanInfo;
     }
+    
+    public void clearAttribute(String name){
+        attributes.remove(name);
+    }
+    public void clearReference(String name){
+        references.remove(name);
+    }  
 
     public void setGBeanInfo(GBeanInfo gbeanInfo) {
         this.gbeanInfo = gbeanInfo;

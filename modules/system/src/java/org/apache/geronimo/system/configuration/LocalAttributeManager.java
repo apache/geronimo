@@ -58,7 +58,7 @@ import java.util.TimerTask;
 /**
  * Stores managed attributes in an XML file on the local filesystem.
  *
- * @version $Rev: 386505 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class LocalAttributeManager implements ManageableAttributeStore, PersistentConfigurationList, GBeanLifecycle {
     private final static Log log = LogFactory.getLog(LocalAttributeManager.class);
@@ -182,6 +182,22 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
             data.setAttribute(attributeName, value);
         }
 
+        //Clear attributes
+        for (Iterator iterator = gbean.getClearAttributes().iterator(); iterator.hasNext();){
+           String attribute = (String) iterator.next(); 
+           if (gbean.getClearAttribute(attribute)){
+               data.clearAttribute(attribute);
+           }    
+        }   
+        
+        //Null attributes
+        for (Iterator iterator = gbean.getNullAttributes().iterator(); iterator.hasNext();){
+           String attribute = (String) iterator.next(); 
+           if (gbean.getNullAttribute(attribute)){
+               data.setAttribute(attribute, null);
+           }
+        }
+
         // set references
         for (Iterator iterator = gbean.getReferences().entrySet().iterator(); iterator.hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();
@@ -196,6 +212,15 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
 
             data.setReferencePatterns(referenceName, referencePatterns);
         }
+
+        //Clear references
+        for (Iterator iterator = gbean.getClearReferences().iterator(); iterator.hasNext();){
+           String reference = (String) iterator.next(); 
+           if (gbean.getClearReference(reference)){
+               data.clearReference(reference);
+           }
+        }
+
         return true;
     }
 

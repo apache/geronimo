@@ -19,6 +19,7 @@ package org.apache.geronimo.system.configuration;
 import java.beans.PropertyEditor;
 import java.io.PrintWriter;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -49,6 +50,9 @@ class GBeanOverride {
     private boolean load;
     private final Map attributes = new LinkedHashMap();
     private final Map references = new LinkedHashMap();
+    private final ArrayList clearAttributes = new ArrayList();
+    private final ArrayList nullAttributes = new ArrayList();
+    private final ArrayList clearReferences = new ArrayList();
     private final String gbeanInfo;
 
     public GBeanOverride(String name, boolean load) {
@@ -115,7 +119,32 @@ class GBeanOverride {
             Element attribute = (Element) attributes.item(a);
 
             String attributeName = attribute.getAttribute("name");
-            String attributeValue = (String)EncryptionManager.decrypt(getContentsAsText(attribute));
+
+            // Check to see if there is a value attribute
+            if (attribute.hasAttribute("value")) {
+                setAttribute(attributeName, (String) EncryptionManager
+                        .decrypt(attribute.getAttribute("value")));
+                continue;
+            }
+            
+            // Check to see if there is a null attribute
+            if (attribute.hasAttribute("null")) {
+                String nullString = attribute.getAttribute("null");
+                if (nullString.equals("true")){
+                    setNullAttribute(attributeName);
+                    continue;
+                }
+            }
+
+            String rawAttribute = getContentsAsText(attribute);
+            // If there are no contents, then it's to be cleared
+            if (rawAttribute.length() == 0) {
+                setClearAttribute(attributeName);
+                continue;
+            }
+            String attributeValue = (String) EncryptionManager
+                    .decrypt(rawAttribute);
+
             setAttribute(attributeName, attributeValue);
         }
 
@@ -128,8 +157,19 @@ class GBeanOverride {
 
             Set objectNamePatterns = new LinkedHashSet();
             NodeList patterns = reference.getElementsByTagName("pattern");
+            
+            // If there is no pattern, then its an empty set, so its a
+            // cleared value
+            if (patterns.getLength() == 0) {
+                setClearReference(referenceName);
+                continue;
+            }
+
             for (int p = 0; p < references.getLength(); p++) {
                 Element pattern = (Element) patterns.item(p);
+                if (pattern == null)
+                    continue;
+
                 String groupId = getChildAsText(pattern, "groupId");
                 String artifactId = getChildAsText(pattern, "artifactId");
                 String version = getChildAsText(pattern, "version");
@@ -203,10 +243,50 @@ class GBeanOverride {
         return (String) attributes.get(attributeName);
     }
 
+    public ArrayList getClearAttributes() {
+        return clearAttributes;
+    }
+    
+    public ArrayList getNullAttributes() {
+        return nullAttributes;
+    }
+
+    public boolean getNullAttribute(String attributeName) {
+        return nullAttributes.contains(attributeName);
+    }
+    
+    public boolean getClearAttribute(String attributeName) {
+        return clearAttributes.contains(attributeName);
+    }
+
+    public ArrayList getClearReferences() {
+        return clearReferences;
+    }
+
+    public boolean getClearReference(String referenceName) {
+        return clearReferences.contains(referenceName);
+    }
+
+    public void setClearAttribute(String attributeName) {
+        if (!clearAttributes.contains(attributeName))
+            clearAttributes.add(attributeName);
+    }
+    
+    public void setNullAttribute(String attributeName) {
+        if (!nullAttributes.contains(attributeName))
+            nullAttributes.add(attributeName);
+    }
+
+    public void setClearReference(String referenceName) {
+        if (!clearReferences.contains(referenceName))
+            clearReferences.add(referenceName);
+    }
+
     public void setAttribute(String attributeName, Object attributeValue, String attributeType) throws InvalidAttributeException {
         String stringValue = getAsText(attributeValue, attributeType);
         attributes.put(attributeName, stringValue);
     }
+
     public void setAttribute(String attributeName, String attributeValue) {
         attributes.put(attributeName, attributeValue);
     }
@@ -249,7 +329,22 @@ class GBeanOverride {
             if(name.toLowerCase().indexOf("password") > -1) {
                 value = EncryptionManager.encrypt(value);
             }
-            out.println("      <attribute name=\"" + name + "\">" +  value + "</attribute>");
+            if (value.length() == 0)
+                out.println("      <attribute name=\"" + name + "\" value=\"\" />");
+            else
+                out.println("      <attribute name=\"" + name + "\">" +  value + "</attribute>");
+        }
+
+        // cleared attributes
+        for (Iterator iterator = clearAttributes.iterator(); iterator.hasNext();) {
+            String name = (String) iterator.next();
+            out.println("      <attribute name=\"" + name + "\" />");
+        }
+        
+        // Null attributes
+        for (Iterator iterator = nullAttributes.iterator(); iterator.hasNext();) {
+            String name = (String) iterator.next();
+            out.println("      <attribute name=\"" + name + "\" null=\"true\" />");
         }
 
         // references
@@ -286,6 +381,12 @@ class GBeanOverride {
                 out.println("</pattern>");
             }
             out.println("      </reference>");
+        }
+
+        // cleared references
+        for (Iterator iterator = clearReferences.iterator(); iterator.hasNext();) {
+            String name = (String) iterator.next();
+            out.println("      <reference name=\"" + name + "\" />");
         }
 
         out.println("    </gbean>");

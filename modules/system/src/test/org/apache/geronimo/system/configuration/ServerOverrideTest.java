@@ -120,12 +120,18 @@ public class ServerOverrideTest extends TestCase {
         GBeanOverride pizza = new GBeanOverride("Pizza", false);
         pizza.setAttribute("cheese", "mozzarella");
         pizza.setAttribute("size", "x-large");
+        pizza.setAttribute("emptyString", "");
+        pizza.setClearAttribute("greenPeppers");
+        pizza.setNullAttribute("pineapple");
+
         AbstractNameQuery pizzaOvenQuery = getAbstractNameQuery(":name=PizzaOven,j2eeType=oven");
         AbstractNameQuery toasterOvenQuery = getAbstractNameQuery(":name=ToasterOven,j2eeType=oven,*");
         AbstractNameQuery[] queries = new AbstractNameQuery[]{pizzaOvenQuery, toasterOvenQuery};
         ReferencePatterns ovenPatterns = getReferencePatterns(queries);
         pizza.setReferencePatterns("oven", ovenPatterns);
-         assertCopyIdentical(dinnerMenu);
+        pizza.setClearReference("microwave");
+
+        assertCopyIdentical(dinnerMenu);
 
         dinnerMenu.addGBean(pizza);
         assertCopyIdentical(dinnerMenu);
@@ -146,11 +152,15 @@ public class ServerOverrideTest extends TestCase {
         GBeanOverride pizza = new GBeanOverride("Pizza", false);
         pizza.setAttribute("cheese", "mozzarella");
         pizza.setAttribute("size", "x-large");
+        pizza.setAttribute("emptyString", "");
+        pizza.setClearAttribute("greenPeppers");
+        pizza.setNullAttribute("pineapple");
         AbstractNameQuery pizzaOvenQuery = getAbstractNameQuery(":name=PizzaOven,j2eeType=oven");
         AbstractNameQuery toasterOvenQuery = getAbstractNameQuery(":name=ToasterOven,j2eeType=oven,*");
         AbstractNameQuery[] queries = new AbstractNameQuery[]{pizzaOvenQuery, toasterOvenQuery};
         ReferencePatterns ovenPatterns = getReferencePatterns(queries);
         pizza.setReferencePatterns("oven", ovenPatterns);
+        pizza.setClearReference("microwave");
         dinnerMenu.addGBean(pizza);
         GBeanOverride garlicCheeseBread = new GBeanOverride("Garlic Cheese Bread", true);
         ReferencePatterns toasterOvenPatterns = new ReferencePatterns(Collections.singleton(toasterOvenQuery));
@@ -238,6 +248,9 @@ public class ServerOverrideTest extends TestCase {
         assertEquals(expected.getName(), actual.getName());
         assertEquals(expected.isLoad(), actual.isLoad());
         assertEquals(expected.getAttributes(), actual.getAttributes());
+        assertEquals(expected.getClearAttributes(), actual.getClearAttributes());
+        assertEquals(expected.getNullAttributes(), actual.getNullAttributes());
+        assertEquals(expected.getClearReferences(), actual.getClearReferences());
     }
 
     private ServerOverride copy(ServerOverride server) throws Exception {
