@@ -32,7 +32,6 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.StoredObject;
 import org.apache.geronimo.webservices.POJOWebServiceServlet;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerInvoker;
@@ -44,10 +43,10 @@ import org.mortbay.jetty.servlet.ServletHttpRequest;
  * This is intended to hold the web service stack for an axis POJO web service.
  * It is starting life as a copy of JettyServletHolder.
  *
- * @version $Rev$ $Date$
+ * @version $Rev: 385886 $ $Date$
  */
 public class JettyPOJOWebServiceHolder extends ServletHolder implements GBeanLifecycle {
-    private StoredObject storedWebServiceContainer;
+    private WebServiceContainer webServiceContainer;
     private Set servletMappings;
     private Map webRoleRefPermissions;
     private JettyServletRegistration context;
@@ -64,7 +63,7 @@ public class JettyPOJOWebServiceHolder extends ServletHolder implements GBeanLif
                                      Integer loadOnStartup,
                                      Set servletMappings,
                                      Map webRoleRefPermissions,
-                                     StoredObject storedWebServiceContainer,
+                                     WebServiceContainer webServiceContainer,
                                      ServletHolder previous,    //dependency for startup ordering
                                      JettyServletRegistration context) throws Exception {
         super(context == null ? null : context.getServletHandler(), servletName, POJOWebServiceServlet.class.getName(), null);
@@ -72,7 +71,7 @@ public class JettyPOJOWebServiceHolder extends ServletHolder implements GBeanLif
 
         this.pojoClassName = pojoClassName;
         this.context = context;
-        this.storedWebServiceContainer = storedWebServiceContainer;
+        this.webServiceContainer = webServiceContainer;
         if (context != null) {
             putAll(initParams);
             if (loadOnStartup != null) {
@@ -109,7 +108,6 @@ public class JettyPOJOWebServiceHolder extends ServletHolder implements GBeanLif
     public void doStart() throws Exception {
         if (context != null) {
             Class pojoClass = context.getWebClassLoader().loadClass(pojoClassName);
-            WebServiceContainer webServiceContainer = (WebServiceContainer) storedWebServiceContainer.getObject(context.getWebClassLoader());
 
             /* DMB: Hack! I really just want to override initServlet and give a reference of the WebServiceContainer to the servlet before we call init on it.
              * But this will have to do instead....
@@ -154,7 +152,7 @@ public class JettyPOJOWebServiceHolder extends ServletHolder implements GBeanLif
         infoBuilder.addAttribute("loadOnStartup", Integer.class, true);
         infoBuilder.addAttribute("servletMappings", Set.class, true);
         infoBuilder.addAttribute("webRoleRefPermissions", Map.class, true);
-        infoBuilder.addAttribute("webServiceContainer", StoredObject.class, true);
+        infoBuilder.addAttribute("webServiceContainer", WebServiceContainer.class, true);
         infoBuilder.addReference("Previous", ServletHolder.class, NameFactory.SERVLET);
         infoBuilder.addReference("JettyServletRegistration", JettyServletRegistration.class);
 

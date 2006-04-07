@@ -21,17 +21,16 @@ import java.net.URI;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.reflection.ReflectionProvider;
 import com.thoughtworks.xstream.core.JVM;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Dependency;
-import org.apache.geronimo.kernel.repository.Version;
 import org.apache.geronimo.kernel.repository.ImportType;
-import org.apache.geronimo.kernel.management.StateManageable;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.kernel.repository.Version;
 
 /**
  * @version $Rev$ $Date$
@@ -85,6 +84,13 @@ public final class XStreamUtil {
         // ImportType
         xstream.addImmutableType(ImportType.class);
         xstream.registerConverter(new ImportTypeConverter());
+
+        // QName
+        try {
+            xstream.registerConverter(new QNameConverter());
+        } catch (Exception e) {
+            // cl can't see QName class so we don't need to register a converter for it
+        }
 
         // Version
         xstream.alias("version", Version.class);

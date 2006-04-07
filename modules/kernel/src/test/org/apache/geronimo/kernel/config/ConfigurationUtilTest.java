@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+import javax.xml.namespace.QName;
+
 import junit.framework.TestCase;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -29,10 +31,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.MockGBean;
 import org.apache.geronimo.kernel.config.xstream.XStreamConfigurationMarshaler;
-import org.apache.geronimo.kernel.config.xstream.XStreamGBeanState;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.ImportType;
 
 /**
  * @version $Rev$ $Date$
@@ -40,60 +39,56 @@ import org.apache.geronimo.kernel.repository.ImportType;
 public class ConfigurationUtilTest extends TestCase {
     private XStreamConfigurationMarshaler xstreamConfigurationMarshaler = new XStreamConfigurationMarshaler();
     private SerializedConfigurationMarshaler serializedConfigurationMarshaler = new SerializedConfigurationMarshaler();
-    private ConfigurationData configurationData1;
-    private ConfigurationData configurationData2;
-
-//    public void testPrint() throws Exception {
-//        xstreamConfigurationMarshaler.writeConfigurationData(configurationData1, System.out);
-//
-//    }
+    private static Artifact artifact3 = new Artifact("test", "3", "3.3", "bar");
+    private static final Jsr77Naming naming = new Jsr77Naming();
 
     public void test() throws Exception {
-        copyTest(configurationData1);
-        copyTest(configurationData2);
+        ConfigurationData configurationData = createConfigurationData(serializedConfigurationMarshaler);
+        ConfigurationData data = copy(configurationData, serializedConfigurationMarshaler, serializedConfigurationMarshaler);
+        assertEquals(data, configurationData);
+
+        configurationData = createConfigurationData(xstreamConfigurationMarshaler);
+        xstreamConfigurationMarshaler.writeConfigurationData(configurationData, System.out);
+        data = copy(configurationData, xstreamConfigurationMarshaler, xstreamConfigurationMarshaler);
+        assertEquals(data, configurationData);
+
+        configurationData = createConfigurationData(serializedConfigurationMarshaler);
+        data = copy(configurationData, serializedConfigurationMarshaler, xstreamConfigurationMarshaler);
+        assertEquals(data, configurationData);
+
+        configurationData = createConfigurationData(xstreamConfigurationMarshaler);
+        data = copy(configurationData, xstreamConfigurationMarshaler, serializedConfigurationMarshaler);
+        assertEquals(data, configurationData);
     }
 
-    private void copyTest(ConfigurationData configurationData) throws Exception {
-        List gbeans = configurationData.getGBeans(getClass().getClassLoader());
-        ConfigurationData data = copy(configurationData, serializedConfigurationMarshaler, serializedConfigurationMarshaler);
+    private void assertEquals(ConfigurationData data, ConfigurationData configurationData) throws InvalidConfigException {
+        List gbeans;
         gbeans = data.getGBeans(getClass().getClassLoader());
         assertEquals(configurationData.getId(), data.getId());
-
-        gbeans = configurationData.getGBeans(getClass().getClassLoader());
-        data = copy(configurationData, xstreamConfigurationMarshaler, xstreamConfigurationMarshaler);
-        gbeans = data.getGBeans(getClass().getClassLoader());
-        assertEquals(configurationData.getId(), data.getId());
-
-//        gbeans = configurationData.getGBeans(getClass().getClassLoader());
-//        data = copy(configurationData, serializedConfigurationMarshaler, xstreamConfigurationMarshaler);
-//        gbeans = data.getGBeans(getClass().getClassLoader());
-//        assertEquals(configurationData.getId(), data.getId());
+        ConfigurationData data3 = (ConfigurationData) data.getChildConfigurations().get(artifact3);
+        gbeans = data3.getGBeans(getClass().getClassLoader());
+        assertEquals(new QName("namespaceURI", "localPart"), ((GBeanData)gbeans.get(0)).getAttribute("someObject"));
     }
 
     private static ConfigurationData copy(ConfigurationData configurationData, ConfigurationMarshaler writer, ConfigurationMarshaler reader) throws IOException, ClassNotFoundException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         writer.writeConfigurationData(configurationData, out);
-//        System.out.println(new String(out.toByteArray()));
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
         ConfigurationData data = reader.readConfigurationData(in);
         return data;
     }
 
-    protected void setUp() throws Exception {
-        super.setUp();
-
-        Jsr77Naming naming = new Jsr77Naming();
-
+    private static ConfigurationData createConfigurationData(ConfigurationMarshaler marshaler) throws Exception {
         Artifact artifact1 = new Artifact("test", "1", "1.1", "bar");
-        configurationData1 = new ConfigurationData(artifact1, naming, new XStreamGBeanState(Collections.EMPTY_SET));
+        ConfigurationData configurationData = new ConfigurationData(artifact1, naming, marshaler.newGBeanState(Collections.EMPTY_SET));
 
-        GBeanData mockBean1 = configurationData1.addGBean("MyMockGMBean1", MockGBean.getGBeanInfo());
+        GBeanData mockBean1 = configurationData.addGBean("MyMockGMBean1", MockGBean.getGBeanInfo());
         AbstractName gbeanName1 = mockBean1.getAbstractName();
         mockBean1.setAttribute("value", "1234");
         mockBean1.setAttribute("name", "child");
         mockBean1.setAttribute("finalInt", new Integer(1));
 
-        GBeanData mockBean2 = configurationData1.addGBean("MyMockGMBean2", MockGBean.getGBeanInfo());
+        GBeanData mockBean2 = configurationData.addGBean("MyMockGMBean2", MockGBean.getGBeanInfo());
         mockBean2.setAttribute("value", "5678");
         mockBean2.setAttribute("name", "Parent");
         mockBean2.setAttribute("finalInt", new Integer(3));
@@ -102,16 +97,12 @@ public class ConfigurationUtilTest extends TestCase {
         mockBean2.setReferencePattern("EndpointCollection", new AbstractNameQuery(gbeanName1, MockGBean.getGBeanInfo().getInterfaces()));
 
 
-        Environment e2 = new Environment();
-        Artifact artifact2 = new Artifact("test", "2", "2.2", "bar");
-        e2.setConfigId(artifact2);
-        e2.addDependency(artifact1, ImportType.ALL);
-        configurationData2 = new ConfigurationData(e2, naming, new XStreamGBeanState(Collections.EMPTY_SET));
-
-        Artifact artifact3 = new Artifact("test", "3", "3.3", "bar");
-        ConfigurationData configurationData3 = new ConfigurationData(artifact3, naming, new XStreamGBeanState(Collections.EMPTY_SET));
-        configurationData1.addChildConfiguration(configurationData3);
-        GBeanData childConfigurationGBean = configurationData3.addGBean("ChildConfigurationGBean", MockGBean.getGBeanInfo());
+        ConfigurationData childConfigurationData = new ConfigurationData(artifact3, naming, marshaler.newGBeanState(Collections.EMPTY_SET));
+        configurationData.addChildConfiguration(childConfigurationData);
+        GBeanData childConfigurationGBean = childConfigurationData.addGBean("ChildConfigurationGBean", MockGBean.getGBeanInfo());
         childConfigurationGBean.setAttribute("name", "foo");
+        childConfigurationGBean.setAttribute("someObject", new QName("namespaceURI", "localPart"));
+
+        return configurationData;
     }
 }

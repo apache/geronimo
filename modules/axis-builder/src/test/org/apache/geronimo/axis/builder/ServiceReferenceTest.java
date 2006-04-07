@@ -18,7 +18,6 @@ package org.apache.geronimo.axis.builder;
 
 import java.io.File;
 import java.lang.reflect.Method;
-import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.rmi.Remote;
@@ -65,20 +64,19 @@ import org.apache.geronimo.axis.client.SEIFactory;
 import org.apache.geronimo.axis.client.ServiceImpl;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.deployment.util.UnpackedJarFile;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.Jsr77Naming;
-import org.apache.geronimo.naming.reference.DeserializingReference;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingDocument;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
 import org.apache.geronimo.xbeans.j2ee.PackageMappingType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
-import org.apache.geronimo.gbean.AbstractName;
 
 /**
  * @version $Rev:385232 $ $Date$
@@ -222,42 +220,6 @@ public class ServiceReferenceTest extends TestCase {
         } else {
             System.out.println("Skipping external ws test");
         }
-    }
-
-    public void xtestBuildInteropProxyFromURIs() throws Exception {
-        //ejb is from the EJBModule "ejb" targetPath.
-        context.addFile(new URI("ejb/META-INF/wsdl/interop.wsdl"), wsdlFile);
-        context.addFile(new URI("ejb/META-INF/wsdl/interop-jaxrpcmapping.xml"), new File(wsdlDir, "interop-jaxrpcmapping.xml"));
-        ClassLoader cl = context.getClassLoader();
-        //new URLClassLoader(new URL[]{wsdldir.toURL()}, isolatedCl);
-        URI wsdlURI = new URI("META-INF/wsdl/interop.wsdl");
-        URI jaxrpcmappingURI = new URI("META-INF/wsdl/interop-jaxrpcmapping.xml");
-        QName serviceQName = new QName("http://tempuri.org/4s4c/1/3/wsdl/def/interopLab", "interopLab");
-        AxisBuilder builder = new AxisBuilder();
-        Map portComponentRefMap = null;
-        List handlers = null;
-        DeserializingReference reference = (DeserializingReference) builder.createService(InteropLab.class, wsdlURI, jaxrpcmappingURI, serviceQName, portComponentRefMap, handlers, gerServiceRefType, context, module, cl);
-        ClassLoader contextCl = context.getClassLoader();
-        reference.setClassLoader(contextCl);
-        Object proxy = reference.getContent();
-        assertNotNull(proxy);
-        assertTrue(proxy instanceof InteropLab);
-
-        InteropLab interopLab = ((InteropLab) proxy);
-        InteropTestPortType interopTestPort = interopLab.getinteropTestPort();
-        assertNotNull(interopTestPort);
-        testInteropPort(interopTestPort);
-
-        //test more dynamically
-        Remote sei = interopLab.getPort(InteropTestPortType.class);
-        assertNotNull(sei);
-        assertTrue(sei instanceof InteropTestPortType);
-        testInteropPort((InteropTestPortType) sei);
-
-        Remote sei2 = interopLab.getPort(new QName("http://tempuri.org/4s4c/1/3/wsdl/def/interopLab", "interopTestPort"), null);
-        assertNotNull(sei2);
-        assertTrue(sei2 instanceof InteropTestPortType);
-        testInteropPort((InteropTestPortType) sei2);
     }
 
     public void testBuildComplexTypeMap() throws Exception {

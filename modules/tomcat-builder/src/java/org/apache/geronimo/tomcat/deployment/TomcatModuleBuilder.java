@@ -58,7 +58,6 @@ import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.kernel.StoredObject;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
@@ -86,6 +85,7 @@ import org.apache.geronimo.xbeans.j2ee.MessageDestinationType;
 import org.apache.geronimo.xbeans.j2ee.ServletType;
 import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
+import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
@@ -372,7 +372,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                             throw new DeploymentException("No web service deployment info for servlet name " + servletName);
                         }
 
-                        StoredObject wsContainer = configurePOJO(webModule.getModuleFile(), portInfo, servletClassName, moduleClassLoader);
+                        WebServiceContainer wsContainer = configurePOJO(webModule.getModuleFile(), portInfo, servletClassName, moduleClassLoader);
                         webServices.put(servletName, wsContainer);
                     }
                 }
@@ -436,14 +436,14 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         return TOMCAT_NAMESPACE;
     }
 
-    public StoredObject configurePOJO(JarFile moduleFile, Object portInfoObject, String seiClassName, ClassLoader classLoader) throws DeploymentException, IOException {
+    public WebServiceContainer configurePOJO(JarFile moduleFile, Object portInfoObject, String seiClassName, ClassLoader classLoader) throws DeploymentException, IOException {
         //the reason to configure a gbeandata rather than just fetch the WebServiceContainer is that fetching the WSContainer ties us to that
         //ws implementation.  By configuring a servlet gbean, you can provide a different servlet for each combination of
         //web container and ws implementation while assuming almost nothing about their relationship.
 
         GBeanData fakeData = new GBeanData();
         webServiceBuilder.configurePOJO(fakeData, moduleFile, portInfoObject, seiClassName, classLoader);
-        return (StoredObject) fakeData.getAttribute("webServiceContainer");
+        return (WebServiceContainer) fakeData.getAttribute("webServiceContainer");
     }
 
 

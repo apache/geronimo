@@ -16,7 +16,6 @@
  */
 package org.apache.geronimo.kernel.config;
 
-import java.io.Serializable;
 import java.util.List;
 
 import org.apache.geronimo.gbean.GBeanData;
@@ -27,7 +26,7 @@ import org.apache.geronimo.kernel.repository.Environment;
 /**
  * @version $Rev$ $Date$
  */
-public interface GBeanState extends Serializable {
+public interface GBeanState {
     List getGBeans(ClassLoader classLoader) throws InvalidConfigException;
 
     void addGBean(GBeanData gbeanData);

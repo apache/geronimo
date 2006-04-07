@@ -54,6 +54,13 @@
             <version>${geronimo_spec_j2ee_deployment_version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-qname_1.1_spec</artifactId>
+            <version>${geronimo_spec_j2ee_deployment_version}</version>
+            <type>test</type>
+        </dependency>
+
         <!-- Thirdparty -->
 
         <dependency>

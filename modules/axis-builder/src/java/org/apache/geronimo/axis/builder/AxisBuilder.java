@@ -16,9 +16,7 @@
  */
 package org.apache.geronimo.axis.builder;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -80,9 +78,6 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.ClassLoaderReference;
-import org.apache.geronimo.kernel.StoredObject;
-import org.apache.geronimo.naming.reference.DeserializingReference;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPortCompletionType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPortType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceCompletionType;
@@ -141,14 +136,8 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
 
         }
 
-        classLoader = new ClassLoaderReference(classLoader);
         AxisWebServiceContainer axisWebServiceContainer = new AxisWebServiceContainer(location, wsdlURI, service, serviceInfo.getWsdlMap(), classLoader);
-        //targetGBean.setAttribute("webServiceContainer", axisWebServiceContainer);
-        try {
-            targetGBean.setAttribute("webServiceContainer", new StoredObject(axisWebServiceContainer)); // Hack!
-        } catch (IOException e) {
-            throw new DeploymentException("Unable to serialize the AxisWebServiceContainer", e);
-        }
+        targetGBean.setAttribute("webServiceContainer", axisWebServiceContainer);
     }
 
     public void configureEJB(GBeanData targetGBean, JarFile moduleFile, Object portInfoObject, ClassLoader classLoader) throws DeploymentException {
@@ -182,18 +171,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
         }
 
         Object service = createService(serviceInterface, schemaInfoBuilder, mapping, serviceQName, SOAP_VERSION, handlerInfos, gerServiceRefType, deploymentContext, module, classLoader);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = null;
-        try {
-            oos = new ObjectOutputStream(baos);
-            oos.writeObject(service);
-            oos.flush();
-        } catch (IOException e) {
-            throw new DeploymentException("Could not serialize service instance", e);
-        }
-        byte[] bytes = baos.toByteArray();
-        DeserializingReference reference = new DeserializingReference(bytes);
-        return reference;
+        return service;
     }
 
     public Object createService(Class serviceInterface, SchemaInfoBuilder schemaInfoBuilder, JavaWsdlMappingType mapping, QName serviceQName, SOAPConstants soapVersion, List handlerInfos, GerServiceRefType serviceRefType, DeploymentContext context, Module module, ClassLoader classloader) throws DeploymentException {

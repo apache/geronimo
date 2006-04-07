@@ -39,7 +39,7 @@ import org.apache.geronimo.kernel.repository.Environment;
 /**
  * @version $Rev$ $Date$
  */
-public class SerializedGBeanState implements GBeanState {
+public class SerializedGBeanState implements GBeanState, Serializable {
     private static final long serialVersionUID = 6015138334529564307L;
 
     /**

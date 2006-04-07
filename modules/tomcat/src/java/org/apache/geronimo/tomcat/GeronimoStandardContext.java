@@ -40,7 +40,6 @@ import org.apache.catalina.valves.ValveBase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.kernel.StoredObject;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
 import org.apache.geronimo.naming.reference.KernelAwareReference;
@@ -229,15 +228,9 @@ public class GeronimoStandardContext extends StandardContext {
             if (!baseServletClass.isAssignableFrom(servletClass)) {
                 //Nope - its probably a webservice, so lets see...
                 if (webServiceMap != null) {
-                    StoredObject storedObject = (StoredObject) webServiceMap.get(wrapper.getName());
+                    WebServiceContainer webServiceContainer = (WebServiceContainer) webServiceMap.get(wrapper.getName());
 
-                    if (storedObject != null) {
-                        WebServiceContainer webServiceContainer;
-                        try {
-                            webServiceContainer = (WebServiceContainer) storedObject.getObject(cl);
-                        } catch (IOException io) {
-                            throw new RuntimeException(io);
-                        }
+                    if (webServiceContainer != null) {
                         //Yep its a web service
                         //So swap it out with a POJOWebServiceServlet
                         wrapper.setServletClass("org.apache.geronimo.webservices.POJOWebServiceServlet");

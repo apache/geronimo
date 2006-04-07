@@ -17,7 +17,6 @@
 package org.apache.geronimo.kernel.config.xstream;
 
 import java.io.IOException;
-import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -34,8 +33,8 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.kernel.config.GBeanState;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.config.GBeanState;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -44,8 +43,6 @@ import org.w3c.dom.Element;
  * @version $Rev$ $Date$
  */
 public class XStreamGBeanState implements GBeanState {
-    private static final long serialVersionUID = 5093634035012004893L;
-
     /**
      * GBeans contained in this configuration.
      */
@@ -101,15 +98,6 @@ public class XStreamGBeanState implements GBeanState {
         GBeanData gBeanData = new GBeanData(abstractName, gbeanInfo);
         addGBean(gBeanData);
         return gBeanData;
-    }
-
-    private void writeObject(java.io.ObjectOutputStream stream) throws IOException {
-        if (gbeanState == null) {
-            gbeanState = XStreamGBeanState.storeGBeans(gbeans);
-            gbeans.clear();
-        }
-
-        stream.defaultWriteObject();
     }
 
     private static List loadGBeans(Element element, ClassLoader classLoader) throws InvalidConfigException {
