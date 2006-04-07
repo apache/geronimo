@@ -40,6 +40,11 @@ public class XStreamConfigurationMarshaler implements ConfigurationMarshaler {
             (byte) ((ObjectStreamConstants.STREAM_MAGIC >>> 0) & 0xFF)
     };
 
+    public XStreamConfigurationMarshaler() {
+        // create an xstream just to assuer all the required libraries are present
+        XStreamUtil.createXStream();
+    }
+
     public ConfigurationData readConfigurationData(InputStream in) throws IOException, ClassNotFoundException {
         PushbackInputStream pushbackInputStream = new PushbackInputStream(in, 2);
         byte[] streamHeader = new byte[2];

@@ -19,12 +19,15 @@ package org.apache.geronimo.kernel.config.xstream;
 import java.net.URI;
 
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.reflection.ReflectionProvider;
+import com.thoughtworks.xstream.core.JVM;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Version;
 import org.apache.geronimo.kernel.repository.ImportType;
+import org.apache.geronimo.kernel.management.StateManageable;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -38,8 +41,9 @@ public final class XStreamUtil {
     }
 
     public static XStream createXStream() {
-        XStream xstream = new XStream();
-        xstream.alias("configurationData", ConfigurationData.class);
+        JVM jvm = new JVM();
+        ReflectionProvider reflectionProvider = jvm.bestReflectionProvider();
+        XStream xstream = new XStream(reflectionProvider);
 
         // AbstractName
         xstream.alias("abstractName", AbstractName.class);
@@ -54,6 +58,10 @@ public final class XStreamUtil {
         // Artifact
         xstream.alias("artifact", Artifact.class);
         xstream.addImmutableType(Artifact.class);
+
+        // ConfigurationData
+        xstream.alias("configurationData", ConfigurationData.class);
+        xstream.registerConverter(new ConfigurationDataConverter(reflectionProvider, xstream.getClassMapper()));
 
         // ConfigurationModuleTypeConverter
         xstream.alias("moduleType", ConfigurationModuleType.class);
@@ -93,5 +101,4 @@ public final class XStreamUtil {
 
         return xstream;
     }
-
 }

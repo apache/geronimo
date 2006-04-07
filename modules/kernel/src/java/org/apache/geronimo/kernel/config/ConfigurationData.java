@@ -78,6 +78,22 @@ public class ConfigurationData implements Serializable {
      */
     private transient ConfigurationStore configurationStore;
 
+    public ConfigurationData(Artifact configId, Naming naming, GBeanState gbeanState) {
+        this(new Environment(configId), naming, gbeanState);
+    }
+
+    public ConfigurationData(Environment environment, Naming naming, GBeanState gbeanState) {
+        if (environment == null) throw new NullPointerException("environment is null");
+        if (environment.getConfigId() == null) throw new NullPointerException("environment.configId is null");
+        if (naming == null) throw new NullPointerException("naming is null");
+
+        this.environment = environment;
+        this.naming = naming;
+        this.gbeanState = gbeanState;
+
+        this.moduleType = ConfigurationModuleType.CAR;
+    }
+
     public ConfigurationData(Artifact configId, Naming naming) {
         this(new Environment(configId), naming);
     }
@@ -138,6 +154,10 @@ public class ConfigurationData implements Serializable {
 
     public Map getChildConfigurations() {
         return Collections.unmodifiableMap(childConfigurations);
+    }
+
+    public void addChildConfiguration(ConfigurationData configurationData) {
+        childConfigurations.put(configurationData.getId(), configurationData);
     }
 
     public Environment getEnvironment() {

@@ -21,14 +21,38 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.ObjectStreamConstants;
+import java.io.PushbackInputStream;
 import java.util.Collection;
 
 /**
  * @version $Rev$ $Date$
  */
 public class SerializedConfigurationMarshaler implements ConfigurationMarshaler {
+    private static byte[] SERIALIZED_MAGIC = new byte[] {
+            (byte) ((ObjectStreamConstants.STREAM_MAGIC >>> 8) & 0xFF),
+            (byte) ((ObjectStreamConstants.STREAM_MAGIC >>> 0) & 0xFF)
+    };
+
     public ConfigurationData readConfigurationData(InputStream in) throws IOException, ClassNotFoundException {
-        ObjectInputStream oin = new ObjectInputStream(in);
+        PushbackInputStream pushbackInputStream = new PushbackInputStream(in, 2);
+        byte[] streamHeader = new byte[2];
+        if (pushbackInputStream.read(streamHeader) != 2) throw new AssertionError("Cound not read stream header");
+        pushbackInputStream.unread(streamHeader);
+
+        // if this is a serialized config, fallback to the serialization marshaler
+        if (SERIALIZED_MAGIC[0] != streamHeader[0] || SERIALIZED_MAGIC[1] != streamHeader[1]) {
+            ConfigurationMarshaler marshaler;
+            try {
+                marshaler = ConfigurationUtil.createConfigurationMarshaler("org.apache.geronimo.kernel.config.xstream.XStreamConfigurationMarshaler");
+            } catch (Throwable ignored) {
+                throw new IOException("Input does not contain a Java Object Serialization stream");
+            }
+            return marshaler.readConfigurationData(pushbackInputStream);
+
+        }
+
+        ObjectInputStream oin = new ObjectInputStream(pushbackInputStream);
         try {
             return (ConfigurationData) oin.readObject();
         } finally {

@@ -19,6 +19,7 @@ package org.apache.geronimo.kernel.config;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -28,10 +29,10 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.MockGBean;
 import org.apache.geronimo.kernel.config.xstream.XStreamConfigurationMarshaler;
+import org.apache.geronimo.kernel.config.xstream.XStreamGBeanState;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
-import org.apache.geronimo.kernel.repository.Version;
 
 /**
  * @version $Rev$ $Date$
@@ -41,7 +42,11 @@ public class ConfigurationUtilTest extends TestCase {
     private SerializedConfigurationMarshaler serializedConfigurationMarshaler = new SerializedConfigurationMarshaler();
     private ConfigurationData configurationData1;
     private ConfigurationData configurationData2;
-//    private ConfigurationData configurationData3;
+
+//    public void testPrint() throws Exception {
+//        xstreamConfigurationMarshaler.writeConfigurationData(configurationData1, System.out);
+//
+//    }
 
     public void test() throws Exception {
         copyTest(configurationData1);
@@ -80,12 +85,7 @@ public class ConfigurationUtilTest extends TestCase {
         Jsr77Naming naming = new Jsr77Naming();
 
         Artifact artifact1 = new Artifact("test", "1", "1.1", "bar");
-        Artifact artifact2 = new Artifact("test", "2", "2.2", "bar");
-
-        Environment e1 = new Environment();
-        e1.setConfigId(artifact1);
-        configurationData1 = new ConfigurationData(e1, naming);
-        configurationData1 = new ConfigurationData(new Artifact("test", "test", "", "car"), naming);
+        configurationData1 = new ConfigurationData(artifact1, naming, new XStreamGBeanState(Collections.EMPTY_SET));
 
         GBeanData mockBean1 = configurationData1.addGBean("MyMockGMBean1", MockGBean.getGBeanInfo());
         AbstractName gbeanName1 = mockBean1.getAbstractName();
@@ -94,7 +94,6 @@ public class ConfigurationUtilTest extends TestCase {
         mockBean1.setAttribute("finalInt", new Integer(1));
 
         GBeanData mockBean2 = configurationData1.addGBean("MyMockGMBean2", MockGBean.getGBeanInfo());
-//        AbstractName gbeanName2 = mockBean2.getAbstractName();
         mockBean2.setAttribute("value", "5678");
         mockBean2.setAttribute("name", "Parent");
         mockBean2.setAttribute("finalInt", new Integer(3));
@@ -104,13 +103,15 @@ public class ConfigurationUtilTest extends TestCase {
 
 
         Environment e2 = new Environment();
+        Artifact artifact2 = new Artifact("test", "2", "2.2", "bar");
         e2.setConfigId(artifact2);
-        e2.addDependency(new Artifact("test", "1", (Version) null, "bar"), ImportType.ALL);
-        configurationData2 = new ConfigurationData(e2, naming);
+        e2.addDependency(artifact1, ImportType.ALL);
+        configurationData2 = new ConfigurationData(e2, naming, new XStreamGBeanState(Collections.EMPTY_SET));
 
-//        Environment e3 = new Environment();
-//        e3.setConfigId(artifact3);
-//        e3.addDependency(new Artifact("test", "2", (Version) null, "bar"), ImportType.ALL);
-//        configurationData3 = new ConfigurationData(e3, kernel.getNaming());
+        Artifact artifact3 = new Artifact("test", "3", "3.3", "bar");
+        ConfigurationData configurationData3 = new ConfigurationData(artifact3, naming, new XStreamGBeanState(Collections.EMPTY_SET));
+        configurationData1.addChildConfiguration(configurationData3);
+        GBeanData childConfigurationGBean = configurationData3.addGBean("ChildConfigurationGBean", MockGBean.getGBeanInfo());
+        childConfigurationGBean.setAttribute("name", "foo");
     }
 }

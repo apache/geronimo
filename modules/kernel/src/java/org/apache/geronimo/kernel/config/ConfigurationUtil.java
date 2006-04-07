@@ -50,49 +50,63 @@ import org.apache.commons.logging.LogFactory;
  * @version $Rev:386276 $ $Date$
  */
 public final class ConfigurationUtil {
+    private static final Log log = LogFactory.getLog(ConfigurationUtil.class);
     private static final ConfigurationMarshaler configurationMarshaler;
 
     static {
-        Log log = LogFactory.getLog(ConfigurationUtil.class);
-
         ConfigurationMarshaler marshaler = null;
         String marshalerClass = System.getProperty("org.apache.geronimo.kernel.config.Marshaler");
         if (marshalerClass != null) {
-            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-            Class clazz = null;
-            if (classLoader != null) {
-                try {
-                    clazz = ClassLoading.loadClass(marshalerClass, classLoader);
-                } catch (ClassNotFoundException ignored) {
-                    // doesn't matter
-                }
-            }
-            if (clazz == null) {
-                classLoader = ConfigurationUtil.class.getClassLoader();
-                try {
-                    clazz = ClassLoading.loadClass(marshalerClass, classLoader);
-                } catch (ClassNotFoundException ignored) {
-                    // doesn't matter
-                }
-            }
-            if (clazz != null) {
-                try {
-                    Object object = clazz.newInstance();
-                    if (object instanceof ConfigurationMarshaler) {
-                        marshaler = (ConfigurationMarshaler) object;
-                    } else {
-                        log.warn("Configuration marshaler class is not an istance of ConfigurationMarshaler " + marshalerClass + ": using default configuration ");
-                    }
-                } catch (Exception e) {
-                    log.error("Error creating configuration marshaler class " + marshalerClass , e);
-                }
+            try {
+                marshaler = createConfigurationMarshaler(marshalerClass);
+            } catch (Exception e) {
+                log.error("Error creating configuration marshaler class " + marshalerClass , e);
             }
         }
-        if (marshaler != null) {
-            configurationMarshaler = marshaler;
-        } else {
-            configurationMarshaler = new SerializedConfigurationMarshaler();
+
+        // todo this code effectively makes the default format xstream
+        //if (marshaler == null) {
+        //    try {
+        //        marshaler = createConfigurationMarshaler("org.apache.geronimo.kernel.config.xstream.XStreamConfigurationMarshaler");
+        //    } catch (Throwable ignored) {
+        //    }
+        //}
+
+        if (marshaler == null) {
+            marshaler = new SerializedConfigurationMarshaler();
         }
+
+        configurationMarshaler = marshaler;
+    }
+
+    public static ConfigurationMarshaler createConfigurationMarshaler(String marshalerClass) throws Exception {
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        Class clazz = null;
+        if (classLoader != null) {
+            try {
+                clazz = ClassLoading.loadClass(marshalerClass, classLoader);
+            } catch (ClassNotFoundException ignored) {
+                // doesn't matter
+            }
+        }
+        if (clazz == null) {
+            classLoader = ConfigurationUtil.class.getClassLoader();
+            try {
+                clazz = ClassLoading.loadClass(marshalerClass, classLoader);
+            } catch (ClassNotFoundException ignored) {
+                // doesn't matter
+            }
+        }
+
+        if (clazz != null) {
+            Object object = clazz.newInstance();
+            if (object instanceof ConfigurationMarshaler) {
+                return (ConfigurationMarshaler) object;
+            } else {
+                log.warn("Configuration marshaler class is not an istance of ConfigurationMarshaler " + marshalerClass + ": using default configuration ");
+            }
+        }
+        return null;
     }
 
     private ConfigurationUtil() {

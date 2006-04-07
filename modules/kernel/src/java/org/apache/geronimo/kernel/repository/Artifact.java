@@ -32,7 +32,6 @@ public class Artifact implements Comparable, Serializable {
     private final String artifactId;
     private final Version version;
     private final String type;
-    private final boolean resolved;
 
     public Artifact(String groupId, String artifactId, String version, String type) {
         this(groupId, artifactId, version == null? null: new Version(version), type);
@@ -44,7 +43,6 @@ public class Artifact implements Comparable, Serializable {
         this.artifactId = artifactId;
         this.version = version;
         this.type = type;
-        this.resolved = groupId != null && artifactId != null && version != null && type != null;
     }
 
     public static Artifact create(String id) {
@@ -72,7 +70,7 @@ public class Artifact implements Comparable, Serializable {
     }
 
     public boolean isResolved() {
-        return resolved;
+        return groupId != null && artifactId != null && version != null && type != null;
     }
 
     public int compareTo(Object object) {
