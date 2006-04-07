@@ -507,7 +507,7 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
      */
     public void reconfigure() {
         File file = resolveConfigurationFile();
-        if (file == null || file.exists()) {
+        if (file == null || !file.exists()) {
             return;
         }
         
