@@ -28,8 +28,24 @@ Configuration for corba on a Geronimo serverl, including client and target secur
 
     >
 
+    <gbean name="SystemProperties" class="org.apache.geronimo.system.properties.SystemProperties">
+        <attribute name="systemProperties">
+            javax.rmi.CORBA.UtilClass=org.openejb.corba.util.UtilDelegateImpl
+            org.openejb.corba.UtilDelegateClass=com.sun.corba.se.internal.POA.ShutdownUtilDelegate
+            org.omg.CORBA.ORBSingletonClass=com.sun.corba.se.internal.corba.ORBSingleton
+            org.omg.CORBA.ORBClass=org.openejb.corba.sunorb.OpenEJBORB
+            javax.rmi.CORBA.PortableRemoteObjectClass=com.sun.corba.se.internal.javax.rmi.PortableRemoteObject
+            javax.net.ssl.keyStorePassword=secret
+            javax.net.ssl.trustStorePassword=secret
+        </attribute>
+    </gbean>
+
     <!-- CORBA -->
-    <gbean name="DynamicORBStubClassLoader" class="org.openejb.corba.util.DynamicStubClassLoader"/>
+    <gbean name="DynamicORBStubClassLoader" class="org.openejb.corba.util.DynamicStubClassLoader">
+        <dependency>
+            <name>SystemProperties</name>
+        </dependency>
+    </gbean>
 
     <gbean name="NameServer" class="org.openejb.corba.SunNameService">
         <reference name="ServerInfo">
@@ -37,6 +53,9 @@ Configuration for corba on a Geronimo serverl, including client and target secur
         </reference>
         <attribute name="dbDir">var/cosnaming.db</attribute>
         <attribute name="port">${PlanCOSNamingPort}</attribute>
+        <dependency>
+            <name>SystemProperties</name>
+        </dependency>
     </gbean>
 
     <!-- connections require SSL, no client cert, client logs in with password, no identity token -->
@@ -73,6 +92,9 @@ Configuration for corba on a Geronimo serverl, including client and target secur
                 </tss:compoundSecMechTypeList>
             </tss:tss>
         </xml-attribute>
+        <dependency>
+            <name>SystemProperties</name>
+        </dependency>
     </gbean>
 
     <gbean name="SSLClientCert" class="org.openejb.corba.TSSBean">
@@ -100,6 +122,9 @@ Configuration for corba on a Geronimo serverl, including client and target secur
                 </tss:compoundSecMechTypeList>
             </tss:tss>
         </xml-attribute>
+        <dependency>
+            <name>SystemProperties</name>
+        </dependency>
     </gbean>
 
     <gbean name="SSLClientPassword" class="org.openejb.corba.TSSBean">
@@ -128,6 +153,9 @@ Configuration for corba on a Geronimo serverl, including client and target secur
                 </tss:compoundSecMechTypeList>
             </tss:tss>
         </xml-attribute>
+        <dependency>
+            <name>SystemProperties</name>
+        </dependency>
     </gbean>
 
     <gbean name="SSLIdentityToken" class="org.openejb.corba.TSSBean">
@@ -158,6 +186,9 @@ Configuration for corba on a Geronimo serverl, including client and target secur
                 </tss:compoundSecMechTypeList>
             </tss:tss>
         </xml-attribute>
+        <dependency>
+            <name>SystemProperties</name>
+        </dependency>
     </gbean>
 
     <!-- orb with no security whatsoever -->
@@ -194,6 +225,9 @@ Configuration for corba on a Geronimo serverl, including client and target secur
             <type>CORBABean</type>
             <name>Server</name>
         </dependency>
+        <dependency>
+            <name>SystemProperties</name>
+        </dependency>
     </gbean>
 
     <gbean name="IdentityTokenNoSecurity" class="org.openejb.corba.TSSBean">
@@ -220,6 +254,9 @@ Configuration for corba on a Geronimo serverl, including client and target secur
                 </tss:compoundSecMechTypeList>
             </tss:tss>
         </xml-attribute>
+        <dependency>
+            <name>SystemProperties</name>
+        </dependency>
     </gbean>
 
     <gbean name="SSLClientCertIdentityToken" class="org.openejb.corba.TSSBean">
@@ -250,6 +287,9 @@ Configuration for corba on a Geronimo serverl, including client and target secur
                 </tss:compoundSecMechTypeList>
             </tss:tss>
         </xml-attribute>
+        <dependency>
+            <name>SystemProperties</name>
+        </dependency>
     </gbean>
 
     <!--CSS beans for client security.  These specify what the client is willing to provide -->
@@ -289,6 +329,9 @@ Configuration for corba on a Geronimo serverl, including client and target secur
                 </css:compoundSecMechTypeList>
             </css:css>
         </xml-attribute>
+        <dependency>
+            <name>SystemProperties</name>
+        </dependency>
     </gbean>
 
     <gbean name="SSLClientPassword" class="org.openejb.corba.CSSBean">
@@ -328,6 +371,9 @@ Configuration for corba on a Geronimo serverl, including client and target secur
                 </css:compoundSecMechTypeList>
             </css:css>
         </xml-attribute>
+        <dependency>
+            <name>SystemProperties</name>
+        </dependency>
     </gbean>
 
     <gbean name="SSLIdentityTokenPrincipal" class="org.openejb.corba.CSSBean">
@@ -366,6 +412,9 @@ Configuration for corba on a Geronimo serverl, including client and target secur
                 </css:compoundSecMechTypeList>
             </css:css>
         </xml-attribute>
+        <dependency>
+            <name>SystemProperties</name>
+        </dependency>
     </gbean>
 
     <gbean name="SSLIdentityTokenCert" class="org.openejb.corba.CSSBean">
@@ -404,6 +453,9 @@ Configuration for corba on a Geronimo serverl, including client and target secur
                 </css:compoundSecMechTypeList>
             </css:css>
         </xml-attribute>
+        <dependency>
+            <name>SystemProperties</name>
+        </dependency>
     </gbean>
 
     <gbean name="NoSecurityIdentityTokenPrincipal" class="org.openejb.corba.CSSBean">
@@ -438,6 +490,9 @@ Configuration for corba on a Geronimo serverl, including client and target secur
                 </css:compoundSecMechTypeList>
             </css:css>
         </xml-attribute>
+        <dependency>
+            <name>SystemProperties</name>
+        </dependency>
     </gbean>
 
     <gbean name="NoSecurityIdentityTokenCert" class="org.openejb.corba.CSSBean">
@@ -472,6 +527,9 @@ Configuration for corba on a Geronimo serverl, including client and target secur
                 </css:compoundSecMechTypeList>
             </css:css>
         </xml-attribute>
+        <dependency>
+            <name>SystemProperties</name>
+        </dependency>
     </gbean>
 
     <gbean name="NoSecurity" class="org.openejb.corba.CSSBean">
@@ -496,6 +554,9 @@ Configuration for corba on a Geronimo serverl, including client and target secur
                 </css:compoundSecMechTypeList>
             </css:css>
         </xml-attribute>
+        <dependency>
+            <name>SystemProperties</name>
+        </dependency>
     </gbean>
 
 </configuration>
