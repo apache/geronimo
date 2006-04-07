@@ -86,6 +86,8 @@ import org.apache.geronimo.xbeans.j2ee.ConnectorType;
 import org.apache.geronimo.xbeans.j2ee.MessagelistenerType;
 import org.apache.geronimo.xbeans.j2ee.ResourceadapterType;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
+import org.apache.geronimo.management.geronimo.JCAResourceAdapter;
+import org.apache.geronimo.management.JCAConnectionFactory;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -344,8 +346,8 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         }
 
         GBeanData jcaResourceData = new GBeanData(jcaResourcejsr77Name, JCAResourceImplGBean.GBEAN_INFO);
-        jcaResourceData.setReferencePattern("ConnectionFactories", new AbstractNameQuery(resourceAdapterModuleName.getArtifact(), Collections.EMPTY_MAP));
-        jcaResourceData.setReferencePattern("ResourceAdapters", new AbstractNameQuery(resourceAdapterModuleName.getArtifact(), Collections.EMPTY_MAP));
+        jcaResourceData.setReferencePattern("ConnectionFactories", new AbstractNameQuery(resourceAdapterModuleName.getArtifact(), Collections.EMPTY_MAP, JCAConnectionFactory.class.getName()));
+        jcaResourceData.setReferencePattern("ResourceAdapters", new AbstractNameQuery(resourceAdapterModuleName.getArtifact(), Collections.EMPTY_MAP, JCAResourceAdapter.class.getName()));
         try {
             earContext.addGBean(jcaResourceData);
         } catch (GBeanAlreadyExistsException e) {
