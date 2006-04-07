@@ -103,15 +103,34 @@ public class Maven2Repository extends AbstractRepository implements WritableList
             File file = files[i];
             if (file.canRead()) {
                 if (file.isDirectory()) {
+                    File test = new File(file, "META-INF");
+                    if(test.exists() && test.isDirectory() && test.canRead() && groupId != null) {
+                        String version = versionDir.getName();
+                        String fileHeader = artifactId + "-" + version + ".";
 
-                    String nextGroupId;
-                    if (groupId == null) {
-                        nextGroupId = artifactId;
-                    } else {
-                        nextGroupId = groupId + "." + artifactId;
+                        String fileName = file.getName();
+                        if (fileName.startsWith(fileHeader)) {
+                            // type is everything after the file header
+                            String type = fileName.substring(fileHeader.length());
+
+                            if (!type.endsWith(".sha1") && !type.endsWith(".md5")) {
+                                artifacts.add(new Artifact(groupId,
+                                        artifactId,
+                                        version,
+                                        type
+                                ));
+                            }
+                        }
+                    } else { // this is just part of the path to the artifact
+                        String nextGroupId;
+                        if (groupId == null) {
+                            nextGroupId = artifactId;
+                        } else {
+                            nextGroupId = groupId + "." + artifactId;
+                        }
+
+                        artifacts.addAll(getArtifacts(nextGroupId, file));
                     }
-
-                    artifacts.addAll(getArtifacts(nextGroupId, file));
                 } else if (groupId != null) {
                     String version = versionDir.getName();
                     String fileHeader = artifactId + "-" + version + ".";
