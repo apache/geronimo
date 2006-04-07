@@ -37,10 +37,11 @@ import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.security.jaas.JaasLoginModuleChain;
 import org.apache.geronimo.security.jaas.LoginModuleSettings;
-import org.apache.geronimo.security.realm.SecurityRealm;
+import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.realm.providers.FileAuditLoginModule;
 import org.apache.geronimo.security.realm.providers.GeronimoPasswordCredentialLoginModule;
 import org.apache.geronimo.security.realm.providers.RepeatedFailureLockoutLoginModule;
+import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.geronimo.xbeans.geronimo.loginconfig.GerControlFlagType;
 import org.apache.geronimo.xbeans.geronimo.loginconfig.GerLoginConfigDocument;
 import org.apache.geronimo.xbeans.geronimo.loginconfig.GerLoginConfigType;
@@ -259,6 +260,7 @@ public class SecurityRealmPortlet extends BasePortlet {
         Map options = new HashMap();
         try {
             LoginModule module = loadModule(request, data, options);
+            log.warn("Testing with options "+options);
             try {
                 PortletManager.testLoginModule(request, module, options);
                 return null;
@@ -299,6 +301,7 @@ public class SecurityRealmPortlet extends BasePortlet {
                 options.put(key, value);
             }
         }
+        options.put(JaasLoginModuleUse.CLASSLOADER_LM_OPTION, loader);
         return module;
     }
 
@@ -322,13 +325,20 @@ public class SecurityRealmPortlet extends BasePortlet {
         ConfigurationType root = doc.addNewConfiguration();
         EnvironmentType environment = root.addNewEnvironment();
         ArtifactType configId = environment.addNewConfigId();
-        configId.setGroupId(Artifact.DEFAULT_GROUP_ID);
-        configId.setArtifactId(data.getName());
+        configId.setGroupId("console");
+        configId.setArtifactId("realm-"+data.getName());
+        configId.setVersion("1.0");
+        configId.setType("car");
 
-        // Use a parentId of null to pick up the default
+        // Parent
+
+        DependenciesType dependenciesType = environment.addNewDependencies();
+        ArtifactType parent = dependenciesType.addNewDependency();
+        parent.setGroupId("geronimo");
+        parent.setArtifactId("j2ee-security");
+        parent.setType("car");
         // Dependencies
         if(data.getJar() != null) {
-            DependenciesType dependenciesType = environment.addNewDependencies();
             ArtifactType artifactType = dependenciesType.addNewDependency();
             Artifact artifact = Artifact.create(data.getJar());
             artifactType.setGroupId(artifact.getGroupId());
@@ -390,13 +400,6 @@ public class SecurityRealmPortlet extends BasePortlet {
                             final String testApp = objectName.getKeyProperty(NameFactory.J2EE_APPLICATION);
                             if(testName.equals(poolName) && testApp.equals(appName)) {
                                 String moduleName = objectName.getKeyProperty(NameFactory.JCA_RESOURCE);
-
-                                DependenciesType dependenciesType;
-                                if (environment.isSetDependencies()) {
-                                    dependenciesType = environment.getDependencies();
-                                } else {
-                                    dependenciesType = environment.addNewDependencies();
-                                }
 
                                 ArtifactType artifactType = dependenciesType.addNewDependency();
                                 Artifact artifact = Artifact.create(moduleName);
@@ -505,16 +508,15 @@ public class SecurityRealmPortlet extends BasePortlet {
     }
 
     private void renderList(RenderRequest request, RenderResponse response) throws IOException, PortletException {
-        SecurityRealm[] realms = (SecurityRealm[]) PortletManager.getCurrentServer(request).getSecurityRealms();
+        // Unfortunately there are two classes named SecurityRealm; one extends the other
+        // The array type is management.geronimo.SecurityRealm (the superclass)
+        // The array entry types are security.realm.SecurityRealm (the subclass)
+        org.apache.geronimo.management.geronimo.SecurityRealm[] realms = PortletManager.getCurrentServer(request).getSecurityRealms();
         ExistingRealm[] results = new ExistingRealm[realms.length];
         for (int i = 0; i < results.length; i++) {
             final GeronimoManagedBean managedBean = (GeronimoManagedBean)realms[i];
-            try {
-                results[i] = new ExistingRealm(realms[i].getRealmName(), ObjectName.getInstance(managedBean.getObjectName()),
-                        managedBean.getState());
-            } catch (MalformedObjectNameException e) {
-                log.error("Unable to retrieve ObjectName for security realm", e);
-            }
+            results[i] = new ExistingRealm(realms[i].getRealmName(), PortletManager.getNameFor(request, realms[i]),
+                    managedBean.getState());
         }
         request.setAttribute("realms", results);
         listView.include(request, response);
@@ -611,7 +613,7 @@ public class SecurityRealmPortlet extends BasePortlet {
                 if(appName != null && !appName.equals("null")) {
                     display = display+" ("+appName+")";
                 }
-                pools.add(new DatabasePool(name, display, appName, factory.getObjectName()));
+                pools.add(new DatabasePool(name, display, appName, PortletManager.getNameFor(renderRequest, factory)));
             }
             renderRequest.setAttribute("pools", pools);
         } catch (MalformedObjectNameException e) {
@@ -920,7 +922,7 @@ public class SecurityRealmPortlet extends BasePortlet {
         }
 
         /**
-         * @deprecated Use getAbstractName instead
+         * @deprecated Use getAbstractName() instead
          */
         public String getObjectName() {
             return abstractName;
@@ -1007,14 +1009,14 @@ public class SecurityRealmPortlet extends BasePortlet {
 
     public static class ExistingRealm implements Serializable {
         private final String name;
-        private final String objectName;
+        private final String abstractName;
         private final String parentName;
         private final int state;
 
-        public ExistingRealm(String name, ObjectName objectName, int state) {
+        public ExistingRealm(String name, AbstractName objectName, int state) {
             this.name = name;
-            this.objectName = objectName.getCanonicalName();
-            String parent = objectName.getKeyProperty(NameFactory.J2EE_APPLICATION);
+            this.abstractName = objectName.toString();
+            String parent = (String) objectName.getName().get(NameFactory.J2EE_APPLICATION);
             if(parent != null && parent.equals("null")) {
                 parent = null;
             }
@@ -1027,8 +1029,15 @@ public class SecurityRealmPortlet extends BasePortlet {
             return name;
         }
 
+        /**
+         * @deprecated Use getAbstractName() instead
+         */
         public String getObjectName() {
-            return objectName;
+            return abstractName;
+        }
+
+        public String getAbstractName() {
+            return abstractName;
         }
 
         public String getParentName() {
@@ -1048,13 +1057,13 @@ public class SecurityRealmPortlet extends BasePortlet {
         private final String name;
         private final String displayName;
         private final String applicationName;
-        private final String objectName;
+        private final String abstractName;
 
-        public DatabasePool(String name, String displayName, String applicationName, String objectName) {
+        public DatabasePool(String name, String displayName, String applicationName, AbstractName abstractName) {
             this.name = name;
             this.displayName = displayName;
             this.applicationName = applicationName;
-            this.objectName = objectName;
+            this.abstractName = abstractName.toString();
         }
 
         public String getName() {
@@ -1065,8 +1074,15 @@ public class SecurityRealmPortlet extends BasePortlet {
             return applicationName;
         }
 
+        /**
+         * @deprecated Use getAbstractName() instead
+         */
         public String getObjectName() {
-            return objectName;
+            return abstractName;
+        }
+
+        public String getAbstrcatName() {
+            return abstractName;
         }
 
         public String getDisplayName() {

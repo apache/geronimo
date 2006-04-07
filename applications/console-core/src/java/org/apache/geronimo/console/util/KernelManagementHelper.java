@@ -727,14 +727,18 @@ public class KernelManagementHelper implements ManagementHelper {
 
     public void testLoginModule(J2EEServer server, LoginModule module, Map options) {
         options.put(JaasLoginModuleUse.KERNEL_NAME_LM_OPTION, kernel.getKernelName());
-        options.put(JaasLoginModuleUse.CLASSLOADER_LM_OPTION, module.getClass().getClassLoader());
         options.put(JaasLoginModuleUse.SERVERINFO_LM_OPTION, server.getServerInfo());
+        if(!options.containsKey(JaasLoginModuleUse.CLASSLOADER_LM_OPTION)) {
+            options.put(JaasLoginModuleUse.CLASSLOADER_LM_OPTION, module.getClass().getClassLoader());
+        }
         module.initialize(null, null, new HashMap(), options);
     }
 
     public Subject testLoginModule(final J2EEServer server, final LoginModule module, final Map options, final String username, final String password) throws LoginException {
         options.put(JaasLoginModuleUse.KERNEL_NAME_LM_OPTION, kernel.getKernelName());
-        options.put(JaasLoginModuleUse.CLASSLOADER_LM_OPTION, module.getClass().getClassLoader());
+        if(!options.containsKey(JaasLoginModuleUse.CLASSLOADER_LM_OPTION)) {
+            options.put(JaasLoginModuleUse.CLASSLOADER_LM_OPTION, module.getClass().getClassLoader());
+        }
         options.put(JaasLoginModuleUse.SERVERINFO_LM_OPTION, server.getServerInfo());
         Subject sub = new Subject();
         CallbackHandler handler = new CallbackHandler() {
