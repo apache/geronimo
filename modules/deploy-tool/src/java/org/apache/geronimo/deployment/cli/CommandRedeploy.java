@@ -63,7 +63,7 @@ public class CommandRedeploy extends AbstractCommand {
         }
         DeploymentManager mgr = connection.getDeploymentManager();
         Target[] allTargets = mgr.getTargets();
-        TargetModuleID[] allModules = new TargetModuleID[0];
+        TargetModuleID[] allModules;
         try {
             allModules = mgr.getAvailableModules(null, allTargets);
         } catch(TargetException e) {
@@ -80,14 +80,8 @@ public class CommandRedeploy extends AbstractCommand {
             throw new DeploymentException("Cannot read file "+test.getAbsolutePath());
         }
         if(DeployUtils.isJarFile(test) || test.isDirectory()) {
-            if(module != null) {
-                throw new DeploymentSyntaxException("Module and plan cannot both be JAR files or directories!");
-            }
             module = test;
         } else {
-            if(plan != null) {
-                throw new DeploymentSyntaxException("Module or plan must be a JAR file or directory!");
-            }
             plan = test;
         }
         if(args.length > 1) { // Guess whether the second argument is a module, plan, ModuleID, or TargetModuleID

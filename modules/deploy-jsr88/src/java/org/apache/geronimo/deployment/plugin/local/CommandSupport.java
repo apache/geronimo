@@ -113,7 +113,9 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
             listeners.add(pol);
             event = this.event;
         }
-        pol.handleProgressEvent(event);
+        if(event != null) {
+            pol.handleProgressEvent(event);
+        }
     }
 
     public synchronized void removeProgressListener(ProgressListener pol) {

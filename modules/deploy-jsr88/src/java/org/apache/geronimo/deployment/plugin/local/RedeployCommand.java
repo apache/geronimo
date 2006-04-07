@@ -37,10 +37,10 @@ import java.io.InputStream;
 import java.net.URI;
 
 /**
- * @version $Rev: 383519 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class RedeployCommand extends AbstractDeployCommand {
-    private static final String[] UNINSTALL_SIG = {URI.class.getName()};
+    private static final String[] UNINSTALL_SIG = {Artifact.class.getName()};
     private final TargetModuleID[] modules;
 
     public RedeployCommand(Kernel kernel, TargetModuleID[] moduleIDList, File moduleArchive, File deploymentPlan) {
@@ -76,14 +76,16 @@ public class RedeployCommand extends AbstractDeployCommand {
                     TargetModuleIDImpl module = (TargetModuleIDImpl) modules[i];
 
                     Artifact configID = Artifact.create(module.getModuleID());
-                    AbstractName configName = Configuration.getConfigurationAbstractName(configID);
                     try {
-                        kernel.stopGBean(configName);
+                        configurationManager.stopConfiguration(configID);
                         updateStatus("Stopped "+configID);
-                    } catch (GBeanNotFoundException e) {
-                        if(e.getGBeanName().equals(configName)) {
-                            // The module isn't running -- that's OK
-                        } else throw e;
+                    } catch (InternalKernelException e) {
+                        Exception cause = (Exception)e.getCause();
+                        if(cause instanceof NoSuchConfigException) {
+                            // The modules isn't loaded -- that's OK
+                        } else {
+                            throw cause;
+                        }
                     }
                     try {
                         configurationManager.unloadConfiguration(configID);

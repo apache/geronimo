@@ -23,6 +23,7 @@ import java.util.jar.JarEntry;
 import java.util.Collection;
 import java.util.List;
 import java.util.LinkedList;
+import java.util.Stack;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.xml.sax.InputSource;
@@ -266,11 +267,47 @@ public class DeployUtils {
 
     private static class ConfigIdHandler extends DefaultHandler {
         private String configId;
+        private boolean inConfigId;
+        private String groupId = "", artifactId = "", version = "", type = "";
+        private String inElement = null;
+        private Stack parent = new Stack();
 
         public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-            if(configId == null) {
-                configId = attributes.getValue("configId");
+            if(inConfigId) {
+                if(localName.equals("groupId") || localName.equals("artifactId") || localName.equals("version") || localName.equals("type")) {
+                    inElement = localName;
+                }
+            } else {
+                if(parent.size() == 2 && localName.equals("configId")) {
+                    inConfigId = true; // only document/environment/configId, not e.g. configId in nested plan in EAR
+                }
             }
+            parent.push(localName);
+        }
+
+        public void characters(char ch[], int start, int length) throws SAXException {
+            if(inElement != null) {
+                if(inElement.equals("groupId")) groupId += new String(ch, start, length);
+                else if(inElement.equals("artifactId")) artifactId += new String(ch, start, length);
+                else if(inElement.equals("version")) version += new String(ch, start, length);
+                else if(inElement.equals("type")) type += new String(ch, start, length);
+            }
+        }
+
+        public void endElement(String uri, String localName, String qName) throws SAXException {
+            inElement = null;
+            if(inConfigId && localName.equals("configId")) {
+                inConfigId = false;
+            }
+            if(parent.peek().equals(localName)) {
+                parent.pop();
+            } else {
+                throw new IllegalStateException("End of "+localName+" but expecting "+parent.peek());
+            }
+        }
+
+        public void endDocument() throws SAXException {
+            configId = groupId+"/"+artifactId+"/"+version+"/"+type;
         }
     }
 }
