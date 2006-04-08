@@ -16,26 +16,6 @@
  */
 package org.apache.geronimo.system.configuration;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.ConfigurationInfo;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.NoSuchStoreException;
-import org.apache.geronimo.kernel.config.PersistentConfigurationList;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
-import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
-import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
-
-import javax.management.ObjectName;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -48,11 +28,29 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationInfo;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.PersistentConfigurationList;
+import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
+import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
+import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
+
 /**
  * GBean that saves a list of configurations, for example to allow
  * a server to restart automatically.
  *
- * @version $Rev$ $Date$
+ * @version $Rev: 383682 $ $Date$
  */
 public class FileConfigurationList implements GBeanLifecycle, PersistentConfigurationList {
     private static final Log log = LogFactory.getLog(PersistentConfigurationList.class);
@@ -164,24 +162,15 @@ public class FileConfigurationList implements GBeanLifecycle, PersistentConfigur
         }
 
         BufferedWriter writer = new BufferedWriter(new FileWriter(configList));
-        try {
-            List stores = configurationManager.listStores();
-            for (Iterator i = stores.iterator(); i.hasNext();) {
-                ObjectName storeName = (ObjectName) i.next();
-                List configList = configurationManager.listConfigurations(storeName);
-                for (Iterator j = configList.iterator(); j.hasNext();) {
-                    ConfigurationInfo info = (ConfigurationInfo) j.next();
-                    if (info.getState() == State.RUNNING) {
-                        writer.write(info.getConfigID().toString());
-                        writer.newLine();
-                    }
-                }
+        List configList = configurationManager.listConfigurations();
+        for (Iterator j = configList.iterator(); j.hasNext();) {
+            ConfigurationInfo info = (ConfigurationInfo) j.next();
+            if (info.getState() == State.RUNNING) {
+                writer.write(info.getConfigID().toString());
+                writer.newLine();
             }
-            writer.close();
-        } catch (NoSuchStoreException e) {
-            writer.close();
-            configList.delete();
         }
+        writer.close();
         log.info("Saved running configuration list");
     }
 

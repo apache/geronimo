@@ -40,6 +40,7 @@ import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.ClassLoading;
+import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -269,66 +270,100 @@ public final class ConfigurationUtil {
             gbeans = attributeStore.applyOverrides(configuration.getId(), gbeans, configuration.getConfigurationClassLoader());
         }
 
-        // register all the GBeans
-        for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
-            GBeanData gbeanData = (GBeanData) iterator.next();
-
-            // copy the gbeanData object as not to mutate the original
-            gbeanData = new GBeanData(gbeanData);
-
-            // preprocess the gbeanData (resolve references, set base url, declare dependency, etc.)
-            preprocessGBeanData(configurationName, configuration, gbeanData);
-
-            try {
-                kernel.loadGBean(gbeanData, configuration.getConfigurationClassLoader());
-            } catch (GBeanAlreadyExistsException e) {
-                throw new InvalidConfigException(e);
-            }
-        }
+        List loaded = new ArrayList(gbeans.size());
+        List started = new ArrayList(gbeans.size());
 
         try {
-            // start the gbeans
+            // register all the GBeans
             for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
                 GBeanData gbeanData = (GBeanData) iterator.next();
-                AbstractName gbeanName = gbeanData.getAbstractName();
-                kernel.startRecursiveGBean(gbeanName);
-            }
 
-            // assure all of the gbeans are started
-            List unstarted = new ArrayList();
-            for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
-                GBeanData gbeanData = (GBeanData) iterator.next();
-                AbstractName gbeanName = gbeanData.getAbstractName();
-                if (State.RUNNING_INDEX != kernel.getGBeanState(gbeanName)) {
-                    String stateReason = null;
-                    if (kernel instanceof BasicKernel) {
-                        stateReason = ((BasicKernel) kernel).getStateReason(gbeanName);
-                    }
-                    String name = gbeanName.toURI().getQuery();
-                    if (stateReason != null) {
-                        unstarted.add("The service " + name + " did not start because " + stateReason);
-                    } else {
-                        unstarted.add("The service " + name + " did not start for an unknown reason");
-                    }
+                // copy the gbeanData object as not to mutate the original
+                gbeanData = new GBeanData(gbeanData);
+
+                // preprocess the gbeanData (resolve references, set base url, declare dependency, etc.)
+                preprocessGBeanData(configurationName, configuration, gbeanData);
+
+                try {
+                    kernel.loadGBean(gbeanData, configuration.getConfigurationClassLoader());
+                    loaded.add(gbeanData.getAbstractName());
+                } catch (GBeanAlreadyExistsException e) {
+                    throw new InvalidConfigException(e);
                 }
             }
-            if (!unstarted.isEmpty()) {
-                StringBuffer message = new StringBuffer();
-                message.append("Configuration ").append(configuration.getId()).append(" failed to start due to the following reasons:\n");
-                for (Iterator iterator = unstarted.iterator(); iterator.hasNext();) {
-                    String reason = (String) iterator.next();
-                    message.append("  ").append(reason).append("\n");
-                }
-                throw new InvalidConfigurationException(message.toString());
-            }
-        } catch (GBeanNotFoundException e) {
-            throw new InvalidConfigException(e);
-        }
 
-        for (Iterator iterator = configuration.getChildren().iterator(); iterator.hasNext();) {
-            Configuration childConfiguration = (Configuration) iterator.next();
-            ConfigurationUtil.startConfigurationGBeans(configurationName, childConfiguration, kernel, attributeStore);
+            try {
+                // start the gbeans
+                for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
+                    GBeanData gbeanData = (GBeanData) iterator.next();
+                    AbstractName gbeanName = gbeanData.getAbstractName();
+                    kernel.startRecursiveGBean(gbeanName);
+                    started.add(gbeanName);
+                }
+
+                // assure all of the gbeans are started
+                List unstarted = new ArrayList();
+                for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
+                    GBeanData gbeanData = (GBeanData) iterator.next();
+                    AbstractName gbeanName = gbeanData.getAbstractName();
+                    if (State.RUNNING_INDEX != kernel.getGBeanState(gbeanName)) {
+                        String stateReason = null;
+                        if (kernel instanceof BasicKernel) {
+                            stateReason = ((BasicKernel) kernel).getStateReason(gbeanName);
+                        }
+                        String name = gbeanName.toURI().getQuery();
+                        if (stateReason != null) {
+                            unstarted.add("The service " + name + " did not start because " + stateReason);
+                        } else {
+                            unstarted.add("The service " + name + " did not start for an unknown reason");
+                        }
+                    }
+                }
+                if (!unstarted.isEmpty()) {
+                    StringBuffer message = new StringBuffer();
+                    message.append("Configuration ").append(configuration.getId()).append(" failed to start due to the following reasons:\n");
+                    for (Iterator iterator = unstarted.iterator(); iterator.hasNext();) {
+                        String reason = (String) iterator.next();
+                        message.append("  ").append(reason).append("\n");
+                    }
+                    throw new InvalidConfigurationException(message.toString());
+                }
+            } catch (GBeanNotFoundException e) {
+                throw new InvalidConfigException(e);
+            }
+
+            for (Iterator iterator = configuration.getChildren().iterator(); iterator.hasNext();) {
+                Configuration childConfiguration = (Configuration) iterator.next();
+                ConfigurationUtil.startConfigurationGBeans(configurationName, childConfiguration, kernel, attributeStore);
+            }
+        } catch (Throwable e) {
+            for (Iterator iterator = started.iterator(); iterator.hasNext();) {
+                AbstractName gbeanName = (AbstractName) iterator.next();
+                try {
+                    kernel.stopGBean(gbeanName);
+                } catch (GBeanNotFoundException ignored) {
+                } catch (IllegalStateException ignored) {
+                } catch (InternalKernelException kernelException) {
+                    log.debug("Error cleaning up after failed start of configuration " + configuration.getId() + " gbean " + gbeanName, kernelException);
+                }
+            }
+            for (Iterator iterator = loaded.iterator(); iterator.hasNext();) {
+                AbstractName gbeanName = (AbstractName) iterator.next();
+                try {
+                    kernel.unloadGBean(gbeanName);
+                } catch (GBeanNotFoundException ignored) {
+                } catch (IllegalStateException ignored) {
+                } catch (InternalKernelException kernelException) {
+                    log.debug("Error cleaning up after failed start of configuration " + configuration.getId() + " gbean " + gbeanName, kernelException);
+                }
+            }
+            if (e instanceof Error) {
+                throw (Error) e;
+            }
+            if (e instanceof InvalidConfigException) {
+                throw (InvalidConfigException) e;
+            }
+            throw new InvalidConfigException("Unknown start exception", e);
         }
-        // todo clean up after failure
     }
 }

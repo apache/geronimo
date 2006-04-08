@@ -17,19 +17,14 @@
 
 package org.apache.geronimo.console.configmanager;
 
-import org.apache.geronimo.console.BasePortlet;
-import org.apache.geronimo.console.util.SecurityConstants;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelRegistry;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationInfo;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.config.NoSuchStoreException;
-
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
 import javax.management.ObjectName;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -39,15 +34,17 @@ import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Comparator;
-import java.util.Collections;
+
+import org.apache.geronimo.console.BasePortlet;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationInfo;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 public class ConfigManagerPortlet extends BasePortlet {
 
@@ -64,8 +61,6 @@ public class ConfigManagerPortlet extends BasePortlet {
     private static final String[] CONTAINSCONFIG_SIG = {URI.class.getName()};
 
     private static final String[] UNINSTALL_SIG = {URI.class.getName()};
-
-    private static final String QUEUETOPIC_URI = "runtimedestination/";
 
     private static final String CONFIG_INIT_PARAM = "config-type";
 
@@ -188,39 +183,18 @@ public class ConfigManagerPortlet extends BasePortlet {
         return actionRequest.getParameter("configId");
     }
 
-    protected void doView(RenderRequest renderRequest,
-                          RenderResponse renderResponse) throws IOException, PortletException {
+    protected void doView(RenderRequest renderRequest, RenderResponse renderResponse) throws IOException, PortletException {
         if (WindowState.MINIMIZED.equals(renderRequest.getWindowState())) {
             return;
         }
 
         List configInfo = new ArrayList();
-        ConfigurationManager configManager = ConfigurationUtil
-                .getConfigurationManager(kernel);
-        List stores = configManager.listStores();
-        for (Iterator i = stores.iterator(); i.hasNext();) {
-            ObjectName storeName = (ObjectName) i.next();
-            try {
-                List infos = configManager.listConfigurations(storeName);
-                for (Iterator j = infos.iterator(); j.hasNext();) {
-                    ConfigurationInfo info = (ConfigurationInfo) j.next();
-                    if (shouldListConfig(info)) {
-                        // TODO: Check if this is the right solution
-                        // Disregard JMS Queues and Topics &&
-                        if (!info.getConfigID().toURI().getPath().startsWith(QUEUETOPIC_URI)
-                                && !info
-                                .getConfigID().toURI()
-                                .getPath()
-                                .startsWith(SecurityConstants.SECURITY_CONFIG_PREFIX)) {
-                            configInfo.add(info);
-                        }
-                    }
-                }
-            } catch (NoSuchStoreException e) {
-                // we just got this list so this should not happen
-                // in the unlikely event it does, just continue
-            } catch (URISyntaxException e) {
-                throw new AssertionError(e);
+        ConfigurationManager configManager = ConfigurationUtil.getConfigurationManager(kernel);
+        List infos = configManager.listConfigurations();
+        for (Iterator j = infos.iterator(); j.hasNext();) {
+            ConfigurationInfo info = (ConfigurationInfo) j.next();
+            if (shouldListConfig(info)) {
+                configInfo.add(info);
             }
         }
         Collections.sort(configInfo, new Comparator() {

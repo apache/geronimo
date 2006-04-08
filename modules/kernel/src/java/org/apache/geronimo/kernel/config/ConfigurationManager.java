@@ -46,6 +46,7 @@ public interface ConfigurationManager {
      * @param store the store to list
      * @return a List<ConfigurationInfo> of all the configurations in the store
      * @throws NoSuchStoreException if the store could not be located
+     * @deprecated Find a better way.... hopefully we can just use the listConfiguration with no name or the name can be an AbstractName
      */
     List listConfigurations(ObjectName store) throws NoSuchStoreException;
 
@@ -70,12 +71,11 @@ public interface ConfigurationManager {
      * configurations actually loaded by this call will be returned.
      *
      * @param configID the id of the configuration
-     * @return a list of URIs (names of configurations that were actually loaded)
      * @throws NoSuchConfigException if no configuration with the given id exists in the configuration stores
      * @throws IOException if there is a problem loading te configuration from the store
      * @throws InvalidConfigException if the configuration is corrupt
      */
-    Configuration loadConfiguration(Artifact configID) throws NoSuchConfigException, IOException, InvalidConfigException;
+    void loadConfiguration(Artifact configID) throws NoSuchConfigException, IOException, InvalidConfigException;
 
     Configuration loadConfiguration(ConfigurationData configurationData) throws NoSuchConfigException, IOException, InvalidConfigException;
 
@@ -110,4 +110,7 @@ public interface ConfigurationManager {
 
     void stopConfiguration(Configuration configuration) throws InvalidConfigException;
 
+    boolean isRunning(Artifact configurationId);
+
+    List listConfigurations();
 }

@@ -17,8 +17,6 @@
 
 package org.apache.geronimo.kernel.repository;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.io.Serializable;
 
 /**
@@ -129,15 +127,6 @@ public class Artifact implements Comparable, Serializable {
         result = 29 * result + (version != null ? version.hashCode() : 0);
         result = 29 * result + (type != null ? type.hashCode() : 0);
         return result;
-    }
-
-    /**
-     * @deprecated for use during conversion only!
-     * @return
-     * @throws URISyntaxException
-     */
-    public URI toURI() throws URISyntaxException {
-        return new URI(toString());
     }
 
     public String toString() {

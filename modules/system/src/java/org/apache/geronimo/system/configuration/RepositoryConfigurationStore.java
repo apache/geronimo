@@ -31,11 +31,9 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
@@ -45,7 +43,6 @@ import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.FileWriteMonitor;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
@@ -242,24 +239,12 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
                 Artifact configId = (Artifact) i.next();
                 if (configId.getType().equals("car")) {
                     try {
-                        AbstractName configName = Configuration.getConfigurationAbstractName(configId);
-                        State state;
-                        if (kernel.isLoaded(configName)) {
-                            try {
-                                state = State.fromInt(kernel.getGBeanState(configName));
-                            } catch (Exception e) {
-                                state = null;
-                            }
-                        } else {
-                            // If the configuration is not loaded by the kernel
-                            // and defined by the store, then it is stopped.
-                            state = State.STOPPED;
-                        }
-
+                        // this is super expensive just to get one small piece of info
+                        // todo consider making module type the same as artifact type
                         ConfigurationData configurationData = loadConfiguration(configId);
                         ConfigurationModuleType type = configurationData.getModuleType();
 
-                        configs.add(new ConfigurationInfo(objectName, configId, state, type));
+                        configs.add(new ConfigurationInfo(configId, type));
                     } catch (Exception e) {
                     }
                 }

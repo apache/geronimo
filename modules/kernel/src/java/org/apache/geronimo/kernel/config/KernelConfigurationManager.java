@@ -88,7 +88,7 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
         return new DefaultArtifactResolver(artifactManager, repositories);
     }
 
-    public synchronized Configuration loadConfiguration(Artifact configurationId) throws NoSuchConfigException, IOException, InvalidConfigException {
+    public synchronized void loadConfiguration(Artifact configurationId) throws NoSuchConfigException, IOException, InvalidConfigException {
         // todo hack for bootstrap deploy
         ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(configurationId);
         if (configurationStatus == null && kernel.isLoaded(Configuration.getConfigurationAbstractName(configurationId))) {
@@ -99,13 +99,13 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
                 //even worse hack
                 configurationStatus.start();
                 configurations.put(configurationId, configurationStatus);
-                return configurationStatus.getConfiguration();
+                return;
             } catch (GBeanNotFoundException e) {
                 // configuration was unloaded, just continue as normal
             }
         }
 
-        return super.loadConfiguration(configurationId);
+        super.loadConfiguration(configurationId);
     }
 
     protected Configuration load(ConfigurationData configurationData, LinkedHashSet resolvedParentIds, Map loadedConfigurations) throws InvalidConfigException {
@@ -181,14 +181,26 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
             for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
                 GBeanData gbeanData = (GBeanData) iterator.next();
                 AbstractName gbeanName = gbeanData.getAbstractName();
-                kernel.stopGBean(gbeanName);
+                try {
+                    kernel.stopGBean(gbeanName);
+                } catch (GBeanNotFoundException ignored) {
+                } catch (IllegalStateException ignored) {
+                } catch (InternalKernelException kernelException) {
+                    log.debug("Error cleaning up after failed start of configuration " + configuration.getId() + " gbean " + gbeanName, kernelException);
+                }
             }
 
             // unload the gbeans
             for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
                 GBeanData gbeanData = (GBeanData) iterator.next();
                 AbstractName gbeanName = gbeanData.getAbstractName();
-                kernel.unloadGBean(gbeanName);
+                try {
+                    kernel.unloadGBean(gbeanName);
+                } catch (GBeanNotFoundException ignored) {
+                } catch (IllegalStateException ignored) {
+                } catch (InternalKernelException kernelException) {
+                    log.debug("Error cleaning up after failed start of configuration " + configuration.getId() + " gbean " + gbeanName, kernelException);
+                }
             }
         } catch (Exception e) {
             throw new InvalidConfigException("Could not stop gbeans in configuration", e);
@@ -209,6 +221,10 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
             configurationName = Configuration.getConfigurationAbstractName(configurationId);
         } catch (InvalidConfigException e) {
             throw new AssertionError(e);
+        }
+
+        if (artifactManager != null) {
+            artifactManager.unloadAllArtifacts(configurationId);
         }
 
         // unload this configuration

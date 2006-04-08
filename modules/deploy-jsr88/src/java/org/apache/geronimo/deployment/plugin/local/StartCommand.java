@@ -28,10 +28,9 @@ import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.gbean.AbstractName;
 
 /**
- *
- *
  * @version $Rev: 383519 $ $Date$
  */
 public class StartCommand extends CommandSupport {
@@ -53,35 +52,38 @@ public class StartCommand extends CommandSupport {
 
                     // Check to see whether the module is already started
                     Artifact moduleID = Artifact.create(module.getModuleID());
-                    if(kernel.isRunning(Configuration.getConfigurationAbstractName(moduleID))) {
-                        updateStatus("Module "+moduleID+" is already running");
+                    AbstractName abstractName = Configuration.getConfigurationAbstractName(moduleID);
+                    String objectName = abstractName.getObjectName().getCanonicalName();
+                    if (kernel.isRunning(abstractName)) {
+                        updateStatus("Module " + moduleID + " is already running");
                         Thread.sleep(100);
                         continue;
                     }
 
-                    // Load and start the module
-                    Configuration configuration = configurationManager.loadConfiguration(moduleID);
-                    // todo review this -- start is recursive, but this is doing more than a recursive start
-//                    for (int j = 0; j < list.size(); j++) {
-//                        Artifact name = (Artifact) list.get(j);
-                        configurationManager.startConfiguration(configuration);
-                        String configName = configuration.getObjectName();
-                        List kids = loadChildren(kernel, configName);
-                        TargetModuleIDImpl id = new TargetModuleIDImpl(modules[i].getTarget(), configName,
-                                (String[]) kids.toArray(new String[kids.size()]));
-                        if(isWebApp(kernel, configName)) {
-                            id.setType(ModuleType.WAR);
-                        }
-                        if(id.getChildTargetModuleID() != null) {
-                            for (int k = 0; k < id.getChildTargetModuleID().length; k++) {
-                                TargetModuleIDImpl child = (TargetModuleIDImpl) id.getChildTargetModuleID()[k];
-                                if(isWebApp(kernel, child.getModuleID())) {
-                                    child.setType(ModuleType.WAR);
-                                }
+                    // Load
+                    configurationManager.loadConfiguration(moduleID);
+
+                    // Start
+                    configurationManager.startConfiguration(moduleID);
+
+                    // Determine the child modules of the configuration
+                    List kids = loadChildren(kernel, objectName);
+
+                    // Build a response obect containg the started configuration and a list of it's contained modules
+                    TargetModuleIDImpl id = new TargetModuleIDImpl(modules[i].getTarget(), objectName,
+                            (String[]) kids.toArray(new String[kids.size()]));
+                    if (isWebApp(kernel, objectName)) {
+                        id.setType(ModuleType.WAR);
+                    }
+                    if (id.getChildTargetModuleID() != null) {
+                        for (int k = 0; k < id.getChildTargetModuleID().length; k++) {
+                            TargetModuleIDImpl child = (TargetModuleIDImpl) id.getChildTargetModuleID()[k];
+                            if (isWebApp(kernel, child.getModuleID())) {
+                                child.setType(ModuleType.WAR);
                             }
                         }
-                        addModule(id);
-//                    }
+                    }
+                    addModule(id);
                 }
             } finally {
                 ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);

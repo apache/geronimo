@@ -43,7 +43,7 @@ public class EnvironmentBuilderTest extends TestCase {
         anImport.setVersion("version");
         LinkedHashSet parentId = EnvironmentBuilder.toArtifacts(new ArtifactType[] {anImport});
         assertEquals(1, parentId.size());
-        assertEquals("groupId/artifactId/version/type", ((Artifact)parentId.iterator().next()).toURI().getPath());
+        assertEquals(new Artifact("groupId", "artifactId", "version", "type"), parentId.iterator().next());
     }
 
     private static final String ENV_1 = "<dep:environment xmlns:dep=\"http://geronimo.apache.org/xml/ns/deployment-1.1\">\n" +

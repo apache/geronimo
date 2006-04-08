@@ -17,8 +17,6 @@
 package org.apache.geronimo.kernel.config;
 
 import java.io.Serializable;
-import java.net.URI;
-import javax.management.ObjectName;
 
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -29,20 +27,21 @@ import org.apache.geronimo.kernel.repository.Artifact;
  * @version $Rev$ $Date$
  */
 public class ConfigurationInfo implements Serializable {
-    private final ObjectName storeName;
+    private static final long serialVersionUID = 576134736036202445L;
     private final Artifact configID;
-    private final State state;
     private final ConfigurationModuleType type;
+    private final State state;
 
-    public ConfigurationInfo(ObjectName storeName, Artifact configID, State state, ConfigurationModuleType type) {
-        this.storeName = storeName;
+    public ConfigurationInfo(Artifact configID, ConfigurationModuleType type) {
+        this.configID = configID;
+        this.type = type;
+        state = null;
+    }
+
+    public ConfigurationInfo(Artifact configID, State state, ConfigurationModuleType type) {
         this.configID = configID;
         this.state = state;
         this.type = type;
-    }
-
-    public ObjectName getStoreName() {
-        return storeName;
     }
 
     public Artifact getConfigID() {

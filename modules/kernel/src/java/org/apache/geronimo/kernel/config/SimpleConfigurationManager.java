@@ -39,6 +39,7 @@ import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
+import org.apache.geronimo.kernel.management.State;
 
 /**
  * @version $Rev$ $Date$
@@ -69,15 +70,40 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return result;
     }
 
+    public List listConfigurations() {
+        List storeSnapshot = getStores();
+        List list = new ArrayList();
+        for (int i = 0; i < storeSnapshot.size(); i++) {
+            ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
+            list.addAll(listConfigurations(store));
+        }
+        return list;
+    }
+
+
     public List listConfigurations(ObjectName storeName) throws NoSuchStoreException {
         List storeSnapshot = getStores();
         for (int i = 0; i < storeSnapshot.size(); i++) {
             ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
             if (storeName.equals(JMXUtil.getObjectName(store.getObjectName()))) {
-                return store.listConfigurations();
+                return listConfigurations(store);
             }
         }
         throw new NoSuchStoreException("No such store: " + storeName);
+    }
+
+    private List listConfigurations(ConfigurationStore store) {
+        List list = store.listConfigurations();
+        for (ListIterator iterator = list.listIterator(); iterator.hasNext();) {
+            ConfigurationInfo configurationInfo = (ConfigurationInfo) iterator.next();
+            if (isRunning(configurationInfo.getConfigID())) {
+                configurationInfo = new ConfigurationInfo(configurationInfo.getConfigID(), State.RUNNING, configurationInfo.getType());
+            } else {
+                configurationInfo = new ConfigurationInfo(configurationInfo.getConfigID(), State.STOPPED, configurationInfo.getType());
+            }
+            iterator.set(configurationInfo);
+        }
+        return list;
     }
 
     public boolean isConfiguration(Artifact artifact) {
@@ -100,23 +126,32 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return configurationStatus.getConfiguration();
     }
 
-    public synchronized boolean isLoaded(Artifact configId) {
-        return configurations.containsKey(configId);
+    public synchronized boolean isLoaded(Artifact configurationId) {
+        return configurations.containsKey(configurationId);
     }
 
-    public synchronized Configuration loadConfiguration(Artifact configurationId) throws NoSuchConfigException, IOException, InvalidConfigException {
+    public synchronized boolean isRunning(Artifact configurationId) {
+        ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(configurationId);
+        if (configurationStatus != null) {
+            return configurationStatus.getStartCount() > 0;
+        }
+        return false;
+    }
+
+    public synchronized void loadConfiguration(Artifact configurationId) throws NoSuchConfigException, IOException, InvalidConfigException {
         ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(configurationId);
         if (configurationStatus != null) {
             // already loaded, so just update the load count
             configurationStatus.load();
-            return configurationStatus.getConfiguration();
+            configurationStatus.getConfiguration();
+            return;
         }
 
         // load the ConfigurationData for the new configuration
         ConfigurationData configurationData = loadConfigurationGBeanData(configurationId);
 
         // load the configuration
-        return loadConfiguration(configurationData);
+        loadConfiguration(configurationData);
     }
 
     public synchronized Configuration loadConfiguration(ConfigurationData configurationData) throws NoSuchConfigException, IOException, InvalidConfigException {
@@ -332,6 +367,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
                 startedConfigurations.add(configuration);
             }
         } catch (Exception e) {
+            configurationStatus.stop();
             for (Iterator iterator = startedConfigurations.iterator(); iterator.hasNext();) {
                 Configuration configuration = (Configuration) iterator.next();
                 stop(configuration);

@@ -58,8 +58,7 @@ public class ConfigurationManagerTest extends TestCase {
     private ConfigurationManager configurationManager;
 
     public void test() throws Exception {
-        Configuration configuration = configurationManager.loadConfiguration(artifact3);
-        assertEquals(artifact3, configuration.getId());
+        configurationManager.loadConfiguration(artifact3);
         assertTrue(configurationManager.isLoaded(artifact3));
         assertTrue(configurationManager.isLoaded(artifact2));
         assertTrue(configurationManager.isLoaded(artifact1));
