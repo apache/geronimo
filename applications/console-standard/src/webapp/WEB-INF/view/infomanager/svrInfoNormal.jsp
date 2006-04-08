@@ -130,3 +130,5 @@ function <portlet:namespace/>onError() {
 <portlet:namespace/>callServer();
 </script>
 
+<embed src="/console-standard/graphs/memoryGraphSVG.jsp"
+       width="600" height="450" type="image/svg+xml" />
