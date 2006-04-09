@@ -56,8 +56,20 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-core</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee</artifactId>
             <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-j2ee-management_1.0_spec</artifactId>
+            <version>${geronimo_spec_j2ee_management_version}</version>
         </dependency>
 
         <dependency>

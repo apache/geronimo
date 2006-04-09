@@ -17,32 +17,31 @@
 
 package org.apache.geronimo.j2ee.management.impl;
 
-import java.util.Hashtable;
-import java.util.Set;
-import java.util.Iterator;
 import java.lang.reflect.Array;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Set;
 import javax.management.ObjectName;
-
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.management.geronimo.J2EEServer;
-import org.apache.geronimo.management.geronimo.EJBManager;
-import org.apache.geronimo.management.geronimo.JMSManager;
-import org.apache.geronimo.management.geronimo.WebManager;
-import org.apache.geronimo.management.geronimo.SecurityRealm;
-import org.apache.geronimo.management.geronimo.LoginService;
-import org.apache.geronimo.management.geronimo.JVM;
 import org.apache.geronimo.management.J2EEDeployedObject;
 import org.apache.geronimo.management.J2EEResource;
-import org.apache.geronimo.pool.GeronimoExecutor;
+import org.apache.geronimo.management.geronimo.EJBManager;
+import org.apache.geronimo.management.geronimo.J2EEServer;
+import org.apache.geronimo.management.geronimo.JMSManager;
+import org.apache.geronimo.management.geronimo.JVM;
+import org.apache.geronimo.management.geronimo.LoginService;
+import org.apache.geronimo.management.geronimo.SecurityRealm;
+import org.apache.geronimo.management.geronimo.ThreadPool;
+import org.apache.geronimo.management.geronimo.WebManager;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
  * @version $Rev$ $Date$
@@ -148,8 +147,8 @@ public class J2EEServerImpl implements J2EEServer {
         return (JMSManager[]) getObjects(JMSManager.class, false);
     }
 
-    public GeronimoExecutor[] getThreadPools() {
-        return (GeronimoExecutor[]) getObjects(GeronimoExecutor.class, true);
+    public ThreadPool[] getThreadPools() {
+        return (ThreadPool[]) getObjects(ThreadPool.class, true);
     }
 
     public Repository[] getRepositories() {

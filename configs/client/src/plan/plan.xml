@@ -48,9 +48,15 @@ by the app client.
     </gbean>
 
     <gbean name="DefaultWorkManager"  class="org.apache.geronimo.connector.work.GeronimoWorkManagerGBean">
-        <attribute name="syncMaximumPoolSize">10</attribute>
-        <attribute name="startMaximumPoolSize">10</attribute>
-        <attribute name="scheduledMaximumPoolSize">10</attribute>
+        <reference name="SyncPool">
+            <name>DefaultThreadPool</name>
+        </reference>
+        <reference name="StartPool">
+            <name>DefaultThreadPool</name>
+        </reference>
+        <reference name="ScheduledPool">
+            <name>DefaultThreadPool</name>
+        </reference>
         <reference name="TransactionContextManager">
             <name>TransactionContextManager</name>
         </reference>

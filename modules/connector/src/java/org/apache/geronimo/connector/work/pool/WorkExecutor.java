@@ -1,9 +1,8 @@
 package org.apache.geronimo.connector.work.pool;
 
 import javax.resource.spi.work.WorkException;
-
 import org.apache.geronimo.connector.work.WorkerContext;
-import EDU.oswego.cs.dl.util.concurrent.Executor;
+import org.apache.geronimo.pool.GeronimoExecutor;
 
 /**
  *
@@ -24,7 +23,7 @@ public interface WorkExecutor {
      * @throws InterruptedException Indicates that the thread in charge of the
      * execution of the specified work has been interrupted.
      */
-     void doExecute(WorkerContext work, Executor executor)
+     void doExecute(WorkerContext work, GeronimoExecutor executor)
             throws WorkException, InterruptedException;
 
 

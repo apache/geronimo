@@ -18,9 +18,8 @@
 package org.apache.geronimo.connector.work.pool;
 
 import javax.resource.spi.work.WorkException;
-
 import org.apache.geronimo.connector.work.WorkerContext;
-import EDU.oswego.cs.dl.util.concurrent.Executor;
+import org.apache.geronimo.pool.GeronimoExecutor;
 
 /**
  *
@@ -30,8 +29,8 @@ import EDU.oswego.cs.dl.util.concurrent.Executor;
  * */
 public class ScheduleWorkExecutor implements WorkExecutor {
 
-    public void doExecute(WorkerContext work, Executor executor)
+    public void doExecute(WorkerContext work, GeronimoExecutor executor)
             throws WorkException, InterruptedException {
-        executor.execute(work);
+        executor.execute("A J2EE Connector", work);
     }
 }

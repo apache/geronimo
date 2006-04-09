@@ -18,7 +18,6 @@ package org.apache.geronimo.management.geronimo;
 
 import org.apache.geronimo.management.J2EEDeployedObject;
 import org.apache.geronimo.management.J2EEResource;
-import org.apache.geronimo.pool.GeronimoExecutor;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
@@ -74,7 +73,7 @@ public interface J2EEServer extends org.apache.geronimo.management.J2EEServer {
      *
      * @return The ObjectNames of the thread pools, in String form.
      */
-    public GeronimoExecutor[] getThreadPools();
+    public ThreadPool[] getThreadPools();
 
     /**
      * Gets the Repositories associated with this J2EEServer.

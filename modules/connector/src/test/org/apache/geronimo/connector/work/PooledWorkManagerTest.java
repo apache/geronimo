@@ -26,6 +26,7 @@ import javax.resource.spi.work.WorkListener;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.pool.ThreadPool;
 
 /**
  * Timing is crucial for this test case, which focuses on the synchronization
@@ -39,7 +40,9 @@ public class PooledWorkManagerTest extends TestCase {
 
     protected void setUp() throws Exception {
         TransactionContextManager transactionContextManager = new TransactionContextManager();
-        workManager = new GeronimoWorkManager(1, transactionContextManager);
+        ThreadPool pool = new ThreadPool(1, "Connector Test", 30000, ThreadPool.class.getClassLoader(), "foo:test=bar");
+        pool.setWaitWhenBlocked(true);
+        workManager = new GeronimoWorkManager(pool, pool, pool, transactionContextManager);
         workManager.doStart();
     }
 
@@ -113,7 +116,7 @@ public class PooledWorkManagerTest extends TestCase {
     }
 
     private AbstractDummyWork[] helperTest(Class aWork, int nbThreads,
-        int aTimeOut, int aTempo)
+                                           int aTimeOut, int aTempo)
         throws Exception {
         Constructor constructor = aWork.getConstructor(
             new Class[]{PooledWorkManagerTest.class, String.class,
@@ -154,9 +157,9 @@ public class PooledWorkManagerTest extends TestCase {
         }
 
         protected abstract void perform(Work work,
-                long startTimeout,
-                ExecutionContext execContext,
-                WorkListener workListener) throws Exception;
+                                        long startTimeout,
+                                        ExecutionContext execContext,
+                                        WorkListener workListener) throws Exception;
     }
 
     public class DummyDoWork extends AbstractDummyWork {
@@ -165,9 +168,9 @@ public class PooledWorkManagerTest extends TestCase {
         }
 
         protected void perform(Work work,
-                long startTimeout,
-                ExecutionContext execContext,
-                WorkListener workListener) throws Exception {
+                               long startTimeout,
+                               ExecutionContext execContext,
+                               WorkListener workListener) throws Exception {
             workManager.doWork(work, startTimeout, execContext, workListener);
         }
     }
@@ -178,9 +181,9 @@ public class PooledWorkManagerTest extends TestCase {
         }
 
         protected void perform(Work work,
-                long startTimeout,
-                ExecutionContext execContext,
-                WorkListener workListener) throws Exception {
+                               long startTimeout,
+                               ExecutionContext execContext,
+                               WorkListener workListener) throws Exception {
             workManager.startWork(work, startTimeout, execContext, workListener);
         }
     }
@@ -191,9 +194,9 @@ public class PooledWorkManagerTest extends TestCase {
         }
 
         protected void perform(Work work,
-                long startTimeout,
-                ExecutionContext execContext,
-                WorkListener workListener) throws Exception {
+                               long startTimeout,
+                               ExecutionContext execContext,
+                               WorkListener workListener) throws Exception {
             workManager.scheduleWork(work, startTimeout, execContext, workListener);
         }
     }

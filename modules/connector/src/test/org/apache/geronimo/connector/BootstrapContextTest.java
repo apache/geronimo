@@ -24,19 +24,25 @@ import javax.resource.spi.work.WorkManager;
 import junit.framework.TestCase;
 import org.apache.geronimo.connector.work.GeronimoWorkManager;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.pool.ThreadPool;
 
 /**
  * Unit tests for {@link BootstrapContextImpl}
  * @version $Rev$ $Date$
  */
 public class BootstrapContextTest extends TestCase {
+    ThreadPool pool;
+    protected void setUp() throws Exception {
+        super.setUp();
+        pool = new ThreadPool(1, "Connector Test", 30000, ThreadPool.class.getClassLoader(), "foo:test=bar");
+    }
 
     /**
      * Tests get and set work manager
      */
     public void testGetSetWorkManager() {
         TransactionContextManager transactionContextManager = new TransactionContextManager();
-        GeronimoWorkManager manager = new GeronimoWorkManager(1, transactionContextManager);
+        GeronimoWorkManager manager = new GeronimoWorkManager(pool, pool, pool, transactionContextManager);
         BootstrapContextImpl context = new BootstrapContextImpl(manager);
         WorkManager wm = context.getWorkManager();
 
@@ -48,7 +54,7 @@ public class BootstrapContextTest extends TestCase {
      */
     public void testGetSetXATerminator() {
         TransactionContextManager transactionContextManager = new TransactionContextManager();
-        GeronimoWorkManager manager = new GeronimoWorkManager(1, transactionContextManager);
+        GeronimoWorkManager manager = new GeronimoWorkManager(pool, pool, pool, transactionContextManager);
         BootstrapContextImpl context = new BootstrapContextImpl(manager);
         XATerminator xat = context.getXATerminator();
 
