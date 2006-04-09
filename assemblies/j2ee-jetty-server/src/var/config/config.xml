@@ -77,7 +77,7 @@
     <configuration name="geronimo/geronimo-gbean-deployer/${pom.currentVersion}/car"/>
     <configuration name="geronimo/j2ee-deployer/${pom.currentVersion}/car">
         <gbean name="WebBuilder">
-            <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0</attribute>
+            <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.1</attribute>
         </gbean>
         <gbean name="EJBBuilder">
             <attribute name="listener">geronimo.server:J2EEApplication=null,J2EEModule=geronimo/jetty/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=GBean,name=JettyWebContainer</attribute>
