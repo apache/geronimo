@@ -195,7 +195,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         File source = configurationData.getConfigurationDir();
         if (!source.exists()) {
             throw new InvalidConfigException("Source does not exist " + source);
-        } else if (source.canRead()) {
+        } else if (!source.canRead()) {
             throw new InvalidConfigException("Source is not readable " + source);
         }
 
@@ -203,13 +203,13 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         Artifact configId = configurationData.getId();
         File destination = repository.getLocation(configId);
 
-        if (destination.exists()) {
-            throw new ConfigurationAlreadyExistsException(configId.toString());
-        }
-
         // if directory in the correct place -- noop
         if (source.equals(destination)) {
             return;
+        }
+
+        if (destination.exists()) {
+            throw new ConfigurationAlreadyExistsException(configId.toString());
         }
 
         if (source.isFile()) {
