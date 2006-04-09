@@ -28,10 +28,14 @@
         <attribute name="defaultContextPriorityClassloader">false</attribute>
         <attribute name="defaultWelcomeFiles">index.html,index.htm,index.jsp</attribute>
         <attribute name="jettyContainerObjectName">?name=JettyWebContainer</attribute>
-        <reference name="DefaultServlets">
-            <!--gbean-name>geronimo.maven:j2eeType=DefaultServlet,J2EEModule=${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car,*</gbean-name-->
-            <!--<name>*</name>-->
-        </reference>
+        <references name="DefaultServlets">
+            <pattern>
+                <name>StaticContent</name>
+            </pattern>
+            <pattern>
+                <name>JSPServlet</name>
+            </pattern>
+        </references>
         <reference name="PojoWebServiceTemplate">
             <name>POJOTemplate</name>
         </reference>

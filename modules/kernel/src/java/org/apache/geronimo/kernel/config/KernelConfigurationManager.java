@@ -167,46 +167,46 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
         }
     }
 
-    protected void stop(Configuration configuration) throws InvalidConfigException {
+    protected void stop(Configuration configuration) {
+        stopRecursive(configuration);
+        if (configurationList != null) {
+            configurationList.removeConfiguration(configuration.getId().toString());
+        }
+    }
+
+    private void stopRecursive(Configuration configuration) {
         // stop all of the child configurations first
         for (Iterator iterator = configuration.getChildren().iterator(); iterator.hasNext();) {
             Configuration childConfiguration = (Configuration) iterator.next();
-            stop(childConfiguration);
+            stopRecursive(childConfiguration);
         }
 
-        try {
-            Collection gbeans = configuration.getGBeans().values();
+        Collection gbeans = configuration.getGBeans().values();
 
-            // stop the gbeans
-            for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
-                GBeanData gbeanData = (GBeanData) iterator.next();
-                AbstractName gbeanName = gbeanData.getAbstractName();
-                try {
-                    kernel.stopGBean(gbeanName);
-                } catch (GBeanNotFoundException ignored) {
-                } catch (IllegalStateException ignored) {
-                } catch (InternalKernelException kernelException) {
-                    log.debug("Error cleaning up after failed start of configuration " + configuration.getId() + " gbean " + gbeanName, kernelException);
-                }
+        // stop the gbeans
+        for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
+            GBeanData gbeanData = (GBeanData) iterator.next();
+            AbstractName gbeanName = gbeanData.getAbstractName();
+            try {
+                kernel.stopGBean(gbeanName);
+            } catch (GBeanNotFoundException ignored) {
+            } catch (IllegalStateException ignored) {
+            } catch (InternalKernelException kernelException) {
+                log.debug("Error cleaning up after failed start of configuration " + configuration.getId() + " gbean " + gbeanName, kernelException);
             }
-
-            // unload the gbeans
-            for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
-                GBeanData gbeanData = (GBeanData) iterator.next();
-                AbstractName gbeanName = gbeanData.getAbstractName();
-                try {
-                    kernel.unloadGBean(gbeanName);
-                } catch (GBeanNotFoundException ignored) {
-                } catch (IllegalStateException ignored) {
-                } catch (InternalKernelException kernelException) {
-                    log.debug("Error cleaning up after failed start of configuration " + configuration.getId() + " gbean " + gbeanName, kernelException);
-                }
-            }
-        } catch (Exception e) {
-            throw new InvalidConfigException("Could not stop gbeans in configuration", e);
         }
-        if (configurationList != null) {
-            configurationList.removeConfiguration(configuration.getId().toString());
+
+        // unload the gbeans
+        for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
+            GBeanData gbeanData = (GBeanData) iterator.next();
+            AbstractName gbeanName = gbeanData.getAbstractName();
+            try {
+                kernel.unloadGBean(gbeanName);
+            } catch (GBeanNotFoundException ignored) {
+            } catch (IllegalStateException ignored) {
+            } catch (InternalKernelException kernelException) {
+                log.debug("Error cleaning up after failed start of configuration " + configuration.getId() + " gbean " + gbeanName, kernelException);
+            }
         }
     }
 

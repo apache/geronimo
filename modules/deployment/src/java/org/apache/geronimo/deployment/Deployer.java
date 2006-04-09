@@ -299,6 +299,12 @@ public class Deployer {
                     cleanupConfigurations(configurations);
                     return Collections.EMPTY_LIST;
                 }
+            } catch (DeploymentException e) {
+                cleanupConfigurations(configurations);
+                throw e;
+            } catch (IOException e) {
+                cleanupConfigurations(configurations);
+                throw e;
             } catch (InvalidConfigException e) {
                 cleanupConfigurations(configurations);
                 // unlikely as we just built this

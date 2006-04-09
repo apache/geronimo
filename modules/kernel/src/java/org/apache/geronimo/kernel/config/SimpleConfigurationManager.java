@@ -400,7 +400,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         }
     }
 
-    protected void stop(Configuration configuration) throws InvalidConfigException {
+    protected void stop(Configuration configuration) {
         throw new UnsupportedOperationException();
     }
 

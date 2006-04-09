@@ -77,7 +77,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
     public ConfigurationData loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
         File location = repository.getLocation(configId);
 
-        if (!location.exists() && location.canRead()) {
+        if (!location.exists() && !location.canRead()) {
             throw new NoSuchConfigException("Configuration not found: " + configId);
         }
 
@@ -204,24 +204,24 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         File destination = repository.getLocation(configId);
 
         // if directory in the correct place -- noop
-        if (source.equals(destination)) {
-            return;
+        if (!source.equals(destination)) {
+            if (destination.exists()) {
+                throw new ConfigurationAlreadyExistsException(configId.toString());
+            }
+
+            if (source.isFile()) {
+                // Assume this is a jar file
+                // copy it into the repository; repository should unpack it
+                repository.copyToRepository(source, configId, null);
+            } else if (source.isDirectory()) {
+                // directory is in wrong place -- directory copy
+                IOUtil.recursiveCopy(source, destination);
+            } else {
+                throw new InvalidConfigException("Unable to install configuration from " + source);
+            }
         }
 
-        if (destination.exists()) {
-            throw new ConfigurationAlreadyExistsException(configId.toString());
-        }
-
-        if (source.isFile()) {
-            // Assume this is a jar file
-            // copy it into the repository; repository should unpack it
-            repository.copyToRepository(source, configId, null);
-        } else if (source.isDirectory()) {
-            // directory is in wrong place -- directory copy
-            IOUtil.recursiveCopy(source, destination);
-        } else {
-            throw new InvalidConfigException("Unable to install configuration from " + source);
-        }
+        ExecutableConfigurationUtil.writeConfiguration(configurationData, destination);
     }
 
     public void uninstall(Artifact configId) throws NoSuchConfigException, IOException {

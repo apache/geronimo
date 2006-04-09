@@ -338,18 +338,20 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     public List buildConfiguration(Object plan, JarFile earFile, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException {
         assert plan != null;
         ApplicationInfo applicationInfo = (ApplicationInfo) plan;
+
+        EARContext earContext;
+        ConfigurationModuleType applicationType = applicationInfo.getType();
+        Environment environment = applicationInfo.getEnvironment();
+        Artifact configId = environment.getConfigId();
+        File configurationDir;
+        try {
+            configurationDir = targetConfigurationStore.createNewConfigurationDir(configId);
+        } catch (ConfigurationAlreadyExistsException e) {
+            throw new DeploymentException(e);
+        }
+
         try {
             // Create the output ear context
-            EARContext earContext;
-            ConfigurationModuleType applicationType = applicationInfo.getType();
-            Environment environment = applicationInfo.getEnvironment();
-            Artifact configId = environment.getConfigId();
-            File configurationDir;
-            try {
-                configurationDir = targetConfigurationStore.createNewConfigurationDir(configId);
-            } catch (ConfigurationAlreadyExistsException e) {
-                throw new DeploymentException(e);
-            }
             earContext = new EARContext(configurationDir,
                     applicationInfo.getEnvironment(),
                     applicationType,
@@ -439,7 +441,21 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             earContext.close();
             return configurations;
         } catch (GBeanAlreadyExistsException e) {
+            // todo delete owned configuraitons like appclients
+            DeploymentUtil.recursiveDelete(configurationDir);
             throw new DeploymentException(e);
+        } catch (IOException e) {
+            DeploymentUtil.recursiveDelete(configurationDir);
+            throw e;
+        } catch (DeploymentException e) {
+            DeploymentUtil.recursiveDelete(configurationDir);
+            throw e;
+        } catch(RuntimeException e) {
+            DeploymentUtil.recursiveDelete(configurationDir);
+            throw e;
+        } catch(Error e) {
+            DeploymentUtil.recursiveDelete(configurationDir);
+            throw e;
         } finally {
             Set modules = applicationInfo.getModules();
             for (Iterator iterator = modules.iterator(); iterator.hasNext();) {
