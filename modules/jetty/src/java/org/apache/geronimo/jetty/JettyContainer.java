@@ -47,32 +47,6 @@ public interface JettyContainer extends WebContainer {
 
     long getCollectStatisticsStarted();
 
-    int getConnections();
-
-    int getConnectionsOpen();
-
-    int getConnectionsOpenMax();
-
-    long getConnectionsDurationAve();
-
-    long getConnectionsDurationMax();
-
-    int getConnectionsRequestsAve();
-
-    int getConnectionsRequestsMax();
-
-    int getErrors();
-
-    int getRequests();
-
-    int getRequestsActive();
-
-    int getRequestsActiveMax();
-
-    long getRequestsDurationAve();
-
-    long getRequestsDurationMax();
-
     void setRequestLog(RequestLog log);
 
     /* ------------------------------------------------------------ */

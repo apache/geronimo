@@ -2,20 +2,74 @@
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <portlet:defineObjects/>
 <c:if test="${statsOn}">
-<table width="50%">
-  <tr><th width="30%">&nbsp;</th><th class="DarkBackground"><strong>Total</strong></th></tr>
-  <tr><td align="right" class="LightBackground"><strong>Requests</strong></td><td align="center" class="LightBackground">${requests}</td></tr>
-  <tr><td align="right" class="MediumBackground"><strong>Connections</strong></td><td align="center" class="MediumBackground">${connections}</td></tr>
-  <tr><td align="right" class="LightBackground"><strong>Errors</strong></td><td align="center" class="LightBackground">${errors}</td></tr>
+<table width="100%">
+  <tr>
+    <th width="25%" class="DarkBackground"><STRONG>Statistic</STRONG></th>
+    <th class="DarkBackground"><strong>Total</strong></th>
+  </tr>
+  <tr>
+    <td align="right"  class="LightBackground"><strong>Total Request Count</strong></td>
+    <td align="center" class="LightBackground">${totalRequestCount}</td>
+  </tr>
+  <tr>
+    <td align="right"  class="MediumBackground"><strong>Total Connection Count</strong></td>
+    <td align="center" class="MediumBackground">${totalConnectionCount}</td>
+  </tr>
+  <tr>
+    <td align="right"  class="LightBackground"><strong>Total Error Count</strong></td>
+    <td align="center" class="LightBackground">${totalErrorCount}</td>
+  </tr>
 </table>
-<table width="50%">
-  <tr><th width="30%">&nbsp;</th><th class="DarkBackground">Count</th><th class="DarkBackground">Average</th><th class="DarkBackground">Max</th></tr>
-  <tr><td align="right" class="LightBackground"><strong>Active Requests</strong></td><td align="center" class="LightBackground">${requestsActive}</td><td align="center" class="LightBackground">&nbsp;</td><td align="center" class="LightBackground">${requestsActive}</td></tr>
-  <tr><td align="right" class="MediumBackground"><strong>Request Duration</strong></td><td align="center" class="MediumBackground">&nbsp;</td><td align="center" class="MediumBackground">${requestsDurationAve}</td><td align="center" class="MediumBackground">${requestsDurationMax}</td></tr>
-  <tr><td align="right" class="LightBackground"><strong>Connections Open</strong></td><td align="center" class="LightBackground">${connectionsOpen}</td><td align="center" class="LightBackground">&nbsp;</td><td align="center" class="LightBackground">${connectionsOpenMax}</td></tr>
-  <tr><td align="right" class="MediumBackground"><strong>Connection Requests</strong></td><td align="center" class="MediumBackground">&nbsp;</td><td align="center" class="MediumBackground">${connectionsRequestsAve}</td><td align="center" class="MediumBackground">${connectionsRequestsMax}</td></tr>
-  <tr><td align="right" class="LightBackground"><strong>Connection Duration</strong></td><td align="center" class="LightBackground">&nbsp;</td><td align="center" class="LightBackground">${connectionsDurationAve}</td><td align="center" class="LightBackground">${connectionsDurationMax}</td></tr>
-  <tr><td colspan="4" align="center"> <a href="<portlet:renderURL/>">refresh</a>&nbsp; <a href="<portlet:actionURL><portlet:param name="stats" value="false"/></portlet:actionURL>">disable</a>&nbsp; <a href="<portlet:actionURL><portlet:param name="resetStats" value="true"/></portlet:actionURL>">reset</a> </td></tr>
+<table width="100%">
+  <tr>
+    <th WIDTH="25%" class="DarkBackground"> &nbsp; </th>
+    <th class="DarkBackground"><strong>Current</strong></th>
+    <th class="DarkBackground"><strong>Low</strong></th>
+    <th class="DarkBackground"><strong>High</strong></th>
+  </tr>
+  <tr>
+    <td align="right"  class="LightBackground"><strong>Active Request Count</strong></td>
+    <td align="center" class="LightBackground">${activeRequestCountCurrent}</td>
+    <td align="center" class="LightBackground">${activeRequestCountLow}</td>
+    <td align="center" class="LightBackground">${activeRequestCountHigh}</td>
+  </tr>
+  <tr>
+    <td align="right"  class="MediumBackground"><strong>Connection Request Count</strong></td>
+     <td align="center" class="MediumBackground">${connectionRequestCountCurrent}</td>
+     <td align="center" class="MediumBackground">${connectionRequestCountLow}</td>
+    <td align="center" class="MediumBackground">${connectionRequestCountHigh}</td>
+  </tr>
+  <tr>
+    <td align="right"  class="LightBackground"><strong>Open Connection Count</strong></td>
+    <td align="center" class="LightBackground">${openConnectionCountCurrent}</td>
+    <td align="center" class="LightBackground">${openConnectionCountLow}</td>
+    <td align="center" class="LightBackground">${openConnectionCountHigh}</td>
+  </tr>
+</table>
+<table width="100%">
+  <tr>
+    <th width="25%" class="DarkBackground"> &nbsp; </th>
+    <th class="DarkBackground"><strong>Count</strong></th>
+    <th class="DarkBackground"><strong>Min Time</strong></th>
+    <th class="DarkBackground"><strong>Max Time</strong></th>
+    <th class="DarkBackground"><strong>Total Time</strong></th>
+  </tr>
+  <tr>
+    <td align="right"  class="LightBackground"><strong>Request Duration</strong></td>
+    <td align="center" class="LightBackground">${requestDurationCount}</td>
+    <td align="center" class="LightBackground">${requestDurationMinTime}</td>
+    <td align="center" class="LightBackground">${requestDurationMaxTime}</td>
+    <td align="center" class="LightBackground">${requestDurationTotalTime}</td>
+  </tr>
+  <tr>
+    <td align="right"  class="MediumBackground"><strong>Connection Duration</strong></td>
+    <td align="center" class="MediumBackground">${connectionDurationCount}</td>
+    <td align="center" class="MediumBackground">${connectionDurationMinTime}</td>
+    <td align="center" class="MediumBackground">${connectionDurationMaxTime}</td>
+    <td align="center" class="MediumBackground">${connectionDurationTotalTime}</td>
+  </tr>
+  <tr><td colspan="5" align="left">&nbsp;&nbsp;</td></tr>
+  <tr><td colspan="5" align="left"> <a href="<portlet:renderURL/>">refresh</a>&nbsp; <a href="<portlet:actionURL><portlet:param name="stats" value="false"/></portlet:actionURL>">disable</a>&nbsp; <a href="<portlet:actionURL><portlet:param name="resetStats" value="true"/></portlet:actionURL>">reset</a> </td></tr>
 </table>
 </c:if>
 <c:if test="${!statsOn}">

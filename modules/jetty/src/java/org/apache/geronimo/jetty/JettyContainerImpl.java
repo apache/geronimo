@@ -24,23 +24,28 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.webservices.WebServiceContainer;
+import org.apache.geronimo.management.StatisticsProvider;
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpListener;
 import org.mortbay.http.RequestLog;
 import org.mortbay.http.UserRealm;
 import org.mortbay.jetty.Server;
 
+import javax.management.j2ee.statistics.Stats;
+
 /**
  * @version $Rev$ $Date$
  */
-public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLifecycle {
+public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLifecycle, StatisticsProvider {
     private final Server server;
     private final Map webServices = new HashMap();
     private final String objectName;
+    private JettyWebContainerStatsImpl stats;
 
     public JettyContainerImpl(String objectName) {
         this.objectName = objectName;
         server = new JettyServer();
+        stats = new JettyWebContainerStatsImpl();
     }
 
     public String getObjectName() {
@@ -52,7 +57,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
     }
 
     public boolean isStatisticsProvider() {
-        return false; // todo: return true once stats are integrated
+        return true;
     }
 
     public boolean isEventProvider() {
@@ -65,6 +70,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
 
     public void setCollectStatistics(boolean on) {
         server.setStatsOn(on);
+        stats.setStatsOn(on);
     }
 
     public boolean getCollectStatistics() {
@@ -75,56 +81,52 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
         return server.getStatsOnMs();
     }
 
-    public int getConnections() {
-        return server.getConnections();
-    }
+    public Stats getStats() {
+        if (getCollectStatistics()) {
 
-    public int getConnectionsOpen() {
-        return server.getConnectionsOpen();
-    }
+            /* set active request count */
+            stats.getTotalRequestCountImpl().setCount(server.getRequests());
 
-    public int getConnectionsOpenMax() {
-        return server.getConnectionsOpenMax();
-    }
+            /* set total connection count */
+            stats.getTotalConnectionCountImpl().setCount(server.getConnections());
 
-    public long getConnectionsDurationAve() {
-        return server.getConnectionsDurationAve();
-    }
+            /* set total error count */
+            stats.getTotalErrorCountImpl().setCount(server.getErrors());
 
-    public long getConnectionsDurationMax() {
-        return server.getConnectionsDurationMax();
-    }
+            /* set active request range values */
+            stats.getActiveRequestCountImpl().setCurrent(server.getRequestsActive());
+            stats.getActiveRequestCountImpl().setLowWaterMark(server.getRequestsActiveMin());
+            stats.getActiveRequestCountImpl().setHighWaterMark(server.getRequestsActiveMax());
 
-    public int getConnectionsRequestsAve() {
-        return server.getConnectionsRequestsAve();
-    }
+            /* set connection requests range values */
+//          stats.getConnectionRequestCountImpl().setCurrent(server.getConnectionsRequestsCurrent());    // temporarily removed until added by jetty
+            stats.getConnectionRequestCountImpl().setCurrent(server.getConnectionsOpen());
+            stats.getConnectionRequestCountImpl().setLowWaterMark(server.getConnectionsRequestsMin());
+            stats.getConnectionRequestCountImpl().setHighWaterMark(server.getConnectionsRequestsMax());
 
-    public int getConnectionsRequestsMax() {
-        return server.getConnectionsRequestsMax();
-    }
+            /* set open connection range values */
+            stats.getOpenConnectionCountImpl().setCurrent(server.getConnectionsOpen());
+            stats.getOpenConnectionCountImpl().setLowWaterMark(server.getConnectionsOpenMin());
+            stats.getOpenConnectionCountImpl().setHighWaterMark(server.getConnectionsOpenMax());
 
-    public int getErrors() {
-        return server.getErrors();
-    }
+            /* set request duration time values */
+            stats.getRequestDurationImpl().setMinTime(server.getRequestsDurationMin());
+            stats.getRequestDurationImpl().setMaxTime(server.getRequestsDurationMax());
+//          stats.getRequestDurationImpl().setCount(server.getRequestsDurationCount());     // temporarily removed until added by jetty
+            stats.getRequestDurationImpl().setCount(stats.getTotalRequestCount().getCount());
+            stats.getRequestDurationImpl().setTotalTime(server.getRequestsDurationTotal());
 
-    public int getRequests() {
-        return server.getRequests();
-    }
+            /* set connection duration Time values */
+            stats.getConnectionDurationImpl().setMinTime(server.getConnectionsDurationMin());
+            stats.getConnectionDurationImpl().setMaxTime(server.getConnectionsDurationMax());
+//          stats.getConnectionDurationImpl().setCount(server.getConnectionsDurationCount());    // temporarily removed until added by jetty
+            stats.getConnectionDurationImpl().setCount(stats.getTotalConnectionCount().getCount());
+            stats.getConnectionDurationImpl().setTotalTime(server.getConnectionsDurationTotal());
 
-    public int getRequestsActive() {
-        return server.getRequestsActive();
-    }
-
-    public int getRequestsActiveMax() {
-        return server.getRequestsActiveMax();
-    }
-
-    public long getRequestsDurationAve() {
-        return server.getRequestsDurationAve();
-    }
-
-    public long getRequestsDurationMax() {
-        return server.getRequestsDurationMax();
+        } else {
+            // should probably set the stats object to all zero/null values to avoid unpredicable results
+        }
+        return stats;
     }
 
     public void addListener(HttpListener listener) {
@@ -197,21 +199,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("Jetty Web Container", JettyContainerImpl.class);
         infoBuilder.addAttribute("collectStatistics", Boolean.TYPE, true);
-        //todo: Move all statistics methods to a Stats implementation
         infoBuilder.addAttribute("collectStatisticsStarted", Long.TYPE, false);
-        infoBuilder.addAttribute("connections", Integer.TYPE, false);
-        infoBuilder.addAttribute("connectionsOpen", Integer.TYPE, false);
-        infoBuilder.addAttribute("connectionsOpenMax", Integer.TYPE, false);
-        infoBuilder.addAttribute("connectionsDurationAve", Long.TYPE, false);
-        infoBuilder.addAttribute("connectionsDurationMax", Long.TYPE, false);
-        infoBuilder.addAttribute("connectionsRequestsAve", Integer.TYPE, false);
-        infoBuilder.addAttribute("connectionsRequestsMax", Integer.TYPE, false);
-        infoBuilder.addAttribute("errors", Integer.TYPE, false);
-        infoBuilder.addAttribute("requests", Integer.TYPE, false);
-        infoBuilder.addAttribute("requestsActive", Integer.TYPE, false);
-        infoBuilder.addAttribute("requestsActiveMax", Integer.TYPE, false);
-        infoBuilder.addAttribute("requestsDurationAve", Long.TYPE, false);
-        infoBuilder.addAttribute("requestsDurationMax", Long.TYPE, false);
         infoBuilder.addOperation("resetStatistics");
 
         infoBuilder.addAttribute("requestLog", RequestLog.class, false, false);
@@ -227,6 +215,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
 
         infoBuilder.addInterface(SoapHandler.class);
         infoBuilder.addInterface(JettyContainer.class);
+        infoBuilder.addInterface(StatisticsProvider.class);
         infoBuilder.setConstructor(new String[]{"objectName"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
