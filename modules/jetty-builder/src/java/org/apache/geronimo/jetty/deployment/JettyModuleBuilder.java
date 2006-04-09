@@ -214,7 +214,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
         EnvironmentType environmentType = jettyWebApp.getEnvironment();
         Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
-        if (!standAlone && environment.getConfigId() == null) {
+        if (standAlone && environment.getConfigId() == null) {
             Artifact configID = new Artifact(Artifact.DEFAULT_GROUP_ID, contextRoot, "1", "car");
             environment.setConfigId(configID);
         }
