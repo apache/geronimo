@@ -28,6 +28,8 @@ var data = new Array(60);
 var yMax = 1;
 // Y Caption
 var yCaption = null;
+// Bottom Caption
+var lowerCaption = null;
 
 /** Saved bootstrap reference **/
 function initialize(evt, length, height, updater, caption) {
@@ -132,15 +134,39 @@ function setPathDef() {
 }
 
 /** Adds a data point **/
-function addPoint(value, text) {
+function addPoint(value) {
   for(var i=0; i<data.length-1; i++) {
     data[i] = data[i+1];
   }
   data[data.length-1] = value
+  syncPoints();
+  setPathDef();
+}
+
+/** Ensures the Y axis is at least this large **/
+function checkMaxValue(value, text) {
   if(value > yMax) {
     yMax = value;
     yCaption.data = text;
   }
-  syncPoints();
-  setPathDef();
+}
+
+/** Sets the maximum Y value to the specified value **/
+function setMaxValue(value, text) {
+  yMax = value;
+  yCaption.data = text;
+}
+
+/** Sets the lower caption **/
+function setLowerCaption(text) {
+  if(lowerCaption == null) {
+    var caption = graphDocument.createElementNS(svgNS, "text");
+    caption.setAttribute("x", (xOffset+graphLength)/2);
+    caption.setAttribute("y", yOffset+graphHeight+30);
+    caption.setAttribute("text-anchor", "middle");
+    lowerCaption = graphDocument.createTextNode("   "+text+"   ");
+    caption.appendChild(lowerCaption);
+    graphGroup.appendChild(caption);
+  }
+  lowerCaption.data = "  "+text+"  ";
 }

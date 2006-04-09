@@ -37,7 +37,7 @@ public class DynamicServerInfo implements Serializable {
     private String memoryMost;
     private String memoryAllocated;
     private String upTime;
-    private long bytesCurrent;
+    private long bytesCurrent, bytesMost, bytesAllocated;
 
     public DynamicServerInfo(long upTime) {
         this.upTime = calculateTime(upTime);
@@ -48,6 +48,8 @@ public class DynamicServerInfo implements Serializable {
         dec2Format = NumberFormat.getNumberInstance();
         dec2Format.setMaximumFractionDigits(2);
         bytesCurrent = memoryCurrent;
+        bytesMost = memoryMost;
+        bytesAllocated = memoryAllocated;
         this.memoryCurrent = calculateMemory(memoryCurrent);
         this.memoryMost = calculateMemory(memoryMost);
         this.memoryAllocated = calculateMemory(memoryAllocated);
@@ -121,5 +123,13 @@ public class DynamicServerInfo implements Serializable {
 
     public long getBytesCurrent() {
         return bytesCurrent;
+    }
+
+    public long getBytesMost() {
+        return bytesMost;
+    }
+
+    public long getBytesAllocated() {
+        return bytesAllocated;
     }
 }

@@ -1,16 +1,4 @@
 <%@ page contentType="text/javascript" %>
-var last = false;
-function addNext() {
-  if(last) {
-    addPoint(200);
-    last=false;
-  } else {
-    addPoint(50);
-    last=true;
-  }
-  setTimeout("addNext()", 500);
-}
-
 DWREngine.setErrorHandler(null);
 var stopped=false;
 function callServer() {
@@ -20,7 +8,9 @@ function callServer() {
     Jsr77Stats.getJavaVMStatistics(metadata);
 }
 function updateValues(serverStats) {
-    addPoint(serverStats.bytesCurrent, serverStats.memoryCurrent);
+    setMaxValue(serverStats.bytesMost, serverStats.memoryMost);
+    addPoint(serverStats.bytesCurrent);
+    setLowerCaption("Using "+serverStats.memoryCurrent+" of "+serverStats.memoryAllocated+" allocated");
     if(!stopped) {
         setTimeout("callServer()", 1000);
     }
