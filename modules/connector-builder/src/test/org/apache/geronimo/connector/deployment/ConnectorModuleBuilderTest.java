@@ -285,6 +285,40 @@ public class ConnectorModuleBuilderTest extends TestCase {
         };
         executeTestBuildModule(action, true);
     }
+    
+    public void testBuildPackedModule15LocalTx() throws Exception {
+        InstallAction action = new InstallAction() {
+            private File rarFile = new File(basedir, "target/test-rar-15-localtx.rar");
+
+            public File getRARFile() {
+                return rarFile;
+            }
+
+        };
+        try {
+            executeTestBuildModule(action, true);
+            fail("transaction setting mismatch not detected");
+        } catch (DeploymentException e) {
+
+        }
+    }
+
+    public void testBuildPackedModule15NoTx() throws Exception {
+        InstallAction action = new InstallAction() {
+            private File rarFile = new File(basedir, "target/test-rar-15-notx.rar");
+
+            public File getRARFile() {
+                return rarFile;
+            }
+
+        };
+        try {
+            executeTestBuildModule(action, true);
+            fail("transaction setting mismatch not detected");
+        } catch (DeploymentException e) {
+
+        }
+    }
 
 
     private void executeTestBuildModule(InstallAction action, boolean is15) throws Exception {

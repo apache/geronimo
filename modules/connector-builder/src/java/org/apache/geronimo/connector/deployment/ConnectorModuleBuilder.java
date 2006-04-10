@@ -638,10 +638,22 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         if (connectionManager.isSetNoTransaction()) {
             transactionSupport = NoTransactions.INSTANCE;
         } else if (connectionManager.isSetLocalTransaction()) {
+            if ("NoTransaction".equals(ddTransactionSupport)) {
+                throw new DeploymentException("You are requesting local transaction support for a connector that does not support transactions: named: " + connectionfactoryInstance.getName().trim());
+            }
             transactionSupport = LocalTransactions.INSTANCE;
         } else if (connectionManager.isSetTransactionLog()) {
+            if ("NoTransaction".equals(ddTransactionSupport)) {
+                throw new DeploymentException("You are requesting local transaction support for a connector that does not support transactions: named: " + connectionfactoryInstance.getName().trim());
+            }
             transactionSupport = TransactionLog.INSTANCE;
         } else if (connectionManager.isSetXaTransaction()) {
+            if ("NoTransaction".equals(ddTransactionSupport)) {
+                throw new DeploymentException("You are requesting xa transaction support for a connector that does not support transactions: named: " + connectionfactoryInstance.getName().trim());
+            }
+            if ("LocalTransaction".equals(ddTransactionSupport)) {
+                throw new DeploymentException("You are requesting xa transaction support for a connector that supports only local transactions: named: " + connectionfactoryInstance.getName().trim());
+            }
             transactionSupport = new XATransactions(connectionManager.getXaTransaction().isSetTransactionCaching(),
                     connectionManager.getXaTransaction().isSetThreadCaching());
         } else if ("NoTransaction".equals(ddTransactionSupport)) {
@@ -652,7 +664,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             transactionSupport = new XATransactions(defaultXATransactionCaching, defaultXAThreadCaching);
         } else {
             //this should not happen
-            throw new DeploymentException("Unexpected transaction support element");
+            throw new DeploymentException("Unexpected transaction support element in connector named: " + connectionfactoryInstance.getName().trim());
         }
         PoolingSupport pooling;
         if (connectionManager.getSinglePool() != null) {
@@ -679,7 +691,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         } else if (connectionManager.getNoPool() != null) {
             pooling = new NoPool();
         } else {
-            throw new DeploymentException("Unexpected pooling support element");
+            throw new DeploymentException("Unexpected pooling support element in connector named " + connectionfactoryInstance.getName().trim());
         }
         try {
             connectionManagerGBean.setAttribute("transactionSupport", transactionSupport);
@@ -688,13 +700,13 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             connectionManagerGBean.setAttribute("containerManagedSecurity", Boolean.valueOf(connectionManager.isSetContainerManagedSecurity()));
             connectionManagerGBean.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
         } catch (Exception e) {
-            throw new DeploymentException("Problem setting up ConnectionManager", e);
+            throw new DeploymentException("Problem setting up ConnectionManager named " + connectionfactoryInstance.getName().trim(), e);
         }
 
         try {
             earContext.addGBean(connectionManagerGBean);
         } catch (GBeanAlreadyExistsException e) {
-            throw new DeploymentException("Could not add connection manager gbean to context", e);
+            throw new DeploymentException("Could not add connection manager gbean to context: name: " + connectionfactoryInstance.getName().trim(), e);
         }
         return connectionManagerAbstractName;
     }
@@ -767,7 +779,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
 
     public GBeanData locateActivationSpecInfo(AbstractNameQuery resourceAdapterInstanceQuery, String messageListenerInterface, Configuration configuration) throws DeploymentException {
         //First, locate the module gbean from the JCAResourceAdapter instance
-        AbstractName instanceName = null;
+        AbstractName instanceName;
         try {
             instanceName = configuration.findGBean(resourceAdapterInstanceQuery);
         } catch (GBeanNotFoundException e) {

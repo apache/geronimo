@@ -55,6 +55,22 @@
         <ant:jar destfile="${basedir}/target/test-rar-15.rar"
             basedir="${basedir}/target/test-rar-15"/>
 
+        <ant:mkdir dir="${basedir}/target/test-rar-15-notx/META-INF"/>
+        <copy todir="${basedir}/target/test-rar-15-notx/META-INF">
+            <fileset dir="${basedir}/src/test-data/connector_1_5_notx"/>
+        </copy>
+
+        <ant:jar destfile="${basedir}/target/test-rar-15-notx.rar"
+            basedir="${basedir}/target/test-rar-15-notx"/>
+
+        <ant:mkdir dir="${basedir}/target/test-rar-15-localtx/META-INF"/>
+        <copy todir="${basedir}/target/test-rar-15-localtx/META-INF">
+            <fileset dir="${basedir}/src/test-data/connector_1_5_localtx"/>
+        </copy>
+
+        <ant:jar destfile="${basedir}/target/test-rar-15-localtx.rar"
+            basedir="${basedir}/target/test-rar-15-localtx"/>
+
         <!-- Build test-ear -->
         <ant:jar destfile="${basedir}/target/test-ear.ear">
             <fileset dir="${basedir}/target">
