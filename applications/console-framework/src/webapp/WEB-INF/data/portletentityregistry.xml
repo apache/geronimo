@@ -139,5 +139,10 @@ limitations under the License.
         <portlet id="67">
             <definition-id>console-standard.JMSWizard</definition-id>
         </portlet>
+
+        <!-- Leave some free numbers for the portlets that are in HEAD but not 1.1 yet -->
+        <portlet id="80">
+            <definition-id>console-standard.ThreadPool</definition-id>
+        </portlet>
     </application>
 </portlet-entity-registry>

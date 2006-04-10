@@ -205,6 +205,19 @@ limitations under the License.
             <param-value>console-standard.Keystore</param-value>
         </init-param>
     </servlet>
+    <servlet>
+        <display-name>Pluto Wrapper for Thread Pool Portlet</display-name>
+        <servlet-name>ThreadPool</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.threads.ThreadPoolPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.ThreadPool</param-value>
+        </init-param>
+    </servlet>
 
 
     <servlet>
@@ -763,6 +776,10 @@ limitations under the License.
     <servlet-mapping>
         <servlet-name>Keystore</servlet-name>
         <url-pattern>/Keystore/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ThreadPool</servlet-name>
+        <url-pattern>/ThreadPool/*</url-pattern>
     </servlet-mapping>
 
 

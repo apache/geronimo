@@ -178,6 +178,22 @@ limitations under the License.
                 </fragment>
             </fragment>
         </fragment>
+
+        <fragment name="threads" type="page">
+            <navigation>
+                <title>Thread Pools</title>
+                <description>ico_connect_16x16.gif Monitors and configures thread pools in the server</description>
+            </navigation>
+
+            <fragment name="row1" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p1" type="portlet">
+                        <property name="portlet" value="5.80"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+        </fragment>
+
 <!--
         <fragment name="j2ca" type="page">
             <navigation>

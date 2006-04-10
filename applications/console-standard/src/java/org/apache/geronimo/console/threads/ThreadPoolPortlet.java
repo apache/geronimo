@@ -1,6 +1,5 @@
 /**
- *
- * Copyright 2005 The Apache Software Foundation
+ * Copyright 2006 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,35 +13,27 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.console.jmsmanager.wizard;
+package org.apache.geronimo.console.threads;
 
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletException;
 import javax.portlet.PortletRequest;
-import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.MultiPagePortlet;
+import org.apache.geronimo.console.MultiPageModel;
 
 /**
- * A portlet that lets you configure and deploy JMS resources.
+ * A portlet that lets you configure and deploy thread pools.
  *
  * @version $Rev: 368994 $ $Date: 2006-01-14 02:07:18 -0500 (Sat, 14 Jan 2006) $
  */
-public class JMSResourcePortlet extends MultiPagePortlet {
+public class ThreadPoolPortlet extends MultiPagePortlet {
     public void init(PortletConfig config) throws PortletException {
         super.init(config);
         addHelper(new ListScreenHandler(), config);
-        addHelper(new SelectProviderHandler(), config);
-        addHelper(new ConfigureRAInstanceHandler(), config);
-        addHelper(new SelectConnectionFactoryTypeHandler(), config);
-        addHelper(new CreateConnectionFactoryHandler(), config);
-        addHelper(new SelectDestinationTypeHandler(), config);
-        addHelper(new CreateDestinationHandler(), config);
-        addHelper(new ShowPlanHandler(), config);
-        addHelper(new DeployHandler(), config);
-        addHelper(new ReviewHandler(), config);
+        addHelper(new MonitorScreenHandler(), config);
     }
 
     protected MultiPageModel getModel(PortletRequest request) {
-        return new AbstractHandler.JMSResourceData(request);
+        return new AbstractThreadHandler.ThreadPoolData(request);
     }
 }
