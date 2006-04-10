@@ -93,7 +93,7 @@
             <xs:element name="non-overridable-classes" type="sys:classFilterType" minOccurs="0">
                 <xs:annotation>
                     <xs:documentation>
-                        A list of classes which will only be loaded from parent ClassLodaers of this
+                        A list of classes which will only be loaded from parent ClassLoaders of this
                         module (never from the module's own ClassLoader).  For example, this is used
                         to prevent a web application from redefining "javax.servlet", so those
                         classes will *always* be loaded from the server instead of from the web
