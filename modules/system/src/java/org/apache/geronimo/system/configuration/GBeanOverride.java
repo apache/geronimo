@@ -17,7 +17,9 @@
 package org.apache.geronimo.system.configuration;
 
 import java.beans.PropertyEditor;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -207,13 +209,26 @@ class GBeanOverride {
         return getContentsAsText((Element) children.item(0));
     }
 
-    private static String getContentsAsText(Element element) {
+    private static String getContentsAsText(Element element) throws InvalidGBeanException {
         String value = "";
         NodeList text = element.getChildNodes();
         for (int t = 0; t < text.getLength(); t++) {
             Node n = text.item(t);
             if (n.getNodeType() == Node.TEXT_NODE) {
                 value += n.getNodeValue();
+            } else {
+                StringWriter sw = new StringWriter();
+                PrintWriter pw = new PrintWriter(sw);
+                OutputFormat of = new OutputFormat( Method.XML, null, false );
+                of.setOmitXMLDeclaration(true);
+                XMLSerializer serializer = new XMLSerializer(pw, of);
+                try {
+                    serializer.prepare();
+                    serializer.serializeNode(n);
+                    value += sw.toString();
+                } catch (IOException ioe) {
+                    throw new InvalidGBeanException("Error serializing GBean element", ioe);
+                }
             }
         }
         return value.trim();
