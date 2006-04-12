@@ -166,9 +166,19 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
     public URL resolve(Artifact configId, String moduleName, URI uri) throws NoSuchConfigException, MalformedURLException {
         File location = repository.getLocation(configId);
         if (location.isDirectory()) {
-            if (moduleName != null) {
+        	File inPlaceLocation = null;
+            try {
+                inPlaceLocation = InPlaceConfigurationUtil.readInPlaceLocation(location);
+            } catch (IOException e) {
+            }
+            if (null != inPlaceLocation) {
+                location = inPlaceLocation;
+            }
+
+			if (moduleName != null) {
                 location = new File(location, moduleName);
             }
+			
             if (location.isDirectory()) {
                 URL locationUrl = location.toURL();
                 URL resolvedUrl = new URL(locationUrl, uri.toString());

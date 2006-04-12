@@ -33,7 +33,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 
 /**
- * @version $Rev: 382645 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class ConfigurationData implements Serializable {
     private static final long serialVersionUID = 4324193220056650732L;
@@ -67,6 +67,11 @@ public class ConfigurationData implements Serializable {
      * The base file of the configuation
      */
     private transient File configurationDir;
+    
+    /**
+     * The base file of an in-place configuration
+     */
+    private File inPlaceConfigurationDir;
 
     /**
      * The naming system
@@ -99,10 +104,10 @@ public class ConfigurationData implements Serializable {
     }
 
     public ConfigurationData(Environment environment, Naming naming) {
-        this(null, null, null, null, environment, null, naming);
+        this(null, null, null, null, environment, null, null, naming);
     }
 
-    public ConfigurationData(ConfigurationModuleType moduleType, LinkedHashSet classPath, List gbeans, Map childConfigurations, Environment environment, File configurationDir, Naming naming) {
+    public ConfigurationData(ConfigurationModuleType moduleType, LinkedHashSet classPath, List gbeans, Map childConfigurations, Environment environment, File configurationDir, File inPlaceConfigurationDir, Naming naming) {
         if (naming == null) throw new NullPointerException("naming is null");
         this.naming = naming;
         if (moduleType != null) {
@@ -122,6 +127,7 @@ public class ConfigurationData implements Serializable {
         if (environment.getConfigId() == null) throw new NullPointerException("environment.configId is null");
         this.environment = environment;
         this.configurationDir = configurationDir;
+        this.inPlaceConfigurationDir = inPlaceConfigurationDir;
     }
 
     public Artifact getId() {
@@ -163,6 +169,10 @@ public class ConfigurationData implements Serializable {
     public Environment getEnvironment() {
         return environment;
     }
+
+	public File getInPlaceConfigurationDir() {
+		return inPlaceConfigurationDir;
+	}
 
     public File getConfigurationDir() {
         return configurationDir;

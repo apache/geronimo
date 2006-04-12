@@ -107,7 +107,7 @@ public class ServiceReferenceTest extends TestCase {
         tmpbasedir.mkdirs();
         environment.setConfigId(configID);
         Jsr77Naming naming = new Jsr77Naming();
-        context = new DeploymentContext(tmpbasedir, environment, ConfigurationModuleType.CAR, naming);
+        context = new DeploymentContext(tmpbasedir, null, environment, ConfigurationModuleType.CAR, naming);
 
         File moduleLocation = new File(tmpbasedir, "ejb");
         moduleLocation.mkdirs();

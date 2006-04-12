@@ -72,7 +72,11 @@ public class ConfigurationResolver {
         this.artifactResolver = artifactResolver;
         this.repositories = repositories;
         configurationStore = configurationData.getConfigurationStore();
-        baseDir = configurationData.getConfigurationDir();
+        if (null != configurationData.getInPlaceConfigurationDir()) {
+            baseDir = configurationData.getInPlaceConfigurationDir();
+        } else {
+            baseDir = configurationData.getConfigurationDir();
+        }
         moduleName = null;
     }
 

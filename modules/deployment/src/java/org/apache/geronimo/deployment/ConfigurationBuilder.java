@@ -19,12 +19,11 @@ package org.apache.geronimo.deployment;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.jar.JarFile;
 import java.util.Collection;
 import java.util.List;
+import java.util.jar.JarFile;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
 
@@ -55,6 +54,7 @@ public interface ConfigurationBuilder {
     /**
      * Build a configuration from a local file
      *
+     * @param inPlaceDeployment true if the deployment is in-place.
      * @param plan the deployment plan
      * @param module the module to build
      * @param configurationStores
@@ -63,5 +63,5 @@ public interface ConfigurationBuilder {
      * @throws IOException if there was a problem reading or writing the files
      * @throws org.apache.geronimo.common.DeploymentException if there was a problem with the configuration
      */
-    List buildConfiguration(Object plan, JarFile module, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException;
+    List buildConfiguration(boolean inPlaceDeployment, Object plan, JarFile module, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException;
 }

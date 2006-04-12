@@ -36,9 +36,10 @@ import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 
 /**
- * @version $Rev: 383067 $ $Date$
+ * @version $Rev$ $Date$
  */
 public final class ExecutableConfigurationUtil {
+	
     private ExecutableConfigurationUtil() {
     }
 
@@ -129,6 +130,8 @@ public final class ExecutableConfigurationUtil {
             }
         }
         ConfigurationStoreUtil.writeChecksumFor(configSer);
+        
+        InPlaceConfigurationUtil.writeInPlaceLocation(configurationData, source);
     }
 
     private static Collection listRecursiveFiles(File file) {

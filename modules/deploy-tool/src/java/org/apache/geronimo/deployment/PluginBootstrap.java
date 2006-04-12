@@ -104,7 +104,7 @@ public class PluginBootstrap {
                 return null;
             }
         };
-        List configurations = builder.buildConfiguration(config, null, Collections.singleton(targetConfigurationStore), targetConfigurationStore);
+        List configurations = builder.buildConfiguration(false, config, null, Collections.singleton(targetConfigurationStore), targetConfigurationStore);
         ConfigurationData configurationData = (ConfigurationData) configurations.get(0);
 
         JarOutputStream out = new JarOutputStream(new FileOutputStream(carFile));

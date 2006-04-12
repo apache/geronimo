@@ -196,6 +196,8 @@ public class Deployer {
     }
 
     public List deploy(File planFile, File moduleFile, File targetFile, boolean install, String mainClass, String classPath, String endorsedDirs, String extensionDirs) throws DeploymentException {
+        boolean inPlaceConfiguration = false;
+    	
         if (planFile == null && moduleFile == null) {
             throw new DeploymentException("No plan or module specified");
         }
@@ -211,6 +213,9 @@ public class Deployer {
 
         JarFile module = null;
         if (moduleFile != null) {
+            if (inPlaceConfiguration && !moduleFile.isDirectory()) {
+                throw new DeploymentException("In place deployment is not allowed for packed module");
+            }
             if (!moduleFile.exists()) {
                 throw new DeploymentException("Module file does not exist: " + moduleFile.getAbsolutePath());
             }
@@ -275,7 +280,7 @@ public class Deployer {
                 throw new DeploymentException("No ConfigurationStores!");
             }
             ConfigurationStore store = (ConfigurationStore) stores.iterator().next();
-            List configurations = builder.buildConfiguration(plan, module, stores, store);
+            List configurations = builder.buildConfiguration(inPlaceConfiguration, plan, module, stores, store);
             if (configurations.isEmpty()) {
                 throw new DeploymentException("Deployer did not create any configuration");
             }

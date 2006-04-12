@@ -41,7 +41,7 @@ import java.util.Set;
 import java.util.LinkedHashSet;
 
 /**
- * @version $Rev: 384933 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class ServiceConfigBuilderTest extends TestCase {
 
@@ -66,7 +66,7 @@ public class ServiceConfigBuilderTest extends TestCase {
         try {
 
             Environment environment = EnvironmentBuilder.buildEnvironment(plan.getEnvironment());
-            DeploymentContext context = new DeploymentContext(outFile, environment, ConfigurationModuleType.CAR, naming, new MockRepository());
+            DeploymentContext context = new DeploymentContext(outFile, null, environment, ConfigurationModuleType.CAR, naming, new MockRepository());
             AbstractName j2eeContext = naming.createRootName(environment.getConfigId(), environment.getConfigId().toString(), "Configuration");
 
             GbeanType[] gbeans = plan.getGbeanArray();

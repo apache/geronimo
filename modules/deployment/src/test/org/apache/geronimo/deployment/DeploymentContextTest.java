@@ -32,7 +32,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 
 /**
- * @version $Rev: 384686 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class DeploymentContextTest extends TestCase {
     private byte[] classBytes;
@@ -46,7 +46,7 @@ public class DeploymentContextTest extends TestCase {
             Environment environment = new Environment();
             Artifact configId = new Artifact("foo", "artifact", "1", "car");
             environment.setConfigId(configId);
-            DeploymentContext context = new DeploymentContext(basedir, environment, ConfigurationModuleType.CAR, new Jsr77Naming());
+            DeploymentContext context = new DeploymentContext(basedir, null, environment, ConfigurationModuleType.CAR, new Jsr77Naming());
             Enhancer enhancer = new Enhancer();
             enhancer.setInterfaces(new Class[]{DataSource.class});
             enhancer.setCallbackType(MethodInterceptor.class);

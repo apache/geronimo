@@ -75,32 +75,36 @@ import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
  */
 public class DeploymentContext {
     private final File baseDir;
+    private final File inPlaceConfigurationDir;
     private final URI baseUri;
     private final byte[] buffer = new byte[4096];
     private final Map childConfigurationDatas = new LinkedHashMap();
     private final ConfigurationManager configurationManager;
-    private final Configuration configuration;
+    protected final Configuration configuration;
     private final Naming naming;
     private final List additionalDeployment = new ArrayList();
 
-    public DeploymentContext(File baseDir, Environment environment, ConfigurationModuleType moduleType, Naming naming) throws DeploymentException {
+    public DeploymentContext(File baseDir, File inPlaceConfigurationDir, Environment environment, ConfigurationModuleType moduleType, Naming naming) throws DeploymentException {
         this(baseDir,
+                inPlaceConfigurationDir,
                 environment,
                 moduleType,
                 naming,
                 Collections.EMPTY_SET);
     }
 
-    public DeploymentContext(File baseDir, Environment environment, ConfigurationModuleType moduleType, Naming naming, Repository repository) throws DeploymentException {
+    public DeploymentContext(File baseDir, File inPlaceConfigurationDir, Environment environment, ConfigurationModuleType moduleType, Naming naming, Repository repository) throws DeploymentException {
         this(baseDir,
+                inPlaceConfigurationDir,
                 environment,
                 moduleType,
                 naming,
                 repository == null ? Collections.EMPTY_SET : Collections.singleton(repository));
     }
 
-    public DeploymentContext(File baseDir, Environment environment, ConfigurationModuleType moduleType, Naming naming, Collection repositories) throws DeploymentException {
+    public DeploymentContext(File baseDir, File inPlaceConfigurationDir, Environment environment, ConfigurationModuleType moduleType, Naming naming, Collection repositories) throws DeploymentException {
         this(baseDir,
+                inPlaceConfigurationDir,
                 environment,
                 moduleType,
                 naming,
@@ -121,11 +125,11 @@ public class DeploymentContext {
         return stores;
     }
 
-    public DeploymentContext(File baseDir, Environment environment, ConfigurationModuleType moduleType, Naming naming, Collection repositories, Collection stores) throws DeploymentException {
-        this(baseDir, environment,  moduleType, naming, createConfigurationManager(repositories, stores));
+    public DeploymentContext(File baseDir, File inPlaceConfigurationDir, Environment environment, ConfigurationModuleType moduleType, Naming naming, Collection repositories, Collection stores) throws DeploymentException {
+        this(baseDir, inPlaceConfigurationDir, environment,  moduleType, naming, createConfigurationManager(repositories, stores));
     }
 
-    public DeploymentContext(File baseDir, Environment environment, ConfigurationModuleType moduleType, Naming naming, ConfigurationManager configurationManager) throws DeploymentException {
+    public DeploymentContext(File baseDir, File inPlaceConfigurationDir, Environment environment, ConfigurationModuleType moduleType, Naming naming, ConfigurationManager configurationManager) throws DeploymentException {
         this.configurationManager = configurationManager;
         if (baseDir == null) throw new NullPointerException("baseDir is null");
         if (environment == null) throw new NullPointerException("environment is null");
@@ -137,9 +141,11 @@ public class DeploymentContext {
         this.baseDir = baseDir;
         this.baseUri = baseDir.toURI();
 
+        this.inPlaceConfigurationDir = inPlaceConfigurationDir;
+        
         this.naming = naming;
 
-        this.configuration = createTempConfiguration(environment, moduleType, baseDir, configurationManager, naming);
+        this.configuration = createTempConfiguration(environment, moduleType, baseDir, inPlaceConfigurationDir, configurationManager, naming);
 
         if (baseDir.isFile()) {
             try {
@@ -157,9 +163,9 @@ public class DeploymentContext {
         return configurationManager;
     }
 
-    private static Configuration createTempConfiguration(Environment environment, ConfigurationModuleType moduleType, File baseDir, ConfigurationManager configurationManager, Naming naming) throws DeploymentException {
+    private static Configuration createTempConfiguration(Environment environment, ConfigurationModuleType moduleType, File baseDir, File inPlaceConfigurationDir, ConfigurationManager configurationManager, Naming naming) throws DeploymentException {
         try {
-            return configurationManager.loadConfiguration(new ConfigurationData(moduleType, null, null, null, environment, baseDir, naming));
+            return configurationManager.loadConfiguration(new ConfigurationData(moduleType, null, null, null, environment, baseDir, inPlaceConfigurationDir, naming));
         } catch (Exception e) {
             throw new DeploymentException("Unable to create configuration for deployment", e);
         }
@@ -469,6 +475,7 @@ public class DeploymentContext {
                 childConfigurationDatas,
                 configuration.getEnvironment(),
                 baseDir,
+                inPlaceConfigurationDir,
                 naming);
         return configurationData;
     }
@@ -479,5 +486,9 @@ public class DeploymentContext {
 
     public List getAdditionalDeployment() {
         return additionalDeployment;
+    }
+
+    public File getInPlaceConfigurationDir() {
+        return inPlaceConfigurationDir;
     }
 }

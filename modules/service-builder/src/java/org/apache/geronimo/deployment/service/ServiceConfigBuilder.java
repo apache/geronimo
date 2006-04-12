@@ -157,7 +157,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         return environment.getConfigId();
     }
 
-    public List buildConfiguration(Object plan, JarFile unused, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException {
+    public List buildConfiguration(boolean inPlaceDeployment, Object plan, JarFile unused, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException {
         ConfigurationType configType = (ConfigurationType) plan;
 
         return Collections.singletonList(buildConfiguration(configType, configurationStores, targetConfigurationStore));
@@ -173,7 +173,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         } catch (ConfigurationAlreadyExistsException e) {
             throw new DeploymentException(e);
         }
-        DeploymentContext context = new DeploymentContext(outfile, environment, ConfigurationModuleType.SERVICE, naming, repositories, configurationStores);
+        DeploymentContext context = new DeploymentContext(outfile, null, environment, ConfigurationModuleType.SERVICE, naming, repositories, configurationStores);
         ClassLoader cl = context.getClassLoader();
 
 

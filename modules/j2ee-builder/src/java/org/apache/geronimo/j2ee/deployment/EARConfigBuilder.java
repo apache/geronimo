@@ -335,7 +335,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         return applicationInfo.getEnvironment().getConfigId();
     }
 
-    public List buildConfiguration(Object plan, JarFile earFile, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException {
+    public List buildConfiguration(boolean inPlaceDeployment, Object plan, JarFile earFile, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException {
         assert plan != null;
         ApplicationInfo applicationInfo = (ApplicationInfo) plan;
 
@@ -352,20 +352,38 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
         try {
             // Create the output ear context
-            earContext = new EARContext(configurationDir,
-                    applicationInfo.getEnvironment(),
-                    applicationType,
-                    naming,
-                    repositories,
-                    configurationStores,
-                    serverName,
-                    applicationInfo.getBaseName(),
-                    transactionContextManagerObjectName,
-                    connectionTrackerObjectName,
-                    transactionalTimerObjectName,
-                    nonTransactionalTimerObjectName,
-                    corbaGBeanObjectName,
-                    new RefContext(ejbReferenceBuilder, resourceReferenceBuilder, serviceReferenceBuilder));
+        	if (inPlaceDeployment) {
+                earContext = new InPlaceEARContext(configurationDir,
+                        DeploymentUtil.toFile(earFile),
+                        applicationInfo.getEnvironment(),
+                        applicationType,
+                        naming,
+                        repositories,
+                        configurationStores,
+                        serverName,
+                        applicationInfo.getBaseName(),
+                        transactionContextManagerObjectName,
+                        connectionTrackerObjectName,
+                        transactionalTimerObjectName,
+                        nonTransactionalTimerObjectName,
+                        corbaGBeanObjectName,
+                        new RefContext(ejbReferenceBuilder, resourceReferenceBuilder, serviceReferenceBuilder));
+        	} else {
+                earContext = new EARContext(configurationDir,
+                        applicationInfo.getEnvironment(),
+                        applicationType,
+                        naming,
+                        repositories,
+                        configurationStores,
+                        serverName,
+                        applicationInfo.getBaseName(),
+                        transactionContextManagerObjectName,
+                        connectionTrackerObjectName,
+                        transactionalTimerObjectName,
+                        nonTransactionalTimerObjectName,
+                        corbaGBeanObjectName,
+                        new RefContext(ejbReferenceBuilder, resourceReferenceBuilder, serviceReferenceBuilder));
+        	}
 
             // Copy over all files that are _NOT_ modules
             Set moduleLocations = applicationInfo.getModuleLocations();

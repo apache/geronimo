@@ -132,6 +132,14 @@ public final class DeploymentUtil {
         }
     }
 
+    public static File toFile(JarFile jarFile) throws IOException {
+        if (jarFile instanceof UnpackedJarFile) {
+            return ((UnpackedJarFile) jarFile).getBaseDir();
+        } else {
+        	throw new IOException("jarFile is not a directory");
+        }
+    }
+
     // be careful with this method as it can leave a temp lying around
     public static File toFile(JarFile jarFile, String path) throws IOException {
         if (jarFile instanceof UnpackedJarFile) {

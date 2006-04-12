@@ -51,21 +51,39 @@ public class EARContext extends DeploymentContext {
     private AbstractName jaccManagerName;
     private SecurityConfiguration securityConfiguration;
 
-    public EARContext(File baseDir, Environment environment, ConfigurationModuleType moduleType, Naming naming, Collection repositories, Collection configurationStores, AbstractNameQuery serverName, AbstractName baseName, AbstractNameQuery transactionContextManagerObjectName, AbstractNameQuery connectionTrackerObjectName, AbstractNameQuery transactedTimerName, AbstractNameQuery nonTransactedTimerName, AbstractNameQuery corbaGBeanObjectName, RefContext refContext) throws DeploymentException {
-        super(baseDir, environment, moduleType, naming, repositories, configurationStores);
-        moduleName = baseName;
-        this.serverName = serverName;
-
-        this.transactionContextManagerObjectName = transactionContextManagerObjectName;
-        this.connectionTrackerObjectName = connectionTrackerObjectName;
-        this.transactedTimerName = transactedTimerName;
-        this.nonTransactedTimerName = nonTransactedTimerName;
-        this.corbaGBeanObjectName = corbaGBeanObjectName;
-        this.refContext = refContext;
+    public EARContext(File baseDir,
+        Environment environment,
+        ConfigurationModuleType moduleType,
+        Naming naming, 
+        Collection repositories, 
+        Collection configurationStores, 
+        AbstractNameQuery serverName, 
+        AbstractName baseName, 
+        AbstractNameQuery transactionContextManagerObjectName, 
+        AbstractNameQuery connectionTrackerObjectName, 
+        AbstractNameQuery transactedTimerName, 
+        AbstractNameQuery nonTransactedTimerName, 
+        AbstractNameQuery corbaGBeanObjectName, 
+        RefContext refContext) throws DeploymentException {
+        this(baseDir, 
+           null, 
+           environment, 
+           moduleType, 
+           naming, 
+           repositories, 
+           configurationStores, 
+           serverName, 
+           baseName, 
+           transactionContextManagerObjectName, 
+           connectionTrackerObjectName, 
+           transactedTimerName, 
+           nonTransactedTimerName, 
+           corbaGBeanObjectName, 
+           refContext);
     }
 
     public EARContext(File baseDir, Environment environment, ConfigurationModuleType moduleType, AbstractName baseName, EARContext parent) throws DeploymentException {
-        super(baseDir, environment, moduleType, parent.getNaming(), parent.getConfigurationManager());
+        super(baseDir, null, environment, moduleType, parent.getNaming(), parent.getConfigurationManager());
         moduleName = baseName;
         this.serverName = parent.getServerName();
 
@@ -77,6 +95,21 @@ public class EARContext extends DeploymentContext {
         this.refContext = parent.getRefContext();
     }
 
+    protected EARContext(File baseDir, File inPlaceConfigurationDir, Environment environment, ConfigurationModuleType moduleType, Naming naming, Collection repositories, Collection configurationStores, AbstractNameQuery serverName, AbstractName baseName, AbstractNameQuery transactionContextManagerObjectName, AbstractNameQuery connectionTrackerObjectName, AbstractNameQuery transactedTimerName, AbstractNameQuery nonTransactedTimerName, AbstractNameQuery corbaGBeanObjectName, RefContext refContext) throws DeploymentException {
+        super(baseDir, inPlaceConfigurationDir, environment, moduleType, naming, repositories, configurationStores);
+    
+        moduleName = baseName;
+        this.serverName = serverName;
+
+        this.transactionContextManagerObjectName = transactionContextManagerObjectName;
+        this.connectionTrackerObjectName = connectionTrackerObjectName;
+        this.transactedTimerName = transactedTimerName;
+        this.nonTransactedTimerName = nonTransactedTimerName;
+        this.corbaGBeanObjectName = corbaGBeanObjectName;
+        this.refContext = refContext;
+    }
+
+    
     public AbstractNameQuery getServerName() {
         return serverName;
     }

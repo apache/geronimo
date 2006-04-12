@@ -65,6 +65,10 @@ public class CommandDistribute extends AbstractCommand {
         if(args.length == 0) {
             throw new DeploymentSyntaxException("Must specify a module or plan (or both)");
         }
+        
+        BooleanHolder inPlaceHolder = new BooleanHolder();
+        args = processInPlace(args, inPlaceHolder);
+        
         List targets = new ArrayList();
         args = processTargets(args, targets);
         if(args.length > 2) {
@@ -106,10 +110,10 @@ public class CommandDistribute extends AbstractCommand {
         if(plan != null) {
             plan = plan.getAbsoluteFile();
         }
-        executeOnline(connection, targets, out, module, plan);
+        executeOnline(connection, inPlaceHolder.inPlace, targets, out, module, plan);
     }
 
-    private void executeOnline(ServerConnection connection, List targets, PrintWriter out, File module, File plan) throws DeploymentException {
+    private void executeOnline(ServerConnection connection, boolean inPlace, List targets, PrintWriter out, File module, File plan) throws DeploymentException {
         final DeploymentManager mgr = connection.getDeploymentManager();
         TargetModuleID[] results;
         boolean multipleTargets;
@@ -158,5 +162,19 @@ public class CommandDistribute extends AbstractCommand {
             args = temp;
         }
         return args;
+    }
+    
+    private String[] processInPlace(String[] args, BooleanHolder inPlaceHolder) {
+        if(args.length >= 2 && args[0].equals("--inPlace")) {
+        	inPlaceHolder.inPlace = true;
+            String[] temp = new String[args.length - 1];
+            System.arraycopy(args, 1, temp, 0, temp.length);
+            args = temp;
+        }
+        return args;
+    }
+    
+    private final class BooleanHolder {
+    	public boolean inPlace;
     }
 }
