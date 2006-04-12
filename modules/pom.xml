@@ -61,6 +61,7 @@
         <module>installer-processing</module>
         <module>installer-support</module>
         <module>interceptor</module>
+        <module>interop</module>
         <module>j2ee</module>
         <module>j2ee-builder</module>
         <module>j2ee-schema</module>
