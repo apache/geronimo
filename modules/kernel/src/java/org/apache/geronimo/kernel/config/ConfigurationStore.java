@@ -25,6 +25,7 @@ import java.net.URL;
 import java.util.List;
 
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.gbean.AbstractName;
 
 /**
  * Interface to a store for Configurations.
@@ -73,6 +74,13 @@ public interface ConfigurationStore {
      * @return the object name for the store
      */
     String getObjectName();
+
+    /**
+     * Return the object name for the store.
+     *
+     * @return the object name for the store
+     */
+    AbstractName getAbstractName();
 
     /**
      * Return the configurations in the store

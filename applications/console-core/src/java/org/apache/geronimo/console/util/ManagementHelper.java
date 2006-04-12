@@ -16,7 +16,13 @@
  */
 package org.apache.geronimo.console.util;
 
+import java.util.Map;
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginException;
+import javax.security.auth.spi.LoginModule;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.kernel.config.ConfigurationInfo;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.management.AppClientModule;
 import org.apache.geronimo.management.EJB;
@@ -31,6 +37,7 @@ import org.apache.geronimo.management.JMSResource;
 import org.apache.geronimo.management.ResourceAdapter;
 import org.apache.geronimo.management.Servlet;
 import org.apache.geronimo.management.WebModule;
+import org.apache.geronimo.management.J2EEDeployedObject;
 import org.apache.geronimo.management.geronimo.J2EEApplication;
 import org.apache.geronimo.management.geronimo.J2EEDomain;
 import org.apache.geronimo.management.geronimo.J2EEServer;
@@ -40,11 +47,6 @@ import org.apache.geronimo.management.geronimo.JCAResource;
 import org.apache.geronimo.management.geronimo.JVM;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 import org.apache.geronimo.system.logging.SystemLog;
-
-import javax.security.auth.Subject;
-import javax.security.auth.login.LoginException;
-import javax.security.auth.spi.LoginModule;
-import java.util.Map;
 
 /**
  * A helper interface to navigate between management objects.  This is not
@@ -114,4 +116,6 @@ public interface ManagementHelper {
     Subject testLoginModule(J2EEServer server, LoginModule module, Map options, String username, String password) throws LoginException;
     Object[] findByInterface(Class iface);
     AbstractName getNameFor(Object component);
+    ConfigurationInfo[] getConfigurations(ConfigurationModuleType type, boolean includeChildModules);
+    J2EEDeployedObject getModuleForConfiguration(Artifact configuration);
 }

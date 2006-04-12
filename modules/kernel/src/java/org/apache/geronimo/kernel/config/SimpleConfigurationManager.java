@@ -28,18 +28,17 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import javax.management.ObjectName;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
-import org.apache.geronimo.kernel.management.State;
 
 /**
  * @version $Rev$ $Date$
@@ -80,6 +79,17 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return list;
     }
 
+    public ConfigurationStore getStoreForConfiguration(Artifact configuration) {
+        List storeSnapshot = getStores();
+        List result = new ArrayList(storeSnapshot.size());
+        for (int i = 0; i < storeSnapshot.size(); i++) {
+            ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
+            if(store.containsConfiguration(configuration)) {
+                return store;
+            }
+        }
+        return null;
+    }
 
     public List listConfigurations(ObjectName storeName) throws NoSuchStoreException {
         List storeSnapshot = getStores();
@@ -97,9 +107,9 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         for (ListIterator iterator = list.listIterator(); iterator.hasNext();) {
             ConfigurationInfo configurationInfo = (ConfigurationInfo) iterator.next();
             if (isRunning(configurationInfo.getConfigID())) {
-                configurationInfo = new ConfigurationInfo(configurationInfo.getConfigID(), State.RUNNING, configurationInfo.getType());
+                configurationInfo = new ConfigurationInfo(store.getAbstractName(), configurationInfo.getConfigID(), State.RUNNING, configurationInfo.getType());
             } else {
-                configurationInfo = new ConfigurationInfo(configurationInfo.getConfigID(), State.STOPPED, configurationInfo.getType());
+                configurationInfo = new ConfigurationInfo(store.getAbstractName(), configurationInfo.getConfigID(), State.STOPPED, configurationInfo.getType());
             }
             iterator.set(configurationInfo);
         }

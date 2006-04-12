@@ -33,6 +33,7 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.repository.Maven1Repository;
+import org.apache.geronimo.gbean.AbstractName;
 
 /**
  * @version $Rev$ $Date$
@@ -84,6 +85,10 @@ public class PluginBootstrap {
             }
 
             public String getObjectName() {
+                return null;
+            }
+
+            public AbstractName getAbstractName() {
                 return null;
             }
 

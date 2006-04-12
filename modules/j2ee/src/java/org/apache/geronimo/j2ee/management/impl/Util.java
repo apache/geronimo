@@ -17,22 +17,21 @@
 
 package org.apache.geronimo.j2ee.management.impl;
 
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.proxy.ProxyManager;
-
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
+import java.lang.reflect.Array;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.lang.reflect.Array;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.proxy.ProxyManager;
 
 /**
  * @version $Rev$ $Date$
  */
 public class Util {
 
-    public static String[] getObjectNames(Kernel kernel, Object parentName, String[] j2eeTypes) {
+    public static String[] getObjectNames(Kernel kernel, String parentName, String[] j2eeTypes) {
         List objectNames = new LinkedList();
         for (int i = 0; i < j2eeTypes.length; i++) {
             String j2eeType = j2eeTypes[i];
@@ -52,7 +51,7 @@ public class Util {
     }
 
 
-    public static Object[] getObjects(Kernel kernel, Object parentName, String[] j2eeTypes, Class target) {
+    public static Object[] getObjects(Kernel kernel, String parentName, String[] j2eeTypes, Class target) {
         List objectNames = new LinkedList();
         for (int i = 0; i < j2eeTypes.length; i++) {
             String j2eeType = j2eeTypes[i];

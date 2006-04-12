@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.console;
 
+import org.apache.commons.fileupload.portlet.PortletFileUpload;
+
 import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletException;
@@ -25,9 +27,14 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 import java.io.IOException;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Properties;
 
 /**
- * ReplaceMe
+ * Base class for handlers for the multi page portlet.  Each one is expected
+ * to handle a single page -- the action request before the page is rendered,
+ * the render request, and the action request after the page is rendered.
  *
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
@@ -37,6 +44,8 @@ public abstract class MultiPageAbstractHandler {
     protected PortletRequestDispatcher view;
     private final String mode;
     private final String viewName;
+    private Map uploadFiles = new HashMap();
+    private Properties uploadFields = new Properties();
 
     protected MultiPageAbstractHandler(String mode, String viewName) {
         this.mode = mode;
@@ -77,6 +86,13 @@ public abstract class MultiPageAbstractHandler {
      */
     public abstract String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException;
 
+    public Map getUploadFiles() {
+        return uploadFiles;
+    }
+
+    public Properties getUploadFields() {
+        return uploadFields;
+    }
 
     protected static void waitForProgress(ProgressObject po) {
         while(po.getDeploymentStatus().isRunning()) {

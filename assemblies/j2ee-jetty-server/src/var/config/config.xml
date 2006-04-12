@@ -56,7 +56,7 @@
         </gbean>
     </configuration>
     <configuration name="geronimo/activemq/${pom.currentVersion}/car"/>
-    <configuration name="geronimo/directory/${pom.currentVersion}/car">
+    <configuration name="geronimo/directory/${pom.currentVersion}/car" load="false">
         <gbean name="geronimo.server:name=DirectoryService">
             <attribute name="host">${PlanServerHostname}</attribute>
             <attribute name="port">${PlanLdapPort}</attribute>

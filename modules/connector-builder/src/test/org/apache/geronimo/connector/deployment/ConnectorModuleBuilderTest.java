@@ -620,6 +620,10 @@ public class ConnectorModuleBuilderTest extends TestCase {
             return null;
         }
 
+        public AbstractName getAbstractName() {
+            return null;
+        }
+
         public List listConfigurations() {
             return null;
         }

@@ -20,6 +20,7 @@ import java.io.Serializable;
 
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.gbean.AbstractName;
 
 /**
  * 
@@ -30,18 +31,32 @@ public class ConfigurationInfo implements Serializable {
     private static final long serialVersionUID = 576134736036202445L;
     private final Artifact configID;
     private final ConfigurationModuleType type;
+    private final AbstractName storeName;
+    private final Artifact parentID;
     private final State state;
 
-    public ConfigurationInfo(Artifact configID, ConfigurationModuleType type) {
+    public ConfigurationInfo(AbstractName storeName, Artifact configID, ConfigurationModuleType type) {
         this.configID = configID;
         this.type = type;
         state = null;
+        this.storeName = storeName;
+        this.parentID = null;
     }
 
-    public ConfigurationInfo(Artifact configID, State state, ConfigurationModuleType type) {
+    public ConfigurationInfo(AbstractName storeName, Artifact configID, State state, ConfigurationModuleType type) {
         this.configID = configID;
         this.state = state;
         this.type = type;
+        this.storeName = storeName;
+        this.parentID = null;
+    }
+
+    public ConfigurationInfo(AbstractName storeName, Artifact configID, State state, ConfigurationModuleType type, Artifact parentID) {
+        this.configID = configID;
+        this.state = state;
+        this.type = type;
+        this.storeName = storeName;
+        this.parentID = parentID;
     }
 
     public Artifact getConfigID() {
@@ -56,4 +71,11 @@ public class ConfigurationInfo implements Serializable {
         return type;
     }
 
+    public AbstractName getStoreName() {
+        return storeName;
+    }
+
+    public Artifact getParentID() {
+        return parentID;
+    }
 }

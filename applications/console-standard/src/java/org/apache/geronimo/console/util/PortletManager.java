@@ -16,18 +16,37 @@
  */
 package org.apache.geronimo.console.util;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import javax.enterprise.deploy.spi.DeploymentManager;
+import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.portlet.PortletRequest;
+import javax.portlet.PortletSession;
+import javax.portlet.RenderResponse;
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginException;
+import javax.security.auth.spi.LoginModule;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.kernel.config.ConfigurationInfo;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.WriteableRepository;
 import org.apache.geronimo.management.ResourceAdapter;
+import org.apache.geronimo.management.J2EEDeployedObject;
 import org.apache.geronimo.management.geronimo.J2EEDomain;
 import org.apache.geronimo.management.geronimo.J2EEServer;
 import org.apache.geronimo.management.geronimo.JCAAdminObject;
@@ -43,23 +62,6 @@ import org.apache.geronimo.management.geronimo.WebConnector;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.system.logging.SystemLog;
-
-import javax.enterprise.deploy.spi.DeploymentManager;
-import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.portlet.PortletRequest;
-import javax.portlet.PortletSession;
-import javax.portlet.RenderResponse;
-import javax.security.auth.Subject;
-import javax.security.auth.login.LoginException;
-import javax.security.auth.spi.LoginModule;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @version $Rev$ $Date$
@@ -382,6 +384,16 @@ public class PortletManager {
         return null;
     }
 
+    public static J2EEDeployedObject getModule(PortletRequest request, Artifact configuration) {
+        ManagementHelper helper = getManagementHelper(request);
+        return helper.getModuleForConfiguration(configuration);        
+    }
+
+    public static ConfigurationInfo[] getConfigurations(PortletRequest request, ConfigurationModuleType type, boolean includeChildModules) {
+        ManagementHelper helper = getManagementHelper(request);
+        return helper.getConfigurations(type, includeChildModules);
+    }
+
     /**
      * Looks up the context prefix used by the portal, even if the thing running
      * is in one of the portlets.  We're kind of hacking our way there, but hey,
@@ -394,6 +406,9 @@ public class PortletManager {
             RenderResponse renderResponse = (RenderResponse) o;
             contextPath = renderResponse.createRenderURL().toString();
             int index = contextPath.indexOf(request.getPathInfo());
+            if(index == -1) { // todo: Hack!  But this doesn't always work otherwise if invoked from a page that was invoked from another portlet instead of a page accessed by top-level navigation
+                index = contextPath.indexOf(request.getPathInfo().substring(0, 20));
+            }
             contextPath = contextPath.substring(0, index);
         } else { // request did not come from a portlet
             contextPath = request.getContextPath();

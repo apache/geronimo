@@ -18,6 +18,10 @@ package org.apache.geronimo.console;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.fileupload.portlet.PortletFileUpload;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadException;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -30,6 +34,7 @@ import javax.portlet.PortletRequest;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.io.IOException;
 
 /**
@@ -55,7 +60,32 @@ public abstract class MultiPagePortlet extends BasePortlet {
 
     public void processAction(ActionRequest actionRequest,
                               ActionResponse actionResponse) throws PortletException, IOException {
-        String mode = actionRequest.getParameter(MODE_KEY);
+        String mode = null;
+        Map files = null;
+        Map fields = null;
+        if(actionRequest.getContentType() != null && actionRequest.getContentType().startsWith("multipart/form-data")) {
+            files = new HashMap();
+            fields = new HashMap();
+            PortletFileUpload request = new PortletFileUpload(new DiskFileItemFactory());
+            try {
+                List items = request.parseRequest(actionRequest);
+                for (int i = 0; i < items.size(); i++) {
+                    FileItem item = (FileItem) items.get(i);
+                    if(item.isFormField()) {
+                        if(item.getFieldName().equals(MODE_KEY)) {
+                            mode = item.getString();
+                        }
+                        fields.put(item.getFieldName(), item.getString());
+                    } else {
+                        files.put(item.getFieldName(), item);
+                    }
+                }
+            } catch (FileUploadException e) {
+                log.error("Unable to process form including a file upload", e);
+            }
+        } else {
+            mode = actionRequest.getParameter(MODE_KEY);
+        }
         MultiPageModel model = getModel(actionRequest);
         while(true) {
             if(mode == null) {
@@ -71,6 +101,13 @@ public abstract class MultiPagePortlet extends BasePortlet {
                 if(handler == null) {
                     log.error("No handler for action mode '"+mode+"'");
                     break;
+                }
+                if(files == null) {
+                    handler.getUploadFields().clear();
+                    handler.getUploadFiles().clear();
+                } else {
+                    handler.getUploadFields().putAll(fields);
+                    handler.getUploadFiles().putAll(files);
                 }
                 log.debug("Using action handler '"+handler.getClass().getName()+"'");
                 if(type.equals("before")) {
@@ -109,7 +146,7 @@ public abstract class MultiPagePortlet extends BasePortlet {
         } catch (Throwable e) {
             log.error("Unable to render portlet", e);
         }
-        renderRequest.setAttribute("data", model);
+        renderRequest.setAttribute(getModelJSPVariableName(), model);
         if(handler != null) {
             handler.getView().include(renderRequest, renderResponse);
         }
@@ -125,6 +162,8 @@ public abstract class MultiPagePortlet extends BasePortlet {
         if(helpers.containsKey("index")) return "index";
         return null;
     }
+
+    protected abstract String getModelJSPVariableName();
 
     protected abstract MultiPageModel getModel(PortletRequest request);
 }

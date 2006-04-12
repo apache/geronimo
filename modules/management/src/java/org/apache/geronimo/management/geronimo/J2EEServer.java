@@ -103,4 +103,15 @@ public interface J2EEServer extends org.apache.geronimo.management.J2EEServer {
      * @return The ObjectName of the LoginService, in String form.
      */
     public LoginService getLoginService();
+
+    /**
+     * Gets the ObjectName of the KeystoreManager associated with this
+     * J2EEServer.
+     *
+     * @see org.apache.geronimo.security.keystore.FileKeystoreManager
+     *
+     * @return The ObjectName of the KeystoreManager, in String form.
+     */
+    public KeystoreManager getKeystoreManager();
+
 }

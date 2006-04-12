@@ -36,4 +36,8 @@ public class ThreadPoolPortlet extends MultiPagePortlet {
     protected MultiPageModel getModel(PortletRequest request) {
         return new AbstractThreadHandler.ThreadPoolData(request);
     }
+
+    protected String getModelJSPVariableName() {
+        return "model";
+    }
 }

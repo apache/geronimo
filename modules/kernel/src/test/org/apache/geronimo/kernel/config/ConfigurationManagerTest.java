@@ -142,6 +142,10 @@ public class ConfigurationManagerTest extends TestCase {
             throw new UnsupportedOperationException();
         }
 
+        public AbstractName getAbstractName() {
+            throw new UnsupportedOperationException();
+        }
+
         public List listConfigurations() {
             throw new UnsupportedOperationException();
         }

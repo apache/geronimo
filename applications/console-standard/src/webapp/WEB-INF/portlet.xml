@@ -576,6 +576,52 @@ limitations under the License.
     </portlet>
 
     <portlet>
+        <description>Portlet for configuring Geronimo with Apache via mod_jk</description>
+        <portlet-name>ApacheJK</portlet-name>
+        <display-name>Apache mod_jk Wizard</display-name>
+
+        <portlet-class>org.apache.geronimo.console.apache.jk.ApacheConfigPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>Apache mod_jk Configuration</title>
+            <short-title>Apache mod_jk</short-title>
+            <keywords>Apache http mod_jk jk ajp</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
+        <description>New Portlet for configuring Keystores</description>
+        <portlet-name>Keystores</portlet-name>
+        <display-name>Keystore Wizard</display-name>
+
+        <portlet-class>org.apache.geronimo.console.keystores.KeystoresPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>Keystore Configuration</title>
+            <short-title>Keystores</short-title>
+            <keywords>Keystore Keytool SSL</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
         <description>Portlet for managing JMS connections</description>
         <portlet-name>JMSConnections</portlet-name>
         <display-name>JMS Connection Factory Portlet</display-name>

@@ -1,0 +1,99 @@
+<%@ page import="org.apache.geronimo.console.util.PortletManager"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<portlet:defineObjects/>
+
+<p>On this screen you can configure the settings to generate a new private key.
+The next screen will let you review this information before generating the
+private key and accompanying certificate.</p>
+
+<form name="<portlet:namespace/>KeystoreForm" action="<portlet:actionURL/>">
+    <input type="hidden" name="keystore" value="${keystore}" />
+    <input type="hidden" name="mode" value="configureKey-after" />
+    <table border="0">
+        <tr>
+            <th align="right">Alias for new key:</th>
+            <td>
+                <input type="text" name="alias" size="20" maxlength="100" />
+            </td>
+        </tr>
+        <tr>
+            <th align="right">Password for new key:</th>
+            <td>
+                <input type="password" name="password" size="20" maxlength="200" />
+            </td>
+        </tr>
+        <tr>
+            <th align="right">Key Size:</th>
+            <td>
+                <select name="keySize">
+                    <option>512</option>
+                    <option selected="true">1024</option>
+                    <option>2048</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <th align="right">Algorithm:</th>
+            <td>
+                <select name="algorithm">
+                    <option>MD2withRSA</option>
+                    <option selected="true">MD5withRSA</option>
+                    <option>SHA1withRSA</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <th align="right">Valid for (# of days):</th>
+            <td>
+                <input type="text" name="valid" size="5" maxlength="8" />
+            </td>
+        </tr>
+        <tr>
+            <th colspan="2">Certificate Identity</th>
+        </tr>
+        <tr>
+            <th align="right">Server Hostname (CN):</th>
+            <td>
+                <input type="text" name="certCN" size="20" maxlength="200" />
+            </td>
+        </tr>
+        <tr>
+            <th align="right">Company/Organization (O):</th>
+            <td>
+                <input type="text" name="certO" size="20" maxlength="200" />
+            </td>
+        </tr>
+        <tr>
+            <th align="right">Division/Business Unit (OU):</th>
+            <td>
+                <input type="text" name="certOU" size="20" maxlength="200" />
+            </td>
+        </tr>
+        <tr>
+            <th align="right">City/Locality (L):</th>
+            <td>
+                <input type="text" name="certL" size="20" maxlength="200" />
+            </td>
+        </tr>
+        <tr>
+            <th align="right">State/Province (ST):</th>
+            <td>
+                <input type="text" name="certST" size="20" maxlength="200" />
+            </td>
+        </tr>
+        <tr>
+            <th align="right">Country Code (2 char) (C):</th>
+            <td>
+                <input type="text" name="certC" size="3" maxlength="2" />
+            </td>
+        </tr>
+    </table>
+    <input type="submit" value="Review Key Data" />
+</form>
+
+
+<p><a href="<portlet:actionURL portletMode="view">
+              <portlet:param name="mode" value="viewKeystore-before" />
+              <portlet:param name="id" value="${keystore}" />
+            </portlet:actionURL>">Cancel</a></p>

@@ -240,6 +240,20 @@ limitations under the License.
             </fragment>
         </fragment>
 -->
+        <fragment name="apachejk" type="page">
+            <navigation>
+                <title>Apache HTTP</title>
+                <description>ico_servcomp_16x16.gif Hook Geronimo up to the Apache HTTP server</description>
+            </navigation>
+
+            <fragment name="row1" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p1" type="portlet">
+                        <property name="portlet" value="5.68"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+        </fragment>
     </fragment>
 
     <fragment name="services" type="page">
@@ -489,9 +503,24 @@ limitations under the License.
             </fragment>
         </fragment>
 
+        <fragment name="keystores" type="page">
+            <navigation>
+                <title>Keystores</title>
+                <description>ico_doc_16x16.gif Manage keystores for this server</description>
+            </navigation>
+
+            <fragment name="row1" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p1" type="portlet">
+                        <property name="portlet" value="5.69"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+        </fragment>
+
         <fragment name="keystore" type="page">
             <navigation>
-                <title>Keystore</title>
+                <title>Old Keystore</title>
                 <description>ico_doc_16x16.gif Manage the keystore for this server</description>
             </navigation>
 

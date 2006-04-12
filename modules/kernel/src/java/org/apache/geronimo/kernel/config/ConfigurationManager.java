@@ -16,16 +16,15 @@
  */
 package org.apache.geronimo.kernel.config;
 
-import org.apache.geronimo.kernel.repository.Artifact;
-
-import javax.management.ObjectName;
 import java.io.IOException;
 import java.util.List;
+import javax.management.ObjectName;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
  * Encapsulates logic for dealing with configurations.
  *
- * @version $Rev: 384686 $ $Date$
+ * @version $Rev$ $Date$
  */
 public interface ConfigurationManager {
     /**
@@ -40,6 +39,12 @@ public interface ConfigurationManager {
      * @return a List<AbstractName> of the stores this manager controls
      */
     List listStores();
+
+    /**
+     * Gets the configuration store responsible for the specified
+     * configuration, or null if there is none.
+     */
+    ConfigurationStore getStoreForConfiguration(Artifact configuration);
 
     /**
      * Return a list of the configurations in a specific store.

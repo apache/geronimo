@@ -41,6 +41,7 @@ import org.apache.geronimo.management.geronimo.LoginService;
 import org.apache.geronimo.management.geronimo.SecurityRealm;
 import org.apache.geronimo.management.geronimo.ThreadPool;
 import org.apache.geronimo.management.geronimo.WebManager;
+import org.apache.geronimo.management.geronimo.KeystoreManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
@@ -165,6 +166,10 @@ public class J2EEServerImpl implements J2EEServer {
 
     public LoginService getLoginService() {
         return (LoginService) getObject(LoginService.class);
+    }
+
+    public KeystoreManager getKeystoreManager() {
+        return (KeystoreManager) getObject(KeystoreManager.class);
     }
 
     public String getServerVendor() {

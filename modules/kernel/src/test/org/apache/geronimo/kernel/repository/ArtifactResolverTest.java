@@ -32,6 +32,7 @@ import java.util.TreeSet;
 import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
@@ -175,6 +176,10 @@ public class ArtifactResolverTest extends TestCase {
         }
 
         public String getObjectName() {
+            return null;
+        }
+
+        public AbstractName getAbstractName() {
             return null;
         }
 

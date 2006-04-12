@@ -183,6 +183,11 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     List children = new ArrayList();
 
     /**
+     * The parent of this configuration;
+     */
+    private Configuration parent = null;
+
+    /**
      * Only used to allow declaration as a reference.
      */
     public Configuration() {
@@ -279,6 +284,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             String moduleName = (String) entry.getKey();
             ConfigurationData childConfigurationData = (ConfigurationData) entry.getValue();
             Configuration childConfiguration = new Configuration(childParents, childConfigurationData, configurationResolver.createChildResolver(moduleName));
+            childConfiguration.parent = this;
             children.add(childConfiguration);
         }
     }
@@ -472,6 +478,14 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      */
     public synchronized boolean containsGBean(AbstractName gbean) {
         return gbeans.containsKey(gbean);
+    }
+
+    /**
+     * Gets the enclosing configuration of this one (e.g. the EAR for a WAR),
+     * or null if it has none.
+     */
+    public Configuration getEnclosingConfiguration() {
+        return parent;
     }
 
     public synchronized AbstractName addGBean(String name, GBeanData gbean) throws GBeanAlreadyExistsException {

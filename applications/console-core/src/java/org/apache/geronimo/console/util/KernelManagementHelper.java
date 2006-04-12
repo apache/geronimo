@@ -16,13 +16,42 @@
  */
 package org.apache.geronimo.console.util;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.login.LoginException;
+import javax.security.auth.spi.LoginModule;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.management.impl.Util;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.config.ConfigurationInfo;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.NoSuchStoreException;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.management.AppClientModule;
@@ -49,25 +78,6 @@ import org.apache.geronimo.management.geronimo.JVM;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.system.logging.SystemLog;
-
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.NameCallback;
-import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.security.auth.login.LoginException;
-import javax.security.auth.spi.LoginModule;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * An implementation of the ManagementHelper interface that uses a Geronimo
@@ -777,6 +787,109 @@ public class KernelManagementHelper implements ManagementHelper {
 
     public AbstractName getNameFor(Object component) {
         return kernel.getAbstractNameFor(component);
+    }
+
+    public ConfigurationInfo[] getConfigurations(ConfigurationModuleType type, boolean includeChildModules) {
+        ConfigurationManager mgr = ConfigurationUtil.getConfigurationManager(kernel);
+        List stores = mgr.listStores();
+        List results = new ArrayList();
+        for (Iterator i = stores.iterator(); i.hasNext();) {
+            ObjectName storeName = (ObjectName) i.next();
+            try {
+                List infos = mgr.listConfigurations(storeName);
+                for (Iterator j = infos.iterator(); j.hasNext();) {
+                    ConfigurationInfo info = (ConfigurationInfo) j.next();
+                    if(type == null || type.getValue() == info.getType().getValue()) {
+                        results.add(info);
+                    }
+                    if(includeChildModules && (type == null || info.getType().getValue() == ConfigurationModuleType.EAR.getValue())) {
+                        String dest = type.equals(ConfigurationModuleType.EAR) ? "J2EEApplication" :
+                                type.equals(ConfigurationModuleType.EJB) ? "EJBModule" :
+                                type.equals(ConfigurationModuleType.RAR) ? "ResourceAdapterModule" :
+                                type.equals(ConfigurationModuleType.WAR) ? "WebModule" :
+                                type.equals(ConfigurationModuleType.CAR) ? "AppClientModule" : null;
+                        String[] modules = Util.getObjectNames(kernel, "*:", new String[]{dest});
+                        for (int k = 0; k < modules.length; k++) {
+                            String name = modules[k];
+                            if(name.indexOf("J2EEApplication="+info.getConfigID()) > -1) {
+                                ObjectName temp = null;
+                                try {
+                                    temp = ObjectName.getInstance(name);
+                                } catch (MalformedObjectNameException e) {
+                                    throw new IllegalStateException("Bad ObjectName, Should Never Happen: "+e.getMessage());
+                                }
+                                State state;
+                                if (kernel.isLoaded(temp)) {
+                                    try {
+                                        state = State.fromInt(kernel.getGBeanState(temp));
+                                    } catch (Exception e) {
+                                        state = null;
+                                    }
+                                } else {
+                                    // If the configuration is not loaded by the kernel
+                                    // and defined by the store, then it is stopped.
+                                    state = State.STOPPED;
+                                }
+                                results.add(new ConfigurationInfo(info.getStoreName(), Artifact.create(temp.getKeyProperty(NameFactory.J2EE_NAME)), state, type, info.getConfigID()));
+                            }
+                        }
+                    }
+                }
+            } catch (NoSuchStoreException e) {
+                // we just got this list so this should not happen
+                // in the unlikely event it does, just continue
+            }
+        }
+        Collections.sort(results, new Comparator() {
+            public int compare(Object o1, Object o2) {
+                ConfigurationInfo ci1 = (ConfigurationInfo) o1;
+                ConfigurationInfo ci2 = (ConfigurationInfo) o2;
+                return ci1.getConfigID().toString().compareTo(ci2.getConfigID().toString());
+            }
+        });
+        return (ConfigurationInfo[]) results.toArray(new ConfigurationInfo[results.size()]);
+    }
+
+    public J2EEDeployedObject getModuleForConfiguration(Artifact configuration) {
+        ConfigurationManager manager = ConfigurationUtil.getConfigurationManager(kernel);
+        ConfigurationStore store = manager.getStoreForConfiguration(configuration);
+        ObjectName base = kernel.getAbstractNameFor(store).getObjectName();
+        Configuration config = manager.getConfiguration(configuration);
+        Configuration parent = config.getEnclosingConfiguration();
+        ConfigurationModuleType type = config.getModuleType();
+        try {
+            ObjectName module = null;
+            if(type.equals(ConfigurationModuleType.CAR)) {
+                if(parent == null) {
+                    module = ObjectName.getInstance(base.getDomain()+":J2EEServer="+base.getKeyProperty("J2EEServer")+",J2EEApplication=null,j2eeType=AppClientModule,name="+configuration);
+                } else {
+                    module = ObjectName.getInstance(base.getDomain()+":J2EEServer="+base.getKeyProperty("J2EEServer")+",J2EEApplication="+parent.getId()+",j2eeType=AppClientModule,name="+configuration);
+                }
+            } else if(type.equals(ConfigurationModuleType.EAR)) {
+                module = ObjectName.getInstance(base.getDomain()+":J2EEServer="+base.getKeyProperty("J2EEServer")+",J2EEApplication="+configuration+",j2eeType=J2EEApplication,name="+configuration);
+            } else if(type.equals(ConfigurationModuleType.EJB)) {
+                if(parent == null) {
+                    module = ObjectName.getInstance(base.getDomain()+":J2EEServer="+base.getKeyProperty("J2EEServer")+",J2EEApplication=null,j2eeType=EJBModule,name="+configuration);
+                } else {
+                    module = ObjectName.getInstance(base.getDomain()+":J2EEServer="+base.getKeyProperty("J2EEServer")+",J2EEApplication="+parent.getId()+",j2eeType=EJBModule,name="+configuration);
+                }
+            } else if(type.equals(ConfigurationModuleType.RAR)) {
+                if(parent == null) {
+                    module = ObjectName.getInstance(base.getDomain()+":J2EEServer="+base.getKeyProperty("J2EEServer")+",J2EEApplication=null,j2eeType=ResourceAdapterModule,name="+configuration);
+                } else {
+                    module = ObjectName.getInstance(base.getDomain()+":J2EEServer="+base.getKeyProperty("J2EEServer")+",J2EEApplication="+parent.getId()+",j2eeType=ResourceAdapterModule,name="+configuration);
+                }
+            } else if(type.equals(ConfigurationModuleType.WAR)) {
+                if(parent == null) {
+                    module = ObjectName.getInstance(base.getDomain()+":J2EEServer="+base.getKeyProperty("J2EEServer")+",J2EEApplication=null,j2eeType=WebModule,name="+configuration);
+                } else {
+                    module = ObjectName.getInstance(base.getDomain()+":J2EEServer="+base.getKeyProperty("J2EEServer")+",J2EEApplication="+parent.getId()+",j2eeType=WebModule,name="+configuration);
+                }
+            }
+            return (J2EEDeployedObject) kernel.getProxyManager().createProxy(module, getClass().getClassLoader());
+        } catch (MalformedObjectNameException e) {
+            throw new IllegalStateException("Bad config ID: "+e.getMessage());
+        }
     }
 
     /**
