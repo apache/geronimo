@@ -111,11 +111,13 @@ public interface ConfigurationManager {
      * @param configID
      * @throws InvalidConfigException
      */
-    void stopConfiguration(Artifact configID) throws InvalidConfigException;
+    void stopConfiguration(Artifact configID) throws NoSuchConfigException;
 
-    void stopConfiguration(Configuration configuration) throws InvalidConfigException;
+    void stopConfiguration(Configuration configuration) throws NoSuchConfigException;
 
     boolean isRunning(Artifact configurationId);
 
     List listConfigurations();
+
+    void uninstallConfiguration(Artifact configId) throws IOException, NoSuchConfigException;
 }

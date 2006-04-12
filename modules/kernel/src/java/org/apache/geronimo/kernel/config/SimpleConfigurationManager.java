@@ -81,7 +81,6 @@ public class SimpleConfigurationManager implements ConfigurationManager {
 
     public ConfigurationStore getStoreForConfiguration(Artifact configuration) {
         List storeSnapshot = getStores();
-        List result = new ArrayList(storeSnapshot.size());
         for (int i = 0; i < storeSnapshot.size(); i++) {
             ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
             if(store.containsConfiguration(configuration)) {
@@ -307,7 +306,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
                 return configurationData;
             }
         }
-        throw new NoSuchConfigException("No configuration with id: " + configId);
+        throw new NoSuchConfigException(configId);
     }
 
     private LinkedHashSet resolveParentIds(ConfigurationData configurationData) throws MissingDependencyException, InvalidConfigException {
@@ -393,16 +392,20 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         throw new UnsupportedOperationException();
     }
 
-    public void stopConfiguration(Configuration configuration) throws InvalidConfigException {
+    public void stopConfiguration(Configuration configuration) throws NoSuchConfigException {
         stopConfiguration(configuration.getId());
     }
 
-    public synchronized void stopConfiguration(Artifact id) throws InvalidConfigException {
+    public synchronized void stopConfiguration(Artifact id) throws NoSuchConfigException {
         ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(id);
         if (configurationStatus == null) {
-            throw new InvalidConfigurationException("Configuration is not loaded " + id);
+            throw new NoSuchConfigException(id);
         }
 
+        stopConfiguration(configurationStatus);
+    }
+
+    private void stopConfiguration(ConfigurationStatus configurationStatus) {
         List stopList = configurationStatus.stop();
         for (Iterator iterator = stopList.iterator(); iterator.hasNext();) {
             Configuration configuration = (Configuration) iterator.next();
@@ -420,6 +423,10 @@ public class SimpleConfigurationManager implements ConfigurationManager {
 
     public synchronized void unloadConfiguration(Artifact id) throws NoSuchConfigException {
         ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(id);
+        unloadConfiguration(configurationStatus);
+    }
+
+    private void unloadConfiguration(ConfigurationStatus configurationStatus) {
         List unloadList = configurationStatus.unload();
         for (Iterator iterator = unloadList.iterator(); iterator.hasNext();) {
             Configuration configuration = (Configuration) iterator.next();
@@ -434,6 +441,23 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         } catch (Exception e) {
             log.debug("Problem unloading config: " + configuration.getId(), e);
         }
+    }
+
+    public synchronized void uninstallConfiguration(Artifact configId) throws IOException, NoSuchConfigException {
+        ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(configId);
+        if (configurationStatus != null) {
+            stopConfiguration(configurationStatus);
+            unloadConfiguration(configurationStatus);
+        }
+
+        List storeSnapshot = getStores();
+        for (int i = 0; i < storeSnapshot.size(); i++) {
+            ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
+            if(store.containsConfiguration(configId)) {
+                store.uninstall(configId);
+            }
+        }
+
     }
 
     private List getStores() {

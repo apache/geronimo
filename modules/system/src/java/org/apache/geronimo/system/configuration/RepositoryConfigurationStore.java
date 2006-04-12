@@ -83,7 +83,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         File location = repository.getLocation(configId);
 
         if (!location.exists() && !location.canRead()) {
-            throw new NoSuchConfigException("Configuration not found: " + configId);
+            throw new NoSuchConfigException(configId);
         }
 
         ConfigurationData configurationData;

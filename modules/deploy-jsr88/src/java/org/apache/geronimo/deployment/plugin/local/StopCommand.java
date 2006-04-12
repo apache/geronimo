@@ -20,7 +20,6 @@ package org.apache.geronimo.deployment.plugin.local;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
 
 import javax.enterprise.deploy.shared.CommandType;
@@ -46,12 +45,9 @@ public class StopCommand extends CommandSupport {
                 for (int i = 0; i < modules.length; i++) {
                     TargetModuleID module = modules[i];
                     Artifact moduleID = Artifact.create(module.getModuleID());
-                    try {
-                        configurationManager.stopConfiguration(moduleID);
-                    } catch (InvalidConfigException e) {
-                        updateStatus("Module "+moduleID+" is not running.");
-                        continue;
-                    }
+                    configurationManager.stopConfiguration(moduleID);
+
+
                     configurationManager.unloadConfiguration(moduleID);
                     addModule(module);
                 }

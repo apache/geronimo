@@ -134,7 +134,7 @@ public class BaseConfigInstaller {
 
         // does this configuration exist?
         if (!sourceRepo.contains(configId)) {
-            throw new NoSuchConfigException(configId.toString());
+            throw new NoSuchConfigException(configId);
         }
 
         // is this config already installed?

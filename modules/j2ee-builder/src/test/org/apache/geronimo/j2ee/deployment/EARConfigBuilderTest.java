@@ -563,7 +563,7 @@ public class EARConfigBuilderTest extends TestCase {
         public URL resolve(Artifact configId, String moduleName, URI uri) throws NoSuchConfigException, MalformedURLException {
             File file = (File) locations.get(configId);
             if (file == null) {
-                throw new NoSuchConfigException("nothing for configid " + configId);
+                throw new NoSuchConfigException(configId);
             }
             return new URL(file.toURL(), uri.toString());
         }

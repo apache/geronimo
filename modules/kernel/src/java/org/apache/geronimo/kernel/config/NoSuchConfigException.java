@@ -17,24 +17,22 @@
 
 package org.apache.geronimo.kernel.config;
 
+import org.apache.geronimo.kernel.repository.Artifact;
+
 /**
  * Exception indicating the requestion Configuration could not be located.
  * 
  * @version $Rev$ $Date$
  */
 public class NoSuchConfigException extends Exception {
-    public NoSuchConfigException() {
+    private final Artifact configId;
+
+    public NoSuchConfigException(Artifact configId) {
+        super(configId.toString());
+        this.configId = configId;
     }
 
-    public NoSuchConfigException(Throwable cause) {
-        super(cause);
-    }
-
-    public NoSuchConfigException(String message) {
-        super(message);
-    }
-
-    public NoSuchConfigException(String message, Throwable cause) {
-        super(message, cause);
+    public Artifact getConfigId() {
+        return configId;
     }
 }

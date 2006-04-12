@@ -18,14 +18,12 @@
 package org.apache.geronimo.console.configmanager;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import javax.management.ObjectName;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletConfig;
@@ -38,7 +36,6 @@ import javax.portlet.WindowState;
 import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
@@ -54,17 +51,7 @@ public class ConfigManagerPortlet extends BasePortlet {
 
     private static final String UNINSTALL_ACTION = "uninstall";
 
-    private static final String CONTAINSCONFIG_METHOD = "containsConfiguration";
-
-    private static final String UNINSTALL_METHOD = "uninstall";
-
-    private static final String[] CONTAINSCONFIG_SIG = {URI.class.getName()};
-
-    private static final String[] UNINSTALL_SIG = {URI.class.getName()};
-
     private static final String CONFIG_INIT_PARAM = "config-type";
-
-    private String messageInstalled = "";
 
     private String messageStatus = "";
 
@@ -76,40 +63,28 @@ public class ConfigManagerPortlet extends BasePortlet {
 
     private PortletRequestDispatcher helpView;
 
-    private static final Collection EXCLUDED;
-
-    static {
-        // Add list of the configurationIDs that you do not want to list to this
-        // List.
-        EXCLUDED = new ArrayList();
-    }
-
-    public void processAction(ActionRequest actionRequest,
-                              ActionResponse actionResponse) throws PortletException, IOException {
+    public void processAction(ActionRequest actionRequest, ActionResponse actionResponse) throws PortletException, IOException {
         String action = actionRequest.getParameter("action");
         actionResponse.setRenderParameter("message", ""); // set to blank first
         try {
-            ConfigurationManager configurationManager = ConfigurationUtil
-                    .getConfigurationManager(kernel);
+            ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
             String config = getConfigID(actionRequest);
-            Artifact configID = Artifact.create(config);
+            Artifact configId = Artifact.create(config);
 
             if (START_ACTION.equals(action)) {
-                configurationManager.loadConfiguration(configID);
-                configurationManager.startConfiguration(configID);
+                configurationManager.loadConfiguration(configId);
+                configurationManager.startConfiguration(configId);
                 messageStatus = "Started application<br /><br />";
             } else if (STOP_ACTION.equals(action)) {
-                configurationManager.stopConfiguration(configID);
-                configurationManager.unloadConfiguration(configID);
+                configurationManager.stopConfiguration(configId);
+                configurationManager.unloadConfiguration(configId);
                 messageStatus = "Stopped application<br /><br />";
             } else if (UNINSTALL_ACTION.equals(action)) {
-                uninstallConfig(actionRequest);
+                configurationManager.uninstallConfiguration(configId);
                 messageStatus = "Uninstalled application<br /><br />";
             } else {
-                messageStatus = "Invalid value for changeState: " + action
-                        + "<br /><br />";
-                throw new PortletException("Invalid value for changeState: "
-                        + action);
+                messageStatus = "Invalid value for changeState: " + action + "<br /><br />";
+                throw new PortletException("Invalid value for changeState: " + action);
             }
         } catch (NoSuchConfigException e) {
             // ignore this for now
@@ -125,49 +100,12 @@ public class ConfigManagerPortlet extends BasePortlet {
     }
 
     /**
-     * Uninstall an application configuration
-     *
-     * @param actionRequest
-     * @throws PortletException
-     * @throws Exception
-     */
-    private void uninstallConfig(ActionRequest actionRequest)
-            throws PortletException, Exception {
-        ConfigurationManager configManager = ConfigurationUtil
-                .getConfigurationManager(kernel);
-        List configStores = configManager.listStores();
-        int size = configStores.size();
-        String configID = getConfigID(actionRequest);
-        Artifact configURI = Artifact.create(configID);
-        for (int i = 0; i < size; i++) {
-            ObjectName configStore = (ObjectName) configStores.get(i);
-            Boolean result = (Boolean) kernel.invoke(configStore,
-                    CONTAINSCONFIG_METHOD,
-                    new Object[]{configURI}, CONTAINSCONFIG_SIG);
-            if (result.booleanValue()) {
-                // stop config if running
-                if (configManager.isLoaded(configURI)) {
-                    if (kernel.isRunning(Configuration.getConfigurationAbstractName(configURI))) {
-
-                        configManager.stopConfiguration(configURI);
-                        configManager.unloadConfiguration(configURI);
-                    }
-                }
-                kernel.invoke(configStore, UNINSTALL_METHOD, new Object[]{configURI}, UNINSTALL_SIG);
-            }
-        }
-    }
-
-    /**
      * Check if a configuration should be listed here. This method depends on the "config-type" portlet parameter
      * which is set in portle.xml.
      */
     private boolean shouldListConfig(ConfigurationInfo info) {
         String configType = getInitParameter(CONFIG_INIT_PARAM);
-        if (configType != null && !info.getType().getName().equalsIgnoreCase(configType))
-            return false;
-        else
-            return true;
+        return configType == null || info.getType().getName().equalsIgnoreCase(configType);
     }
 
     /*
@@ -178,8 +116,7 @@ public class ConfigManagerPortlet extends BasePortlet {
      * actionRequest.getParameter("configId")); } return configID; }
      */
 
-    private String getConfigID(ActionRequest actionRequest)
-            throws PortletException {
+    private String getConfigID(ActionRequest actionRequest) {
         return actionRequest.getParameter("configId");
     }
 
@@ -205,9 +142,11 @@ public class ConfigManagerPortlet extends BasePortlet {
             }
         });
         renderRequest.setAttribute("configurations", configInfo);
-        messageInstalled = configInfo.size() == 0 ? "No modules found of this type<br /><br />"
-                : "";
-        renderRequest.setAttribute("messageInstalled", messageInstalled);
+        if (configInfo.size() == 0) {
+            renderRequest.setAttribute("messageInstalled", "No modules found of this type<br /><br />");
+        } else {
+            renderRequest.setAttribute("messageInstalled", "");
+        }
         renderRequest.setAttribute("messageStatus", messageStatus);
         messageStatus = "";
         if (WindowState.NORMAL.equals(renderRequest.getWindowState())) {
@@ -217,8 +156,7 @@ public class ConfigManagerPortlet extends BasePortlet {
         }
     }
 
-    protected void doHelp(RenderRequest renderRequest,
-                          RenderResponse renderResponse) throws PortletException, IOException {
+    protected void doHelp(RenderRequest renderRequest, RenderResponse renderResponse) throws PortletException, IOException {
         helpView.include(renderRequest, renderResponse);
     }
 

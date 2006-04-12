@@ -19,22 +19,18 @@ package org.apache.geronimo.deployment.plugin.local;
 import org.apache.geronimo.deployment.plugin.TargetImpl;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.gbean.AbstractName;
 
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.management.ObjectName;
 import java.io.File;
 import java.io.InputStream;
-import java.net.URI;
 
 /**
  * @version $Rev$ $Date$
