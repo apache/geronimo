@@ -92,7 +92,7 @@ public class ListScreenHandler extends AbstractHandler {
                     if(adapters.length == 1 && adapters[0].getJCAResources().length == 1) {
                         JCAResource[] resource = PortletManager.getJCAResources(renderRequest, adapters[0]);
                         if(resource.length == 1 && resource[0].getResourceAdapterInstances().length == 1) {
-                            name = ObjectName.getInstance(resource[0].getResourceAdapterInstances()[0]).getKeyProperty(NameFactory.J2EE_NAME);
+                            name = ObjectName.getInstance(resource[0].getResourceAdapterInstanceNames()[0]).getKeyProperty(NameFactory.J2EE_NAME);
                         }
                     }
                     if(name == null) {
@@ -132,7 +132,7 @@ public class ListScreenHandler extends AbstractHandler {
                     if(adapters.length == 1 && adapters[0].getJCAResources().length == 1) {
                         JCAResource[] resource = PortletManager.getJCAResources(renderRequest, adapters[0]);
                         if(resource.length == 1 && resource[0].getResourceAdapterInstances().length == 1) {
-                            name = ObjectName.getInstance(resource[0].getResourceAdapterInstances()[0]).getKeyProperty(NameFactory.J2EE_NAME);
+                            name = ObjectName.getInstance(resource[0].getResourceAdapterInstanceNames()[0]).getKeyProperty(NameFactory.J2EE_NAME);
                         }
                     }
                     if(name == null) {
