@@ -18,7 +18,7 @@ package org.apache.geronimo.connector.outbound;
 
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.management.JCAConnectionFactory;
+import org.apache.geronimo.management.geronimo.JCAConnectionFactory;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 
 import javax.management.ObjectName;
@@ -42,6 +42,10 @@ public class JCAConnectionFactoryImpl implements JCAConnectionFactory  {
 
     public String getManagedConnectionFactory() {
         return managedConnectionFactory.getObjectName();
+    }
+
+    public JCAManagedConnectionFactory getManagedConnectionFactoryInstance() {
+        return managedConnectionFactory;
     }
 
     public String getObjectName() {
@@ -86,5 +90,4 @@ public class JCAConnectionFactoryImpl implements JCAConnectionFactory  {
 //            throw new InvalidObjectNameException("JCAConnectionFactory object name can only have j2eeType, name, JCAResource, and J2EEServer properties", objectName);
 //        }
     }
-
 }

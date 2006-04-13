@@ -18,8 +18,7 @@ package org.apache.geronimo.connector;
 
 import org.apache.geronimo.management.geronimo.JCAResource;
 import org.apache.geronimo.management.geronimo.JCAResourceAdapter;
-import org.apache.geronimo.management.JCAConnectionFactory;
-import org.apache.geronimo.connector.outbound.JCAConnectionFactoryImpl;
+import org.apache.geronimo.management.geronimo.JCAConnectionFactory;
 
 import java.util.Collection;
 import java.util.ArrayList;
@@ -49,13 +48,21 @@ public class JCAResourceImpl implements JCAResource  {
         return (String[])temp.toArray(new String[temp.size()]);
     }
 
-    public String[] getResourceAdapterInstances() {
+    public String[] getResourceAdapterInstanceNames() {
         ArrayList temp = new ArrayList();
         for (Iterator iterator = resourceAdapters.iterator(); iterator.hasNext();) {
             JCAResourceAdapter resourceAdapter = (JCAResourceAdapter) iterator.next();
             temp.add(resourceAdapter.getObjectName());
         }
         return (String[])temp.toArray(new String[temp.size()]);
+    }
+
+    public JCAResourceAdapter[] getResourceAdapterInstances() {
+        return (JCAResourceAdapter[])resourceAdapters.toArray(new JCAResourceAdapter[resourceAdapters.size()]);
+    }
+
+    public JCAConnectionFactory[] getConnectionFactoryInstances() {
+        return (JCAConnectionFactory[])connectionFactories.toArray(new JCAConnectionFactory[connectionFactories.size()]);
     }
 
     public String getObjectName() {

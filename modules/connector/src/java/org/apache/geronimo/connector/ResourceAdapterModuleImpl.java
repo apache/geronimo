@@ -24,7 +24,7 @@ import javax.management.ObjectName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
-import org.apache.geronimo.management.ResourceAdapter;
+import org.apache.geronimo.management.geronimo.ResourceAdapter;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
@@ -157,6 +157,10 @@ public class ResourceAdapterModuleImpl implements ResourceAdapterModule {
 
     public String getEISType() {
         return eisType;
+    }
+
+    public ResourceAdapter[] getResourceAdapterInstances() {
+        return new ResourceAdapter[] {resourceAdapter};
     }
 
     /**

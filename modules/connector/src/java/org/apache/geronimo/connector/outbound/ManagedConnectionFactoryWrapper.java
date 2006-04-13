@@ -175,19 +175,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
     }
 
     public Object getConnectionManager() {
-        try {
-            ObjectName mine = ObjectName.getInstance(objectName);
-            Properties other = new Properties();
-            other.setProperty(NameFactory.J2EE_APPLICATION, mine.getKeyProperty(NameFactory.J2EE_APPLICATION));
-            other.setProperty(NameFactory.J2EE_SERVER, mine.getKeyProperty(NameFactory.J2EE_SERVER));
-            other.setProperty(NameFactory.JCA_RESOURCE, mine.getKeyProperty(NameFactory.JCA_RESOURCE));
-            other.setProperty(NameFactory.J2EE_TYPE, NameFactory.JCA_CONNECTION_MANAGER);
-            other.setProperty(NameFactory.J2EE_NAME, mine.getKeyProperty(NameFactory.J2EE_NAME));
-            return kernel.getProxyManager().createProxy(new ObjectName(mine.getDomain(), other), getClass().getClassLoader());
-        } catch (MalformedObjectNameException e) {
-            log.error("Unable to construct ObjectName", e);
-            return null;
-        }
+        return connectionManagerContainer.getConnectionManager();
     }
 
     public void doStart() throws Exception {

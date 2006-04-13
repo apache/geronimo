@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2006 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,16 +14,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.apache.geronimo.management.geronimo;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev:$ $Date:$
  */
-public interface ResourceAdapterModule extends org.apache.geronimo.management.ResourceAdapterModule {
-    String getDisplayName();
-    String getDescription();
-    String getVendorName();
-    String getResourceAdapterVersion();
-    String getEISType();
-    ResourceAdapter[] getResourceAdapterInstances();
+public interface ResourceAdapter extends org.apache.geronimo.management.ResourceAdapter {
+    JCAResource[] getJCAResourceImplementations();
 }

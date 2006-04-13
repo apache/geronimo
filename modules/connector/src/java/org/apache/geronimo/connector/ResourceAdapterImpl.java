@@ -16,7 +16,7 @@
  */
 package org.apache.geronimo.connector;
 
-import org.apache.geronimo.management.ResourceAdapter;
+import org.apache.geronimo.management.geronimo.ResourceAdapter;
 import org.apache.geronimo.management.geronimo.JCAResource;
 
 /**
@@ -49,5 +49,9 @@ public class ResourceAdapterImpl implements ResourceAdapter {
 
     public boolean isEventProvider() {
         return false;
+    }
+
+    public JCAResource[] getJCAResourceImplementations() {
+        return new JCAResource[] {jcaResource};
     }
 }
