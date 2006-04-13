@@ -106,9 +106,18 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         for (ListIterator iterator = list.listIterator(); iterator.hasNext();) {
             ConfigurationInfo configurationInfo = (ConfigurationInfo) iterator.next();
             if (isRunning(configurationInfo.getConfigID())) {
-                configurationInfo = new ConfigurationInfo(store.getAbstractName(), configurationInfo.getConfigID(), State.RUNNING, configurationInfo.getType());
+                configurationInfo = new ConfigurationInfo(store.getAbstractName(),
+                        configurationInfo.getConfigID(),
+                        configurationInfo.getType(),
+                        configurationInfo.getCreated(),
+                        configurationInfo.getOwnedConfigurations(),
+                        State.RUNNING);
             } else {
-                configurationInfo = new ConfigurationInfo(store.getAbstractName(), configurationInfo.getConfigID(), State.STOPPED, configurationInfo.getType());
+                configurationInfo = new ConfigurationInfo(store.getAbstractName(),
+                        configurationInfo.getConfigID(),
+                        configurationInfo.getType(),
+                        configurationInfo.getCreated(),
+                        configurationInfo.getOwnedConfigurations(), State.STOPPED);
             }
             iterator.set(configurationInfo);
         }

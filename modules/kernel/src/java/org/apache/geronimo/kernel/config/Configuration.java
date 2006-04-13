@@ -448,6 +448,14 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     }
 
     /**
+     * Gets the time at which this configuration was created (or deployed).
+     * @return the time at which this configuration was created (or deployed)
+     */
+    public long getCreated() {
+        return configurationData.getCreated();
+    }
+
+    /**
      * Gets the class loader for this configuration.
      * @return the class loader for this configuration
      */
@@ -461,6 +469,14 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      */
     public List getChildren() {
         return Collections.unmodifiableList(children);
+    }
+
+    /**
+     * Gets the configurations owned by this configuration.  This is only used for cascade-uninstall.
+     * @return the configurations owned by this configuration
+     */
+    public Set getOwnedConfigurations() {
+        return configurationData.getOwnedConfigurations();
     }
 
     /**

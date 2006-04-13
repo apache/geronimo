@@ -31,14 +31,13 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import javax.management.ObjectName;
 
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
@@ -240,8 +239,33 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
     }
 
     public void uninstall(Artifact configId) throws NoSuchConfigException, IOException {
+        ConfigurationInfo configurationInfo = null;
+        try {
+            configurationInfo = loadConfigurationInfo(configId);
+        } catch (IOException e) {
+            // don't really care
+        }
         File location = repository.getLocation(configId);
         IOUtil.recursiveDelete(location);
+
+        if (configurationInfo != null) {
+            IOException ioException = null;
+            for (Iterator iterator = configurationInfo.getOwnedConfigurations().iterator(); iterator.hasNext();) {
+                Artifact ownedConfiguration = (Artifact) iterator.next();
+                try {
+                    uninstall(ownedConfiguration);
+                } catch (NoSuchConfigException e) {
+                    // ignored - already deleted or never installed
+                } catch (IOException e) {
+                    if (ioException != null) {
+                        ioException = e;
+                    }
+                }
+                if (ioException != null) {
+                    throw ioException;
+                }
+            }
+        }
     }
 
     public List listConfigurations() {
@@ -254,18 +278,48 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
                 Artifact configId = (Artifact) i.next();
                 if (configId.getType().equals("car")) {
                     try {
-                        // this is super expensive just to get one small piece of info
-                        // todo consider making module type the same as artifact type
-                        ConfigurationData configurationData = loadConfiguration(configId);
-                        ConfigurationModuleType type = configurationData.getModuleType();
-
-                        configs.add(new ConfigurationInfo(kernel.getAbstractNameFor(this), configId, type));
+                        ConfigurationInfo configurationInfo = loadConfigurationInfo(configId);
+                        configs.add(configurationInfo);
                     } catch (Exception e) {
                     }
                 }
             }
         }
         return configs;
+    }
+
+    private ConfigurationInfo loadConfigurationInfo(Artifact configId) throws NoSuchConfigException, IOException {
+        File location = repository.getLocation(configId);
+
+        if (!location.exists() && !location.canRead()) {
+            throw new NoSuchConfigException(configId);
+        }
+
+        ConfigurationInfo configurationInfo;
+        if (location.isDirectory()) {
+            File infoFile = new File(location, "META-INF");
+            infoFile = new File(infoFile, "config.info");
+
+            InputStream in = new FileInputStream(infoFile);
+            try {
+                configurationInfo = ConfigurationUtil.readConfigurationInfo(in, getAbstractName());
+            } finally {
+                IOUtil.close(in);
+            }
+        } else {
+            JarFile jarFile = new JarFile(location);
+            InputStream in = null;
+            try {
+                ZipEntry entry = jarFile.getEntry("META-INF/config.info");
+                in = jarFile.getInputStream(entry);
+                configurationInfo = ConfigurationUtil.readConfigurationInfo(in, getAbstractName());
+            } finally {
+                IOUtil.close(in);
+                IOUtil.close(jarFile);
+            }
+        }
+
+        return configurationInfo;
     }
 
 //    /**

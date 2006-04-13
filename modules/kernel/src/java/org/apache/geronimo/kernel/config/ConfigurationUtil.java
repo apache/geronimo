@@ -19,6 +19,7 @@ package org.apache.geronimo.kernel.config;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URL;
 import java.util.Collection;
@@ -28,6 +29,9 @@ import java.util.Set;
 import java.util.List;
 import java.util.Collections;
 import java.util.ArrayList;
+import java.util.Properties;
+import java.util.Map;
+import java.util.LinkedHashSet;
 
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -161,6 +165,52 @@ public final class ConfigurationUtil {
 
     public static ConfigurationData readConfigurationData(InputStream in) throws IOException, ClassNotFoundException {
         return configurationMarshaler.readConfigurationData(in);
+    }
+
+    public static void writeConfigInfo(PrintWriter writer, ConfigurationData configurationData) {
+        writer.println("id=" + configurationData.getId());
+        writer.println("type=" + configurationData.getModuleType());
+        writer.println("created=" + configurationData.getCreated());
+        Set ownedConfigurations = configurationData.getOwnedConfigurations();
+        int i = 0;
+        for (Iterator iterator = ownedConfigurations.iterator(); iterator.hasNext();) {
+            Artifact ownedConfiguration = (Artifact) iterator.next();
+            writer.println("owned.configuration." + i++ + "=" + ownedConfiguration);
+        }
+    }
+
+    public static ConfigurationInfo readConfigurationInfo(InputStream in, AbstractName storeName) throws IOException {
+        Properties properties = new Properties();
+        properties.load(in);
+
+        String id = properties.getProperty("id");
+        Artifact configId = Artifact.create(id);
+
+        String type = properties.getProperty("type");
+        ConfigurationModuleType moduleType = ConfigurationModuleType.getByName(type);
+        if (moduleType == null) {
+            throw new IllegalArgumentException("Unknown module type: " + type);
+        }
+
+        String created = properties.getProperty("created");
+        long time;
+        try {
+            time = Long.parseLong(created);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid created time: " + created);
+        }
+
+        LinkedHashSet ownedConfigurations = new LinkedHashSet();
+        for (Iterator iterator = properties.entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            String name = (String) entry.getKey();
+            if (name.startsWith("owned.configuration.")) {
+                String value = (String) entry.getValue();
+                Artifact ownedConfiguration = Artifact.create(value);
+                ownedConfigurations.add(ownedConfiguration);
+            }
+        }
+        return new ConfigurationInfo(storeName, configId, moduleType, time, ownedConfigurations);
     }
 
     /**

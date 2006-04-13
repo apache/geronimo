@@ -830,7 +830,7 @@ public class KernelManagementHelper implements ManagementHelper {
                                     // and defined by the store, then it is stopped.
                                     state = State.STOPPED;
                                 }
-                                results.add(new ConfigurationInfo(info.getStoreName(), Artifact.create(temp.getKeyProperty(NameFactory.J2EE_NAME)), state, type, info.getConfigID()));
+                                results.add(new ConfigurationInfo(info.getStoreName(), Artifact.create(temp.getKeyProperty(NameFactory.J2EE_NAME)), type, info.getCreated(), info.getOwnedConfigurations(), state, info.getConfigID()));
                             }
                         }
                     }

@@ -25,6 +25,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.LinkedHashMap;
+import java.util.Set;
 
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -37,6 +38,11 @@ import org.apache.geronimo.kernel.repository.Environment;
  */
 public class ConfigurationData implements Serializable {
     private static final long serialVersionUID = 4324193220056650732L;
+
+    /**
+     * The time at which this configuration was created.
+     */
+    private final long created = System.currentTimeMillis();
 
     /**
      * Identifies the type of configuration (WAR, RAR et cetera)
@@ -62,6 +68,11 @@ public class ConfigurationData implements Serializable {
      * Child configurations of this configuration
      */
     private final Map childConfigurations = new LinkedHashMap();
+
+    /**
+     * Configurations owned by this configuration.  This is only used for cascade-uninstall.
+     */
+    private final Set ownedConfigurations = new LinkedHashSet();
 
     /**
      * The base file of the configuation
@@ -134,6 +145,14 @@ public class ConfigurationData implements Serializable {
         return environment.getConfigId();
     }
 
+    /**
+     * Gets the time at which this configuration was created (or deployed).
+     * @return the time at which this configuration was created (or deployed)
+     */
+    public long getCreated() {
+        return created;
+    }
+
     public ConfigurationModuleType getModuleType() {
         return moduleType;
     }
@@ -143,14 +162,18 @@ public class ConfigurationData implements Serializable {
     }
 
     public List getGBeans(ClassLoader classLoader) throws InvalidConfigException {
+        if (classLoader == null) throw new NullPointerException("classLoader is null");
         return gbeanState.getGBeans(classLoader);
     }
 
     public void addGBean(GBeanData gbeanData) {
+        if (gbeanData == null) throw new NullPointerException("gbeanData is null");
         gbeanState.addGBean(gbeanData);
     }
 
     public GBeanData addGBean(String name, GBeanInfo gbeanInfo) {
+        if (name == null) throw new NullPointerException("name is null");
+        if (gbeanInfo == null) throw new NullPointerException("gbeanInfo is null");
         return gbeanState.addGBean(name, gbeanInfo, naming, environment);
     }
 
@@ -163,7 +186,22 @@ public class ConfigurationData implements Serializable {
     }
 
     public void addChildConfiguration(ConfigurationData configurationData) {
+        if (configurationData == null) throw new NullPointerException("configurationData is null");
         childConfigurations.put(configurationData.getId(), configurationData);
+    }
+
+    /**
+     * Gets the configurations owned by this configuration.  This is only used for cascade-uninstall.
+     * @return the configurations owned by this configuration
+     */
+    public Set getOwnedConfigurations() {
+        return Collections.unmodifiableSet(ownedConfigurations);
+    }
+
+    public void addOwnedConfigurations(Artifact id) {
+        if (id == null) throw new NullPointerException("id is null");
+        if (!id.isResolved()) throw new IllegalArgumentException("id is not resolved: " + id);
+        ownedConfigurations.add(id);
     }
 
     public Environment getEnvironment() {
@@ -179,6 +217,7 @@ public class ConfigurationData implements Serializable {
     }
 
     public void setConfigurationDir(File configurationDir) {
+        if (configurationDir == null) throw new NullPointerException("configurationDir is null");
         this.configurationDir = configurationDir;
     }
 
@@ -195,6 +234,7 @@ public class ConfigurationData implements Serializable {
     }
 
     public void setConfigurationStore(ConfigurationStore configurationStore) {
+        if (configurationStore == null) throw new NullPointerException("configurationStore is null");
         this.configurationStore = configurationStore;
     }
 }

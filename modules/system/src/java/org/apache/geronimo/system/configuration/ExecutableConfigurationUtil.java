@@ -23,6 +23,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.FileWriter;
+import java.io.Writer;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
@@ -39,7 +42,7 @@ import org.apache.geronimo.kernel.config.ConfigurationUtil;
  * @version $Rev$ $Date$
  */
 public final class ExecutableConfigurationUtil {
-	
+
     private ExecutableConfigurationUtil() {
     }
 
@@ -106,6 +109,16 @@ public final class ExecutableConfigurationUtil {
         } finally {
             out.closeEntry();
         }
+
+        // write the info file
+        out.putNextEntry(new ZipEntry("META-INF/config.info"));
+        try {
+            PrintWriter writer = new PrintWriter(new OutputStreamWriter(out));
+            ConfigurationUtil.writeConfigInfo(writer, configurationData);
+            writer.flush();
+        } finally {
+            out.closeEntry();
+        }
     }
 
     public static void writeConfiguration(ConfigurationData configurationData, File source) throws IOException {
@@ -118,19 +131,24 @@ public final class ExecutableConfigurationUtil {
         try {
             ConfigurationUtil.writeConfigurationData(configurationData, out);
         } finally {
-            if (out != null) {
-                try {
-                    out.flush();
-                } catch (Exception ignored) {
-                }
-                try {
-                    out.close();
-                } catch (Exception ignored) {
-                }
-            }
+            flush(out);
+            close(out);
         }
+
+        // write the check sum file
         ConfigurationStoreUtil.writeChecksumFor(configSer);
-        
+
+        // write the info file
+        PrintWriter writer = null;
+        try {
+            writer = new PrintWriter(new FileWriter(new File(metaInf, "config.info")));
+            ConfigurationUtil.writeConfigInfo(writer, configurationData);
+        } finally {
+            flush(writer);
+            close(writer);
+        }
+
+        // write the in place location
         InPlaceConfigurationUtil.writeInPlaceLocation(configurationData, source);
     }
 
@@ -154,6 +172,24 @@ public final class ExecutableConfigurationUtil {
         }
     }
 
+    private static void flush(OutputStream thing) {
+        if (thing != null) {
+            try {
+                thing.flush();
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    private static void flush(Writer thing) {
+        if (thing != null) {
+            try {
+                thing.flush();
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
     private static void close(InputStream thing) {
         if (thing != null) {
             try {
@@ -164,6 +200,15 @@ public final class ExecutableConfigurationUtil {
     }
 
     private static void close(OutputStream thing) {
+        if (thing != null) {
+            try {
+                thing.close();
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    private static void close(Writer thing) {
         if (thing != null) {
             try {
                 thing.close();

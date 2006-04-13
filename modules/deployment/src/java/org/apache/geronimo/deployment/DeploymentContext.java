@@ -477,6 +477,12 @@ public class DeploymentContext {
                 baseDir,
                 inPlaceConfigurationDir,
                 naming);
+
+        for (Iterator iterator = additionalDeployment.iterator(); iterator.hasNext();) {
+            ConfigurationData ownedConfiguration = (ConfigurationData) iterator.next();
+            configurationData.addOwnedConfigurations(ownedConfiguration.getId());
+        }
+        
         return configurationData;
     }
 
