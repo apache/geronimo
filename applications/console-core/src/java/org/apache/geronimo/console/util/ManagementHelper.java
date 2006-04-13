@@ -36,7 +36,6 @@ import org.apache.geronimo.management.JDBCResource;
 import org.apache.geronimo.management.JMSResource;
 import org.apache.geronimo.management.ResourceAdapter;
 import org.apache.geronimo.management.Servlet;
-import org.apache.geronimo.management.WebModule;
 import org.apache.geronimo.management.J2EEDeployedObject;
 import org.apache.geronimo.management.geronimo.J2EEApplication;
 import org.apache.geronimo.management.geronimo.J2EEDomain;
@@ -46,6 +45,7 @@ import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.management.geronimo.JCAResource;
 import org.apache.geronimo.management.geronimo.JVM;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
+import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.system.logging.SystemLog;
 
 /**
@@ -82,7 +82,6 @@ public interface ManagementHelper {
     WebModule[] getWebModules(J2EEApplication application);
     EJBModule[] getEJBModules(J2EEApplication application);
     ResourceAdapterModule[] getRAModules(J2EEApplication application);
-    J2EEResource[] getResources(J2EEApplication application);
     JCAResource[] getJCAResources(J2EEApplication application);
     JDBCResource[] getJDBCResources(J2EEApplication application);
     JMSResource[] getJMSResources(J2EEApplication application);
@@ -116,6 +115,6 @@ public interface ManagementHelper {
     Subject testLoginModule(J2EEServer server, LoginModule module, Map options, String username, String password) throws LoginException;
     Object[] findByInterface(Class iface);
     AbstractName getNameFor(Object component);
-    ConfigurationInfo[] getConfigurations(ConfigurationModuleType type, boolean includeChildModules);
+    ConfigurationData[] getConfigurations(ConfigurationModuleType type, boolean includeChildModules);
     J2EEDeployedObject getModuleForConfiguration(Artifact configuration);
 }

@@ -16,6 +16,11 @@
  */
 package org.apache.geronimo.management.geronimo;
 
+import org.apache.geronimo.management.J2EEResource;
+import org.apache.geronimo.management.J2EEModule;
+import org.apache.geronimo.management.EJBModule;
+import org.apache.geronimo.management.AppClientModule;
+
 /**
  * Represents the JSR-77 type with the same name
  *
@@ -26,8 +31,16 @@ public interface J2EEApplication extends org.apache.geronimo.management.J2EEAppl
      * A list of J2EEResources deployed with this application.  This is not
      * a standard JSR-77 feature, I guess because most servers deploy most
      * resources at the top level, but RARs can always be embedded...
-     *
-     * @return the ObjectName Strings of the resources deployed with this EAR
      */
-    String[] getResources();
+    J2EEResource[] getResources();
+
+    J2EEModule[] getModulesInstances();
+
+    WebModule[] getWebModules();
+
+    EJBModule[] getEJBModules();
+
+    ResourceAdapterModule[] getRAModules();
+
+    AppClientModule[] getClientModules();
 }

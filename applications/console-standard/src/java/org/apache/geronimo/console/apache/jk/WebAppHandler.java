@@ -16,11 +16,7 @@
  */
 package org.apache.geronimo.console.apache.jk;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -30,13 +26,9 @@ import javax.portlet.RenderResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.MultiPageModel;
+import org.apache.geronimo.console.util.ConfigurationData;
 import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.management.geronimo.WebModule;
 
 /**
@@ -57,45 +49,30 @@ public class WebAppHandler extends BaseApacheHandler {
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel amodel) throws PortletException, IOException {
         ApacheModel model = (ApacheModel) amodel;
-        ConfigurationInfo[] webApps = PortletManager.getConfigurations(request, ConfigurationModuleType.WAR, true);
+        ConfigurationData[] webApps = PortletManager.getConfigurations(request, ConfigurationModuleType.WAR, true);
         if(model.getWebApps().size() == 0) {
             List list = model.getWebApps();
             for (int i = 0; i < webApps.length; i++) {
-                ConfigurationInfo app = webApps[i];
+                ConfigurationData app = webApps[i];
+log.error("*********** "+app.getType()+": "+app.getParentName()+" / "+app.getChildName());
                 if(!app.getState().isRunning()) {
                     continue;
                 }
-                AbstractName storeName = app.getStoreName();
-                ConfigurationStore store = (ConfigurationStore) PortletManager.getManagedBean(request, storeName);
-                WebModule web = (WebModule) PortletManager.getModule(request, app.getConfigID());
-                WebAppData data = new WebAppData(app.getConfigID().toString(), false, null, false);
+                WebModule web = (WebModule) PortletManager.getManagedBean(request, app.getModuleBeanName());
+                WebAppData data = new WebAppData(app.getParentName().toString(), app.getChildName(), app.getModuleBeanName().toString(), false, null, false);
                 data.setContextRoot(web.getContextPath());
-                try {
-                    String path = getPathToConfiguration(store, app.getParentID() == null ? app.getConfigID() : app.getParentID(), app.getParentID() == null ? null : app.getConfigID());
-                    if(app.getParentID() == null) {
-                        path = path + File.separator + "web";
-                    } else {
-                        path = path + File.separator + app.getConfigID();
-                    }
-                    data.setWebAppDir(path);
-                } catch (NoSuchConfigException e) {
-                    log.error("I sure didn't expect to get this exception", e);
+                String path;
+                if(web.getWARDirectory().getProtocol().equals("file")) {
+                    path = web.getWARDirectory().getPath();
+                } else {
+                    path = "WARMustBeUnpacked";
                 }
+
+                data.setWebAppDir(path);
                 list.add(data);
             }
         }
         request.setAttribute("webApps", webApps);
-    }
-
-    private String getPathToConfiguration(ConfigurationStore store, Artifact moduleOrParentID, Artifact childID) throws NoSuchConfigException {
-        try {
-            return store.resolve(moduleOrParentID, childID.toString(), new URI("")).getPath();
-        } catch (MalformedURLException e) {
-            log.error("Unable to locate path to web app "+moduleOrParentID+(childID == null ? "" : " / "+childID), e);
-        } catch (URISyntaxException e) {
-            log.error("Unable to locate path to web app "+moduleOrParentID+(childID == null ? "" : " / "+childID), e);
-        }
-        return "PATH_TO_EXPLODED_WAR_IN_REPO";
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel amodel) throws PortletException, IOException {

@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.management.geronimo;
 
+import java.net.URL;
+
 /**
  * Geronimo extension to the standard JSR-77 WebModule type.
  *
@@ -32,4 +34,17 @@ public interface WebModule extends org.apache.geronimo.management.WebModule {
      * WebModule.
      */
     public String getContainerName();
+
+    /**
+     * Gets a name for this WAR file that can be used to identify the WAR to a
+     * user.  This is not guaranteed to be anything in particular.
+     */
+    public String getWARName();
+
+    /**
+     * Gets the location of the web module "source" (typically an exploded
+     * directory).  This is where e.g. a web server would look for static
+     * content or a user would copy updated JSPs to.
+     */
+    public URL getWARDirectory();
 }

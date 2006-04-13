@@ -43,22 +43,28 @@ public abstract class BaseApacheHandler extends MultiPageAbstractHandler {
     }
 
     public final static class WebAppData implements Serializable {
-        private String configId;
+        private String parentConfigId;
+        private String childName;
+        private String moduleBeanName;
         private boolean enabled;
         private String dynamicPattern;
         private boolean serveStaticContent;
         private String contextRoot;
         private String webAppDir;
 
-        public WebAppData(String configId, boolean enabled, String dynamicPattern, boolean serveStaticContent) {
-            this.configId = configId;
+        public WebAppData(String parentConfigId, String childName, String moduleBeanName, boolean enabled, String dynamicPattern, boolean serveStaticContent) {
+            this.parentConfigId = parentConfigId;
             this.enabled = enabled;
             this.dynamicPattern = dynamicPattern;
             this.serveStaticContent = serveStaticContent;
+            this.moduleBeanName = moduleBeanName;
+            this.childName = childName;
         }
 
         public WebAppData(PortletRequest request, String prefix) {
-            configId = request.getParameter(prefix+"configId");
+            parentConfigId = request.getParameter(prefix+"configId");
+            childName = request.getParameter(prefix+"childName");
+            moduleBeanName = request.getParameter(prefix+"moduleBeanName");
             dynamicPattern = request.getParameter(prefix+"dynamicPattern");
             String test = request.getParameter(prefix+"enabled");
             enabled = test != null && !test.equals("") && !test.equals("false");
@@ -69,12 +75,14 @@ public abstract class BaseApacheHandler extends MultiPageAbstractHandler {
         }
 
         public void save(ActionResponse response, String prefix) {
-            response.setRenderParameter(prefix+"configId", configId);
+            response.setRenderParameter(prefix+"configId", parentConfigId);
+            response.setRenderParameter(prefix+"moduleBeanName", moduleBeanName);
             response.setRenderParameter(prefix+"dynamicPattern", dynamicPattern);
             response.setRenderParameter(prefix+"enabled", Boolean.toString(enabled));
             response.setRenderParameter(prefix+"serveStaticContent", Boolean.toString(serveStaticContent));
             if(contextRoot != null) response.setRenderParameter(prefix+"contextRoot", contextRoot);
             if(webAppDir != null) response.setRenderParameter(prefix+"webAppDir", webAppDir);
+            if(childName != null) response.setRenderParameter(prefix+"childName", childName);
         }
 
         public boolean isEnabled() {
@@ -85,12 +93,12 @@ public abstract class BaseApacheHandler extends MultiPageAbstractHandler {
             this.enabled = enabled;
         }
 
-        public String getConfigId() {
-            return configId;
+        public String getParentConfigId() {
+            return parentConfigId;
         }
 
-        public void setConfigId(String configId) {
-            this.configId = configId;
+        public void setParentConfigId(String parentConfigId) {
+            this.parentConfigId = parentConfigId;
         }
 
         public String getDynamicPattern() {
@@ -123,6 +131,18 @@ public abstract class BaseApacheHandler extends MultiPageAbstractHandler {
 
         public void setWebAppDir(String webAppDir) {
             this.webAppDir = webAppDir;
+        }
+
+        public String getChildName() {
+            return childName;
+        }
+
+        public String getModuleBeanName() {
+            return moduleBeanName;
+        }
+
+        public String getName() {
+            return childName == null ? parentConfigId : childName;
         }
     }
 

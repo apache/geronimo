@@ -43,6 +43,7 @@ import org.apache.geronimo.transaction.context.OnlineUserTransaction;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
@@ -110,6 +111,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
     private final String originalSpecDD;
 
+    private final URL configurationBaseURL;
+
     public TomcatWebAppContext(
             ClassLoader classLoader,
             String objectName,
@@ -169,6 +172,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         this.roleDesignateSource = roleDesignateSource;
         this.server = server;
         this.application = application;
+
+        this.configurationBaseURL = configurationBaseUrl;
 
         if (tomcatRealm != null){
             realm = (Realm)tomcatRealm.getInternalObject();
@@ -242,6 +247,19 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
     public boolean isEventProvider() {
         return true;
+    }
+
+    public URL getWARDirectory() {
+        return configurationBaseURL;
+    }
+
+    public String getWARName() {
+        //todo: make this return something more consistent
+        try {
+            return ObjectName.getInstance(objectName).getKeyProperty(NameFactory.J2EE_NAME);
+        } catch (MalformedObjectNameException e) {
+            return null;
+        }
     }
 
     public String getContainerName() {

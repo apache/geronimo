@@ -18,14 +18,19 @@ package org.apache.geronimo.j2ee.management.impl;
 
 import java.util.Hashtable;
 import javax.management.ObjectName;
-
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.management.J2EEServer;
-import org.apache.geronimo.management.geronimo.J2EEApplication;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.management.AppClientModule;
+import org.apache.geronimo.management.EJBModule;
+import org.apache.geronimo.management.J2EEModule;
+import org.apache.geronimo.management.J2EEResource;
+import org.apache.geronimo.management.geronimo.J2EEApplication;
+import org.apache.geronimo.management.geronimo.J2EEServer;
+import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
+import org.apache.geronimo.management.geronimo.WebModule;
 
 /**
  * @version $Rev$ $Date$
@@ -99,10 +104,34 @@ public class J2EEApplicationImpl implements J2EEApplication {
                 new String[]{"AppClientModule", "EJBModule", "WebModule", "ResourceAdapterModule"});
     }
 
-    public String[] getResources() {
-        return Util.getObjectNames(kernel,
-                baseName,
-                new String[]{"JavaMailResource", "JCAConnectionFactory", "JDBCResource", "JDBCDriver", "JMSResource", "JNDIResource", "JTAResource", "RMI_IIOPResource", "URLResource"});
+    public J2EEModule[] getModulesInstances() {
+        return (J2EEModule[]) Util.getObjects(kernel, baseName,
+                new String[]{"AppClientModule", "EJBModule", "WebModule", "ResourceAdapterModule"}, J2EEModule.class);
+    }
+
+    public J2EEResource[] getResources() {
+        return (J2EEResource[]) Util.getObjects(kernel, baseName,
+                new String[]{"JavaMailResource", "JCAConnectionFactory", "JDBCResource", "JDBCDriver", "JMSResource", "JNDIResource", "JTAResource", "RMI_IIOPResource", "URLResource"}, J2EEResource.class);
+    }
+
+    public AppClientModule[] getClientModules() {
+        return (AppClientModule[]) Util.getObjects(kernel, baseName,
+                new String[]{"AppClientModule"}, AppClientModule.class);
+    }
+
+    public EJBModule[] getEJBModules() {
+        return (EJBModule[]) Util.getObjects(kernel, baseName,
+                new String[]{"EJBModule"}, EJBModule.class);
+    }
+
+    public ResourceAdapterModule[] getRAModules() {
+        return (ResourceAdapterModule[]) Util.getObjects(kernel, baseName,
+                new String[]{"ResourceAdapterModule"}, ResourceAdapterModule.class);
+    }
+
+    public WebModule[] getWebModules() {
+        return (WebModule[]) Util.getObjects(kernel, baseName,
+                new String[]{"WebModule"}, WebModule.class);
     }
 
     public String getDeploymentDescriptor() {
@@ -121,9 +150,6 @@ public class J2EEApplicationImpl implements J2EEApplication {
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addReference("j2eeServer", J2EEServer.class);
         infoFactory.addAttribute("deploymentDescriptor", String.class, true);
-        infoFactory.addAttribute("server", String.class, false);
-        infoFactory.addAttribute("modules", String[].class, false);
-        infoFactory.addAttribute("resources", String[].class, false);
         infoFactory.addInterface(J2EEApplication.class);
 
         infoFactory.setConstructor(new String[]{

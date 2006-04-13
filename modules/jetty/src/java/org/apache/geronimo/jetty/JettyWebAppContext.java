@@ -59,6 +59,7 @@ import org.mortbay.jetty.servlet.WebApplicationContext;
 import org.mortbay.jetty.servlet.WebApplicationHandler;
 
 import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 import javax.naming.Context;
 import java.io.IOException;
 import java.net.URI;
@@ -75,7 +76,7 @@ import java.util.Set;
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
  *
- * @version $Rev: 386763 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class JettyWebAppContext extends WebApplicationContext implements GBeanLifecycle, JettyServletRegistration, WebModule {
     private static Log log = LogFactory.getLog(JettyWebAppContext.class);
@@ -88,6 +89,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     private final JettyContainer jettyContainer;
 
     private final String webAppRoot;
+    private final URL configurationBaseURL;
     private final WebApplicationHandler handler;
     private String displayName;
     private final String[] welcomeFiles;
@@ -151,6 +153,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         welcomeFiles = null;
         objectName = null;
         sessionManager = null;
+        configurationBaseURL = null;
     }
 
     public JettyWebAppContext(String objectName,
@@ -206,6 +209,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             ObjectName myObjectName = JMXUtil.getObjectName(objectName);
             verifyObjectName(myObjectName);
         }
+        this.configurationBaseURL = configurationBaseUrl;
 
         this.jettyContainer = jettyContainer;
 
@@ -300,6 +304,19 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
     public boolean isEventProvider() {
         return true;
+    }
+
+    public URL getWARDirectory() {
+        return configurationBaseURL;
+    }
+
+    public String getWARName() {
+        //todo: make this return something more consistent
+        try {
+            return ObjectName.getInstance(objectName).getKeyProperty(NameFactory.J2EE_NAME);
+        } catch (MalformedObjectNameException e) {
+            return null;
+        }
     }
 
     public String getContainerName() {

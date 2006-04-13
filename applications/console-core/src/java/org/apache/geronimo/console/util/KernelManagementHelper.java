@@ -19,7 +19,6 @@ package org.apache.geronimo.console.util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -41,17 +40,14 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.j2ee.management.impl.Util;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.management.AppClientModule;
@@ -67,7 +63,6 @@ import org.apache.geronimo.management.JDBCResource;
 import org.apache.geronimo.management.JMSResource;
 import org.apache.geronimo.management.ResourceAdapter;
 import org.apache.geronimo.management.Servlet;
-import org.apache.geronimo.management.WebModule;
 import org.apache.geronimo.management.geronimo.J2EEApplication;
 import org.apache.geronimo.management.geronimo.J2EEDomain;
 import org.apache.geronimo.management.geronimo.J2EEServer;
@@ -76,6 +71,7 @@ import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.management.geronimo.JCAResource;
 import org.apache.geronimo.management.geronimo.JVM;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
+import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.system.logging.SystemLog;
 
@@ -577,24 +573,11 @@ public class KernelManagementHelper implements ManagementHelper {
     }
 
 
-    public J2EEResource[] getResources(J2EEApplication application) {
-        J2EEResource[] result = new J2EEResource[0];
-        try {
-            String[] names = application.getResources();
-            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
-            result = new J2EEResource[temp.length];
-            System.arraycopy(temp, 0, result, 0, temp.length);
-        } catch (Exception e) {
-            log.error("Unable to look up related GBean", e);
-        }
-        return result;
-    }
-
     public JCAResource[] getJCAResources(J2EEApplication application) {
         List list = new ArrayList();
         try {
             //todo: filter based on ObjectName or something, but what counts as a "JCAResource"?
-            J2EEResource[] all = getResources(application);
+            J2EEResource[] all = application.getResources();
             for (int i = 0; i < all.length; i++) {
                 if(all[i] instanceof JCAResource) {
                     list.add(all[i]);
@@ -709,22 +692,7 @@ public class KernelManagementHelper implements ManagementHelper {
     }
 
     public Artifact getConfigurationNameFor(AbstractName abstractName) {
-        try {
-            return abstractName.getArtifact();
-//            Set parents = kernel.getDependencyManager().getParents(ObjectName.getInstance(objectName));
-//            if(parents.size() == 0) {
-//                throw new IllegalStateException("No parents for GBean '"+objectName+"'");
-//            }
-//            for (Iterator it = parents.iterator(); it.hasNext();) {
-//                ObjectName name = (ObjectName) it.next();
-//                if(Configuration.isConfigurationObjectName(name)) {
-//                    return Configuration.getConfigurationID(name);
-//                }
-//            }
-        } catch (Exception e) {
-            log.error("Unable to look up related GBean", e);
-        }
-        return null;
+        return abstractName.getArtifact();
     }
 
     public String getGBeanDescription(AbstractName abstractName) {
@@ -789,7 +757,7 @@ public class KernelManagementHelper implements ManagementHelper {
         return kernel.getAbstractNameFor(component);
     }
 
-    public ConfigurationInfo[] getConfigurations(ConfigurationModuleType type, boolean includeChildModules) {
+    public ConfigurationData[] getConfigurations(ConfigurationModuleType type, boolean includeChildModules) {
         ConfigurationManager mgr = ConfigurationUtil.getConfigurationManager(kernel);
         List stores = mgr.listStores();
         List results = new ArrayList();
@@ -799,39 +767,43 @@ public class KernelManagementHelper implements ManagementHelper {
                 List infos = mgr.listConfigurations(storeName);
                 for (Iterator j = infos.iterator(); j.hasNext();) {
                     ConfigurationInfo info = (ConfigurationInfo) j.next();
+                    AbstractName configuration = mgr.getConfiguration(info.getConfigID()).getAbstractName();
                     if(type == null || type.getValue() == info.getType().getValue()) {
-                        results.add(info);
+
+                        results.add(new ConfigurationData(configuration, null, info.getState(), info.getType(), kernel.getAbstractNameFor(info.getConfigID())));
                     }
-                    if(includeChildModules && (type == null || info.getType().getValue() == ConfigurationModuleType.EAR.getValue())) {
-                        String dest = type.equals(ConfigurationModuleType.EAR) ? "J2EEApplication" :
-                                type.equals(ConfigurationModuleType.EJB) ? "EJBModule" :
-                                type.equals(ConfigurationModuleType.RAR) ? "ResourceAdapterModule" :
-                                type.equals(ConfigurationModuleType.WAR) ? "WebModule" :
-                                type.equals(ConfigurationModuleType.CAR) ? "AppClientModule" : null;
-                        String[] modules = Util.getObjectNames(kernel, "*:", new String[]{dest});
+                    if(includeChildModules && info.getType().getValue() == ConfigurationModuleType.EAR.getValue()) {
+                        J2EEApplication app = (J2EEApplication) getModuleForConfiguration(info.getConfigID());
+                        Object[] modules = null;
+                        if(type == null) {
+                            modules = app.getModulesInstances();
+                        } else if(type.equals(ConfigurationModuleType.CAR)) {
+                            modules = app.getClientModules();
+                        } else if(type.equals(ConfigurationModuleType.EJB)) {
+                            modules = app.getEJBModules();
+                        } else if(type.equals(ConfigurationModuleType.RAR)) {
+                            modules = app.getRAModules();
+                        } else if(type.equals(ConfigurationModuleType.WAR)) {
+                            modules = app.getWebModules();
+                        } //todo: handle dynamically registered module types, etc.
+                        if(modules == null) continue;
                         for (int k = 0; k < modules.length; k++) {
-                            String name = modules[k];
-                            if(name.indexOf("J2EEApplication="+info.getConfigID()) > -1) {
-                                ObjectName temp = null;
-                                try {
-                                    temp = ObjectName.getInstance(name);
-                                } catch (MalformedObjectNameException e) {
-                                    throw new IllegalStateException("Bad ObjectName, Should Never Happen: "+e.getMessage());
-                                }
-                                State state;
-                                if (kernel.isLoaded(temp)) {
-                                    try {
-                                        state = State.fromInt(kernel.getGBeanState(temp));
-                                    } catch (Exception e) {
-                                        state = null;
-                                    }
-                                } else {
-                                    // If the configuration is not loaded by the kernel
-                                    // and defined by the store, then it is stopped.
-                                    state = State.STOPPED;
-                                }
-                                results.add(new ConfigurationInfo(info.getStoreName(), Artifact.create(temp.getKeyProperty(NameFactory.J2EE_NAME)), type, info.getCreated(), info.getOwnedConfigurations(), state, info.getConfigID()));
+                            Object module = modules[k];
+                            ConfigurationModuleType moduleType = type;
+                            if(moduleType == null) {
+                                if(module instanceof WebModule) moduleType = ConfigurationModuleType.WAR;
+                                else if(module instanceof EJBModule) moduleType = ConfigurationModuleType.EJB;
+                                else if(module instanceof ResourceAdapterModule) moduleType = ConfigurationModuleType.RAR;
+                                else if(module instanceof AppClientModule) moduleType = ConfigurationModuleType.CAR;
                             }
+                            String moduleName;
+                            if(type != null && type.equals(ConfigurationModuleType.WAR)) {
+                                moduleName = ((WebModule)module).getWARName();
+                            } else {
+                                //todo: solutions for other module types
+                                moduleName = (String) kernel.getAbstractNameFor(module).getName().get(NameFactory.J2EE_NAME);
+                            }
+                            results.add(new ConfigurationData(configuration, moduleName, info.getState(), moduleType, kernel.getAbstractNameFor(module)));
                         }
                     }
                 }
@@ -840,54 +812,32 @@ public class KernelManagementHelper implements ManagementHelper {
                 // in the unlikely event it does, just continue
             }
         }
-        Collections.sort(results, new Comparator() {
-            public int compare(Object o1, Object o2) {
-                ConfigurationInfo ci1 = (ConfigurationInfo) o1;
-                ConfigurationInfo ci2 = (ConfigurationInfo) o2;
-                return ci1.getConfigID().toString().compareTo(ci2.getConfigID().toString());
-            }
-        });
-        return (ConfigurationInfo[]) results.toArray(new ConfigurationInfo[results.size()]);
+        Collections.sort(results);
+        return (ConfigurationData[]) results.toArray(new ConfigurationData[results.size()]);
     }
 
     public J2EEDeployedObject getModuleForConfiguration(Artifact configuration) {
         ConfigurationManager manager = ConfigurationUtil.getConfigurationManager(kernel);
-        ConfigurationStore store = manager.getStoreForConfiguration(configuration);
-        ObjectName base = kernel.getAbstractNameFor(store).getObjectName();
         Configuration config = manager.getConfiguration(configuration);
-        Configuration parent = config.getEnclosingConfiguration();
         ConfigurationModuleType type = config.getModuleType();
+        AbstractName result;
         try {
-            ObjectName module = null;
             if(type.equals(ConfigurationModuleType.CAR)) {
-                if(parent == null) {
-                    module = ObjectName.getInstance(base.getDomain()+":J2EEServer="+base.getKeyProperty("J2EEServer")+",J2EEApplication=null,j2eeType=AppClientModule,name="+configuration);
-                } else {
-                    module = ObjectName.getInstance(base.getDomain()+":J2EEServer="+base.getKeyProperty("J2EEServer")+",J2EEApplication="+parent.getId()+",j2eeType=AppClientModule,name="+configuration);
-                }
+                result = config.findGBean(new AbstractNameQuery(AppClientModule.class.getName()));
             } else if(type.equals(ConfigurationModuleType.EAR)) {
-                module = ObjectName.getInstance(base.getDomain()+":J2EEServer="+base.getKeyProperty("J2EEServer")+",J2EEApplication="+configuration+",j2eeType=J2EEApplication,name="+configuration);
+                result = config.findGBean(new AbstractNameQuery(J2EEApplication.class.getName()));
             } else if(type.equals(ConfigurationModuleType.EJB)) {
-                if(parent == null) {
-                    module = ObjectName.getInstance(base.getDomain()+":J2EEServer="+base.getKeyProperty("J2EEServer")+",J2EEApplication=null,j2eeType=EJBModule,name="+configuration);
-                } else {
-                    module = ObjectName.getInstance(base.getDomain()+":J2EEServer="+base.getKeyProperty("J2EEServer")+",J2EEApplication="+parent.getId()+",j2eeType=EJBModule,name="+configuration);
-                }
+                result = config.findGBean(new AbstractNameQuery(EJBModule.class.getName()));
             } else if(type.equals(ConfigurationModuleType.RAR)) {
-                if(parent == null) {
-                    module = ObjectName.getInstance(base.getDomain()+":J2EEServer="+base.getKeyProperty("J2EEServer")+",J2EEApplication=null,j2eeType=ResourceAdapterModule,name="+configuration);
-                } else {
-                    module = ObjectName.getInstance(base.getDomain()+":J2EEServer="+base.getKeyProperty("J2EEServer")+",J2EEApplication="+parent.getId()+",j2eeType=ResourceAdapterModule,name="+configuration);
-                }
+                result = config.findGBean(new AbstractNameQuery(ResourceAdapterModule.class.getName()));
             } else if(type.equals(ConfigurationModuleType.WAR)) {
-                if(parent == null) {
-                    module = ObjectName.getInstance(base.getDomain()+":J2EEServer="+base.getKeyProperty("J2EEServer")+",J2EEApplication=null,j2eeType=WebModule,name="+configuration);
-                } else {
-                    module = ObjectName.getInstance(base.getDomain()+":J2EEServer="+base.getKeyProperty("J2EEServer")+",J2EEApplication="+parent.getId()+",j2eeType=WebModule,name="+configuration);
-                }
+                result = config.findGBean(new AbstractNameQuery(WebModule.class.getName()));
+                System.out.println("CL: "+WebModule.class.getClassLoader());
+            } else {
+                return null;
             }
-            return (J2EEDeployedObject) kernel.getProxyManager().createProxy(module, getClass().getClassLoader());
-        } catch (MalformedObjectNameException e) {
+            return (J2EEDeployedObject) kernel.getProxyManager().createProxy(result, getClass().getClassLoader());
+        } catch (GBeanNotFoundException e) {
             throw new IllegalStateException("Bad config ID: "+e.getMessage());
         }
     }

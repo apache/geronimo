@@ -389,7 +389,7 @@ public class PortletManager {
         return helper.getModuleForConfiguration(configuration);        
     }
 
-    public static ConfigurationInfo[] getConfigurations(PortletRequest request, ConfigurationModuleType type, boolean includeChildModules) {
+    public static ConfigurationData[] getConfigurations(PortletRequest request, ConfigurationModuleType type, boolean includeChildModules) {
         ManagementHelper helper = getManagementHelper(request);
         return helper.getConfigurations(type, includeChildModules);
     }
