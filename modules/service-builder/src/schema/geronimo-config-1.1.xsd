@@ -55,8 +55,25 @@
         </xs:key>
 -->
     </xs:element>
-    <xs:element name="client-environment" type="sys:environmentType"/>
-    <xs:element name="server-environment" type="sys:environmentType"/>
+    <xs:element name="client-environment" type="sys:environmentType">
+<!--
+        <xs:annotation>
+            <xs:documentation>
+                TODO document me - am I only used by the app client builder?
+            </xs:documentation>
+        </xs:annotation>
+-->        
+    </xs:element>
+    
+    <xs:element name="server-environment" type="sys:environmentType">
+<!--
+        <xs:annotation>
+            <xs:documentation>
+                TODO document me - am I only used by the app client builder?
+            </xs:documentation>
+        </xs:annotation>
+-->
+    </xs:element>
 
     <xs:complexType name="environmentType">
         <xs:sequence>
@@ -83,10 +100,11 @@
                         Geronimo's copy of Log4J.  If the module provided it's own Log4J JAR it would
                         use that, otherwise it would not be able to load Log4J at all.
 
-                        The form of this is a comma-separated list of fully-qualified class names or
-                        prefixes.  Essentially, any class that starts with one of the prefixes listed
-                        here will be treated as hidden.  For example, if you set this value to
-                        "java.util,java.lang" then you would really screw up your application.  :)
+                        The classes are specified in zero or more child "filter" elements
+                        where each filter element specifies a fully-qualified class name or
+                        prefix.  Essentially, any class that starts with one of the prefixes listed
+                        here will be treated as hidden.  For example, if you specify two filter elements
+                        containing "java.util" and "java.lang" then you would really screw up your application.  :)
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
@@ -99,16 +117,40 @@
                         classes will *always* be loaded from the server instead of from the web
                         web application's own ClassPath.
 
-                        The form of this is a comma-separated list of fully-qualified class names or
-                        prefixes.  Essentially, any class that starts with one of the prefixes listed
-                        here will be treated as hidden.  For example, setting this to
-                        "javax.servlet,javax.ejb" would protect some of the core J2EE classes from
-                        being overridden.
+                        The classes are specified in zero or more child "filter" elements
+                        where each filter element specifies a fully-qualified class name or
+                        prefix.  Essentially, any class that starts with one of the prefixes listed
+                        here will be treated as hidden.  For example, specifying two filter elements
+                        containing "javax.servlet" and "javax.ejb" would protect some of the core 
+                        J2EE classes from being overridden.
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="inverse-classloading" type="sys:emptyType" minOccurs="0"/>
-            <xs:element name="suppress-default-environment" type="sys:emptyType" minOccurs="0"/>
+            <xs:element name="inverse-classloading" type="sys:emptyType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        If the "inverse-classloading" element is specified, the standard 
+                        class loading delegation model is to be reversed for this configuration.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="suppress-default-environment" type="sys:emptyType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        If the "suppress-default-environment" element is specified then any
+                        default environment build by a builder when deploying the plan will
+                        be suppressed.
+                        
+                        An example of where this is useful is when deploying a connector on an app
+                        client in a separate (standalone) configuration (not as part of a client plan).
+                        
+                        The connector builder defaultEnvironment includes some server configurations
+                        that won't work on an app client, so you need to suppress the default 
+                        environment and supply a complete environment including all parents for a 
+                        non-app-client configuration you want to run on an app client
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
         </xs:sequence>
     </xs:complexType>
 
@@ -141,7 +183,13 @@
 
     <xs:complexType name="classFilterType">
         <xs:sequence>
-            <xs:element name="filter" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="filter" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        A fully-qualified class name or prefix to be filtered.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
         </xs:sequence>
     </xs:complexType>
 
