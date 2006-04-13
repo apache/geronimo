@@ -18,11 +18,10 @@
 package org.apache.geronimo.connector.outbound;
 
 import java.lang.reflect.Constructor;
-import java.util.Map;
 import java.util.HashMap;
-import java.util.Properties;
+import java.util.Map;
+
 import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
 import javax.resource.ResourceException;
 import javax.resource.spi.ManagedConnectionFactory;
 import javax.resource.spi.ResourceAdapterAssociation;
@@ -38,10 +37,9 @@ import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.transaction.manager.NamedXAResource;
 import org.apache.geronimo.transaction.manager.ResourceManager;
-import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * @version $Rev$ $Date$

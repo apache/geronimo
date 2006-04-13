@@ -20,7 +20,7 @@ package org.apache.geronimo.connector;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.management.ResourceAdapter;
+import org.apache.geronimo.management.geronimo.ResourceAdapter;
 import org.apache.geronimo.management.geronimo.JCAResource;
 
 public class ResourceAdapterImplGBean {

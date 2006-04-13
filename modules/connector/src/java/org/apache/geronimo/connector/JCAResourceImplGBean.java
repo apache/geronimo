@@ -23,7 +23,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.management.geronimo.JCAResourceAdapter;
 import org.apache.geronimo.management.geronimo.JCAResource;
-import org.apache.geronimo.management.JCAConnectionFactory;
+import org.apache.geronimo.management.geronimo.JCAConnectionFactory;
 
 public class JCAResourceImplGBean {
 
