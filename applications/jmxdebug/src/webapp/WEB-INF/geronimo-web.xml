@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app
-    xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.0"
-    configId="geronimo/debug-console/1.0/car"
-    parentId="geronimo/j2ee-server/1.0/car"
-    >
-<!--
-    configId="geronimo/debug-console/${pom.currentVersion}/car"
-    parentId="geronimo/j2ee-server/${pom.currentVersion}/car"
--->
-
-    <dependency>
-        <uri>commons-collections/commons-collections/3.1/jar</uri>
-<!--        <uri>commons-collections/commons-collections/${commons_collections_version}/jar</uri>-->
-    </dependency>
-
+<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.0">
+    <environment>
+        <configId>
+            <groupId>geronimo</groupId>
+            <artifactId>jmxdebug</artifactId>
+            <version>1.1-SNAPSHOT</version>
+            <type>car</type>
+        </configId>
+        <dependencies>
+            <dependency>
+                <groupId>commons-collections</groupId>
+                <artifactId>commons-collections</artifactId>
+                <version>3.1</version>
+                <type>jar</type>
+            </dependency>
+        </dependencies>
+        <hidden-classes/>
+        <non-overridable-classes/>
+    </environment>
     <context-root>/debug-tool</context-root>
     <context-priority-classloader>false</context-priority-classloader>
 </web-app>

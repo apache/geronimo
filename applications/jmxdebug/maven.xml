@@ -14,4 +14,19 @@
     <goal name="jar:deploy">
         <attainGoal name="war:deploy"/>
     </goal>
+
+    <postGoal name="war:webapp">
+        <attainGoal name="jarWebInfClasses"/>
+    </postGoal>
+
+    <goal name="jarWebInfClasses">
+        <j:set var="webroot"  value="${basedir}/target/${pom.artifactId}/WEB-INF"/>
+
+        <ant:mkdir dir="${webroot}/lib"/>
+        <ant:jar destfile="${webroot}/lib/classes.jar" basedir="${webroot}/classes"/>
+
+        <ant:delete includeemptydirs="true">
+            <ant:fileset dir="${webroot}/classes" includes="**/*"/>
+        </ant:delete>
+    </goal>
 </project>
