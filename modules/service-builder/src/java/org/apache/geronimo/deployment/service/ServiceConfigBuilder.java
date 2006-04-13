@@ -157,13 +157,13 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         return environment.getConfigId();
     }
 
-    public List buildConfiguration(boolean inPlaceDeployment, Object plan, JarFile unused, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException {
+    public DeploymentContext buildConfiguration(boolean inPlaceDeployment, Object plan, JarFile unused, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException {
         ConfigurationType configType = (ConfigurationType) plan;
 
-        return Collections.singletonList(buildConfiguration(configType, configurationStores, targetConfigurationStore));
+        return buildConfiguration(configType, configurationStores, targetConfigurationStore);
     }
 
-    public ConfigurationData buildConfiguration(ConfigurationType configurationType, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws DeploymentException, IOException {
+    public DeploymentContext buildConfiguration(ConfigurationType configurationType, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws DeploymentException, IOException {
 
         Environment environment = EnvironmentBuilder.buildEnvironment(configurationType.getEnvironment(), defaultEnvironment);
         Artifact configId = environment.getConfigId();
@@ -173,18 +173,24 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         } catch (ConfigurationAlreadyExistsException e) {
             throw new DeploymentException(e);
         }
-        DeploymentContext context = new DeploymentContext(outfile, null, environment, ConfigurationModuleType.SERVICE, naming, repositories, configurationStores);
-        ClassLoader cl = context.getClassLoader();
 
-
-        AbstractName moduleName = naming.createRootName(configId, configId.toString(), NameFactory.SERVICE_MODULE);
-        GbeanType[] gbeans = configurationType.getGbeanArray();
+        DeploymentContext context = new DeploymentContext(outfile, null,environment, ConfigurationModuleType.SERVICE, naming, repositories, configurationStores);
         try {
+            ClassLoader cl = context.getClassLoader();
+
+
+            AbstractName moduleName = naming.createRootName(configId, configId.toString(), NameFactory.SERVICE_MODULE);
+            GbeanType[] gbeans = configurationType.getGbeanArray();
+
             addGBeans(gbeans, cl, moduleName, context);
-            return context.getConfigurationData();
-        } finally {
+            return context;
+        } catch (RuntimeException t) {
             context.close();
-        }
+            throw t;
+        } catch (Error e) {
+            context.close();
+            throw e;
+        } 
     }
 
     public static void addGBeans(GbeanType[] gbeans, ClassLoader cl, AbstractName moduleName, DeploymentContext context) throws DeploymentException {

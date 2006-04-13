@@ -245,6 +245,7 @@ public class EARConfigBuilderTest extends TestCase {
 
     public void testBuildConfiguration() throws Exception {
         ConfigurationData configurationData = null;
+        DeploymentContext context = null;
         try {
             EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
                     transactionContextManagerAbstractNameQuery,
@@ -264,9 +265,12 @@ public class EARConfigBuilderTest extends TestCase {
                     naming);
 
             Object plan = configBuilder.getDeploymentPlan(null, earFile);
-            List configurations = configBuilder.buildConfiguration(false, plan, earFile, Collections.singleton(configStore), configStore);
-            configurationData = (ConfigurationData) configurations.get(0);
+            context = configBuilder.buildConfiguration(false, plan, earFile, Collections.singleton(configStore), configStore);
+            configurationData = context.getConfigurationData();
         } finally {
+            if (context != null) {
+                context.close();
+            }
             if (configurationData != null) {
                 DeploymentUtil.recursiveDelete(configurationData.getConfigurationDir());
             }
@@ -292,16 +296,20 @@ public class EARConfigBuilderTest extends TestCase {
                 naming);
 
         ConfigurationData configurationData = null;
+        DeploymentContext context = null;
         try {
             Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-ejb-jar.xml"), earFile);
-            List configurations = configBuilder.buildConfiguration(false, plan, earFile, Collections.singleton(configStore), configStore);
-            configurationData = (ConfigurationData) configurations.get(0);
+            context = configBuilder.buildConfiguration(false, plan, earFile, Collections.singleton(configStore), configStore);
+            configurationData = context.getConfigurationData();
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
             if (e.getCause() instanceof IOException) {
                 fail("Should not be complaining about bad vendor DD for invalid module entry");
             }
         } finally {
+            if (context != null) {
+                context.close();
+            }
             if (configurationData != null) {
                 DeploymentUtil.recursiveDelete(configurationData.getConfigurationDir());
             }
@@ -327,16 +335,20 @@ public class EARConfigBuilderTest extends TestCase {
                 naming);
 
         ConfigurationData configurationData = null;
+        DeploymentContext context = null;
         try {
             Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-war.xml"), earFile);
-            List configurations = configBuilder.buildConfiguration(false, plan, earFile, Collections.singleton(configStore), configStore);
-            configurationData = (ConfigurationData) configurations.get(0);
+            context = configBuilder.buildConfiguration(false, plan, earFile, Collections.singleton(configStore), configStore);
+            configurationData = context.getConfigurationData();
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
             if (e.getCause() instanceof IOException) {
                 fail("Should not be complaining about bad vendor DD for invalid module entry");
             }
         } finally {
+            if (context != null) {
+                context.close();
+            }
             if (configurationData != null) {
                 DeploymentUtil.recursiveDelete(configurationData.getConfigurationDir());
             }
@@ -362,16 +374,20 @@ public class EARConfigBuilderTest extends TestCase {
                 naming);
 
         ConfigurationData configurationData = null;
+        DeploymentContext context = null;
         try {
             Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-rar.xml"), earFile);
-            List configurations = configBuilder.buildConfiguration(false, plan, earFile, Collections.singleton(configStore), configStore);
-            configurationData = (ConfigurationData) configurations.get(0);
+            context = configBuilder.buildConfiguration(false, plan, earFile, Collections.singleton(configStore), configStore);
+            configurationData = context.getConfigurationData();
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
             if (e.getCause() instanceof IOException) {
                 fail("Should not be complaining about bad vendor DD for invalid module entry");
             }
         } finally {
+            if (context != null) {
+                context.close();
+            }
             if (configurationData != null) {
                 DeploymentUtil.recursiveDelete(configurationData.getConfigurationDir());
             }
@@ -397,16 +413,20 @@ public class EARConfigBuilderTest extends TestCase {
                 naming);
 
         ConfigurationData configurationData = null;
+        DeploymentContext context = null;
         try {
             Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-car.xml"), earFile);
-            List configurations = configBuilder.buildConfiguration(false, plan, earFile, Collections.singleton(configStore), configStore);
-            configurationData = (ConfigurationData) configurations.get(0);
+            context = configBuilder.buildConfiguration(false, plan, earFile, Collections.singleton(configStore), configStore);
+            configurationData = context.getConfigurationData();
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
             if (e.getCause() instanceof IOException) {
                 fail("Should not be complaining about bad vendor DD for invalid module entry");
             }
         } finally {
+            if (context != null) {
+                context.close();
+            }
             if (configurationData != null) {
                 DeploymentUtil.recursiveDelete(configurationData.getConfigurationDir());
             }
@@ -433,14 +453,18 @@ public class EARConfigBuilderTest extends TestCase {
 
 
         ConfigurationData configurationData = null;
+        DeploymentContext context = null;
         try {
             Object plan = configBuilder.getDeploymentPlan(null, earFile);
-            List configurations = configBuilder.buildConfiguration(false, plan, earFile, Collections.singleton(configStore), configStore);
-            configurationData = (ConfigurationData) configurations.get(0);
+            context = configBuilder.buildConfiguration(false, plan, earFile, Collections.singleton(configStore), configStore);
+            configurationData = context.getConfigurationData();
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
             // expected
         } finally {
+            if (context != null) {
+                context.close();
+            }
             if (configurationData != null) {
                 DeploymentUtil.recursiveDelete(configurationData.getConfigurationDir());
             }
@@ -466,14 +490,18 @@ public class EARConfigBuilderTest extends TestCase {
                 naming);
 
         ConfigurationData configurationData = null;
+        DeploymentContext context = null;
         try {
             Object plan = configBuilder.getDeploymentPlan(null, earFile);
-            List configurations = configBuilder.buildConfiguration(false, plan, earFile, Collections.singleton(configStore), configStore);
-            configurationData = (ConfigurationData) configurations.get(0);
+            context = configBuilder.buildConfiguration(false, plan, earFile, Collections.singleton(configStore), configStore);
+            configurationData = context.getConfigurationData();
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
             // expected
         } finally {
+            if (context != null) {
+                context.close();
+            }
             if (configurationData != null) {
                 DeploymentUtil.recursiveDelete(configurationData.getConfigurationDir());
             }
@@ -499,14 +527,18 @@ public class EARConfigBuilderTest extends TestCase {
                 naming);
 
         ConfigurationData configurationData = null;
+        DeploymentContext context = null;
         try {
             Object plan = configBuilder.getDeploymentPlan(null, earFile);
-            List configurations = configBuilder.buildConfiguration(false, plan, earFile, Collections.singleton(configStore), configStore);
-            configurationData = (ConfigurationData) configurations.get(0);
+            context = configBuilder.buildConfiguration(false, plan, earFile, Collections.singleton(configStore), configStore);
+            configurationData = context.getConfigurationData();
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
             // expected
         } finally {
+            if (context != null) {
+                context.close();
+            }
             if (configurationData != null) {
                 DeploymentUtil.recursiveDelete(configurationData.getConfigurationDir());
             }

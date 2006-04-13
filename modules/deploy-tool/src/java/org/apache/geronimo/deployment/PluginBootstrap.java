@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.jar.JarOutputStream;
 
+import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
 import org.apache.geronimo.deployment.xbeans.ConfigurationType;
@@ -104,12 +105,17 @@ public class PluginBootstrap {
                 return null;
             }
         };
-        List configurations = builder.buildConfiguration(false, config, null, Collections.singleton(targetConfigurationStore), targetConfigurationStore);
-        ConfigurationData configurationData = (ConfigurationData) configurations.get(0);
+
+        DeploymentContext context = builder.buildConfiguration(false, config, null, Collections.singleton(targetConfigurationStore), targetConfigurationStore);
+        ConfigurationData configurationData = context.getConfigurationData();
 
         JarOutputStream out = new JarOutputStream(new FileOutputStream(carFile));
         ExecutableConfigurationUtil.writeConfiguration(configurationData, out);
         out.flush();
         out.close();
+
+        if (context != null) {
+            context.close();
+        }
     }
 }

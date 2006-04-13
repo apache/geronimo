@@ -18,6 +18,7 @@ package org.apache.geronimo.j2ee.deployment;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
+import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
@@ -335,11 +336,11 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         return applicationInfo.getEnvironment().getConfigId();
     }
 
-    public List buildConfiguration(boolean inPlaceDeployment, Object plan, JarFile earFile, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException {
+    public DeploymentContext buildConfiguration(boolean inPlaceDeployment, Object plan, JarFile earFile, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException {
         assert plan != null;
         ApplicationInfo applicationInfo = (ApplicationInfo) plan;
 
-        EARContext earContext;
+        EARContext earContext = null;
         ConfigurationModuleType applicationType = applicationInfo.getType();
         Environment environment = applicationInfo.getEnvironment();
         Artifact configId = environment.getConfigId();
@@ -453,25 +454,37 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 getBuilder(module).addGBeans(earContext, module, cl, repositories);
             }
 
-            List configurations = new ArrayList();
-            configurations.add(earContext.getConfigurationData());
-            configurations.addAll(earContext.getAdditionalDeployment());
-            earContext.close();
-            return configurations;
+            // it's the caller's responsibility to close the context...
+            return earContext;
         } catch (GBeanAlreadyExistsException e) {
             // todo delete owned configuraitons like appclients
+            if (earContext != null) {
+                earContext.close();
+            }
             DeploymentUtil.recursiveDelete(configurationDir);
             throw new DeploymentException(e);
         } catch (IOException e) {
+            if (earContext != null) {
+                earContext.close();
+            }
             DeploymentUtil.recursiveDelete(configurationDir);
             throw e;
         } catch (DeploymentException e) {
+            if (earContext != null) {
+                earContext.close();
+            }
             DeploymentUtil.recursiveDelete(configurationDir);
             throw e;
         } catch(RuntimeException e) {
+            if (earContext != null) {
+                earContext.close();
+            }
             DeploymentUtil.recursiveDelete(configurationDir);
             throw e;
         } catch(Error e) {
+            if (earContext != null) {
+                earContext.close();
+            }
             DeploymentUtil.recursiveDelete(configurationDir);
             throw e;
         } finally {

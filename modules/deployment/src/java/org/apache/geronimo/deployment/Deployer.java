@@ -20,6 +20,7 @@ package org.apache.geronimo.deployment;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -280,9 +281,14 @@ public class Deployer {
                 throw new DeploymentException("No ConfigurationStores!");
             }
             ConfigurationStore store = (ConfigurationStore) stores.iterator().next();
-            List configurations = builder.buildConfiguration(inPlaceConfiguration, plan, module, stores, store);
+            // It's our responsibility to close this context, once we're done with it...
+            DeploymentContext context = builder.buildConfiguration(inPlaceConfiguration, plan, module, stores, store);
+            List configurations = new ArrayList();
+            configurations.add(context.getConfigurationData());
+            configurations.addAll(context.getAdditionalDeployment());
+
             if (configurations.isEmpty()) {
-                throw new DeploymentException("Deployer did not create any configuration");
+                throw new DeploymentException("Deployer did not create any configurations");
             }
             try {
                 if (targetFile != null) {
@@ -314,6 +320,10 @@ public class Deployer {
                 cleanupConfigurations(configurations);
                 // unlikely as we just built this
                 throw new DeploymentException(e);
+            } finally {
+                if (context != null) {
+                    context.close();
+                }
             }
         } catch(Throwable e) {
             //TODO not clear all errors will result in total cleanup

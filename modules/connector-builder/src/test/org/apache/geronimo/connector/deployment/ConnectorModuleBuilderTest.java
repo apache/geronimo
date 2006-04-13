@@ -166,12 +166,16 @@ public class ConnectorModuleBuilderTest extends TestCase {
                     new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching),
                     resourceReferenceBuilder, null, serviceReferenceBuilder, kernel);
             ConfigurationData configData = null;
+            DeploymentContext context = null;
             try {
                 File planFile = new File(basedir, "src/test-data/data/external-application-plan.xml");
                 Object plan = configBuilder.getDeploymentPlan(planFile, rarFile);
-                List configurations = configBuilder.buildConfiguration(false, plan, rarFile, Collections.singleton(configurationStore), configurationStore);
-                configData = (ConfigurationData) configurations.get(0);
+                context = configBuilder.buildConfiguration(false, plan, rarFile, Collections.singleton(configurationStore), configurationStore);
+                configData = context.getConfigurationData();
             } finally {
+                if (context != null) {
+                    context.close();
+                }
                 if (configData != null) {
                     DeploymentUtil.recursiveDelete(configData.getConfigurationDir());
                 }
