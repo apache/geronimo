@@ -54,21 +54,19 @@ public class WebAppHandler extends BaseApacheHandler {
             List list = model.getWebApps();
             for (int i = 0; i < webApps.length; i++) {
                 ConfigurationData app = webApps[i];
-log.error("*********** "+app.getType()+": "+app.getParentName()+" / "+app.getChildName());
-                if(!app.getState().isRunning()) {
-                    continue;
-                }
-                WebModule web = (WebModule) PortletManager.getManagedBean(request, app.getModuleBeanName());
-                WebAppData data = new WebAppData(app.getParentName().toString(), app.getChildName(), app.getModuleBeanName().toString(), false, null, false);
-                data.setContextRoot(web.getContextPath());
-                String path;
-                if(web.getWARDirectory().getProtocol().equals("file")) {
-                    path = web.getWARDirectory().getPath();
-                } else {
-                    path = "WARMustBeUnpacked";
-                }
+                WebAppData data = new WebAppData(app.getParentName().getArtifact(), app.getChildName(), app.getModuleBeanName() == null ? null : app.getModuleBeanName(), false, null, false);
+                if (app.isRunning()) {
+                    WebModule web = (WebModule) PortletManager.getManagedBean(request, app.getModuleBeanName());
+                    data.setContextRoot(web.getContextPath());
+                    String path;
+                    if(web.getWARDirectory().getProtocol().equals("file")) {
+                        path = web.getWARDirectory().getPath();
+                    } else {
+                        path = "WARMustBeUnpacked";
+                    }
 
-                data.setWebAppDir(path);
+                    data.setWebAppDir(path);
+                }
                 list.add(data);
             }
         }

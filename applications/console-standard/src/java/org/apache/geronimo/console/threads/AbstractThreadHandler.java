@@ -17,6 +17,7 @@ package org.apache.geronimo.console.threads;
 
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletRequest;
+import javax.portlet.PortletSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.MultiPageAbstractHandler;
@@ -46,7 +47,7 @@ public abstract class AbstractThreadHandler extends MultiPageAbstractHandler {
             abstractName = request.getParameter(AbstractThreadHandler.ABSTRACT_NAME_PARAMETER);
         }
 
-        public void save(ActionResponse response) {
+        public void save(ActionResponse response, PortletSession session) {
             if(!isEmpty(abstractName)) response.setRenderParameter(AbstractThreadHandler.ABSTRACT_NAME_PARAMETER, abstractName);
         }
     }

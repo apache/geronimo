@@ -116,5 +116,11 @@ public interface ManagementHelper {
     Object[] findByInterface(Class iface);
     AbstractName getNameFor(Object component);
     ConfigurationData[] getConfigurations(ConfigurationModuleType type, boolean includeChildModules);
+    /**
+     * Gets a JSR-77 Module (WebModule, EJBModule, etc.) for the specified configuration.
+     * Note: this only works if the configuration is running at the time you ask.
+     *
+     * @return The Module, or null if the configuration is not running.
+     */
     J2EEDeployedObject getModuleForConfiguration(Artifact configuration);
 }

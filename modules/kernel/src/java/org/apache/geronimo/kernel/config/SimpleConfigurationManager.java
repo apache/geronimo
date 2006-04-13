@@ -141,7 +141,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
 
     public synchronized Configuration getConfiguration(Artifact configurationId) {
         ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(configurationId);
-        return configurationStatus.getConfiguration();
+        return configurationStatus == null ? null : configurationStatus.getConfiguration();
     }
 
     public synchronized boolean isLoaded(Artifact configurationId) {

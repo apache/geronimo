@@ -31,6 +31,7 @@ import javax.portlet.PortletRequest;
 import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
+import javax.portlet.PortletSession;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -165,7 +166,7 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
             }
         }
 
-        public void save(ActionResponse response) {
+        public void save(ActionResponse response, PortletSession session) {
             if(!isEmpty(rarURI)) response.setRenderParameter(RAR_FILE_PARAMETER, rarURI);
             if(!isEmpty(dependency)) response.setRenderParameter(DEPENDENCY_PARAMETER, dependency);
             if(!isEmpty(instanceName)) response.setRenderParameter(INSTANCE_NAME_PARAMETER, instanceName);

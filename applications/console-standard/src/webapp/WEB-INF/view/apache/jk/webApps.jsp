@@ -16,14 +16,16 @@
 </dl>
 
 <!-- FORM TO COLLECT DATA FOR THIS PAGE -->
-<form name="<portlet:namespace/>ApacheForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>ApacheForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="webapp-after"/>
     <input type="hidden" name="os" value="${model.os}"/>
     <input type="hidden" name="addAjpPort" value="${model.addAjpPort}"/>
     <input type="hidden" name="workersPath" value="${model.workersPath}"/>
     <input type="hidden" name="logFilePath" value="${model.logFilePath}"/>
 <c:forEach var="webApp" items="${model.webApps}" varStatus="status">
-    <input type="hidden" name="webapp.${status.index}.configId" value="${webApp.configId}"/>
+    <input type="hidden" name="webapp.${status.index}.configId" value="${webApp.parentConfigId}"/>
+    <input type="hidden" name="webapp.${status.index}.moduleBeanName" value="${webApp.moduleBeanName}"/>
+    <input type="hidden" name="webapp.${status.index}.childName" value="${webApp.childName}"/>
     <input type="hidden" name="webapp.${status.index}.contextRoot" value="${webApp.contextRoot}"/>
     <input type="hidden" name="webapp.${status.index}.webAppDir" value="${webApp.webAppDir}"/>
 </c:forEach>
@@ -34,13 +36,20 @@
             <th>Static Content</th>
             <th>Dynamic Paths</th>
         </tr>
-      <c:forEach var="web" items="${webApps}" varStatus="status">
+      <c:forEach var="web" items="${model.webApps}" varStatus="status">
         <tr>
-            <td>${web.configID}</td>
+            <td>${web.name}</td>
+        <c:choose>
+          <c:when test="${web.running}">
             <td align="center"><input type="checkbox" name="webapp.${status.index}.enabled"<c:if test="${model.webApps[status.index].enabled}"> checked="checked"</c:if> /></td>
             <td align="center"><input type="checkbox" name="webapp.${status.index}.serveStaticContent"<c:if test="${model.webApps[status.index].serveStaticContent}"> checked="checked"</c:if> /></td>
             <td><input type="text" name="webapp.${status.index}.dynamicPattern" size="20" maxlength="250"
                        value="${model.webApps[status.index].dynamicPattern}"/></td>
+          </c:when>
+          <c:otherwise>
+            <td colspan="3"><i>Web app is not running</i></td>
+          </c:otherwise>
+        </c:choose>
         </tr>
       </c:forEach>
 

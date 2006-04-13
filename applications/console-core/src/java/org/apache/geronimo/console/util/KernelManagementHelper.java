@@ -48,6 +48,7 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.management.AppClientModule;
@@ -767,10 +768,9 @@ public class KernelManagementHelper implements ManagementHelper {
                 List infos = mgr.listConfigurations(storeName);
                 for (Iterator j = infos.iterator(); j.hasNext();) {
                     ConfigurationInfo info = (ConfigurationInfo) j.next();
-                    AbstractName configuration = mgr.getConfiguration(info.getConfigID()).getAbstractName();
+                    AbstractName configuration = Configuration.getConfigurationAbstractName(info.getConfigID());
                     if(type == null || type.getValue() == info.getType().getValue()) {
-
-                        results.add(new ConfigurationData(configuration, null, info.getState(), info.getType(), kernel.getAbstractNameFor(info.getConfigID())));
+                        results.add(new ConfigurationData(info.getConfigID(), configuration, null, info.getState(), info.getType(), kernel.getAbstractNameFor(getModuleForConfiguration(info.getConfigID()))));
                     }
                     if(includeChildModules && info.getType().getValue() == ConfigurationModuleType.EAR.getValue()) {
                         J2EEApplication app = (J2EEApplication) getModuleForConfiguration(info.getConfigID());
@@ -803,22 +803,33 @@ public class KernelManagementHelper implements ManagementHelper {
                                 //todo: solutions for other module types
                                 moduleName = (String) kernel.getAbstractNameFor(module).getName().get(NameFactory.J2EE_NAME);
                             }
-                            results.add(new ConfigurationData(configuration, moduleName, info.getState(), moduleType, kernel.getAbstractNameFor(module)));
+                            results.add(new ConfigurationData(info.getConfigID(), configuration, moduleName, info.getState(), moduleType, kernel.getAbstractNameFor(module)));
                         }
                     }
                 }
             } catch (NoSuchStoreException e) {
                 // we just got this list so this should not happen
                 // in the unlikely event it does, just continue
+            } catch (InvalidConfigException e) {
+                throw new RuntimeException("Bad configID; should never happen");
             }
         }
         Collections.sort(results);
         return (ConfigurationData[]) results.toArray(new ConfigurationData[results.size()]);
     }
 
+    /**
+     * Gets a JSR-77 Module (WebModule, EJBModule, etc.) for the specified configuration.
+     * Note: this only works if the configuration is running at the time you ask.
+     *
+     * @return The Module, or null if the configuration is not running.
+     */
     public J2EEDeployedObject getModuleForConfiguration(Artifact configuration) {
         ConfigurationManager manager = ConfigurationUtil.getConfigurationManager(kernel);
         Configuration config = manager.getConfiguration(configuration);
+        if(config == null) {
+            return null; // The configuration is not running, so we can't get its contents
+        }
         ConfigurationModuleType type = config.getModuleType();
         AbstractName result;
         try {

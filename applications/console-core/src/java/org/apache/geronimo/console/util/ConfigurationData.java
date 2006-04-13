@@ -18,6 +18,7 @@ package org.apache.geronimo.console.util;
 import java.io.Serializable;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.gbean.AbstractName;
 
 /**
@@ -26,13 +27,15 @@ import org.apache.geronimo.gbean.AbstractName;
  * @version $Rev: 355877 $ $Date: 2005-12-10 21:48:27 -0500 (Sat, 10 Dec 2005) $
  */
 public class ConfigurationData implements Serializable, Comparable {
+    private final Artifact configID;
     private final State state;
     private final AbstractName parentName;
     private final String childName;
     private final ConfigurationModuleType type;
     private final AbstractName moduleBeanName;
 
-    public ConfigurationData(AbstractName parentName, String childName, State state, ConfigurationModuleType type, AbstractName moduleBeanName) {
+    public ConfigurationData(Artifact configID, AbstractName parentName, String childName, State state, ConfigurationModuleType type, AbstractName moduleBeanName) {
+        this.configID = configID;
         this.childName = childName;
         this.parentName = parentName;
         this.state = state;
@@ -62,6 +65,14 @@ public class ConfigurationData implements Serializable, Comparable {
 
     public ConfigurationModuleType getType() {
         return type;
+    }
+
+    public Artifact getConfigID() {
+        return configID;
+    }
+
+    public boolean isRunning() {
+        return state.toInt() == State.RUNNING_INDEX;
     }
 
     public int compareTo(Object o) {

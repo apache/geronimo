@@ -123,7 +123,7 @@ public abstract class MultiPagePortlet extends BasePortlet {
         if(mode != null) {
             actionResponse.setRenderParameter(MODE_KEY, mode);
         }
-        model.save(actionResponse);
+        model.save(actionResponse, actionRequest.getPortletSession(true));
     }
 
     protected void doView(RenderRequest renderRequest, RenderResponse renderResponse) throws IOException, PortletException {
