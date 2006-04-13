@@ -28,7 +28,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.geronimo.applications</groupId>
   <artifactId>applications-parent</artifactId>
-  <version>${geronimoVersion}</version>
+  <version>1.2-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Geronimo Applications</name>
   <description>Geronimo Applications</description>

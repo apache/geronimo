@@ -1,0 +1,1 @@
+This page displays the values of the system properties available to the server process.

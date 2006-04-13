@@ -1,0 +1,31 @@
+BODY, P, TH, TD {
+    font-family: arial, helvetica, sans-serif;
+    text-align: left;
+}
+
+.BODY, .P, .TD {
+    font-size: 12px;
+}
+
+TABLE {
+    width: 100%;
+    padding: 2px 3px;
+    border-collapse:collapse;
+    border-spacing: 3px 3px;
+}
+
+
+.banner, .banner TD, .banner A:link, .banner A:visited, .banner A:hover {
+    background-color: #DDDDDD;
+    color: #36a;
+}
+
+.nav, .nav TD, .nav A:link, .nav A:visited, .nav A:hover {
+    background-color: #DDDDDD;
+    color: #36a;
+}
+
+.small {
+    font-size: -1;
+}
+

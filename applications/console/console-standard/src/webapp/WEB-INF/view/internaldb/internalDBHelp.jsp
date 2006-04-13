@@ -1,0 +1,1 @@
+This page provides information about the internal database, such as, the product name, the version of the database, the supported functions and the supported SQL commands, among other things. Scroll to the botton to see all the information.
