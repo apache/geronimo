@@ -22,7 +22,7 @@
     <groupId>geronimo</groupId>
     <id>geronimo-packaging-plugin</id>
     <name>Geronimo :: Maven Packaging Plugin</name>
-    <currentVersion>1.1.0-3</currentVersion>
+    <currentVersion>1.1.0-4</currentVersion>
 
     <dependencies>
         <dependency>
@@ -173,6 +173,7 @@
 
     <build>
         <sourceDirectory>src/java</sourceDirectory>
+        <unitTestSourceDirectory>${basedir}/src/test</unitTestSourceDirectory>
 
         <resources>
             <resource>
@@ -185,6 +186,22 @@
                 </includes>
             </resource>
         </resources>
+        <unitTest>
+            <includes>
+                <include>**/*Test.java</include>
+            </includes>
+            <excludes>
+                <exclude>**/Abstract*.java</exclude>
+            </excludes>
+            <resources>
+                <resource>
+                    <directory>${basedir}/src/test-resources</directory>
+                    <includes>
+                        <include>**/*</include>
+                    </includes>
+                </resource>
+            </resources>
+        </unitTest>
     </build>
 </project>
 

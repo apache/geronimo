@@ -192,6 +192,19 @@
     </xs:complexType>
 
     <xs:simpleType name="importType">
+        <xs:annotation>
+            <xs:documentation><![CDATA[
+            The import element is restrictive.  The default (when omitted) is to include the specified dependency in
+            the classloader (as a parent or URL) and (if the dependency is a configuration) make sure it is started
+            before starting the current configuration.  Specifying "classes" means that the classes must be included
+            in the current configurations classloader but the dependency does not need to be started. (I'm not sure this
+            is actually possible, but it is what is meant).  Specifying "services" means that the dependency (a configuration)
+            must be started before the current configuration, but it is not included as a parent classloader.
+
+            You probably never need to use the import element.
+
+          ]]></xs:documentation>
+        </xs:annotation>
         <xs:restriction base="xs:string">
             <xs:enumeration value="classes"/>
             <xs:enumeration value="services"/>

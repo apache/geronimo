@@ -35,6 +35,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 
 import javax.xml.namespace.QName;
+
 import java.io.File;
 import java.io.StringWriter;
 import java.util.Iterator;
@@ -42,7 +43,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 /**
- * @version $Rev: 384686 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class PlanProcessor {
     private static Log log = LogFactory.getLog(PlanProcessor.class);
@@ -51,6 +52,7 @@ public class PlanProcessor {
 //    private static final String INCLUDE_PROPERTY = "geronimo.include";
     private static final String DEPENDENCY_PROPERTY = "geronimo.dependency";
     private static final String REFERENCE_PROPERTY = "geronimo.reference";
+    private static final String ENVIRONMENT_LOCAL_NAME = "environment";
     private static final QName ENVIRONMENT_QNAME = new QName("http://geronimo.apache.org/xml/ns/deployment-1.1", "environment");
 
     private List artifacts;
@@ -156,41 +158,13 @@ public class PlanProcessor {
 
             String plan = writer.toString();
 
+            LinkedHashSet dependencies = toDependencies();
+            org.apache.geronimo.kernel.repository.Artifact configId = new org.apache.geronimo.kernel.repository.Artifact(groupId, artifactId, version, "car");
             XmlObject doc = XmlObject.Factory.parse(plan);
             XmlCursor xmlCursor = doc.newCursor();
             try {
 
-                xmlCursor.toFirstContentToken();
-                xmlCursor.toFirstChild();
-                QName childName = xmlCursor.getName();
-                Environment oldEnvironment = null;
-                if (childName != null && childName.equals(ENVIRONMENT_QNAME)) {
-                    XmlObject xmlObject = xmlCursor.getObject();
-                    EnvironmentType environmentType = (EnvironmentType) xmlObject.copy().changeType(EnvironmentType.type);
-                    oldEnvironment = EnvironmentBuilder.buildEnvironment(environmentType);
-                    xmlCursor.removeXml();
-                } else {
-                    oldEnvironment = new Environment();
-                }
-
-                org.apache.geronimo.kernel.repository.Artifact configId = new org.apache.geronimo.kernel.repository.Artifact(groupId, artifactId, version, "car");
-
-                LinkedHashSet dependencies = toDependencies();
-
-                Environment newEnvironment = new Environment();
-                newEnvironment.setConfigId(configId);
-                newEnvironment.setDependencies(dependencies);
-
-                EnvironmentBuilder.mergeEnvironments(oldEnvironment, newEnvironment);
-                EnvironmentType environmentType = EnvironmentBuilder.buildEnvironmentType(oldEnvironment);
-
-                xmlCursor.beginElement(ENVIRONMENT_QNAME);
-                XmlCursor element = environmentType.newCursor();
-                try {
-                    element.copyXmlContents(xmlCursor);
-                } finally {
-                    element.dispose();
-                }
+                mergeEnvironment(xmlCursor, configId, dependencies);
 
                 File targetDir = new File(this.targetDir);
                 if (targetDir.exists()) {
@@ -208,8 +182,60 @@ public class PlanProcessor {
                 xmlCursor.dispose();
             }
         } catch (Exception e) {
-            log.error(e.getClass().getName()+": "+e.getMessage(), e);
+            log.error(e.getClass().getName() + ": " + e.getMessage(), e);
             throw e;
+        }
+    }
+
+    void mergeEnvironment(XmlCursor xmlCursor, org.apache.geronimo.kernel.repository.Artifact configId, LinkedHashSet dependencies) {
+        xmlCursor.toFirstContentToken();
+        xmlCursor.toFirstChild();
+        QName childName = xmlCursor.getName();
+        Environment oldEnvironment;
+        if (childName != null && childName.getLocalPart().equals(ENVIRONMENT_LOCAL_NAME)) {
+            convertElement(xmlCursor, ENVIRONMENT_QNAME.getNamespaceURI());
+            XmlObject xmlObject = xmlCursor.getObject();
+            EnvironmentType environmentType = (EnvironmentType) xmlObject.copy().changeType(EnvironmentType.type);
+            oldEnvironment = EnvironmentBuilder.buildEnvironment(environmentType);
+            xmlCursor.removeXml();
+        } else {
+            oldEnvironment = new Environment();
+        }
+
+
+        Environment newEnvironment = new Environment();
+        newEnvironment.setConfigId(configId);
+        newEnvironment.setDependencies(dependencies);
+
+        EnvironmentBuilder.mergeEnvironments(oldEnvironment, newEnvironment);
+        EnvironmentType environmentType = EnvironmentBuilder.buildEnvironmentType(oldEnvironment);
+
+        xmlCursor.beginElement(ENVIRONMENT_QNAME);
+        XmlCursor element = environmentType.newCursor();
+        try {
+            element.copyXmlContents(xmlCursor);
+        } finally {
+            element.dispose();
+        }
+    }
+
+    private void convertElement(XmlCursor cursor, String namespace) {
+        cursor.push();
+        XmlCursor end = cursor.newCursor();
+        try {
+            end.toCursor(cursor);
+            end.toEndToken();
+            while (cursor.hasNextToken() && cursor.isLeftOf(end)) {
+                if (cursor.isStart()) {
+                    if (!namespace.equals(cursor.getName().getNamespaceURI())) {
+                        cursor.setName(new QName(namespace, cursor.getName().getLocalPart()));
+                    }
+                }
+                cursor.toNextToken();
+            }
+            cursor.pop();
+        } finally {
+            end.dispose();
         }
     }
 
@@ -239,6 +265,7 @@ public class PlanProcessor {
             return null;
         }
     }
+
     private static org.apache.geronimo.kernel.repository.Artifact toGeronimoArtifact(Dependency dependency) {
         String groupId = dependency.getGroupId();
         String artifactId = dependency.getArtifactId();
