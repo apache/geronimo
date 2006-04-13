@@ -16,26 +16,26 @@
  */
 package org.apache.geronimo.connector.deployment.jsr88;
 
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.LinkedHashMap;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import javax.enterprise.deploy.model.DDBean;
-import javax.enterprise.deploy.model.XpathListener;
 import javax.enterprise.deploy.model.XpathEvent;
+import javax.enterprise.deploy.model.XpathListener;
 import javax.enterprise.deploy.spi.DConfigBean;
 import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
-
 import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
+import org.apache.geronimo.deployment.service.jsr88.EnvironmentData;
+import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
+import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorType;
 import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
-import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
-import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlCursor;
 
@@ -48,8 +48,8 @@ import org.apache.xmlbeans.XmlCursor;
 public class ConnectorDCB extends DConfigBeanSupport {
     private DDBean resourceAdapterDDBean;
     private ResourceAdapter[] resourceAdapter = new ResourceAdapter[0];
-    private Artifact[] dependency = new Artifact[0];
     private AdminObjectDCB[] adminobjects = new AdminObjectDCB[0];
+    private EnvironmentData environment;
 
     public ConnectorDCB(DDBean connectorDDBean, final GerConnectorType connector) {
         super(connectorDDBean, connector);
@@ -211,62 +211,26 @@ public class ConnectorDCB extends DConfigBeanSupport {
     // ----------------------- JavaBean Properties for /connector ----------------------
 
     //todo: the following child elements
-    // import*
-    // hidden-classes*
-    // non-overridable-classes*
     // gbean*
 
-//    public String getConfigID() {
-//        return getConnector().getConfigId();
-//    }
+    public EnvironmentData getEnvironment() {
+        return environment;
+    }
 
-//    public void setConfigID(String configId) {
-//        String old = getConfigID();
-//        getConnector().setConfigId(configId);
-//        pcs.firePropertyChange("configID", old, configId);
-//    }
-
-//    public String getParentID() {
-//        return getConnector().getParentId();
-//    }
-//
-//    public void setParentID(String parentId) {
-//        String old = getParentID();
-//        if(parentId == null) {
-//            getConnector().unsetParentId();
-//        } else {
-//            getConnector().setParentId(parentId);
-//        }
-//        pcs.firePropertyChange("parentID", old, parentId);
-//    }
-//
-//    public Boolean getSuppressDefaultParentID() {
-//        return getConnector().isSetSuppressDefaultParentId() ? getConnector().getSuppressDefaultParentId() ? Boolean.TRUE : Boolean.FALSE : null;
-//    }
-//
-//    public void setSuppressDefaultParentID(Boolean suppress) {
-//        Boolean old = getSuppressDefaultParentID();
-//        if(suppress == null) {
-//            getConnector().unsetSuppressDefaultParentId();
-//        } else {
-//            getConnector().setSuppressDefaultEnvironment(suppress.booleanValue());
-//        }
-//        pcs.firePropertyChange("suppressDefaultParentID", old, suppress);
-//    }
-//
-//    public Boolean getInverseClassLoading() {
-//        return getConnector().isSetInverseClassloading() ? getConnector().getInverseClassloading() ? Boolean.TRUE : Boolean.FALSE : null;
-//    }
-//
-//    public void setInverseClassLoading(Boolean inverse) {
-//        Boolean old = getInverseClassLoading();
-//        if(inverse == null) {
-//            getConnector().unsetInverseClassloading();
-//        } else {
-//            getConnector().setInverseClassloading(inverse.booleanValue());
-//        }
-//        pcs.firePropertyChange("inverseClassLoading", old, inverse);
-//    }
+    public void setEnvironment(EnvironmentData environment) {
+        EnvironmentData old = this.environment;
+        this.environment = environment;
+        if((old == null && environment == null) || (old != null&& old == environment)) {
+            return;
+        }
+        if(old != null) {
+            getConnector().unsetEnvironment();
+        }
+        if(environment != null) {
+            environment.configure(getConnector().addNewEnvironment());
+        }
+        pcs.firePropertyChange("environment", old, environment);
+    }
 
     public ResourceAdapter[] getResourceAdapter() {
         return resourceAdapter;
@@ -314,53 +278,6 @@ public class ConnectorDCB extends DConfigBeanSupport {
         }
         pcs.firePropertyChange("resourceAdapter", old, resourceAdapter);
     }
-
-//    public Artifact[] getDependency() {
-//        return dependency;
-//    }
-//
-//    public void setDependency(Artifact[] dependency) {
-//        Artifact[] old = this.dependency;
-//        Set before = new HashSet();
-//        for (int i = 0; i < old.length; i++) {
-//            before.add(old[i]);
-//        }
-//        this.dependency = dependency;
-//         Handle current or new resource adapters
-//        for (int i = 0; i < dependency.length; i++) {
-//            Artifact dep = dependency[i];
-//            if(dep.getDependency() == null) {
-//                dep.configure(getConnector().addNewDependency());
-//            } else {
-//                before.remove(dep);
-//            }
-//        }
-        // Handle removed resource adapters
-//        for (Iterator it = before.iterator(); it.hasNext();) {
-//            Artifact dep = (Artifact) it.next();
-//            ArtifactType all[] = getConnector().getDependencyArray();
-//            for (int i = 0; i < all.length; i++) {
-//                if(all[i] == dep) {
-//                    getConnector().removeDependency(i);
-//                    break;
-//                }
-//            }
-//        }
-//        pcs.firePropertyChange("dependency", old, dependency);
-//    }
-//
-//    public Artifact getDependency(int index) {
-//        return dependency[index];
-//    }
-//
-//    public void setDependency(int index, Artifact dep) {
-//        Artifact[] old = this.dependency;
-//        dependency[index] = dep;
-//        if(dep.getDependency() == null) {
-//            dep.configure(getConnector().addNewDependency());
-//        }
-//        pcs.firePropertyChange("dependency", old, dependency);
-//    }
 
 
     // ----------------------- End of JavaBean Properties ----------------------

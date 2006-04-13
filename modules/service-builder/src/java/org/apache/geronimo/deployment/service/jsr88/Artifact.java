@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.connector.deployment.jsr88;
+package org.apache.geronimo.deployment.service.jsr88;
 
 import org.apache.geronimo.deployment.plugin.XmlBeanSupport;
 import org.apache.geronimo.deployment.xbeans.ArtifactType;
@@ -22,9 +22,8 @@ import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 
 /**
- * Represents /connector/dependency in the Geronimo Connector deployment plan
- *
- * //todo: move to service-builder module
+ * Represents an artifactType (e.g. a dependency or configId element) in a
+ * Geronimo deployment plan.
  *
  * @version $Rev$ $Date$
  */
@@ -40,69 +39,64 @@ public class Artifact extends XmlBeanSupport {
         configure(dependency);
     }
 
-    protected ArtifactType getDependency() {
+    protected ArtifactType getArtifactType() {
         return (ArtifactType) getXmlObject();
     }
 
     void configure(ArtifactType dependency) {
         setXmlObject(dependency);
-        //todo: read in data from dependency object?
     }
 
-    // ----------------------- JavaBean Properties for /connector/dependency ----------------------
+    // ----------------------- JavaBean Properties for artifactType ----------------------
 
     public String getGroupId() {
-        return getDependency().getGroupId();
+        return getArtifactType().getGroupId();
     }
 
     public void setGroupId(String groupId) {
         String old = getGroupId();
         if(groupId == null) {
-            getDependency().unsetGroupId();
+            getArtifactType().unsetGroupId();
         } else {
-            getDependency().setGroupId(groupId);
+            getArtifactType().setGroupId(groupId);
         }
         pcs.firePropertyChange("groupId", old, groupId);
     }
 
     public String getArtifactId() {
-        return getDependency().getArtifactId();
+        return getArtifactType().getArtifactId();
     }
 
     public void setArtifactId(String artifact) {
         String old = getArtifactId();
-//        if(artifact == null) {
-//            getDependency().unsetArtifactId();
-//        } else {
-            getDependency().setArtifactId(artifact);
-//        }
+        getArtifactType().setArtifactId(artifact);
         pcs.firePropertyChange("artifactId", old, artifact);
     }
 
     public String getType() {
-        return getDependency().getType();
+        return getArtifactType().getType();
     }
 
     public void setType(String type) {
-        String old = getDependency().getType();
+        String old = getArtifactType().getType();
         if(type == null) {
-            getDependency().unsetType();
+            getArtifactType().unsetType();
         } else {
-            getDependency().setType(type);
+            getArtifactType().setType(type);
         }
         pcs.firePropertyChange("type", old, type);
     }
 
     public String getVersion() {
-        return getDependency().getVersion();
+        return getArtifactType().getVersion();
     }
 
     public void setVersion(String version) {
         String old = getVersion();
         if(version == null) {
-            getDependency().unsetVersion();
+            getArtifactType().unsetVersion();
         } else {
-            getDependency().setVersion(version);
+            getArtifactType().setVersion(version);
         }
         pcs.firePropertyChange("version", old, version);
     }
