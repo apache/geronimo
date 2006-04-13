@@ -232,4 +232,24 @@
             <ant:touch file="${basedir}/target/test-reports/tstamp"/>
         </j:if>
     </postGoal>
+
+    <postGoal name="war:webapp">
+    <j:set var="usesJar" value="${maven.war.usesJar}"/>
+    <ant:echo>Use classes.jar ? ${usesJar}</ant:echo>
+    <j:if test="${usesJar}">
+      <j:set var="webroot"  value="${basedir}/target/${pom.artifactId}/WEB-INF"/>
+      <ant:copy todir="${basedir}/target/work" includeEmptyDirs="false">
+      <ant:fileset dir="${webroot}/classes"/>
+      </ant:copy>
+      <ant:available file="${basedir}/target/work"  property="classes.present"/>
+      <j:if test="${classes.present}">
+    <ant:jar destfile="${webroot}/lib/classes.jar" basedir="${webroot}/classes"/>
+    <ant:delete includeemptydirs="true">
+      <ant:fileset dir="${webroot}/classes" includes="**/*"/>
+      <ant:fileset dir="${basedir}/target/work" includes="**/*"/>
+    </ant:delete>
+      </j:if>
+    </j:if>
+  </postGoal>
+
 </project>
