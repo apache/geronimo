@@ -31,7 +31,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.gbean.AbstractName;
 
 /**
- * @version $Rev: 383519 $ $Date$
+ * @version $Rev:392614 $ $Date$
  */
 public class StartCommand extends CommandSupport {
     private final Kernel kernel;
@@ -67,12 +67,14 @@ public class StartCommand extends CommandSupport {
                     configurationManager.startConfiguration(moduleID);
 
                     // Determine the child modules of the configuration
-                    List kids = loadChildren(kernel, objectName);
+                    //TODO might be a hack
+                    String configName = abstractName.getArtifact().toString();
+                    List kids = loadChildren(kernel, configName);
 
                     // Build a response obect containg the started configuration and a list of it's contained modules
                     TargetModuleIDImpl id = new TargetModuleIDImpl(modules[i].getTarget(), objectName,
                             (String[]) kids.toArray(new String[kids.size()]));
-                    if (isWebApp(kernel, objectName)) {
+                    if (isWebApp(kernel, configName)) {
                         id.setType(ModuleType.WAR);
                     }
                     if (id.getChildTargetModuleID() != null) {
