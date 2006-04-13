@@ -20,6 +20,8 @@ import java.net.URI;
 import java.util.Collections;
 import javax.management.ObjectName;
 
+import org.apache.geronimo.kernel.repository.Artifact;
+
 /**
  * @version $Revision$ $Date$
  */
@@ -40,7 +42,7 @@ public class ClientCommandLine extends CommandLine {
             System.exit(0);
         }
         try {
-            URI configuration = new URI(args[0]);
+            Artifact configuration = Artifact.create(args[0]);
             String[] clientArgs = new String[args.length -1];
             System.arraycopy(args, 1, clientArgs, 0, clientArgs.length);
             new ClientCommandLine(configuration, clientArgs);
@@ -67,7 +69,7 @@ public class ClientCommandLine extends CommandLine {
     }
 
 
-    public ClientCommandLine(URI configuration, String[] args) throws Exception {
+    public ClientCommandLine(Artifact configuration, String[] args) throws Exception {
         invokeMainGBean(Collections.singletonList(configuration), new ObjectName("geronimo.client:type=ClientContainer"), "main", args);
     }
 }
