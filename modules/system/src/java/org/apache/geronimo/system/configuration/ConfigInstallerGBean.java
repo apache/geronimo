@@ -41,7 +41,7 @@ import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Dependency;
-import org.apache.geronimo.kernel.repository.WriteableRepository;
+import org.apache.geronimo.kernel.repository.WritableListableRepository;
 import org.apache.geronimo.util.encoders.Base64;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -57,10 +57,10 @@ import org.xml.sax.SAXException;
 public class ConfigInstallerGBean implements ConfigurationInstaller {
     private final static Log log = LogFactory.getLog(ConfigInstallerGBean.class);
     private ConfigurationManager configManager;
-    private WriteableRepository writeableRepo;
+    private WritableListableRepository writeableRepo;
     private ConfigurationStore configStore;
 
-    public ConfigInstallerGBean(ConfigurationManager configManager, WriteableRepository repository, ConfigurationStore configStore) {
+    public ConfigInstallerGBean(ConfigurationManager configManager, WritableListableRepository repository, ConfigurationStore configStore) {
         this.configManager = configManager;
         this.writeableRepo = repository;
         this.configStore = configStore;
@@ -270,7 +270,7 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(ConfigInstallerGBean.class);
         infoFactory.addReference("ConfigManager", ConfigurationManager.class, "ConfigurationManager");
-        infoFactory.addReference("Repository", WriteableRepository.class, "GBean");
+        infoFactory.addReference("Repository", WritableListableRepository.class, "Repository");
         infoFactory.addReference("ConfigStore", ConfigurationStore.class, "ConfigurationStore");
         infoFactory.addInterface(ConfigurationInstaller.class);
 

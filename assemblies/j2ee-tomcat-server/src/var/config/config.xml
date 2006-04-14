@@ -30,6 +30,7 @@
         <gbean name="JMXService">
             <attribute name="url">service:jmx:rmi://${PlanServerHostname}:${PlanJMXPort}/jndi/rmi://${PlanServerHostname}:${PlanNamingPort}/JMXConnector</attribute>
         </gbean>
+<!--
         <gbean name="geronimo.server:J2EEApplication=null,J2EEModule=geronimo/j2ee-security/1.2-SNAPSHOT/car,J2EEServer=geronimo,j2eeType=Keystore,name=geronimo-default" gbeanInfo="org.apache.geronimo.security.keystore.FileKeystoreInstance">
             <attribute name="keystoreName">geronimo-default</attribute>
             <attribute name="keystorePassword">{Simple}rO0ABXNyABlqYXZheC5jcnlwdG8uU2VhbGVkT2JqZWN0PjY9psO3VHACAARbAA1lbmNvZGVkUGFyYW1zdAACW0JbABBlbmNyeXB0ZWRDb250ZW50cQB+AAFMAAlwYXJhbXNBbGd0ABJMamF2YS9sYW5nL1N0cmluZztMAAdzZWFsQWxncQB+AAJ4cHB1cgACW0Ks8xf4BghU4AIAAHhwAAAAEArVToThqcjvbXFD5C2uUmpwdAADQUVT</attribute>
@@ -39,6 +40,7 @@
                 <pattern><gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=geronimo/j2ee-system/1.2-SNAPSHOT/car,J2EEServer=geronimo,j2eeType=GBean,name=ServerInfo</gbean-name></pattern>
             </reference>
         </gbean>
+-->
     </configuration>
     <configuration name="geronimo/j2ee-corba/${pom.currentVersion}/car" load="false">
         <gbean name="NameServer">
