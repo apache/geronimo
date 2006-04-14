@@ -24,40 +24,67 @@ Configuration for root app client
     <!-- ServerInfo service -->
     <gbean name="ServerInfo" class="org.apache.geronimo.system.serverinfo.BasicServerInfo"/>
 
-    <!-- Configuration Manager service -->
-    <gbean name="ConfigurationManager" class="org.apache.geronimo.kernel.config.KernelConfigurationManager">
-        <reference name="Stores">
-            <!--<gbean-name>*:j2eeType=ConfigurationStore,*</gbean-name>-->
-        </reference>
-        <reference name="AttributeStore">
-            <name>AttributeManager</name>
-        </reference>
-        <reference name="PersistentConfigurationList">
-          <type>AttributeStore</type>
-          <name>AttributeManager</name>
-        </reference>
-    </gbean>
-
-    <!-- User-editable attribute service -->
-    <gbean name="AttributeManager" class="org.apache.geronimo.system.configuration.LocalAttributeManager">
-        <reference name="ServerInfo">
-            <name>ServerInfo</name>
-        </reference>
-        <attribute name="configFile">var/config/config.xml</attribute>
-        <!-- The client container should not alter the saved configuration -->
-        <attribute name="readOnly">true</attribute>
-    </gbean>
-
-    <!-- Configuration Store service -->
-    <gbean name="Local" class="org.apache.geronimo.system.configuration.RepositoryConfigurationStore">
-        <reference name="Repository">
-            <name>Repository</name>
-        </reference>
-    </gbean>
-
-    <!-- Repository -->
+    <!--Repository-->
     <gbean name="Repository" class="org.apache.geronimo.system.repository.Maven2Repository">
-        <attribute name="root">repository/</attribute>
+      <attribute name="root">repository/</attribute>
+      <reference name="ServerInfo">
+        <name>ServerInfo</name>
+      </reference>
+    </gbean>
+
+    <!--Configuration Store service-->
+    <gbean name="Local" class="org.apache.geronimo.system.configuration.RepositoryConfigurationStore">
+      <reference name="Repository">
+        <name>Repository</name>
+      </reference>
+    </gbean>
+
+    <!--User-editable attribute service-->
+    <gbean name="AttributeManager" class="org.apache.geronimo.system.configuration.LocalAttributeManager">
+      <reference name="ServerInfo">
+        <name>ServerInfo</name>
+      </reference>
+      <attribute name="configFile">var/config/config.xml</attribute>
+    </gbean>
+
+    <!-- ArtifactManager -->
+    <gbean name="ArtifactManager" class="org.apache.geronimo.kernel.repository.DefaultArtifactManager"/>
+
+    <!-- ArtifactResolver -->
+    <gbean name="ArtifactResolver" class="org.apache.geronimo.kernel.repository.DefaultArtifactResolver">
+      <reference name="ArtifactManager">
+        <name>ArtifactManager</name>
+      </reference>
+      <reference name="Repositories">
+        <!--<gbean-name>*:name=Repository,*</gbean-name>-->
+      </reference>
+    </gbean>
+
+    <!--Configuration Manager service-->
+    <gbean name="ConfigurationManager" class="org.apache.geronimo.kernel.config.EditableKernelConfigurationManager">
+      <reference name="Repositories">
+      </reference>
+      <reference name="Stores">
+      </reference>
+      <reference name="AttributeStore">
+        <name>AttributeManager</name>
+      </reference>
+      <reference name="PersistentConfigurationList">
+        <type>AttributeStore</type>
+        <name>AttributeManager</name>
+      </reference>
+      <reference name="ArtifactManager">
+        <name>ArtifactManager</name>
+      </reference>
+      <reference name="ArtifactResolver">
+        <name>ArtifactResolver</name>
+      </reference>
+    </gbean>
+
+    <!-- Logging service -->
+    <gbean name="Logger" class="org.apache.geronimo.system.logging.log4j.Log4jService">
+        <attribute name="configFileName">var/log/client-log4j.properties</attribute>
+        <attribute name="refreshPeriodSeconds">60</attribute>
         <reference name="ServerInfo">
             <name>ServerInfo</name>
         </reference>
@@ -82,12 +109,4 @@ Configuration for root app client
         </reference>
     </gbean>
 
-    <!-- Logging service -->
-    <gbean name="Logger" class="org.apache.geronimo.system.logging.log4j.Log4jService">
-        <attribute name="configFileName">var/log/client-log4j.properties</attribute>
-        <attribute name="refreshPeriodSeconds">60</attribute>
-        <reference name="ServerInfo">
-            <name>ServerInfo</name>
-        </reference>
-    </gbean>
 </configuration>
