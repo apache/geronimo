@@ -145,7 +145,9 @@ limitations under the License.
         <portlet id="69">
             <definition-id>console-standard.Keystores</definition-id>
         </portlet>
-
+        <portlet id="70">
+            <definition-id>console-standard.ImportExport</definition-id>
+        </portlet>
         <!-- Leave some free numbers for the portlets that are in HEAD but not 1.1 yet -->
         <portlet id="80">
             <definition-id>console-standard.ThreadPool</definition-id>

@@ -763,7 +763,7 @@ public class KernelManagementHelper implements ManagementHelper {
         List stores = mgr.listStores();
         List results = new ArrayList();
         for (Iterator i = stores.iterator(); i.hasNext();) {
-            ObjectName storeName = (ObjectName) i.next();
+            AbstractName storeName = (AbstractName) i.next();
             try {
                 List infos = mgr.listConfigurations(storeName);
                 for (Iterator j = infos.iterator(); j.hasNext();) {

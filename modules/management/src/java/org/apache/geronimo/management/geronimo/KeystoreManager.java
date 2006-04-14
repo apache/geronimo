@@ -16,7 +16,13 @@
  */
 package org.apache.geronimo.management.geronimo;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.KeyStoreException;
+import java.security.KeyManagementException;
+import java.security.NoSuchProviderException;
 import javax.net.ServerSocketFactory;
+import javax.net.ssl.SSLServerSocketFactory;
 
 /**
  * Management interface for working with keystores.  Mostly this is used to
@@ -35,6 +41,9 @@ public interface KeystoreManager {
     /**
      * Gets a ServerSocketFactory using one Keystore to access the private key
      * and another to provide the list of trusted certificate authorities.
+     * @param provider The SSL provider to use, or null for the default
+     * @param protocol The SSL protocol to use
+     * @param algorithm The SSL algorithm to use
      * @param keyStore The key keystore name as provided by listKeystores.  The
      *                 KeystoreInstance for this keystore must be unlocked.
      * @param keyAlias The name of the private key in the keystore.  The
@@ -50,8 +59,9 @@ public interface KeystoreManager {
      *                     keystore cannot be used because it has not been
      *                     unlocked.
      */
-    public ServerSocketFactory createSSLFactory(String keyStore, String keyAlias, String trustStore)
-            throws KeystoreIsLocked, KeyIsLocked;
+    public SSLServerSocketFactory createSSLFactory(String provider, String protocol, String algorithm,
+                                                   String keyStore, String keyAlias, String trustStore, ClassLoader loader)
+            throws KeystoreIsLocked, KeyIsLocked, NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException, KeyManagementException, NoSuchProviderException;
 
     /**
      * Creates a new, empty keystore.  The name should be a valid file name
@@ -61,4 +71,18 @@ public interface KeystoreManager {
      * @param password The password to use to protect the new keystore
      */
     public KeystoreInstance createKeystore(String name, char[] password);
+
+    /**
+     * Gets the aliases for any keystores that are available to be used as
+     * private key keystores for an SSL factory.  This means the keystore is
+     * unlocked and contains at least one private key that's unlocked.
+     */
+    public KeystoreInstance[] getUnlockedKeyStores();
+
+    /**
+     * Gets the aliases for any keystores that are available to be used as
+     * trusted certificate keystores for an SSL factory.  This means the
+     * keystore is unlocked and contains at least one trust certificate.
+     */
+    public KeystoreInstance[] getUnlockedTrustStores();
 }

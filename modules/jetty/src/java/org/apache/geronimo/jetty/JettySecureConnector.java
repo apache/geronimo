@@ -22,9 +22,9 @@ import org.apache.geronimo.management.geronimo.SecureConnector;
  * @version $Rev$ $Date$
  */
 public interface JettySecureConnector extends SecureConnector {
-    /**
-     * Sets the password used to access the server private key inside the
-     * keystore.
-     */
-    public void setKeyPassword(String password);
+    public void setKeyStore(String keyStore);
+
+    public void setTrustStore(String trustStore);
+
+    public void setKeyAlias(String keyAlias);
 }

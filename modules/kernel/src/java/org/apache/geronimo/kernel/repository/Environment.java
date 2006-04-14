@@ -69,6 +69,12 @@ public class Environment implements Serializable {
         this.configId = configId;
     }
 
+    /**
+     * Gets a List (with elements of type Dependency) of the configuration and
+     * JAR dependencies of this configuration.
+     *
+     * @see Dependency
+     */
     public List getDependencies() {
         return Collections.unmodifiableList(new ArrayList(dependencies));
     }
@@ -94,6 +100,10 @@ public class Environment implements Serializable {
         addDependencies(dependencies);
     }
 
+    /**
+     * todo: I should be documented so it's not completely unclear what kind of
+     * elements I hold.
+     */
     public Set getHiddenClasses() {
         return hiddenClasses;
     }
@@ -107,6 +117,10 @@ public class Environment implements Serializable {
         addHiddenClasses(hiddenClasses);
     }
 
+    /**
+     * todo: I should be documented so it's not completely unclear what kind of
+     * elements I hold.
+     */
     public Set getNonOverrideableClasses() {
         return nonOverrideableClasses;
     }

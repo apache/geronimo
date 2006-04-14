@@ -14,20 +14,22 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.security.keystore;
+package org.apache.geronimo.console.car;
+
+import org.apache.geronimo.console.MultiPageAbstractHandler;
 
 /**
- * Exception indicating that the private key you tried to do something with is
- * locked.  It must be unlocked before it can be used in this way.
+ * The base class for all handlers for this portlet
  *
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
-public class KeyIsLocked extends Exception {
-    public KeyIsLocked(String message) {
-        super(message);
-    }
+public abstract class BaseImportExportHandler extends MultiPageAbstractHandler {
+    protected static final String INDEX_MODE = "index";
+    protected static final String LIST_MODE = "list";
+    protected static final String DOWNLOAD_MODE = "download";
+    protected static final String RESULTS_MODE = "results";
 
-    public KeyIsLocked(String message, Throwable cause) {
-        super(message, cause);
+    protected BaseImportExportHandler(String mode, String viewName) {
+        super(mode, viewName);
     }
 }

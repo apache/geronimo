@@ -45,8 +45,8 @@ after the system GBeans but before the server GBeans.
             javax.net.ssl.trustStorePassword=secret
         </attribute>
         <attribute name="systemPathProperties">
-            javax.net.ssl.keyStore=var/security/keystore
-            javax.net.ssl.trustStore=var/security/keystore
+            javax.net.ssl.keyStore=var/security/keystores/geronimo-default
+            javax.net.ssl.trustStore=var/security/keystores/geronimo-default
         </attribute>
         <reference name="ServerInfo">
             <name>ServerInfo</name>

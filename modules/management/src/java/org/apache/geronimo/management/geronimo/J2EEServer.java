@@ -19,7 +19,9 @@ package org.apache.geronimo.management.geronimo;
 import org.apache.geronimo.management.J2EEDeployedObject;
 import org.apache.geronimo.management.J2EEResource;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.system.configuration.ConfigurationInstaller;
 
 /**
  * Geronimo-specific extensions to the standard J2EE server management
@@ -114,4 +116,13 @@ public interface J2EEServer extends org.apache.geronimo.management.J2EEServer {
      */
     public KeystoreManager getKeystoreManager();
 
+    /**
+     * Gets the ConfigurationInstaller associated with this J2EEServer.
+     */
+    public ConfigurationInstaller getConfigurationInstaller();
+
+    /**
+     * Gets the ConfigurationManager associated with this J2EEServer.
+     */
+    public ConfigurationManager getConfigurationManager();
 }

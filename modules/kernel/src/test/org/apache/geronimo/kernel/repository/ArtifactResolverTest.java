@@ -40,6 +40,7 @@ import org.apache.geronimo.kernel.config.ConfigurationResolver;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.config.NullConfigurationStore;
 
 /**
  * @version $Rev$ $Date$
@@ -148,8 +149,7 @@ public class ArtifactResolverTest extends TestCase {
         }
     }
 
-    public static class MockConfigStore implements ConfigurationStore {
-
+    public static class MockConfigStore extends NullConfigurationStore {
         URL baseURL;
 
         public MockConfigStore() {
@@ -157,12 +157,6 @@ public class ArtifactResolverTest extends TestCase {
 
         public MockConfigStore(URL baseURL) {
             this.baseURL = baseURL;
-        }
-
-        public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
-        }
-
-        public void uninstall(Artifact configID) throws NoSuchConfigException, IOException {
         }
 
         public ConfigurationData loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
@@ -173,22 +167,6 @@ public class ArtifactResolverTest extends TestCase {
 
         public boolean containsConfiguration(Artifact configID) {
             return true;
-        }
-
-        public String getObjectName() {
-            return null;
-        }
-
-        public AbstractName getAbstractName() {
-            return null;
-        }
-
-        public List listConfigurations() {
-            return null;
-        }
-
-        public File createNewConfigurationDir(Artifact configId) {
-            return null;
         }
 
         public URL resolve(Artifact configId, String moduleName, URI uri) throws NoSuchConfigException, MalformedURLException {

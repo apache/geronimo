@@ -14,20 +14,16 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.security.keystore;
+package org.apache.geronimo.deployment.plugin;
+
+import org.apache.geronimo.system.configuration.ConfigurationInstaller;
+
+import javax.enterprise.deploy.spi.DeploymentManager;
 
 /**
- * Exception indicating that the keystore you tried to do something with is
- * locked.  It must be unlocked before it can be used in this way.
+ * Enhanced features for Geronimo deployment manager
  *
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
-public class KeystoreIsLocked extends Exception {
-    public KeystoreIsLocked(String message) {
-        super(message);
-    }
-
-    public KeystoreIsLocked(String message, Throwable cause) {
-        super(message, cause);
-    }
+public interface GeronimoDeploymentManager extends DeploymentManager, ConfigurationInstaller {
 }

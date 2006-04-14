@@ -20,6 +20,7 @@ package org.apache.geronimo.deployment.plugin;
 import javax.enterprise.deploy.spi.Target;
 import javax.management.ObjectName;
 import java.io.Serializable;
+import org.apache.geronimo.gbean.AbstractName;
 
 /**
  *
@@ -27,15 +28,15 @@ import java.io.Serializable;
  * @version $Rev$ $Date$
  */
 public class TargetImpl implements Target, Serializable {
-    private final ObjectName name;
+    private final AbstractName name;
     private final String description;
 
-    public TargetImpl(ObjectName name, String description) {
+    public TargetImpl(AbstractName name, String description) {
         this.name = name;
         this.description = description;
     }
 
-    public ObjectName getObjectName() {
+    public AbstractName getAbstractName() {
         return name;
     }
 

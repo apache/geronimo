@@ -17,6 +17,8 @@
 package org.apache.geronimo.console.keystores;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
@@ -28,6 +30,7 @@ import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.management.geronimo.KeystoreInstance;
+import org.apache.geronimo.management.geronimo.KeystoreIsLocked;
 import org.apache.geronimo.management.geronimo.KeystoreManager;
 
 /**
@@ -49,6 +52,7 @@ public class ListHandler extends BaseKeystoreHandler {
         KeystoreInstance[] keystores = manager.getKeystores();
         PortletSession session = request.getPortletSession(true);
         KeystoreData[] datas = new KeystoreData[keystores.length];
+        Map keys = new HashMap();
         for (int i = 0; i < datas.length; i++) {
             AbstractName aName = PortletManager.getNameFor(request, keystores[i]);
             String name = (String) aName.getName().get(NameFactory.J2EE_NAME);
@@ -59,8 +63,19 @@ public class ListHandler extends BaseKeystoreHandler {
                 session.setAttribute(KEYSTORE_DATA_PREFIX+name, data);
             }
             datas[i] = data;
+            if(!data.getInstance().isKeystoreLocked()) {
+                try {
+                    String[] all = data.getInstance().getUnlockedKeys();
+                    if(all.length > 0) {
+                        keys.put(data.getInstance().getKeystoreName(), all.length+" key"+(all.length > 1 ? "s" : "")+" ready");
+                    } else {
+                        keys.put(data.getInstance().getKeystoreName(), "NO KEYS READY");
+                    }
+                } catch (KeystoreIsLocked locked) {}
+            }
         }
         request.setAttribute("keystores", keystores);
+        request.setAttribute("keys", keys);
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {

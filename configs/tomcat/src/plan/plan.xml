@@ -100,7 +100,7 @@ Configuration for Tomcat server.
         <attribute name="clientAuthRequired">false</attribute>
         <attribute name="algorithm">Default</attribute>
         <attribute name="secureProtocol">TLS</attribute>
-        <attribute name="keystoreFileName">var/security/keystore</attribute>
+        <attribute name="keystoreFileName">var/security/keystores/geronimo-default</attribute>
         <attribute name="keystorePassword">secret</attribute>
         <reference name="TomcatContainer">
             <name>TomcatWebContainer</name>

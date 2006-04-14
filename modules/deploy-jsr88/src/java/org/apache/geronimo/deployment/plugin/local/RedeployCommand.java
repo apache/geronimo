@@ -25,6 +25,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.gbean.AbstractName;
 
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.spi.TargetModuleID;
@@ -98,7 +99,7 @@ public class RedeployCommand extends AbstractDeployCommand {
                     }
 
                     TargetImpl target = (TargetImpl) module.getTarget();
-                    ObjectName storeName = target.getObjectName();
+                    AbstractName storeName = target.getAbstractName();
                     kernel.invoke(storeName, "uninstall", new Object[]{configID}, UNINSTALL_SIG);
                     updateStatus("Uninstalled "+configID);
 

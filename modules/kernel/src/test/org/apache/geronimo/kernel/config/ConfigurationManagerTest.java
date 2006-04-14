@@ -121,41 +121,13 @@ public class ConfigurationManagerTest extends TestCase {
                 KernelConfigurationManager.class.getClassLoader());
     }
 
-    private class TestConfigStore implements ConfigurationStore {
-        public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
-            throw new UnsupportedOperationException();
-        }
-
-        public void uninstall(Artifact configId) throws NoSuchConfigException, IOException {
-            throw new UnsupportedOperationException();
-        }
-
+    private class TestConfigStore extends NullConfigurationStore {
         public ConfigurationData loadConfiguration(Artifact configId) throws IOException, InvalidConfigException, NoSuchConfigException {
             return (ConfigurationData) configurations.get(configId);
         }
 
         public boolean containsConfiguration(Artifact configId) {
             return configurations.containsKey(configId);
-        }
-
-        public String getObjectName() {
-            throw new UnsupportedOperationException();
-        }
-
-        public AbstractName getAbstractName() {
-            throw new UnsupportedOperationException();
-        }
-
-        public List listConfigurations() {
-            throw new UnsupportedOperationException();
-        }
-
-        public File createNewConfigurationDir(Artifact configId) throws ConfigurationAlreadyExistsException {
-            throw new UnsupportedOperationException();
-        }
-
-        public URL resolve(Artifact configId, String moduleName, URI uri) throws NoSuchConfigException, MalformedURLException {
-            throw new UnsupportedOperationException();
         }
     }
 

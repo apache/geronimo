@@ -41,7 +41,7 @@
         <!-- parent config -->
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>rmi-naming</artifactId>
+            <artifactId>j2ee-security</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
             <properties>

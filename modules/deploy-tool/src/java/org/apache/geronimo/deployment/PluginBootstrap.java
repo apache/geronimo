@@ -31,6 +31,8 @@ import org.apache.geronimo.deployment.xbeans.ConfigurationType;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.NullConfigurationStore;
+import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.repository.Maven1Repository;
@@ -70,39 +72,9 @@ public class PluginBootstrap {
 
         Maven1Repository repository = new Maven1Repository(localRepo);
         ServiceConfigBuilder builder = new ServiceConfigBuilder(null, Collections.singleton(repository), new Jsr77Naming());
-        ConfigurationStore targetConfigurationStore = new ConfigurationStore() {
-            public void install(ConfigurationData configurationData) {
-            }
-
-            public void uninstall(Artifact configID) {
-            }
-
-            public ConfigurationData loadConfiguration(Artifact configId) {
-                return null;
-            }
-
-            public boolean containsConfiguration(Artifact configID) {
-                return false;
-            }
-
-            public String getObjectName() {
-                return null;
-            }
-
-            public AbstractName getAbstractName() {
-                return null;
-            }
-
-            public List listConfigurations() {
-                return null;
-            }
-
-            public File createNewConfigurationDir(Artifact configId) {
+        ConfigurationStore targetConfigurationStore = new NullConfigurationStore() {
+            public File createNewConfigurationDir(Artifact configId) throws ConfigurationAlreadyExistsException {
                 return buildDir;
-            }
-
-            public URL resolve(Artifact configId, String moduleName, URI uri) {
-                return null;
             }
         };
 

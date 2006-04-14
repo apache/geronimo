@@ -459,6 +459,21 @@ limitations under the License.
             </fragment>
         </fragment>
 
+        <fragment name="import" type="page">
+            <navigation>
+                <title>Plugins</title>
+                <description>ico_list_16x16.gif Import and export plugins (configurations) for this server</description>
+            </navigation>
+
+            <fragment name="row1" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p1" type="portlet">
+                        <property name="portlet" value="5.70"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+        </fragment>
+
     </fragment>
 
     <fragment name="Security" type="page">

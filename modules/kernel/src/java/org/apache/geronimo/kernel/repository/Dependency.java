@@ -19,6 +19,10 @@ package org.apache.geronimo.kernel.repository;
 import java.io.Serializable;
 
 /**
+ * A dependency of a Geronimo configuration.  This may be another
+ * configuration, or it may be a third-party JAR that just needs to go on the
+ * configuration Class Path.
+ *
  * @version $Rev$ $Date$
  */
 public class Dependency implements Serializable {

@@ -31,6 +31,7 @@ import javax.management.ObjectName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -60,17 +61,23 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     }
 
     public List listStores() {
-        List storeSnapshot = getStores();
+        List storeSnapshot = getStoreList();
         List result = new ArrayList(storeSnapshot.size());
         for (int i = 0; i < storeSnapshot.size(); i++) {
             ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
-            result.add(JMXUtil.getObjectName(store.getObjectName()));
+            result.add(store.getAbstractName());
         }
         return result;
     }
 
+    public ConfigurationStore[] getStores() {
+        List storeSnapshot = getStoreList();
+        return (ConfigurationStore[]) storeSnapshot.toArray(new ConfigurationStore[storeSnapshot.size()]);
+    }
+
+
     public List listConfigurations() {
-        List storeSnapshot = getStores();
+        List storeSnapshot = getStoreList();
         List list = new ArrayList();
         for (int i = 0; i < storeSnapshot.size(); i++) {
             ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
@@ -80,7 +87,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     }
 
     public ConfigurationStore getStoreForConfiguration(Artifact configuration) {
-        List storeSnapshot = getStores();
+        List storeSnapshot = getStoreList();
         for (int i = 0; i < storeSnapshot.size(); i++) {
             ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
             if(store.containsConfiguration(configuration)) {
@@ -90,11 +97,11 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return null;
     }
 
-    public List listConfigurations(ObjectName storeName) throws NoSuchStoreException {
-        List storeSnapshot = getStores();
+    public List listConfigurations(AbstractName storeName) throws NoSuchStoreException {
+        List storeSnapshot = getStoreList();
         for (int i = 0; i < storeSnapshot.size(); i++) {
             ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
-            if (storeName.equals(JMXUtil.getObjectName(store.getObjectName()))) {
+            if (storeName.equals(store.getAbstractName())) {
                 return listConfigurations(store);
             }
         }
@@ -129,7 +136,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
             return true;
         }
 
-        List storeSnapshot = getStores();
+        List storeSnapshot = getStoreList();
         for (int i = 0; i < storeSnapshot.size(); i++) {
             ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
             if (store.containsConfiguration(artifact)) {
@@ -306,7 +313,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     }
 
     private ConfigurationData loadConfigurationGBeanData(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
-        List storeSnapshot = getStores();
+        List storeSnapshot = getStoreList();
 
         for (int i = 0; i < storeSnapshot.size(); i++) {
             ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
@@ -459,7 +466,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
             unloadConfiguration(configurationStatus);
         }
 
-        List storeSnapshot = getStores();
+        List storeSnapshot = getStoreList();
         for (int i = 0; i < storeSnapshot.size(); i++) {
             ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
             if(store.containsConfiguration(configId)) {
@@ -469,7 +476,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
 
     }
 
-    private List getStores() {
+    private List getStoreList() {
         return new ArrayList(stores);
     }
 

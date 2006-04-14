@@ -45,6 +45,7 @@ import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.config.NullConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
@@ -551,14 +552,8 @@ public class EARConfigBuilderTest extends TestCase {
         }
     }
 
-    public static class MockConfigStore implements ConfigurationStore {
+    public static class MockConfigStore extends NullConfigurationStore {
         private final Map locations = new HashMap();
-
-        public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
-        }
-
-        public void uninstall(Artifact configID) throws NoSuchConfigException, IOException {
-        }
 
         public ConfigurationData loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
             ConfigurationData configurationData = new ConfigurationData(configId, naming);
@@ -568,18 +563,6 @@ public class EARConfigBuilderTest extends TestCase {
 
         public boolean containsConfiguration(Artifact configID) {
             return true;
-        }
-
-        public String getObjectName() {
-            return null;
-        }
-
-        public AbstractName getAbstractName() {
-            return null;
-        }
-
-        public List listConfigurations() {
-            return null;
         }
 
         public File createNewConfigurationDir(Artifact configId) {

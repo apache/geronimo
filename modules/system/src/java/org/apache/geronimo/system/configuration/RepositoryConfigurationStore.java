@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.AbstractName;
@@ -165,7 +167,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
     public URL resolve(Artifact configId, String moduleName, URI uri) throws NoSuchConfigException, MalformedURLException {
         File location = repository.getLocation(configId);
         if (location.isDirectory()) {
-        	File inPlaceLocation = null;
+            File inPlaceLocation = null;
             try {
                 inPlaceLocation = InPlaceConfigurationUtil.readInPlaceLocation(location);
             } catch (IOException e) {
@@ -174,10 +176,10 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
                 location = inPlaceLocation;
             }
 
-			if (moduleName != null) {
+            if (moduleName != null) {
                 location = new File(location, moduleName);
             }
-			
+
             if (location.isDirectory()) {
                 URL locationUrl = location.toURL();
                 URL resolvedUrl = new URL(locationUrl, uri.toString());
@@ -191,6 +193,48 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
                 baseURL = new URL(baseURL, moduleName + "/");
             }
             return new URL(baseURL, uri.toString());
+        }
+    }
+
+    public void exportConfiguration(Artifact configId, OutputStream output) throws IOException, NoSuchConfigException {
+        File dir = repository.getLocation(configId);
+        if (dir == null) {
+            throw new NoSuchConfigException(configId);
+        }
+        if (!dir.exists() || !dir.canRead()) {
+            throw new IOException("Cannot read config store directory for " + configId + " (" + dir.getAbsolutePath() + ")");
+        }
+        ZipOutputStream out = new ZipOutputStream(output);
+        byte[] buf = new byte[10240];
+        writeToZip(dir, out, "", buf);
+        out.closeEntry();
+        out.finish();
+        out.flush();
+    }
+
+    private void writeToZip(File dir, ZipOutputStream out, String prefix, byte[] buf) throws IOException {
+        File[] all = dir.listFiles();
+        for (int i = 0; i < all.length; i++) {
+            File file = all[i];
+            if (file.isDirectory()) {
+                writeToZip(file, out, prefix + file.getName() + "/", buf);
+            } else {
+                ZipEntry entry = new ZipEntry(prefix + file.getName());
+                out.putNextEntry(entry);
+                writeToZipStream(file, out, buf);
+            }
+        }
+    }
+
+    private void writeToZipStream(File file, OutputStream out, byte[] buf) throws IOException {
+        FileInputStream in = new FileInputStream(file);
+        int count;
+        try {
+            while ((count = in.read(buf, 0, buf.length)) > -1) {
+                out.write(buf, 0, count);
+            }
+        } finally {
+            in.close();
         }
     }
 

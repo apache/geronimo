@@ -18,16 +18,13 @@
 package org.apache.geronimo.jetty.connector;
 
 import javax.net.ssl.KeyManagerFactory;
-
-import org.mortbay.http.SslListener;
-
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.jetty.JettyContainer;
 import org.apache.geronimo.jetty.JettySecureConnector;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.management.geronimo.KeystoreManager;
+import org.apache.geronimo.management.geronimo.WebManager;
 
 /**
  * Implementation of a HTTPS connector based on Jetty's SslConnector (which uses pure JSSE).
@@ -35,15 +32,12 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  * @version $Rev$ $Date$
  */
 public class HTTPSConnector extends JettyConnector implements JettySecureConnector {
-    private final SslListener https;
-    private final ServerInfo serverInfo;
-    private String keystore;
+    private final GeronimoSSLListener https;
     private String algorithm;
 
-    public HTTPSConnector(JettyContainer container, ServerInfo serverInfo) {
-        super(container, new SslListener());
-        this.serverInfo = serverInfo;
-        https = (SslListener) listener;
+    public HTTPSConnector(JettyContainer container, KeystoreManager keystoreManager) {
+        super(container, new GeronimoSSLListener(keystoreManager));
+        https = (GeronimoSSLListener) listener;
     }
 
     public int getDefaultPort() {
@@ -52,16 +46,6 @@ public class HTTPSConnector extends JettyConnector implements JettySecureConnect
 
     public String getProtocol() {
         return WebManager.PROTOCOL_HTTPS;
-    }
-
-    public String getKeystoreFileName() {
-        // this does not delegate to https as it needs to be resolved against ServerInfo
-        return keystore;
-    }
-
-    public void setKeystoreFileName(String keystore) {
-        // this does not delegate to https as it needs to be resolved against ServerInfo
-        this.keystore = keystore;
     }
 
     public String getAlgorithm() {
@@ -83,28 +67,12 @@ public class HTTPSConnector extends JettyConnector implements JettySecureConnect
         https.setAlgorithm(algorithm);
     }
 
-    public void setKeystorePassword(String password) {
-        https.setPassword(password);
-    }
-
-    public void setKeyPassword(String password) {
-        https.setKeyPassword(password);
-    }
-
     public String getSecureProtocol() {
         return https.getProtocol();
     }
 
     public void setSecureProtocol(String protocol) {
         https.setProtocol(protocol);
-    }
-
-    public String getKeystoreType() {
-        return https.getKeystoreType();
-    }
-
-    public void setKeystoreType(String keystoreType) {
-        https.setKeystoreType(keystoreType);
     }
 
     public void setClientAuthRequired(boolean needClientAuth) {
@@ -123,30 +91,68 @@ public class HTTPSConnector extends JettyConnector implements JettySecureConnect
         return https.getWantClientAuth();
     }
 
-    public void doStart() throws Exception {
-        https.setKeystore(serverInfo.resolvePath(keystore));
-        super.doStart();
+    public void setKeyStore(String keyStore) {
+        https.setKeyStore(keyStore);
+    }
+
+    public String getKeyStore() {
+        return https.getKeyStore();
+    }
+
+    public void setTrustStore(String trustStore) {
+        https.setTrustStore(trustStore);
+    }
+
+    public String getTrustStore() {
+        return https.getTrustStore();
+    }
+
+    public void setKeyAlias(String keyAlias) {
+        https.setKeyAlias(keyAlias);
+    }
+
+    public String getKeyAlias() {
+        return https.getKeyAlias();
     }
 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Jetty Connector HTTPS", HTTPSConnector.class, JettyConnector.GBEAN_INFO);
-        infoFactory.addAttribute("keystoreFileName", String.class, true, true);
         infoFactory.addAttribute("algorithm", String.class, true, true);
-        infoFactory.addAttribute("keystorePassword", String.class, true, true);
-        infoFactory.addAttribute("keyPassword", String.class, true, true);
         infoFactory.addAttribute("secureProtocol", String.class, true, true);
-        infoFactory.addAttribute("keystoreType", String.class, true, true);
+        infoFactory.addAttribute("keyStore", String.class, true, true);
+        infoFactory.addAttribute("keyAlias", String.class, true, true);
+        infoFactory.addAttribute("trustStore", String.class, true, true);
         infoFactory.addAttribute("clientAuthRequired", boolean.class, true, true);
         infoFactory.addAttribute("clientAuthRequested", boolean.class, true, true);
-        infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("KeystoreManager", KeystoreManager.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addInterface(JettySecureConnector.class);
-        infoFactory.setConstructor(new String[]{"JettyContainer", "ServerInfo"});
+        infoFactory.setConstructor(new String[]{"JettyContainer", "KeystoreManager"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
+    }
+
+    // ================= NO LONGER USED!!! =====================
+    // todo: remove these from the SSL interface
+
+    public String getKeystoreFileName() {
+        return null;
+    }
+
+    public void setKeystoreFileName(String name) {
+    }
+
+    public void setKeystorePassword(String password) {
+    }
+
+    public String getKeystoreType() {
+        return null;
+    }
+
+    public void setKeystoreType(String type) {
     }
 }

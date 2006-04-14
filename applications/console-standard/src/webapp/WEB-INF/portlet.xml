@@ -1090,5 +1090,29 @@ limitations under the License.
         </portlet-info>
     </portlet>
 
+    <portlet>
+        <description>Portlet for CAR Import/Export</description>
+        <portlet-name>ImportExport</portlet-name>
+        <display-name>CAR Import/Export Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.car.ImportExportPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+            <portlet-mode>HELP</portlet-mode>
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>Import/Export Configurations</title>
+            <short-title>Import/Export</short-title>
+            <keywords>Import Export CAR Configuration</keywords>
+        </portlet-info>
+    </portlet>
+
     <!-- End of console portlets -->
 </portlet-app>

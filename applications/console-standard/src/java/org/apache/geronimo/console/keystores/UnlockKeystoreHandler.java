@@ -17,6 +17,7 @@
 package org.apache.geronimo.console.keystores;
 
 import org.apache.geronimo.console.MultiPageModel;
+import org.apache.geronimo.management.geronimo.KeystoreIsLocked;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -32,34 +33,50 @@ import java.io.IOException;
  */
 public class UnlockKeystoreHandler extends BaseKeystoreHandler {
     public UnlockKeystoreHandler() {
-        super(UNLOCK_KEYSTORE_FOR_EDITING, "/WEB-INF/view/keystore/unlockKeystore.jsp");
+        super(UNLOCK_KEYSTORE_FOR_USAGE, "/WEB-INF/view/keystore/unlockKeystore.jsp");
     }
 
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
-        String id = request.getParameter("id");
-        if(id != null) {
-            response.setRenderParameter("id", id);
+        String keystore = request.getParameter("keystore");
+        if(keystore != null) {
+            response.setRenderParameter("keystore", keystore);
         } // else we hope this is after a failure and the actionAfterView took care of it below!
         return getMode();
     }
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
-        request.setAttribute("id", request.getParameter("id"));
+        String keystore = request.getParameter("keystore");
+        request.setAttribute("keystore", keystore);
+        request.setAttribute("mode", "unlockKeystore");
+        KeystoreData data = ((KeystoreData) request.getPortletSession(true).getAttribute(KEYSTORE_DATA_PREFIX + keystore));
+        request.setAttribute("keys", data.getKeys());
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
-        String id = request.getParameter("keystore");
+        String keystore = request.getParameter("keystore");
         String password = request.getParameter("password");
-        if(id == null || id.equals("")) {
+        String alias = request.getParameter("keyAlias");
+        String keyPassword = request.getParameter("keyPassword");
+        if(keystore == null || keystore.equals("")) {
             return getMode(); // todo: this is bad; if there's no ID, then the form on the page is just not valid!
         } else if(password == null) {
-            response.setRenderParameter("id", id);
+            response.setRenderParameter("keystore", keystore);
+            return getMode();
         }
-        KeystoreData data = ((KeystoreData) request.getPortletSession(true).getAttribute(KEYSTORE_DATA_PREFIX + id));
+        KeystoreData data = ((KeystoreData) request.getPortletSession(true).getAttribute(KEYSTORE_DATA_PREFIX + keystore));
         char[] storePass = password.toCharArray();
-        data.setPassword(storePass);
-        data.setCertificates(data.getInstance().listTrustCertificates(storePass));
-        data.setKeys(data.getInstance().listPrivateKeys(storePass));
+        data.getInstance().unlockKeystore(storePass);
+        if(data.getKeys() != null && data.getKeys().length > 0) {
+            try {
+                data.getInstance().unlockPrivateKey(alias, keyPassword.toCharArray());
+            } catch (KeystoreIsLocked e) {
+                throw new PortletException("Invalid password for keystore", e);
+            }
+        } else {
+            response.setRenderParameter("keystore", keystore);
+            response.setRenderParameter("password", password);
+            return UNLOCK_KEY+BEFORE_ACTION;
+        }
         return LIST_MODE+BEFORE_ACTION;
     }
 }

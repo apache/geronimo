@@ -47,6 +47,7 @@ public abstract class BaseKeystoreHandler extends MultiPageAbstractHandler {
     protected static final String LIST_MODE = "list";
     protected static final String UNLOCK_KEYSTORE_FOR_EDITING = "unlockEdit";
     protected static final String UNLOCK_KEYSTORE_FOR_USAGE = "unlockKeystore";
+    protected static final String UNLOCK_KEY = "unlockKey";
     protected static final String LOCK_KEYSTORE_FOR_EDITING = "lockEdit";
     protected static final String LOCK_KEYSTORE_FOR_USAGE = "lockKeystore";
     protected static final String CREATE_KEYSTORE = "createKeystore";
@@ -85,6 +86,11 @@ public abstract class BaseKeystoreHandler extends MultiPageAbstractHandler {
 
         public void setPassword(char[] password) {
             this.password = password;
+            if(password == null) { // If locking, clear all saved data
+                certificates = null;
+                keys = null;
+                fingerprints = null;
+            }
         }
 
         public boolean isLocked() {

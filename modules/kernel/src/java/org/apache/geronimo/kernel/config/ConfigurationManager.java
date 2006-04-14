@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.List;
 import javax.management.ObjectName;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.gbean.AbstractName;
 
 /**
  * Encapsulates logic for dealing with configurations.
@@ -29,16 +30,23 @@ import org.apache.geronimo.kernel.repository.Artifact;
 public interface ConfigurationManager {
     /**
      * Is the specified configuration loaded into the kernel?
+     *
      * @param configID the name of the configuration
+     *
      * @return true if the configuration has been loaded; false otherwise
      */
     boolean isLoaded(Artifact configID);
 
     /**
      * Return a list of the stores this manager knows about.
-     * @return a List<AbstractName> of the stores this manager controls
+     * @return a List (with elements of type AbstractName) of the stores this manager controls
      */
     List listStores();
+
+    /**
+     * Get all the ConfigurationStores known to this manager at present
+     */
+    ConfigurationStore[] getStores();
 
     /**
      * Gets the configuration store responsible for the specified
@@ -48,69 +56,45 @@ public interface ConfigurationManager {
 
     /**
      * Return a list of the configurations in a specific store.
+     *
      * @param store the store to list
-     * @return a List<ConfigurationInfo> of all the configurations in the store
+     *
+     * @return a List (with elements of type ConfigurationInfo) of all the configurations in the store
+     *
      * @throws NoSuchStoreException if the store could not be located
-     * @deprecated Find a better way.... hopefully we can just use the listConfiguration with no name or the name can be an AbstractName
      */
-    List listConfigurations(ObjectName store) throws NoSuchStoreException;
+    List listConfigurations(AbstractName store) throws NoSuchStoreException;
 
     /**
-     * Is the specified artifact a configurations?
+     * Is the specified artifact a configuration that has been loaded in the kernel?
+     *
      * @param artifact the artifact to check
-     * @return true if the artifact is a configuration
+     *
+     * @return true if the artifact is a configuration and has been loaded
      */
     boolean isConfiguration(Artifact artifact);
 
     /**
-     * Gets the loaded Configuration.
+     * Gets a loaded Configuration (does not see unloaded configurations).
+     *
      * @param configId the configuration to get
+     *
      * @return the specified configuration or null if the configuration has not been loaded
      */
     Configuration getConfiguration(Artifact configId);
 
-    /**
-     * Load the specified configuration and all parent configurations into the kernel. This does not
-     * start any configuration gbeans or load any gbeans from the configurations loaded.  It does
-     * not hurt to call this even if some or all of the GBeans are already loaded -- though only
-     * configurations actually loaded by this call will be returned.
-     *
-     * @param configID the id of the configuration
-     * @throws NoSuchConfigException if no configuration with the given id exists in the configuration stores
-     * @throws IOException if there is a problem loading te configuration from the store
-     * @throws InvalidConfigException if the configuration is corrupt
-     */
     void loadConfiguration(Artifact configID) throws NoSuchConfigException, IOException, InvalidConfigException;
 
     Configuration loadConfiguration(ConfigurationData configurationData) throws NoSuchConfigException, IOException, InvalidConfigException;
 
-    /**
-     * Unloads the gbeans of the specified configuration, stops the configuration gbean, and unloads the
-     * configuration gbean from the kernel.  Stop should always be called first.
-     *
-     * @param configID the name fo the configuration to remove
-     * @throws NoSuchConfigException if the configuration is now loaded into the kernel
-     */
     void unloadConfiguration(Artifact configID) throws NoSuchConfigException;
 
     void unloadConfiguration(Configuration configuration) throws NoSuchConfigException;
 
-    /**
-     * Start the gbeans in this configuration.  
-     *
-     * @param configID
-     * @throws InvalidConfigException
-     */
     void startConfiguration(Artifact configID) throws InvalidConfigException;
 
     void startConfiguration(Configuration configuration) throws InvalidConfigException;
 
-    /**
-     * Stop the gbeans in this configuration, but do not stop the configuration gbean.
-     *
-     * @param configID
-     * @throws InvalidConfigException
-     */
     void stopConfiguration(Artifact configID) throws NoSuchConfigException;
 
     void stopConfiguration(Configuration configuration) throws NoSuchConfigException;

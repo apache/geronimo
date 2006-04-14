@@ -16,13 +16,19 @@
  */
 package org.apache.geronimo.jetty;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jetty.connector.AJP13Connector;
@@ -32,23 +38,16 @@ import org.apache.geronimo.jetty.connector.JettyConnector;
 import org.apache.geronimo.jetty.requestlog.JettyLogManager;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.EditableConfigurationManager;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.management.geronimo.WebManager;
+import org.apache.geronimo.kernel.proxy.ProxyManager;
+import org.apache.geronimo.management.geronimo.KeystoreManager;
 import org.apache.geronimo.management.geronimo.NetworkConnector;
+import org.apache.geronimo.management.geronimo.WebAccessLog;
 import org.apache.geronimo.management.geronimo.WebConnector;
 import org.apache.geronimo.management.geronimo.WebContainer;
-import org.apache.geronimo.management.geronimo.WebAccessLog;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.Collections;
-import java.util.Map;
-import java.util.HashMap;
+import org.apache.geronimo.management.geronimo.WebManager;
 
 /**
  * Jetty implementation of WebManager.  Knows how to manipulate
@@ -81,8 +80,8 @@ public class JettyManagerImpl implements WebManager {
             connector = new GBeanData(name, HTTPConnector.GBEAN_INFO);
         } else if (protocol.equals(PROTOCOL_HTTPS)) {
             connector = new GBeanData(name, HTTPSConnector.GBEAN_INFO);
-            AbstractNameQuery query = new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, "ServerInfo"));
-            connector.setReferencePattern("ServerInfo", query);
+            AbstractNameQuery query = new AbstractNameQuery(KeystoreManager.class.getName());
+            connector.setReferencePattern("KeystoreManager", query);
             //todo: default HTTPS settings
         } else if (protocol.equals(PROTOCOL_AJP)) {
             connector = new GBeanData(name, AJP13Connector.GBEAN_INFO);

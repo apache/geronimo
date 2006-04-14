@@ -16,24 +16,11 @@
  */
 package org.apache.geronimo.deployment.plugin.jmx;
 
-import org.apache.geronimo.connector.deployment.RARConfigurer;
-import org.apache.geronimo.deployment.plugin.TargetImpl;
-import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
-import org.apache.geronimo.deployment.plugin.local.CommandSupport;
-import org.apache.geronimo.deployment.plugin.local.DistributeCommand;
-import org.apache.geronimo.deployment.plugin.local.RedeployCommand;
-import org.apache.geronimo.deployment.plugin.local.StartCommand;
-import org.apache.geronimo.deployment.plugin.local.StopCommand;
-import org.apache.geronimo.deployment.plugin.local.UndeployCommand;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.ConfigurationInfo;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.NoSuchStoreException;
-import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.web.deployment.WARConfigurer;
-
+import java.io.File;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import javax.enterprise.deploy.model.DeployableObject;
 import javax.enterprise.deploy.shared.DConfigBeanVersionType;
 import javax.enterprise.deploy.shared.ModuleType;
@@ -46,12 +33,24 @@ import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
 import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import java.io.File;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import org.apache.geronimo.connector.deployment.RARConfigurer;
+import org.apache.geronimo.deployment.plugin.TargetImpl;
+import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
+import org.apache.geronimo.deployment.plugin.local.CommandSupport;
+import org.apache.geronimo.deployment.plugin.local.DistributeCommand;
+import org.apache.geronimo.deployment.plugin.local.RedeployCommand;
+import org.apache.geronimo.deployment.plugin.local.StartCommand;
+import org.apache.geronimo.deployment.plugin.local.StopCommand;
+import org.apache.geronimo.deployment.plugin.local.UndeployCommand;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ConfigurationInfo;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.NoSuchStoreException;
+import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.web.deployment.WARConfigurer;
 
 
 /**
@@ -95,7 +94,7 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
 
         Target[] targets = new Target[stores.size()];
         for (int i = 0; i < stores.size(); i++) {
-            ObjectName storeName = (ObjectName) stores.get(i);
+            AbstractName storeName = (AbstractName) stores.get(i);
             targets[i] = new TargetImpl(storeName, null);
         }
         return targets;
@@ -140,7 +139,7 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
             ArrayList result = new ArrayList();
             for (int i = 0; i < targetList.length; i++) {
                 TargetImpl target = (TargetImpl) targetList[i];
-                ObjectName storeName = target.getObjectName();
+                AbstractName storeName = target.getAbstractName();
                 List infos = configurationManager.listConfigurations(storeName);
                 for (int j = 0; j < infos.size(); j++) {
                     ConfigurationInfo info = (ConfigurationInfo) infos.get(j);

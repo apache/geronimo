@@ -19,6 +19,7 @@ package org.apache.geronimo.kernel.config;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -91,18 +92,31 @@ public interface ConfigurationStore {
 
     /**
      * Creates an empty diretory for a new configuration with the specified configId
+     *
      * @param configId the unique ID of the configuration
+     *
      * @return the location of the new directory
+     * 
      * @throws ConfigurationAlreadyExistsException if the configuration already exists in this store
      */
     File createNewConfigurationDir(Artifact configId) throws ConfigurationAlreadyExistsException;
 
     /**
      * Locate the classpath component for the supplied uri in the given artifact
-     * @param configId
-     * @param moduleName
-     * @param uri
+     *
+     * @param configId    Identifies the configuration that the resource is in
+     * @param moduleName  The module within the configuration that contains the resource
+     * @param uri         The path to the resource within the module
+     *
      * @return URL for the configuration component.
      */
     URL resolve(Artifact configId, String moduleName, URI uri) throws NoSuchConfigException, MalformedURLException;
+
+    /**
+     * Exports a configuration as a ZIP file
+     *
+     * @param configId  The configuration to export
+     * @param output    The stream to write the ZIP content to
+     */
+    void exportConfiguration(Artifact configId, OutputStream output) throws IOException, NoSuchConfigException;
 }

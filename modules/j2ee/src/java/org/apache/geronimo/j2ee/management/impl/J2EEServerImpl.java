@@ -28,6 +28,8 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.kernel.repository.Repository;
@@ -43,6 +45,7 @@ import org.apache.geronimo.management.geronimo.ThreadPool;
 import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.management.geronimo.KeystoreManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.system.configuration.ConfigurationInstaller;
 
 /**
  * @version $Rev$ $Date$
@@ -170,6 +173,14 @@ public class J2EEServerImpl implements J2EEServer {
 
     public KeystoreManager getKeystoreManager() {
         return (KeystoreManager) getObject(KeystoreManager.class);
+    }
+
+    public ConfigurationInstaller getConfigurationInstaller() {
+        return (ConfigurationInstaller) getObject(ConfigurationInstaller.class);
+    }
+
+    public ConfigurationManager getConfigurationManager() {
+        return ConfigurationUtil.getConfigurationManager(kernel);
     }
 
     public String getServerVendor() {

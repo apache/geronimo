@@ -69,6 +69,7 @@ import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.EditableKernelConfigurationManager;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.config.NullConfigurationStore;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
@@ -286,7 +287,7 @@ public class JettyModuleBuilderTest extends TestCase {
     }
 
 
-    public static class MockConfigStore implements ConfigurationStore {
+    public static class MockConfigStore extends NullConfigurationStore {
         private Map configs = new HashMap();
 
         URL baseURL;
@@ -320,18 +321,6 @@ public class JettyModuleBuilderTest extends TestCase {
 
         public boolean containsConfiguration(Artifact configID) {
             return true;
-        }
-
-        public String getObjectName() {
-            return null;
-        }
-
-        public AbstractName getAbstractName() {
-            return null;
-        }
-
-        public List listConfigurations() {
-            return null;
         }
 
         public File createNewConfigurationDir(Artifact configId) {
