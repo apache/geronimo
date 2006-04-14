@@ -78,7 +78,33 @@ public class CommandLine {
     private Kernel kernel;
     private AbstractName configurationName;
 
+    /**
+     * @deprecated use the next one with AbstractName
+     *
+     * @param configurations
+     * @param mainGBean
+     * @param mainMethod
+     * @param args
+     * @throws Exception
+     */
     public void invokeMainGBean(List configurations, ObjectName mainGBean, String mainMethod, String[] args) throws Exception {
+        startKernel(configurations);
+
+        log.info("Server startup completed");
+
+        // invoke the main method
+        kernel.invoke(
+                mainGBean,
+                mainMethod,
+                new Object[]{args},
+                new String[]{String[].class.getName()});
+
+        log.info("Server shutdown begun");
+
+        stopKernel();
+    }
+
+    public void invokeMainGBean(List configurations, AbstractName mainGBean, String mainMethod, String[] args) throws Exception {
         startKernel(configurations);
 
         log.info("Server startup completed");

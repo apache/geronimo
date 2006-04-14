@@ -21,6 +21,8 @@ import java.util.Collections;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.Jsr77Naming;
+import org.apache.geronimo.gbean.AbstractName;
 
 /**
  * @version $Revision$ $Date$
@@ -70,6 +72,10 @@ public class ClientCommandLine extends CommandLine {
 
 
     public ClientCommandLine(Artifact configuration, String[] args) throws Exception {
-        invokeMainGBean(Collections.singletonList(configuration), new ObjectName("geronimo.client:type=ClientContainer"), "main", args);
+        Jsr77Naming naming = new Jsr77Naming();
+        AbstractName baseName = naming.createRootName(configuration, configuration.toString(), "AppClientModule");
+        AbstractName clientContainerName = naming.createChildName(baseName, "ClientContainer", "ClientContainer");
+
+        invokeMainGBean(Collections.singletonList(configuration), clientContainerName, "main", args);
     }
 }

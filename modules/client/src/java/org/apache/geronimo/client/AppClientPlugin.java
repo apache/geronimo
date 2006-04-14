@@ -16,16 +16,15 @@
  */
 package org.apache.geronimo.client;
 
-import javax.management.ObjectName;
-
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.Kernel;
 
 /**
  * @version $Revision$ $Date$
  */
 public interface AppClientPlugin {
-    public void startClient(ObjectName appClientModuleName, Kernel kernel, ClassLoader classLoader) throws Exception;
+    public void startClient(AbstractName appClientModuleName, Kernel kernel, ClassLoader classLoader) throws Exception;
 
-    public void stopClient(ObjectName appClientModuleName) throws Exception;
+    public void stopClient(AbstractName appClientModuleName) throws Exception;
 
 }

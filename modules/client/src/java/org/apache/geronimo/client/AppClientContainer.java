@@ -16,25 +16,26 @@
  */
 package org.apache.geronimo.client;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Constructor;
 import java.security.PrivilegedAction;
-import javax.management.ObjectName;
+
 import javax.security.auth.Subject;
+import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import javax.security.auth.callback.CallbackHandler;
 
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.transaction.context.TransactionContext;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.util.ConfigurationUtil;
-import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.transaction.context.TransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
  * @version $Rev$ $Date$
@@ -44,7 +45,7 @@ public final class AppClientContainer {
 
     private final String mainClassName;
     private final AppClientPlugin jndiContext;
-    private final ObjectName appClientModuleName;
+    private final AbstractName appClientModuleName;
     private final String realmName;
     private final Class callbackHandlerClass;
     private final Subject defaultSubject;
@@ -54,7 +55,7 @@ public final class AppClientContainer {
     private final TransactionContextManager transactionContextManager;
 
     public AppClientContainer(String mainClassName,
-                              ObjectName appClientModuleName,
+                              AbstractName appClientModuleName,
                               String realmName,
                               String callbackHandlerClassName,
                               DefaultPrincipal defaultPrincipal,
@@ -98,7 +99,7 @@ public final class AppClientContainer {
         }
     }
 
-    public ObjectName getAppClientModuleName() {
+    public AbstractName getAppClientModuleName() {
         return appClientModuleName;
     }
 
@@ -186,7 +187,7 @@ public final class AppClientContainer {
         infoFactory.addOperation("main", new Class[]{String[].class});
 
         infoFactory.addAttribute("mainClassName", String.class, true);
-        infoFactory.addAttribute("appClientModuleName", ObjectName.class, true);
+        infoFactory.addAttribute("appClientModuleName", AbstractName.class, true);
         infoFactory.addAttribute("realmName", String.class, true);
         infoFactory.addAttribute("callbackHandlerClassName", String.class, true);
         infoFactory.addAttribute("defaultPrincipal", DefaultPrincipal.class, true);
