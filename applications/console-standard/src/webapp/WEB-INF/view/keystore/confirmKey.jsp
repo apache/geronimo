@@ -3,7 +3,7 @@
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <portlet:defineObjects/>
 
-<p>Please confirm that this is the correct certificate to import:</p>
+<p>Please confirm that this is the correct information for the key I'm about to generate:</p>
 
 <form name="<portlet:namespace/>KeystoreForm" action="<portlet:actionURL/>">
     <input type="hidden" name="mode" value="confirmKey-after" />

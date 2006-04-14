@@ -314,7 +314,10 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-jetty</artifactId>
             <version>${geronimo_version}</version>
-        </dependency>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+         </dependency>
 
         <dependency>
             <groupId>concurrent</groupId>

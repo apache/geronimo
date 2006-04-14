@@ -40,6 +40,15 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>tomcat</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>j2ee-deployer</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>

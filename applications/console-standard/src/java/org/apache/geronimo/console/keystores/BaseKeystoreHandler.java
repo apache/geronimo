@@ -147,6 +147,9 @@ public abstract class BaseKeystoreHandler extends MultiPageAbstractHandler {
                 System.arraycopy(certificates, 0, update, 0, certificates.length);
                 update[certificates.length] = alias;
                 certificates = update;
+                if(fingerprints == null) {
+                    getFingerprints();
+                }
                 try {
                     fingerprints.put(alias, CertificateUtil.generateFingerprint(instance.getCertificate(alias, password), "MD5"));
                 } catch (Exception e) {
@@ -166,6 +169,9 @@ public abstract class BaseKeystoreHandler extends MultiPageAbstractHandler {
                 System.arraycopy(keys, 0, update, 0, keys.length);
                 update[keys.length] = alias;
                 keys = update;
+                if(fingerprints == null) {
+                    getFingerprints();
+                }
                 try {
                     fingerprints.put(alias, CertificateUtil.generateFingerprint(instance.getCertificate(alias, password), "MD5"));
                 } catch (Exception e) {
