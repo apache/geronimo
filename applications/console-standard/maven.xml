@@ -7,17 +7,17 @@
     xmlns:util="jelly:util">
 
     <preGoal name="war:war">
-        <attainGoal name="preCompile"/>
+        <!--<attainGoal name="preCompile"/>-->
         <attainGoal name="substitute"/>
     </preGoal>
 
     <!-- Output folder for compiled jsps. -->
-    <j:set var="outDir"  value="${basedir}/target/${pom.artifactId}/WEB-INF/work"/>
+    <!--<j:set var="outDir"  value="${basedir}/target/${pom.artifactId}/WEB-INF/work"/>-->
 
     <!-- pre compile jsps -->
     <goal name="default">
     	<ant:echo>${commons_fileupload_version}</ant:echo>
-        <ant:mkdir dir="${outDir}"/>
+        <!--<ant:mkdir dir="${outDir}"/>-->
         <attainGoal name="war:install"/>
     </goal>
 
@@ -30,6 +30,7 @@
     <!-- ==================================================== -->
     <!-- Pre compile JSPs                                     -->
     <!-- ==================================================== -->
+<!--
     <goal name="preCompile">
         <ant:path id="jspc.classpath">
             <ant:path refid="maven.dependency.classpath"/>
@@ -51,5 +52,6 @@
             optimize="${maven.compile.optimize}"
             classpathref="jspc.classpath"/>
     </goal>
+-->
 
 </project>
