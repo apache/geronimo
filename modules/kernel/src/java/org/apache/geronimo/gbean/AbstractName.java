@@ -68,6 +68,23 @@ public class AbstractName implements Serializable {
         this.uri = createURI(artifact, name);
     }
 
+    /**
+     * Contructs an AbstractName object from the given URI.
+     * 
+     * The artifactId for the AbstractName is constructed from the URI path 
+     * (everything up to the ? character) and is composed of four parts delimited by
+     * slashes.  The artifactId is the only mandatory part, all slashes are mandatory.
+     *
+     * The name map for the AbstractName is constructed from key=value pairs.  
+     * Each key=value pair is delimited by a ',' character and the key is separated
+     * from the value by the '=' character. Each key must be unique. 
+     * At least one key=value pair must be specified in the query string.
+     * 
+     * The URI has the following format:
+     *  [vendorId]/artifactId/[version]/[type]?key=value[,key=value][,...]
+     * 
+     * @param uri The URI to be used to generate an AbstractName.
+     */
     public AbstractName(URI uri) {
         if (uri == null) throw new NullPointerException("uri is null");
 
@@ -79,7 +96,7 @@ public class AbstractName implements Serializable {
 
         List artifactParts = split(artifactString, '/');
         if (artifactParts.size() != 4) {
-            throw new IllegalArgumentException("uri path must be in the form [?key=value[,key=value]*] : " + artifactString);
+            throw new IllegalArgumentException("uri path must be in the form [vendorId]/artifactId/[version]/[type] : " + artifactString);
         }
 
         String groupId = (String) artifactParts.get(0);
@@ -107,7 +124,7 @@ public class AbstractName implements Serializable {
             String namePart = (String) iterator.next();
             List keyValue = split(namePart, '=');
             if (keyValue.size() != 2) {
-                throw new IllegalArgumentException("uri query string must be in the form [vendorId]/artifactId/[version]/[type] : " + nameString);
+                throw new IllegalArgumentException("uri query string must be in the form ?key=value[,key=value]*] : " + nameString);
             }
             String key = (String) keyValue.get(0);
             String value = (String) keyValue.get(1);
