@@ -74,7 +74,7 @@ public class ListHandler extends BaseKeystoreHandler {
                 } catch (KeystoreIsLocked locked) {}
             }
         }
-        request.setAttribute("keystores", keystores);
+        request.setAttribute("keystores", datas);
         request.setAttribute("keys", keys);
     }
 

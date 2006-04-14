@@ -369,7 +369,13 @@ class GBeanOverride {
             ReferencePatterns patterns = (ReferencePatterns) entry.getValue();
 
             out.println("      <reference name=\"" + name + "\">");
-            for (Iterator patternIterator = patterns.getPatterns().iterator(); patternIterator.hasNext();) {
+            Set patternSet;
+            if(patterns.isResolved()) {
+                patternSet = Collections.singleton(new AbstractNameQuery(patterns.getAbstractName()));
+            } else {
+                patternSet = patterns.getPatterns();
+            }
+            for (Iterator patternIterator = patternSet.iterator(); patternIterator.hasNext();) {
                 AbstractNameQuery pattern = (AbstractNameQuery) patternIterator.next();
                 out.println("          <pattern>");
                 Artifact artifact = pattern.getArtifact();
@@ -382,7 +388,7 @@ class GBeanOverride {
                         out.println("              <version>" + artifact.getVersion() + "</version>");
                     }
                     if (artifact.getType() != null) {
-                        out.println("              <type>" + artifact.getType() + "</ype>");
+                        out.println("              <type>" + artifact.getType() + "</type>");
                     }
                     Map nameMap = pattern.getName();
                     if (nameMap.get("module") != null) {
