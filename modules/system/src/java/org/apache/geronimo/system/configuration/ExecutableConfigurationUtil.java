@@ -48,6 +48,11 @@ public final class ExecutableConfigurationUtil {
 
     public static void createExecutableConfiguration(ConfigurationData configurationData, Manifest manifest, File destinationFile) throws IOException {
         File configurationDir = configurationData.getConfigurationDir();
+        
+        // ensure parent directories have been created
+        File parent = destinationFile.getParentFile();
+        if (parent != null && !parent.exists()) parent.mkdirs();
+        
         JarOutputStream out = null;
         try {
             byte[] buffer = new byte[4096];
