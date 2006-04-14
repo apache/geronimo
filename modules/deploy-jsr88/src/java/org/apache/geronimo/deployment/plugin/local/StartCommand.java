@@ -72,7 +72,7 @@ public class StartCommand extends CommandSupport {
                     List kids = loadChildren(kernel, configName);
 
                     // Build a response obect containg the started configuration and a list of it's contained modules
-                    TargetModuleIDImpl id = new TargetModuleIDImpl(modules[i].getTarget(), objectName,
+                    TargetModuleIDImpl id = new TargetModuleIDImpl(modules[i].getTarget(), module.getModuleID(),
                             (String[]) kids.toArray(new String[kids.size()]));
                     if (isWebApp(kernel, configName)) {
                         id.setType(ModuleType.WAR);
