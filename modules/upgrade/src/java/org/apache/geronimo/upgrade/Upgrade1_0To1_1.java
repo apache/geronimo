@@ -91,15 +91,16 @@ public class Upgrade1_0To1_1 {
                 Artifact parentId = extractArtifact("parentId", cursor);
                 Artifact clientConfigId = extractArtifact("clientConfigId", cursor);
                 Artifact clientParentId = extractArtifact("clientParentId", cursor);
+                boolean suppressDefaultEnvironment = extractSuppressDefaultEnvironment(cursor);
                 if (clientConfigId != null) {
 
-                    insertEnvironment(clientConfigId, clientParentId, cursor, CLIENT_ENVIRONMENT_QNAME);
+                    insertEnvironment(clientConfigId, clientParentId, cursor, CLIENT_ENVIRONMENT_QNAME, suppressDefaultEnvironment);
 
-                    insertEnvironment(configId, parentId, cursor, SERVER_ENVIRONMENT_QNAME);
+                    insertEnvironment(configId, parentId, cursor, SERVER_ENVIRONMENT_QNAME, false);
 
                 } else if (configId != null) {
 
-                    insertEnvironment(configId, parentId, cursor, ENVIRONMENT_QNAME);
+                    insertEnvironment(configId, parentId, cursor, ENVIRONMENT_QNAME, suppressDefaultEnvironment);
                 }
             }
         }
@@ -110,13 +111,14 @@ public class Upgrade1_0To1_1 {
 
     }
 
-    private static void insertEnvironment(Artifact configId, Artifact parentId, XmlCursor cursor, QName environmentQname) {
+    private static void insertEnvironment(Artifact configId, Artifact parentId, XmlCursor cursor, QName environmentQname, boolean suppressDefaultEnvironment) {
         positionEnvironment(cursor);
         Environment environment = new Environment();
         environment.setConfigId(configId);
         if (parentId != null ) {
             environment.addDependency(parentId, ImportType.ALL);
         }
+        environment.setSuppressDefaultEnvironment(suppressDefaultEnvironment);
         EnvironmentType environmentType = EnvironmentBuilder.buildEnvironmentType(environment);
         cursor.beginElement(environmentQname);
         XmlCursor element = environmentType.newCursor();
@@ -146,6 +148,16 @@ public class Upgrade1_0To1_1 {
             }
         }
         return null;
+    }
+
+    private static boolean extractSuppressDefaultEnvironment(XmlCursor cursor) {
+        String attrValue;
+        QName attrQName = new QName(null, "suppressDefaultParentId");
+        if ((attrValue = cursor.getAttributeText(attrQName)) != null) {
+            cursor.removeAttribute(attrQName);
+                return true;
+        }
+        return false;
     }
 
     public static XmlObject parse(InputStream is) throws IOException, XmlException {
