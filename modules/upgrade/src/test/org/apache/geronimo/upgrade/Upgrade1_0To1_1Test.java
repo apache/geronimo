@@ -41,26 +41,28 @@ public class Upgrade1_0To1_1Test extends TestCase {
     private final ClassLoader classLoader = this.getClass().getClassLoader();
 
     public void test1() throws Exception {
-//        InputStream srcXml = classLoader.getResourceAsStream("jms-plan.xml");
-        InputStream srcXml = classLoader.getResourceAsStream("appclient_ejb_1.xml");
+        test("appclient_ejb_1");
+    }
+
+    public void test2() throws Exception {
+        test("appclient_dep_1");
+    }
+
+    private void test(String testName) throws Exception {
+        InputStream srcXml = classLoader.getResourceAsStream(testName + ".xml");
         Writer targetXml = new StringWriter();
         Upgrade1_0To1_1.upgrade(srcXml, targetXml);
 
         String targetString = targetXml.toString();
-        System.out.println(targetString);
         XmlObject targetXmlObject = XmlObject.Factory.parse(targetString);
-        //uncomment fail to see output
-//        fail();
-//        URL expectedOutputXml = classLoader.getResource("appclient_dep_ejblink_single.ear.xml");
-//        XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
-//        XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
-//        SchemaConversionUtils.validateDD(expected);
-//        xmlObject = SchemaConversionUtils.convertToApplicationClientSchema(xmlObject);
-//        System.out.println(xmlObject.toString());
-//        System.out.println(expected.toString());
-//        List problems = new ArrayList();
-//        boolean ok = compareXmlObjects(xmlObject, expected, problems);
-//        assertTrue("Differences: " + problems, ok);
+        URL expectedOutputXml = classLoader.getResource(testName + "_result.xml");
+        XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
+        List problems = new ArrayList();
+        boolean ok = compareXmlObjects(targetXmlObject, expected, problems);
+        if (!ok) {
+            System.out.println(targetString);
+        }
+        assertTrue("Differences: " + problems, ok);
     }
 
     private boolean compareXmlObjects(XmlObject xmlObject, XmlObject expectedObject, List problems) {

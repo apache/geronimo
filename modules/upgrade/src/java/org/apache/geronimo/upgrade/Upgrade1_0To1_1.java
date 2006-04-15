@@ -102,6 +102,7 @@ public class Upgrade1_0To1_1 {
 
                     insertEnvironment(configId, parentId, cursor, ENVIRONMENT_QNAME, suppressDefaultEnvironment);
                 }
+
             }
         }
 
@@ -119,6 +120,7 @@ public class Upgrade1_0To1_1 {
             environment.addDependency(parentId, ImportType.ALL);
         }
         environment.setSuppressDefaultEnvironment(suppressDefaultEnvironment);
+        extractDependencies(cursor, environment);
         EnvironmentType environmentType = EnvironmentBuilder.buildEnvironmentType(environment);
         cursor.beginElement(environmentQname);
         XmlCursor element = environmentType.newCursor();
@@ -129,6 +131,56 @@ public class Upgrade1_0To1_1 {
         }
     }
 
+    private static void extractDependencies(XmlCursor cursor, Environment environment) {
+        if (cursor.getName() == null) {
+            //no dependencies, do nothing
+            return;
+        }
+        cursor.push();
+        do {
+            if (cursor.getName().getLocalPart().equals("dependency")) {
+                extractDependency(cursor, environment);
+            } else {
+                break;
+            }
+        } while (cursor.toNextSibling());
+        cursor.pop();
+    }
+
+    private static void extractDependency(XmlCursor cursor, Environment environment) {
+        cursor.push();
+        cursor.toFirstChild();
+        Artifact artifact;
+        if (cursor.getName().getLocalPart().equals("uri")) {
+            String uri = cursor.getTextValue();
+            artifact = Artifact.create(uri);
+        } else {
+            checkName(cursor, "groupId");
+            String groupId = cursor.getTextValue();
+            cursor.toNextSibling();
+            String type = "jar";
+            if (cursor.getName().getLocalPart().equals("type")) {
+                type = cursor.getTextValue();
+                cursor.toNextSibling();
+            }
+            checkName(cursor, "artifactId");
+            String artifactId = cursor.getTextValue();
+            cursor.toNextSibling();
+            checkName(cursor, "version");
+            String version = cursor.getTextValue();
+            artifact = new Artifact(groupId, artifactId, version, type);
+        }
+        environment.addDependency(artifact, ImportType.ALL);
+        cursor.pop();
+        cursor.removeXml();
+    }
+
+    private static void checkName(XmlCursor cursor, String localName) {
+        if (!cursor.getName().getLocalPart().equals(localName)) {
+            throw new IllegalArgumentException("Expected element: " + localName + " but actually: " + cursor.getName().getLocalPart());
+        }
+
+    }
     private static void positionEnvironment(XmlCursor cursor) {
         XmlCursor.TokenType token;
         while ((token = cursor.toNextToken()) != XmlCursor.TokenType.START && token != XmlCursor.TokenType.END) {
