@@ -194,6 +194,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             // add the warfile's content to the configuration
             JarFile warFile = module.getModuleFile();
             Enumeration entries = warFile.entries();
+            boolean addedClasses = false;
             while (entries.hasMoreElements()) {
                 ZipEntry entry = (ZipEntry) entries.nextElement();
                 URI targetPath = new URI(null, entry.getName(), null);
@@ -201,10 +202,12 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
                     moduleContext.addFile(targetPath, module.getOriginalSpecDD());
                 } else if (entry.getName().startsWith("WEB-INF/lib") && entry.getName().endsWith(".jar")) {
                     moduleContext.addInclude(targetPath, warFile, entry);
-                } else if (entry.getName().equals("WEB-INF/classes/")) {
-                    moduleContext.addInclude(targetPath, warFile, entry);
                 } else {
                     moduleContext.addFile(targetPath, warFile, entry);
+                    if (!addedClasses && entry.getName().startsWith("WEB-INF/classes/")) {
+                        addedClasses = true;
+                        moduleContext.getConfiguration().addToClassPath(new URI(null, "WEB-INF/classes/", null));
+                    }
                 }
             }
 
