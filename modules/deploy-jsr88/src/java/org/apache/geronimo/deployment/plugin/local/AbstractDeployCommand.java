@@ -42,7 +42,7 @@ public abstract class AbstractDeployCommand extends CommandSupport {
     private final static String DEPLOYER_NAME = "*:name=Deployer,j2eeType=Deployer,*";
 
     protected final Kernel kernel;
-    private static final String[] DEPLOY_SIG = {File.class.getName(), File.class.getName()};
+    private static final String[] DEPLOY_SIG = {boolean.class.getName(), File.class.getName(), File.class.getName()};
     protected final boolean spool;
     protected File moduleArchive;
     protected File deploymentPlan;
@@ -103,7 +103,8 @@ public abstract class AbstractDeployCommand extends CommandSupport {
     protected void doDeploy(Target target, boolean finished) throws Exception {
         File[] args = {moduleArchive, deploymentPlan};
         massageFileNames(args);
-        List objectNames = (List) kernel.invoke(deployer, "deploy", args, DEPLOY_SIG);
+        Object deployParams[] = new Object[] {Boolean.valueOf(commandContext.isInPlace()), args[0], args[1]};
+        List objectNames = (List) kernel.invoke(deployer, "deploy", deployParams, DEPLOY_SIG);
         if (objectNames == null || objectNames.isEmpty()) {
             throw new DeploymentException("Server didn't deploy anything");
         }

@@ -17,17 +17,19 @@
 
 package org.apache.geronimo.deployment.cli;
 
-import org.apache.geronimo.common.DeploymentException;
-
-import javax.enterprise.deploy.spi.DeploymentManager;
-import javax.enterprise.deploy.spi.Target;
-import javax.enterprise.deploy.spi.TargetModuleID;
-import javax.enterprise.deploy.spi.status.ProgressObject;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+
+import javax.enterprise.deploy.spi.DeploymentManager;
+import javax.enterprise.deploy.spi.Target;
+import javax.enterprise.deploy.spi.TargetModuleID;
+import javax.enterprise.deploy.spi.status.ProgressObject;
+
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
 
 /**
  * The CLI deployer logic to distribute.
@@ -53,7 +55,16 @@ public class CommandDistribute extends AbstractCommand {
         super(command, group, helpArgumentList, helpText);
     }
 
-    protected ProgressObject runCommand(DeploymentManager mgr, PrintWriter out, Target[] tlist, File module, File plan) throws DeploymentException {
+    protected ProgressObject runCommand(DeploymentManager mgr, PrintWriter out, boolean inPlace, Target[] tlist, File module, File plan) throws DeploymentException {
+        if (inPlace) {
+            if (false == mgr instanceof JMXDeploymentManager) {
+                throw new DeploymentSyntaxException(
+                        "Target DeploymentManager is not a Geronimo one. \n" +
+                        "Cannot perform in-place deployment.");
+            }
+            JMXDeploymentManager jmxMgr = (JMXDeploymentManager) mgr;
+            jmxMgr.setInPlace(true);
+        }
         return mgr.distribute(tlist, module, plan);
     }
 
@@ -121,12 +132,12 @@ public class CommandDistribute extends AbstractCommand {
         if(targets.size() > 0) {
             Target[] tlist = identifyTargets(targets, mgr);
             multipleTargets = tlist.length > 1;
-            po = runCommand(mgr, out, tlist, module, plan);
+            po = runCommand(mgr, out, inPlace, tlist, module, plan);
             waitForProgress(out, po);
         } else {
             final Target[] tlist = mgr.getTargets();
             multipleTargets = tlist.length > 1;
-            po = runCommand(mgr, out, tlist, module, plan);
+            po = runCommand(mgr, out, inPlace, tlist, module, plan);
             waitForProgress(out, po);
         }
 

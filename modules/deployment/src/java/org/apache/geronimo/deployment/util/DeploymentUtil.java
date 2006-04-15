@@ -156,6 +156,19 @@ public final class DeploymentUtil {
     }
 
     public static URL createJarURL(JarFile jarFile, String path) throws MalformedURLException {
+        if (jarFile instanceof NestedJarFile) {
+            NestedJarFile nestedJar = (NestedJarFile) jarFile;
+            if (nestedJar.isUnpacked()) {
+                JarFile baseJar = nestedJar.getBaseJar();
+                String basePath = nestedJar.getBasePath();
+                if (baseJar instanceof UnpackedJarFile) {
+                    File baseDir = ((UnpackedJarFile) baseJar).getBaseDir();
+                    baseDir = new File(baseDir, basePath);
+                    return new File(baseDir, path).toURL();
+                }
+            }
+        }
+        
         if (jarFile instanceof UnpackedJarFile) {
             File baseDir = ((UnpackedJarFile) jarFile).getBaseDir();
             return new File(baseDir, path).toURL();

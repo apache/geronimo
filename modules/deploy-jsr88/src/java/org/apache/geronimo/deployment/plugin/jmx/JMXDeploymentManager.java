@@ -64,7 +64,7 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
     protected void initialize(Kernel kernel) {
         this.kernel = kernel;
         configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
-        commandContext = new CommandContext(true, true, null, null);
+        commandContext = new CommandContext(true, true, null, null, false);
     }
 
     public void setAuthentication(String username, String password) {
@@ -318,50 +318,8 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
         commandContext.setLogErrors(shouldLog);
         commandContext.setVerbose(verboseStatus);
     }
-
-    public static class CommandContext {
-        private boolean logErrors;
-        private boolean verbose;
-        private String username;
-        private String password;
-
-        private CommandContext(boolean logErrors, boolean verbose, String username, String password) {
-            this.logErrors = logErrors;
-            this.verbose = verbose;
-            this.username = username;
-            this.password = password;
-        }
-
-        public boolean isLogErrors() {
-            return logErrors;
-        }
-
-        public void setLogErrors(boolean logErrors) {
-            this.logErrors = logErrors;
-        }
-
-        public boolean isVerbose() {
-            return verbose;
-        }
-
-        public void setVerbose(boolean verbose) {
-            this.verbose = verbose;
-        }
-
-        private void setUsername(String username) {
-            this.username = username;
-        }
-
-        private void setPassword(String password) {
-            this.password = password;
-        }
-
-        public String getUsername() {
-            return username;
-        }
-
-        public String getPassword() {
-            return password;
-        }
+    
+    public void setInPlace(boolean inPlace) {
+        commandContext.setInPlace(inPlace);
     }
 }

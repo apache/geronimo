@@ -391,7 +391,16 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             if (ConfigurationModuleType.EAR == applicationType && earFile != null) {
                 for (Enumeration e = earFile.entries(); e.hasMoreElements();) {
                     ZipEntry entry = (ZipEntry) e.nextElement();
-                    if (!moduleLocations.contains(entry.getName())) {
+                    String entryName = entry.getName();
+                    boolean addEntry = true;
+                    for (Iterator iter = moduleLocations.iterator(); iter.hasNext();) {
+                        String location = (String) iter.next();
+                        if (entryName.startsWith(location)) {
+                            addEntry = false;
+                            break;
+                        }
+                    }
+                    if (addEntry) {
                         earContext.addFile(URI.create(entry.getName()), earFile, entry);
                     }
                 }

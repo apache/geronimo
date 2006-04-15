@@ -18,7 +18,7 @@
 package org.apache.geronimo.deployment.plugin.local;
 
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
-import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager.CommandContext;
+import org.apache.geronimo.deployment.plugin.jmx.CommandContext;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.InternalKernelException;
@@ -60,7 +60,7 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
     private String message;
     private final Set listeners = new HashSet();
     private final List moduleIDs = new ArrayList();
-    private CommandContext commandContext = null; //todo: this is pretty bad; should add it into constructor
+    protected CommandContext commandContext = null; //todo: this is pretty bad; should add it into constructor
 
     private ProgressEvent event = null;
 

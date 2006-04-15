@@ -25,11 +25,12 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Set;
+
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.management.MBeanServerConnection;
 import javax.management.remote.JMXConnector;
-import org.apache.geronimo.deployment.plugin.GeronimoDeploymentManager;
+
 import org.apache.geronimo.deployment.plugin.local.DistributeCommand;
 import org.apache.geronimo.deployment.plugin.local.RedeployCommand;
 import org.apache.geronimo.gbean.AbstractName;
@@ -44,7 +45,7 @@ import org.apache.geronimo.system.configuration.DownloadResults;
  *
  * @version $Rev$ $Date$
  */
-public class RemoteDeploymentManager extends JMXDeploymentManager implements GeronimoDeploymentManager {
+public class RemoteDeploymentManager extends JMXDeploymentManager {
     private JMXConnector jmxConnector;
     private boolean isSameMachine;
 

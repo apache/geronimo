@@ -83,16 +83,7 @@ public class EARContext extends DeploymentContext {
     }
 
     public EARContext(File baseDir, Environment environment, ConfigurationModuleType moduleType, AbstractName baseName, EARContext parent) throws DeploymentException {
-        super(baseDir, null, environment, moduleType, parent.getNaming(), parent.getConfigurationManager());
-        moduleName = baseName;
-        this.serverName = parent.getServerName();
-
-        this.transactionContextManagerObjectName = parent.getTransactionContextManagerObjectName();
-        this.connectionTrackerObjectName = parent.getConnectionTrackerObjectName();
-        this.transactedTimerName = parent.getTransactedTimerName();
-        this.nonTransactedTimerName = parent.getNonTransactedTimerName();
-        this.corbaGBeanObjectName = parent.getCORBAGBeanObjectName();
-        this.refContext = parent.getRefContext();
+        this(baseDir, null, environment, moduleType, baseName, parent);
     }
 
     protected EARContext(File baseDir, File inPlaceConfigurationDir, Environment environment, ConfigurationModuleType moduleType, Naming naming, Collection repositories, Collection configurationStores, AbstractNameQuery serverName, AbstractName baseName, AbstractNameQuery transactionContextManagerObjectName, AbstractNameQuery connectionTrackerObjectName, AbstractNameQuery transactedTimerName, AbstractNameQuery nonTransactedTimerName, AbstractNameQuery corbaGBeanObjectName, RefContext refContext) throws DeploymentException {
@@ -109,6 +100,18 @@ public class EARContext extends DeploymentContext {
         this.refContext = refContext;
     }
 
+    protected EARContext(File baseDir, File inPlaceConfigurationDir, Environment environment, ConfigurationModuleType moduleType, AbstractName baseName, EARContext parent) throws DeploymentException {
+        super(baseDir, inPlaceConfigurationDir, environment, moduleType, parent.getNaming(), parent.getConfigurationManager());
+        moduleName = baseName;
+        this.serverName = parent.getServerName();
+
+        this.transactionContextManagerObjectName = parent.getTransactionContextManagerObjectName();
+        this.connectionTrackerObjectName = parent.getConnectionTrackerObjectName();
+        this.transactedTimerName = parent.getTransactedTimerName();
+        this.nonTransactedTimerName = parent.getNonTransactedTimerName();
+        this.corbaGBeanObjectName = parent.getCORBAGBeanObjectName();
+        this.refContext = parent.getRefContext();
+    }
     
     public AbstractNameQuery getServerName() {
         return serverName;

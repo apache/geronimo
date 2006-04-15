@@ -59,6 +59,7 @@ public class PackageBuilder {
     private static Kernel kernel;
 
     private static final String[] ARG_TYPES = {
+            boolean.class.getName(),
             File.class.getName(),
             File.class.getName(),
             File.class.getName(),
@@ -409,7 +410,7 @@ public class PackageBuilder {
 
     private List invokeDeployer(Kernel kernel, AbstractName deployer) throws Exception {
         boolean isExecutable = mainClass != null;
-        Object[] args = {planFile, moduleFile, isExecutable ? packageFile : null, Boolean.valueOf(!isExecutable), mainClass, classPath, endorsedDirs, extensionDirs};
+        Object[] args = {Boolean.FALSE, planFile, moduleFile, isExecutable ? packageFile : null, Boolean.valueOf(!isExecutable), mainClass, classPath, endorsedDirs, extensionDirs};
         return (List) kernel.invoke(deployer, "deploy", args, ARG_TYPES);
     }
 }

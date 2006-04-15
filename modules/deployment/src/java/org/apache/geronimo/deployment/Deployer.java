@@ -80,7 +80,7 @@ public class Deployer {
         t.start();
     }
 
-    public List deploy(File moduleFile, File planFile) throws DeploymentException {
+    public List deploy(boolean inPlace, File moduleFile, File planFile) throws DeploymentException {
         File originalModuleFile = moduleFile;
         File tmpDir = null;
         if (moduleFile != null && !moduleFile.isDirectory()) {
@@ -101,7 +101,7 @@ public class Deployer {
         }
 
         try {
-            return deploy(planFile, moduleFile, null, true, null, null, null, null);
+            return deploy(inPlace, planFile, moduleFile, null, true, null, null, null, null);
         } catch (DeploymentException e) {
             log.debug("Deployment failed: plan=" + planFile +", module=" + originalModuleFile, e);
             throw e.cleanse();
@@ -196,9 +196,7 @@ public class Deployer {
         return null;
     }
 
-    public List deploy(File planFile, File moduleFile, File targetFile, boolean install, String mainClass, String classPath, String endorsedDirs, String extensionDirs) throws DeploymentException {
-        boolean inPlaceConfiguration = false;
-    	
+    public List deploy(boolean inPlace, File planFile, File moduleFile, File targetFile, boolean install, String mainClass, String classPath, String endorsedDirs, String extensionDirs) throws DeploymentException {
         if (planFile == null && moduleFile == null) {
             throw new DeploymentException("No plan or module specified");
         }
@@ -214,7 +212,7 @@ public class Deployer {
 
         JarFile module = null;
         if (moduleFile != null) {
-            if (inPlaceConfiguration && !moduleFile.isDirectory()) {
+            if (inPlace && !moduleFile.isDirectory()) {
                 throw new DeploymentException("In place deployment is not allowed for packed module");
             }
             if (!moduleFile.exists()) {
@@ -282,7 +280,7 @@ public class Deployer {
             }
             ConfigurationStore store = (ConfigurationStore) stores.iterator().next();
             // It's our responsibility to close this context, once we're done with it...
-            DeploymentContext context = builder.buildConfiguration(inPlaceConfiguration, plan, module, stores, store);
+            DeploymentContext context = builder.buildConfiguration(inPlace, plan, module, stores, store);
             List configurations = new ArrayList();
             configurations.add(context.getConfigurationData());
             configurations.addAll(context.getAdditionalDeployment());
@@ -422,8 +420,8 @@ public class Deployer {
 
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("remoteDeployUploadURL", String.class, false);
-        infoFactory.addOperation("deploy", new Class[]{File.class, File.class});
-        infoFactory.addOperation("deploy", new Class[]{File.class, File.class, File.class, boolean.class, String.class, String.class, String.class, String.class});
+        infoFactory.addOperation("deploy", new Class[]{boolean.class, File.class, File.class});
+        infoFactory.addOperation("deploy", new Class[]{boolean.class, File.class, File.class, File.class, boolean.class, String.class, String.class, String.class, String.class});
 
         infoFactory.addReference("Builders", ConfigurationBuilder.class, "ConfigBuilder");
         infoFactory.addReference("Store", ConfigurationStore.class, "ConfigurationStore");

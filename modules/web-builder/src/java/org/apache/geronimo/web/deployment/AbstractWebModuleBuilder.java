@@ -16,11 +16,35 @@
  */
 package org.apache.geronimo.web.deployment;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.security.Permission;
+import java.security.PermissionCollection;
+import java.security.Permissions;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
+
+import javax.security.jacc.WebResourcePermission;
+import javax.security.jacc.WebRoleRefPermission;
+import javax.security.jacc.WebUserDataPermission;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.deployment.EARContext;
+import org.apache.geronimo.j2ee.deployment.InPlaceEARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -44,28 +68,6 @@ import org.apache.geronimo.xbeans.j2ee.ServletType;
 import org.apache.geronimo.xbeans.j2ee.UrlPatternType;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
 import org.apache.geronimo.xbeans.j2ee.WebResourceCollectionType;
-
-import javax.security.jacc.WebResourcePermission;
-import javax.security.jacc.WebRoleRefPermission;
-import javax.security.jacc.WebUserDataPermission;
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.security.Permission;
-import java.security.PermissionCollection;
-import java.security.Permissions;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.Collection;
-import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
 
 /**
  * @version $Rev$ $Date$
@@ -178,11 +180,20 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
 
             // construct the web app deployment context... this is the same class used by the ear context
             try {
-                moduleContext = new EARContext(configurationDir,
-                        environment,
-                        ConfigurationModuleType.WAR,
-                        module.getModuleName(),
-                        earContext);
+                if (null != earContext.getInPlaceConfigurationDir()) {
+                    moduleContext = new InPlaceEARContext(configurationDir,
+                            new File(earContext.getInPlaceConfigurationDir(), module.getTargetPath()),
+                            environment,
+                            ConfigurationModuleType.WAR,
+                            module.getModuleName(),
+                            earContext);
+                } else {
+                    moduleContext = new EARContext(configurationDir,
+                            environment,
+                            ConfigurationModuleType.WAR,
+                            module.getModuleName(),
+                            earContext);
+                }
             } catch (DeploymentException e) {
                 DeploymentUtil.recursiveDelete(configurationDir);
                 throw e;

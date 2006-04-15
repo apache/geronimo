@@ -36,7 +36,21 @@ import org.apache.geronimo.kernel.repository.Environment;
  * @version $Rev:386276 $ $Date: 2006-03-25 13:13:46 +1100 (Sat, 25 Mar 2006) $
  */
 public class InPlaceEARContext extends EARContext {
-	
+
+    public InPlaceEARContext(File baseDir, 
+            File inPlaceConfigurationDir, 
+            Environment environment, 
+            ConfigurationModuleType moduleType, 
+            AbstractName baseName, 
+            EARContext parent) throws DeploymentException {
+        super(baseDir,
+                inPlaceConfigurationDir,
+                environment,
+                moduleType,
+                baseName,
+                parent);
+    }
+
     public InPlaceEARContext(File baseDir,
     		File inPlaceConfigurationDir,
     		Environment environment,
