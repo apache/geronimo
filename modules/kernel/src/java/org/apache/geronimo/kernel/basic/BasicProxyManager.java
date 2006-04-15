@@ -140,7 +140,7 @@ public class BasicProxyManager implements ProxyManager {
             for (int i = 0; i < names.length; i++) {
                 try {
                     Class type = classLoader.loadClass(names[i]);
-                    if (type.isInterface() || hasDefaultConstructor(type)) {
+                    if (type.isInterface()) {
                         types.add(type);
                     }
                 } catch (ClassNotFoundException e) {
@@ -169,7 +169,7 @@ public class BasicProxyManager implements ProxyManager {
             for (int i = 0; i < names.length; i++) {
                 try {
                     Class type = classLoader.loadClass(names[i]);
-                    if (type.isInterface() || hasDefaultConstructor(type)) {
+                    if (type.isInterface()) {
                         types.add(type);
                     }
                 } catch (ClassNotFoundException e) {
