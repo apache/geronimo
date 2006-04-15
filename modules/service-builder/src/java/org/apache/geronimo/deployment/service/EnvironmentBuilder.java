@@ -87,7 +87,9 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
 
     public static Environment buildEnvironment(EnvironmentType environmentType, Environment defaultEnvironment) {
         Environment environment = buildEnvironment(environmentType);
-        mergeEnvironments(environment, defaultEnvironment);
+        if (!environment.isSuppressDefaultEnvironment()) {
+            mergeEnvironments(environment, defaultEnvironment);
+        }
         return environment;
     }
 
