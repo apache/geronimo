@@ -39,6 +39,14 @@ public class CommandContext {
         this.inPlace = inPlace;
     }
 
+    public CommandContext(CommandContext prototype) {
+        this.logErrors = prototype.logErrors;
+        this.verbose = prototype.verbose;
+        this.username = prototype.username;
+        this.password = prototype.password;
+        this.inPlace = prototype.inPlace;
+    }
+
     public boolean isLogErrors() {
         return logErrors;
     }

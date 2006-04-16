@@ -247,7 +247,7 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
     }
 
     public void setCommandContext(CommandContext commandContext) {
-        this.commandContext = commandContext;
+        this.commandContext = new CommandContext(commandContext);
     }
 
     public static ModuleType convertModuleType(ConfigurationModuleType type) {

@@ -63,9 +63,15 @@ public class CommandDistribute extends AbstractCommand {
                         "Cannot perform in-place deployment.");
             }
             JMXDeploymentManager jmxMgr = (JMXDeploymentManager) mgr;
-            jmxMgr.setInPlace(true);
+            try {
+                jmxMgr.setInPlace(true);
+                return mgr.distribute(tlist, module, plan);
+            } finally {
+                jmxMgr.setInPlace(false);
+            }
+        } else {
+            return mgr.distribute(tlist, module, plan);
         }
-        return mgr.distribute(tlist, module, plan);
     }
 
     protected String getAction() {
