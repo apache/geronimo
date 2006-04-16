@@ -52,6 +52,12 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-naming</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-security</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
