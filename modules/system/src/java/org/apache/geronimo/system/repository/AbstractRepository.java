@@ -99,7 +99,7 @@ public abstract class AbstractRepository implements WriteableRepository {
 
     public boolean contains(Artifact artifact) {
         File location = getLocation(artifact);
-        return location.isFile() && location.canRead();
+        return location.canRead() && (location.isFile() || new File(location, "META-INF").isDirectory());
     }
 
     private static final String NAMESPACE = "http://geronimo.apache.org/xml/ns/deployment-1.1";

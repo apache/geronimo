@@ -42,19 +42,25 @@
             </xs:documentation>
         </xs:annotation>
     </xs:element>
-    <xs:element name="geronimo-configuration" type="list:configurationType">
+    <xs:element name="geronimo-configuration" type="list:configuration-descriptorType">
         <xs:annotation>
             <xs:documentation>
                 The geronimo-configuration root element is used as the config file
                 submitted with an individual Geronimo configuration to the plugin
                 repository. It will be merged into the plugin list for the repository
                 when the submitted plugin is accepted.
+
+                It is also used for the metadata packed into a configuration when
+                a configuration archive is downloaded from an online repository
+                for local installation, in which case it should be packed into the
+                archive at META-INF/geronimo-plugin.xml
             </xs:documentation>
         </xs:annotation>
     </xs:element>
 
     <!--   Data types used in this schema   -->
 
+    <!-- Format for a list of available configurations provided by a remote repository -->
     <xs:complexType name="config-listType">
         <xs:sequence>
             <xs:element name="configuration" type="list:configurationType" minOccurs="0" maxOccurs="unbounded">
@@ -111,6 +117,21 @@
                         A category name for this configuration. The user interface typically groups
                         configurations by their category name, so this should match the value for other
                         configurations in the same category.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="description" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>
+                        A description of this component. This will be displayed when the user
+                        looks for more information about this component. It typically includes
+                        a description of what it does, what if any third-party software it's
+                        based on, why it would be interesting to use it, etc.
+
+                        Currently this should be plain text, where whitespace is not significant
+                        except an entirely blank line indicates a paragraph break (like this
+                        documentation, for example). This may change to a more structured format
+                        in the future, if we can agree on what that ought to be.
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
@@ -245,9 +266,9 @@
             <xs:element name="id" type="xs:string">
                 <xs:annotation>
                     <xs:documentation>
-                        The Config ID of the prerequisite.  This is used to check whether
+                        The Config ID of the prerequisite. This is used to check whether
                         it's available on the server that you're downloading the plugin
-                        into.  It may omit some portions of the Config ID to be more
+                        into. It may omit some portions of the Config ID to be more
                         accomodating (e.g. "*/MyDBPool/*/*" to identify a database pool
                         instead of "console/MyDBPool/1.0/car").
 
@@ -292,17 +313,63 @@
                 <xs:annotation>
                     <xs:documentation>
                         A description for the user about why this is a prerequisite and what
-                        they should do to set it up.  Here are a couple examples:
+                        they should do to set it up. Here are a couple examples:
 
                         This plugin of SomeApp is configured for the Jetty version of
-                        Geronimo.  It cannot be installed on the Tomcat version of Geronimo.
+                        Geronimo. It cannot be installed on the Tomcat version of Geronimo.
                         There's a separate plugin for the Tomcat version of Geronimo.
 
-                        SomeApp requires a database connection pool.  Supported databases
-                        are PostgreSQL and MySQL.  Please configure a database connection
+                        SomeApp requires a database connection pool. Supported databases
+                        are PostgreSQL and MySQL. Please configure a database connection
                         pool with the name "SomeAppPool" and then run the associated create
                         script from http://someapp.com/db-scripts/ before installing this
                         plugin.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Format for the config file for a single configuration download -->
+    <xs:complexType name="configuration-descriptorType">
+        <xs:sequence>
+            <xs:element name="configuration" type="list:configurationType">
+                <xs:annotation>
+                    <xs:documentation>
+                        The metadata for this configuration
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="source-repository" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        The base URL for the repository that this configuration was
+                        downloaded from.  This will be used as the primary
+                        repository for downloading additional dependencies, etc.
+
+                        If this descriptor is being put together for submission to
+                        a repository, etc. then this value may be omitted.  When an
+                        individual configuration is downloaded from a repository
+                        for offline installation, it must be present.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="backup-repository" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        Each backup-repository is a URL to check for any dependencies that
+                        were not found in the current repository. That can be used, for
+                        example, to host Geronimo configurations at one site and common
+                        third-party JARs at another.
+
+                        The repository where this file came from will be checked first for
+                        every artifact, and if an artifact is not found there, each of the
+                        repositories listed here will be checked in the order listed until
+                        the artifact is found.
+
+                        Note that while the primary repository may be protected by HTTP
+                        Basic authentication, the backup repositories must either use the
+                        same username and password as the primary or use no authentication.
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>

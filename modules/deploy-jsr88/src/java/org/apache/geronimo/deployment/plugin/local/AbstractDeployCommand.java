@@ -74,7 +74,7 @@ public abstract class AbstractDeployCommand extends CommandSupport {
                  "runtime deployer and distribute it while the server is not running and " +
                  "then start the server with a command like the above.  For help on this, " +
                  "write to user@geronimo.apache.org and include the contents of your " +
-                 "config-store/index.properties and var/config/config.xml files.");
+                 "var/config/config.xml file.");
             return null;
         }
         Iterator j = deployers.iterator();

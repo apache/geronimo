@@ -41,7 +41,7 @@ import org.apache.geronimo.kernel.lifecycle.LifecycleMonitor;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 
 /**
- * @version $Rev: 385487 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class KernelDelegate implements Kernel {
     private final MBeanServerConnection mbeanServer;
@@ -959,6 +959,9 @@ public class KernelDelegate implements Kernel {
     }
 
     private Object invokeKernel(String methodName, Object[] args, String[] types) throws Exception {
+        if(args != null && types != null && args.length != types.length) {
+            throw new IllegalArgumentException("Call to "+methodName+" has "+args.length+" arguments but "+types.length+" argument classes!");
+        }
         try {
             return mbeanServer.invoke(Kernel.KERNEL, methodName, args, types);
         } catch (Exception e) {
@@ -966,7 +969,17 @@ public class KernelDelegate implements Kernel {
             if (cause instanceof InstanceNotFoundException) {
                 throw new InternalKernelException("Kernel is not loaded");
             } else if (cause instanceof NoSuchMethodException) {
-                throw new InternalKernelException("KernelDelegate is out of synch with Kernel");
+                StringBuffer buf = new StringBuffer("KernelDelegate is out of synch with Kernel on ");
+                buf.append(methodName).append("(");
+                if(types != null) {
+                    for (int i = 0; i < types.length; i++) {
+                        String type = types[i];
+                        if(i>0) buf.append(",");
+                        buf.append(type);
+                    }
+                }
+                buf.append(")");
+                throw new InternalKernelException(buf.toString());
             } else if (cause instanceof JMException) {
                 throw new InternalKernelException(cause);
             } else if (cause instanceof JMRuntimeException) {

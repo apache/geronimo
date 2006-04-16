@@ -22,6 +22,7 @@ import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.system.configuration.ConfigurationInstaller;
+import org.apache.geronimo.system.threads.ThreadPool;
 
 /**
  * Geronimo-specific extensions to the standard J2EE server management

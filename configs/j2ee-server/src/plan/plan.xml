@@ -62,6 +62,25 @@ by the server.
         </reference>
     </gbean>
 
+    <!-- Configuration Installer -->
+    <gbean name="ConfigurationInstaller" class="org.apache.geronimo.system.configuration.ConfigInstallerGBean">
+      <reference name="Repository">
+        <name>Repository</name>
+      </reference>
+      <reference name="ConfigStore">
+        <name>Local</name>
+      </reference>
+      <reference name="ConfigManager">
+        <name>ConfigurationManager</name>
+      </reference>
+      <reference name="ServerInfo">
+        <name>ServerInfo</name>
+      </reference>
+      <reference name="ThreadPool">
+        <name>DefaultThreadPool</name>
+      </reference>
+    </gbean>
+
     <gbean name="HOWLTransactionLog" class="org.apache.geronimo.transaction.log.HOWLLog">
         <attribute name="bufferClassName">org.objectweb.howl.log.BlockLogBuffer</attribute>
         <attribute name="bufferSizeKBytes">32</attribute>

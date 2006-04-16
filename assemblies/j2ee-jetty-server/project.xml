@@ -89,6 +89,7 @@
                 <geronimo.assemble>install</geronimo.assemble>
             </properties>
         </dependency>
+<!--
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>directory</artifactId>
@@ -107,6 +108,7 @@
                 <geronimo.assemble>install</geronimo.assemble>
             </properties>
         </dependency>
+-->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>system-database</artifactId>
@@ -219,6 +221,7 @@
             </properties>
         </dependency>
 <!-- applications -->
+<!--
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>ldap-demo-jetty</artifactId>
@@ -228,6 +231,7 @@
                 <geronimo.assemble>install</geronimo.assemble>
             </properties>
         </dependency>
+-->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>welcome-jetty</artifactId>
@@ -237,6 +241,7 @@
                 <geronimo.assemble>install</geronimo.assemble>
             </properties>
         </dependency>
+<!--
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>servlets-examples-jetty</artifactId>
@@ -255,6 +260,7 @@
                 <geronimo.assemble>install</geronimo.assemble>
             </properties>
         </dependency>
+-->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>webconsole-jetty</artifactId>
@@ -282,6 +288,7 @@
                 <geronimo.assemble>install</geronimo.assemble>
             </properties>
         </dependency>
+<!--
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>uddi-jetty</artifactId>
@@ -309,7 +316,7 @@
                 <geronimo.assemble>install</geronimo.assemble>
             </properties>
         </dependency>
-
+-->
         <!-- unpack --> 
         <dependency>
             <groupId>geronimo</groupId>
@@ -835,7 +842,7 @@
             <artifactId>concurrent</artifactId>
             <version>${concurrent_version}</version>
         </dependency>
-
+<!-- Remove all Apache Directory stuff
         <dependency>
             <groupId>directory</groupId>
             <artifactId>apacheds-core</artifactId>
@@ -901,9 +908,8 @@
             <artifactId>ldap-common</artifactId>
             <version>${apacheds_version}</version>
         </dependency>
+-->
 
-<!-- geronimo jars -->
-<!-- geronimo spec jars -->
 
         <dependency>
             <groupId>howl</groupId>
@@ -929,13 +935,13 @@
             <artifactId>org.mortbay.jetty</artifactId>
             <version>${jetty_version}</version>
         </dependency>
-
+<!-- Should be installed when jUDDI app is installed
         <dependency>
             <groupId>juddi</groupId>
             <artifactId>juddi</artifactId>
             <version>${juddi_version}</version>
         </dependency>
-
+-->
         <dependency>
             <groupId>openejb</groupId>
             <artifactId>openejb-builder</artifactId>
@@ -1015,7 +1021,7 @@
             <version>${stax_api_version}</version>
         </dependency>
 
-<!-- tomcat -->
+<!-- tomcat WHY IS THIS IN THE JETTY SERVER?!?! -->
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>catalina</artifactId>
@@ -1100,17 +1106,17 @@
             <version>${xmlbeans_version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>${commons_fileupload_version}</version>
+        </dependency>
+
 <!-- stuff that has no clear purpose -->
         <dependency>
             <groupId>castor</groupId>
             <artifactId>castor</artifactId>
             <version>${castor_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-fileupload</groupId>
-            <artifactId>commons-fileupload</artifactId>
-            <version>${commons_fileupload_version}</version>
         </dependency>
 
         <dependency>
@@ -1245,11 +1251,13 @@
             <artifactId>geronimo-derby</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
+<!-- Should be installed when Directory is installed
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-directory</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
+-->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee</artifactId>
@@ -1320,6 +1328,7 @@
             <artifactId>geronimo-timer</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
+<!-- WHY IS THIS IN JETTY BUILD?!?!? -->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-tomcat</artifactId>

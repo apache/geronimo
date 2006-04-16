@@ -24,7 +24,7 @@ import EDU.oswego.cs.dl.util.concurrent.Executor;
  *
  * @version $Rev$ $Date$
  */
-public interface GeronimoExecutor extends Executor, org.apache.geronimo.management.geronimo.ThreadPool {
+public interface GeronimoExecutor extends Executor, org.apache.geronimo.system.threads.ThreadPool {
     /**
      * Gets a human-readable name identifying this object.
      */

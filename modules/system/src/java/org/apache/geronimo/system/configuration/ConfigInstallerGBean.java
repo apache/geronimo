@@ -29,6 +29,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.LinkedList;
 import java.util.Arrays;
+import java.util.Set;
+import java.util.Map;
+import java.util.Collections;
+import java.util.HashMap;
 import javax.security.auth.login.FailedLoginException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -48,8 +52,12 @@ import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
+import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.ImportType;
+import org.apache.geronimo.kernel.repository.FileWriteMonitor;
 import org.apache.geronimo.util.encoders.Base64;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.system.threads.ThreadPool;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -63,18 +71,31 @@ import org.xml.sax.SAXException;
  */
 public class ConfigInstallerGBean implements ConfigurationInstaller {
     private final static Log log = LogFactory.getLog(ConfigInstallerGBean.class);
+    private static int counter;
     private ConfigurationManager configManager;
     private WritableListableRepository writeableRepo;
     private ConfigurationStore configStore;
     private ArtifactResolver resolver;
     private ServerInfo serverInfo;
+    private Map asyncKeys;
+    private ThreadPool threadPool;
 
-    public ConfigInstallerGBean(ConfigurationManager configManager, WritableListableRepository repository, ConfigurationStore configStore, ServerInfo serverInfo) {
+    public ConfigInstallerGBean(ConfigurationManager configManager, WritableListableRepository repository, ConfigurationStore configStore, ServerInfo serverInfo, ThreadPool threadPool) {
         this.configManager = configManager;
         this.writeableRepo = repository;
         this.configStore = configStore;
         this.serverInfo = serverInfo;
+        this.threadPool = threadPool;
         resolver = new DefaultArtifactResolver(null, writeableRepo);
+        asyncKeys = Collections.synchronizedMap(new HashMap());
+    }
+
+    private static Object getNextKey() {
+        int value;
+        synchronized(ConfigInstallerGBean.class) {
+            value = ++counter;
+        }
+        return new Integer(value);
     }
 
     public ConfigurationList listConfigurations(URL mavenRepository, String username, String password) throws IOException, FailedLoginException {
@@ -85,7 +106,8 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
         //todo: Try downloading a .gz first
         URL url = new URL(repository+"geronimo-plugins.xml");
         try {
-            InputStream in = openStream(null, url, new URL[0], username, password);
+            //todo: use a progress monitor
+            InputStream in = openStream(null, url, new URL[0], username, password, null);
             return loadConfiguration(mavenRepository, in);
         } catch (MissingDependencyException e) {
             log.error("Cannot find plugin index at site "+url);
@@ -124,7 +146,7 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
                 prereqs[j] = new ConfigurationMetadata.Prerequisite(artifact, present,
                         getChildText(node, "resource-type"), getChildText(node, "description"));
                 if(!present) {
-                    log.info(configId+" is not eligible due to missing "+prereqs[j].getConfigId());
+                    log.debug(configId+" is not eligible due to missing "+prereqs[j].getConfigId());
                     eligible = false;
                 }
             }
@@ -156,8 +178,9 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
             }
             Artifact artifact = Artifact.create(configId);
             boolean installed = configManager.isLoaded(artifact);
-            log.info("Checking "+configId+": installed="+installed+", eligible="+eligible);
-            ConfigurationMetadata data = new ConfigurationMetadata(artifact, getChildText(config, "name"), getChildText(config, "category"), installed, eligible);
+            log.trace("Checking "+configId+": installed="+installed+", eligible="+eligible);
+            ConfigurationMetadata data = new ConfigurationMetadata(artifact, getChildText(config, "name"),
+                    getChildText(config, "description"), getChildText(config, "category"), installed, eligible);
             data.setGeronimoVersions(gerVersions);
             data.setJvmVersions(jvmVersions);
             data.setLicenses(licenses);
@@ -229,47 +252,111 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
     }
 
 
-    public DownloadResults install(ConfigurationList list, String username, String password) throws IOException, FailedLoginException, MissingDependencyException {
+    public DownloadResults install(ConfigurationList list, String username, String password) {
         DownloadResults results = new DownloadResults();
-        for (int i = 0; i < list.getConfigurations().length; i++) {
-            ConfigurationMetadata metadata = list.getConfigurations()[i];
-            downloadConfiguration(metadata.getConfigId(),list.getMainRepository(),list.getBackupRepositories(),username,password,results);
+        try {
+            for (int i = 0; i < list.getConfigurations().length; i++) {
+                ConfigurationMetadata metadata = list.getConfigurations()[i];
+                downloadArtifact(metadata.getConfigId(), list.getMainRepository(), list.getBackupRepositories(),
+                        username, password, new ResultsFileWriteMonitor(results));
+            }
+        } catch (Exception e) {
+            results.setFailure(e);
+        } finally {
+            results.setFinished();
         }
         return results;
     }
 
-    private void downloadConfiguration(Artifact configID, URL repoURL, URL[] backups, String username, String password, DownloadResults results) throws IOException, FailedLoginException, MissingDependencyException {
-        if(!configStore.containsConfiguration(configID)) {
-            InputStream in = openStream(configID, repoURL, backups, username, password);
-            try { //todo: use a file status monitor
-                writeableRepo.copyToRepository(in, configID, null); //todo: download only SNAPSHOTS if previously available?
+    public void install(ConfigurationList list, String username, String password, DownloadPoller poller) {
+        try {
+            for (int i = 0; i < list.getConfigurations().length; i++) {
+                ConfigurationMetadata metadata = list.getConfigurations()[i];
+                downloadArtifact(metadata.getConfigId(), list.getMainRepository(), list.getBackupRepositories(),
+                        username, password, new ResultsFileWriteMonitor(poller));
+            }
+        } catch (Exception e) {
+            poller.setFailure(e);
+        } finally {
+            poller.setFinished();
+        }
+    }
+
+    public Object startInstall(final ConfigurationList configsToInstall, final String username, final String password) {
+        Object key = getNextKey();
+        final DownloadResults results = new DownloadResults();
+        Runnable work = new Runnable() {
+            public void run() {
+                install(configsToInstall, username, password, results);
+            }
+        };
+        asyncKeys.put(key, results);
+        try {
+            threadPool.execute("Configuration Installer", work);
+        } catch (InterruptedException e) {
+            throw new RuntimeException("Unable to start work", e);
+        }
+        return key;
+    }
+
+    public DownloadResults checkOnInstall(Object key) {
+        DownloadResults results = (DownloadResults) asyncKeys.get(key);
+        if(results.isFinished()) {
+            //todo: subject to a race condition
+            // since this is not synchronized, it's possible that the download finishes after this
+            // passes but before the client reads it, so the client thinks it's done but we never removed the key
+            // fix if we care by copying the results before the if block and returning the copy?
+            asyncKeys.remove(key);
+        }
+        return results;
+    }
+
+    /**
+     * Download (if necessary) and install something, which may be a Configuration or may
+     * be just a JAR.  For each artifact processed, all its dependencies will be
+     * processed as well.
+     *
+     * @param configID  Identifies the artifact to install
+     * @param repoURL   The main URL to contact the repository
+     * @param backups   Any additional repositories to search
+     * @param username  The username used for repositories secured with HTTP Basic authentication
+     * @param password  The password used for repositories secured with HTTP Basic authentication
+     * @param monitor   The ongoing results of the download operations, with some monitoring logic
+     *
+     * @throws IOException                 When there's a problem reading or writing data
+     * @throws FailedLoginException        When a repository requires authentication and either no username
+     *                                     and password are supplied or the username and password supplied
+     *                                     are not accepted
+     * @throws MissingDependencyException  When a dependency cannot be located in any of the listed repositories
+     */
+    private void downloadArtifact(Artifact configID, URL repoURL, URL[] backups, String username, String password, ResultsFileWriteMonitor monitor) throws IOException, FailedLoginException, MissingDependencyException {
+        //todo: check all repositories?
+        if(!writeableRepo.contains(configID)) {
+            InputStream in = openStream(configID, repoURL, backups, username, password, monitor);
+            try {
+                writeableRepo.copyToRepository(in, configID, monitor); //todo: download SNAPSHOTS if previously available?
+                monitor.getResults().addDependencyInstalled(configID);
             } finally {
                 in.close();
             }
+        } else {
+            monitor.getResults().addDependencyPresent(configID);
         }
 
         try {
             ConfigurationData data = null;
             if(configStore.containsConfiguration(configID)) {
+                if(configManager.isRunning(configID)) {
+                    return; // its dependencies must be OK
+                }
                 data = configStore.loadConfiguration(configID);
             }
-            if(data == null) {
-                throw new IllegalStateException("No configuration store for repository "+writeableRepo);
-            }
-            Dependency[] dependencies = getDependencies(data);
+            Dependency[] dependencies = data == null ? getDependencies(writeableRepo, configID) : getDependencies(data);
             // Download the dependencies
             for (int i = 0; i < dependencies.length; i++) {
                 Dependency dep = dependencies[i];
                 Artifact artifact = dep.getArtifact();
-                //todo: check all repositories?
-                if(writeableRepo.contains(artifact)) {
-                    results.addDependencyPresent(artifact);
-                    continue;
-                }
-                //todo: use a file status monitor
-                writeableRepo.copyToRepository(openStream(dep.getArtifact(), repoURL, backups, username, password), artifact, null);
-                results.addDependencyInstalled(artifact);
-                downloadConfiguration(artifact, repoURL, backups, username, password, results);
+                downloadArtifact(artifact, repoURL, backups, username, password, monitor);
             }
         } catch (NoSuchConfigException e) {
             throw new IllegalStateException("Installed configuration into repository but ConfigStore does not see it: "+e.getMessage());
@@ -278,6 +365,23 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
         }
     }
 
+    /**
+     * Used to get dependencies for a JAR
+     */
+    private static Dependency[] getDependencies(Repository repo, Artifact artifact) {
+        Set set = repo.getDependencies(artifact);
+        Dependency[] results = new Dependency[set.size()];
+        int index=0;
+        for (Iterator it = set.iterator(); it.hasNext(); ++index) {
+            Artifact dep = (Artifact) it.next();
+            results[index] = new Dependency(dep, ImportType.CLASSES);
+        }
+        return results;
+    }
+
+    /**
+     * Used to get dependencies for a Configuration
+     */
     private static Dependency[] getDependencies(ConfigurationData data) {
         List dependencies = data.getEnvironment().getDependencies();
         Collection children = data.getChildConfigurations().values();
@@ -285,14 +389,17 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
             ConfigurationData child = (ConfigurationData) it.next();
             dependencies.addAll(child.getEnvironment().getDependencies());
         }
-        return (Dependency[]) children.toArray(new Dependency[children.size()]);
+        return (Dependency[]) dependencies.toArray(new Dependency[dependencies.size()]);
     }
 
     private static URL getURL(Artifact configId, URL repository) throws MalformedURLException {
         return new URL(repository, configId.getGroupId().replace('.','/')+"/"+configId.getArtifactId()+"/"+configId.getVersion()+"/"+configId.getArtifactId()+"-"+configId.getVersion()+"."+configId.getType());
     }
 
-    private static InputStream openStream(Artifact artifact, URL repo, URL[] backups, String username, String password) throws IOException, FailedLoginException, MissingDependencyException {
+    private static InputStream openStream(Artifact artifact, URL repo, URL[] backups, String username, String password, ResultsFileWriteMonitor monitor) throws IOException, FailedLoginException, MissingDependencyException {
+        if(monitor != null) {
+            monitor.setTotalBytes(-1); // In case the server doesn't say
+        }
         InputStream in;
         LinkedList list = new LinkedList();
         list.add(repo);
@@ -303,6 +410,7 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
             }
             URL repository = (URL) list.removeFirst();
             URL url = artifact == null ? repository : getURL(artifact, repository);
+            log.debug("Attempting to download "+artifact+" from "+url);
             URLConnection con = url.openConnection();
             if(con instanceof HttpURLConnection) {
                 HttpURLConnection http = (HttpURLConnection) url.openConnection();
@@ -319,23 +427,37 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
                     } else if(http.getResponseCode() == 404) {
                         continue; // Not found at this repository
                     }
+                    if(monitor != null && http.getContentLength() > 0) {
+                        monitor.setTotalBytes(http.getContentLength());
+                    }
                     in = http.getInputStream();
                 } else if(http.getResponseCode() == 404) {
                     continue; // Not found at this repository
                 } else {
+                    if(monitor != null && http.getContentLength() > 0) {
+                        monitor.setTotalBytes(http.getContentLength());
+                    }
                     in = http.getInputStream();
                 }
             } else {
                 if(username != null && !username.equals("")) {
                     con.setRequestProperty("Authorization", "Basic " + new String(Base64.encode((username + ":" + password).getBytes())));
                     try {
+                        con.connect();
+                        if(monitor != null && con.getContentLength() > 0) {
+                            monitor.setTotalBytes(con.getContentLength());
+                        }
                         in = con.getInputStream();
                     } catch (FileNotFoundException e) {
                         continue;
                     }
                 } else {
                     try {
-                        in = url.openStream();
+                        con.connect();
+                        if(monitor != null && con.getContentLength() > 0) {
+                            monitor.setTotalBytes(con.getContentLength());
+                        }
+                        in = con.getInputStream();
                     } catch (FileNotFoundException e) {
                         continue;
                     }
@@ -347,6 +469,45 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
         }
     }
 
+    private static class ResultsFileWriteMonitor implements FileWriteMonitor {
+        private final DownloadPoller results;
+        private int totalBytes;
+        private String file;
+
+        public ResultsFileWriteMonitor(DownloadPoller results) {
+            this.results = results;
+        }
+
+        public void setTotalBytes(int totalBytes) {
+            this.totalBytes = totalBytes;
+        }
+
+        public void writeStarted(String fileDescription) {
+            file = fileDescription;
+            results.setCurrentFile(fileDescription);
+            results.setCurrentMessage("Downloading "+fileDescription+"...");
+            results.setCurrentFilePercent(totalBytes > 0 ? 0 : -1);
+        }
+
+        public void writeProgress(int bytes) {
+            if(totalBytes > 0) {
+                results.setCurrentFilePercent((bytes*100)/totalBytes);
+            } else {
+                results.setCurrentMessage((bytes/1024)+" kB of "+file);
+            }
+        }
+
+        public void writeComplete(int bytes) {
+            results.setCurrentFilePercent(100);
+            results.setCurrentMessage("Downloaded "+file+" ("+(bytes/1024)+" kB)");
+            results.addDownloadBytes(bytes);
+        }
+
+        public DownloadPoller getResults() {
+            return results;
+        }
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -355,9 +516,10 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
         infoFactory.addReference("Repository", WritableListableRepository.class, "Repository");
         infoFactory.addReference("ConfigStore", ConfigurationStore.class, "ConfigurationStore");
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
+        infoFactory.addReference("ThreadPool", ThreadPool.class, "GBean");
         infoFactory.addInterface(ConfigurationInstaller.class);
 
-        infoFactory.setConstructor(new String[]{"ConfigManager", "Repository", "ConfigStore", "ServerInfo"});
+        infoFactory.setConstructor(new String[]{"ConfigManager", "Repository", "ConfigStore", "ServerInfo","ThreadPool"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

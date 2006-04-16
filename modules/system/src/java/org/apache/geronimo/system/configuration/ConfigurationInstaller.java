@@ -16,11 +16,9 @@
  */
 package org.apache.geronimo.system.configuration;
 
-import java.net.URL;
 import java.io.IOException;
+import java.net.URL;
 import javax.security.auth.login.FailedLoginException;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.MissingDependencyException;
 
 /**
  * Knows how to import and export configurations
@@ -40,7 +38,9 @@ public interface ConfigurationInstaller {
 
     /**
      * Installs a configuration from a remote repository into the local Geronimo server,
-     * including all its dependencies.
+     * including all its dependencies.  The caller will get the results when the
+     * operation completes.  Note that this method does not throw exceptions on failure,
+     * but instead sets the failure property of the DownloadResults.
      *
      * @param username         Optional username, if the maven repo uses HTTP Basic authentication.
      *                         Set this to null if no authentication is required.
@@ -48,5 +48,50 @@ public interface ConfigurationInstaller {
      *                         Set this to null if no authentication is required.
      * @param configsToInstall The list of configurations to install
      */
-    public DownloadResults install(ConfigurationList configsToInstall, String username, String password) throws IOException, FailedLoginException, MissingDependencyException;
+    public DownloadResults install(ConfigurationList configsToInstall, String username, String password);
+
+    /**
+     * Installs a configuration from a remote repository into the local Geronimo server,
+     * including all its dependencies.  The method blocks until the operation completes,
+     * but the caller will be notified of progress frequently along the way (using the
+     * supplied DownloadPoller).  Therefore the caller is meant to create the poller and
+     * then call this method in a background thread.  Note that this method does not
+     * throw exceptions on failure, but instead sets the failure property of the
+     * DownloadPoller.
+     *
+     * @param configsToInstall The list of configurations to install
+     * @param username         Optional username, if the maven repo uses HTTP Basic authentication.
+     *                         Set this to null if no authentication is required.
+     * @param password         Optional password, if the maven repo uses HTTP Basic authentication.
+     *                         Set this to null if no authentication is required.
+     * @param poller           Will be notified with status updates as the download proceeds
+     */
+    public void install(ConfigurationList configsToInstall, String username, String password, DownloadPoller poller);
+
+    /**
+     * Installs a configuration from a remote repository into the local Geronimo server,
+     * including all its dependencies.  The method return immediately, providing a key
+     * that can be used to poll the status of the download operation.  Note that the
+     * installation does not throw exceptions on failure, but instead sets the failure
+     * property of the DownloadResults that the caller can poll for.
+     *
+     * @param configsToInstall The list of configurations to install
+     * @param username         Optional username, if the maven repo uses HTTP Basic authentication.
+     *                         Set this to null if no authentication is required.
+     * @param password         Optional password, if the maven repo uses HTTP Basic authentication.
+     *                         Set this to null if no authentication is required.
+     *
+     * @return A key that can be passed to checkOnInstall
+     */
+    public Object startInstall(ConfigurationList configsToInstall, String username, String password);
+
+    /**
+     * Gets the current progress of a download operation.  Note that once the
+     * DownloadResults is returned for this operation shows isFinished = true,
+     * the operation will be forgotten, so the caller should be careful not to
+     * call this again after the download has finished.
+     *
+     * @param key Identifies the operation to check on
+     */
+    public DownloadResults checkOnInstall(Object key);
 }

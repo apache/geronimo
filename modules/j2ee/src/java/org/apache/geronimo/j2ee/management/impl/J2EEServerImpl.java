@@ -41,11 +41,11 @@ import org.apache.geronimo.management.geronimo.JMSManager;
 import org.apache.geronimo.management.geronimo.JVM;
 import org.apache.geronimo.management.geronimo.LoginService;
 import org.apache.geronimo.management.geronimo.SecurityRealm;
-import org.apache.geronimo.management.geronimo.ThreadPool;
 import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.management.geronimo.KeystoreManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.system.configuration.ConfigurationInstaller;
+import org.apache.geronimo.system.threads.ThreadPool;
 
 /**
  * @version $Rev$ $Date$

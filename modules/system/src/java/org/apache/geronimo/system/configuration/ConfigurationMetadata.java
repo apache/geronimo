@@ -18,7 +18,6 @@ package org.apache.geronimo.system.configuration;
 
 import java.io.Serializable;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.Dependency;
 
 /**
  * Various metadata on a configuration that's used when listing, importing,
@@ -29,6 +28,7 @@ import org.apache.geronimo.kernel.repository.Dependency;
 public class ConfigurationMetadata implements Serializable, Comparable {
     private final Artifact configId;
     private final String name;
+    private final String description;
     private final String category;
     private final boolean installed;
     private final boolean eligible;
@@ -38,9 +38,10 @@ public class ConfigurationMetadata implements Serializable, Comparable {
     private String[] jvmVersions;
     private Prerequisite[] prerequisites;
 
-    public ConfigurationMetadata(Artifact configId, String name, String category, boolean installed, boolean eligible) {
+    public ConfigurationMetadata(Artifact configId, String name, String description, String category, boolean installed, boolean eligible) {
         this.configId = configId;
         this.name = name;
+        this.description = description;
         this.category = category;
         this.installed = installed;
         this.eligible = eligible;
@@ -63,6 +64,13 @@ public class ConfigurationMetadata implements Serializable, Comparable {
      */
     public String getName() {
         return name;
+    }
+
+    /**
+     * Gets a description of this configuration and why it is interesting
+     */
+    public String getDescription() {
+        return description;
     }
 
     /**

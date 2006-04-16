@@ -33,18 +33,21 @@ import javax.management.remote.JMXConnector;
 
 import org.apache.geronimo.deployment.plugin.local.DistributeCommand;
 import org.apache.geronimo.deployment.plugin.local.RedeployCommand;
+import org.apache.geronimo.deployment.plugin.GeronimoDeploymentManager;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.jmx.KernelDelegate;
 import org.apache.geronimo.system.configuration.ConfigurationList;
 import org.apache.geronimo.system.configuration.DownloadResults;
+import org.apache.geronimo.system.configuration.ConfigurationInstaller;
+import org.apache.geronimo.system.configuration.DownloadPoller;
 
 /**
  * Connects to a Kernel in a remote VM (may or many not be on the same machine).
  *
  * @version $Rev$ $Date$
  */
-public class RemoteDeploymentManager extends JMXDeploymentManager {
+public class RemoteDeploymentManager extends JMXDeploymentManager implements GeronimoDeploymentManager {
     private JMXConnector jmxConnector;
     private boolean isSameMachine;
 
@@ -125,29 +128,70 @@ public class RemoteDeploymentManager extends JMXDeploymentManager {
         }
     }
 
-    public ConfigurationList listConfigurations(URL mavenRepository, String username, String password) throws IOException {
+    public ConfigurationList listConfigurations(URL mavenRepository, String username, String password) {
         Set set = kernel.listGBeans(new AbstractNameQuery("org.apache.geronimo.system.configuration.ConfigurationInstaller"));
         for (Iterator it = set.iterator(); it.hasNext();) {
             AbstractName name = (AbstractName) it.next();
             try {
                 return (ConfigurationList) kernel.invoke(name, "listConfigurations", new Object[]{mavenRepository, username, password}, new String[]{URL.class.getName(), String.class.getName(), String.class.getName()});
             } catch (Exception e) {
+                System.err.println("Unable to install configurations: "+e.getMessage());
                 e.printStackTrace();
-                throw new IOException("Unable to list configurations: "+e.getMessage());
             }
         }
         return null;
     }
 
-    public DownloadResults install(ConfigurationList installList, String username, String password) throws IOException {
+    public DownloadResults install(ConfigurationList installList, String username, String password) {
         Set set = kernel.listGBeans(new AbstractNameQuery("org.apache.geronimo.system.configuration.ConfigurationInstaller"));
         for (Iterator it = set.iterator(); it.hasNext();) {
             AbstractName name = (AbstractName) it.next();
             try {
                 return (DownloadResults) kernel.invoke(name, "install", new Object[]{installList, username, password}, new String[]{ConfigurationList.class.getName(), String.class.getName(), String.class.getName()});
             } catch (Exception e) {
+                System.err.println("Unable to install configurations: "+e.getMessage());
                 e.printStackTrace();
-                throw new IOException("Unable to install configurations: "+e.getMessage());
+            }
+        }
+        return null;
+    }
+
+    public void install(ConfigurationList configsToInstall, String username, String password, DownloadPoller poller) {
+        Set set = kernel.listGBeans(new AbstractNameQuery("org.apache.geronimo.system.configuration.ConfigurationInstaller"));
+        for (Iterator it = set.iterator(); it.hasNext();) {
+            AbstractName name = (AbstractName) it.next();
+            try {
+                kernel.invoke(name, "install", new Object[]{configsToInstall, username, password, poller}, new String[]{ConfigurationList.class.getName(), String.class.getName(), String.class.getName(), DownloadPoller.class.getName()});
+            } catch (Exception e) {
+                System.err.println("Unable to install configurations: "+e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public Object startInstall(ConfigurationList configsToInstall, String username, String password) {
+        Set set = kernel.listGBeans(new AbstractNameQuery("org.apache.geronimo.system.configuration.ConfigurationInstaller"));
+        for (Iterator it = set.iterator(); it.hasNext();) {
+            AbstractName name = (AbstractName) it.next();
+            try {
+                return kernel.invoke(name, "startInstall", new Object[]{configsToInstall, username, password}, new String[]{ConfigurationList.class.getName(), String.class.getName(), String.class.getName()});
+            } catch (Exception e) {
+                System.err.println("Unable to start installing configurations: "+e.getMessage());
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    public DownloadResults checkOnInstall(Object key) {
+        Set set = kernel.listGBeans(new AbstractNameQuery("org.apache.geronimo.system.configuration.ConfigurationInstaller"));
+        for (Iterator it = set.iterator(); it.hasNext();) {
+            AbstractName name = (AbstractName) it.next();
+            try {
+                return (DownloadResults)kernel.invoke(name, "checkOnInstall", new Object[]{key}, new String[]{Object.class.getName()});
+            } catch (Exception e) {
+                System.err.println("Unable to check on configuration install: "+e.getMessage());
+                e.printStackTrace();
             }
         }
         return null;

@@ -31,10 +31,9 @@ import javax.security.auth.login.FailedLoginException;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.plugin.GeronimoDeploymentManager;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.MissingDependencyException;
+import org.apache.geronimo.system.configuration.ConfigurationList;
 import org.apache.geronimo.system.configuration.ConfigurationMetadata;
 import org.apache.geronimo.system.configuration.DownloadResults;
-import org.apache.geronimo.system.configuration.ConfigurationList;
 
 /**
  * The CLI deployer logic to start.
@@ -115,27 +114,61 @@ public class CommandListConfigurations extends AbstractCommand {
                 }
                 int selection = Integer.parseInt(answer);
                 ConfigurationMetadata target = ((ConfigurationMetadata) available.get(selection - 1));
-                DownloadResults results = mgr.install(ConfigurationList.createInstallList(data, target.getConfigId()), null, null);
-                for (int i = 0; i < results.getDependenciesPresent().length; i++) {
-                    Artifact uri = results.getDependenciesPresent()[i];
-                    System.out.print(DeployUtils.reformat("Using existing dependency "+uri, 4, 72));
+                long start = System.currentTimeMillis();
+                Object key = mgr.startInstall(ConfigurationList.createInstallList(data, target.getConfigId()), null, null);
+                DownloadResults results = showProgress(mgr, key);
+                int time = (int)(System.currentTimeMillis() - start) / 1000;
+                System.out.println();
+                if(!results.isFailed()) {
+                    System.out.println(DeployUtils.reformat("**** Installation Complete!", 4, 72));
+                    for (int i = 0; i < results.getDependenciesPresent().length; i++) {
+                        Artifact uri = results.getDependenciesPresent()[i];
+                        System.out.print(DeployUtils.reformat("Used existing: "+uri, 4, 72));
+                    }
+                    for (int i = 0; i < results.getDependenciesInstalled().length; i++) {
+                        Artifact uri = results.getDependenciesInstalled()[i];
+                        System.out.print(DeployUtils.reformat("Installed new: "+uri, 4, 72));
+                    }
+                    System.out.println();
+                    System.out.println(DeployUtils.reformat("Downloaded "+(results.getTotalDownloadBytes()/1024)+" kB in "+time+"s ("+results.getTotalDownloadBytes()/(1024*time)+" kB/s)", 4, 72));
                 }
-                for (int i = 0; i < results.getDependenciesInstalled().length; i++) {
-                    Artifact uri = results.getDependenciesInstalled()[i];
-                    System.out.print(DeployUtils.reformat("Installed new dependency "+uri, 4, 72));
+                if(results.isFinished() && !results.isFailed()) {
+                    System.out.print(DeployUtils.reformat("Now starting "+target.getConfigId()+"...", 4, 72));
+                    System.out.flush();
+                    new CommandStart().execute(out, connection, new String[]{target.getConfigId().toString()});
                 }
-                new CommandStart().execute(out, connection, new String[]{target.getConfigId().toString()});
             } catch (IOException e) {
                 throw new DeploymentException("Unable to install configuration", e);
             } catch(NumberFormatException e) {
                 throw new DeploymentException("Invalid response");
-            } catch (FailedLoginException e) {
-                throw new DeploymentException("Invalid login for Maven repository '"+repository+"'");
-            } catch (MissingDependencyException e) {
-                throw new DeploymentException(e.getMessage());
             }
         } else {
             throw new DeploymentException("Cannot list repositories when connected to "+connection.getServerURI());
+        }
+    }
+
+    private DownloadResults showProgress(GeronimoDeploymentManager mgr, Object key) {
+        System.out.println("Checking for status every 1000ms:");
+        while(true) {
+            DownloadResults results = mgr.checkOnInstall(key);
+            if(results.getCurrentFile() != null) {
+                if(results.getCurrentFilePercent() > -1) {
+                    System.out.println(results.getCurrentMessage()+" ("+results.getCurrentFilePercent()+"%)");
+                } else {
+                    System.out.println(results.getCurrentMessage());
+                }
+            }
+            if(results.isFinished()) {
+                if(results.isFailed()) {
+                    System.err.println("Installation FAILED: "+results.getFailure().getMessage());
+                }
+                return results;
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                return results;
+            }
         }
     }
 }

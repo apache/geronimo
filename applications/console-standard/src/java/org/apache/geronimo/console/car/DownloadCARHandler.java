@@ -117,13 +117,10 @@ public class DownloadCARHandler extends BaseImportExportHandler {
                 throw new PortletException("No configuration found for '"+configId+"'");
             }
 
-            DownloadResults results;
-            try {
-                results = PortletManager.getCurrentServer(request).getConfigurationInstaller().install(installList, user, pass);
-            } catch (FailedLoginException e) {
-                throw new PortletException("Invalid login for Maven repository '"+repo+"'", e);
-            } catch (MissingDependencyException e) {
-                throw new PortletException(e.getMessage(), e);
+            // todo: switch to asynchronous AJAX-based download monitor
+            DownloadResults results = PortletManager.getCurrentServer(request).getConfigurationInstaller().install(installList, user, pass);
+            if(results.isFailed()) {
+                throw new PortletException("Unable to install configuration", results.getFailure());
             }
             List dependencies = new ArrayList();
             for (int i = 0; i < results.getDependenciesInstalled().length; i++) {

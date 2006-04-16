@@ -28,7 +28,7 @@ import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.management.geronimo.ThreadPool;
+import org.apache.geronimo.system.threads.ThreadPool;
 
 /**
  * A handles for the front page that lists available thread pools.

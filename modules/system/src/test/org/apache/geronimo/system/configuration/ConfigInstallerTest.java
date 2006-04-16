@@ -16,30 +16,30 @@
  */
 package org.apache.geronimo.system.configuration;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
-import java.util.List;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.io.IOException;
-import java.io.File;
-import java.io.InputStream;
 import junit.framework.TestCase;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.NoSuchStoreException;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.config.NullConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.WritableListableRepository;
 import org.apache.geronimo.kernel.repository.FileWriteMonitor;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.kernel.repository.WritableListableRepository;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
+import org.apache.geronimo.system.threads.ThreadPool;
 
 /**
  * Tests the config installer GBean
@@ -55,7 +55,15 @@ public class ConfigInstallerTest extends TestCase {
         int pos = url.lastIndexOf("/");
         testRepo = new URL(url.substring(0, pos));
         installer = new ConfigInstallerGBean(new MockConfigManager(), new MockRepository(), new MockConfigStore(),
-                new BasicServerInfo("."));
+                new BasicServerInfo("."), new ThreadPool() {
+            public int getPoolSize() {
+                return 0;
+            }
+
+            public void execute(String consumerName, Runnable runnable) {
+                new Thread(runnable).start();
+            }
+        });
     }
 
     public void testParsing() throws Exception {

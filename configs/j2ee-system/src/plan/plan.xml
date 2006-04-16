@@ -90,22 +90,6 @@ specific services - those should be provided by children.
     </reference>
   </gbean>
 
-  <!-- Configuration Installer -->
-  <gbean name="ConfigurationInstaller" class="org.apache.geronimo.system.configuration.ConfigInstallerGBean">
-    <reference name="Repository">
-      <name>Repository</name>
-    </reference>
-    <reference name="ConfigStore">
-      <name>Local</name>
-    </reference>
-    <reference name="ConfigManager">
-      <name>ConfigurationManager</name>
-    </reference>
-    <reference name="ServerInfo">
-      <name>ServerInfo</name>
-    </reference>
-  </gbean>
-
   <!-- Logging service -->
   <gbean name="Logger" class="org.apache.geronimo.system.logging.log4j.Log4jService">
     <attribute name="configFileName">var/log/server-log4j.properties</attribute>

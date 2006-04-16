@@ -140,7 +140,7 @@ public class ThreadPool implements GeronimoExecutor, GBeanLifecycle, J2EEManaged
                     stat = new CountStatisticImpl("Threads for " + client, "", "The number of threads used by the client known as '" + client + "'", count.intValue());
                     addStat(stat.getName(), stat);
                 } else {
-                    it.remove();
+                    consumers.remove(client);
                     stat.setCount(count.intValue());
                 }
                 result.put(client, stat);
