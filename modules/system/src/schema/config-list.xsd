@@ -42,7 +42,7 @@
             </xs:documentation>
         </xs:annotation>
     </xs:element>
-    <xs:element name="geronimo-configuration" type="list:configuration-descriptorType">
+    <xs:element name="geronimo-plugin" type="list:configuration-descriptorType">
         <xs:annotation>
             <xs:documentation>
                 The geronimo-configuration root element is used as the config file

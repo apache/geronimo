@@ -168,7 +168,7 @@ public abstract class AbstractRepository implements WriteableRepository {
     }
 
     public void copyToRepository(InputStream source, Artifact destination, FileWriteMonitor monitor) throws IOException {
-        // is this a wrtiable repository
+        // is this a writable repository
         if (!rootFile.canWrite()) {
             throw new IllegalStateException("This repository is not writable: " + rootFile.getAbsolutePath() + ")");
         }
@@ -187,7 +187,7 @@ public abstract class AbstractRepository implements WriteableRepository {
 
         if (destination.getType().equalsIgnoreCase("car")) {
             System.out.println("############################################################");
-            System.out.println("# Installed artifact");
+            System.out.println("# Installed configuration");
             System.out.println("#   id = " + destination);
             System.out.println("#   location = " + location);
             System.out.println("############################################################");

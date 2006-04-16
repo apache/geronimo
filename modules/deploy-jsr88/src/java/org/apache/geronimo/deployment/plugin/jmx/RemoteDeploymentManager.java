@@ -28,12 +28,17 @@ import java.util.Set;
 
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
+import javax.enterprise.deploy.spi.status.ProgressListener;
+import javax.enterprise.deploy.spi.status.ProgressEvent;
+import javax.enterprise.deploy.shared.CommandType;
 import javax.management.MBeanServerConnection;
 import javax.management.remote.JMXConnector;
 
 import org.apache.geronimo.deployment.plugin.local.DistributeCommand;
 import org.apache.geronimo.deployment.plugin.local.RedeployCommand;
+import org.apache.geronimo.deployment.plugin.local.AbstractDeployCommand;
 import org.apache.geronimo.deployment.plugin.GeronimoDeploymentManager;
+import org.apache.geronimo.deployment.plugin.remote.RemoteDeployUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.jmx.KernelDelegate;
@@ -175,6 +180,33 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
             AbstractName name = (AbstractName) it.next();
             try {
                 return kernel.invoke(name, "startInstall", new Object[]{configsToInstall, username, password}, new String[]{ConfigurationList.class.getName(), String.class.getName(), String.class.getName()});
+            } catch (Exception e) {
+                System.err.println("Unable to start installing configurations: "+e.getMessage());
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    public Object startInstall(File carFile, String username, String password) {
+        File[] args = new File[]{carFile};
+        if(!isSameMachine) {
+            AbstractDeployCommand progress = new AbstractDeployCommand(CommandType.DISTRIBUTE, kernel, null, null, null, null, false) {
+                public void run() {
+                }
+            };
+            progress.addProgressListener(new ProgressListener() {
+                public void handleProgressEvent(ProgressEvent event) {
+                    System.out.println(event.getDeploymentStatus().getMessage());
+                }
+            });
+            RemoteDeployUtil.uploadFilesToServer(args, progress);
+        }
+        Set set = kernel.listGBeans(new AbstractNameQuery("org.apache.geronimo.system.configuration.ConfigurationInstaller"));
+        for (Iterator it = set.iterator(); it.hasNext();) {
+            AbstractName name = (AbstractName) it.next();
+            try {
+                return kernel.invoke(name, "startInstall", new Object[]{args[0], username, password}, new String[]{File.class.getName(), String.class.getName(), String.class.getName()});
             } catch (Exception e) {
                 System.err.println("Unable to start installing configurations: "+e.getMessage());
                 e.printStackTrace();

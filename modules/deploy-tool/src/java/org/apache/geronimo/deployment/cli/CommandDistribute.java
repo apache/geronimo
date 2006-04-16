@@ -59,7 +59,7 @@ public class CommandDistribute extends AbstractCommand {
 
     protected ProgressObject runCommand(DeploymentManager mgr, PrintWriter out, boolean inPlace, Target[] tlist, File module, File plan) throws DeploymentException {
         if (inPlace) {
-            if (false == mgr instanceof JMXDeploymentManager) {
+            if (!(mgr instanceof JMXDeploymentManager)) {
                 throw new DeploymentSyntaxException(
                         "Target DeploymentManager is not a Geronimo one. \n" +
                         "Cannot perform in-place deployment.");

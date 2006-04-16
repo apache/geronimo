@@ -19,6 +19,7 @@ package org.apache.geronimo.system.configuration;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.FileNotFoundException;
+import java.io.File;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -33,6 +34,8 @@ import java.util.Set;
 import java.util.Map;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.jar.JarFile;
+import java.util.jar.JarEntry;
 import javax.security.auth.login.FailedLoginException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -118,6 +121,51 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
         }
     }
 
+    private ConfigurationArchiveData loadConfigurationArchive(File file) throws IOException, ParserConfigurationException, SAXException {
+        if(!file.canRead()) {
+            log.error("Cannot read from downloaded CAR file "+file.getAbsolutePath());
+            return null;
+        }
+        JarFile jar = new JarFile(file);
+        Document doc;
+        try {
+            JarEntry entry = jar.getJarEntry("META-INF/geronimo-plugin.xml");
+            if(entry == null) {
+                log.error("Downloaded CAR file does not contain META-INF/geronimo-plugin.xml file");
+                jar.close();
+                return null;
+            }
+            InputStream in = jar.getInputStream(entry);
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            doc = builder.parse(in);
+            in.close();
+        } finally {
+            jar.close();
+        }
+        Element root = doc.getDocumentElement();
+        NodeList configs = root.getElementsByTagName("configuration");
+        if(configs.getLength() != 1) {
+            log.error("Configuration archive "+file.getAbsolutePath()+" does not have exactly one configuration in META-INF/geronimo-plugin.xml");
+            return null;
+        }
+        ConfigurationMetadata data = processConfiguration((Element) configs.item(0));
+        String repo = getChildText(root, "source-repository");
+        URL repoURL;
+        if(repo == null || repo.equals("")) {
+            log.warn("Configuration archive "+file.getAbsolutePath()+" does not list a repository for downloading dependencies.");
+            repoURL = null;
+        } else {
+            repoURL = new URL(repo);
+        }
+        String[] others = getChildrenText(root, "backup-repository");
+        URL[] backups = new URL[others.length];
+        for (int i = 0; i < backups.length; i++) {
+            backups[i] = new URL(others[i]);
+        }
+        return new ConfigurationArchiveData(repoURL, backups, data);
+    }
+
     private ConfigurationList loadConfiguration(URL repo, InputStream in) throws ParserConfigurationException, IOException, SAXException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
@@ -128,64 +176,7 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
         List results = new ArrayList();
         for (int i = 0; i < configs.getLength(); i++) {
             Element config = (Element) configs.item(i);
-            String configId = getChildText(config, "config-id");
-            NodeList licenseNodes = config.getElementsByTagName("license");
-            ConfigurationMetadata.License[] licenses = new ConfigurationMetadata.License[licenseNodes.getLength()];
-            for(int j=0; j<licenseNodes.getLength(); j++) {
-                Element node = (Element) licenseNodes.item(j);
-                licenses[j] = new ConfigurationMetadata.License(getText(node), Boolean.valueOf(node.getAttribute("osi-approved")).booleanValue());
-            }
-            boolean eligible = true;
-            NodeList preNodes = config.getElementsByTagName("prerequisite");
-            ConfigurationMetadata.Prerequisite[] prereqs = new ConfigurationMetadata.Prerequisite[preNodes.getLength()];
-            for(int j=0; j<preNodes.getLength(); j++) {
-                Element node = (Element) preNodes.item(j);
-                String originalConfigId = getChildText(node, "id");
-                Artifact artifact = Artifact.create(originalConfigId.replaceAll("\\*", ""));
-                boolean present = resolver.queryArtifacts(artifact).length > 0;
-                prereqs[j] = new ConfigurationMetadata.Prerequisite(artifact, present,
-                        getChildText(node, "resource-type"), getChildText(node, "description"));
-                if(!present) {
-                    log.debug(configId+" is not eligible due to missing "+prereqs[j].getConfigId());
-                    eligible = false;
-                }
-            }
-            String[] gerVersions = getChildrenText(config, "geronimo-version");
-            if(gerVersions.length > 0) {
-                String version = serverInfo.getVersion();
-                boolean match = false;
-                for (int j = 0; j < gerVersions.length; j++) {
-                    String gerVersion = gerVersions[j];
-                    if(gerVersion.equals(version)) {
-                        match = true;
-                        break;
-                    }
-                }
-                if(!match) eligible = false;
-            }
-            String[] jvmVersions = getChildrenText(config, "jvm-version");
-            if(jvmVersions.length > 0) {
-                String version = System.getProperty("java.version");
-                boolean match = false;
-                for (int j = 0; j < jvmVersions.length; j++) {
-                    String jvmVersion = jvmVersions[j];
-                    if(version.startsWith(jvmVersion)) {
-                        match = true;
-                        break;
-                    }
-                }
-                if(!match) eligible = false;
-            }
-            Artifact artifact = Artifact.create(configId);
-            boolean installed = configManager.isLoaded(artifact);
-            log.trace("Checking "+configId+": installed="+installed+", eligible="+eligible);
-            ConfigurationMetadata data = new ConfigurationMetadata(artifact, getChildText(config, "name"),
-                    getChildText(config, "description"), getChildText(config, "category"), installed, eligible);
-            data.setGeronimoVersions(gerVersions);
-            data.setJvmVersions(jvmVersions);
-            data.setLicenses(licenses);
-            data.setPrerequisites(prereqs);
-            data.setDependencies(getChildrenText(config, "dependency"));
+            ConfigurationMetadata data = processConfiguration(config);
             results.add(data);
         }
         String[] backups = getChildrenText(root, "backup-repository");
@@ -200,6 +191,68 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
 
         ConfigurationMetadata[] data = (ConfigurationMetadata[]) results.toArray(new ConfigurationMetadata[results.size()]);
         return new ConfigurationList(repo, backupURLs, data);
+    }
+
+    private ConfigurationMetadata processConfiguration(Element config) {
+        String configId = getChildText(config, "config-id");
+        NodeList licenseNodes = config.getElementsByTagName("license");
+        ConfigurationMetadata.License[] licenses = new ConfigurationMetadata.License[licenseNodes.getLength()];
+        for(int j=0; j<licenseNodes.getLength(); j++) {
+            Element node = (Element) licenseNodes.item(j);
+            licenses[j] = new ConfigurationMetadata.License(getText(node), Boolean.valueOf(node.getAttribute("osi-approved")).booleanValue());
+        }
+        boolean eligible = true;
+        NodeList preNodes = config.getElementsByTagName("prerequisite");
+        ConfigurationMetadata.Prerequisite[] prereqs = new ConfigurationMetadata.Prerequisite[preNodes.getLength()];
+        for(int j=0; j<preNodes.getLength(); j++) {
+            Element node = (Element) preNodes.item(j);
+            String originalConfigId = getChildText(node, "id");
+            Artifact artifact = Artifact.create(originalConfigId.replaceAll("\\*", ""));
+            boolean present = resolver.queryArtifacts(artifact).length > 0;
+            prereqs[j] = new ConfigurationMetadata.Prerequisite(artifact, present,
+                    getChildText(node, "resource-type"), getChildText(node, "description"));
+            if(!present) {
+                log.debug(configId+" is not eligible due to missing "+prereqs[j].getConfigId());
+                eligible = false;
+            }
+        }
+        String[] gerVersions = getChildrenText(config, "geronimo-version");
+        if(gerVersions.length > 0) {
+            String version = serverInfo.getVersion();
+            boolean match = false;
+            for (int j = 0; j < gerVersions.length; j++) {
+                String gerVersion = gerVersions[j];
+                if(gerVersion.equals(version)) {
+                    match = true;
+                    break;
+                }
+            }
+            if(!match) eligible = false;
+        }
+        String[] jvmVersions = getChildrenText(config, "jvm-version");
+        if(jvmVersions.length > 0) {
+            String version = System.getProperty("java.version");
+            boolean match = false;
+            for (int j = 0; j < jvmVersions.length; j++) {
+                String jvmVersion = jvmVersions[j];
+                if(version.startsWith(jvmVersion)) {
+                    match = true;
+                    break;
+                }
+            }
+            if(!match) eligible = false;
+        }
+        Artifact artifact = Artifact.create(configId);
+        boolean installed = configManager.isLoaded(artifact);
+        log.trace("Checking "+configId+": installed="+installed+", eligible="+eligible);
+        ConfigurationMetadata data = new ConfigurationMetadata(artifact, getChildText(config, "name"),
+                getChildText(config, "description"), getChildText(config, "category"), installed, eligible);
+        data.setGeronimoVersions(gerVersions);
+        data.setJvmVersions(jvmVersions);
+        data.setLicenses(licenses);
+        data.setPrerequisites(prereqs);
+        data.setDependencies(getChildrenText(config, "dependency"));
+        return data;
     }
 
     private String getChildText(Element root, String property) {
@@ -254,17 +307,7 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
 
     public DownloadResults install(ConfigurationList list, String username, String password) {
         DownloadResults results = new DownloadResults();
-        try {
-            for (int i = 0; i < list.getConfigurations().length; i++) {
-                ConfigurationMetadata metadata = list.getConfigurations()[i];
-                downloadArtifact(metadata.getConfigId(), list.getMainRepository(), list.getBackupRepositories(),
-                        username, password, new ResultsFileWriteMonitor(results));
-            }
-        } catch (Exception e) {
-            results.setFailure(e);
-        } finally {
-            results.setFinished();
-        }
+        install(list, username, password, results);
         return results;
     }
 
@@ -274,7 +317,34 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
                 ConfigurationMetadata metadata = list.getConfigurations()[i];
                 downloadArtifact(metadata.getConfigId(), list.getMainRepository(), list.getBackupRepositories(),
                         username, password, new ResultsFileWriteMonitor(poller));
+                poller.addInstalledConfigID(metadata.getConfigId());
             }
+        } catch (Exception e) {
+            poller.setFailure(e);
+        } finally {
+            poller.setFinished();
+        }
+    }
+
+    /**
+     * Installs from a pre-downloaded CAR file
+     */
+    public void install(File carFile, String username, String password, DownloadPoller poller) {
+        try {
+            // 1. Extract the configuration metadata
+            ConfigurationArchiveData data = loadConfigurationArchive(carFile);
+            if(data == null) {
+                throw new IllegalArgumentException("Invalid Configuration Archive "+carFile.getAbsolutePath()+" see server log for details");
+            }
+            
+            // 2. Install the CAR into the repository
+            ResultsFileWriteMonitor monitor = new ResultsFileWriteMonitor(poller);
+            writeableRepo.copyToRepository(carFile, data.getConfiguration().getConfigId(), monitor);
+
+            // 3. Download all the dependencies
+            downloadArtifact(data.getConfiguration().getConfigId(), data.getRepository(), data.getBackups(),
+                    username, password, monitor);
+            poller.addInstalledConfigID(data.getConfiguration().getConfigId());
         } catch (Exception e) {
             poller.setFailure(e);
         } finally {
@@ -288,6 +358,23 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
         Runnable work = new Runnable() {
             public void run() {
                 install(configsToInstall, username, password, results);
+            }
+        };
+        asyncKeys.put(key, results);
+        try {
+            threadPool.execute("Configuration Installer", work);
+        } catch (InterruptedException e) {
+            throw new RuntimeException("Unable to start work", e);
+        }
+        return key;
+    }
+
+    public Object startInstall(final File carFile, final String username, final String password) {
+        Object key = getNextKey();
+        final DownloadResults results = new DownloadResults();
+        Runnable work = new Runnable() {
+            public void run() {
+                install(carFile, username, password, results);
             }
         };
         asyncKeys.put(key, results);

@@ -28,6 +28,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
 public class DownloadResults implements Serializable, DownloadPoller {
+    private List installedConfigIDs = new ArrayList();
     private List dependenciesPresent = new ArrayList();
     private List dependenciesInstalled = new ArrayList();
     private String currentFile;
@@ -36,6 +37,10 @@ public class DownloadResults implements Serializable, DownloadPoller {
     private Exception failure;
     private boolean finished;
     private long totalDownloadBytes = 0;
+
+    public void addInstalledConfigID(Artifact dep) {
+        installedConfigIDs.add(dep);
+    }
 
     public void addDependencyPresent(Artifact dep) {
         dependenciesPresent.add(dep);
@@ -90,6 +95,17 @@ public class DownloadResults implements Serializable, DownloadPoller {
      */
     public Exception getFailure() {
         return failure;
+    }
+
+    /**
+     * Gets the list of the originally requested Config IDs that were
+     * successfully installed.  Ordinarily this is not necessary, but
+     * it may be important in case of failure midway through, or if the
+     * request passed previously downloaded configurations on the command
+     * line and the caller doesn't know what the Config IDs are.
+     */
+    public Artifact[] getInstalledConfigIDs() {
+        return (Artifact[]) installedConfigIDs.toArray(new Artifact[installedConfigIDs.size()]);
     }
 
     /**

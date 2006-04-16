@@ -16,33 +16,34 @@
  */
 package org.apache.geronimo.system.configuration;
 
-import org.apache.geronimo.kernel.repository.Artifact;
+import java.io.Serializable;
+import java.net.URL;
 
 /**
- * An interface for callers who want to monitor the progress of an installation.
- * These are all callbacks sent by the server.
+ * The metadata included with a downloaded CAR file
  *
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
-public interface DownloadPoller {
-    void addInstalledConfigID(Artifact dep);
-    
-    void addDependencyPresent(Artifact dep);
+public class ConfigurationArchiveData implements Serializable {
+    private final URL repository;
+    private final URL[] backups;
+    private final ConfigurationMetadata configuration;
 
-    void addDependencyInstalled(Artifact dep);
+    public ConfigurationArchiveData(URL repository, URL[] backups, ConfigurationMetadata configuration) {
+        this.repository = repository;
+        this.backups = backups;
+        this.configuration = configuration;
+    }
 
-    void setCurrentFile(String currentFile);
+    public URL getRepository() {
+        return repository;
+    }
 
-    void setCurrentMessage(String currentMessage);
+    public URL[] getBackups() {
+        return backups;
+    }
 
-    void setCurrentFilePercent(int currentFileProgress);
-
-    void addDownloadBytes(long bytes);
-
-    void setFailure(Exception failure);
-
-    /**
-     * This will be called even in the event of a failure.
-     */
-    void setFinished();
+    public ConfigurationMetadata getConfiguration() {
+        return configuration;
+    }
 }

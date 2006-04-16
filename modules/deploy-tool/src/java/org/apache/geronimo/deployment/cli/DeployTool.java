@@ -75,6 +75,7 @@ public class DeployTool {
         registerCommand(new CommandStop());
         registerCommand(new CommandUndeploy());
         registerCommand(new CommandListConfigurations());
+        registerCommand(new CommandInstallCAR());
     }
 
     private boolean failed = false;
