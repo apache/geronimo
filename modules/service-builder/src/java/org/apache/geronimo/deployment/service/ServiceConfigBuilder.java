@@ -19,6 +19,7 @@ package org.apache.geronimo.deployment.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -126,7 +127,13 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
                 xmlObject = XmlBeansUtil.parse(planFile.toURL());
             } else {
                 URL path = DeploymentUtil.createJarURL(jarFile, "META-INF/geronimo-service.xml");
-                xmlObject = XmlBeansUtil.parse(path);
+                try {
+                    xmlObject = XmlBeansUtil.parse(path);
+                } catch (FileNotFoundException e) {
+                    // It has a JAR but no plan, and nothing at META-INF/geronimo-service.xml,
+                    // therefore it's not a service deployment
+                    return null;
+                }
             }
             if(xmlObject == null) {
                 return null;
