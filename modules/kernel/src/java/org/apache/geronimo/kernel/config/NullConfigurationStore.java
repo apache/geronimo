@@ -33,6 +33,10 @@ import java.net.MalformedURLException;
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
 public class NullConfigurationStore implements ConfigurationStore {
+    public boolean isInPlaceConfiguration(Artifact configId) throws NoSuchConfigException, IOException {
+        return false;
+    }
+    
     public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
     }
 

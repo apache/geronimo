@@ -166,6 +166,7 @@ public class TomcatModuleBuilderTest extends TestCase {
 
     private EARContext createEARContext(File outputPath, Environment environment, Repository repository, ConfigurationStore configStore, AbstractName moduleName) throws DeploymentException {
         return new EARContext(outputPath,
+                null,
                 environment,
                 ConfigurationModuleType.WAR,
                 naming,

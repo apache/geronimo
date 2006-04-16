@@ -32,21 +32,23 @@ import org.apache.geronimo.kernel.config.ConfigurationData;
 /**
  * @version $Rev: 391886 $ $Date: 2006-04-06 13:15:39 +1000 (Thu, 06 Apr 2006) $
  */
-public final class InPlaceConfigurationUtil {
-	private static final String IN_PLACE_LOCATION_FILE = "inPlaceLocation.txt";
+class InPlaceConfigurationUtil {
+	private static final String IN_PLACE_LOCATION_FILE = "inPlaceLocation.config";
 	
-    private InPlaceConfigurationUtil() {
+    InPlaceConfigurationUtil() {
     }
 
-    public static void writeInPlaceLocation(ConfigurationData configurationData, File source) throws IOException {
+    public boolean isInPlaceConfiguration(File source) {
+        File inPlaceLocation = getInPlaceLocation(source);
+        return inPlaceLocation.exists();
+    }
+    
+    public void writeInPlaceLocation(ConfigurationData configurationData, File source) throws IOException {
     	if (null == configurationData.getInPlaceConfigurationDir()) {
     		return;
     	}
-    	
-        File metaInf = new File(source, "META-INF");
-        metaInf.mkdirs();
-        
-        File inPlaceLocation = new File(metaInf, IN_PLACE_LOCATION_FILE);
+
+        File inPlaceLocation = getInPlaceLocation(source);
         Writer writer = null;
         try {
         	OutputStream os = new FileOutputStream(inPlaceLocation);
@@ -68,9 +70,8 @@ public final class InPlaceConfigurationUtil {
         }
     }
     
-    public static File readInPlaceLocation(File source) throws IOException {
-        File inPlaceLocation = new File(source, "META-INF");
-        inPlaceLocation = new File(inPlaceLocation, IN_PLACE_LOCATION_FILE);
+    public File readInPlaceLocation(File source) throws IOException {
+        File inPlaceLocation = getInPlaceLocation(source);
         
         if (!inPlaceLocation.exists()) {
         	return null;
@@ -90,5 +91,11 @@ public final class InPlaceConfigurationUtil {
 				}
         	}
         }
+    }
+
+    private File getInPlaceLocation(File source) {
+        File inPlaceLocation = new File(source, "META-INF");
+        inPlaceLocation.mkdirs();
+        return new File(inPlaceLocation, IN_PLACE_LOCATION_FILE);
     }
 }

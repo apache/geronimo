@@ -61,6 +61,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
     private final Kernel kernel;
     private final ObjectName objectName;
     protected final WritableListableRepository repository;
+    private final InPlaceConfigurationUtil inPlaceConfUtil;
 
     public RepositoryConfigurationStore(WritableListableRepository repository) {
         this(null, null, repository);
@@ -70,6 +71,8 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         this.kernel = kernel;
         this.objectName = objectName == null ? null : JMXUtil.getObjectName(objectName);
         this.repository = repository;
+        
+        inPlaceConfUtil = new InPlaceConfigurationUtil();
     }
 
     public String getObjectName() {
@@ -169,7 +172,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         if (location.isDirectory()) {
             File inPlaceLocation = null;
             try {
-                inPlaceLocation = InPlaceConfigurationUtil.readInPlaceLocation(location);
+                inPlaceLocation = inPlaceConfUtil.readInPlaceLocation(location);
             } catch (IOException e) {
             }
             if (null != inPlaceLocation) {
@@ -207,6 +210,10 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         ZipOutputStream out = new ZipOutputStream(output);
         byte[] buf = new byte[10240];
         writeToZip(dir, out, "", buf);
+        if (inPlaceConfUtil.isInPlaceConfiguration(dir)) {
+            dir = inPlaceConfUtil.readInPlaceLocation(dir);
+            writeToZip(dir, out, "", buf);
+        }
         out.closeEntry();
         out.finish();
         out.flush();
@@ -248,6 +255,15 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         }
     }
 
+    public boolean isInPlaceConfiguration(Artifact configId) throws NoSuchConfigException, IOException {
+        File location = repository.getLocation(configId);
+        if (location.isDirectory()) {
+            return inPlaceConfUtil.isInPlaceConfiguration(location);
+        } else {
+            return false;
+        }
+    }
+    
     public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
         // determine the source file/dir
         File source = configurationData.getConfigurationDir();
@@ -280,6 +296,9 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         }
 
         ExecutableConfigurationUtil.writeConfiguration(configurationData, destination);
+
+        // write in-place configuration config file, if need be.
+        inPlaceConfUtil.writeInPlaceLocation(configurationData, destination);
     }
 
     public void uninstall(Artifact configId) throws NoSuchConfigException, IOException {

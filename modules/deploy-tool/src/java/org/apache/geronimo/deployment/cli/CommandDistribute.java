@@ -38,7 +38,7 @@ import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
  */
 public class CommandDistribute extends AbstractCommand {
     public CommandDistribute() {
-        super("distribute", "2. Other Commands", "[--targets target;target;...] [module] [plan]",
+        super("distribute", "2. Other Commands", "[--inPlace] [--targets target;target;...] [module] [plan]",
                 "Processes a module and adds it to the server environment, but does "+
                 "not start it or mark it to be started in the future." +
                 "Normally both a module and plan are passed to the deployer.  " +
@@ -48,7 +48,9 @@ public class CommandDistribute extends AbstractCommand {
                 "not need to be provided.\n" +
                 "If no targets are provided, the module is distributed to all available " +
                 "targets.  Geronimo only provides one target (ever), so this is primarily " +
-                "useful when using a different driver.");
+                "useful when using a different driver.\n" +
+                "If inPlace is provided, the module is not copied to the configuration " +
+                "store of the selected targets. The targets directly use the module.");
     }
 
     protected CommandDistribute(String command, String group, String helpArgumentList, String helpText) {

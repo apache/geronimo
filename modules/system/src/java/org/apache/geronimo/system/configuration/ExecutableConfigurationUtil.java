@@ -152,9 +152,6 @@ public final class ExecutableConfigurationUtil {
             flush(writer);
             close(writer);
         }
-
-        // write the in place location
-        InPlaceConfigurationUtil.writeInPlaceLocation(configurationData, source);
     }
 
     private static Collection listRecursiveFiles(File file) {

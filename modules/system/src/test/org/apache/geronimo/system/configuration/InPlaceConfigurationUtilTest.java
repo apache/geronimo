@@ -35,7 +35,9 @@ public class InPlaceConfigurationUtilTest extends TestCase {
     private static final File baseConfigDir = new File(basedir, "target/config");
     private static final File configDir = new File(baseConfigDir, "config");
     private static final File inPlaceConfig = new File(baseConfigDir, "inPlaceConfig");
-    
+
+    private InPlaceConfigurationUtil inPlaceConfUtil;
+
 	public void testWriteReadInPlaceLocation() throws Exception {
 		ConfigurationData configurationData = new ConfigurationData(null,
 				null,
@@ -46,20 +48,38 @@ public class InPlaceConfigurationUtilTest extends TestCase {
 				inPlaceConfig,
 				new Jsr77Naming());
 		
-		InPlaceConfigurationUtil.writeInPlaceLocation(configurationData, configDir);
+        inPlaceConfUtil.writeInPlaceLocation(configurationData, configDir);
 		
-		File actualInPlaceConfig = InPlaceConfigurationUtil.readInPlaceLocation(configDir);
+		File actualInPlaceConfig = inPlaceConfUtil.readInPlaceLocation(configDir);
 		assertEquals(inPlaceConfig, actualInPlaceConfig);
 	}
 
 	public void testAttemptReadNotExistingInPlaceLocation() throws Exception {
-		File actualInPlaceConfig = InPlaceConfigurationUtil.readInPlaceLocation(configDir);
+		File actualInPlaceConfig = inPlaceConfUtil.readInPlaceLocation(configDir);
 		assertNull(actualInPlaceConfig);
 	}
+
+    public void testIsInPlaceConfiguration() throws Exception {
+        assertFalse(inPlaceConfUtil.isInPlaceConfiguration(configDir));
+        
+        ConfigurationData configurationData = new ConfigurationData(null,
+                null,
+                Collections.EMPTY_LIST,
+                Collections.EMPTY_MAP,
+                new Environment(new Artifact("groupId", "artifactId", "version", "type")),
+                configDir,
+                inPlaceConfig,
+                new Jsr77Naming());
+        
+        inPlaceConfUtil.writeInPlaceLocation(configurationData, configDir);
+        assertTrue(inPlaceConfUtil.isInPlaceConfiguration(configDir));
+    }
 
 	protected void setUp() throws Exception {
 		configDir.mkdirs();
 		inPlaceConfig.mkdirs();
+        
+        inPlaceConfUtil = new InPlaceConfigurationUtil();
 	}
 	
 	protected void tearDown() throws Exception {

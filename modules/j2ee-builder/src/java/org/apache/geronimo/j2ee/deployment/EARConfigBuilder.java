@@ -16,6 +16,25 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
+
+import javax.xml.namespace.QName;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -27,24 +46,25 @@ import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.j2ee.ApplicationInfo;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEApplicationImpl;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
-import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.management.J2EEServer;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
@@ -54,29 +74,8 @@ import org.apache.geronimo.xbeans.geronimo.j2ee.GerExtModuleType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerModuleType;
 import org.apache.geronimo.xbeans.j2ee.ApplicationType;
 import org.apache.geronimo.xbeans.j2ee.ModuleType;
-import org.apache.geronimo.management.J2EEServer;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-
-import javax.xml.namespace.QName;
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.Collection;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
 
 /**
  * @version $Rev:385232 $ $Date$
@@ -353,38 +352,21 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
         try {
             // Create the output ear context
-        	if (inPlaceDeployment) {
-                earContext = new InPlaceEARContext(configurationDir,
-                        DeploymentUtil.toFile(earFile),
-                        applicationInfo.getEnvironment(),
-                        applicationType,
-                        naming,
-                        repositories,
-                        configurationStores,
-                        serverName,
-                        applicationInfo.getBaseName(),
-                        transactionContextManagerObjectName,
-                        connectionTrackerObjectName,
-                        transactionalTimerObjectName,
-                        nonTransactionalTimerObjectName,
-                        corbaGBeanObjectName,
-                        new RefContext(ejbReferenceBuilder, resourceReferenceBuilder, serviceReferenceBuilder));
-        	} else {
-                earContext = new EARContext(configurationDir,
-                        applicationInfo.getEnvironment(),
-                        applicationType,
-                        naming,
-                        repositories,
-                        configurationStores,
-                        serverName,
-                        applicationInfo.getBaseName(),
-                        transactionContextManagerObjectName,
-                        connectionTrackerObjectName,
-                        transactionalTimerObjectName,
-                        nonTransactionalTimerObjectName,
-                        corbaGBeanObjectName,
-                        new RefContext(ejbReferenceBuilder, resourceReferenceBuilder, serviceReferenceBuilder));
-        	}
+            earContext = new EARContext(configurationDir,
+                    inPlaceDeployment ? DeploymentUtil.toFile(earFile) : null,
+                    applicationInfo.getEnvironment(),
+                    applicationType,
+                    naming,
+                    repositories,
+                    configurationStores,
+                    serverName,
+                    applicationInfo.getBaseName(),
+                    transactionContextManagerObjectName,
+                    connectionTrackerObjectName,
+                    transactionalTimerObjectName,
+                    nonTransactionalTimerObjectName,
+                    corbaGBeanObjectName,
+                    new RefContext(ejbReferenceBuilder, resourceReferenceBuilder, serviceReferenceBuilder));
 
             // Copy over all files that are _NOT_ modules
             Set moduleLocations = applicationInfo.getModuleLocations();

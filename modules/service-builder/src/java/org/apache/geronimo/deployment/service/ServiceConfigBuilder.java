@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.List;
-import java.util.Collections;
 import java.util.jar.JarFile;
 import java.beans.PropertyEditorManager;
 import java.net.URI;
@@ -56,13 +54,11 @@ import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
-import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -188,15 +184,16 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
             throw new DeploymentException(e);
         }
 
-        DeploymentContext context = new DeploymentContext(outfile, null,environment, ConfigurationModuleType.SERVICE, naming, repositories, configurationStores);
+        DeploymentContext context = new DeploymentContext(outfile, 
+                inPlaceDeployment && null != jar ? DeploymentUtil.toFile(jar) : null,
+                environment, 
+                ConfigurationModuleType.SERVICE, 
+                naming, 
+                repositories, 
+                configurationStores);
         if(jar != null) {
-            if(inPlaceDeployment) {
-                //todo: add the JAR to the configuration Class Path and do whatever else we need to (may need to set in-place directory on the DeploymentContext just above?)
-                throw new UnsupportedOperationException("In-place deployments are not supported yet for services");
-            } else {
-                File file = new File(jar.getName());
-                context.addIncludeAsPackedJar(URI.create(file.getName()), jar);
-            }
+            File file = new File(jar.getName());
+            context.addIncludeAsPackedJar(URI.create(file.getName()), jar);
         }
         try {
             ClassLoader cl = context.getClassLoader();

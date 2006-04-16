@@ -29,7 +29,6 @@ import org.apache.geronimo.gbean.AbstractName;
 
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.spi.TargetModuleID;
-import javax.management.ObjectName;
 import java.io.File;
 import java.io.InputStream;
 
@@ -37,6 +36,9 @@ import java.io.InputStream;
  * @version $Rev$ $Date$
  */
 public class RedeployCommand extends AbstractDeployCommand {
+    private static final String[] IS_IN_PLACE_CONFIGURATION_SIG =  {Artifact.class.getName()};
+    private static final String IS_IN_PLACE_CONFIGURATION_METH = "isInPlaceConfiguration";
+    
     private static final String[] UNINSTALL_SIG = {Artifact.class.getName()};
     private final TargetModuleID[] modules;
 
@@ -100,6 +102,12 @@ public class RedeployCommand extends AbstractDeployCommand {
 
                     TargetImpl target = (TargetImpl) module.getTarget();
                     AbstractName storeName = target.getAbstractName();
+
+                    // if the configuration is an in-place one, then redeploys
+                    // in in-place mode.
+                    Boolean inPlaceConfiguration = (Boolean) kernel.invoke(storeName, IS_IN_PLACE_CONFIGURATION_METH, new Object[]{configID}, IS_IN_PLACE_CONFIGURATION_SIG);
+                    commandContext.setInPlace(inPlaceConfiguration.booleanValue());
+                    
                     kernel.invoke(storeName, "uninstall", new Object[]{configID}, UNINSTALL_SIG);
                     updateStatus("Uninstalled "+configID);
 

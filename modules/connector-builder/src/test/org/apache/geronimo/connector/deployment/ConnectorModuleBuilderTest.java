@@ -351,6 +351,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
             try {
                 tempDir = DeploymentUtil.createTempDir();
                 EARContext earContext = new EARContext(tempDir,
+                        null,
                         module.getEnvironment(),
                         module.getType(),
                         naming,

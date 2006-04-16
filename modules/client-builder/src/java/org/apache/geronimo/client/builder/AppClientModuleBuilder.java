@@ -274,6 +274,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         try {
 
             EARContext appClientDeploymentContext = new EARContext(appClientDir,
+                    null,
                     clientEnvironment,
                     ConfigurationModuleType.CAR,
                     earContext.getNaming(),

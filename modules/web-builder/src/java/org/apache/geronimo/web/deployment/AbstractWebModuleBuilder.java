@@ -44,7 +44,6 @@ import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.deployment.EARContext;
-import org.apache.geronimo.j2ee.deployment.InPlaceEARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -180,20 +179,16 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
 
             // construct the web app deployment context... this is the same class used by the ear context
             try {
+                File inPlaceConfigurationDir = null;
                 if (null != earContext.getInPlaceConfigurationDir()) {
-                    moduleContext = new InPlaceEARContext(configurationDir,
-                            new File(earContext.getInPlaceConfigurationDir(), module.getTargetPath()),
-                            environment,
-                            ConfigurationModuleType.WAR,
-                            module.getModuleName(),
-                            earContext);
-                } else {
-                    moduleContext = new EARContext(configurationDir,
-                            environment,
-                            ConfigurationModuleType.WAR,
-                            module.getModuleName(),
-                            earContext);
+                    inPlaceConfigurationDir = new File(earContext.getInPlaceConfigurationDir(), module.getTargetPath());
                 }
+                moduleContext = new EARContext(configurationDir,
+                        inPlaceConfigurationDir,
+                        environment,
+                        ConfigurationModuleType.WAR,
+                        module.getModuleName(),
+                        earContext);
             } catch (DeploymentException e) {
                 DeploymentUtil.recursiveDelete(configurationDir);
                 throw e;

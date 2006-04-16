@@ -52,6 +52,7 @@ public class EARContext extends DeploymentContext {
     private SecurityConfiguration securityConfiguration;
 
     public EARContext(File baseDir,
+        File inPlaceConfigurationDir,
         Environment environment,
         ConfigurationModuleType moduleType,
         Naming naming, 
@@ -65,30 +66,8 @@ public class EARContext extends DeploymentContext {
         AbstractNameQuery nonTransactedTimerName, 
         AbstractNameQuery corbaGBeanObjectName, 
         RefContext refContext) throws DeploymentException {
-        this(baseDir, 
-           null, 
-           environment, 
-           moduleType, 
-           naming, 
-           repositories, 
-           configurationStores, 
-           serverName, 
-           baseName, 
-           transactionContextManagerObjectName, 
-           connectionTrackerObjectName, 
-           transactedTimerName, 
-           nonTransactedTimerName, 
-           corbaGBeanObjectName, 
-           refContext);
-    }
-
-    public EARContext(File baseDir, Environment environment, ConfigurationModuleType moduleType, AbstractName baseName, EARContext parent) throws DeploymentException {
-        this(baseDir, null, environment, moduleType, baseName, parent);
-    }
-
-    protected EARContext(File baseDir, File inPlaceConfigurationDir, Environment environment, ConfigurationModuleType moduleType, Naming naming, Collection repositories, Collection configurationStores, AbstractNameQuery serverName, AbstractName baseName, AbstractNameQuery transactionContextManagerObjectName, AbstractNameQuery connectionTrackerObjectName, AbstractNameQuery transactedTimerName, AbstractNameQuery nonTransactedTimerName, AbstractNameQuery corbaGBeanObjectName, RefContext refContext) throws DeploymentException {
         super(baseDir, inPlaceConfigurationDir, environment, moduleType, naming, repositories, configurationStores);
-    
+        
         moduleName = baseName;
         this.serverName = serverName;
 
@@ -100,7 +79,7 @@ public class EARContext extends DeploymentContext {
         this.refContext = refContext;
     }
 
-    protected EARContext(File baseDir, File inPlaceConfigurationDir, Environment environment, ConfigurationModuleType moduleType, AbstractName baseName, EARContext parent) throws DeploymentException {
+    public EARContext(File baseDir, File inPlaceConfigurationDir, Environment environment, ConfigurationModuleType moduleType, AbstractName baseName, EARContext parent) throws DeploymentException {
         super(baseDir, inPlaceConfigurationDir, environment, moduleType, parent.getNaming(), parent.getConfigurationManager());
         moduleName = baseName;
         this.serverName = parent.getServerName();
@@ -112,7 +91,7 @@ public class EARContext extends DeploymentContext {
         this.corbaGBeanObjectName = parent.getCORBAGBeanObjectName();
         this.refContext = parent.getRefContext();
     }
-    
+
     public AbstractNameQuery getServerName() {
         return serverName;
     }

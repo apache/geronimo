@@ -34,6 +34,20 @@ import org.apache.geronimo.gbean.AbstractName;
  * @version $Rev$ $Date$
  */
 public interface ConfigurationStore {
+    
+    /**
+     * Determines if the identified configuration is an in-place one. This 
+     * means that the configuration store only stores some meta-data and the 
+     * actual content of the configuration is rooted somewhere else.
+     * 
+     * @param configId the unique ID of the configuration
+     * @return true if the identified configuration is an in-place one.
+     * @throws NoSuchConfigException if the configuration is not contained in
+     * the store
+     * @throws IOException If the store cannot be read.
+     */
+    boolean isInPlaceConfiguration(Artifact configId) throws NoSuchConfigException, IOException;
+    
     /**
      * Move the unpacked configuration directory into this store
      *

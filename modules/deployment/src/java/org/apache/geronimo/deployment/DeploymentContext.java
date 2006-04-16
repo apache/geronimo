@@ -19,7 +19,6 @@ package org.apache.geronimo.deployment;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,12 +31,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.LinkedHashMap;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -76,11 +75,11 @@ import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
 public class DeploymentContext {
     private final File baseDir;
     private final File inPlaceConfigurationDir;
-    private final URI baseUri;
+    private final ResourceContext resourceContext;
     private final byte[] buffer = new byte[4096];
     private final Map childConfigurationDatas = new LinkedHashMap();
     private final ConfigurationManager configurationManager;
-    protected final Configuration configuration;
+    private final Configuration configuration;
     private final Naming naming;
     private final List additionalDeployment = new ArrayList();
 
@@ -139,7 +138,6 @@ public class DeploymentContext {
             baseDir.mkdirs();
         }
         this.baseDir = baseDir;
-        this.baseUri = baseDir.toURI();
 
         this.inPlaceConfigurationDir = inPlaceConfigurationDir;
         
@@ -147,12 +145,10 @@ public class DeploymentContext {
 
         this.configuration = createTempConfiguration(environment, moduleType, baseDir, inPlaceConfigurationDir, configurationManager, naming);
 
-        if (baseDir.isFile()) {
-            try {
-                configuration.addToClassPath(URI.create(""));
-            } catch (IOException e) {
-                throw new DeploymentException(e);
-            }
+        if (null == inPlaceConfigurationDir) {
+            resourceContext = new CopyResourceContext(configuration, baseDir);
+        } else {
+            resourceContext = new InPlaceResourceContext(configuration, inPlaceConfigurationDir);
         }
     }
 
@@ -181,6 +177,10 @@ public class DeploymentContext {
 
     public File getBaseDir() {
         return baseDir;
+    }
+
+    public File getInPlaceConfigurationDir() {
+        return inPlaceConfigurationDir;
     }
 
     public Naming getNaming() {
@@ -238,7 +238,7 @@ public class DeploymentContext {
     }
 
     /**
-     * Copy a packed jar file into the deployment context and place it into the
+     * Add a packed jar file into the deployment context and place it into the
      * path specified in the target path.  The newly added packed jar is added
      * to the classpath of the configuration.
      *
@@ -247,17 +247,11 @@ public class DeploymentContext {
      * @throws IOException if there's a problem copying the jar file
      */
     public void addIncludeAsPackedJar(URI targetPath, JarFile jarFile) throws IOException {
-        if (targetPath.getPath().endsWith("/")) throw new IllegalStateException("target path must not end with a '/' character: " + targetPath);
-
-        File targetFile = getTargetFile(targetPath);
-        DeploymentUtil.copyToPackedJar(jarFile, targetFile);
-
-        if (!targetFile.isFile()) throw new IllegalStateException("target file should be a file: " + targetFile);
-        configuration.addToClassPath(targetPath);
+        resourceContext.addIncludeAsPackedJar(targetPath, jarFile);
     }
 
     /**
-     * Copy a ZIP file entry into the deployment context and place it into the
+     * Add a ZIP file entry into the deployment context and place it into the
      * path specified in the target path.  The newly added entry is added
      * to the classpath of the configuration.
      *
@@ -267,17 +261,11 @@ public class DeploymentContext {
      * @throws IOException if there's a problem copying the ZIP entry
      */
     public void addInclude(URI targetPath, ZipFile zipFile, ZipEntry zipEntry) throws IOException {
-//        if (!targetPath.getPath().endsWith("/")) throw new IllegalStateException("target path must end with a '/' character: " + targetPath);
-
-        File targetFile = getTargetFile(targetPath);
-        addFile(targetFile, zipFile, zipEntry);
-
-//        if (!targetFile.isDirectory()) throw new IllegalStateException("target file should be a directory: " + targetFile);
-        configuration.addToClassPath(targetPath);
+        resourceContext.addInclude(targetPath, zipFile, zipEntry);
     }
 
     /**
-     * Copy a file into the deployment context and place it into the
+     * Add a file into the deployment context and place it into the
      * path specified in the target path.  The newly added file is added
      * to the classpath of the configuration.
      *
@@ -286,17 +274,11 @@ public class DeploymentContext {
      * @throws IOException if there's a problem copying the ZIP entry
      */
     public void addInclude(URI targetPath, URL source) throws IOException {
-        if (targetPath.getPath().endsWith("/")) throw new IllegalStateException("target path must not end with a '/' character: " + targetPath);
-
-        File targetFile = getTargetFile(targetPath);
-        addFile(targetFile, source);
-
-        if (!targetFile.isFile()) throw new IllegalStateException("target file should be a file: " + targetFile);
-        configuration.addToClassPath(targetPath);
+        resourceContext.addInclude(targetPath, source);
     }
 
     /**
-     * Copy a file into the deployment context and place it into the
+     * Add a file into the deployment context and place it into the
      * path specified in the target path.  The newly added file is added
      * to the classpath of the configuration.
      *
@@ -305,13 +287,7 @@ public class DeploymentContext {
      * @throws IOException if there's a problem copying the ZIP entry
      */
     public void addInclude(URI targetPath, File source) throws IOException {
-        if (targetPath.getPath().endsWith("/")) throw new IllegalStateException("target path must not end with a '/' character: " + targetPath);
-
-        File targetFile = getTargetFile(targetPath);
-        addFile(targetFile, source);
-
-        if (!targetFile.isFile()) throw new IllegalStateException("target file should be a file: " + targetFile);
-        configuration.addToClassPath(targetPath);
+        resourceContext.addInclude(targetPath, source);
     }
 
     /**
@@ -378,52 +354,19 @@ public class DeploymentContext {
     }
 
     public void addFile(URI targetPath, ZipFile zipFile, ZipEntry zipEntry) throws IOException {
-        addFile(getTargetFile(targetPath), zipFile, zipEntry);
+        resourceContext.addFile(targetPath, zipFile, zipEntry);
     }
 
     public void addFile(URI targetPath, URL source) throws IOException {
-        addFile(getTargetFile(targetPath), source);
+        resourceContext.addFile(targetPath, source);
     }
 
     public void addFile(URI targetPath, File source) throws IOException {
-        addFile(getTargetFile(targetPath), source);
+        resourceContext.addFile(targetPath, source);
     }
 
     public void addFile(URI targetPath, String source) throws IOException {
-        addFile(getTargetFile(targetPath), new ByteArrayInputStream(source.getBytes()));
-    }
-
-    private void addFile(File targetFile, ZipFile zipFile, ZipEntry zipEntry) throws IOException {
-        if (zipEntry.isDirectory()) {
-            targetFile.mkdirs();
-        } else {
-            InputStream is = zipFile.getInputStream(zipEntry);
-            try {
-                addFile(targetFile, is);
-            } finally {
-                DeploymentUtil.close(is);
-            }
-        }
-    }
-
-    private void addFile(File targetFile, URL source) throws IOException {
-        InputStream in = null;
-        try {
-            in = source.openStream();
-            addFile(targetFile, in);
-        } finally {
-            DeploymentUtil.close(in);
-        }
-    }
-
-    private void addFile(File targetFile, File source) throws IOException {
-        InputStream in = null;
-        try {
-            in = new FileInputStream(source);
-            addFile(targetFile, in);
-        } finally {
-            DeploymentUtil.close(in);
-        }
+        resourceContext.addFile(targetPath, source);
     }
 
     private void addFile(File targetFile, InputStream source) throws IOException {
@@ -441,10 +384,7 @@ public class DeploymentContext {
     }
 
     public File getTargetFile(URI targetPath) {
-        if (targetPath == null) throw new NullPointerException("targetPath is null");
-        if (targetPath.isAbsolute()) throw new IllegalArgumentException("targetPath is absolute");
-        if (targetPath.isOpaque()) throw new IllegalArgumentException("targetPath is opaque");
-        return new File(baseUri.resolve(targetPath));
+        return resourceContext.getTargetFile(targetPath);
     }
 
     public ClassLoader getClassLoader() throws DeploymentException {
@@ -492,9 +432,5 @@ public class DeploymentContext {
 
     public List getAdditionalDeployment() {
         return additionalDeployment;
-    }
-
-    public File getInPlaceConfigurationDir() {
-        return inPlaceConfigurationDir;
     }
 }
