@@ -42,6 +42,7 @@ import java.util.Set;
 import java.util.LinkedHashSet;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.jar.JarFile;
 
 /**
  * @version $Rev$ $Date$
@@ -49,6 +50,16 @@ import java.util.TreeSet;
 public class ServiceConfigBuilderTest extends TestCase {
 
     private Environment parentEnvironment = new Environment();
+
+    public void testNonService() throws Exception {
+        URL url = getClass().getResource("/empty.jar");
+        File file = new File(url.getPath());
+        JarFile jar = new JarFile(file);
+        assertTrue(file.exists());
+        ServiceConfigBuilder builder = new ServiceConfigBuilder(parentEnvironment, null, null, null, new Jsr77Naming());
+        assertNull(builder.getDeploymentPlan(null, jar));
+        jar.close();
+    }
 
     public void testJavaBeanXmlAttribute() throws Exception {
         ReferenceCollection referenceCollection = new MockReferenceCollection();
