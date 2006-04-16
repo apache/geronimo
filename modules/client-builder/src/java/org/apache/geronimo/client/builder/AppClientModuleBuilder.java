@@ -256,7 +256,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         appClientModule.setEarFile(earFile);
         //create the ear context for the app client.
         Environment clientEnvironment = appClientModule.getClientEnvironment();
-        if (clientEnvironment.getConfigId() == null) {
+        if (!appClientModule.isStandAlone() || clientEnvironment.getConfigId() == null) {
             Artifact earConfigId = earContext.getConfigID();
             Artifact configId = new Artifact(earConfigId.getGroupId(), earConfigId.getArtifactId() + "_" + module.getTargetPath(), earConfigId.getVersion(), "car");
             clientEnvironment.setConfigId(configId);
