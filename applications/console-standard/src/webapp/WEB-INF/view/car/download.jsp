@@ -4,16 +4,9 @@
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <portlet:defineObjects/>
 
-<p>Downloaded ${configId}</p>
+<p>Processing ${configId}...</p>
 
-<p>Parent Configurations</p>
-<ul>
-<c:forEach var="config" items="${parents}">
-    <li>${config}</li>
-</c:forEach>
-</ul>
-
-<p>JAR Dependencies</p>
+<p>Dependencies</p>
 <ul>
 <c:forEach var="jar" items="${dependencies}">
     <li>${jar}</li>

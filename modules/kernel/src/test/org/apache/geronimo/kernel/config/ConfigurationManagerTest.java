@@ -141,13 +141,11 @@ public class ConfigurationManagerTest extends TestCase {
             return new TreeSet(configurations.keySet());
         }
 
-        public SortedSet list(String groupId, String artifactId, String type) {
+        public SortedSet list(Artifact query) {
             TreeSet artifacts = new TreeSet();
             for (Iterator iterator = configurations.keySet().iterator(); iterator.hasNext();) {
                 Artifact artifact = (Artifact) iterator.next();
-                if (artifact.getGroupId().equals(groupId) &&
-                        artifact.getArtifactId().equals(artifactId) &&
-                        artifact.getType().equals(type)) {
+                if (query.matches(artifact)) {
                     artifacts.add(artifact);
                 }
             }

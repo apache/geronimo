@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<geronimo-plugin-list>
+
+<configuration>
+<name>DayTrader Performance Testing App (Jetty/Derby)</name>
+<config-id>geronimo/daytrader-derby-jetty/1.1-SNAPSHOT/car</config-id>
+<category>Examples</category>
+<geronimo-version>1.1-SNAPSHOT</geronimo-version>
+<prerequisite><id>geronimo/jetty/*/car</id><description>
+		This is a web application or web-related module, configured for the Jetty web container.  It will not run on Tomcat versions of Geronimo.  If you need a Tomcat version of this application, you'll need to get it from another Tomcat Geronimo installation.
+</description></prerequisite>
+<dependency>geronimo/j2ee-server/1.1-SNAPSHOT/car</dependency>
+<dependency>geronimo/geronimo-daytrader-derby-db/1.1-SNAPSHOT/jar</dependency>
+</configuration>
+
+<configuration>
+<name>DayTrader Client (Jetty/Derby)</name>
+<config-id>geronimo/daytrader-derby-jetty-streamer-client/1.1-SNAPSHOT/car</config-id>
+<category>Examples</category>
+<geronimo-version>1.1-SNAPSHOT</geronimo-version>
+<prerequisite><id>geronimo/jetty/*/car</id><description>
+		This is a web application or web-related module, configured for the Jetty web container.  It will not run on Tomcat versions of Geronimo.  If you need a Tomcat version of this application, you'll need to get it from another Tomcat Geronimo installation.
+</description></prerequisite>
+<dependency>geronimo/client/1.1-SNAPSHOT/car</dependency>
+</configuration>
+
+<configuration>
+<name>Jakarta JSP Examples (Jetty)</name>
+<config-id>geronimo/jsp-examples-jetty/1.1-SNAPSHOT/car</config-id>
+<category>Examples</category>
+<geronimo-version>1.1-SNAPSHOT</geronimo-version>
+<prerequisite><id>geronimo/jetty/*/car</id><description>
+		This is a web application or web-related module, configured for the Jetty web container.  It will not run on Tomcat versions of Geronimo.  If you need a Tomcat version of this application, you'll need to get it from another Tomcat Geronimo installation.
+</description></prerequisite>
+<dependency>commons-collections/commons-collections/3.1/jar</dependency>
+<dependency>geronimo/j2ee-server/1.1-SNAPSHOT/car</dependency>
+<dependency>geronimo/jetty/1.1-SNAPSHOT/car</dependency>
+</configuration>
+
+<configuration>
+<name>LDAP Demo Web App (Jetty)</name>
+<config-id>geronimo/ldap-demo-jetty/1.1-SNAPSHOT/car</config-id>
+<category>Examples</category>
+<geronimo-version>1.1-SNAPSHOT</geronimo-version>
+<prerequisite><id>geronimo/jetty/*/car</id><description>
+		This is a web application or web-related module, configured for the Jetty web container.  It will not run on Tomcat versions of Geronimo.  If you need a Tomcat version of this application, you'll need to get it from another Tomcat Geronimo installation.
+</description></prerequisite>
+<dependency>geronimo/ldap-realm/1.1-SNAPSHOT/car</dependency>
+<dependency>geronimo/j2ee-server/1.1-SNAPSHOT/car</dependency>
+<dependency>geronimo/jetty/1.1-SNAPSHOT/car</dependency>
+</configuration>
+
+<configuration>
+<name>LDAP Demo Security Realm</name>
+<config-id>geronimo/ldap-realm/1.1-SNAPSHOT/car</config-id>
+<category>Examples</category>
+<geronimo-version>1.1-SNAPSHOT</geronimo-version>
+<jvm-version>1.5</jvm-version>
+<dependency>geronimo/j2ee-security/1.1-SNAPSHOT/car</dependency>
+</configuration>
+
+<configuration>
+<name>Jakarta Servlet Examples (Jetty)</name>
+<config-id>geronimo/servlets-examples-jetty/1.1-SNAPSHOT/car</config-id>
+<category>Examples</category>
+<geronimo-version>1.1-SNAPSHOT</geronimo-version>
+<prerequisite><id>geronimo/jetty/*/car</id><description>
+		This is a web application or web-related module, configured for the Jetty web container.  It will not run on Tomcat versions of Geronimo.  If you need a Tomcat version of this application, you'll need to get it from another Tomcat Geronimo installation.
+</description></prerequisite>
+<dependency>geronimo/j2ee-server/1.1-SNAPSHOT/car</dependency>
+<dependency>geronimo/jetty/1.1-SNAPSHOT/car</dependency>
+</configuration>
+
+<configuration>
+<name>jUDDI Server 0.9rc4 for Geronimo</name>
+<config-id>geronimo/uddi-jetty/1.1-SNAPSHOT/car</config-id>
+<category>Integration</category>
+<geronimo-version>1.1-SNAPSHOT</geronimo-version>
+<prerequisite><id>geronimo/jetty/*/car</id><description>
+		This is a web application or web-related module, configured for the Jetty web container.  It will not run on Tomcat versions of Geronimo.  If you need a Tomcat version of this application, you'll need to get it from another Tomcat Geronimo installation.
+</description></prerequisite>
+<dependency>geronimo/system-database/1.1-SNAPSHOT/car</dependency>
+<dependency>juddi/juddi/0.9rc4/jar</dependency>
+<dependency>geronimo/geronimo-uddi-db/1.1-SNAPSHOT/jar</dependency>
+<dependency>geronimo/j2ee-server/1.1-SNAPSHOT/car</dependency>
+</configuration>
+
+<configuration>
+<name>Geronimo Admin Console (Jetty)</name>
+<config-id>geronimo/webconsole-jetty/1.1-SNAPSHOT/car</config-id>
+<category>Core Geronimo</category>
+<geronimo-version>1.1-SNAPSHOT</geronimo-version>
+<prerequisite><id>geronimo/jetty/*/car</id><description>
+		This is a web application or web-related module, configured for the Jetty web container.  It will not run on Tomcat versions of Geronimo.  If you need a Tomcat version of this application, you'll need to get it from another Tomcat Geronimo installation.
+</description></prerequisite>
+<dependency>geronimo/j2ee-server/1.1-SNAPSHOT/car</dependency>
+<dependency>geronimo/j2ee-security/1.1-SNAPSHOT/car</dependency>
+<dependency>portlet-api/portlet-api/1.0/jar</dependency>
+<dependency>org.apache.pluto/pluto/1.0.1/jar</dependency>
+<dependency>geronimo/geronimo-console-core/1.1-SNAPSHOT/jar</dependency>
+<dependency>geronimo/geronimo-management/1.1-SNAPSHOT/jar</dependency>
+<dependency>geronimo/geronimo-test-ddbean/1.1-SNAPSHOT/jar</dependency>
+<dependency>geronimo/geronimo-deploy-jsr88/1.1-SNAPSHOT/jar</dependency>
+<dependency>geronimo/geronimo-deploy-config/1.1-SNAPSHOT/jar</dependency>
+<dependency>geronimo/geronimo-service-builder/1.1-SNAPSHOT/jar</dependency>
+<dependency>geronimo/geronimo-connector-builder/1.1-SNAPSHOT/jar</dependency>
+<dependency>geronimo/geronimo-naming-builder/1.1-SNAPSHOT/jar</dependency>
+<dependency>geronimo/geronimo-security-builder/1.1-SNAPSHOT/jar</dependency>
+<dependency>geronimo/geronimo-j2ee-schema/1.1-SNAPSHOT/jar</dependency>
+<dependency>xmlbeans/xbean/2.0.0/jar</dependency>
+<dependency>stax/stax-api/1.0/jar</dependency>
+<dependency>activemq/activemq-gbean-management/3.2.4-SNAPSHOT/jar</dependency>
+<dependency>activemq/activemq-gbean/3.2.4-SNAPSHOT/jar</dependency>
+<dependency>activemq/activemq-core/3.2.4-SNAPSHOT/jar</dependency>
+<dependency>geronimo/geronimo-converter/1.1-SNAPSHOT/jar</dependency>
+<dependency>geronimo/geronimo-util/1.1-SNAPSHOT/jar</dependency>
+<dependency>geronimo/geronimo-jetty/1.1-SNAPSHOT/jar</dependency>
+</configuration>
+
+<configuration>
+<name>Geronimo Remote Deployment Support (Jetty)</name>
+<config-id>geronimo/remote-deploy-jetty/1.1-SNAPSHOT/car</config-id>
+<category>Core Geronimo</category>
+<geronimo-version>1.1-SNAPSHOT</geronimo-version>
+<prerequisite><id>geronimo/jetty/*/car</id><description>
+		This is a web application or web-related module, configured for the Jetty web container.  It will not run on Tomcat versions of Geronimo.  If you need a Tomcat version of this application, you'll need to get it from another Tomcat Geronimo installation.
+</description></prerequisite>
+<dependency>geronimo/geronimo-remote-deploy-lib/1.1-SNAPSHOT/jar</dependency>
+<dependency>xmlbeans/xbean/2.0.0/jar</dependency>
+<dependency>geronimo/j2ee-server/1.1-SNAPSHOT/car</dependency>
+<dependency>geronimo/jetty/1.1-SNAPSHOT/car</dependency>
+</configuration>
+
+<configuration>
+<name>Geronimo JMX Debug Tool (Jetty)</name>
+<config-id>geronimo/jmxdebug-jetty/1.1-SNAPSHOT/car</config-id>
+<category>Core Geronimo</category>
+<geronimo-version>1.1-SNAPSHOT</geronimo-version>
+<prerequisite><id>geronimo/jetty/*/car</id><description>
+		This is a web application or web-related module, configured for the Jetty web container.  It will not run on Tomcat versions of Geronimo.  If you need a Tomcat version of this application, you'll need to get it from another Tomcat Geronimo installation.
+</description></prerequisite>
+<dependency>commons-collections/commons-collections/3.1/jar</dependency>
+<dependency>geronimo/j2ee-server/1.1-SNAPSHOT/car</dependency>
+<dependency>geronimo/jetty/1.1-SNAPSHOT/car</dependency>
+</configuration>
+
+<configuration>
+<name>Geronimo Welcome App (Jetty)</name>
+<config-id>geronimo/welcome-jetty/1.1-SNAPSHOT/car</config-id>
+<category>Core Geronimo</category>
+<geronimo-version>1.1-SNAPSHOT</geronimo-version>
+<prerequisite><id>geronimo/jetty/*/car</id><description>
+		This is a web application or web-related module, configured for the Jetty web container.  It will not run on Tomcat versions of Geronimo.  If you need a Tomcat version of this application, you'll need to get it from another Tomcat Geronimo installation.
+</description></prerequisite>
+<dependency>geronimo/j2ee-server/1.1-SNAPSHOT/car</dependency>
+<dependency>geronimo/jetty/1.1-SNAPSHOT/car</dependency>
+</configuration>
+
+<configuration>
+<name>Apache Directory 0.92 for Geronimo</name>
+<config-id>geronimo/directory/1.1-SNAPSHOT/car</config-id>
+<category>Security</category>
+<geronimo-version>1.1-SNAPSHOT</geronimo-version>
+<dependency>geronimo/j2ee-server/1.1-SNAPSHOT/car</dependency>
+<dependency>geronimo/geronimo-directory/1.1-SNAPSHOT/jar</dependency>
+</configuration>
+
+</geronimo-plugin-list>

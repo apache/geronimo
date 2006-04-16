@@ -27,35 +27,49 @@ import org.apache.geronimo.kernel.repository.Dependency;
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
 public class ConfigurationMetadata implements Serializable, Comparable {
-    private Artifact configId;
-    private String description;
-    private String category;
-    private boolean installed;
-    private Dependency[] dependencies;
-    private boolean eligible;
+    private final Artifact configId;
+    private final String name;
+    private final String category;
+    private final boolean installed;
+    private final boolean eligible;
+    private String[] dependencies;
+    private License[] licenses;
     private String[] geronimoVersions;
-    private String[] prerequisites;
+    private String[] jvmVersions;
+    private Prerequisite[] prerequisites;
 
-    public ConfigurationMetadata(Artifact configId, String description, String category, boolean installed, boolean eligible) {
+    public ConfigurationMetadata(Artifact configId, String name, String category, boolean installed, boolean eligible) {
         this.configId = configId;
-        this.description = description;
+        this.name = name;
         this.category = category;
         this.installed = installed;
         this.eligible = eligible;
     }
 
-    public void setDependencies(Dependency[] dependencies) {
+    public void setDependencies(String[] dependencies) {
         this.dependencies = dependencies;
     }
 
+    /**
+     * Gets the Config ID for this configuration, which is a globally unique
+     * identifier.
+     */
     public Artifact getConfigId() {
         return configId;
     }
 
-    public String getDescription() {
-        return description;
+    /**
+     * Gets a human-readable name for this configuration.
+     */
+    public String getName() {
+        return name;
     }
 
+    /**
+     * Gets a category name for this configuration.  In a list, configurations
+     * in the same category will be listed together.  There are no specific
+     * allowed values, though each repository may have standards for that.
+     */
     public String getCategory() {
         return category;
     }
@@ -65,17 +79,15 @@ public class ConfigurationMetadata implements Serializable, Comparable {
     }
 
     public String getVersion() {
-        String[] parts = configId.toString().split("/");
-        if(parts.length == 4) {
-            return parts[2];
-        }
-        return "unknown version";
+        return configId.getVersion() == null ? "unknown version" : configId.getVersion().toString();
     }
 
     /**
-     * Note: if null, this information has not yet been loaded from the repository
+     * Gets the JAR or configuration dependencies for this configuration,  Each
+     * String in the result is an Artifact (or Config ID) in String form.  The
+     * dependency names may be partial artifact names
      */
-    public Dependency[] getDependencies() {
+    public String[] getDependencies() {
         return dependencies;
     }
 
@@ -87,11 +99,27 @@ public class ConfigurationMetadata implements Serializable, Comparable {
         this.geronimoVersions = geronimoVersions;
     }
 
-    public String[] getPrerequisites() {
+    public License[] getLicenses() {
+        return licenses;
+    }
+
+    public void setLicenses(License[] licenses) {
+        this.licenses = licenses;
+    }
+
+    public String[] getJvmVersions() {
+        return jvmVersions;
+    }
+
+    public void setJvmVersions(String[] jdkVersions) {
+        this.jvmVersions = jdkVersions;
+    }
+
+    public Prerequisite[] getPrerequisites() {
         return prerequisites;
     }
 
-    public void setPrerequisites(String[] prerequisites) {
+    public void setPrerequisites(Prerequisite[] prerequisites) {
         this.prerequisites = prerequisites;
     }
 
@@ -104,8 +132,91 @@ public class ConfigurationMetadata implements Serializable, Comparable {
         ConfigurationMetadata other = (ConfigurationMetadata) o;
         int test = category.compareTo(other.category);
         if(test != 0) return test;
-        test = description.compareTo(other.description);
+        test = name.compareTo(other.name);
 
         return test;
+    }
+
+    public static class License implements Serializable {
+        private final String name;
+        private final boolean osiApproved;
+
+        public License(String name, boolean osiApproved) {
+            this.name = name;
+            this.osiApproved = osiApproved;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public boolean isOsiApproved() {
+            return osiApproved;
+        }
+    }
+
+    public static class Prerequisite implements Serializable {
+        private final Artifact configId;
+        private final String resourceType;
+        private final String description;
+        private final boolean present;
+
+        public Prerequisite(Artifact configId, boolean present) {
+            this.configId = configId;
+            this.present = present;
+            resourceType = null;
+            description = null;
+        }
+
+        public Prerequisite(Artifact configId, boolean present, String resourceType, String description) {
+            this.configId = configId;
+            this.present = present;
+            this.resourceType = resourceType;
+            this.description = description;
+        }
+
+        public Artifact getConfigId() {
+            return configId;
+        }
+
+        public String getResourceType() {
+            return resourceType;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public boolean isPresent() {
+            return present;
+        }
+
+        public String getConfigIdWithStars() {
+            StringBuffer buf = new StringBuffer();
+            if(configId.getGroupId() == null) {
+                buf.append("*");
+            } else {
+                buf.append(configId.getGroupId());
+            }
+            buf.append("/");
+            if(configId.getArtifactId() == null) {
+                buf.append("*");
+            } else {
+                buf.append(configId.getArtifactId());
+            }
+            buf.append("/");
+            if(configId.getVersion() == null) {
+                buf.append("*");
+            } else {
+                buf.append(configId.getVersion());
+            }
+            buf.append("/");
+            if(configId.getType() == null) {
+                buf.append("*");
+            } else {
+                buf.append(configId.getType());
+            }
+            return buf.toString();
+        }
     }
 }

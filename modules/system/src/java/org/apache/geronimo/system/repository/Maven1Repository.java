@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,6 +31,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
+import org.apache.geronimo.kernel.repository.Version;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
@@ -52,20 +54,48 @@ public class Maven1Repository extends AbstractRepository implements WritableList
         return path;
     }
 
-    public SortedSet list(String groupId, String artifactId, String type) {
+    public SortedSet list(Artifact query) {
         SortedSet artifacts = new TreeSet();
+        if(query.getGroupId() != null && query.getArtifactId() != null && query.getType() != null) {
 
-        File path = new File(rootFile, groupId);
-        path = new File(path, type + "s");
+            File path = new File(rootFile, query.getGroupId());
+            path = new File(path, query.getType() + "s");
 
-        File[] files = path.listFiles();
-        for (int i = 0; i < files.length; i++) {
-            File file = files[i];
-            String fileName = file.getName();
-            if (fileName.startsWith(artifactId + "-") && fileName.endsWith("." + type)) {
-                String version = fileName.substring(artifactId.length() + 1);
-                version = version.substring(0, version.length() - 1 - type.length());
-                artifacts.add(new Artifact(groupId, artifactId, version, type));
+            File[] files = path.listFiles();
+            for (int i = 0; i < files.length; i++) {
+                File file = files[i];
+                String fileName = file.getName();
+                if (fileName.startsWith(query.getArtifactId() + "-") && fileName.endsWith("." + query.getType())) {
+                    String version = fileName.substring(query.getArtifactId().length() + 1);
+                    version = version.substring(0, version.length() - 1 - query.getType().length());
+                    if(query.getVersion() != null && !query.getVersion().toString().equals(version)) {
+                        continue;
+                    }
+                    artifacts.add(new Artifact(query.getGroupId(), query.getArtifactId(), version, query.getType()));
+                }
+            }
+        } else {
+            // todo: not very efficient
+            SortedSet set = list();
+            String targetGroup = query.getGroupId();
+            String targetArtifact = query.getArtifactId();
+            Version targetVersion = query.getVersion();
+            String targetType = query.getType();
+            for (Iterator it = set.iterator(); it.hasNext();) {
+                Artifact candidate = (Artifact) it.next();
+                if(targetGroup != null && !targetGroup.equals(candidate.getGroupId())) {
+                    continue;
+                }
+                if(targetArtifact != null && !targetArtifact.equals(candidate.getArtifactId())) {
+                    continue;
+                }
+                if(targetType != null && !targetType.equals(candidate.getType())) {
+                    continue;
+                }
+                if(targetVersion != null && !targetVersion.equals(candidate.getVersion())) {
+                    continue;
+                }
+                artifacts.add(candidate);
             }
         }
         return artifacts;

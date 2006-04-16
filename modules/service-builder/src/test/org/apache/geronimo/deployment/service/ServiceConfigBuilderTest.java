@@ -30,6 +30,7 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Naming;
 
@@ -39,6 +40,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.LinkedHashSet;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * @version $Rev$ $Date$
@@ -103,7 +106,7 @@ public class ServiceConfigBuilderTest extends TestCase {
         file.delete();
     }
 
-    private static class MockRepository implements Repository {
+    private static class MockRepository implements ListableRepository {
         public boolean contains(Artifact artifact) {
             return true;
         }
@@ -114,6 +117,15 @@ public class ServiceConfigBuilderTest extends TestCase {
 
         public LinkedHashSet getDependencies(Artifact artifact) {
             return new LinkedHashSet();
+        }
+
+        public SortedSet list() {
+            return new TreeSet();
+        }
+
+        public SortedSet list(Artifact query) {
+            System.out.println("LOOKING FOR "+query);
+            return new TreeSet();
         }
     }
     private static class MockReferenceCollection extends ArrayList implements ReferenceCollection {

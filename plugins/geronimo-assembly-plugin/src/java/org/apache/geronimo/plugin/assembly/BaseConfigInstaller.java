@@ -41,7 +41,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 
 /**
- * @version $Rev: 384686 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class BaseConfigInstaller {
     public static final FileWriteMonitor LOG_COPY_START = new StartFileWriteMonitor();
@@ -194,7 +194,7 @@ public class BaseConfigInstaller {
             // Determine the dependencies of this artifact
             dependencies = sourceRepo.getDependencies(configId);
         }
-        dependencies = artifactResolver.resolve(dependencies);
+        dependencies = artifactResolver.resolveInClassLoader(dependencies);
         for (Iterator iterator = dependencies.iterator(); iterator.hasNext();) {
             Artifact artifact = (Artifact) iterator.next();
             execute(artifact);

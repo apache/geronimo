@@ -24,6 +24,7 @@ import java.util.SortedSet;
 import junit.framework.TestCase;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ListableRepository;
+import org.apache.geronimo.kernel.repository.Version;
 
 /**
  * @version $Rev$ $Date$
@@ -32,19 +33,118 @@ public class AbstractRepositoryTest extends TestCase {
     protected ListableRepository repository;
     protected File rootRepoDir;
 
+    protected void setUp() throws Exception {
+        super.setUp();
+        // Don't want .svn dirs messing up my count!
+        deleteSVN(rootRepoDir);
+    }
+
+    private void deleteSVN(File dir) {
+        if(!dir.isDirectory() || !dir.canRead()) {
+            throw new IllegalStateException("Invalid dir "+dir.getAbsolutePath());
+        }
+        File[] children = dir.listFiles();
+        for (int i = 0; i < children.length; i++) {
+            File child = children[i];
+            if(child.isDirectory()) {
+                if(child.getName().equals(".svn")) {
+                    recursiveDelete(child);
+                } else {
+                    deleteSVN(child);
+                }
+            }
+        }
+    }
+
+    private void recursiveDelete(File dir) {
+        if(!dir.isDirectory() || !dir.canRead()) {
+            throw new IllegalStateException("Invalid dir "+dir.getAbsolutePath());
+        }
+        File[] children = dir.listFiles();
+        for (int i = 0; i < children.length; i++) {
+            File child = children[i];
+            if(child.isDirectory()) {
+                recursiveDelete(child);
+            } else {
+                if(!child.delete()) {
+                    throw new IllegalStateException("Cannot delete "+child.getAbsolutePath());
+                }
+            }
+        }
+        if(!dir.delete()) {
+            throw new IllegalStateException("Cannot delete "+dir.getAbsolutePath());
+        }
+    }
+
     public void testListAll() {
         SortedSet artifacts = repository.list();
+        System.out.println("Matched artifacts: "+artifacts);
 
         assertTrue(artifacts.contains(new Artifact("org.foo", "test", "2.0.1", "properties")));
         assertFalse(artifacts.contains(new Artifact("Unknown", "artifact", "2.0.1", "properties")));
+        assertEquals(4, artifacts.size());
     }
 
-    public void testListVersions() {
-        SortedSet artifacts = repository.list("org.bar", "test", "properties");
+    public void testListSpecifyArtifact() {
+        SortedSet artifacts = repository.list(new Artifact(null, "test", (Version)null, null));
+
+        assertTrue(artifacts.contains(new Artifact("org.bar", "test", "1.5", "properties")));
+        assertTrue(artifacts.contains(new Artifact("org.bar", "test", "1.3", "properties")));
+        assertTrue(artifacts.contains(new Artifact("org.foo", "test", "2.0.1", "properties")));
+        assertEquals(3, artifacts.size());
+    }
+
+    public void testListSpecifyArtifactGroup() {
+        SortedSet artifacts = repository.list(new Artifact("org.bar", "test", (Version)null, null));
 
         assertTrue(artifacts.contains(new Artifact("org.bar", "test", "1.5", "properties")));
         assertTrue(artifacts.contains(new Artifact("org.bar", "test", "1.3", "properties")));
         assertEquals(2, artifacts.size());
+    }
+
+    public void testListSpecifyArtifactType() {
+        SortedSet artifacts = repository.list(new Artifact(null, "test", (Version)null, "properties"));
+
+        assertTrue(artifacts.contains(new Artifact("org.bar", "test", "1.5", "properties")));
+        assertTrue(artifacts.contains(new Artifact("org.bar", "test", "1.3", "properties")));
+        assertTrue(artifacts.contains(new Artifact("org.foo", "test", "2.0.1", "properties")));
+        assertEquals(3, artifacts.size());
+    }
+
+    public void testListSpecifyArtifactVersion() {
+        SortedSet artifacts = repository.list(new Artifact(null, "test", "1.5", null));
+
+        assertTrue(artifacts.contains(new Artifact("org.bar", "test", "1.5", "properties")));
+        assertEquals(1, artifacts.size());
+    }
+
+    public void testListSpecifyArtifactGroupType() {
+        SortedSet artifacts = repository.list(new Artifact("org.bar", "test", (Version)null, "properties"));
+
+        assertTrue(artifacts.contains(new Artifact("org.bar", "test", "1.5", "properties")));
+        assertTrue(artifacts.contains(new Artifact("org.bar", "test", "1.3", "properties")));
+        assertEquals(2, artifacts.size());
+    }
+
+    public void testListSpecifyArtifactGroupVersion() {
+        SortedSet artifacts = repository.list(new Artifact("org.bar", "test", "1.5", null));
+
+        assertTrue(artifacts.contains(new Artifact("org.bar", "test", "1.5", "properties")));
+        assertEquals(1, artifacts.size());
+    }
+
+    public void testListSpecifyArtifactVersionType() {
+        SortedSet artifacts = repository.list(new Artifact(null, "test", "1.5", "properties"));
+
+        assertTrue(artifacts.contains(new Artifact("org.bar", "test", "1.5", "properties")));
+        assertEquals(1, artifacts.size());
+    }
+
+    public void testListSpecifyAll() {
+        SortedSet artifacts = repository.list(new Artifact("org.bar", "test", "1.5", "properties"));
+
+        assertTrue(artifacts.contains(new Artifact("org.bar", "test", "1.5", "properties")));
+        assertEquals(1, artifacts.size());
     }
 
     public void testLocation() throws Exception {

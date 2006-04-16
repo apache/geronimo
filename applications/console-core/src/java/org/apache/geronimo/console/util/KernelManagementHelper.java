@@ -42,6 +42,7 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
@@ -772,8 +773,11 @@ public class KernelManagementHelper implements ManagementHelper {
                     if(type == null || type.getValue() == info.getType().getValue()) {
                         results.add(new ConfigurationData(info.getConfigID(), configuration, null, info.getState(), info.getType(), kernel.getAbstractNameFor(getModuleForConfiguration(info.getConfigID()))));
                     }
-                    if(includeChildModules && info.getType().getValue() == ConfigurationModuleType.EAR.getValue()) {
+                    if(includeChildModules && info.getType().getValue() == ConfigurationModuleType.EAR.getValue() && info.getState().toInt() == State.RUNNING_INDEX) {
                         J2EEApplication app = (J2EEApplication) getModuleForConfiguration(info.getConfigID());
+                        if(app == null) {
+                            throw new IllegalStateException("Unable to load children for J2EE Application '"+info.getConfigID()+"' (no J2EEApplication found)");
+                        }
                         Object[] modules = null;
                         if(type == null) {
                             modules = app.getModulesInstances();
@@ -843,7 +847,6 @@ public class KernelManagementHelper implements ManagementHelper {
                 result = config.findGBean(new AbstractNameQuery(ResourceAdapterModule.class.getName()));
             } else if(type.equals(ConfigurationModuleType.WAR)) {
                 result = config.findGBean(new AbstractNameQuery(WebModule.class.getName()));
-                System.out.println("CL: "+WebModule.class.getClassLoader());
             } else {
                 return null;
             }

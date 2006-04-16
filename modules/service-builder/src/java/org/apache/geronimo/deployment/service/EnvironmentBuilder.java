@@ -54,7 +54,7 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
         Environment environment = new Environment();
         if (environmentType != null) {
             if (environmentType.isSetConfigId()) {
-                environment.setConfigId(toArtifact(environmentType.getConfigId()));
+                environment.setConfigId(toArtifact(environmentType.getConfigId(), "car"));
             }
 
             if (environmentType.isSetDependencies()) {
@@ -179,7 +179,7 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
         LinkedHashSet artifacts = new LinkedHashSet();
         for (int i = 0; i < artifactTypes.length; i++) {
             ArtifactType artifactType = artifactTypes[i];
-            Artifact artifact = toArtifact(artifactType);
+            Artifact artifact = toArtifact(artifactType, "jar");
             artifacts.add(artifact);
         }
         return artifacts;
@@ -196,7 +196,7 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
     }
 
     private static Dependency toDependency(ArtifactType artifactType) {
-        Artifact artifact = toArtifact(artifactType);
+        Artifact artifact = toArtifact(artifactType, "jar");
         if (ImportType.CLASSES.equals(artifactType.getImport())) {
             return new Dependency(artifact, org.apache.geronimo.kernel.repository.ImportType.CLASSES);
         } else if (ImportType.SERVICES.equals(artifactType.getImport())) {
@@ -209,9 +209,9 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
     }
 
     //TODO make private
-    static Artifact toArtifact(ArtifactType artifactType) {
+    static Artifact toArtifact(ArtifactType artifactType, String defaultType) {
         String groupId = artifactType.isSetGroupId() ? artifactType.getGroupId().trim() : null;
-        String type = artifactType.isSetType() ? artifactType.getType().trim() : "jar";
+        String type = artifactType.isSetType() ? artifactType.getType().trim() : defaultType;
         String artifactId = artifactType.getArtifactId().trim();
         String version = artifactType.isSetVersion() ? artifactType.getVersion().trim() : null;
         return new Artifact(groupId, artifactId, version, type);

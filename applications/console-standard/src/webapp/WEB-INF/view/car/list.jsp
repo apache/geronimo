@@ -14,11 +14,26 @@ already available in the local server.</p>
   <ul>
     <c:forEach var="entry" items="${category.value}">
       <c:choose>
-        <c:when test="${entry.installed}">
-          <li>${entry.description}</li>
+        <c:when test="${entry.installed || !entry.eligible}">
+          <li>${entry.name}
+              <c:choose>
+                  <c:when test="${entry.installed}">
+                      (already installed)
+                  </c:when>
+                  <c:otherwise>
+                      <c:if test="${!entry.eligible}">
+                          <c:forEach var="prereq" items="${entry.prerequisites}">
+                              <c:if test="${!prereq.present}">
+                                  (${prereq.configIdWithStars} is not installed)
+                              </c:if>
+                          </c:forEach>
+                      </c:if>
+                  </c:otherwise>
+              </c:choose>
+          </li>
         </c:when>
         <c:otherwise>
-          <li><a href="<portlet:actionURL><portlet:param name="configId" value="${entry.configId}"/><portlet:param name="repository" value="${repository}"/><portlet:param name="repo-user" value="${repouser}"/><portlet:param name="repo-pass" value="${repopass}"/><portlet:param name="mode" value="download-before"/></portlet:actionURL>">${entry.description}<c:if test="${entry.description ne entry.configId}"> (${entry.version})</c:if></a></li>
+          <li><a href="<portlet:actionURL><portlet:param name="configId" value="${entry.configId}"/><portlet:param name="repository" value="${repository}"/><portlet:param name="repo-user" value="${repouser}"/><portlet:param name="repo-pass" value="${repopass}"/><portlet:param name="mode" value="download-before"/></portlet:actionURL>">${entry.name}<c:if test="${entry.name ne entry.configId}"> (${entry.version})</c:if></a></li>
         </c:otherwise>
       </c:choose>
     </c:forEach>

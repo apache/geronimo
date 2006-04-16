@@ -34,7 +34,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
  */
 public class DefaultArtifactManager implements ArtifactManager {
     private final Map artifactsByLoader = new HashMap();
-    private final Map artifactsByTemplate = new HashMap();
+    private final Map artifactsByArtifact = new HashMap();
 
     public void loadArtifacts(Artifact loader, Set artifacts) {
         if (!loader.isResolved()) throw new IllegalArgumentException("loader is not a resolved artifact: " + loader);
@@ -48,27 +48,26 @@ public class DefaultArtifactManager implements ArtifactManager {
         synchronized (this) {
             if (artifactsByLoader.containsKey(loader)) throw new IllegalArgumentException("loader has already declared artifacts: "+ loader);
             artifactsByLoader.put(loader, artifacts);
-            addArtifactByTempate(loader);
+            processArtifact(loader);
 
             for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
                 Artifact artifact = (Artifact) iterator.next();
-                addArtifactByTempate(artifact);
+                processArtifact(artifact);
             }
         }
     }
 
-    private void addArtifactByTempate(Artifact artifact) {
-        Artifact template = new Artifact(artifact.getGroupId(),artifact.getArtifactId(), (Version) null, artifact.getType());
-        List versions = (List) artifactsByTemplate.get(template);
-        if (versions == null) {
-            versions = new ArrayList();
-            artifactsByTemplate.put(template, versions);
+    private void processArtifact(Artifact artifact) {
+        List values = (List) artifactsByArtifact.get(artifact.getArtifactId());
+        if (values == null) {
+            values = new ArrayList();
+            artifactsByArtifact.put(artifact.getArtifactId(), values);
         }
-        versions.add(artifact);
+        values.add(artifact);
     }
 
     public synchronized void unloadAllArtifacts(Artifact loader) {
-        removeArtifactByTempate(loader);
+        removeArtifact(loader);
 
         Collection artifacts = (Collection) artifactsByLoader.remove(loader);
         if (artifacts == null) {
@@ -77,28 +76,32 @@ public class DefaultArtifactManager implements ArtifactManager {
 
         for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
             Artifact artifact = (Artifact) iterator.next();
-            removeArtifactByTempate(artifact);
+            removeArtifact(artifact);
         }
     }
 
-    private void removeArtifactByTempate(Artifact artifact) {
-        Artifact template = new Artifact(artifact.getGroupId(),artifact.getArtifactId(), (Version) null, artifact.getType());
-        List versions = (List) artifactsByTemplate.get(template);
-        if (versions != null) {
-            versions.remove(artifact);
-            if (versions.isEmpty()) {
-                artifactsByTemplate.remove(template);
+    private void removeArtifact(Artifact artifact) {
+        List values = (List) artifactsByArtifact.get(artifact.getArtifactId());
+        if (values != null) {
+            values.remove(artifact);
+            if (values.isEmpty()) {
+                artifactsByArtifact.remove(artifact.getArtifactId());
             }
         }
     }
 
-    public SortedSet getLoadedArtifacts(String groupId, String artifactId, String type) {
-        Artifact template = new Artifact(groupId, artifactId, (Version) null, type);
-        List versions = (List) artifactsByTemplate.get(template);
-        if (versions != null) {
-            return new TreeSet(versions);
+    public SortedSet getLoadedArtifacts(Artifact query) {
+        List values = (List) artifactsByArtifact.get(query.getArtifactId());
+        SortedSet results = new TreeSet();
+        if (values != null) {
+            for (int i = 0; i < values.size(); i++) {
+                Artifact test = (Artifact) values.get(i);
+                if(query.matches(test)) {
+                    results.add(test);
+                }
+            }
         }
-        return new TreeSet();
+        return results;
     }
 
     public static final GBeanInfo GBEAN_INFO;

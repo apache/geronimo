@@ -331,7 +331,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         List dependencies = new ArrayList(environment.getDependencies());
         for (ListIterator iterator = dependencies.listIterator(); iterator.hasNext();) {
             Dependency dependency = (Dependency) iterator.next();
-            Artifact resolvedArtifact = artifactResolver.resolve(dependency.getArtifact());
+            Artifact resolvedArtifact = artifactResolver.resolveInClassLoader(dependency.getArtifact());
             if (isConfiguration(resolvedArtifact)) {
                 parentIds.add(resolvedArtifact);
 

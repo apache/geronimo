@@ -23,8 +23,8 @@ import java.io.File;
  */
 public class Maven1RepositoryTest extends AbstractRepositoryTest {
     protected void setUp() throws Exception {
-        super.setUp();
-        rootRepoDir = new File("src/test-repo/m1");
+        rootRepoDir = new File("target/m1");
         repository = new Maven1Repository(rootRepoDir);
+        super.setUp();
     }
 }

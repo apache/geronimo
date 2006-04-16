@@ -27,11 +27,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.enterprise.deploy.spi.DeploymentManager;
+import javax.security.auth.login.FailedLoginException;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.plugin.GeronimoDeploymentManager;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.system.configuration.ConfigurationMetadata;
 import org.apache.geronimo.system.configuration.DownloadResults;
+import org.apache.geronimo.system.configuration.ConfigurationList;
 
 /**
  * The CLI deployer logic to start.
@@ -59,18 +62,20 @@ public class CommandListConfigurations extends AbstractCommand {
         DeploymentManager dmgr = connection.getDeploymentManager();
         if(dmgr instanceof GeronimoDeploymentManager) {
             GeronimoDeploymentManager mgr = (GeronimoDeploymentManager) dmgr;
-            ConfigurationMetadata[] data;
+            ConfigurationList data;
             URL repository;
             try {
                 repository = new URL(args[0]);
                 data = mgr.listConfigurations(repository, null, null);
             } catch (IOException e) {
                 throw new DeploymentException("Unable to list configurations", e);
+            } catch (FailedLoginException e) {
+                throw new DeploymentException("Invalid login for Maven repository '"+args[0]+"'");
             }
             Map categories = new HashMap();
             List available = new ArrayList();
-            for (int i = 0; i < data.length; i++) {
-                ConfigurationMetadata metadata = data[i];
+            for (int i = 0; i < data.getConfigurations().length; i++) {
+                ConfigurationMetadata metadata = data.getConfigurations()[i];
                 List list = (List) categories.get(metadata.getCategory());
                 if(list == null) {
                     list = new ArrayList();
@@ -95,7 +100,7 @@ public class CommandListConfigurations extends AbstractCommand {
                         }
                         prefix += ": ";
                     }
-                    System.out.print(DeployUtils.reformat(prefix+metadata.getDescription()+" ("+metadata.getVersion()+")", 8, 72));
+                    System.out.print(DeployUtils.reformat(prefix+metadata.getName()+" ("+metadata.getVersion()+")", 8, 72));
                     System.out.flush();
                 }
             }
@@ -110,7 +115,7 @@ public class CommandListConfigurations extends AbstractCommand {
                 }
                 int selection = Integer.parseInt(answer);
                 ConfigurationMetadata target = ((ConfigurationMetadata) available.get(selection - 1));
-                DownloadResults results = mgr.install(repository, null, null, target.getConfigId());
+                DownloadResults results = mgr.install(ConfigurationList.createInstallList(data, target.getConfigId()), null, null);
                 for (int i = 0; i < results.getDependenciesPresent().length; i++) {
                     Artifact uri = results.getDependenciesPresent()[i];
                     System.out.print(DeployUtils.reformat("Using existing dependency "+uri, 4, 72));
@@ -124,6 +129,10 @@ public class CommandListConfigurations extends AbstractCommand {
                 throw new DeploymentException("Unable to install configuration", e);
             } catch(NumberFormatException e) {
                 throw new DeploymentException("Invalid response");
+            } catch (FailedLoginException e) {
+                throw new DeploymentException("Invalid login for Maven repository '"+repository+"'");
+            } catch (MissingDependencyException e) {
+                throw new DeploymentException(e.getMessage());
             }
         } else {
             throw new DeploymentException("Cannot list repositories when connected to "+connection.getServerURI());

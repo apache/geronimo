@@ -26,13 +26,16 @@ import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
+import javax.security.auth.login.FailedLoginException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.system.configuration.ConfigurationMetadata;
 import org.apache.geronimo.system.configuration.DownloadResults;
+import org.apache.geronimo.system.configuration.ConfigurationList;
 
 /**
  * Handler for the initial download screen.
@@ -64,8 +67,26 @@ public class DownloadCARHandler extends BaseImportExportHandler {
         String repo = request.getParameter("repository");
         String user = request.getParameter("repo-user");
         String pass = request.getParameter("repo-pass");
-        ConfigurationMetadata config;
-        config = PortletManager.getCurrentServer(request).getConfigurationInstaller().loadDependencies(new URL(repo), user, pass, new ConfigurationMetadata(Artifact.create(configId), null, null, false, false));
+        ConfigurationMetadata config = null;
+        try {
+            ConfigurationList list = (ConfigurationList) request.getPortletSession(true).getAttribute(CONFIG_LIST_SESSION_KEY);
+            if(list == null) {
+                list = PortletManager.getCurrentServer(request).getConfigurationInstaller().listConfigurations(new URL(repo), user, pass);
+                request.getPortletSession(true).setAttribute(CONFIG_LIST_SESSION_KEY, list);
+            }
+            for (int i = 0; i < list.getConfigurations().length; i++) {
+                ConfigurationMetadata metadata = list.getConfigurations()[i];
+                if(metadata.getConfigId().toString().equals(configId)) {
+                    config = metadata;
+                    break;
+                }
+            }
+        } catch (FailedLoginException e) {
+            throw new PortletException("Invalid login for Maven repository '"+repo+"'", e);
+        }
+        if(config == null) {
+            throw new PortletException("No configuration found for '"+configId+"'");
+        }
         request.setAttribute("configId", configId);
         request.setAttribute("dependencies", config.getDependencies());
         request.setAttribute("repository", repo);
@@ -80,8 +101,30 @@ public class DownloadCARHandler extends BaseImportExportHandler {
         boolean proceed = Boolean.valueOf(request.getParameter("proceed")).booleanValue();
         if(proceed) {
             String configId = request.getParameter("configId");
+
+            ConfigurationList installList;
+            try {
+                ConfigurationList list = (ConfigurationList) request.getPortletSession(true).getAttribute(CONFIG_LIST_SESSION_KEY);
+                if(list == null) {
+                    list = PortletManager.getCurrentServer(request).getConfigurationInstaller().listConfigurations(new URL(repo), user, pass);
+                    request.getPortletSession(true).setAttribute(CONFIG_LIST_SESSION_KEY, list);
+                }
+                installList = ConfigurationList.createInstallList(list, Artifact.create(configId));
+            } catch (FailedLoginException e) {
+                throw new PortletException("Invalid login for Maven repository '"+repo+"'", e);
+            }
+            if(installList == null) {
+                throw new PortletException("No configuration found for '"+configId+"'");
+            }
+
             DownloadResults results;
-            results = PortletManager.getCurrentServer(request).getConfigurationInstaller().install(new URL(repo), user, pass, Artifact.create(configId));
+            try {
+                results = PortletManager.getCurrentServer(request).getConfigurationInstaller().install(installList, user, pass);
+            } catch (FailedLoginException e) {
+                throw new PortletException("Invalid login for Maven repository '"+repo+"'", e);
+            } catch (MissingDependencyException e) {
+                throw new PortletException(e.getMessage(), e);
+            }
             List dependencies = new ArrayList();
             for (int i = 0; i < results.getDependenciesInstalled().length; i++) {
                 Artifact uri = results.getDependenciesInstalled()[i];

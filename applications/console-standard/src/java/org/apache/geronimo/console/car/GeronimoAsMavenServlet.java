@@ -37,6 +37,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.logging.Log;
@@ -52,8 +53,12 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -72,7 +77,7 @@ public class GeronimoAsMavenServlet extends HttpServlet {
             throw new ServletException("No configId specified for CAR download");
         }
         Kernel kernel = KernelRegistry.getSingleKernel();
-        if(path.equals("/geronimo-configs.xml")) {
+        if(path.equals("/geronimo-plugins.xml")) {
             try {
                 generateConfigFile(kernel, response.getWriter());
             } catch (Exception e) {
@@ -162,7 +167,7 @@ public class GeronimoAsMavenServlet extends HttpServlet {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document doc = builder.newDocument();
-        Element root = doc.createElement("geronimo-config-list");
+        Element root = doc.createElement("geronimo-plugin-list");
         doc.appendChild(root);
         List stores = mgr.listStores();
         for (int i = 0; i < stores.size(); i++) {
@@ -177,15 +182,39 @@ public class GeronimoAsMavenServlet extends HttpServlet {
                 createText(doc, config, "category", "Geronimo Deployments");
                 createText(doc, config, "geronimo-version", version);
                 if(info.getConfigID().toString().indexOf("jetty") > -1) {
-                    createText(doc, config, "prerequisite", "geronimo/jetty");
+                    writePrerequisite(doc, config, "geronimo/jetty/*/car", "Jetty", "Tomcat");
+                    createText(doc, config, "prerequisite", "geronimo/jetty/car");
                 } else if(info.getConfigID().toString().indexOf("tomcat") > -1) {
-                    createText(doc, config, "prerequisite", "geronimo/tomcat");
+                    createText(doc, config, "prerequisite", "geronimo/tomcat/car");
+                    writePrerequisite(doc, config, "geronimo/tomcat/*/car", "Tomcat", "Jetty");
+                }
+                try {
+                    ConfigurationData data = mgr.getStoreForConfiguration(info.getConfigID()).loadConfiguration(info.getConfigID());
+                    List deps = data.getEnvironment().getDependencies();
+                    for (int k = 0; k < deps.size(); k++) {
+                        Dependency dep = (Dependency) deps.get(k);
+                        createText(doc, config, "dependency", dep.getArtifact().toString());
+                    }
+                } catch (Exception e) {
+                    log.warn("Unable to generate dependencies for configuration "+info.getConfigID(), e);
                 }
             }
         }
         TransformerFactory xfactory = TransformerFactory.newInstance();
         Transformer xform = xfactory.newTransformer();
+        xform.setOutputProperty(OutputKeys.INDENT, "yes");
         xform.transform(new DOMSource(doc), new StreamResult(out));
+    }
+
+    private void writePrerequisite(Document doc, Element config, String configId, String server, String notServer) {
+        Element prereq = doc.createElement("prerequisite");
+        config.appendChild(prereq);
+        createText(doc, prereq, "id", configId);
+        createText(doc, prereq, "description",
+                "This is a web application or web-related module, configured for the " +
+                server +" web container.  It will not run on "+notServer+" versions of " +
+                "Geronimo.  If you need a "+notServer+" version of this application, " +
+                "you'll need to get it from another "+notServer+" Geronimo installation.");
     }
 
     private void createText(Document doc, Element parent, String name, String text) {

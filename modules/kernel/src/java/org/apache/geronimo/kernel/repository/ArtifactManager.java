@@ -25,5 +25,5 @@ import java.util.SortedSet;
 public interface ArtifactManager {
     void loadArtifacts(Artifact artifact, Set artifacts);
     void unloadAllArtifacts(Artifact artifact);
-    SortedSet getLoadedArtifacts(String groupId, String artifactId, String type);
+    SortedSet getLoadedArtifacts(Artifact query);
 }

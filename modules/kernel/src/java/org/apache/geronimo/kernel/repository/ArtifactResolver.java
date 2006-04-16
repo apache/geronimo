@@ -23,11 +23,72 @@ import java.util.LinkedHashSet;
  * @version $Rev$ $Date$
  */
 public interface ArtifactResolver {
-    LinkedHashSet resolve(Collection artifacts) throws MissingDependencyException;
 
-    LinkedHashSet resolve(Collection parentConfigurations, Collection artifacts) throws MissingDependencyException;
+    /**
+     * Used to generate a fully-populated Artifact from a partially-populated Artifact
+     * when you're about to deploy/save a new artifact.  That is, this method comes up
+     * with reasonable default values that hopefully do not conflict with anything
+     * that's already deployed.
+     *
+     * @param source       The artifact to complete (normally partially-populated)
+     * @param defaultType  The type to use for the resulting artifact if the source
+     *                     artifact doesn't have a type set
+     *
+     * @return If the source artifact is fully populated (e.g. artifact.isResolved()
+     *         == true) then it will be returned.  Otherwise a new fully-populated
+     *         artifact is returned.
+     */
+    Artifact generateArtifact(Artifact source, String defaultType);
 
-    Artifact resolve(Artifact artifact) throws MissingDependencyException;
+    /**
+     * Used to search for existing artifacts that match the supplied artifact (which
+     * may be partially-populated).  Preference is given to artifacts that are already
+     * loaded, to reduce duplication.  If nothing can be found that's an error,
+     * because something depends on this.
+     */
+    Artifact resolveInClassLoader(Artifact source) throws MissingDependencyException;
+    /**
+     * Used to search for existing artifacts that match the supplied artifact (which
+     * may be partially-populated).  Preference is given to artifacts that are already
+     * loaded, or that exist in the parent configurations, to reduce duplication.  If
+     * nothing can be found that's an error, because something depends on this.
+     */
+    Artifact resolveInClassLoader(Artifact source, Collection parentConfigurations) throws MissingDependencyException;
+    /**
+     * Used to search for existing artifacts that match the supplied artifact (which
+     * may be partially-populated).  Preference is given to artifacts that are already
+     * loaded, to reduce duplication.  If nothing can be found that's an error,
+     * because something depends on this.
+     *
+     * @return A sorted set ordered in the same way the input was ordered, with
+     *         entries of type Artifact
+     */
+    LinkedHashSet resolveInClassLoader(Collection artifacts) throws MissingDependencyException;
+    /**
+     * Used to search for existing artifacts that match the supplied artifact (which
+     * may be partially-populated).  Preference is given to artifacts that are already
+     * loaded, or that exist in the parent configurations, to reduce duplication.  If
+     * nothing can be found that's an error, because something depends on this.
+     *
+     * @return A sorted set ordered in the same way the input was ordered, with
+     *         entries of type Artifact
+     */
+    LinkedHashSet resolveInClassLoader(Collection artifacts, Collection parentConfigurations) throws MissingDependencyException;
 
-    Artifact resolve(Collection parentConfigurations, Artifact artifact) throws MissingDependencyException;
+    /**
+     * Used to search for existing artifacts in the server that match the supplied
+     * artifact (which may be partially-populated).  This method expects either no
+     * results or one result (multiple matches is an error).
+     *
+     * @return A matching artifact, or null of there were no matches
+     */
+    Artifact queryArtifact(Artifact artifact) throws MultipleMatchesException;
+
+    /**
+     * Used to search for existing artifacts in the server that match the supplied
+     * artifact (which may be partially-populated).
+     *
+     * @return The matching artifacts, which may be 0, 1, or many
+     */
+    Artifact[] queryArtifacts(Artifact artifact);
 }

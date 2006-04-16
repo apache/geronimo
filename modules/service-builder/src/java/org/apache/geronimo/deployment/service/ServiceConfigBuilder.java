@@ -27,12 +27,15 @@ import java.util.List;
 import java.util.Collections;
 import java.util.jar.JarFile;
 import java.beans.PropertyEditorManager;
+import java.net.URI;
+import java.net.URL;
 
 import javax.xml.namespace.QName;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xbeans.AttributeType;
 import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
 import org.apache.geronimo.deployment.xbeans.ConfigurationType;
@@ -59,6 +62,7 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -115,13 +119,23 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         }
     }
 
-    public Object getDeploymentPlan(File planFile, JarFile module) throws DeploymentException {
-        if (planFile == null) {
+    public Object getDeploymentPlan(File planFile, JarFile jarFile) throws DeploymentException {
+        if (planFile == null && jarFile == null) {
             return null;
         }
 
         try {
-            XmlObject xmlObject = XmlBeansUtil.parse(planFile);
+            XmlObject xmlObject;
+            if (planFile != null) {
+                xmlObject = XmlBeansUtil.parse(planFile.toURL());
+            } else {
+                URL path = DeploymentUtil.createJarURL(jarFile, "META-INF/geronimo-service.xml");
+                xmlObject = XmlBeansUtil.parse(path);
+            }
+            if(xmlObject == null) {
+                return null;
+            }
+
             XmlCursor cursor = xmlObject.newCursor();
             try {
                 cursor.toFirstChild();
@@ -157,13 +171,13 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         return environment.getConfigId();
     }
 
-    public DeploymentContext buildConfiguration(boolean inPlaceDeployment, Object plan, JarFile unused, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException {
+    public DeploymentContext buildConfiguration(boolean inPlaceDeployment, Object plan, JarFile jar, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException {
         ConfigurationType configType = (ConfigurationType) plan;
 
-        return buildConfiguration(configType, configurationStores, targetConfigurationStore);
+        return buildConfiguration(inPlaceDeployment, configType, jar, configurationStores, targetConfigurationStore);
     }
 
-    public DeploymentContext buildConfiguration(ConfigurationType configurationType, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws DeploymentException, IOException {
+    public DeploymentContext buildConfiguration(boolean inPlaceDeployment, ConfigurationType configurationType, JarFile jar, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws DeploymentException, IOException {
 
         Environment environment = EnvironmentBuilder.buildEnvironment(configurationType.getEnvironment(), defaultEnvironment);
         Artifact configId = environment.getConfigId();
@@ -175,6 +189,15 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         }
 
         DeploymentContext context = new DeploymentContext(outfile, null,environment, ConfigurationModuleType.SERVICE, naming, repositories, configurationStores);
+        if(jar != null) {
+            if(inPlaceDeployment) {
+                //todo: add the JAR to the configuration Class Path and do whatever else we need to (may need to set in-place directory on the DeploymentContext just above?)
+                throw new UnsupportedOperationException("In-place deployments are not supported yet for services");
+            } else {
+                File file = new File(jar.getName());
+                context.addIncludeAsPackedJar(URI.create(file.getName()), jar);
+            }
+        }
         try {
             ClassLoader cl = context.getClassLoader();
 

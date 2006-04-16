@@ -22,7 +22,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.config.Configuration;
@@ -44,60 +43,91 @@ public class DefaultArtifactResolver implements ArtifactResolver {
         this.repositories = repositories;
     }
 
-    public LinkedHashSet resolve(Collection artifacts) throws MissingDependencyException {
-        return this.resolve(Collections.EMPTY_SET, artifacts);
+
+    public Artifact generateArtifact(Artifact source, String defaultType) {
+        if(source.isResolved()) {
+            return source;
+        }
+        String groupId = source.getGroupId() == null ? Artifact.DEFAULT_GROUP_ID : source.getGroupId();
+        String artifactId = source.getArtifactId();
+        String type = source.getType() == null ? defaultType : source.getType();
+        Version version = source.getVersion() == null ? new Version(Long.toString(System.currentTimeMillis())) : source.getVersion();
+
+        return new Artifact(groupId, artifactId, version, type);
     }
 
-    public LinkedHashSet resolve(Collection parentConfigurations, Collection artifacts) throws MissingDependencyException {
+    public Artifact queryArtifact(Artifact artifact) throws MultipleMatchesException {
+        Artifact[] all = queryArtifacts(artifact);
+        if(all.length > 1) {
+            throw new MultipleMatchesException(artifact);
+        }
+        return all.length == 0 ? null : all[0];
+    }
+
+    public Artifact[] queryArtifacts(Artifact artifact) {
+        LinkedHashSet set = new LinkedHashSet();
+        for (Iterator iterator = repositories.iterator(); iterator.hasNext();) {
+            ListableRepository repository = (ListableRepository) iterator.next();
+            set.addAll(repository.list(artifact));
+        }
+        return (Artifact[]) set.toArray(new Artifact[set.size()]);
+    }
+
+    public LinkedHashSet resolveInClassLoader(Collection artifacts) throws MissingDependencyException {
+        return resolveInClassLoader(artifacts, Collections.EMPTY_SET);
+    }
+
+    public LinkedHashSet resolveInClassLoader(Collection artifacts, Collection parentConfigurations) throws MissingDependencyException {
         LinkedHashSet resolvedArtifacts = new LinkedHashSet();
         for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
             Artifact artifact = (Artifact) iterator.next();
             if (!artifact.isResolved()) {
-                artifact = resolve(parentConfigurations, artifact);
+                artifact = resolveInClassLoader(artifact, parentConfigurations);
             }
             resolvedArtifacts.add(artifact);
         }
         return resolvedArtifacts;
     }
 
-    public Artifact resolve(Artifact artifact) throws MissingDependencyException {
-        return this.resolve(Collections.EMPTY_SET, artifact);
+    public Artifact resolveInClassLoader(Artifact source) throws MissingDependencyException {
+        return resolveInClassLoader(source, Collections.EMPTY_SET);
     }
 
-    public Artifact resolve(Collection parentConfigurations, Artifact artifact) throws MissingDependencyException {
-        if (artifact.getType() == null) {
-            throw new IllegalArgumentException("Type not set " + artifact);
+    public Artifact resolveInClassLoader(Artifact source, Collection parentConfigurations) throws MissingDependencyException {
+        // Some tests break if we acntually try to search for fully-resolved artifacts
+        if(source.isResolved()) {
+            return source;
+        }
+//        if (artifact.getType() == null) {
+//            throw new IllegalArgumentException("Type not set " + artifact);
+//        }
+//
+//        String groupId = source.getGroupId();
+//        if (groupId == null) {
+//            groupId = Artifact.DEFAULT_GROUP_ID;
+//        }
+
+//        Version version = source.getVersion();
+
+        Artifact working = resolveVersion(parentConfigurations, source);
+        if (working == null || !working.isResolved()) {
+            throw new MissingDependencyException("Unable to resolve dependency " + source);
         }
 
-        String groupId = artifact.getGroupId();
-        if (groupId == null) {
-            groupId = Artifact.DEFAULT_GROUP_ID;
-        }
-
-        Version version = artifact.getVersion();
-        if (version == null) {
-            // check if we have any existing artifacts loaded
-            version = resolveVersion(parentConfigurations, groupId, artifact.getArtifactId(), artifact.getType());
-            if (version == null) {
-                throw new MissingDependencyException("Unable to resolve dependency " + artifact);
-            }
-        }
-
-        return new Artifact(groupId, artifact.getArtifactId(), version, artifact.getType());
+        return working;
     }
 
-    private Version resolveVersion(Collection parentConfigurations, String groupId, String artifactId, String type) {
+    private Artifact resolveVersion(Collection parentConfigurations, Artifact working) {
         SortedSet existingArtifacts;
         if (artifactManager != null) {
-            existingArtifacts = artifactManager.getLoadedArtifacts(groupId, artifactId, type);
+            existingArtifacts = artifactManager.getLoadedArtifacts(working);
         } else {
             existingArtifacts = new TreeSet();
         }
 
         // if we have exactly one artifact loaded use its' version
         if (existingArtifacts.size() == 1) {
-            Artifact existingArtifact = (Artifact) existingArtifacts.first();
-            return existingArtifact.getVersion();
+            return (Artifact) existingArtifacts.first();
         }
 
         // if we have no existing loaded artifacts grab the highest version from the repository
@@ -105,83 +135,79 @@ public class DefaultArtifactResolver implements ArtifactResolver {
             SortedSet list = new TreeSet();
             for (Iterator iterator = repositories.iterator(); iterator.hasNext();) {
                 ListableRepository repository = (ListableRepository) iterator.next();
-                list.addAll(repository.list(groupId, artifactId, type));
+                list.addAll(repository.list(working));
             }
 
             if (list.isEmpty()) {
                 return null;
             }
-            Artifact repositoryArtifact = (Artifact) list.last();
-            return repositoryArtifact.getVersion();
+            return (Artifact) list.last();
         }
 
         // more than one version of the artifact was loaded...
 
         // if one of parents already loaded the artifact, use that version
-        Version version = searchParents(parentConfigurations, groupId, artifactId, type);
-        if (version != null) {
-            return version;
+        Artifact artifact = searchParents(parentConfigurations, working);
+        if (artifact != null) {
+            return artifact;
         }
 
         // it wasn't declared by the parent so just use the highest verstion already loaded
-        Artifact repositoryArtifact = (Artifact) existingArtifacts.last();
-        return repositoryArtifact.getVersion();
+        return (Artifact) existingArtifacts.last();
     }
 
-    private Version searchParents(Collection parentConfigurations, String groupId, String artifactId, String type) {
+    private Artifact searchParents(Collection parentConfigurations, Artifact working) {
         for (Iterator iterator = parentConfigurations.iterator(); iterator.hasNext();) {
             Configuration configuration = (Configuration) iterator.next();
 
             // check if this parent matches the groupId, artifactId, and type
-            if (matches(configuration.getId(), groupId, artifactId, type)) {
-                return configuration.getId().getVersion();
+            if (matches(configuration.getId(), working)) {
+                return configuration.getId();
             }
 
             Environment environment = configuration.getEnvironment();
             if (environment.isInverseClassLoading()) {
                 // Search dependencies of the configuration before searching the parents
-                Version version = getArtifactVersion(configuration.getDependencies(), groupId, artifactId, type);
-                if (version != null) {
-                    return version;
+                Artifact artifact = getArtifactVersion(configuration.getDependencies(), working);
+                if (artifact != null) {
+                    return artifact;
                 }
 
                 // wasn't declared in the dependencies, so search the parents of the configuration
-                version = searchParents(configuration.getClassParents(), groupId, artifactId, type);
-                if (version != null) {
-                    return version;
+                artifact = searchParents(configuration.getClassParents(), working);
+                if (artifact != null) {
+                    return artifact;
                 }
 
             } else {
                 // Search the parents before the dependencies of the configuration
-                Version version = searchParents(configuration.getClassParents(), groupId, artifactId, type);
-                if (version != null) {
-                    return version;
+                Artifact artifact = searchParents(configuration.getClassParents(), working);
+                if (artifact != null) {
+                    return artifact;
                 }
 
                 // wasn't declared in a parent check the dependencies of the configuration
-                version = getArtifactVersion(configuration.getDependencies(), groupId, artifactId, type);
-                if (version != null) {
-                    return version;
+                artifact = getArtifactVersion(configuration.getDependencies(), working);
+                if (artifact != null) {
+                    return artifact;
                 }
             }
         }
         return null;
     }
 
-    private Version getArtifactVersion(Collection artifacts, String groupId, String artifactId, String type) {
+    private Artifact getArtifactVersion(Collection artifacts, Artifact query) {
         for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
             Artifact artifact = (Artifact) iterator.next();
-            if (matches(artifact, groupId, artifactId, type)) {
-                return artifact.getVersion();
+            if (matches(artifact, query)) {
+                return artifact;
             }
         }
         return null;
     }
 
-    private boolean matches(Artifact artifact, String groupId, String artifactId, String type) {
-        return groupId.equals(artifact.getGroupId()) &&
-                artifactId.equals(artifact.getArtifactId()) &&
-                type.equals(artifact.getType());
+    private boolean matches(Artifact candidate, Artifact query) {
+        return query.matches(candidate);
     }
 
     public static final GBeanInfo GBEAN_INFO;

@@ -24,7 +24,7 @@ import java.io.Serializable;
  */
 public class Artifact implements Comparable, Serializable {
     private static final long serialVersionUID = -3459638899709893444L;
-    public static final String DEFAULT_GROUP_ID = "Unspecified";
+    public static final String DEFAULT_GROUP_ID = "unspecified";
 
     private final String groupId;
     private final String artifactId;
@@ -32,7 +32,7 @@ public class Artifact implements Comparable, Serializable {
     private final String type;
 
     public Artifact(String groupId, String artifactId, String version, String type) {
-        this(groupId, artifactId, version == null? null: new Version(version), type);
+        this(groupId, artifactId, version == null ? null : new Version(version), type);
     }
 
     public Artifact(String groupId, String artifactId, Version version, String type) {
@@ -45,10 +45,15 @@ public class Artifact implements Comparable, Serializable {
 
     public static Artifact create(String id) {
         String[] parts = id.split("/");
-         if (parts.length != 4) {
-             throw new IllegalArgumentException("Invalid id: " + id);
-         }
-         return new Artifact(parts[0], parts[1], parts[2], parts[3]);
+        if (parts.length != 4) {
+            throw new IllegalArgumentException("Invalid id: " + id);
+        }
+        for (int i = 0; i < parts.length; i++) {
+            if (parts[i].equals("")) {
+                parts[i] = null;
+            }
+        }
+        return new Artifact(parts[0], parts[1], parts[2], parts[3]);
     }
 
     public String getGroupId() {
@@ -89,6 +94,7 @@ public class Artifact implements Comparable, Serializable {
 
     private static int GREATER = 1;
     private static int LESS = -1;
+
     private static int safeCompare(Comparable left, Comparable right) {
         if (left == null) {
             if (right != null) return LESS;
@@ -153,6 +159,7 @@ public class Artifact implements Comparable, Serializable {
 
     /**
      * see if this artifact matches the other artifact (which is more specific than this one)
+     *
      * @param otherArtifact the more specific artifact we are comparing with
      * @return whether the other artifact is consistent with everything specified in this artifact.
      */

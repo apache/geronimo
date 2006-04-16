@@ -18,14 +18,18 @@ package org.apache.geronimo.system.configuration;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.FileNotFoundException;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
+import java.util.LinkedList;
+import java.util.Arrays;
+import javax.security.auth.login.FailedLoginException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -34,15 +38,18 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
+import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.util.encoders.Base64;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -59,39 +66,37 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
     private ConfigurationManager configManager;
     private WritableListableRepository writeableRepo;
     private ConfigurationStore configStore;
+    private ArtifactResolver resolver;
+    private ServerInfo serverInfo;
 
-    public ConfigInstallerGBean(ConfigurationManager configManager, WritableListableRepository repository, ConfigurationStore configStore) {
+    public ConfigInstallerGBean(ConfigurationManager configManager, WritableListableRepository repository, ConfigurationStore configStore, ServerInfo serverInfo) {
         this.configManager = configManager;
         this.writeableRepo = repository;
         this.configStore = configStore;
+        this.serverInfo = serverInfo;
+        resolver = new DefaultArtifactResolver(null, writeableRepo);
     }
 
-    public ConfigurationMetadata[] listConfigurations(URL mavenRepository, String username, String password) throws IOException {
+    public ConfigurationList listConfigurations(URL mavenRepository, String username, String password) throws IOException, FailedLoginException {
         String repository = mavenRepository.toString();
         if(!repository.endsWith("/")) {
             repository = repository+"/";
         }
-        URL url = new URL(repository+"geronimo-configs.xml");
-        InputStream in = openStream(url, username, password);
+        //todo: Try downloading a .gz first
+        URL url = new URL(repository+"geronimo-plugins.xml");
         try {
-            return loadConfiguration(in);
+            InputStream in = openStream(null, url, new URL[0], username, password);
+            return loadConfiguration(mavenRepository, in);
+        } catch (MissingDependencyException e) {
+            log.error("Cannot find plugin index at site "+url);
+            return null;
         } catch (Exception e) {
             log.error("Unable to load repository configuration data", e);
-            return new ConfigurationMetadata[0];
+            return null;
         }
     }
 
-    private ConfigurationMetadata[] loadConfiguration(InputStream in) throws ParserConfigurationException, IOException, SAXException {
-        ConfigurationStore[] stores = configManager.getStores();
-        Set set = new HashSet();
-        for (int i = 0; i < stores.length; i++) {
-            ConfigurationStore store = stores[i];
-            List list = store.listConfigurations();
-            for (int j = 0; j < list.size(); j++) {
-                ConfigurationInfo info = (ConfigurationInfo) list.get(i);
-                set.add(info.getConfigID().toString());
-            }
-        }
+    private ConfigurationList loadConfiguration(URL repo, InputStream in) throws ParserConfigurationException, IOException, SAXException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document doc = builder.parse(in);
@@ -102,29 +107,76 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
         for (int i = 0; i < configs.getLength(); i++) {
             Element config = (Element) configs.item(i);
             String configId = getChildText(config, "config-id");
+            NodeList licenseNodes = config.getElementsByTagName("license");
+            ConfigurationMetadata.License[] licenses = new ConfigurationMetadata.License[licenseNodes.getLength()];
+            for(int j=0; j<licenseNodes.getLength(); j++) {
+                Element node = (Element) licenseNodes.item(j);
+                licenses[j] = new ConfigurationMetadata.License(getText(node), Boolean.valueOf(node.getAttribute("osi-approved")).booleanValue());
+            }
             boolean eligible = true;
-            String[] prereqs = getChildrenText(config, "prerequisite");
-            for (int j = 0; j < prereqs.length; j++) {
-                boolean found = false;
-                for (Iterator it = set.iterator(); it.hasNext();) {
-                    String id = (String) it.next();
-                    if(id.startsWith(prereqs[j])) {
-                        found = true;
+            NodeList preNodes = config.getElementsByTagName("prerequisite");
+            ConfigurationMetadata.Prerequisite[] prereqs = new ConfigurationMetadata.Prerequisite[preNodes.getLength()];
+            for(int j=0; j<preNodes.getLength(); j++) {
+                Element node = (Element) preNodes.item(j);
+                String originalConfigId = getChildText(node, "id");
+                Artifact artifact = Artifact.create(originalConfigId.replaceAll("\\*", ""));
+                boolean present = resolver.queryArtifacts(artifact).length > 0;
+                prereqs[j] = new ConfigurationMetadata.Prerequisite(artifact, present,
+                        getChildText(node, "resource-type"), getChildText(node, "description"));
+                if(!present) {
+                    log.info(configId+" is not eligible due to missing "+prereqs[j].getConfigId());
+                    eligible = false;
+                }
+            }
+            String[] gerVersions = getChildrenText(config, "geronimo-version");
+            if(gerVersions.length > 0) {
+                String version = serverInfo.getVersion();
+                boolean match = false;
+                for (int j = 0; j < gerVersions.length; j++) {
+                    String gerVersion = gerVersions[j];
+                    if(gerVersion.equals(version)) {
+                        match = true;
                         break;
                     }
                 }
-                if(!found) {
-                    eligible = false;
-                    break;
+                if(!match) eligible = false;
+            }
+            String[] jvmVersions = getChildrenText(config, "jvm-version");
+            if(jvmVersions.length > 0) {
+                String version = System.getProperty("java.version");
+                boolean match = false;
+                for (int j = 0; j < jvmVersions.length; j++) {
+                    String jvmVersion = jvmVersions[j];
+                    if(version.startsWith(jvmVersion)) {
+                        match = true;
+                        break;
+                    }
                 }
+                if(!match) eligible = false;
             }
             Artifact artifact = Artifact.create(configId);
-            ConfigurationMetadata data = new ConfigurationMetadata(artifact, getChildText(config, "name"), getChildText(config, "category"), configManager.isLoaded(artifact), eligible);
-            data.setGeronimoVersions(getChildrenText(config, "geronimo-version"));
+            boolean installed = configManager.isLoaded(artifact);
+            log.info("Checking "+configId+": installed="+installed+", eligible="+eligible);
+            ConfigurationMetadata data = new ConfigurationMetadata(artifact, getChildText(config, "name"), getChildText(config, "category"), installed, eligible);
+            data.setGeronimoVersions(gerVersions);
+            data.setJvmVersions(jvmVersions);
+            data.setLicenses(licenses);
             data.setPrerequisites(prereqs);
+            data.setDependencies(getChildrenText(config, "dependency"));
             results.add(data);
         }
-        return (ConfigurationMetadata[]) results.toArray(new ConfigurationMetadata[results.size()]);
+        String[] backups = getChildrenText(root, "backup-repository");
+        URL[] backupURLs = new URL[backups.length];
+        for(int i = 0; i < backups.length; i++) {
+            if(backups[i].endsWith("/")) {
+                backupURLs[i] = new URL(backups[i]);
+            } else {
+                backupURLs[i] = new URL(backups[i]+"/");
+            }
+        }
+
+        ConfigurationMetadata[] data = (ConfigurationMetadata[]) results.toArray(new ConfigurationMetadata[results.size()]);
+        return new ConfigurationList(repo, backupURLs, data);
     }
 
     private String getChildText(Element root, String property) {
@@ -132,21 +184,25 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
         for(int i=0; i<children.getLength(); i++) {
             Node check = children.item(i);
             if(check.getNodeType() == Node.ELEMENT_NODE && check.getNodeName().equals(property)) {
-                NodeList nodes = check.getChildNodes();
-                StringBuffer buf = null;
-                for(int j=0; j<nodes.getLength(); j++) {
-                    Node node = nodes.item(j);
-                    if(node.getNodeType() == Node.TEXT_NODE) {
-                        if(buf == null) {
-                            buf = new StringBuffer();
-                        }
-                        buf.append(node.getNodeValue());
-                    }
-                }
-                return buf == null ? null : buf.toString();
+                return getText(check);
             }
         }
         return null;
+    }
+
+    private String getText(Node target) {
+        NodeList nodes = target.getChildNodes();
+        StringBuffer buf = null;
+        for(int j=0; j<nodes.getLength(); j++) {
+            Node node = nodes.item(j);
+            if(node.getNodeType() == Node.TEXT_NODE) {
+                if(buf == null) {
+                    buf = new StringBuffer();
+                }
+                buf.append(node.getNodeValue());
+            }
+        }
+        return buf == null ? null : buf.toString();
     }
 
     private String[] getChildrenText(Element root, String property) {
@@ -172,68 +228,26 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
         return (String[]) results.toArray(new String[results.size()]);
     }
 
-    public ConfigurationMetadata loadDependencies(URL mavenRepository, String username, String password, ConfigurationMetadata source) throws IOException {
-        String configId = source.getConfigId().toString();
-        String url = getURL(configId, mavenRepository.toString());
 
-        Artifact artifact = Artifact.create(configId);
-        InputStream in = openStream(new URL(url), username, password);
-        try { //todo: use a file status monitor
-            writeableRepo.copyToRepository(in, artifact, null); //todo: download only SNAPSHOTS if previously available?
-        } finally {
-            in.close();
-        }
-        try {
-            ConfigurationData data = configStore.loadConfiguration(artifact);
-            source.setDependencies(getDependencies(data));
-            return source;
-        } catch (NoSuchConfigException e) {
-            throw new IllegalStateException("Installed configuration into repository but ConfigStore does not see it: "+e.getMessage());
-        } catch (InvalidConfigException e) {
-            throw new IllegalStateException("Installed configuration into repository but ConfigStore cannot load it: "+e.getMessage());
-        }
-    }
-
-    private static Dependency[] getDependencies(ConfigurationData data) {
-        List dependencies = data.getEnvironment().getDependencies();
-        Collection children = data.getChildConfigurations().values();
-        for (Iterator it = children.iterator(); it.hasNext();) {
-            ConfigurationData child = (ConfigurationData) it.next();
-            dependencies.addAll(child.getEnvironment().getDependencies());
-        }
-        return (Dependency[]) children.toArray(new Dependency[children.size()]);
-    }
-
-    public DownloadResults install(URL mavenRepository, String username, String password, Artifact configId) throws IOException {
+    public DownloadResults install(ConfigurationList list, String username, String password) throws IOException, FailedLoginException, MissingDependencyException {
         DownloadResults results = new DownloadResults();
-        downloadConfigurationDeps(configId,mavenRepository.toString(),username,password,results);
+        for (int i = 0; i < list.getConfigurations().length; i++) {
+            ConfigurationMetadata metadata = list.getConfigurations()[i];
+            downloadConfiguration(metadata.getConfigId(),list.getMainRepository(),list.getBackupRepositories(),username,password,results);
+        }
         return results;
     }
 
-    private String getURL(String configId, String baseRepositoryURL) {
-        if(!baseRepositoryURL.endsWith("/")) {
-            baseRepositoryURL += "/";
+    private void downloadConfiguration(Artifact configID, URL repoURL, URL[] backups, String username, String password, DownloadResults results) throws IOException, FailedLoginException, MissingDependencyException {
+        if(!configStore.containsConfiguration(configID)) {
+            InputStream in = openStream(configID, repoURL, backups, username, password);
+            try { //todo: use a file status monitor
+                writeableRepo.copyToRepository(in, configID, null); //todo: download only SNAPSHOTS if previously available?
+            } finally {
+                in.close();
+            }
         }
-        String[] parts = configId.split("/");
-        return baseRepositoryURL+parts[0]+"/"+parts[3]+"s/"+parts[1]+"-"+parts[2]+"."+parts[3];
-    }
 
-    private InputStream openStream(URL url, String username, String password) throws IOException {
-        InputStream in;
-        if(username != null) { //todo: try connecting first and only use authentication if challenged
-            URLConnection con = url.openConnection();
-            con.setRequestProperty("Authorization", "Basic " + new String(Base64.encode((username + ":" + password).getBytes())));
-            in = con.getInputStream();
-        } else {
-            in = url.openStream();
-        }
-        return in;
-    }
-
-    private void downloadConfigurationDeps(Artifact configID, String repoURL, String username, String password, DownloadResults results) throws IOException {
-        if(!repoURL.endsWith("/")) {
-            repoURL += "/";
-        }
         try {
             ConfigurationData data = null;
             if(configStore.containsConfiguration(configID)) {
@@ -252,16 +266,84 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
                     results.addDependencyPresent(artifact);
                     continue;
                 }
-                String url = getURL(dep.toString(), repoURL);
                 //todo: use a file status monitor
-                writeableRepo.copyToRepository(openStream(new URL(url), username, password), artifact, null);
+                writeableRepo.copyToRepository(openStream(dep.getArtifact(), repoURL, backups, username, password), artifact, null);
                 results.addDependencyInstalled(artifact);
-                downloadConfigurationDeps(artifact, repoURL, username, password, results);
+                downloadConfiguration(artifact, repoURL, backups, username, password, results);
             }
         } catch (NoSuchConfigException e) {
             throw new IllegalStateException("Installed configuration into repository but ConfigStore does not see it: "+e.getMessage());
         } catch (InvalidConfigException e) {
             throw new IllegalStateException("Installed configuration into repository but ConfigStore cannot load it: "+e.getMessage());
+        }
+    }
+
+    private static Dependency[] getDependencies(ConfigurationData data) {
+        List dependencies = data.getEnvironment().getDependencies();
+        Collection children = data.getChildConfigurations().values();
+        for (Iterator it = children.iterator(); it.hasNext();) {
+            ConfigurationData child = (ConfigurationData) it.next();
+            dependencies.addAll(child.getEnvironment().getDependencies());
+        }
+        return (Dependency[]) children.toArray(new Dependency[children.size()]);
+    }
+
+    private static URL getURL(Artifact configId, URL repository) throws MalformedURLException {
+        return new URL(repository, configId.getGroupId().replace('.','/')+"/"+configId.getArtifactId()+"/"+configId.getVersion()+"/"+configId.getArtifactId()+"-"+configId.getVersion()+"."+configId.getType());
+    }
+
+    private static InputStream openStream(Artifact artifact, URL repo, URL[] backups, String username, String password) throws IOException, FailedLoginException, MissingDependencyException {
+        InputStream in;
+        LinkedList list = new LinkedList();
+        list.add(repo);
+        list.addAll(Arrays.asList(backups));
+        while (true) {
+            if(list.isEmpty()) {
+                throw new MissingDependencyException("Unable to download dependency "+artifact);
+            }
+            URL repository = (URL) list.removeFirst();
+            URL url = artifact == null ? repository : getURL(artifact, repository);
+            URLConnection con = url.openConnection();
+            if(con instanceof HttpURLConnection) {
+                HttpURLConnection http = (HttpURLConnection) url.openConnection();
+                http.connect();
+                if(http.getResponseCode() == 401) { // need to authenticate
+                    if(username == null || username.equals("")) {
+                        throw new FailedLoginException("Server returned 401 "+http.getResponseMessage());
+                    }
+                    http = (HttpURLConnection) url.openConnection();
+                    http.setRequestProperty("Authorization", "Basic " + new String(Base64.encode((username + ":" + password).getBytes())));
+                    http.connect();
+                    if(http.getResponseCode() == 401) {
+                        throw new FailedLoginException("Server returned 401 "+http.getResponseMessage());
+                    } else if(http.getResponseCode() == 404) {
+                        continue; // Not found at this repository
+                    }
+                    in = http.getInputStream();
+                } else if(http.getResponseCode() == 404) {
+                    continue; // Not found at this repository
+                } else {
+                    in = http.getInputStream();
+                }
+            } else {
+                if(username != null && !username.equals("")) {
+                    con.setRequestProperty("Authorization", "Basic " + new String(Base64.encode((username + ":" + password).getBytes())));
+                    try {
+                        in = con.getInputStream();
+                    } catch (FileNotFoundException e) {
+                        continue;
+                    }
+                } else {
+                    try {
+                        in = url.openStream();
+                    } catch (FileNotFoundException e) {
+                        continue;
+                    }
+                }
+            }
+            if(in != null) {
+                return in;
+            }
         }
     }
 
@@ -272,9 +354,10 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
         infoFactory.addReference("ConfigManager", ConfigurationManager.class, "ConfigurationManager");
         infoFactory.addReference("Repository", WritableListableRepository.class, "Repository");
         infoFactory.addReference("ConfigStore", ConfigurationStore.class, "ConfigurationStore");
+        infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
         infoFactory.addInterface(ConfigurationInstaller.class);
 
-        infoFactory.setConstructor(new String[]{"ConfigManager", "Repository", "ConfigStore"});
+        infoFactory.setConstructor(new String[]{"ConfigManager", "Repository", "ConfigStore", "ServerInfo"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

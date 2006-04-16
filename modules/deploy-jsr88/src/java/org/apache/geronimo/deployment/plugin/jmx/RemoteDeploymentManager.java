@@ -36,8 +36,7 @@ import org.apache.geronimo.deployment.plugin.local.RedeployCommand;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.jmx.KernelDelegate;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.system.configuration.ConfigurationMetadata;
+import org.apache.geronimo.system.configuration.ConfigurationList;
 import org.apache.geronimo.system.configuration.DownloadResults;
 
 /**
@@ -126,12 +125,12 @@ public class RemoteDeploymentManager extends JMXDeploymentManager {
         }
     }
 
-    public ConfigurationMetadata[] listConfigurations(URL mavenRepository, String username, String password) throws IOException {
+    public ConfigurationList listConfigurations(URL mavenRepository, String username, String password) throws IOException {
         Set set = kernel.listGBeans(new AbstractNameQuery("org.apache.geronimo.system.configuration.ConfigurationInstaller"));
         for (Iterator it = set.iterator(); it.hasNext();) {
             AbstractName name = (AbstractName) it.next();
             try {
-                return (ConfigurationMetadata[]) kernel.invoke(name, "listConfigurations", new Object[]{mavenRepository, username, password}, new String[]{URL.class.getName(), String.class.getName(), String.class.getName()});
+                return (ConfigurationList) kernel.invoke(name, "listConfigurations", new Object[]{mavenRepository, username, password}, new String[]{URL.class.getName(), String.class.getName(), String.class.getName()});
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new IOException("Unable to list configurations: "+e.getMessage());
@@ -140,26 +139,12 @@ public class RemoteDeploymentManager extends JMXDeploymentManager {
         return null;
     }
 
-    public ConfigurationMetadata loadDependencies(URL mavenRepository, String username, String password, ConfigurationMetadata source) throws IOException {
+    public DownloadResults install(ConfigurationList installList, String username, String password) throws IOException {
         Set set = kernel.listGBeans(new AbstractNameQuery("org.apache.geronimo.system.configuration.ConfigurationInstaller"));
         for (Iterator it = set.iterator(); it.hasNext();) {
             AbstractName name = (AbstractName) it.next();
             try {
-                return (ConfigurationMetadata) kernel.invoke(name, "loadDependencies", new Object[]{mavenRepository, username, password, source}, new String[]{URL.class.getName(), ConfigurationMetadata.class.getName(), String.class.getName(), String.class.getName()});
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new IOException("Unable to load dependencies: "+e.getMessage());
-            }
-        }
-        return null;
-    }
-
-    public DownloadResults install(URL mavenRepository, String username, String password, Artifact configId) throws IOException {
-        Set set = kernel.listGBeans(new AbstractNameQuery("org.apache.geronimo.system.configuration.ConfigurationInstaller"));
-        for (Iterator it = set.iterator(); it.hasNext();) {
-            AbstractName name = (AbstractName) it.next();
-            try {
-                return (DownloadResults) kernel.invoke(name, "install", new Object[]{mavenRepository, username, password, configId}, new String[]{URL.class.getName(), String.class.getName(), String.class.getName(), Artifact.class.getName()});
+                return (DownloadResults) kernel.invoke(name, "install", new Object[]{installList, username, password}, new String[]{ConfigurationList.class.getName(), String.class.getName(), String.class.getName()});
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new IOException("Unable to install configurations: "+e.getMessage());

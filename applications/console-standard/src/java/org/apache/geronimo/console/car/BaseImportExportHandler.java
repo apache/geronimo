@@ -24,6 +24,7 @@ import org.apache.geronimo.console.MultiPageAbstractHandler;
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
 public abstract class BaseImportExportHandler extends MultiPageAbstractHandler {
+    protected static final String CONFIG_LIST_SESSION_KEY = "console.plugins.ConfigurationList";
     protected static final String INDEX_MODE = "index";
     protected static final String LIST_MODE = "list";
     protected static final String DOWNLOAD_MODE = "download";

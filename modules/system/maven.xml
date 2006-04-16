@@ -55,6 +55,12 @@ copyright=Copyright (C) 2003-${yearFormat.format(now)}, The Apache Software Foun
             <!-- Create the temporary directory where the configurations will reside -->
             <delete dir="${maven.build.dir}/tmp"/>
             <mkdir dir="${maven.build.dir}/tmp"/>
+            <mkdir dir="${maven.build.dir}/m1"/>
+            <mkdir dir="${maven.build.dir}/m2"/>
+            <copy todir="${maven.build.dir}/m1">
+              <fileset dir="${basedir}/src/test-repo/m1" /></copy>
+            <copy todir="${maven.build.dir}/m2">
+              <fileset dir="${basedir}/src/test-repo/m2" /></copy>
         </j:jelly>
 
     </postGoal>

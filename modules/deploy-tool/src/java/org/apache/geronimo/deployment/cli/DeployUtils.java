@@ -195,8 +195,10 @@ public class DeployUtils {
                 target = new File(module, "META-INF/geronimo-ra.xml");
             } else if(new File(module, "META-INF/application-client.xml").canRead()) {
                 target = new File(module, "META-INF/geronimo-application-client.xml");
+            } else {
+                target = new File(module, "META-INF/geronimo-service.xml");
             }
-            if(target != null && target.canRead()) {
+            if(target.canRead()) {
                 Reader in = new BufferedReader(new FileReader(target));
                 return extractModuleIdFromPlan(in);
             }
@@ -220,6 +222,8 @@ public class DeployUtils {
                     entry = input.getJarEntry("META-INF/geronimo-ra.xml");
                 } else if(input.getJarEntry("META-INF/application-client.xml") != null) {
                     entry = input.getJarEntry("META-INF/geronimo-application-client.xml");
+                } else {
+                    entry = input.getJarEntry("META-INF/geronimo-service.xml");
                 }
                 if(entry != null) {
                     Reader in = new BufferedReader(new InputStreamReader(input.getInputStream(entry)));
@@ -307,6 +311,9 @@ public class DeployUtils {
         }
 
         public void endDocument() throws SAXException {
+            if(type.equals("")) {
+                type = "car";
+            }
             configId = groupId+"/"+artifactId+"/"+version+"/"+type;
         }
     }

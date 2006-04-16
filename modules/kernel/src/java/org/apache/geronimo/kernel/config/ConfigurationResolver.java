@@ -155,7 +155,7 @@ public class ConfigurationResolver {
         }
 
         // resolve the artifact
-        artifact = artifactResolver.resolve(parents, artifact);
+        artifact = artifactResolver.resolveInClassLoader(artifact, parents);
 
         // build a new dependency object to contain the resolved artifact
         Dependency resolvedDependency = new Dependency(artifact, dependency.getImportType());

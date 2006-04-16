@@ -42,30 +42,30 @@ public class ArtifactManagerTest extends TestCase {
         artifacts2.add(private2);
         artifactManager.loadArtifacts(loader2, artifacts2);
 
-        SortedSet loadedArtifacts = artifactManager.getLoadedArtifacts("private1", "artifact", "jar");
+        SortedSet loadedArtifacts = artifactManager.getLoadedArtifacts(new Artifact("private1", "artifact", (Version)null, "jar"));
         assertEquals(Collections.singleton(private1), loadedArtifacts);
 
-        loadedArtifacts = artifactManager.getLoadedArtifacts("loaderGroup", "loaderArtifact1", "car");
+        loadedArtifacts = artifactManager.getLoadedArtifacts(new Artifact("loaderGroup", "loaderArtifact1", (Version)null, "car"));
         assertEquals(Collections.singleton(loader1), loadedArtifacts);
 
-        loadedArtifacts = artifactManager.getLoadedArtifacts("private2", "artifact", "jar");
+        loadedArtifacts = artifactManager.getLoadedArtifacts(new Artifact("private2", "artifact", (Version)null, "jar"));
         assertEquals(Collections.singleton(private2), loadedArtifacts);
 
-        loadedArtifacts = artifactManager.getLoadedArtifacts("loaderGroup", "loaderArtifact2", "car");
+        loadedArtifacts = artifactManager.getLoadedArtifacts(new Artifact("loaderGroup", "loaderArtifact2", (Version)null, "car"));
         assertEquals(Collections.singleton(loader2), loadedArtifacts);
 
         artifactManager.unloadAllArtifacts(loader1);
 
-        loadedArtifacts = artifactManager.getLoadedArtifacts("private1", "artifact", "jar");
+        loadedArtifacts = artifactManager.getLoadedArtifacts(new Artifact("private1", "artifact", (Version)null, "jar"));
         assertEquals(Collections.EMPTY_SET, loadedArtifacts);
 
-        loadedArtifacts = artifactManager.getLoadedArtifacts("loaderGroup", "loaderArtifact1", "car");
+        loadedArtifacts = artifactManager.getLoadedArtifacts(new Artifact("loaderGroup", "loaderArtifact1", (Version)null, "car"));
         assertEquals(Collections.EMPTY_SET, loadedArtifacts);
 
-        loadedArtifacts = artifactManager.getLoadedArtifacts("private2", "artifact", "jar");
+        loadedArtifacts = artifactManager.getLoadedArtifacts(new Artifact("private2", "artifact", (Version)null, "jar"));
         assertEquals(Collections.singleton(private2), loadedArtifacts);
 
-        loadedArtifacts = artifactManager.getLoadedArtifacts("loaderGroup", "loaderArtifact2", "car");
+        loadedArtifacts = artifactManager.getLoadedArtifacts(new Artifact("loaderGroup", "loaderArtifact2", (Version)null, "car"));
         assertEquals(Collections.singleton(loader2), loadedArtifacts);
     }
 
@@ -86,11 +86,11 @@ public class ArtifactManagerTest extends TestCase {
         artifacts.add(version1);
         artifacts.add(version2);
 
-        SortedSet loadedArtifacts = artifactManager.getLoadedArtifacts("version", "version", "jar");
+        SortedSet loadedArtifacts = artifactManager.getLoadedArtifacts(new Artifact("version", "version", (Version)null, "jar"));
         assertEquals(artifacts, loadedArtifacts);
 
         artifactManager.unloadAllArtifacts(loader1);
-        loadedArtifacts = artifactManager.getLoadedArtifacts("version", "version", "jar");
+        loadedArtifacts = artifactManager.getLoadedArtifacts(new Artifact("version", "version", (Version)null, "jar"));
         assertEquals(Collections.singleton(version2), loadedArtifacts);
     }
 
@@ -105,12 +105,12 @@ public class ArtifactManagerTest extends TestCase {
         Artifact loader2 = new Artifact("loaderGroup", "loaderArtifact2", "1", "car");
         artifactManager.loadArtifacts(loader2, Collections.singleton(artifact));
 
-        SortedSet loadedArtifacts = artifactManager.getLoadedArtifacts("dupe", "dupe", "jar");
+        SortedSet loadedArtifacts = artifactManager.getLoadedArtifacts(new Artifact("dupe", "dupe", (Version)null, "jar"));
         assertEquals(Collections.singleton(artifact), loadedArtifacts);
 
         artifactManager.unloadAllArtifacts(loader1);
 
-        loadedArtifacts = artifactManager.getLoadedArtifacts("dupe", "dupe", "jar");
+        loadedArtifacts = artifactManager.getLoadedArtifacts(new Artifact("dupe", "dupe", (Version)null, "jar"));
         assertEquals(Collections.singleton(artifact), loadedArtifacts);
     }
 }

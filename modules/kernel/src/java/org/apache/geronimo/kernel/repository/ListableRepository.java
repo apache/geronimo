@@ -31,5 +31,10 @@ public interface ListableRepository extends Repository {
      */
     public SortedSet list();
 
-    public SortedSet list(String groupId, String artifactId, String type);
+    /**
+     * Gets a list of all the available items matching the specified artifact,
+     * which is normally incomplete (so the results all match whatever fields
+     * are specified on the argument Artifact).
+     */
+    public SortedSet list(Artifact query);
 }

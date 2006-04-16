@@ -24,15 +24,12 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
 import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
@@ -57,7 +54,7 @@ public class ArtifactResolverTest extends TestCase {
         ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, mockRepository);
 
         Artifact unresolvedArtifact = new Artifact("version", "version", (Version) null, "jar");
-        Artifact artifact = artifactResolver.resolve(unresolvedArtifact);
+        Artifact artifact = artifactResolver.resolveInClassLoader(unresolvedArtifact);
         assertEquals(version3, artifact);
     }
 
@@ -69,7 +66,7 @@ public class ArtifactResolverTest extends TestCase {
         ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, mockRepository);
 
         Artifact unresolvedArtifact = new Artifact("version", "version", (Version) null, "jar");
-        Artifact artifact = artifactResolver.resolve(unresolvedArtifact);
+        Artifact artifact = artifactResolver.resolveInClassLoader(unresolvedArtifact);
         assertEquals(version2, artifact);
     }
 
@@ -84,7 +81,7 @@ public class ArtifactResolverTest extends TestCase {
         ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, mockRepository);
 
         Artifact unresolvedArtifact = new Artifact("version", "version", (Version) null, "jar");
-        Artifact artifact = artifactResolver.resolve(unresolvedArtifact);
+        Artifact artifact = artifactResolver.resolveInClassLoader(unresolvedArtifact);
         assertEquals(version2, artifact);
     }
 
@@ -120,7 +117,7 @@ public class ArtifactResolverTest extends TestCase {
         parents.add(parent);
 
         Artifact unresolvedArtifact = new Artifact("version", "version", (Version) null, "jar");
-        Artifact artifact = artifactResolver.resolve(parents, unresolvedArtifact);
+        Artifact artifact = artifactResolver.resolveInClassLoader(unresolvedArtifact, parents);
         assertEquals(version1, artifact);
     }
 
@@ -129,7 +126,7 @@ public class ArtifactResolverTest extends TestCase {
             throw new UnsupportedOperationException();
         }
 
-        public SortedSet list(String groupId, String artifactId, String type) {
+        public SortedSet list(Artifact query) {
             TreeSet set = new TreeSet();
             set.add(version1);
             set.add(version2);

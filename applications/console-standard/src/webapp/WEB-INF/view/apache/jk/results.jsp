@@ -118,7 +118,7 @@ worker.geronimo_ajp13.type=ajp13
 
 <p>With those steps completed, Apache should be ready to go!  Start Geronimo and restart Apache
 and try accessing a Geronimo web application through an Apache URL.  If there are any problems,
-check the Apache error log, and the mod_jk error log (at ${model.logFilePath}).</p>
+check the Apache error log, and the mod_jk error log (at <tt>${model.logFilePath}</tt>).</p>
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="index-before" />

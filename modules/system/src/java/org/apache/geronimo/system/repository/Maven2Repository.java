@@ -17,6 +17,7 @@
 package org.apache.geronimo.system.repository;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +52,10 @@ public class Maven2Repository extends AbstractRepository implements WritableList
     }
 
     public SortedSet list() {
+        return listInternal(null, null, null);
+    }
+
+    private SortedSet listInternal(String artifactMatch, String typeMatch, String versionMatch) {
         SortedSet artifacts = new TreeSet();
         File[] groupIds = rootFile.listFiles();
         for (int i = 0; i < groupIds.length; i++) {
@@ -60,7 +65,7 @@ public class Maven2Repository extends AbstractRepository implements WritableList
                 for (int j = 0; j < versionDirs.length; j++) {
                     File versionDir = versionDirs[j];
                     if (versionDir.canRead() && versionDir.isDirectory()) {
-                        artifacts.addAll(getArtifacts(null, versionDir));
+                        artifacts.addAll(getArtifacts(null, versionDir, artifactMatch, typeMatch, versionMatch));
                     }
                 }
             }
@@ -68,32 +73,50 @@ public class Maven2Repository extends AbstractRepository implements WritableList
         return artifacts;
     }
 
-    public SortedSet list(String groupId, String artifactId, String type) {
-        File path = new File(rootFile, groupId.replace('.', File.separatorChar));
-        path = new File(path, artifactId);
+    public SortedSet list(Artifact query) {
+        if(query.getGroupId() != null) { // todo: see if more logic can be shared with the other case
+            File path = new File(rootFile, query.getGroupId().replace('.', File.separatorChar));
+            path = new File(path, query.getArtifactId());
+            if(!path.canRead() || !path.isDirectory()) {
+                return new TreeSet();
+            }
 
-        SortedSet artifacts = new TreeSet();
+            SortedSet artifacts = new TreeSet();
 
-        File[] versionDirs = path.listFiles();
-        for (int i = 0; i < versionDirs.length; i++) {
-            File versionDir = versionDirs[i];
-            if (versionDir.canRead() && versionDir.isDirectory()) {
-                String version = versionDir.getName();
-                String fileName = artifactId + "-" + version + "." + type;
-                File file = new File(versionDir, fileName);
-                if (file.canRead() && file.isFile()) {
-                    artifacts.add(new Artifact(groupId,
-                            artifactId,
-                            version,
-                            type
-                    ));
+            File[] versionDirs = path.listFiles();
+            for (int i = 0; i < versionDirs.length; i++) {
+                File versionDir = versionDirs[i];
+                if (versionDir.canRead() && versionDir.isDirectory()) {
+                    String version = versionDir.getName();
+                    if(query.getVersion() != null && !query.getVersion().toString().equals(version)) {
+                        continue;
+                    }
+                    // Assumes that artifactId is set
+                    final String filePrefix = query.getArtifactId() + "-" + version + ".";
+                    File[] list = versionDir.listFiles(new FilenameFilter() {
+                        public boolean accept(File dir, String name) {
+                            return name.startsWith(filePrefix);
+                        }
+                    });
+                    for (int j = 0; j < list.length; j++) {
+                        File file = list[j];
+                        String end = file.getName().substring(filePrefix.length());
+                        if(query.getType() != null && !query.getType().equals(end)) {
+                            continue;
+                        }
+                        if(end.indexOf('.') < 0) {
+                            artifacts.add(new Artifact(query.getGroupId(), query.getArtifactId(), version, end));
+                        }
+                    }
                 }
             }
+            return artifacts;
+        } else {
+            return listInternal(query.getArtifactId(), query.getType(), query.getVersion() == null ? null : query.getVersion().toString());
         }
-        return artifacts;
     }
 
-    private List getArtifacts(String groupId, File versionDir) {
+    private List getArtifacts(String groupId, File versionDir, String artifactMatch, String typeMatch, String versionMatch) {
         // org/apache/xbean/xbean-classpath/2.2-SNAPSHOT/xbean-classpath-2.2-SNAPSHOT.jar
         List artifacts = new ArrayList();
         String artifactId = versionDir.getParentFile().getName();
@@ -114,11 +137,19 @@ public class Maven2Repository extends AbstractRepository implements WritableList
                             String type = fileName.substring(fileHeader.length());
 
                             if (!type.endsWith(".sha1") && !type.endsWith(".md5")) {
+                                if(artifactMatch != null && !artifactMatch.equals(artifactId)) {
+                                    continue;
+                                }
+                                if(typeMatch != null && !typeMatch.equals(type)) {
+                                    continue;
+                                }
+                                if(versionMatch != null && !versionMatch.equals(version)) {
+                                    continue;
+                                }
                                 artifacts.add(new Artifact(groupId,
                                         artifactId,
                                         version,
-                                        type
-                                ));
+                                        type));
                             }
                         }
                     } else { // this is just part of the path to the artifact
@@ -129,7 +160,7 @@ public class Maven2Repository extends AbstractRepository implements WritableList
                             nextGroupId = groupId + "." + artifactId;
                         }
 
-                        artifacts.addAll(getArtifacts(nextGroupId, file));
+                        artifacts.addAll(getArtifacts(nextGroupId, file, artifactMatch, typeMatch, versionMatch));
                     }
                 } else if (groupId != null) {
                     String version = versionDir.getName();
@@ -141,6 +172,15 @@ public class Maven2Repository extends AbstractRepository implements WritableList
                         String type = fileName.substring(fileHeader.length());
 
                         if (!type.endsWith(".sha1") && !type.endsWith(".md5")) {
+                            if(artifactMatch != null && !artifactMatch.equals(artifactId)) {
+                                continue;
+                            }
+                            if(typeMatch != null && !typeMatch.equals(type)) {
+                                continue;
+                            }
+                            if(versionMatch != null && !versionMatch.equals(version)) {
+                                continue;
+                            }
                             artifacts.add(new Artifact(groupId,
                                     artifactId,
                                     version,
