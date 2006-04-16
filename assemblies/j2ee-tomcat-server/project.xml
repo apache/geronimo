@@ -282,6 +282,7 @@
                 <geronimo.assemble>install</geronimo.assemble>
             </properties>
         </dependency>
+<!-- do not remove uddi-tomcat, it is required for j2ee compliance -->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>uddi-tomcat</artifactId>

@@ -288,7 +288,7 @@
                 <geronimo.assemble>install</geronimo.assemble>
             </properties>
         </dependency>
-<!--
+<!-- do not remove uddi-jetty, it is required for j2ee compliance -->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>uddi-jetty</artifactId>
@@ -298,6 +298,7 @@
                 <geronimo.assemble>install</geronimo.assemble>
             </properties>
         </dependency>
+<!--
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>daytrader-derby-jetty</artifactId>
