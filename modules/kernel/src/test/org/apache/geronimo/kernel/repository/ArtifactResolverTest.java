@@ -113,7 +113,8 @@ public class ArtifactResolverTest extends TestCase {
 
         Configuration parent = new Configuration(null,
                 parentConfigurationData,
-                configurationResolver);
+                configurationResolver,
+                null);
 
         LinkedHashSet parents = new LinkedHashSet();
         parents.add(parent);

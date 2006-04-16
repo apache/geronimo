@@ -152,7 +152,7 @@ public final class ConfigurationUtil {
         Configuration configuration = (Configuration) kernel.getGBean(gbeanData.getAbstractName());
 
         // start the gbeans
-        startConfigurationGBeans(configuration.getAbstractName(), configuration, kernel, null);
+        startConfigurationGBeans(configuration.getAbstractName(), configuration, kernel);
 
         ConfigurationManager configurationManager = getConfigurationManager(kernel);
         configurationManager.loadConfiguration(configId);
@@ -299,7 +299,7 @@ public final class ConfigurationUtil {
         gbeanData.setDependencies(newDependencies);
 
         // If the GBean has a configurationBaseUrl attribute, set it
-        // todo remove this when web app cl are config. cl.
+        // todo Even though this is not used by the classloader, web apps still need this.  WHY???
         GAttributeInfo attribute = gbeanData.getGBeanInfo().getAttribute("configurationBaseUrl");
         if (attribute != null && attribute.getType().equals("java.net.URL")) {
             try {
@@ -314,11 +314,8 @@ public final class ConfigurationUtil {
         gbeanData.addDependency(configurationName);
     }
 
-    static void startConfigurationGBeans(AbstractName configurationName, Configuration configuration, Kernel kernel, ManageableAttributeStore attributeStore) throws InvalidConfigException {
+    static void startConfigurationGBeans(AbstractName configurationName, Configuration configuration, Kernel kernel) throws InvalidConfigException {
         Collection gbeans = configuration.getGBeans().values();
-        if (attributeStore != null) {
-            gbeans = attributeStore.applyOverrides(configuration.getId(), gbeans, configuration.getConfigurationClassLoader());
-        }
 
         List loaded = new ArrayList(gbeans.size());
         List started = new ArrayList(gbeans.size());
@@ -384,7 +381,7 @@ public final class ConfigurationUtil {
 
             for (Iterator iterator = configuration.getChildren().iterator(); iterator.hasNext();) {
                 Configuration childConfiguration = (Configuration) iterator.next();
-                ConfigurationUtil.startConfigurationGBeans(configurationName, childConfiguration, kernel, attributeStore);
+                ConfigurationUtil.startConfigurationGBeans(configurationName, childConfiguration, kernel);
             }
         } catch (Throwable e) {
             for (Iterator iterator = started.iterator(); iterator.hasNext();) {
@@ -409,7 +406,7 @@ public final class ConfigurationUtil {
             }
             if (e instanceof Error) {
                 throw (Error) e;
-            }
+            }                         
             if (e instanceof InvalidConfigException) {
                 throw (InvalidConfigException) e;
             }

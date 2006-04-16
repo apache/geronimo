@@ -114,6 +114,8 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
         GBeanData gbeanData = new GBeanData(configurationName, Configuration.GBEAN_INFO);
         gbeanData.setAttribute("configurationData", configurationData);
         gbeanData.setAttribute("configurationResolver", new ConfigurationResolver(configurationData, repositories, artifactResolver));
+        //TODO is this dangerous?
+        gbeanData.setAttribute("managedAttributeStore", attributeStore);
 
         // add parents to the parents reference collection
         LinkedHashSet parentNames = new LinkedHashSet();
@@ -160,7 +162,7 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
     }
 
     public void start(Configuration configuration) throws InvalidConfigException {
-        ConfigurationUtil.startConfigurationGBeans(configuration.getAbstractName(), configuration, kernel, attributeStore);
+        ConfigurationUtil.startConfigurationGBeans(configuration.getAbstractName(), configuration, kernel);
 
         if (configurationList != null) {
             configurationList.addConfiguration(configuration.getId().toString());

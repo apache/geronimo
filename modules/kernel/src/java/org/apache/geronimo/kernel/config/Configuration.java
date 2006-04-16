@@ -208,7 +208,8 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      */
     public Configuration(Collection parents,
             ConfigurationData configurationData,
-            ConfigurationResolver configurationResolver) throws MissingDependencyException, MalformedURLException, NoSuchConfigException, InvalidConfigException {
+            ConfigurationResolver configurationResolver,
+            ManageableAttributeStore attributeStore) throws MissingDependencyException, MalformedURLException, NoSuchConfigException, InvalidConfigException {
         if (parents == null) parents = Collections.EMPTY_SET;
         if (configurationData == null) throw new NullPointerException("configurationData is null");
         if (configurationResolver == null) throw new NullPointerException("configurationResolver is null");
@@ -268,7 +269,10 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         //
         // Deserialize the GBeans in the configurationData
         //
-        List gbeans = configurationData.getGBeans(configurationClassLoader);
+        Collection gbeans = configurationData.getGBeans(configurationClassLoader);
+        if (attributeStore != null) {
+            gbeans = attributeStore.applyOverrides(id, gbeans, configurationClassLoader);
+        }
         for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
             GBeanData gbeanData = (GBeanData) iterator.next();
             this.gbeans.put(gbeanData.getAbstractName(), gbeanData);
@@ -283,7 +287,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             Map.Entry entry = (Map.Entry) iterator.next();
             String moduleName = (String) entry.getKey();
             ConfigurationData childConfigurationData = (ConfigurationData) entry.getValue();
-            Configuration childConfiguration = new Configuration(childParents, childConfigurationData, configurationResolver.createChildResolver(moduleName));
+            Configuration childConfiguration = new Configuration(childParents, childConfigurationData, configurationResolver.createChildResolver(moduleName), attributeStore);
             childConfiguration.parent = this;
             children.add(childConfiguration);
         }
@@ -578,7 +582,12 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
 
             // if we already found a match we have an ambiguous query
             if (result.size() > 1) {
-                throw new GBeanNotFoundException("More than one match to referencePatterns", patterns);
+                List names = new ArrayList(result.size());
+                for (Iterator iterator1 = result.iterator(); iterator1.hasNext();) {
+                    GBeanData gBeanData = (GBeanData) iterator1.next();
+                    names.add(gBeanData.getAbstractName());
+                }
+                throw new GBeanNotFoundException("More than one match to referencePatterns: " + names , patterns);
             }
         }
 
@@ -695,13 +704,15 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         infoFactory.addReference("Parents", Configuration.class);
         infoFactory.addAttribute("configurationData", ConfigurationData.class, true, false);
         infoFactory.addAttribute("configurationResolver", ConfigurationResolver.class, true);
+        infoFactory.addAttribute("managedAttributeStore", ManageableAttributeStore.class, true);
 
         infoFactory.addInterface(Configuration.class);
 
         infoFactory.setConstructor(new String[]{
                 "Parents",
                 "configurationData",
-                "configurationResolver"
+                "configurationResolver",
+                "managedAttributeStore"
         });
 
         GBEAN_INFO = infoFactory.getBeanInfo();

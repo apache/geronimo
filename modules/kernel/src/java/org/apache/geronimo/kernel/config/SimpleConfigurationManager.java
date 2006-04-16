@@ -27,12 +27,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import javax.management.ObjectName;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
@@ -230,7 +229,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         try {
             Collection parents = findParentConfigurations(resolvedParentIds, loadedConfigurations);
 
-            Configuration configuration = new Configuration(parents, configurationData, new ConfigurationResolver(configurationData, repositories, artifactResolver));
+            Configuration configuration = new Configuration(parents, configurationData, new ConfigurationResolver(configurationData, repositories, artifactResolver), null);
             configuration.doStart();
             return configuration;
         } catch (Exception e) {

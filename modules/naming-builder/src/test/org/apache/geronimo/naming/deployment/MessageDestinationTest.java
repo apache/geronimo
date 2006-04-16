@@ -47,7 +47,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @version $Rev: 385372 $ $Date$
+ * @version $Rev:390932 $ $Date$
  */
 public class MessageDestinationTest extends TestCase {
     private RefContext refContext = new RefContext(new EJBReferenceBuilder() {
@@ -111,7 +111,8 @@ public class MessageDestinationTest extends TestCase {
         Artifact id = new Artifact("test", "test", "", "car");
         configuration = new Configuration(Collections.EMPTY_LIST,
                 new ConfigurationData(id, naming),
-                new ConfigurationResolver(id, null));
+                new ConfigurationResolver(id, null),
+                null);
         baseName = naming.createRootName(configuration.getId(), "testRoot", NameFactory.RESOURCE_ADAPTER_MODULE);
     }
 

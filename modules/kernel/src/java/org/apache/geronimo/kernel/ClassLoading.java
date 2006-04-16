@@ -26,6 +26,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 
+import org.apache.geronimo.kernel.config.MultiParentClassLoader;
+
 /**
  * Utility class for loading classes by a variety of name variations.
  * <p/>
@@ -206,7 +208,11 @@ public class ClassLoading {
         }
 
         // We're out of options, just toss an exception over the wall.
-        throw new ClassNotFoundException(className);
+        if (classLoader instanceof MultiParentClassLoader) {
+            MultiParentClassLoader cl = (MultiParentClassLoader) classLoader;
+            throw new ClassNotFoundException("Could not load class " + className + " from classloader: " + cl.getId() + ", destroyed state: " + cl.isDestroyed());
+        }
+        throw new ClassNotFoundException("Could not load class " + className + " from unknown classloader; " + classLoader);
     }
 
 

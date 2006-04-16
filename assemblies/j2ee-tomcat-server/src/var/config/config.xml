@@ -91,6 +91,8 @@
             <attribute name="port">${PlanHTTPSPortPrimary}</attribute>
         </gbean>
     </configuration>
+    <!-- n.b. be sure the gbean deployer is explicitly loaded before j2ee-deployer so that defaultEnvironment
+    overrides work properly -->
     <configuration name="geronimo/geronimo-gbean-deployer/${pom.currentVersion}/car"/>
     <configuration name="geronimo/j2ee-deployer/${pom.currentVersion}/car">
         <gbean name="WebBuilder">
