@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.system.sharedlib;
 
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.HashSet;
@@ -36,39 +38,47 @@ public class SharedLib {
         MultiParentClassLoader multiParentClassLoader = (MultiParentClassLoader) classLoader;
         Set currentUrls = new HashSet(Arrays.asList(multiParentClassLoader.getURLs()));
 
-        LinkedHashSet newUrls = new LinkedHashSet(classesDirs.length + libDirs.length);
-        for (int i = 0; i < classesDirs.length; i++) {
-            String classesDir = classesDirs[i];
-            File dir = serverInfo.resolve(classesDir);
-            if (!dir.exists()) {
-                throw new IllegalArgumentException("Classes dir does not exist: " + dir);
-            }
-            if (!dir.isDirectory()) {
-                throw new IllegalArgumentException("Classes dir is not a directory: " + dir);
-            }
-            URL location = dir.toURL();
-            if (!currentUrls.contains(location)) {
-                newUrls.add(location);
+        int size=0;
+        if (classesDirs != null) size += classesDirs.length;
+        if (libDirs != null) size += libDirs.length;
+
+        LinkedHashSet newUrls = new LinkedHashSet(size);
+        if (classesDirs != null) {
+            for (int i = 0; i < classesDirs.length; i++) {
+                String classesDir = classesDirs[i];
+                File dir = serverInfo.resolve(classesDir);
+                if (!dir.exists()) {
+                    throw new IllegalArgumentException("Classes dir does not exist: " + dir);
+                }
+                if (!dir.isDirectory()) {
+                    throw new IllegalArgumentException("Classes dir is not a directory: " + dir);
+                }
+                URL location = dir.toURL();
+                if (!currentUrls.contains(location)) {
+                    newUrls.add(location);
+                }
             }
         }
 
-        for (int i = 0; i < libDirs.length; i++) {
-            String libDir = libDirs[i];
-            File dir = serverInfo.resolve(libDir);
-            if (!dir.exists()) {
-                throw new IllegalArgumentException("Lib dir does not exist: " + dir);
-            }
-            if (!dir.isDirectory()) {
-                throw new IllegalArgumentException("Lib dir is not a directory: " + dir);
-            }
+        if (libDirs != null) {
+            for (int i = 0; i < libDirs.length; i++) {
+                String libDir = libDirs[i];
+                File dir = serverInfo.resolve(libDir);
+                if (!dir.exists()) {
+                    throw new IllegalArgumentException("Lib dir does not exist: " + dir);
+                }
+                if (!dir.isDirectory()) {
+                    throw new IllegalArgumentException("Lib dir is not a directory: " + dir);
+                }
 
-            File[] files = dir.listFiles();
-            for (int j = 0; j < files.length; j++) {
-                File file = files[j];
-                if (file.canRead() && file.getName().endsWith(".jar")) {
-                    URL location = dir.toURL();
-                    if (!currentUrls.contains(location)) {
-                        newUrls.add(location);
+                File[] files = dir.listFiles();
+                for (int j = 0; j < files.length; j++) {
+                    File file = files[j];
+                    if (file.canRead() && file.getName().endsWith(".jar")) {
+                        URL location = file.toURL();
+                        if (!currentUrls.contains(location)) {
+                            newUrls.add(location);
+                        }
                     }
                 }
             }
@@ -78,5 +88,22 @@ public class SharedLib {
             URL url = (URL) iterator.next();
             multiParentClassLoader.addURL(url);
         }
+    }
+
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(SharedLib.class);
+        infoFactory.addAttribute("classLoader", ClassLoader.class, false, false);
+        infoFactory.addAttribute("classesDirs", String[].class, true, true);
+        infoFactory.addAttribute("libDirs", String[].class, true, true);
+        infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
+
+        infoFactory.setConstructor(new String[]{"classLoader", "classesDirs", "libDirs", "ServerInfo"});  
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
     }
 }

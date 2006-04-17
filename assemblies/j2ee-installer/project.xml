@@ -460,6 +460,16 @@
             </properties>
         </dependency>
 
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>sharedlib</artifactId>
+            <type>car</type>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>install</geronimo.assemble>
+            </properties>
+        </dependency>
+
         <!-- unpack -->
         <dependency>
             <groupId>geronimo</groupId>

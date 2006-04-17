@@ -95,6 +95,14 @@
             <attribute name="port">25</attribute>
         </gbean>
     </configuration>
+
+    <configuration name="geronimo/sharedlib/${pom.currentVersion}/car">
+        <gbean name="SharedLib">
+            <attribute name="classesDirs">var/shared/classes</attribute>
+            <attribute name="libDirs">var/shared/lib</attribute>
+        </gbean>
+    </configuration>
+
     <configuration name="geronimo/jetty-deployer/${pom.currentVersion}/car"/>
     <configuration name="geronimo/welcome-jetty/${pom.currentVersion}/car"/>
     <configuration name="geronimo/ldap-demo-jetty/${pom.currentVersion}/car" load="false"/>
