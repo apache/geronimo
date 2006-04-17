@@ -147,14 +147,14 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
     }
 
     public Module createModule(File plan, JarFile moduleFile, Naming naming) throws DeploymentException {
-        return createModule(plan, moduleFile, "rar", null, true, null, naming);
+        return createModule(plan, moduleFile, "rar", null, null, null, naming);
     }
 
     public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming) throws DeploymentException {
-        return createModule(plan, moduleFile, targetPath, specDDUrl, false, earName, naming);
+        return createModule(plan, moduleFile, targetPath, specDDUrl, environment, earName, naming);
     }
 
-    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, AbstractName earName, Naming naming) throws DeploymentException {
+    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, AbstractName earName, Naming naming) throws DeploymentException {
         assert moduleFile != null: "moduleFile is null";
         assert targetPath != null: "targetPath is null";
         assert !targetPath.endsWith("/"): "targetPath must not end with a '/'";
@@ -230,7 +230,11 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
 
         EnvironmentType environmentType = gerConnector.getEnvironment();
         Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
-
+        if (earEnvironment != null) {
+            EnvironmentBuilder.mergeEnvironments(earEnvironment, environment);
+            environment = earEnvironment;
+        }
+                                    
         AbstractName moduleName;
         if (earName == null) {
             earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
@@ -239,6 +243,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             moduleName = naming.createChildName(earName, targetPath, NameFactory.RESOURCE_ADAPTER_MODULE);
         }
 
+        boolean standAlone = earEnvironment == null;
         return new ConnectorModule(standAlone, moduleName, environment, moduleFile, targetPath, connector, gerConnector, specDD);
     }
 

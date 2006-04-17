@@ -120,17 +120,18 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     }
 
     public Module createModule(File plan, JarFile moduleFile, Naming naming) throws DeploymentException {
-        return createModule(plan, moduleFile, "app-client", null, null, true, null, naming);
+        return createModule(plan, moduleFile, "app-client", null, null, null, naming);
     }
 
     public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming) throws DeploymentException {
-        return createModule(plan, moduleFile, targetPath, specDDUrl, environment, false, earName, naming);
+        return createModule(plan, moduleFile, targetPath, specDDUrl, environment, earName, naming);
     }
 
-    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, boolean standAlone, AbstractName earName, Naming naming) throws DeploymentException {
+    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, AbstractName earName, Naming naming) throws DeploymentException {
         assert moduleFile != null: "moduleFile is null";
         assert targetPath != null: "targetPath is null";
         assert !targetPath.endsWith("/"): "targetPath must not end with a '/'";
+        assert (earName == null) == (earEnvironment == null): "if earName is not null you must supply earEnvironment as well";
 
         String specDD;
         ApplicationClientType appClient;
@@ -157,18 +158,23 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         }
 
         // parse vendor dd
-        GerApplicationClientType gerAppClient = getGeronimoAppClient(plan, moduleFile, standAlone, targetPath, appClient, environment);
+        boolean standAlone = earEnvironment == null;
+        GerApplicationClientType gerAppClient = getGeronimoAppClient(plan, moduleFile, standAlone, targetPath, appClient, earEnvironment);
 
 
         EnvironmentType clientEnvironmentType = gerAppClient.getClientEnvironment();
         Environment clientEnvironment = EnvironmentBuilder.buildEnvironment(clientEnvironmentType, defaultClientEnvironment);
         EnvironmentType serverEnvironmentType = gerAppClient.getServerEnvironment();
         Environment serverEnvironment = EnvironmentBuilder.buildEnvironment(serverEnvironmentType, defaultServerEnvironment);
+        if (earEnvironment != null) {
+            EnvironmentBuilder.mergeEnvironments(earEnvironment, serverEnvironment);
+            serverEnvironment = earEnvironment;
+        }
 
         AbstractName moduleName;
         if (earName == null) {
-            earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
-            moduleName = naming.createChildName(earName, environment.getConfigId().toString(), NameFactory.APP_CLIENT_MODULE);
+            earName = naming.createRootName(earEnvironment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
+            moduleName = naming.createChildName(earName, earEnvironment.getConfigId().toString(), NameFactory.APP_CLIENT_MODULE);
         } else {
             moduleName = naming.createChildName(earName, targetPath, NameFactory.APP_CLIENT_MODULE);
         }
@@ -413,7 +419,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                                 }
                             }
                             XmlObject connectorPlan = resource.getConnector();
-                            Module connectorModule = connectorModuleBuilder.createModule(connectorPlan, connectorFile, path, null, null, null, appClientDeploymentContext.getModuleName(), earContext.getNaming());
+                            Module connectorModule = connectorModuleBuilder.createModule(connectorPlan, connectorFile, path, null, appClientModule.getClientEnvironment(), null, appClientDeploymentContext.getModuleName(), earContext.getNaming());
                             resourceModules.add(connectorModule);
                             //TODO configStore == null is fishy, consider moving these stages for connectors into the corresponding stages for this module.
                             connectorModuleBuilder.installModule(connectorFile, appClientDeploymentContext, connectorModule, null, null, repositories);
