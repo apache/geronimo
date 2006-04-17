@@ -3,11 +3,11 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <portlet:defineObjects/>
-<p>These are the configurations available in the selected repository.  The entries
+<p>These are the Geronimo plugins available in the selected repository.  The entries
 that are hyperlinks may be installed into the local server.  The other entries are
 already available in the local server.</p>
 
-<p><b>Available Configurations:</b></p>
+<p><b>Available Plugins:</b></p>
 
 <c:forEach var="category" items="${categories}">
   <p>${category.key}</p>

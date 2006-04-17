@@ -313,10 +313,16 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
 
     public void install(ConfigurationList list, String username, String password, DownloadPoller poller) {
         try {
+            // For each configuration in the list to install...
             for (int i = 0; i < list.getConfigurations().length; i++) {
+                // 1. Identify the configuration
                 ConfigurationMetadata metadata = list.getConfigurations()[i];
+                // 2. Validate that we can install it
+                validateConfiguration(metadata);
+                // 3. Download the artifact if necessary, and its dependencies
                 downloadArtifact(metadata.getConfigId(), list.getMainRepository(), list.getBackupRepositories(),
                         username, password, new ResultsFileWriteMonitor(poller));
+                // 4. Installation of this configuration finished successfully
                 poller.addInstalledConfigID(metadata.getConfigId());
             }
         } catch (Exception e) {
@@ -336,19 +342,39 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
             if(data == null) {
                 throw new IllegalArgumentException("Invalid Configuration Archive "+carFile.getAbsolutePath()+" see server log for details");
             }
+
+            // 2. Validate that we can install this
+            validateConfiguration(data.getConfiguration());
             
-            // 2. Install the CAR into the repository
+            // 3. Install the CAR into the repository
             ResultsFileWriteMonitor monitor = new ResultsFileWriteMonitor(poller);
             writeableRepo.copyToRepository(carFile, data.getConfiguration().getConfigId(), monitor);
 
-            // 3. Download all the dependencies
+            // 4. Download all the dependencies
             downloadArtifact(data.getConfiguration().getConfigId(), data.getRepository(), data.getBackups(),
                     username, password, monitor);
+
+            // 5. Installation of the main configuration finished successfully
             poller.addInstalledConfigID(data.getConfiguration().getConfigId());
         } catch (Exception e) {
             poller.setFailure(e);
         } finally {
             poller.setFinished();
+        }
+    }
+
+    private void validateConfiguration(ConfigurationMetadata metadata) throws MissingDependencyException {
+        // 1. Check that it's not already running
+        if(configManager.isRunning(metadata.getConfigId())) {
+            throw new IllegalArgumentException("Configuration "+metadata.getConfigId()+" is already running!");
+        }
+        // 2. Check that we meet the prerequisites
+        ConfigurationMetadata.Prerequisite[] prereqs = metadata.getPrerequisites();
+        for (int i = 0; i < prereqs.length; i++) {
+            ConfigurationMetadata.Prerequisite prereq = prereqs[i];
+            if(resolver.queryArtifacts(prereq.getConfigId()).length == 0) {
+                throw new MissingDependencyException("Required configuration '"+prereq.getConfigId()+"' is not installed.");
+            }
         }
     }
 

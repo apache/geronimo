@@ -89,6 +89,7 @@
                 <geronimo.assemble>install</geronimo.assemble>
             </properties>
         </dependency>
+<!--
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>directory</artifactId>
@@ -107,6 +108,7 @@
                 <geronimo.assemble>install</geronimo.assemble>
             </properties>
         </dependency>
+-->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>system-database</artifactId>
@@ -219,6 +221,7 @@
             </properties>
         </dependency>
 <!-- applications -->
+<!--
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>ldap-demo-tomcat</artifactId>
@@ -228,6 +231,7 @@
                 <geronimo.assemble>install</geronimo.assemble>
             </properties>
         </dependency>
+-->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>welcome-tomcat</artifactId>
@@ -237,6 +241,7 @@
                 <geronimo.assemble>install</geronimo.assemble>
             </properties>
         </dependency>
+<!--
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>servlets-examples-tomcat</artifactId>
@@ -255,6 +260,7 @@
                 <geronimo.assemble>install</geronimo.assemble>
             </properties>
         </dependency>
+-->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>webconsole-tomcat</artifactId>
@@ -292,6 +298,7 @@
                 <geronimo.assemble>install</geronimo.assemble>
             </properties>
         </dependency>
+<!--
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>daytrader-derby-tomcat</artifactId>
@@ -310,7 +317,7 @@
                 <geronimo.assemble>install</geronimo.assemble>
             </properties>
         </dependency>
-
+-->
         <!-- unpack --> 
         <dependency>
             <groupId>geronimo</groupId>
@@ -837,7 +844,7 @@
             <artifactId>concurrent</artifactId>
             <version>${concurrent_version}</version>
         </dependency>
-
+<!-- Remove all Apache Directory stuff
         <dependency>
             <groupId>directory</groupId>
             <artifactId>apacheds-core</artifactId>
@@ -903,9 +910,7 @@
             <artifactId>ldap-common</artifactId>
             <version>${apacheds_version}</version>
         </dependency>
-
-<!-- geronimo jars -->
-<!-- geronimo spec jars -->
+-->
 
         <dependency>
             <groupId>howl</groupId>
@@ -1117,18 +1122,18 @@
             <version>${xstream_version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>${commons_fileupload_version}</version>
+        </dependency>
+
 
 <!-- stuff that has no clear purpose -->
         <dependency>
             <groupId>castor</groupId>
             <artifactId>castor</artifactId>
             <version>${castor_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-fileupload</groupId>
-            <artifactId>commons-fileupload</artifactId>
-            <version>${commons_fileupload_version}</version>
         </dependency>
 
         <dependency>
@@ -1263,11 +1268,13 @@
             <artifactId>geronimo-derby</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
+<!-- Should be installed when Directory is installed
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-directory</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
+-->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee</artifactId>

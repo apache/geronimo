@@ -71,8 +71,10 @@ public class CommandInstallCAR extends AbstractCommand {
                     Artifact uri = results.getDependenciesInstalled()[i];
                     System.out.print(DeployUtils.reformat("Installed new: "+uri, 4, 72));
                 }
-                System.out.println();
-                System.out.println(DeployUtils.reformat("Downloaded "+(results.getTotalDownloadBytes()/1024)+" kB in "+time+"s ("+results.getTotalDownloadBytes()/(1024*time)+" kB/s)", 4, 72));
+                if(results.getTotalDownloadBytes() > 0 && time > 0) {
+                    System.out.println();
+                    System.out.println(DeployUtils.reformat("Downloaded "+(results.getTotalDownloadBytes()/1024)+" kB in "+time+"s ("+results.getTotalDownloadBytes()/(1024*time)+" kB/s)", 4, 72));
+                }
             }
             if(results.isFinished() && !results.isFailed() && results.getInstalledConfigIDs().length == 1) {
                 Artifact target = results.getInstalledConfigIDs()[0];

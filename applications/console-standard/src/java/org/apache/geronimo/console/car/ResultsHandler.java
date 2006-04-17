@@ -53,10 +53,8 @@ public class ResultsHandler extends BaseImportExportHandler {
         String pass = request.getParameter("repo-pass");
         String configId = request.getParameter("configId");
         request.setAttribute("configId", configId);
-        List configs = (List) request.getPortletSession(true).getAttribute("car.install.configurations");
-        List deps = (List) request.getPortletSession(true).getAttribute("car.install.dependencies");
+        List deps = (List) request.getPortletSession(true).getAttribute("car.install.results");
         request.setAttribute("dependencies", deps);
-        request.setAttribute("configurations", configs);
         request.setAttribute("repository", repo);
         request.setAttribute("repouser", user);
         request.setAttribute("repopass", pass);

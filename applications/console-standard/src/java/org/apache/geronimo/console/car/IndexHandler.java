@@ -43,6 +43,11 @@ public class IndexHandler extends BaseImportExportHandler {
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
         ConfigurationData[] configs = PortletManager.getConfigurations(request, null, false);
         request.setAttribute("configurations", configs);
+        String repository = request.getParameter("repository");
+        if(repository == null) {
+            repository = "http://www.geronimoplugins.com/repository/";
+        }
+        request.setAttribute("repository", repository);
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {

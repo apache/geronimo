@@ -936,13 +936,13 @@
             <artifactId>org.mortbay.jetty</artifactId>
             <version>${jetty_version}</version>
         </dependency>
-<!-- Should be installed when jUDDI app is installed
+
         <dependency>
             <groupId>juddi</groupId>
             <artifactId>juddi</artifactId>
             <version>${juddi_version}</version>
         </dependency>
--->
+
         <dependency>
             <groupId>openejb</groupId>
             <artifactId>openejb-builder</artifactId>
