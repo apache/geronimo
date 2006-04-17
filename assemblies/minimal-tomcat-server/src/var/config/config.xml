@@ -63,6 +63,13 @@
     <configuration name="geronimo/unavailable-webservices-deployer/${pom.currentVersion}/car"/>
     <configuration name="geronimo/unavailable-client-deployer/${pom.currentVersion}/car"/>
 
+    <configuration name="geronimo/sharedlib/${pom.currentVersion}/car">
+        <gbean name="SharedLib">
+            <attribute name="classesDirs">var/shared/classes</attribute>
+            <attribute name="libDirs">var/shared/lib</attribute>
+        </gbean>
+    </configuration>
+
     <!--<configuration name="geronimo/remote-deploy-tomcat/${pom.currentVersion}/car"/>-->
     <!--<configuration name="geronimo/hot-deployer/${pom.currentVersion}/car"/>-->
 </attributes>
