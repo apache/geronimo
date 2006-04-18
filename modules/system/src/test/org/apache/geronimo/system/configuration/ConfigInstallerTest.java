@@ -31,10 +31,12 @@ import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.config.NullConfigurationStore;
+import org.apache.geronimo.kernel.config.LifecycleResults;
+import org.apache.geronimo.kernel.config.LifecycleException;
+import org.apache.geronimo.kernel.config.LifecycleMonitor;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.FileWriteMonitor;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
@@ -51,6 +53,7 @@ public class ConfigInstallerTest extends TestCase {
     private ConfigurationInstaller installer;
 
     protected void setUp() throws Exception {
+        super.setUp();
         String url = getClass().getResource("/geronimo-plugins.xml").toString();
         int pos = url.lastIndexOf("/");
         testRepo = new URL(url.substring(0, pos));
@@ -136,39 +139,6 @@ public class ConfigInstallerTest extends TestCase {
             return Collections.EMPTY_LIST;
         }
 
-        public boolean isConfiguration(Artifact artifact) {
-            return false;
-        }
-
-        public Configuration getConfiguration(Artifact configId) {
-            return null;
-        }
-
-        public void loadConfiguration(Artifact configID) throws NoSuchConfigException, IOException, InvalidConfigException {
-        }
-
-        public Configuration loadConfiguration(ConfigurationData configurationData) throws NoSuchConfigException, IOException, InvalidConfigException {
-            return null;
-        }
-
-        public void unloadConfiguration(Artifact configID) throws NoSuchConfigException {
-        }
-
-        public void unloadConfiguration(Configuration configuration) throws NoSuchConfigException {
-        }
-
-        public void startConfiguration(Artifact configID) throws InvalidConfigException {
-        }
-
-        public void startConfiguration(Configuration configuration) throws InvalidConfigException {
-        }
-
-        public void stopConfiguration(Artifact configID) throws NoSuchConfigException {
-        }
-
-        public void stopConfiguration(Configuration configuration) throws NoSuchConfigException {
-        }
-
         public boolean isRunning(Artifact configurationId) {
             return false;
         }
@@ -177,7 +147,64 @@ public class ConfigInstallerTest extends TestCase {
             return null;
         }
 
-        public void uninstallConfiguration(Artifact configId) throws IOException, NoSuchConfigException {
+        public boolean isConfiguration(Artifact artifact) {
+            return false;
+        }
+
+        public Configuration getConfiguration(Artifact configurationId) {
+            return null;
+        }
+
+        public LifecycleResults loadConfiguration(Artifact configurationId) throws NoSuchConfigException, LifecycleException {
+            return null;
+        }
+
+        public LifecycleResults loadConfiguration(ConfigurationData configurationData) throws NoSuchConfigException, LifecycleException {
+            return null;
+        }
+
+        public LifecycleResults loadConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
+            return null;
+        }
+
+        public LifecycleResults loadConfiguration(ConfigurationData configurationData, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
+            return null;
+        }
+
+        public LifecycleResults unloadConfiguration(Artifact configurationId) throws NoSuchConfigException {
+            return null;
+        }
+
+        public LifecycleResults unloadConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException {
+            return null;
+        }
+
+        public LifecycleResults startConfiguration(Artifact configurationId) throws NoSuchConfigException, LifecycleException {
+            return null;
+        }
+
+        public LifecycleResults startConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
+            return null;
+        }
+
+        public LifecycleResults stopConfiguration(Artifact configurationId) throws NoSuchConfigException {
+            return null;
+        }
+
+        public LifecycleResults stopConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException {
+            return null;
+        }
+
+        public LifecycleResults restartConfiguration(Artifact configurationId) throws NoSuchConfigException, LifecycleException {
+            return null;
+        }
+
+        public LifecycleResults restartConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
+            return null;
+        }
+
+        public void uninstallConfiguration(Artifact configurationId) throws IOException, NoSuchConfigException {
+
         }
     }
 }

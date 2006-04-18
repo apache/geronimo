@@ -212,7 +212,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
                     moduleContext.addFile(targetPath, warFile, entry);
                     if (!addedClasses && entry.getName().startsWith("WEB-INF/classes/")) {
                         addedClasses = true;
-                        moduleContext.getConfiguration().addToClassPath(new URI(null, "WEB-INF/classes/", null));
+                        moduleContext.getConfiguration().addToClassPath("WEB-INF/classes/");
                     }
                 }
             }

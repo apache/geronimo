@@ -20,7 +20,6 @@ import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
@@ -43,13 +42,14 @@ public class SimpleGBeanTest extends TestCase {
         ConfigurationManager configurationManager = (ConfigurationManager) kernel.getGBean(ConfigurationManager.class);
 
         // create a configuration for our test bean
-        ConfigurationData configurationData = new ConfigurationData(new Artifact("test", "test", "", "car"), kernel.getNaming());
+        Artifact configurationId = new Artifact("test", "test", "", "car");
+        ConfigurationData configurationData = new ConfigurationData(configurationId, kernel.getNaming());
         GBeanData mockBean1 = configurationData.addGBean("MyBean", TestGBean.getGBeanInfo());
         mockBean1.setAttribute("value", "1234");
 
         // load and start the configuration
-        Configuration configuration = configurationManager.loadConfiguration(configurationData);
-        configurationManager.startConfiguration(configuration);
+        configurationManager.loadConfiguration(configurationData);
+        configurationManager.startConfiguration(configurationId);
 
         // invoke GBean directly
         TestGBean testGBean = (TestGBean) kernel.getGBean("MyBean");
@@ -69,8 +69,8 @@ public class SimpleGBeanTest extends TestCase {
         assertEquals("1234", kernel.invoke("MyBean", TestGBean.class, "fetchValue"));
 
         // stop and unload configuration
-        configurationManager.stopConfiguration(configuration);
-        configurationManager.unloadConfiguration(configuration);
+        configurationManager.stopConfiguration(configurationId);
+        configurationManager.unloadConfiguration(configurationId);
 
         // stop the kernel
         kernel.shutdown();

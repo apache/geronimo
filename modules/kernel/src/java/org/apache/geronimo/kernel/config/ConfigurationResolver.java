@@ -22,10 +22,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Collections;
+import java.util.Set;
 import java.io.File;
-import java.net.URI;
 import java.net.MalformedURLException;
-import java.net.URL;
 
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
@@ -113,11 +112,13 @@ public class ConfigurationResolver {
         throw new MissingDependencyException("Unable to resolve dependency " + artifact);
     }
 
-    public URL resolve(URI uri) throws MalformedURLException, NoSuchConfigException {
+    public Set resolve(String pattern) throws MalformedURLException, NoSuchConfigException {
         if (configurationStore != null) {
-            return configurationStore.resolve(configurationId, moduleName, uri);
+            Set matches = configurationStore.resolve(configurationId, moduleName, pattern);
+            return matches;
         } else if (baseDir != null) {
-            return new File(baseDir, uri.toString()).toURL();
+            Set matches = IOUtil.search(baseDir, pattern);
+            return matches;
         } else {
             throw new IllegalStateException("No configurationStore or baseDir supplied so paths can not be resolved");
         }

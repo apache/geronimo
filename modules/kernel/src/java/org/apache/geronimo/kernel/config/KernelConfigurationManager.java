@@ -17,12 +17,11 @@
 
 package org.apache.geronimo.kernel.config;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.LinkedHashSet;
 
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -88,24 +87,28 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
         return new DefaultArtifactResolver(artifactManager, repositories);
     }
 
-    public synchronized void loadConfiguration(Artifact configurationId) throws NoSuchConfigException, IOException, InvalidConfigException {
+    public synchronized LifecycleResults loadConfiguration(Artifact configurationId) throws NoSuchConfigException, LifecycleException {
         // todo hack for bootstrap deploy
-        ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(configurationId);
-        if (configurationStatus == null && kernel.isLoaded(Configuration.getConfigurationAbstractName(configurationId))) {
+        AbstractName abstractName = null;
+        try {
+            abstractName = Configuration.getConfigurationAbstractName(configurationId);
+        } catch (InvalidConfigException e) {
+            throw new RuntimeException(e);
+        }
+        if (getConfiguration(configurationId) == null && kernel.isLoaded(abstractName)) {
             try {
-                Configuration configuration = (Configuration) kernel.getGBean(Configuration.getConfigurationAbstractName(configurationId));
-                configurationStatus = createConfigurationStatus(configuration);
-                configurationStatus.load();
-                //even worse hack
-                configurationStatus.start();
-                configurations.put(configurationId, configurationStatus);
-                return;
+                Configuration configuration = (Configuration) kernel.getGBean(abstractName);
+                addNewConfigurationToModel(configuration);
+                configurationModel.load(configurationId);
+                configurationModel.start(configurationId);
+                configurations.put(configurationId, configuration);
+                return new LifecycleResults();
             } catch (GBeanNotFoundException e) {
                 // configuration was unloaded, just continue as normal
             }
         }
 
-        super.loadConfiguration(configurationId);
+        return super.loadConfiguration(configurationId);
     }
 
     protected Configuration load(ConfigurationData configurationData, LinkedHashSet resolvedParentIds, Map loadedConfigurations) throws InvalidConfigException {

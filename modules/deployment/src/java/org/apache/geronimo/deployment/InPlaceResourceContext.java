@@ -37,7 +37,7 @@ class InPlaceResourceContext implements ResourceContext {
 
         if (inPlaceBaseConfigurationDir.isFile()) {
             try {
-                configuration.addToClassPath(URI.create(""));
+                configuration.addToClassPath("");
             } catch (IOException e) {
                 throw new DeploymentException(e);
             }
@@ -45,19 +45,19 @@ class InPlaceResourceContext implements ResourceContext {
     }
 
     public void addIncludeAsPackedJar(URI targetPath, JarFile jarFile) throws IOException {
-        configuration.addToClassPath(targetPath);
+        configuration.addToClassPath(targetPath.toString());
     }
 
     public void addInclude(URI targetPath, ZipFile zipFile, ZipEntry zipEntry) throws IOException {
-        configuration.addToClassPath(targetPath);
+        configuration.addToClassPath(targetPath.toString());
     }
 
     public void addInclude(URI targetPath, URL source) throws IOException {
-        configuration.addToClassPath(targetPath);
+        configuration.addToClassPath(targetPath.toString());
     }
 
     public void addInclude(URI targetPath, File source) throws IOException {
-        configuration.addToClassPath(targetPath);
+        configuration.addToClassPath(targetPath.toString());
     }
 
     public void addFile(URI targetPath, ZipFile zipFile, ZipEntry zipEntry) throws IOException {

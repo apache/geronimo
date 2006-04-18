@@ -44,7 +44,7 @@ class CopyResourceContext implements ResourceContext {
         
         if (baseDir.isFile()) {
             try {
-                configuration.addToClassPath(URI.create(""));
+                configuration.addToClassPath("");
             } catch (IOException e) {
                 throw new DeploymentException(e);
             }
@@ -67,7 +67,7 @@ class CopyResourceContext implements ResourceContext {
         DeploymentUtil.copyToPackedJar(jarFile, targetFile);
 
         if (!targetFile.isFile()) throw new IllegalStateException("target file should be a file: " + targetFile);
-        configuration.addToClassPath(targetPath);
+        configuration.addToClassPath(targetPath.toString());
     }
 
     /**
@@ -87,7 +87,7 @@ class CopyResourceContext implements ResourceContext {
         addFile(targetFile, zipFile, zipEntry);
 
 //        if (!targetFile.isDirectory()) throw new IllegalStateException("target file should be a directory: " + targetFile);
-        configuration.addToClassPath(targetPath);
+        configuration.addToClassPath(targetPath.toString());
     }
 
     /**
@@ -106,7 +106,7 @@ class CopyResourceContext implements ResourceContext {
         addFile(targetFile, source);
 
         if (!targetFile.isFile()) throw new IllegalStateException("target file should be a file: " + targetFile);
-        configuration.addToClassPath(targetPath);
+        configuration.addToClassPath(targetPath.toString());
     }
 
     /**
@@ -125,7 +125,7 @@ class CopyResourceContext implements ResourceContext {
         addFile(targetFile, source);
 
         if (!targetFile.isFile()) throw new IllegalStateException("target file should be a file: " + targetFile);
-        configuration.addToClassPath(targetPath);
+        configuration.addToClassPath(targetPath.toString());
     }
 
     public void addFile(URI targetPath, ZipFile zipFile, ZipEntry zipEntry) throws IOException {

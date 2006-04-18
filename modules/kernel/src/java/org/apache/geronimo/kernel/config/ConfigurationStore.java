@@ -21,9 +21,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.gbean.AbstractName;
@@ -116,15 +115,14 @@ public interface ConfigurationStore {
     File createNewConfigurationDir(Artifact configId) throws ConfigurationAlreadyExistsException;
 
     /**
-     * Locate the classpath component for the supplied uri in the given artifact
-     *
-     * @param configId    Identifies the configuration that the resource is in
-     * @param moduleName  The module within the configuration that contains the resource
-     * @param uri         The path to the resource within the module
-     *
-     * @return URL for the configuration component.
+     * Locate the physical locations which match the supplied path in the given artifact/module.  The path may be and
+     * ant style pattern.
+     * @param configId the artifact to search
+     * @param moduleName the module name or null
+     * @param path the pattern to search for with the artifact/module
+     * @return as Set&gt;URL&lt; of the matching locations
      */
-    URL resolve(Artifact configId, String moduleName, URI uri) throws NoSuchConfigException, MalformedURLException;
+    Set resolve(Artifact configId, String moduleName, String path) throws NoSuchConfigException, MalformedURLException;
 
     /**
      * Exports a configuration as a ZIP file

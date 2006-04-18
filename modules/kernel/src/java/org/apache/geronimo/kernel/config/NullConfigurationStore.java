@@ -23,8 +23,7 @@ import java.io.IOException;
 import java.io.File;
 import java.io.OutputStream;
 import java.util.List;
-import java.net.URL;
-import java.net.URI;
+import java.util.Set;
 import java.net.MalformedURLException;
 
 /**
@@ -36,7 +35,7 @@ public class NullConfigurationStore implements ConfigurationStore {
     public boolean isInPlaceConfiguration(Artifact configId) throws NoSuchConfigException, IOException {
         return false;
     }
-    
+
     public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
     }
 
@@ -67,7 +66,7 @@ public class NullConfigurationStore implements ConfigurationStore {
         return null;
     }
 
-    public URL resolve(Artifact configId, String moduleName, URI uri) throws NoSuchConfigException, MalformedURLException {
+    public Set resolve(Artifact configId, String moduleName, String path) throws NoSuchConfigException, MalformedURLException {
         return null;
     }
 

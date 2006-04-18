@@ -19,7 +19,6 @@ package org.apache.geronimo.console.configmanager;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -39,8 +38,8 @@ import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.config.LifecycleException;
 import org.apache.geronimo.kernel.repository.Artifact;
 
 public class ConfigManagerPortlet extends BasePortlet {
@@ -90,9 +89,10 @@ public class ConfigManagerPortlet extends BasePortlet {
             // ignore this for now
             messageStatus = "Configuration not found<br /><br />";
             throw new PortletException("Configuration not found", e);
-        } catch (InvalidConfigException e) {
-            messageStatus = "Configuration not found<br /><br />";
-            throw new PortletException("Configuration not found", e);
+        } catch (LifecycleException e) {
+            // todo we have a much more detailed report now
+            messageStatus = "Lifecycle operation failed<br /><br />";
+            throw new PortletException("Exception", e);
         } catch (Exception e) {
             messageStatus = "Encountered an unhandled exception<br /><br />";
             throw new PortletException("Exception", e);

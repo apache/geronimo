@@ -662,7 +662,7 @@ public final class GBeanInstance implements StateManageable {
             if (attribute.isPersistent()) {
                 return attribute.getPersistentValue();
             } else {
-                throw new IllegalStateException("Cannot retrieve the value for non-persistent attribute " + attributeName + " when GBeanInstance is DESTROYED");
+                throw new IllegalStateException("Cannot retrieve the value for non-persistent attribute " + attributeName + " when gbean has been destroyed: " + abstractName);
             }
         }
     }
@@ -906,7 +906,7 @@ public final class GBeanInstance implements StateManageable {
                     parameters[i] = getReferenceByName(name).getProxy();
                 } else {
                     stateReason = "the service constructor definition contained the name '" + name + "' which is not a known attribute or reference of the service.";
-                    throw new InvalidConfigurationException("Unknown attribute or reference name in constructor: name=" + name);
+                    throw new InvalidConfigurationException("Unknown attribute or reference name in constructor: referenceName=" + name + ", gbean=" + abstractName);
                 }
             }
 

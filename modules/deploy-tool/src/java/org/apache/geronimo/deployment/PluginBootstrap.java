@@ -18,25 +18,20 @@ package org.apache.geronimo.deployment;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.net.URI;
-import java.net.URL;
 import java.util.Collections;
-import java.util.List;
 import java.util.jar.JarOutputStream;
 
-import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
 import org.apache.geronimo.deployment.xbeans.ConfigurationType;
 import org.apache.geronimo.kernel.Jsr77Naming;
+import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.NullConfigurationStore;
-import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.repository.Maven1Repository;
-import org.apache.geronimo.gbean.AbstractName;
 
 /**
  * @version $Rev$ $Date$

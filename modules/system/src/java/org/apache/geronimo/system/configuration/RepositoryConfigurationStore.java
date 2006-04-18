@@ -22,12 +22,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.SortedSet;
+import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -44,11 +43,11 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.config.IOUtil;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.FileWriteMonitor;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
-import org.apache.geronimo.system.repository.IOUtil;
 
 /**
  * Implementation of ConfigurationStore that loads Configurations from a repository.
@@ -167,7 +166,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         return location;
     }
 
-    public URL resolve(Artifact configId, String moduleName, URI uri) throws NoSuchConfigException, MalformedURLException {
+    public Set resolve(Artifact configId, String moduleName, String path) throws NoSuchConfigException, MalformedURLException {
         File location = repository.getLocation(configId);
         if (location.isDirectory()) {
             File inPlaceLocation = null;
@@ -184,18 +183,15 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
             }
 
             if (location.isDirectory()) {
-                URL locationUrl = location.toURL();
-                URL resolvedUrl = new URL(locationUrl, uri.toString());
-                return resolvedUrl;
+                Set matches = IOUtil.search(location, path);
+                return matches;
+            } else {
+                Set matches = IOUtil.search(location, path);
+                return matches;
             }
-            URL baseURL = new URL("jar:" + repository.getLocation(configId).toURL().toString() + "!/");
-            return new URL(baseURL, uri.toString());
         } else {
-            URL baseURL = new URL("jar:" + repository.getLocation(configId).toURL().toString() + "!/");
-            if (moduleName != null) {
-                baseURL = new URL(baseURL, moduleName + "/");
-            }
-            return new URL(baseURL, uri.toString());
+            Set matches = IOUtil.search(location, moduleName + "/" +path);
+            return matches;
         }
     }
 

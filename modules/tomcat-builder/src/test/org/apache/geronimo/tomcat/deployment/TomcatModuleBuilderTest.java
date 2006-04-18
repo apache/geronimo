@@ -149,8 +149,10 @@ public class TomcatModuleBuilderTest extends TestCase {
         earContext.close();
         module.close();
 
-        Configuration configuration = configurationManager.loadConfiguration(configurationData);
-        configurationManager.startConfiguration(configuration);
+        Artifact configurationId = configurationData.getId();
+        configurationManager.loadConfiguration(configurationData);
+        Configuration configuration = configurationManager.getConfiguration(configurationId);
+        configurationManager.startConfiguration(configurationId);
 
         assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(moduleName));
         Set names = configuration.findGBeans(new AbstractNameQuery(moduleName.getArtifact(), Collections.EMPTY_MAP));
@@ -160,8 +162,8 @@ public class TomcatModuleBuilderTest extends TestCase {
             assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(objectName));
         }
 
-        configurationManager.stopConfiguration(configuration);
-        configurationManager.unloadConfiguration(configuration);
+        configurationManager.stopConfiguration(configurationId);
+        configurationManager.unloadConfiguration(configurationId);
     }
 
     private EARContext createEARContext(File outputPath, Environment environment, Repository repository, ConfigurationStore configStore, AbstractName moduleName) throws DeploymentException {
@@ -400,8 +402,8 @@ public class TomcatModuleBuilderTest extends TestCase {
             return true;
         }
 
-        public URL resolve(Artifact configId, String moduleName, URI uri) throws NoSuchConfigException, MalformedURLException {
-            return baseURL;
+        public Set resolve(Artifact configId, String moduleName, String pattern) throws NoSuchConfigException, MalformedURLException {
+            return Collections.singleton(baseURL);
         }
 
         public final static GBeanInfo GBEAN_INFO;

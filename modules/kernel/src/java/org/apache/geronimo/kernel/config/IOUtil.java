@@ -14,17 +14,27 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.system.repository;
+package org.apache.geronimo.kernel.config;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.Writer;
 import java.io.Reader;
+import java.io.Writer;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
 
 /**
  * @version $Rev$ $Date$
@@ -172,5 +182,87 @@ public class IOUtil {
             } catch(Exception ignored) {
             }
         }
+    }
+
+    public static Set search(File root, String pattern) throws MalformedURLException {
+        if (root.isDirectory()) {
+            if (!SelectorUtils.hasWildcards(pattern)) {
+                File match = new File(root, pattern);
+                if (match.exists() && match.canRead()) {
+                    return Collections.singleton(match.toURL());
+                } else {
+                    return Collections.EMPTY_SET;
+                }
+            } else {
+                Set matches = new LinkedHashSet();
+                Map files = listAllFileNames(root);
+                for (Iterator iterator = files.entrySet().iterator(); iterator.hasNext();) {
+                    Map.Entry entry = (Map.Entry) iterator.next();
+                    String fileName = (String) entry.getKey();
+                    if (SelectorUtils.matchPath(pattern, fileName)) {
+                        File file = (File) entry.getValue();
+                        matches.add(file.toURL());
+                    }
+                }
+                return matches;
+            }
+        } else {
+            JarFile jarFile = null;
+            try {
+                jarFile = new JarFile(root);
+                URL baseURL = new URL("jar:" + root.toURL().toString() + "!/");
+                if (!SelectorUtils.hasWildcards(pattern)) {
+                    ZipEntry entry = jarFile.getEntry(pattern);
+                    if (entry != null) {
+                        URL match = new URL(baseURL, entry.getName());
+                        return Collections.singleton(match);
+                    } else {
+                        return Collections.EMPTY_SET;
+                    }
+                } else {
+                    Set matches = new LinkedHashSet();
+                    Enumeration entries = jarFile.entries();
+                    while (entries.hasMoreElements()) {
+                        ZipEntry entry = (ZipEntry) entries.nextElement();
+                        String fileName = entry.getName();
+                        if (SelectorUtils.matchPath(pattern, fileName)) {
+                            URL url = new URL(baseURL, fileName);
+                            matches.add(url);
+                        }
+                    }
+                    return matches;
+                }
+            } catch (MalformedURLException e) {
+                throw e;
+            } catch (IOException e) {
+                return Collections.EMPTY_SET;
+            } finally {
+                close(jarFile);
+            }
+        }
+    }
+
+    public static Map listAllFileNames(File base) {
+        return listAllFileNames(base, "");
+    }
+
+    private static Map listAllFileNames(File base, String prefix) {
+        if (!base.canRead() || !base.isDirectory()) {
+            throw new IllegalArgumentException(base.getAbsolutePath());
+        }
+        Map map = new LinkedHashMap();
+        File[] hits = base.listFiles();
+        for (int i = 0; i < hits.length; i++) {
+            File hit = hits[i];
+            if (hit.canRead()) {
+                if (hit.isDirectory()) {
+                    map.putAll(listAllFileNames(hit, prefix.equals("") ? hit.getName() : prefix + "/" + hit.getName()));
+                } else {
+                    map.put(prefix.equals("") ? hit.getName() : prefix + "/" + hit.getName(), hit);
+                }
+            }
+        }
+        map.put(prefix, base);
+        return map;
     }
 }

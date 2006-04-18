@@ -161,7 +161,8 @@ public class DeploymentContext {
 
     private static Configuration createTempConfiguration(Environment environment, ConfigurationModuleType moduleType, File baseDir, File inPlaceConfigurationDir, ConfigurationManager configurationManager, Naming naming) throws DeploymentException {
         try {
-            return configurationManager.loadConfiguration(new ConfigurationData(moduleType, null, null, null, environment, baseDir, inPlaceConfigurationDir, naming));
+            configurationManager.loadConfiguration(new ConfigurationData(moduleType, null, null, null, environment, baseDir, inPlaceConfigurationDir, naming));
+            return configurationManager.getConfiguration(environment.getConfigId());
         } catch (Exception e) {
             throw new DeploymentException("Unable to create configuration for deployment", e);
         }
@@ -335,7 +336,7 @@ public class DeploymentContext {
             try {
                 URI targetUri = moduleBaseUri.resolve(pathUri);
                 if (targetUri.getPath().endsWith("/")) throw new IllegalStateException("target path must not end with a '/' character: " + targetUri);
-                configuration.addToClassPath(targetUri);
+                configuration.addToClassPath(targetUri.toString());
             } catch (IOException e) {
                 throw new DeploymentException(e);
             }
@@ -350,7 +351,7 @@ public class DeploymentContext {
         File targetFile = getTargetFile(new URI(targetPath.toString() + classFileName));
         addFile(targetFile, new ByteArrayInputStream(bytes));
 
-        configuration.addToClassPath(targetPath);
+        configuration.addToClassPath(targetPath.toString());
     }
 
     public void addFile(URI targetPath, ZipFile zipFile, ZipEntry zipEntry) throws IOException {
@@ -398,7 +399,7 @@ public class DeploymentContext {
     public void close() throws IOException, DeploymentException {
         if (configurationManager != null) {
             try {
-                configurationManager.unloadConfiguration(configuration);
+                configurationManager.unloadConfiguration(configuration.getId());
             } catch (NoSuchConfigException ignored) {
             }
         }

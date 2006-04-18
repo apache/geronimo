@@ -20,7 +20,6 @@ package org.apache.geronimo.kernel.config;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -215,7 +214,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         if (configurationResolver == null) throw new NullPointerException("configurationResolver is null");
 
         this.configurationData = configurationData;
-        this.environment = this.configurationData.getEnvironment();
+        this.environment = configurationData.getEnvironment();
         this.configurationResolver = configurationResolver;
         this.classPath = new LinkedHashSet(configurationData.getClassPath());
         this.naming = configurationData.getNaming();
@@ -256,40 +255,60 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             }
         }
 
-        //
-        // Build the configuration class loader
-        //
-        configurationClassLoader = createConfigurationClasssLoader(parents, environment, classPath);
+        try {
+            //
+            // Build the configuration class loader
+            //
+            configurationClassLoader = createConfigurationClasssLoader(parents, environment, classPath);
 
-        //
-        // Get all service parents in depth first order
-        //
-        addDepthFirstServiceParents(this, allServiceParents);
+            //
+            // Get all service parents in depth first order
+            //
+            addDepthFirstServiceParents(this, allServiceParents);
 
-        //
-        // Deserialize the GBeans in the configurationData
-        //
-        Collection gbeans = configurationData.getGBeans(configurationClassLoader);
-        if (attributeStore != null) {
-            gbeans = attributeStore.applyOverrides(id, gbeans, configurationClassLoader);
-        }
-        for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
-            GBeanData gbeanData = (GBeanData) iterator.next();
-            this.gbeans.put(gbeanData.getAbstractName(), gbeanData);
-        }
+            //
+            // Deserialize the GBeans in the configurationData
+            //
+            Collection gbeans = configurationData.getGBeans(configurationClassLoader);
+            if (attributeStore != null) {
+                gbeans = attributeStore.applyOverrides(id, gbeans, configurationClassLoader);
+            }
+            for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
+                GBeanData gbeanData = (GBeanData) iterator.next();
+                this.gbeans.put(gbeanData.getAbstractName(), gbeanData);
+            }
 
-        //
-        // Create child configurations
-        //
-        LinkedHashSet childParents = new LinkedHashSet(parents);
-        childParents.add(this);
-        for (Iterator iterator = configurationData.getChildConfigurations().entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            String moduleName = (String) entry.getKey();
-            ConfigurationData childConfigurationData = (ConfigurationData) entry.getValue();
-            Configuration childConfiguration = new Configuration(childParents, childConfigurationData, configurationResolver.createChildResolver(moduleName), attributeStore);
-            childConfiguration.parent = this;
-            children.add(childConfiguration);
+            //
+            // Create child configurations
+            //
+            LinkedHashSet childParents = new LinkedHashSet(parents);
+            childParents.add(this);
+            for (Iterator iterator = configurationData.getChildConfigurations().entrySet().iterator(); iterator.hasNext();) {
+                Map.Entry entry = (Map.Entry) iterator.next();
+                String moduleName = (String) entry.getKey();
+                ConfigurationData childConfigurationData = (ConfigurationData) entry.getValue();
+                Configuration childConfiguration = new Configuration(childParents, childConfigurationData, configurationResolver.createChildResolver(moduleName), attributeStore);
+                childConfiguration.parent = this;
+                children.add(childConfiguration);
+            }
+        } catch (RuntimeException e) {
+            shutdown();
+            throw e;
+        } catch (Error e) {
+            shutdown();
+            throw e;
+        } catch (MissingDependencyException e) {
+            shutdown();
+            throw e;
+        } catch (MalformedURLException e) {
+            shutdown();
+            throw e;
+        } catch (NoSuchConfigException e) {
+            shutdown();
+            throw e;
+        } catch (InvalidConfigException e) {
+            shutdown();
+            throw e;
         }
     }
 
@@ -353,8 +372,12 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         }
         if (classPath != null) {
             for (Iterator i = classPath.iterator(); i.hasNext();) {
-                URI uri = (URI) i.next();
-                urls.add(configurationResolver.resolve(uri));
+                String pattern = (String) i.next();
+                Set matches = configurationResolver.resolve(pattern);
+                for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
+                    URL url = (URL) iterator.next();
+                    urls.add(url);
+                }
             }
         }
         return (URL[]) urls.toArray(new URL[urls.size()]);
@@ -417,6 +440,15 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     }
 
     /**
+     * This is used by the configuration manager to restart an existing configuation.
+     * Do not modify the configuation data.
+     * @return the configuation data for this configuration; do not modify
+     */
+    ConfigurationData getConfigurationData() {
+        return configurationData;
+    }
+
+    /**
      * @deprecated this is only exposed temporarily for configuration manager
      */
     public ConfigurationResolver getConfigurationResolver() {
@@ -431,14 +463,17 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         return new ArrayList(classPath);
     }
 
-    public void addToClassPath(URI path) throws IOException {
-        if (!classPath.contains(path)) {
+    public void addToClassPath(String pattern) throws IOException {
+        if (!classPath.contains(pattern)) {
             try {
-                URL url = configurationResolver.resolve(path);
-                configurationClassLoader.addURL(url);
-                classPath.add(path);
+                Set matches = configurationResolver.resolve(pattern);
+                for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
+                    URL url = (URL) iterator.next();
+                    configurationClassLoader.addURL(url);
+                }
+                classPath.add(pattern);
             } catch (Exception e) {
-                throw new IOException("Unable to extend classpath with " + path);
+                throw new IOException("Unable to extend classpath with " + pattern);
             }
         }
     }
@@ -587,7 +622,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
                     GBeanData gBeanData = (GBeanData) iterator1.next();
                     names.add(gBeanData.getAbstractName());
                 }
-                throw new GBeanNotFoundException("More than one match to referencePatterns: " + names , patterns);
+                throw new GBeanNotFoundException("More than one match to referencePatterns: " + names.toString(), patterns);
             }
         }
 

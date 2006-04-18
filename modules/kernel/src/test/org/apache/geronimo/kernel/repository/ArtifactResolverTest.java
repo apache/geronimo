@@ -19,7 +19,6 @@ package org.apache.geronimo.kernel.repository;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashSet;
@@ -167,8 +166,8 @@ public class ArtifactResolverTest extends TestCase {
             return true;
         }
 
-        public URL resolve(Artifact configId, String moduleName, URI uri) throws NoSuchConfigException, MalformedURLException {
-            return baseURL;
+        public Set resolve(Artifact configId, String moduleName, String pattern) throws NoSuchConfigException, MalformedURLException {
+            return Collections.singleton(baseURL);
         }
 
         public final static GBeanInfo GBEAN_INFO;

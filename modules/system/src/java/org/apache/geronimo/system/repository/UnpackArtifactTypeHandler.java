@@ -27,6 +27,7 @@ import java.util.zip.ZipEntry;
 import org.apache.geronimo.kernel.repository.ArtifactTypeHandler;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.FileWriteMonitor;
+import org.apache.geronimo.kernel.config.IOUtil;
 
 /**
  * @version $Rev$ $Date$

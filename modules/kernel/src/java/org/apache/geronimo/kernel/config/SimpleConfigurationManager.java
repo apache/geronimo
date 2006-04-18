@@ -23,15 +23,14 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
@@ -48,6 +47,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     protected final Collection stores;
     protected final ArtifactResolver artifactResolver;
     protected final Map configurations = new LinkedHashMap();
+    protected final ConfigurationModel configurationModel = new ConfigurationModel();
     protected final Collection repositories;
 
     public SimpleConfigurationManager(Collection stores, ArtifactResolver artifactResolver, Collection repositories) {
@@ -131,10 +131,14 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     }
 
     public boolean isConfiguration(Artifact artifact) {
-        if (configurations.containsKey(artifact)) {
-            return true;
+        synchronized (this) {
+            // if it is loaded, it is definitely a configuration
+            if (configurations.containsKey(artifact)) {
+                return true;
+            }
         }
 
+        // see if any stores think it is a configuration
         List storeSnapshot = getStoreList();
         for (int i = 0; i < storeSnapshot.size(); i++) {
             ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
@@ -146,82 +150,102 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     }
 
     public synchronized Configuration getConfiguration(Artifact configurationId) {
-        ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(configurationId);
-        return configurationStatus == null ? null : configurationStatus.getConfiguration();
+        Configuration configuration = (Configuration) configurations.get(configurationId);
+        return configuration;
     }
 
     public synchronized boolean isLoaded(Artifact configurationId) {
-        return configurations.containsKey(configurationId);
+        return configurationModel.isLoaded(configurationId);
     }
 
     public synchronized boolean isRunning(Artifact configurationId) {
-        ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(configurationId);
-        if (configurationStatus != null) {
-            return configurationStatus.getStartCount() > 0;
-        }
-        return false;
+        return configurationModel.isStarted(configurationId);
     }
 
-    public synchronized void loadConfiguration(Artifact configurationId) throws NoSuchConfigException, IOException, InvalidConfigException {
-        ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(configurationId);
-        if (configurationStatus != null) {
-            // already loaded, so just update the load count
-            configurationStatus.load();
-            configurationStatus.getConfiguration();
-            return;
+    public synchronized LifecycleResults loadConfiguration(Artifact configurationId) throws NoSuchConfigException, LifecycleException {
+        return loadConfiguration(configurationId, NullLifecycleMonitor.INSTANCE);
+    }
+
+    public synchronized LifecycleResults loadConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
+        if (configurationModel.isLoaded(configurationId)) {
+            // already loaded, so just mark the configuration as user loaded
+            configurationModel.load(configurationId);
+
+            monitor.finished();
+            return new LifecycleResults();
         }
 
         // load the ConfigurationData for the new configuration
-        ConfigurationData configurationData = loadConfigurationGBeanData(configurationId);
+        ConfigurationData configurationData = null;
+        try {
+            configurationData = loadConfigurationData(configurationId, monitor);
+        } catch (Exception e) {
+            LifecycleResults results = new LifecycleResults();
+            results.addFailed(configurationId, e);
+            monitor.finished();
+            throw new LifecycleException("load", configurationId, results);
+        }
 
         // load the configuration
-        loadConfiguration(configurationData);
+        LifecycleResults results = loadConfiguration(configurationData, monitor);
+
+        return results;
     }
 
-    public synchronized Configuration loadConfiguration(ConfigurationData configurationData) throws NoSuchConfigException, IOException, InvalidConfigException {
+    public synchronized LifecycleResults loadConfiguration(ConfigurationData configurationData) throws NoSuchConfigException, LifecycleException {
+        return loadConfiguration(configurationData, NullLifecycleMonitor.INSTANCE);
+    }
+
+    public synchronized LifecycleResults loadConfiguration(ConfigurationData configurationData, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
         Artifact id = configurationData.getId();
-        if (configurations.containsKey(id)) {
-            // already loaded, so just update the load count
-            ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(id);
-            configurationStatus.load();
-            return configurationStatus.getConfiguration();
-        }
-
-        // load configurations from the new child to the parents
-        LinkedHashMap unloadedConfigurations = new LinkedHashMap();
-        loadDepthFirst(configurationData, unloadedConfigurations);
-
-        // load and start the unloaded configurations depth first
-        Map loadedConfigurations = new LinkedHashMap(unloadedConfigurations.size());
-        try {
-            for (Iterator iterator = unloadedConfigurations.entrySet().iterator(); iterator.hasNext();) {
-                Map.Entry entry = (Map.Entry) iterator.next();
-                Artifact configurationId = (Artifact) entry.getKey();
-                UnloadedContiguration unloadedConfiguration = (UnloadedContiguration) entry.getValue();
-                Configuration configuration = load(unloadedConfiguration.getConfigurationData(), unloadedConfiguration.getResolvedParentIds(), loadedConfigurations);
-                loadedConfigurations.put(configurationId, configuration);
+        LifecycleResults results = new LifecycleResults();
+        if (!configurationModel.isLoaded(id)) {
+            // recursively load configurations from the new child to the parents
+            LinkedHashMap unloadedConfigurations = new LinkedHashMap();
+            try {
+                loadDepthFirst(configurationData, unloadedConfigurations, monitor);
+            } catch (Exception e) {
+                results.addFailed(id, e);
+                monitor.finished();
+                throw new LifecycleException("load", id, results);
             }
-        } catch (Exception e) {
-            for (Iterator iterator = loadedConfigurations.values().iterator(); iterator.hasNext();) {
-                Configuration configuration = (Configuration) iterator.next();
-                unload(configuration);
-            }
-            if (e instanceof InvalidConfigException) {
-                throw (InvalidConfigException) e;
-            }
-            throw new InvalidConfigException("Unable to start configuration gbean " + id, e);
-        }
 
-        // update the status of the loaded configurations
-        for (Iterator iterator = loadedConfigurations.values().iterator(); iterator.hasNext();) {
-            Configuration configuration = (Configuration) iterator.next();
-            ConfigurationStatus configurationStatus = createConfigurationStatus(configuration);
-            configurations.put(configuration.getId(), configurationStatus);
-        }
+            // load and start the unloaded the gbean for each configuration (depth first)
+            Map actuallyLoaded = new LinkedHashMap(unloadedConfigurations.size());
+            Artifact configurationId = null;
+            try {
+                for (Iterator iterator = unloadedConfigurations.entrySet().iterator(); iterator.hasNext();) {
+                    Map.Entry entry = (Map.Entry) iterator.next();
+                    configurationId = (Artifact) entry.getKey();
+                    UnloadedConfiguration unloadedConfiguration = (UnloadedConfiguration) entry.getValue();
 
-        ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(id);
-        configurationStatus.load();
-        return configurationStatus.getConfiguration();
+                    monitor.loading(configurationId);
+                    Configuration configuration = load(unloadedConfiguration.getConfigurationData(), unloadedConfiguration.getResolvedParentIds(), actuallyLoaded);
+                    monitor.succeeded(configurationId);
+
+                    actuallyLoaded.put(configurationId, configuration);
+                }
+            } catch (Exception e) {
+                monitor.failed(configurationId, e);
+
+                // there was a problem, so we need to unload all configurations that were actually loaded
+                for (Iterator iterator = actuallyLoaded.values().iterator(); iterator.hasNext();) {
+                    Configuration configuration = (Configuration) iterator.next();
+                    unload(configuration);
+                }
+
+                results.addFailed(id, e);
+                monitor.finished();
+                throw new LifecycleException("load", id, results);
+            }
+
+            // update the status of the loaded configurations
+            addNewConfigurationsToModel(actuallyLoaded);
+            results.setLoaded(actuallyLoaded.keySet());
+        }
+        configurationModel.load(id);
+        monitor.finished();
+        return results;
     }
 
     protected Configuration load(ConfigurationData configurationData, LinkedHashSet resolvedParentIds, Map loadedConfigurations) throws InvalidConfigException {
@@ -256,72 +280,93 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return parents.values();
     }
 
-
-    protected synchronized ConfigurationStatus createConfigurationStatus(Configuration configuration) {
-        // start parents are just the service parents of the configuration... we want the services to be running so we can use them
-        List startParents = getParentStatuses(configuration.getServiceParents());
-
-        // load parents are both the class parents and the service parents
-        LinkedHashSet loadParents = new LinkedHashSet(startParents);
-        loadParents.addAll(getParentStatuses(configuration.getClassParents()));
-
-        return new ConfigurationStatus(configuration, new ArrayList(loadParents), startParents);
-    }
-
-    private synchronized List getParentStatuses(List parents) {
-        List parentStatuses = new ArrayList(parents.size());
-        for (Iterator iterator = parents.iterator(); iterator.hasNext();) {
-            Configuration parent = (Configuration) iterator.next();
-            ConfigurationStatus parentStatus = (ConfigurationStatus) configurations.get(parent.getId());
-            if (parentStatus == null) {
-                throw new IllegalStateException("Parent status not found " + parent.getId());
-            }
-
-            parentStatuses.add(parentStatus);
+    private void addNewConfigurationsToModel(Map loadedConfigurations) throws NoSuchConfigException {
+        for (Iterator iterator = loadedConfigurations.values().iterator(); iterator.hasNext();) {
+            Configuration configuration = (Configuration) iterator.next();
+            addNewConfigurationToModel(configuration);
         }
-        return parentStatuses;
     }
 
-    private synchronized void loadDepthFirst(ConfigurationData configurationData, LinkedHashMap unloadedConfigurations) throws NoSuchConfigException, IOException, InvalidConfigException {
-        try {
-            // if this parent hasn't already been processed, iterate into the parent
-            Artifact configurationId = configurationData.getId();
-            if (!unloadedConfigurations.containsKey(configurationId)) {
-                LinkedHashSet resolvedParentIds = resolveParentIds(configurationData);
+    protected void addNewConfigurationToModel(Configuration configuration) throws NoSuchConfigException {
+        configurationModel.addConfiguation(configuration.getId(),
+                getLoadParentIds(configuration),
+                getStartParentIds(configuration));
+        configurations.put(configuration.getId(), configuration);
+    }
 
-                for (Iterator iterator = resolvedParentIds.iterator(); iterator.hasNext();) {
-                    Artifact parentId = (Artifact) iterator.next();
-                    if (!configurations.containsKey(parentId) && isConfiguration(parentId)) {
-                        ConfigurationData parentConfigurationData = loadConfigurationGBeanData(parentId);
-                        loadDepthFirst(parentConfigurationData, unloadedConfigurations);
-                    }
+    private Set getLoadParentIds(Configuration configuration) {
+        Set loadParentIds = getConfigurationIds(configuration.getClassParents());
+        for (Iterator iterator = configuration.getChildren().iterator(); iterator.hasNext();) {
+            Configuration childConfiguration = (Configuration) iterator.next();
+            Set childLoadParentIds = getLoadParentIds(childConfiguration);
+
+            // remove this configuration's id from the parent Ids since it will cause an infinite loop
+            childLoadParentIds.remove(configuration.getId());
+
+            loadParentIds.addAll(childLoadParentIds);
+        }
+        return loadParentIds;
+    }
+
+    private Set getStartParentIds(Configuration configuration) {
+        Set startParentIds = getConfigurationIds(configuration.getServiceParents());
+        for (Iterator iterator = configuration.getChildren().iterator(); iterator.hasNext();) {
+            Configuration childConfiguration = (Configuration) iterator.next();
+            Set childStartParentIds = getStartParentIds(childConfiguration);
+
+            // remove this configuration's id from the parent Ids since it will cause an infinite loop
+            childStartParentIds.remove(configuration.getId());
+
+            startParentIds.addAll(childStartParentIds);
+        }
+        return startParentIds;
+    }
+
+    private static Set getConfigurationIds(List configurations) {
+        LinkedHashSet configurationIds = new LinkedHashSet(configurations.size());
+        for (Iterator iterator = configurations.iterator(); iterator.hasNext();) {
+            Configuration configuration = (Configuration) iterator.next();
+            configurationIds.add(configuration.getId());
+        }
+        return configurationIds;
+    }
+
+    private synchronized void loadDepthFirst(ConfigurationData configurationData, LinkedHashMap unloadedConfigurations, LifecycleMonitor monitor) throws NoSuchConfigException, IOException, InvalidConfigException, MissingDependencyException {
+        // if this parent hasn't already been processed, iterate into the parent
+        Artifact configurationId = configurationData.getId();
+        if (!unloadedConfigurations.containsKey(configurationId)) {
+            LinkedHashSet resolvedParentIds = resolveParentIds(configurationData);
+
+            for (Iterator iterator = resolvedParentIds.iterator(); iterator.hasNext();) {
+                Artifact parentId = (Artifact) iterator.next();
+                // if this parent id hasn't already been loaded and is actually a configuration
+                if (!configurations.containsKey(parentId) && isConfiguration(parentId)) {
+                    ConfigurationData parentConfigurationData = loadConfigurationData(parentId, monitor);
+                    loadDepthFirst(parentConfigurationData, unloadedConfigurations, monitor);
                 }
-
-                // depth first - all unloaded parents have been added, now add this configuration
-                unloadedConfigurations.put(configurationId, new UnloadedContiguration(configurationData, resolvedParentIds));
             }
-        } catch (NoSuchConfigException e) {
-            throw e;
-        } catch (IOException e) {
-            throw e;
-        } catch (InvalidConfigException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new InvalidConfigException(e);
+
+            // depth first - all unloaded parents have been added, now add this configuration
+            unloadedConfigurations.put(configurationId, new UnloadedConfiguration(configurationData, resolvedParentIds));
         }
     }
 
-    private ConfigurationData loadConfigurationGBeanData(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
+    private ConfigurationData loadConfigurationData(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException, IOException, InvalidConfigException {
         List storeSnapshot = getStoreList();
 
+        monitor.addConfiguration(configurationId);
+        monitor.reading(configurationId);
         for (int i = 0; i < storeSnapshot.size(); i++) {
             ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
-            if (store.containsConfiguration(configId)) {
-                ConfigurationData configurationData = store.loadConfiguration(configId);
+            if (store.containsConfiguration(configurationId)) {
+                ConfigurationData configurationData = store.loadConfiguration(configurationId);
+                monitor.succeeded(configurationId);
                 return configurationData;
             }
         }
-        throw new NoSuchConfigException(configId);
+        NoSuchConfigException exception = new NoSuchConfigException(configurationId);
+        monitor.failed(configurationId, exception);
+        throw exception;
     }
 
     private LinkedHashSet resolveParentIds(ConfigurationData configurationData) throws MissingDependencyException, InvalidConfigException {
@@ -354,11 +399,11 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return parentIds;
     }
 
-    private static class UnloadedContiguration {
+    private static class UnloadedConfiguration {
         private final ConfigurationData configurationData;
         private final LinkedHashSet resolvedParentIds;
 
-        public UnloadedContiguration(ConfigurationData configurationData, LinkedHashSet resolvedParentIds) {
+        public UnloadedConfiguration(ConfigurationData configurationData, LinkedHashSet resolvedParentIds) {
             this.configurationData = configurationData;
             this.resolvedParentIds = resolvedParentIds;
         }
@@ -372,82 +417,210 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         }
     }
 
-    public void startConfiguration(Configuration configuration) throws InvalidConfigException {
-        startConfiguration(configuration.getId());
+    public synchronized LifecycleResults startConfiguration(Artifact id) throws NoSuchConfigException, LifecycleException {
+        return startConfiguration(id, NullLifecycleMonitor.INSTANCE);
     }
 
-    public synchronized void startConfiguration(Artifact id) throws InvalidConfigException {
-        ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(id);
-        if (configurationStatus == null) {
-            throw new InvalidConfigurationException("Configuration is not loaded " + id);
-        }
+    public synchronized LifecycleResults startConfiguration(Artifact id, LifecycleMonitor monitor) throws  NoSuchConfigException, LifecycleException {
+        LinkedHashSet unstartedConfigurations = configurationModel.start(id);
 
-        List unstartedConfigurations = configurationStatus.start();
-        List startedConfigurations = new ArrayList(unstartedConfigurations.size());
+        addConfigurationsToMonitor(monitor, unstartedConfigurations);
+
+        LifecycleResults results = new LifecycleResults();
+        Artifact configurationId = null;
         try {
             for (Iterator iterator = unstartedConfigurations.iterator(); iterator.hasNext();) {
-                Configuration configuration = (Configuration) iterator.next();
+                configurationId = (Artifact) iterator.next();
+                Configuration configuration = getConfiguration(configurationId);
+
+                monitor.starting(configurationId);
                 start(configuration);
-                startedConfigurations.add(configuration);
+                monitor.succeeded(configurationId);
+
+                results.addStarted(configurationId);
             }
         } catch (Exception e) {
-            configurationStatus.stop();
-            for (Iterator iterator = startedConfigurations.iterator(); iterator.hasNext();) {
-                Configuration configuration = (Configuration) iterator.next();
+            monitor.failed(configurationId, e);
+            results.addFailed(configurationId, e);
+            results.setStarted(Collections.EMPTY_SET);
+            configurationModel.stop(id);
+
+            for (Iterator iterator = results.getStarted().iterator(); iterator.hasNext();) {
+                configurationId = (Artifact) iterator.next();
+                Configuration configuration = getConfiguration(configurationId);
+                monitor.stopping(configurationId);
                 stop(configuration);
+                monitor.succeeded(configurationId);
             }
-            if (e instanceof InvalidConfigException) {
-                throw (InvalidConfigException) e;
-            }
-            throw new InvalidConfigException("Unable to start configuration gbean " + id, e);
+            monitor.finished();
+            throw new LifecycleException("start", id, results);
         }
+        monitor.finished();
+        return results;
     }
 
-    protected void start(Configuration configuration) throws InvalidConfigException {
+    protected void start(Configuration configuration) throws Exception {
         throw new UnsupportedOperationException();
     }
 
-    public void stopConfiguration(Configuration configuration) throws NoSuchConfigException {
-        stopConfiguration(configuration.getId());
+    public synchronized LifecycleResults stopConfiguration(Artifact id) throws NoSuchConfigException {
+        return stopConfiguration(id, NullLifecycleMonitor.INSTANCE);
     }
 
-    public synchronized void stopConfiguration(Artifact id) throws NoSuchConfigException {
-        ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(id);
-        if (configurationStatus == null) {
-            throw new NoSuchConfigException(id);
-        }
+    public synchronized LifecycleResults stopConfiguration(Artifact id, LifecycleMonitor monitor) throws NoSuchConfigException {
+        LinkedHashSet stopList = configurationModel.stop(id);
 
-        stopConfiguration(configurationStatus);
-    }
+        addConfigurationsToMonitor(monitor, stopList);
 
-    private void stopConfiguration(ConfigurationStatus configurationStatus) {
-        List stopList = configurationStatus.stop();
+        LifecycleResults results = new LifecycleResults();
         for (Iterator iterator = stopList.iterator(); iterator.hasNext();) {
-            Configuration configuration = (Configuration) iterator.next();
+            Artifact configurationId = (Artifact) iterator.next();
+            Configuration configuration = getConfiguration(configurationId);
+
+            monitor.stopping(configurationId);
             stop(configuration);
+            monitor.succeeded(configurationId);
+
+            results.addStopped(configurationId);
         }
+
+        monitor.finished();
+        return results;
     }
 
     protected void stop(Configuration configuration) {
-        throw new UnsupportedOperationException();
+        // Don't throw an exception because we call this from unload to be sure that all
+        // unloaded configurations are stopped first
     }
 
-    public void unloadConfiguration(Configuration configuration) throws NoSuchConfigException {
-        unloadConfiguration(configuration.getId());
+    public synchronized LifecycleResults restartConfiguration(Artifact id) throws NoSuchConfigException, LifecycleException {
+        return restartConfiguration(id, NullLifecycleMonitor.INSTANCE);
     }
 
-    public synchronized void unloadConfiguration(Artifact id) throws NoSuchConfigException {
-        ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(id);
-        unloadConfiguration(configurationStatus);
-    }
+    public synchronized LifecycleResults restartConfiguration(Artifact id, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
+        // get a sorted list of configurations to restart
+        LinkedHashSet restartList = configurationModel.restart(id);
 
-    private void unloadConfiguration(ConfigurationStatus configurationStatus) {
-        List unloadList = configurationStatus.unload();
-        for (Iterator iterator = unloadList.iterator(); iterator.hasNext();) {
-            Configuration configuration = (Configuration) iterator.next();
-            unload(configuration);
-            configurations.remove(configuration.getId());
+        addConfigurationsToMonitor(monitor, restartList);
+
+        // stop the configuations
+        for (Iterator iterator = restartList.iterator(); iterator.hasNext();) {
+            Artifact configurationId = (Artifact) iterator.next();
+            Configuration configuration = getConfiguration(configurationId);
+            monitor.stopping(configurationId);
+            stop(configuration);
+            monitor.succeeded(configurationId);
         }
+
+        // reverse the list
+        restartList = reverse(restartList);
+
+        // restart the configurations
+        LifecycleResults results = new LifecycleResults();
+        for (Iterator iterator = restartList.iterator(); iterator.hasNext();) {
+            Artifact configurationId = (Artifact) iterator.next();
+
+            // skip the configurations that have alredy failed or were stopped
+            if (results.wasFailed(configurationId) || results.wasStopped(configurationId)) {
+                continue;
+            }
+
+            // try to start the configuation
+            try {
+                Configuration configuration = getConfiguration(configurationId);
+                monitor.starting(configurationId);
+                start(configuration);
+                monitor.succeeded(configurationId);
+                results.addRestarted(configurationId);
+            } catch (Exception e) {
+                // the configuraiton failed to restart
+                results.addFailed(configurationId, e);
+                monitor.failed(configurationId, e);
+
+                // officially stop the configuration in the model (without gc)
+                LinkedHashSet stopList = configurationModel.stop(configurationId, false);
+
+                // all of the configurations to be stopped must be in our restart list, or the model is corrupt
+                if (!restartList.containsAll(stopList)) {
+                    throw new AssertionError("Configuration data model is corrupt.   You must restart your server.");
+                }
+
+                // add the children of the failed configuration to the results as stopped
+                for (Iterator iterator1 = stopList.iterator(); iterator1.hasNext();) {
+                    Artifact failedId = (Artifact) iterator1.next();
+
+                    // if any of the failed configuration is in the restarted set, the model is
+                    // corrupt because we started a child before a parent
+                    if (results.wasRestarted(failedId)) {
+                        throw new AssertionError("Configuration data model is corrupt.   You must restart your server.");
+                    }
+
+                    if (!results.wasFailed(failedId)) {
+                        results.addStopped(failedId);
+                    }
+                }
+            }
+        }
+
+        monitor.finished();
+        if (!results.wasRestarted(id)) {
+            throw new LifecycleException("restart", id, results);
+        }
+        return results;
+    }
+
+    private static void addConfigurationsToMonitor(LifecycleMonitor monitor, LinkedHashSet configurations) {
+        for (Iterator iterator = configurations.iterator(); iterator.hasNext();) {
+            Artifact configurationId = (Artifact) iterator.next();
+            monitor.addConfiguration(configurationId);
+        }
+    }
+
+    private static LinkedHashSet reverse(LinkedHashSet restartList) {
+        ArrayList reverseRestartList = new ArrayList(restartList);
+        Collections.reverse(reverseRestartList);
+        restartList = new LinkedHashSet(reverseRestartList);
+        return restartList;
+    }
+
+    public synchronized LifecycleResults unloadConfiguration(Artifact id) throws NoSuchConfigException {
+        return unloadConfiguration(id, NullLifecycleMonitor.INSTANCE);
+    }
+
+    public synchronized LifecycleResults unloadConfiguration(Artifact id, LifecycleMonitor monitor) throws NoSuchConfigException {
+        Set started = configurationModel.getStarted();
+        LinkedHashSet unloadList = configurationModel.unload(id);
+
+        addConfigurationsToMonitor(monitor, unloadList);
+
+        LifecycleResults results = new LifecycleResults();
+        for (Iterator iterator = unloadList.iterator(); iterator.hasNext();) {
+            Artifact configurationId = (Artifact) iterator.next();
+            Configuration configuration = getConfiguration(configurationId);
+
+            // first make sure it is stopped
+            if (started.contains(configurationId)) {
+                monitor.stopping(configurationId);
+                stop(configuration);
+                monitor.succeeded(configurationId);
+                results.addStopped(configurationId);
+            } else {
+                // call stop just to be sure the beans aren't running
+                stop(configuration);
+            }
+
+            // now unload it
+            monitor.unloading(configurationId);
+            unload(configuration);
+            monitor.succeeded(configurationId);
+            results.addUnloaded(configurationId);
+
+            // clean up the model
+            configurationModel.removeConfiguration(configurationId);
+            configurations.remove(configurationId);
+        }
+        monitor.finished();
+        return results;
     }
 
     protected void unload(Configuration configuration) {
@@ -458,18 +631,17 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         }
     }
 
-    public synchronized void uninstallConfiguration(Artifact configId) throws IOException, NoSuchConfigException {
-        ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(configId);
-        if (configurationStatus != null) {
-            stopConfiguration(configurationStatus);
-            unloadConfiguration(configurationStatus);
+    public synchronized void uninstallConfiguration(Artifact configurationId) throws IOException, NoSuchConfigException {
+        if (configurations.containsKey(configurationId)) {
+            stopConfiguration(configurationId);
+            unloadConfiguration(configurationId);
         }
 
         List storeSnapshot = getStoreList();
         for (int i = 0; i < storeSnapshot.size(); i++) {
             ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
-            if(store.containsConfiguration(configId)) {
-                store.uninstall(configId);
+            if(store.containsConfiguration(configurationId)) {
+                store.uninstall(configurationId);
             }
         }
 
@@ -477,87 +649,5 @@ public class SimpleConfigurationManager implements ConfigurationManager {
 
     private List getStoreList() {
         return new ArrayList(stores);
-    }
-
-    protected static class ConfigurationStatus {
-        private final Configuration configuration;
-        private final List loadParents;
-        private final List startParents;
-        private int loadCount = 0;
-        private int startCount = 0;
-
-        public ConfigurationStatus(Configuration configuration, List loadParents, List startParents) {
-            if (!loadParents.containsAll(startParents)) {
-                throw new IllegalArgumentException("loadParents must contain all startParents");
-            }
-            this.configuration = configuration;
-            this.loadParents = loadParents;
-            this.startParents = startParents;
-        }
-
-        public Configuration getConfiguration() {
-            return configuration;
-        }
-
-        public int getLoadCount() {
-            return loadCount;
-        }
-
-        public void load() {
-            for (Iterator iterator = loadParents.iterator(); iterator.hasNext();) {
-                ConfigurationStatus parent = (ConfigurationStatus) iterator.next();
-                parent.load();
-            }
-            loadCount++;
-        }
-
-        public List unload() {
-            if (loadCount == 1 && startCount > 0) {
-                // todo this will most likely need to be removed
-                throw new IllegalStateException(configuration.getId() + " is RUNNING: startCount=" + startCount);
-            }
-
-            LinkedList unloadList = new LinkedList();
-            for (Iterator iterator = loadParents.iterator(); iterator.hasNext();) {
-                ConfigurationStatus parent = (ConfigurationStatus) iterator.next();
-                unloadList.addAll(parent.unload());
-            }
-            loadCount--;
-            if (loadCount == 0) {
-                assert(startCount == 0);
-                unloadList.addFirst(configuration);
-            }
-            return unloadList;
-        }
-
-        public int getStartCount() {
-            return startCount;
-        }
-
-        public List start() {
-            List startList = new LinkedList();
-            for (Iterator iterator = startParents.iterator(); iterator.hasNext();) {
-                ConfigurationStatus parent = (ConfigurationStatus) iterator.next();
-                startList.addAll(parent.start());
-            }
-            startCount++;
-            if (startCount == 1) {
-                startList.add(configuration);
-            }
-            return startList;
-        }
-
-        public List stop() {
-            LinkedList stopList = new LinkedList();
-            for (Iterator iterator = startParents.iterator(); iterator.hasNext();) {
-                ConfigurationStatus parent = (ConfigurationStatus) iterator.next();
-                stopList.addAll(parent.stop());
-            }
-            startCount--;
-            if (startCount == 0) {
-                stopList.addFirst(configuration);
-            }
-            return stopList;
-        }
     }
 }

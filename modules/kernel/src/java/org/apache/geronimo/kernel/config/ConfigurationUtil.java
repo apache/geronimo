@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.net.URI;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashSet;
@@ -303,7 +302,11 @@ public final class ConfigurationUtil {
         GAttributeInfo attribute = gbeanData.getGBeanInfo().getAttribute("configurationBaseUrl");
         if (attribute != null && attribute.getType().equals("java.net.URL")) {
             try {
-                URL baseURL = configuration.getConfigurationResolver().resolve(URI.create(""));
+                Set set = configuration.getConfigurationResolver().resolve("");
+                if (set.size() != 1) {
+                    throw new AssertionError("Expected one match for pattern \".\", but got " + set.size() + " matches");
+                }
+                URL baseURL = (URL) set.iterator().next();
                 gbeanData.setAttribute("configurationBaseUrl", baseURL);
             } catch (Exception e) {
                 throw new InvalidConfigException("Unable to set attribute named " + "configurationBaseUrl" + " in gbean " + gbeanData.getAbstractName(), e);

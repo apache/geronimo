@@ -389,9 +389,12 @@ public class ConnectorModuleBuilderTest extends TestCase {
         DataSource ds = null;
         try {
 
+            Artifact configurationId = configurationData.getId();
+
             // load the configuration
-            Configuration configuration = configurationManager.loadConfiguration(configurationData);
-            configurationManager.startConfiguration(configuration);
+            configurationManager.loadConfiguration(configurationData);
+            Configuration configuration = configurationManager.getConfiguration(configurationId);
+            configurationManager.startConfiguration(configurationId);
             Set gb = configuration.getGBeans().keySet();
             for (Iterator iterator = gb.iterator(); iterator.hasNext();) {
                 AbstractName name = (AbstractName) iterator.next();
@@ -486,8 +489,8 @@ public class ConnectorModuleBuilderTest extends TestCase {
             }
 
 
-            configurationManager.stopConfiguration(configuration);
-            configurationManager.unloadConfiguration(configuration);
+            configurationManager.stopConfiguration(configurationId);
+            configurationManager.unloadConfiguration(configurationId);
         } finally {
             if (ds != null) {
                 Connection connection = null;
@@ -630,8 +633,8 @@ public class ConnectorModuleBuilderTest extends TestCase {
             }
         }
 
-        public URL resolve(Artifact configId, String moduleName, URI uri) throws NoSuchConfigException, MalformedURLException {
-            return baseURL;
+        public Set resolve(Artifact configId, String moduleName, String pattern) throws NoSuchConfigException, MalformedURLException {
+            return Collections.singleton(baseURL);
         }
 
         public final static GBeanInfo GBEAN_INFO;
