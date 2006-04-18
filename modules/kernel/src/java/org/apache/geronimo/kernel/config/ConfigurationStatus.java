@@ -264,13 +264,13 @@ public class ConfigurationStatus {
         restartList.add(this);
     }
 
-    public LinkedHashSet unload() {
+    public LinkedHashSet unload(boolean gc) {
         if (!loaded) {
             throw new IllegalStateException(configurationId + " is not loaded");
         }
 
         LinkedHashSet unloadStatuses = new LinkedHashSet();
-        unloadInternal(unloadStatuses);
+        unloadInternal(unloadStatuses, gc);
 
         LinkedHashSet unloadIds = new LinkedHashSet(unloadStatuses.size());
         for (Iterator iterator = unloadStatuses.iterator(); iterator.hasNext();) {
@@ -281,7 +281,7 @@ public class ConfigurationStatus {
         return unloadIds;
     }
 
-    private void unloadInternal(LinkedHashSet unloadList) {
+    private void unloadInternal(LinkedHashSet unloadList, boolean gc) {
         // if we aren't loaded, there is nothing to do
         if (!loaded) {
             return;
@@ -291,7 +291,7 @@ public class ConfigurationStatus {
         for (Iterator iterator = loadChildren.iterator(); iterator.hasNext();) {
             ConfigurationStatus child = (ConfigurationStatus) iterator.next();
             if (child.isLoaded()) {
-                child.unloadInternal(unloadList);
+                child.unloadInternal(unloadList, gc);
             }
         }
 
@@ -303,14 +303,53 @@ public class ConfigurationStatus {
             userLoaded = false;
             unloadList.add(this);
 
-            // visit all non-user loaded parents
-            for (Iterator iterator = loadParents.iterator(); iterator.hasNext();) {
-                ConfigurationStatus parent = (ConfigurationStatus) iterator.next();
-                if (!parent.isUserLoaded() && unloadList.containsAll(parent.loadChildren)) {
-                    parent.unloadInternal(unloadList);
+            // if we are garbage collecting, visit parents
+            if (gc) {
+                // visit all non-user loaded parents
+                for (Iterator iterator = loadParents.iterator(); iterator.hasNext();) {
+                    ConfigurationStatus parent = (ConfigurationStatus) iterator.next();
+                    if (!parent.isUserLoaded() && unloadList.containsAll(parent.loadChildren)) {
+                        parent.unloadInternal(unloadList, gc);
+                    }
                 }
             }
         }
+    }
+
+    public LinkedHashSet reload() {
+        if (!loaded) {
+            throw new IllegalStateException(configurationId + " is not loaded");
+        }
+
+        LinkedHashSet reloadStatuses = new LinkedHashSet();
+        reloadInternal(reloadStatuses);
+
+        LinkedHashSet reloadIds = new LinkedHashSet(reloadStatuses.size());
+        for (Iterator iterator = reloadStatuses.iterator(); iterator.hasNext();) {
+            ConfigurationStatus configurationStatus = (ConfigurationStatus) iterator.next();
+            reloadIds.add(configurationStatus.configurationId);
+        }
+
+        userLoaded = true;
+        return reloadIds;
+    }
+
+    private void reloadInternal(LinkedHashSet reloadList) {
+        // if we aren't loaded, there is nothing to do
+        if (!loaded) {
+            return;
+        }
+
+        // visit all children
+        for (Iterator iterator = loadChildren.iterator(); iterator.hasNext();) {
+            ConfigurationStatus child = (ConfigurationStatus) iterator.next();
+            if (child.isLoaded()) {
+                child.reloadInternal(reloadList);
+            }
+        }
+
+        // add this node to the reload list
+        reloadList.add(this);
     }
 
     public String toString() {

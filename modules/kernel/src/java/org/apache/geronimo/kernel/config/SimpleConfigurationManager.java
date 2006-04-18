@@ -38,6 +38,7 @@ import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
+import org.apache.geronimo.kernel.repository.Version;
 
 /**
  * @version $Rev$ $Date$
@@ -569,20 +570,6 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return results;
     }
 
-    private static void addConfigurationsToMonitor(LifecycleMonitor monitor, LinkedHashSet configurations) {
-        for (Iterator iterator = configurations.iterator(); iterator.hasNext();) {
-            Artifact configurationId = (Artifact) iterator.next();
-            monitor.addConfiguration(configurationId);
-        }
-    }
-
-    private static LinkedHashSet reverse(LinkedHashSet restartList) {
-        ArrayList reverseRestartList = new ArrayList(restartList);
-        Collections.reverse(reverseRestartList);
-        restartList = new LinkedHashSet(reverseRestartList);
-        return restartList;
-    }
-
     public synchronized LifecycleResults unloadConfiguration(Artifact id) throws NoSuchConfigException {
         return unloadConfiguration(id, NullLifecycleMonitor.INSTANCE);
     }
@@ -631,6 +618,233 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         }
     }
 
+    public synchronized LifecycleResults reloadConfiguration(Artifact id) throws NoSuchConfigException, LifecycleException {
+        return reloadConfiguration(id, NullLifecycleMonitor.INSTANCE);
+    }
+
+    public synchronized LifecycleResults reloadConfiguration(Artifact id, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
+        return reloadConfiguration(id, id.getVersion(), monitor);
+    }
+
+    public synchronized LifecycleResults reloadConfiguration(Artifact id, Version version) throws NoSuchConfigException, LifecycleException {
+        return reloadConfiguration(id, id.getVersion(), NullLifecycleMonitor.INSTANCE);
+    }
+
+    public synchronized LifecycleResults reloadConfiguration(Artifact id, Version version, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
+        Configuration configuration = getConfiguration(id);
+        if (configuration == null) {
+            throw new NoSuchConfigException(id);
+        }
+        ConfigurationData existingConfigurationData = configuration.getConfigurationData();
+        UnloadedConfiguration existingUnloadedConfiguration = new UnloadedConfiguration(existingConfigurationData, getResolvedParentIds(configuration));
+
+        Artifact newId = new Artifact(id.getGroupId(), id.getArtifactId(), version, id.getType());
+
+        // reload the ConfigurationData from a store
+        ConfigurationData configurationData = null;
+        try {
+            configurationData = loadConfigurationData(newId, monitor);
+        } catch (Exception e) {
+            LifecycleResults results = new LifecycleResults();
+            results.addFailed(id, e);
+            monitor.finished();
+            throw new LifecycleException("reload", id, results);
+        }
+
+        return reloadConfiguration(existingUnloadedConfiguration, configurationData, monitor);
+    }
+
+    public LifecycleResults reloadConfiguration(ConfigurationData configurationData) throws LifecycleException, NoSuchConfigException {
+        return reloadConfiguration(configurationData, NullLifecycleMonitor.INSTANCE);
+    }
+
+    public LifecycleResults reloadConfiguration(ConfigurationData configurationData, LifecycleMonitor monitor) throws LifecycleException, NoSuchConfigException {
+        Configuration configuration = getConfiguration(configurationData.getId());
+        if (configuration == null) {
+            throw new NoSuchConfigException(configurationData.getId());
+        }
+        ConfigurationData existingConfigurationData = configuration.getConfigurationData();
+        UnloadedConfiguration existingUnloadedConfiguration = new UnloadedConfiguration(existingConfigurationData, getResolvedParentIds(configuration));
+        return reloadConfiguration(existingUnloadedConfiguration, configurationData, monitor);
+    }
+
+    private LifecycleResults reloadConfiguration(UnloadedConfiguration existingUnloadedConfiguration, ConfigurationData newConfigurationData, LifecycleMonitor monitor) throws LifecycleException, NoSuchConfigException {
+        LifecycleResults results = new LifecycleResults();
+
+        // recursively load configurations from the reloaded child to the parents
+        // this will catch any new parents
+        LinkedHashMap unloadedConfigurations = new LinkedHashMap();
+        try {
+            loadDepthFirst(newConfigurationData, unloadedConfigurations, monitor);
+        } catch (Exception e) {
+            results.addFailed(newConfigurationData.getId(), e);
+            monitor.finished();
+            throw new LifecycleException("load", newConfigurationData.getId(), results);
+        }
+
+        // get a list of the started configuration
+        Set started = configurationModel.getStarted();
+
+        // add all of the child configurations that we will need to reload to the unloaded map
+        //   note: we are iterating in reverse order
+        for (Iterator iterator = reverse(configurationModel.reload(newConfigurationData.getId())).iterator(); iterator.hasNext();) {
+            Artifact configurationId = (Artifact) iterator.next();
+            if (unloadedConfigurations.containsKey(configurationId)) {
+                continue;
+            }
+
+            Configuration configuration = getConfiguration(configurationId);
+            ConfigurationData data = configuration.getConfigurationData();
+            LinkedHashSet resolvedParentIds = getResolvedParentIds(configuration);
+            unloadedConfigurations.put(configurationId, new UnloadedConfiguration(data, resolvedParentIds));
+            monitor.addConfiguration(configurationId);
+        }
+
+        // unload the configuations
+        //   note: we are iterating in reverse order
+        for (Iterator iterator = reverse(unloadedConfigurations).keySet().iterator(); iterator.hasNext();) {
+            Artifact configurationId = (Artifact) iterator.next();
+            Configuration configuration = getConfiguration(configurationId);
+
+            // first make sure it is stopped
+            if (started.contains(configurationId)) {
+                monitor.stopping(configurationId);
+                stop(configuration);
+                monitor.succeeded(configurationId);
+                results.addRestarted(configurationId);
+            } else {
+                // call stop just to be sure the beans aren't running
+                stop(configuration);
+            }
+
+            // now unload it
+            monitor.unloading(configurationId);
+            unload(configuration);
+            monitor.succeeded(configurationId);
+        }
+
+        // reload the configurations
+        Map actuallyLoaded = new LinkedHashMap(unloadedConfigurations.size());
+        for (Iterator iterator = unloadedConfigurations.entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            Artifact configurationId = (Artifact) entry.getKey();
+            UnloadedConfiguration unloadedConfiguration = (UnloadedConfiguration) entry.getValue();
+
+            // skip the configurations that have alredy failed or were stopped
+            if (results.wasFailed(configurationId) || results.wasStopped(configurationId)) {
+                continue;
+            }
+
+            // try to load the configuation
+            Configuration configuration = null;
+            try {
+                monitor.loading(configurationId);
+                configuration = load(unloadedConfiguration.getConfigurationData(), unloadedConfiguration.getResolvedParentIds(), actuallyLoaded);
+                monitor.succeeded(configurationId);
+
+                results.addReloaded(configurationId);
+
+                // if the configuration was started before restart it
+                if (started.contains(configurationId)) {
+                    monitor.starting(configurationId);
+                    start(configuration);
+                    monitor.succeeded(configurationId);
+                    results.addRestarted(configurationId);
+                }
+
+                actuallyLoaded.put(configurationId, configuration);
+                configurations.put(configurationId, configuration);
+            } catch (Exception e) {
+                // the configuraiton failed to restart
+                results.addFailed(configurationId, e);
+                monitor.failed(configurationId, e);
+
+                // unload the configuration if it was loaded and failed in start
+                if (configuration != null) {
+                    unload(configuration);
+                }
+
+                // if this is root configuration, attempt to reinstate the original configuration
+                boolean reinstatedExisting = false;
+                if (configurationId.equals(newConfigurationData.getId())) {
+                    configuration = null;
+                    try {
+                        configuration = load(existingUnloadedConfiguration.getConfigurationData(),
+                                existingUnloadedConfiguration.getResolvedParentIds(),
+                                actuallyLoaded);
+
+                        results.addReloaded(configurationId);
+
+                        // if the configuration was started before restart it
+                        if (started.contains(configurationId)) {
+                            start(configuration);
+                            results.addRestarted(configurationId);
+                        }
+
+                        actuallyLoaded.put(configurationId, configuration);
+                        configurations.put(configurationId, configuration);
+
+                        reinstatedExisting = true;
+                    } catch (Exception ignored) {
+                        // we tried our best
+                        if (configuration != null) {
+                            unload(configuration);
+                        }
+                    }
+                }
+
+                if (!reinstatedExisting) {
+                    // officially unload the configuration in the model (without gc)
+                    LinkedHashSet unloadList = configurationModel.unload(configurationId, false);
+                    configurationModel.removeConfiguration(configurationId);
+
+                    // all of the configurations to be unloaded must be in our unloaded list, or the model is corrupt
+                    if (!unloadedConfigurations.keySet().containsAll(unloadList)) {
+                        throw new AssertionError("Configuration data model is corrupt.   You must restart your server.");
+                    }
+
+                    // add the children of the failed configuration to the results as unloaded
+                    for (Iterator iterator1 = unloadList.iterator(); iterator1.hasNext();) {
+                        Artifact failedId = (Artifact) iterator1.next();
+
+                        // if any of the failed configuration is in the reloaded set, the model is
+                        // corrupt because we loaded a child before a parent
+                        if (results.wasLoaded(failedId)) {
+                            throw new AssertionError("Configuration data model is corrupt.   You must restart your server.");
+                        }
+
+                        if (!results.wasFailed(failedId)) {
+                            results.addUnloaded(failedId);
+                            if (started.contains(configurationId)) {
+                                results.addStopped(failedId);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        monitor.finished();
+        if (results.wasFailed(newConfigurationData.getId()) || !results.wasReloaded(newConfigurationData.getId())) {
+            throw new LifecycleException("reload", newConfigurationData.getId(), results);
+        }
+
+        return results;
+    }
+
+    private static LinkedHashSet getResolvedParentIds(Configuration configuration) {
+        LinkedHashSet resolvedParentIds = new LinkedHashSet();
+        for (Iterator iterator1 = configuration.getClassParents().iterator(); iterator1.hasNext();) {
+            Configuration classParent = (Configuration) iterator1.next();
+            resolvedParentIds.add(classParent.getId());
+        }
+        for (Iterator iterator1 = configuration.getServiceParents().iterator(); iterator1.hasNext();) {
+            Configuration serviceParent = (Configuration) iterator1.next();
+            resolvedParentIds.add(serviceParent.getId());
+        }
+        return resolvedParentIds;
+    }
+
     public synchronized void uninstallConfiguration(Artifact configurationId) throws IOException, NoSuchConfigException {
         if (configurations.containsKey(configurationId)) {
             stopConfiguration(configurationId);
@@ -649,5 +863,33 @@ public class SimpleConfigurationManager implements ConfigurationManager {
 
     private List getStoreList() {
         return new ArrayList(stores);
+    }
+
+    private static void addConfigurationsToMonitor(LifecycleMonitor monitor, LinkedHashSet configurations) {
+        for (Iterator iterator = configurations.iterator(); iterator.hasNext();) {
+            Artifact configurationId = (Artifact) iterator.next();
+            monitor.addConfiguration(configurationId);
+        }
+    }
+
+    private static LinkedHashSet reverse(LinkedHashSet set) {
+        ArrayList reverseList = new ArrayList(set);
+        Collections.reverse(reverseList);
+        set = new LinkedHashSet(reverseList);
+        return set;
+    }
+
+    private static LinkedHashMap reverse(LinkedHashMap map) {
+        ArrayList reverseEntrySet = new ArrayList(map.entrySet());
+        Collections.reverse(reverseEntrySet);
+
+        map = new LinkedHashMap(reverseEntrySet.size());
+        for (Iterator iterator = reverseEntrySet.iterator(); iterator.hasNext();) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            Object key = entry.getKey();
+            Object value = entry.getValue();
+            map.put(key, value);
+        }
+        return map;
     }
 }

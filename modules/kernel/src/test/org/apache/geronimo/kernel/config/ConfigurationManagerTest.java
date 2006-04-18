@@ -35,6 +35,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.management.State;
@@ -60,12 +61,16 @@ public class ConfigurationManagerTest extends TestCase {
     private AbstractName gbean1;
     private AbstractName gbean2;
     private AbstractName gbean3;
+    private TestConfigStore configStore;
 
     public void testLoad() throws Exception {
         configurationManager.loadConfiguration(artifact3);
         assertTrue(configurationManager.isLoaded(artifact3));
         assertTrue(configurationManager.isLoaded(artifact2));
         assertTrue(configurationManager.isLoaded(artifact1));
+        assertFalse(configurationManager.isRunning(artifact3));
+        assertFalse(configurationManager.isRunning(artifact2));
+        assertFalse(configurationManager.isRunning(artifact1));
         assertTrue(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact3))) ;
         assertTrue(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact2))) ;
         assertTrue(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact1))) ;
@@ -81,6 +86,9 @@ public class ConfigurationManagerTest extends TestCase {
         assertFalse(configurationManager.isLoaded(artifact3));
         assertFalse(configurationManager.isLoaded(artifact2));
         assertFalse(configurationManager.isLoaded(artifact1));
+        assertFalse(configurationManager.isRunning(artifact3));
+        assertFalse(configurationManager.isRunning(artifact2));
+        assertFalse(configurationManager.isRunning(artifact1));
         assertFalse(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact3))) ;
         assertFalse(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact2))) ;
         assertFalse(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact1))) ;
@@ -91,6 +99,9 @@ public class ConfigurationManagerTest extends TestCase {
         assertTrue(configurationManager.isLoaded(artifact3));
         assertTrue(configurationManager.isLoaded(artifact2));
         assertTrue(configurationManager.isLoaded(artifact1));
+        assertFalse(configurationManager.isRunning(artifact3));
+        assertFalse(configurationManager.isRunning(artifact2));
+        assertFalse(configurationManager.isRunning(artifact1));
         assertTrue(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact3))) ;
         assertTrue(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact2))) ;
         assertTrue(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact1))) ;
@@ -102,6 +113,9 @@ public class ConfigurationManagerTest extends TestCase {
         assertFalse(kernel.isLoaded(gbean3));
 
         configurationManager.startConfiguration(artifact3);
+        assertTrue(configurationManager.isRunning(artifact3));
+        assertTrue(configurationManager.isRunning(artifact2));
+        assertTrue(configurationManager.isRunning(artifact1));
         assertTrue(kernel.isLoaded(gbean1));
         assertTrue(kernel.isLoaded(gbean2));
         assertTrue(kernel.isLoaded(gbean3));
@@ -111,6 +125,12 @@ public class ConfigurationManagerTest extends TestCase {
 
 
         configurationManager.stopConfiguration(artifact3);
+        assertTrue(configurationManager.isLoaded(artifact3));
+        assertTrue(configurationManager.isLoaded(artifact2));
+        assertTrue(configurationManager.isLoaded(artifact1));
+        assertFalse(configurationManager.isRunning(artifact3));
+        assertFalse(configurationManager.isRunning(artifact2));
+        assertFalse(configurationManager.isRunning(artifact1));
         assertFalse(kernel.isLoaded(gbean1));
         assertFalse(kernel.isLoaded(gbean2));
         assertFalse(kernel.isLoaded(gbean3));
@@ -118,6 +138,9 @@ public class ConfigurationManagerTest extends TestCase {
         configurationManager.unloadConfiguration(artifact3);
         assertFalse(configurationManager.isLoaded(artifact3));
         assertFalse(configurationManager.isLoaded(artifact2));
+        assertFalse(configurationManager.isRunning(artifact3));
+        assertFalse(configurationManager.isRunning(artifact2));
+        assertFalse(configurationManager.isRunning(artifact1));
         assertFalse(configurationManager.isLoaded(artifact1));
         assertFalse(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact3))) ;
         assertFalse(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact2))) ;
@@ -230,6 +253,213 @@ public class ConfigurationManagerTest extends TestCase {
         assertFalse(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact1))) ;
     }
 
+    public void testReload() throws Exception {
+        configurationManager.loadConfiguration(artifact3);
+        configurationManager.startConfiguration(artifact3);
+        Object g1 = kernel.getGBean(gbean1);
+        Object g2 = kernel.getGBean(gbean2);
+        Object g3 = kernel.getGBean(gbean3);
+        assertSame(g1, kernel.getGBean(gbean1));
+        assertSame(g2, kernel.getGBean(gbean2));
+        assertSame(g3, kernel.getGBean(gbean3));
+        Configuration configuration1 = configurationManager.getConfiguration(artifact1);
+        Configuration configuration2 = configurationManager.getConfiguration(artifact2);
+        Configuration configuration3 = configurationManager.getConfiguration(artifact3);
+
+        LifecycleResults results = configurationManager.reloadConfiguration(artifact1);
+
+        // check the results
+        assertTrue(results.wasReloaded(artifact1));
+        assertTrue(results.wasReloaded(artifact2));
+        assertTrue(results.wasReloaded(artifact3));
+        assertTrue(results.wasRestarted(artifact1));
+        assertTrue(results.wasRestarted(artifact2));
+        assertTrue(results.wasRestarted(artifact3));
+
+        // check the state of the configuration manager
+        assertTrue(configurationManager.isLoaded(artifact1));
+        assertTrue(configurationManager.isLoaded(artifact2));
+        assertTrue(configurationManager.isLoaded(artifact3));
+        assertTrue(configurationManager.isRunning(artifact1));
+        assertTrue(configurationManager.isRunning(artifact2));
+        assertTrue(configurationManager.isRunning(artifact3));
+        assertNotSame(configuration1, configurationManager.getConfiguration(artifact1));
+        assertNotSame(configuration2, configurationManager.getConfiguration(artifact2));
+        assertNotSame(configuration3, configurationManager.getConfiguration(artifact3));
+
+        // check the state of the kernel
+        assertTrue(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact3))) ;
+        assertTrue(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact2))) ;
+        assertTrue(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact1))) ;
+        assertTrue(kernel.isRunning(Configuration.getConfigurationAbstractName(artifact3))) ;
+        assertTrue(kernel.isRunning(Configuration.getConfigurationAbstractName(artifact2))) ;
+        assertTrue(kernel.isRunning(Configuration.getConfigurationAbstractName(artifact1))) ;
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(Configuration.getConfigurationAbstractName(artifact3))) ;
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(Configuration.getConfigurationAbstractName(artifact2))) ;
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(Configuration.getConfigurationAbstractName(artifact1))) ;
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(gbean1)) ;
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(gbean2)) ;
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(gbean3)) ;
+        assertNotSame(g1, kernel.getGBean(gbean1));
+        assertNotSame(g2, kernel.getGBean(gbean2));
+        assertNotSame(g3, kernel.getGBean(gbean3));
+
+        configurationManager.stopConfiguration(artifact3);
+        assertFalse(kernel.isLoaded(gbean1));
+        assertFalse(kernel.isLoaded(gbean2));
+        assertFalse(kernel.isLoaded(gbean3));
+
+        configurationManager.unloadConfiguration(artifact3);
+        assertFalse(configurationManager.isLoaded(artifact3));
+        assertFalse(configurationManager.isLoaded(artifact2));
+        assertFalse(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact3))) ;
+        assertFalse(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact2))) ;
+
+        // artifact 1 should still be loaded since it was user loaded above
+        assertTrue(configurationManager.isLoaded(artifact1));
+        assertTrue(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact1))) ;
+
+        configurationManager.unloadConfiguration(artifact1);
+        assertFalse(configurationManager.isLoaded(artifact1));
+        assertFalse(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact1))) ;
+    }
+
+    public void testReloadException() throws Exception {
+        configurationManager.loadConfiguration(artifact3);
+        configurationManager.startConfiguration(artifact3);
+        Object g1 = kernel.getGBean(gbean1);
+        Object g2 = kernel.getGBean(gbean2);
+        kernel.getGBean(gbean3);
+
+        // make gbean3 fail and Reload all configs
+        shouldFail.add(gbean3.getObjectName().getCanonicalName());
+        LifecycleResults results = configurationManager.reloadConfiguration(artifact1);
+
+        // check the results
+        assertTrue(results.wasReloaded(artifact1));
+        assertTrue(results.wasReloaded(artifact2));
+        assertTrue(results.wasReloaded(artifact3));
+        assertTrue(results.wasRestarted(artifact1));
+        assertTrue(results.wasRestarted(artifact2));
+        assertTrue(results.wasRestarted(artifact3));
+
+        // all configuration except 3 should be loaded
+        assertFalse(configurationManager.isLoaded(artifact3));
+        assertTrue(configurationManager.isLoaded(artifact2));
+        assertTrue(configurationManager.isLoaded(artifact1));
+        assertFalse(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact3))) ;
+        assertTrue(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact2))) ;
+        assertTrue(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact1))) ;
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(Configuration.getConfigurationAbstractName(artifact2))) ;
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(Configuration.getConfigurationAbstractName(artifact1))) ;
+
+        // configuration 3 should not be running
+        assertTrue(configurationManager.isRunning(artifact1));
+        assertTrue(configurationManager.isRunning(artifact2));
+        assertFalse(configurationManager.isRunning(artifact3));
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(gbean1)) ;
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(gbean2)) ;
+        assertFalse(kernel.isLoaded(gbean3));
+
+        // make sure that gbean 1 and 2 were recreated
+        assertNotSame(g1, kernel.getGBean(gbean1));
+        assertNotSame(g2, kernel.getGBean(gbean2));
+
+        configurationManager.unloadConfiguration(artifact1);
+        assertFalse(configurationManager.isLoaded(artifact3));
+        assertFalse(configurationManager.isLoaded(artifact2));
+        assertFalse(configurationManager.isLoaded(artifact1));
+        assertFalse(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact3))) ;
+        assertFalse(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact2))) ;
+        assertFalse(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact1))) ;
+    }
+
+    public void testReloadFallback() throws Exception {
+        configurationManager.loadConfiguration(artifact3);
+        configurationManager.startConfiguration(artifact3);
+        Object g1 = kernel.getGBean(gbean1);
+        Object g2 = kernel.getGBean(gbean2);
+        Object g3 = kernel.getGBean(gbean3);
+        assertSame(g1, kernel.getGBean(gbean1));
+        assertSame(g2, kernel.getGBean(gbean2));
+        assertSame(g3, kernel.getGBean(gbean3));
+        Configuration configuration1 = configurationManager.getConfiguration(artifact1);
+        Configuration configuration2 = configurationManager.getConfiguration(artifact2);
+        Configuration configuration3 = configurationManager.getConfiguration(artifact3);
+
+        Environment environment = new Environment();
+        environment.setConfigId(artifact1);
+        ConfigurationData configurationData1 = new ConfigurationData(environment, kernel.getNaming());
+        configurationData1.setConfigurationStore(configStore);
+        GBeanData gbeanData = configurationData1.addGBean("gbean1", TestBean.getGBeanInfo());
+        gbeanData.setReferencePattern("nonExistantReference", new AbstractNameQuery("some.non.existant.Clazz"));
+        configurations.put(artifact1, configurationData1);
+
+        LifecycleResults results = null;
+        try {
+            configurationManager.reloadConfiguration(artifact1);
+            fail("Expected LifecycleException");
+        } catch (LifecycleException expected) {
+            results = expected.getLifecycleResults();
+        }
+
+        // check the results
+        assertTrue(results.wasFailed(artifact1));
+        assertTrue(results.wasReloaded(artifact1));
+        assertTrue(results.wasReloaded(artifact2));
+        assertTrue(results.wasReloaded(artifact3));
+        assertTrue(results.wasRestarted(artifact1));
+        assertTrue(results.wasRestarted(artifact2));
+        assertTrue(results.wasRestarted(artifact3));
+
+        // check the state of the configuration manager
+        assertTrue(configurationManager.isLoaded(artifact1));
+        assertTrue(configurationManager.isLoaded(artifact2));
+        assertTrue(configurationManager.isLoaded(artifact3));
+        assertTrue(configurationManager.isRunning(artifact1));
+        assertTrue(configurationManager.isRunning(artifact2));
+        assertTrue(configurationManager.isRunning(artifact3));
+        assertNotSame(configuration1, configurationManager.getConfiguration(artifact1));
+        assertNotSame(configuration2, configurationManager.getConfiguration(artifact2));
+        assertNotSame(configuration3, configurationManager.getConfiguration(artifact3));
+
+        // check the state of the kernel
+        assertTrue(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact3))) ;
+        assertTrue(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact2))) ;
+        assertTrue(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact1))) ;
+        assertTrue(kernel.isRunning(Configuration.getConfigurationAbstractName(artifact3))) ;
+        assertTrue(kernel.isRunning(Configuration.getConfigurationAbstractName(artifact2))) ;
+        assertTrue(kernel.isRunning(Configuration.getConfigurationAbstractName(artifact1))) ;
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(Configuration.getConfigurationAbstractName(artifact3))) ;
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(Configuration.getConfigurationAbstractName(artifact2))) ;
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(Configuration.getConfigurationAbstractName(artifact1))) ;
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(gbean1)) ;
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(gbean2)) ;
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(gbean3)) ;
+        assertNotSame(g1, kernel.getGBean(gbean1));
+        assertNotSame(g2, kernel.getGBean(gbean2));
+        assertNotSame(g3, kernel.getGBean(gbean3));
+
+        configurationManager.stopConfiguration(artifact3);
+        assertFalse(kernel.isLoaded(gbean1));
+        assertFalse(kernel.isLoaded(gbean2));
+        assertFalse(kernel.isLoaded(gbean3));
+
+        configurationManager.unloadConfiguration(artifact3);
+        assertFalse(configurationManager.isLoaded(artifact3));
+        assertFalse(configurationManager.isLoaded(artifact2));
+        assertFalse(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact3))) ;
+        assertFalse(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact2))) ;
+
+        // artifact 1 should still be loaded since it was user loaded above
+        assertTrue(configurationManager.isLoaded(artifact1));
+        assertTrue(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact1))) ;
+
+        configurationManager.unloadConfiguration(artifact1);
+        assertFalse(configurationManager.isLoaded(artifact1));
+        assertFalse(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact1))) ;
+    }
+
     private static final Set shouldFail = new HashSet();
     private static void checkFail(String objectName) {
         if (shouldFail.contains(objectName)) {
@@ -240,6 +470,8 @@ public class ConfigurationManagerTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
+        shouldFail.clear();
+
         kernel = KernelFactory.newInstance().createKernel("test");
         kernel.boot();
 
@@ -249,7 +481,7 @@ public class ConfigurationManagerTest extends TestCase {
         assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(artifactManagerData.getAbstractName()));
         ArtifactManager artifactManager = (ArtifactManager) kernel.getGBean(artifactManagerData.getAbstractName());
 
-        TestConfigStore configStore = new TestConfigStore();
+        configStore = new TestConfigStore();
         TestRepository testRepository = new TestRepository();
         DefaultArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, testRepository);
 

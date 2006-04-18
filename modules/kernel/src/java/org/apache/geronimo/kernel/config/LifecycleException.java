@@ -29,7 +29,7 @@ public class LifecycleException extends Exception {
     public LifecycleException(String command, Artifact configurationId, LifecycleResults lifecycleResults) {
         this(command, configurationId, lifecycleResults, lifecycleResults.getFailedCause(configurationId));
     }
-    
+
     public LifecycleException(String command, Artifact configurationId, LifecycleResults lifecycleResults, Throwable cause) {
         super(command + " of " + configurationId + " failed", cause);
         this.command = command;
@@ -45,7 +45,7 @@ public class LifecycleException extends Exception {
         return configurationId;
     }
 
-    public LifecycleResults getCommandResults() {
+    public LifecycleResults getLifecycleResults() {
         return lifecycleResults;
     }
 }

@@ -121,11 +121,23 @@ public class ConfigurationModel {
     }
 
     public LinkedHashSet unload(Artifact configurationId) throws NoSuchConfigException {
+        return unload(configurationId, true);
+    }
+
+    public LinkedHashSet unload(Artifact configurationId, boolean gc) throws NoSuchConfigException {
         ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(configurationId);
         if (configurationStatus == null) {
             throw new NoSuchConfigException(configurationId);
         }
-        return configurationStatus.unload();
+        return configurationStatus.unload(gc);
+    }
+
+    public LinkedHashSet reload(Artifact configurationId) throws NoSuchConfigException {
+        ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(configurationId);
+        if (configurationStatus == null) {
+            throw new NoSuchConfigException(configurationId);
+        }
+        return configurationStatus.reload();
     }
 
     public Set getLoaded() {

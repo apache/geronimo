@@ -19,6 +19,7 @@ package org.apache.geronimo.kernel.config;
 import java.io.IOException;
 import java.util.List;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Version;
 import org.apache.geronimo.gbean.AbstractName;
 
 /**
@@ -230,6 +231,77 @@ public interface ConfigurationManager {
      * @throws LifecycleException if there is a problem loading the configuration
      */
     LifecycleResults restartConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException;
+
+    /**
+     * Reloads the specified configuration and all configurations that have a dependency on the
+     * specified configuration
+     *
+     * @param configurationId the configuration identifier
+     * @return the results of the operation
+     * @throws NoSuchConfigException if the configuration is not loaded
+     * @throws LifecycleException if there is a problem loading the configuration
+     */
+    LifecycleResults reloadConfiguration(Artifact configurationId) throws NoSuchConfigException, LifecycleException;
+
+    /**
+     * Reloads the specified configuration and all configurations that have a dependency on the
+     * specified configuration
+     *
+     * @param configurationId the configuration identifier
+     * @param monitor the monitor that should receive events as the operation is carried out
+     * @return the results of the operation
+     * @throws NoSuchConfigException if the configuration is not loaded
+     * @throws LifecycleException if there is a problem loading the configuration
+     */
+    LifecycleResults reloadConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException;
+
+    /**
+     * Reloads the specified configuration and all configurations that have a dependency on the
+     * specified configuration
+     *
+     * @param configurationId the configuration identifier
+     * @param version new version to load from the config store
+     * @return the results of the operation
+     * @throws NoSuchConfigException if the configuration is not loaded
+     * @throws LifecycleException if there is a problem loading the configuration
+     */
+    LifecycleResults reloadConfiguration(Artifact configurationId, Version version) throws NoSuchConfigException, LifecycleException;
+
+    /**
+     * Reloads the specified configuration and all configurations that have a dependency on the
+     * specified configuration
+     *
+     * @param configurationId the configuration identifier
+     * @param monitor the monitor that should receive events as the operation is carried out
+     * @param version new version to load from the config store
+     * @return the results of the operation
+     * @throws NoSuchConfigException if the configuration is not loaded
+     * @throws LifecycleException if there is a problem loading the configuration
+     */
+    LifecycleResults reloadConfiguration(Artifact configurationId, Version version, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException;
+
+    /**
+     * Reloads the specified configuration and all configurations that have a dependency on the
+     * specified configuration
+     *
+     * @param configurationData the configuration to load
+     * @return the results of the operation
+     * @throws NoSuchConfigException if the configuration is not loaded
+     * @throws LifecycleException if there is a problem loading the configuration
+     */
+    LifecycleResults reloadConfiguration(ConfigurationData configurationData) throws NoSuchConfigException, LifecycleException;
+
+    /**
+     * Reloads the specified configuration and all configurations that have a dependency on the
+     * specified configuration
+     *
+     * @param configurationData the configuration to load
+     * @param monitor the monitor that should receive events as the operation is carried out
+     * @return the results of the operation
+     * @throws NoSuchConfigException if the configuration is not loaded
+     * @throws LifecycleException if there is a problem loading the configuration
+     */
+    LifecycleResults reloadConfiguration(ConfigurationData configurationData, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException;
 
     /**
      * Unstalls the specified configuration from the server.   This operation can not be reversed.
