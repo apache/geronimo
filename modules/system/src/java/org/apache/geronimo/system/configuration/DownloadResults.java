@@ -28,6 +28,8 @@ import org.apache.geronimo.kernel.repository.Artifact;
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
 public class DownloadResults implements Serializable, DownloadPoller {
+    private List removedConfigIDs = new ArrayList();
+    private List restartedConfigIDs = new ArrayList();
     private List installedConfigIDs = new ArrayList();
     private List dependenciesPresent = new ArrayList();
     private List dependenciesInstalled = new ArrayList();
@@ -40,6 +42,14 @@ public class DownloadResults implements Serializable, DownloadPoller {
 
     public void addInstalledConfigID(Artifact dep) {
         installedConfigIDs.add(dep);
+    }
+
+    public void addRemovedConfigID(Artifact obsolete) {
+        removedConfigIDs.add(obsolete);
+    }
+
+    public void addRestartedConfigID(Artifact target) {
+        restartedConfigIDs.add(target);
     }
 
     public void addDependencyPresent(Artifact dep) {
@@ -63,6 +73,7 @@ public class DownloadResults implements Serializable, DownloadPoller {
     }
 
     public void setFailure(Exception failure) {
+failure.printStackTrace();
         this.failure = failure;
     }
 
@@ -106,6 +117,14 @@ public class DownloadResults implements Serializable, DownloadPoller {
      */
     public Artifact[] getInstalledConfigIDs() {
         return (Artifact[]) installedConfigIDs.toArray(new Artifact[installedConfigIDs.size()]);
+    }
+
+    public Artifact[] getRemovedConfigIDs() {
+        return (Artifact[]) removedConfigIDs.toArray(new Artifact[installedConfigIDs.size()]);
+    }
+
+    public Artifact[] getRestartedConfigIDs() {
+        return (Artifact[]) restartedConfigIDs.toArray(new Artifact[installedConfigIDs.size()]);
     }
 
     /**

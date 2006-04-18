@@ -103,11 +103,18 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="config-id" type="xs:string">
+            <xs:element name="config-id" type="xs:string" minOccurs="0">
                 <xs:annotation>
                     <xs:documentation>
                         The Geronimo configId for this configuration, which uniquely identifies
-                        it, and also is used to construct a path to download it if necessary
+                        it, and also is used to construct a path to download it if necessary.
+
+                        If no config-id is provided, that means this is a plugin group, which is
+                        just a list of other plugins to install.  The prerequisites must still be
+                        met, but then the dependencies listed for this configuration will be
+                        treated as the list of actual configuraitons to install.  NOTE: for plugin
+                        lists, each of the dependencies must be a full config-id; entries without
+                        a version number for example will not work.
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
@@ -234,6 +241,28 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
+            <xs:element name="obsoletes" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        The configId of another configuration that this configuration replaces.
+                        That can be used, for example, to replace a less functional configuration
+                        with a more functional one, or to upgrade a component to a newer version.
+
+                        This is applied as an exact match, except that the version number may be
+                        omitted, in which case any matching version of the configuration will be
+                        replaced.  Be aware that omitting the version number may cause a
+                        configuration to be downgraded, so you may choose to explicitly list all
+                        lesser versions.  That may not be desirable either, though.  If the
+                        server has foo-1.0.2 installed and you install foo-1.0.1, would you
+                        rather have it downgrade or end up with both installed?
+
+                        NOTE: currently the "obsoletes" entries are only processed on the
+                        configuration(s) passed directly to the ConfigurationInstaller (not on
+                        dependencies that are brought down as a result).  That means that a
+                        plugin group must list obsoletes for all its components, etc.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
         </xs:sequence>
     </xs:complexType>
 
@@ -261,6 +290,34 @@
         </xs:simpleContent>
     </xs:complexType>
 
+    <xs:complexType name="dependencyType">
+        <xs:annotation>
+            <xs:documentation>
+                See configurationType/dependency above
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="start" use="optional" type="xs:boolean" default="false">
+                    <xs:annotation>
+                        <xs:documentation>
+                            Normally when a configuration dependency is installed it will not
+                            be started.  The user may be prompted to start the configuration
+                            with whatever tool kicked off the install to begin with.
+
+                            This attribute may be set to "true" to force the dependency to
+                            be started after it is installed.  NOTE: this currently only
+                            affects the dependencies of the configurations actually passed to
+                            the Configuration Installer (not nested dependencies).  This
+                            means it's primarily useful for plugin lists.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
     <xs:complexType name="prerequisiteType">
         <xs:sequence>
             <xs:element name="id" type="xs:string">
@@ -280,7 +337,7 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="resource-type" type="xs:string">
+            <xs:element name="resource-type" type="xs:string" minOccurs="0">
                 <xs:annotation>
                     <xs:documentation>
                         Describes the type of resource that the prerequisite is. Examples
@@ -309,7 +366,7 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="description" type="xs:string">
+            <xs:element name="description" type="xs:string" minOccurs="0">
                 <xs:annotation>
                     <xs:documentation>
                         A description for the user about why this is a prerequisite and what

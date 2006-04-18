@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.Map;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.jar.JarFile;
 import java.util.jar.JarEntry;
 import javax.security.auth.login.FailedLoginException;
@@ -193,13 +194,18 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
         return new ConfigurationList(repo, backupURLs, data);
     }
 
-    private ConfigurationMetadata processConfiguration(Element config) {
+    private ConfigurationMetadata processConfiguration(Element config) throws SAXException {
         String configId = getChildText(config, "config-id");
         NodeList licenseNodes = config.getElementsByTagName("license");
         ConfigurationMetadata.License[] licenses = new ConfigurationMetadata.License[licenseNodes.getLength()];
         for(int j=0; j<licenseNodes.getLength(); j++) {
             Element node = (Element) licenseNodes.item(j);
-            licenses[j] = new ConfigurationMetadata.License(getText(node), Boolean.valueOf(node.getAttribute("osi-approved")).booleanValue());
+            String licenseName = getText(node);
+            String openSource = node.getAttribute("osi-approved");
+            if(licenseName == null || licenseName.equals("") || openSource == null || openSource.equals("")) {
+                throw new SAXException("Invalid config file: license name and osi-approved flag required");
+            }
+            licenses[j] = new ConfigurationMetadata.License(licenseName, Boolean.valueOf(openSource).booleanValue());
         }
         boolean eligible = true;
         NodeList preNodes = config.getElementsByTagName("prerequisite");
@@ -207,6 +213,9 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
         for(int j=0; j<preNodes.getLength(); j++) {
             Element node = (Element) preNodes.item(j);
             String originalConfigId = getChildText(node, "id");
+            if(originalConfigId == null) {
+                throw new SAXException("Prerequisite requires <id>");
+            }
             Artifact artifact = Artifact.create(originalConfigId.replaceAll("\\*", ""));
             boolean present = resolver.queryArtifacts(artifact).length > 0;
             prereqs[j] = new ConfigurationMetadata.Prerequisite(artifact, present,
@@ -222,6 +231,9 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
             boolean match = false;
             for (int j = 0; j < gerVersions.length; j++) {
                 String gerVersion = gerVersions[j];
+                if(gerVersion == null || gerVersion.equals("")) {
+                    throw new SAXException("geronimo-version should not be empty!");
+                }
                 if(gerVersion.equals(version)) {
                     match = true;
                     break;
@@ -235,6 +247,9 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
             boolean match = false;
             for (int j = 0; j < jvmVersions.length; j++) {
                 String jvmVersion = jvmVersions[j];
+                if(jvmVersion == null || jvmVersion.equals("")) {
+                    throw new SAXException("jvm-version should not be empty!");
+                }
                 if(version.startsWith(jvmVersion)) {
                     match = true;
                     break;
@@ -242,8 +257,12 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
             }
             if(!match) eligible = false;
         }
-        Artifact artifact = Artifact.create(configId);
-        boolean installed = configManager.isLoaded(artifact);
+        Artifact artifact = null;
+        boolean installed = false;
+        if (configId != null) {
+            artifact = Artifact.create(configId);
+            installed = configManager.isLoaded(artifact);
+        }
         log.trace("Checking "+configId+": installed="+installed+", eligible="+eligible);
         ConfigurationMetadata data = new ConfigurationMetadata(artifact, getChildText(config, "name"),
                 getChildText(config, "description"), getChildText(config, "category"), installed, eligible);
@@ -251,7 +270,19 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
         data.setJvmVersions(jvmVersions);
         data.setLicenses(licenses);
         data.setPrerequisites(prereqs);
-        data.setDependencies(getChildrenText(config, "dependency"));
+        NodeList list = config.getElementsByTagName("dependency");
+        List start = new ArrayList();
+        String deps[] = new String[list.getLength()];
+        for(int i=0; i<list.getLength(); i++) {
+            Element node = (Element) list.item(i);
+            deps[i] = getText(node);
+            if(node.hasAttribute("start") && node.getAttribute("start").equalsIgnoreCase("true")) {
+                start.add(deps[i]);
+            }
+        }
+        data.setDependencies(deps);
+        data.setForceStart((String[]) start.toArray(new String[start.size()]));
+        data.setObsoletes(getChildrenText(config, "obsoletes"));
         return data;
     }
 
@@ -313,17 +344,71 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
 
     public void install(ConfigurationList list, String username, String password, DownloadPoller poller) {
         try {
-            // For each configuration in the list to install...
+            // Step 1: validate everything
+            for (int i = 0; i < list.getConfigurations().length; i++) {
+                ConfigurationMetadata metadata = list.getConfigurations()[i];
+                validateConfiguration(metadata);
+            }
+
+            // Step 2: everything is valid, do the installation
             for (int i = 0; i < list.getConfigurations().length; i++) {
                 // 1. Identify the configuration
                 ConfigurationMetadata metadata = list.getConfigurations()[i];
-                // 2. Validate that we can install it
-                validateConfiguration(metadata);
+                // 2. Unload obsoleted configurations
+                List obsoletes = new ArrayList();
+                for (int j = 0; j < metadata.getObsoletes().length; j++) {
+                    String name = metadata.getObsoletes()[j];
+                    Artifact obsolete = Artifact.create(name);
+                    if(configManager.isLoaded(obsolete)) {
+                        if(configManager.isRunning(obsolete)) {
+                            configManager.stopConfiguration(obsolete);
+                        }
+                        configManager.unloadConfiguration(obsolete);
+                        obsoletes.add(obsolete);
+                    }
+                }
                 // 3. Download the artifact if necessary, and its dependencies
-                downloadArtifact(metadata.getConfigId(), list.getMainRepository(), list.getBackupRepositories(),
-                        username, password, new ResultsFileWriteMonitor(poller));
-                // 4. Installation of this configuration finished successfully
-                poller.addInstalledConfigID(metadata.getConfigId());
+                Set working = new HashSet();
+                if(metadata.getConfigId() != null) {
+                    downloadArtifact(metadata.getConfigId(), list.getMainRepository(), list.getBackupRepositories(),
+                            username, password, new ResultsFileWriteMonitor(poller), working);
+                    poller.addInstalledConfigID(metadata.getConfigId());
+                } else {
+                    String[] deps = metadata.getDependencies();
+                    for (int j = 0; j < deps.length; j++) {
+                        String dep = deps[j];
+                        Artifact entry = Artifact.create(dep);
+                        if(configManager.isRunning(entry)) {
+                            continue;
+                        }
+                        downloadArtifact(entry, list.getMainRepository(), list.getBackupRepositories(),
+                                username, password, new ResultsFileWriteMonitor(poller), working);
+                    }
+                }
+                // 4. Uninstall obsolete configurations
+                for (int j = 0; j < obsoletes.size(); j++) {
+                    Artifact artifact = (Artifact) obsoletes.get(j);
+                    configManager.uninstallConfiguration(artifact);
+                }
+                // 5. Installation of this configuration finished successfully
+                if(metadata.getConfigId() != null) {
+                    poller.addInstalledConfigID(metadata.getConfigId());
+                }
+            }
+
+            // Step 3: Start anything that's marked accordingly
+            for (int i = 0; i < list.getConfigurations().length; i++) {
+                ConfigurationMetadata metadata = list.getConfigurations()[i];
+                for (int j = 0; j < metadata.getForceStart().length; j++) {
+                    String id = metadata.getForceStart()[j];
+                    Artifact artifact = Artifact.create(id);
+                    if(configManager.isConfiguration(artifact)) {
+                        poller.setCurrentFilePercent(-1);
+                        poller.setCurrentMessage("Starting "+artifact);
+                        configManager.loadConfiguration(artifact);
+                        configManager.startConfiguration(artifact);
+                    }
+                }
             }
         } catch (Exception e) {
             poller.setFailure(e);
@@ -346,16 +431,16 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
             // 2. Validate that we can install this
             validateConfiguration(data.getConfiguration());
             
-            // 3. Install the CAR into the repository
-            ResultsFileWriteMonitor monitor = new ResultsFileWriteMonitor(poller);
-            writeableRepo.copyToRepository(carFile, data.getConfiguration().getConfigId(), monitor);
+            // 3. Install the CAR into the repository (it shouldn't be re-downloaded)
+            if(data.getConfiguration().getConfigId() != null) {
+                ResultsFileWriteMonitor monitor = new ResultsFileWriteMonitor(poller);
+                writeableRepo.copyToRepository(carFile, data.getConfiguration().getConfigId(), monitor);
+            }
 
-            // 4. Download all the dependencies
-            downloadArtifact(data.getConfiguration().getConfigId(), data.getRepository(), data.getBackups(),
-                    username, password, monitor);
-
-            // 5. Installation of the main configuration finished successfully
-            poller.addInstalledConfigID(data.getConfiguration().getConfigId());
+            // 4. Use the standard logic to remove obsoletes, install dependencies, etc.
+            //    This will validate all over again (oh, well)
+            install(new ConfigurationList(data.getRepository(), data.getBackups(), new ConfigurationMetadata[]{data.getConfiguration()}),
+                    username, password, poller);
         } catch (Exception e) {
             poller.setFailure(e);
         } finally {
@@ -365,8 +450,18 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
 
     private void validateConfiguration(ConfigurationMetadata metadata) throws MissingDependencyException {
         // 1. Check that it's not already running
-        if(configManager.isRunning(metadata.getConfigId())) {
-            throw new IllegalArgumentException("Configuration "+metadata.getConfigId()+" is already running!");
+        if(metadata.getConfigId() != null) { // that is, it's a real configuration not a plugin list
+            if(configManager.isRunning(metadata.getConfigId())) {
+                throw new IllegalArgumentException("Configuration "+metadata.getConfigId()+" is already running!");
+            }
+        } else { // Different validation for plugin lists
+            for (int i = 0; i < metadata.getDependencies().length; i++) {
+                String dep = metadata.getDependencies()[i];
+                Artifact artifact = Artifact.create(dep);
+                if(!artifact.isResolved()) {
+                    throw new MissingDependencyException("Configuration list "+metadata.getName()+" may not use partal artifact names for dependencies ("+dep+")");
+                }
+            }
         }
         // 2. Check that we meet the prerequisites
         ConfigurationMetadata.Prerequisite[] prereqs = metadata.getPrerequisites();
@@ -442,7 +537,12 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
      *                                     are not accepted
      * @throws MissingDependencyException  When a dependency cannot be located in any of the listed repositories
      */
-    private void downloadArtifact(Artifact configID, URL repoURL, URL[] backups, String username, String password, ResultsFileWriteMonitor monitor) throws IOException, FailedLoginException, MissingDependencyException {
+    private void downloadArtifact(Artifact configID, URL repoURL, URL[] backups, String username, String password, ResultsFileWriteMonitor monitor, Set soFar) throws IOException, FailedLoginException, MissingDependencyException {
+        if(soFar.contains(configID)) {
+            return; // Avoid enless work due to circular dependencies
+        } else {
+            soFar.add(configID);
+        }
         //todo: check all repositories?
         if(!writeableRepo.contains(configID)) {
             InputStream in = openStream(configID, repoURL, backups, username, password, monitor);
@@ -469,7 +569,7 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
             for (int i = 0; i < dependencies.length; i++) {
                 Dependency dep = dependencies[i];
                 Artifact artifact = dep.getArtifact();
-                downloadArtifact(artifact, repoURL, backups, username, password, monitor);
+                downloadArtifact(artifact, repoURL, backups, username, password, monitor, soFar);
             }
         } catch (NoSuchConfigException e) {
             throw new IllegalStateException("Installed configuration into repository but ConfigStore does not see it: "+e.getMessage());
@@ -496,7 +596,7 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
      * Used to get dependencies for a Configuration
      */
     private static Dependency[] getDependencies(ConfigurationData data) {
-        List dependencies = data.getEnvironment().getDependencies();
+        List dependencies = new ArrayList(data.getEnvironment().getDependencies());
         Collection children = data.getChildConfigurations().values();
         for (Iterator it = children.iterator(); it.hasNext();) {
             ConfigurationData child = (ConfigurationData) it.next();
@@ -511,6 +611,8 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
 
     private static InputStream openStream(Artifact artifact, URL repo, URL[] backups, String username, String password, ResultsFileWriteMonitor monitor) throws IOException, FailedLoginException, MissingDependencyException {
         if(monitor != null) {
+            monitor.getResults().setCurrentFilePercent(-1);
+            monitor.getResults().setCurrentMessage("Attempting to download "+artifact);
             monitor.setTotalBytes(-1); // In case the server doesn't say
         }
         InputStream in;

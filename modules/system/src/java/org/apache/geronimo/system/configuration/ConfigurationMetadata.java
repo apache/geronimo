@@ -33,9 +33,11 @@ public class ConfigurationMetadata implements Serializable, Comparable {
     private final boolean installed;
     private final boolean eligible;
     private String[] dependencies;
+    private String[] obsoletes;
     private License[] licenses;
     private String[] geronimoVersions;
     private String[] jvmVersions;
+    private String[] forceStart;
     private Prerequisite[] prerequisites;
 
     public ConfigurationMetadata(Artifact configId, String name, String description, String category, boolean installed, boolean eligible) {
@@ -49,6 +51,14 @@ public class ConfigurationMetadata implements Serializable, Comparable {
 
     public void setDependencies(String[] dependencies) {
         this.dependencies = dependencies;
+    }
+
+    public void setObsoletes(String[] obsoletes) {
+        this.obsoletes = obsoletes;
+    }
+
+    public void setForceStart(String[] forceStart) {
+        this.forceStart = forceStart;
     }
 
     /**
@@ -92,11 +102,28 @@ public class ConfigurationMetadata implements Serializable, Comparable {
 
     /**
      * Gets the JAR or configuration dependencies for this configuration,  Each
-     * String in the result is an Artifact (or Config ID) in String form.  The
-     * dependency names may be partial artifact names
+     * String in the result is an Artifact (or Config ID) in String form.
+     * Generally speaking, the dependency names may be partial artifact names
+     * (but not, for example, if this whole thing is a plugin list).
      */
     public String[] getDependencies() {
         return dependencies;
+    }
+
+    /**
+     * Gets the configurations obsoleted by this configuration.  Each
+     * String in the result is an Artifact (or Config ID) in String form.
+     */
+    public String[] getObsoletes() {
+        return obsoletes;
+    }
+
+    /**
+     * Gets the configurations that should definitely be started when the
+     * install process completes.
+     */
+    public String[] getForceStart() {
+        return forceStart;
     }
 
     public String[] getGeronimoVersions() {
