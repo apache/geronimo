@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.deployment.util;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -35,6 +36,7 @@ import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**
  * @version $Rev$ $Date$
@@ -241,6 +243,40 @@ public final class DeploymentUtil {
         }
     }
 
+    public static void unzipToDirectory(ZipFile zipFile, File destDir) throws IOException {
+        Enumeration entries = zipFile.entries();
+        try {
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = (ZipEntry) entries.nextElement();
+                if (entry.isDirectory()) {
+                    File dir = new File(destDir, entry.getName());
+                    boolean success = dir.mkdirs();
+                    if (!success) {
+                        throw new IOException("Cannot create directory " + dir.getAbsolutePath());
+                    }
+                } else {
+                    File file = new File(destDir, entry.getName());
+                    OutputStream out = null;
+                    InputStream in = null;
+                    try {
+                        out = new BufferedOutputStream(new FileOutputStream(file));
+                        in = zipFile.getInputStream(entry);
+                        writeAll(in, out);
+                    } finally {
+                        if (null != out) {
+                            out.close();
+                        }
+                        if (null != in) {
+                            in.close();
+                        }
+                    }
+                }
+            }
+        } finally {
+            zipFile.close();
+        }
+    }
+    
     public static boolean recursiveDelete(File root) {
         if (root == null) {
             return true;

@@ -151,6 +151,9 @@ class CopyResourceContext implements ResourceContext {
         return new File(baseUri.resolve(targetPath));
     }
 
+    public void flush() throws IOException {
+    }
+    
     private void addFile(File targetFile, ZipFile zipFile, ZipEntry zipEntry) throws IOException {
         if (zipEntry.isDirectory()) {
             targetFile.mkdirs();

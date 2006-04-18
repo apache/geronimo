@@ -226,8 +226,15 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             throw new DeploymentException("Problem deploying war", e);
         } catch (URISyntaxException e) {
             throw new DeploymentException("Could not construct URI for location of war entry", e);
+        } finally {
+            if (!module.isStandAlone()) {
+                try {
+                    moduleContext.flush();
+                } catch (IOException e) {
+                    throw new DeploymentException("Problem closing war context", e);
+                }
+            }
         }
-
     }
 
     protected void addUnmappedJSPPermissions(Set securityRoles, Map rolePermissions) {

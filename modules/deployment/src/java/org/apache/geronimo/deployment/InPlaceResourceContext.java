@@ -19,17 +19,26 @@ package org.apache.geronimo.deployment;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.deployment.util.NestedJarFile;
 import org.apache.geronimo.kernel.config.Configuration;
 
 class InPlaceResourceContext implements ResourceContext {
+    private static final String PACKED_MODULED_SAVED_SUFFIX = ".saved";
+    
     private final Configuration configuration;
     private final URI inPlaceBaseConfigurationUri;
+    private final Set zipFilesToExpand = new HashSet();
     
     public InPlaceResourceContext(Configuration configuration, File inPlaceBaseConfigurationDir) throws DeploymentException {
         this.configuration = configuration;
@@ -49,6 +58,13 @@ class InPlaceResourceContext implements ResourceContext {
     }
 
     public void addInclude(URI targetPath, ZipFile zipFile, ZipEntry zipEntry) throws IOException {
+        if (zipFile instanceof NestedJarFile) {
+            NestedJarFile nestedJarFile = (NestedJarFile) zipFile;
+            if (nestedJarFile.isPacked()) {
+                zipFilesToExpand.add(zipFile);
+            }
+        }
+        
         configuration.addToClassPath(targetPath.toString());
     }
 
@@ -61,6 +77,12 @@ class InPlaceResourceContext implements ResourceContext {
     }
 
     public void addFile(URI targetPath, ZipFile zipFile, ZipEntry zipEntry) throws IOException {
+        if (zipFile instanceof NestedJarFile) {
+            NestedJarFile nestedJarFile = (NestedJarFile) zipFile;
+            if (nestedJarFile.isPacked()) {
+                zipFilesToExpand.add(zipFile);
+            }
+        }
     }
 
     public void addFile(URI targetPath, URL source) throws IOException {
@@ -78,4 +100,33 @@ class InPlaceResourceContext implements ResourceContext {
         if (targetPath.isOpaque()) throw new IllegalArgumentException("targetPath is opaque");
         return new File(inPlaceBaseConfigurationUri.resolve(targetPath));
     }
+    
+    public void flush() throws IOException {
+        for (Iterator iter = zipFilesToExpand.iterator(); iter.hasNext();) {
+            ZipFile zipFile = (ZipFile) iter.next();
+            String name = zipFile.getName();
+            zipFile.close();
+            File srcFile = new File(name);
+            File targetFile;
+            if (!srcFile.isAbsolute()) {
+                srcFile = new File(inPlaceBaseConfigurationUri.resolve(name));
+                try {
+                    targetFile = getTargetFile(new URI(name + PACKED_MODULED_SAVED_SUFFIX));
+                } catch (URISyntaxException e) {
+                    throw new AssertionError(e);
+                }
+            } else {
+                targetFile = new File(name + PACKED_MODULED_SAVED_SUFFIX);                
+            }
+            boolean success = new File(name).renameTo(targetFile);
+            if (!success) {
+                throw new IOException("Cannot rename file " + 
+                        name + " to " + targetFile.getAbsolutePath());
+            }
+            
+            DeploymentUtil.unzipToDirectory(new ZipFile(targetFile), srcFile);
+        }
+    }
+    
+    
 }

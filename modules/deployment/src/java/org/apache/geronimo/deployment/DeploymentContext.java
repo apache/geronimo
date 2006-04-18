@@ -396,6 +396,10 @@ public class DeploymentContext {
         return configuration;
     }
 
+    public void flush() throws IOException{
+        resourceContext.flush();
+    }
+
     public void close() throws IOException, DeploymentException {
         if (configurationManager != null) {
             try {

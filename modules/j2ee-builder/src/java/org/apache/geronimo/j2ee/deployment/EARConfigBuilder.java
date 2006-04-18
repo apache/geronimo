@@ -397,6 +397,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 getBuilder(module).installModule(earFile, earContext, module, configurationStores, targetConfigurationStore, repositories);
             }
 
+            earContext.flush();
+            
             // give each module a chance to populate the earContext now that a classloader is available
             ClassLoader cl = earContext.getClassLoader();
             for (Iterator iterator = modules.iterator(); iterator.hasNext();) {

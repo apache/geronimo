@@ -42,4 +42,6 @@ interface ResourceContext {
     void addFile(URI targetPath, String source) throws IOException;
     
     File getTargetFile(URI targetPath);
+    
+    void flush() throws IOException;
 }
