@@ -17,20 +17,43 @@
 
 package org.apache.geronimo.gbean.runtime;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.*;
-import org.apache.geronimo.kernel.*;
-import org.apache.geronimo.kernel.config.ManageableAttributeStore;
-import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.kernel.management.StateManageable;
-
-import javax.management.ObjectName;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.management.ObjectName;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.GConstructorInfo;
+import org.apache.geronimo.gbean.GOperationInfo;
+import org.apache.geronimo.gbean.GOperationSignature;
+import org.apache.geronimo.gbean.GReferenceInfo;
+import org.apache.geronimo.gbean.InvalidConfigurationException;
+import org.apache.geronimo.gbean.ReferencePatterns;
+import org.apache.geronimo.kernel.DependencyManager;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.NoSuchAttributeException;
+import org.apache.geronimo.kernel.NoSuchOperationException;
+import org.apache.geronimo.kernel.config.ManageableAttributeStore;
+import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.management.StateManageable;
 
 /**
  * A GBeanInstance is a J2EE Management Managed Object, and is standard base for Geronimo services.
@@ -367,11 +390,6 @@ public final class GBeanInstance implements StateManageable {
         }
 
         // if the bean is already stopped or failed, this will do nothing; otherwise it will shutdown the bean
-        int state = getState();
-        if (state != State.STOPPED_INDEX && state != State.FAILED_INDEX) {
-            log.error("GBeanInstance should already be stopped before die() is called: abstractName=" + abstractName + " state=" + State.fromInt(state));
-        }
-
         gbeanInstanceState.fail();
 
         for (int i = 0; i < references.length; i++) {
