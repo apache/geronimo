@@ -45,10 +45,7 @@ import org.apache.geronimo.security.jacc.RoleDesignateSource;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.mortbay.http.Authenticator;
-import org.mortbay.http.HttpException;
-import org.mortbay.http.HttpRequest;
-import org.mortbay.http.HttpResponse;
+import org.mortbay.http.*;
 import org.mortbay.jetty.servlet.AbstractSessionManager;
 import org.mortbay.jetty.servlet.Dispatcher;
 import org.mortbay.jetty.servlet.FilterHolder;
@@ -104,9 +101,13 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     private String sessionManager;
 
 
-    public class SessionManagerConfiguration implements WebApplicationContext.Configuration {
+    public static class SessionManagerConfiguration implements WebApplicationContext.Configuration {
 
         private WebApplicationContext webAppContext;
+
+
+        public SessionManagerConfiguration() {
+        }
 
 
         public void setWebApplicationContext(WebApplicationContext webAppContext) {
@@ -126,9 +127,12 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
         public void configureWebApp() throws Exception {
             //setup a SessionManager
-            if (getSessionManager() != null) {
-                Class clazz = Thread.currentThread().getContextClassLoader().loadClass(getSessionManager());
+            log.debug("About to configure a SessionManager");
+            String sessionManagerClassName = ((JettyWebAppContext) webAppContext).getSessionManager();
+            if (sessionManagerClassName != null) {
+                Class clazz = Thread.currentThread().getContextClassLoader().loadClass(sessionManagerClassName);
                 Object o = clazz.newInstance();
+                log.debug("Setting SessionManager type=" + clazz.getName() + " instance=" + o);
                 this.webAppContext.getServletHandler().setSessionManager((SessionManager) o);
             }
         }
@@ -260,14 +264,15 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         interceptor = new ThreadClassloaderBeforeAfter(interceptor, index++, index++, this.webClassLoader);
         interceptor = new WebApplicationContextBeforeAfter(interceptor, index++, this);
 //JACC
+
         if (securityRealmName != null) {
             if (roleDesignateSource == null) {
                 throw new IllegalArgumentException("RoleDesignateSource must be supplied for a secure web app");
             }
             Map roleDesignates = roleDesignateSource.getRoleDesignateMap();
             //set the JAASJettyRealm as our realm.
-            JAASJettyRealm realm = new JAASJettyRealm(realmName, securityRealmName);
-            setRealm(realm);
+            UserRealm realm = new JAASJettyRealm(realmName, securityRealmName);
+            realm = jettyContainer.addRealm(realm);
             this.securityInterceptor = new SecurityContextBeforeAfter(interceptor, index++, index++, policyContextID, defaultPrincipal, authenticator, checkedPermissions, excludedPermissions, roleDesignates, realm, classLoader);
             interceptor = this.securityInterceptor;
         } else {
@@ -374,7 +379,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         }
 
         if (securityInterceptor != null) {
-            securityInterceptor.stop();
+            securityInterceptor.stop(jettyContainer);
         }
         Object context = enterContextScope(null, null);
         try {

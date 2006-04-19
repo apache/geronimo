@@ -43,17 +43,17 @@ import org.mortbay.http.UserRealm;
 public class JAASJettyRealm implements UserRealm {
     private static Log log = LogFactory.getLog(JAASJettyRealm.class);
 
-    private final String realmName;
-    private final String loginDomainName;
+    private final String webRealmName;
+    private final String geronimoRealmName;
     private final HashMap userMap = new HashMap();
 
-    public JAASJettyRealm(String realmName, String loginDomainName) {
-        this.realmName = realmName;
-        this.loginDomainName = loginDomainName;
+    public JAASJettyRealm(String realmName, String geronimoRealmName) {
+        this.webRealmName = realmName;
+        this.geronimoRealmName = geronimoRealmName;
     }
 
     public String getName() {
-        return realmName;
+        return webRealmName;
     }
 
     public Principal getPrincipal(String username) {
@@ -90,7 +90,7 @@ public class JAASJettyRealm implements UserRealm {
                 }
 
                 //set up the login context
-                LoginContext loginContext = new LoginContext(loginDomainName, callbackHandler);
+                LoginContext loginContext = new LoginContext(geronimoRealmName, callbackHandler);
                 loginContext.login();
                 callbackHandler.clear();
 
@@ -165,6 +165,18 @@ public class JAASJettyRealm implements UserRealm {
     public Principal popRole(Principal user) {
         ContextManager.setCurrentCaller(((JAASJettyPrincipal) user).pop());
         return user;
+    }
+
+    public int hashCode() {
+        return webRealmName.hashCode() * 37 ^ geronimoRealmName.hashCode();
+    }
+
+    public boolean equals(Object other) {
+        if (other == null || other.getClass() != JAASJettyRealm.class) {
+            return false;
+        }
+        JAASJettyRealm otherRealm = (JAASJettyRealm) other;
+        return webRealmName.equals(otherRealm.webRealmName) && geronimoRealmName.equals(otherRealm.geronimoRealmName);
     }
 
 }
