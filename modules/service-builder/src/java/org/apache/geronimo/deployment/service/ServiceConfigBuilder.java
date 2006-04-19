@@ -44,6 +44,7 @@ import org.apache.geronimo.deployment.xbeans.PatternType;
 import org.apache.geronimo.deployment.xbeans.ReferenceType;
 import org.apache.geronimo.deployment.xbeans.ReferencesType;
 import org.apache.geronimo.deployment.xbeans.XmlAttributeType;
+import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
@@ -174,16 +175,19 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         return environment.getConfigId();
     }
 
-    public DeploymentContext buildConfiguration(boolean inPlaceDeployment, Object plan, JarFile jar, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException {
+    public DeploymentContext buildConfiguration(boolean inPlaceDeployment, Artifact configId, Object plan, JarFile jar, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException {
         ConfigurationType configType = (ConfigurationType) plan;
 
-        return buildConfiguration(inPlaceDeployment, configType, jar, configurationStores, targetConfigurationStore);
+        return buildConfiguration(inPlaceDeployment, configId, configType, jar, configurationStores, targetConfigurationStore);
     }
 
-    public DeploymentContext buildConfiguration(boolean inPlaceDeployment, ConfigurationType configurationType, JarFile jar, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws DeploymentException, IOException {
-
+    public DeploymentContext buildConfiguration(boolean inPlaceDeployment, Artifact configId, ConfigurationType configurationType, JarFile jar, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws DeploymentException, IOException {
+        ArtifactType type = configurationType.getEnvironment().isSetConfigId() ? configurationType.getEnvironment().getConfigId() : configurationType.getEnvironment().addNewConfigId();
+        type.setArtifactId(configId.getArtifactId());
+        type.setGroupId(configId.getGroupId());
+        type.setType(configId.getType());
+        type.setVersion(configId.getVersion().toString());
         Environment environment = EnvironmentBuilder.buildEnvironment(configurationType.getEnvironment(), defaultEnvironment);
-        Artifact configId = environment.getConfigId();
         File outfile;
         try {
             outfile = targetConfigurationStore.createNewConfigurationDir(configId);

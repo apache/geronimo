@@ -98,12 +98,18 @@ public abstract class AbstractRepository implements WriteableRepository {
     }
 
     public boolean contains(Artifact artifact) {
+        if(!artifact.isResolved()) {
+            throw new IllegalArgumentException("Artifact "+artifact+" is not fully resolved");
+        }
         File location = getLocation(artifact);
         return location.canRead() && (location.isFile() || new File(location, "META-INF").isDirectory());
     }
 
     private static final String NAMESPACE = "http://geronimo.apache.org/xml/ns/deployment-1.1";
     public LinkedHashSet getDependencies(Artifact artifact) {
+        if(!artifact.isResolved()) {
+            throw new IllegalArgumentException("Artifact "+artifact+" is not fully resolved");
+        }
         LinkedHashSet dependencies = new LinkedHashSet();
         URL url;
         try {
@@ -161,6 +167,9 @@ public abstract class AbstractRepository implements WriteableRepository {
     }
 
     public void copyToRepository(File source, Artifact destination, FileWriteMonitor monitor) throws IOException {
+        if(!destination.isResolved()) {
+            throw new IllegalArgumentException("Artifact "+destination+" is not fully resolved");
+        }
         if (!source.exists() || !source.canRead() || source.isDirectory()) {
             throw new IllegalArgumentException("Cannot read source file at " + source.getAbsolutePath());
         }
@@ -168,6 +177,9 @@ public abstract class AbstractRepository implements WriteableRepository {
     }
 
     public void copyToRepository(InputStream source, Artifact destination, FileWriteMonitor monitor) throws IOException {
+        if(!destination.isResolved()) {
+            throw new IllegalArgumentException("Artifact "+destination+" is not fully resolved");
+        }
         // is this a writable repository
         if (!rootFile.canWrite()) {
             throw new IllegalStateException("This repository is not writable: " + rootFile.getAbsolutePath() + ")");

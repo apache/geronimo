@@ -21,6 +21,8 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.List;
+import java.util.ArrayList;
 
 import org.apache.geronimo.kernel.repository.Artifact;
 
@@ -76,12 +78,38 @@ public class ConfigurationModel {
         return false;
     }
 
+    public Artifact[] getLoaded(Artifact query) {
+        List results = new ArrayList();
+        for (Iterator it = configurations.entrySet().iterator(); it.hasNext();) {
+            Map.Entry entry = (Map.Entry) it.next();
+            Artifact test = (Artifact) entry.getKey();
+            ConfigurationStatus status = (ConfigurationStatus) entry.getValue();
+            if(query.matches(test) && status.isLoaded()) {
+                results.add(test);
+            }
+        }
+        return (Artifact[]) results.toArray(new Artifact[results.size()]);
+    }
+
     public boolean isStarted(Artifact configurationId) {
         ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(configurationId);
         if (configurationStatus != null) {
             return configurationStatus.isStarted();
         }
         return false;
+    }
+
+    public Artifact[] getStarted(Artifact query) {
+        List results = new ArrayList();
+        for (Iterator it = configurations.entrySet().iterator(); it.hasNext();) {
+            Map.Entry entry = (Map.Entry) it.next();
+            Artifact test = (Artifact) entry.getKey();
+            ConfigurationStatus status = (ConfigurationStatus) entry.getValue();
+            if(query.matches(test) && status.isStarted()) {
+                results.add(test);
+            }
+        }
+        return (Artifact[]) results.toArray(new Artifact[results.size()]);
     }
 
     public LinkedHashSet load(Artifact configurationId) throws NoSuchConfigException {

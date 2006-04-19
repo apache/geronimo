@@ -17,26 +17,6 @@
 
 package org.apache.geronimo.deployment;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
-import org.apache.geronimo.system.main.CommandLineManifest;
-
-import javax.management.ObjectName;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,6 +33,25 @@ import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import javax.management.ObjectName;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Version;
+import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
+import org.apache.geronimo.system.main.CommandLineManifest;
 
 /**
  * GBean that knows how to deploy modules (by consulting available module builders)
@@ -243,8 +242,28 @@ public class Deployer {
                         (moduleFile == null ? "" : (planFile == null ? "" : ", ")+"moduleFile=" + moduleFile.getAbsolutePath())+")");
             }
 
-            // Make sure this configuration doesn't already exist
             Artifact configID = builder.getConfigurationID(plan, module);
+            // If the Config ID isn't fully resolved, populate it with defaults
+            if(!configID.isResolved()) {
+                String group = configID.getGroupId();
+                if(group == null) {
+                    group = Artifact.DEFAULT_GROUP_ID;
+                }
+                String artifactId = configID.getArtifactId();
+                if(artifactId == null) {
+                    throw new DeploymentException("Every configuration to deploy must have a ConfigID with an ArtifactID (not "+configID+")");
+                }
+                Version version = configID.getVersion();
+                if(version == null) {
+                    version = new Version(Long.toString(System.currentTimeMillis()));
+                }
+                String type = configID.getType();
+                if(type == null) {
+                    type = "car";
+                }
+                configID = new Artifact(group, artifactId, version, type);
+            }
+            // Make sure this configuration doesn't already exist
             try {
                 kernel.getGBeanState(Configuration.getConfigurationAbstractName(configID));
                 throw new DeploymentException("Module "+configID+" already exists in the server.  Try to undeploy it first or use the redeploy command.");
@@ -280,7 +299,7 @@ public class Deployer {
             }
             ConfigurationStore store = (ConfigurationStore) stores.iterator().next();
             // It's our responsibility to close this context, once we're done with it...
-            DeploymentContext context = builder.buildConfiguration(inPlace, plan, module, stores, store);
+            DeploymentContext context = builder.buildConfiguration(inPlace, configID, plan, module, stores, store);
             List configurations = new ArrayList();
             configurations.add(context.getConfigurationData());
             configurations.addAll(context.getAdditionalDeployment());

@@ -33,8 +33,8 @@ public interface ListableRepository extends Repository {
 
     /**
      * Gets a list of all the available items matching the specified artifact,
-     * which is normally incomplete (so the results all match whatever fields
-     * are specified on the argument Artifact).
+     * which is normally not fully resolved (so the results all match whatever
+     * fields are specified on the argument Artifact).
      */
     public SortedSet list(Artifact query);
 }

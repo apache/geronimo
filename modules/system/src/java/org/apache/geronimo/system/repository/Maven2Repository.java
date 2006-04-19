@@ -43,6 +43,9 @@ public class Maven2Repository extends AbstractRepository implements WritableList
     }
 
     public File getLocation(Artifact artifact) {
+        if(!artifact.isResolved()) {
+            throw new IllegalArgumentException("Artifact "+artifact+" is not fully resolved");
+        }
         File path = new File(rootFile, artifact.getGroupId().replace('.', File.separatorChar));
         path = new File(path, artifact.getArtifactId());
         path = new File(path, artifact.getVersion().toString());
@@ -53,24 +56,6 @@ public class Maven2Repository extends AbstractRepository implements WritableList
 
     public SortedSet list() {
         return listInternal(null, null, null);
-    }
-
-    private SortedSet listInternal(String artifactMatch, String typeMatch, String versionMatch) {
-        SortedSet artifacts = new TreeSet();
-        File[] groupIds = rootFile.listFiles();
-        for (int i = 0; i < groupIds.length; i++) {
-            File groupId = groupIds[i];
-            if (groupId.canRead() && groupId.isDirectory()) {
-                File[] versionDirs = groupId.listFiles();
-                for (int j = 0; j < versionDirs.length; j++) {
-                    File versionDir = versionDirs[j];
-                    if (versionDir.canRead() && versionDir.isDirectory()) {
-                        artifacts.addAll(getArtifacts(null, versionDir, artifactMatch, typeMatch, versionMatch));
-                    }
-                }
-            }
-        }
-        return artifacts;
     }
 
     public SortedSet list(Artifact query) {
@@ -114,6 +99,24 @@ public class Maven2Repository extends AbstractRepository implements WritableList
         } else {
             return listInternal(query.getArtifactId(), query.getType(), query.getVersion() == null ? null : query.getVersion().toString());
         }
+    }
+
+    private SortedSet listInternal(String artifactMatch, String typeMatch, String versionMatch) {
+        SortedSet artifacts = new TreeSet();
+        File[] groupIds = rootFile.listFiles();
+        for (int i = 0; i < groupIds.length; i++) {
+            File groupId = groupIds[i];
+            if (groupId.canRead() && groupId.isDirectory()) {
+                File[] versionDirs = groupId.listFiles();
+                for (int j = 0; j < versionDirs.length; j++) {
+                    File versionDir = versionDirs[j];
+                    if (versionDir.canRead() && versionDir.isDirectory()) {
+                        artifacts.addAll(getArtifacts(null, versionDir, artifactMatch, typeMatch, versionMatch));
+                    }
+                }
+            }
+        }
+        return artifacts;
     }
 
     private List getArtifacts(String groupId, File versionDir, String artifactMatch, String typeMatch, String versionMatch) {
@@ -199,15 +202,10 @@ public class Maven2Repository extends AbstractRepository implements WritableList
 
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(Maven2Repository.class, "Repository");
-
         infoFactory.addAttribute("root", URI.class, true);
-
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
-
         infoFactory.addInterface(Maven2Repository.class);
-
         infoFactory.setConstructor(new String[]{"root", "ServerInfo"});
-
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -39,10 +39,13 @@ public interface ConfigurationStore {
      * means that the configuration store only stores some meta-data and the 
      * actual content of the configuration is rooted somewhere else.
      * 
-     * @param configId the unique ID of the configuration
+     * @param configId the unique ID of the configuration, which must be fully
+     *                 resolved (isResolved() == true)
+     *
      * @return true if the identified configuration is an in-place one.
+     *
      * @throws NoSuchConfigException if the configuration is not contained in
-     * the store
+     *                               the store
      * @throws IOException If the store cannot be read.
      */
     boolean isInPlaceConfiguration(Artifact configId) throws NoSuchConfigException, IOException;
@@ -58,7 +61,10 @@ public interface ConfigurationStore {
 
     /**
      * Removes a configuration from the store
-     * @param configId the id of the configuration to remove
+     *
+     * @param configId the id of the configuration to remove, which must be
+     *                 fully resolved (isResolved() == true)
+     *
      * @throws NoSuchConfigException if the configuration is not contained in the store
      * @throws IOException if a problem occurs during the removal
      */
@@ -66,8 +72,12 @@ public interface ConfigurationStore {
 
     /**
      * Loads the specified configuration into the kernel
-     * @param configId the id of the configuration to load
+     *
+     * @param configId the id of the configuration to load, which must be fully
+     *                 resolved (isResolved() == true)
+     *
      * @return the the configuration object
+     *
      * @throws NoSuchConfigException if the configuration is not contained in the kernel
      * @throws IOException if a problem occurs loading the configuration from the store
      * @throws InvalidConfigException if the configuration is corrupt
@@ -75,9 +85,13 @@ public interface ConfigurationStore {
     ConfigurationData loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException;
 
     /**
-     * Determines if the store contains a configuration with the spedified ID.
+     * Determines if the store contains a configuration with the specified ID.
+     * The configuration need not be loaded or running, this just checks
+     * whether the configuration store has the data for it.
      *
-     * @param configId the unique ID of the configuration
+     * @param configId the unique ID of the configuration, which must be fully
+     *                 resolved (isResolved() == true)
+     *
      * @return true if the store contains the configuration
      */
     boolean containsConfiguration(Artifact configId);
@@ -99,14 +113,16 @@ public interface ConfigurationStore {
     /**
      * Return the configurations in the store
      *
-     * @return a List ConfigurationInfo objects
+     * @return a List (with entries of type ConfigurationInfo) of all the
+     *         configurations contained in this configuration store
      */
     List listConfigurations();
 
     /**
-     * Creates an empty diretory for a new configuration with the specified configId
+     * Creates an empty directory for a new configuration with the specified configId
      *
-     * @param configId the unique ID of the configuration
+     * @param configId the unique ID of the configuration, which must be fully
+     *                 resolved (isResolved() == true)
      *
      * @return the location of the new directory
      * 
@@ -115,19 +131,26 @@ public interface ConfigurationStore {
     File createNewConfigurationDir(Artifact configId) throws ConfigurationAlreadyExistsException;
 
     /**
-     * Locate the physical locations which match the supplied path in the given artifact/module.  The path may be and
-     * ant style pattern.
-     * @param configId the artifact to search
-     * @param moduleName the module name or null
-     * @param path the pattern to search for with the artifact/module
-     * @return as Set&gt;URL&lt; of the matching locations
+     * Locate the physical locations which match the supplied path in the given
+     * artifact/module.  The path may be an Ant-style pattern.
+     *
+     * @param configId    the artifact to search, which must be fully resolved
+     *                    (isResolved() == true)
+     * @param moduleName  the module name or null to search in the top-level
+     *                    artifact location
+     * @param path        the pattern to search for within the artifact/module,
+     *                    which may also be null to identify the artifact or
+     *                    module base path
+     *
+     * @return a Set (with entries of type URL) of the matching locations
      */
     Set resolve(Artifact configId, String moduleName, String path) throws NoSuchConfigException, MalformedURLException;
 
     /**
-     * Exports a configuration as a ZIP file
+     * Exports a configuration as a ZIP file.
      *
-     * @param configId  The configuration to export
+     * @param configId  The unique ID of the configuration to export, which
+     *                  must be fully resolved (isResolved() == true)
      * @param output    The stream to write the ZIP content to
      */
     void exportConfiguration(Artifact configId, OutputStream output) throws IOException, NoSuchConfigException;

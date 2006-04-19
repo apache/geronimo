@@ -623,6 +623,9 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
             if(list.isEmpty()) {
                 throw new MissingDependencyException("Unable to download dependency "+artifact);
             }
+            if(monitor != null) {
+                monitor.setTotalBytes(-1); // Just to be sure
+            }
             URL repository = (URL) list.removeFirst();
             URL url = artifact == null ? repository : getURL(artifact, repository);
             log.debug("Attempting to download "+artifact+" from "+url);

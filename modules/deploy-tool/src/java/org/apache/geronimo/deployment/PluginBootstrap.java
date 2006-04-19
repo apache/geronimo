@@ -73,7 +73,7 @@ public class PluginBootstrap {
             }
         };
 
-        DeploymentContext context = builder.buildConfiguration(false, config, null, Collections.singleton(targetConfigurationStore), targetConfigurationStore);
+        DeploymentContext context = builder.buildConfiguration(false, builder.getConfigurationID(config, null), config, null, Collections.singleton(targetConfigurationStore), targetConfigurationStore);
         ConfigurationData configurationData = context.getConfigurationData();
 
         JarOutputStream out = new JarOutputStream(new FileOutputStream(carFile));

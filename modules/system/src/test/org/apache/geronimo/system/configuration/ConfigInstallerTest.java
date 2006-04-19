@@ -120,6 +120,22 @@ public class ConfigInstallerTest extends TestCase {
     }
 
     private static class MockConfigManager implements ConfigurationManager {
+        public boolean isInstalled(Artifact configurationId) {
+            return false;
+        }
+
+        public Artifact[] getInstalled(Artifact query) {
+            return new Artifact[0];
+        }
+
+        public Artifact[] getLoaded(Artifact query) {
+            return new Artifact[0];
+        }
+
+        public Artifact[] getRunning(Artifact query) {
+            return new Artifact[0];
+        }
+
         public boolean isLoaded(Artifact configID) {
             return false;
         }

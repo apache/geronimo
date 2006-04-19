@@ -64,5 +64,5 @@ public interface ConfigurationBuilder {
      * @throws IOException if there was a problem reading or writing the files
      * @throws org.apache.geronimo.common.DeploymentException if there was a problem with the configuration
      */
-    DeploymentContext buildConfiguration(boolean inPlaceDeployment, Object plan, JarFile module, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException;
+    DeploymentContext buildConfiguration(boolean inPlaceDeployment, Artifact configId, Object plan, JarFile module, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException;
 }

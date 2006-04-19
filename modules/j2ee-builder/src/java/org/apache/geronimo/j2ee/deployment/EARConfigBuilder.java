@@ -335,14 +335,13 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         return applicationInfo.getEnvironment().getConfigId();
     }
 
-    public DeploymentContext buildConfiguration(boolean inPlaceDeployment, Object plan, JarFile earFile, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException {
+    public DeploymentContext buildConfiguration(boolean inPlaceDeployment, Artifact configId, Object plan, JarFile earFile, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException {
         assert plan != null;
         ApplicationInfo applicationInfo = (ApplicationInfo) plan;
 
         EARContext earContext = null;
         ConfigurationModuleType applicationType = applicationInfo.getType();
-        Environment environment = applicationInfo.getEnvironment();
-        Artifact configId = environment.getConfigId();
+        applicationInfo.getEnvironment().setConfigId(configId);
         File configurationDir;
         try {
             configurationDir = targetConfigurationStore.createNewConfigurationDir(configId);

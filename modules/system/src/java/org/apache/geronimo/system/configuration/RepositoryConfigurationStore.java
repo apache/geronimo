@@ -83,6 +83,9 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
     }
 
     public ConfigurationData loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
+        if(!configId.isResolved()) {
+            throw new IllegalArgumentException("Artifact "+configId+" is not fully resolved");
+        }
         File location = repository.getLocation(configId);
 
         if (!location.exists() && !location.canRead()) {
@@ -135,6 +138,9 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
     }
 
     public boolean containsConfiguration(Artifact configId) {
+        if(!configId.isResolved()) {
+            throw new IllegalArgumentException("Artifact "+configId+" is not fully resolved");
+        }
         File location = repository.getLocation(configId);
         if (location.isDirectory()) {
             location = new File(location, "META-INF");
@@ -155,6 +161,9 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
     }
 
     public File createNewConfigurationDir(Artifact configId) throws ConfigurationAlreadyExistsException {
+        if(!configId.isResolved()) {
+            throw new IllegalArgumentException("Artifact "+configId+" is not fully resolved");
+        }
         File location = repository.getLocation(configId);
         if (location.exists()) {
             throw new ConfigurationAlreadyExistsException("Configuration already exists: " + configId);
@@ -167,6 +176,9 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
     }
 
     public Set resolve(Artifact configId, String moduleName, String path) throws NoSuchConfigException, MalformedURLException {
+        if(!configId.isResolved()) {
+            throw new IllegalArgumentException("Artifact "+configId+" is not fully resolved");
+        }
         File location = repository.getLocation(configId);
         if (location.isDirectory()) {
             File inPlaceLocation = null;
@@ -196,6 +208,9 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
     }
 
     public void exportConfiguration(Artifact configId, OutputStream output) throws IOException, NoSuchConfigException {
+        if(!configId.isResolved()) {
+            throw new IllegalArgumentException("Artifact "+configId+" is not fully resolved");
+        }
         File dir = repository.getLocation(configId);
         if (dir == null) {
             throw new NoSuchConfigException(configId);
@@ -252,6 +267,9 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
     }
 
     public boolean isInPlaceConfiguration(Artifact configId) throws NoSuchConfigException, IOException {
+        if(!configId.isResolved()) {
+            throw new IllegalArgumentException("Artifact "+configId+" is not fully resolved");
+        }
         File location = repository.getLocation(configId);
         if (location.isDirectory()) {
             return inPlaceConfUtil.isInPlaceConfiguration(location);
@@ -298,6 +316,9 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
     }
 
     public void uninstall(Artifact configId) throws NoSuchConfigException, IOException {
+        if(!configId.isResolved()) {
+            throw new IllegalArgumentException("Artifact "+configId+" is not fully resolved");
+        }
         ConfigurationInfo configurationInfo = null;
         try {
             configurationInfo = loadConfigurationInfo(configId);

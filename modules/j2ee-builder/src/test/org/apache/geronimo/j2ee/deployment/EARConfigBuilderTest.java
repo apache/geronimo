@@ -268,7 +268,7 @@ public class EARConfigBuilderTest extends TestCase {
                     naming);
 
             Object plan = configBuilder.getDeploymentPlan(null, earFile);
-            context = configBuilder.buildConfiguration(false, plan, earFile, Collections.singleton(configStore), configStore);
+            context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earFile), plan, earFile, Collections.singleton(configStore), configStore);
             configurationData = context.getConfigurationData();
         } finally {
             if (context != null) {
@@ -302,7 +302,7 @@ public class EARConfigBuilderTest extends TestCase {
         DeploymentContext context = null;
         try {
             Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-ejb-jar.xml"), earFile);
-            context = configBuilder.buildConfiguration(false, plan, earFile, Collections.singleton(configStore), configStore);
+            context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earFile), plan, earFile, Collections.singleton(configStore), configStore);
             configurationData = context.getConfigurationData();
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
@@ -341,7 +341,7 @@ public class EARConfigBuilderTest extends TestCase {
         DeploymentContext context = null;
         try {
             Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-war.xml"), earFile);
-            context = configBuilder.buildConfiguration(false, plan, earFile, Collections.singleton(configStore), configStore);
+            context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earFile), plan, earFile, Collections.singleton(configStore), configStore);
             configurationData = context.getConfigurationData();
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
@@ -380,7 +380,7 @@ public class EARConfigBuilderTest extends TestCase {
         DeploymentContext context = null;
         try {
             Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-rar.xml"), earFile);
-            context = configBuilder.buildConfiguration(false, plan, earFile, Collections.singleton(configStore), configStore);
+            context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earFile), plan, earFile, Collections.singleton(configStore), configStore);
             configurationData = context.getConfigurationData();
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
@@ -419,7 +419,7 @@ public class EARConfigBuilderTest extends TestCase {
         DeploymentContext context = null;
         try {
             Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-car.xml"), earFile);
-            context = configBuilder.buildConfiguration(false, plan, earFile, Collections.singleton(configStore), configStore);
+            context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earFile), plan, earFile, Collections.singleton(configStore), configStore);
             configurationData = context.getConfigurationData();
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
@@ -459,7 +459,7 @@ public class EARConfigBuilderTest extends TestCase {
         DeploymentContext context = null;
         try {
             Object plan = configBuilder.getDeploymentPlan(null, earFile);
-            context = configBuilder.buildConfiguration(false, plan, earFile, Collections.singleton(configStore), configStore);
+            context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earFile), plan, earFile, Collections.singleton(configStore), configStore);
             configurationData = context.getConfigurationData();
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
@@ -496,7 +496,7 @@ public class EARConfigBuilderTest extends TestCase {
         DeploymentContext context = null;
         try {
             Object plan = configBuilder.getDeploymentPlan(null, earFile);
-            context = configBuilder.buildConfiguration(false, plan, earFile, Collections.singleton(configStore), configStore);
+            context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earFile), plan, earFile, Collections.singleton(configStore), configStore);
             configurationData = context.getConfigurationData();
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
@@ -533,7 +533,7 @@ public class EARConfigBuilderTest extends TestCase {
         DeploymentContext context = null;
         try {
             Object plan = configBuilder.getDeploymentPlan(null, earFile);
-            context = configBuilder.buildConfiguration(false, plan, earFile, Collections.singleton(configStore), configStore);
+            context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earFile), plan, earFile, Collections.singleton(configStore), configStore);
             configurationData = context.getConfigurationData();
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
