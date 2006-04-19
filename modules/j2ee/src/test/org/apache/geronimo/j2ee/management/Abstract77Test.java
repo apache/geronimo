@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Hashtable;
 import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanData;
@@ -32,7 +33,6 @@ import org.apache.geronimo.j2ee.management.impl.JVMImpl;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
@@ -40,7 +40,7 @@ import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.PatternLayout;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 386505 $ $Date$
  */
 public abstract class Abstract77Test extends TestCase {
     protected static final GBeanData SERVER_INFO_DATA = buildGBeanData(new String[] {"role"}, new String[] {"ServerInfo"}, BasicServerInfo.getGBeanInfo());
@@ -64,7 +64,14 @@ public abstract class Abstract77Test extends TestCase {
             String v = value[i];
             names.put(k, v);
         }
-        return new AbstractName(new Artifact("test", "foo", "1", "car"), names, JMXUtil.getObjectName(DOMAIN, names));
+
+        ObjectName objectName;
+        try {
+            objectName = new ObjectName(DOMAIN, names);
+        } catch (MalformedObjectNameException e) {
+            throw new IllegalArgumentException("Malformed ObjectName: " + DOMAIN + ":" + names);
+        }
+        return new AbstractName(new Artifact("test", "foo", "1", "car"), names, objectName);
     }
 
     protected void setUp() throws Exception {

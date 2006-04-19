@@ -32,6 +32,7 @@ import org.apache.geronimo.gbean.GBeanName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.runtime.GBeanInstance;
+import org.apache.geronimo.gbean.runtime.LifecycleBroadcaster;
 import org.apache.geronimo.kernel.DependencyManager;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
@@ -364,8 +365,10 @@ public class BasicKernel implements Kernel {
     public void loadGBean(GBeanData gbeanData, ClassLoader classLoader) throws GBeanAlreadyExistsException, InternalKernelException {
         AbstractName abstractName = gbeanData.getAbstractName();
         Set interfaces = gbeanData.getGBeanInfo().getInterfaces();
-        GBeanInstance gbeanInstance = new GBeanInstance(gbeanData, this, dependencyManager, lifecycleMonitor.createLifecycleBroadcaster(abstractName, interfaces), classLoader);
+        LifecycleBroadcaster lifecycleBroadcaster = lifecycleMonitor.createLifecycleBroadcaster(abstractName, interfaces);
+        GBeanInstance gbeanInstance = new GBeanInstance(gbeanData, this, dependencyManager, lifecycleBroadcaster, classLoader);
         registry.register(gbeanInstance);
+        lifecycleBroadcaster.fireLoadedEvent();        
     }
 
     public void startGBean(AbstractName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {

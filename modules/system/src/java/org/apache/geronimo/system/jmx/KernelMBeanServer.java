@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.kernel.jmx;
+package org.apache.geronimo.system.jmx;
 
 import java.io.ObjectInputStream;
 import java.util.HashSet;
@@ -49,13 +49,13 @@ import org.apache.geronimo.kernel.NoSuchOperationException;
 import org.apache.geronimo.kernel.Kernel;
  
 /**
- * A MBeanServerImplementation that delegates to a Kernel.
+ * A fake MBeanServer that delegates to a Kernel.
  * @version $Rev$ $Date$
  */
-public class MBeanServerDelegate implements MBeanServer {
+public class KernelMBeanServer implements MBeanServer {
     private final Kernel kernel;
 
-    public MBeanServerDelegate(Kernel kernel) {
+    public KernelMBeanServer(Kernel kernel) {
         this.kernel = kernel;
     }
 

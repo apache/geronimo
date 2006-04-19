@@ -186,7 +186,11 @@ by the server.
 
     <gbean name="eis/JAXR" class="org.apache.geronimo.webservices.jaxr.JAXRGBean"/>
 
-    <gbean name="ejb/mgmt/MEJB" class="org.openejb.mejb.MEJB"/>
+    <gbean name="ejb/mgmt/MEJB" class="org.openejb.mejb.MEJB">
+        <reference name="MBeanServerReference">
+            <name>MBeanServerReference</name>
+        </reference>
+    </gbean>
 
     <gbean name="AxisCLWorkaround" class="org.apache.geronimo.axis.AxisDiscoveryCLWorkaroundGBean"/>
 

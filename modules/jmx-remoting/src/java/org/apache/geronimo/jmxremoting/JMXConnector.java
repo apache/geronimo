@@ -17,12 +17,10 @@
 package org.apache.geronimo.jmxremoting;
 
 import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
-import javax.management.remote.JMXConnectorServerMBean;
 import javax.management.remote.JMXServiceURL;
 import javax.management.remote.JMXConnectionNotification;
 import javax.management.MBeanServer;
@@ -33,8 +31,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.MBeanServerDelegate;
+import org.apache.geronimo.system.jmx.MBeanServerReference;
 
 /**
  * A Connector that supports the server sideof JSR 160 JMX Remoting.
@@ -42,25 +39,35 @@ import org.apache.geronimo.kernel.jmx.MBeanServerDelegate;
  * @version $Rev$ $Date$
  */
 public class JMXConnector implements GBeanLifecycle {
-    private final Kernel kernel;
+    private final MBeanServer mbeanServer;
     private final Log log;
     private final ClassLoader classLoader;
-    private String url;
     private String applicationConfigName;
     private Authenticator authenticator;
 
+    private String protocol;
+    private String host;
+    private int port = -1;
+    private String urlPath;
+
     private JMXConnectorServer server;
-    
+    private JMXServiceURL jmxServiceURL;
+
+    // todo remove this as soon as Geronimo supports factory beans
+    public JMXConnector(MBeanServerReference mbeanServerReference, String objectName, ClassLoader classLoader) {
+        this(mbeanServerReference.getMBeanServer(), objectName, classLoader);
+    }
+
     /**
      * Constructor for creating the connector. The ClassLoader must be
      * able to load all the LoginModules used in the JAAS login
      *
-     * @param kernel a reference to the kernel
+     * @param mbeanServer the mbean server
      * @param objectName this connector's object name
      * @param classLoader the classLoader used to create this connector
      */
-    public JMXConnector(Kernel kernel, String objectName, ClassLoader classLoader) {
-        this.kernel = kernel;
+    public JMXConnector(MBeanServer mbeanServer, String objectName, ClassLoader classLoader) {
+        this.mbeanServer = mbeanServer;
         this.classLoader = classLoader;
         log = LogFactory.getLog(objectName);
     }
@@ -95,79 +102,86 @@ public class JMXConnector implements GBeanLifecycle {
      */
     public InetSocketAddress getListenAddress() {
         return new InetSocketAddress(getHost(), getPort());
-    }    
-    
+    }
+
     /**
-     * Return the JMX host (extracted from the JMX URL) for this connector.
+     * Gets the protocol to use for the connection.
+     * @return the protocol to use for the connection
+     */
+    public String getProtocol() {
+        return protocol;
+    }
+
+    /**
+     * Sets the protocol to use for the connection.
+     * @param protocol the protocol to use for the connection
+     */
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
+    }
+
+    /**
+     * Gets the JMX host for this connector.
      *
      * @return the JMX host for this connector
      */
     public String getHost() {
-        if (server != null )
-            return server.getAddress().getHost();
-        else if (url != null && url.length() != 0) {
-            // server not started so get host from url attribute
-            try {
-                JMXServiceURL serviceURL = new JMXServiceURL(url);
-                return serviceURL.getHost();
-            }
-            catch (MalformedURLException e){
-                return "unknown-host";
-            }
-        } else
-            return "unknown-host";
-    }      
-    
+        return host;
+    }
+
     /**
-     * Return the JMX port (extracted from the JMX URL) for this connector.
+     * Sets the JMX host for this connector.
+     * @param host the JMX host for this connector
+     */
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    /**
+     * Gets the JMX port for this connector.
      *
      * @return the JMX port for this connector
      */
     public int getPort() {
-        if (server != null )
-            return server.getAddress().getPort();
-        else if (url != null && url.length() != 0) {
-            // server not started so get port from url attribute
-            try {
-                JMXServiceURL serviceURL = new JMXServiceURL(url);
-                return serviceURL.getPort();
-            }
-            catch (MalformedURLException e){
-                return 0;
-            }
-        } else
-            return 0;
-    }    
-    
-    /**
-     * Return the JMX URL for this connector.
-     *
-     * @return the JMX URL for this connector
-     */
-    public String getUrl() {
-        return url;
+        return port;
     }
 
     /**
-     * Set the JMX URL for this connector
-     *
-     * @param url the JMX URL for this connector
+     * Sets the JMX port for this connector.
+     * @param port the JMX port for this connector
      */
-    public void setUrl(String url) {
-        this.url = url;
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    /**
+     * Gets the path within the target server to look for the connection.  This is commonly
+     * /jndi/rmi://localhost:1099/JMXConnector
+     * @return the path used to loacate the connector on the target server
+     */
+    public String getUrlPath() {
+        return urlPath;
+    }
+
+    /**
+     * Sets the path within the target server to look for the connection.  This is commonly
+     * /jndi/rmi://localhost:1099/JMXConnector
+     * @param urlPath the path used to loacate the connector on the target server
+     */
+    public void setUrlPath(String urlPath) {
+        this.urlPath = urlPath;
     }
 
     public void doStart() throws Exception {
-        JMXServiceURL serviceURL = new JMXServiceURL(url);
+        jmxServiceURL = new JMXServiceURL(protocol, host, port, urlPath);
         Map env = new HashMap();
         if (applicationConfigName != null) {
             authenticator = new Authenticator(applicationConfigName, classLoader);
             env.put(JMXConnectorServer.AUTHENTICATOR, authenticator);
         } else {
-            log.warn("Starting unauthenticating JMXConnector for " + serviceURL);
+            log.warn("Starting unauthenticating JMXConnector for " + jmxServiceURL);
         }
-        MBeanServer mbeanServer = new MBeanServerDelegate(kernel);
-        server = JMXConnectorServerFactory.newJMXConnectorServer(serviceURL, env, mbeanServer);
+        server = JMXConnectorServerFactory.newJMXConnectorServer(jmxServiceURL, env, mbeanServer);
         NotificationFilterSupport filter = new NotificationFilterSupport();
         filter.enableType(JMXConnectionNotification.OPENED);
         filter.enableType(JMXConnectionNotification.CLOSED);
@@ -179,23 +193,23 @@ public class JMXConnector implements GBeanLifecycle {
 
     public void doStop() throws Exception {
         try {
-        	  server.stop();
+              server.stop();
         } catch (java.io.IOException e) {
-        	  // java.io.IOException is expected.
+              // java.io.IOException is expected.
         } catch (Exception e) {
-        	  // Otherwise, something bad happened.  Rethrow the exception.
-        	  throw e;
+              // Otherwise, something bad happened.  Rethrow the exception.
+              throw e;
         }
         finally {
           server = null;
-          log.debug("Stopped JMXConnector " + url);
+          log.debug("Stopped JMXConnector " + jmxServiceURL);
         }
     }
 
     public void doFail() {
         try {
             doStop();
-            log.warn("Failure in JMXConnector " + url);
+            log.warn("Failure in JMXConnector " + jmxServiceURL);
         } catch (Exception e) {
             log.warn("Error stopping JMXConnector after failure", e);
         }
@@ -204,14 +218,18 @@ public class JMXConnector implements GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("JMX Remoting Connector", JMXConnector.class); //TODO just  a gbean?
-        infoFactory.addAttribute("url", String.class, true, true);
-        infoFactory.addAttribute("applicationConfigName", String.class, true, true);
-        infoFactory.addAttribute("kernel", Kernel.class, false);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("JMX Remoting Connector", JMXConnector.class);
+        infoFactory.addReference("MBeanServerReference", MBeanServerReference.class);
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
-        infoFactory.addAttribute("listenAddress", InetSocketAddress.class, false);
-        infoFactory.setConstructor(new String[]{"kernel", "objectName", "classLoader"});
+
+        infoFactory.addAttribute("protocol", String.class, true, true);
+        infoFactory.addAttribute("host", String.class, true, true);
+        infoFactory.addAttribute("port", int.class, true, true);
+        infoFactory.addAttribute("urlPath", String.class, true, true);
+        infoFactory.addAttribute("applicationConfigName", String.class, true, true);
+
+        infoFactory.setConstructor(new String[]{"MBeanServerReference", "objectName", "classLoader"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

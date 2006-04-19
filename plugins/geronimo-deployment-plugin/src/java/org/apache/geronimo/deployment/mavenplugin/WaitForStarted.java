@@ -27,7 +27,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.jmx.KernelDelegate;
+import org.apache.geronimo.system.jmx.KernelDelegate;
 import org.apache.geronimo.kernel.repository.Artifact;
 
 public class WaitForStarted extends AbstractModuleCommand {

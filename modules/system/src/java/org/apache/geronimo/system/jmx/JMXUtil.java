@@ -15,23 +15,20 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.kernel.jmx;
+package org.apache.geronimo.system.jmx;
 
-import java.util.Set;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Hashtable;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.management.MBeanInfo;
+import java.util.Set;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanConstructorInfo;
+import javax.management.MBeanInfo;
+import javax.management.MBeanNotificationInfo;
 import javax.management.MBeanOperationInfo;
 import javax.management.MBeanParameterInfo;
-import javax.management.MBeanNotificationInfo;
 
-import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.kernel.management.NotificationType;
 
@@ -39,33 +36,10 @@ import org.apache.geronimo.kernel.management.NotificationType;
 /**
  * Helper class for JMX Operations
  *
- * @version $Rev$ $Date$
+ * @version $Rev: 383682 $ $Date$
  */
 public final class JMXUtil {
     private JMXUtil() {
-    }
-
-    /**
-     * Convert a String to an ObjectName
-     *
-     * @param name the name
-     * @return the ObjectName from that String
-     * @throws java.lang.IllegalArgumentException if the name is malformed
-     */
-    public static ObjectName getObjectName(String name) throws IllegalArgumentException {
-        try {
-            return new ObjectName(name);
-        } catch (MalformedObjectNameException e) {
-            throw new IllegalArgumentException("Malformed ObjectName: " + name);
-        }
-    }
-
-   public static ObjectName getObjectName(String domain, Hashtable keys) throws IllegalArgumentException {
-        try {
-            return new ObjectName(domain, keys);
-        } catch (MalformedObjectNameException e) {
-            throw new IllegalArgumentException("Malformed ObjectName: " + domain + ":" + keys);
-        }
     }
 
     public static MBeanInfo toMBeanInfo(GBeanInfo gBeanInfo) {

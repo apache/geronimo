@@ -25,7 +25,7 @@ import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.ObjectNameUtil;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -60,7 +60,7 @@ public class JMSConnectionFactoryManagerPortlet extends BasePortlet {
 
     private final static String SUBMIT_CREATE = "Create";
 
-    private final ObjectName DATABASE_QUERY = JMXUtil
+    private final ObjectName DATABASE_QUERY = ObjectNameUtil
             .getObjectName("*:j2eeType=JCAManagedConnectionFactory,*");
 
     protected final String NORMAL_VIEW = "/WEB-INF/view/jmsmanager/activemq/normal.jsp";;

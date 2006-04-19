@@ -36,6 +36,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
@@ -44,7 +45,6 @@ import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.IOUtil;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.FileWriteMonitor;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
@@ -68,7 +68,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
 
     public RepositoryConfigurationStore(Kernel kernel, String objectName, WritableListableRepository repository) {
         this.kernel = kernel;
-        this.objectName = objectName == null ? null : JMXUtil.getObjectName(objectName);
+        this.objectName = objectName == null ? null : ObjectNameUtil.getObjectName(objectName);
         this.repository = repository;
         
         inPlaceConfUtil = new InPlaceConfigurationUtil();

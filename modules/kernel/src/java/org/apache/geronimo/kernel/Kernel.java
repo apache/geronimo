@@ -25,7 +25,6 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.lifecycle.LifecycleMonitor;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -37,7 +36,7 @@ public interface Kernel {
     /**
      * The JMX name used by a Kernel to register itself when it boots.
      */
-    ObjectName KERNEL = JMXUtil.getObjectName(":role=Kernel");
+    ObjectName KERNEL = ObjectNameUtil.getObjectName(":role=Kernel");
     AbstractName KERNEL_NAME = new AbstractName(new Artifact("geronimo", "boot", "none", "car"), Collections.singletonMap("role", "kernel"), KERNEL);
 
     /**

@@ -27,9 +27,6 @@ This configuration should *NOT* be used to provide server or application
 specific services - those should be provided by children.
 -->
 <configuration xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
-  <!-- MBean server service -->
-  <gbean name="MBeanServerKernelBridge" class="org.apache.geronimo.system.jmx.MBeanServerKernelBridge"/>
-
   <!-- ServerInfo service -->
   <gbean name="ServerInfo" class="org.apache.geronimo.system.serverinfo.BasicServerInfo"/>
 

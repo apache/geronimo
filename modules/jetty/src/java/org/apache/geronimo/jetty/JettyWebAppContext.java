@@ -33,7 +33,7 @@ import org.apache.geronimo.jetty.interceptor.ThreadClassloaderBeforeAfter;
 import org.apache.geronimo.jetty.interceptor.TransactionContextBeforeAfter;
 import org.apache.geronimo.jetty.interceptor.WebApplicationContextBeforeAfter;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
 import org.apache.geronimo.management.geronimo.WebModule;
@@ -62,7 +62,6 @@ import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
 import javax.naming.Context;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URL;
 import java.security.PermissionCollection;
 import java.util.Collection;
@@ -206,7 +205,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         this.application = application;
         this.objectName = objectName;
         if (objectName != null) {
-            ObjectName myObjectName = JMXUtil.getObjectName(objectName);
+            ObjectName myObjectName = ObjectNameUtil.getObjectName(objectName);
             verifyObjectName(myObjectName);
         }
         this.configurationBaseURL = configurationBaseUrl;

@@ -17,7 +17,7 @@
 package org.apache.geronimo.connector.outbound;
 
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.management.geronimo.JCAConnectionFactory;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 
@@ -33,7 +33,7 @@ public class JCAConnectionFactoryImpl implements JCAConnectionFactory  {
 
     public JCAConnectionFactoryImpl(String objectName, JCAManagedConnectionFactory managedConnectionFactory) {
         // todo do we really need to do this at runtime - shouldn't the builder set this up correctly?
-        ObjectName myObjectName = JMXUtil.getObjectName(objectName);
+        ObjectName myObjectName = ObjectNameUtil.getObjectName(objectName);
         verifyObjectName(myObjectName);
 
         this.objectName = objectName;

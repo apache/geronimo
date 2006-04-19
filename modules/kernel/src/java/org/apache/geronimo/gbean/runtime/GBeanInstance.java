@@ -377,7 +377,6 @@ public final class GBeanInstance implements StateManageable {
         for (int i = 0; i < references.length; i++) {
             references[i].online();
         }
-        lifecycleBroadcaster.fireLoadedEvent();
     }
 
     public void die() throws GBeanNotFoundException {

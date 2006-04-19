@@ -16,7 +16,6 @@
  */
 package org.apache.geronimo.system.jmx;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -28,7 +27,6 @@ import javax.management.JMException;
 import javax.management.JMRuntimeException;
 import javax.management.MBeanInfo;
 import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
@@ -40,11 +38,10 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 384351 $ $Date$
  */
 public class MBeanServerKernelBridge implements GBeanLifecycle {
     private static final Log log = LogFactory.getLog(MBeanServerKernelBridge.class);
@@ -53,17 +50,14 @@ public class MBeanServerKernelBridge implements GBeanLifecycle {
     private final MBeanServer mbeanServer;
     private static final AbstractNameQuery ALL = new AbstractNameQuery(null, Collections.EMPTY_MAP, Collections.EMPTY_SET);
 
-    public MBeanServerKernelBridge(Kernel kernel, String mbeanServerId) throws MBeanServerNotFound {
-        this.kernel = kernel;
-        ArrayList servers = MBeanServerFactory.findMBeanServer(mbeanServerId);
-        if (servers.size() == 0) {
-            mbeanServer = MBeanServerFactory.createMBeanServer("geronimo");
-        } else if (servers.size() > 1) {
-            throw new MBeanServerNotFound(servers.size() + " MBeanServers were found with the agent id " + mbeanServerId);
-        } else {
-            mbeanServer = (MBeanServer) servers.get(0);
-        }
+    // todo remove this as soon as Geronimo supports factory beans    
+    public MBeanServerKernelBridge(Kernel kernel, MBeanServerReference mbeanServerReference) {
+        this(kernel, mbeanServerReference.getMBeanServer());
+    }
 
+    public MBeanServerKernelBridge(Kernel kernel, MBeanServer mbeanServer) {
+        this.kernel = kernel;
+        this.mbeanServer = mbeanServer;
     }
 
     public void doStart() {
@@ -185,8 +179,8 @@ public class MBeanServerKernelBridge implements GBeanLifecycle {
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(MBeanServerKernelBridge.class);
         infoFactory.addAttribute("kernel", Kernel.class, false);
-        infoFactory.addAttribute("mbeanServerId", String.class, true);
-        infoFactory.setConstructor(new String[]{"kernel", "mbeanServerId"});
+        infoFactory.addReference("MBeanServerReference", MBeanServerReference.class);
+        infoFactory.setConstructor(new String[]{"kernel", "MBeanServerReference"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

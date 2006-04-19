@@ -25,7 +25,7 @@ import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
 import org.apache.geronimo.management.AppClientModule;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.ObjectNameUtil;
 
 /**
  * @version $Revision$ $Date$
@@ -39,7 +39,7 @@ public class J2EEAppClientModuleImpl implements AppClientModule {
 
     public J2EEAppClientModuleImpl(String objectName, J2EEServer server, J2EEApplication application, String deploymentDescriptor, ClassLoader classLoader) {
         this.objectName = objectName;
-        ObjectName myObjectName = JMXUtil.getObjectName(this.objectName);
+        ObjectName myObjectName = ObjectNameUtil.getObjectName(this.objectName);
         verifyObjectName(myObjectName);
 
         this.server = server;

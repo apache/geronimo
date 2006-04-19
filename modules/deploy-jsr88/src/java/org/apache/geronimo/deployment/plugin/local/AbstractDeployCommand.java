@@ -19,7 +19,7 @@ package org.apache.geronimo.deployment.plugin.local;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.ObjectNameUtil;
 
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.shared.ModuleType;
@@ -62,7 +62,7 @@ public abstract class AbstractDeployCommand extends CommandSupport {
     }
 
     private ObjectName getDeployerName() {
-        Set deployers = kernel.listGBeans(JMXUtil.getObjectName(DEPLOYER_NAME));
+        Set deployers = kernel.listGBeans(ObjectNameUtil.getObjectName(DEPLOYER_NAME));
         if (deployers.isEmpty()) {
             fail("No Deployer GBean present in running Geronimo server. " +
                  "This usually indicates a serious problem with the configuration of " +

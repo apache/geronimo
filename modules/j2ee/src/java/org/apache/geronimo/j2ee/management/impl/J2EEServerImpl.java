@@ -28,9 +28,9 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.management.J2EEDeployedObject;
@@ -59,7 +59,7 @@ public class J2EEServerImpl implements J2EEServer {
 
     public J2EEServerImpl(Kernel kernel, String objectName, ServerInfo serverInfo) {
         this.objectName = objectName;
-        ObjectName myObjectName = JMXUtil.getObjectName(this.objectName);
+        ObjectName myObjectName = ObjectNameUtil.getObjectName(this.objectName);
         verifyObjectName(myObjectName);
 
         // build the base name used to query the server for child modules

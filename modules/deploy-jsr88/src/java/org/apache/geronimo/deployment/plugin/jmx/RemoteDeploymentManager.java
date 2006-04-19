@@ -25,27 +25,25 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Set;
-
+import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
-import javax.enterprise.deploy.spi.status.ProgressListener;
 import javax.enterprise.deploy.spi.status.ProgressEvent;
-import javax.enterprise.deploy.shared.CommandType;
+import javax.enterprise.deploy.spi.status.ProgressListener;
 import javax.management.MBeanServerConnection;
 import javax.management.remote.JMXConnector;
 
+import org.apache.geronimo.deployment.plugin.GeronimoDeploymentManager;
+import org.apache.geronimo.deployment.plugin.local.AbstractDeployCommand;
 import org.apache.geronimo.deployment.plugin.local.DistributeCommand;
 import org.apache.geronimo.deployment.plugin.local.RedeployCommand;
-import org.apache.geronimo.deployment.plugin.local.AbstractDeployCommand;
-import org.apache.geronimo.deployment.plugin.GeronimoDeploymentManager;
 import org.apache.geronimo.deployment.plugin.remote.RemoteDeployUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.kernel.jmx.KernelDelegate;
 import org.apache.geronimo.system.configuration.ConfigurationList;
-import org.apache.geronimo.system.configuration.DownloadResults;
-import org.apache.geronimo.system.configuration.ConfigurationInstaller;
 import org.apache.geronimo.system.configuration.DownloadPoller;
+import org.apache.geronimo.system.configuration.DownloadResults;
+import org.apache.geronimo.system.jmx.KernelDelegate;
 
 /**
  * Connects to a Kernel in a remote VM (may or many not be on the same machine).

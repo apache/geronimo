@@ -28,7 +28,10 @@
             <attribute name="port">${PlanRemoteLoginPort}</attribute>
         </gbean>
         <gbean name="JMXService">
-            <attribute name="url">service:jmx:rmi://${PlanServerHostname}:${PlanJMXPort}/jndi/rmi://${PlanServerHostname}:${PlanNamingPort}/JMXConnector</attribute>
+            <attribute name="protocol">rmi</attribute>
+            <attribute name="host">${PlanServerHostname}</attribute>
+            <attribute name="port">${PlanJMXPort}</attribute>
+            <attribute name="urlPath">/jndi/rmi://${PlanServerHostname}:${PlanNamingPort}/JMXConnector</attribute>
         </gbean>
     </configuration>
     <configuration name="geronimo/j2ee-corba/${pom.currentVersion}/car" load="false">

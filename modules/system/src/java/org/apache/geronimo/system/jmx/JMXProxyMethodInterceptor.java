@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.kernel.jmx;
+package org.apache.geronimo.system.jmx;
 
 import net.sf.cglib.asm.Type;
 import net.sf.cglib.core.Signature;

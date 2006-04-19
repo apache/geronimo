@@ -21,7 +21,7 @@ import java.util.Map;
 
 import javax.management.ObjectName;
 
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.ObjectNameUtil;
 
 public class SecurityRealmBean {
 
@@ -49,7 +49,7 @@ public class SecurityRealmBean {
     public SecurityRealmBean(String realmObjectName, String configEntryObjName,
             String configID, String applicationConfigName, String realmName,
             boolean started, Map attributes) {
-        this(JMXUtil.getObjectName(realmObjectName), JMXUtil
+        this(ObjectNameUtil.getObjectName(realmObjectName), ObjectNameUtil
                 .getObjectName(configEntryObjName), configID,
                 applicationConfigName, realmName, started, attributes);
     }

@@ -59,8 +59,14 @@ Configuration for the security of a Geronimo server.
 
     <!-- JMX Remoting -->
     <gbean name="JMXService" class="org.apache.geronimo.jmxremoting.JMXConnector">
-        <attribute name="url">service:jmx:rmi://${PlanServerHostname}/jndi/rmi:/JMXConnector</attribute>
+        <attribute name="protocol">rmi</attribute>
+        <attribute name="host">${PlanServerHostname}</attribute>
+        <attribute name="port">${PlanJMXPort}</attribute>
+        <attribute name="urlPath">/jndi/rmi://${PlanServerHostname}:${PlanNamingPort}/JMXConnector</attribute>
         <attribute name="applicationConfigName">JMX</attribute>
+        <reference name="MBeanServerReference">
+            <name>MBeanServerReference</name>
+        </reference>
     </gbean>
 
 

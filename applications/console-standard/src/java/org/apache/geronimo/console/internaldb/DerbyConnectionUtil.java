@@ -26,7 +26,7 @@ import javax.sql.DataSource;
 
 import org.apache.geronimo.console.GeronimoVersion;
 import org.apache.geronimo.kernel.KernelRegistry;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.ObjectNameUtil;
 
 /**
  * A static class to handle retreiving connections. This class is built to
@@ -53,7 +53,7 @@ public class DerbyConnectionUtil {
 
     private static final String EMPTY_PROPS = "";
 
-    private static final ObjectName SYSTEM_DATASOURCE_NAME = JMXUtil
+    private static final ObjectName SYSTEM_DATASOURCE_NAME = ObjectNameUtil
             .getObjectName("geronimo.server:J2EEApplication=null,J2EEServer=geronimo,JCAResource=geronimo/system-database/"+GeronimoVersion.GERONIMO_VERSION+"/car,j2eeType=JCAManagedConnectionFactory,name=SystemDatasource");
 
     /**

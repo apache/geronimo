@@ -31,7 +31,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
 import org.apache.geronimo.management.geronimo.WebModule;
@@ -219,7 +219,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
         this.kernel = kernel;
         if (objectName != null) {
-            ObjectName myObjectName = JMXUtil.getObjectName(objectName);
+            ObjectName myObjectName = ObjectNameUtil.getObjectName(objectName);
             verifyObjectName(myObjectName);
         }
 

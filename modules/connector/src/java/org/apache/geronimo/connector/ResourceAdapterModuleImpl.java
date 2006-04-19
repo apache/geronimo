@@ -27,7 +27,7 @@ import org.apache.geronimo.management.J2EEServer;
 import org.apache.geronimo.management.geronimo.ResourceAdapter;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.ObjectNameUtil;
 
 /**
  * @version $Rev$ $Date$
@@ -64,7 +64,7 @@ public class ResourceAdapterModuleImpl implements ResourceAdapterModule {
                                      String resourceAdapterVersion,
                                      String eisType) {
         this.objectName = objectName;
-        ObjectName myObjectName = JMXUtil.getObjectName(objectName);
+        ObjectName myObjectName = ObjectNameUtil.getObjectName(objectName);
         verifyObjectName(myObjectName);
 
         this.resourceAdapter = resourceAdapter;

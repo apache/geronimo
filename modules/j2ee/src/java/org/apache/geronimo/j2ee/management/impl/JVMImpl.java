@@ -33,7 +33,7 @@ import org.apache.geronimo.management.StatisticsProvider;
 import org.apache.geronimo.management.stats.JVMStatsImpl;
 import org.apache.geronimo.management.stats.BoundedRangeImpl;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
 
@@ -67,7 +67,7 @@ public class JVMImpl implements JVM, StatisticsProvider {
     public JVMImpl(String objectName, Kernel kernel) {
         this.objectName = objectName;
         this.kernel = kernel;
-        ObjectName myObjectName = JMXUtil.getObjectName(this.objectName);
+        ObjectName myObjectName = ObjectNameUtil.getObjectName(this.objectName);
         verifyObjectName(myObjectName);
 
         // build the base name used to query the server for related modules

@@ -36,7 +36,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 386505 $ $Date$
  */
 public class BasicLifecycleMonitor implements LifecycleMonitor {
     private static final Log log = LogFactory.getLog(BasicLifecycleMonitor.class);

@@ -53,4 +53,12 @@ after the system GBeans but before the server GBeans.
         </reference>
     </gbean>
 
+    <gbean name="MBeanServerReference" class="org.apache.geronimo.system.jmx.RealMBeanServerReference"/>
+
+    <!-- MBean server service -->
+    <gbean name="MBeanServerKernelBridge" class="org.apache.geronimo.system.jmx.MBeanServerKernelBridge">
+      <reference name="MBeanServerReference">
+        <name>MBeanServerReference</name>
+      </reference>
+    </gbean>
 </configuration>

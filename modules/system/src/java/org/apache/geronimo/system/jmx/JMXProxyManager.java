@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.kernel.jmx;
+package org.apache.geronimo.system.jmx;
 
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.MethodInterceptor;
@@ -26,7 +26,7 @@ import org.apache.geronimo.gbean.AbstractName;
  * Pretty much the same as the BasicProxyManager, but it has a different way
  * of handling the actual invocations.
  *
- * @version $Rev$ $Date$
+ * @version $Rev: 383682 $ $Date$
  */
 public class JMXProxyManager extends BasicProxyManager {
     public JMXProxyManager(Kernel kernel) {

@@ -23,7 +23,7 @@ import javax.management.ObjectName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.management.geronimo.J2EEDomain;
 import org.apache.geronimo.management.geronimo.J2EEServer;
@@ -38,7 +38,7 @@ public class J2EEDomainImpl implements J2EEDomain {
 
     public J2EEDomainImpl(Kernel kernel, String objectName) {
         this.objectName = objectName;
-        ObjectName myObjectName = JMXUtil.getObjectName(this.objectName);
+        ObjectName myObjectName = ObjectNameUtil.getObjectName(this.objectName);
         verifyObjectName(myObjectName);
         baseName = myObjectName.getDomain() + ":";
 

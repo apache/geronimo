@@ -30,8 +30,6 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.kernel.jmx.KernelDelegate;
-import org.apache.geronimo.kernel.jmx.MBeanServerDelegate;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.proxy.ProxyFactory;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
@@ -67,16 +65,6 @@ public class GBeanTest extends TestCase {
         }
     }
 
-    /**
-     * Test with kernel wrapped in KernelDelegate
-     */
-    private static class JmxKernelLifecycle extends KernelWraper {
-        public Kernel wrap(Kernel kernel) {
-            MBeanServerDelegate mbeanServer = new MBeanServerDelegate(kernel);
-            return new KernelDelegate(mbeanServer);
-        }
-    }
-
     public static Test suite() throws Exception {
         TestSuite suite = new TestSuite();
         TestSuite inner = new TestSuite(GBeanTest.class);
@@ -95,12 +83,6 @@ public class GBeanTest extends TestCase {
             }
         });
 
-        suite.addTest(new TestSetup(inner) {
-            protected void setUp() throws Exception {
-                super.setUp();
-                kernelWraper = new JmxKernelLifecycle();
-            }
-        });
         return suite;
     }
 

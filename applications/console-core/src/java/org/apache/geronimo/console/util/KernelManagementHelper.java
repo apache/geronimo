@@ -867,7 +867,7 @@ public class KernelManagementHelper implements ManagementHelper {
         javax.management.remote.JMXServiceURL address = new javax.management.remote.JMXServiceURL("service:" + uri);
         javax.management.remote.JMXConnector jmxConnector = javax.management.remote.JMXConnectorFactory.connect(address, environment);
         javax.management.MBeanServerConnection mbServerConnection = jmxConnector.getMBeanServerConnection();
-        Kernel kernel = new org.apache.geronimo.kernel.jmx.KernelDelegate(mbServerConnection);
+        Kernel kernel = new org.apache.geronimo.system.jmx.KernelDelegate(mbServerConnection);
         return new KernelManagementHelper(kernel);
     }
 }
