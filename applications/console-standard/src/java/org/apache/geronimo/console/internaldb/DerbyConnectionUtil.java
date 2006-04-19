@@ -24,7 +24,6 @@ import java.sql.SQLException;
 import javax.management.ObjectName;
 import javax.sql.DataSource;
 
-import org.apache.geronimo.console.GeronimoVersion;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.ObjectNameUtil;
 
@@ -54,7 +53,7 @@ public class DerbyConnectionUtil {
     private static final String EMPTY_PROPS = "";
 
     private static final ObjectName SYSTEM_DATASOURCE_NAME = ObjectNameUtil
-            .getObjectName("geronimo.server:J2EEApplication=null,J2EEServer=geronimo,JCAResource=geronimo/system-database/"+GeronimoVersion.GERONIMO_VERSION+"/car,j2eeType=JCAManagedConnectionFactory,name=SystemDatasource");
+            .getObjectName("geronimo.server:J2EEApplication=null,J2EEServer=geronimo,JCAResource=geronimo/system-database/"+org.apache.geronimo.system.serverinfo.ServerConstants.getVersion()+"/car,j2eeType=JCAManagedConnectionFactory,name=SystemDatasource");
 
     /**
      * Get database connection.
@@ -87,7 +86,7 @@ public class DerbyConnectionUtil {
      *            the name of the database to connect to.
      * @param properties
      *            the properties to pass to the connection string.
-     * @return
+     * @return connection
      */
     public static Connection getDerbyConnection(String dbName, String properties)
             throws SQLException {
@@ -119,7 +118,7 @@ public class DerbyConnectionUtil {
      * Get the datasource if dbName is == SYSTEM_DB, otherwise returns null.
      *
      * @param dbName
-     * @return
+     * @return datasource
      */
     public static DataSource getDataSource(String dbName) {
         try {

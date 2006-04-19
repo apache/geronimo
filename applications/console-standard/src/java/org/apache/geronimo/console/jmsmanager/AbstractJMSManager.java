@@ -17,40 +17,32 @@
 
 package org.apache.geronimo.console.jmsmanager;
 
-import java.util.Iterator;
-import java.util.Set;
 import java.util.Map;
 
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.jms.Topic;
 import javax.jms.Queue;
+import javax.jms.Topic;
 
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelRegistry;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.console.GeronimoVersion;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 public abstract class AbstractJMSManager {
 
-    protected static final Artifact ACTIVEMQ_BROKER_ARTIFACT = new Artifact("geronimo", "activemq-broker", GeronimoVersion.GERONIMO_VERSION, "car");
-    protected static final Artifact ACTIVEMQ_ARTIFACT = new Artifact("geronimo", "activemq", GeronimoVersion.GERONIMO_VERSION, "car");
+    protected static final Artifact ACTIVEMQ_BROKER_ARTIFACT = new Artifact("geronimo", "activemq-broker", org.apache.geronimo.system.serverinfo.ServerConstants.getVersion(), "car");
+    protected static final Artifact ACTIVEMQ_ARTIFACT = new Artifact("geronimo", "activemq", org.apache.geronimo.system.serverinfo.ServerConstants.getVersion(), "car");
     protected static final Kernel kernel = KernelRegistry.getSingleKernel();
 
     protected static final ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
     protected final Configuration BROKER_CONFIGURATION = configurationManager.getConfiguration(ACTIVEMQ_BROKER_ARTIFACT);
     protected final Configuration CONNECTOR_CONFIGURATION = configurationManager.getConfiguration(ACTIVEMQ_ARTIFACT);
-//    protected static final String JMS_SERVER_MBEAN_NAME = "geronimo.server:J2EEApplication=null,J2EEModule=geronimo/activemq-broker/" + GeronimoVersion.GERONIMO_VERSION + "/car,J2EEServer=geronimo,j2eeType=JMSServer,name=ActiveMQl";
 
     private static final AbstractName earName = kernel.getNaming().createRootName(ACTIVEMQ_ARTIFACT, NameFactory.NULL, NameFactory.J2EE_APPLICATION);
     protected static final AbstractName RESOURCE_ADAPTER_MODULE_NAME = kernel.getNaming().createChildName(earName, ACTIVEMQ_ARTIFACT.toString(), NameFactory.RESOURCE_ADAPTER_MODULE);
@@ -83,8 +75,6 @@ public abstract class AbstractJMSManager {
     protected static final String DESTINATION_MODULE_NAME = "destinationModuleName";
 
     protected static final String DESTINATION_CONFIG_URI = "destinationConfigURI";
-
-//    protected static final String CONNECTION_FACTORY_NAME = "geronimo.server:J2EEApplication=null,J2EEServer=geronimo,JCAResource=geronimo/activemq/" + GeronimoVersion.GERONIMO_VERSION + "/car,j2eeType=JCAManagedConnectionFactory,name=DefaultActiveMQConnectionFactory";
 
     protected static Object[] no_args = new Object[0];
 

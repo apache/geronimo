@@ -30,7 +30,6 @@ import javax.portlet.PortletException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.console.GeronimoVersion;
 import org.apache.geronimo.console.core.jms.TopicBrowserGBean;
 import org.apache.geronimo.console.jmsmanager.AbstractJMSManager;
 import org.apache.geronimo.gbean.AbstractName;
@@ -47,7 +46,7 @@ public class CreateDestinationHandler extends AbstractJMSManager implements Port
     protected static Log log = LogFactory
             .getLog(CreateDestinationHandler.class);
 
-    private static final Artifact parentId = new Artifact("geronimo", "activemq-broker", GeronimoVersion.GERONIMO_VERSION, "car");
+    private static final Artifact parentId = new Artifact("geronimo", "activemq-broker", org.apache.geronimo.system.serverinfo.ServerConstants.getVersion(), "car");
 
 //    static final GBeanInfo QUEUE_INFO;
 //
