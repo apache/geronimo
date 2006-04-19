@@ -29,13 +29,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
 import junit.framework.TestCase;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.management.State;
@@ -56,11 +56,13 @@ public class ConfigurationManagerTest extends TestCase {
     private Artifact artifact1;
     private Artifact artifact2;
     private Artifact artifact3;
+    private Artifact artifact3NoVersion;
     private Map configurations = new HashMap();
     private ConfigurationManager configurationManager;
     private AbstractName gbean1;
     private AbstractName gbean2;
     private AbstractName gbean3;
+    private AbstractName gbean3newer;
     private TestConfigStore configStore;
 
     public void testLoad() throws Exception {
@@ -460,6 +462,116 @@ public class ConfigurationManagerTest extends TestCase {
         assertFalse(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact1))) ;
     }
 
+    public void testReloadNewerConfiguration() throws Exception {
+        configurationManager.loadConfiguration(artifact3);
+        configurationManager.startConfiguration(artifact3);
+        Object g1 = kernel.getGBean(gbean1);
+        Object g2 = kernel.getGBean(gbean2);
+        Object g3 = kernel.getGBean(gbean3);
+        try {
+            kernel.getGBean(gbean3newer);
+            fail("Should not have found the newer GBean yet");
+        } catch (GBeanNotFoundException e) {}
+        assertSame(g1, kernel.getGBean(gbean1));
+        assertSame(g2, kernel.getGBean(gbean2));
+        assertSame(g3, kernel.getGBean(gbean3));
+        Configuration configuration1 = configurationManager.getConfiguration(artifact1);
+        Configuration configuration2 = configurationManager.getConfiguration(artifact2);
+        Configuration configuration3 = configurationManager.getConfiguration(artifact3);
+        assertNull(configurationManager.getConfiguration(artifact3NoVersion));
+
+        LifecycleResults results = configurationManager.reloadConfiguration(artifact1);
+
+        // check the results
+        assertTrue(results.wasReloaded(artifact1));
+        assertTrue(results.wasReloaded(artifact2));
+        assertTrue(results.wasReloaded(artifact3));
+        assertTrue(results.wasRestarted(artifact1));
+        assertTrue(results.wasRestarted(artifact2));
+        assertTrue(results.wasRestarted(artifact3));
+        assertFalse(results.wasFailed(artifact3NoVersion));
+        assertFalse(results.wasLoaded(artifact3NoVersion));
+        assertFalse(results.wasReloaded(artifact3NoVersion));
+        assertFalse(results.wasRestarted(artifact3NoVersion));
+        assertFalse(results.wasStarted(artifact3NoVersion));
+        assertFalse(results.wasStopped(artifact3NoVersion));
+        assertFalse(results.wasUnloaded(artifact3NoVersion));
+
+        // check the state of the configuration manager
+        assertTrue(configurationManager.isLoaded(artifact1));
+        assertTrue(configurationManager.isLoaded(artifact2));
+        assertTrue(configurationManager.isLoaded(artifact3));
+        assertFalse(configurationManager.isLoaded(artifact3NoVersion));
+        assertTrue(configurationManager.isRunning(artifact1));
+        assertTrue(configurationManager.isRunning(artifact2));
+        assertTrue(configurationManager.isRunning(artifact3));
+        assertFalse(configurationManager.isRunning(artifact3NoVersion));
+        assertNotSame(configuration1, configurationManager.getConfiguration(artifact1));
+        assertNotSame(configuration2, configurationManager.getConfiguration(artifact2));
+        assertNotSame(configuration3, configurationManager.getConfiguration(artifact3));
+
+        // check the state of the kernel
+        assertTrue(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact3))) ;
+        assertTrue(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact2))) ;
+        assertTrue(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact1))) ;
+        assertFalse(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact3NoVersion)));
+        assertTrue(kernel.isRunning(Configuration.getConfigurationAbstractName(artifact3))) ;
+        assertTrue(kernel.isRunning(Configuration.getConfigurationAbstractName(artifact2))) ;
+        assertTrue(kernel.isRunning(Configuration.getConfigurationAbstractName(artifact1))) ;
+        assertFalse(kernel.isRunning(Configuration.getConfigurationAbstractName(artifact3NoVersion)));
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(Configuration.getConfigurationAbstractName(artifact3))) ;
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(Configuration.getConfigurationAbstractName(artifact2))) ;
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(Configuration.getConfigurationAbstractName(artifact1))) ;
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(gbean1)) ;
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(gbean2)) ;
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(gbean3)) ;
+        assertNotSame(g1, kernel.getGBean(gbean1));
+        assertNotSame(g2, kernel.getGBean(gbean2));
+        assertNotSame(g3, kernel.getGBean(gbean3));
+
+        // Reload a newer version of artifact3 (artifact3NoVersion, which has a timestamp as the version number)
+        results = configurationManager.reloadConfiguration(artifact3, artifact3NoVersion.getVersion());
+        assertFalse(results.wasReloaded(artifact1));
+        assertFalse(results.wasReloaded(artifact2));
+        // Question: should the name with the old version be listed as reloaded,
+        //           or the name with the new version, or both?
+        assertTrue(results.wasReloaded(artifact3)); // the old version running
+        assertTrue(results.wasReloaded(artifact3NoVersion)); // the new version running
+        assertFalse(results.wasRestarted(artifact1));
+        assertFalse(results.wasRestarted(artifact2));
+        // Question: should the name with the old version be listed as restarted,
+        //           or the name with the new version, or both?
+        assertTrue(results.wasRestarted(artifact3)); // the old version running
+        assertTrue(results.wasRestarted(artifact3NoVersion)); // the new version running
+        assertFalse(results.wasFailed(artifact3NoVersion));
+
+        // check the state of the configuration manager
+        assertTrue(configurationManager.isLoaded(artifact1));
+        assertTrue(configurationManager.isLoaded(artifact2));
+        assertFalse(configurationManager.isLoaded(artifact3));
+        assertTrue(configurationManager.isLoaded(artifact3NoVersion));
+        assertTrue(configurationManager.isRunning(artifact1));
+        assertTrue(configurationManager.isRunning(artifact2));
+        assertFalse(configurationManager.isRunning(artifact3));
+        assertTrue(configurationManager.isRunning(artifact3NoVersion));
+
+        // check the state of the kernel
+        assertFalse(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact3)));
+        assertTrue(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact2))) ;
+        assertTrue(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact1))) ;
+        assertTrue(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact3NoVersion)));
+        assertFalse(kernel.isRunning(Configuration.getConfigurationAbstractName(artifact3)));
+        assertTrue(kernel.isRunning(Configuration.getConfigurationAbstractName(artifact2))) ;
+        assertTrue(kernel.isRunning(Configuration.getConfigurationAbstractName(artifact1))) ;
+        assertTrue(kernel.isRunning(Configuration.getConfigurationAbstractName(artifact3NoVersion)));
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(Configuration.getConfigurationAbstractName(artifact3NoVersion))) ;
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(Configuration.getConfigurationAbstractName(artifact2))) ;
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(Configuration.getConfigurationAbstractName(artifact1))) ;
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(gbean1)) ;
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(gbean2)) ;
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(gbean3newer)) ;
+    }
+
     private static final Set shouldFail = new HashSet();
     private static void checkFail(String objectName) {
         if (shouldFail.contains(objectName)) {
@@ -488,6 +600,8 @@ public class ConfigurationManagerTest extends TestCase {
         artifact1 = new Artifact("test", "1", "1.1", "bar");
         artifact2 = new Artifact("test", "2", "2.2", "bar");
         artifact3 = new Artifact("test", "3", "3.3", "bar");
+        // As if it was deployed with no version, now its version is a timestamp
+        artifact3NoVersion = new Artifact(artifact3.getGroupId(), artifact3.getArtifactId(), new Version(Long.toString(System.currentTimeMillis())), artifact3.getType());
 
         Environment e1 = new Environment();
         e1.setConfigId(artifact1);
@@ -504,13 +618,25 @@ public class ConfigurationManagerTest extends TestCase {
         configurationData2.setConfigurationStore(configStore);
         configurations.put(artifact2, configurationData2);
 
-        Environment e3 = new Environment();
-        e3.setConfigId(artifact3);
-        e3.addDependency(new Artifact("test", "2", (Version) null, "bar"), ImportType.ALL);
-        ConfigurationData configurationData3 = new ConfigurationData(e3, kernel.getNaming());
-        gbean3 = configurationData3.addGBean("gbean3", TestBean.getGBeanInfo()).getAbstractName();
-        configurationData3.setConfigurationStore(configStore);
-        configurations.put(artifact3, configurationData3);
+        { // Make it obvious if these temp variables are reused
+            Environment e3 = new Environment();
+            e3.setConfigId(artifact3);
+            e3.addDependency(new Artifact("test", "2", (Version) null, "bar"), ImportType.ALL);
+            ConfigurationData configurationData3 = new ConfigurationData(e3, kernel.getNaming());
+            gbean3 = configurationData3.addGBean("gbean3", TestBean.getGBeanInfo()).getAbstractName();
+            configurationData3.setConfigurationStore(configStore);
+            configurations.put(artifact3, configurationData3);
+        }
+
+        {
+            Environment e3newer = new Environment();
+            e3newer.setConfigId(artifact3NoVersion);
+            e3newer.addDependency(new Artifact("test", "2", (Version) null, "bar"), ImportType.ALL);
+            ConfigurationData configurationData3newer = new ConfigurationData(e3newer, kernel.getNaming());
+            gbean3newer = configurationData3newer.addGBean("gbean3", TestBean.getGBeanInfo()).getAbstractName();
+            configurationData3newer.setConfigurationStore(configStore);
+            configurations.put(artifact3NoVersion, configurationData3newer);
+        }
 
 
         configurationManager = new KernelConfigurationManager(kernel,

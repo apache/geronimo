@@ -86,6 +86,11 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     private static final Log log = LogFactory.getLog(Configuration.class);
     public static final Object JSR77_BASE_NAME_PROPERTY = "org.apache.geronimo.name.javax.management.j2ee.BaseName";
 
+    /**
+     * Converts an Artifact to an AbstractName for a configuration.  Does not
+     * validate that this is a reasonable or resolved Artifact, or that it
+     * corresponds to an actual Configuration.
+     */
     public static AbstractName getConfigurationAbstractName(Artifact configId) throws InvalidConfigException {
         return new AbstractName(configId, Collections.singletonMap("configurationName", configId.toString()), getConfigurationObjectName(configId));
     }
