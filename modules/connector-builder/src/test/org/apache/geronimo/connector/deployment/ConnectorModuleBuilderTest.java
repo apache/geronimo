@@ -171,7 +171,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
             try {
                 File planFile = new File(basedir, "src/test-data/data/external-application-plan.xml");
                 Object plan = configBuilder.getDeploymentPlan(planFile, rarFile);
-                context = configBuilder.buildConfiguration(false, plan, rarFile, Collections.singleton(configurationStore), configurationStore);
+                context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, rarFile), plan, rarFile, Collections.singleton(configurationStore), configurationStore);
                 configData = context.getConfigurationData();
             } finally {
                 if (context != null) {
