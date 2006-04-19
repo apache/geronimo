@@ -35,7 +35,8 @@ the administrator username and password in the optional authentication fields.</
    <i>Note: at present, you must manually add a <tt>META-INF/geronimo-plugin.xml</tt>
    file to the CAR after you export it in order for it to be a valid plugin.</i></p>
 
-<form action="<%=request.getContextPath()%>/car-export">
+<%-- todo: calculate the /console prefix somehow --%>
+<form action="/console/car-export">
     <select name="configId">
         <option />
       <c:forEach var="config" items="${configurations}">

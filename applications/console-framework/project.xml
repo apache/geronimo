@@ -93,5 +93,11 @@
         </dependency>
 
     </dependencies>
+
+    <build>
+        <sourceDirectory>src/java</sourceDirectory>
+    </build>
+
+
 </project>
 

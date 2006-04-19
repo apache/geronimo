@@ -1,9 +1,12 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ page import="org.apache.geronimo.console.util.PortletManager" %>
 
-<script type='text/javascript' src='/console-standard/dwr/interface/Jsr77Stats.js'></script>
-<script type='text/javascript' src='/console-standard/dwr/engine.js'></script>
-<script type='text/javascript' src='/console-standard/dwr/util.js'></script>
+<% String dwrForwarderServlet = PortletManager.getConsoleFrameworkServletPath(request) + "/../dwr"; %>
+<script type='text/javascript' src='<%= dwrForwarderServlet %>/interface/Jsr77Stats.js'></script>
+<script type='text/javascript' src='<%= dwrForwarderServlet %>/engine.js'></script>
+<script type='text/javascript' src='<%= dwrForwarderServlet %>/util.js'></script>
+
 
 <portlet:defineObjects/>
 
@@ -130,5 +133,7 @@ function <portlet:namespace/>onError() {
 <portlet:namespace/>callServer();
 </script>
 
-<embed src="/console-standard/graphs/memoryGraphSVG.jsp"
-       width="600" height="450" type="image/svg+xml" />
+<%-- todo: calculate the /console prefix somehow --%>
+<embed src="/console/graphs/memoryGraphSVG.jsp"
+       width="600" height="450" type="image/svg+xml"
+       pluginspage="http://www.adobe.com/svg/viewer/install/" />
