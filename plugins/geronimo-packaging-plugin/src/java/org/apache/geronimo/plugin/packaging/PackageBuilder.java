@@ -68,6 +68,7 @@ public class PackageBuilder {
             String.class.getName(),
             String.class.getName(),
             String.class.getName(),
+            String.class.getName(),
     };
 
     private String repositoryClass;
@@ -86,6 +87,8 @@ public class PackageBuilder {
     private String endorsedDirs;
     private String extensionDirs;
     private String explicitResolutionLocation;
+
+    private String targetConfigStore;
 
     public String getRepositoryClass() {
         return repositoryClass;
@@ -256,7 +259,7 @@ public class PackageBuilder {
             }
 
             AbstractName deployer = locateDeployer(kernel);
-            invokeDeployer(kernel, deployer);
+            invokeDeployer(kernel, deployer, targetConfigStore);
             System.out.println("Generated package " + packageFile);
         } catch (Exception e) {
             log.error(e.getClass().getName() + ": " + e.getMessage(), e);
@@ -267,7 +270,7 @@ public class PackageBuilder {
     /**
      * Create a Geronimo Kernel to contain the deployment configurations.
      */
-    private static synchronized Kernel createKernel(File repository, String repoClass, String configStoreClass, String explicitResolutionLocation) throws Exception {
+    private synchronized Kernel createKernel(File repository, String repoClass, String configStoreClass, String explicitResolutionLocation) throws Exception {
         // first return our cached version
         if (kernel != null) {
             return kernel;
@@ -294,7 +297,7 @@ public class PackageBuilder {
      * This contains Repository and ConfigurationStore GBeans that map to
      * the local maven installation.
      */
-    private static void bootDeployerSystem(Kernel kernel, File repository, String
+    private void bootDeployerSystem(Kernel kernel, File repository, String
             repoClass, String configStoreClass, String explicitResolutionLocation) throws Exception {
         Artifact baseId = new Artifact("geronimo", "packaging", "fixed", "car");
         Naming naming = kernel.getNaming();
@@ -317,14 +320,7 @@ public class PackageBuilder {
         if (configStoreInfo.getReference("Repository") != null) {
             storeGBean.setReferencePattern("Repository", repoGBean.getAbstractName());
         }
-//        Set refs = configStoreInfo.getReferences();
-//        for (Iterator iterator = refs.iterator(); iterator.hasNext();) {
-//            GReferenceInfo refInfo = (GReferenceInfo) iterator.next();
-//            if ("Repository".equals(refInfo.getName())) {
-//                storeGBean.setReferencePattern("Repository", repositoryName);
-//                break;
-//            }
-//        }
+        targetConfigStore = storeGBean.getAbstractName().toString();
 
         GBeanData attrManagerGBean = bootstrap.addGBean("AttributeStore", MavenAttributeStore.GBEAN_INFO);
 
@@ -336,67 +332,6 @@ public class PackageBuilder {
         configManagerGBean.setReferencePattern("Repositories", repoGBean.getAbstractName());
 
         ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, cl);
-
-//        Map nameMap = new HashMap();
-//        nameMap.put("type", "plugin");
-//        nameMap.put("name", "packaging");
-//        ObjectName objectName;
-//        try {
-//            objectName = ObjectName.getInstance(KERNEL_NAME + "j2eeType=plugin,name=packaging");
-//        } catch (MalformedObjectNameException e) {
-//            throw (IllegalArgumentException)new IllegalArgumentException("Could not construct a fixed object name").initCause(e);
-//        }
-//        AbstractName rootName = new AbstractName(baseId, nameMap, objectName);
-//        AbstractName repositoryName = kernel.getNaming().createChildName(rootName, "Repository", "Repository");
-//        AbstractName artifactManagerName = kernel.getNaming().createChildName(rootName, "ArtifactManager", "ArtifactManager");
-//        AbstractName artifactResolverName = kernel.getNaming().createChildName(rootName, "ArtifactResolver", "ArtifactResolver");
-//        AbstractName configStoreName = kernel.getNaming().createChildName(rootName, "PackageBuilderConfigStore", "ConfigurationStore");
-//        AbstractName configManagerName = kernel.getNaming().createChildName(rootName, "ConfigurationManager", "ConfigurationManager");
-//        AbstractName attributeStoreName = kernel.getNaming().createChildName(rootName, "ManagedAttributeStore", "ManagedAttributeStore");
-//
-//        GBeanInfo repoInfo = GBeanInfo.getGBeanInfo(repoClass, cl);
-//        GBeanData repoGBean = new GBeanData(repositoryName, repoInfo);
-//        URI repositoryURI = repository.toURI();
-//        repoGBean.setAttribute("root", repositoryURI);
-//        kernel.loadGBean(repoGBean, cl);
-//        kernel.startGBean(repositoryName);
-
-        //TODO parameterize these?
-//        GBeanData artifactManagerGBean = new GBeanData(artifactManagerName, DefaultArtifactManager.GBEAN_INFO);
-//        kernel.loadGBean(artifactManagerGBean, cl);
-//        kernel.startGBean(artifactManagerName);
-
-//        GBeanData artifactResolverGBean = new GBeanData(artifactResolverName, DefaultArtifactResolver.GBEAN_INFO);
-//        artifactResolverGBean.setReferencePattern("Repositories", repositoryName);
-//        artifactResolverGBean.setReferencePattern("ArtifactManager", artifactManagerName);
-//        kernel.loadGBean(artifactResolverGBean, cl);
-//        kernel.startGBean(artifactResolverName);
-
-//        GBeanInfo configStoreInfo = GBeanInfo.getGBeanInfo(configStoreClass, cl);
-//        GBeanData storeGBean = new GBeanData(configStoreName, configStoreInfo);
-//        Set refs = configStoreInfo.getReferences();
-//        for (Iterator iterator = refs.iterator(); iterator.hasNext();) {
-//            GReferenceInfo refInfo = (GReferenceInfo) iterator.next();
-//            if ("Repository".equals(refInfo.getName())) {
-//                storeGBean.setReferencePattern("Repository", repositoryName);
-//                break;
-//            }
-//        }
-//        kernel.loadGBean(storeGBean, cl);
-//        kernel.startGBean(configStoreName);
-
-//        GBeanData configManagerGBean = new GBeanData(configManagerName, KernelConfigurationManager.GBEAN_INFO);
-//        configManagerGBean.setReferencePattern("Stores", configStoreName);
-//        configManagerGBean.setReferencePattern("AttributeStore", attributeStoreName);
-//        configManagerGBean.setReferencePattern("ArtifactManager", artifactManagerName);
-//        configManagerGBean.setReferencePattern("ArtifactResolver", artifactResolverName);
-//        kernel.loadGBean(configManagerGBean, cl);
-//        kernel.startGBean(configManagerName);
-//
-//        GBeanData attrManagerGBean = new GBeanData(attributeStoreName, MavenAttributeStore.GBEAN_INFO);
-//        kernel.loadGBean(attrManagerGBean, cl);
-//        kernel.startGBean(attributeStoreName);
-
 
     }
 
@@ -419,9 +354,9 @@ public class PackageBuilder {
         return deployer;
     }
 
-    private List invokeDeployer(Kernel kernel, AbstractName deployer) throws Exception {
+    private List invokeDeployer(Kernel kernel, AbstractName deployer, String targetConfigStore) throws Exception {
         boolean isExecutable = mainClass != null;
-        Object[] args = {Boolean.FALSE, planFile, moduleFile, isExecutable ? packageFile : null, Boolean.valueOf(!isExecutable), mainClass, classPath, endorsedDirs, extensionDirs};
+        Object[] args = {Boolean.FALSE, planFile, moduleFile, isExecutable ? packageFile : null, Boolean.valueOf(!isExecutable), mainClass, classPath, endorsedDirs, extensionDirs, targetConfigStore};
         return (List) kernel.invoke(deployer, "deploy", args, ARG_TYPES);
     }
 }

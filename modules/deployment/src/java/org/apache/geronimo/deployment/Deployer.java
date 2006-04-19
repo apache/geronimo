@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import java.net.URI;
 
 import javax.management.ObjectName;
 
@@ -116,9 +117,9 @@ public class Deployer {
         }
 
         try {
-            return deploy(inPlace, planFile, moduleFile, null, true, null, null, null, null);
+            return deploy(inPlace, planFile, moduleFile, null, true, null, null, null, null, null);
         } catch (DeploymentException e) {
-            log.debug("Deployment failed: plan=" + planFile +", module=" + originalModuleFile, e);
+            log.debug("Deployment failed: plan=" + planFile + ", module=" + originalModuleFile, e);
             throw e.cleanse();
         } finally {
             if (tmpDir != null) {
@@ -142,7 +143,7 @@ public class Deployer {
     public String getRemoteDeployUploadURL() {
         // Get the token GBean from the remote deployment configuration
         Set set = kernel.listGBeans(new AbstractNameQuery("org.apache.geronimo.deployment.remote.RemoteDeployToken"));
-        if(set.size() == 0) {
+        if (set.size() == 0) {
             return null;
         }
         AbstractName token = (AbstractName) set.iterator().next();
@@ -151,12 +152,12 @@ public class Deployer {
         ObjectName config = null;
         for (Iterator it = set.iterator(); it.hasNext();) {
             AbstractName name = (AbstractName) it.next();
-            if(Configuration.isConfigurationObjectName(name.getObjectName())) {
+            if (Configuration.isConfigurationObjectName(name.getObjectName())) {
                 config = name.getObjectName();
                 break;
             }
         }
-        if(config == null) {
+        if (config == null) {
             log.warn("Unable to find remote deployment configuration; is the remote deploy web application running?");
             return null;
         }
@@ -172,7 +173,7 @@ public class Deployer {
             String containerName = (String) kernel.getAttribute(module, "containerName");
             String contextPath = (String) kernel.getAttribute(module, "contextPath");
             String urlPrefix = getURLFor(containerName);
-            return urlPrefix+contextPath+"/upload";
+            return urlPrefix + contextPath + "/upload";
         } catch (Exception e) {
             log.error("Unable to look up remote deploy upload URL", e);
             return null;
@@ -191,7 +192,7 @@ public class Deployer {
             String[] cntNames = (String[]) kernel.getAttribute(mgrName, "containers");
             for (int i = 0; i < cntNames.length; i++) {
                 String cntName = cntNames[i];
-                if(cntName.equals(containerName)) {
+                if (cntName.equals(containerName)) {
                     String[] cncNames = (String[]) kernel.invoke(mgrName, "getConnectorsForContainer", new Object[]{cntName}, new String[]{"java.lang.String"});
                     Map map = new HashMap();
                     for (int j = 0; j < cncNames.length; j++) {
@@ -201,7 +202,7 @@ public class Deployer {
                         map.put(protocol, url);
                     }
                     String urlPrefix;
-                    if((urlPrefix = (String) map.get("HTTP")) == null) {
+                    if ((urlPrefix = (String) map.get("HTTP")) == null) {
                         urlPrefix = (String) map.get("HTTPS");
                     }
                     return urlPrefix;
@@ -211,7 +212,16 @@ public class Deployer {
         return null;
     }
 
-    public List deploy(boolean inPlace, File planFile, File moduleFile, File targetFile, boolean install, String mainClass, String classPath, String endorsedDirs, String extensionDirs) throws DeploymentException {
+    public List deploy(boolean inPlace,
+            File planFile,
+            File moduleFile,
+            File targetFile,
+            boolean install,
+            String mainClass,
+            String classPath,
+            String endorsedDirs,
+            String extensionDirs,
+            String targetConfigurationStore) throws DeploymentException {
         if (planFile == null && moduleFile == null) {
             throw new DeploymentException("No plan or module specified");
         }
@@ -255,26 +265,26 @@ public class Deployer {
             if (builder == null) {
                 throw new DeploymentException("Cannot deploy the requested application module (" +
                         (planFile == null ? "" : "planFile=" + planFile.getAbsolutePath()) +
-                        (moduleFile == null ? "" : (planFile == null ? "" : ", ")+"moduleFile=" + moduleFile.getAbsolutePath())+")");
+                        (moduleFile == null ? "" : (planFile == null ? "" : ", ") + "moduleFile=" + moduleFile.getAbsolutePath()) + ")");
             }
 
             Artifact configID = builder.getConfigurationID(plan, module);
             // If the Config ID isn't fully resolved, populate it with defaults
-            if(!configID.isResolved()) {
+            if (!configID.isResolved()) {
                 String group = configID.getGroupId();
-                if(group == null) {
+                if (group == null) {
                     group = Artifact.DEFAULT_GROUP_ID;
                 }
                 String artifactId = configID.getArtifactId();
-                if(artifactId == null) {
-                    throw new DeploymentException("Every configuration to deploy must have a ConfigID with an ArtifactID (not "+configID+")");
+                if (artifactId == null) {
+                    throw new DeploymentException("Every configuration to deploy must have a ConfigID with an ArtifactID (not " + configID + ")");
                 }
                 Version version = configID.getVersion();
-                if(version == null) {
+                if (version == null) {
                     version = new Version(Long.toString(System.currentTimeMillis()));
                 }
                 String type = configID.getType();
-                if(type == null) {
+                if (type == null) {
                     type = "car";
                 }
                 configID = new Artifact(group, artifactId, version, type);
@@ -282,7 +292,7 @@ public class Deployer {
             // Make sure this configuration doesn't already exist
             try {
                 kernel.getGBeanState(Configuration.getConfigurationAbstractName(configID));
-                throw new DeploymentException("Module "+configID+" already exists in the server.  Try to undeploy it first or use the redeploy command.");
+                throw new DeploymentException("Module " + configID + " already exists in the server.  Try to undeploy it first or use the redeploy command.");
             } catch (GBeanNotFoundException e) {
                 // this is good
             }
@@ -309,11 +319,16 @@ public class Deployer {
                 manifest = null;
             }
 
-            //TODO adapt to multiple config stores!
             if (stores.isEmpty()) {
                 throw new DeploymentException("No ConfigurationStores!");
             }
-            ConfigurationStore store = (ConfigurationStore) stores.iterator().next();
+            ConfigurationStore store;
+            if (targetConfigurationStore != null) {
+                AbstractName targetStoreName = new AbstractName(new URI(targetConfigurationStore));
+                store = (ConfigurationStore) kernel.getGBean(targetStoreName);
+            } else {
+                store = (ConfigurationStore) stores.iterator().next();
+            }
             // It's our responsibility to close this context, once we're done with it...
             DeploymentContext context = builder.buildConfiguration(inPlace, configID, plan, module, stores, artifactResolver, store);
             List configurations = new ArrayList();
@@ -358,7 +373,7 @@ public class Deployer {
                     context.close();
                 }
             }
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             //TODO not clear all errors will result in total cleanup
 //            File configurationDir = configurationData.getConfigurationDir();
 //            if (!DeploymentUtil.recursiveDelete(configurationDir)) {
@@ -371,9 +386,9 @@ public class Deployer {
 
             if (e instanceof Error) {
                 log.error("Deployment failed due to ", e);
-                throw (Error)e;
+                throw (Error) e;
             } else if (e instanceof DeploymentException) {
-                throw (DeploymentException)e;
+                throw (DeploymentException) e;
             } else if (e instanceof Exception) {
                 log.error("Deployment failed due to ", e);
                 throw new DeploymentException(e);
@@ -414,7 +429,7 @@ public class Deployer {
 
         public void run() {
             log.debug("ConfigStoreReaper started");
-            while(!done) {
+            while (!done) {
                 try {
                     Thread.sleep(reaperInterval);
                 } catch (InterruptedException e) {
@@ -425,7 +440,7 @@ public class Deployer {
         }
 
         /**
-         * For every directory in the pendingDeletionIndex, attempt to delete all 
+         * For every directory in the pendingDeletionIndex, attempt to delete all
          * sub-directories and files.
          */
         public void reap() {
@@ -435,7 +450,7 @@ public class Deployer {
             // Otherwise, attempt to delete all of the directories
             Enumeration list = pendingDeletionIndex.propertyNames();
             while (list.hasMoreElements()) {
-                String dirName = (String)list.nextElement();
+                String dirName = (String) list.nextElement();
                 File deleteDir = new File(dirName);
 
                 if (!DeploymentUtil.recursiveDelete(deleteDir)) {
@@ -445,7 +460,7 @@ public class Deployer {
             }
         }
     }
-    
+
     public static final GBeanInfo GBEAN_INFO;
 
     private static final String DEPLOYER = "Deployer";
@@ -456,7 +471,7 @@ public class Deployer {
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("remoteDeployUploadURL", String.class, false);
         infoFactory.addOperation("deploy", new Class[]{boolean.class, File.class, File.class});
-        infoFactory.addOperation("deploy", new Class[]{boolean.class, File.class, File.class, File.class, boolean.class, String.class, String.class, String.class, String.class});
+        infoFactory.addOperation("deploy", new Class[]{boolean.class, File.class, File.class, File.class, boolean.class, String.class, String.class, String.class, String.class, String.class});
 
         infoFactory.addReference("Builders", ConfigurationBuilder.class, "ConfigBuilder");
         infoFactory.addReference("Store", ConfigurationStore.class, "ConfigurationStore");
