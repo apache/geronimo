@@ -268,7 +268,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             clientEnvironment.setConfigId(configId);
         }
 
-        AbstractName clientBaseName = earContext.getNaming().createRootName(clientEnvironment.getConfigId(), clientEnvironment.getConfigId().toString(), NameFactory.APP_CLIENT_MODULE);
+        AbstractName clientBaseName = earContext.getNaming().createRootName(clientEnvironment.getConfigId(), clientEnvironment.getConfigId().toString(), NameFactory.J2EE_APPLICATION); 
         File appClientDir;
         try {
             appClientDir = targetConfigurationStore.createNewConfigurationDir(clientEnvironment.getConfigId());

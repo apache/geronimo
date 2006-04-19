@@ -73,9 +73,10 @@ public class ClientCommandLine extends CommandLine {
 
     public ClientCommandLine(Artifact configuration, String[] args) throws Exception {
         Jsr77Naming naming = new Jsr77Naming();
-        AbstractName baseName = naming.createRootName(configuration, configuration.toString(), "AppClientModule");
-        AbstractName clientContainerName = naming.createChildName(baseName, "ClientContainer", "ClientContainer");
+        //this kinda sucks, but resource adapter modules deployed on the client insist on having a
+        //J2EEApplication name component
+        AbstractName baseName = naming.createRootName(configuration, configuration.toString(), "J2EEApplication");
 
-        invokeMainGBean(Collections.singletonList(configuration), clientContainerName, "main", args);
+        invokeMainGBean(Collections.singletonList(configuration), baseName, "main", args);
     }
 }

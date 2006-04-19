@@ -94,6 +94,7 @@ import org.apache.xmlbeans.XmlObject;
 
 import javax.naming.Reference;
 import javax.xml.namespace.QName;
+
 import java.beans.Introspector;
 import java.beans.PropertyEditor;
 import java.io.File;
@@ -234,7 +235,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             EnvironmentBuilder.mergeEnvironments(earEnvironment, environment);
             environment = earEnvironment;
         }
-                                    
+
         AbstractName moduleName;
         if (earName == null) {
             earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
@@ -300,9 +301,10 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         if (earContext.getServerName() != null) {
             //app clients don't have a Server gbean
             resourceAdapterModuleData.setReferencePattern(NameFactory.J2EE_SERVER, earContext.getServerName());
-        }
-        if (!earContext.getModuleName().equals(resourceAdapterModuleName)) {
-            resourceAdapterModuleData.setReferencePattern(NameFactory.J2EE_APPLICATION, earContext.getModuleName());
+            //app clients don't have an application name either
+            if (!earContext.getModuleName().equals(resourceAdapterModuleName)) {
+                resourceAdapterModuleData.setReferencePattern(NameFactory.J2EE_APPLICATION, earContext.getModuleName());
+            }
         }
         resourceAdapterModuleData.setReferencePattern("ResourceAdapter", resourceAdapterjsr77Name);
 
