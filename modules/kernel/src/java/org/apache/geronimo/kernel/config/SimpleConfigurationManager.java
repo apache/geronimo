@@ -46,7 +46,7 @@ import org.apache.geronimo.kernel.repository.Version;
 public class SimpleConfigurationManager implements ConfigurationManager {
     protected static final Log log = LogFactory.getLog(SimpleConfigurationManager.class);
     protected final Collection stores;
-    protected final ArtifactResolver artifactResolver;
+    private final ArtifactResolver artifactResolver;
     protected final Map configurations = new LinkedHashMap();
     protected final ConfigurationModel configurationModel = new ConfigurationModel();
     protected final Collection repositories;
@@ -922,6 +922,10 @@ public class SimpleConfigurationManager implements ConfigurationManager {
             }
         }
 
+    }
+
+    public ArtifactResolver getArtifactResolver() {
+        return artifactResolver;
     }
 
     private List getStoreList() {

@@ -19,6 +19,7 @@ package org.apache.geronimo.kernel.config;
 import java.io.IOException;
 import java.util.List;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Version;
 import org.apache.geronimo.gbean.AbstractName;
 
@@ -443,4 +444,6 @@ public interface ConfigurationManager {
      * @throws NoSuchConfigException if the configuration is not loaded
      */
     void uninstallConfiguration(Artifact configurationId) throws IOException, NoSuchConfigException;
+
+    ArtifactResolver getArtifactResolver();
 }

@@ -33,7 +33,9 @@ import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+
 import javax.management.ObjectName;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
@@ -46,9 +48,12 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Version;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.main.CommandLineManifest;
@@ -65,11 +70,22 @@ public class Deployer {
     private DeployerReaper reaper;
     private final Collection builders;
     private final Collection stores;
+    private final ArtifactResolver artifactResolver;
     private final Kernel kernel;
 
     public Deployer(Collection builders, Collection stores, Kernel kernel) {
+        this(builders, stores, getArtifactResolver(kernel), kernel);
+    }
+
+    private static ArtifactResolver getArtifactResolver(Kernel kernel) {
+        ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+        return configurationManager.getArtifactResolver();
+    }
+
+    public Deployer(Collection builders, Collection stores, ArtifactResolver artifactResolver, Kernel kernel) {
         this.builders = builders;
         this.stores = stores;
+        this.artifactResolver = artifactResolver;
         this.kernel = kernel;
 
         // Create and start the reaper...
@@ -85,7 +101,7 @@ public class Deployer {
         if (moduleFile != null && !moduleFile.isDirectory()) {
             // todo jar url handling with Sun's VM on Windows leaves a lock on the module file preventing rebuilds
             // to address this we use a gross hack and copy the file to a temporary directory
-            // the lock on the file will prevent that being deleted properly until the URLJarFile has 
+            // the lock on the file will prevent that being deleted properly until the URLJarFile has
             // been GC'ed.
             try {
                 tmpDir = File.createTempFile("geronimo-deployer", ".tmpdir");
@@ -299,7 +315,7 @@ public class Deployer {
             }
             ConfigurationStore store = (ConfigurationStore) stores.iterator().next();
             // It's our responsibility to close this context, once we're done with it...
-            DeploymentContext context = builder.buildConfiguration(inPlace, configID, plan, module, stores, store);
+            DeploymentContext context = builder.buildConfiguration(inPlace, configID, plan, module, stores, artifactResolver, store);
             List configurations = new ArrayList();
             configurations.add(context.getConfigurationData());
             configurations.addAll(context.getAdditionalDeployment());

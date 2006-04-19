@@ -28,7 +28,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -56,7 +55,6 @@ import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.SimpleConfigurationManager;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -65,9 +63,6 @@ import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.kernel.repository.WritableListableRepository;
-import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
 
 /**
  * @version $Rev:385232 $ $Date$
@@ -83,49 +78,8 @@ public class DeploymentContext {
     private final Naming naming;
     private final List additionalDeployment = new ArrayList();
 
-    public DeploymentContext(File baseDir, File inPlaceConfigurationDir, Environment environment, ConfigurationModuleType moduleType, Naming naming) throws DeploymentException {
-        this(baseDir,
-                inPlaceConfigurationDir,
-                environment,
-                moduleType,
-                naming,
-                Collections.EMPTY_SET);
-    }
-
-    public DeploymentContext(File baseDir, File inPlaceConfigurationDir, Environment environment, ConfigurationModuleType moduleType, Naming naming, Repository repository) throws DeploymentException {
-        this(baseDir,
-                inPlaceConfigurationDir,
-                environment,
-                moduleType,
-                naming,
-                repository == null ? Collections.EMPTY_SET : Collections.singleton(repository));
-    }
-
-    public DeploymentContext(File baseDir, File inPlaceConfigurationDir, Environment environment, ConfigurationModuleType moduleType, Naming naming, Collection repositories) throws DeploymentException {
-        this(baseDir,
-                inPlaceConfigurationDir,
-                environment,
-                moduleType,
-                naming,
-                repositories,
-                createRepositoryConfigurationStore(repositories));
-    }
-
-    private static Collection createRepositoryConfigurationStore(Collection repositories) {
-        List stores = new ArrayList(repositories.size());
-        for (Iterator iterator = repositories.iterator(); iterator.hasNext();) {
-            Repository repository = (Repository) iterator.next();
-            if (repository instanceof WritableListableRepository) {
-                WritableListableRepository writableListableRepository = (WritableListableRepository) repository;
-                ConfigurationStore store = new RepositoryConfigurationStore(writableListableRepository);
-                stores.add(store);
-            }
-        }
-        return stores;
-    }
-
-    public DeploymentContext(File baseDir, File inPlaceConfigurationDir, Environment environment, ConfigurationModuleType moduleType, Naming naming, Collection repositories, Collection stores) throws DeploymentException {
-        this(baseDir, inPlaceConfigurationDir, environment,  moduleType, naming, createConfigurationManager(repositories, stores));
+    public DeploymentContext(File baseDir, File inPlaceConfigurationDir, Environment environment, ConfigurationModuleType moduleType, Naming naming, Collection repositories, Collection stores, ArtifactResolver artifactResolver) throws DeploymentException {
+        this(baseDir, inPlaceConfigurationDir, environment,  moduleType, naming, createConfigurationManager(repositories, stores, artifactResolver));
     }
 
     public DeploymentContext(File baseDir, File inPlaceConfigurationDir, Environment environment, ConfigurationModuleType moduleType, Naming naming, ConfigurationManager configurationManager) throws DeploymentException {
@@ -140,7 +94,7 @@ public class DeploymentContext {
         this.baseDir = baseDir;
 
         this.inPlaceConfigurationDir = inPlaceConfigurationDir;
-        
+
         this.naming = naming;
 
         this.configuration = createTempConfiguration(environment, moduleType, baseDir, inPlaceConfigurationDir, configurationManager, naming);
@@ -152,11 +106,10 @@ public class DeploymentContext {
         }
     }
 
-    private static ConfigurationManager createConfigurationManager(Collection repositories, Collection stores) {
-        ArtifactManager artifactManager = new DefaultArtifactManager();
-        ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, repositories);
-        ConfigurationManager configurationManager = new SimpleConfigurationManager(stores, artifactResolver, repositories);
-        return configurationManager;
+    private static ConfigurationManager createConfigurationManager(Collection repositories, Collection stores, ArtifactResolver artifactResolver) {
+//        ArtifactManager artifactManager = new DefaultArtifactManager();
+//        ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, repositories, null);
+        return new SimpleConfigurationManager(stores, artifactResolver, repositories);
     }
 
     private static Configuration createTempConfiguration(Environment environment, ConfigurationModuleType moduleType, File baseDir, File inPlaceConfigurationDir, ConfigurationManager configurationManager, Naming naming) throws DeploymentException {
@@ -168,7 +121,7 @@ public class DeploymentContext {
         }
     }
 
-    protected ConfigurationManager getConfigurationManager() {
+    public ConfigurationManager getConfigurationManager() {
         return configurationManager;
     }
 
@@ -405,6 +358,7 @@ public class DeploymentContext {
             try {
                 configurationManager.unloadConfiguration(configuration.getId());
             } catch (NoSuchConfigException ignored) {
+                //ignore
             }
         }
     }

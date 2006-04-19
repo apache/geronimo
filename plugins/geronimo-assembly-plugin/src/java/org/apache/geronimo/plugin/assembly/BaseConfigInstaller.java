@@ -23,7 +23,6 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactManager;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
-import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.FileWriteMonitor;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
@@ -32,6 +31,7 @@ import org.apache.geronimo.kernel.repository.WritableListableRepository;
 import org.apache.geronimo.system.repository.Maven1Repository;
 import org.apache.geronimo.system.repository.Maven2Repository;
 import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
+import org.apache.geronimo.system.resolver.ExplicitDefaultArtifactResolver;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Collections;
 
 /**
  * @version $Rev$ $Date$
@@ -71,6 +72,8 @@ public class BaseConfigInstaller {
      * location of the source repository for the dependencies
      */
     private File sourceRepository;
+
+    private String explicitResolutionLocation;
 
     private ArtifactResolver artifactResolver;
 
@@ -120,15 +123,27 @@ public class BaseConfigInstaller {
         this.sourceRepository = sourceRepository;
     }
 
-    public void execute() throws Exception {
-        ArtifactManager artifactManager = new DefaultArtifactManager();
-        artifactResolver = new DefaultArtifactResolver(artifactManager, sourceRepo);
+    public String getExplicitResolutionLocation() {
+        return explicitResolutionLocation;
+    }
 
+    public void setExplicitResolutionLocation(String explicitResolutionLocation) {
+        this.explicitResolutionLocation = explicitResolutionLocation;
+    }
+
+    public void execute() throws Exception {
         sourceRepo = new Maven1Repository(getSourceRepository());
         sourceStore = new RepositoryConfigurationStore(sourceRepo);
 
         targetRepo = new Maven2Repository(new File(targetRoot, targetRepository));
         targetStore = new RepositoryConfigurationStore(targetRepo);
+
+        ArtifactManager artifactManager = new DefaultArtifactManager();
+        artifactResolver = new ExplicitDefaultArtifactResolver(explicitResolutionLocation,
+                artifactManager,
+                Collections.singleton(sourceRepo),
+                null);
+
 
         Artifact configId = Artifact.create(artifact);
 

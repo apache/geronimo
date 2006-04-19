@@ -61,6 +61,7 @@
             classPath="${geronimo.packaging.classPath}"
             endorsedDirs="${geronimo.packaging.endorsedDirs}"
             extensionDirs="${geronimo.packaging.extensionDirs}"
+            explicitResolutionLocation="${geronimo.packaging.explicit.versions}"
             />
     </goal>
 

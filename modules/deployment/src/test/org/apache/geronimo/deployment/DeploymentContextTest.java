@@ -20,6 +20,8 @@ import java.io.File;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Collections;
+
 import javax.sql.DataSource;
 
 import junit.framework.TestCase;
@@ -30,6 +32,10 @@ import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.ArtifactManager;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 
 /**
  * @version $Rev$ $Date$
@@ -46,7 +52,9 @@ public class DeploymentContextTest extends TestCase {
             Environment environment = new Environment();
             Artifact configId = new Artifact("foo", "artifact", "1", "car");
             environment.setConfigId(configId);
-            DeploymentContext context = new DeploymentContext(basedir, null, environment, ConfigurationModuleType.CAR, new Jsr77Naming());
+            ArtifactManager artifactManager = new DefaultArtifactManager();
+            ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.EMPTY_SET, null);
+            DeploymentContext context = new DeploymentContext(basedir, null, environment, ConfigurationModuleType.CAR, new Jsr77Naming(), Collections.EMPTY_SET, Collections.EMPTY_SET, artifactResolver);
             Enhancer enhancer = new Enhancer();
             enhancer.setInterfaces(new Class[]{DataSource.class});
             enhancer.setCallbackType(MethodInterceptor.class);

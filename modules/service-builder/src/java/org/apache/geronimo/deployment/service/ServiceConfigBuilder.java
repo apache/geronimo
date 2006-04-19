@@ -61,6 +61,7 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -175,13 +176,13 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         return environment.getConfigId();
     }
 
-    public DeploymentContext buildConfiguration(boolean inPlaceDeployment, Artifact configId, Object plan, JarFile jar, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException {
+    public DeploymentContext buildConfiguration(boolean inPlaceDeployment, Artifact configId, Object plan, JarFile jar, Collection configurationStores, ArtifactResolver artifactResolver, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException {
         ConfigurationType configType = (ConfigurationType) plan;
 
-        return buildConfiguration(inPlaceDeployment, configId, configType, jar, configurationStores, targetConfigurationStore);
+        return buildConfiguration(inPlaceDeployment, configId, configType, jar, configurationStores, artifactResolver, targetConfigurationStore);
     }
 
-    public DeploymentContext buildConfiguration(boolean inPlaceDeployment, Artifact configId, ConfigurationType configurationType, JarFile jar, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws DeploymentException, IOException {
+    public DeploymentContext buildConfiguration(boolean inPlaceDeployment, Artifact configId, ConfigurationType configurationType, JarFile jar, Collection configurationStores, ArtifactResolver artifactResolver, ConfigurationStore targetConfigurationStore) throws DeploymentException, IOException {
         ArtifactType type = configurationType.getEnvironment().isSetConfigId() ? configurationType.getEnvironment().getConfigId() : configurationType.getEnvironment().addNewConfigId();
         type.setArtifactId(configId.getArtifactId());
         type.setGroupId(configId.getGroupId());
@@ -201,7 +202,8 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
                 ConfigurationModuleType.SERVICE, 
                 naming, 
                 repositories, 
-                configurationStores);
+                configurationStores,
+                artifactResolver);
         if(jar != null) {
             File file = new File(jar.getName());
             context.addIncludeAsPackedJar(URI.create(file.getName()), jar);

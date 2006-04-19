@@ -44,7 +44,7 @@ public class Artifact implements Comparable, Serializable {
     }
 
     public static Artifact create(String id) {
-        String[] parts = id.split("/");
+        String[] parts = id.split("/", -1);
         if (parts.length != 4) {
             throw new IllegalArgumentException("Invalid id: " + id);
         }

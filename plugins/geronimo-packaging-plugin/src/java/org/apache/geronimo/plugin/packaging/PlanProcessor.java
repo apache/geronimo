@@ -269,7 +269,7 @@ public class PlanProcessor {
     private static org.apache.geronimo.kernel.repository.Artifact toGeronimoArtifact(Dependency dependency) {
         String groupId = dependency.getGroupId();
         String artifactId = dependency.getArtifactId();
-        String version = dependency.getVersion();
+        String version = null;
         String type = dependency.getType();
         return new org.apache.geronimo.kernel.repository.Artifact(groupId, artifactId, version, type);
     }

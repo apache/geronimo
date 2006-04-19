@@ -40,6 +40,7 @@ import org.apache.geronimo.kernel.config.LifecycleMonitor;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.FileWriteMonitor;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Version;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.system.threads.ThreadPool;
@@ -246,6 +247,10 @@ public class ConfigInstallerTest extends TestCase {
 
         public void uninstallConfiguration(Artifact configurationId) throws IOException, NoSuchConfigException {
 
+        }
+
+        public ArtifactResolver getArtifactResolver() {
+            return null;
         }
     }
 }

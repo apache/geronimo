@@ -284,8 +284,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                     clientEnvironment,
                     ConfigurationModuleType.CAR,
                     earContext.getNaming(),
-                    repositories,
-                    configurationStores,
+                    earContext.getConfigurationManager(),
                     null, //no server name needed on client
                     clientBaseName,
                     transactionContextManagerObjectName,
@@ -457,7 +456,8 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 appClientDeploymentContext.addGBean(jndiContextGBeanData);
 
                 // finally add the app client container
-                AbstractName appClientContainerName = earContext.getNaming().createChildName(appClientDeploymentContext.getModuleName(), "ClientContainer", "ClientContainer");
+//                AbstractName appClientContainerName = earContext.getNaming().createChildName(appClientDeploymentContext.getModuleName(), "ClientContainer", "ClientContainer");
+                AbstractName appClientContainerName = appClientDeploymentContext.getModuleName();
                 GBeanData appClientContainerGBeanData = new GBeanData(appClientContainerName, AppClientContainer.GBEAN_INFO);
                 try {
                     appClientContainerGBeanData.setAttribute("mainClassName", mainClasss);

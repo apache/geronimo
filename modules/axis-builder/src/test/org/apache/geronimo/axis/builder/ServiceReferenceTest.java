@@ -20,10 +20,8 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.rmi.Remote;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.wsdl.Binding;
@@ -57,11 +55,8 @@ import org.apache.geronimo.axis.builder.bookquote.BookQuoteService;
 import org.apache.geronimo.axis.builder.interop.InteropLab;
 import org.apache.geronimo.axis.builder.interop.InteropTestPortType;
 import org.apache.geronimo.axis.builder.mock.MockPort;
-import org.apache.geronimo.axis.builder.mock.MockSEIFactory;
 import org.apache.geronimo.axis.builder.mock.MockService;
 import org.apache.geronimo.axis.client.OperationInfo;
-import org.apache.geronimo.axis.client.SEIFactory;
-import org.apache.geronimo.axis.client.ServiceImpl;
 import org.apache.geronimo.axis.client.AxisServiceReference;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -74,11 +69,14 @@ import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.ArtifactManager;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingDocument;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
 import org.apache.geronimo.xbeans.j2ee.PackageMappingType;
-import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
 
 /**
  * @version $Rev:385232 $ $Date$
@@ -109,7 +107,9 @@ public class ServiceReferenceTest extends TestCase {
         tmpbasedir.mkdirs();
         environment.setConfigId(configID);
         Jsr77Naming naming = new Jsr77Naming();
-        context = new DeploymentContext(tmpbasedir, null, environment, ConfigurationModuleType.CAR, naming);
+        ArtifactManager artifactManager = new DefaultArtifactManager();
+        ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.EMPTY_SET, null);
+        context = new DeploymentContext(tmpbasedir, null, environment, ConfigurationModuleType.CAR, naming, Collections.EMPTY_SET, Collections.EMPTY_SET, artifactResolver);
 
         File moduleLocation = new File(tmpbasedir, "ejb");
         moduleLocation.mkdirs();

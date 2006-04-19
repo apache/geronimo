@@ -210,11 +210,18 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
 
     //TODO make private
     static Artifact toArtifact(ArtifactType artifactType, String defaultType) {
-        String groupId = artifactType.isSetGroupId() ? artifactType.getGroupId().trim() : null;
-        String type = artifactType.isSetType() ? artifactType.getType().trim() : defaultType;
-        String artifactId = artifactType.getArtifactId().trim();
-        String version = artifactType.isSetVersion() ? artifactType.getVersion().trim() : null;
+        String groupId = artifactType.isSetGroupId() ? trim(artifactType.getGroupId()) : null;
+        String type = artifactType.isSetType() ? trim(artifactType.getType()) : defaultType;
+        String artifactId = trim(artifactType.getArtifactId());
+        String version = artifactType.isSetVersion() ? trim(artifactType.getVersion()) : null;
         return new Artifact(groupId, artifactId, version, type);
+    }
+
+    private static String trim(String string) {
+        if (string == null || string.length() == 0) {
+        return null;
+        }
+        return string.trim();
     }
 
 

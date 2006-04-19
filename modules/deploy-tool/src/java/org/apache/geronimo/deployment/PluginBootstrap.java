@@ -30,6 +30,10 @@ import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.NullConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ArtifactManager;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.repository.Maven1Repository;
 
@@ -73,7 +77,9 @@ public class PluginBootstrap {
             }
         };
 
-        DeploymentContext context = builder.buildConfiguration(false, builder.getConfigurationID(config, null), config, null, Collections.singleton(targetConfigurationStore), targetConfigurationStore);
+        ArtifactManager artifactManager = new DefaultArtifactManager();
+        ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.singleton(repository), null);
+        DeploymentContext context = builder.buildConfiguration(false, builder.getConfigurationID(config, null), config, null, Collections.singleton(targetConfigurationStore), artifactResolver, targetConfigurationStore);
         ConfigurationData configurationData = context.getConfigurationData();
 
         JarOutputStream out = new JarOutputStream(new FileOutputStream(carFile));
@@ -81,8 +87,6 @@ public class PluginBootstrap {
         out.flush();
         out.close();
 
-        if (context != null) {
-            context.close();
-        }
+        context.close();
     }
 }

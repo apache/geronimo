@@ -37,7 +37,7 @@ import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.KernelConfigurationManager;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
-import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
+import org.apache.geronimo.system.resolver.ExplicitDefaultArtifactResolver;
 import org.apache.log4j.BasicConfigurator;
 
 /**
@@ -85,6 +85,7 @@ public class PackageBuilder {
     private String classPath;
     private String endorsedDirs;
     private String extensionDirs;
+    private String explicitResolutionLocation;
 
     public String getRepositoryClass() {
         return repositoryClass;
@@ -145,7 +146,7 @@ public class PackageBuilder {
      * @param deployerName the name of the Deployer GBean
      */
     public void setDeployerName(String deployerName) {
-            this.deployerName = new AbstractName(URI.create(deployerName));
+        this.deployerName = new AbstractName(URI.create(deployerName));
     }
 
     public File getPlanFile() {
@@ -224,12 +225,21 @@ public class PackageBuilder {
         this.extensionDirs = extensionDirs;
     }
 
+    public String getExplicitResolutionLocation() {
+        return explicitResolutionLocation;
+    }
+
+    public void setExplicitResolutionLocation(String explicitResolutionLocation) {
+        this.explicitResolutionLocation = explicitResolutionLocation;
+    }
+
+
     public void execute() throws Exception {
         System.out.println();
         System.out.println("    Packaging configuration " + planFile);
         System.out.println();
         try {
-            Kernel kernel = createKernel(repository, repositoryClass, configurationStoreClass);
+            Kernel kernel = createKernel(repository, repositoryClass, configurationStoreClass, explicitResolutionLocation);
 
             // start the Configuration we're going to use for this deployment
             ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
@@ -257,7 +267,7 @@ public class PackageBuilder {
     /**
      * Create a Geronimo Kernel to contain the deployment configurations.
      */
-    private static synchronized Kernel createKernel(File repository, String repoClass, String configStoreClass) throws Exception {
+    private static synchronized Kernel createKernel(File repository, String repoClass, String configStoreClass, String explicitResolutionLocation) throws Exception {
         // first return our cached version
         if (kernel != null) {
             return kernel;
@@ -274,7 +284,7 @@ public class PackageBuilder {
         kernel = KernelFactory.newInstance().createKernel(KERNEL_NAME);
         kernel.boot();
 
-        bootDeployerSystem(kernel, repository, repoClass, configStoreClass);
+        bootDeployerSystem(kernel, repository, repoClass, configStoreClass, explicitResolutionLocation);
 
         return kernel;
     }
@@ -284,7 +294,8 @@ public class PackageBuilder {
      * This contains Repository and ConfigurationStore GBeans that map to
      * the local maven installation.
      */
-    private static void bootDeployerSystem(Kernel kernel, File repository, String repoClass, String configStoreClass) throws Exception {
+    private static void bootDeployerSystem(Kernel kernel, File repository, String
+            repoClass, String configStoreClass, String explicitResolutionLocation) throws Exception {
         Artifact baseId = new Artifact("geronimo", "packaging", "fixed", "car");
         Naming naming = kernel.getNaming();
         ConfigurationData bootstrap = new ConfigurationData(baseId, naming);
@@ -296,7 +307,8 @@ public class PackageBuilder {
 
         GBeanData artifactManagerGBean = bootstrap.addGBean("ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
 
-        GBeanData artifactResolverGBean = bootstrap.addGBean("ArtifactResolver", DefaultArtifactResolver.GBEAN_INFO);
+        GBeanData artifactResolverGBean = bootstrap.addGBean("ArtifactResolver", ExplicitDefaultArtifactResolver.GBEAN_INFO);
+        artifactResolverGBean.setAttribute("versionMapLocation", explicitResolutionLocation);
         artifactResolverGBean.setReferencePattern("Repositories", repoGBean.getAbstractName());
         artifactResolverGBean.setReferencePattern("ArtifactManager", artifactManagerGBean.getAbstractName());
 
@@ -384,7 +396,6 @@ public class PackageBuilder {
 //        GBeanData attrManagerGBean = new GBeanData(attributeStoreName, MavenAttributeStore.GBEAN_INFO);
 //        kernel.loadGBean(attrManagerGBean, cl);
 //        kernel.startGBean(attributeStoreName);
-
 
 
     }

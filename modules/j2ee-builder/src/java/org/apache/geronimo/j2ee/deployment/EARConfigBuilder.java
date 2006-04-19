@@ -64,6 +64,7 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.management.J2EEServer;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
@@ -335,7 +336,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         return applicationInfo.getEnvironment().getConfigId();
     }
 
-    public DeploymentContext buildConfiguration(boolean inPlaceDeployment, Artifact configId, Object plan, JarFile earFile, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException {
+    public DeploymentContext buildConfiguration(boolean inPlaceDeployment, Artifact configId, Object plan, JarFile earFile, Collection configurationStores, ArtifactResolver artifactResolver, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException {
         assert plan != null;
         ApplicationInfo applicationInfo = (ApplicationInfo) plan;
 
@@ -358,6 +359,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                     naming,
                     repositories,
                     configurationStores,
+                    artifactResolver,
                     serverName,
                     applicationInfo.getBaseName(),
                     transactionContextManagerObjectName,

@@ -76,6 +76,8 @@ import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.ArtifactManager;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.tranql.sql.jdbc.JDBCUtil;
 
@@ -168,10 +170,12 @@ public class ConnectorModuleBuilderTest extends TestCase {
                     resourceReferenceBuilder, null, serviceReferenceBuilder, kernel);
             ConfigurationData configData = null;
             DeploymentContext context = null;
+            ArtifactManager artifactManager = new DefaultArtifactManager();
+            ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.EMPTY_SET, null);
             try {
                 File planFile = new File(basedir, "src/test-data/data/external-application-plan.xml");
                 Object plan = configBuilder.getDeploymentPlan(planFile, rarFile);
-                context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, rarFile), plan, rarFile, Collections.singleton(configurationStore), configurationStore);
+                context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, rarFile), plan, rarFile, Collections.singleton(configurationStore), artifactResolver, configurationStore);
                 configData = context.getConfigurationData();
             } finally {
                 if (context != null) {
@@ -350,6 +354,8 @@ public class ConnectorModuleBuilderTest extends TestCase {
             File tempDir = null;
             try {
                 tempDir = DeploymentUtil.createTempDir();
+                ArtifactManager artifactManager = new DefaultArtifactManager();
+                ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.EMPTY_SET, null);
                 EARContext earContext = new EARContext(tempDir,
                         null,
                         module.getEnvironment(),
@@ -357,6 +363,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
                         naming,
                         Collections.EMPTY_SET,
                         Collections.singleton(configurationStore),
+                        artifactResolver,
                         new AbstractNameQuery(serverName, J2EEServerImpl.GBEAN_INFO.getInterfaces()),
                         module.getModuleName(), //hardcode standalone here.
                         transactionContextManagerName,

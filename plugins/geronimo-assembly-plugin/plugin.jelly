@@ -192,6 +192,7 @@
                             targetConfigStore="config-store"
                             targetRepository="repository"
                             sourceRepository="${maven.repo.local}"
+                            explicitResolutionLocation="${geronimo.assembly.explicit.versions}"
                             artifact="${dependency.getGroupId()}/${dependency.getArtifactId()}/${dependency.getVersion()}/${dependency.getType()}"/>
                 </j:if>
 

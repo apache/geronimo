@@ -40,6 +40,7 @@ import org.apache.maven.repository.Artifact;
  * @version $Rev$ $Date$
  */
 public class PackageBuilderShell {
+    private static final String PACKAGING_CLASSPATH_PROPERTY = "packaging.classpath";
     private static Log log = LogFactory.getLog(PlanProcessor.class);
 
     private List artifacts;
@@ -59,7 +60,7 @@ public class PackageBuilderShell {
     private String classPath;
     private String endorsedDirs;
     private String extensionDirs;
-    private static final String PACKAGING_CLASSPATH_PROPERTY = "packaging.classpath";
+    private String explicitResolutionLocation;
 
     public File getRepository() {
         return repository;
@@ -200,6 +201,14 @@ public class PackageBuilderShell {
         this.context = context;
     }
 
+    public String getExplicitResolutionLocation() {
+        return explicitResolutionLocation;
+    }
+
+    public void setExplicitResolutionLocation(String explicitResolutionLocation) {
+        this.explicitResolutionLocation = explicitResolutionLocation;
+    }
+
     public void execute() throws Exception {
         try {
             Object packageBuilder = getPackageBuilder();
@@ -215,6 +224,7 @@ public class PackageBuilderShell {
             set("setRepository", repository, File.class, packageBuilder);
             set("setRepositoryClass", Maven1Repository.class.getName(), String.class, packageBuilder);
             set("setConfigurationStoreClass", MavenConfigStore.class.getName(), String.class, packageBuilder);
+            set("setExplicitResolutionLocation", explicitResolutionLocation, String.class, packageBuilder);
 
             Method m = packageBuilder.getClass().getMethod("execute", new Class[]{});
             m.invoke(packageBuilder, new Object[]{});

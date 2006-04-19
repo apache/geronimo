@@ -77,6 +77,8 @@ import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.ArtifactManager;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.transaction.context.TransactionContextManagerGBean;
 import org.apache.geronimo.transaction.manager.TransactionManagerImplGBean;
@@ -138,13 +140,17 @@ public class JettyModuleBuilderTest extends TestCase {
     }
 
     private EARContext createEARContext(File outputPath, Environment environment, Repository repository, ConfigurationStore configStore, AbstractName moduleName) throws DeploymentException {
+        Set repositories = repository == null ? Collections.EMPTY_SET : Collections.singleton(repository);
+        ArtifactManager artifactManager = new DefaultArtifactManager();
+        ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, repositories, null);
         return new EARContext(outputPath,
                 null,
                 environment,
                 ConfigurationModuleType.WAR,
                 naming,
-                repository == null? Collections.EMPTY_SET: Collections.singleton(repository),
+                repositories,
                 Collections.singleton(configStore),
+                artifactResolver,
                 new AbstractNameQuery(serverName),
                 moduleName,
                 new AbstractNameQuery(tcmName),

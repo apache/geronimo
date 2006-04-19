@@ -28,9 +28,12 @@ import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ListableRepository;
+import org.apache.geronimo.kernel.repository.ArtifactManager;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Naming;
 
@@ -42,6 +45,7 @@ import java.util.Set;
 import java.util.LinkedHashSet;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.Collections;
 import java.util.jar.JarFile;
 
 /**
@@ -80,7 +84,10 @@ public class ServiceConfigBuilderTest extends TestCase {
         try {
 
             Environment environment = EnvironmentBuilder.buildEnvironment(plan.getEnvironment());
-            DeploymentContext context = new DeploymentContext(outFile, null, environment, ConfigurationModuleType.CAR, naming, new MockRepository());
+            MockRepository mockRepository = new MockRepository();
+            ArtifactManager artifactManager = new DefaultArtifactManager();
+            ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.singleton(mockRepository), null);
+            DeploymentContext context = new DeploymentContext(outFile, null, environment, ConfigurationModuleType.CAR, naming, Collections.singleton(mockRepository), Collections.EMPTY_SET, artifactResolver);
             AbstractName j2eeContext = naming.createRootName(environment.getConfigId(), environment.getConfigId().toString(), "Configuration");
 
             GbeanType[] gbeans = plan.getGbeanArray();

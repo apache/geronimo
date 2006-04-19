@@ -22,6 +22,8 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.Map;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.config.Configuration;
@@ -32,15 +34,18 @@ import org.apache.geronimo.kernel.config.Configuration;
 public class DefaultArtifactResolver implements ArtifactResolver {
     private final ArtifactManager artifactManager;
     private final Collection repositories;
+    private final Map explicitResolution;
 
     public DefaultArtifactResolver(ArtifactManager artifactManager, ListableRepository repository) {
         this.artifactManager = artifactManager;
         this.repositories = Collections.singleton(repository);
+        this.explicitResolution = Collections.EMPTY_MAP;
     }
 
-    public DefaultArtifactResolver(ArtifactManager artifactManager, Collection repositories) {
+    public DefaultArtifactResolver(ArtifactManager artifactManager, Collection repositories, Map explicitResolution) {
         this.artifactManager = artifactManager;
         this.repositories = repositories;
+        this.explicitResolution = explicitResolution == null? Collections.EMPTY_MAP: explicitResolution;
     }
 
 
@@ -130,6 +135,19 @@ public class DefaultArtifactResolver implements ArtifactResolver {
             return (Artifact) existingArtifacts.first();
         }
 
+        //see if there is an explicit resolution for this artifact.
+        Artifact resolved = (Artifact) explicitResolution.get(working);
+        if (resolved != null) {
+            return resolved;
+        }
+        //see if there is an entry for the whole groupId.
+        Artifact groupId = new Artifact(working.getGroupId(), "", (Version)null, "");
+        resolved = (Artifact) explicitResolution.get(groupId);
+        if (resolved != null) {
+            return new Artifact(working.getGroupId(), working.getArtifactId(), resolved.getVersion(), working.getType());
+        }
+
+
         // if we have no existing loaded artifacts grab the highest version from the repository
         if (existingArtifacts.size() == 0) {
             SortedSet list = new TreeSet();
@@ -214,13 +232,15 @@ public class DefaultArtifactResolver implements ArtifactResolver {
 
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(DefaultArtifactResolver.class, "ArtifactResolver");
+        infoFactory.addAttribute("explicitResolution", Map.class, true, true);
         infoFactory.addReference("ArtifactManager", ArtifactManager.class, "ArtifactManager");
-        infoFactory.addReference("Repositories", Repository.class, "Repository");
+        infoFactory.addReference("Repositories", ListableRepository.class, "Repository");
         infoFactory.addInterface(ArtifactResolver.class);
 
         infoFactory.setConstructor(new String[]{
                 "ArtifactManager",
                 "Repositories",
+                "explicitResolution"
         });
 
 

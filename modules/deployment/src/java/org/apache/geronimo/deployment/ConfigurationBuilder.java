@@ -27,6 +27,7 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
 
 /**
  * @version $Rev$ $Date$
@@ -59,10 +60,11 @@ public interface ConfigurationBuilder {
      * @param plan the deployment plan
      * @param module the module to build
      * @param configurationStores
+     * @param artifactResolver
      * @param targetConfigurationStore
      * @return the deployment context created from the deployment (the contexts must be closed by the caller)
      * @throws IOException if there was a problem reading or writing the files
      * @throws org.apache.geronimo.common.DeploymentException if there was a problem with the configuration
      */
-    DeploymentContext buildConfiguration(boolean inPlaceDeployment, Artifact configId, Object plan, JarFile module, Collection configurationStores, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException;
+    DeploymentContext buildConfiguration(boolean inPlaceDeployment, Artifact configId, Object plan, JarFile module, Collection configurationStores, ArtifactResolver artifactResolver, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException;
 }

@@ -84,7 +84,7 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
         if (artifactResolver != null) {
             return artifactResolver;
         }
-        return new DefaultArtifactResolver(artifactManager, repositories);
+        return new DefaultArtifactResolver(artifactManager, repositories, null);
     }
 
     public synchronized LifecycleResults loadConfiguration(Artifact configurationId) throws NoSuchConfigException, LifecycleException {
@@ -116,7 +116,7 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
         AbstractName configurationName = Configuration.getConfigurationAbstractName(configurationId);
         GBeanData gbeanData = new GBeanData(configurationName, Configuration.GBEAN_INFO);
         gbeanData.setAttribute("configurationData", configurationData);
-        gbeanData.setAttribute("configurationResolver", new ConfigurationResolver(configurationData, repositories, artifactResolver));
+        gbeanData.setAttribute("configurationResolver", new ConfigurationResolver(configurationData, repositories, getArtifactResolver()));
         //TODO is this dangerous?
         gbeanData.setAttribute("managedAttributeStore", attributeStore);
 
