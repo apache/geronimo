@@ -20,6 +20,6 @@
 
         >
 
-    <gbean name="AppClientBuilder" class="org.apache.geronimo.j2ee.deployment.UnavailableModuleBuilder" />
+    <gbean name="UnavailableAppClientBuilder" class="org.apache.geronimo.j2ee.deployment.UnavailableModuleBuilder" />
 
 </configuration>

@@ -32,6 +32,15 @@
             <version>${geronimo_packaging_plugin_version}</version>
             <type>plugin</type>
         </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-gbean-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+            <properties>
+                <packaging.config.order>1</packaging.config.order>
+            </properties>
+        </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>

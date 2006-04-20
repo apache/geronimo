@@ -16,6 +16,8 @@
     limitations under the License.
 -->
 
+<!-- $Rev: 378404 $ $Date: 2006-02-16 19:17:27 -0500 (Thu, 16 Feb 2006) $ -->
+
 <configuration xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
 
@@ -32,7 +34,7 @@
                 <dependencies>
                     <dependency>
                         <groupId>${pom.groupId}</groupId>
-                        <artifactId>j2ee-server</artifactId>
+                        <artifactId>openejb</artifactId>
                         <version>${pom.currentVersion}</version>
                         <type>car</type>
                     </dependency>

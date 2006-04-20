@@ -20,6 +20,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.FileInputStream;
 import java.util.Properties;
+import java.util.Collection;
+import java.util.Arrays;
 
 /**
  * @version $Rev$ $Date$
@@ -69,7 +71,9 @@ public class PackagingCommandLine {
         builder.setClassPath(config.getProperty("classPath"));
         builder.setConfigurationStoreClass(config.getProperty("configurationStoreClass"));
         builder.setDeployerName(config.getProperty("deployerName"));
-        builder.setDeploymentConfig(config.getProperty("deploymentConfig"));
+        String[] artifactNames = config.getProperty("deploymentConfig").split("/");
+        Collection configs = Arrays.asList(artifactNames);
+        builder.setDeploymentConfig(configs);
         builder.setEndorsedDirs(config.getProperty("endorsedDirs"));
         builder.setExtensionDirs(config.getProperty("extensionDirs"));
         builder.setMainClass(config.getProperty("mainClass"));

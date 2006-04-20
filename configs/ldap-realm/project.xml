@@ -37,8 +37,11 @@
             <artifactId>geronimo-gbean-deployer</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
+            <properties>
+                <packaging.config.order>1</packaging.config.order>
+            </properties>
         </dependency>
-        <!-- parent config -->
+         <!-- parent config -->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>j2ee-security</artifactId>

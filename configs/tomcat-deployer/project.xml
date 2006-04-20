@@ -37,6 +37,9 @@
             <artifactId>geronimo-gbean-deployer</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
+            <properties>
+                <packaging.config.order>1</packaging.config.order>
+            </properties>
         </dependency>
         <!-- parent config -->
         <dependency>
@@ -45,8 +48,9 @@
             <version>${geronimo_version}</version>
             <type>car</type>
             <properties>
-                 <geronimo.import>true</geronimo.import>
-             </properties>
+                <geronimo.import>true</geronimo.import>
+                <packaging.config.order>2</packaging.config.order>
+            </properties>
         </dependency>
 
         <dependency>
@@ -56,7 +60,7 @@
             <type>car</type>
             <properties>
                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
+            </properties>
         </dependency>
 
         <!-- plan dependency -->
@@ -66,7 +70,7 @@
             <version>${geronimo_version}</version>
             <properties>
                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
+            </properties>
         </dependency>
 
         <dependency>

@@ -20,6 +20,7 @@ import java.io.File;
 import java.net.URI;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Collection;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -75,8 +76,8 @@ public class PackageBuilder {
     private String configurationStoreClass;
 
     private File repository;
-    private String deploymentConfigString;
-    private Artifact[] deploymentConfig;
+    private Collection deploymentConfigs;
+//    private Artifact[] deploymentConfig;
     private AbstractName deployerName;
 
     private File planFile;
@@ -120,8 +121,8 @@ public class PackageBuilder {
         this.repository = repository;
     }
 
-    public String getDeploymentConfig() {
-        return deploymentConfigString;
+    public Collection getDeploymentConfig() {
+        return deploymentConfigs;
     }
 
     /**
@@ -129,14 +130,8 @@ public class PackageBuilder {
      *
      * @param deploymentConfigString comma-separated list of the ids of the Configurations performing the deployment
      */
-    public void setDeploymentConfig(String deploymentConfigString) {
-        this.deploymentConfigString = deploymentConfigString;
-        String[] configNames = deploymentConfigString.split(",");
-        deploymentConfig = new Artifact[configNames.length];
-        for (int i = 0; i < configNames.length; i++) {
-            String configName = configNames[i];
-            deploymentConfig[i] = Artifact.create(configName);
-        }
+    public void setDeploymentConfig(Collection deploymentConfigString) {
+        this.deploymentConfigs = deploymentConfigString;
     }
 
     public String getDeployerName() {
@@ -247,8 +242,9 @@ public class PackageBuilder {
             // start the Configuration we're going to use for this deployment
             ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
             try {
-                for (int i = 0; i < deploymentConfig.length; i++) {
-                    Artifact configName = deploymentConfig[i];
+                for (Iterator iterator = deploymentConfigs.iterator(); iterator.hasNext();) {
+                    String artifactName = (String) iterator.next();
+                    Artifact configName = Artifact.create(artifactName);
                     if (!configurationManager.isLoaded(configName)) {
                         configurationManager.loadConfiguration(configName);
                         configurationManager.startConfiguration(configName);

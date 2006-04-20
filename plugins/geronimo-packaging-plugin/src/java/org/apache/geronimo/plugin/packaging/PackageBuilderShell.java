@@ -25,6 +25,8 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TreeMap;
+import java.util.Collection;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,6 +43,7 @@ import org.apache.maven.repository.Artifact;
  */
 public class PackageBuilderShell {
     private static final String PACKAGING_CLASSPATH_PROPERTY = "packaging.classpath";
+    private static final String PACKAGING_CONFIG_PROPERTY = "packaging.config.order";
     private static Log log = LogFactory.getLog(PlanProcessor.class);
 
     private List artifacts;
@@ -50,7 +53,7 @@ public class PackageBuilderShell {
     private static ClassLoader classLoader;
 
     private File repository;
-    private String deploymentConfigString;
+    private Collection deploymentConfigList;
     private String deployerName;
 
     private File planFile;
@@ -73,19 +76,6 @@ public class PackageBuilderShell {
      */
     public void setRepository(File repository) {
         this.repository = repository;
-    }
-
-    public String getDeploymentConfig() {
-        return deploymentConfigString;
-    }
-
-    /**
-     * Set the id of the Configuration to use to perform the packaging.
-     *
-     * @param deploymentConfigString comma-separated list of the ids of the Configurations performing the deployment
-     */
-    public void setDeploymentConfig(String deploymentConfigString) {
-        this.deploymentConfigString = deploymentConfigString;
     }
 
     public String getDeployerName() {
@@ -183,6 +173,23 @@ public class PackageBuilderShell {
 
     public void setArtifacts(List artifacts) {
         this.artifacts = artifacts;
+        TreeMap tree = new TreeMap();
+        for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
+            Artifact artifact = (Artifact) iterator.next();
+            Dependency dependency = artifact.getDependency();
+            if (dependency.getProperty(PACKAGING_CONFIG_PROPERTY) != null) {
+                String orderString = dependency.getProperty(PACKAGING_CONFIG_PROPERTY);
+                try {
+                    Integer order = Integer.decode(orderString);
+                    String artifactString = dependency.getGroupId() + "/" + dependency.getArtifactId() + "/" + dependency.getVersion() + "/" + dependency.getType();
+                    tree.put(order, artifactString);
+                } catch(NumberFormatException e) {
+                    System.out.println("Could not interpret order for " + dependency);
+                }
+            }
+        }
+
+        deploymentConfigList = tree.values();
     }
 
     public List getPluginArtifacts() {
@@ -214,7 +221,7 @@ public class PackageBuilderShell {
             Object packageBuilder = getPackageBuilder();
             set("setClassPath", classPath, String.class, packageBuilder);
             set("setDeployerName", deployerName, String.class, packageBuilder);
-            set("setDeploymentConfig", deploymentConfigString, String.class, packageBuilder);
+            set("setDeploymentConfig", deploymentConfigList, Collection.class, packageBuilder);
             set("setEndorsedDirs", endorsedDirs, String.class, packageBuilder);
             set("setExtensionDirs", extensionDirs, String.class, packageBuilder);
             set("setMainClass", mainClass, String.class, packageBuilder);
@@ -246,17 +253,18 @@ public class PackageBuilderShell {
             List urls = new ArrayList();
             for (Iterator iterator = pluginArtifacts.iterator(); iterator.hasNext();) {
                 Artifact artifact = (Artifact) iterator.next();
-                Dependency dependency = (Dependency) artifact.getDependency();
+                Dependency dependency = artifact.getDependency();
                 if ("true".equals(dependency.getProperty(PACKAGING_CLASSPATH_PROPERTY))) {
                     String urlString = artifact.getUrlPath();
                     URL url = new File(repo + urlString).toURL();
                     urls.add(url);
                 }
             }
+
             boolean found = false;
             for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
                 Artifact artifact = (Artifact) iterator.next();
-                Dependency dependency = (Dependency) artifact.getDependency();
+                Dependency dependency = artifact.getDependency();
                 if ("geronimo".equals(dependency.getGroupId())
                 && "geronimo-packaging-plugin".equals(dependency.getArtifactId())
                 && "plugin".equals(dependency.getType())) {

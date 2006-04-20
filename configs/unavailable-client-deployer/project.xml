@@ -35,11 +35,21 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-gbean-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+            <properties>
+                <packaging.config.order>1</packaging.config.order>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
             <type>car</type>
             <artifactId>j2ee-deployer</artifactId>
             <version>${pom.currentVersion}</version>
             <properties>
                 <geronimo.import>true</geronimo.import>
+                <packaging.config.order>2</packaging.config.order>
             </properties>
         </dependency>
 

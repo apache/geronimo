@@ -16,9 +16,8 @@
     limitations under the License.
 -->
 
-<configuration xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
-
-        >
+<!-- $Rev$ $Date$ -->
+<configuration xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
     <gbean name="EARBuilder" class="org.apache.geronimo.j2ee.deployment.EARConfigBuilder">
         <!--domain set to wildcard so datasources may be deployed independently on client. -->
@@ -35,9 +34,14 @@
         <reference name="WebConfigBuilder">
             <name>WebBuilder</name>
         </reference>
-        <reference name="EJBConfigBuilder">
-            <name>EJBBuilder</name>
-        </reference>
+        <references name="EJBConfigBuilder">
+            <pattern>
+                <name>EJBBuilder</name>
+            </pattern>
+            <pattern>
+                <name>UnavailableEJBBuilder</name>
+            </pattern>
+        </references>
         <reference name="ConnectorConfigBuilder">
             <name>ConnectorBuilder</name>
         </reference>
@@ -50,9 +54,14 @@
         <reference name="ServiceReferenceBuilder">
             <name>WebServiceBuilder</name>
         </reference>
-        <reference name="EJBReferenceBuilder">
-            <name>ServerEJBReferenceBuilder</name>
-        </reference>
+        <references name="EJBReferenceBuilder">
+            <pattern>
+                <name>ServerEJBReferenceBuilder</name>
+            </pattern>
+            <pattern>
+                <name>UnavailableEJBReferenceBuilder</name>
+            </pattern>
+        </references>
         <xml-attribute name="defaultEnvironment">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <dependencies>
@@ -80,28 +89,6 @@
         </references>
     </gbean>
 
-    <gbean name="EJBBuilder" class="org.openejb.deployment.OpenEJBModuleBuilder">
-        <attribute name="listener">?name=WebContainer</attribute>
-        <reference name="WebServiceLinkTemplate">
-            <name>WebServiceEJBLinkTemplate</name>
-        </reference>
-        <reference name="WebServiceBuilder">
-            <name>WebServiceBuilder</name>
-        </reference>
-        <xml-attribute name="defaultEnvironment">
-            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
-                <dependencies>
-                    <dependency>
-                        <groupId>${pom.groupId}</groupId>
-                        <artifactId>j2ee-server</artifactId>
-                        <version>${pom.currentVersion}</version>
-                        <type>car</type>
-                    </dependency>
-                </dependencies>
-            </environment>
-        </xml-attribute>
-    </gbean>
-
     <gbean name="ConnectorBuilder" class="org.apache.geronimo.connector.deployment.ConnectorModuleBuilder">
         <attribute name="defaultMaxSize">10</attribute>
         <attribute name="defaultMinSize">0</attribute>
@@ -127,9 +114,14 @@
         <attribute name="transactionContextManagerObjectName">?name=TransactionContextManager</attribute>
         <attribute name="connectionTrackerObjectName">?name=ConnectionTracker</attribute>
         <attribute name="corbaGBeanObjectName">?name=Server</attribute>
-        <reference name="EJBReferenceBuilder">
-            <name>ClientEJBReferenceBuilder</name>
-        </reference>
+        <references name="EJBReferenceBuilder">
+            <pattern>
+                <name>ClientEJBReferenceBuilder</name>
+            </pattern>
+            <pattern>
+                <name>UnavailableClientEJBReferenceBuilder</name>
+            </pattern>
+        </references>
         <reference name="ConnectorModuleBuilder">
             <name>ConnectorBuilder</name>
         </reference>
@@ -165,17 +157,12 @@
         </xml-attribute>
     </gbean>
 
-    <gbean name="CSSAttributeBuilder" class="org.openejb.corba.security.config.css.CSSConfigEditor"/>
-    <gbean name="TSSAttributeBuilder" class="org.openejb.corba.security.config.tss.TSSConfigEditor"/>
     <gbean name="LoginConfigurationBuilder" class="org.apache.geronimo.security.deployment.LoginConfigBuilder"/>
     <gbean name="SecurityService" class="org.apache.geronimo.security.SecurityServiceImpl">
         <attribute name="policyConfigurationFactory">
             org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>
         <attribute name="policyProvider">org.apache.geronimo.security.jacc.GeronimoPolicy</attribute>
     </gbean>
-    <gbean name="ClientEJBReferenceBuilder" class="org.openejb.deployment.RemoteEJBReferenceBuilder"/>
-    <gbean name="ServerEJBReferenceBuilder" class="org.openejb.deployment.OpenEJBReferenceBuilder"/>
     <gbean name="WebServiceBuilder" class="org.apache.geronimo.axis.builder.AxisBuilder"/>
-    <gbean name="WebServiceEJBLinkTemplate" class="org.openejb.server.axis.WSContainerGBean"/>
 
 </configuration>

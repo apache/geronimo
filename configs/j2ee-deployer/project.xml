@@ -40,6 +40,7 @@
             <type>car</type>
             <properties>
                 <geronimo.import>true</geronimo.import>
+                <packaging.config.order>1</packaging.config.order>
             </properties>
         </dependency>
         <dependency>
@@ -57,7 +58,7 @@
             <artifactId>client</artifactId>
             <version>${pom.currentVersion}</version>
             <!--<properties>-->
-                <!--<geronimo.import>true</geronimo.import>-->
+            <!--<geronimo.import>true</geronimo.import>-->
             <!--</properties>-->
         </dependency>
         <dependency>

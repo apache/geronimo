@@ -37,7 +37,11 @@
             <artifactId>geronimo-gbean-deployer</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
+            <properties>
+                <packaging.config.order>1</packaging.config.order>
+            </properties>
         </dependency>
+<!-- should be in default env.
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>tomcat</artifactId>
@@ -47,17 +51,33 @@
                 <geronimo.dependency>true</geronimo.dependency>
             </properties>
         </dependency>
+-->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>j2ee-deployer</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
+            <properties>
+                <packaging.config.order>2</packaging.config.order>
+            </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>tomcat-deployer</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
+            <properties>
+                <packaging.config.order>3</packaging.config.order>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>openejb-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+            <properties>
+                <packaging.config.order>4</packaging.config.order>
+            </properties>
         </dependency>
 
         <!-- parent config -->
