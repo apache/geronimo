@@ -55,7 +55,7 @@ public class CommandStart extends AbstractCommand {
         }
         DeploymentManager mgr = connection.getDeploymentManager();
         Target[] allTargets = mgr.getTargets();
-        TargetModuleID[] allModules = new TargetModuleID[0];
+        TargetModuleID[] allModules;
         try {
             allModules = mgr.getAvailableModules(null, allTargets);
         } catch(TargetException e) {

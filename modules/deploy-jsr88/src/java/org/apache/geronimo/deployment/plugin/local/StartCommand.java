@@ -53,7 +53,6 @@ public class StartCommand extends CommandSupport {
                     // Check to see whether the module is already started
                     Artifact moduleID = Artifact.create(module.getModuleID());
                     AbstractName abstractName = Configuration.getConfigurationAbstractName(moduleID);
-                    String objectName = abstractName.getObjectName().getCanonicalName();
                     if (kernel.isRunning(abstractName)) {
                         updateStatus("Module " + moduleID + " is already running");
                         Thread.sleep(100);

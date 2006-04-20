@@ -48,6 +48,8 @@ import org.apache.geronimo.kernel.config.IOUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.FileWriteMonitor;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Implementation of ConfigurationStore that loads Configurations from a repository.
@@ -57,6 +59,7 @@ import org.apache.geronimo.kernel.repository.WritableListableRepository;
  * @version $Rev: 378459 $ $Date: 2006-02-17 00:37:43 -0800 (Fri, 17 Feb 2006) $
  */
 public class RepositoryConfigurationStore implements ConfigurationStore {
+    private final static Log log = LogFactory.getLog(RepositoryConfigurationStore.class);
     private final Kernel kernel;
     private final ObjectName objectName;
     protected final WritableListableRepository repository;
@@ -70,7 +73,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         this.kernel = kernel;
         this.objectName = objectName == null ? null : ObjectNameUtil.getObjectName(objectName);
         this.repository = repository;
-        
+
         inPlaceConfUtil = new InPlaceConfigurationUtil();
     }
 
@@ -109,6 +112,9 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
                 InputStream in = new FileInputStream(serFile);
                 try {
                     configurationData = ConfigurationUtil.readConfigurationData(in);
+                } catch(ClassCastException e) { // Not a ConfigurationData in the file
+                    System.out.println("************ ERROR READING SER FILE "+serFile.getAbsolutePath());
+                    throw e;
                 } finally {
                     IOUtil.close(in);
                 }
@@ -277,7 +283,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
             return false;
         }
     }
-    
+
     public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
         // determine the source file/dir
         File source = configurationData.getConfigurationDir();
@@ -356,12 +362,22 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
             configs = new ArrayList();
             for (Iterator i = artifacts.iterator(); i.hasNext();) {
                 Artifact configId = (Artifact) i.next();
-                if (configId.getType().equals("car")) {
-                    try {
-                        ConfigurationInfo configurationInfo = loadConfigurationInfo(configId);
-                        configs.add(configurationInfo);
-                    } catch (Exception e) {
-                    }
+                File dir = repository.getLocation(configId);
+                File meta = new File(dir, "META-INF");
+                if(!meta.isDirectory() || !meta.canRead()) {
+                    continue;
+                }
+                File ser = new File(meta, "config.ser");
+                if(!ser.isFile() || !ser.canRead() || ser.length() == 0) {
+                    continue;
+                }
+                try {
+                    ConfigurationInfo configurationInfo = loadConfigurationInfo(configId);
+                    configs.add(configurationInfo);
+                } catch (NoSuchConfigException e) {
+                    log.error("Unexpected error: found META-INF/config.ser for "+configId+" but couldn't load ConfigurationInfo", e);
+                } catch (IOException e) {
+                    log.error("Unable to load ConfigurationInfo for "+configId, e);
                 }
             }
         }

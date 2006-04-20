@@ -47,8 +47,8 @@ public class CommandDeploy extends CommandDistribute {
         return "Deployed";
     }
 
-    protected ProgressObject runCommand(DeploymentManager mgr, PrintWriter out, Target[] tlist, File module, File plan) throws DeploymentException {
-        ProgressObject po = mgr.distribute(tlist, module, plan);
+    protected ProgressObject runCommand(DeploymentManager mgr, PrintWriter out, boolean inPlace, Target[] tlist, File module, File plan) throws DeploymentException {
+        ProgressObject po = super.runCommand(mgr, out, inPlace, tlist, module, plan);
         waitForProgress(out, po);
         if(po.getDeploymentStatus().isFailed()) {
             throw new DeploymentException("Unable to distribute "+(module == null ? plan.getName() : module.getName())+": "+po.getDeploymentStatus().getMessage());
