@@ -263,7 +263,7 @@ public class Deployer {
                 }
             }
             if (builder == null) {
-                throw new DeploymentException("Cannot deploy the requested application module (" +
+                throw new DeploymentException("Cannot deploy the requested application module because no builder is able to handle it (" +
                         (planFile == null ? "" : "planFile=" + planFile.getAbsolutePath()) +
                         (moduleFile == null ? "" : (planFile == null ? "" : ", ") + "moduleFile=" + moduleFile.getAbsolutePath()) + ")");
             }
