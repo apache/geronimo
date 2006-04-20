@@ -16,26 +16,23 @@
  */
 package org.apache.geronimo.kernel.basic;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.IdentityHashMap;
-
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
 
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.InternalKernelException;
-import org.apache.geronimo.gbean.GBeanName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.runtime.GBeanInstance;
 import org.apache.geronimo.gbean.runtime.InstanceRegistry;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Kernel;
 
 /**
  * @version $Rev: 386505 $ $Date$
@@ -58,8 +55,10 @@ public class BasicRegistry implements InstanceRegistry {
     /**
      * Shut down the objectNameRegistry and unregister any GBeans
      */
-    public synchronized void stop() {
-        objectNameRegistry.clear();
+    public void stop() {
+        synchronized (this) {
+            objectNameRegistry.clear();
+        }
         kernelName = "";
     }
 
@@ -69,8 +68,8 @@ public class BasicRegistry implements InstanceRegistry {
      * @param name the name of the GBean to check for
      * @return true if there is a GBean registered with that name
      */
-    public synchronized boolean isRegistered(GBeanName name) {
-        return objectNameRegistry.containsKey(name);
+    public synchronized boolean isRegistered(ObjectName name) {
+        return objectNameRegistry.containsKey(normalizeObjectName(name));
     }
 
     public synchronized boolean isRegistered(AbstractName refInfo) {
@@ -84,7 +83,7 @@ public class BasicRegistry implements InstanceRegistry {
      * @throws GBeanAlreadyExistsException if there is already a GBean registered with the instance's name
      */
     public synchronized void register(GBeanInstance gbeanInstance) throws GBeanAlreadyExistsException {
-        GBeanName name = createGBeanName(gbeanInstance.getObjectNameObject());
+        ObjectName name = normalizeObjectName(gbeanInstance.getObjectNameObject());
         if (objectNameRegistry.containsKey(name)) {
             throw new GBeanAlreadyExistsException("GBean already registered: " + name);
         }
@@ -93,32 +92,12 @@ public class BasicRegistry implements InstanceRegistry {
         gbeanInstance.setInstanceRegistry(this);
     }
 
-    /**
-     * Unregister a GBean instance.
-     *
-     * @param name the name of the GBean to unregister
-     * @throws GBeanNotFoundException if there is no GBean registered with the supplied name
-     */
-    public synchronized void unregister(GBeanName name) throws GBeanNotFoundException, InternalKernelException {
-        GBeanInstance gbeanInstance = (GBeanInstance) objectNameRegistry.remove(name);
-        if (gbeanInstance == null) {
-            try {
-                throw new GBeanNotFoundException(name.getObjectName());
-            } catch (MalformedObjectNameException e) {
-                throw new InternalKernelException(e);
-            }
-        }
-        infoRegistry.remove(gbeanInstance.getAbstractName());
-        gbeanInstance.setInstanceRegistry(null);
-    }
-
     public synchronized void unregister(AbstractName abstractName) throws GBeanNotFoundException {
         GBeanInstance gbeanInstance = (GBeanInstance) infoRegistry.remove(abstractName);
         if (gbeanInstance == null) {
             throw new GBeanNotFoundException(abstractName);
         }
-        GBeanName name = createGBeanName(gbeanInstance.getObjectNameObject());
-        objectNameRegistry.remove(name);
+        objectNameRegistry.remove(gbeanInstance.getObjectNameObject());
     }
 
     public synchronized void instanceCreated(Object instance, GBeanInstance gbeanInstance) {
@@ -140,14 +119,10 @@ public class BasicRegistry implements InstanceRegistry {
      * @return the GBeanInstance
      * @throws GBeanNotFoundException if there is no GBean registered with the supplied name
      */
-    public synchronized GBeanInstance getGBeanInstance(GBeanName name) throws GBeanNotFoundException {
-        GBeanInstance instance = (GBeanInstance) objectNameRegistry.get(name);
+    public synchronized GBeanInstance getGBeanInstance(ObjectName name) throws GBeanNotFoundException {
+        GBeanInstance instance = (GBeanInstance) objectNameRegistry.get(normalizeObjectName(name));
         if (instance == null) {
-            try {
-                throw new GBeanNotFoundException(name.getObjectName());
-            } catch (MalformedObjectNameException e) {
-                throw new InternalKernelException(e);
-            }
+            throw new GBeanNotFoundException(name);
         }
         return instance;
     }
@@ -183,9 +158,9 @@ public class BasicRegistry implements InstanceRegistry {
                 throw new GBeanNotFoundException("More then one GBean was found with shortName '" + shortName + "'", Collections.singleton(nameQuery));
             }
             if (shortName == null) {
-                throw new GBeanNotFoundException("More then one GBean was found with type '" + type.getName()+ "'", Collections.singleton(nameQuery));
+                throw new GBeanNotFoundException("More then one GBean was found with type '" + type.getName() + "'", Collections.singleton(nameQuery));
             }
-            throw new GBeanNotFoundException("More then one GBean was found with shortName '" + shortName + "' and type '" + type.getName()+ "'", Collections.singleton(nameQuery));
+            throw new GBeanNotFoundException("More then one GBean was found with shortName '" + shortName + "' and type '" + type.getName() + "'", Collections.singleton(nameQuery));
         }
 
         GBeanInstance instance = (GBeanInstance) instances.iterator().next();
@@ -196,11 +171,12 @@ public class BasicRegistry implements InstanceRegistry {
     /**
      * Search the objectNameRegistry for GBeans matching a name pattern.
      *
-     * @param domain     the domain to query in; null indicates all
-     * @param properties the properties the GBeans must have
+     * @param pattern the object name pattern to search for
      * @return an unordered Set<GBeanInstance> of GBeans that matched the pattern
      */
-    public Set listGBeans(String domain, Map properties) {
+    public Set listGBeans(ObjectName pattern) {
+        pattern = normalizeObjectName(pattern);
+
         // fairly dumb implementation that iterates the list of all registered GBeans
         Map clone;
         synchronized (this) {
@@ -209,8 +185,8 @@ public class BasicRegistry implements InstanceRegistry {
         Set result = new HashSet(clone.size());
         for (Iterator i = clone.entrySet().iterator(); i.hasNext();) {
             Map.Entry entry = (Map.Entry) i.next();
-            GBeanName name = (GBeanName) entry.getKey();
-            if (name.matches(domain, properties)) {
+            ObjectName name = (ObjectName) entry.getKey();
+            if (pattern == null || pattern.apply(name)) {
                 result.add(entry.getValue());
             }
         }
@@ -234,10 +210,14 @@ public class BasicRegistry implements InstanceRegistry {
         return result;
     }
 
-    private GBeanName createGBeanName(ObjectName objectName) {
-        if (objectName.getDomain().length() == 0) {
-            return new GBeanName(kernelName, objectName.getKeyPropertyList());
+    private ObjectName normalizeObjectName(ObjectName objectName) {
+        if (objectName != null && objectName.getDomain().length() == 0) {
+            try {
+                return new ObjectName(kernelName, objectName.getKeyPropertyList());
+            } catch (MalformedObjectNameException e) {
+                throw new AssertionError(e);
+            }
         }
-        return new GBeanName(objectName);
+        return objectName;
     }
 }

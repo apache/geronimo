@@ -21,14 +21,13 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Set;
 import javax.management.ObjectName;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.runtime.GBeanInstance;
@@ -170,7 +169,7 @@ public class BasicKernel implements Kernel {
     }
 
     public Object getAttribute(ObjectName objectName, String attributeName) throws GBeanNotFoundException, NoSuchAttributeException, Exception {
-        GBeanInstance gbeanInstance = registry.getGBeanInstance(createGBeanName(objectName));
+        GBeanInstance gbeanInstance = registry.getGBeanInstance(objectName);
         return gbeanInstance.getAttribute(attributeName);
     }
 
@@ -193,7 +192,7 @@ public class BasicKernel implements Kernel {
     }
 
     public void setAttribute(ObjectName objectName, String attributeName, Object attributeValue) throws GBeanNotFoundException, NoSuchAttributeException, Exception {
-        GBeanInstance gbeanInstance = registry.getGBeanInstance(createGBeanName(objectName));
+        GBeanInstance gbeanInstance = registry.getGBeanInstance(objectName);
         gbeanInstance.setAttribute(attributeName, attributeValue);
     }
 
@@ -236,7 +235,7 @@ public class BasicKernel implements Kernel {
     }
 
     public Object invoke(ObjectName objectName, String methodName, Object[] args, String[] types) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception {
-        GBeanInstance gbeanInstance = registry.getGBeanInstance(createGBeanName(objectName));
+        GBeanInstance gbeanInstance = registry.getGBeanInstance(objectName);
         return gbeanInstance.invoke(methodName, args, types);
     }
 
@@ -259,7 +258,7 @@ public class BasicKernel implements Kernel {
     }
 
     public boolean isLoaded(ObjectName name) {
-        return registry.isRegistered(createGBeanName(name));
+        return registry.isRegistered(name);
     }
 
     public boolean isLoaded(AbstractName name) {
@@ -301,7 +300,7 @@ public class BasicKernel implements Kernel {
     }
 
     public Object getGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException  {
-        GBeanInstance gbeanInstance = registry.getGBeanInstance(createGBeanName(name));
+        GBeanInstance gbeanInstance = registry.getGBeanInstance(name);
         if (gbeanInstance.getState() != State.RUNNING_INDEX) {
             throw new IllegalStateException("GBean is not running: " + name);
         }
@@ -317,7 +316,7 @@ public class BasicKernel implements Kernel {
     }
 
     public GBeanInfo getGBeanInfo(ObjectName name) throws GBeanNotFoundException {
-        GBeanInstance gbeanInstance = registry.getGBeanInstance(createGBeanName(name));
+        GBeanInstance gbeanInstance = registry.getGBeanInstance(name);
         return gbeanInstance.getGBeanInfo();
     }
 
@@ -340,7 +339,7 @@ public class BasicKernel implements Kernel {
     }
 
     public GBeanData getGBeanData(ObjectName name) throws GBeanNotFoundException, InternalKernelException {
-        GBeanInstance gbeanInstance = registry.getGBeanInstance(createGBeanName(name));
+        GBeanInstance gbeanInstance = registry.getGBeanInstance(name);
         return gbeanInstance.getGBeanData();
     }
 
@@ -473,7 +472,7 @@ public class BasicKernel implements Kernel {
     }
 
     public int getGBeanState(ObjectName name) throws GBeanNotFoundException {
-        GBeanInstance gbeanInstance = registry.getGBeanInstance(createGBeanName(name));
+        GBeanInstance gbeanInstance = registry.getGBeanInstance(name);
         return gbeanInstance.getState();
     }
 
@@ -514,13 +513,8 @@ public class BasicKernel implements Kernel {
     }
 
     public Set listGBeans(ObjectName pattern) {
-        String domain = (pattern == null || pattern.isDomainPattern()) ? null : pattern.getDomain();
-        if (domain != null && domain.length() == 0) {
-            domain = kernelName;
-        }
+        Set gbeans = registry.listGBeans(pattern);
 
-        Map props = pattern == null ? null : pattern.getKeyPropertyList();
-        Set gbeans = registry.listGBeans(domain, props);
         Set result = new HashSet(gbeans.size());
         for (Iterator i = gbeans.iterator(); i.hasNext();) {
             GBeanInstance instance = (GBeanInstance) i.next();
@@ -697,7 +691,7 @@ public class BasicKernel implements Kernel {
     }
 
     public ClassLoader getClassLoaderFor(ObjectName name) throws GBeanNotFoundException {
-        GBeanInstance gbeanInstance = registry.getGBeanInstance(createGBeanName(name));
+        GBeanInstance gbeanInstance = registry.getGBeanInstance(name);
         return gbeanInstance.getClassLoader();
     }
 
@@ -718,14 +712,6 @@ public class BasicKernel implements Kernel {
         GBeanInstance gbeanInstance = registry.getGBeanInstance(shortName, type);
         return gbeanInstance.getClassLoader();
     }
-
-    private GBeanName createGBeanName(ObjectName objectName) {
-        if (objectName.getDomain().length() == 0) {
-            return new GBeanName(kernelName, objectName.getKeyPropertyList());
-        }
-        return new GBeanName(objectName);
-    }
-
 
     /**
      * @deprecated Experimental feature
