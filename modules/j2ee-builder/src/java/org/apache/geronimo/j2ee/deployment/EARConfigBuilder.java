@@ -88,10 +88,10 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private static final String DEFAULT_GROUPID = "defaultGroupId";
 
     private final Collection repositories;
-    private final ModuleBuilder ejbConfigBuilder;
-    private final ModuleBuilder webConfigBuilder;
-    private final ModuleBuilder connectorConfigBuilder;
-    private final ModuleBuilder appClientConfigBuilder;
+    private final SingleElementCollection ejbConfigBuilder;
+    private final SingleElementCollection webConfigBuilder;
+    private final SingleElementCollection connectorConfigBuilder;
+    private final SingleElementCollection appClientConfigBuilder;
     private final SingleElementCollection ejbReferenceBuilder;
     private final SingleElementCollection resourceReferenceBuilder;
     private final SingleElementCollection serviceReferenceBuilder;
@@ -114,12 +114,12 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             AbstractNameQuery corbaGBeanAbstractName,
             AbstractNameQuery serverName,
             Collection repositories,
-            ModuleBuilder ejbConfigBuilder,
+            Collection ejbConfigBuilder,
             Collection ejbReferenceBuilder,
-            ModuleBuilder webConfigBuilder,
-            ModuleBuilder connectorConfigBuilder,
+            Collection webConfigBuilder,
+            Collection connectorConfigBuilder,
             Collection resourceReferenceBuilder,
-            ModuleBuilder appClientConfigBuilder,
+            Collection appClientConfigBuilder,
             Collection serviceReferenceBuilder,
             Kernel kernel) {
         this(defaultEnvironment,
@@ -130,12 +130,12 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 corbaGBeanAbstractName,
                 serverName,
                 repositories,
-                ejbConfigBuilder,
+                new SingleElementCollection(ejbConfigBuilder),
                 new SingleElementCollection(ejbReferenceBuilder),
-                webConfigBuilder,
-                connectorConfigBuilder,
+                new SingleElementCollection(webConfigBuilder),
+                new SingleElementCollection(connectorConfigBuilder),
                 new SingleElementCollection(resourceReferenceBuilder),
-                appClientConfigBuilder,
+                new SingleElementCollection(appClientConfigBuilder),
                 new SingleElementCollection(serviceReferenceBuilder),
                 kernel.getNaming());
     }
@@ -163,12 +163,12 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 corbaGBeanAbstractName,
                 serverName,
                 repositories,
-                ejbConfigBuilder,
+                new SingleElementCollection(ejbConfigBuilder),
                 new SingleElementCollection(ejbReferenceBuilder),
-                webConfigBuilder,
-                connectorConfigBuilder,
+                new SingleElementCollection(webConfigBuilder),
+                new SingleElementCollection(connectorConfigBuilder),
                 new SingleElementCollection(resourceReferenceBuilder),
-                appClientConfigBuilder,
+                new SingleElementCollection(appClientConfigBuilder),
                 new SingleElementCollection(serviceReferenceBuilder),
                 naming);
     }
@@ -181,12 +181,12 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             AbstractNameQuery corbaGBeanAbstractName,
             AbstractNameQuery serverName,
             Collection repositories,
-            ModuleBuilder ejbConfigBuilder,
+            SingleElementCollection ejbConfigBuilder,
             SingleElementCollection ejbReferenceBuilder,
-            ModuleBuilder webConfigBuilder,
-            ModuleBuilder connectorConfigBuilder,
+            SingleElementCollection webConfigBuilder,
+            SingleElementCollection connectorConfigBuilder,
             SingleElementCollection resourceReferenceBuilder,
-            ModuleBuilder appClientConfigBuilder,
+            SingleElementCollection appClientConfigBuilder,
             SingleElementCollection serviceReferenceBuilder,
             Naming naming) {
         this.repositories = repositories;
@@ -206,6 +206,22 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         this.corbaGBeanObjectName = corbaGBeanAbstractName;
         this.serverName = serverName;
         this.naming = naming;
+    }
+
+    private ModuleBuilder getEjbConfigBuilder() {
+        return (ModuleBuilder) ejbConfigBuilder.getElement();
+    }
+
+    private ModuleBuilder getWebConfigBuilder() {
+        return (ModuleBuilder) webConfigBuilder.getElement();
+    }
+
+    private ModuleBuilder getConnectorConfigBuilder() {
+        return (ModuleBuilder) connectorConfigBuilder.getElement();
+    }
+
+    private ModuleBuilder getAppClientConfigBuilder() {
+        return (ModuleBuilder) appClientConfigBuilder.getElement();
     }
 
     private EJBReferenceBuilder getEjbReferenceBuilder() {
@@ -235,17 +251,17 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
         // get the modules either the application plan or for a stand alone module from the specific deployer
         Module module = null;
-        if (webConfigBuilder != null) {
-            module = webConfigBuilder.createModule(planFile, jarFile, naming);
+        if (getWebConfigBuilder() != null) {
+            module = getWebConfigBuilder().createModule(planFile, jarFile, naming);
         }
-        if (module == null && ejbConfigBuilder != null) {
-            module = ejbConfigBuilder.createModule(planFile, jarFile, naming);
+        if (module == null && getEjbConfigBuilder() != null) {
+            module = getEjbConfigBuilder().createModule(planFile, jarFile, naming);
         }
-        if (module == null && connectorConfigBuilder != null) {
-            module = connectorConfigBuilder.createModule(planFile, jarFile, naming);
+        if (module == null && getConnectorConfigBuilder() != null) {
+            module = getConnectorConfigBuilder().createModule(planFile, jarFile, naming);
         }
-        if (module == null && appClientConfigBuilder != null) {
-            module = appClientConfigBuilder.createModule(planFile, jarFile, naming);
+        if (module == null && getAppClientConfigBuilder() != null) {
+            module = getAppClientConfigBuilder().createModule(planFile, jarFile, naming);
         }
         if (module == null) {
             return null;
@@ -601,32 +617,32 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                     String moduleTypeName;
                     if (moduleXml.isSetEjb()) {
                         modulePath = moduleXml.getEjb().getStringValue();
-                        if (ejbConfigBuilder == null) {
+                        builder = getEjbConfigBuilder();
+                        if (builder == null) {
                             throw new DeploymentException("Cannot deploy ejb application; No ejb deployer defined: " + modulePath);
                         }
-                        builder = ejbConfigBuilder;
                         moduleTypeName = "an EJB";
                     } else if (moduleXml.isSetWeb()) {
                         modulePath = moduleXml.getWeb().getWebUri().getStringValue();
-                        if (webConfigBuilder == null) {
+                        if (getWebConfigBuilder() == null) {
                             throw new DeploymentException("Cannot deploy web application; No war deployer defined: " + modulePath);
                         }
-                        builder = webConfigBuilder;
+                        builder = getWebConfigBuilder();
                         moduleTypeName = "a war";
                         moduleContextInfo = moduleXml.getWeb().getContextRoot().getStringValue().trim();
                     } else if (moduleXml.isSetConnector()) {
                         modulePath = moduleXml.getConnector().getStringValue();
-                        if (connectorConfigBuilder == null) {
+                        if (getConnectorConfigBuilder() == null) {
                             throw new DeploymentException("Cannot deploy resource adapter; No rar deployer defined: " + modulePath);
                         }
-                        builder = connectorConfigBuilder;
+                        builder = getConnectorConfigBuilder();
                         moduleTypeName = "a connector";
                     } else if (moduleXml.isSetJava()) {
                         modulePath = moduleXml.getJava().getStringValue();
-                        if (appClientConfigBuilder == null) {
+                        if (getAppClientConfigBuilder() == null) {
                             throw new DeploymentException("Cannot deploy app client; No app client deployer defined: " + modulePath);
                         }
-                        builder = appClientConfigBuilder;
+                        builder = getAppClientConfigBuilder();
                         moduleTypeName = "an application client";
                     } else {
                         throw new DeploymentException("Could not find a module builder for module: " + moduleXml);
@@ -678,33 +694,33 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
                 if (gerExtModule.isSetEjb()) {
                     moduleName = gerExtModule.getEjb().getStringValue();
-                    if (ejbConfigBuilder == null) {
+                    builder = getEjbConfigBuilder();
+                    if (builder == null) {
                         throw new DeploymentException("Cannot deploy ejb application; No ejb deployer defined: " + moduleName);
                     }
-                    builder = ejbConfigBuilder;
                     moduleTypeName = "an EJB";
                 } else if (gerExtModule.isSetWeb()) {
                     moduleName = gerExtModule.getWeb().getStringValue();
-                    if (webConfigBuilder == null) {
+                    if (getWebConfigBuilder() == null) {
                         throw new DeploymentException("Cannot deploy web application; No war deployer defined: " + moduleName);
                     }
-                    builder = webConfigBuilder;
+                    builder = getWebConfigBuilder();
                     moduleTypeName = "a war";
                     //ext modules must use vendor plan to set context-root
 //                    moduleContextInfo = gerExtModule.getWeb().getContextRoot().getStringValue().trim();
                 } else if (gerExtModule.isSetConnector()) {
                     moduleName = gerExtModule.getConnector().getStringValue();
-                    if (connectorConfigBuilder == null) {
+                    if (getConnectorConfigBuilder() == null) {
                         throw new DeploymentException("Cannot deploy resource adapter; No rar deployer defined: " + moduleName);
                     }
-                    builder = connectorConfigBuilder;
+                    builder = getConnectorConfigBuilder();
                     moduleTypeName = "a connector";
                 } else if (gerExtModule.isSetJava()) {
                     moduleName = gerExtModule.getJava().getStringValue();
-                    if (appClientConfigBuilder == null) {
+                    if (getAppClientConfigBuilder() == null) {
                         throw new DeploymentException("Cannot deploy app client; No app client deployer defined: " + moduleName);
                     }
-                    builder = appClientConfigBuilder;
+                    builder = getAppClientConfigBuilder();
                     moduleTypeName = "an application client";
                 } else {
                     throw new DeploymentException("Could not find a module builder for module: " + gerExtModule);
@@ -789,25 +805,25 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
     private ModuleBuilder getBuilder(Module module) throws DeploymentException {
         if (module instanceof EJBModule) {
-            if (ejbConfigBuilder == null) {
+            if (getEjbConfigBuilder() == null) {
                 throw new DeploymentException("Cannot deploy ejb application; No ejb deployer defined: " + module.getModuleURI());
             }
-            return ejbConfigBuilder;
+            return getEjbConfigBuilder();
         } else if (module instanceof WebModule) {
-            if (webConfigBuilder == null) {
+            if (getWebConfigBuilder() == null) {
                 throw new DeploymentException("Cannot deploy web application; No war deployer defined: " + module.getModuleURI());
             }
-            return webConfigBuilder;
+            return getWebConfigBuilder();
         } else if (module instanceof ConnectorModule) {
-            if (connectorConfigBuilder == null) {
+            if (getConnectorConfigBuilder() == null) {
                 throw new DeploymentException("Cannot deploy resource adapter; No rar deployer defined: " + module.getModuleURI());
             }
-            return connectorConfigBuilder;
+            return getConnectorConfigBuilder();
         } else if (module instanceof AppClientModule) {
-            if (appClientConfigBuilder == null) {
+            if (getAppClientConfigBuilder() == null) {
                 throw new DeploymentException("Cannot deploy app client; No app client deployer defined: " + module.getModuleURI());
             }
-            return appClientConfigBuilder;
+            return getAppClientConfigBuilder();
         }
         throw new IllegalArgumentException("Unknown module type: " + module.getClass().getName());
     }

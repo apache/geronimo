@@ -2,6 +2,7 @@ package org.apache.geronimo.tomcat.deployment;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Collections;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.deployment.xbeans.ArtifactType;
@@ -34,7 +35,7 @@ public class PlanParsingTest extends TestCase {
     private TomcatModuleBuilder builder;
 
     protected void setUp() throws Exception {
-        builder = new TomcatModuleBuilder(defaultEnvironment, false, tomcatContainerObjectName, webServiceBuilder, null);
+        builder = new TomcatModuleBuilder(defaultEnvironment, false, tomcatContainerObjectName, Collections.singleton(webServiceBuilder), null);
     }
 
     public void testResourceRef() throws Exception {

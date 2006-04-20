@@ -30,6 +30,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Collections;
 import java.util.jar.JarFile;
 
 /**
@@ -47,7 +48,7 @@ public class PlanParsingTest extends TestCase {
     private JettyModuleBuilder builder;
 
     public PlanParsingTest() throws Exception {
-        builder = new JettyModuleBuilder(defaultEnvironment, new Integer(1800), false, null, jettyContainerObjectName, new HashSet(), new HashSet(), new HashSet(), pojoWebServiceTemplate, webServiceBuilder, null);
+        builder = new JettyModuleBuilder(defaultEnvironment, new Integer(1800), false, null, jettyContainerObjectName, new HashSet(), new HashSet(), new HashSet(), pojoWebServiceTemplate, Collections.singleton(webServiceBuilder), null);
     }
 
     public void testContents() throws Exception {

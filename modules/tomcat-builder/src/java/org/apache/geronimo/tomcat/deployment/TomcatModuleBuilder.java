@@ -50,6 +50,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.SingleElementCollection;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
@@ -101,21 +102,25 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
     private final boolean defaultContextPriorityClassloader;
     private final AbstractNameQuery tomcatContainerName;
 
-    private final WebServiceBuilder webServiceBuilder;
+    private final SingleElementCollection webServiceBuilder;
 
     private static final String TOMCAT_NAMESPACE = TomcatWebAppDocument.type.getDocumentElementName().getNamespaceURI();
 
     public TomcatModuleBuilder(Environment defaultEnvironment,
                                boolean defaultContextPriorityClassloader,
                                AbstractNameQuery tomcatContainerName,
-                               WebServiceBuilder webServiceBuilder,
+                               Collection webServiceBuilder,
                                Kernel kernel) {
         super(kernel);
         this.defaultEnvironment = defaultEnvironment;
 
         this.defaultContextPriorityClassloader = defaultContextPriorityClassloader;
         this.tomcatContainerName = tomcatContainerName;
-        this.webServiceBuilder = webServiceBuilder;
+        this.webServiceBuilder = new SingleElementCollection(webServiceBuilder);
+    }
+
+    private WebServiceBuilder getWebServiceBuilder() {
+        return (WebServiceBuilder) webServiceBuilder.getElement();
     }
 
     protected Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, String contextRoot, AbstractName earName, Naming naming) throws DeploymentException {
@@ -182,7 +187,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         Map portMap = Collections.EMPTY_MAP;
         try {
             URL wsDDUrl = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/webservices.xml");
-            portMap = webServiceBuilder.parseWebServiceDescriptor(wsDDUrl, moduleFile, false, servletNameToPathMap);
+            portMap = getWebServiceBuilder().parseWebServiceDescriptor(wsDDUrl, moduleFile, false, servletNameToPathMap);
         } catch (MalformedURLException e) {
             //no descriptor
         }
@@ -445,7 +450,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         //web container and ws implementation while assuming almost nothing about their relationship.
 
         GBeanData fakeData = new GBeanData();
-        webServiceBuilder.configurePOJO(fakeData, moduleFile, portInfoObject, seiClassName, classLoader);
+        getWebServiceBuilder().configurePOJO(fakeData, moduleFile, portInfoObject, seiClassName, classLoader);
         return (WebServiceContainer) fakeData.getAttribute("webServiceContainer");
     }
 

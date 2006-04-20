@@ -57,6 +57,7 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.SingleElementCollection;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
@@ -129,7 +130,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
     private final GBeanData pojoWebServiceTemplate;
     private final boolean defaultContextPriorityClassloader;
 
-    private final WebServiceBuilder webServiceBuilder;
+    private final SingleElementCollection webServiceBuilder;
 
     private final List defaultWelcomeFiles;
     private final Integer defaultSessionTimeoutSeconds;
@@ -145,7 +146,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             Collection defaultFilters,
             Collection defaultFilterMappings,
             Object pojoWebServiceTemplate,
-            WebServiceBuilder webServiceBuilder,
+            Collection webServiceBuilder,
             Kernel kernel) throws GBeanNotFoundException {
         super(kernel);
         this.defaultEnvironment = defaultEnvironment;
@@ -156,11 +157,15 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         this.defaultFilters = defaultFilters;
         this.defaultFilterMappings = defaultFilterMappings;
         this.pojoWebServiceTemplate = getGBeanData(kernel, pojoWebServiceTemplate);
-        this.webServiceBuilder = webServiceBuilder;
+        this.webServiceBuilder = new SingleElementCollection(webServiceBuilder);
 
         //todo locale mappings
 
         this.defaultWelcomeFiles = defaultWelcomeFiles;
+    }
+
+    private WebServiceBuilder getWebServiceBuilder() {
+        return (WebServiceBuilder) webServiceBuilder.getElement();
     }
 
     private static GBeanData getGBeanData(Kernel kernel, Object template) throws GBeanNotFoundException {
@@ -234,7 +239,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         Map portMap = Collections.EMPTY_MAP;
         try {
             URL wsDDUrl = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/webservices.xml");
-            portMap = webServiceBuilder.parseWebServiceDescriptor(wsDDUrl, moduleFile, false, servletNameToPathMap);
+            portMap = getWebServiceBuilder().parseWebServiceDescriptor(wsDDUrl, moduleFile, false, servletNameToPathMap);
         } catch (MalformedURLException e) {
             //no descriptor
         }
@@ -830,7 +835,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 if (portInfo == null) {
                     throw new DeploymentException("No web service deployment info for servlet name " + servletName);
                 }
-                webServiceBuilder.configurePOJO(servletData, moduleFile, portInfo, servletClassName, webClassLoader);
+                getWebServiceBuilder().configurePOJO(servletData, moduleFile, portInfo, servletClassName, webClassLoader);
             }
         } else if (servletType.isSetJspFile()) {
             servletData = new GBeanData(servletAbstractName, JettyServletHolder.GBEAN_INFO);
