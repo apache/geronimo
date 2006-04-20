@@ -21,7 +21,7 @@
 <application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.1">
 
     <module>
-        <web>geronimo-console-framework-${pom.currentVersion}.war</web>
+        <web>framework.war</web>
         <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.1">
             <context-root>/console</context-root>
             <context-priority-classloader>false</context-priority-classloader>
@@ -30,7 +30,7 @@
     </module>
 
     <module>
-        <web>geronimo-console-standard-${pom.currentVersion}.war</web>
+        <web>standard.war</web>
         <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.1">
             <context-root>/console-standard</context-root>
             <context-priority-classloader>false</context-priority-classloader>

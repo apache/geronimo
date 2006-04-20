@@ -24,6 +24,7 @@
             <version>${pom.currentVersion}</version>
             <properties>
                 <ear.bundle>true</ear.bundle>
+                <ear.bundle.name>core.jar</ear.bundle.name>
             </properties>
         </dependency>
         <dependency>
@@ -32,6 +33,7 @@
             <version>${pom.currentVersion}</version>
             <properties>
                 <ear.bundle>true</ear.bundle>
+                <ear.bundle.name>wsappclient.jar</ear.bundle.name>
             </properties>
         </dependency>
         <dependency>
@@ -41,6 +43,7 @@
             <type>war</type>
             <properties>
                 <ear.bundle>true</ear.bundle>
+                <ear.bundle.name>web.war</ear.bundle.name>
                 <ear.appxml.war.context-root>/daytrader</ear.appxml.war.context-root>
             </properties>
         </dependency>
@@ -51,7 +54,8 @@
             <type>ejb</type>
             <properties>
                 <ear.bundle>true</ear.bundle>
-            </properties>
+                <ear.bundle.name>dt-ejb.jar</ear.bundle.name>
+             </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
@@ -59,6 +63,7 @@
             <version>${pom.currentVersion}</version>
             <properties>
                 <ear.bundle>true</ear.bundle>
+                <ear.bundle.name>streamer.jar</ear.bundle.name>
             </properties>
         </dependency>
 

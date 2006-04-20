@@ -1,6 +1,4 @@
 Manifest-Version: 1.0
-Class-Path: daytrader-ejb-${daytrader_version}.jar
-Created-By: 1.4.2_08 (Sun Microsystems Inc.)
-Ant-Version: Apache Ant 1.5.4 
+Class-Path: dt-ejb.jar
 Main-Class: org.apache.geronimo.samples.daytrader.client.ws.ClientApp
 

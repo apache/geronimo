@@ -297,8 +297,8 @@ public interface Kernel {
 
     /**
      * Assuming the argument represents a service running in the kernel,
-     * returns an ObjectName for it.  If the argument is not a service or the
-     * kernel cannot produce an ObjectName for it, returns null.
+     * returns an AbstractName for it.  If the argument is not a service or the
+     * kernel cannot produce an AbstractName for it, returns null.
      */
     AbstractName getAbstractNameFor(Object service);
 

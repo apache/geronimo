@@ -17,7 +17,7 @@
       <groupId>geronimo</groupId>
       <artifactId>daytrader-ejb</artifactId>
       <version>${pom.currentVersion}</version>
-     <type>ejb</type>
+      <type>ejb</type>
     </dependency>
     
      <dependency>
