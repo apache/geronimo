@@ -368,6 +368,8 @@ public interface Kernel {
      */
     GBeanData getGBeanData(ObjectName name) throws GBeanNotFoundException, InternalKernelException;
     /**
+     * Returns a Set with elements of type ObjectName
+     *
      * @deprecated Use AbstractNameQuery version instead
      */
     Set listGBeans(ObjectName pattern);
