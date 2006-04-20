@@ -26,6 +26,11 @@ public class LifecycleException extends Exception {
     private final Artifact configurationId;
     private final LifecycleResults lifecycleResults;
 
+    public LifecycleException(String command, Artifact configurationId, Throwable cause) {
+        this(command, configurationId, new LifecycleResults(), cause);
+        lifecycleResults.addFailed(configurationId, cause);
+    }
+
     public LifecycleException(String command, Artifact configurationId, LifecycleResults lifecycleResults) {
         this(command, configurationId, lifecycleResults, lifecycleResults.getFailedCause(configurationId));
     }

@@ -139,17 +139,9 @@ public class RedeployCommand extends AbstractDeployCommand {
             Artifact name = (Artifact) it.next();
             updateStatus("Unloaded "+name);
         }
-        for (Iterator it = results.getReloaded().iterator(); it.hasNext();) {
-            Artifact name = (Artifact) it.next();
-            updateStatus("Reloaded "+name);
-        }
         for (Iterator it = results.getLoaded().iterator(); it.hasNext();) {
             Artifact name = (Artifact) it.next();
             updateStatus("Loaded "+name);
-        }
-        for (Iterator it = results.getRestarted().iterator(); it.hasNext();) {
-            Artifact name = (Artifact) it.next();
-            updateStatus("Restarted "+name);
         }
         for (Iterator it = results.getStarted().iterator(); it.hasNext();) {
             Artifact name = (Artifact) it.next();

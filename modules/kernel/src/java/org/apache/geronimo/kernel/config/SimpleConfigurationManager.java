@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.HashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -226,10 +227,8 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         try {
             configurationData = loadConfigurationData(configurationId, monitor);
         } catch (Exception e) {
-            LifecycleResults results = new LifecycleResults();
-            results.addFailed(configurationId, e);
             monitor.finished();
-            throw new LifecycleException("load", configurationId, results);
+            throw new LifecycleException("load", configurationId, e);
         }
 
         // load the configuration
@@ -251,9 +250,8 @@ public class SimpleConfigurationManager implements ConfigurationManager {
             try {
                 loadDepthFirst(configurationData, configurationsToLoad, monitor);
             } catch (Exception e) {
-                results.addFailed(id, e);
                 monitor.finished();
-                throw new LifecycleException("load", id, results);
+                throw new LifecycleException("load", id, e);
             }
 
             // load and start the unloaded the gbean for each configuration (depth first)
@@ -280,9 +278,8 @@ public class SimpleConfigurationManager implements ConfigurationManager {
                     unload(configuration);
                 }
 
-                results.addFailed(id, e);
                 monitor.finished();
-                throw new LifecycleException("load", id, results);
+                throw new LifecycleException("load", id, e);
             }
 
             // update the status of the loaded configurations
@@ -335,40 +332,40 @@ public class SimpleConfigurationManager implements ConfigurationManager {
 
     protected void addNewConfigurationToModel(Configuration configuration) throws NoSuchConfigException {
         configurationModel.addConfiguation(configuration.getId(),
-                getLoadParentIds(configuration),
-                getStartParentIds(configuration));
+                getConfigurationIds(getLoadParents(configuration)),
+                getConfigurationIds(getStartParents(configuration)));
         configurations.put(configuration.getId(), configuration);
     }
 
-    private Set getLoadParentIds(Configuration configuration) {
-        Set loadParentIds = getConfigurationIds(configuration.getClassParents());
+    private LinkedHashSet getLoadParents(Configuration configuration) {
+        LinkedHashSet loadParent = new LinkedHashSet(configuration.getClassParents());
         for (Iterator iterator = configuration.getChildren().iterator(); iterator.hasNext();) {
             Configuration childConfiguration = (Configuration) iterator.next();
-            Set childLoadParentIds = getLoadParentIds(childConfiguration);
+            LinkedHashSet childLoadParent = getLoadParents(childConfiguration);
 
-            // remove this configuration's id from the parent Ids since it will cause an infinite loop
-            childLoadParentIds.remove(configuration.getId());
+            // remove this configuration from the parent Ids since it will cause an infinite loop
+            childLoadParent.remove(configuration);
 
-            loadParentIds.addAll(childLoadParentIds);
+            loadParent.addAll(childLoadParent);
         }
-        return loadParentIds;
+        return loadParent;
     }
 
-    private Set getStartParentIds(Configuration configuration) {
-        Set startParentIds = getConfigurationIds(configuration.getServiceParents());
+    private LinkedHashSet getStartParents(Configuration configuration) {
+        LinkedHashSet startParent = new LinkedHashSet(configuration.getServiceParents());
         for (Iterator iterator = configuration.getChildren().iterator(); iterator.hasNext();) {
             Configuration childConfiguration = (Configuration) iterator.next();
-            Set childStartParentIds = getStartParentIds(childConfiguration);
+            LinkedHashSet childStartParent = getStartParents(childConfiguration);
 
-            // remove this configuration's id from the parent Ids since it will cause an infinite loop
-            childStartParentIds.remove(configuration.getId());
+            // remove this configuration from the parent Ids since it will cause an infinite loop
+            childStartParent.remove(configuration);
 
-            startParentIds.addAll(childStartParentIds);
+            startParent.addAll(childStartParent);
         }
-        return startParentIds;
+        return startParent;
     }
 
-    private static Set getConfigurationIds(List configurations) {
+    private static LinkedHashSet getConfigurationIds(Collection configurations) {
         LinkedHashSet configurationIds = new LinkedHashSet(configurations.size());
         for (Iterator iterator = configurations.iterator(); iterator.hasNext();) {
             Configuration configuration = (Configuration) iterator.next();
@@ -490,8 +487,6 @@ public class SimpleConfigurationManager implements ConfigurationManager {
             }
         } catch (Exception e) {
             monitor.failed(configurationId, e);
-            results.addFailed(configurationId, e);
-            results.setStarted(Collections.EMPTY_SET);
             configurationModel.stop(id);
 
             for (Iterator iterator = results.getStarted().iterator(); iterator.hasNext();) {
@@ -502,7 +497,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
                 monitor.succeeded(configurationId);
             }
             monitor.finished();
-            throw new LifecycleException("start", id, results);
+            throw new LifecycleException("start", id, e);
         }
         monitor.finished();
         return results;
@@ -559,24 +554,26 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         addConfigurationsToMonitor(monitor, restartList);
 
         // stop the configuations
+        LifecycleResults results = new LifecycleResults();
         for (Iterator iterator = restartList.iterator(); iterator.hasNext();) {
             Artifact configurationId = (Artifact) iterator.next();
             Configuration configuration = getConfiguration(configurationId);
             monitor.stopping(configurationId);
             stop(configuration);
             monitor.succeeded(configurationId);
+            results.addStopped(configurationId);
         }
 
         // reverse the list
         restartList = reverse(restartList);
 
         // restart the configurations
-        LifecycleResults results = new LifecycleResults();
+        Set skip = new HashSet();
         for (Iterator iterator = restartList.iterator(); iterator.hasNext();) {
             Artifact configurationId = (Artifact) iterator.next();
 
-            // skip the configurations that have alredy failed or were stopped
-            if (results.wasFailed(configurationId) || results.wasStopped(configurationId)) {
+            // skip the configurations that have alredy failed or are children of failed configurations
+            if (skip.contains(configurationId)) {
                 continue;
             }
 
@@ -586,11 +583,12 @@ public class SimpleConfigurationManager implements ConfigurationManager {
                 monitor.starting(configurationId);
                 start(configuration);
                 monitor.succeeded(configurationId);
-                results.addRestarted(configurationId);
+                results.addStarted(configurationId);
             } catch (Exception e) {
                 // the configuraiton failed to restart
                 results.addFailed(configurationId, e);
                 monitor.failed(configurationId, e);
+                skip.add(configurationId);
 
                 // officially stop the configuration in the model (without gc)
                 LinkedHashSet stopList = configurationModel.stop(configurationId, false);
@@ -606,19 +604,17 @@ public class SimpleConfigurationManager implements ConfigurationManager {
 
                     // if any of the failed configuration is in the restarted set, the model is
                     // corrupt because we started a child before a parent
-                    if (results.wasRestarted(failedId)) {
+                    if (results.wasStarted(failedId)) {
                         throw new AssertionError("Configuration data model is corrupt.   You must restart your server.");
                     }
 
-                    if (!results.wasFailed(failedId)) {
-                        results.addStopped(failedId);
-                    }
+                    skip.add(failedId);
                 }
             }
         }
 
         monitor.finished();
-        if (!results.wasRestarted(id)) {
+        if (!results.wasStarted(id)) {
             throw new LifecycleException("restart", id, results);
         }
         return results;
@@ -705,10 +701,8 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         try {
             configurationData = loadConfigurationData(newId, monitor);
         } catch (Exception e) {
-            LifecycleResults results = new LifecycleResults();
-            results.addFailed(id, e);
             monitor.finished();
-            throw new LifecycleException("reload", id, results);
+            throw new LifecycleException("reload", id, e);
         }
 
         return reloadConfiguration(existingUnloadedConfiguration, configurationData, monitor);
@@ -728,41 +722,100 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return reloadConfiguration(existingUnloadedConfiguration, configurationData, monitor);
     }
 
-    private LifecycleResults reloadConfiguration(UnloadedConfiguration existingUnloadedConfiguration, ConfigurationData newConfigurationData, LifecycleMonitor monitor) throws LifecycleException, NoSuchConfigException {
-        LifecycleResults results = new LifecycleResults();
-
-        // recursively load configurations from the reloaded child to the parents
-        // this will catch any new parents
-        LinkedHashMap unloadedConfigurations = new LinkedHashMap();
-        try {
-            loadDepthFirst(newConfigurationData, unloadedConfigurations, monitor);
-        } catch (Exception e) {
-            results.addFailed(newConfigurationData.getId(), e);
-            monitor.finished();
-            throw new LifecycleException("load", newConfigurationData.getId(), results);
+    private boolean hasHardDependency(Artifact configurationId, ConfigurationData configurationData) {
+        for (Iterator iterator = configurationData.getEnvironment().getDependencies().iterator(); iterator.hasNext();) {
+            Dependency dependency = (Dependency) iterator.next();
+            Artifact artifact = dependency.getArtifact();
+            if (artifact.getVersion() != null && artifact.matches(configurationId)) {
+                return true;
+            }
         }
 
-        // get a list of the started configuration
+        for (Iterator iterator = configurationData.getChildConfigurations().values().iterator(); iterator.hasNext();) {
+            ConfigurationData childConfigurationData = (ConfigurationData) iterator.next();
+            if (hasHardDependency(configurationId, childConfigurationData)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // todo this method ignores garbage collection of configurations
+    private LifecycleResults reloadConfiguration(UnloadedConfiguration existingUnloadedConfiguration, ConfigurationData newConfigurationData, LifecycleMonitor monitor) throws LifecycleException, NoSuchConfigException {
+        boolean force = false;
+
+        Artifact existingConfigurationId = existingUnloadedConfiguration.getConfigurationData().getId();
+        Artifact newConfigurationId = newConfigurationData.getId();
+
+        //
+        // recursively load the new configuration; this will catch any new parents
+        //
+        LinkedHashMap newConfigurations = new LinkedHashMap();
+        try {
+            loadDepthFirst(newConfigurationData, newConfigurations, monitor);
+        } catch (Exception e) {
+            monitor.finished();
+            throw new LifecycleException("reload", newConfigurationId, e);
+        }
+
+        //
+        // get a list of the started configuration, so we can restart them later
+        //
         Set started = configurationModel.getStarted();
 
-        // add all of the child configurations that we will need to reload to the unloaded map
+        //
+        // get a list of the child configurations that will need to reload
+        //
         //   note: we are iterating in reverse order
-        for (Iterator iterator = reverse(configurationModel.reload(newConfigurationData.getId())).iterator(); iterator.hasNext();) {
+        LinkedHashMap existingParents = new LinkedHashMap();
+        LinkedHashMap reloadChildren = new LinkedHashMap();
+        for (Iterator iterator = reverse(configurationModel.reload(existingConfigurationId)).iterator(); iterator.hasNext();) {
             Artifact configurationId = (Artifact) iterator.next();
-            if (unloadedConfigurations.containsKey(configurationId)) {
+
+            if (configurationId.equals(existingConfigurationId)) {
                 continue;
             }
 
+            // if new configurations contains the child something we have a circular dependency
+            if (newConfigurations.containsKey(configurationId)) {
+                throw new LifecycleException("reload", newConfigurationId,
+                        new IllegalStateException("Circular depenency between " + newConfigurationId + " and " + configurationId));
+            }
+
             Configuration configuration = getConfiguration(configurationId);
-            ConfigurationData data = configuration.getConfigurationData();
-            LinkedHashSet resolvedParentIds = getResolvedParentIds(configuration);
-            unloadedConfigurations.put(configurationId, new UnloadedConfiguration(data, resolvedParentIds));
+            ConfigurationData configurationData = configuration.getConfigurationData();
+
+            // save off the exising resolved parent ids in case we need to restore this configuration
+            LinkedHashSet existingParentIds = getResolvedParentIds(configuration);
+            existingParents.put(configurationId, existingParentIds);
+
+            // check that the child doen't have a hard dependency on the old configuration
+            LinkedHashSet resolvedParentIds = null;
+            if (hasHardDependency(existingConfigurationId, configurationData)) {
+                if (force) {
+                    throw new LifecycleException("reload", newConfigurationId,
+                            new IllegalStateException("Existing configuration " + configurationId + " has a hard dependency on the current version of this configuration " + existingConfigurationId));
+                }
+
+                // we leave the resolved parent ids null to signal that we should not reload the configuration
+                resolvedParentIds = null;
+            } else {
+                resolvedParentIds = new LinkedHashSet(existingParentIds);
+                resolvedParentIds.remove(existingConfigurationId);
+                resolvedParentIds.add(newConfigurationId);
+            }
+
+            reloadChildren.put(configurationId, new UnloadedConfiguration(configurationData, resolvedParentIds));
             monitor.addConfiguration(configurationId);
         }
 
-        // unload the configuations
-        //   note: we are iterating in reverse order
-        for (Iterator iterator = reverse(unloadedConfigurations).keySet().iterator(); iterator.hasNext();) {
+        //
+        // unload the children
+        //
+
+        // note: we are iterating in reverse order
+        LifecycleResults results = new LifecycleResults();
+        for (Iterator iterator = reverse(reloadChildren).keySet().iterator(); iterator.hasNext();) {
             Artifact configurationId = (Artifact) iterator.next();
             Configuration configuration = getConfiguration(configurationId);
 
@@ -771,7 +824,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
                 monitor.stopping(configurationId);
                 stop(configuration);
                 monitor.succeeded(configurationId);
-                results.addRestarted(configurationId);
+                results.addStopped(configurationId);
             } else {
                 // call stop just to be sure the beans aren't running
                 stop(configuration);
@@ -781,127 +834,289 @@ public class SimpleConfigurationManager implements ConfigurationManager {
             monitor.unloading(configurationId);
             unload(configuration);
             monitor.succeeded(configurationId);
+            results.addUnloaded(configurationId);
         }
 
-        // reload the configurations
-        Map actuallyLoaded = new LinkedHashMap(unloadedConfigurations.size());
-        for (Iterator iterator = unloadedConfigurations.entrySet().iterator(); iterator.hasNext();) {
+        //
+        // unload the existing config
+        //
+        Configuration existingConfiguration = getConfiguration(existingConfigurationId);
+        if (started.contains(existingConfigurationId)) {
+            monitor.stopping(existingConfigurationId);
+            stop(existingConfiguration);
+            monitor.succeeded(existingConfigurationId);
+            results.addStopped(existingConfigurationId);
+        } else {
+            // call stop just to be sure the beans aren't running
+            stop(existingConfiguration);
+        }
+        monitor.unloading(existingConfigurationId);
+        unload(existingConfiguration);
+        monitor.succeeded(existingConfigurationId);
+        results.addUnloaded(existingConfigurationId);
+
+        //
+        // load the new configurations
+        //
+        boolean reinstatedExisting = false;
+        /* reduce variable scope */ {
+            Map loadedParents = new LinkedHashMap();
+            Map startedParents = new LinkedHashMap();
+            Configuration newConfiguration = null;
+            Artifact configurationId = null;
+            try {
+                //
+                // load all of the new configurations
+                //
+                for (Iterator iterator = newConfigurations.entrySet().iterator(); iterator.hasNext();) {
+                    Map.Entry entry = (Map.Entry) iterator.next();
+                    configurationId = (Artifact) entry.getKey();
+                    UnloadedConfiguration unloadedConfiguration = (UnloadedConfiguration) entry.getValue();
+
+                    monitor.loading(configurationId);
+                    Configuration configuration = load(unloadedConfiguration.getConfigurationData(), unloadedConfiguration.getResolvedParentIds(), loadedParents);
+                    monitor.succeeded(configurationId);
+
+                    if (configurationId.equals(newConfigurationId)) {
+                        newConfiguration = configuration;
+                    } else {
+                        loadedParents.put(configurationId, configuration);
+                    }
+                }
+
+                if (newConfiguration == null) {
+                    AssertionError cause = new AssertionError("Internal error: configuration was not load");
+                    results.addFailed(newConfigurationId, cause);
+                    throw new LifecycleException("reload", newConfigurationId, results);
+                }
+
+                //
+                // start the new configurations if the old one was running
+                //
+                if (started.contains(existingConfigurationId)) {
+
+                    // determine which of the parents we need to start
+                    LinkedHashSet startList = new LinkedHashSet();
+                    for (Iterator iterator = getStartParents(newConfiguration).iterator(); iterator.hasNext();) {
+                        Configuration serviceParent = (Configuration) iterator.next();
+                        if (loadedParents.containsKey(serviceParent.getId())) {
+                            startList.add(serviceParent);
+                        }
+                    }
+
+                    // start the new parents
+                    for (Iterator iterator = startList.iterator(); iterator.hasNext();) {
+                        Configuration startParent = (Configuration) iterator.next();
+                        monitor.starting(configurationId);
+                        start(startParent);
+                        monitor.succeeded(configurationId);
+
+                        startedParents.put(configurationId, startParent);
+                    }
+
+                    //  start the new configuration
+                    monitor.starting(newConfigurationId);
+                    start(newConfiguration);
+                    monitor.succeeded(newConfigurationId);
+                }
+
+                //
+                // update the results
+                //
+                results.setLoaded(loadedParents.keySet());
+                results.addLoaded(newConfigurationId);
+                if (started.contains(existingConfigurationId)) {
+                    results.setStarted(startedParents.keySet());
+                    results.addStarted(newConfigurationId);
+                }
+
+                //
+                // update the model
+                //
+
+                // add all of the new configurations the model
+                addNewConfigurationsToModel(loadedParents);
+
+                // now ugrade the existing node in the model
+                configurationModel.upgradeConfiguration(existingConfigurationId,
+                        newConfigurationId,
+                        getConfigurationIds(getLoadParents(newConfiguration)),
+                        getConfigurationIds(getStartParents(newConfiguration)));
+
+                // replace the configuraiton in he configurations map
+                configurations.remove(existingConfiguration);
+                configurations.put(newConfigurationId, newConfiguration);
+            } catch (Exception e) {
+                monitor.failed(configurationId, e);
+                results.addFailed(configurationId, e);
+
+                //
+                // stop and unload all configurations that were actually loaded
+                //
+                for (Iterator iterator = startedParents.values().iterator(); iterator.hasNext();) {
+                    Configuration configuration = (Configuration) iterator.next();
+                    stop(configuration);
+                }
+                for (Iterator iterator = loadedParents.values().iterator(); iterator.hasNext();) {
+                    Configuration configuration = (Configuration) iterator.next();
+                    unload(configuration);
+                }
+
+                // stop and unload the newConfiguration
+                if (newConfiguration != null) {
+                    stop(newConfiguration);
+                    unload(newConfiguration);
+                }
+
+                //
+                // atempt to reinstate the old configuation
+                //
+                Configuration configuration = null;
+                try {
+                    configuration = load(existingUnloadedConfiguration.getConfigurationData(),
+                            existingUnloadedConfiguration.getResolvedParentIds(),
+                            Collections.EMPTY_MAP);
+
+                    // if the configuration was started before restart it
+                    if (started.contains(existingConfigurationId)) {
+                        start(configuration);
+                        results.addStarted(existingConfigurationId);
+                    }
+
+                    // don't mark as loded until start completes as it may thorw an exception
+                    results.addLoaded(existingConfigurationId);
+
+                    configurations.put(existingConfigurationId, configuration);
+
+                    reinstatedExisting = true;
+                } catch (Exception ignored) {
+                    monitor.failed(existingConfigurationId, e);
+
+                    // we tried our best
+                    if (configuration != null) {
+                        unload(configuration);
+                    }
+
+                    //
+                    // cleanup the model
+                    //
+                    for (Iterator iterator = results.getUnloaded().iterator(); iterator.hasNext();) {
+                        Artifact childId = (Artifact) iterator.next();
+                        configurationModel.unload(childId);
+                        configurationModel.removeConfiguration(childId);
+                        configurations.remove(childId);
+                    }
+
+                    throw new LifecycleException("reload", newConfigurationId, results);
+                }
+            }
+        }
+
+        //
+        // reload as many child configurations as possible
+        //
+        Set skip = new HashSet();
+        for (Iterator iterator = reloadChildren.entrySet().iterator(); iterator.hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();
             Artifact configurationId = (Artifact) entry.getKey();
             UnloadedConfiguration unloadedConfiguration = (UnloadedConfiguration) entry.getValue();
 
-            // skip the configurations that have alredy failed or were stopped
-            if (results.wasFailed(configurationId) || results.wasStopped(configurationId)) {
+            // skip the configurations that have alredy failed or are children of failed configurations
+            if (skip.contains(configurationId)) {
                 continue;
             }
 
             // try to load the configuation
             Configuration configuration = null;
             try {
-                monitor.loading(configurationId);
-                configuration = load(unloadedConfiguration.getConfigurationData(), unloadedConfiguration.getResolvedParentIds(), actuallyLoaded);
-                monitor.succeeded(configurationId);
-
-                results.addReloaded(configurationId);
-
-                // if the configuration was started before restart it
-                if (started.contains(configurationId)) {
-                    monitor.starting(configurationId);
-                    start(configuration);
-                    monitor.succeeded(configurationId);
-                    results.addRestarted(configurationId);
+                // get the correct resolved parent ids based on if we are loading with the new config id or the existing one
+                LinkedHashSet resolvedParentIds;
+                if (!reinstatedExisting) {
+                    resolvedParentIds = unloadedConfiguration.getResolvedParentIds();
+                } else {
+                    resolvedParentIds = (LinkedHashSet) existingParents.get(configurationId);
                 }
 
-                actuallyLoaded.put(configurationId, configuration);
-                configurations.put(configurationId, configuration);
+                // if the resolved parent ids is null, then we are not supposed to reload this configuration
+                if (resolvedParentIds != null) {
+                    monitor.loading(configurationId);
+                    configuration = load(unloadedConfiguration.getConfigurationData(), resolvedParentIds, Collections.EMPTY_MAP);
+                    monitor.succeeded(configurationId);
+
+
+                    // if the configuration was started before restart it
+                    if (started.contains(configurationId)) {
+                        monitor.starting(configurationId);
+                        start(configuration);
+                        monitor.succeeded(configurationId);
+                        results.addStarted(configurationId);
+                    }
+
+                    // don't mark as loded until start completes as it may thow an exception
+                    results.addLoaded(configurationId);
+
+                    configurations.put(configurationId, configuration);
+                } else {
+                    configurationModel.removeConfiguration(configurationId);
+                    configurations.remove(configurationId);
+                }
             } catch (Exception e) {
                 // the configuraiton failed to restart
                 results.addFailed(configurationId, e);
                 monitor.failed(configurationId, e);
+                skip.add(configurationId);
 
                 // unload the configuration if it was loaded and failed in start
                 if (configuration != null) {
                     unload(configuration);
                 }
 
-                // if this is root configuration, attempt to reinstate the original configuration
-                boolean reinstatedExisting = false;
-                if (configurationId.equals(newConfigurationData.getId())) {
-                    configuration = null;
-                    try {
-                        configuration = load(existingUnloadedConfiguration.getConfigurationData(),
-                                existingUnloadedConfiguration.getResolvedParentIds(),
-                                actuallyLoaded);
+                // officially unload the configuration in the model (without gc)
+                LinkedHashSet unloadList = configurationModel.unload(configurationId, false);
+                configurationModel.removeConfiguration(configurationId);
 
-                        results.addReloaded(configurationId);
-
-                        // if the configuration was started before restart it
-                        if (started.contains(configurationId)) {
-                            start(configuration);
-                            results.addRestarted(configurationId);
-                        }
-
-                        actuallyLoaded.put(configurationId, configuration);
-                        configurations.put(configurationId, configuration);
-
-                        reinstatedExisting = true;
-                    } catch (Exception ignored) {
-                        // we tried our best
-                        if (configuration != null) {
-                            unload(configuration);
-                        }
-                    }
+                // all of the configurations to be unloaded must be in our unloaded list, or the model is corrupt
+                if (!reloadChildren.keySet().containsAll(unloadList)) {
+                    throw new AssertionError("Configuration data model is corrupt.   You must restart your server.");
                 }
 
-                if (!reinstatedExisting) {
-                    // officially unload the configuration in the model (without gc)
-                    LinkedHashSet unloadList = configurationModel.unload(configurationId, false);
-                    configurationModel.removeConfiguration(configurationId);
+                // add the children of the failed configuration to the results as unloaded
+                for (Iterator iterator1 = unloadList.iterator(); iterator1.hasNext();) {
+                    Artifact failedId = (Artifact) iterator1.next();
 
-                    // all of the configurations to be unloaded must be in our unloaded list, or the model is corrupt
-                    if (!unloadedConfigurations.keySet().containsAll(unloadList)) {
+                    // if any of the failed configuration are in the reloaded set, the model is
+                    // corrupt because we loaded a child before a parent
+                    if (results.wasLoaded(failedId)) {
                         throw new AssertionError("Configuration data model is corrupt.   You must restart your server.");
                     }
 
-                    // add the children of the failed configuration to the results as unloaded
-                    for (Iterator iterator1 = unloadList.iterator(); iterator1.hasNext();) {
-                        Artifact failedId = (Artifact) iterator1.next();
-
-                        // if any of the failed configuration is in the reloaded set, the model is
-                        // corrupt because we loaded a child before a parent
-                        if (results.wasLoaded(failedId)) {
-                            throw new AssertionError("Configuration data model is corrupt.   You must restart your server.");
-                        }
-
-                        if (!results.wasFailed(failedId)) {
-                            results.addUnloaded(failedId);
-                            if (started.contains(configurationId)) {
-                                results.addStopped(failedId);
-                            }
-                        }
-                    }
+                    skip.add(failedId);
                 }
             }
         }
 
         monitor.finished();
-        if (results.wasFailed(newConfigurationData.getId()) || !results.wasReloaded(newConfigurationData.getId())) {
-            throw new LifecycleException("reload", newConfigurationData.getId(), results);
+        if (results.wasFailed(newConfigurationId) || !results.wasLoaded(newConfigurationId)) {
+            throw new LifecycleException("restart", newConfigurationId, results);
         }
-
         return results;
     }
 
     private static LinkedHashSet getResolvedParentIds(Configuration configuration) {
         LinkedHashSet resolvedParentIds = new LinkedHashSet();
-        for (Iterator iterator1 = configuration.getClassParents().iterator(); iterator1.hasNext();) {
-            Configuration classParent = (Configuration) iterator1.next();
+        for (Iterator iterator = configuration.getClassParents().iterator(); iterator.hasNext();) {
+            Configuration classParent = (Configuration) iterator.next();
             resolvedParentIds.add(classParent.getId());
         }
-        for (Iterator iterator1 = configuration.getServiceParents().iterator(); iterator1.hasNext();) {
-            Configuration serviceParent = (Configuration) iterator1.next();
+        for (Iterator iterator = configuration.getServiceParents().iterator(); iterator.hasNext();) {
+            Configuration serviceParent = (Configuration) iterator.next();
             resolvedParentIds.add(serviceParent.getId());
         }
+        for (Iterator iterator = configuration.getChildren().iterator(); iterator.hasNext();) {
+            Configuration child = (Configuration) iterator.next();
+            resolvedParentIds.addAll(getResolvedParentIds(child));
+        }
+
         return resolvedParentIds;
     }
 

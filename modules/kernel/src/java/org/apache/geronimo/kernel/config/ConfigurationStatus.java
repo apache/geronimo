@@ -26,9 +26,9 @@ import org.apache.geronimo.kernel.repository.Artifact;
  * @version $Rev$ $Date$
  */
 public class ConfigurationStatus {
-    private final Artifact configurationId;
-    private final Set loadParents;
-    private final Set startParents;
+    private Artifact configurationId;
+    private final Set loadParents = new LinkedHashSet();
+    private final Set startParents = new LinkedHashSet();
     private final LinkedHashSet loadChildren = new LinkedHashSet();
     private final LinkedHashSet startChildren = new LinkedHashSet();
     private boolean loaded = false;
@@ -44,8 +44,8 @@ public class ConfigurationStatus {
             throw new IllegalArgumentException("loadParents must contain all startParents");
         }
         this.configurationId = configId;
-        this.loadParents = loadParents;
-        this.startParents = startParents;
+        this.loadParents.addAll(loadParents);
+        this.startParents.addAll(startParents);
 
         for (Iterator iterator = loadParents.iterator(); iterator.hasNext();) {
             ConfigurationStatus loadParent = (ConfigurationStatus) iterator.next();
@@ -102,30 +102,40 @@ public class ConfigurationStatus {
         return userStarted;
     }
 
-    public boolean hasLoadDependencyOn(Artifact parentId) {
+
+    public void upgrade(Artifact newId, Set newLoadParents, Set newStartParents) {
+        this.configurationId = newId;
+
+        //
+        // remove links from the current parents to me
+        //
         for (Iterator iterator = loadParents.iterator(); iterator.hasNext();) {
             ConfigurationStatus loadParent = (ConfigurationStatus) iterator.next();
-            if (loadParent.getConfigurationId().equals(parentId)) {
-                return true;
-            }
-            if (loadParent.hasLoadDependencyOn(parentId)) {
-                return true;
-            }
+            loadParent.loadChildren.remove(this);
         }
-        return false;
-    }
+        loadParents.clear();
 
-    public boolean hasStartDependencyOn(Artifact parentId) {
         for (Iterator iterator = startParents.iterator(); iterator.hasNext();) {
             ConfigurationStatus startParent = (ConfigurationStatus) iterator.next();
-            if (startParent.getConfigurationId().equals(parentId)) {
-                return true;
-            }
-            if (startParent.hasStartDependencyOn(parentId)) {
-                return true;
-            }
+            startParent.startChildren.remove(this);
         }
-        return false;
+        startChildren.clear();
+
+        //
+        // connect to to the new parents
+        //
+        this.loadParents.addAll(newLoadParents);
+        this.startParents.addAll(newStartParents);
+
+        for (Iterator iterator = loadParents.iterator(); iterator.hasNext();) {
+            ConfigurationStatus loadParent = (ConfigurationStatus) iterator.next();
+            loadParent.loadChildren.add(this);
+        }
+
+        for (Iterator iterator = startParents.iterator(); iterator.hasNext();) {
+            ConfigurationStatus startParent = (ConfigurationStatus) iterator.next();
+            startParent.startChildren.add(this);
+        }
     }
 
     public LinkedHashSet load() {

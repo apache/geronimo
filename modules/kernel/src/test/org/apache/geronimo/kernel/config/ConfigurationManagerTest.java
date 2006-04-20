@@ -159,12 +159,29 @@ public class ConfigurationManagerTest extends TestCase {
         assertSame(g2, kernel.getGBean(gbean2));
         assertSame(g3, kernel.getGBean(gbean3));
 
+        //
+        // restart artifact1 which should cascade to the children
+        //
         LifecycleResults results = configurationManager.restartConfiguration(artifact1);
 
-        // check the results
-        assertTrue(results.wasRestarted(artifact1));
-        assertTrue(results.wasRestarted(artifact2));
-        assertTrue(results.wasRestarted(artifact3));
+        // all three should have been stopped and then started
+        assertTrue(results.wasStopped(artifact1));
+        assertTrue(results.wasStopped(artifact2));
+        assertTrue(results.wasStopped(artifact3));
+        assertTrue(results.wasStarted(artifact1));
+        assertTrue(results.wasStarted(artifact2));
+        assertTrue(results.wasStarted(artifact3));
+
+        // none of them should have been unloaded, loaded or failed
+        assertFalse(results.wasUnloaded(artifact1));
+        assertFalse(results.wasUnloaded(artifact2));
+        assertFalse(results.wasUnloaded(artifact3));
+        assertFalse(results.wasLoaded(artifact1));
+        assertFalse(results.wasLoaded(artifact2));
+        assertFalse(results.wasLoaded(artifact3));
+        assertFalse(results.wasFailed(artifact1));
+        assertFalse(results.wasFailed(artifact2));
+        assertFalse(results.wasFailed(artifact3));
 
         // check the state of the kernel
         assertTrue(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact3))) ;
@@ -218,10 +235,26 @@ public class ConfigurationManagerTest extends TestCase {
         shouldFail.add(gbean3.getObjectName().getCanonicalName());
         LifecycleResults results = configurationManager.restartConfiguration(artifact1);
 
-        // check the results
-        assertTrue(results.wasRestarted(artifact1));
-        assertTrue(results.wasRestarted(artifact2));
+        // 3 should have been stopped and failed, but not started
+        assertTrue(results.wasStopped(artifact3));
         assertTrue(results.wasFailed(artifact3));
+        assertFalse(results.wasStarted(artifact3));
+
+        // one and two shoudld have stopped and then started and not failed
+        assertTrue(results.wasStopped(artifact1));
+        assertTrue(results.wasStopped(artifact2));
+        assertTrue(results.wasStarted(artifact1));
+        assertTrue(results.wasStarted(artifact2));
+        assertFalse(results.wasFailed(artifact1));
+        assertFalse(results.wasFailed(artifact2));
+
+        // none of them should have been unloaded or loaded
+        assertFalse(results.wasUnloaded(artifact1));
+        assertFalse(results.wasUnloaded(artifact2));
+        assertFalse(results.wasUnloaded(artifact3));
+        assertFalse(results.wasLoaded(artifact1));
+        assertFalse(results.wasLoaded(artifact2));
+        assertFalse(results.wasLoaded(artifact3));
 
         // all configuration should be loaded
         assertTrue(configurationManager.isLoaded(artifact3));
@@ -271,12 +304,24 @@ public class ConfigurationManagerTest extends TestCase {
         LifecycleResults results = configurationManager.reloadConfiguration(artifact1);
 
         // check the results
-        assertTrue(results.wasReloaded(artifact1));
-        assertTrue(results.wasReloaded(artifact2));
-        assertTrue(results.wasReloaded(artifact3));
-        assertTrue(results.wasRestarted(artifact1));
-        assertTrue(results.wasRestarted(artifact2));
-        assertTrue(results.wasRestarted(artifact3));
+        // all three should have been stopped, unloaded, loaded and then started
+        assertTrue(results.wasStopped(artifact1));
+        assertTrue(results.wasStopped(artifact2));
+        assertTrue(results.wasStopped(artifact3));
+        assertTrue(results.wasUnloaded(artifact1));
+        assertTrue(results.wasUnloaded(artifact2));
+        assertTrue(results.wasUnloaded(artifact3));
+        assertTrue(results.wasLoaded(artifact1));
+        assertTrue(results.wasLoaded(artifact2));
+        assertTrue(results.wasLoaded(artifact3));
+        assertTrue(results.wasStarted(artifact1));
+        assertTrue(results.wasStarted(artifact2));
+        assertTrue(results.wasStarted(artifact3));
+
+        // none of them should have been failed
+        assertFalse(results.wasFailed(artifact1));
+        assertFalse(results.wasFailed(artifact2));
+        assertFalse(results.wasFailed(artifact3));
 
         // check the state of the configuration manager
         assertTrue(configurationManager.isLoaded(artifact1));
@@ -338,12 +383,23 @@ public class ConfigurationManagerTest extends TestCase {
         LifecycleResults results = configurationManager.reloadConfiguration(artifact1);
 
         // check the results
-        assertTrue(results.wasReloaded(artifact1));
-        assertTrue(results.wasReloaded(artifact2));
-        assertTrue(results.wasReloaded(artifact3));
-        assertTrue(results.wasRestarted(artifact1));
-        assertTrue(results.wasRestarted(artifact2));
-        assertTrue(results.wasRestarted(artifact3));
+
+        // 3 should have been stopped, unloaded and then failed
+        assertTrue(results.wasStopped(artifact3));
+        assertTrue(results.wasUnloaded(artifact3));
+        assertTrue(results.wasFailed(artifact3));
+        assertFalse(results.wasLoaded(artifact3));
+        assertFalse(results.wasStarted(artifact3));
+
+        // 1 and 2 should have been stopped, unloaded, loaded and then started
+        assertTrue(results.wasStopped(artifact1));
+        assertTrue(results.wasStopped(artifact2));
+        assertTrue(results.wasUnloaded(artifact1));
+        assertTrue(results.wasUnloaded(artifact2));
+        assertTrue(results.wasLoaded(artifact1));
+        assertTrue(results.wasLoaded(artifact2));
+        assertTrue(results.wasStarted(artifact1));
+        assertTrue(results.wasStarted(artifact2));
 
         // all configuration except 3 should be loaded
         assertFalse(configurationManager.isLoaded(artifact3));
@@ -406,13 +462,23 @@ public class ConfigurationManagerTest extends TestCase {
         }
 
         // check the results
+
+        // 1 should be failed
         assertTrue(results.wasFailed(artifact1));
-        assertTrue(results.wasReloaded(artifact1));
-        assertTrue(results.wasReloaded(artifact2));
-        assertTrue(results.wasReloaded(artifact3));
-        assertTrue(results.wasRestarted(artifact1));
-        assertTrue(results.wasRestarted(artifact2));
-        assertTrue(results.wasRestarted(artifact3));
+
+        // but all three did stop, unload, load and start
+        assertTrue(results.wasStopped(artifact1));
+        assertTrue(results.wasStopped(artifact2));
+        assertTrue(results.wasStopped(artifact3));
+        assertTrue(results.wasUnloaded(artifact1));
+        assertTrue(results.wasUnloaded(artifact2));
+        assertTrue(results.wasUnloaded(artifact3));
+        assertTrue(results.wasLoaded(artifact1));
+        assertTrue(results.wasLoaded(artifact2));
+        assertTrue(results.wasLoaded(artifact3));
+        assertTrue(results.wasStarted(artifact1));
+        assertTrue(results.wasStarted(artifact2));
+        assertTrue(results.wasStarted(artifact3));
 
         // check the state of the configuration manager
         assertTrue(configurationManager.isLoaded(artifact1));
@@ -462,7 +528,7 @@ public class ConfigurationManagerTest extends TestCase {
         assertFalse(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact1))) ;
     }
 
-    public void DAIN_FIX_ME_testReloadNewerConfiguration() throws Exception {
+    public void testReloadNewerConfiguration() throws Exception {
         configurationManager.loadConfiguration(artifact3);
         configurationManager.startConfiguration(artifact3);
         Object g1 = kernel.getGBean(gbean1);
@@ -483,16 +549,22 @@ public class ConfigurationManagerTest extends TestCase {
         LifecycleResults results = configurationManager.reloadConfiguration(artifact1);
 
         // check the results
-        assertTrue(results.wasReloaded(artifact1));
-        assertTrue(results.wasReloaded(artifact2));
-        assertTrue(results.wasReloaded(artifact3));
-        assertTrue(results.wasRestarted(artifact1));
-        assertTrue(results.wasRestarted(artifact2));
-        assertTrue(results.wasRestarted(artifact3));
+        assertTrue(results.wasStopped(artifact1));
+        assertTrue(results.wasStopped(artifact2));
+        assertTrue(results.wasStopped(artifact3));
+        assertTrue(results.wasUnloaded(artifact1));
+        assertTrue(results.wasUnloaded(artifact2));
+        assertTrue(results.wasUnloaded(artifact3));
+        assertTrue(results.wasLoaded(artifact1));
+        assertTrue(results.wasLoaded(artifact2));
+        assertTrue(results.wasLoaded(artifact3));
+        assertTrue(results.wasStarted(artifact1));
+        assertTrue(results.wasStarted(artifact2));
+        assertTrue(results.wasStarted(artifact3));
         assertFalse(results.wasFailed(artifact3NoVersion));
         assertFalse(results.wasLoaded(artifact3NoVersion));
-        assertFalse(results.wasReloaded(artifact3NoVersion));
-        assertFalse(results.wasRestarted(artifact3NoVersion));
+        assertFalse(results.wasLoaded(artifact3NoVersion));
+        assertFalse(results.wasStarted(artifact3NoVersion));
         assertFalse(results.wasStarted(artifact3NoVersion));
         assertFalse(results.wasStopped(artifact3NoVersion));
         assertFalse(results.wasUnloaded(artifact3NoVersion));
@@ -529,20 +601,33 @@ public class ConfigurationManagerTest extends TestCase {
         assertNotSame(g2, kernel.getGBean(gbean2));
         assertNotSame(g3, kernel.getGBean(gbean3));
 
+        //
         // Reload a newer version of artifact3 (artifact3NoVersion, which has a timestamp as the version number)
+        //
         results = configurationManager.reloadConfiguration(artifact3, artifact3NoVersion.getVersion());
-        assertFalse(results.wasReloaded(artifact1));
-        assertFalse(results.wasReloaded(artifact2));
-        // Question: should the name with the old version be listed as reloaded,
-        //           or the name with the new version, or both?
-        assertTrue(results.wasReloaded(artifact3)); // the old version running
-        assertTrue(results.wasReloaded(artifact3NoVersion)); // the new version running
-        assertFalse(results.wasRestarted(artifact1));
-        assertFalse(results.wasRestarted(artifact2));
-        // Question: should the name with the old version be listed as restarted,
-        //           or the name with the new version, or both?
-        assertTrue(results.wasRestarted(artifact3)); // the old version running
-        assertTrue(results.wasRestarted(artifact3NoVersion)); // the new version running
+
+        // artifact 3 should be stopped, unloaded and 3noVersion should have been loaded and started in it's place
+        assertTrue(results.wasStopped(artifact3));
+        assertTrue(results.wasUnloaded(artifact3));
+        assertTrue(results.wasLoaded(artifact3NoVersion));
+        assertTrue(results.wasStarted(artifact3NoVersion));
+        assertFalse(results.wasLoaded(artifact3));
+        assertFalse(results.wasStarted(artifact3));
+
+        // artifact 1 and 2 should not have been touched
+        assertFalse(results.wasStopped(artifact1));
+        assertFalse(results.wasStopped(artifact2));
+        assertFalse(results.wasUnloaded(artifact1));
+        assertFalse(results.wasUnloaded(artifact2));
+        assertFalse(results.wasLoaded(artifact1));
+        assertFalse(results.wasLoaded(artifact2));
+        assertFalse(results.wasStarted(artifact1));
+        assertFalse(results.wasStarted(artifact2));
+
+        // nothing should have failed
+        assertFalse(results.wasFailed(artifact1));
+        assertFalse(results.wasFailed(artifact2));
+        assertFalse(results.wasFailed(artifact3));
         assertFalse(results.wasFailed(artifact3NoVersion));
 
         // check the state of the configuration manager

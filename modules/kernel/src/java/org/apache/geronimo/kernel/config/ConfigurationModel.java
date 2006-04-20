@@ -35,7 +35,7 @@ public class ConfigurationModel {
     public void addConfiguation(Artifact configurationId, Set loadParentIds, Set startParentIds) throws NoSuchConfigException {
         Set startParents = getStatuses(startParentIds);
 
-        // load parents are both the class parents and the service parents
+        // load parents are a superset of start parents
         Set loadParents = new LinkedHashSet(startParents);
         loadParents.addAll(getStatuses(loadParentIds));
 
@@ -68,6 +68,21 @@ public class ConfigurationModel {
 
     public boolean containsConfiguration(Artifact configurationId) {
         return configurations.containsKey(configurationId);
+    }
+
+    public void upgradeConfiguration(Artifact existingId, Artifact newId, Set newLoadParentIds, Set newStartParentIds) throws NoSuchConfigException {
+        Set newStartParents = getStatuses(newStartParentIds);
+
+        // load parents are a superset of start parents
+        Set newLoadParents = new LinkedHashSet(newStartParents);
+        newLoadParents.addAll(getStatuses(newLoadParentIds));
+
+        ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.remove(existingId);
+        if (configurationStatus == null) {
+            throw new NoSuchConfigException(existingId);
+        }
+        configurations.put(newId, configurationStatus);
+        configurationStatus.upgrade(newId, newLoadParents, newStartParents);
     }
 
     public boolean isLoaded(Artifact configurationId) {
@@ -160,10 +175,10 @@ public class ConfigurationModel {
         return configurationStatus.unload(gc);
     }
 
-    public LinkedHashSet reload(Artifact configurationId) throws NoSuchConfigException {
-        ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(configurationId);
+    public LinkedHashSet reload(Artifact exitingConfigurationId) throws NoSuchConfigException {
+        ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(exitingConfigurationId);
         if (configurationStatus == null) {
-            throw new NoSuchConfigException(configurationId);
+            throw new NoSuchConfigException(exitingConfigurationId);
         }
         return configurationStatus.reload();
     }

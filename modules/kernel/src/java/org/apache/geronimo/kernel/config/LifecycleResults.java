@@ -35,8 +35,6 @@ public class LifecycleResults implements Serializable {
     private final Set unloaded = new LinkedHashSet();
     private final Set started = new LinkedHashSet();
     private final Set stopped = new LinkedHashSet();
-    private final Set restarted = new LinkedHashSet();
-    private final Set reloaded = new LinkedHashSet();
     private final Map failed = new LinkedHashMap();
 
     /**
@@ -173,74 +171,6 @@ public class LifecycleResults implements Serializable {
     public void setStopped(Set stopped) {
         this.stopped.clear();
         this.stopped.addAll(stopped);
-    }
-
-    /**
-     * Was the specified configuration restarted.
-     * @param configurationId the configuration identifier
-     * @return true if the specified configuration was restarted during the lifecycle operation
-     */
-    public boolean wasRestarted(Artifact configurationId) {
-        return restarted.contains(configurationId);
-    }
-
-    /**
-     * Gets the configuration identifiers (Artifact) of the configurations restarted.
-     * @return the configuration identifiers (Artifact)
-     */
-    public Set getRestarted() {
-        return Collections.unmodifiableSet(restarted);
-    }
-
-    /**
-     * Adds a configuration the set of restarted configurations.
-     * @param configurationId the configuration identifiers (Artifact)
-     */
-    public void addRestarted(Artifact configurationId) {
-        restarted.add(configurationId);
-    }
-
-    /**
-     * Clears the existing restarted set and add alls the specified configurations to the set
-     * @param restarted the configuration identifiers (Artifact)
-     */
-    public void setRestarted(Set restarted) {
-        this.restarted.clear();
-        this.restarted.addAll(restarted);
-    }
-
-    /**
-     * Was the specified configuration reloaded.
-     * @param configurationId the configuration identifier
-     * @return true if the specified configuration was reloaded during the lifecycle operation
-     */
-    public boolean wasReloaded(Artifact configurationId) {
-        return reloaded.contains(configurationId);
-    }
-
-    /**
-     * Gets the configuration identifiers (Artifact) of the configurations reloaded.
-     * @return the configuration identifiers (Artifact)
-     */
-    public Set getReloaded() {
-        return Collections.unmodifiableSet(reloaded);
-    }
-
-    /**
-     * Adds a configuration the set of reloaded configurations.
-     * @param configurationId the configuration identifiers (Artifact)
-     */
-    public void addReloaded(Artifact configurationId) {
-        reloaded.add(configurationId);
-    }
-
-    /**
-     * Clears the existing reloaded set and add alls the specified configurations to the set
-     * @param reloaded the configuration identifiers (Artifact)
-     */
-    public void setReloaded(Set reloaded) {
-        this.reloaded.clear();
-        this.reloaded.addAll(reloaded);
     }
 
     /**
