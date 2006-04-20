@@ -119,7 +119,7 @@ public abstract class AbstractRepository implements WriteableRepository {
             throw (IllegalStateException)new IllegalStateException("Unable to get URL for dependency " + artifact).initCause(e);
         }
         ClassLoader depCL = new URLClassLoader(new URL[]{url}, ClassLoader.getSystemClassLoader());
-        InputStream is = depCL.getResourceAsStream("META-INF/geronimo-service.xml");
+        InputStream is = depCL.getResourceAsStream("META-INF/geronimo-dependency.xml");
         if (is != null) {
             InputSource in = new InputSource(is);
             DocumentBuilderFactory dfactory = DocumentBuilderFactory.newInstance();
@@ -140,11 +140,11 @@ public abstract class AbstractRepository implements WriteableRepository {
                     dependencies.add(new Artifact(groupId, artifactId,  version, type));
                 }
             } catch (IOException e) {
-                throw (IllegalStateException)new IllegalStateException("Unable to parse geronimo-service.xml file in " + url).initCause(e);
+                throw (IllegalStateException)new IllegalStateException("Unable to parse geronimo-dependency.xml file in " + url).initCause(e);
             } catch (ParserConfigurationException e) {
-                throw (IllegalStateException)new IllegalStateException("Unable to parse geronimo-service.xml file in " + url).initCause(e);
+                throw (IllegalStateException)new IllegalStateException("Unable to parse geronimo-dependency.xml file in " + url).initCause(e);
             } catch (SAXException e) {
-                throw (IllegalStateException)new IllegalStateException("Unable to parse geronimo-service.xml file in " + url).initCause(e);
+                throw (IllegalStateException)new IllegalStateException("Unable to parse geronimo-dependency.xml file in " + url).initCause(e);
             }
         }
         return dependencies;

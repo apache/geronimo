@@ -378,7 +378,7 @@
             <resource>
                 <directory>${basedir}/target/etc</directory>
                 <includes>
-                    <include>META-INF/geronimo-service.xml</include>
+                    <include>META-INF/geronimo-dependency.xml</include>
                 </includes>
             </resource>
         </resources>

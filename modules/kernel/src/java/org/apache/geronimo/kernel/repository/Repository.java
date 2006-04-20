@@ -49,7 +49,7 @@ public interface Repository {
 
     /**
      * Loads any dependencies for this artifact declared in
-     * META-INF/geronimo-service.xml within the configuration archive.  This
+     * META-INF/geronimo-dependency.xml within the configuration archive.  This
      * does not do anything special if the artifact is a configuration (which
      * means it doesn't see dependencies in the ConfigurationData, etc.) so
      * it's mainly useful for JAR-type artifacts.
@@ -58,7 +58,7 @@ public interface Repository {
      *                 entry you're interested in.
      *
      * @return a LinkedHashSet (with elements of type Artifact) listing any
-     *         dependencies declared in META-INF/geronimo-service.xml for the
+     *         dependencies declared in META-INF/geronimo-dependency.xml for the
      *         specified artifact.
      */
     LinkedHashSet getDependencies(Artifact artifact);

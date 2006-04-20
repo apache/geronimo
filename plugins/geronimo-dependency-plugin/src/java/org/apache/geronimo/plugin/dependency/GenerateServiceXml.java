@@ -65,16 +65,16 @@ public class GenerateServiceXml {
         ServiceType serviceType = serviceDocument.addNewService();
         for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
             Artifact artifact = (Artifact) iterator.next();
-            Dependency dependency = (Dependency) artifact.getDependency();
+            Dependency dependency = artifact.getDependency();
             if ("true".equals(dependency.getProperty(DEPENDENCY_PROPERTY))) {
                 String groupId = dependency.getGroupId();
                 String artifactId = dependency.getArtifactId();
-                String version = dependency.getVersion();
+//                String version = dependency.getVersion();
                 String type = dependency.getType();
                 org.apache.geronimo.deployment.xbeans.ArtifactType dependencyType = serviceType.addNewDependency();
                 dependencyType.setGroupId(groupId);
                 dependencyType.setArtifactId(artifactId);
-                dependencyType.setVersion(version);
+//                dependencyType.setVersion(version);
                 if (type != null && !"jar".equals(type)) {
                     dependencyType.setType(type);
                 }
@@ -90,7 +90,7 @@ public class GenerateServiceXml {
             } else {
                 targetDir.mkdirs();
             }
-            File output = new File(targetDir, "geronimo-service.xml");
+            File output = new File(targetDir, "geronimo-dependency.xml");
             XmlOptions xmlOptions = new XmlOptions();
             xmlOptions.setSavePrettyPrint();
             serviceDocument.save(output, xmlOptions);
