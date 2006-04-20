@@ -112,9 +112,6 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
                 InputStream in = new FileInputStream(serFile);
                 try {
                     configurationData = ConfigurationUtil.readConfigurationData(in);
-                } catch(ClassCastException e) { // Not a ConfigurationData in the file
-                    System.out.println("************ ERROR READING SER FILE "+serFile.getAbsolutePath());
-                    throw e;
                 } finally {
                     IOUtil.close(in);
                 }
