@@ -377,7 +377,7 @@
                 <geronimo.pack>Tomcat.UDDI.Server</geronimo.pack>
             </properties>
         </dependency>
-        <dependency>
+<!--         <dependency>
           <groupId>geronimo</groupId>
           <artifactId>daytrader-derby-jetty</artifactId>
           <type>car</type>
@@ -416,7 +416,7 @@
             <geronimo.assemble>install</geronimo.assemble>
             <geronimo.pack>Daytrader.for.Tomcat</geronimo.pack>
           </properties>
-        </dependency>
+        </dependency> -->
 
         <dependency>
             <groupId>geronimo</groupId>
