@@ -37,6 +37,7 @@ import org.apache.geronimo.converter.DatabaseConversionStatus;
 import org.apache.geronimo.converter.JDBCPool;
 import org.apache.geronimo.converter.bea.WebLogic81DatabaseConverter;
 import org.apache.geronimo.converter.jboss.JBoss4DatabaseConverter;
+import org.apache.geronimo.deployment.service.jsr88.EnvironmentData;
 import org.apache.geronimo.deployment.tools.loader.ConnectorDeployable;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.management.State;
@@ -63,8 +64,6 @@ import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.status.ProgressObject;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletConfig;
@@ -209,9 +208,9 @@ public class DatabasePoolPortlet extends BasePortlet {
      * @param request            Pass it or die
      * @param rarPath            If we're creating a new RA, the path to identify it
      * @param displayName        If we're editing an existing RA, its name
-     * @param adapterObjectName  If we're editing an existing RA, its ObjectName
+     * @param adapterAbstractName  If we're editing an existing RA, its AbstractName
      */
-    public ResourceAdapterParams getRARConfiguration(PortletRequest request, String rarPath, String displayName, String adapterObjectName) {
+    public ResourceAdapterParams getRARConfiguration(PortletRequest request, String rarPath, String displayName, String adapterAbstractName) {
         PortletSession session = request.getPortletSession(true);
         if(rarPath != null && !rarPath.equals("")) {
             ResourceAdapterParams results = (ResourceAdapterParams) session.getAttribute(CONFIG_SESSION_KEY+"-"+rarPath, PortletSession.APPLICATION_SCOPE);
@@ -221,10 +220,10 @@ public class DatabasePoolPortlet extends BasePortlet {
                 session.setAttribute(CONFIG_SESSION_KEY+"-"+results.displayName, results, PortletSession.APPLICATION_SCOPE);
             }
             return results;
-        } else if(displayName != null && !displayName.equals("") && adapterObjectName != null && !adapterObjectName.equals("")) {
+        } else if(displayName != null && !displayName.equals("") && adapterAbstractName != null && !adapterAbstractName.equals("")) {
             ResourceAdapterParams results = (ResourceAdapterParams) session.getAttribute(CONFIG_SESSION_KEY+"-"+displayName, PortletSession.APPLICATION_SCOPE);
             if(results == null) {
-                results = loadConfigPropertiesByObjectName(request, adapterObjectName);
+                results = loadConfigPropertiesByAbstractName(request, adapterAbstractName);
                 session.setAttribute(CONFIG_SESSION_KEY+"-"+displayName, results, PortletSession.APPLICATION_SCOPE);
             }
             return results;
@@ -360,9 +359,9 @@ public class DatabasePoolPortlet extends BasePortlet {
             actionRequest.getPortletSession(true).setAttribute("deploymentPlan", plan);
             actionResponse.setRenderParameter(MODE_KEY, SHOW_PLAN_MODE);
         } else if(mode.equals(EDIT_EXISTING_MODE)) {
-            final String name = actionRequest.getParameter("adapterObjectName");
-            loadConnectionFactory(actionRequest, name, data.getObjectName(), data);
-            actionResponse.setRenderParameter("adapterObjectName", name);
+            final String name = actionRequest.getParameter("adapterAbstractName");
+            loadConnectionFactory(actionRequest, name, data.getAbstractName(), data);
+            actionResponse.setRenderParameter("adapterAbstractName", name);
             actionResponse.setRenderParameter(MODE_KEY, EDIT_MODE);
         } else if(mode.equals(SELECT_RDBMS_MODE)) {
             if(data.getAdapterDisplayName() == null) { // Set a default for a new pool
@@ -524,7 +523,7 @@ public class DatabasePoolPortlet extends BasePortlet {
         }
     }
 
-    private ResourceAdapterParams loadConfigPropertiesByObjectName(PortletRequest request, String abstractName) {
+    private ResourceAdapterParams loadConfigPropertiesByAbstractName(PortletRequest request, String abstractName) {
         ResourceAdapterModule module = (ResourceAdapterModule) PortletManager.getManagedBean(request, new AbstractName(URI.create(abstractName)));
         String dd = module.getDeploymentDescriptor();
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -583,18 +582,20 @@ public class DatabasePoolPortlet extends BasePortlet {
     }
 
     private void loadConnectionFactory(ActionRequest actionRequest, String adapterName, String factoryName, PoolData data) {
-        ResourceAdapterModule adapter = (ResourceAdapterModule) PortletManager.getManagedBean(actionRequest, new AbstractName(URI.create(adapterName)));
-        JCAManagedConnectionFactory factory = (JCAManagedConnectionFactory) PortletManager.getManagedBean(actionRequest, new AbstractName(URI.create(factoryName)));
+    	AbstractName abstractAdapterName = new AbstractName(URI.create(adapterName));
+    	AbstractName abstractFactoryName = new AbstractName(URI.create(factoryName));
+    	
+        ResourceAdapterModule adapter = (ResourceAdapterModule) PortletManager.getManagedBean(actionRequest,abstractAdapterName);  
+        JCAManagedConnectionFactory factory = (JCAManagedConnectionFactory) PortletManager.getManagedBean(actionRequest, abstractFactoryName);
         data.adapterDisplayName = adapter.getDisplayName();
         data.adapterDescription = adapter.getDescription();
         try {
-            ObjectName oname = ObjectName.getInstance(factoryName);
-            data.name = oname.getKeyProperty("name");
+        	data.name = (String)abstractFactoryName.getName().get("name");
             if(data.isGeneric()) {
-                data.url = (String) factory.getConfigProperty("connectionURL");
-                data.driverClass = (String) factory.getConfigProperty("driver");
-                data.user = (String) factory.getConfigProperty("userName");
-                data.password = (String) factory.getConfigProperty("password");
+                data.url = (String) factory.getConfigProperty("ConnectionURL");
+                data.driverClass = (String) factory.getConfigProperty("Driver");
+                data.user = (String) factory.getConfigProperty("UserName");
+                data.password = (String) factory.getConfigProperty("Password");
             } else {
                 ResourceAdapterParams params = getRARConfiguration(actionRequest, data.getRarPath(), data.getAdapterDisplayName(), adapterName);
                 for(int i=0; i<params.getConfigParams().length; i++) {
@@ -686,15 +687,13 @@ public class DatabasePoolPortlet extends BasePortlet {
         List list = new ArrayList();
         for (int i = 0; i < modules.length; i++) {
             ResourceAdapterModule module = modules[i];
+            AbstractName moduleName = PortletManager.getManagementHelper(renderRequest).getNameFor(module);
+            
             JCAManagedConnectionFactory[] databases = PortletManager.getOutboundFactoriesForRA(renderRequest, module, "javax.sql.DataSource");
             for (int j = 0; j < databases.length; j++) {
                 JCAManagedConnectionFactory db = databases[j];
-                try {
-                    ObjectName name = ObjectName.getInstance(db.getObjectName());
-                    list.add(new ConnectionPool(ObjectName.getInstance(module.getObjectName()), db.getObjectName(), name.getKeyProperty(NameFactory.J2EE_NAME), ((GeronimoManagedBean)db).getState()));
-                } catch (MalformedObjectNameException e) {
-                    e.printStackTrace();
-                }
+              	AbstractName dbName =  PortletManager.getManagementHelper(renderRequest).getNameFor(db);
+                list.add(new ConnectionPool(moduleName, dbName, (String)dbName.getName().get(NameFactory.J2EE_NAME), ((GeronimoManagedBean)db).getState()));
             }
         }
         Collections.sort(list);
@@ -706,7 +705,7 @@ public class DatabasePoolPortlet extends BasePortlet {
             loadDriverJARList(renderRequest);
         }
         if(!data.isGeneric()) {
-            ResourceAdapterParams params = getRARConfiguration(renderRequest, data.getRarPath(), data.getAdapterDisplayName(), renderRequest.getParameter("adapterObjectName"));
+            ResourceAdapterParams params = getRARConfiguration(renderRequest, data.getRarPath(), data.getAdapterDisplayName(), renderRequest.getParameter("adapterAbstractName"));
             data.adapterDisplayName = params.getDisplayName();
             data.adapterDescription = params.getDescription();
             Map map = new HashMap();
@@ -852,32 +851,30 @@ public class DatabasePoolPortlet extends BasePortlet {
                 final DDBeanRoot ddBeanRoot = deployable.getDDBeanRoot();
                 Connector15DCBRoot root = (Connector15DCBRoot) config.getDConfigBeanRoot(ddBeanRoot);
                 ConnectorDCB connector = (ConnectorDCB) root.getDConfigBean(ddBeanRoot.getChildBean(root.getXpaths()[0])[0]);
-//TODO configid FIXME!!
-//                connector.setConfigID("console-db-pool-"+data.getName());
-                // Use a parentId of null to pick up the default
-//                if(data.jar1 != null && !data.jar1.equals("")) {
-//                    Artifact dep = new Artifact();
-//                    connector.setDependency(new Artifact[]{dep});
-//                    dep.setURI(data.jar1);
-//                }
-//                if(data.jar2 != null && !data.jar2.equals("")) {
-//                    Artifact dep = new Artifact();
-//                    Artifact[] old = connector.getDependency();
-//                    Artifact[] longer = new Artifact[old.length+1];
-//                    System.arraycopy(old, 0, longer, 0, old.length);
-//                    longer[old.length] = dep;
-//                    connector.setDependency(longer);
-//                    dep.setURI(data.jar2);
-//                }
-//                if(data.jar3 != null && !data.jar3.equals("")) {
-//                    Artifact dep = new Artifact();
-//                    Artifact[] old = connector.getDependency();
-//                    Artifact[] longer = new Artifact[old.length+1];
-//                    System.arraycopy(old, 0, longer, 0, old.length);
-//                    longer[old.length] = dep;
-//                    connector.setDependency(longer);
-//                    dep.setURI(data.jar3);
-//                }
+                
+                EnvironmentData environment = new EnvironmentData();
+                connector.setEnvironment(environment);
+                org.apache.geronimo.deployment.service.jsr88.Artifact configId = new org.apache.geronimo.deployment.service.jsr88.Artifact();
+                environment.setConfigId(configId);
+                configId.setGroupId("console.dbpool");
+                configId.setArtifactId(data.getName());
+                configId.setVersion("1.0");
+                configId.setType("rar");
+
+                String[] jars = data.getJars();
+                org.apache.geronimo.deployment.service.jsr88.Artifact[] dependencies = new org.apache.geronimo.deployment.service.jsr88.Artifact[jars.length];
+                for (int i=0; i<dependencies.length; i++) {
+                	dependencies[i] = new org.apache.geronimo.deployment.service.jsr88.Artifact();
+                }
+                environment.setDependencies(dependencies);
+                for (int i=0; i<dependencies.length; i++) {
+                        Artifact tmp = Artifact.create(jars[i]);
+                        dependencies[i].setGroupId(tmp.getGroupId());
+                        dependencies[i].setArtifactId(tmp.getArtifactId());
+                        dependencies[i].setVersion(tmp.getVersion().toString());
+                        dependencies[i].setType(tmp.getType());
+                }
+               
                 ResourceAdapter adapter = connector.getResourceAdapter()[0];
                 ConnectionDefinition definition = new ConnectionDefinition();
                 adapter.setConnectionDefinition(new ConnectionDefinition[]{definition});
@@ -927,6 +924,7 @@ public class DatabasePoolPortlet extends BasePortlet {
                 if(data.idleTimeout != null && !data.idleTimeout.equals("")) {
                     pool.setIdleTimeoutMinutes(new Integer(data.idleTimeout));
                 }
+                
                 if(planOnly) {
                     ByteArrayOutputStream out = new ByteArrayOutputStream();
                     config.save(out);
@@ -971,9 +969,9 @@ public class DatabasePoolPortlet extends BasePortlet {
             try {
                 JCAManagedConnectionFactory factory = (JCAManagedConnectionFactory) PortletManager.getManagedBean(request, new AbstractName(URI.create(data.getAbstractName())));
                 if(data.isGeneric()) {
-                    factory.setConfigProperty("connectionURL", data.getUrl());
-                    factory.setConfigProperty("userName", data.getUser());
-                    factory.setConfigProperty("password", data.getPassword());
+                    factory.setConfigProperty("ConnectionURL", data.getUrl());
+                    factory.setConfigProperty("UserName", data.getUser());
+                    factory.setConfigProperty("Password", data.getPassword());
                 } else {
                     for (Iterator it = data.getProperties().entrySet().iterator(); it.hasNext();) {
                         Map.Entry entry = (Map.Entry) it.next();
@@ -1144,7 +1142,7 @@ public class DatabasePoolPortlet extends BasePortlet {
         private String adapterDescription;
         private String rarPath;
         private String importSource;
-        private Map objectNameMap; // generated as needed, don't need to read/write it
+        private Map abstractNameMap; // generated as needed, don't need to read/write it
 
         public void load(PortletRequest request) {
             name = request.getParameter("name");
@@ -1179,7 +1177,7 @@ public class DatabasePoolPortlet extends BasePortlet {
             if(blockingTimeout != null && blockingTimeout.equals("")) blockingTimeout = null;
             idleTimeout = request.getParameter("idleTimeout");
             if(idleTimeout != null && idleTimeout.equals("")) idleTimeout = null;
-            abstractName = request.getParameter("objectName");
+            abstractName = request.getParameter("abstractName");
             if(abstractName != null && abstractName.equals("")) abstractName = null;
             adapterDisplayName = request.getParameter("adapterDisplayName");
             if(adapterDisplayName != null && adapterDisplayName.equals("")) adapterDisplayName = null;
@@ -1251,7 +1249,7 @@ public class DatabasePoolPortlet extends BasePortlet {
             if(maxSize != null) response.setRenderParameter("maxSize", maxSize);
             if(blockingTimeout != null) response.setRenderParameter("blockingTimeout", blockingTimeout);
             if(idleTimeout != null) response.setRenderParameter("idleTimeout", idleTimeout);
-            if(abstractName != null) response.setRenderParameter("objectName", abstractName);
+            if(abstractName != null) response.setRenderParameter("abstractName", abstractName);
             if(adapterDisplayName != null) response.setRenderParameter("adapterDisplayName", adapterDisplayName);
             if(adapterDescription != null) response.setRenderParameter("adapterDescription", adapterDescription);
             if(importSource != null) response.setRenderParameter("importSource", importSource);
@@ -1313,6 +1311,17 @@ public class DatabasePoolPortlet extends BasePortlet {
         public String getJar3() {
             return jar3;
         }
+        
+        public String[] getJars() {
+        	ArrayList jars = new ArrayList();
+        	if (jar1!=null && !jar1.equals(""))
+        		jars.add(jar1);
+        	if (jar2!=null && !jar2.equals(""))
+        		jars.add(jar2);
+        	if (jar3!=null && !jar3.equals(""))
+        		jars.add(jar3);
+        	return (String[])jars.toArray(new String[jars.size()]);
+        }
 
         public String getMinSize() {
             return minSize;
@@ -1336,13 +1345,6 @@ public class DatabasePoolPortlet extends BasePortlet {
 
         public String getUrlPrototype() {
             return urlPrototype;
-        }
-
-        /**
-         * @deprecated Use getAbstractName instead
-         */
-        public String getObjectName() {
-            return abstractName;
         }
 
         public String getAbstractName() {
@@ -1370,45 +1372,45 @@ public class DatabasePoolPortlet extends BasePortlet {
             return importSource;
         }
 
-        public Map getObjectNameMap() {
+        public Map getAbstractNameMap() {
             if(abstractName == null) return Collections.EMPTY_MAP;
-            if(objectNameMap != null) return objectNameMap;
-            try {
-                ObjectName name = new ObjectName(abstractName);
-                objectNameMap = new HashMap(name.getKeyPropertyList());
-                objectNameMap.put("domain", name.getDomain());
-                return objectNameMap;
-            } catch (MalformedObjectNameException e) {
-                return Collections.EMPTY_MAP;
-            }
+            if(abstractNameMap != null) return abstractNameMap;
+            AbstractName name = new AbstractName(URI.create(abstractName));
+            abstractNameMap = new HashMap(name.getName());
+            abstractNameMap.put("domain", name.getObjectName().getDomain());
+            abstractNameMap.put("groupId", name.getArtifact().getGroupId());
+            abstractNameMap.put("artifactId", name.getArtifact().getArtifactId());
+            abstractNameMap.put("type", name.getArtifact().getType());
+            abstractNameMap.put("version", name.getArtifact().getVersion().toString());
+            return abstractNameMap;
         }
     }
 
     public static class ConnectionPool implements Serializable, Comparable {
-        private final String adapterObjectName;
-        private final String factoryObjectName;
+        private final String adapterAbstractName;
+        private final String factoryAbstractName;
         private final String name;
         private final String parentName;
         private final int state;
 
-        public ConnectionPool(ObjectName adapterObjectName, String factoryObjectName, String name, int state) {
-            this.adapterObjectName = adapterObjectName.getCanonicalName();
-            String parent = adapterObjectName.getKeyProperty(NameFactory.J2EE_APPLICATION);
+        public ConnectionPool(AbstractName adapterAbstractName, AbstractName factoryAbstractName, String name, int state) {
+            this.adapterAbstractName = adapterAbstractName.toURI().toString();
+            String parent = (String)adapterAbstractName.getName().get(NameFactory.J2EE_APPLICATION);
             if(parent != null && parent.equals("null")) {
                 parent = null;
             }
             parentName = parent;
-            this.factoryObjectName = factoryObjectName;
+            this.factoryAbstractName = factoryAbstractName.toURI().toString();
             this.name = name;
             this.state = state;
         }
 
-        public String getAdapterObjectName() {
-            return adapterObjectName;
+        public String getAdapterAbstractName() {
+            return adapterAbstractName;
         }
 
-        public String getFactoryObjectName() {
-            return factoryObjectName;
+        public String getFactoryAbstractName() {
+            return factoryAbstractName;
         }
 
         public String getName() {

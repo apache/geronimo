@@ -64,7 +64,7 @@ function <portlet:namespace/>validate() {
   <c:forEach var="prop" items="${pool.urlProperties}">
     <input type="hidden" name="${prop.key}" value="${prop.value}" />
   </c:forEach>
-    <input type="hidden" name="objectName" value="${pool.objectName}" />
+    <input type="hidden" name="abstractName" value="${pool.abstractName}" />
     <input type="hidden" name="adapterDisplayName" value="${pool.adapterDisplayName}" />
     <input type="hidden" name="adapterDescription" value="${pool.adapterDescription}" />
     <input type="hidden" name="rarPath" value="${pool.rarPath}" />
@@ -75,7 +75,7 @@ function <portlet:namespace/>validate() {
         <th style="min-width: 140px"><div align="right">Pool Name:</div></th>
         <td>
       <c:choose> <%-- Can't change the pool name after deployment because it's wired into all the ObjectNames --%>
-        <c:when test="${empty pool.objectName}">
+        <c:when test="${empty pool.abstractName}">
           <input name="name" type="text" size="30" value="${pool.name}">
         </c:when>
         <c:otherwise>
@@ -109,7 +109,7 @@ function <portlet:namespace/>validate() {
         <th><div align="right">JDBC Driver Class:</div></th>
         <td>
       <c:choose>
-        <c:when test="${empty pool.objectName}">
+        <c:when test="${empty pool.abstractName}">
           <input name="driverClass" type="text" size="30" value="${pool.driverClass}">
         </c:when>
         <c:otherwise>
@@ -128,7 +128,7 @@ function <portlet:namespace/>validate() {
       </tr>
     <!-- ENTRY FIELD: Driver JAR -->
   <c:choose> <%-- Can't set JAR after deployment because we don't know how to dig through dependencies yet --%>
-    <c:when test="${empty pool.objectName}">
+    <c:when test="${empty pool.abstractName}">
       <tr>
         <th><div align="right">Driver JAR:</div></th>
         <td>
@@ -254,7 +254,7 @@ function <portlet:namespace/>validate() {
 <c:choose> <%-- Don't know how to test a non-generic pool, so you can only save it --%>
   <c:when test="${pool.generic}">
     <c:choose> <%-- Can't test after deployment because we don't know what JAR to put on the ClassPath, can't show plan becasue we can't update a plan --%>
-      <c:when test="${empty pool.objectName}">
+      <c:when test="${empty pool.abstractName}">
           <input type="button" value="Test Connection" onclick="if (<portlet:namespace/>validate()){document.<portlet:namespace/>DatabaseForm.test.value='true';document.<portlet:namespace/>DatabaseForm.submit();}" />
           <input type="button" value="Skip Test and Deploy" onclick="if (<portlet:namespace/>validate()){document.<portlet:namespace/>DatabaseForm.test.value='false';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
           <input type="button" value="Skip Test and Show Plan" onclick="if (<portlet:namespace/>validate()){document.<portlet:namespace/>DatabaseForm.mode.value='plan';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
@@ -266,7 +266,7 @@ function <portlet:namespace/>validate() {
   </c:when>
   <c:otherwise> <%-- Not a generic JDBC pool --%>
     <c:choose>
-      <c:when test="${empty pool.objectName}"> <%-- If it's new we can preview the plan or save/deploy --%>
+      <c:when test="${empty pool.abstractName}"> <%-- If it's new we can preview the plan or save/deploy --%>
           <input type="button" value="Deploy" onclick="if (<portlet:namespace/>validate()){document.<portlet:namespace/>DatabaseForm.mode.value='save';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
           <input type="button" value="Show Plan" onclick="if (<portlet:namespace/>validate()){document.<portlet:namespace/>DatabaseForm.mode.value='plan';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
       </c:when>
