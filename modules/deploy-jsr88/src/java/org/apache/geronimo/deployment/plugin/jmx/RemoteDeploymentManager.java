@@ -25,6 +25,7 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.Map;
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
@@ -43,7 +44,9 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.system.configuration.ConfigurationList;
 import org.apache.geronimo.system.configuration.DownloadPoller;
 import org.apache.geronimo.system.configuration.DownloadResults;
+import org.apache.geronimo.system.configuration.ConfigurationArchiveData;
 import org.apache.geronimo.system.jmx.KernelDelegate;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
  * Connects to a Kernel in a remote VM (may or many not be on the same machine).
@@ -225,5 +228,46 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
             }
         }
         return null;
+    }
+
+    public Map getInstalledPlugins() {
+        Set set = kernel.listGBeans(new AbstractNameQuery("org.apache.geronimo.system.configuration.ConfigurationInstaller"));
+        for (Iterator it = set.iterator(); it.hasNext();) {
+            AbstractName name = (AbstractName) it.next();
+            try {
+                return (Map)kernel.invoke(name, "getInstalledPlugins", new Object[0], new String[0]);
+            } catch (Exception e) {
+                System.err.println("Unable to get installed plugins: "+e.getMessage());
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    public ConfigurationArchiveData getPluginMetadata(Artifact configId) {
+        Set set = kernel.listGBeans(new AbstractNameQuery("org.apache.geronimo.system.configuration.ConfigurationInstaller"));
+        for (Iterator it = set.iterator(); it.hasNext();) {
+            AbstractName name = (AbstractName) it.next();
+            try {
+                return (ConfigurationArchiveData)kernel.invoke(name, "getPluginMetadata", new Object[]{configId}, new String[]{Artifact.class.getName()});
+            } catch (Exception e) {
+                System.err.println("Unable to get plugin metadata: "+e.getMessage());
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    public void updatePluginMetadata(ConfigurationArchiveData metadata) {
+        Set set = kernel.listGBeans(new AbstractNameQuery("org.apache.geronimo.system.configuration.ConfigurationInstaller"));
+        for (Iterator it = set.iterator(); it.hasNext();) {
+            AbstractName name = (AbstractName) it.next();
+            try {
+                kernel.invoke(name, "updatePluginMetadata", new Object[]{metadata}, new String[]{ConfigurationArchiveData.class.getName()});
+            } catch (Exception e) {
+                System.err.println("Unable to check on configuration install: "+e.getMessage());
+                e.printStackTrace();
+            }
+        }
     }
 }
