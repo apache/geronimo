@@ -21,6 +21,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.FileWriteMonitor;
 import org.apache.geronimo.kernel.repository.WriteableRepository;
+import org.apache.geronimo.system.configuration.DownloadResults;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -30,6 +31,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -116,7 +118,7 @@ public class DriverDownloader {
     /**
      * Downloads a driver and loads it into the local repository.
      */
-    public void loadDriver(WriteableRepository repo, DriverInfo driver, FileWriteMonitor monitor) throws IOException {
+    public void loadDriver(WriteableRepository repo, DriverInfo driver, DownloadResults downloadResults, FileWriteMonitor monitor) throws IOException {
         int urlIndex = 0;
         if (driver.urls.length > 1) {
             if (random == null) {
@@ -132,7 +134,9 @@ public class DriverDownloader {
             int size;
             int total = 0;
             int threshold = 10240;
-            InputStream net = url.openStream();
+            URLConnection uc = url.openConnection();
+            downloadResults.addDownloadBytes(uc.getContentLength());
+            InputStream net = uc.getInputStream();
             JarFile jar = null;
             File download = null;
             try {

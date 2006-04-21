@@ -8,5 +8,9 @@
     <create creator="new" javascript="Jsr77Stats">
       <param name="class" value="org.apache.geronimo.console.jsr77.Jsr77Lookup"/>
     </create>
+    <convert converter="bean" match="org.apache.geronimo.console.ajax.ProgressInfo"/>
+    <create creator="new" javascript="ProgressMonitor">
+      <param name="class" value="org.apache.geronimo.console.ajax.ProgressMonitor"/>
+    </create>
   </allow>
 </dwr>

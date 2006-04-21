@@ -24,15 +24,19 @@ import java.util.List;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
+import javax.portlet.PortletSession;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.security.auth.login.FailedLoginException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.MultiPageModel;
+import org.apache.geronimo.console.ajax.ProgressInfo;
+import org.apache.geronimo.console.ajax.ProgressMonitor;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
+import org.apache.geronimo.system.configuration.ConfigurationInstaller;
 import org.apache.geronimo.system.configuration.ConfigurationMetadata;
 import org.apache.geronimo.system.configuration.DownloadResults;
 import org.apache.geronimo.system.configuration.ConfigurationList;
@@ -117,8 +121,23 @@ public class DownloadCARHandler extends BaseImportExportHandler {
                 throw new PortletException("No configuration found for '"+configId+"'");
             }
 
-            // todo: switch to asynchronous AJAX-based download monitor
-            DownloadResults results = PortletManager.getCurrentServer(request).getConfigurationInstaller().install(installList, user, pass);
+            ConfigurationInstaller configInstaller = PortletManager.getCurrentServer(request).getConfigurationInstaller(); 
+            Object downloadKey = configInstaller.startInstall(installList, user, pass);
+            ProgressInfo progressInfo = new ProgressInfo();
+            request.getPortletSession().setAttribute(ProgressInfo.PROGRESS_INFO_KEY, progressInfo, PortletSession.APPLICATION_SCOPE);
+            DownloadResults results;
+            while (true) {
+            	results = configInstaller.checkOnInstall(downloadKey);
+            	progressInfo.setMainMessage(results.getCurrentMessage());
+            	progressInfo.setProgressPercent(results.getCurrentFilePercent());
+            	if (results.isFinished() || results.isFailed()) {
+                	break;
+            	} else {
+            		try { Thread.sleep(1000); } catch (InterruptedException e) {
+                        log.error("Download monitor thread interrupted", e);
+					}
+            	}
+            }
             if(results.isFailed()) {
                 throw new PortletException("Unable to install configuration", results.getFailure());
             }

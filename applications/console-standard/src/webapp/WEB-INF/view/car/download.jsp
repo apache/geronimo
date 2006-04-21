@@ -14,7 +14,7 @@
 </c:forEach>
 </ul>
 
-<form name="<portlet:namespace/>PluginForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>PluginForm" action="<portlet:actionURL/>" onsubmit="startProgress()">
     <input type="hidden" name="file" value="${file}" />
     <input type="hidden" name="configId" value="${configId}" />
     <input type="hidden" name="mode" value="download-after" />
@@ -24,5 +24,7 @@
     <input type="hidden" name="proceed" value="true" />
     <input type="submit" value="Install Plugin" />
 </form>
+
+<jsp:include flush="true" page="../ajax/progressbar.jsp"/>
 
 <p><a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="index-before" /></portlet:actionURL>">Cancel</a></p>

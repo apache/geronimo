@@ -31,6 +31,7 @@ import org.apache.geronimo.connector.deployment.jsr88.ResourceAdapter;
 import org.apache.geronimo.connector.deployment.jsr88.SinglePool;
 import org.apache.geronimo.connector.outbound.PoolingAttributes;
 import org.apache.geronimo.console.BasePortlet;
+import org.apache.geronimo.console.ajax.ProgressInfo;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.converter.DatabaseConversionStatus;
 import org.apache.geronimo.converter.JDBCPool;
@@ -47,6 +48,7 @@ import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.WriteableRepository;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
+import org.apache.geronimo.system.configuration.DownloadResults;
 import org.apache.geronimo.gbean.AbstractName;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -277,7 +279,13 @@ public class DatabasePoolPortlet extends BasePortlet {
                 DriverDownloader downloader = new DriverDownloader();
                 WriteableRepository repo = PortletManager.getWritableRepositories(actionRequest)[0];
                 try {
-                    downloader.loadDriver(repo, found, new FileWriteMonitor() {
+                    final PortletSession session = actionRequest.getPortletSession();
+                    ProgressInfo progressInfo = new ProgressInfo();
+                    progressInfo.setMainMessage("Downloading " + found.getName());
+                    session.setAttribute(ProgressInfo.PROGRESS_INFO_KEY, progressInfo, PortletSession.APPLICATION_SCOPE);
+                    final DownloadResults downloadResults = new DownloadResults(); 
+                    downloader.loadDriver(repo, found, downloadResults, new FileWriteMonitor() {
+                    	
                         public void writeStarted(String fileDescription) {
                             System.out.println("Downloading "+fileDescription);
                         }
@@ -285,6 +293,16 @@ public class DatabasePoolPortlet extends BasePortlet {
                         public void writeProgress(int bytes) {
                             System.out.print("\rDownload progress: "+(bytes/1024)+"kB");
                             System.out.flush();
+                            ProgressInfo progressInfo = (ProgressInfo)session.getAttribute(ProgressInfo.PROGRESS_INFO_KEY);
+                            int totalBytes = (int)downloadResults.getTotalDownloadBytes();
+                            int kbDownloaded = (int)Math.floor(bytes/1024);
+                            if (totalBytes > 0) {
+                            	int percent = (bytes*100)/totalBytes;
+                            	progressInfo.setProgressPercent(percent);
+                                progressInfo.setSubMessage(kbDownloaded + " / " + totalBytes/1024 + " Kb downloaded");
+                            } else {
+                                progressInfo.setSubMessage(kbDownloaded + " Kb downloaded");
+                            }
                         }
 
                         public void writeComplete(int bytes) {

@@ -13,7 +13,7 @@ download configuration file.  Sorry for the inconvenience, you'll have to try ag
 install the driver by hand (copy it to a directory under geronimo/repository/)</i></p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
-<form name="<portlet:namespace/>DatabaseForm" action="<portlet:actionURL/>" method="POST">
+<form name="<portlet:namespace/>DatabaseForm" action="<portlet:actionURL/>" method="POST" onSubmit="startProgress()">
     <input type="hidden" name="mode" value="process-download" />
     <input type="hidden" name="name" value="${pool.name}" />
     <input type="hidden" name="dbtype" value="${pool.dbtype}" />
@@ -63,6 +63,9 @@ install the driver by hand (copy it to a directory under geronimo/repository/)</
       </tr>
     </table>
 </form>
+
+<jsp:include flush="true" page="../ajax/progressbar.jsp"/>
+
 <!--   END OF FORM TO COLLECT DATA FOR THIS PAGE   -->
 
 <%--
