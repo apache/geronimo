@@ -62,10 +62,6 @@ public class KernelGBean implements Kernel{
         kernel.loadGBean(gbeanData, classLoader);
     }
 
-    public boolean isLoaded(ObjectName name) {
-        return kernel.isLoaded(name);
-    }
-
     public boolean isLoaded(AbstractName name) {
         return kernel.isLoaded(name);
     }

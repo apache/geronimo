@@ -48,7 +48,7 @@ import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
 import org.apache.geronimo.kernel.management.NotificationType;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 383682 $ $Date$
  */
 public final class MBeanGBeanBridge implements MBeanRegistration, DynamicMBean, NotificationEmitter {
     private static final Log log = LogFactory.getLog(MBeanGBeanBridge.class);
@@ -61,7 +61,8 @@ public final class MBeanGBeanBridge implements MBeanRegistration, DynamicMBean, 
     /**
      * The unique name of this service.
      */
-    private final AbstractName objectName;
+    private final AbstractName abstractName;
+    private final ObjectName objectName;
     private final AbstractNameQuery pattern;
 
     /**
@@ -75,16 +76,17 @@ public final class MBeanGBeanBridge implements MBeanRegistration, DynamicMBean, 
     private final NotificationBroadcasterSupport notificationBroadcaster = new NotificationBroadcasterSupport();
     private final LifecycleBridge lifecycleBridge;
 
-    public MBeanGBeanBridge(Kernel kernel, AbstractName abstractName, MBeanInfo mbeanInfo) {
+    public MBeanGBeanBridge(Kernel kernel, AbstractName abstractName, ObjectName objectName, MBeanInfo mbeanInfo) {
         this.kernel = kernel;
-        this.objectName = abstractName;
+        this.abstractName = abstractName;
         this.pattern = new AbstractNameQuery(abstractName);
         this.mbeanInfo = mbeanInfo;
-        lifecycleBridge = new LifecycleBridge(abstractName, notificationBroadcaster);
+        this.objectName = objectName;
+        lifecycleBridge = new LifecycleBridge(abstractName, objectName, notificationBroadcaster);
     }
 
     public ObjectName getObjectName() {
-        return objectName.getObjectName();
+        return objectName;
     }
 
     public ObjectName preRegister(MBeanServer mBeanServer, ObjectName objectName) throws Exception {
@@ -95,13 +97,13 @@ public final class MBeanGBeanBridge implements MBeanRegistration, DynamicMBean, 
         if (Boolean.TRUE.equals(registrationDone)) {
             // fire the loaded event from the gbeanMBean.. it was already fired from the GBeanInstance when it was created
             kernel.getLifecycleMonitor().addLifecycleListener(lifecycleBridge, pattern);
-            lifecycleBridge.loaded(objectName);
+            lifecycleBridge.loaded(abstractName);
         }
     }
 
     public void preDeregister() {
         kernel.getLifecycleMonitor().removeLifecycleListener(lifecycleBridge);
-        lifecycleBridge.unloaded(objectName);
+        lifecycleBridge.unloaded(abstractName);
     }
 
     public void postDeregister() {
@@ -113,7 +115,7 @@ public final class MBeanGBeanBridge implements MBeanRegistration, DynamicMBean, 
 
     public Object getAttribute(String attributeName) throws ReflectionException, AttributeNotFoundException {
         try {
-            return kernel.getAttribute(objectName, attributeName);
+            return kernel.getAttribute(abstractName, attributeName);
         } catch (NoSuchAttributeException e) {
             throw new AttributeNotFoundException(attributeName);
         } catch (Exception e) {
@@ -125,7 +127,7 @@ public final class MBeanGBeanBridge implements MBeanRegistration, DynamicMBean, 
         String attributeName = attribute.getName();
         Object attributeValue = attribute.getValue();
         try {
-            kernel.setAttribute(objectName, attributeName, attributeValue);
+            kernel.setAttribute(abstractName, attributeName, attributeValue);
         } catch (NoSuchAttributeException e) {
             throw new AttributeNotFoundException(attributeName);
         } catch (Exception e) {
@@ -163,7 +165,7 @@ public final class MBeanGBeanBridge implements MBeanRegistration, DynamicMBean, 
 
     public Object invoke(String operationName, Object[] arguments, String[] types) throws ReflectionException {
         try {
-            return kernel.invoke(objectName, operationName, arguments, types);
+            return kernel.invoke(abstractName, operationName, arguments, types);
         } catch (NoSuchOperationException e) {
             throw new ReflectionException(new NoSuchMethodException(new GOperationSignature(operationName, types).toString()));
         } catch (Exception e) {
@@ -190,7 +192,7 @@ public final class MBeanGBeanBridge implements MBeanRegistration, DynamicMBean, 
     }
 
     public String toString() {
-        return objectName.toString();
+        return abstractName.toString();
     }
 
     private static class LifecycleBridge implements LifecycleListener {
@@ -200,59 +202,65 @@ public final class MBeanGBeanBridge implements MBeanRegistration, DynamicMBean, 
         private long sequence;
 
         /**
-         * Name of the MBeanGBean
+         * AbstractName of this MBean
          */
-        private final AbstractName mbeanGBeanName;
+        private final AbstractName mbeanAbstractName;
+
+        /**
+         * ObjectName of this MBean
+         */
+        private final ObjectName objectName;
 
         /**
          * The notification broadcaster to use
          */
         private final NotificationBroadcasterSupport notificationBroadcaster;
 
-        public LifecycleBridge(AbstractName mbeanGBeanName, NotificationBroadcasterSupport notificationBroadcaster) {
-            this.mbeanGBeanName = mbeanGBeanName;
+        public LifecycleBridge(AbstractName mbeanAbstractName, ObjectName objectName, NotificationBroadcasterSupport notificationBroadcaster) {
+            this.mbeanAbstractName = mbeanAbstractName;
+            this.objectName = objectName;
             this.notificationBroadcaster = notificationBroadcaster;
         }
 
         public void loaded(AbstractName abstractName) {
-            if (mbeanGBeanName.equals(abstractName)) {
-                notificationBroadcaster.sendNotification(new Notification(NotificationType.OBJECT_CREATED, abstractName.getObjectName(), nextSequence()));
+            if (mbeanAbstractName.equals(abstractName)) {
+                notificationBroadcaster.sendNotification(new Notification(NotificationType.OBJECT_CREATED, objectName, nextSequence()));
             }
         }
 
         public void starting(AbstractName abstractName) {
-            if (mbeanGBeanName.equals(abstractName)) {
-                notificationBroadcaster.sendNotification(new Notification(NotificationType.STATE_STARTING, abstractName.getObjectName(), nextSequence()));
+            if (mbeanAbstractName.equals(abstractName)) {
+                notificationBroadcaster.sendNotification(new Notification(NotificationType.STATE_STARTING, objectName, nextSequence()));
             }
         }
 
         public void running(AbstractName abstractName) {
-            if (mbeanGBeanName.equals(abstractName)) {
-                notificationBroadcaster.sendNotification(new Notification(NotificationType.STATE_RUNNING, abstractName.getObjectName(), nextSequence()));
+            if (mbeanAbstractName.equals(abstractName)) {
+                notificationBroadcaster.sendNotification(new Notification(NotificationType.STATE_RUNNING, objectName, nextSequence()));
             }
         }
 
         public void stopping(AbstractName abstractName) {
-            if (mbeanGBeanName.equals(abstractName)) {
-                notificationBroadcaster.sendNotification(new Notification(NotificationType.STATE_STOPPING, abstractName.getObjectName(), nextSequence()));
+            if (mbeanAbstractName.equals(abstractName)) {
+                notificationBroadcaster.sendNotification(new Notification(NotificationType.STATE_STOPPING, objectName, nextSequence()));
             }
         }
 
         public void stopped(AbstractName abstractName) {
-            if (mbeanGBeanName.equals(abstractName)) {
-                notificationBroadcaster.sendNotification(new Notification(NotificationType.STATE_STOPPED, abstractName.getObjectName(), nextSequence()));
+            if (mbeanAbstractName.equals(abstractName)) {
+                notificationBroadcaster.sendNotification(new Notification(NotificationType.STATE_STOPPED, objectName, nextSequence()));
             }
         }
 
         public void failed(AbstractName abstractName) {
-            if (mbeanGBeanName.equals(abstractName)) {
-                notificationBroadcaster.sendNotification(new Notification(NotificationType.STATE_FAILED, abstractName.getObjectName(), nextSequence()));
+            if (mbeanAbstractName.equals(abstractName)) {
+                notificationBroadcaster.sendNotification(new Notification(NotificationType.STATE_FAILED, objectName, nextSequence()));
             }
         }
 
         public void unloaded(AbstractName abstractName) {
-            if (mbeanGBeanName.equals(abstractName)) {
-                notificationBroadcaster.sendNotification(new Notification(NotificationType.OBJECT_DELETED, abstractName.getObjectName(), nextSequence()));
+            if (mbeanAbstractName.equals(abstractName)) {
+                notificationBroadcaster.sendNotification(new Notification(NotificationType.OBJECT_DELETED, objectName, nextSequence()));
             }
         }
 

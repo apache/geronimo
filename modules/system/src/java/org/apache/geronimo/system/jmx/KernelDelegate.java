@@ -605,16 +605,6 @@ public class KernelDelegate implements Kernel {
         return invokeKernel("invoke", new Object[]{shortName, type, methodName, args, types}, new String[]{String.class.getName(), Class.class.getName(), String.class.getName(), Object[].class.getName(), String[].class.getName()});
     }
 
-    public boolean isLoaded(ObjectName name) {
-        try {
-            return ((Boolean) invokeKernel("isLoaded", new Object[]{name}, new String[]{ObjectName.class.getName()})).booleanValue();
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new InternalKernelException(e);
-        }
-    }
-
     public boolean isLoaded(AbstractName name) {
         try {
             return ((Boolean) invokeKernel("isLoaded", new Object[]{name}, new String[]{AbstractName.class.getName()})).booleanValue();

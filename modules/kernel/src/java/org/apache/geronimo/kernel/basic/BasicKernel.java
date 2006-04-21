@@ -257,10 +257,6 @@ public class BasicKernel implements Kernel {
         return gbeanInstance.invoke(methodName, args, types);
     }
 
-    public boolean isLoaded(ObjectName name) {
-        return registry.isRegistered(name);
-    }
-
     public boolean isLoaded(AbstractName name) {
         return registry.isRegistered(name);
     }

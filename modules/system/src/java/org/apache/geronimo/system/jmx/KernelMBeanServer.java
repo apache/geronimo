@@ -20,6 +20,9 @@ import java.io.ObjectInputStream;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.HashMap;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import javax.management.Attribute;
 import javax.management.AttributeList;
 import javax.management.AttributeNotFoundException;
@@ -38,30 +41,85 @@ import javax.management.ObjectName;
 import javax.management.OperationsException;
 import javax.management.QueryExp;
 import javax.management.ReflectionException;
+import javax.management.MalformedObjectNameException;
 import javax.management.loading.ClassLoaderRepository;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.NoSuchAttributeException;
 import org.apache.geronimo.kernel.NoSuchOperationException;
 import org.apache.geronimo.kernel.Kernel;
- 
+import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
+
 /**
  * A fake MBeanServer that delegates to a Kernel.
  * @version $Rev$ $Date$
  */
 public class KernelMBeanServer implements MBeanServer {
+    private static final AbstractNameQuery ALL = new AbstractNameQuery(null, Collections.EMPTY_MAP, Collections.EMPTY_SET);
+
+    private final HashMap objetNameToAbstractName = new HashMap();
     private final Kernel kernel;
 
     public KernelMBeanServer(Kernel kernel) {
         this.kernel = kernel;
     }
 
+    public void doStart() {
+        kernel.getLifecycleMonitor().addLifecycleListener(new GBeanRegistrationListener(), ALL);
+
+        Set allNames = kernel.listGBeans(ALL);
+        for (Iterator iterator = allNames.iterator(); iterator.hasNext();) {
+            AbstractName abstractName = (AbstractName) iterator.next();
+            register(abstractName);
+        }
+    }
+
+    public synchronized AbstractName getAbstractNameFor(ObjectName objectName) {
+        return (AbstractName) objetNameToAbstractName.get(objectName);
+    }
+
+    private synchronized void register(AbstractName abstractName) {
+        objetNameToAbstractName.put(abstractName.getObjectName(), abstractName);
+    }
+
+    private synchronized void unregister(AbstractName abstractName) {
+        objetNameToAbstractName.remove(abstractName.getObjectName());
+    }
+
+    public void doFail() {
+        doStop();
+    }
+
+    public synchronized void doStop() {
+        objetNameToAbstractName.clear();
+    }
+
+    private class GBeanRegistrationListener extends LifecycleAdapter {
+        public void loaded(AbstractName abstractName) {
+            register(abstractName);
+        }
+
+        public void unloaded(AbstractName abstractName) {
+            unregister(abstractName);
+        }
+    }
+
+    public AbstractName toAbstractName(ObjectName objectName) throws InstanceNotFoundException{
+        AbstractName abstractName = getAbstractNameFor(objectName);
+        if (abstractName == null) {
+            throw new InstanceNotFoundException(objectName.getCanonicalName());
+        }
+        return abstractName;
+    }
+
     public Object getAttribute(ObjectName name, String attribute) throws MBeanException, AttributeNotFoundException, InstanceNotFoundException, ReflectionException {
+        AbstractName abstractName = toAbstractName(name);
         try {
-            return kernel.getAttribute(name, attribute);
+            return kernel.getAttribute(abstractName, attribute);
         } catch (NoSuchAttributeException e) {
             throw new AttributeNotFoundException(attribute);
         } catch (GBeanNotFoundException e) {
@@ -74,11 +132,12 @@ public class KernelMBeanServer implements MBeanServer {
     }
 
     public AttributeList getAttributes(ObjectName name, String[] attributes) throws InstanceNotFoundException, ReflectionException {
+        AbstractName abstractName = toAbstractName(name);
         AttributeList attributeList = new AttributeList(attributes.length);
         for (int i = 0; i < attributes.length; i++) {
             String attribute = attributes[i];
             try {
-                Object value = kernel.getAttribute(name, attribute);
+                Object value = kernel.getAttribute(abstractName, attribute);
                 attributeList.add(i, new Attribute(attribute, value));
             } catch (NoSuchAttributeException e) {
                 // ignored - caller will simply find no value
@@ -102,9 +161,10 @@ public class KernelMBeanServer implements MBeanServer {
     }
 
     public MBeanInfo getMBeanInfo(ObjectName name) throws InstanceNotFoundException, ReflectionException {
+        AbstractName abstractName = toAbstractName(name);
         GBeanInfo gbeanInfo;
         try {
-            gbeanInfo = kernel.getGBeanInfo(name);
+            gbeanInfo = kernel.getGBeanInfo(abstractName);
         } catch (GBeanNotFoundException e) {
             throw new InstanceNotFoundException(name.toString());
         } catch (InternalKernelException e) {
@@ -114,8 +174,9 @@ public class KernelMBeanServer implements MBeanServer {
     }
 
     public Object invoke(ObjectName name, String operationName, Object[] params, String[] signature) throws InstanceNotFoundException, MBeanException, ReflectionException {
+        AbstractName abstractName = toAbstractName(name);
         try {
-            return kernel.invoke(name, operationName, params, signature);
+            return kernel.invoke(abstractName, operationName, params, signature);
         } catch (NoSuchOperationException e) {
             throw new ReflectionException(new NoSuchMethodException(e.getMessage()));
         } catch (GBeanNotFoundException e) {
@@ -131,30 +192,50 @@ public class KernelMBeanServer implements MBeanServer {
     }
 
     public boolean isRegistered(ObjectName name) {
-        return kernel.isLoaded(name);
+        AbstractName abstractName = getAbstractNameFor(name);
+        if (abstractName == null) {
+            return false;
+        }
+        return kernel.isLoaded(abstractName);
     }
 
     public Set queryNames(ObjectName pattern, QueryExp query) {
-        Set names = kernel.listGBeans(pattern);
-        if (query == null) {
-            return names;
-        }
-
-        Set filteredNames = new HashSet(names.size());
-        for (Iterator iterator = names.iterator(); iterator.hasNext();) {
-            // this must be done for each objectName applied
-            query.setMBeanServer(this);
-
-            ObjectName name = (ObjectName) iterator.next();
+        // normalize the name
+        if (pattern != null && pattern.getDomain().length() == 0) {
             try {
-                if (query.apply(name)) {
-                    filteredNames.add(name);
-                }
-            } catch (Exception e) {
-                // reject any name that threw an exception
+                pattern = new ObjectName(kernel.getKernelName(), pattern.getKeyPropertyList());
+            } catch (MalformedObjectNameException e) {
+                throw new AssertionError(e);
             }
         }
-        return filteredNames;
+
+        Set names;
+        synchronized (this) {
+            names = new LinkedHashSet(objetNameToAbstractName.keySet());
+        }
+
+        // fairly dumb implementation that iterates the list of all registered GBeans
+        Set result = new HashSet(names.size());
+        for (Iterator iterator = names.iterator(); iterator.hasNext();) {
+            ObjectName name = (ObjectName) iterator.next();
+            if (pattern == null || pattern.apply(name)) {
+                if (query != null) {
+                    query.setMBeanServer(this);
+
+                    try {
+                        if (query.apply(name)) {
+                            result.add(name);
+                        }
+                    } catch (Exception e) {
+                        // reject any name that threw an exception
+                    }
+                } else {
+                    result.add(name);
+                }
+            }
+        }
+
+        return result;
     }
 
     public Set queryMBeans(ObjectName pattern, QueryExp query) {
@@ -172,10 +253,11 @@ public class KernelMBeanServer implements MBeanServer {
     }
 
     public void setAttribute(ObjectName name, Attribute attribute) throws InstanceNotFoundException, AttributeNotFoundException, MBeanException {
+        AbstractName abstractName = toAbstractName(name);
         String attributeName = attribute.getName();
         Object attributeValue = attribute.getValue();
         try {
-            kernel.setAttribute(name, attributeName, attributeValue);
+            kernel.setAttribute(abstractName, attributeName, attributeValue);
         } catch (NoSuchAttributeException e) {
             throw new AttributeNotFoundException(attributeName);
         } catch (GBeanNotFoundException e) {
@@ -188,13 +270,14 @@ public class KernelMBeanServer implements MBeanServer {
     }
 
     public AttributeList setAttributes(ObjectName name, AttributeList attributes) throws InstanceNotFoundException, ReflectionException {
+        AbstractName abstractName = toAbstractName(name);
         AttributeList set = new AttributeList(attributes.size());
         for (Iterator iterator = attributes.iterator(); iterator.hasNext();) {
             Attribute attribute = (Attribute) iterator.next();
             String attributeName = attribute.getName();
             Object attributeValue = attribute.getValue();
             try {
-                kernel.setAttribute(name, attributeName, attributeValue);
+                kernel.setAttribute(abstractName, attributeName, attributeValue);
                 set.add(attribute);
             } catch (NoSuchAttributeException e) {
                 // ignored - caller will see value was not set because this attribute will not be in the attribute list
@@ -211,7 +294,7 @@ public class KernelMBeanServer implements MBeanServer {
 
     public String[] getDomains() {
         Set domains = new HashSet();
-        Set names = kernel.listGBeans((ObjectName)null);
+        Set names = kernel.listGBeans((AbstractNameQuery)null);
         for (Iterator iterator = names.iterator(); iterator.hasNext();) {
             ObjectName objectName = (ObjectName) iterator.next();
             domains.add(objectName.getDomain());
@@ -220,8 +303,9 @@ public class KernelMBeanServer implements MBeanServer {
     }
 
     public ObjectInstance getObjectInstance(ObjectName objectName) throws InstanceNotFoundException {
+        AbstractName abstractName = toAbstractName(objectName);
         try {
-            GBeanInfo gbeanInfo = kernel.getGBeanInfo(objectName);
+            GBeanInfo gbeanInfo = kernel.getGBeanInfo(abstractName);
             return new ObjectInstance(objectName, gbeanInfo.getClassName());
         } catch (GBeanNotFoundException e) {
             throw new InstanceNotFoundException(objectName.getCanonicalName());
@@ -229,8 +313,9 @@ public class KernelMBeanServer implements MBeanServer {
     }
 
     public ClassLoader getClassLoaderFor(ObjectName objectName) throws InstanceNotFoundException {
+        AbstractName abstractName = toAbstractName(objectName);
         try {
-            return kernel.getClassLoaderFor(objectName);
+            return kernel.getClassLoaderFor(abstractName);
         } catch (GBeanNotFoundException e) {
             throw new InstanceNotFoundException(objectName.getCanonicalName());
         }

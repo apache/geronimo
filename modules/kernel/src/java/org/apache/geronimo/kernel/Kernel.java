@@ -346,10 +346,6 @@ public interface Kernel {
     /**
      * @deprecated Use AbstractName version instead
      */
-    boolean isLoaded(ObjectName name);
-    /**
-     * @deprecated Use AbstractName version instead
-     */
     Object getGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException;
     /**
      * @deprecated Use AbstractName version instead
