@@ -74,7 +74,7 @@ public class SharedLib {
                 File[] files = dir.listFiles();
                 for (int j = 0; j < files.length; j++) {
                     File file = files[j];
-                    if (file.canRead() && file.getName().endsWith(".jar")) {
+                    if (file.canRead() && (file.getName().endsWith(".jar") || file.getName().endsWith(".zip"))) {
                         URL location = file.toURL();
                         if (!currentUrls.contains(location)) {
                             newUrls.add(location);
