@@ -32,6 +32,7 @@ import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -156,6 +157,7 @@ public class ListScreenHandler extends AbstractHandler {
             e.printStackTrace();
         }
 
+        Collections.sort(resources);
         renderRequest.setAttribute("resources", resources);
         // Get the list of JMS providers
         renderRequest.setAttribute("providers", JMSProviderData.getAllProviders());
@@ -223,7 +225,7 @@ public class ListScreenHandler extends AbstractHandler {
 
         public int compareTo(Object o) {
             final JMSResourceSummary pool = (JMSResourceSummary)o;
-            int names = configurationName.compareTo(pool.configurationName);
+            int names = name.toLowerCase().compareTo(pool.name.toLowerCase());
             if(parentName == null) {
                 if(pool.parentName == null) {
                     return names;

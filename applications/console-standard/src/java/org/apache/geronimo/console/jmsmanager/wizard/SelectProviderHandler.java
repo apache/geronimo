@@ -17,6 +17,7 @@
 package org.apache.geronimo.console.jmsmanager.wizard;
 
 import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 
 import javax.portlet.ActionRequest;
@@ -72,9 +73,12 @@ public class SelectProviderHandler extends AbstractHandler {
             final SortedSet artifacts = repo.list();
             outer:
             for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
-                String test = iterator.next().toString();
+            	Artifact artifact = (Artifact)iterator.next();
+                String test = artifact.toString();
                 if (!test.endsWith("/rar")) { //todo: may need to change this logic if configId format changes
                     continue;
+                } else if (repo.getLocation(artifact).isDirectory()) {
+                	continue;
                 }
                 for (int k = 0; k < SKIP_RARS_CONTAINING.length; k++) {
                     String skip = SKIP_RARS_CONTAINING[k];

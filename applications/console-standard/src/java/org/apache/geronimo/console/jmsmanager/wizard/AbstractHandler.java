@@ -48,6 +48,7 @@ import java.net.URL;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.console.MultiPageAbstractHandler;
 import org.apache.geronimo.console.MultiPageModel;
+import org.apache.geronimo.deployment.service.jsr88.EnvironmentData;
 import org.apache.geronimo.deployment.tools.loader.ConnectorDeployable;
 import org.apache.geronimo.connector.deployment.jsr88.Connector15DCBRoot;
 import org.apache.geronimo.connector.deployment.jsr88.ConnectorDCB;
@@ -59,6 +60,7 @@ import org.apache.geronimo.connector.deployment.jsr88.SinglePool;
 import org.apache.geronimo.connector.deployment.jsr88.AdminObjectDCB;
 import org.apache.geronimo.connector.deployment.jsr88.AdminObjectInstance;
 import org.apache.geronimo.naming.deployment.jsr88.GBeanLocator;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -483,12 +485,31 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
                 final DDBeanRoot ddBeanRoot = deployable.getDDBeanRoot();
                 Connector15DCBRoot root = (Connector15DCBRoot) config.getDConfigBeanRoot(ddBeanRoot);
                 ConnectorDCB connector = (ConnectorDCB) root.getDConfigBean(ddBeanRoot.getChildBean(root.getXpaths()[0])[0]);
-//TODO FIXME configid
-//                connector.setConfigID("console-jms-"+data.instanceName);
-//                if(!isEmpty(data.dependency)) {
-//                    connector.setParentID(data.dependency);
-//                }
 
+                EnvironmentData environment = new EnvironmentData();
+                connector.setEnvironment(environment);
+                org.apache.geronimo.deployment.service.jsr88.Artifact configId = new org.apache.geronimo.deployment.service.jsr88.Artifact();
+                environment.setConfigId(configId);
+                configId.setGroupId("console.jms");
+                configId.setArtifactId(data.instanceName);
+                configId.setVersion("1.0");
+                configId.setType("rar");
+                if(data.dependency != null && !data.dependency.trim().equals("")) {
+                    Artifact artifact = Artifact.create(data.dependency.trim());
+                    org.apache.geronimo.deployment.service.jsr88.Artifact dep = new org.apache.geronimo.deployment.service.jsr88.Artifact();
+                    environment.setDependencies(new org.apache.geronimo.deployment.service.jsr88.Artifact[]{dep});
+                    dep.setArtifactId(artifact.getArtifactId());
+                    if(artifact.getGroupId() != null) {
+                        dep.setGroupId(artifact.getGroupId());
+                    }
+                    if(artifact.getGroupId() != null) {
+                        dep.setType(artifact.getType());
+                    }
+                    if(artifact.getVersion() != null) {
+                        dep.setVersion(artifact.getVersion().toString());
+                    }
+                }
+                
                 // Basic settings on RA plan and RA instance
                 ResourceAdapter ra;
                 if(connector.getResourceAdapter().length > 0) {

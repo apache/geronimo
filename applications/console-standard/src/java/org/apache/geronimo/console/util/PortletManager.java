@@ -373,8 +373,17 @@ public class PortletManager {
     }
 
     public static File getRepositoryEntry(PortletRequest request, String repositoryURI) {
-        Repository[] repos = getCurrentServer(request).getRepositories();
+        J2EEServer server = getCurrentServer(request);
+        Repository[] repos = server.getRepositories();
         Artifact uri = Artifact.create(repositoryURI);
+        if(!uri.isResolved()) {
+            Artifact[] all = server.getConfigurationManager().getArtifactResolver().queryArtifacts(uri);
+            if(all.length == 0) {
+                return null;
+            } else {
+                uri = all[all.length-1];
+            }
+        }
         for (int i = 0; i < repos.length; i++) {
             Repository repo = repos[i];
             if (repo.contains(uri)) {
