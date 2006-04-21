@@ -508,7 +508,11 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     }
 
     /**
-     * Gets the nested configurations of this configuration.
+     * Gets the nested configurations of this configuration.  That is, the
+     * configurations within this one as a WAR can be within an EAR; not
+     * including wholly separate configurations that just depend on this
+     * one as a parent.
+     * 
      * @return the nested configuration of this configuration
      */
     public List getChildren() {

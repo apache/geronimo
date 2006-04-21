@@ -377,7 +377,7 @@ public interface ConfigurationManager {
 
     /**
      * Reloads the specified configuration and all configurations that have a
-     * dependency on the* specified configuration
+     * dependency on the specified configuration
      *
      * @param configurationId the configuration identifier, which must be fully
      *                        resolved (isResolved() == true)
