@@ -23,10 +23,26 @@ Configuration for corba on a Geronimo serverl, including client and target secur
                parentId="${pom.groupId}/j2ee-server/${pom.currentVersion}/car"
 
 -->
-<configuration
-    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
+<configuration xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
-    >
+    <environment>
+        <configId>
+            <groupId>geronimo</groupId>
+            <artifactId>j2ee-corba</artifactId>
+            <version>1.1-SNAPSHOT</version>
+            <type>car</type>
+        </configId>
+        <dependencies>
+            <dependency>
+                <groupId>geronimo</groupId>
+                <artifactId>j2ee-security</artifactId>
+                <type>car</type>
+                <import>services</import>
+            </dependency>
+        </dependencies>
+        <hidden-classes/>
+        <non-overridable-classes/>
+    </environment>
 
     <gbean name="SystemProperties" class="org.apache.geronimo.system.properties.SystemProperties">
         <attribute name="systemProperties">
