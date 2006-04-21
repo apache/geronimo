@@ -56,7 +56,6 @@
             <type>car</type>
             <artifactId>axis</artifactId>
             <version>${pom.currentVersion}</version>
-<!--  @JAB replaced import with dependency below  -->
             <properties>
                 <geronimo.dependency>true</geronimo.dependency>
             </properties>
@@ -165,14 +164,6 @@
         </dependency>
 
         <!-- EJBs using OpenEJB -->
-        <dependency>
-            <groupId>openejb</groupId>
-            <artifactId>openejb-builder</artifactId>
-            <version>${openejb_version}</version>
-            <properties>
-                <geronimo.dependency>true</geronimo.dependency>
-            </properties>
-        </dependency>
         <dependency>
             <groupId>openejb</groupId>
             <artifactId>openejb-pkgen-builder</artifactId>

@@ -45,21 +45,31 @@
         <reference name="ConnectorConfigBuilder">
             <name>ConnectorBuilder</name>
         </reference>
-        <reference name="AppClientConfigBuilder">
-            <name>AppClientBuilder</name>
-        </reference>
+        <references name="AppClientConfigBuilder">
+            <pattern>
+                <name>AppClientBuilder</name>
+            </pattern>
+            <pattern>
+                <name>UnavailableAppClientBuilder</name>
+            </pattern>
+        </references>
         <reference name="ResourceReferenceBuilder">
             <name>ConnectorBuilder</name>
         </reference>
-        <reference name="ServiceReferenceBuilder">
-            <name>WebServiceBuilder</name>
-        </reference>
+        <references name="ServiceReferenceBuilder">
+            <pattern>
+                <name>WebServiceBuilder</name>
+            </pattern>
+            <pattern>
+                <name>UnavailableWebServiceBuilder</name>
+            </pattern>
+        </references>
         <references name="EJBReferenceBuilder">
             <pattern>
                 <name>ServerEJBReferenceBuilder</name>
             </pattern>
             <pattern>
-                <name>UnavailableEJBReferenceBuilder</name>
+                <name>UnavailableServerEJBReferenceBuilder</name>
             </pattern>
         </references>
         <xml-attribute name="defaultEnvironment">
@@ -110,59 +120,11 @@
         </xml-attribute>
     </gbean>
 
-    <gbean name="AppClientBuilder" class="org.apache.geronimo.client.builder.AppClientModuleBuilder">
-        <attribute name="transactionContextManagerObjectName">?name=TransactionContextManager</attribute>
-        <attribute name="connectionTrackerObjectName">?name=ConnectionTracker</attribute>
-        <attribute name="corbaGBeanObjectName">?name=Server</attribute>
-        <references name="EJBReferenceBuilder">
-            <pattern>
-                <name>ClientEJBReferenceBuilder</name>
-            </pattern>
-            <pattern>
-                <name>UnavailableClientEJBReferenceBuilder</name>
-            </pattern>
-        </references>
-        <reference name="ConnectorModuleBuilder">
-            <name>ConnectorBuilder</name>
-        </reference>
-        <reference name="ResourceReferenceBuilder">
-            <name>ConnectorBuilder</name>
-        </reference>
-        <reference name="ServiceReferenceBuilder">
-            <name>WebServiceBuilder</name>
-        </reference>
-        <xml-attribute name="defaultServerEnvironment">
-            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
-                <dependencies>
-                    <dependency>
-                        <groupId>${pom.groupId}</groupId>
-                        <artifactId>j2ee-server</artifactId>
-                        <version>${pom.currentVersion}</version>
-                        <type>car</type>
-                    </dependency>
-                </dependencies>
-            </environment>
-        </xml-attribute>
-        <xml-attribute name="defaultClientEnvironment">
-            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
-                <dependencies>
-                    <dependency>
-                        <groupId>${pom.groupId}</groupId>
-                        <artifactId>client</artifactId>
-                        <version>${pom.currentVersion}</version>
-                        <type>car</type>
-                    </dependency>
-                </dependencies>
-            </environment>
-        </xml-attribute>
-    </gbean>
-
     <gbean name="LoginConfigurationBuilder" class="org.apache.geronimo.security.deployment.LoginConfigBuilder"/>
     <gbean name="SecurityService" class="org.apache.geronimo.security.SecurityServiceImpl">
         <attribute name="policyConfigurationFactory">
             org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>
         <attribute name="policyProvider">org.apache.geronimo.security.jacc.GeronimoPolicy</attribute>
     </gbean>
-    <gbean name="WebServiceBuilder" class="org.apache.geronimo.axis.builder.AxisBuilder"/>
 
 </configuration>

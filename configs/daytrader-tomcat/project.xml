@@ -68,17 +68,24 @@
                 <packaging.config.order>4</packaging.config.order>
             </properties>
         </dependency>
-<!--
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>client-deployer</artifactId>
+            <artifactId>axis-deployer</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
             <properties>
                 <packaging.config.order>5</packaging.config.order>
             </properties>
         </dependency>
--->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>client-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+            <properties>
+                <packaging.config.order>6</packaging.config.order>
+            </properties>
+        </dependency>
          <!-- parent config -->
         <dependency>
             <groupId>geronimo</groupId>

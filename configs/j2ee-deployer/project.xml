@@ -229,14 +229,6 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-axis-builder</artifactId>
-            <version>${geronimo_version}</version>
-            <properties>
-                <geronimo.dependency>true</geronimo.dependency>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
             <artifactId>geronimo-axis</artifactId>
             <version>${geronimo_version}</version>
             <properties>
@@ -288,14 +280,6 @@
         </dependency>
 
         <!-- EJBs using OpenEJB -->
-        <dependency>
-            <groupId>openejb</groupId>
-            <artifactId>openejb-builder</artifactId>
-            <version>${openejb_version}</version>
-            <properties>
-                <geronimo.dependency>true</geronimo.dependency>
-            </properties>
-        </dependency>
         <dependency>
             <groupId>openejb</groupId>
             <artifactId>openejb-pkgen-builder</artifactId>

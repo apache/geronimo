@@ -23,9 +23,14 @@
     <gbean name="TomcatWebBuilder" class="org.apache.geronimo.tomcat.deployment.TomcatModuleBuilder">
         <attribute name="defaultContextPriorityClassloader">false</attribute>
         <attribute name="tomcatContainerName">?name=TomcatWebContainer</attribute>
-        <reference name="WebServiceBuilder">
-            <name>WebServiceBuilder</name>
-        </reference>
+        <references name="WebServiceBuilder">
+            <pattern>
+                <name>WebServiceBuilder</name>
+            </pattern>
+            <pattern>
+                <name>UnavailableWebServiceBuilder</name>
+            </pattern>
+        </references>
         <xml-attribute name="defaultEnvironment">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <dependencies>

@@ -245,16 +245,6 @@
             <artifactId>geronimo-activation</artifactId>
             <version>${geronimo_version}</version>
         </dependency>
-        <!--dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-management</artifactId>
-            <version>${geronimo_version}</version>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-j2ee</artifactId>
-            <version>${geronimo_version}</version>
-        </dependency-->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-naming</artifactId>

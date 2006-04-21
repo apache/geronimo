@@ -41,17 +41,6 @@
                 <packaging.config.order>1</packaging.config.order>
             </properties>
         </dependency>
-<!-- should be in default env.
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>tomcat</artifactId>
-            <version>${geronimo_version}</version>
-            <type>car</type>
-            <properties>
-                <geronimo.dependency>true</geronimo.dependency>
-            </properties>
-        </dependency>
--->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>j2ee-deployer</artifactId>
@@ -77,6 +66,24 @@
             <type>car</type>
             <properties>
                 <packaging.config.order>4</packaging.config.order>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>axis-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+            <properties>
+                <packaging.config.order>5</packaging.config.order>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>client-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+            <properties>
+                <packaging.config.order>6</packaging.config.order>
             </properties>
         </dependency>
 
@@ -260,13 +267,6 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
             <version>${geronimo_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>jetty-deployer</artifactId>
-            <version>${geronimo_version}</version>
-            <type>car</type>
         </dependency>
 
         <dependency>

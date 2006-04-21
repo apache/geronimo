@@ -30,6 +30,7 @@
             <attribute name="urlPath">/jndi/rmi://${PlanServerHostname}:${PlanNamingPort}/JMXConnector</attribute>
         </gbean>
     </configuration>
+    <configuration name="geronimo/axis/${pom.currentVersion}/car"/>
     <configuration name="geronimo/openejb/${pom.currentVersion}/car">
         <gbean name="EJBNetworkService">
             <attribute name="host">${PlanServerHostname}</attribute>
@@ -96,6 +97,8 @@
             <attribute name="listener">geronimo.server:J2EEApplication=null,J2EEModule=geronimo/jetty/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=GBean,name=JettyWebContainer</attribute>
         </gbean>
     </configuration>
+    <configuration name="geronimo/client-deployer/${pom.currentVersion}/car"/>
+    <configuration name="geronimo/axis-deployer/${pom.currentVersion}/car"/>
     <configuration name="geronimo/javamail/${pom.currentVersion}/car" load="false">
         <gbean name="SMTPTransport">
             <attribute name="host">localhost</attribute>

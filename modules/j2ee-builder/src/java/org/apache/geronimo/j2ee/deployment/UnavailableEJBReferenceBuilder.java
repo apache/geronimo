@@ -28,7 +28,7 @@ import javax.naming.Reference;
 import java.net.URI;
 
 /**
- * @version $Rev: 386000 $ $Date$
+ * @version $Rev:390932 $ $Date$
  */
 public class UnavailableEJBReferenceBuilder implements EJBReferenceBuilder {
 
@@ -37,7 +37,7 @@ public class UnavailableEJBReferenceBuilder implements EJBReferenceBuilder {
     }
 
     public Object createHandleDelegateReference() throws DeploymentException {
-        throw new DeploymentException("EJB references are unavailable in this configuration");
+        return null;
     }
 
     public Reference createEJBRemoteRef(String refName, Configuration configuration, String name, String requiredModule, String optionalModule, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String home, String remote) throws DeploymentException {
