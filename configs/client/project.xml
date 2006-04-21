@@ -57,6 +57,16 @@
             <version>${geronimo_version}</version>
         </dependency>
 
+     <!-- corba spec is needed before spec-j2ee to pick up corba api that works with geronimo -->
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-corba-2.3</artifactId>
+            <version>${geronimo_spec_corba_version}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-j2ee_1.4_spec</artifactId>
