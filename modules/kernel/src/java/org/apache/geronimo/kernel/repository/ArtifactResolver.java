@@ -88,6 +88,8 @@ public interface ArtifactResolver {
      * Used to search for existing artifacts in the server that match the supplied
      * artifact (which may be partially-populated).
      *
+     * TODO: The artifacts should be sorted ascending by type then group then artifact then version
+     *
      * @return The matching artifacts, which may be 0, 1, or many
      */
     Artifact[] queryArtifacts(Artifact artifact);

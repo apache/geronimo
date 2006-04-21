@@ -445,5 +445,10 @@ public interface ConfigurationManager {
      */
     void uninstallConfiguration(Artifact configurationId) throws IOException, NoSuchConfigException;
 
+    /**
+     * Gets the common ArtifactResolver in case the caller wants to use this
+     * directly.  It is configured for all the repositories known to this
+     * configuration manager, etc.
+     */
     ArtifactResolver getArtifactResolver();
 }
