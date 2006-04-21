@@ -24,7 +24,7 @@ import java.io.Serializable;
  */
 public class Artifact implements Comparable, Serializable {
     private static final long serialVersionUID = -3459638899709893444L;
-    public static final String DEFAULT_GROUP_ID = "unspecified";
+    public static final String DEFAULT_GROUP_ID = "default";
 
     private final String groupId;
     private final String artifactId;
