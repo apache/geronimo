@@ -51,7 +51,10 @@
             method="execute"/>
         <define:jellybean
             name="velocityFilter"
-            className="org.apache.geronimo.deployment.mavenplugin.VelocityFilter"
+            className="org.apache.geronimo.deployment.mavenplugin.VelocityFilter"/>
+        <define:jellybean
+            name="mergeWebXML"
+            className="org.apache.geronimo.deployment.mavenplugin.MergeWebXML"
             method="execute"/>
 
         <define:tag name="unpackServer" xmlns="jelly:ant">
