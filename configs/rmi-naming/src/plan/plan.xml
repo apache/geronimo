@@ -25,9 +25,9 @@ after the system GBeans but before the server GBeans.
 
 -->
 <configuration
-    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
+        xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
 
-    >
+        >
 
     <gbean name="RMIRegistry" class="org.apache.geronimo.system.rmi.RMIRegistryService">
         <attribute name="port">${PlanNamingPort}</attribute>
@@ -61,9 +61,9 @@ after the system GBeans but before the server GBeans.
 
     <!-- MBean server service -->
     <gbean name="MBeanServerKernelBridge" class="org.apache.geronimo.system.jmx.MBeanServerKernelBridge">
-      <reference name="MBeanServerReference">
-        <name>MBeanServerReference</name>
-      </reference>
+        <reference name="MBeanServerReference">
+            <name>MBeanServerReference</name>
+        </reference>
     </gbean>
 
     <gbean name="DefaultThreadPool" class="org.apache.geronimo.pool.ThreadPool">

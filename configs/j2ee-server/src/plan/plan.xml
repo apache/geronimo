@@ -109,46 +109,6 @@ by the server.
         </reference>
     </gbean>
 
-    <!-- EJB Protocol -->
-    <gbean name="EJBNetworkService" class="org.activeio.xnet.StandardServiceStackGBean">
-        <attribute name="name">EJB</attribute>
-        <attribute name="port">${PlanOpenEJBPort}</attribute>
-        <attribute name="host">${PlanServerHostname}</attribute>
-        <attribute name="allowHosts">${PlanClientAddresses}</attribute>
-        <attribute name="logOnSuccess">HOST,NAME,THREADID,USERID</attribute>
-        <attribute name="logOnFailure">HOST,NAME</attribute>
-        <reference name="Executor">
-            <name>DefaultThreadPool</name>
-        </reference>
-        <reference name="Server">
-            <name>EJBServer</name>
-        </reference>
-    </gbean>
-
-    <gbean name="EJBServer" class="org.openejb.server.ejbd.EjbServerGBean">
-        <reference name="ContainerIndex">
-            <name>ContainerIndex</name>
-        </reference>
-        <reference name="ORBRefs">
-            <name>Server</name>
-        </reference>
-    </gbean>
-
-    <!-- pattern domain name must match the domain of the j2eeServer attribute of the EAR builder in the deployer plan -->
-    <gbean name="ContainerIndex" class="org.openejb.ContainerIndex">
-        <references name="EJBContainers">
-            <pattern>
-                <type>StatelessSessionBean</type>
-            </pattern>
-            <pattern>
-                <type>StatefulSessionBean</type>
-            </pattern>
-            <pattern>
-                <type>EntityBean</type>
-            </pattern>
-        </references>
-    </gbean>
-
     <!-- JSR77 Management Objects -->
     <gbean name="geronimo.server" class="org.apache.geronimo.j2ee.management.impl.J2EEDomainImpl"/>
     <gbean name="geronimo" class="org.apache.geronimo.j2ee.management.impl.J2EEServerImpl">
@@ -160,12 +120,6 @@ by the server.
     <gbean name="JVM" class="org.apache.geronimo.j2ee.management.impl.JVMImpl"/>
 
     <gbean name="eis/JAXR" class="org.apache.geronimo.webservices.jaxr.JAXRGBean"/>
-
-    <gbean name="ejb/mgmt/MEJB" class="org.openejb.mejb.MEJB">
-        <reference name="MBeanServerReference">
-            <name>MBeanServerReference</name>
-        </reference>
-    </gbean>
 
     <gbean name="AxisCLWorkaround" class="org.apache.geronimo.axis.AxisDiscoveryCLWorkaroundGBean"/>
 

@@ -17,10 +17,6 @@
         </gbean>
     </configuration>
     <configuration name="geronimo/j2ee-server/${pom.currentVersion}/car">
-        <gbean name="geronimo:name=EJB,type=NetworkService">
-            <attribute name="host">${PlanServerHostname}</attribute>
-            <attribute name="port">${PlanOpenEJBPort}</attribute>
-        </gbean>
     </configuration>
     <configuration name="geronimo/j2ee-security/${pom.currentVersion}/car">
         <gbean name="geronimo.remoting:target=JaasLoginServiceRemotingServer">
@@ -32,6 +28,12 @@
             <attribute name="host">${PlanServerHostname}</attribute>
             <attribute name="port">${PlanJMXPort}</attribute>
             <attribute name="urlPath">/jndi/rmi://${PlanServerHostname}:${PlanNamingPort}/JMXConnector</attribute>
+        </gbean>
+    </configuration>
+    <configuration name="geronimo/openejb/${pom.currentVersion}/car">
+        <gbean name="EJBNetworkService">
+            <attribute name="host">${PlanServerHostname}</attribute>
+            <attribute name="port">${PlanOpenEJBPort}</attribute>
         </gbean>
     </configuration>
     <configuration name="geronimo/j2ee-corba/${pom.currentVersion}/car" load="false">
@@ -88,6 +90,8 @@
         <gbean name="WebBuilder">
             <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.1</attribute>
         </gbean>
+    </configuration>
+    <configuration name="geronimo/openejb-deployer/${pom.currentVersion}/car">
         <gbean name="EJBBuilder">
             <attribute name="listener">geronimo.server:J2EEApplication=null,J2EEModule=geronimo/jetty/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=GBean,name=JettyWebContainer</attribute>
         </gbean>

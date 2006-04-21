@@ -67,6 +67,10 @@ by the server.
       </references>
   </gbean>
 
-  <gbean name="ejb/mgmt/MEJB" class="org.openejb.mejb.MEJB"/>
+  <gbean name="ejb/mgmt/MEJB" class="org.openejb.mejb.MEJB">
+      <reference name="MBeanServerReference">
+          <name>MBeanServerReference</name>
+      </reference>
+  </gbean>
 
 </configuration>
