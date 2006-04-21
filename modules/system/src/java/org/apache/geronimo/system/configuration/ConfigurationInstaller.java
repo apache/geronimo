@@ -19,7 +19,9 @@ package org.apache.geronimo.system.configuration;
 import java.io.IOException;
 import java.io.File;
 import java.net.URL;
+import java.util.Map;
 import javax.security.auth.login.FailedLoginException;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
  * Knows how to import and export configurations
@@ -36,6 +38,38 @@ public interface ConfigurationInstaller {
      *                 Set this to null if no authentication is required.
      */
     public ConfigurationList listConfigurations(URL mavenRepository, String username, String password) throws IOException, FailedLoginException;
+
+    /**
+     * Lists the plugins installed in the local Geronimo server, by name and
+     * ID.
+     *
+     * @return A Map with key type String (plugin name) and value type Artifact
+     *         (config ID of the plugin).
+     */
+    public Map getInstalledPlugins();
+
+    /**
+     * Gets a CofigurationMetadata for a configuration installed in the local
+     * server.  Should load a saved one if available, or else create a new
+     * default one to the best of its abilities.
+     *
+     * @param configId Identifies the configuration.  This must match a
+     *                 configuration currently installed in the local server.
+     *                 The configId must be fully resolved (isResolved() == true)
+     */
+    public ConfigurationArchiveData getPluginMetadata(Artifact configId);
+
+    /**
+     * Saves a ConfigurationMetadata for a particular plugin, if the server is
+     * able to record it.  This can be used if you later re-export the plugin,
+     * or just want to review the information for a particular installed
+     * plugin.
+     *
+     * @param metadata The data to save.  The contained configId (which must
+     *                 be fully resolved) identifies the configuration to save
+     *                 this for.
+     */
+    public void updatePluginMetadata(ConfigurationArchiveData metadata);
 
     /**
      * Installs a configuration from a remote repository into the local Geronimo server,

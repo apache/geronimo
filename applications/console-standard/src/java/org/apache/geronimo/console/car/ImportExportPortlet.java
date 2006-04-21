@@ -35,6 +35,8 @@ public class ImportExportPortlet extends MultiPagePortlet {
         addHelper(new ListHandler(), config);
         addHelper(new DownloadCARHandler(), config);
         addHelper(new ResultsHandler(), config);
+        addHelper(new ExportConfigHandler(), config);
+        addHelper(new ExportHandler(), config);
     }
 
     protected String getModelJSPVariableName() {

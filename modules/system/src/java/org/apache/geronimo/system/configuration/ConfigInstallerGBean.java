@@ -16,31 +16,39 @@
  */
 package org.apache.geronimo.system.configuration;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.FileNotFoundException;
-import java.io.File;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.LinkedList;
 import java.util.Arrays;
-import java.util.Set;
-import java.util.Map;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.jar.JarFile;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
 import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import javax.security.auth.login.FailedLoginException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -54,19 +62,21 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Dependency;
-import org.apache.geronimo.kernel.repository.WritableListableRepository;
+import org.apache.geronimo.kernel.repository.FileWriteMonitor;
+import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.kernel.repository.ImportType;
-import org.apache.geronimo.kernel.repository.FileWriteMonitor;
-import org.apache.geronimo.util.encoders.Base64;
+import org.apache.geronimo.kernel.repository.WritableListableRepository;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.system.threads.ThreadPool;
+import org.apache.geronimo.util.encoders.Base64;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * A GBean that knows how to download configurations from a Maven repository.
@@ -100,6 +110,75 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
             value = ++counter;
         }
         return new Integer(value);
+    }
+
+    public Map getInstalledPlugins() {
+        SortedSet artifacts = writeableRepo.list();
+
+        Map plugins = new HashMap();
+        for (Iterator i = artifacts.iterator(); i.hasNext();) {
+            Artifact configId = (Artifact) i.next();
+            File dir = writeableRepo.getLocation(configId);
+            File meta = new File(dir, "META-INF");
+            if(!meta.isDirectory() || !meta.canRead()) {
+                continue;
+            }
+            File xml = new File(meta, "geronimo-plugin.xml");
+            if(!xml.isFile() || !xml.canRead() || xml.length() == 0) {
+                continue;
+            }
+            readNameAndID(xml, plugins);
+        }
+        return plugins;
+    }
+
+    public ConfigurationArchiveData getPluginMetadata(Artifact configId) {
+        File dir = writeableRepo.getLocation(configId);
+        File meta = new File(dir, "META-INF");
+        if(!meta.isDirectory() || !meta.canRead()) {
+            return null;
+        }
+        File xml = new File(meta, "geronimo-plugin.xml");
+        try {
+            if(!xml.isFile() || !xml.canRead() || xml.length() == 0) {
+                return new ConfigurationArchiveData(null, new URL[0], createDefaultMetadata(configStore.loadConfiguration(configId)));
+            }
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(xml);
+            return loadConfigurationMetadata(doc, xml);
+        } catch (InvalidConfigException e) {
+            log.warn("Unable to generate metadata for "+configId, e);
+        } catch (Exception e) {
+            log.warn("Invalid XML at "+xml.getAbsolutePath(), e);
+        }
+        return null;
+    }
+
+    public void updatePluginMetadata(ConfigurationArchiveData metadata) {
+        File dir = writeableRepo.getLocation(metadata.getConfiguration().getConfigId());
+        if(dir == null) {
+            throw new IllegalArgumentException(metadata.getConfiguration().getConfigId()+" is not installed!");
+        }
+        File meta = new File(dir, "META-INF");
+        if(!meta.isDirectory() || !meta.canRead()) {
+            throw new IllegalArgumentException(metadata.getConfiguration().getConfigId()+" is not a plugin!");
+        }
+        File xml = new File(meta, "geronimo-plugin.xml");
+        try {
+            if(!xml.isFile()) {
+                if(!xml.createNewFile()) {
+                    throw new RuntimeException("Cannot create plugin metadata file for "+metadata.getConfiguration().getConfigId());
+                }
+            }
+            Document doc = writeConfigurationMetadata(metadata);
+            TransformerFactory xfactory = TransformerFactory.newInstance();
+            Transformer xform = xfactory.newTransformer();
+            xform.setOutputProperty(OutputKeys.INDENT, "yes");
+            xform.transform(new DOMSource(doc), new StreamResult(xml));
+        } catch (Exception e) {
+            log.error("Unable to save plugin metadata for "+metadata.getConfiguration().getConfigId(), e);
+        }
     }
 
     public ConfigurationList listConfigurations(URL mavenRepository, String username, String password) throws IOException, FailedLoginException {
@@ -144,6 +223,10 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
         } finally {
             jar.close();
         }
+        return loadConfigurationMetadata(doc, file);
+    }
+
+    private ConfigurationArchiveData loadConfigurationMetadata(Document doc, File file) throws SAXException, MalformedURLException {
         Element root = doc.getDocumentElement();
         NodeList configs = root.getElementsByTagName("configuration");
         if(configs.getLength() != 1) {
@@ -430,7 +513,7 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
 
             // 2. Validate that we can install this
             validateConfiguration(data.getConfiguration());
-            
+
             // 3. Install the CAR into the repository (it shouldn't be re-downloaded)
             if(data.getConfiguration().getConfigId() != null) {
                 ResultsFileWriteMonitor monitor = new ResultsFileWriteMonitor(poller);
@@ -724,6 +807,159 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
         public DownloadPoller getResults() {
             return results;
         }
+    }
+
+    private void readNameAndID(File xml, Map plugins) {
+        try {
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            SAXParser parser = factory.newSAXParser();
+            PluginNameIDHandler handler = new PluginNameIDHandler();
+            parser.parse(xml, handler);
+            if(handler.isComplete()) {
+                plugins.put(handler.getName(), handler.getID());
+            }
+        } catch (Exception e) {
+            log.warn("Invalid XML at "+xml.getAbsolutePath(), e);
+        }
+    }
+
+    private static class PluginNameIDHandler extends DefaultHandler {
+        private String id = "";
+        private String name = "";
+        private String element = null;
+
+        public void characters(char ch[], int start, int length) throws SAXException {
+            if(element != null) {
+                if(element.equals("config-id")) {
+                    id += new String(ch, start, length);
+                } else if(element.equals("name")) {
+                    name += new String(ch, start, length);
+                }
+            }
+        }
+
+        public void endElement(String uri, String localName, String qName) throws SAXException {
+            element = null;
+        }
+
+        public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+            if(localName.equals("config-id") || localName.equals("name")) {
+                element = localName;
+            }
+        }
+
+        public void endDocument() throws SAXException {
+            id = id.trim();
+            name = name.trim();
+        }
+
+        public String getID() {
+            return id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public boolean isComplete() {
+            return !id.equals("") && !name.equals("");
+        }
+    }
+
+    private ConfigurationMetadata createDefaultMetadata(ConfigurationData data) {
+        ConfigurationMetadata meta = new ConfigurationMetadata(data.getId(), data.getId().toString(),
+                "Please provide a description", "Unknown", true, false);
+        meta.setGeronimoVersions(new String[]{serverInfo.getVersion()});
+        meta.setJvmVersions(new String[0]);
+        meta.setLicenses(new ConfigurationMetadata.License[0]);
+        meta.setObsoletes(new String[0]);
+        List deps = new ArrayList();
+        ConfigurationMetadata.Prerequisite prereq = null;
+        List real = data.getEnvironment().getDependencies();
+        for (int i = 0; i < real.size(); i++) {
+            Dependency dep = (Dependency) real.get(i);
+            if(dep.getArtifact().getGroupId().equals("geronimo")) {
+                if(dep.getArtifact().getArtifactId().equals("jetty")) {
+                    if(prereq == null) {
+                        prereq = new ConfigurationMetadata.Prerequisite(dep.getArtifact(), true, "Web Container", "This plugin works with the Geronimo/Jetty distribution.  It is not intended to run in the Geronimo/Tomcat distribution.  There is a separate version of this plugin that works with Tomcat.");
+                    }
+                    continue;
+                } else if(dep.getArtifact().getArtifactId().equals("tomcay")) {
+                    if(prereq == null) {
+                        prereq = new ConfigurationMetadata.Prerequisite(dep.getArtifact(), true, "Web Container", "This plugin works with the Geronimo/Tomcat distribution.  It is not intended to run in the Geronimo/Jetty distribution.  There is a separate version of this plugin that works with Jetty.");
+                    }
+                    continue;
+                }
+            }
+            deps.add(dep.getArtifact().toString());
+        }
+        meta.setDependencies((String[]) deps.toArray(new String[deps.size()]));
+        meta.setPrerequisites(prereq == null ? new ConfigurationMetadata.Prerequisite[0] : new ConfigurationMetadata.Prerequisite[]{prereq});
+        return meta;
+    }
+
+    private static Document writeConfigurationMetadata(ConfigurationArchiveData metadata) throws ParserConfigurationException {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc = builder.newDocument();
+        Element root = doc.createElement("geronimo-plugin");
+        doc.appendChild(root);
+        Element config = doc.createElement("configuration");
+        root.appendChild(config);
+
+        ConfigurationMetadata data = metadata.getConfiguration();
+        addTextChild(doc, config, "name", data.getName());
+        addTextChild(doc, config, "config-id", data.getConfigId().toString());
+        addTextChild(doc, config, "category", data.getCategory());
+        addTextChild(doc, config, "description", data.getDescription());
+        for (int i = 0; i < data.getLicenses().length; i++) {
+            ConfigurationMetadata.License license = data.getLicenses()[i];
+            Element lic = doc.createElement("license");
+            lic.appendChild(doc.createTextNode(license.getName()));
+            lic.setAttribute("osi-approved", Boolean.toString(license.isOsiApproved()));
+            config.appendChild(lic);
+        }
+        for (int i = 0; i < data.getGeronimoVersions().length; i++) {
+            addTextChild(doc, config, "geronimo-version", data.getGeronimoVersions()[i]);
+        }
+        for (int i = 0; i < data.getJvmVersions().length; i++) {
+            addTextChild(doc, config, "jvm-version", data.getJvmVersions()[i]);
+        }
+        for (int i = 0; i < data.getPrerequisites().length; i++) {
+            ConfigurationMetadata.Prerequisite prereq = data.getPrerequisites()[i];
+            Element pre = doc.createElement("prerequisite");
+            addTextChild(doc, pre, "id", prereq.getConfigId().toString());
+            if(prereq.getResourceType() != null) {
+                addTextChild(doc, pre, "resource-type", prereq.getResourceType());
+            }
+            if(prereq.getDescription() != null) {
+                addTextChild(doc, pre, "description", prereq.getDescription());
+            }
+            config.appendChild(pre);
+        }
+        for (int i = 0; i < data.getDependencies().length; i++) {
+            addTextChild(doc, config, "dependency", data.getDependencies()[i]);
+        }
+        for (int i = 0; i < data.getObsoletes().length; i++) {
+            addTextChild(doc, config, "obsoletes", data.getObsoletes()[i]);
+        }
+
+        Element repo = doc.createElement("source-repository");
+        repo.appendChild(doc.createTextNode(metadata.getRepository().toString()));
+        root.appendChild(repo);
+        for (int i = 0; i < metadata.getBackups().length; i++) {
+            URL url = metadata.getBackups()[i];
+            Element backup = doc.createElement("backup-repository");
+            backup.appendChild(doc.createTextNode(url.toString()));
+            root.appendChild(backup);
+        }
+        return doc;
+    }
+
+    private static void addTextChild(Document doc, Element parent, String name, String text) {
+        Element child = doc.createElement(name);
+        child.appendChild(doc.createTextNode(text));
+        parent.appendChild(child);
     }
 
     public static final GBeanInfo GBEAN_INFO;
