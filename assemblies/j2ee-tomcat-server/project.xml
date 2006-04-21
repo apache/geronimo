@@ -89,6 +89,15 @@
                 <geronimo.assemble>install</geronimo.assemble>
             </properties>
         </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>openejb</artifactId>
+            <type>car</type>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>install</geronimo.assemble>
+            </properties>
+        </dependency>
 <!--
         <dependency>
             <groupId>geronimo</groupId>
@@ -196,6 +205,15 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>j2ee-deployer</artifactId>
+            <type>car</type>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>install</geronimo.assemble>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>openejb-deployer</artifactId>
             <type>car</type>
             <version>${pom.currentVersion}</version>
             <properties>
