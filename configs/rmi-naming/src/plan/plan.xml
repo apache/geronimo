@@ -40,6 +40,9 @@ after the system GBeans but before the server GBeans.
     </gbean>
 
     <gbean name="SystemProperties" class="org.apache.geronimo.system.properties.SystemProperties">
+        <attribute name="systemProperties" />
+        <attribute name="systemPathProperties" />
+<!-- Can we get by without this?
         <attribute name="systemProperties">
             javax.net.ssl.keyStorePassword=secret
             javax.net.ssl.trustStorePassword=secret
@@ -48,6 +51,7 @@ after the system GBeans but before the server GBeans.
             javax.net.ssl.keyStore=var/security/keystores/geronimo-default
             javax.net.ssl.trustStore=var/security/keystores/geronimo-default
         </attribute>
+-->
         <reference name="ServerInfo">
             <name>ServerInfo</name>
         </reference>
@@ -59,6 +63,31 @@ after the system GBeans but before the server GBeans.
     <gbean name="MBeanServerKernelBridge" class="org.apache.geronimo.system.jmx.MBeanServerKernelBridge">
       <reference name="MBeanServerReference">
         <name>MBeanServerReference</name>
+      </reference>
+    </gbean>
+
+    <gbean name="DefaultThreadPool" class="org.apache.geronimo.pool.ThreadPool">
+        <attribute name="keepAliveTime">5000</attribute>
+        <attribute name="poolSize">300</attribute>
+        <attribute name="poolName">DefaultThreadPool</attribute>
+    </gbean>
+
+    <!-- Configuration Installer -->
+    <gbean name="ConfigurationInstaller" class="org.apache.geronimo.system.configuration.ConfigInstallerGBean">
+      <reference name="Repository">
+        <name>Repository</name>
+      </reference>
+      <reference name="ConfigStore">
+        <name>Local</name>
+      </reference>
+      <reference name="ConfigManager">
+        <name>ConfigurationManager</name>
+      </reference>
+      <reference name="ServerInfo">
+        <name>ServerInfo</name>
+      </reference>
+      <reference name="ThreadPool">
+        <name>DefaultThreadPool</name>
       </reference>
     </gbean>
 </configuration>

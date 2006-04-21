@@ -31,12 +31,6 @@ by the server.
 
         >
 
-    <gbean name="DefaultThreadPool" class="org.apache.geronimo.pool.ThreadPool">
-        <attribute name="keepAliveTime">5000</attribute>
-        <attribute name="poolSize">300</attribute>
-        <attribute name="poolName">DefaultThreadPool</attribute>
-    </gbean>
-
     <gbean name="ConnectionTracker"
            class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean">
     </gbean>
@@ -60,25 +54,6 @@ by the server.
         <reference name="TransactionContextManager">
             <name>TransactionContextManager</name>
         </reference>
-    </gbean>
-
-    <!-- Configuration Installer -->
-    <gbean name="ConfigurationInstaller" class="org.apache.geronimo.system.configuration.ConfigInstallerGBean">
-      <reference name="Repository">
-        <name>Repository</name>
-      </reference>
-      <reference name="ConfigStore">
-        <name>Local</name>
-      </reference>
-      <reference name="ConfigManager">
-        <name>ConfigurationManager</name>
-      </reference>
-      <reference name="ServerInfo">
-        <name>ServerInfo</name>
-      </reference>
-      <reference name="ThreadPool">
-        <name>DefaultThreadPool</name>
-      </reference>
     </gbean>
 
     <gbean name="HOWLTransactionLog" class="org.apache.geronimo.transaction.log.HOWLLog">
