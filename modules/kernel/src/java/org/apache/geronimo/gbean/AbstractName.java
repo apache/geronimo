@@ -191,6 +191,10 @@ public class AbstractName implements Serializable {
         return Collections.unmodifiableMap(name);
     }
 
+    public String getNameProperty(String key) {
+        return (String) name.get(key);
+    }
+
     public ObjectName getObjectName() {
         return objectName;
     }

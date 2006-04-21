@@ -82,8 +82,9 @@ public class MBeanServerKernelBridge implements GBeanLifecycle {
             beans = new HashMap(registry);
             registry.clear();
         }
-        for (Iterator i = beans.keySet().iterator(); i.hasNext();) {
-            ObjectName objectName = (ObjectName) i.next();
+        for (Iterator i = beans.values().iterator(); i.hasNext();) {
+            MBeanGBeanBridge mbeanGBeanBridge = (MBeanGBeanBridge) i.next();
+            ObjectName objectName = mbeanGBeanBridge.getObjectName();
             try {
                 mbeanServer.unregisterMBean(objectName);
             } catch (Exception e) {
