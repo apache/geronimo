@@ -98,29 +98,33 @@ public class ConfigCopier {
         this.targetRepositoryLocation = targetRepositoryLocation;
     }
 
-    public void execute() throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException, InvalidConfigException, IOException, NoSuchConfigException {
-        ClassLoader cl = this.getClass().getClassLoader();
+    public void execute() throws Exception {
+        try {
+            ClassLoader cl = this.getClass().getClassLoader();
 
-        Class sourceRepoClass = cl.loadClass(sourceRepositoryClass);
-        WritableListableRepository sourceRepository = (WritableListableRepository) sourceRepoClass.getDeclaredConstructor(REPO_ARGS).newInstance(new Object[] {sourceRepositoryLocation});
-        Class sourceConfigStoreClass = cl.loadClass(sourceConfigurationStoreClass);
-        ConfigurationStore sourceConfigStore = (ConfigurationStore) sourceConfigStoreClass.getDeclaredConstructor(STORE_ARGS).newInstance(new Object[] {sourceRepository});
+            Class sourceRepoClass = cl.loadClass(sourceRepositoryClass);
+            WritableListableRepository sourceRepository = (WritableListableRepository) sourceRepoClass.getDeclaredConstructor(REPO_ARGS).newInstance(new Object[] {sourceRepositoryLocation});
+            Class sourceConfigStoreClass = cl.loadClass(sourceConfigurationStoreClass);
+            ConfigurationStore sourceConfigStore = (ConfigurationStore) sourceConfigStoreClass.getDeclaredConstructor(STORE_ARGS).newInstance(new Object[] {sourceRepository});
 
-        Class targetRepoClass = cl.loadClass(targetRepositoryClass);
-        WritableListableRepository targetRepository = (WritableListableRepository) targetRepoClass.getDeclaredConstructor(REPO_ARGS).newInstance(new Object[] {targetRepositoryLocation});
-        Class targetConfigStoreClass = cl.loadClass(targetConfigurationStoreClass);
-        ConfigurationStore targetConfigStore = (ConfigurationStore) targetConfigStoreClass.getDeclaredConstructor(STORE_ARGS).newInstance(new Object[] {targetRepository});
+            Class targetRepoClass = cl.loadClass(targetRepositoryClass);
+            WritableListableRepository targetRepository = (WritableListableRepository) targetRepoClass.getDeclaredConstructor(REPO_ARGS).newInstance(new Object[] {targetRepositoryLocation});
+            Class targetConfigStoreClass = cl.loadClass(targetConfigurationStoreClass);
+            ConfigurationStore targetConfigStore = (ConfigurationStore) targetConfigStoreClass.getDeclaredConstructor(STORE_ARGS).newInstance(new Object[] {targetRepository});
 
-        List configs = sourceConfigStore.listConfigurations();
-        for (Iterator iterator = configs.iterator(); iterator.hasNext();) {
-            ConfigurationInfo configInfo = (ConfigurationInfo) iterator.next();
-            Artifact configId = configInfo.getConfigID();
-            ConfigurationData configData = sourceConfigStore.loadConfiguration(configId);
-            if (targetConfigStore.containsConfiguration(configId)) {
-                targetConfigStore.uninstall(configId);
+            List configs = sourceConfigStore.listConfigurations();
+            for (Iterator iterator = configs.iterator(); iterator.hasNext();) {
+                ConfigurationInfo configInfo = (ConfigurationInfo) iterator.next();
+                Artifact configId = configInfo.getConfigID();
+                ConfigurationData configData = sourceConfigStore.loadConfiguration(configId);
+                if (targetConfigStore.containsConfiguration(configId)) {
+                    targetConfigStore.uninstall(configId);
+                }
+                targetConfigStore.install(configData);
             }
-            targetConfigStore.install(configData);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
         }
-
     }
 }
