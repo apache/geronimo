@@ -181,6 +181,11 @@ public class ConfigurationData implements Serializable {
         return gbeanState;
     }
 
+    /**
+     * Gets a map of Artifact (config ID) to ConfigurationData for nested
+     * configurations (as in, a WAR within an EAR, not dependencies between
+     * totally separate configurations).
+     */
     public Map getChildConfigurations() {
         return Collections.unmodifiableMap(childConfigurations);
     }
@@ -191,7 +196,9 @@ public class ConfigurationData implements Serializable {
     }
 
     /**
-     * Gets the configurations owned by this configuration.  This is only used for cascade-uninstall.
+     * Gets the configurations owned by this configuration.  This is only used
+     * for cascade-uninstall.
+     * 
      * @return the configurations owned by this configuration
      */
     public Set getOwnedConfigurations() {

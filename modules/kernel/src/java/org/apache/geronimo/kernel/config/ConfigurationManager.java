@@ -32,7 +32,9 @@ public interface ConfigurationManager {
     /**
      * Is the specified configuration installed into the server
      * environment?  That is, does it exist in the configuration store,
-     * regardless of whether it's loaded or running?
+     * regardless of whether it's loaded or running?  Note that this
+     * always returns false if the argument does not represent a
+     * configuration (e.g. if it's for a plain JAR).
      *
      * @param configurationId the configuration identifier, which must be
      *                        fully resolved (isResolved() == true)
@@ -42,7 +44,9 @@ public interface ConfigurationManager {
     boolean isInstalled(Artifact configurationId);
 
     /**
-     * Is the specified configuration loaded into the kernel?
+     * Is the specified configuration loaded into the kernel?  Note that this
+     * always returns false if the argument does not represent a
+     * configuration (e.g. if it's for a plain JAR).
      *
      * @param configurationId the configuration identifier, which must be
      *                        fully resolved (isResolved() == true)
@@ -52,7 +56,9 @@ public interface ConfigurationManager {
     boolean isLoaded(Artifact configurationId);
 
     /**
-     * Is the specified configuation running?
+     * Is the specified configuation running?  Note that this
+     * always returns false if the argument does not represent a
+     * configuration (e.g. if it's for a plain JAR).
      *
      * @param configurationId the configuration identifier, which must be
      *                        fully resolved (isResolved() == true)
@@ -66,6 +72,8 @@ public interface ConfigurationManager {
      * missing), check whether there are any instances installed into
      * the server environment.  That is, are there any matches in the
      * configuration store, regardless of whether they're loaded or running?
+     * Note that this always returns an empty array if the argument does not
+     * represent a configuration (e.g. if it's for a plain JAR).
      *
      * @param query The partially-complete artifact name to check for
      *
@@ -76,6 +84,8 @@ public interface ConfigurationManager {
     /**
      * Given an artifact that's not fully resolved (e.g. some parts are
      * missing), check whether there are any instances loaded.
+     * Note that this always returns an empty array if the argument does not
+     * represent a configuration (e.g. if it's for a plain JAR).
      *
      * @param query The partially-complete artifact name to check for
      *
@@ -86,6 +96,8 @@ public interface ConfigurationManager {
     /**
      * Given an artifact that's not fully resolved (e.g. some parts are
      * missing), check whether there are any instances running.
+     * Note that this always returns an empty array if the argument does not
+     * represent a configuration (e.g. if it's for a plain JAR).
      *
      * @param query The partially-complete artifact name to check for
      *
