@@ -294,7 +294,7 @@
         <dependency>
             <groupId>activemq</groupId>
             <artifactId>activemq-core</artifactId>
-            <version>3.2.1</version>
+            <version>${activemq_version}</version>
         </dependency>
         <dependency>
             <groupId>commons-primitives</groupId>
