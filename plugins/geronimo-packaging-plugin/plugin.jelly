@@ -29,6 +29,7 @@
     <define:taglib uri="geronimo:packaging">
         <define:jellybean name="package" className="org.apache.geronimo.plugin.packaging.PackageBuilderShell" method="execute"/>
         <define:jellybean name="dependencies" className="org.apache.geronimo.plugin.packaging.PlanProcessor" method="execute"/>
+        <define:jellybean name="copyConfigs" className="org.apache.geronimo.plugin.packaging.ConfigCopier" method="execute"/>
     </define:taglib>
 
     <goal name="car" description="Package a Geronimo Configuration" prereqs="car:package"/>
@@ -47,11 +48,14 @@
     </goal>
 
     <goal name="car:package" prereqs="car:prepare-plan" description="Package a Geronimo Configuration">
+        <delete dir="${geronimo.packaging.targetRepository}"/>
+        <mkdir dir="${geronimo.packaging.targetRepository}"/>
         <car:package
             context="${context}"
             artifacts="${pom.artifacts}"
             pluginArtifacts="${plugin.artifacts}"
             repository="${geronimo.packaging.repository}"
+            targetRepository="${geronimo.packaging.targetRepository}"
             deployerName="${geronimo.packaging.deployerName}"
             planFile="${geronimo.packaging.buildFile}"
             moduleFile="${geronimo.packaging.moduleFile}"
@@ -67,6 +71,18 @@
     <goal name="car:install" prereqs="car:package" description="Install the package in the local repository">
         <j:catch>
             <artifact:install artifact="${maven.build.dir}/${maven.final.name}.car" type="car" project="${pom}"/>
+        </j:catch>
+        <j:catch>
+            <echo>about to copy configs</echo>
+            <car:copyConfigs
+                sourceRepositoryClass="${geronimo.packaging.install.sourceRepositoryClass}"
+                sourceConfigurationStoreClass="${geronimo.packaging.install.sourceConfigurationStoreClass}"
+                sourceRepositoryLocation="${geronimo.packaging.install.sourceRepositoryLocation}"
+                targetRepositoryClass="${geronimo.packaging.install.targetRepositoryClass}"
+                targetConfigurationStoreClass="${geronimo.packaging.install.targetConfigurationStoreClass}"
+                targetRepositoryLocation="${geronimo.packaging.install.targetRepositoryLocation}"
+                    />
+            <echo>done copying configs</echo>
         </j:catch>
     </goal>
 </project>

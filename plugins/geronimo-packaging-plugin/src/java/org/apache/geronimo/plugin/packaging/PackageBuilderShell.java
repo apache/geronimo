@@ -31,6 +31,8 @@ import java.util.Collection;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.system.repository.Maven1Repository;
+import org.apache.geronimo.system.repository.Maven2Repository;
+import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
 import org.apache.maven.jelly.MavenJellyContext;
 import org.apache.maven.project.Dependency;
 import org.apache.maven.repository.Artifact;
@@ -53,6 +55,7 @@ public class PackageBuilderShell {
     private static ClassLoader classLoader;
 
     private File repository;
+    private File targetRepository;
     private Collection deploymentConfigList;
     private String deployerName;
 
@@ -76,6 +79,14 @@ public class PackageBuilderShell {
      */
     public void setRepository(File repository) {
         this.repository = repository;
+    }
+
+    public File getTargetRepository() {
+        return targetRepository;
+    }
+
+    public void setTargetRepository(File targetRepository) {
+        this.targetRepository = targetRepository;
     }
 
     public String getDeployerName() {
@@ -231,6 +242,9 @@ public class PackageBuilderShell {
             set("setRepository", repository, File.class, packageBuilder);
             set("setRepositoryClass", Maven1Repository.class.getName(), String.class, packageBuilder);
             set("setConfigurationStoreClass", MavenConfigStore.class.getName(), String.class, packageBuilder);
+            set("setTargetRepository", targetRepository, File.class, packageBuilder);
+            set("setTargetRepositoryClass", Maven2Repository.class.getName(), String.class, packageBuilder);
+            set("setTargetConfigurationStoreClass", RepositoryConfigurationStore.class.getName(), String.class, packageBuilder);
             set("setExplicitResolutionLocation", explicitResolutionLocation, String.class, packageBuilder);
 
             Method m = packageBuilder.getClass().getMethod("execute", new Class[]{});

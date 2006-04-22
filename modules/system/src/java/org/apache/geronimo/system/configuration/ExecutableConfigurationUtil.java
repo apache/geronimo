@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Arrays;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
@@ -42,6 +43,15 @@ import org.apache.geronimo.kernel.config.ConfigurationUtil;
  * @version $Rev$ $Date$
  */
 public final class ExecutableConfigurationUtil {
+    private static final String META_INF = "META-INF";
+    private static final String CONFIG_SER = "config.ser";
+    private static final String CONFIG_INFO = "config.info";
+    private static final String META_INF_STARTUP_JAR = META_INF + "/startup-jar";
+    private static final String META_INF_CONFIG_SER = META_INF + "/" + CONFIG_SER;
+    private static final String META_INF_CONFIG_SER_SHA1 = META_INF_CONFIG_SER + ".sha1";
+    private static final String META_INF_CONFIG_INFO = META_INF + "/" + CONFIG_INFO;
+
+    private static final Collection EXCLUDED = Arrays.asList(new String[] {META_INF_STARTUP_JAR, META_INF_CONFIG_SER, META_INF_CONFIG_SER_SHA1, META_INF_CONFIG_INFO});
 
     private ExecutableConfigurationUtil() {
     }
@@ -58,13 +68,13 @@ public final class ExecutableConfigurationUtil {
             byte[] buffer = new byte[4096];
 
             if (manifest != null) {
-                out = new JarOutputStream(new FileOutputStream(destinationFile), manifest);
+                out = new JarOutputStream(new FileOutputStream(destinationFile, false), manifest);
 
                 // add the startup file which allows us to locate the startup directory
-                out.putNextEntry(new ZipEntry("META-INF/startup-jar"));
+                out.putNextEntry(new ZipEntry(META_INF_STARTUP_JAR));
                 out.closeEntry();
             } else {
-                out = new JarOutputStream(new FileOutputStream(destinationFile));
+                out = new JarOutputStream(new FileOutputStream(destinationFile, false));
             }
 
             // write the configurationData
@@ -75,19 +85,21 @@ public final class ExecutableConfigurationUtil {
             for (Iterator iterator = files.iterator(); iterator.hasNext();) {
                 File file = (File) iterator.next();
                 String relativePath = baseURI.relativize(file.toURI()).getPath();
-                InputStream in = new FileInputStream(file);
-                try {
-                    out.putNextEntry(new ZipEntry(relativePath));
+                if (!EXCLUDED.contains(relativePath)) {
+                    InputStream in = new FileInputStream(file);
                     try {
-                        int count;
-                        while ((count = in.read(buffer)) > 0) {
-                            out.write(buffer, 0, count);
+                        out.putNextEntry(new ZipEntry(relativePath));
+                        try {
+                            int count;
+                            while ((count = in.read(buffer)) > 0) {
+                                out.write(buffer, 0, count);
+                            }
+                        } finally {
+                            out.closeEntry();
                         }
                     } finally {
-                        out.closeEntry();
+                        close(in);
                     }
-                } finally {
-                    close(in);
                 }
             }
         } finally {
@@ -97,7 +109,7 @@ public final class ExecutableConfigurationUtil {
 
     public static void writeConfiguration(ConfigurationData configurationData, JarOutputStream out) throws IOException {
         // save the persisted form in the source directory
-        out.putNextEntry(new ZipEntry("META-INF/config.ser"));
+        out.putNextEntry(new ZipEntry(META_INF_CONFIG_SER));
         ConfigurationStoreUtil.ChecksumOutputStream sumOut = new ConfigurationStoreUtil.ChecksumOutputStream(out);
         try {
             ConfigurationUtil.writeConfigurationData(configurationData, sumOut);
@@ -106,7 +118,7 @@ public final class ExecutableConfigurationUtil {
         }
 
         // write the checksum file
-        out.putNextEntry(new ZipEntry("META-INF/config.ser.sha1"));
+        out.putNextEntry(new ZipEntry(META_INF_CONFIG_SER_SHA1));
         try {
             OutputStreamWriter writer = new OutputStreamWriter(out);
             writer.write(sumOut.getChecksum());
@@ -116,7 +128,7 @@ public final class ExecutableConfigurationUtil {
         }
 
         // write the info file
-        out.putNextEntry(new ZipEntry("META-INF/config.info"));
+        out.putNextEntry(new ZipEntry(META_INF_CONFIG_INFO));
         try {
             PrintWriter writer = new PrintWriter(new OutputStreamWriter(out));
             ConfigurationUtil.writeConfigInfo(writer, configurationData);
@@ -128,9 +140,9 @@ public final class ExecutableConfigurationUtil {
 
     public static void writeConfiguration(ConfigurationData configurationData, File source) throws IOException {
         // save the persisted form in the source directory
-        File metaInf = new File(source, "META-INF");
+        File metaInf = new File(source, META_INF);
         metaInf.mkdirs();
-        File configSer = new File(metaInf, "config.ser");
+        File configSer = new File(metaInf, CONFIG_SER);
 
         OutputStream out = new FileOutputStream(configSer);
         try {
@@ -146,7 +158,7 @@ public final class ExecutableConfigurationUtil {
         // write the info file
         PrintWriter writer = null;
         try {
-            writer = new PrintWriter(new FileWriter(new File(metaInf, "config.info")));
+            writer = new PrintWriter(new FileWriter(new File(metaInf, CONFIG_INFO)));
             ConfigurationUtil.writeConfigInfo(writer, configurationData);
         } finally {
             flush(writer);

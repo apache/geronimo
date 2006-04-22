@@ -82,7 +82,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
     }
 
     public AbstractName getAbstractName() {
-        return kernel.getAbstractNameFor(this);
+        return kernel == null? null:kernel.getAbstractNameFor(this);
     }
 
     public ConfigurationData loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {

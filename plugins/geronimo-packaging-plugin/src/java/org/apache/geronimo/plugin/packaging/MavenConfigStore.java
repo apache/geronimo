@@ -43,6 +43,10 @@ public class MavenConfigStore extends RepositoryConfigurationStore {
         super(kernel, objectName, repository);
     }
 
+    public MavenConfigStore(WritableListableRepository repository) {
+        super(repository);
+    }
+
     public File createNewConfigurationDir(Artifact configId) {
         try {
             File tmpFile = File.createTempFile("package", ".tmpdir");
@@ -72,7 +76,8 @@ public class MavenConfigStore extends RepositoryConfigurationStore {
     }
 
     public void uninstall(Artifact configID) throws NoSuchConfigException, IOException {
-        throw new UnsupportedOperationException();
+        File targetFile = repository.getLocation(configID);
+        targetFile.delete();
     }
 
     public List listConfigurations() {
