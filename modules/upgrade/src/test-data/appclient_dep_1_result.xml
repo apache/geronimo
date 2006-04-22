@@ -13,6 +13,18 @@
         <dep:version>${pom.currentVersion}</dep:version>
         <dep:type>car</dep:type>
       </dep:dependency>
+      <dep:dependency>
+        <dep:groupId>geronimo</dep:groupId>
+        <dep:artifactId>j2ee-server</dep:artifactId>
+        <dep:version>${geronimo_version}</dep:version>
+        <dep:type>car</dep:type>
+      </dep:dependency>
+      <dep:dependency>
+        <dep:groupId>geronimo</dep:groupId>
+        <dep:artifactId>j2ee-security</dep:artifactId>
+        <dep:version>${geronimo_version}</dep:version>
+        <dep:type>car</dep:type>
+      </dep:dependency>
     </dep:dependencies>
     <dep:hidden-classes/>
     <dep:non-overridable-classes/>

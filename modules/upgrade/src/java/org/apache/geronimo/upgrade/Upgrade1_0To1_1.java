@@ -138,7 +138,8 @@ public class Upgrade1_0To1_1 {
         }
         cursor.push();
         do {
-            if (cursor.getName().getLocalPart().equals("dependency")) {
+            String localPart = cursor.getName().getLocalPart();
+            if (localPart.equals("dependency") || localPart.equals("import")) {
                 extractDependency(cursor, environment);
             } else {
                 break;
@@ -207,7 +208,7 @@ public class Upgrade1_0To1_1 {
         QName attrQName = new QName(null, "suppressDefaultParentId");
         if ((attrValue = cursor.getAttributeText(attrQName)) != null) {
             cursor.removeAttribute(attrQName);
-                return true;
+                return Boolean.valueOf(attrValue).booleanValue();
         }
         return false;
     }

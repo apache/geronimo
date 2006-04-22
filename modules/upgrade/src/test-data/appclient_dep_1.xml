@@ -2,6 +2,15 @@
 <application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application" xmlns:j2ee="http://java.sun.com/xml/ns/j2ee"
     configId="appclient_dep"
     parentId="${pom.groupId}/server-security/${pom.currentVersion}/car">
+    <import>
+        <uri>geronimo/j2ee-server/${geronimo_version}/car</uri>
+    </import>
+    <import>
+        <groupId>geronimo</groupId>
+        <type>car</type>
+        <artifactId>openejb</artifactId>
+        <version>${geronimo_version}</version>
+    </import>
 
     <module>
         <java>appclient_dep_resref_single_client.jar</java>
