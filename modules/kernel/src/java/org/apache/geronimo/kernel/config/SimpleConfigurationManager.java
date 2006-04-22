@@ -61,7 +61,6 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         this.repositories = repositories;
     }
 
-
     public synchronized boolean isInstalled(Artifact configId) {
         if(!configId.isResolved()) {
             throw new IllegalArgumentException("Artifact "+configId+" is not fully resolved");
@@ -91,7 +90,18 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     }
 
     public Artifact[] getInstalled(Artifact query) {
-        return artifactResolver.queryArtifacts(query);
+        Artifact[] all = artifactResolver.queryArtifacts(query);
+        List configs = new ArrayList();
+        for (int i = 0; i < all.length; i++) {
+            Artifact artifact = all[i];
+            if(isConfiguration(artifact)) {
+                configs.add(artifact);
+            }
+        }
+        if(configs.size() == all.length) {
+            return all;
+        }
+        return (Artifact[]) configs.toArray(new Artifact[configs.size()]);
     }
 
     public Artifact[] getLoaded(Artifact query) {
