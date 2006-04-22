@@ -52,7 +52,7 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>jetty-deployer</artifactId>
+            <artifactId>tomcat-deployer</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
             <properties>
@@ -99,13 +99,6 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
             <version>${geronimo_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>jetty-deployer</artifactId>
-            <version>${geronimo_version}</version>
-            <type>car</type>
         </dependency>
 
         <dependency>
@@ -186,7 +179,7 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-jetty</artifactId>
+            <artifactId>geronimo-tomcat</artifactId>
             <version>${geronimo_version}</version>
         </dependency>
 
