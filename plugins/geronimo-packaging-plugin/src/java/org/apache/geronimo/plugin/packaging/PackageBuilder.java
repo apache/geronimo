@@ -35,6 +35,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
@@ -61,6 +62,8 @@ public class PackageBuilder {
      * The KernelRegistry keeps soft references that may be garbage collected.
      */
     private static Kernel kernel;
+    private static AbstractName targetConfigStoreAName;
+    private static AbstractName targetRepositoryAName;
 
     private static final String[] ARG_TYPES = {
             boolean.class.getName(),
@@ -95,7 +98,7 @@ public class PackageBuilder {
     private String extensionDirs;
     private String explicitResolutionLocation;
 
-    private String targetConfigStore;
+    private boolean targetSet;
 
     public String getRepositoryClass() {
         return repositoryClass;
@@ -268,6 +271,9 @@ public class PackageBuilder {
         System.out.println();
         try {
             Kernel kernel = createKernel();
+            if(!targetSet) {
+                setTargetConfigStore();
+            }
 
             // start the Configuration we're going to use for this deployment
             ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
@@ -285,10 +291,25 @@ public class PackageBuilder {
             }
 
             AbstractName deployer = locateDeployer(kernel);
-            invokeDeployer(kernel, deployer, targetConfigStore);
+            invokeDeployer(kernel, deployer, targetConfigStoreAName.toString());
             System.out.println("Generated package " + packageFile);
         } catch (Exception e) {
             log.error(e.getClass().getName() + ": " + e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    private void setTargetConfigStore() throws Exception {
+        try {
+            kernel.stopGBean(targetRepositoryAName);
+            kernel.setAttribute(targetRepositoryAName, "root", targetRepository.toURI());
+            kernel.startGBean(targetRepositoryAName);
+            if(kernel.getGBeanState(targetConfigStoreAName) != State.RUNNING_INDEX) {
+                throw new IllegalStateException("After restarted repository then config store is not running");
+            }
+            targetSet = true;
+        } catch (Exception e) {
+            e.printStackTrace();
             throw e;
         }
     }
@@ -341,6 +362,7 @@ public class PackageBuilder {
         URI targetRepositoryURI = targetRepository.toURI();
         targetRepoGBean.setAttribute("root", targetRepositoryURI);
         repoNames.add(targetRepoGBean.getAbstractName());
+        targetRepositoryAName = targetRepoGBean.getAbstractName();
 
         GBeanData artifactManagerGBean = bootstrap.addGBean("ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
 
@@ -367,7 +389,8 @@ public class PackageBuilder {
         }
         storeNames.add(targetStoreGBean.getAbstractName());
 
-        targetConfigStore = targetStoreGBean.getAbstractName().toString();
+        targetConfigStoreAName = targetStoreGBean.getAbstractName();
+        targetSet = true;
 
         GBeanData attrManagerGBean = bootstrap.addGBean("AttributeStore", MavenAttributeStore.GBEAN_INFO);
 
