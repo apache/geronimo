@@ -80,7 +80,6 @@
     <configuration name="geronimo/ldap-demo-jetty/${pom.currentVersion}/car" load="${Jetty.Sample.Applications.enable}"/>
     <configuration name="geronimo/webconsole-jetty/${pom.currentVersion}/car" load="${Jetty.Web.Management.Console.enable}"/>
     <configuration name="geronimo/uddi-jetty/${pom.currentVersion}/car" load="${Jetty.UDDI.Server.enable}"/>
-    <configuration name="geronimo/jmxdebug-jetty/${pom.currentVersion}/car" load="${Jetty.Web.Container.enable}"/>
     <configuration name="geronimo/remote-deploy-jetty/${pom.currentVersion}/car" load="${Jetty.Web.Container.enable}"/>
     <configuration name="geronimo/daytrader-derby-jetty/${pom.currentVersion}/car" load="${Daytrader.for.Jetty.enable}"/>
     <configuration name="geronimo/tomcat/${pom.currentVersion}/car" load="${Tomcat.Web.Container.enable}">
@@ -106,7 +105,6 @@
     <configuration name="geronimo/ldap-demo-tomcat/${pom.currentVersion}/car" load="${Tomcat.Sample.Applications.enable}"/>
     <configuration name="geronimo/webconsole-tomcat/${pom.currentVersion}/car" load="${Tomcat.Web.Management.Console.enable}"/>
     <configuration name="geronimo/uddi-tomcat/${pom.currentVersion}/car" load="${Tomcat.UDDI.Server.enable}"/>
-    <configuration name="geronimo/jmxdebug-tomcat/${pom.currentVersion}/car" load="${Tomcat.Web.Container.enable}"/>
     <configuration name="geronimo/remote-deploy-tomcat/${pom.currentVersion}/car" load="${Tomcat.Web.Container.enable}"/>
     <configuration name="geronimo/daytrader-derby-tomcat/${pom.currentVersion}/car" load="${Daytrader.for.Tomcat.enable}"/>
     <configuration name="geronimo/javamail/${pom.currentVersion}/car" load="false"><!-- load="${SMTP.Transport.enable}"-->

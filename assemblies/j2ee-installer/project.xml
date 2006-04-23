@@ -259,16 +259,6 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>jmxdebug-jetty</artifactId>
-            <type>car</type>
-            <version>${pom.currentVersion}</version>
-            <properties>
-                <geronimo.assemble>install</geronimo.assemble>
-                <geronimo.pack>Jetty.Web.Container</geronimo.pack>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
             <artifactId>uddi-jetty</artifactId>
             <type>car</type>
             <version>${pom.currentVersion}</version>
@@ -350,16 +340,6 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>remote-deploy-tomcat</artifactId>
-            <type>car</type>
-            <version>${pom.currentVersion}</version>
-            <properties>
-                <geronimo.assemble>install</geronimo.assemble>
-                <geronimo.pack>Tomcat.Web.Container</geronimo.pack>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>jmxdebug-tomcat</artifactId>
             <type>car</type>
             <version>${pom.currentVersion}</version>
             <properties>
