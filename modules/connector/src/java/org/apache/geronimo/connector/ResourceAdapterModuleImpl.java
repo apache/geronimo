@@ -18,19 +18,18 @@ package org.apache.geronimo.connector;
 
 import java.util.Hashtable;
 import java.util.Map;
-
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
+import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
 import org.apache.geronimo.management.geronimo.ResourceAdapter;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
-import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
-import org.apache.geronimo.kernel.ObjectNameUtil;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 395155 $ $Date$
  */
 public class ResourceAdapterModuleImpl implements ResourceAdapterModule {
     private final J2EEServer server;

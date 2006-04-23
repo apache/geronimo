@@ -87,6 +87,7 @@ import org.apache.geronimo.xbeans.j2ee.MessagelistenerType;
 import org.apache.geronimo.xbeans.j2ee.ResourceadapterType;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 import org.apache.geronimo.management.geronimo.JCAResourceAdapter;
+import org.apache.geronimo.management.geronimo.JCAAdminObject;
 import org.apache.geronimo.management.JCAConnectionFactory;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
@@ -112,6 +113,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
@@ -353,8 +355,13 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         }
 
         GBeanData jcaResourceData = new GBeanData(jcaResourcejsr77Name, JCAResourceImplGBean.GBEAN_INFO);
-        jcaResourceData.setReferencePattern("ConnectionFactories", new AbstractNameQuery(resourceAdapterModuleName.getArtifact(), Collections.EMPTY_MAP, JCAConnectionFactory.class.getName()));
-        jcaResourceData.setReferencePattern("ResourceAdapters", new AbstractNameQuery(resourceAdapterModuleName.getArtifact(), Collections.EMPTY_MAP, JCAResourceAdapter.class.getName()));
+        Map thisModule = new LinkedHashMap(2);
+        thisModule .put(NameFactory.J2EE_APPLICATION, resourceAdapterModuleName.getNameProperty(NameFactory.J2EE_APPLICATION));
+        thisModule .put(NameFactory.RESOURCE_ADAPTER_MODULE, resourceAdapterModuleName.getNameProperty(NameFactory.J2EE_NAME));
+        jcaResourceData.setReferencePattern("ConnectionFactories", new AbstractNameQuery(resourceAdapterModuleName.getArtifact(), thisModule, JCAConnectionFactory.class.getName()));
+        jcaResourceData.setReferencePattern("ResourceAdapters", new AbstractNameQuery(resourceAdapterModuleName.getArtifact(), thisModule, JCAResourceAdapter.class.getName()));
+        jcaResourceData.setReferencePattern("AdminObjects", new AbstractNameQuery(resourceAdapterModuleName.getArtifact(), thisModule, JCAAdminObject.class.getName()));
+
         try {
             earContext.addGBean(jcaResourceData);
         } catch (GBeanAlreadyExistsException e) {

@@ -366,7 +366,7 @@ public class GBeanAttribute {
     public Object getValue(Object target) throws Exception {
         if (!readable) {
             if (persistent) {
-                throw new IllegalStateException("This persistent attribute is not accessible while started. " + getDescription());
+                return persistentValue;
             } else {
                 throw new IllegalStateException("This attribute is not readable. " + getDescription());
             }
@@ -389,7 +389,7 @@ public class GBeanAttribute {
     public void setValue(Object target, Object value) throws Exception {
         if (!writable) {
             if (persistent) {
-                throw new IllegalStateException("This persistent attribute is not modifable while running. " + getDescription());
+                throw new IllegalStateException("This persistent attribute is not modifable while the gbean is running. " + getDescription());
             } else {
                 throw new IllegalStateException("This attribute is not writable. " + getDescription());
             }

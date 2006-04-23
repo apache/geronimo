@@ -39,9 +39,9 @@ public class JVMTest extends Abstract77Test {
 
     public void testStandardAttributes() throws Exception {
         assertEquals(JVM_DATA.getAbstractName().getObjectName().getCanonicalName(), kernel.getAttribute(JVM_DATA.getAbstractName(), "objectName"));
-        assertEquals(System.getProperty("java.version"), kernel.getAttribute(JVM_DATA.getAbstractName().getObjectName(), "javaVersion"));
-        assertEquals(System.getProperty("java.vendor"), kernel.getAttribute(JVM_DATA.getAbstractName().getObjectName(), "javaVendor"));
-        assertEquals(node, kernel.getAttribute(JVM_DATA.getAbstractName().getObjectName(), "node"));
+        assertEquals(System.getProperty("java.version"), kernel.getAttribute(JVM_DATA.getAbstractName(), "javaVersion"));
+        assertEquals(System.getProperty("java.vendor"), kernel.getAttribute(JVM_DATA.getAbstractName(), "javaVendor"));
+        assertEquals(node, kernel.getAttribute(JVM_DATA.getAbstractName(), "node"));
     }
 
     public void testGeronimoInterface() {
@@ -50,12 +50,12 @@ public class JVMTest extends Abstract77Test {
     }
 
     public void testGeronimoAttributes() throws Exception {
-        assertEquals(new Integer(runtime.availableProcessors()), kernel.getAttribute(JVM_DATA.getAbstractName().getObjectName(), "availableProcessors"));
+        assertEquals(new Integer(runtime.availableProcessors()), kernel.getAttribute(JVM_DATA.getAbstractName(), "availableProcessors"));
     }
 
     public void testStatistics() throws Exception {
-        assertEquals(Boolean.TRUE, kernel.getAttribute(JVM_DATA.getAbstractName().getObjectName(), "statisticsProvider"));
-        JVMStats stats = (JVMStats) kernel.getAttribute(JVM_DATA.getAbstractName().getObjectName(), "stats");
+        assertEquals(Boolean.TRUE, kernel.getAttribute(JVM_DATA.getAbstractName(), "statisticsProvider"));
+        JVMStats stats = (JVMStats) kernel.getAttribute(JVM_DATA.getAbstractName(), "stats");
         assertNotNull(stats.getHeapSize());
         assertTrue(stats.getHeapSize().getCurrent() > 0);
         assertNotNull(stats.getHeapSize().getDescription());

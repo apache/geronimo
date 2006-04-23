@@ -19,6 +19,7 @@ package org.apache.geronimo.connector;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.management.geronimo.JCAAdminObject;
@@ -36,6 +37,7 @@ public class AdminObjectWrapperGBean {
         infoBuilder.addAttribute("adminObjectInterface", String.class, true);
         infoBuilder.addAttribute("adminObjectClass", String.class, true);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
+        infoBuilder.addAttribute("abstractName", AbstractName.class, false);
         infoBuilder.addAttribute("objectName", String.class, false);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
 
@@ -46,6 +48,7 @@ public class AdminObjectWrapperGBean {
             "adminObjectInterface",
             "adminObjectClass",
             "kernel",
+            "abstractName",
             "objectName",
             "classLoader"
         });

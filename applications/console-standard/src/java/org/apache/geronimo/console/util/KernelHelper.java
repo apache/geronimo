@@ -40,25 +40,4 @@ public class KernelHelper {
         ret = kernel.invoke(mBeanName, function, args, types);
         return ret;
     }
-
-    protected static Object get(ObjectName mBeanName, String attributeName) {
-        Object ret = null;
-        try {
-            ret = kernel.getAttribute(mBeanName, attributeName);
-        } catch (Exception e) {
-            e.printStackTrace(System.out);
-        }
-        return ret;
-    }
-
-    protected static void set(ObjectName mBeanName, String attributeName,
-            Object value) {
-        Object ret = null;
-        try {
-            kernel.setAttribute(mBeanName, attributeName, value);
-        } catch (Exception e) {
-            e.printStackTrace(System.out);
-        }
-    }
-
 }

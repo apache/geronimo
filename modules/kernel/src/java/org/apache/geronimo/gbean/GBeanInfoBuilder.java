@@ -224,6 +224,16 @@ public class GBeanInfoBuilder {
                                 attribute.isManageable(),
                                 attribute.getGetterName(),
                                 attribute.getSetterName()));
+            } else {
+                if (attributeName.equals("kernel")) {
+                    addAttribute("kernel", Kernel.class, false);
+                } else if (attributeName.equals("classLoader")) {
+                    addAttribute("classLoader", ClassLoader.class, false);
+                } else if (attributeName.equals("abstractName")) {
+                    addAttribute("abstractName", AbstractName.class, false);
+                } else if (attributeName.equals("objectName")) {
+                    addAttribute("obectName", String.class, false);
+                }
             }
         }
     }
@@ -249,6 +259,7 @@ public class GBeanInfoBuilder {
         String type = attributeInfo.getType();
         return ("kernel".equals(name) && Kernel.class.getName().equals(type)) ||
                 ("classLoader".equals(name) && ClassLoader.class.getName().equals(type)) ||
+                ("abstractName".equals(name) && AbstractName.class.getName().equals(type)) ||
                 ("objectName".equals(name) && String.class.getName().equals(type));
     }
 
@@ -444,14 +455,14 @@ public class GBeanInfoBuilder {
         boolean[] isReference = new boolean[arguments.size()];
         for (int i = 0; i < argumentTypes.length; i++) {
             String argumentName = (String) arguments.get(i);
-            if (attributes.containsKey(argumentName)) {
+            if (references.containsKey(argumentName)) {
+                argumentTypes[i] = ((RefInfo) references.get(argumentName)).getJavaType();
+                isReference[i] = true;
+            } else if (attributes.containsKey(argumentName)) {
                 GAttributeInfo attribute = (GAttributeInfo) attributes.get(argumentName);
                 argumentTypes[i] = attribute.getType();
                 isReference[i] = false;
-            } else if (references.containsKey(argumentName)) {
-                argumentTypes[i] = ((RefInfo) references.get(argumentName)).getJavaType();
-                isReference[i] = true;
-            }
+            }  
         }
 
         Constructor[] constructors = gbeanType.getConstructors();

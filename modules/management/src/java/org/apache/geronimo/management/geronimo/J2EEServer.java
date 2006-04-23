@@ -18,6 +18,8 @@ package org.apache.geronimo.management.geronimo;
 
 import org.apache.geronimo.management.J2EEDeployedObject;
 import org.apache.geronimo.management.J2EEResource;
+import org.apache.geronimo.management.AppClientModule;
+import org.apache.geronimo.management.EJBModule;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -86,8 +88,6 @@ public interface J2EEServer extends org.apache.geronimo.management.J2EEServer {
     /**
      * Gets the SecurityRealms associated with this J2EEServer.
      *
-     * @see org.apache.geronimo.security.realm.SecurityRealm
-     *
      * @return The ObjectNames of the realms, in String form.
      */
     public SecurityRealm[] getSecurityRealms();
@@ -101,8 +101,6 @@ public interface J2EEServer extends org.apache.geronimo.management.J2EEServer {
      * Gets the ObjectName of the LoginService associated with this
      * J2EEServer.
      *
-     * @see org.apache.geronimo.security.jaas.server.JaasLoginServiceMBean
-     *
      * @return The ObjectName of the LoginService, in String form.
      */
     public LoginService getLoginService();
@@ -110,8 +108,6 @@ public interface J2EEServer extends org.apache.geronimo.management.J2EEServer {
     /**
      * Gets the ObjectName of the KeystoreManager associated with this
      * J2EEServer.
-     *
-     * @see org.apache.geronimo.security.keystore.FileKeystoreManager
      *
      * @return The ObjectName of the KeystoreManager, in String form.
      */
@@ -126,4 +122,14 @@ public interface J2EEServer extends org.apache.geronimo.management.J2EEServer {
      * Gets the ConfigurationManager associated with this J2EEServer.
      */
     public ConfigurationManager getConfigurationManager();
+
+    J2EEApplication[] getApplications();
+
+    AppClientModule[] getAppClients();
+
+    WebModule[] getWebModules();
+
+    EJBModule[] getEJBModules();
+
+    ResourceAdapterModule[] getResourceAdapterModules();
 }

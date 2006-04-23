@@ -214,10 +214,6 @@ public class KernelGBean implements Kernel{
         return kernel.getGBeanStartTime(shortName, type);
     }
 
-    public ClassLoader getClassLoaderFor(ObjectName name) throws GBeanNotFoundException {
-        return kernel.getClassLoaderFor(name);
-    }
-
     public ClassLoader getClassLoaderFor(AbstractName name) throws GBeanNotFoundException {
         return kernel.getClassLoaderFor(name);
     }
@@ -300,10 +296,6 @@ public class KernelGBean implements Kernel{
 
     public Object getAttribute(String shortName, Class type, String attributeName) throws GBeanNotFoundException, NoSuchAttributeException, Exception {
         return kernel.getAttribute(shortName, type, attributeName);
-    }
-
-    public void setAttribute(ObjectName objectName, String attributeName, Object attributeValue) throws GBeanNotFoundException, NoSuchAttributeException, Exception {
-        kernel.setAttribute(objectName, attributeName, attributeValue);
     }
 
     public void setAttribute(AbstractName abstractName, String attributeName, Object attributeValue) throws GBeanNotFoundException, NoSuchAttributeException, Exception {

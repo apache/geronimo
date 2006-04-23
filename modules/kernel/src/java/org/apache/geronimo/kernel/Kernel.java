@@ -354,10 +354,6 @@ public interface Kernel {
     /**
      * @deprecated Use AbstractName version instead
      */
-    ClassLoader getClassLoaderFor(ObjectName name) throws GBeanNotFoundException;
-    /**
-     * @deprecated Use AbstractName version instead
-     */
     GBeanInfo getGBeanInfo(ObjectName name) throws GBeanNotFoundException;
     /**
      * @deprecated Use AbstractName version instead
@@ -373,10 +369,6 @@ public interface Kernel {
      * @deprecated Use AbstractName version instead
      */
     Object getAttribute(ObjectName name, String attributeName) throws GBeanNotFoundException, NoSuchAttributeException, Exception;
-    /**
-     * @deprecated Use AbstractName version instead
-     */
-    void setAttribute(ObjectName name, String attributeName, Object attributeValue) throws GBeanNotFoundException, NoSuchAttributeException, Exception;
     /**
      * @deprecated Use AbstractName version instead
      */

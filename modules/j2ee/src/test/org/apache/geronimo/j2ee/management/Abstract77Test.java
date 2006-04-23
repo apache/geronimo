@@ -20,6 +20,8 @@ package org.apache.geronimo.j2ee.management;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Hashtable;
+import java.util.LinkedHashSet;
+import java.util.Collections;
 import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
 
@@ -27,13 +29,24 @@ import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.ReferencePatterns;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.management.impl.J2EEDomainImpl;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.j2ee.management.impl.JVMImpl;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
+import org.apache.geronimo.management.J2EEResource;
+import org.apache.geronimo.management.EJBModule;
+import org.apache.geronimo.management.AppClientModule;
+import org.apache.geronimo.management.geronimo.WebModule;
+import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
+import org.apache.geronimo.management.geronimo.J2EEApplication;
+import org.apache.geronimo.management.geronimo.J2EEServer;
+import org.apache.geronimo.management.geronimo.JVM;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
 import org.apache.log4j.ConsoleAppender;
@@ -53,11 +66,11 @@ public abstract class Abstract77Test extends TestCase {
     protected Kernel kernel;
 
     private static GBeanData buildGBeanData(String[] key, String[] value, GBeanInfo info) {
-        AbstractName abstractName = buildAbstractName(key, value, info);
+        AbstractName abstractName = buildAbstractName(key, value);
         return new GBeanData(abstractName, info);
     }
 
-    private static AbstractName buildAbstractName(String[] key, String value[], GBeanInfo info) {
+    private static AbstractName buildAbstractName(String[] key, String value[]) {
         Hashtable names = new Hashtable();
         for (int i = 0; i < key.length; i++) {
             String k = key[i];
@@ -82,16 +95,39 @@ public abstract class Abstract77Test extends TestCase {
         kernel.boot();
 
         ClassLoader classLoader = getClass().getClassLoader();
+
+        // server info
         SERVER_INFO_DATA.setAttribute("baseDirectory", System.getProperty("java.io.tmpdir"));
         kernel.loadGBean(SERVER_INFO_DATA, classLoader);
 
+        // domain
+        DOMAIN_DATA.setReferencePatterns("Servers", new ReferencePatterns(new AbstractNameQuery(J2EEServer.class.getName())));
         kernel.loadGBean(DOMAIN_DATA, classLoader);
 
+        // server
         SERVER_DATA.setReferencePattern("ServerInfo", SERVER_INFO_DATA.getAbstractName());
+        SERVER_DATA.setReferencePatterns("JVMs", new ReferencePatterns(new AbstractNameQuery(JVM.class.getName())));
+        LinkedHashSet resourcePatterns = new LinkedHashSet();
+        resourcePatterns.add(new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.JAVA_MAIL_RESOURCE), J2EEResource.class.getName()));
+        resourcePatterns.add(new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.JCA_CONNECTION_FACTORY), J2EEResource.class.getName()));
+        resourcePatterns.add(new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.JDBC_RESOURCE), J2EEResource.class.getName()));
+        resourcePatterns.add(new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.JMS_RESOURCE), J2EEResource.class.getName()));
+        resourcePatterns.add(new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.JNDI_RESOURCE), J2EEResource.class.getName()));
+        resourcePatterns.add(new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.JTA_RESOURCE), J2EEResource.class.getName()));
+        resourcePatterns.add(new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.RMI_IIOP_RESOURCE), J2EEResource.class.getName()));
+        resourcePatterns.add(new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.URL_RESOURCE), J2EEResource.class.getName()));
+        SERVER_DATA.setReferencePatterns("Resources", resourcePatterns);
+        SERVER_DATA.setReferencePatterns("Applications", new ReferencePatterns(new AbstractNameQuery(J2EEApplication.class.getName())));
+        SERVER_DATA.setReferencePatterns("AppClientModules", new ReferencePatterns(new AbstractNameQuery(AppClientModule.class.getName())));
+        SERVER_DATA.setReferencePatterns("EJBModules", new ReferencePatterns(new AbstractNameQuery(EJBModule.class.getName())));
+        SERVER_DATA.setReferencePatterns("ResourceAdapterModules", new ReferencePatterns(new AbstractNameQuery(ResourceAdapterModule.class.getName())));
+        SERVER_DATA.setReferencePatterns("WebModules", new ReferencePatterns(new AbstractNameQuery(WebModule.class.getName())));
         kernel.loadGBean(SERVER_DATA, classLoader);
 
-
+        // JVM
         kernel.loadGBean(JVM_DATA, classLoader);
+
+        // start um
         kernel.startGBean(SERVER_INFO_DATA.getAbstractName());
         kernel.startGBean(DOMAIN_DATA.getAbstractName());
         kernel.startGBean(SERVER_DATA.getAbstractName());

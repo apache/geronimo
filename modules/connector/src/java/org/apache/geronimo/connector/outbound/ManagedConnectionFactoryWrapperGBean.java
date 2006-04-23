@@ -19,6 +19,7 @@ package org.apache.geronimo.connector.outbound;
 import org.apache.geronimo.connector.ResourceAdapterWrapper;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.transaction.manager.ResourceManager;
@@ -42,6 +43,7 @@ public class ManagedConnectionFactoryWrapperGBean {
         infoFactory.addAttribute("connectionInterface", String.class, true);
         infoFactory.addAttribute("connectionImplClass", String.class, true);
         infoFactory.addAttribute("kernel", Kernel.class, false);
+        infoFactory.addAttribute("abstractName", AbstractName.class, false);
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
@@ -65,6 +67,7 @@ public class ManagedConnectionFactoryWrapperGBean {
             "ResourceAdapterWrapper",
             "ConnectionManagerContainer",
             "kernel",
+            "abstractName",
             "objectName",
             "classLoader"});
 

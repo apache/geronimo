@@ -30,9 +30,9 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.LinkedHashMap;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
-
 import javax.xml.namespace.QName;
 
 import org.apache.geronimo.common.DeploymentException;
@@ -63,10 +63,11 @@ import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.management.J2EEServer;
+import org.apache.geronimo.management.J2EEResource;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
@@ -487,7 +488,25 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 } catch (Exception e) {
                     throw new DeploymentException("Error initializing J2EEApplication managed object");
                 }
-                gbeanData.setReferencePatterns("j2eeServer", new ReferencePatterns(new AbstractNameQuery(J2EEServer.class.getName())));
+                gbeanData.setReferencePatterns("Server", new ReferencePatterns(new AbstractNameQuery(J2EEServer.class.getName())));
+
+                Map thisApp = Collections.singletonMap(NameFactory.J2EE_APPLICATION, earContext.getModuleName().getNameProperty(NameFactory.J2EE_NAME));
+                LinkedHashSet resourcePatterns = new LinkedHashSet();
+                resourcePatterns.add(new AbstractNameQuery(null, filter(thisApp, NameFactory.J2EE_TYPE, NameFactory.JAVA_MAIL_RESOURCE), J2EEResource.class.getName()));
+                resourcePatterns.add(new AbstractNameQuery(null, filter(thisApp, NameFactory.J2EE_TYPE, NameFactory.JCA_CONNECTION_FACTORY), J2EEResource.class.getName()));
+                resourcePatterns.add(new AbstractNameQuery(null, filter(thisApp, NameFactory.J2EE_TYPE, NameFactory.JDBC_RESOURCE), J2EEResource.class.getName()));
+                resourcePatterns.add(new AbstractNameQuery(null, filter(thisApp, NameFactory.J2EE_TYPE, NameFactory.JDBC_DRIVER), J2EEResource.class.getName()));
+                resourcePatterns.add(new AbstractNameQuery(null, filter(thisApp, NameFactory.J2EE_TYPE, NameFactory.JMS_RESOURCE), J2EEResource.class.getName()));
+                resourcePatterns.add(new AbstractNameQuery(null, filter(thisApp, NameFactory.J2EE_TYPE, NameFactory.JNDI_RESOURCE), J2EEResource.class.getName()));
+                resourcePatterns.add(new AbstractNameQuery(null, filter(thisApp, NameFactory.J2EE_TYPE, NameFactory.JTA_RESOURCE), J2EEResource.class.getName()));
+                resourcePatterns.add(new AbstractNameQuery(null, filter(thisApp, NameFactory.J2EE_TYPE, NameFactory.RMI_IIOP_RESOURCE), J2EEResource.class.getName()));
+                resourcePatterns.add(new AbstractNameQuery(null, filter(thisApp, NameFactory.J2EE_TYPE, NameFactory.URL_RESOURCE), J2EEResource.class.getName()));
+                gbeanData.setReferencePatterns("Resources", resourcePatterns);
+
+                gbeanData.setReferencePatterns("AppClientModules", new ReferencePatterns(new AbstractNameQuery(null, thisApp, org.apache.geronimo.management.AppClientModule.class.getName())));
+                gbeanData.setReferencePatterns("EJBModules", new ReferencePatterns(new AbstractNameQuery(null, thisApp, org.apache.geronimo.management.EJBModule.class.getName())));
+                gbeanData.setReferencePatterns("ResourceAdapterModules", new ReferencePatterns(new AbstractNameQuery(null, thisApp, org.apache.geronimo.management.geronimo.ResourceAdapterModule.class.getName())));
+                gbeanData.setReferencePatterns("WebModules", new ReferencePatterns(new AbstractNameQuery(null, thisApp, org.apache.geronimo.management.geronimo.WebModule.class.getName())));
                 earContext.addGBean(gbeanData);
             }
 
@@ -550,6 +569,12 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 module.close();
             }
         }
+    }
+
+    private static Map filter(Map original, String key, String value) {
+        LinkedHashMap filter = new LinkedHashMap(original);
+        filter.put(key, value);
+        return filter;
     }
 
     private void addModules(JarFile earFile, ApplicationType application, GerApplicationType gerApplication, Set moduleLocations, Set modules, Environment environment, AbstractName earName) throws DeploymentException {

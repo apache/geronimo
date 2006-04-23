@@ -19,10 +19,10 @@ package org.apache.geronimo.connector;
 
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.management.geronimo.JCAAdminObject;
 
-import javax.management.ObjectName;
 import java.util.Map;
 import java.util.HashMap;
 import java.lang.reflect.Constructor;
@@ -43,6 +43,7 @@ public class AdminObjectWrapper implements DynamicGBean, JCAAdminObject, AdminOb
 
 
     private final Kernel kernel;
+    private final AbstractName abstractName;
     private final String objectName;
 
     /**
@@ -54,6 +55,7 @@ public class AdminObjectWrapper implements DynamicGBean, JCAAdminObject, AdminOb
         adminObject = null;
         delegate = null;
         kernel = null;
+        abstractName = null;
         objectName = null;
     }
 
@@ -68,11 +70,13 @@ public class AdminObjectWrapper implements DynamicGBean, JCAAdminObject, AdminOb
     public AdminObjectWrapper(final String adminObjectInterface,
                               final String adminObjectClass,
                               final Kernel kernel,
+                              final AbstractName abstractName,
                               final String objectName,
                               final ClassLoader cl) throws IllegalAccessException, InstantiationException, ClassNotFoundException {
         this.adminObjectInterface = adminObjectInterface;
         this.adminObjectClass = adminObjectClass;
         this.kernel = kernel;
+        this.abstractName = abstractName;
         this.objectName = objectName;
         Class clazz = cl.loadClass(adminObjectClass);
         adminObject = clazz.newInstance();
@@ -178,11 +182,26 @@ public class AdminObjectWrapper implements DynamicGBean, JCAAdminObject, AdminOb
             Constructor con = cls.getConstructor(new Class[]{String.class});
             value = con.newInstance(new Object[]{value});
         }
-        kernel.setAttribute(ObjectName.getInstance(objectName), property, value);
+        kernel.setAttribute(abstractName, property, value);
     }
 
     public Object getConfigProperty(String property) throws Exception {
         return delegate.getAttribute(property);
     }
 
+    public String getObjectName() {
+        return objectName;
+    }
+
+    public boolean isStateManageable() {
+        return false;
+    }
+
+    public boolean isStatisticsProvider() {
+        return false;
+    }
+
+    public boolean isEventProvider() {
+        return false;
+    }
 }

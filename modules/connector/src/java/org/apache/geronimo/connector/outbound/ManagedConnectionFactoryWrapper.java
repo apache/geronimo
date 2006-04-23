@@ -36,6 +36,7 @@ import org.apache.geronimo.connector.ResourceAdapterWrapper;
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.transaction.manager.NamedXAResource;
@@ -71,6 +72,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
     private Object proxy;
     private ConnectorMethodInterceptor interceptor;
     private final Kernel kernel;
+    private final AbstractName abstractName;
     private final String objectName;
     private final boolean isProxyable;
     private final ClassLoader classLoader;
@@ -84,6 +86,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         connectionInterface = null;
         connectionImplClass = null;
         kernel = null;
+        abstractName = null;
         objectName = null;
         allImplementedInterfaces = null;
         isProxyable = false;
@@ -101,6 +104,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
                                            ResourceAdapterWrapper resourceAdapterWrapper,
                                            ConnectionManagerContainer connectionManagerContainer,
                                            Kernel kernel,
+                                           AbstractName abstractName,
                                            String objectName,
                                            ClassLoader cl) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         this.managedConnectionFactoryClass = managedConnectionFactoryClass;
@@ -136,8 +140,8 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         delegate = new DynamicGBeanDelegate();
         delegate.addAll(managedConnectionFactory);
         this.kernel = kernel;
+        this.abstractName = abstractName;
         this.objectName = objectName;
-
     }
 
     public String getManagedConnectionFactoryClass() {
@@ -306,7 +310,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
             Constructor con = cls.getConstructor(new Class[]{String.class});
             value = con.newInstance(new Object[]{value});
         }
-        kernel.setAttribute(ObjectName.getInstance(objectName), property, value);
+        kernel.setAttribute(abstractName, property, value);
     }
 
     public Object getConfigProperty(String property) throws Exception {

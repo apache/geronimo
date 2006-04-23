@@ -63,6 +63,7 @@ public class ListScreenHandler extends AbstractThreadHandler {
     }
 
     public static class ThreadPoolSummary implements Serializable, Comparable {
+        private static final long serialVersionUID = -7515061254194067140L;
         private final String abstractName;
         private final int maxSize;
         private final String name;

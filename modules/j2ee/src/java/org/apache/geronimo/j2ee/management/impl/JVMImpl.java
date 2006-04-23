@@ -20,22 +20,21 @@ package org.apache.geronimo.j2ee.management.impl;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Date;
-import java.util.Properties;
 import java.util.Hashtable;
-
+import java.util.Properties;
 import javax.management.ObjectName;
 import javax.management.j2ee.statistics.Stats;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.management.geronimo.JVM;
-import org.apache.geronimo.management.StatisticsProvider;
-import org.apache.geronimo.management.stats.JVMStatsImpl;
-import org.apache.geronimo.management.stats.BoundedRangeImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.ObjectNameUtil;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.Log;
+import org.apache.geronimo.management.StatisticsProvider;
+import org.apache.geronimo.management.geronimo.JVM;
+import org.apache.geronimo.management.stats.BoundedRangeImpl;
+import org.apache.geronimo.management.stats.JVMStatsImpl;
+import org.apache.geronimo.system.logging.SystemLog;
 
 /**
  *
@@ -43,7 +42,6 @@ import org.apache.commons.logging.Log;
  * @version $Rev$ $Date$
  */
 public class JVMImpl implements JVM, StatisticsProvider {
-    private final static Log log = LogFactory.getLog(JVMImpl.class);
     public static final String JAVA_VERSION = System.getProperty("java.version");
     public static final String JAVA_VENDOR = System.getProperty("java.vendor");
     public static final String NODE;
@@ -61,19 +59,15 @@ public class JVMImpl implements JVM, StatisticsProvider {
 
     private final String objectName;
     private final Kernel kernel;
-    private final String baseName;
+    private final SystemLog systemLog;
     private JVMStatsImpl stats;
 
-    public JVMImpl(String objectName, Kernel kernel) {
+    public JVMImpl(String objectName, Kernel kernel, SystemLog systemLog) {
         this.objectName = objectName;
         this.kernel = kernel;
+        this.systemLog = systemLog;
         ObjectName myObjectName = ObjectNameUtil.getObjectName(this.objectName);
         verifyObjectName(myObjectName);
-
-        // build the base name used to query the server for related modules
-        Hashtable keyPropertyList = myObjectName.getKeyPropertyList();
-        String serverName = (String) keyPropertyList.get("J2EEServer");
-        baseName = myObjectName.getDomain() + ":J2EEServer=" + serverName + ",";
     }
 
     /**
@@ -183,25 +177,16 @@ public class JVMImpl implements JVM, StatisticsProvider {
         return System.getProperties();
     }
 
-    public String getSystemLog() {
-        String[] logs = Util.getObjectNames(kernel, baseName, new String[]{NameFactory.SYSTEM_LOG});
-        if(logs.length != 1) {
-            log.error("Unable to resolve ObjectName for system log; got "+logs.length+" results!");
-            return null;
-        }
-        return logs[0];
+    public SystemLog getSystemLog() {
+        return systemLog;
     }
 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(JVMImpl.class, NameFactory.JVM);
-
-//        infoFactory.addAttribute("objectName", String.class, false);
-        infoFactory.addAttribute("kernel", Kernel.class, false);
-        infoFactory.addInterface(JVM.class);
-        infoFactory.addInterface(StatisticsProvider.class);
-        infoFactory.setConstructor(new String[] {"objectName", "kernel"});
+        infoFactory.addReference("SystemLog", SystemLog.class);
+        infoFactory.setConstructor(new String[] {"objectName", "kernel", "SystemLog"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

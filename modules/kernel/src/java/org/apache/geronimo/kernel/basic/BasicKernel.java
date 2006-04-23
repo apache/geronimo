@@ -191,11 +191,6 @@ public class BasicKernel implements Kernel {
         return gbeanInstance.getAttribute(attributeName);
     }
 
-    public void setAttribute(ObjectName objectName, String attributeName, Object attributeValue) throws GBeanNotFoundException, NoSuchAttributeException, Exception {
-        GBeanInstance gbeanInstance = registry.getGBeanInstance(objectName);
-        gbeanInstance.setAttribute(attributeName, attributeValue);
-    }
-
     public void setAttribute(AbstractName abstractName, String attributeName, Object attributeValue) throws GBeanNotFoundException, NoSuchAttributeException, Exception {
         GBeanInstance gbeanInstance = registry.getGBeanInstance(abstractName);
         gbeanInstance.setAttribute(attributeName, attributeValue);
@@ -684,11 +679,6 @@ public class BasicKernel implements Kernel {
 
     public boolean isRunning() {
         return running;
-    }
-
-    public ClassLoader getClassLoaderFor(ObjectName name) throws GBeanNotFoundException {
-        GBeanInstance gbeanInstance = registry.getGBeanInstance(name);
-        return gbeanInstance.getClassLoader();
     }
 
     public ClassLoader getClassLoaderFor(AbstractName name) throws GBeanNotFoundException {

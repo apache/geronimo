@@ -310,15 +310,15 @@ public final class GBeanInstance implements StateManageable {
         Class[] parameterTypes = new Class[arguments.size()];
         for (int i = 0; i < parameterTypes.length; i++) {
             String argumentName = (String) arguments.get(i);
-            if (attributeIndex.containsKey(argumentName)) {
-                Integer index = (Integer) attributeIndex.get(argumentName);
-                GBeanAttribute attribute = attributes[index.intValue()];
-                parameterTypes[i] = attribute.getType();
-            } else if (referenceIndex.containsKey(argumentName)) {
+            if (referenceIndex.containsKey(argumentName)) {
                 Integer index = (Integer) referenceIndex.get(argumentName);
                 GBeanReference reference = references[index.intValue()];
                 parameterTypes[i] = reference.getProxyType();
-            }
+            } else if (attributeIndex.containsKey(argumentName)) {
+                Integer index = (Integer) attributeIndex.get(argumentName);
+                GBeanAttribute attribute = attributes[index.intValue()];
+                parameterTypes[i] = attribute.getType();
+            } 
         }
         try {
             constructor = type.getConstructor(parameterTypes);
@@ -1183,6 +1183,13 @@ public final class GBeanInstance implements StateManageable {
         //
         //  Special attributes
         //
+        attributesMap.put("abstractName",
+                GBeanAttribute.createSpecialAttribute((GBeanAttribute) attributesMap.get("abstractName"),
+                        this,
+                        "abstractName",
+                        AbstractName.class,
+                        getAbstractName()));
+
         attributesMap.put("objectName",
                 GBeanAttribute.createSpecialAttribute((GBeanAttribute) attributesMap.get("objectName"),
                         this,

@@ -18,13 +18,14 @@ package org.apache.geronimo.management.geronimo;
 
 import java.util.Map;
 
+import org.apache.geronimo.management.J2EEManagedObject;
+
 /**
  * Management interface for admin objects
- * todo: make it implement J2EEManagedObject
  *
  * @version $Rev: 368994 $ $Date: 2006-01-14 02:07:18 -0500 (Sat, 14 Jan 2006) $
  */
-public interface JCAAdminObject {
+public interface JCAAdminObject extends J2EEManagedObject {
     public String getAdminObjectClass();
     public String getAdminObjectInterface();
 

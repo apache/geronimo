@@ -26,10 +26,7 @@ by the server.
                parentId="${pom.groupId}/rmi-naming/${pom.currentVersion}/car"
 
 -->
-<configuration
-        xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
-
-        >
+<configuration xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
     <gbean name="ConnectionTracker"
            class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean">
@@ -110,14 +107,66 @@ by the server.
     </gbean>
 
     <!-- JSR77 Management Objects -->
-    <gbean name="geronimo.server" class="org.apache.geronimo.j2ee.management.impl.J2EEDomainImpl"/>
+    <gbean name="geronimo.server" class="org.apache.geronimo.j2ee.management.impl.J2EEDomainImpl">
+        <reference name="Servers"/>
+    </gbean>
     <gbean name="geronimo" class="org.apache.geronimo.j2ee.management.impl.J2EEServerImpl">
         <reference name="ServerInfo">
             <name>ServerInfo</name>
         </reference>
+        <reference name="JVMs"/>
+        <references name="Resources">
+            <pattern>
+                <type>JCAResource</type>
+            </pattern>
+            <pattern>
+                <type>JavaMailResource</type>
+            </pattern>
+            <pattern>
+                <type>JDBCResource</type>
+            </pattern>
+            <pattern>
+                <type>JMSResource</type>
+            </pattern>
+            <pattern>
+                <type>JNDIResource</type>
+            </pattern>
+            <pattern>
+                <type>JTAResource</type>
+            </pattern>
+            <pattern>
+                <type>RMI_IIOPResource</type>
+            </pattern>
+            <pattern>
+                <type>URLResource</type>
+            </pattern>
+        </references>
+        <reference name="Applications"/>
+        <reference name="AppClientModules"/>
+        <reference name="WebModules"/>
+        <reference name="EJBModules"/>
+        <reference name="ResourceAdapterModules"/>
+        <reference name="WebManagers"/>
+        <reference name="EJBManagers"/>
+        <reference name="JMSManagers"/>
+        <reference name="ThreadPools"/>
+        <reference name="Repositories"/>
+        <reference name="SecurityRealms"/>
+        <reference name="LoginServices"/>
+        <reference name="KeystoreManagers"/>
+        <reference name="ConfigurationInstaller">
+            <name>ConfigurationInstaller</name>
+        </reference>
+        <reference name="ConfigurationManager">
+            <name>ConfigurationManager</name>
+        </reference>
     </gbean>
 
-    <gbean name="JVM" class="org.apache.geronimo.j2ee.management.impl.JVMImpl"/>
+    <gbean name="JVM" class="org.apache.geronimo.j2ee.management.impl.JVMImpl">
+        <reference name="SystemLog">
+            <name>Logger</name>
+        </reference>
+    </gbean>
 
     <gbean name="eis/JAXR" class="org.apache.geronimo.webservices.jaxr.JAXRGBean"/>
 

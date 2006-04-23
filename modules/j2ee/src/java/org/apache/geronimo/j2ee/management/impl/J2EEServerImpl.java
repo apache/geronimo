@@ -17,34 +17,34 @@
 
 package org.apache.geronimo.j2ee.management.impl;
 
-import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Set;
 import javax.management.ObjectName;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.management.AppClientModule;
+import org.apache.geronimo.management.EJBModule;
 import org.apache.geronimo.management.J2EEDeployedObject;
 import org.apache.geronimo.management.J2EEResource;
 import org.apache.geronimo.management.geronimo.EJBManager;
+import org.apache.geronimo.management.geronimo.J2EEApplication;
 import org.apache.geronimo.management.geronimo.J2EEServer;
 import org.apache.geronimo.management.geronimo.JMSManager;
 import org.apache.geronimo.management.geronimo.JVM;
+import org.apache.geronimo.management.geronimo.KeystoreManager;
 import org.apache.geronimo.management.geronimo.LoginService;
+import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 import org.apache.geronimo.management.geronimo.SecurityRealm;
 import org.apache.geronimo.management.geronimo.WebManager;
-import org.apache.geronimo.management.geronimo.KeystoreManager;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.system.configuration.ConfigurationInstaller;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.system.threads.ThreadPool;
 
 /**
@@ -52,23 +52,71 @@ import org.apache.geronimo.system.threads.ThreadPool;
  */
 public class J2EEServerImpl implements J2EEServer {
     private static final String SERVER_VENDOR = "The Apache Software Foundation";
-    private final Kernel kernel;
-    private final String baseName;
-    private final ServerInfo serverInfo;
     private final String objectName;
+    private final ServerInfo serverInfo;
+    private final Collection jvms;
+    private final Collection resources;
+    private final Collection j2eeApplications;
+    private final Collection appClientModules;
+    private final Collection webModules;
+    private final Collection ejbModules;
+    private final Collection resourceAdapterModules;
+    private final Collection webManagers;
+    private final Collection ejbManagers;
+    private final Collection jmsManagers;
+    private final Collection threadPools;
+    private final Collection repositories;
+    private final Collection securityRealms;
+    private final Collection loginServices;
+    private final Collection keystoreManagers;
+    private final ConfigurationInstaller configurationInstaller;
+    private final ConfigurationManager configurationManager;
 
-    public J2EEServerImpl(Kernel kernel, String objectName, ServerInfo serverInfo) {
+    public J2EEServerImpl(String objectName,
+            ServerInfo serverInfo,
+            Collection jvms,
+            Collection resources,
+            Collection applications,
+            Collection appClientModules,
+            Collection webModules,
+            Collection ejbModules,
+            Collection resourceAdapterModules,
+            Collection webManagers,
+            Collection ejbManagers,
+            Collection jmsManagers,
+            Collection threadPools,
+            Collection repositories,
+            Collection securityRealms,
+            Collection loginServices,
+            Collection keystoreManagers,
+            ConfigurationInstaller configurationInstaller,
+            ConfigurationManager configurationManager) {
+
         this.objectName = objectName;
         ObjectName myObjectName = ObjectNameUtil.getObjectName(this.objectName);
         verifyObjectName(myObjectName);
 
-        // build the base name used to query the server for child modules
-        Hashtable keyPropertyList = myObjectName.getKeyPropertyList();
-        String name = (String) keyPropertyList.get("name");
-        baseName = myObjectName.getDomain() + ":J2EEServer=" + name + ",";
-
-        this.kernel = kernel;
         this.serverInfo = serverInfo;
+        this.jvms = jvms;
+        this.resources = resources;
+
+        this.j2eeApplications = applications;
+        this.appClientModules = appClientModules;
+        this.webModules = webModules;
+        this.ejbModules = ejbModules;
+        this.resourceAdapterModules = resourceAdapterModules;
+
+        this.webManagers = webManagers;
+        this.ejbManagers = ejbManagers;
+        this.jmsManagers = jmsManagers;
+
+        this.threadPools = threadPools;
+        this.repositories = repositories;
+        this.securityRealms = securityRealms;
+        this.loginServices = loginServices;
+        this.keystoreManagers = keystoreManagers;
+        this.configurationInstaller = configurationInstaller;
+        this.configurationManager = configurationManager;
     }
 
     public String getObjectName() {
@@ -110,77 +158,124 @@ public class J2EEServerImpl implements J2EEServer {
 
 
     public String[] getDeployedObjects() {
-        return Util.getObjectNames(kernel,
-                baseName,
-                new String[]{"J2EEApplication", "AppClientModule", "EJBModule", "WebModule", "ResourceAdapterModule"});
+        return Util.getObjectNames(getDeployedObjectInstances());
     }
 
     public J2EEDeployedObject[] getDeployedObjectInstances() {
-        return (J2EEDeployedObject[]) Util.getObjects(kernel, baseName,
-                new String[]{"J2EEApplication", "AppClientModule", "EJBModule", "WebModule", "ResourceAdapterModule"}, J2EEDeployedObject.class);
+        ArrayList objects = new ArrayList();
+        if (j2eeApplications != null) {
+            objects.addAll(j2eeApplications);
+        }
+        if (appClientModules  != null) {
+            objects.addAll(appClientModules);
+        }
+        if (ejbModules  != null) {
+            objects.addAll(ejbModules);
+        }
+        if (webModules  != null) {
+            objects.addAll(webModules);
+        }
+        if (resourceAdapterModules != null) {
+            objects.addAll(resourceAdapterModules);
+        }
+
+        return (J2EEDeployedObject[]) objects.toArray(new J2EEDeployedObject[objects.size()]);
     }
 
     public String[] getResources() {
-        return Util.getObjectNames(kernel,
-                baseName,
-                new String[]{"JCAResource", "JavaMailResource", "JDBCResource", "JMSResource", "JNDIResource", "JTAResource", "RMI_IIOPResource", "URLResource"});
+        return Util.getObjectNames(getResourceInstances());
     }
 
     public J2EEResource[] getResourceInstances() {
-        return (J2EEResource[]) Util.getObjects(kernel, baseName,
-                new String[]{"JCAResource", "JavaMailResource", "JDBCResource", "JMSResource", "JNDIResource", "JTAResource", "RMI_IIOPResource", "URLResource"}, J2EEResource.class);
+        if (resources == null) return new J2EEResource[0];
+        return (J2EEResource[]) resources.toArray(new J2EEResource[resources.size()]);
     }
 
     public String[] getJavaVMs() {
-        return Util.getObjectNames(kernel, baseName, new String[]{"JVM"});
+        return Util.getObjectNames(getJavaVMInstances());
     }
 
     public JVM[] getJavaVMInstances() {
-        return (JVM[]) Util.getObjects(kernel, baseName, new String[]{"JVM"}, JVM.class);
+        if (jvms == null) return new JVM[0];
+        return (JVM[]) jvms.toArray(new JVM[jvms.size()]);
     }
 
+    public J2EEApplication[] getApplications() {
+        if (j2eeApplications == null) return new J2EEApplication[0];
+        return (J2EEApplication[]) j2eeApplications.toArray(new J2EEApplication[j2eeApplications.size()]);
+    }
+
+    public AppClientModule[] getAppClients() {
+        if (appClientModules == null) return new AppClientModule[0];
+        return (AppClientModule[]) appClientModules.toArray(new AppClientModule[appClientModules.size()]);
+    }
+
+    public WebModule[] getWebModules() {
+        if (webModules == null) return new WebModule[0];
+        return (WebModule[]) webModules.toArray(new WebModule[webModules.size()]);
+    }
+
+    public EJBModule[] getEJBModules() {
+        if (ejbModules == null) return new EJBModule[0];
+        return (EJBModule[]) ejbModules.toArray(new EJBModule[ejbModules.size()]);
+    }
+
+    public ResourceAdapterModule[] getResourceAdapterModules() {
+        if (resourceAdapterModules == null) return new ResourceAdapterModule[0];
+        return (ResourceAdapterModule[]) resourceAdapterModules.toArray(new ResourceAdapterModule[resourceAdapterModules.size()]);
+    }
+
+
     public WebManager[] getWebManagers() {
-        return (WebManager[]) getObjects(WebManager.class, false);
+        if (webManagers == null) return new WebManager[0];
+        return (WebManager[]) webManagers.toArray(new WebManager[webManagers.size()]);
     }
 
     public EJBManager[] getEJBManagers() {
-        return (EJBManager[]) getObjects(EJBManager.class, false);
+        if (ejbManagers == null) return new EJBManager[0];
+        return (EJBManager[]) ejbManagers.toArray(new EJBManager[ejbManagers.size()]);
     }
 
     public JMSManager[] getJMSManagers() {
-        return (JMSManager[]) getObjects(JMSManager.class, false);
+        if (jmsManagers == null) return new JMSManager[0];
+        return (JMSManager[]) jmsManagers.toArray(new JMSManager[jmsManagers.size()]);
     }
 
     public ThreadPool[] getThreadPools() {
-        return (ThreadPool[]) getObjects(ThreadPool.class, true);
+        if (threadPools == null) return new ThreadPool[0];
+        return (ThreadPool[]) threadPools.toArray(new ThreadPool[threadPools.size()]);
     }
 
     public Repository[] getRepositories() {
-        return (Repository[]) getObjects(Repository.class, true);
+        if (repositories == null) return new Repository[0];
+        return (Repository[]) repositories.toArray(new Repository[repositories.size()]);
     }
 
     public SecurityRealm[] getSecurityRealms() {
-        return (SecurityRealm[]) getObjects(SecurityRealm.class, true);
+        if (securityRealms == null) return new SecurityRealm[0];
+        return (SecurityRealm[]) securityRealms.toArray(new SecurityRealm[securityRealms.size()]);
     }
 
     public ServerInfo getServerInfo() {
-        return (ServerInfo) getObject(ServerInfo.class);
+        return serverInfo;
     }
 
     public LoginService getLoginService() {
-        return (LoginService) getObject(LoginService.class);
+        if (loginServices == null) return null;
+        return (LoginService) loginServices.iterator().next();
     }
 
     public KeystoreManager getKeystoreManager() {
-        return (KeystoreManager) getObject(KeystoreManager.class);
+        if (keystoreManagers == null) return null;
+        return (KeystoreManager) keystoreManagers.iterator().next();
     }
 
     public ConfigurationInstaller getConfigurationInstaller() {
-        return (ConfigurationInstaller) getObject(ConfigurationInstaller.class);
+        return configurationInstaller;
     }
 
     public ConfigurationManager getConfigurationManager() {
-        return ConfigurationUtil.getConfigurationManager(kernel);
+        return configurationManager;
     }
 
     public String getServerVendor() {
@@ -191,53 +286,51 @@ public class J2EEServerImpl implements J2EEServer {
         return serverInfo.getVersion();
     }
 
-    private Object getObject(Class type) {
-        Set names = kernel.listGBeans(new AbstractNameQuery(type.getName()));
-        if (names.isEmpty()) {
-            return null;
-        }
-        AbstractName name = (AbstractName) names.iterator().next();
-        return kernel.getProxyManager().createProxy(name, type);
-    }
-
-    private Object[] getObjects(Class type, boolean returnEmpty) {
-        Set names = kernel.listGBeans(new AbstractNameQuery(type.getName()));
-
-        if(names.size() == 0) {
-            if (returnEmpty) {
-                return (Object[]) Array.newInstance(type, 0);
-            } else {
-                return null;
-            }
-        }
-
-        Object[] results = (Object[]) Array.newInstance(type, names.size());
-        ProxyManager mgr = kernel.getProxyManager();
-        int i=0;
-        for (Iterator it = names.iterator(); it.hasNext();) {
-            AbstractName name = (AbstractName) it.next();
-            results[i++] = mgr.createProxy(name, type.getClassLoader());
-        }
-        return results;
-    }
-
     public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(J2EEServerImpl.class, NameFactory.J2EE_SERVER);
 
-        infoFactory.addAttribute("kernel", Kernel.class, false);
-        infoFactory.addAttribute("objectName", String.class, false);
-        infoFactory.addAttribute("deployedObjects", String[].class, false);
-        infoFactory.addAttribute("resources", String[].class, false);
-        infoFactory.addAttribute("javaVMs", String[].class, false);
-        infoFactory.addAttribute("serverVendor", String.class, false);
-        infoFactory.addAttribute("serverVersion", String.class, false);
-        infoFactory.addInterface(J2EEServer.class);
-
         infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("JVMs", JVM.class, NameFactory.JVM);
+        infoFactory.addReference("Resources", J2EEResource.class); // several types match this
+        infoFactory.addReference("Applications", J2EEApplication.class, NameFactory.J2EE_APPLICATION);
+        infoFactory.addReference("AppClientModules", AppClientModule.class, NameFactory.APP_CLIENT_MODULE);
+        infoFactory.addReference("WebModules", WebModule.class, NameFactory.WEB_MODULE);
+        infoFactory.addReference("EJBModules", EJBModule.class, NameFactory.EJB_MODULE);
+        infoFactory.addReference("ResourceAdapterModules", ResourceAdapterModule.class, NameFactory.RESOURCE_ADAPTER_MODULE);
+        infoFactory.addReference("WebManagers", WebManager.class);
+        infoFactory.addReference("EJBManagers", EJBManager.class);
+        infoFactory.addReference("JMSManagers", JMSManager.class);
+        infoFactory.addReference("ThreadPools", ThreadPool.class);
+        infoFactory.addReference("Repositories", Repository.class);
+        infoFactory.addReference("SecurityRealms", SecurityRealm.class);
+        infoFactory.addReference("LoginServices", LoginService.class);
+        infoFactory.addReference("KeystoreManagers", KeystoreManager.class);
+        infoFactory.addReference("ConfigurationInstaller", ConfigurationInstaller.class);
+        infoFactory.addReference("ConfigurationManager", ConfigurationManager.class);
 
-        infoFactory.setConstructor(new String[]{"kernel", "objectName", "ServerInfo"});
+        infoFactory.setConstructor(new String[]{
+                "objectName",
+                "ServerInfo",
+                "JVMs",
+                "Resources",
+                "Applications",
+                "AppClientModules",
+                "WebModules",
+                "EJBModules",
+                "ResourceAdapterModules",
+                "WebManagers",
+                "EJBManagers",
+                "JMSManagers",
+                "ThreadPools",
+                "Repositories",
+                "SecurityRealms",
+                "LoginServices",
+                "KeystoreManagers",
+                "ConfigurationInstaller",
+                "ConfigurationManager",
+        });
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

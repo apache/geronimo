@@ -17,13 +17,13 @@
 
 package org.apache.geronimo.connector;
 
-import org.apache.geronimo.connector.outbound.JCAConnectionFactoryImpl;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.management.geronimo.JCAResourceAdapter;
 import org.apache.geronimo.management.geronimo.JCAResource;
 import org.apache.geronimo.management.geronimo.JCAConnectionFactory;
+import org.apache.geronimo.management.geronimo.JCAAdminObject;
 
 public class JCAResourceImplGBean {
 
@@ -34,12 +34,14 @@ public class JCAResourceImplGBean {
         infoBuilder.addAttribute("objectName", String.class, false);
         infoBuilder.addReference("ConnectionFactories", JCAConnectionFactory.class, NameFactory.JCA_CONNECTION_FACTORY);
         infoBuilder.addReference("ResourceAdapters", JCAResourceAdapter.class, NameFactory.JCA_RESOURCE_ADAPTER);
+        infoBuilder.addReference("AdminObjects", JCAAdminObject.class, NameFactory.JCA_ADMIN_OBJECT);
         infoBuilder.addInterface(JCAResource.class);
 
         infoBuilder.setConstructor(new String[]{
             "objectName",
             "ConnectionFactories",
-            "ResourceAdapters"
+            "ResourceAdapters",
+            "AdminObjects"
         });
 
         GBEAN_INFO = infoBuilder.getBeanInfo();

@@ -545,10 +545,6 @@ public class KernelDelegate implements Kernel {
         return invokeKernel("getAttribute", new Object[]{shortName, type, attributeName}, new String[]{String.class.getName(), Class.class.getName(), String.class.getName()});
     }
 
-    public void setAttribute(ObjectName objectName, String attributeName, Object attributeValue) throws Exception {
-        invokeKernel("setAttribute", new Object[]{objectName, attributeName, attributeValue}, new String[]{ObjectName.class.getName(), String.class.getName(), Object.class.getName()});
-    }
-
     public void setAttribute(AbstractName abstractName, String attributeName, Object attributeValue) throws GBeanNotFoundException, NoSuchAttributeException, Exception {
         invokeKernel("setAttribute", new Object[]{abstractName, attributeName, attributeValue}, new String[]{AbstractName.class.getName(), String.class.getName(), Object.class.getName()});
     }
@@ -748,18 +744,6 @@ public class KernelDelegate implements Kernel {
     public void shutdown() {
         try {
             invokeKernel("shutdown", new Object[] {}, new String[] {});
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new InternalKernelException(e);
-        }
-    }
-
-    public ClassLoader getClassLoaderFor(ObjectName name) throws GBeanNotFoundException {
-        try {
-            return (ClassLoader) invokeKernel("getClassLoaderFor", new Object[] {name}, new String[] {ObjectName.class.getName()});
-        } catch (GBeanNotFoundException e) {
-            throw e;
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {

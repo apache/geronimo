@@ -82,7 +82,6 @@ public class Jsr77Naming extends Naming {
             objectNameMap.clear();
             objectNameMap.put(J2EE_TYPE, "J2EEDomain");
             objectNameMap.put(J2EE_NAME, DEFAULT_DOMAIN_NAME);
-            objectNameMap.put("J2EEServer", DEFAULT_SERVER_NAME);
         } else if ("J2EEServer".equals(type)) {
             //special case J2EEServer gbean
             objectNameMap.clear();

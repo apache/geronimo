@@ -47,8 +47,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManager;
@@ -58,6 +56,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.management.geronimo.KeystoreInstance;
@@ -83,7 +82,7 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
     private char[] keystorePassword; // Used to "unlock" the keystore for other services
     private Map keyPasswords = new HashMap();
     private Kernel kernel;
-    private ObjectName objectName;
+    private AbstractName abstractName;
     private char[] openPassword; // The password last used to open the keystore for editing
     // The following variables are the state of the keystore, which should be chucked if the file on disk changes
     private List privateKeys = new ArrayList();
@@ -91,12 +90,12 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
     private KeyStore keystore;
     private long keystoreReadDate = Long.MIN_VALUE;
 
-    public FileKeystoreInstance(ServerInfo serverInfo, URI keystorePath, String keystoreName, String keystorePassword, String keyPasswords, Kernel kernel, String objectName) throws MalformedObjectNameException {
+    public FileKeystoreInstance(ServerInfo serverInfo, URI keystorePath, String keystoreName, String keystorePassword, String keyPasswords, Kernel kernel, AbstractName abstractName) {
         this.serverInfo = serverInfo;
         this.keystorePath = keystorePath;
         this.keystoreName = keystoreName;
         this.kernel = kernel;
-        this.objectName = ObjectName.getInstance(objectName);
+        this.abstractName = abstractName;
         this.keystorePassword = keystorePassword == null ? null : keystorePassword.toCharArray();
         if(keyPasswords != null) {
             String[] keys = keyPasswords.split("\\]\\!\\[");
@@ -193,7 +192,7 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
             buf.append(entry.getKey()).append("=").append(entry.getValue());
         }
         try {
-            kernel.setAttribute(objectName, "keyPasswords", buf.toString());
+            kernel.setAttribute(abstractName, "keyPasswords", buf.toString());
         } catch (Exception e) {
             log.error("Unable to save key passwords in keystore '"+keystoreName+"'", e);
         }
@@ -320,10 +319,10 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
         infoFactory.addAttribute("keystorePassword", String.class, true, true);
         infoFactory.addAttribute("keyPasswords", String.class, true, true);
         infoFactory.addAttribute("kernel", Kernel.class, false);
-        infoFactory.addAttribute("objectName", String.class, false);
+        infoFactory.addAttribute("abstractName", AbstractName.class, false);
         infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addInterface(KeystoreInstance.class);
-        infoFactory.setConstructor(new String[]{"ServerInfo","keystorePath", "keystoreName", "keystorePassword", "keyPasswords", "kernel", "objectName"});
+        infoFactory.setConstructor(new String[]{"ServerInfo","keystorePath", "keystoreName", "keystorePassword", "keyPasswords", "kernel", "abstractName"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
