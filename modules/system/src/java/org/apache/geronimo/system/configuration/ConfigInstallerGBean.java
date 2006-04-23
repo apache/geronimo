@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.zip.ZipEntry;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import javax.security.auth.login.FailedLoginException;
@@ -131,7 +132,25 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
                 }
                 readNameAndID(xml, plugins);
             } else {
-                log.warn("Cannot extract plugin list from packed entries in repository yet ("+dir.getAbsolutePath()+")");
+                if(!dir.isFile() || !dir.canRead()) {
+                    throw new IllegalStateException("Cannot read artifact dir "+dir.getAbsolutePath());
+                }
+                try {
+                    JarFile jar = new JarFile(dir);
+                    try {
+                        ZipEntry entry = jar.getEntry("META-INF/geronimo-plugin.xml");
+                        if(entry == null) {
+                            continue;
+                        }
+                        InputStream in = jar.getInputStream(entry);
+                        readNameAndID(in, plugins);
+                        in.close();
+                    } finally {
+                        jar.close();
+                    }
+                } catch (IOException e) {
+                    log.error("Unable to read JAR file "+dir.getAbsolutePath(), e);
+                }
             }
         }
         return plugins;
@@ -139,26 +158,52 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
 
     public ConfigurationArchiveData getPluginMetadata(Artifact configId) {
         File dir = writeableRepo.getLocation(configId);
-        File meta = new File(dir, "META-INF");
-        if(!meta.isDirectory() || !meta.canRead()) {
-            return null;
-        }
-        File xml = new File(meta, "geronimo-plugin.xml");
+        Document doc;
+        ConfigurationData configData;
+        String source = dir.getAbsolutePath();
         try {
-            ConfigurationData configData = configStore.loadConfiguration(configId);
-            if(!xml.isFile() || !xml.canRead() || xml.length() == 0) {
-                return new ConfigurationArchiveData(null, new URL[0], createDefaultMetadata(configData));
+            if(dir.isDirectory()) {
+                File meta = new File(dir, "META-INF");
+                if(!meta.isDirectory() || !meta.canRead()) {
+                    return null;
+                }
+                File xml = new File(meta, "geronimo-plugin.xml");
+                configData = configStore.loadConfiguration(configId);
+                if(!xml.isFile() || !xml.canRead() || xml.length() == 0) {
+                    return new ConfigurationArchiveData(null, new URL[0], createDefaultMetadata(configData));
+                }
+                source = xml.getAbsolutePath();
+                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder builder = factory.newDocumentBuilder();
+                doc = builder.parse(xml);
+            } else {
+                if(!dir.isFile() || !dir.canRead()) {
+                    throw new IllegalStateException("Cannot read configuration "+dir.getAbsolutePath());
+                }
+                configData = configStore.loadConfiguration(configId);
+                JarFile jar = new JarFile(dir);
+                try {
+                    ZipEntry entry = jar.getEntry("META-INF/geronimo-plugin.xml");
+                    if(entry == null) {
+                        return new ConfigurationArchiveData(null, new URL[0], createDefaultMetadata(configData));
+                    }
+                    source = dir.getAbsolutePath()+"#META-INF/geronimo-plugin.xml";
+                    InputStream in = jar.getInputStream(entry);
+                    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                    DocumentBuilder builder = factory.newDocumentBuilder();
+                    doc = builder.parse(in);
+                    in.close();
+                } finally {
+                    jar.close();
+                }
             }
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document doc = builder.parse(xml);
-            ConfigurationArchiveData result = loadConfigurationMetadata(doc, xml);
+            ConfigurationArchiveData result = loadConfigurationMetadata(doc, source);
             overrideDependencies(configData, result.getConfiguration());
             return result;
         } catch (InvalidConfigException e) {
             log.warn("Unable to generate metadata for "+configId, e);
         } catch (Exception e) {
-            log.warn("Invalid XML at "+xml.getAbsolutePath(), e);
+            log.warn("Invalid XML at "+source, e);
         }
         return null;
     }
@@ -231,21 +276,21 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
         } finally {
             jar.close();
         }
-        return loadConfigurationMetadata(doc, file);
+        return loadConfigurationMetadata(doc, file.getAbsolutePath());
     }
 
-    private ConfigurationArchiveData loadConfigurationMetadata(Document doc, File file) throws SAXException, MalformedURLException {
+    private ConfigurationArchiveData loadConfigurationMetadata(Document doc, String file) throws SAXException, MalformedURLException {
         Element root = doc.getDocumentElement();
         NodeList configs = root.getElementsByTagName("configuration");
         if(configs.getLength() != 1) {
-            log.error("Configuration archive "+file.getAbsolutePath()+" does not have exactly one configuration in META-INF/geronimo-plugin.xml");
+            log.error("Configuration archive "+file+" does not have exactly one configuration in META-INF/geronimo-plugin.xml");
             return null;
         }
         ConfigurationMetadata data = processConfiguration((Element) configs.item(0));
         String repo = getChildText(root, "source-repository");
         URL repoURL;
         if(repo == null || repo.equals("")) {
-            log.warn("Configuration archive "+file.getAbsolutePath()+" does not list a repository for downloading dependencies.");
+            log.warn("Configuration archive "+file+" does not list a repository for downloading dependencies.");
             repoURL = null;
         } else {
             repoURL = new URL(repo);
@@ -916,6 +961,20 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
             }
         } catch (Exception e) {
             log.warn("Invalid XML at "+xml.getAbsolutePath(), e);
+        }
+    }
+
+    private void readNameAndID(InputStream xml, Map plugins) {
+        try {
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            SAXParser parser = factory.newSAXParser();
+            PluginNameIDHandler handler = new PluginNameIDHandler();
+            parser.parse(xml, handler);
+            if(handler.isComplete()) {
+                plugins.put(handler.getName(), Artifact.create(handler.getID()));
+            }
+        } catch (Exception e) {
+            log.warn("Invalid XML", e);
         }
     }
 

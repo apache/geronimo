@@ -26,6 +26,9 @@ import java.io.Serializable;
  */
 // This code was lifted from Apache Maven
 public class Version implements Comparable, Serializable {
+    // Geronimo adds Serial UID because we serialize versions into config.ser
+    private static final long serialVersionUID = 7941704456058067109L;
+
     private Integer majorVersion;
 
     private Integer minorVersion;
