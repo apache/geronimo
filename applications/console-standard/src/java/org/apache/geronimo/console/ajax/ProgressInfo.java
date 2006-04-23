@@ -23,8 +23,9 @@ public class ProgressInfo
     private int progressPercent = -1;
     private String mainMessage;
     private String subMessage;
+    private boolean finished;
 
-	public int getProgressPercent() {
+    public int getProgressPercent() {
 		return progressPercent;
 	}
 
@@ -47,5 +48,12 @@ public class ProgressInfo
 	public void setSubMessage(String subMessage) {
 		this.subMessage = subMessage;
 	}
-    
+
+    public boolean isFinished() {
+        return finished;
+    }
+
+    public void setFinished(boolean finished) {
+        this.finished = finished;
+    }
 }

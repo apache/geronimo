@@ -124,56 +124,50 @@ public class DownloadCARHandler extends BaseImportExportHandler {
             ConfigurationInstaller configInstaller = PortletManager.getCurrentServer(request).getConfigurationInstaller(); 
             Object downloadKey = configInstaller.startInstall(installList, user, pass);
             ProgressInfo progressInfo = new ProgressInfo();
-            request.getPortletSession().setAttribute(ProgressInfo.PROGRESS_INFO_KEY, progressInfo, PortletSession.APPLICATION_SCOPE);
+            request.getPortletSession(true).setAttribute(ProgressInfo.PROGRESS_INFO_KEY, progressInfo, PortletSession.APPLICATION_SCOPE);
+            // Kick off the download monitoring
+            new Thread(new Installer(configInstaller, downloadKey, progressInfo, request.getPortletSession(true))).start();
+
+            response.setRenderParameter("configId", configId);
+            response.setRenderParameter("repository", repo);
+            if(!isEmpty(user)) response.setRenderParameter("repo-user", user);
+            if(!isEmpty(pass)) response.setRenderParameter("repo-pass", pass);
+        }
+        return DOWNLOAD_STATUS_MODE+BEFORE_ACTION;
+    }
+
+    public static class Installer implements Runnable {
+        private ConfigurationInstaller configInstaller;
+        private Object downloadKey;
+        private ProgressInfo progressInfo;
+        private PortletSession session;
+
+        public Installer(ConfigurationInstaller configInstaller, Object downloadKey, ProgressInfo progressInfo, PortletSession session) {
+            this.configInstaller = configInstaller;
+            this.downloadKey = downloadKey;
+            this.progressInfo = progressInfo;
+            this.session = session;
+        }
+
+        public void run() {
             DownloadResults results;
+
             while (true) {
             	results = configInstaller.checkOnInstall(downloadKey);
             	progressInfo.setMainMessage(results.getCurrentMessage());
             	progressInfo.setProgressPercent(results.getCurrentFilePercent());
-            	if (results.isFinished() || results.isFailed()) {
-                	break;
+                progressInfo.setFinished(results.isFinished());
+                log.info(progressInfo.getMainMessage());
+                if (results.isFinished()) {
+                    log.info("Installation finished");
+                    session.setAttribute(DOWNLOAD_RESULTS_SESSION_KEY, results);
+                    break;
             	} else {
             		try { Thread.sleep(1000); } catch (InterruptedException e) {
                         log.error("Download monitor thread interrupted", e);
 					}
             	}
             }
-            if(results.isFailed()) {
-                throw new PortletException("Unable to install configuration", results.getFailure());
-            }
-            List dependencies = new ArrayList();
-            for (int i = 0; i < results.getDependenciesInstalled().length; i++) {
-                Artifact uri = results.getDependenciesInstalled()[i];
-                dependencies.add(new InstallResults(uri.toString(), "installed"));
-            }
-            for (int i = 0; i < results.getDependenciesPresent().length; i++) {
-                Artifact uri = results.getDependenciesPresent()[i];
-                dependencies.add(new InstallResults(uri.toString(), "already present"));
-            }
-            request.getPortletSession(true).setAttribute("car.install.results", dependencies);
-            response.setRenderParameter("configId", configId);
-            response.setRenderParameter("repository", repo);
-            if(!isEmpty(user)) response.setRenderParameter("repo-user", user);
-            if(!isEmpty(pass)) response.setRenderParameter("repo-pass", pass);
-        }
-        return RESULTS_MODE+BEFORE_ACTION;
-    }
-
-    public static class InstallResults implements Serializable {
-        private String name;
-        private String action;
-
-        public InstallResults(String name, String action) {
-            this.name = name;
-            this.action = action;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getAction() {
-            return action;
         }
     }
 }
