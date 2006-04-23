@@ -682,7 +682,7 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
         if(matches.length == 0) {
             OpenResult result = openStream(configID, repoURL, backups, username, password, monitor);
             try {
-                writeableRepo.copyToRepository(result.getStream(), result.getConfigID(), monitor); //todo: download SNAPSHOTS if previously available?
+                writeableRepo.copyToRepository(result.getStream(), result.getFileSize(), result.getConfigID(), monitor); //todo: download SNAPSHOTS if previously available?
                 monitor.getResults().addDependencyInstalled(configID);
                 configID = result.getConfigID();
             } finally {
@@ -781,7 +781,7 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
             log.debug("Attempting to download "+artifact+" from "+url);
             in = connect(url, username, password, monitor);
             if(in != null) {
-                return new OpenResult(artifact, in);
+                return new OpenResult(artifact, in, monitor == null ? -1 : monitor.getTotalBytes());
             }
         }
     }
@@ -924,7 +924,12 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
             this.totalBytes = totalBytes;
         }
 
-        public void writeStarted(String fileDescription) {
+        public int getTotalBytes() {
+            return totalBytes;
+        }
+
+        public void writeStarted(String fileDescription, int fileSize) {
+            totalBytes = fileSize;
             file = fileDescription;
             results.setCurrentFile(fileDescription);
             results.setCurrentMessage("Downloading "+fileDescription+"...");
@@ -1137,10 +1142,12 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
     private static class OpenResult {
         private final InputStream stream;
         private final Artifact configID;
+        private final int fileSize;
 
-        public OpenResult(Artifact configID, InputStream stream) {
+        public OpenResult(Artifact configID, InputStream stream, int fileSize) {
             this.configID = configID;
             this.stream = stream;
+            this.fileSize = fileSize;
         }
 
         public Artifact getConfigID() {
@@ -1149,6 +1156,10 @@ public class ConfigInstallerGBean implements ConfigurationInstaller {
 
         public InputStream getStream() {
             return stream;
+        }
+
+        public int getFileSize() {
+            return fileSize;
         }
     }
 

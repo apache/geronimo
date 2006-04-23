@@ -28,6 +28,8 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.ListableRepository;
+import org.apache.geronimo.kernel.repository.WritableListableRepository;
 import org.apache.geronimo.management.AppClientModule;
 import org.apache.geronimo.management.EJBModule;
 import org.apache.geronimo.management.J2EEDeployedObject;
@@ -66,6 +68,7 @@ public class J2EEServerImpl implements J2EEServer {
     private final Collection jmsManagers;
     private final Collection threadPools;
     private final Collection repositories;
+    private final Collection writableRepos;
     private final Collection securityRealms;
     private final Collection loginServices;
     private final Collection keystoreManagers;
@@ -86,6 +89,7 @@ public class J2EEServerImpl implements J2EEServer {
             Collection jmsManagers,
             Collection threadPools,
             Collection repositories,
+            Collection writableRepos,
             Collection securityRealms,
             Collection loginServices,
             Collection keystoreManagers,
@@ -112,6 +116,7 @@ public class J2EEServerImpl implements J2EEServer {
 
         this.threadPools = threadPools;
         this.repositories = repositories;
+        this.writableRepos = writableRepos;
         this.securityRealms = securityRealms;
         this.loginServices = loginServices;
         this.keystoreManagers = keystoreManagers;
@@ -246,9 +251,14 @@ public class J2EEServerImpl implements J2EEServer {
         return (ThreadPool[]) threadPools.toArray(new ThreadPool[threadPools.size()]);
     }
 
-    public Repository[] getRepositories() {
-        if (repositories == null) return new Repository[0];
-        return (Repository[]) repositories.toArray(new Repository[repositories.size()]);
+    public ListableRepository[] getRepositories() {
+        if (repositories == null) return new ListableRepository[0];
+        return (ListableRepository[]) repositories.toArray(new ListableRepository[repositories.size()]);
+    }
+
+    public WritableListableRepository[] getWritableRepositories() {
+        if (writableRepos == null) return new WritableListableRepository[0];
+        return (WritableListableRepository[]) writableRepos.toArray(new WritableListableRepository[writableRepos.size()]);
     }
 
     public SecurityRealm[] getSecurityRealms() {
@@ -303,7 +313,8 @@ public class J2EEServerImpl implements J2EEServer {
         infoFactory.addReference("EJBManagers", EJBManager.class);
         infoFactory.addReference("JMSManagers", JMSManager.class);
         infoFactory.addReference("ThreadPools", ThreadPool.class);
-        infoFactory.addReference("Repositories", Repository.class);
+        infoFactory.addReference("Repositories", ListableRepository.class);
+        infoFactory.addReference("WritableRepos", WritableListableRepository.class);
         infoFactory.addReference("SecurityRealms", SecurityRealm.class);
         infoFactory.addReference("LoginServices", LoginService.class);
         infoFactory.addReference("KeystoreManagers", KeystoreManager.class);
@@ -325,6 +336,7 @@ public class J2EEServerImpl implements J2EEServer {
                 "JMSManagers",
                 "ThreadPools",
                 "Repositories",
+                "WritableRepos",
                 "SecurityRealms",
                 "LoginServices",
                 "KeystoreManagers",

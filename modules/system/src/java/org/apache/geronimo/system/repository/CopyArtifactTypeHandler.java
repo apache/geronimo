@@ -34,7 +34,7 @@ public class CopyArtifactTypeHandler implements ArtifactTypeHandler {
     private final static int TRANSFER_NOTIFICATION_SIZE = 10240;  // announce every this many bytes
     private final static int TRANSFER_BUF_SIZE = 10240;  // try this many bytes at a time
 
-    public void install(InputStream source, Artifact artifact, FileWriteMonitor monitor, File target) throws IOException {
+    public void install(InputStream source, int size, Artifact artifact, FileWriteMonitor monitor, File target) throws IOException {
         // assure that the target directory exists
         File parent = target.getParentFile();
         if (!parent.exists() && !parent.mkdirs()) {
@@ -43,7 +43,7 @@ public class CopyArtifactTypeHandler implements ArtifactTypeHandler {
 
         // copy it
         if (monitor != null) {
-            monitor.writeStarted(artifact.toString());
+            monitor.writeStarted(artifact.toString(), size);
         }
         int total = 0;
         try {

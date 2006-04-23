@@ -161,30 +161,6 @@ public class PortletManager {
         return helper.testLoginModule(getCurrentServer(request), module, options, username, password);
     }
 
-    public static ListableRepository[] getListableRepositories(PortletRequest request) {
-        Repository[] list = getCurrentServer(request).getRepositories();
-        List result = new ArrayList();
-        for (int i = 0; i < list.length; i++) {
-            Repository repository = list[i];
-            if (repository instanceof ListableRepository) {
-                result.add(repository);
-            }
-        }
-        return (ListableRepository[]) result.toArray(new ListableRepository[result.size()]);
-    }
-
-    public static WriteableRepository[] getWritableRepositories(PortletRequest request) {
-        Repository[] list = getCurrentServer(request).getRepositories();
-        List result = new ArrayList();
-        for (int i = 0; i < list.length; i++) {
-            Repository repository = list[i];
-            if (repository instanceof WriteableRepository) {
-                result.add(repository);
-            }
-        }
-        return (WriteableRepository[]) result.toArray(new WriteableRepository[result.size()]);
-    }
-
     public static ResourceAdapterModule[] getOutboundRAModules(PortletRequest request, String iface) {
         ManagementHelper helper = getManagementHelper(request);
         return helper.getOutboundRAModules(getCurrentServer(request), iface);

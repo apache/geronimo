@@ -259,9 +259,9 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         }
     }
 
-    public void install(InputStream in, Artifact configId, FileWriteMonitor fileWriteMonitor) throws IOException {
+    public void install(InputStream in, int size, Artifact configId, FileWriteMonitor fileWriteMonitor) throws IOException {
         try {
-            repository.copyToRepository(in, configId, fileWriteMonitor);
+            repository.copyToRepository(in, size, configId, fileWriteMonitor);
         } catch (IOException e) {
             throw e;
         } finally {

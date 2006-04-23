@@ -168,7 +168,7 @@ public class BaseConfigInstaller {
                 File sourceFile = sourceRepo.getLocation(configId);
                 InputStream in = new FileInputStream(sourceFile);
                 try {
-                    targetStore.install(in, configId, LOG_COPY_START);
+                    targetStore.install(in, (int)sourceFile.length(), configId, LOG_COPY_START);
                 } finally {
                     in.close();
                 }
@@ -200,7 +200,7 @@ public class BaseConfigInstaller {
                 File sourceFile = sourceRepo.getLocation(configId);
                 InputStream in = new FileInputStream(sourceFile);
                 try {
-                    targetRepo.copyToRepository(in, configId, LOG_COPY_START);
+                    targetRepo.copyToRepository(in, (int)sourceFile.length(), configId, LOG_COPY_START);
                 } finally {
                     in.close();
                 }
@@ -217,7 +217,7 @@ public class BaseConfigInstaller {
     }
 
     private static class StartFileWriteMonitor implements FileWriteMonitor {
-        public void writeStarted(String fileDescription) {
+        public void writeStarted(String fileDescription, int fileSize) {
             System.out.println("Copying " + fileDescription);
         }
 

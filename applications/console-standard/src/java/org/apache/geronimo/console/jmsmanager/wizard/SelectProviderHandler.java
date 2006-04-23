@@ -67,7 +67,7 @@ public class SelectProviderHandler extends AbstractHandler {
     private void loadRARList(RenderRequest renderRequest) {
         // List the available RARs
         List list = new ArrayList();
-        ListableRepository[] repos = PortletManager.getListableRepositories(renderRequest);
+        ListableRepository[] repos = PortletManager.getCurrentServer(renderRequest).getRepositories();
         for (int i = 0; i < repos.length; i++) {
             ListableRepository repo = repos[i];
             final SortedSet artifacts = repo.list();

@@ -64,8 +64,6 @@ install the driver by hand (copy it to a directory under geronimo/repository/)</
     </table>
 </form>
 
-<jsp:include flush="true" page="../ajax/progressbar.jsp"/>
-
 <!--   END OF FORM TO COLLECT DATA FOR THIS PAGE   -->
 
 <%--

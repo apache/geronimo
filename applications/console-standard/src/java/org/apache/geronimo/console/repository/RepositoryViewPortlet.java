@@ -78,7 +78,7 @@ public class RepositoryViewPortlet extends BasePortlet {
 
 
             List list = new ArrayList();
-            WriteableRepository repo = PortletManager.getWritableRepositories(actionRequest)[0];
+            WriteableRepository repo = PortletManager.getCurrentServer(actionRequest).getWritableRepositories()[0];
 
             File uploadFile = null;
             File file = null;
@@ -151,7 +151,7 @@ public class RepositoryViewPortlet extends BasePortlet {
 
 
                 repo.copyToRepository(file, new Artifact(group, artifact, version, fileType), new FileWriteMonitor() {
-                    public void writeStarted(String fileDescription) {
+                    public void writeStarted(String fileDescription, int fileSize) {
                         System.out.print("Copying into repository " + fileDescription + "...");
                         System.out.flush();
                     }
@@ -180,7 +180,7 @@ public class RepositoryViewPortlet extends BasePortlet {
 
         try {
             List list = new ArrayList();
-            ListableRepository[] repos = PortletManager.getListableRepositories(request);
+            ListableRepository[] repos = PortletManager.getCurrentServer(request).getRepositories();
             for (int i = 0; i < repos.length; i++) {
                 ListableRepository repo = repos[i];
                 final SortedSet artifacts = repo.list();

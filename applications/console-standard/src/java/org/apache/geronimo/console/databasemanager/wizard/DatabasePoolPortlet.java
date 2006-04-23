@@ -16,6 +16,51 @@
  */
 package org.apache.geronimo.console.databasemanager.wizard;
 
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Serializable;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.Driver;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.SortedSet;
+import javax.enterprise.deploy.model.DDBean;
+import javax.enterprise.deploy.model.DDBeanRoot;
+import javax.enterprise.deploy.spi.DeploymentConfiguration;
+import javax.enterprise.deploy.spi.DeploymentManager;
+import javax.enterprise.deploy.spi.Target;
+import javax.enterprise.deploy.spi.TargetModuleID;
+import javax.enterprise.deploy.spi.status.ProgressObject;
+import javax.portlet.ActionRequest;
+import javax.portlet.ActionResponse;
+import javax.portlet.PortletConfig;
+import javax.portlet.PortletException;
+import javax.portlet.PortletRequest;
+import javax.portlet.PortletRequestDispatcher;
+import javax.portlet.PortletSession;
+import javax.portlet.RenderRequest;
+import javax.portlet.RenderResponse;
+import javax.portlet.WindowState;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.portlet.PortletFileUpload;
@@ -39,6 +84,7 @@ import org.apache.geronimo.converter.bea.WebLogic81DatabaseConverter;
 import org.apache.geronimo.converter.jboss.JBoss4DatabaseConverter;
 import org.apache.geronimo.deployment.service.jsr88.EnvironmentData;
 import org.apache.geronimo.deployment.tools.loader.ConnectorDeployable;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
@@ -49,59 +95,11 @@ import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.WriteableRepository;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
-import org.apache.geronimo.system.configuration.DownloadResults;
-import org.apache.geronimo.gbean.AbstractName;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
-
-import javax.enterprise.deploy.model.DDBean;
-import javax.enterprise.deploy.model.DDBeanRoot;
-import javax.enterprise.deploy.spi.DeploymentConfiguration;
-import javax.enterprise.deploy.spi.DeploymentManager;
-import javax.enterprise.deploy.spi.Target;
-import javax.enterprise.deploy.spi.TargetModuleID;
-import javax.enterprise.deploy.spi.status.ProgressObject;
-import javax.portlet.ActionRequest;
-import javax.portlet.ActionResponse;
-import javax.portlet.PortletConfig;
-import javax.portlet.PortletException;
-import javax.portlet.PortletRequest;
-import javax.portlet.PortletRequestDispatcher;
-import javax.portlet.PortletSession;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
-import javax.portlet.WindowState;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Serializable;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.net.URI;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.Driver;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.SortedSet;
 
 /**
  * A portlet that lets you configure and deploy JDBC connection pools.
@@ -121,6 +119,7 @@ public class DatabasePoolPortlet extends BasePortlet {
     private static final String CONFIRM_URL_VIEW     = "/WEB-INF/view/dbwizard/confirmURL.jsp";
     private static final String TEST_CONNECTION_VIEW = "/WEB-INF/view/dbwizard/testConnection.jsp";
     private static final String DOWNLOAD_VIEW        = "/WEB-INF/view/dbwizard/selectDownload.jsp";
+    private static final String DOWNLOAD_STATUS_VIEW = "/WEB-INF/view/dbwizard/downloadStatus.jsp";
     private static final String SHOW_PLAN_VIEW       = "/WEB-INF/view/dbwizard/showPlan.jsp";
     private static final String IMPORT_UPLOAD_VIEW   = "/WEB-INF/view/dbwizard/importUpload.jsp";
     private static final String IMPORT_STATUS_VIEW   = "/WEB-INF/view/dbwizard/importStatus.jsp";
@@ -133,6 +132,7 @@ public class DatabasePoolPortlet extends BasePortlet {
     private static final String TEST_CONNECTION_MODE = "test";
     private static final String SHOW_PLAN_MODE       = "plan";
     private static final String DOWNLOAD_MODE        = "download";
+    private static final String DOWNLOAD_STATUS_MODE = "downloadStatus";
     private static final String EDIT_EXISTING_MODE   = "editExisting";
     private static final String SAVE_MODE            = "save";
     private static final String IMPORT_START_MODE    = "startImport";
@@ -151,6 +151,7 @@ public class DatabasePoolPortlet extends BasePortlet {
     private PortletRequestDispatcher confirmURLView;
     private PortletRequestDispatcher testConnectionView;
     private PortletRequestDispatcher downloadView;
+    private PortletRequestDispatcher downloadStatusView;
     private PortletRequestDispatcher planView;
     private PortletRequestDispatcher importUploadView;
     private PortletRequestDispatcher importStatusView;
@@ -165,6 +166,7 @@ public class DatabasePoolPortlet extends BasePortlet {
         confirmURLView = portletConfig.getPortletContext().getRequestDispatcher(CONFIRM_URL_VIEW);
         testConnectionView = portletConfig.getPortletContext().getRequestDispatcher(TEST_CONNECTION_VIEW);
         downloadView = portletConfig.getPortletContext().getRequestDispatcher(DOWNLOAD_VIEW);
+        downloadStatusView = portletConfig.getPortletContext().getRequestDispatcher(DOWNLOAD_STATUS_VIEW);
         planView = portletConfig.getPortletContext().getRequestDispatcher(SHOW_PLAN_VIEW);
         importUploadView = portletConfig.getPortletContext().getRequestDispatcher(IMPORT_UPLOAD_VIEW);
         importStatusView = portletConfig.getPortletContext().getRequestDispatcher(IMPORT_STATUS_VIEW);
@@ -179,6 +181,7 @@ public class DatabasePoolPortlet extends BasePortlet {
         confirmURLView = null;
         testConnectionView = null;
         downloadView = null;
+        downloadStatusView = null;
         planView = null;
         importUploadView = null;
         importStatusView = null;
@@ -275,45 +278,19 @@ public class DatabasePoolPortlet extends BasePortlet {
                 }
             }
             if(found != null) {
-                DriverDownloader downloader = new DriverDownloader();
-                WriteableRepository repo = PortletManager.getWritableRepositories(actionRequest)[0];
-                try {
-                    final PortletSession session = actionRequest.getPortletSession();
-                    ProgressInfo progressInfo = new ProgressInfo();
-                    progressInfo.setMainMessage("Downloading " + found.getName());
-                    session.setAttribute(ProgressInfo.PROGRESS_INFO_KEY, progressInfo, PortletSession.APPLICATION_SCOPE);
-                    final DownloadResults downloadResults = new DownloadResults(); 
-                    downloader.loadDriver(repo, found, downloadResults, new FileWriteMonitor() {
-                    	
-                        public void writeStarted(String fileDescription) {
-                            System.out.println("Downloading "+fileDescription);
-                        }
-
-                        public void writeProgress(int bytes) {
-                            System.out.print("\rDownload progress: "+(bytes/1024)+"kB");
-                            System.out.flush();
-                            ProgressInfo progressInfo = (ProgressInfo)session.getAttribute(ProgressInfo.PROGRESS_INFO_KEY);
-                            int totalBytes = (int)downloadResults.getTotalDownloadBytes();
-                            int kbDownloaded = (int)Math.floor(bytes/1024);
-                            if (totalBytes > 0) {
-                            	int percent = (bytes*100)/totalBytes;
-                            	progressInfo.setProgressPercent(percent);
-                                progressInfo.setSubMessage(kbDownloaded + " / " + totalBytes/1024 + " Kb downloaded");
-                            } else {
-                                progressInfo.setSubMessage(kbDownloaded + " Kb downloaded");
-                            }
-                        }
-
-                        public void writeComplete(int bytes) {
-                            System.out.println();
-                            System.out.println("Finished downloading "+bytes+"b");
-                        }
-                    });
-                    data.jar1 = found.getRepositoryURI();
-                } catch (IOException e) {
-                    log.error("Unable to download JDBC driver", e);
-                }
+                data.jar1 = found.getRepositoryURI();
+                WriteableRepository repo = PortletManager.getCurrentServer(actionRequest).getWritableRepositories()[0];
+                final PortletSession session = actionRequest.getPortletSession();
+                ProgressInfo progressInfo = new ProgressInfo();
+                progressInfo.setMainMessage("Downloading " + found.getName());
+                session.setAttribute(ProgressInfo.PROGRESS_INFO_KEY, progressInfo, PortletSession.APPLICATION_SCOPE);
+                // Start the download monitoring
+                new Thread(new Downloader(found, progressInfo, repo)).start();
+                actionResponse.setRenderParameter(MODE_KEY, DOWNLOAD_STATUS_MODE);
+            } else {
+                actionResponse.setRenderParameter(MODE_KEY, DOWNLOAD_MODE);
             }
+        } else if(mode.equals("process-"+DOWNLOAD_STATUS_MODE)) {
             if(data.getDbtype() == null || data.getDbtype().equals("Other")) {
                 actionResponse.setRenderParameter(MODE_KEY, EDIT_MODE);
             } else {
@@ -401,6 +378,51 @@ public class DatabasePoolPortlet extends BasePortlet {
             actionResponse.setRenderParameter(MODE_KEY, mode);
         }
         data.store(actionResponse);
+    }
+
+    private static class Downloader implements Runnable {
+        private WriteableRepository repo;
+        private DriverDownloader.DriverInfo driver;
+        private ProgressInfo progressInfo;
+
+        public Downloader(DriverDownloader.DriverInfo driver, ProgressInfo progressInfo, WriteableRepository repo) {
+            this.driver = driver;
+            this.progressInfo = progressInfo;
+            this.repo = repo;
+        }
+
+        public void run() {
+            DriverDownloader downloader = new DriverDownloader();
+            try {
+                downloader.loadDriver(repo, driver, new FileWriteMonitor() {
+                    private int fileSize;
+
+                    public void writeStarted(String fileDescription, int fileSize) {
+                        this.fileSize = fileSize;
+                        log.info("Downloading "+fileDescription);
+                    }
+
+                    public void writeProgress(int bytes) {
+                        int kbDownloaded = (int)Math.floor(bytes/1024);
+                        if (fileSize > 0) {
+                            int percent = (bytes*100)/fileSize;
+                            progressInfo.setProgressPercent(percent);
+                            progressInfo.setSubMessage(kbDownloaded + " / " + fileSize/1024 + " Kb downloaded");
+                        } else {
+                            progressInfo.setSubMessage(kbDownloaded + " Kb downloaded");
+                        }
+                    }
+
+                    public void writeComplete(int bytes) {
+                        log.info("Finished downloading "+bytes+" b");
+                    }
+                });
+            } catch (IOException e) {
+                log.error("Unable to download database driver", e);
+            } finally {
+                progressInfo.setFinished(true);
+            }
+        }
     }
 
     private void loadImportedData(PoolData data, ImportStatus.PoolProgress progress) {
@@ -642,6 +664,8 @@ public class DatabasePoolPortlet extends BasePortlet {
                 renderSelectRDBMS(renderRequest, renderResponse);
             } else if(mode.equals(DOWNLOAD_MODE)) {
                 renderDownload(renderRequest, renderResponse);
+            } else if(mode.equals(DOWNLOAD_STATUS_MODE)) {
+                renderDownloadStatus(renderRequest, renderResponse);
             } else if(mode.equals(BASIC_PARAMS_MODE)) {
                 renderBasicParams(renderRequest, renderResponse, data);
             } else if(mode.equals(CONFIRM_URL_MODE)) {
@@ -736,6 +760,10 @@ public class DatabasePoolPortlet extends BasePortlet {
         downloadView.include(renderRequest, renderResponse);
     }
 
+    private void renderDownloadStatus(RenderRequest renderRequest, RenderResponse renderResponse) throws IOException, PortletException {
+        downloadStatusView.include(renderRequest, renderResponse);
+    }
+
     private void renderBasicParams(RenderRequest renderRequest, RenderResponse renderResponse, PoolData data) throws IOException, PortletException {
         loadDriverJARList(renderRequest);
         // Make sure all properties available for the DB are listed
@@ -759,7 +787,7 @@ public class DatabasePoolPortlet extends BasePortlet {
     private void loadDriverJARList(RenderRequest renderRequest) {
         // List the available JARs
         List list = new ArrayList();
-        ListableRepository[] repos = PortletManager.getListableRepositories(renderRequest);
+        ListableRepository[] repos = PortletManager.getCurrentServer(renderRequest).getRepositories();
         for (int i = 0; i < repos.length; i++) {
             ListableRepository repo = repos[i];
 
@@ -1031,7 +1059,7 @@ public class DatabasePoolPortlet extends BasePortlet {
             org.apache.geronimo.kernel.repository.Artifact two = data.getJar2() == null ? null : org.apache.geronimo.kernel.repository.Artifact.create(data.getJar2());
             org.apache.geronimo.kernel.repository.Artifact three = data.getJar3() == null ? null : org.apache.geronimo.kernel.repository.Artifact.create(data.getJar3());
 
-            ListableRepository[] repos = PortletManager.getListableRepositories(request);
+            ListableRepository[] repos = PortletManager.getCurrentServer(request).getRepositories();
             for (int i = 0; i < repos.length; i++) {
                 ListableRepository repo = repos[i];
                 if(one != null) {

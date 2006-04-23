@@ -180,7 +180,7 @@ public class ActiveMQConnectorHelper {
     }
 
     public List getDependencies(PortletRequest request) {
-        ListableRepository[] repo = PortletManager.getListableRepositories(request);
+        ListableRepository[] repo = PortletManager.getCurrentServer(request).getRepositories();
         List dependencies = new ArrayList();
         for (int i = 0; i < repo.length; i++) {
             ListableRepository repository = repo[i];

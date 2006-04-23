@@ -177,10 +177,10 @@ public abstract class AbstractRepository implements WriteableRepository {
         if (!source.exists() || !source.canRead() || source.isDirectory()) {
             throw new IllegalArgumentException("Cannot read source file at " + source.getAbsolutePath());
         }
-        copyToRepository(new FileInputStream(source), destination, monitor);
+        copyToRepository(new FileInputStream(source), (int)source.length(), destination, monitor);
     }
 
-    public void copyToRepository(InputStream source, Artifact destination, FileWriteMonitor monitor) throws IOException {
+    public void copyToRepository(InputStream source, int size, Artifact destination, FileWriteMonitor monitor) throws IOException {
         if(!destination.isResolved()) {
             throw new IllegalArgumentException("Artifact "+destination+" is not fully resolved");
         }
@@ -199,7 +199,7 @@ public abstract class AbstractRepository implements WriteableRepository {
 
         ArtifactTypeHandler typeHandler = (ArtifactTypeHandler) typeHandlers.get(destination.getType());
         if (typeHandler == null) typeHandler = DEFAULT_TYPE_HANDLER;
-        typeHandler.install(source, destination, monitor, location);
+        typeHandler.install(source, size, destination, monitor, location);
 
         if (destination.getType().equalsIgnoreCase("car")) {
             System.out.println("############################################################");

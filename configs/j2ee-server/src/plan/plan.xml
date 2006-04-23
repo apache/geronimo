@@ -149,8 +149,10 @@ by the server.
         <reference name="WebManagers"/>
         <reference name="EJBManagers"/>
         <reference name="JMSManagers"/>
+        <reference name="JMSManagers"/>
         <reference name="ThreadPools"/>
         <reference name="Repositories"/>
+        <reference name="WritableRepos"/>
         <reference name="SecurityRealms"/>
         <reference name="LoginServices"/>
         <reference name="KeystoreManagers"/>

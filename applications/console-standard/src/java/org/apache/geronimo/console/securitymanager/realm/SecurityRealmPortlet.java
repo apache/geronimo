@@ -279,7 +279,7 @@ public class SecurityRealmPortlet extends BasePortlet {
         if(data.jar != null && !data.jar.equals("")) {
             try {
                 Artifact one = Artifact.create(data.getJar());
-                ListableRepository[] repos = PortletManager.getListableRepositories(request);
+                ListableRepository[] repos = PortletManager.getCurrentServer(request).getRepositories();
                 for (int i = 0; i < repos.length; i++) {
                     ListableRepository repo = repos[i];
                     File file = repo.getLocation(one);
@@ -624,7 +624,7 @@ public class SecurityRealmPortlet extends BasePortlet {
     private void loadDriverJARList(RenderRequest renderRequest) {
         // List the available JARs
         List list = new ArrayList();
-        ListableRepository[] repos = PortletManager.getListableRepositories(renderRequest);
+        ListableRepository[] repos = PortletManager.getCurrentServer(renderRequest).getRepositories();
         for (int i = 0; i < repos.length; i++) {
             ListableRepository repo = repos[i];
 

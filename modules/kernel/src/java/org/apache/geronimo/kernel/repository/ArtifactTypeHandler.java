@@ -24,5 +24,5 @@ import java.io.IOException;
  * @version $Rev$ $Date$
  */
 public interface ArtifactTypeHandler {
-    void install(InputStream source, Artifact artifactId, FileWriteMonitor monitor, File target) throws IOException;
+    void install(InputStream source, int size, Artifact artifactId, FileWriteMonitor monitor, File target) throws IOException;
 }

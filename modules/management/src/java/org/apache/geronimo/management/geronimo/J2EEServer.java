@@ -21,6 +21,8 @@ import org.apache.geronimo.management.J2EEResource;
 import org.apache.geronimo.management.AppClientModule;
 import org.apache.geronimo.management.EJBModule;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.ListableRepository;
+import org.apache.geronimo.kernel.repository.WritableListableRepository;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.system.configuration.ConfigurationInstaller;
@@ -83,7 +85,12 @@ public interface J2EEServer extends org.apache.geronimo.management.J2EEServer {
     /**
      * Gets the Repositories associated with this J2EEServer.
      */
-    public Repository[] getRepositories();
+    public ListableRepository[] getRepositories();
+
+    /**
+     * Gets the writable repositories associated with this J2EEServer.
+     */
+    public WritableListableRepository[] getWritableRepositories();
 
     /**
      * Gets the SecurityRealms associated with this J2EEServer.

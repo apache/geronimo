@@ -96,7 +96,7 @@ public class ConfigInstallerTest extends TestCase {
         public void copyToRepository(File source, Artifact destination, FileWriteMonitor monitor) throws IOException {
         }
 
-        public void copyToRepository(InputStream source, Artifact destination, FileWriteMonitor monitor) throws IOException {
+        public void copyToRepository(InputStream source, int size, Artifact destination, FileWriteMonitor monitor) throws IOException {
         }
 
         public boolean contains(Artifact artifact) {

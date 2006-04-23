@@ -43,7 +43,7 @@ public interface J2EEManagedObject {
     /**
      * Determines if this object implemnts the statistics provider type defined in the J2EE Management specification.
      *
-     * @return true if this class also implements the state manageable type; false otherwise
+     * @return true if this class also implements the statistics provider type; false otherwise
      */
     boolean isStatisticsProvider();
 
