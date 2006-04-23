@@ -10,7 +10,10 @@
   <tr><th align="right">Plan: </th><td><input type="file" name="plan" /></td></tr>
   <tr>
     <td></td>
-    <td><input name="startApp" type="checkbox" value="yes" checked>Start app after install</td>
+    <td>
+        <input name="startApp" type="checkbox" value="yes" checked>Start app after install <br />
+        <input name="redeploy" type="checkbox" value="yes">Redeploy application <br />
+    </td>
   </tr>
   <tr>
     <td></td>

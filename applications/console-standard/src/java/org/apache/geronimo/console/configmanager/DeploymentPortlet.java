@@ -21,6 +21,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ArrayList;
+import javax.enterprise.deploy.shared.factories.DeploymentFactoryManager;
+import javax.enterprise.deploy.spi.DeploymentManager;
+import javax.enterprise.deploy.spi.Target;
+import javax.enterprise.deploy.spi.TargetModuleID;
+import javax.enterprise.deploy.spi.status.ProgressObject;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletConfig;
@@ -28,31 +34,19 @@ import javax.portlet.PortletException;
 import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
-
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.portlet.PortletFileUpload;
-import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.console.BasePortlet;
-import org.apache.geronimo.console.util.ObjectNameConstants;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelRegistry;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
+import org.apache.geronimo.deployment.plugin.ConfigIDExtractor;
+import org.apache.geronimo.common.DeploymentException;
 
 public class DeploymentPortlet extends BasePortlet {
-    private final String LINE_SEP = System.getProperty("line.separator");
-
     private PortletRequestDispatcher deployView;
 
     private PortletRequestDispatcher helpView;
-
-    private Kernel kernel;
-
-    private static final String[] ARGS = {File.class.getName(),
-                                          File.class.getName()};
 
     private boolean messageNotRendered = true;
 
@@ -68,6 +62,7 @@ public class DeploymentPortlet extends BasePortlet {
         File moduleFile = null;
         File planFile = null;
         String startApp = null;
+        String redeploy = null;
         try {
             List items = uploader.parseRequest(actionRequest);
             for (Iterator i = items.iterator(); i.hasNext();) {
@@ -102,55 +97,80 @@ public class DeploymentPortlet extends BasePortlet {
                     // retrieve 'startApp' form field value
                     if ("startApp".equalsIgnoreCase(item.getFieldName())) {
                         startApp = item.getString();
+                    } else if ("redeploy".equalsIgnoreCase(item.getFieldName())) {
+                        redeploy = item.getString();
                     }
                 }
             }
         } catch (FileUploadException e) {
             throw new PortletException(e);
         }
+        DeploymentFactoryManager dfm = DeploymentFactoryManager.getInstance();
         try {
-            List list = (List) kernel.invoke(ObjectNameConstants.DEPLOYER_OBJECT_NAME, "deploy", new Object[]{
-                moduleFile, planFile}, ARGS);
-            actionResponse.setRenderParameter("outcome",
-                    "The application was successfully deployed.<br/>");
-            // start installed app/s
-            if ((startApp != null) && "YES".equalsIgnoreCase(startApp)) {
-                ConfigurationManager configurationManager = ConfigurationUtil
-                        .getConfigurationManager(kernel);
-                for (Iterator iterator = list.iterator(); iterator.hasNext();) {
-                    Artifact configID = Artifact.create((String)iterator.next());
-                    if (!configurationManager.isLoaded(configID)) {
-                        configurationManager.loadConfiguration(configID);
-                    }
-                    configurationManager.startConfiguration(configID);
+            DeploymentManager mgr = dfm.getDeploymentManager("deployer:geronimo:inVM", null, null);
+            try {
+                boolean isRedeploy = redeploy != null && !redeploy.equals("");
+                if(mgr instanceof JMXDeploymentManager) {
+                    ((JMXDeploymentManager)mgr).setLogConfiguration(false, true);
                 }
+                Target[] all = mgr.getTargets();
+                ProgressObject progress;
+                if(isRedeploy) {
+                    TargetModuleID[] targets = identifyTargets(moduleFile, planFile, mgr.getAvailableModules(null, all));
+                    progress = mgr.redeploy(targets, moduleFile, planFile);
+                } else {
+                    progress = mgr.distribute(all, moduleFile, planFile);
+                }
+                while(progress.getDeploymentStatus().isRunning()) {
+                    Thread.sleep(100);
+                }
+
+                if(progress.getDeploymentStatus().isCompleted()) {
+                    String message = "The application was successfully "+(isRedeploy ? "re" : "")+"deployed.<br/>";
+                    // start installed app/s
+                    if (!isRedeploy && startApp != null && !startApp.equals("")) {
+                        progress = mgr.start(progress.getResultTargetModuleIDs());
+                        while(progress.getDeploymentStatus().isRunning()) {
+                            Thread.sleep(100);
+                        }
+                        message+="The application was successfully started";
+                    }
+                    actionResponse.setRenderParameter("outcome",message);
+                } else {
+                    actionResponse.setRenderParameter("outcome", "Deployment failed: "+progress.getDeploymentStatus().getMessage());
+                }
+            } finally {
+                mgr.release();
             }
-        } catch (DeploymentException e) {
-            e.printStackTrace();
-            StringBuffer buf = new StringBuffer(256);
-            Throwable cause = e;
-            while (cause != null) {
-                append(buf, cause.getMessage());
-                buf.append(LINE_SEP);
-                cause = cause.getCause();
-            }
-            actionResponse.setRenderParameter("outcome", buf.toString());
         } catch (Exception e) {
             throw new PortletException(e);
         }
     }
 
-    private void append(StringBuffer buf, String message) {
-        for (int i = 0; i < message.length(); i++) {
-            char ch = message.charAt(i);
-            if (ch == '<') {
-                buf.append("&lt;");
-            } else if (ch == '>') {
-                buf.append("&gt;");
-            } else {
-                buf.append(ch);
+    private TargetModuleID[] identifyTargets(File module, File plan, TargetModuleID[] allModules) throws PortletException {
+        String moduleId = null;
+        List modules = new ArrayList();
+        try {
+            if(plan != null) {
+                moduleId = ConfigIDExtractor.extractModuleIdFromPlan(plan);
+            } else if(module != null) {
+                moduleId = ConfigIDExtractor.extractModuleIdFromArchive(module);
+                if(moduleId == null) {
+                    int pos = module.getName().lastIndexOf('.');
+                    moduleId = pos > -1 ? module.getName().substring(0, pos) : module.getName();
+                }
             }
+            if(moduleId != null) {
+                modules.addAll(ConfigIDExtractor.identifyTargetModuleIDs(allModules, moduleId));
+            } else {
+                throw new PortletException("Unable to calculate a ModuleID from supplied module and/or plan.");
+            }
+        } catch (IOException e) {
+            throw new PortletException("Unable to read input files: "+e.getMessage());
+        } catch (DeploymentException e) {
+            throw new PortletException(e.getMessage(), e);
         }
+        return (TargetModuleID[]) modules.toArray(new TargetModuleID[modules.size()]);
     }
 
     protected void doView(RenderRequest renderRequest,
@@ -171,7 +191,6 @@ public class DeploymentPortlet extends BasePortlet {
 
     public void init(PortletConfig portletConfig) throws PortletException {
         super.init(portletConfig);
-        kernel = KernelRegistry.getSingleKernel();
         deployView = portletConfig.getPortletContext().getRequestDispatcher("/WEB-INF/view/configmanager/deploy.jsp");
         helpView = portletConfig.getPortletContext().getRequestDispatcher("/WEB-INF/view/configmanager/deployHelp.jsp");
     }
@@ -179,7 +198,6 @@ public class DeploymentPortlet extends BasePortlet {
     public void destroy() {
         deployView = null;
         helpView = null;
-        kernel = null;
         super.destroy();
     }
 }
