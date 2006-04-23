@@ -40,7 +40,7 @@
                     <dependency>
                         <groupId>${pom.groupId}</groupId>
                         <artifactId>openejb</artifactId>
-                        <version>${pom.currentVersion}</version>
+                        <!--<version>${pom.currentVersion}</version>-->
                         <type>car</type>
                     </dependency>
                 </dependencies>

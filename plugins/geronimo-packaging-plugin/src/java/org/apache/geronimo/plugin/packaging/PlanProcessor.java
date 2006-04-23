@@ -51,6 +51,7 @@ public class PlanProcessor {
     private static final String IMPORT_PROPERTY = "geronimo.import";
 //    private static final String INCLUDE_PROPERTY = "geronimo.include";
     private static final String DEPENDENCY_PROPERTY = "geronimo.dependency";
+    private static final String KEEP_VERSION_PROPERTY = "geronimo.keep.version";
     private static final String REFERENCE_PROPERTY = "geronimo.reference";
     private static final String ENVIRONMENT_LOCAL_NAME = "environment";
     private static final QName ENVIRONMENT_QNAME = new QName("http://geronimo.apache.org/xml/ns/deployment-1.1", "environment");
@@ -255,6 +256,9 @@ public class PlanProcessor {
     private static org.apache.geronimo.kernel.repository.Dependency toGeronimoDependency(Dependency dependency) {
         org.apache.geronimo.kernel.repository.Artifact artifact = toGeronimoArtifact(dependency);
         if ("true".equals(dependency.getProperty(DEPENDENCY_PROPERTY))) {
+            if ("true".equals(dependency.getProperty(KEEP_VERSION_PROPERTY))) {
+                artifact = new org.apache.geronimo.kernel.repository.Artifact(artifact.getGroupId(), artifact.getArtifactId(), dependency.getVersion(), artifact.getType());
+            }
             return new org.apache.geronimo.kernel.repository.Dependency(artifact, org.apache.geronimo.kernel.repository.ImportType.CLASSES);
         } else if ("true".equals(dependency.getProperty(REFERENCE_PROPERTY))) {
             return new org.apache.geronimo.kernel.repository.Dependency(artifact, org.apache.geronimo.kernel.repository.ImportType.SERVICES);

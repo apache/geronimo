@@ -166,6 +166,10 @@ public abstract class AbstractRepository implements WriteableRepository {
         return value.trim();
     }
 
+    public void setTypeHandler(String type, ArtifactTypeHandler handler) {
+        typeHandlers.put(type, handler);
+    }
+
     public void copyToRepository(File source, Artifact destination, FileWriteMonitor monitor) throws IOException {
         if(!destination.isResolved()) {
             throw new IllegalArgumentException("Artifact "+destination+" is not fully resolved");

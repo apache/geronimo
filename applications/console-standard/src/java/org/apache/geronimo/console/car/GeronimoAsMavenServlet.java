@@ -38,6 +38,7 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.OutputKeys;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.logging.Log;
@@ -59,6 +60,7 @@ import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.Dependency;
+import org.apache.geronimo.kernel.repository.Version;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -71,15 +73,48 @@ import org.w3c.dom.Text;
  */
 public class GeronimoAsMavenServlet extends HttpServlet {
     private final static Log log = LogFactory.getLog(GeronimoAsMavenServlet.class);
+
+    protected void doHead(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
+        handleRequest(httpServletRequest, httpServletResponse, false);
+    }
+
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        handleRequest(request, response, true);
+    }
+    protected void handleRequest(HttpServletRequest request, HttpServletResponse response, boolean reply) throws ServletException, IOException {
         String path = request.getPathInfo();
         if(path == null) {
             throw new ServletException("No configId specified for CAR download");
         }
         Kernel kernel = KernelRegistry.getSingleKernel();
         if(path.equals("/geronimo-plugins.xml")) {
+            response.setContentType("text/xml");
+            if(reply) {
+                try {
+                    generateConfigFile(kernel, response.getWriter());
+                } catch (Exception e) {
+                    throw new ServletException("Unable to generate Geronimo configuration list", e);
+                }
+            }
+        } else if(path.endsWith("/maven-metadata.xml")) {
+            response.setContentType("text/xml");
             try {
-                generateConfigFile(kernel, response.getWriter());
+                String start = path.substring(0, path.lastIndexOf('/'));
+                if(start.charAt(0) == '/') {
+                    start = start.substring(1);
+                }
+                String[] parts = start.split("/");
+                if(parts.length > 2) {
+                    StringBuffer buf = new StringBuffer();
+                    for (int i = 0; i < parts.length-1; i++) {
+                        String part = parts[i];
+                        if(i > 0) buf.append('.');
+                        buf.append(part);
+                    }
+                    generateMavenFile(kernel, response.getWriter(), buf.toString(), parts[parts.length-1], reply);
+                } else {
+                    generateMavenFile(kernel, response.getWriter(), parts[0], parts[1], reply);
+                }
             } catch (Exception e) {
                 throw new ServletException("Unable to generate Geronimo configuration list", e);
             }
@@ -106,13 +141,13 @@ public class GeronimoAsMavenServlet extends HttpServlet {
             }
             String artifactId = parts[2].substring(0, pos);
             String configId = groupId+"/"+artifactId+"/"+version+"/"+type;
-            if(!produceDownloadFile(kernel, Artifact.create(configId), response)) {
+            if(!produceDownloadFile(kernel, Artifact.create(configId), response, reply)) {
                 response.sendError(404, "Cannot locate download file "+path);
             }
         }
     }
 
-    private boolean produceDownloadFile(Kernel kernel, Artifact configId, HttpServletResponse response) throws IOException {
+    private boolean produceDownloadFile(Kernel kernel, Artifact configId, HttpServletResponse response, boolean reply) throws IOException {
         //todo: replace kernel mumbo jumbo with JSR-77 navigation
         // Step 1: check if it's in a configuration store
         ConfigurationManager mgr = ConfigurationUtil.getConfigurationManager(kernel);
@@ -124,6 +159,9 @@ public class GeronimoAsMavenServlet extends HttpServlet {
                 ConfigurationStore store = (ConfigurationStore) kernel.getProxyManager().createProxy(name, ConfigurationStore.class);
                 if(store.containsConfiguration(configId)) {
                     response.setContentType("application/zip");
+                    if(!reply) {
+                        return true;
+                    }
                     try {
                         kernel.invoke(name, "exportConfiguration", new Object[]{configId.toString(), response.getOutputStream()}, new String[]{String.class.getName(), OutputStream.class.getName()});
                         return true;
@@ -141,9 +179,12 @@ public class GeronimoAsMavenServlet extends HttpServlet {
             Repository repo = (Repository) kernel.getProxyManager().createProxy(name, Repository.class);
             if(repo.contains(configId)) {
                 File path = repo.getLocation(configId);
-                if(!path.exists()) throw new IllegalStateException("Can't check length of file '"+path.getAbsolutePath()+"'");
-                InputStream in = new BufferedInputStream(new FileInputStream(path));
+                if(!path.exists()) throw new IllegalStateException("Can't find file '"+path.getAbsolutePath()+"'");
                 response.setContentType("application/zip");
+                if(!reply) {
+                    return true;
+                }
+                InputStream in = new BufferedInputStream(new FileInputStream(path));
                 response.setContentLength((int)path.length());
                 OutputStream out = response.getOutputStream();
                 byte[] buf = new byte[1024];
@@ -204,6 +245,37 @@ public class GeronimoAsMavenServlet extends HttpServlet {
         Transformer xform = xfactory.newTransformer();
         xform.setOutputProperty(OutputKeys.INDENT, "yes");
         xform.transform(new DOMSource(doc), new StreamResult(out));
+    }
+
+    private void generateMavenFile(Kernel kernel, PrintWriter writer, String groupId, String artifactId, boolean reply) throws ParserConfigurationException, TransformerException {
+        ConfigurationManager mgr = ConfigurationUtil.getConfigurationManager(kernel);
+        Artifact[] artifacts = mgr.getArtifactResolver().queryArtifacts(new Artifact(groupId, artifactId, (Version)null, null));
+        if(!reply) {
+            return;
+        }
+
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc = builder.newDocument();
+        Element root = doc.createElement("metadata");
+        doc.appendChild(root);
+        createText(doc, root, "groupId", groupId);
+        createText(doc, root, "artifactId", artifactId);
+        if(artifacts.length > 0) {
+            createText(doc, root, "version", artifacts[0].getVersion().toString());
+        }
+        Element versioning = doc.createElement("versioning");
+        root.appendChild(versioning);
+        Element versions = doc.createElement("versions");
+        versioning.appendChild(versions);
+        for (int i = 0; i < artifacts.length; i++) {
+            Artifact artifact = artifacts[i];
+            createText(doc, versions, "version", artifact.getVersion().toString());
+        }
+        TransformerFactory xfactory = TransformerFactory.newInstance();
+        Transformer xform = xfactory.newTransformer();
+        xform.setOutputProperty(OutputKeys.INDENT, "yes");
+        xform.transform(new DOMSource(doc), new StreamResult(writer));
     }
 
     private void writePrerequisite(Document doc, Element config, String configId, String server, String notServer) {

@@ -101,6 +101,7 @@
             <version>${commons_collections_version}</version>
             <properties>
                 <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
             </properties>
         </dependency>
 

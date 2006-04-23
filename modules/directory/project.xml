@@ -67,7 +67,7 @@ limitations under the License.
             <version>${jelly_velocity_tags_version}</version>
         </dependency>
         <dependency>
-            <groupId> velocity</groupId>
+            <groupId>velocity</groupId>
             <artifactId>velocity</artifactId>
             <version>${velocity_version}</version>
         </dependency>
@@ -95,8 +95,9 @@ limitations under the License.
             <artifactId>apacheds-core</artifactId>
             <version>${apacheds_version}</version>
             <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
+                <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
+            </properties>
         </dependency>
 
         <dependency>
@@ -104,8 +105,9 @@ limitations under the License.
             <artifactId>apacheds-shared</artifactId>
             <version>${apacheds_version}</version>
             <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
+                <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
+            </properties>
         </dependency>
 
         <dependency>
@@ -113,8 +115,9 @@ limitations under the License.
             <artifactId>asn1-codec</artifactId>
             <version>${asn1_version}</version>
             <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
+                <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
+            </properties>
         </dependency>
 
         <dependency>
@@ -122,8 +125,9 @@ limitations under the License.
             <artifactId>apache-ldapber-provider</artifactId>
             <version>${apacheds_version}</version>
             <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
+                <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
+            </properties>
         </dependency>
 
         <dependency>
@@ -131,8 +135,9 @@ limitations under the License.
             <artifactId>asn1-ber</artifactId>
             <version>${asn1_version}</version>
             <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
+                <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
+            </properties>
         </dependency>
 
         <dependency>
@@ -140,8 +145,9 @@ limitations under the License.
             <artifactId>asn1-der</artifactId>
             <version>${asn1_version}</version>
             <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
+                <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
+            </properties>
         </dependency>
 
         <dependency>
@@ -150,8 +156,9 @@ limitations under the License.
             <version>${jdbm_version}</version>
             <url>http://jdbm.sourceforge.net</url>
             <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
+                <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
+            </properties>
         </dependency>
 
         <dependency>
@@ -160,8 +167,9 @@ limitations under the License.
             <version>${regexp_version}</version>
             <url>http://jakarta.apache.org/regexp/index.html</url>
             <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
+                <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
+            </properties>
         </dependency>
 
         <dependency>
@@ -170,8 +178,9 @@ limitations under the License.
             <version>${oro_version}</version>
             <url>http://jakarta.apache.org/oro</url>
             <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
+                <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
+            </properties>
         </dependency>
 
         <dependency>
@@ -180,8 +189,9 @@ limitations under the License.
             <version>${commons_lang_version}</version>
             <url>http://jakarta.apache.org/commons/lang/api</url>
             <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
+                <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
+            </properties>
         </dependency>
 
         <dependency>
@@ -190,8 +200,9 @@ limitations under the License.
             <version>${commons_collections_version}</version>
             <url>http://jakarta.apache.org/commons/collections</url>
             <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
+                <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
+            </properties>
         </dependency>
 
         <dependency>
@@ -200,8 +211,9 @@ limitations under the License.
             <version>${commons_io_version}</version>
             <url>http://jakarta.apache.org/commons/io</url>
             <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
+                <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
+            </properties>
         </dependency>
 
         <dependency>
@@ -210,8 +222,9 @@ limitations under the License.
             <version>${commons_primitives_version}</version>
             <url>http://jakarta.apache.org/commons/primitives</url>
             <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
+                <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
+            </properties>
         </dependency>
 
         <dependency>
@@ -219,8 +232,9 @@ limitations under the License.
             <artifactId>ldap-common</artifactId>
             <version>${apacheds_version}</version>
             <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
+                <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
+            </properties>
         </dependency>
 
         <dependency>
@@ -228,8 +242,9 @@ limitations under the License.
             <artifactId>kerberos-common</artifactId>
             <version>${kerberos_common_version}</version>
             <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
+                <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
+            </properties>
         </dependency>
 
         <dependency>
@@ -237,8 +252,9 @@ limitations under the License.
             <artifactId>mina</artifactId>
             <version>${mina_version}</version>
             <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
+                <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
+            </properties>
         </dependency>
 
         <dependency>
@@ -246,8 +262,9 @@ limitations under the License.
             <artifactId>kerberos-protocol</artifactId>
             <version>${kerberos_protocols_version}</version>
             <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
+                <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
+            </properties>
         </dependency>
 
         <dependency>
@@ -255,8 +272,9 @@ limitations under the License.
             <artifactId>ldap-protocol</artifactId>
             <version>${ldap_protocols_version}</version>
             <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
+                <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
+            </properties>
         </dependency>
 
         <dependency>
@@ -264,8 +282,9 @@ limitations under the License.
             <artifactId>antlr</artifactId>
             <version>${antlr_version}</version>
             <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
+                <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
+            </properties>
         </dependency>
 
         <dependency>
@@ -273,8 +292,9 @@ limitations under the License.
             <artifactId>slf4j-simple</artifactId>
             <version>${slf4j_version}</version>
             <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
+                <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
+            </properties>
         </dependency>
 
         <dependency>
@@ -293,7 +313,7 @@ limitations under the License.
             </properties>
         </dependency>
 
-       <dependency>
+        <dependency>
             <groupId>xmlbeans</groupId>
             <artifactId>xmlbeans-maven-plugin</artifactId>
             <version>${xmlbeans_maven_plugin_version}</version>

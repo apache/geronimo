@@ -49,7 +49,11 @@ public class Maven1Repository extends AbstractRepository implements WritableList
     public File getLocation(Artifact artifact) {
         File path = new File(rootFile, artifact.getGroupId());
         path = new File(path, artifact.getType() + "s");
-        path = new File(path, artifact.getArtifactId() + "-" + artifact.getVersion() + "." + artifact.getType());
+        String ext = artifact.getType();
+        if(ext.equals("ejb")) {
+            ext = "jar";
+        }
+        path = new File(path, artifact.getArtifactId() + "-" + artifact.getVersion() + "." + ext);
 
         return path;
     }
@@ -114,7 +118,7 @@ public class Maven1Repository extends AbstractRepository implements WritableList
                 String groupId = matcher.group(1);
                 String artifactId = matcher.group(3);
                 String version = matcher.group(4);
-                String type = matcher.group(5);
+                String type = matcher.group(2);
                 artifacts.add(new Artifact(groupId, artifactId, version, type));
             } else {
             	log.warn("could not resolve URI for malformed repository entry: " + names[i] +

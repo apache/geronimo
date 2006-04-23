@@ -120,6 +120,7 @@
             <version>${portlet_api_version}</version>
             <properties>
                 <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
             </properties>
         </dependency>
         <dependency>
@@ -128,6 +129,7 @@
             <version>${pluto_version}</version>
             <properties>
                 <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
             </properties>
         </dependency>
         <dependency>
@@ -216,6 +218,7 @@
             <version>${xmlbeans_version}</version>
             <properties>
                 <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
             </properties>
         </dependency>
         <dependency>
@@ -224,6 +227,7 @@
             <version>${stax_api_version}</version>
             <properties>
                 <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
             </properties>
         </dependency>
         <dependency>
@@ -232,6 +236,7 @@
             <version>${activemq_version}</version>
             <properties>
                 <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
             </properties>
         </dependency>
         <dependency>
@@ -240,6 +245,7 @@
             <version>${activemq_version}</version>
             <properties>
                 <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
             </properties>
         </dependency>
         <dependency>
@@ -248,6 +254,7 @@
             <version>${activemq_version}</version>
             <properties>
                 <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
             </properties>
         </dependency>
         <dependency>

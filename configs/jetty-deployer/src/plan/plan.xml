@@ -43,13 +43,13 @@
                     <dependency>
                         <groupId>${pom.groupId}</groupId>
                         <artifactId>j2ee-server</artifactId>
-                        <version>${pom.currentVersion}</version>
+                        <!--<version>${pom.currentVersion}</version>-->
                         <type>car</type>
                     </dependency>
                     <dependency>
                         <groupId>${pom.groupId}</groupId>
                         <artifactId>jetty</artifactId>
-                        <version>${pom.currentVersion}</version>
+                        <!--<version>${pom.currentVersion}</version>-->
                         <type>car</type>
                     </dependency>
                 </dependencies>

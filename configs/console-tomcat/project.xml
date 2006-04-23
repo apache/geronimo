@@ -114,6 +114,7 @@
             <version>${portlet_api_version}</version>
             <properties>
                 <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
             </properties>
         </dependency>
         <dependency>
@@ -122,6 +123,7 @@
             <version>${pluto_version}</version>
             <properties>
                 <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
             </properties>
         </dependency>
         <dependency>
@@ -210,6 +212,7 @@
             <version>${xmlbeans_version}</version>
             <properties>
                 <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
             </properties>
         </dependency>
         <dependency>
@@ -218,6 +221,7 @@
             <version>${stax_api_version}</version>
             <properties>
                 <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
             </properties>
         </dependency>
         <dependency>
@@ -226,6 +230,7 @@
             <version>${activemq_version}</version>
             <properties>
                 <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
             </properties>
         </dependency>
         <dependency>
@@ -234,6 +239,7 @@
             <version>${activemq_version}</version>
             <properties>
                 <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
             </properties>
         </dependency>
         <dependency>
@@ -242,6 +248,7 @@
             <version>${activemq_version}</version>
             <properties>
                 <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
             </properties>
         </dependency>
         <dependency>
@@ -395,12 +402,6 @@
             <groupId>activeio</groupId>
             <artifactId>activeio</artifactId>
             <version>${activeio_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>jetty</groupId>
-            <artifactId>org.mortbay.jetty</artifactId>
-            <version>${jetty_version}</version>
         </dependency>
     </dependencies>
 </project>

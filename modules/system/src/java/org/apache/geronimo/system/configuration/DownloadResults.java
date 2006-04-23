@@ -40,48 +40,64 @@ public class DownloadResults implements Serializable, DownloadPoller {
     private boolean finished;
     private long totalDownloadBytes = 0;
 
-    public void addInstalledConfigID(Artifact dep) {
+    public synchronized DownloadResults duplicate() {
+        DownloadResults other = new DownloadResults();
+        other.removedConfigIDs.addAll(removedConfigIDs);
+        other.restartedConfigIDs.addAll(restartedConfigIDs);
+        other.installedConfigIDs.addAll(installedConfigIDs);
+        other.dependenciesPresent.addAll(dependenciesPresent);
+        other.dependenciesInstalled.addAll(dependenciesInstalled);
+        other.currentFile = currentFile;
+        other.currentMessage = currentMessage;
+        other.currentFileProgress = currentFileProgress;
+        other.failure = failure;
+        other.finished = finished;
+        other.totalDownloadBytes = totalDownloadBytes;
+        return other;
+    }
+
+    public synchronized void addInstalledConfigID(Artifact dep) {
         installedConfigIDs.add(dep);
     }
 
-    public void addRemovedConfigID(Artifact obsolete) {
+    public synchronized void addRemovedConfigID(Artifact obsolete) {
         removedConfigIDs.add(obsolete);
     }
 
-    public void addRestartedConfigID(Artifact target) {
+    public synchronized void addRestartedConfigID(Artifact target) {
         restartedConfigIDs.add(target);
     }
 
-    public void addDependencyPresent(Artifact dep) {
+    public synchronized void addDependencyPresent(Artifact dep) {
         dependenciesPresent.add(dep);
     }
 
-    public void addDependencyInstalled(Artifact dep) {
+    public synchronized void addDependencyInstalled(Artifact dep) {
         dependenciesInstalled.add(dep);
     }
 
-    public void setCurrentFile(String currentFile) {
+    public synchronized void setCurrentFile(String currentFile) {
         this.currentFile = currentFile;
     }
 
-    public void setCurrentMessage(String currentMessage) {
+    public synchronized void setCurrentMessage(String currentMessage) {
         this.currentMessage = currentMessage;
     }
 
-    public void setCurrentFilePercent(int currentFileProgress) {
+    public synchronized void setCurrentFilePercent(int currentFileProgress) {
         this.currentFileProgress = currentFileProgress;
     }
 
-    public void setFailure(Exception failure) {
+    public synchronized void setFailure(Exception failure) {
 failure.printStackTrace();
         this.failure = failure;
     }
 
-    public void setFinished() {
+    public synchronized void setFinished() {
         finished = true;
     }
 
-    public void addDownloadBytes(long bytes) {
+    public synchronized void addDownloadBytes(long bytes) {
         totalDownloadBytes += bytes;
     }
 
