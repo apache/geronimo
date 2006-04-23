@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.tomcat;
 
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
@@ -29,6 +30,7 @@ import javax.servlet.ServletException;
 
 import org.apache.catalina.Container;
 import org.apache.catalina.LifecycleException;
+import org.apache.catalina.Loader;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Valve;
 import org.apache.catalina.Wrapper;
@@ -254,6 +256,72 @@ public class GeronimoStandardContext extends StandardContext {
         super.addChild(child);
     }
 
+    public synchronized void setLoader(final Loader delegate) {
+        Loader loader = new Loader() {
+            
+            public void backgroundProcess() {
+                delegate.backgroundProcess();
+            }
+
+            public ClassLoader getClassLoader() {
+                // Implementation Note: the actual CL to be used by this 
+                // context is the Geronimo one and not the Tomcat one.
+                return parentClassLoader;
+            }
+
+            public Container getContainer() {
+                return delegate.getContainer();
+            }
+
+            public void setContainer(Container container) {
+                delegate.setContainer(container);
+            }
+
+            public boolean getDelegate() {
+                return delegate.getDelegate();
+            }
+
+            public void setDelegate(boolean delegateBoolean) {
+                delegate.setDelegate(delegateBoolean);
+            }
+
+            public String getInfo() {
+                return delegate.getInfo();
+            }
+
+            public boolean getReloadable() {
+                return false;
+            }
+
+            public void setReloadable(boolean reloadable) {
+                if (reloadable) {
+                    throw new UnsupportedOperationException("Reloadable context is not supported.");
+                }
+            }
+
+            public void addPropertyChangeListener(PropertyChangeListener listener) {
+                delegate.addPropertyChangeListener(listener);
+            }
+
+            public void addRepository(String repository) {
+                delegate.addRepository(repository);
+            }
+
+            public String[] findRepositories() {
+                return delegate.findRepositories();
+            }
+
+            public boolean modified() {
+                return delegate.modified();
+            }
+
+            public void removePropertyChangeListener(PropertyChangeListener listener) {
+                delegate.removePropertyChangeListener(listener);
+            }
+        };
+        
+        super.setLoader(loader);
+    }
 
     private class SystemMethodValve extends ValveBase {
 
