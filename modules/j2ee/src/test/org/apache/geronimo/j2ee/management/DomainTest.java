@@ -19,19 +19,19 @@ package org.apache.geronimo.j2ee.management;
 import org.apache.geronimo.management.J2EEDomain;
 
 /**
- * @version $Rev: 383682 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class DomainTest extends Abstract77Test {
     private J2EEDomain domain;
 
     public void testStandardInterface() throws Exception {
-        assertEquals(DOMAIN_DATA.getAbstractName().getObjectName().toString(), domain.getObjectName());
-        assertObjectNamesEqual(new String[]{SERVER_DATA.getAbstractName().getObjectName().toString()}, domain.getServers());
+        assertEquals(DOMAIN_DATA.getAbstractName().getObjectName().getCanonicalName(), domain.getObjectName());
+        assertObjectNamesEqual(new String[]{SERVER_DATA.getAbstractName().getObjectName().getCanonicalName()}, domain.getServers());
     }
 
     public void testStandardAttributes() throws Exception {
-        assertEquals(DOMAIN_DATA.getAbstractName().getObjectName().toString(), kernel.getAttribute(DOMAIN_DATA.getAbstractName(), "objectName"));
-        assertObjectNamesEqual(new String[]{SERVER_DATA.getAbstractName().getObjectName().toString()}, (String[]) kernel.getAttribute(DOMAIN_DATA.getAbstractName(), "servers"));
+        assertEquals(DOMAIN_DATA.getAbstractName().getObjectName().getCanonicalName(), kernel.getAttribute(DOMAIN_DATA.getAbstractName(), "objectName"));
+        assertObjectNamesEqual(new String[]{SERVER_DATA.getAbstractName().getObjectName().getCanonicalName()}, (String[]) kernel.getAttribute(DOMAIN_DATA.getAbstractName(), "servers"));
     }
 
     protected void setUp() throws Exception {
