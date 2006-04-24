@@ -16,15 +16,6 @@
  */
 package org.apache.geronimo.deployment.plugin.local;
 
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.ObjectNameUtil;
-
-import javax.enterprise.deploy.shared.CommandType;
-import javax.enterprise.deploy.shared.ModuleType;
-import javax.enterprise.deploy.spi.Target;
-import javax.management.ObjectName;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -34,13 +25,21 @@ import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import javax.enterprise.deploy.shared.CommandType;
+import javax.enterprise.deploy.shared.ModuleType;
+import javax.enterprise.deploy.spi.Target;
+
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.Deployer;
+import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.kernel.Kernel;
 
 /**
  * @version $Rev$ $Date$
  */
 public abstract class AbstractDeployCommand extends CommandSupport {
-    private final static String DEPLOYER_NAME = "*:name=Deployer,j2eeType=Deployer,*";
-
     protected final Kernel kernel;
     private static final String[] DEPLOY_SIG = {boolean.class.getName(), File.class.getName(), File.class.getName()};
     protected final boolean spool;
@@ -48,7 +47,7 @@ public abstract class AbstractDeployCommand extends CommandSupport {
     protected File deploymentPlan;
     protected InputStream moduleStream;
     protected InputStream deploymentStream;
-    protected ObjectName deployer;
+    protected AbstractName deployer;
 
     public AbstractDeployCommand(CommandType command, Kernel kernel, File moduleArchive, File deploymentPlan, InputStream moduleStream, InputStream deploymentStream, boolean spool) {
         super(command);
@@ -61,8 +60,8 @@ public abstract class AbstractDeployCommand extends CommandSupport {
         deployer = getDeployerName();
     }
 
-    private ObjectName getDeployerName() {
-        Set deployers = kernel.listGBeans(ObjectNameUtil.getObjectName(DEPLOYER_NAME));
+    private AbstractName getDeployerName() {
+        Set deployers = kernel.listGBeans(new AbstractNameQuery(Deployer.class.getName()));
         if (deployers.isEmpty()) {
             fail("No Deployer GBean present in running Geronimo server. " +
                  "This usually indicates a serious problem with the configuration of " +
@@ -78,7 +77,7 @@ public abstract class AbstractDeployCommand extends CommandSupport {
             return null;
         }
         Iterator j = deployers.iterator();
-        ObjectName deployer = (ObjectName) j.next();
+        AbstractName deployer = (AbstractName) j.next();
         if (j.hasNext()) {
             fail("More than one deployer found");
             return null;

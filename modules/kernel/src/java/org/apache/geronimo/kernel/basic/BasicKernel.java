@@ -329,11 +329,6 @@ public class BasicKernel implements Kernel {
         return gbeanInstance.getGBeanInfo();
     }
 
-    public GBeanData getGBeanData(ObjectName name) throws GBeanNotFoundException, InternalKernelException {
-        GBeanInstance gbeanInstance = registry.getGBeanInstance(name);
-        return gbeanInstance.getGBeanData();
-    }
-
     public GBeanData getGBeanData(AbstractName name) throws GBeanNotFoundException, InternalKernelException {
         GBeanInstance gbeanInstance = registry.getGBeanInstance(name);
         return gbeanInstance.getGBeanData();

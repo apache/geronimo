@@ -250,10 +250,6 @@ public class KernelGBean implements Kernel{
         return kernel.getGBeanInfo(shortName, type);
     }
 
-    public GBeanData getGBeanData(ObjectName name) throws GBeanNotFoundException, InternalKernelException {
-        return kernel.getGBeanData(name);
-    }
-
     public GBeanData getGBeanData(AbstractName name) throws GBeanNotFoundException, InternalKernelException {
         return kernel.getGBeanData(name);
     }

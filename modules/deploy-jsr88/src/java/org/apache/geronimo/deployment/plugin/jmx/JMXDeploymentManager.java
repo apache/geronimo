@@ -32,7 +32,6 @@ import javax.enterprise.deploy.spi.exceptions.DConfigBeanVersionUnsupportedExcep
 import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
 import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.enterprise.deploy.spi.status.ProgressObject;
-import javax.management.MalformedObjectNameException;
 import org.apache.geronimo.connector.deployment.RARConfigurer;
 import org.apache.geronimo.deployment.plugin.TargetImpl;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
@@ -164,8 +163,6 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
             return result.size() == 0 ? null : (TargetModuleID[]) result.toArray(new TargetModuleID[result.size()]);
         } catch (NoSuchStoreException e) {
             throw (TargetException) new TargetException(e.getMessage()).initCause(e);
-        } catch (MalformedObjectNameException e) {
-            throw new RuntimeException(e);
         }
     }
 

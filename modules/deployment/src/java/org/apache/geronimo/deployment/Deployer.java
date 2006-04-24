@@ -19,21 +19,21 @@ package org.apache.geronimo.deployment;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Hashtable;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-import java.net.URI;
 
 import javax.management.ObjectName;
 
@@ -42,9 +42,9 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
@@ -164,11 +164,15 @@ public class Deployer {
         // Generate the URL based on the remote deployment configuration
         Hashtable hash = new Hashtable();
         hash.put("J2EEApplication", token.getObjectName().getKeyProperty("J2EEApplication"));
-        hash.put("J2EEServer", token.getObjectName().getKeyProperty("J2EEServer"));
         hash.put("j2eeType", "WebModule");
         try {
             hash.put("name", Configuration.getConfigurationID(config).toString());
-            ObjectName module = new ObjectName(token.getObjectName().getDomain(), hash);
+            Set names = kernel.listGBeans(new AbstractNameQuery(null, hash));
+            if (names.size() != 1) {
+                log.error("Unable to look up remote deploy upload URL");
+                return null;
+            }
+            AbstractName module = (AbstractName) names.iterator().next();
 
             String containerName = (String) kernel.getAttribute(module, "containerName");
             String contextPath = (String) kernel.getAttribute(module, "contextPath");

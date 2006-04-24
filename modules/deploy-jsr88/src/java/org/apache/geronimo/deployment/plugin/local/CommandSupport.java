@@ -36,8 +36,6 @@ import javax.enterprise.deploy.spi.status.DeploymentStatus;
 import javax.enterprise.deploy.spi.status.ProgressEvent;
 import javax.enterprise.deploy.spi.status.ProgressListener;
 import javax.enterprise.deploy.spi.status.ProgressObject;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -270,13 +268,11 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
     }
 
     public static boolean isWebApp(Kernel kernel, String configName) {
-        try {
-            Set set = kernel.listGBeans(new ObjectName("*:j2eeType=WebModule,name="+configName+",*"));
-            return set.size() > 0;
-        } catch (MalformedObjectNameException e) {
-            e.printStackTrace();
-            return false;
-        }
+        Map filter = new HashMap();
+        filter.put("j2eeType", "WebModule");
+        filter.put("name", configName);
+        Set set = kernel.listGBeans(new AbstractNameQuery(null, filter));
+        return set.size() > 0;
     }
 
     protected void addWebURLs(Kernel kernel) {
@@ -321,30 +317,41 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
         }
     }
 
-    public static List loadChildren(Kernel kernel, String configName) throws MalformedObjectNameException {
+    public static List loadChildren(Kernel kernel, String configName) {
         List kids = new ArrayList();
-        Set test = kernel.listGBeans(new ObjectName("*:J2EEApplication="+configName+",j2eeType=WebModule,*"));
+
+        Map filter = new HashMap();
+        filter.put("J2EEApplication", configName);
+
+        filter.put("j2eeType", "WebModule");
+        Set test = kernel.listGBeans(new AbstractNameQuery(null, filter));
         for (Iterator it = test.iterator(); it.hasNext();) {
-            ObjectName child = (ObjectName) it.next();
-            String childName = child.getKeyProperty("name");
+            AbstractName child = (AbstractName) it.next();
+            String childName = child.getNameProperty("name");
             kids.add(childName);
         }
-        test = kernel.listGBeans(new ObjectName("*:J2EEApplication="+configName+",j2eeType=EJBModule,*"));
+
+        filter.put("j2eeType", "EJBModule");
+        test = kernel.listGBeans(new AbstractNameQuery(null, filter));
         for (Iterator it = test.iterator(); it.hasNext();) {
-            ObjectName child = (ObjectName) it.next();
-            String childName = child.getKeyProperty("name");
+            AbstractName child = (AbstractName) it.next();
+            String childName = child.getNameProperty("name");
             kids.add(childName);
         }
-        test = kernel.listGBeans(new ObjectName("*:J2EEApplication="+configName+",j2eeType=AppClientModule,*"));
+
+        filter.put("j2eeType", "AppClientModule");
+        test = kernel.listGBeans(new AbstractNameQuery(null, filter));
         for (Iterator it = test.iterator(); it.hasNext();) {
-            ObjectName child = (ObjectName) it.next();
-            String childName = child.getKeyProperty("name");
+            AbstractName child = (AbstractName) it.next();
+            String childName = child.getNameProperty("name");
             kids.add(childName);
         }
-        test = kernel.listGBeans(new ObjectName("*:J2EEApplication="+configName+",j2eeType=ResourceAdapterModule,*"));
+
+        filter.put("j2eeType", "ResourceAdapterModule");
+        test = kernel.listGBeans(new AbstractNameQuery(null, filter));
         for (Iterator it = test.iterator(); it.hasNext();) {
-            ObjectName child = (ObjectName) it.next();
-            String childName = child.getKeyProperty("name");
+            AbstractName child = (AbstractName) it.next();
+            String childName = child.getNameProperty("name");
             kids.add(childName);
         }
         return kids;

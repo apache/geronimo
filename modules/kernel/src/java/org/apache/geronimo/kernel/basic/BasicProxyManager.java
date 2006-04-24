@@ -85,12 +85,14 @@ public class BasicProxyManager implements ProxyManager {
         try {
             // if the type is visible from the target's classloader use it
             // otherwise use the type's classloader
-            ClassLoader classLoader = kernel.getClassLoaderFor(target);
+            ClassLoader classLoader;
             try {
+                classLoader = kernel.getClassLoaderFor(target);
                 if (!type.equals(ClassLoading.loadClass(type.getName(), classLoader))) {
                     classLoader = type.getClassLoader();
                 }
-            } catch (ClassNotFoundException ignored) {
+            } catch (Exception ignored) {
+                classLoader = type.getClassLoader();
             }
 
             // add any interface exposed by the gbean that is visible from the selected class loader

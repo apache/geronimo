@@ -200,7 +200,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
             enhancer.setInterfaces(allImplementedInterfaces);
             enhancer.setCallbackType(net.sf.cglib.proxy.MethodInterceptor.class);
             enhancer.setUseFactory(false);//????
-            interceptor = new ConnectorMethodInterceptor(kernel.getKernelName(), ObjectName.getInstance(objectName));
+            interceptor = new ConnectorMethodInterceptor(kernel.getKernelName(), abstractName);
             enhancer.setCallbacks(new Callback[]{interceptor});
             proxy = enhancer.create(new Class[0], new Object[0]);
         } else {
