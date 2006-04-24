@@ -242,8 +242,6 @@
         <attainGoal name="assemble:assemble-unpack"/>
         <attainGoal name="assemble:assemble-configurations"/>
         <attainGoal name="assemble:assemble-schemas"/>
-        <velocity:merge basedir="${geronimo.assembly.src}/var/config" template="config.xml"
-                        name="${geronimo.assembly.dest}/var/config/config.xml"/>
     </goal>
 
     <goal name="assemble:assemble-to-repo" prereqs="assemble:assemble-prepare"
@@ -254,8 +252,6 @@
         <attainGoal name="assemble:assemble-configurations-to-repo"/>
         <attainGoal name="assemble:assemble-installer-helpers"/>
         <attainGoal name="assemble:assemble-schemas"/>
-        <velocity:merge basedir="${geronimo.assembly.src}/var/config" template="config.xml"
-                        name="${geronimo.assembly.dest}/var/config/config.xml"/>
     </goal>
     <goal name="assemble:assemble-installer-helpers">
         <ant:copy todir="${geronimo.assembly.dest}/var/temp">
