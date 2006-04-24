@@ -92,7 +92,7 @@
 
         <dependency>
             <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-corba-2.3</artifactId>
+            <artifactId>geronimo-spec-corba</artifactId>
             <version>${geronimo_spec_corba_version}</version>
         </dependency>
 
