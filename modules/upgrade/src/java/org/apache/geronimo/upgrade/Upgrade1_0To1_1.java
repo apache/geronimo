@@ -152,7 +152,7 @@ public class Upgrade1_0To1_1 {
         Artifact artifact;
         if (cursor.getName().getLocalPart().equals("uri")) {
             String uri = cursor.getTextValue();
-            artifact = Artifact.create(uri);
+            artifact = toArtifact(uri);
         } else {
             checkName(cursor, "groupId");
             String groupId = cursor.getTextValue();
@@ -192,13 +192,17 @@ public class Upgrade1_0To1_1 {
         QName attrQName = new QName(null, attrName);
         if ((attrValue = cursor.getAttributeText(attrQName)) != null) {
             cursor.removeAttribute(attrQName);
-            try {
-                return Artifact.create(attrValue);
-            } catch (Exception e) {
-                return new Artifact(DEFAULT_GROUPID, attrValue.replace('/', '_'), DEFAULT_VERSION, "car");
-            }
+            return toArtifact(attrValue);
         }
         return null;
+    }
+
+    private static Artifact toArtifact(String attrValue) {
+        try {
+            return Artifact.create(attrValue);
+        } catch (Exception e) {
+            return new Artifact(DEFAULT_GROUPID, attrValue.replace('/', '_'), DEFAULT_VERSION, "car");
+        }
     }
 
     private static boolean extractSuppressDefaultEnvironment(XmlCursor cursor) {
