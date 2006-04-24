@@ -1,4 +1,0 @@
-Manifest-Version: 1.0
-Class-Path:  dt-ejb.jar
-Main-Class: org.apache.geronimo.samples.daytrader.client.TradeClient
-
