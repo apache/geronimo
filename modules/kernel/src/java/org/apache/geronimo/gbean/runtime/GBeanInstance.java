@@ -916,11 +916,11 @@ public final class GBeanInstance implements StateManageable {
             Iterator names = constructorInfo.getAttributeNames().iterator();
             for (int i = 0; i < parameters.length; i++) {
                 String name = (String) names.next();
-                if (attributeIndex.containsKey(name)) {
+                if (referenceIndex.containsKey(name)) {
+                    parameters[i] = getReferenceByName(name).getProxy();
+                } else if (attributeIndex.containsKey(name)) {
                     GBeanAttribute attribute = getAttributeByName(name);
                     parameters[i] = attribute.getPersistentValue();
-                } else if (referenceIndex.containsKey(name)) {
-                    parameters[i] = getReferenceByName(name).getProxy();
                 } else {
                     stateReason = "the service constructor definition contained the name '" + name + "' which is not a known attribute or reference of the service.";
                     throw new InvalidConfigurationException("Unknown attribute or reference name in constructor: referenceName=" + name + ", gbean=" + abstractName);

@@ -212,7 +212,7 @@ public class GBeanInfoBuilder {
         for (int i = 0; i < persistentAttributes.length; i++) {
             String attributeName = persistentAttributes[i];
             GAttributeInfo attribute = (GAttributeInfo) attributes.get(attributeName);
-            if (attribute != null) {
+            if (attribute != null && !references.containsKey(attributeName)) {
                 if (isMagicAttribute(attribute)) {
                     // magic attributes can't be persistent
                     continue;

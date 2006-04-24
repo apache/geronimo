@@ -78,7 +78,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
     }
 
     public String getObjectName() {
-        return objectName.toString();
+        return objectName.getCanonicalName();
     }
 
     public AbstractName getAbstractName() {

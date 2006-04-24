@@ -166,7 +166,7 @@ public class KernelMBeanServer implements MBeanServer {
         try {
             gbeanInfo = kernel.getGBeanInfo(abstractName);
         } catch (GBeanNotFoundException e) {
-            throw new InstanceNotFoundException(name.toString());
+            throw new InstanceNotFoundException(name.getCanonicalName());
         } catch (InternalKernelException e) {
             throw new ReflectionException(unwrapInternalKernelException(e));
         }

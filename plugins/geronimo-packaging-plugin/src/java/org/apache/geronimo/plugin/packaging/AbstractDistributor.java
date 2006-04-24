@@ -86,7 +86,7 @@ public abstract class AbstractDistributor {
     }
 
     public String getStoreName() {
-        return storeName.toString();
+        return storeName.getCanonicalName();
     }
 
     /**

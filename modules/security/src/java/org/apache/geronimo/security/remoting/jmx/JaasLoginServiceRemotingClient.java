@@ -34,7 +34,7 @@ public class JaasLoginServiceRemotingClient {
     static public JaasLoginServiceMBean create(String host, int port) throws IllegalArgumentException {
         URI target;
         try {
-            target = new URI("async", null, host, port, "/JMX", null, JaasLoginServiceRemotingServer.REQUIRED_OBJECT_NAME.toString());
+            target = new URI("async", null, host, port, "/JMX", null, JaasLoginServiceRemotingServer.REQUIRED_OBJECT_NAME.getCanonicalName());
             return create(target);
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("Bad host or port.");
