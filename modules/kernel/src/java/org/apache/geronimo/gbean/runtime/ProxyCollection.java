@@ -22,7 +22,6 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
-import org.apache.geronimo.kernel.proxy.ProxyFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 
@@ -43,19 +42,15 @@ class ProxyCollection implements ReferenceCollection {
     private static final Log log = LogFactory.getLog(ProxyCollection.class);
     private final String name;
     private final Kernel kernel;
-    private final ProxyFactory factory;
     private final Map proxies = new HashMap();
     private final Set listeners = new HashSet();
     private boolean stopped = false;
+    private final Class type;
 
     public ProxyCollection(String name, Class type, Set targets, Kernel kernel) {
         this.name = name;
         this.kernel = kernel;
-        if (AbstractGBeanReference.NO_PROXY) {
-            factory = null;
-        } else {
-            factory = kernel.getProxyManager().createProxyFactory(type);
-        }
+        this.type = type;
 
         for (Iterator iterator = targets.iterator(); iterator.hasNext();) {
             addTarget((AbstractName) iterator.next());
@@ -92,7 +87,7 @@ class ProxyCollection implements ReferenceCollection {
                     return;
                 }
             } else {
-                proxy = factory.createProxy(target);
+                proxy = kernel.getProxyManager().createProxy(target, type);
             }
             proxies.put(target, proxy);
 

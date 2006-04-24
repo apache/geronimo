@@ -30,16 +30,6 @@ import javax.management.MalformedObjectNameException;
  * @version $Rev$ $Date$
  */
 public interface ProxyManager {
-    /**
-     * Create a proxy factory which will generate proxies of the specified type,
-     * plus GeronimoManagedBean. The proxy class will be created within the class
-     * loader from which the specified type was loaded, or from the system class
-     * loader if the specified type has a null class loader.
-     *
-     * @param type the type of the proxies to create
-     * @return the proxy factory
-     */
-    public ProxyFactory createProxyFactory(Class type);
 
 
     /**
@@ -52,45 +42,8 @@ public interface ProxyManager {
      */
     ProxyFactory createProxyFactory(Class[] types, ClassLoader classLoader);
 
-    /**
-     * Create a proxy for the specified target.  The proxy will implement
-     * all of the interfaces that the underlying GBean specifies in its
-     * GBeanInfo, plus GeronimoManagedBean.  If there are no interfaces in
-     * the GBeanInfo, this method will return null.
-     *
-     * @param target the target object name
-     * @param loader the ClassLoader used to load the interfaces used by the
-     *        proxy
-     * @return the proxy, or null if the GBeanInfo declares no interfaces
-     */
-    public Object createProxy(ObjectName target, ClassLoader loader);
     public Object createProxy(AbstractName target, ClassLoader loader);
 
-    /**
-     * Create proxies for the specified targets.  The proxies will implement
-     * all of the interfaces that the underlying GBeans specify in their
-     * GBeanInfo, plus GeronimoManagedBean.  If there are no interfaces in the
-     * GBeanInfo, this method will return a null in that spot in the array.
-     *
-     * @param objectNameStrings An array of ObjectNames, each in String form
-     * @param loader the ClassLoader used to load the interfaces used by the
-     *               proxies
-     * @return an array of proxies of the same length as the argument array,
-     *         where each value is a proxy or null if the corresponding
-     *         GBeanInfo declares no interfaces
-     */
-    public Object[] createProxies(String[] objectNameStrings, ClassLoader loader) throws MalformedObjectNameException;
-    public Object[] createProxies(AbstractName[] Names, ClassLoader loader) ;
-
-    /**
-     * Create a proxy for the specified target, implementing the specified
-     * interface, plus GeronimoManagedBean.
-     *
-     * @param target the target object name
-     * @param type the type of the proxy to create
-     * @return the proxy
-     */
-    public Object createProxy(ObjectName target, Class type);
     public Object createProxy(AbstractName target, Class type);
 
     /**

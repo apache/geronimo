@@ -23,14 +23,8 @@ import javax.management.ObjectName;
 
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 383682 $ $Date$
  */
 public interface ProxyFactory {
-    /**
-     * Creates a proxy to the specified target
-     * @param target the name of the target
-     * @return the proxy
-     */
-    Object createProxy(ObjectName target);
     Object createProxy(AbstractName target);
 }

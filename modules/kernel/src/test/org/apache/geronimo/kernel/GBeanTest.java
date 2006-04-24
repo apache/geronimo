@@ -425,10 +425,10 @@ public class GBeanTest extends TestCase {
 
         test = mgr.createProxy(gbean.getAbstractName(), MockEndpoint.class);
         assertTrue(test instanceof MockEndpoint);
-        assertFalse(test instanceof MockParentInterface1);
-        assertFalse(test instanceof MockParentInterface2);
-        assertFalse(test instanceof MockChildInterface1);
-        assertFalse(test instanceof MockChildInterface2);
+        assertTrue(test instanceof MockParentInterface1);
+        assertTrue(test instanceof MockParentInterface2);
+        assertTrue(test instanceof MockChildInterface1);
+        assertTrue(test instanceof MockChildInterface2);
         assertFalse(test instanceof Comparable);
 
         ProxyFactory proxyFactory;
