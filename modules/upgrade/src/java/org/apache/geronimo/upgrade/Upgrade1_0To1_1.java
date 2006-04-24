@@ -136,7 +136,6 @@ public class Upgrade1_0To1_1 {
             //no dependencies, do nothing
             return;
         }
-        cursor.push();
         do {
             String localPart = cursor.getName().getLocalPart();
             if (localPart.equals("dependency") || localPart.equals("import")) {
@@ -145,7 +144,6 @@ public class Upgrade1_0To1_1 {
                 break;
             }
         } while (cursor.toNextSibling());
-        cursor.pop();
     }
 
     private static void extractDependency(XmlCursor cursor, Environment environment) {

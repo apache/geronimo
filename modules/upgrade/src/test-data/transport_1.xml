@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application
+    xmlns="http://geronimo.apache.org/xml/ns/j2ee/application"
+    configId="transport_1"
+    >
+
+    <import>
+        <uri>${pom.groupId}/server-resources/${pom.currentVersion}/car</uri>
+    </import>
+
+    <module>
+        <java>transport_1_client.jar</java>
+        <application-client xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client"
+            configId="bar"
+            clientParentId="${pom.groupId}/client-security/${pom.currentVersion}/car" clientConfigId="transport_ejb_vehicle/transport_ejb_vehicle_client">
+            <ejb-ref>
+                <ref-name>ejb/EJBVehicle</ref-name>
+                <ejb-link>common_ejb_EJBVehicle</ejb-link>
+            </ejb-ref>
+        </application-client>
+    </module>
+</application>

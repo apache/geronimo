@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application
+    xmlns="http://geronimo.apache.org/xml/ns/j2ee/application"
+    configId="transport_jsp_vehicle"
+    >
+
+    <import>
+        <uri>${pom.groupId}/server-resources/${pom.currentVersion}/car</uri>
+    </import>
+</application>
+        

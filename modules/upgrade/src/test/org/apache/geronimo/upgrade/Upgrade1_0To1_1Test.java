@@ -48,6 +48,14 @@ public class Upgrade1_0To1_1Test extends TestCase {
         test("appclient_dep_1");
     }
 
+    public void test3() throws Exception {
+        test("transport_1");
+    }
+
+    public void test4() throws Exception {
+        test("transport_2");
+    }
+
     private void test(String testName) throws Exception {
         InputStream srcXml = classLoader.getResourceAsStream(testName + ".xml");
         Writer targetXml = new StringWriter();
