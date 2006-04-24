@@ -28,4 +28,10 @@ public interface TomcatWebConnector extends WebConnector {
     public void setConnectionTimeoutMillis(int millis);
     public boolean isUploadTimeoutEnabled();
     public void setUploadTimeoutEnabled(boolean enabled);
+    public int getSocketBuffer();
+    public void setSocketBuffer(int bytes);
+    public boolean getUseBodyEncodingForURI();
+    public void setUseBodyEncodingForURI(boolean enabled);
+    public int getMaxKeepAliveRequests();
+    public void setMaxKeepAliveRequests(int maxKeepAliveRequests);
 }
