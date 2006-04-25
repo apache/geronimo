@@ -53,6 +53,10 @@
                         <type>car</type>
                     </dependency>
                 </dependencies>
+                <hidden-classes>
+                    <filter>antlr.</filter>
+                    <filter>org.springframework.</filter>
+                </hidden-classes>
                 <non-overridable-classes>
                     <filter>java.</filter>
                     <filter>javax.</filter>
