@@ -16,6 +16,10 @@
  */
 package org.apache.geronimo.tomcat;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.AbstractName;
@@ -24,26 +28,19 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.ReferencePatterns;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.EditableConfigurationManager;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.management.geronimo.WebManager;
+import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.management.geronimo.NetworkConnector;
-import org.apache.geronimo.management.geronimo.WebContainer;
-import org.apache.geronimo.management.geronimo.WebConnector;
 import org.apache.geronimo.management.geronimo.WebAccessLog;
+import org.apache.geronimo.management.geronimo.WebConnector;
+import org.apache.geronimo.management.geronimo.WebContainer;
+import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.Map;
-import java.util.HashMap;
 
 /**
  * Tomcat implementation of the WebManager management API.  Knows how to
@@ -289,30 +286,6 @@ public class TomcatManagerImpl implements WebManager {
         } catch (Exception e) {
             throw (IllegalArgumentException) new IllegalArgumentException("Unable to look up connectors for Tomcat container '"+containerName).initCause(e);
         }
-    }
-
-    public Map mapContainersToURLs() {
-        WebContainer[] webContainers = (WebContainer[]) getContainers();
-        Map results = new HashMap();
-        for (int i = 0; i < webContainers.length; i++) {
-            WebContainer container = webContainers[i];
-            WebConnector[] connectors = (WebConnector[]) getConnectorsForContainer(container);
-            Map map = new HashMap();
-            for (int j = 0; j < connectors.length; j++) {
-                WebConnector connector = connectors[j];
-                String protocol = connector.getProtocol();
-                String url = connector.getConnectUrl();
-                map.put(protocol, url);
-            }
-            String urlPrefix;
-            if((urlPrefix = (String) map.get("HTTP")) == null) {
-                if((urlPrefix = (String) map.get("HTTPS")) == null) {
-                    urlPrefix = (String) map.get("AJP");
-                }
-            }
-            results.put(kernel.getAbstractNameFor(container).getObjectName().getCanonicalName(), urlPrefix);
-        }
-        return results;
     }
 
     public static final GBeanInfo GBEAN_INFO;

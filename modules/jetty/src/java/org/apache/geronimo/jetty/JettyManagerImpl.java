@@ -17,10 +17,8 @@
 package org.apache.geronimo.jetty;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -278,30 +276,6 @@ public class JettyManagerImpl implements WebManager {
         } catch (Exception e) {
             throw (IllegalArgumentException) new IllegalArgumentException("Unable to look up connectors for Jetty container '"+containerName+"'").initCause(e);
         }
-    }
-
-    public Map mapContainersToURLs() {
-        WebContainer[] webContainers = (WebContainer[]) getContainers();
-        Map results = new HashMap();
-        for (int i = 0; i < webContainers.length; i++) {
-            WebContainer container = webContainers[i];
-            WebConnector[] connectors = (WebConnector[]) getConnectorsForContainer(container);
-            Map map = new HashMap();
-            for (int j = 0; j < connectors.length; j++) {
-                WebConnector connector = connectors[j];
-                String protocol = connector.getProtocol();
-                String url = connector.getConnectUrl();
-                map.put(protocol, url);
-            }
-            String urlPrefix;
-            if((urlPrefix = (String) map.get("HTTP")) == null) {
-                if((urlPrefix = (String) map.get("HTTPS")) == null) {
-                    urlPrefix = (String) map.get("AJP");
-                }
-            }
-            results.put(kernel.getAbstractNameFor(container).getObjectName().getCanonicalName(), urlPrefix);
-        }
-        return results;
     }
 
     public static final GBeanInfo GBEAN_INFO;

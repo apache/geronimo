@@ -46,7 +46,6 @@ public class StartupMonitorUtil {
         List apps = new ArrayList();  // type = String (message)
         List webs = new ArrayList();  // type = WebAppInfo
         List ports = new ArrayList(); // type = AddressHolder
-        Map containers = new HashMap();
         Map failed = new HashMap();   // key = AbstractName, value = String (message)
         String serverInfo = null;
         try {
@@ -58,9 +57,7 @@ public class StartupMonitorUtil {
                     apps.add("    " + decodeModule(name.getNameProperty("j2eeType")) + ": " + name.getNameProperty("name"));
                 }
                 if (isWebModule(name)) {
-                    String context = (String) kernel.getAttribute(name, "contextPath");
-                    String containerName = (String) kernel.getAttribute(name, "containerName");
-                    webs.add(new WebAppInfo(containerName, name, context));
+                    webs.add(kernel.getAttribute(name, "URLFor").toString());
                 }
 
                 int stateValue = kernel.getGBeanState(name);
@@ -127,8 +124,6 @@ public class StartupMonitorUtil {
                     }
                 }
             }
-            // Look up a URL for each WebContainer in the server (Manager -< Container -< Connector)
-            containers = WebAppUtil.mapContainersToURLs(kernel);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -188,8 +183,7 @@ public class StartupMonitorUtil {
             Collections.sort(webs);
             out.println("  Web Applications:");
             for (int i = 0; i < webs.size(); i++) {
-                WebAppInfo app = (WebAppInfo) webs.get(i);
-                out.println("    " + containers.get(app.getContainerObjectName()) + app.getContext());
+                out.println("    " + webs.get(i));
             }
             out.println();
         }
@@ -296,56 +290,6 @@ public class StartupMonitorUtil {
             AddressHolder other = (AddressHolder) o;
             int value = address.getPort() - other.address.getPort();
             return value == 0 ? address.getAddress().toString().compareTo(other.address.getAddress().toString()) : value;
-        }
-    }
-
-    private static class WebAppInfo implements Comparable {
-        private String containerObjectName;
-        private AbstractName webAppAbstractName;
-        private String context;
-
-        public WebAppInfo(String containerObjectName, AbstractName webAppAbstractName, String context) {
-            this.containerObjectName = containerObjectName;
-            this.webAppAbstractName = webAppAbstractName;
-            this.context = context;
-        }
-
-        public String getContainerObjectName() {
-            return containerObjectName;
-        }
-
-        public AbstractName getWebAppAbstractName() {
-            return webAppAbstractName;
-        }
-
-        public String getContext() {
-            return context;
-        }
-
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof WebAppInfo)) return false;
-
-            final WebAppInfo webAppInfo = (WebAppInfo) o;
-
-            if (!containerObjectName.equals(webAppInfo.containerObjectName)) return false;
-            if (!context.equals(webAppInfo.context)) return false;
-            return webAppAbstractName.equals(webAppInfo.webAppAbstractName);
-        }
-
-        public int hashCode() {
-            int result;
-            result = containerObjectName.hashCode();
-            result = 29 * result + webAppAbstractName.hashCode();
-            result = 29 * result + context.hashCode();
-            return result;
-        }
-
-        public int compareTo(Object o) {
-            WebAppInfo other = (WebAppInfo) o;
-            int test = containerObjectName.compareTo(other.containerObjectName);
-            if (test != 0) return test;
-            return context.compareTo(other.context);
         }
     }
 }

@@ -17,12 +17,8 @@
 package org.apache.geronimo.tomcat;
 
 import java.io.File;
-import java.io.FileFilter;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.catalina.Container;
 import org.apache.catalina.Context;
 import org.apache.catalina.Engine;
@@ -35,6 +31,8 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.management.geronimo.NetworkConnector;
+import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.tomcat.realm.TomcatGeronimoRealm;
 import org.apache.geronimo.tomcat.realm.TomcatJAASRealm;
@@ -76,17 +74,19 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
 
     private final Map webServices = new HashMap();
     private final String objectName;
+    private final WebManager manager;
 
     // Required as it's referenced by deployed webapps
     public TomcatContainer() {
         this.objectName = null; // is this OK??
         setCatalinaHome(DEFAULT_CATALINA_HOME);
+        manager = null;
     }
 
     /**
      * GBean constructor (invoked dynamically when the gbean is declared in a plan)
      */
-    public TomcatContainer(ClassLoader classLoader, String catalinaHome, ObjectRetriever engineGBean, ServerInfo serverInfo, String objectName) {
+    public TomcatContainer(ClassLoader classLoader, String catalinaHome, ObjectRetriever engineGBean, ServerInfo serverInfo, String objectName, WebManager manager) {
         if (catalinaHome == null)
             catalinaHome = DEFAULT_CATALINA_HOME;
 
@@ -105,6 +105,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         this.engine = (Engine) engineGBean.getInternalObject();
 
         this.objectName = objectName;
+        this.manager = manager;
     }
 
     public String getObjectName() {
@@ -121,6 +122,14 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
 
     public boolean isEventProvider() {
         return true;
+    }
+
+    public NetworkConnector[] getConnectors() {
+        return manager.getConnectorsForContainer(this);
+    }
+
+    public NetworkConnector[] getConnectors(String protocol) {
+        return manager.getConnectorsForContainer(this, protocol);
     }
 
     public void doFail() {
@@ -349,7 +358,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Web Container", TomcatContainer.class);
 
-        infoFactory.setConstructor(new String[]{"classLoader", "catalinaHome", "EngineGBean", "ServerInfo", "objectName"});
+        infoFactory.setConstructor(new String[]{"classLoader", "catalinaHome", "EngineGBean", "ServerInfo", "objectName", "WebManager"});
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
@@ -360,6 +369,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         infoFactory.addReference("EngineGBean", ObjectRetriever.class, NameFactory.GERONIMO_SERVICE);
 
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
+        infoFactory.addReference("WebManager", WebManager.class);
 
         infoFactory.addOperation("addContext", new Class[]{TomcatContext.class});
         infoFactory.addOperation("removeContext", new Class[]{TomcatContext.class});

@@ -25,6 +25,8 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.management.StatisticsProvider;
+import org.apache.geronimo.management.geronimo.WebManager;
+import org.apache.geronimo.management.geronimo.NetworkConnector;
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpListener;
 import org.mortbay.http.RequestLog;
@@ -40,12 +42,14 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
     private final Server server;
     private final Map webServices = new HashMap();
     private final String objectName;
+    private final WebManager manager;
     private JettyWebContainerStatsImpl stats;
 
-    public JettyContainerImpl(String objectName) {
+    public JettyContainerImpl(String objectName, WebManager manager) {
         this.objectName = objectName;
         server = new JettyServer();
         stats = new JettyWebContainerStatsImpl();
+        this.manager = manager;
     }
 
     public String getObjectName() {
@@ -62,6 +66,14 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
 
     public boolean isEventProvider() {
         return true;
+    }
+
+    public NetworkConnector[] getConnectors() {
+        return manager.getConnectorsForContainer(this);
+    }
+
+    public NetworkConnector[] getConnectors(String protocol) {
+        return manager.getConnectorsForContainer(this, protocol);
     }
 
     public void resetStatistics() {
@@ -212,11 +224,12 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
         infoBuilder.addOperation("removeRealm", new Class[]{UserRealm.class});
 
         infoBuilder.addAttribute("objectName", String.class, false);
+        infoBuilder.addReference("WebManager", WebManager.class);
 
         infoBuilder.addInterface(SoapHandler.class);
         infoBuilder.addInterface(JettyContainer.class);
         infoBuilder.addInterface(StatisticsProvider.class);
-        infoBuilder.setConstructor(new String[]{"objectName"});
+        infoBuilder.setConstructor(new String[]{"objectName", "WebManager"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

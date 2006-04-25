@@ -37,6 +37,9 @@ import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
 import org.apache.geronimo.management.geronimo.WebModule;
+import org.apache.geronimo.management.geronimo.WebContainer;
+import org.apache.geronimo.management.geronimo.NetworkConnector;
+import org.apache.geronimo.management.geronimo.WebConnector;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
 import org.apache.geronimo.naming.reference.KernelAwareReference;
@@ -60,6 +63,7 @@ import javax.management.MalformedObjectNameException;
 import javax.naming.Context;
 import java.io.IOException;
 import java.net.URL;
+import java.net.MalformedURLException;
 import java.security.PermissionCollection;
 import java.util.Collection;
 import java.util.EventListener;
@@ -68,6 +72,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.HashMap;
 
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
@@ -160,42 +165,42 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     }
 
     public JettyWebAppContext(String objectName,
-            String originalSpecDD,
-            String[] virtualHosts,
-            String sessionManager,
-            Map componentContext,
-            OnlineUserTransaction userTransaction,
-            ClassLoader classLoader,
-            URL configurationBaseUrl,
-            Set unshareableResources,
-            Set applicationManagedSecurityResources,
+                              String originalSpecDD,
+                              String[] virtualHosts,
+                              String sessionManager,
+                              Map componentContext,
+                              OnlineUserTransaction userTransaction,
+                              ClassLoader classLoader,
+                              URL configurationBaseUrl,
+                              Set unshareableResources,
+                              Set applicationManagedSecurityResources,
 
-            String displayName,
-            Map contextParamMap,
-            Collection listenerClassNames,
-            boolean distributable,
-            Map mimeMap,
-            String[] welcomeFiles,
-            Map localeEncodingMapping,
-            Map errorPages,
-            Authenticator authenticator,
-            String realmName,
-            Map tagLibMap,
-            int sessionTimeoutSeconds,
+                              String displayName,
+                              Map contextParamMap,
+                              Collection listenerClassNames,
+                              boolean distributable,
+                              Map mimeMap,
+                              String[] welcomeFiles,
+                              Map localeEncodingMapping,
+                              Map errorPages,
+                              Authenticator authenticator,
+                              String realmName,
+                              Map tagLibMap,
+                              int sessionTimeoutSeconds,
 
-            String policyContextID,
-            String securityRealmName,
-            DefaultPrincipal defaultPrincipal,
-            PermissionCollection checkedPermissions,
-            PermissionCollection excludedPermissions,
+                              String policyContextID,
+                              String securityRealmName,
+                              DefaultPrincipal defaultPrincipal,
+                              PermissionCollection checkedPermissions,
+                              PermissionCollection excludedPermissions,
 
-            TransactionContextManager transactionContextManager,
-            TrackedConnectionAssociator trackedConnectionAssociator,
-            JettyContainer jettyContainer,
-            RoleDesignateSource roleDesignateSource,
-            J2EEServer server,
-            J2EEApplication application,
-            Kernel kernel) throws Exception, IllegalAccessException, InstantiationException, ClassNotFoundException {
+                              TransactionContextManager transactionContextManager,
+                              TrackedConnectionAssociator trackedConnectionAssociator,
+                              JettyContainer jettyContainer,
+                              RoleDesignateSource roleDesignateSource,
+                              J2EEServer server,
+                              J2EEApplication application,
+                              Kernel kernel) throws Exception, IllegalAccessException, InstantiationException, ClassNotFoundException {
 
         assert componentContext != null;
         assert userTransaction != null;
@@ -323,8 +328,32 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         }
     }
 
-    public String getContainerName() {
-        return jettyContainer.getObjectName();
+    public WebContainer getContainer() {
+        return jettyContainer;
+    }
+
+    public URL getURLFor() {
+        WebConnector[] connectors = (WebConnector[]) jettyContainer.getConnectors();
+        Map map = new HashMap();
+        for (int i = 0; i < connectors.length; i++) {
+            WebConnector connector = connectors[i];
+            map.put(connector.getProtocol(), connector.getConnectUrl());
+        }
+        String urlPrefix;
+        if((urlPrefix = (String) map.get("HTTP")) == null) {
+            if((urlPrefix = (String) map.get("HTTPS")) == null) {
+                urlPrefix = (String) map.get("AJP");
+            }
+        }
+        if(urlPrefix == null) {
+            return null;
+        }
+        try {
+            return new URL(urlPrefix + getContextPath());
+        } catch (MalformedURLException e) {
+            log.error("Bad URL to connect to web app", e);
+            return null;
+        }
     }
 
     public Object enterContextScope(HttpRequest httpRequest, HttpResponse httpResponse) {

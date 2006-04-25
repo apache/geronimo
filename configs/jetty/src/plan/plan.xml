@@ -48,6 +48,9 @@ Configuration for Jetty server.
 
     <!-- default WAR container using Jetty -->
     <gbean name="JettyWebContainer" class="org.apache.geronimo.jetty.JettyContainerImpl">
+      <reference name="WebManager">
+        <name>JettyWebManager</name>
+      </reference>
     </gbean>
 
     <gbean name="JettyRequestLog" class="org.apache.geronimo.jetty.requestlog.NCSARequestLog">

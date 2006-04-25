@@ -173,47 +173,11 @@ public class Deployer {
                 return null;
             }
             AbstractName module = (AbstractName) names.iterator().next();
-
-            String containerName = (String) kernel.getAttribute(module, "containerName");
-            String contextPath = (String) kernel.getAttribute(module, "contextPath");
-            String urlPrefix = getURLFor(containerName);
-            return urlPrefix + contextPath + "/upload";
+            return kernel.getAttribute(module, "URLFor") + "/upload";
         } catch (Exception e) {
             log.error("Unable to look up remote deploy upload URL", e);
             return null;
         }
-    }
-
-    /**
-     * Given a web container ObjectName, constructs a URL to point to it.
-     * Currently favors HTTP then HTTPS and ignores AJP (since AJP
-     * means it goes through a web server listening on an unknown port).
-     */
-    private String getURLFor(String containerName) throws Exception {
-        Set set = kernel.listGBeans(new AbstractNameQuery("org.apache.geronimo.management.geronimo.WebManager"));
-        for (Iterator it = set.iterator(); it.hasNext();) {
-            AbstractName mgrName = (AbstractName) it.next();
-            String[] cntNames = (String[]) kernel.getAttribute(mgrName, "containers");
-            for (int i = 0; i < cntNames.length; i++) {
-                String cntName = cntNames[i];
-                if (cntName.equals(containerName)) {
-                    String[] cncNames = (String[]) kernel.invoke(mgrName, "getConnectorsForContainer", new Object[]{cntName}, new String[]{"java.lang.String"});
-                    Map map = new HashMap();
-                    for (int j = 0; j < cncNames.length; j++) {
-                        ObjectName cncName = ObjectName.getInstance(cncNames[j]);
-                        String protocol = (String) kernel.getAttribute(cncName, "protocol");
-                        String url = (String) kernel.getAttribute(cncName, "connectUrl");
-                        map.put(protocol, url);
-                    }
-                    String urlPrefix;
-                    if ((urlPrefix = (String) map.get("HTTP")) == null) {
-                        urlPrefix = (String) map.get("HTTPS");
-                    }
-                    return urlPrefix;
-                }
-            }
-        }
-        return null;
     }
 
     public List deploy(boolean inPlace,

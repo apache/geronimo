@@ -16,12 +16,10 @@
  */
 package org.apache.geronimo.management.geronimo;
 
-import org.apache.geronimo.management.J2EEManagedObject;
-
 /**
  * Represents a JMS broker
  *
  * @version $Rev$ $Date$
  */
-public interface JMSBroker extends J2EEManagedObject {
+public interface JMSBroker extends NetworkContainer {
 }

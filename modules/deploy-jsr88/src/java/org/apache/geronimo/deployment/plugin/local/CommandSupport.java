@@ -17,14 +17,16 @@
 
 package org.apache.geronimo.deployment.plugin.local;
 
-import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
-import org.apache.geronimo.deployment.plugin.jmx.CommandContext;
-import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.kernel.InternalKernelException;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import javax.enterprise.deploy.shared.ActionType;
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.shared.ModuleType;
@@ -36,17 +38,13 @@ import javax.enterprise.deploy.spi.status.DeploymentStatus;
 import javax.enterprise.deploy.spi.status.ProgressEvent;
 import javax.enterprise.deploy.spi.status.ProgressListener;
 import javax.enterprise.deploy.spi.status.ProgressObject;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
+import org.apache.geronimo.deployment.plugin.jmx.CommandContext;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.kernel.InternalKernelException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 
 /**
  * @version $Rev$ $Date$
@@ -285,13 +283,6 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
      */
     public static void addWebURLs(Kernel kernel, List moduleIDs) {
         Set webApps = null;
-        Map containers;
-        try {
-            containers = mapContainersToURLs(kernel);
-        } catch (Exception e) {
-            e.printStackTrace();
-            containers = Collections.EMPTY_MAP;
-        }
         for (int i = 0; i < moduleIDs.size(); i++) {
             TargetModuleIDImpl id = (TargetModuleIDImpl) moduleIDs.get(i);
             if(id.getType() != null && id.getType().getValue() == ModuleType.WAR.getValue()) {
@@ -302,9 +293,7 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
                     AbstractName name = (AbstractName) it.next();
                     if(name.getName().get("name").equals(id.getModuleID())) {
                         try {
-                            String container = (String) kernel.getAttribute(name, "containerName");
-                            String context = (String) kernel.getAttribute(name, "contextPath");
-                            id.setWebURL(containers.get(container)+context);
+                            id.setWebURL(kernel.getAttribute(name, "URLFor").toString());
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -355,26 +344,5 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
             kids.add(childName);
         }
         return kids;
-    }
-
-    /**
-     * Generates a Map where the keys are web container object names (as Strings)
-     * and the values are URLs (as Strings) to connect to a web app running in
-     * the matching container (though the web app context needs to be added to
-     * the end to be complete).
-     *
-     * NOTE: same as a method in geronimo-system WebAppUtil, but neither
-     *       module should obviously be dependent on the other and it's not
-     *       clear that this belongs in geronimo-common
-     */
-    public static Map mapContainersToURLs(Kernel kernel) throws Exception {
-        Map containers = new HashMap();
-        Set set = kernel.listGBeans(new AbstractNameQuery("org.apache.geronimo.management.geronimo.WebManager"));
-        for (Iterator it = set.iterator(); it.hasNext();) {
-            AbstractName manager = (AbstractName) it.next();
-            Map results = (Map)kernel.invoke(manager, "mapContainersToURLs");
-            containers.putAll(results);
-        }
-        return containers;
     }
 }

@@ -16,13 +16,11 @@
  */
 package org.apache.geronimo.management.geronimo;
 
-import org.apache.geronimo.management.J2EEManagedObject;
-
 /**
  * The common configuration settings for a web container (currently, Tomcat or
  * Jetty).
  *
  * @version $Rev$ $Date$
  */
-public interface WebContainer extends J2EEManagedObject {
+public interface WebContainer extends NetworkContainer {
 }

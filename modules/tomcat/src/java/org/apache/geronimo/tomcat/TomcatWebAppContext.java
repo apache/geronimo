@@ -35,6 +35,8 @@ import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
 import org.apache.geronimo.management.geronimo.WebModule;
+import org.apache.geronimo.management.geronimo.WebContainer;
+import org.apache.geronimo.management.geronimo.WebConnector;
 import org.apache.geronimo.security.jacc.RoleDesignateSource;
 import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
@@ -46,11 +48,13 @@ import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
 import java.net.URI;
 import java.net.URL;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.HashMap;
 
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
@@ -76,9 +80,9 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private final Realm realm;
 
     private final List valveChain;
-    
+
     private final CatalinaCluster catalinaCluster;
-    
+
     private final Manager manager;
 
     private final boolean crossContext;
@@ -196,16 +200,16 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         } else {
             valveChain = null;
         }
-        
+
         //Add the cluster
         if (cluster != null)
-           catalinaCluster = (CatalinaCluster)cluster.getInternalObject(); 
+           catalinaCluster = (CatalinaCluster)cluster.getInternalObject();
         else
             catalinaCluster = null;
 
         //Add the manager
         if (manager != null)
-           this.manager = (Manager)manager.getInternalObject(); 
+           this.manager = (Manager)manager.getInternalObject();
         else
             this.manager = null;
 
@@ -262,8 +266,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         }
     }
 
-    public String getContainerName() {
-        return container.getObjectName();
+    public WebContainer getContainer() {
+        return container;
     }
 
     public String getServer() {
@@ -310,6 +314,30 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         this.context = context;
     }
 
+    public URL getURLFor() {
+        WebConnector[] connectors = (WebConnector[]) container.getConnectors();
+        Map map = new HashMap();
+        for (int i = 0; i < connectors.length; i++) {
+            WebConnector connector = connectors[i];
+            map.put(connector.getProtocol(), connector.getConnectUrl());
+        }
+        String urlPrefix;
+        if((urlPrefix = (String) map.get("HTTP")) == null) {
+            if((urlPrefix = (String) map.get("HTTPS")) == null) {
+                urlPrefix = (String) map.get("AJP");
+            }
+        }
+        if(urlPrefix == null) {
+            return null;
+        }
+        try {
+            return new URL(urlPrefix + getContextPath());
+        } catch (MalformedURLException e) {
+            log.error("Bad URL to connect to web app", e);
+            return null;
+        }
+    }
+
     public String getContextPath() {
         return path;
     }
@@ -346,11 +374,11 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     public CatalinaCluster getCluster() {
         return catalinaCluster;
     }
-    
+
     public Manager getManager() {
         return manager;
     }
-    
+
     public boolean isCrossContext() {
         return crossContext;
     }

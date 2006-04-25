@@ -52,12 +52,4 @@ public interface WebManager extends NetworkManager {
      *
      */
     public WebAccessLog getAccessLog(WebContainer container);
-
-    /**
-     * Generates a Map where the keys are web container object names (as Strings)
-     * and the values are URLs (as Strings) to connect to a web app running in
-     * the matching container (though the web app context needs to be added to
-     * the end to be complete).
-     */
-    public Map mapContainersToURLs();
 }

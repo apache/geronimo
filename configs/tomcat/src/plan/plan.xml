@@ -51,6 +51,9 @@ Configuration for Tomcat server.
         <reference name="ServerInfo">
             <name>ServerInfo</name>
         </reference>
+        <reference name="WebManager">
+            <name>TomcatWebManager</name>
+        </reference>
     </gbean>
 
     <gbean name="TomcatWebConnector" class="org.apache.geronimo.tomcat.ConnectorGBean">

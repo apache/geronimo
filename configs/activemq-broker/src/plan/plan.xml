@@ -23,13 +23,16 @@
 
 
     <!-- management -->
-    <gbean name="ActiveMQ" class="org.activemq.gbean.management.ActiveMQManagerGBean" />
+    <gbean name="ActiveMQManager" class="org.activemq.gbean.management.ActiveMQManagerGBean" />
 
     <!-- message broker -->
     <gbean name="ActiveMQ" class="org.activemq.gbean.ActiveMQContainerGBean">
         <attribute name="brokerName">possibly-unique-broker</attribute>
         <reference name="persistenceAdapter">
             <name>ActiveMQ.cache</name>
+        </reference>
+        <reference name="JMSManager">
+            <name>ActiveMQManager</name>
         </reference>
     </gbean>
 
