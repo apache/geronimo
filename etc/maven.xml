@@ -238,6 +238,7 @@
     <ant:echo>Use classes.jar ? ${usesJar}</ant:echo>
     <j:if test="${usesJar}">
       <j:set var="webroot"  value="${basedir}/target/${pom.artifactId}/WEB-INF"/>
+      <ant:mkdir dir="${webroot}/work"/>
       <ant:move todir="${basedir}/target/temp" includeEmptyDirs="false" failonerror="false">
         <ant:fileset dir="${webroot}/classes">
           <ant:include name="**/*" />
