@@ -174,7 +174,7 @@ public abstract class AbstractWebModuleTest extends TestCase {
         engine.doStart();
 
         ServerInfo serverInfo = new BasicServerInfo(".");
-        container = new TomcatContainer(cl, "target/var/catalina", engine, serverInfo, null);
+        container = new TomcatContainer(cl, "target/var/catalina", engine, serverInfo, null, null);
         container.doStart();
 
         connector = new ConnectorGBean("HTTP", null, "localhost", 8181, container);

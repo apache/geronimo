@@ -48,7 +48,7 @@ import java.util.Set;
 
 
 /**
- * @version $Rev: 386763 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class AbstractWebModuleTest extends TestCase {
     protected ClassLoader cl;
@@ -185,7 +185,7 @@ public class AbstractWebModuleTest extends TestCase {
 
         configurationBaseURL = cl.getResource("deployables/");
 
-        container = new JettyContainerImpl("test:name=JettyContainer");
+        container = new JettyContainerImpl("test:name=JettyContainer", null);
         container.doStart();
         connector = new HTTPConnector(container);
         connector.setPort(5678);
