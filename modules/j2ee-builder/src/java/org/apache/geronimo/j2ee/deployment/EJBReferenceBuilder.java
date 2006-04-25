@@ -30,13 +30,11 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 
 
 /**
- * @version $Rev: 386000 $ $Date$
+ * @version $Rev:390932 $ $Date$
  */
 public interface EJBReferenceBuilder {
 
     Reference createCORBAReference(Configuration configuration, AbstractNameQuery containerNameQuery, URI nsCorbaloc, String objectName, String home) throws DeploymentException;
-
-    Object createHandleDelegateReference() throws DeploymentException;
 
     Reference createEJBRemoteRef(String refName, Configuration configuration, String name, String requiredModule, String optionalModule, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String home, String remote) throws DeploymentException;
 

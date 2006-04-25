@@ -88,10 +88,6 @@ public class MockEJBConfigBuilder extends Assert implements ModuleBuilder, EJBRe
         return null;
     }
 
-    public Object createHandleDelegateReference() {
-        return null;
-    }
-
     public Reference createEJBRemoteRef(String refName, Configuration configuration, String name, String requiredModule, String optionalModule, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String home, String remote) throws DeploymentException {
         return null;
     }

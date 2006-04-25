@@ -56,10 +56,6 @@ public class MessageDestinationTest extends TestCase {
             return null;
         }
 
-        public Object createHandleDelegateReference() {
-            return null;
-        }
-
         public Reference createEJBRemoteRef(String refName, Configuration configuration, String name, String requiredModule, String optionalModule, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String home, String remote) {
             return null;
         }

@@ -65,9 +65,6 @@ public class RefContext {
         return ejbReferenceBuilder.createCORBAReference(configuration, cssNameQuery, nsCorbaloc, objectName, home);
     }
 
-    public Object getHandleDelegateReference() throws DeploymentException {
-        return ejbReferenceBuilder.createHandleDelegateReference();
-    }
     public Reference getEJBRemoteRef(String refName, Configuration configuration, String name, String requiredModule, String optionalModule, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String home, String remote) throws DeploymentException {
         return ejbReferenceBuilder.createEJBRemoteRef(refName, configuration, name, requiredModule,  optionalModule, targetConfigId, query, isSession, home, remote);
     }

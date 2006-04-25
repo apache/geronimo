@@ -659,11 +659,7 @@ public class ENCConfigBuilder {
         AbstractNameQuery corbaGBean = earContext.getCORBAGBeanObjectName();
         if (corbaGBean != null) {
             builder.addORB(earConfiguration.getId(), corbaGBean);
-        }
-
-        Object handleDelegateReference = refContext.getHandleDelegateReference();
-        if (handleDelegateReference != null) {
-            builder.addHandleDelegateReference(handleDelegateReference);
+            builder.addHandleDelegateReference(earConfiguration.getId(), corbaGBean);
         }
 
         URI moduleURI = module.getModuleURI();

@@ -21,6 +21,7 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.naming.reference.KernelReference;
 import org.apache.geronimo.naming.reference.ORBReference;
+import org.apache.geronimo.naming.reference.HandleDelegateReference;
 
 import javax.naming.NamingException;
 import javax.transaction.UserTransaction;
@@ -48,8 +49,8 @@ public class ComponentContextBuilder {
         context.put("ORB", new ORBReference(configId, corbaGBeanObjectName));
     }
 
-    public void addHandleDelegateReference(Object handleDelegateReference) {
-        context.put("HandleDelegate", handleDelegateReference);
+    public void addHandleDelegateReference(Artifact configId, AbstractNameQuery corbaGBeanNameQuery) {
+        context.put("HandleDelegate", new HandleDelegateReference(configId, corbaGBeanNameQuery));
     }
 
     public void bind(String name, Object value) {
