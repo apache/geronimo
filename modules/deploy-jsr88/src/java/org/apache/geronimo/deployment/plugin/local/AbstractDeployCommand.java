@@ -30,7 +30,6 @@ import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.Target;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.Deployer;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -61,7 +60,7 @@ public abstract class AbstractDeployCommand extends CommandSupport {
     }
 
     private AbstractName getDeployerName() {
-        Set deployers = kernel.listGBeans(new AbstractNameQuery(Deployer.class.getName()));
+        Set deployers = kernel.listGBeans(new AbstractNameQuery("org.apache.geronimo.deployment.Deployer"));
         if (deployers.isEmpty()) {
             fail("No Deployer GBean present in running Geronimo server. " +
                  "This usually indicates a serious problem with the configuration of " +
