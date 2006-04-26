@@ -24,8 +24,9 @@ import org.apache.geronimo.management.geronimo.JMSManager;
 
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
-import java.util.LinkedHashMap;
-import java.util.Map;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Common methods for JMS portlets
@@ -36,18 +37,43 @@ public class BaseJMSPortlet extends BasePortlet {
     /**
      * Gets a Map relating broker name to JMSBroker instance
      */
-    protected static Map getBrokerMap(RenderRequest renderRequest, JMSManager manager) throws PortletException {
+    protected static List getBrokerList(RenderRequest renderRequest, JMSManager manager) throws PortletException {
 
         JMSBroker[] brokers = (JMSBroker[]) manager.getContainers();
-        Map map = new LinkedHashMap();
+        List beans = new ArrayList();
         try {
             for (int i = 0; i < brokers.length; i++) {
-                AbstractName name = PortletManager.getNameFor(renderRequest, brokers[i]);
-                map.put(name.getName().get("name"), brokers[i]);
+                AbstractName abstractName = PortletManager.getNameFor(renderRequest, brokers[i]);
+                String displayName = abstractName.getName().get("name").toString();
+                beans.add(new BrokerWrapper(displayName, abstractName.toString(), brokers[i]));
             }
         } catch (Exception e) {
             throw new PortletException(e);
         }
-        return map;
+        return beans;
+    }
+    
+    public static class BrokerWrapper {
+        private String brokerName;
+        private String brokerURI;
+        private JMSBroker broker;
+
+        public BrokerWrapper(String brokerName, String brokerURI, JMSBroker broker) {
+            this.brokerName = brokerName;
+            this.brokerURI = brokerURI;
+            this.broker = broker;
+        }
+
+        public String getBrokerName() {
+            return brokerName;
+        }
+
+        public JMSBroker getBroker() {
+            return broker;
+        }
+
+        public String getBrokerURI() {
+            return brokerURI;
+        }
     }
 }

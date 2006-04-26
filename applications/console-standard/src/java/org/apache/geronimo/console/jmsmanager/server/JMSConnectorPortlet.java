@@ -30,8 +30,6 @@ import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletContext;
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
 import org.apache.geronimo.management.geronimo.JMSConnector;
@@ -61,14 +59,15 @@ public class JMSConnectorPortlet extends BaseJMSPortlet {
                               ActionResponse actionResponse) throws PortletException, IOException {
         try {
             String mode = actionRequest.getParameter("mode");
+            String connectorURI = actionRequest.getParameter("connectorURI");
+            String brokerURI = actionRequest.getParameter("brokerURI");
             JMSManager manager = PortletManager.getCurrentServer(actionRequest).getJMSManagers()[0];  //todo: handle multiple
-            AbstractName brokerName = new AbstractName(URI.create(actionRequest.getParameter("brokerName")));
             if(mode.equals("new")) {
                 // User selected to add a new connector, need to show criteria portlet
                 actionResponse.setRenderParameter("mode", "new");
                 String protocol = actionRequest.getParameter("protocol");
                 actionResponse.setRenderParameter("protocol", protocol);
-                actionResponse.setRenderParameter("brokerName", brokerName.toString());
+                actionResponse.setRenderParameter("brokerURI", brokerURI);
             } else if(mode.equals("add")) { // User just submitted the form to add a new connector
                 // Get submitted values
                 //todo: lots of validation
@@ -76,8 +75,9 @@ public class JMSConnectorPortlet extends BaseJMSPortlet {
                 String host = actionRequest.getParameter("host");
                 int port = Integer.parseInt(actionRequest.getParameter("port"));
                 String name = actionRequest.getParameter("name");
+                AbstractName brokerAbstractName = new AbstractName(URI.create(brokerURI));
                 // Create and configure the connector
-                JMSConnector connector = PortletManager.createJMSConnector(actionRequest, manager, brokerName, name, protocol, host, port);
+                JMSConnector connector = PortletManager.createJMSConnector(actionRequest, manager, brokerAbstractName, name, protocol, host, port);
                 // Start the connector
                 try {
                     ((GeronimoManagedBean)connector).startRecursive();
@@ -90,37 +90,36 @@ public class JMSConnectorPortlet extends BaseJMSPortlet {
                 //todo: lots of validation
                 String host = actionRequest.getParameter("host");
                 int port = Integer.parseInt(actionRequest.getParameter("port"));
-                String abstractNameString = actionRequest.getParameter("objectName");
                 // Identify and update the connector
-                JMSConnector connector = (JMSConnector)PortletManager.getManagedBean(actionRequest, new AbstractName(URI.create(abstractNameString)));
+                AbstractName connectorAbstractName = new AbstractName(URI.create(connectorURI));
+                JMSConnector connector = (JMSConnector)PortletManager.getManagedBean(actionRequest, connectorAbstractName);
                 if(connector != null) {
                     connector.setHost(host);
                     connector.setPort(port);
                 }
                 actionResponse.setRenderParameter("mode", "list");
             } else if(mode.equals("start")) {
-                String abstractNameString = actionRequest.getParameter("objectName");
+                AbstractName connectorAbstractName = new AbstractName(URI.create(connectorURI));
                 try {
-                    PortletManager.getManagedBean(actionRequest, new AbstractName(URI.create(abstractNameString))).startRecursive();
+                    PortletManager.getManagedBean(actionRequest, connectorAbstractName).startRecursive();
                 } catch (Exception e) {
                     throw new PortletException(e);
                 }
                 actionResponse.setRenderParameter("mode", "list");
             } else if(mode.equals("stop")) {
-                String abstractNameString = actionRequest.getParameter("objectName");
+                AbstractName connectorAbstractName = new AbstractName(URI.create(connectorURI));
                 try {
-                    PortletManager.getManagedBean(actionRequest, new AbstractName(URI.create(abstractNameString))).stop();
+                    PortletManager.getManagedBean(actionRequest, connectorAbstractName).stop();
                 } catch (Exception e) {
                     throw new PortletException(e);
                 }
                 actionResponse.setRenderParameter("mode", "list");
             } else if(mode.equals("edit")) {
-                String objectName = actionRequest.getParameter("objectName");
-                actionResponse.setRenderParameter("objectName", objectName);
+                actionResponse.setRenderParameter("connectorURI", connectorURI);
                 actionResponse.setRenderParameter("mode", "edit");
             } else if(mode.equals("delete")) {
-                String abstractNameString = actionRequest.getParameter("objectName");
-                manager.removeConnector(new AbstractName(URI.create(abstractNameString)));
+                AbstractName connectorAbstractName = new AbstractName(URI.create(connectorURI));
+                manager.removeConnector(connectorAbstractName);
                 actionResponse.setRenderParameter("mode", "list");
             }
         } catch (Throwable e) {
@@ -145,19 +144,19 @@ public class JMSConnectorPortlet extends BaseJMSPortlet {
             JMSManager manager = PortletManager.getCurrentServer(renderRequest).getJMSManagers()[0];  //todo: handle multiple
 
             if(mode.equals("new")) {
-                String brokerName = renderRequest.getParameter("brokerName");
+                String brokerURI = renderRequest.getParameter("brokerURI");
                 String protocol = renderRequest.getParameter("protocol");
                 renderRequest.setAttribute("protocol", protocol);
-                renderRequest.setAttribute("brokerName", brokerName);
+                renderRequest.setAttribute("brokerURI", brokerURI);
                 renderRequest.setAttribute("mode", "add");
                 editView.include(renderRequest, renderResponse);
             } else if(mode.equals("edit")) {
-                String objectName = renderRequest.getParameter("objectName");
-                JMSConnector connector = (JMSConnector)PortletManager.getManagedBean(renderRequest, new AbstractName(URI.create(objectName)));
+                String connectorURI = renderRequest.getParameter("connectorURI");
+                JMSConnector connector = (JMSConnector)PortletManager.getManagedBean(renderRequest, new AbstractName(URI.create(connectorURI)));
                 if(connector == null) {
                     doList(renderRequest, manager, renderResponse);
                 } else {
-                    renderRequest.setAttribute("objectName", objectName);
+                    renderRequest.setAttribute("connectorURI", connectorURI);
                     renderRequest.setAttribute("port", new Integer(connector.getPort()));
                     renderRequest.setAttribute("host", connector.getHost());
                     renderRequest.setAttribute("mode", "save");
@@ -176,22 +175,20 @@ public class JMSConnectorPortlet extends BaseJMSPortlet {
         JMSBroker[] brokers = (JMSBroker[]) manager.getContainers();
         for (int i = 0; i < brokers.length; i++) {
             JMSBroker broker = brokers[i];
-            AbstractName brokerName = PortletManager.getNameFor(renderRequest, broker);
-            try {
-                JMSConnector[] connectors = (JMSConnector[]) manager.getConnectorsForContainer(broker);
-                for (int j = 0; j < connectors.length; j++) {
-                    JMSConnector connector = connectors[j];
-                    ObjectName conName = ObjectName.getInstance(((GeronimoManagedBean)connector).getObjectName());
-                    String connectorName = conName.getKeyProperty("name");
-                    ConnectorWrapper info = new ConnectorWrapper((String) brokerName.getName().get("name"),
-                                                                 brokerName.toString(), connectorName, connector);
-                    beans.add(info);
-                }
-            } catch (MalformedObjectNameException e) {
-                log.error("Unable to decode ObjectName", e);
+            AbstractName brokerAbstractName = PortletManager.getNameFor(renderRequest, broker);
+            JMSConnector[] connectors = (JMSConnector[]) manager.getConnectorsForContainer(broker);
+            for (int j = 0; j < connectors.length; j++) {
+                JMSConnector connector = connectors[j];
+                AbstractName connectorAbstractName = PortletManager.getNameFor(renderRequest,connector);
+                String brokerName = brokerAbstractName.getName().get("name").toString();
+                String connectorName = connectorAbstractName.getName().get("name").toString();
+                ConnectorWrapper info = new ConnectorWrapper(brokerName, brokerAbstractName.toString(),
+                		                                     connectorName, connectorAbstractName.toString(),
+                		                                     connector);
+                beans.add(info);
             }
         }
-        renderRequest.setAttribute("brokers", getBrokerMap(renderRequest, manager).entrySet());
+        renderRequest.setAttribute("brokers", getBrokerList(renderRequest, manager));
         renderRequest.setAttribute("connectors", beans);
         renderRequest.setAttribute("protocols", manager.getSupportedProtocols());
 
@@ -230,31 +227,36 @@ public class JMSConnectorPortlet extends BaseJMSPortlet {
 
     public static class ConnectorWrapper {
         private String brokerName;
-        private String brokerAbstractName;
-        private String displayName;
+        private String brokerURI;
+        private String connectorName;
+        private String connectorURI;
         private JMSConnector connector;
 
-        public ConnectorWrapper(String brokerName, String brokerAbstractName, String displayName, JMSConnector connector) {
+        public ConnectorWrapper(String brokerName, String brokerURI, String connectorName, String connectorURI, JMSConnector connector) {
             this.brokerName = brokerName;
-            this.displayName = displayName;
+            this.brokerURI = brokerURI;
+            this.connectorName = connectorName;
+            this.connectorURI = connectorURI;
             this.connector = connector;
-            this.brokerAbstractName = brokerAbstractName;
         }
 
         public String getBrokerName() {
             return brokerName;
         }
 
-        public String getDisplayName() {
-            return displayName;
+        public String getConnectorName() {
+            return connectorName;
         }
 
         public JMSConnector getConnector() {
             return connector;
         }
 
-        public String getBrokerAbstractName() {
-            return brokerAbstractName;
+        public String getBrokerURI() {
+            return brokerURI;
+        }
+        public String getConnectorURI() {
+            return connectorURI;
         }
     }
 }

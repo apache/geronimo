@@ -20,7 +20,7 @@
           </tr>
 <c:forEach var="info" items="${connectors}">
           <tr>
-            <td>${info.displayName}</td>
+            <td>${info.connectorName}</td>
             <td>${info.brokerName}</td>
             <td>${info.connector.protocol}</td>
             <td>${info.connector.port}</td>
@@ -30,23 +30,27 @@
                <c:when test="${info.connector.stateInstance.name eq 'running'}">
                <a href="<portlet:actionURL portletMode="view">
                  <portlet:param name="mode" value="stop" />
-                 <portlet:param name="objectName" value="${info.connector.objectName}" />
+                 <portlet:param name="brokerURI" value="${info.brokerURI}" />
+                 <portlet:param name="connectorURI" value="${info.connectorURI}" />
                </portlet:actionURL>">stop</a>
                </c:when>
                <c:otherwise>
                <a href="<portlet:actionURL portletMode="view">
                  <portlet:param name="mode" value="start" />
-                 <portlet:param name="objectName" value="${info.connector.objectName}" />
+                 <portlet:param name="brokerURI" value="${info.brokerURI}" />
+                 <portlet:param name="connectorURI" value="${info.connectorURI}" />
                </portlet:actionURL>">start</a>
                </c:otherwise>
              </c:choose>
                <a href="<portlet:actionURL portletMode="view">
                  <portlet:param name="mode" value="edit" />
-                 <portlet:param name="objectName" value="${info.connector.objectName}" />
+                 <portlet:param name="brokerURI" value="${info.brokerURI}" />
+                 <portlet:param name="connectorURI" value="${info.connectorURI}" />
                </portlet:actionURL>">edit</a>
                <a href="<portlet:actionURL portletMode="view">
                  <portlet:param name="mode" value="delete" />
-                 <portlet:param name="objectName" value="${info.connector.objectName}" />
+                 <portlet:param name="brokerURI" value="${info.brokerURI}" />
+                 <portlet:param name="connectorURI" value="${info.connectorURI}" />
                </portlet:actionURL>">delete</a>
              </td>
           </tr>
@@ -55,13 +59,13 @@
 </c:if>
 
 <!-- Links to add new connectors -->
-<c:forEach var="entry" items="${brokers}">
-<p>Add connector to ${entry.key}:</p>
+<c:forEach var="info" items="${brokers}">
+<p>Add connector to ${info.brokerName}:</p>
 <ul>
 <c:forEach var="protocol" items="${protocols}">
 <li><a href="<portlet:actionURL portletMode="view">
            <portlet:param name="mode" value="new" />
-           <portlet:param name="brokerName" value="${entry.value.objectName}" />
+           <portlet:param name="brokerURI" value="${info.brokerURI}" />
            <portlet:param name="protocol" value="${protocol}" />
          </portlet:actionURL>">Add new <b>${protocol}</b> listener</a></li>
 </c:forEach>

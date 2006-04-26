@@ -7,10 +7,10 @@
 <input type="hidden" name="protocol" value="${protocol}">
 <c:choose>
 <c:when test="${mode eq 'save'}">
-  <input type="hidden" name="objectName" value="${objectName}">
+  <input type="hidden" name="connectorURI" value="${connectorURI}">
 </c:when>
 <c:otherwise>
-  <input type="hidden" name="brokerName" value="${brokerName}">
+  <input type="hidden" name="brokerURI" value="${brokerURI}">
 </c:otherwise>
 </c:choose>
 <table width="100%%"  border="0">
