@@ -56,6 +56,10 @@ public class Upgrade1_0To1_1Test extends TestCase {
         test("transport_2");
     }
 
+    public void test5() throws Exception {
+        test("assembly_1");
+    }
+
     private void test(String testName) throws Exception {
         InputStream srcXml = classLoader.getResourceAsStream(testName + ".xml");
         Writer targetXml = new StringWriter();

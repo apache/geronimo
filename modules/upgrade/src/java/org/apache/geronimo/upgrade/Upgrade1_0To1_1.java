@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.xml.namespace.QName;
+import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlException;
@@ -80,6 +82,15 @@ public class Upgrade1_0To1_1 {
     private static final String DEFAULT_VERSION = "1-default";
     private static final QName CLIENT_ENVIRONMENT_QNAME = new QName("http://geronimo.apache.org/xml/ns/deployment-1.1", "client-environment");
     private static final QName SERVER_ENVIRONMENT_QNAME = new QName("http://geronimo.apache.org/xml/ns/deployment-1.1", "server-environment");
+    private static final QName EJB_LINK_QNAME = new QName("http://geronimo.apache.org/xml/ns/naming-1.1", "ejb-link");
+    private static final QName PATTERN_QNAME = new QName("http://geronimo.apache.org/xml/ns/naming-1.1", "pattern");
+    private static final QName GROUP_QNAME = new QName("http://geronimo.apache.org/xml/ns/naming-1.1", "groupId");
+    private static final QName ARTIFACT_QNAME = new QName("http://geronimo.apache.org/xml/ns/naming-1.1", "artifactId");
+    private static final QName VERSION_QNAME = new QName("http://geronimo.apache.org/xml/ns/naming-1.1", "version");
+    private static final QName TYPE_QNAME = new QName("http://geronimo.apache.org/xml/ns/naming-1.1", "type");
+    private static final QName MODULE_QNAME = new QName("http://geronimo.apache.org/xml/ns/naming-1.1", "module");
+    private static final QName NAME_QNAME = new QName("http://geronimo.apache.org/xml/ns/naming-1.1", "name");
+;
 
     public static void upgrade(InputStream source, Writer target) throws IOException, XmlException {
         XmlObject xmlObject = parse(source);
@@ -101,8 +112,9 @@ public class Upgrade1_0To1_1 {
                 } else if (configId != null) {
 
                     insertEnvironment(configId, parentId, cursor, ENVIRONMENT_QNAME, suppressDefaultEnvironment);
+                } else {
+                    cleanRef(cursor);
                 }
-
             }
         }
 
@@ -112,11 +124,102 @@ public class Upgrade1_0To1_1 {
 
     }
 
+    private static void cleanRef(XmlCursor cursor) throws XmlException {
+        String localName = cursor.getName().getLocalPart();
+        if ("ejb-ref".equals(localName)) {
+            cursor.toFirstChild();
+            String application = null;
+            String module = null;
+            String name = null;
+            while (cursor.getName() != null) {
+                localName = cursor.getName().getLocalPart();
+                if ("ref-name".equals(localName)) {
+//                    cursor.toNextSibling();
+                } else if ("domain".equals(localName)) {
+                    cursor.removeXml();
+                } else if ("server".equals(localName)) {
+                    cursor.removeXml();
+                } else if ("application".equals(localName)) {
+                    application = cursor.getTextValue();
+                    if ("null".equals(application)) {
+                        application = null;
+                    }
+                    cursor.removeXml();
+                } else if ("module".equals(localName)) {
+                    if (application == null) {
+                        //this is a configuration name
+                        application = cursor.getTextValue();
+                    } else {
+                        module = cursor.getTextValue();
+                    }
+                    cursor.removeXml();
+                } else if ("type".equals(localName)) {
+                    cursor.removeXml();
+                } else if ("name".equals(localName)) {
+                    name = cursor.getTextValue();
+                    cursor.removeXml();
+                } else if ("ejb-link".equals(localName)) {
+                    break;
+                } else if ("target-name".equals(localName)) {
+                    String targetNameString = cursor.getTextValue();
+                    cursor.removeXml();
+                    ObjectName targetName;
+                    try {
+                        targetName = ObjectName.getInstance(targetNameString);
+                    } catch (MalformedObjectNameException e) {
+                        throw new XmlException("Invalid object name: " + targetNameString);
+                    }
+                    name = targetName.getKeyProperty("name");
+                    application = targetName.getKeyProperty("J2EEApplication");
+                    if ("null".equals(application)) {
+                        application = targetName.getKeyProperty("EJBModule");
+                    } else {
+                        module = targetName.getKeyProperty("EJBModule");
+                    }
+
+                } else if ("ns-corbaloc".equals(localName)) {
+                    cursor.toNextSibling();
+//                    cursor.toNextSibling();
+                } else if ("css".equals(localName)) {
+                    //TODO fix this
+//                    cursor.toNextSibling();
+                } else if ("css-link".equals(localName)) {
+//                    cursor.toNextSibling();
+                } else if ("css-name".equals(localName)) {
+//                    cursor.toNextSibling();
+                } else {
+                    throw new IllegalStateException("unrecognized element: " + cursor.getTextValue());
+                }
+                if (!cursor.toNextSibling()) {
+                    break;
+                }
+            }
+            if (name != null) {
+                cursor.beginElement(PATTERN_QNAME);
+                if (application != null) {
+                    try {
+                        Artifact artifact = Artifact.create(application);
+                        cursor.insertElementWithText(GROUP_QNAME, artifact.getGroupId());
+                        cursor.insertElementWithText(ARTIFACT_QNAME, artifact.getArtifactId());
+                    } catch (Exception e) {
+                        cursor.insertElementWithText(ARTIFACT_QNAME, application.replace('/', '_'));
+                    }
+//                    cursor.insertElementWithText(VERSION_QNAME, artifact.getVersion().toString());
+                }
+                if (module != null) {
+                    cursor.insertElementWithText(MODULE_QNAME, module);
+                }
+                cursor.insertElementWithText(NAME_QNAME, name);
+                cursor.toNextToken();
+            }
+        }
+    }
+
     private static void insertEnvironment(Artifact configId, Artifact parentId, XmlCursor cursor, QName environmentQname, boolean suppressDefaultEnvironment) {
         positionEnvironment(cursor);
         Environment environment = new Environment();
         environment.setConfigId(configId);
-        if (parentId != null ) {
+        if (parentId != null) {
             environment.addDependency(parentId, ImportType.ALL);
         }
         environment.setSuppressDefaultEnvironment(suppressDefaultEnvironment);
@@ -180,6 +283,7 @@ public class Upgrade1_0To1_1 {
         }
 
     }
+
     private static void positionEnvironment(XmlCursor cursor) {
         XmlCursor.TokenType token;
         while ((token = cursor.toNextToken()) != XmlCursor.TokenType.START && token != XmlCursor.TokenType.END) {
@@ -210,7 +314,7 @@ public class Upgrade1_0To1_1 {
         QName attrQName = new QName(null, "suppressDefaultParentId");
         if ((attrValue = cursor.getAttributeText(attrQName)) != null) {
             cursor.removeAttribute(attrQName);
-                return Boolean.valueOf(attrValue).booleanValue();
+            return Boolean.valueOf(attrValue).booleanValue();
         }
         return false;
     }
