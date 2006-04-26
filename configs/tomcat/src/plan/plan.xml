@@ -136,6 +136,13 @@ Configuration for Tomcat server.
         <dependency>
             <name>TomcatResources</name>
         </dependency>
+        <!-- n.b. is you have more hosts, you want them to start before the engine gbean -->
+        <!-- ensure this by including dependencies like this -->
+<!--
+        <dependency>
+            <name>MyAdditionalHost</name>
+        </dependency>
+-->
     </gbean>
 
     <gbean name="TomcatAccessLogManager" class="org.apache.geronimo.tomcat.TomcatLogManagerImpl">
