@@ -91,7 +91,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         }
         File location = repository.getLocation(configId);
 
-        if (!location.exists() && !location.canRead()) {
+        if (existsReadable(location)) {
             throw new NoSuchConfigException(configId);
         }
 
@@ -138,6 +138,10 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         }
 
         return configurationData;
+    }
+
+    private boolean existsReadable(File location) {
+        return !location.exists() || !location.canRead();
     }
 
     public boolean containsConfiguration(Artifact configId) {
@@ -218,7 +222,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         if (dir == null) {
             throw new NoSuchConfigException(configId);
         }
-        if (!dir.exists() || !dir.canRead()) {
+        if (existsReadable(dir)) {
             throw new IOException("Cannot read config store directory for " + configId + " (" + dir.getAbsolutePath() + ")");
         }
         ZipOutputStream out = new ZipOutputStream(output);
