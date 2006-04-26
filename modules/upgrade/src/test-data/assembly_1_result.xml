@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.1">
+    <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+        <dep:configId>
+            <dep:groupId>default</dep:groupId>
+            <dep:artifactId>assembly_1</dep:artifactId>
+            <dep:version>1-default</dep:version>
+            <dep:type>car</dep:type>
+        </dep:configId>
+        <dep:dependencies>
+            <dep:dependency>
+                <dep:groupId>${pom.groupId}</dep:groupId>
+                <dep:artifactId>server-security</dep:artifactId>
+                <dep:version>${pom.currentVersion}</dep:version>
+                <dep:type>car</dep:type>
+            </dep:dependency>
+        </dep:dependencies>
+        <dep:hidden-classes/>
+        <dep:non-overridable-classes/>
+    </dep:environment>
+    <module>
+        <java>assembly_compat_standalone_jar_compat12_13_client.jar</java>
+        <application-client xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client-1.1">
+            <dep:client-environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+                <dep:configId>
+                    <dep:groupId>default</dep:groupId>
+                    <dep:artifactId>assembly_1_assembly_1_client</dep:artifactId>
+                    <dep:version>1-default</dep:version>
+                    <dep:type>car</dep:type>
+                </dep:configId>
+                <dep:dependencies>
+                    <dep:dependency>
+                        <dep:groupId>${pom.groupId}</dep:groupId>
+                        <dep:artifactId>client-database</dep:artifactId>
+                        <dep:version>${pom.currentVersion}</dep:version>
+                        <dep:type>car</dep:type>
+                    </dep:dependency>
+                </dep:dependencies>
+                <dep:hidden-classes/>
+                <dep:non-overridable-classes/>
+            </dep:client-environment>
+            <dep:server-environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+                <dep:configId>
+                    <dep:groupId>default</dep:groupId>
+                    <dep:artifactId>bar</dep:artifactId>
+                    <dep:version>1-default</dep:version>
+                    <dep:type>car</dep:type>
+                </dep:configId>
+                <dep:dependencies/>
+                <dep:hidden-classes/>
+                <dep:non-overridable-classes/>
+            </dep:server-environment>
+            <ejb-ref>
+                <ref-name>ejb/TestBean</ref-name>
+                <nam:pattern xmlns:nam="http://geronimo.apache.org/xml/ns/naming-1.1">
+                  <nam:artifactId>assembly_1_ejb</nam:artifactId>
+                  <nam:name>TestBean</nam:name>
+                </nam:pattern>
+            </ejb-ref>
+        </application-client>
+    </module>
+</application>

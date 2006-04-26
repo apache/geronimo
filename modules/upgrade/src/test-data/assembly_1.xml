@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application
+        xmlns="http://geronimo.apache.org/xml/ns/j2ee/application"
+        configId="assembly_1"
+        parentId="${pom.groupId}/server-security/${pom.currentVersion}/car">
+
+    <module>
+        <java>assembly_compat_standalone_jar_compat12_13_client.jar</java>
+        <application-client xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client"
+                            configId="bar"
+                            clientConfigId="assembly_1/assembly_1_client"
+                            clientParentId="${pom.groupId}/client-database/${pom.currentVersion}/car">
+            <ejb-ref>
+                <ref-name>ejb/TestBean</ref-name>
+                <domain>geronimo.server</domain>
+                <server>geronimo</server>
+                <application>null</application>
+                <module>assembly_1_ejb</module>
+                <type>StatelessSessionBean</type>
+                <name>TestBean</name>
+            </ejb-ref>
+        </application-client>
+    </module>
+</application>
