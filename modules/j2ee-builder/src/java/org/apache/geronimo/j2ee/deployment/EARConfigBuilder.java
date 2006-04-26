@@ -273,7 +273,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 module.getModuleName(),
                 null,
                 null,
-                Collections.singleton(module),
+                new LinkedHashSet(Collections.singleton(module)),
                 Collections.EMPTY_SET,
                 null);
     }
@@ -336,7 +336,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         // todo change module so you can extract the real module path back out.. then we can eliminate
         // the moduleLocations and have addModules return the modules
         Set moduleLocations = new HashSet();
-        Set modules = new LinkedHashSet();
+        LinkedHashSet modules = new LinkedHashSet();
         try {
             addModules(earFile, application, gerApplication, moduleLocations, modules, environment, earName);
         } catch (Throwable e) {
@@ -455,7 +455,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             GerApplicationType geronimoApplication = (GerApplicationType) applicationInfo.getVendorDD();
 
             // each module installs it's files into the output context.. this is different for each module type
-            Set modules = applicationInfo.getModules();
+            LinkedHashSet modules = applicationInfo.getModules();
             for (Iterator iterator = modules.iterator(); iterator.hasNext();) {
                 Module module = (Module) iterator.next();
                 getBuilder(module).installModule(earFile, earContext, module, configurationStores, targetConfigurationStore, repositories);
@@ -577,11 +577,12 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         return filter;
     }
 
-    private void addModules(JarFile earFile, ApplicationType application, GerApplicationType gerApplication, Set moduleLocations, Set modules, Environment environment, AbstractName earName) throws DeploymentException {
+    private void addModules(JarFile earFile, ApplicationType application, GerApplicationType gerApplication, Set moduleLocations, LinkedHashSet modules, Environment environment, AbstractName earName) throws DeploymentException {
         Map altVendorDDs = new HashMap();
         try {
             if (earFile != null) {
                 ModuleType[] moduleTypes = application.getModuleArray();
+                //paths is used to check that all modules in the geronimo plan are in the application.xml.
                 Set paths = new HashSet();
                 for (int i = 0; i < moduleTypes.length; i++) {
                     ModuleType type = moduleTypes[i];

@@ -17,6 +17,7 @@
 package org.apache.geronimo.j2ee;
 
 import java.util.Set;
+import java.util.LinkedHashSet;
 
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
@@ -32,14 +33,14 @@ public class ApplicationInfo {
     private AbstractName baseName;
     private XmlObject specDD;
     private XmlObject vendorDD;
-    private Set modules;
+    private LinkedHashSet modules;
     private Set moduleLocations;
     private String originalSpecDD;
 
     public ApplicationInfo() {
     }
 
-    public ApplicationInfo(ConfigurationModuleType type, Environment environment, AbstractName baseName, XmlObject specDD, XmlObject vendorDD, Set modules, Set moduleLocations, String originalSpecDD) {
+    public ApplicationInfo(ConfigurationModuleType type, Environment environment, AbstractName baseName, XmlObject specDD, XmlObject vendorDD, LinkedHashSet modules, Set moduleLocations, String originalSpecDD) {
         assert type != null;
         assert environment != null;
         assert modules != null;
@@ -95,11 +96,11 @@ public class ApplicationInfo {
         this.specDD = specDD;
     }
 
-    public Set getModules() {
+    public LinkedHashSet getModules() {
         return modules;
     }
 
-    public void setModules(Set modules) {
+    public void setModules(LinkedHashSet modules) {
         this.modules = modules;
     }
 
