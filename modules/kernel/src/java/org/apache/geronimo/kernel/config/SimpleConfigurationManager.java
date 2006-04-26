@@ -174,13 +174,16 @@ public class SimpleConfigurationManager implements ConfigurationManager {
                         configurationInfo.getType(),
                         configurationInfo.getCreated(),
                         configurationInfo.getOwnedConfigurations(),
+                        configurationInfo.getInPlaceLocation(),
                         State.RUNNING);
             } else {
                 configurationInfo = new ConfigurationInfo(store.getAbstractName(),
                         configurationInfo.getConfigID(),
                         configurationInfo.getType(),
                         configurationInfo.getCreated(),
-                        configurationInfo.getOwnedConfigurations(), State.STOPPED);
+                        configurationInfo.getOwnedConfigurations(),
+                        configurationInfo.getInPlaceLocation(),
+                        State.STOPPED);
             }
             iterator.set(configurationInfo);
         }
@@ -322,7 +325,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
             Configuration parent = null;
             if (loadedConfigurations.containsKey(resolvedArtifact)) {
                 parent = (Configuration) loadedConfigurations.get(resolvedArtifact);
-            } else if (isConfiguration(resolvedArtifact)) {
+            } else if (configurations.containsKey(resolvedArtifact)) {
                 parent = getConfiguration(resolvedArtifact);
             } else {
                 throw new InvalidConfigException("Cound not find parent configuration: " + resolvedArtifact);

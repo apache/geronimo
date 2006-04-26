@@ -85,6 +85,11 @@ public class ConfigurationData implements Serializable {
     private File inPlaceConfigurationDir;
 
     /**
+     * Should this configuraiton be autoStarted
+     */
+    private boolean autoStart = true;
+
+    /**
      * The naming system
      */
     private transient Naming naming;
@@ -234,6 +239,14 @@ public class ConfigurationData implements Serializable {
 
     public void setNaming(Naming naming) {
         this.naming = naming;
+    }
+
+    public boolean isAutoStart() {
+        return autoStart;
+    }
+
+    public void setAutoStart(boolean autoStart) {
+        this.autoStart = autoStart;
     }
 
     public ConfigurationStore getConfigurationStore() {

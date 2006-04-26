@@ -101,7 +101,6 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
                 addNewConfigurationToModel(configuration);
                 configurationModel.load(configurationId);
                 configurationModel.start(configurationId);
-                configurations.put(configurationId, configuration);
                 return new LifecycleResults();
             } catch (GBeanNotFoundException e) {
                 // configuration was unloaded, just continue as normal
@@ -167,7 +166,7 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
     public void start(Configuration configuration) throws InvalidConfigException {
         ConfigurationUtil.startConfigurationGBeans(configuration.getAbstractName(), configuration, kernel);
 
-        if (configurationList != null) {
+        if (configurationList != null && configuration.getConfigurationData().isAutoStart()) {
             configurationList.addConfiguration(configuration.getId().toString());
         }
     }

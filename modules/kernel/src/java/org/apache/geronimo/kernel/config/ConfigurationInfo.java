@@ -17,6 +17,7 @@
 package org.apache.geronimo.kernel.config;
 
 import java.io.Serializable;
+import java.io.File;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -35,15 +36,17 @@ public class ConfigurationInfo implements Serializable {
     private final Artifact configID;
     private final ConfigurationModuleType type;
     private final long created;
+    private final File inPlaceLocation;
     private final Set ownedConfigurations = new LinkedHashSet();
     private final State state;
     private final Artifact parentID;
 
-    public ConfigurationInfo(AbstractName storeName, Artifact configID, ConfigurationModuleType type, long created, Set ownedConfigurations) {
+    public ConfigurationInfo(AbstractName storeName, Artifact configID, ConfigurationModuleType type, long created, Set ownedConfigurations, File inPlaceLocation) {
         this.storeName = storeName;
         this.configID = configID;
         this.type = type;
         this.created = created;
+        this.inPlaceLocation = inPlaceLocation;
         if (ownedConfigurations != null) {
             this.ownedConfigurations.addAll(ownedConfigurations);
         }
@@ -51,11 +54,12 @@ public class ConfigurationInfo implements Serializable {
         parentID = null;
     }
 
-    public ConfigurationInfo(AbstractName storeName, Artifact configID, ConfigurationModuleType type, long created, Set ownedConfigurations, State state) {
+    public ConfigurationInfo(AbstractName storeName, Artifact configID, ConfigurationModuleType type, long created, Set ownedConfigurations, File inPlaceLocation, State state) {
         this.storeName = storeName;
         this.configID = configID;
         this.type = type;
         this.created = created;
+        this.inPlaceLocation = inPlaceLocation;
         if (ownedConfigurations != null) {
             this.ownedConfigurations.addAll(ownedConfigurations);
         }
@@ -63,11 +67,12 @@ public class ConfigurationInfo implements Serializable {
         parentID = null;
     }
 
-    public ConfigurationInfo(AbstractName storeName, Artifact configID, ConfigurationModuleType type, long created, Set ownedConfigurations, State state, Artifact parentID) {
+    public ConfigurationInfo(AbstractName storeName, Artifact configID, ConfigurationModuleType type, long created, Set ownedConfigurations, File inPlaceLocation, State state, Artifact parentID) {
         this.storeName = storeName;
         this.configID = configID;
         this.type = type;
         this.created = created;
+        this.inPlaceLocation = inPlaceLocation;
         if (ownedConfigurations != null) {
             this.ownedConfigurations.addAll(ownedConfigurations);
         }
@@ -89,6 +94,10 @@ public class ConfigurationInfo implements Serializable {
 
     public long getCreated() {
         return created;
+    }
+
+    public File getInPlaceLocation() {
+        return inPlaceLocation;
     }
 
     public Set getOwnedConfigurations() {

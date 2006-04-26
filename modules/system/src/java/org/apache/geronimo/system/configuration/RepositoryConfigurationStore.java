@@ -392,6 +392,8 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
             throw new NoSuchConfigException(configId);
         }
 
+        File inPlaceLocation = inPlaceConfUtil.readInPlaceLocation(location);
+
         ConfigurationInfo configurationInfo;
         if (location.isDirectory()) {
             File infoFile = new File(location, "META-INF");
@@ -399,7 +401,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
 
             InputStream in = new FileInputStream(infoFile);
             try {
-                configurationInfo = ConfigurationUtil.readConfigurationInfo(in, getAbstractName());
+                configurationInfo = ConfigurationUtil.readConfigurationInfo(in, getAbstractName(), inPlaceLocation);
             } finally {
                 IOUtil.close(in);
             }
@@ -409,7 +411,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
             try {
                 ZipEntry entry = jarFile.getEntry("META-INF/config.info");
                 in = jarFile.getInputStream(entry);
-                configurationInfo = ConfigurationUtil.readConfigurationInfo(in, getAbstractName());
+                configurationInfo = ConfigurationUtil.readConfigurationInfo(in, getAbstractName(), inPlaceLocation);
             } finally {
                 IOUtil.close(in);
                 IOUtil.close(jarFile);

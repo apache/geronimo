@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.File;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashSet;
@@ -178,7 +179,7 @@ public final class ConfigurationUtil {
         }
     }
 
-    public static ConfigurationInfo readConfigurationInfo(InputStream in, AbstractName storeName) throws IOException {
+    public static ConfigurationInfo readConfigurationInfo(InputStream in, AbstractName storeName, File inPlaceLocation) throws IOException {
         Properties properties = new Properties();
         properties.load(in);
 
@@ -209,7 +210,7 @@ public final class ConfigurationUtil {
                 ownedConfigurations.add(ownedConfiguration);
             }
         }
-        return new ConfigurationInfo(storeName, configId, moduleType, time, ownedConfigurations);
+        return new ConfigurationInfo(storeName, configId, moduleType, time, ownedConfigurations, inPlaceLocation);
     }
 
     /**

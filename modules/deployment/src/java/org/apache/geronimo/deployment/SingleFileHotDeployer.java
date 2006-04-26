@@ -1,0 +1,288 @@
+/**
+ *
+ * Copyright 2005 The Apache Software Foundation
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.geronimo.deployment;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.jar.JarFile;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationInfo;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.Version;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+
+/**
+ * @version $Rev$ $Date$
+ */
+public class SingleFileHotDeployer {
+    private static final Log log = LogFactory.getLog(SingleFileHotDeployer.class);
+    private final File dir;
+    private final String[] watchPaths;
+    private final Collection builders;
+    private final ConfigurationStore store;
+    private final ConfigurationManager configurationManager;
+    private final boolean forceDeploy;
+    private final Artifact configurationId;
+    private boolean wasDeployed;
+
+    public SingleFileHotDeployer(String path, ServerInfo serverInfo, String[] watchPaths, Collection builders, ConfigurationStore store, ConfigurationManager configurationManager, boolean forceDeploy) throws DeploymentException {
+        this(serverInfo.resolve(path), watchPaths, builders, store, configurationManager, forceDeploy);
+    }
+
+    public SingleFileHotDeployer(File dir, String[] watchPaths, Collection builders, ConfigurationStore store, ConfigurationManager configurationManager, boolean forceDeploy) throws DeploymentException {
+        this.dir = dir;
+        this.watchPaths = watchPaths;
+        this.builders = builders;
+        this.store = store;
+        this.configurationManager = configurationManager;
+        this.forceDeploy = forceDeploy;
+
+        configurationId = start(dir);
+    }
+
+    private Artifact start(File dir) throws DeploymentException {
+        if (!dir.exists()) {
+            throw new IllegalArgumentException("Directory does not exist " + dir.getAbsolutePath());
+        }
+        if (!dir.isDirectory()) {
+            throw new IllegalArgumentException("Directory is not a directory " + dir.getAbsolutePath());
+        }
+
+        // get the existing inplace configuration if there is one
+        ConfigurationInfo existingConfiguration = null;
+        List list = configurationManager.listConfigurations();
+        for (Iterator iterator = list.iterator(); iterator.hasNext();) {
+            ConfigurationInfo configurationInfo = (ConfigurationInfo) iterator.next();
+            if (dir.equals(configurationInfo.getInPlaceLocation())) {
+                existingConfiguration = configurationInfo;
+            }
+        }
+        Artifact existingConfigurationId = (existingConfiguration == null) ? null : existingConfiguration.getConfigID();
+
+        if (!forceDeploy && existingConfiguration != null && !isModifedSince(existingConfiguration.getCreated())) {
+            return existingConfigurationId;
+        }
+
+        // if the current id and the new id only differ by version, we can reload, otherwise we need to load and start
+        if (existingConfigurationId != null && configurationManager.isLoaded(existingConfigurationId)) {
+            try {
+                configurationManager.unloadConfiguration(existingConfigurationId);
+            } catch (NoSuchConfigException e) {
+                throw new DeploymentException("Unable to unload existing configuration " + existingConfigurationId);
+            }
+        }
+
+        JarFile module = null;
+        try {
+            module = DeploymentUtil.createJarFile(dir);
+        } catch (IOException e) {
+            throw new DeploymentException("Cound not open module file: " + dir.getAbsolutePath(), e);
+        }
+
+        try {
+            // get the builder and plan
+            Object plan = null;
+            ConfigurationBuilder builder = null;
+            for (Iterator i = builders.iterator(); i.hasNext();) {
+                ConfigurationBuilder candidate = (ConfigurationBuilder) i.next();
+                plan = candidate.getDeploymentPlan(null, module);
+                if (plan != null) {
+                    builder = candidate;
+                    break;
+                }
+            }
+            if (builder == null) {
+                throw new DeploymentException("Cannot deploy the requested application module because no builder is able to handle it (dir=" + dir.getAbsolutePath() + ")");
+            }
+
+            // determine the new configuration id
+            Artifact configurationId = builder.getConfigurationID(plan, module);
+
+            // if the new configuration id isn't fully resolved, populate it with defaults
+            if (!configurationId.isResolved()) {
+                resolve(configurationId);
+            }
+
+            // if we are deploying over the exisitng version we need to uninstall first
+            if(configurationId.equals(existingConfigurationId)) {
+                configurationManager.uninstallConfiguration(existingConfigurationId);
+            }
+
+            // deploy it
+            deployConfiguration(builder, store, configurationId, plan, module, Arrays.asList(configurationManager.getStores()), configurationManager.getArtifactResolver());
+            wasDeployed = true;
+
+            configurationManager.loadConfiguration(configurationId);
+            configurationManager.startConfiguration(configurationId);
+
+            return configurationId;
+        } catch (Exception e) {
+            throw new DeploymentException("Unable to deploy " + dir, e);
+        } finally {
+            DeploymentUtil.close(module);
+        }
+    }
+
+    private boolean isModifedSince(long created) {
+        for (int i = 0; i < watchPaths.length; i++) {
+            String path = watchPaths[i];
+            File file = new File(dir, path);
+            if (!file.exists()) {
+                log.warn("Watched file does not exist " + file);
+            }
+            if (file.isFile() && file.lastModified() > created) {
+                log.info("Redeploying " + dir + " because file " + file + " was modified;");
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void resolve(Artifact configID) throws DeploymentException {
+        String group = configID.getGroupId();
+        if (group == null) {
+            group = Artifact.DEFAULT_GROUP_ID;
+        }
+        String artifactId = configID.getArtifactId();
+        if (artifactId == null) {
+            throw new DeploymentException("Every configuration to deploy must have a ConfigID with an ArtifactID (not " + configID + ")");
+        }
+        Version version = configID.getVersion();
+        if (version == null) {
+            version = new Version(Long.toString(System.currentTimeMillis()));
+        }
+        String type = configID.getType();
+        if (type == null) {
+            type = "car";
+        }
+        configID = new Artifact(group, artifactId, version, type);
+    }
+
+    private List deployConfiguration(ConfigurationBuilder builder, ConfigurationStore store, Artifact configurationId, Object plan, JarFile module, Collection stores, ArtifactResolver artifactResolver) throws DeploymentException {
+        try {
+            // It's our responsibility to close this context, once we're done with it...
+            DeploymentContext context = builder.buildConfiguration(true, configurationId, plan, module, stores, artifactResolver, store);
+
+            List configurations = new ArrayList();
+            try {
+                configurations.add(context.getConfigurationData());
+                configurations.addAll(context.getAdditionalDeployment());
+
+                if (configurations.isEmpty()) {
+                    throw new DeploymentException("Deployer did not create any configurations");
+                }
+                List deployedURIs = new ArrayList();
+                for (Iterator iterator = configurations.iterator(); iterator.hasNext();) {
+                    ConfigurationData configurationData = (ConfigurationData) iterator.next();
+                    configurationData.setAutoStart(false);
+                    store.install(configurationData);
+                    deployedURIs.add(configurationData.getId().toString());
+                }
+                return deployedURIs;
+            } catch (IOException e) {
+                cleanupConfigurations(configurations);
+                throw e;
+            } catch (InvalidConfigException e) {
+                cleanupConfigurations(configurations);
+                // unlikely as we just built this
+                throw new DeploymentException(e);
+            } finally {
+                if (context != null) {
+                    context.close();
+                }
+            }
+        } catch (Throwable e) {
+            if (e instanceof Error) {
+                log.error("Deployment failed due to ", e);
+                throw (Error) e;
+            } else if (e instanceof DeploymentException) {
+                throw (DeploymentException) e;
+            } else if (e instanceof Exception) {
+                log.error("Deployment failed due to ", e);
+                throw new DeploymentException(e);
+            }
+            throw new Error(e);
+        } finally {
+            DeploymentUtil.close(module);
+        }
+    }
+
+    private void cleanupConfigurations(List configurations) {
+        for (Iterator iterator = configurations.iterator(); iterator.hasNext();) {
+            ConfigurationData configurationData = (ConfigurationData) iterator.next();
+            File dir = configurationData.getConfigurationDir();
+            if (!DeploymentUtil.recursiveDelete(dir)) {
+                log.warn("Unable delete directory " + dir);
+            }
+        }
+    }
+
+    public File getDir() {
+        return dir;
+    }
+
+    public Artifact getConfigurationId() {
+        return configurationId;
+    }
+
+    public boolean isForceDeploy() {
+        return forceDeploy;
+    }
+
+    public boolean wasDeployed() {
+        return wasDeployed;
+    }
+
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(SingleFileHotDeployer.class);
+
+        infoFactory.addAttribute("path", String.class, true);
+        infoFactory.addReference("ServerInfo", ServerInfo.class);
+        infoFactory.addAttribute("watchPaths", String[].class, true);
+        infoFactory.addReference("Builders", ConfigurationBuilder.class);
+        infoFactory.addReference("Store", ConfigurationStore.class);
+        infoFactory.addReference("ConfigurationManager", ConfigurationManager.class);
+        infoFactory.addAttribute("forceDeploy", boolean.class, true);
+
+        infoFactory.setConstructor(new String[]{"path", "ServerInfo", "watchPaths", "Builders", "Store", "ConfigurationManager", "forceDeploy"});
+
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
+}
