@@ -444,7 +444,8 @@ public class KernelManagementHelper implements ManagementHelper {
                     ConfigurationInfo info = (ConfigurationInfo) j.next();
                     AbstractName configuration = Configuration.getConfigurationAbstractName(info.getConfigID());
                     if (type == null || type.getValue() == info.getType().getValue()) {
-                        results.add(new ConfigurationData(info.getConfigID(), configuration, null, info.getState(), info.getType(), kernel.getAbstractNameFor(getModuleForConfiguration(info.getConfigID()))));
+                        J2EEDeployedObject module = getModuleForConfiguration(info.getConfigID());
+                        results.add(new ConfigurationData(info.getConfigID(), configuration, null, info.getState(), info.getType(), module == null ? null : kernel.getAbstractNameFor(module)));
                     }
                     if (includeChildModules && info.getType().getValue() == ConfigurationModuleType.EAR.getValue() && info.getState().toInt() == State.RUNNING_INDEX)
                     {
