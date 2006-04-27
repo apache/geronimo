@@ -169,6 +169,9 @@
     <!--used by resource adapter -->
     <xsd:element name="workmanager" type="gernaming:gbean-locatorType"/>
 
+    <!-- used by web apps/builders-->
+    <xsd:element name="web-container" type="gernaming:gbean-locatorType"/>
+
     <xsd:complexType name="gbean-locatorType">
         <xsd:sequence>
             <xsd:choice>

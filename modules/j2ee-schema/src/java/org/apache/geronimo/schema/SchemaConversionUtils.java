@@ -61,16 +61,13 @@ public class SchemaConversionUtils {
         GERONIMO_SCHEMA_CONVERSIONS.put("cmp-connection-factory", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
         GERONIMO_SCHEMA_CONVERSIONS.put("workmanager", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
         GERONIMO_SCHEMA_CONVERSIONS.put("resource-adapter", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
+        GERONIMO_SCHEMA_CONVERSIONS.put("web-container", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
 
         GERONIMO_SCHEMA_CONVERSIONS.put("security", new SecurityElementConverter());
         GERONIMO_SCHEMA_CONVERSIONS.put("default-principal", new NamespaceElementConverter(GERONIMO_SECURITY_NAMESPACE));
 
         GERONIMO_SCHEMA_CONVERSIONS.put("gbean", new GBeanElementConverter());
         GERONIMO_SCHEMA_CONVERSIONS.put("environment", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
-//        GERONIMO_SCHEMA_CONVERSIONS.put("hidden-classes", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
-//        GERONIMO_SCHEMA_CONVERSIONS.put("non-overridable-classes", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
-//        GERONIMO_SCHEMA_CONVERSIONS.put("dependency", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
-//        GERONIMO_SCHEMA_CONVERSIONS.put("include", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
     }
 
     private SchemaConversionUtils() {

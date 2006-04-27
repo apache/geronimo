@@ -383,7 +383,12 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
             webModuleData.setReferencePattern("TransactionContextManager", moduleContext.getTransactionContextManagerObjectName());
             webModuleData.setReferencePattern("TrackedConnectionAssociator", moduleContext.getConnectionTrackerObjectName());
-            webModuleData.setReferencePattern("JettyContainer", jettyContainerObjectName);
+            if (jettyWebApp.isSetWebContainer()) {
+                AbstractNameQuery webContainerName = ENCConfigBuilder.getGBeanQuery(NameFactory.GERONIMO_SERVICE, jettyWebApp.getWebContainer());
+                webModuleData.setReferencePattern("JettyContainer", webContainerName);
+            } else {
+                webModuleData.setReferencePattern("JettyContainer", jettyContainerObjectName);
+            }
             //stuff that jetty used to do
             if (webApp.getDisplayNameArray().length > 0) {
                 webModuleData.setAttribute("displayName", webApp.getDisplayNameArray()[0].getStringValue());

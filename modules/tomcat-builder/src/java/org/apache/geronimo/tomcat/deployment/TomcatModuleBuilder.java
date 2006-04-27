@@ -321,8 +321,13 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
             webModuleData.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
             webModuleData.setReferencePattern("TrackedConnectionAssociator", earContext.getConnectionTrackerObjectName());
-            webModuleData.setReferencePattern("Container", tomcatContainerName);
 
+            if (tomcatWebApp.isSetWebContainer()) {
+                AbstractNameQuery webContainerName = ENCConfigBuilder.getGBeanQuery(NameFactory.GERONIMO_SERVICE, tomcatWebApp.getWebContainer());
+                webModuleData.setReferencePattern("Container", webContainerName);
+            } else {
+                webModuleData.setReferencePattern("Container", tomcatContainerName);
+            }
             // Process the Tomcat container-config elements
             if (tomcatWebApp.isSetHost()) {
                 String virtualServer = tomcatWebApp.getHost().trim();
