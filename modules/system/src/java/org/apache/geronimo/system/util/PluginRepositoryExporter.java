@@ -138,7 +138,7 @@ public class PluginRepositoryExporter {
                         artifact.getGroupId().equals("activemq") ||
                         artifact.getGroupId().equals("openejb")
                         )
-                        && !artifact.getType().equals("pom") && !artifact.getType().equals("distribution") && !artifact.getType().equals("plugin")) {
+                        && !artifact.getType().equals("pom") && !artifact.getType().equals("distribution") && !artifact.getType().equals("plugin") && !artifact.getType().equals("javadoc.jar")) {
                     System.out.println("Copying "+artifact);
                     if(destRepo.contains(artifact)) {
                         File location = destRepo.getLocation(artifact);
