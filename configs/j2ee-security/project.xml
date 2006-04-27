@@ -213,7 +213,7 @@
         </dependency>
         <dependency>
             <groupId>activemq</groupId>
-            <artifactId>activemq-gbean-management</artifactId>
+            <artifactId>activemq-gbean-management-g1_1</artifactId>
             <version>${activemq_version}</version>
         </dependency>
         <dependency>
