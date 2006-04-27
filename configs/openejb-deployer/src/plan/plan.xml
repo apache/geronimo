@@ -43,6 +43,11 @@
                         <!--<version>${pom.currentVersion}</version>-->
                         <type>car</type>
                     </dependency>
+                    <dependency>
+                        <groupId>${pom.groupId}</groupId>
+                        <artifactId>system-database</artifactId>
+                        <type>car</type>
+                    </dependency>
                 </dependencies>
             </environment>
         </xml-attribute>

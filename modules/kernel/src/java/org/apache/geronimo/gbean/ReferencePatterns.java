@@ -80,4 +80,11 @@ public class ReferencePatterns implements Serializable {
         return abstractName != null;
     }
 
+    public String toString() {
+        if (abstractName != null) {
+            return abstractName.toString();
+        } else {
+            return patterns.toString();
+        }
+    }
 }

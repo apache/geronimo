@@ -279,7 +279,7 @@ public final class ConfigurationUtil {
                 try {
                     abstractName = configuration.findGBean(referencePatterns);
                 } catch (GBeanNotFoundException e) {
-                    throw new InvalidConfigException("Unable to resolve reference named " + referenceName + " in gbean " + gbeanData.getAbstractName(), e);
+                    throw new InvalidConfigException("Unable to resolve reference \"" + referenceName + "\" in gbean " + gbeanData.getAbstractName() + " to a gbean matching the pattern " + referencePatterns, e);
                 }
                 gbeanData.setReferencePatterns(referenceName, new ReferencePatterns(abstractName));
             }
