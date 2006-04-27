@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
+import java.io.FileNotFoundException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -213,13 +214,22 @@ public class ServerConnection {
         String useURI = argURI == null ? DEFAULT_URI : argURI;
 
         if(authPrompt && user == null && password == null) {
-            File authFile = new File(System.getProperty("user.home"), ".geronimo-deployer");
-            if(authFile.exists() && authFile.canRead()) {
+            InputStream in;
+            // First check for .geronimo-deployer on class path (e.g. packaged in deployer.jar)
+            in = ServerConnection.class.getResourceAsStream("/.geronimo-deployer");
+            // If not there, check in home directory
+            if(in == null) {
+                File authFile = new File(System.getProperty("user.home"), ".geronimo-deployer");
+                if(authFile.exists() && authFile.canRead()) {
+                    try {
+                        in = new BufferedInputStream(new FileInputStream(authFile));
+                    } catch (FileNotFoundException e) {}
+                }
+            }
+            if(in != null) {
                 try {
                     Properties props = new Properties();
-                    InputStream in = new BufferedInputStream(new FileInputStream(authFile));
                     props.load(in);
-                    in.close();
                     String encryped = props.getProperty("login."+useURI);
                     if(encryped != null) {
                         if(encryped.startsWith("{Standard}")) {
@@ -238,6 +248,8 @@ public class ServerConnection {
                     }
                 } catch (IOException e) {
                     System.out.println(DeployUtils.reformat("Unable to read authentication from saved login file: "+e.getMessage(), 4, 72));
+                } finally {
+                    try {in.close();}catch(IOException e) {}
                 }
             }
         }
