@@ -179,9 +179,6 @@
 
     <!-- todo automatically add libraries listed in an executable's MCP in the right place, relative to it -->
     <goal name="assemble:assemble-configurations">
-        <j:set var="configStoreDir" value="${geronimo.assembly.dest}/config-store"/>
-        <!--        <ant:delete dir="${configStoreDir}"/>-->
-        <ant:mkdir dir="${configStoreDir}"/>
         <ant:mkdir dir="${geronimo.assembly.dest}/repository"/>
         <j:forEach var="artifact" items="${pom.artifacts}">
             <j:set var="dependency" value="${artifact.dependency}"/>
@@ -208,9 +205,6 @@
     </goal>
 
     <goal name="assemble:assemble-configurations-to-repo">
-        <j:set var="configStoreDir" value="${geronimo.assembly.dest}/config-store"/>
-        <!--        <ant:delete dir="${configStoreDir}"/>-->
-        <ant:mkdir dir="${configStoreDir}"/>
         <ant:mkdir dir="${geronimo.assembly.dest}/repository"/>
         <j:forEach var="artifact" items="${pom.artifacts}">
             <j:set var="dependency" value="${artifact.dependency}"/>
@@ -262,9 +256,6 @@
             <ant:fileset
                     file="${maven.repo.local}/geronimo/jars/geronimo-installer-processing-${pom.currentVersion}.jar"/>
         </ant:copy>
-        <j:set var="configStoreDir" value="${geronimo.assembly.dest}/config-store"/>
-        <!--        <ant:delete dir="${configStoreDir}"/>-->
-        <ant:mkdir dir="${configStoreDir}"/>
         <ant:mkdir dir="${geronimo.assembly.dest}/var/config"/>
         <j:file name="${geronimo.assembly.dest}/var/config/configure.xml" outputMode="xml" escapeText="false"
                 trim="true" prettyPrint="false">
