@@ -19,6 +19,9 @@ package org.apache.geronimo.tomcat;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.net.URLStreamHandlerFactory;
+import java.net.URL;
+
 import org.apache.catalina.Container;
 import org.apache.catalina.Context;
 import org.apache.catalina.Engine;
@@ -39,14 +42,15 @@ import org.apache.geronimo.tomcat.realm.TomcatJAASRealm;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.webservices.WebServiceContainer;
+import org.apache.naming.resources.DirContextURLStreamHandlerFactory;
 
 
 /**
  * Apache Tomcat GBean
+ * http://wiki.apache.org/geronimo/Tomcat
+ * http://nagoya.apache.org/jira/browse/GERONIMO-215
  *
  * @version $Rev$ $Date$
- * @see http://wiki.apache.org/geronimo/Tomcat
- * @see http://nagoya.apache.org/jira/browse/GERONIMO-215
  */
 public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebContainer {
 
@@ -75,6 +79,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
     private final Map webServices = new HashMap();
     private final String objectName;
     private final WebManager manager;
+    private static boolean first = true;
 
     // Required as it's referenced by deployed webapps
     public TomcatContainer() {
@@ -87,6 +92,24 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
      * GBean constructor (invoked dynamically when the gbean is declared in a plan)
      */
     public TomcatContainer(ClassLoader classLoader, String catalinaHome, ObjectRetriever engineGBean, ServerInfo serverInfo, String objectName, WebManager manager) {
+        // Register a stream handler factory for the JNDI protocol
+        URLStreamHandlerFactory streamHandlerFactory =
+            new DirContextURLStreamHandlerFactory();
+        if (first) {
+            first = false;
+            try {
+                URL.setURLStreamHandlerFactory(streamHandlerFactory);
+            } catch (Exception e) {
+                // Log and continue anyway, this is not critical
+                log.error("Error registering jndi stream handler", e);
+            } catch (Throwable t) {
+                // This is likely a dual registration
+                log.info("Dual registration of jndi stream handler: "
+                         + t.getMessage());
+            }
+        }
+
+
         if (catalinaHome == null)
             catalinaHome = DEFAULT_CATALINA_HOME;
 

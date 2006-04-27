@@ -43,9 +43,12 @@ import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.naming.resources.DirContextURLStreamHandler;
 
 import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
+import javax.naming.directory.DirContext;
+
 import java.net.URI;
 import java.net.URL;
 import java.net.MalformedURLException;
@@ -445,13 +448,17 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         container.addContext(this);
         // Is it necessary - doesn't Tomcat Embedded take care of it?
         // super.start();
+        //register the classloader <> dir context association so that tomcat's jndi based getResources works.
+        DirContext resources = context.getResources();
+        DirContextURLStreamHandler.bind((ClassLoader) classLoader, resources);
 
         log.debug("TomcatWebAppContext started for " + path);
     }
 
     public void doStop() throws Exception {
         container.removeContext(this);
-
+        DirContextURLStreamHandler.unbind((ClassLoader) classLoader);
+ 
         // No more logging will occur for this ClassLoader. Inform the LogFactory to avoid a memory leak.
 //        LogFactory.release(classLoader);
 
