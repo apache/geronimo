@@ -92,7 +92,7 @@
             <file src="${InstallSource}/RELEASE-NOTES-${ReleaseNotesVersion}.txt" targetdir="$INSTALL_PATH"/>
             <file src="${InstallSource}/bin" targetdir="$INSTALL_PATH"/>
             <file src="${InstallSource}/lib" targetdir="$INSTALL_PATH"/>
-            <file src="${InstallSource}/config-store" targetdir="$INSTALL_PATH"/>
+            <!--<file src="${InstallSource}/config-store" targetdir="$INSTALL_PATH"/>-->
             <file src="${InstallSource}/repository" targetdir="$INSTALL_PATH"/>
             <file src="${InstallSource}/schema" targetdir="$INSTALL_PATH"/>
             <file src="${InstallSource}/var" targetdir="$INSTALL_PATH"/>
