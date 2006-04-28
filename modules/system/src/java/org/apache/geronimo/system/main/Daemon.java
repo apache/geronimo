@@ -178,7 +178,7 @@ public class Daemon {
                 monitor = new ProgressBarStartupMonitor();
         }                                                            
 
-        JVMCheck();
+        // JVMCheck();   // Removed for 1.1
     }
 
     private void JVMCheck() {
