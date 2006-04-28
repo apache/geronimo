@@ -101,12 +101,12 @@ public class ENCConfigBuilder {
         if (gerGbeanLocator.isSetGbeanLink()) {
             //exact match
             String linkName = gerGbeanLocator.getGbeanLink().trim();
-            abstractNameQuery = buildAbstractNameQuery(null, null, linkName, j2eeType);
+            abstractNameQuery = buildAbstractNameQuery(null, null, linkName, j2eeType, null);
 
         } else {
             GerPatternType patternType = gerGbeanLocator.getPattern();
             //construct name from components
-            abstractNameQuery = buildAbstractNameQuery(patternType, j2eeType);
+            abstractNameQuery = buildAbstractNameQuery(patternType, j2eeType, null);
         }
         //TODO check that the query is satisfied.
         return abstractNameQuery;
@@ -187,13 +187,13 @@ public class ENCConfigBuilder {
         AbstractNameQuery containerId;
         String module = moduleURI == null ? null : moduleURI.toString();
         if (gerResourceRef == null) {
-            containerId = buildAbstractNameQuery(null, module, name, type);
+            containerId = buildAbstractNameQuery(null, module, name, type, NameFactory.RESOURCE_ADAPTER_MODULE);
         } else if (gerResourceRef.isSetResourceLink()) {
-            containerId = buildAbstractNameQuery(null, module, gerResourceRef.getResourceLink().trim(), type);
+            containerId = buildAbstractNameQuery(null, module, gerResourceRef.getResourceLink().trim(), type, NameFactory.RESOURCE_ADAPTER_MODULE);
         } else {
             //construct name from components
             GerPatternType patternType = gerResourceRef.getPattern();
-            containerId = buildAbstractNameQuery(patternType, type);
+            containerId = buildAbstractNameQuery(patternType, type, NameFactory.RESOURCE_ADAPTER_MODULE);
         }
         return containerId;
     }
@@ -228,19 +228,19 @@ public class ENCConfigBuilder {
     private static AbstractNameQuery getAdminObjectContainerId(String name, GerResourceEnvRefType gerResourceEnvRef) {
         AbstractNameQuery containerId;
         if (gerResourceEnvRef == null) {
-            containerId = buildAbstractNameQuery(null, null, name, NameFactory.JCA_ADMIN_OBJECT);
+            containerId = buildAbstractNameQuery(null, null, name, NameFactory.JCA_ADMIN_OBJECT, NameFactory.RESOURCE_ADAPTER_MODULE);
         } else if (gerResourceEnvRef.isSetMessageDestinationLink()) {
-            containerId = buildAbstractNameQuery(null, null, gerResourceEnvRef.getMessageDestinationLink().trim(), NameFactory.JCA_ADMIN_OBJECT);
+            containerId = buildAbstractNameQuery(null, null, gerResourceEnvRef.getMessageDestinationLink().trim(), NameFactory.JCA_ADMIN_OBJECT, NameFactory.RESOURCE_ADAPTER_MODULE);
         } else if (gerResourceEnvRef.isSetAdminObjectLink()) {
             String moduleURI = null;
             if (gerResourceEnvRef.isSetAdminObjectModule()) {
                 moduleURI = gerResourceEnvRef.getAdminObjectModule().trim();
             }
-            containerId = buildAbstractNameQuery(null, moduleURI, gerResourceEnvRef.getAdminObjectLink().trim(), NameFactory.JCA_ADMIN_OBJECT);
+            containerId = buildAbstractNameQuery(null, moduleURI, gerResourceEnvRef.getAdminObjectLink().trim(), NameFactory.JCA_ADMIN_OBJECT, NameFactory.RESOURCE_ADAPTER_MODULE);
         } else {
             //construct name from components
             GerPatternType patternType = gerResourceEnvRef.getPattern();
-            containerId = buildAbstractNameQuery(patternType, NameFactory.JCA_ADMIN_OBJECT);
+            containerId = buildAbstractNameQuery(patternType, NameFactory.JCA_ADMIN_OBJECT, NameFactory.RESOURCE_ADAPTER_MODULE);
         }
         return containerId;
     }
@@ -276,7 +276,7 @@ public class ENCConfigBuilder {
 
             //try to resolve ref based only matching resource-ref-name
             //throws exception if it can't locate ref.
-            AbstractNameQuery containerId = buildAbstractNameQuery(null, moduleURI, linkName, NameFactory.JCA_ADMIN_OBJECT);
+            AbstractNameQuery containerId = buildAbstractNameQuery(null, moduleURI, linkName, NameFactory.JCA_ADMIN_OBJECT, NameFactory.RESOURCE_ADAPTER_MODULE);
             Reference ref = refContext.getAdminObjectRef(containerId, iface, earContext);
             builder.bind(name, ref);
 
@@ -326,10 +326,10 @@ public class ENCConfigBuilder {
                     AbstractNameQuery cssBean;
                     if (remoteRef.isSetCssLink()) {
                         String cssLink = remoteRef.getCssLink().trim();
-                        cssBean = buildAbstractNameQuery(null, null, cssLink, NameFactory.CORBA_CSS);
+                        cssBean = buildAbstractNameQuery(null, null, cssLink, NameFactory.CORBA_CSS, NameFactory.EJB_MODULE);
                     } else {
                         GerPatternType css = remoteRef.getCss();
-                        cssBean = buildAbstractNameQuery(css, NameFactory.CORBA_CSS);
+                        cssBean = buildAbstractNameQuery(css, NameFactory.CORBA_CSS, NameFactory.EJB_MODULE);
                     }
                     ejbReference = refContext.getCORBARemoteRef(earContext,
                             cssBean,
@@ -362,7 +362,7 @@ public class ENCConfigBuilder {
                     }
                 } else if (remoteRef != null) {
                     GerPatternType patternType = remoteRef.getPattern();
-                    containerQuery = buildAbstractNameQuery(patternType, null);
+                    containerQuery = buildAbstractNameQuery(patternType, null, NameFactory.EJB_MODULE);
                 }
                 ejbReference = refContext.getEJBRemoteRef(refName, ejbContext, ejbLink, requiredModule, optionalModule, targetConfigId, containerQuery, isSession, home, remote);
             }
@@ -426,7 +426,7 @@ public class ENCConfigBuilder {
             }
         } else if (localRef != null) {
             GerPatternType patternType = localRef.getPattern();
-            containerQuery = buildAbstractNameQuery(patternType, null);
+            containerQuery = buildAbstractNameQuery(patternType, null, NameFactory.EJB_MODULE);
         }
         return refContext.getEJBLocalRef(refName, ejbContext, ejbLink, requiredModule, optionalModule, targetConfigId, containerQuery, isSession, localHome, local);
     }
@@ -750,7 +750,7 @@ public class ENCConfigBuilder {
     }
 
     //TODO consider including target interface
-    public static AbstractNameQuery buildAbstractNameQuery(GerPatternType pattern, String type) {
+    public static AbstractNameQuery buildAbstractNameQuery(GerPatternType pattern, String type, String moduleType) {
         String groupId = pattern.isSetGroupId() ? pattern.getGroupId().trim() : null;
         String artifactid = pattern.isSetArtifactId() ? pattern.getArtifactId().trim() : null;
         String version = pattern.isSetVersion() ? pattern.getVersion().trim() : null;
@@ -764,19 +764,19 @@ public class ENCConfigBuilder {
             nameMap.put("j2eeType", type);
         }
         if (module != null) {
-            nameMap.put("module", module);
+            nameMap.put(moduleType, module);
         }
         return new AbstractNameQuery(artifact, nameMap);
     }
 
-    public static AbstractNameQuery buildAbstractNameQuery(Artifact configId, String module, String name, String type) {
+    public static AbstractNameQuery buildAbstractNameQuery(Artifact configId, String module, String name, String type, String moduleType) {
         Map nameMap = new HashMap();
         nameMap.put("name", name);
         if (type != null) {
             nameMap.put("j2eeType", type);
         }
         if (module != null) {
-            nameMap.put("module", module);
+            nameMap.put(moduleType, module);
         }
         return new AbstractNameQuery(configId, nameMap);
     }
