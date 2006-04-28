@@ -43,6 +43,7 @@
 
             <xs:element ref="naming:web-container" minOccurs="0"/>
 
+            <xs:element name="host" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="virtual-host" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="session-manager" type="xs:string" minOccurs="0"/>
 

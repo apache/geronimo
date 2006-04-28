@@ -16,6 +16,9 @@
  */
 package org.apache.geronimo.jetty;
 
+import org.apache.geronimo.webservices.WebServiceContainer;
+import org.mortbay.http.*;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -23,18 +26,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.apache.geronimo.webservices.WebServiceContainer;
-import org.mortbay.http.Authenticator;
-import org.mortbay.http.BasicAuthenticator;
-import org.mortbay.http.ClientCertAuthenticator;
-import org.mortbay.http.DigestAuthenticator;
-import org.mortbay.http.HttpContext;
-import org.mortbay.http.HttpException;
-import org.mortbay.http.HttpHandler;
-import org.mortbay.http.HttpRequest;
-import org.mortbay.http.HttpResponse;
-import org.mortbay.http.UserRealm;
 
 /**
  * Delegates requests to a WebServiceContainer which is presumably for an EJB WebService.
@@ -65,18 +56,18 @@ public class JettyEJBWebServiceContext extends HttpContext implements HttpHandle
     private final String contextPath;
     private final WebServiceContainer webServiceContainer;
     private final Authenticator authenticator;
-    private final UserRealm realm;
+    private final JAASJettyRealm realm;
     private final boolean isConfidentialTransportGuarantee;
     private final boolean isIntegralTransportGuarantee;
     private final ClassLoader classLoader;
 
     private HttpContext httpContext;
 
-    public JettyEJBWebServiceContext(String contextPath, WebServiceContainer webServiceContainer, String securityRealmName, String realmName, String transportGuarantee, String authMethod, ClassLoader classLoader) {
+    public JettyEJBWebServiceContext(String contextPath, WebServiceContainer webServiceContainer, InternalJAASJettyRealm internalJAASJettyRealm, String realmName, String transportGuarantee, String authMethod, ClassLoader classLoader) {
         this.contextPath = contextPath;
         this.webServiceContainer = webServiceContainer;
-        if (securityRealmName != null) {
-            JAASJettyRealm realm = new JAASJettyRealm(realmName, securityRealmName);
+        if (internalJAASJettyRealm != null) {
+            JAASJettyRealm realm = new JAASJettyRealm(realmName, internalJAASJettyRealm);
             setRealm(realm);
             this.realm = realm;
             if ("NONE".equals(transportGuarantee)) {
@@ -175,6 +166,14 @@ public class JettyEJBWebServiceContext extends HttpContext implements HttpHandle
 
     public String getContextPath() {
         return contextPath;
+    }
+
+    public String getSecurityRealmName() {
+        if (realm == null) {
+            return null;
+        } else {
+            return realm.getSecurityRealmName();
+        }
     }
 
     public static class RequestAdapter implements WebServiceContainer.Request {

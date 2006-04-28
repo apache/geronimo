@@ -69,6 +69,8 @@ import org.apache.geronimo.jetty.JettyFilterHolder;
 import org.apache.geronimo.jetty.JettyFilterMapping;
 import org.apache.geronimo.jetty.JettyServletHolder;
 import org.apache.geronimo.jetty.JettyWebAppContext;
+import org.apache.geronimo.jetty.NonAuthenticator;
+import org.apache.geronimo.jetty.Host;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
@@ -220,9 +222,9 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         EnvironmentType environmentType = jettyWebApp.getEnvironment();
         Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
         if (standAlone && environment.getConfigId() == null) {
-        	if (contextRoot.startsWith("/")) {
-        		contextRoot = contextRoot.substring(1);
-        	}
+            if (contextRoot.startsWith("/")) {
+                contextRoot = contextRoot.substring(1);
+            }
             Artifact configID = new Artifact(Artifact.DEFAULT_GROUP_ID, contextRoot, "1", "car");
             environment.setConfigId(configID);
         }
@@ -355,11 +357,23 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             Set securityRoles = collectRoleNames(webApp);
             Map rolePermissions = new HashMap();
 
-            String[] hosts = jettyWebApp.getVirtualHostArray();
+            String[] hosts = jettyWebApp.getHostArray();
             for (int i = 0; i < hosts.length; i++) {
                 hosts[i] = hosts[i].trim();
             }
-            webModuleData.setAttribute("virtualHosts", hosts);
+            String[] virtualHosts = jettyWebApp.getVirtualHostArray();
+            for (int i = 0; i < virtualHosts.length; i++) {
+                virtualHosts[i] = virtualHosts[i].trim();
+            }
+            if (hosts.length > 0 || virtualHosts.length > 0) {
+                //use name same as module
+                AbstractName hostName = earContext.getNaming().createChildName(moduleName, "Host", "Host");
+                GBeanData hostData = new GBeanData(hostName, Host.GBEAN_INFO);
+                hostData.setAttribute("hosts", hosts);
+                hostData.setAttribute("virtualHosts", virtualHosts);
+                earContext.addGBean(hostData);
+                webModuleData.setReferencePattern("Host", hostName);
+            }
 
             //session manager
             webModuleData.setAttribute("sessionManager", jettyWebApp.getSessionManager());
@@ -507,6 +521,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                     webModuleData.setAttribute("realmName", loginConfig.getRealmName().getStringValue());
                 }
 
+            } else if (jettyWebApp.isSetSecurityRealmName()) {
+                webModuleData.setAttribute("authenticator", new NonAuthenticator());
             }
             moduleContext.addGBean(webModuleData);
 

@@ -17,6 +17,23 @@
 
 package org.apache.geronimo.jetty;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.security.PermissionCollection;
+import java.util.Collection;
+import java.util.EventListener;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.naming.Context;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -36,10 +53,9 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
-import org.apache.geronimo.management.geronimo.WebModule;
-import org.apache.geronimo.management.geronimo.WebContainer;
-import org.apache.geronimo.management.geronimo.NetworkConnector;
 import org.apache.geronimo.management.geronimo.WebConnector;
+import org.apache.geronimo.management.geronimo.WebContainer;
+import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
 import org.apache.geronimo.naming.reference.KernelAwareReference;
@@ -48,7 +64,10 @@ import org.apache.geronimo.security.jacc.RoleDesignateSource;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.mortbay.http.*;
+import org.mortbay.http.Authenticator;
+import org.mortbay.http.HttpException;
+import org.mortbay.http.HttpRequest;
+import org.mortbay.http.HttpResponse;
 import org.mortbay.jetty.servlet.AbstractSessionManager;
 import org.mortbay.jetty.servlet.Dispatcher;
 import org.mortbay.jetty.servlet.FilterHolder;
@@ -57,22 +76,6 @@ import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.jetty.servlet.SessionManager;
 import org.mortbay.jetty.servlet.WebApplicationContext;
 import org.mortbay.jetty.servlet.WebApplicationHandler;
-
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
-import javax.naming.Context;
-import java.io.IOException;
-import java.net.URL;
-import java.net.MalformedURLException;
-import java.security.PermissionCollection;
-import java.util.Collection;
-import java.util.EventListener;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.HashMap;
 
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
@@ -166,7 +169,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
     public JettyWebAppContext(String objectName,
                               String originalSpecDD,
-                              String[] virtualHosts,
                               String sessionManager,
                               Map componentContext,
                               OnlineUserTransaction userTransaction,
@@ -194,6 +196,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
                               PermissionCollection checkedPermissions,
                               PermissionCollection excludedPermissions,
 
+                              Host host,
                               TransactionContextManager transactionContextManager,
                               TrackedConnectionAssociator trackedConnectionAssociator,
                               JettyContainer jettyContainer,
@@ -229,7 +232,10 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         this.webClassLoader = classLoader;
         setClassLoader(this.webClassLoader);
 
-        setVirtualHosts(virtualHosts);
+        if (host != null) {
+            setHosts(host.getHosts());
+            setVirtualHosts(host.getVirtualHosts());
+        }
 
         handler = new WebApplicationHandler();
         addHandler(handler);
@@ -275,9 +281,10 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
                 throw new IllegalArgumentException("RoleDesignateSource must be supplied for a secure web app");
             }
             Map roleDesignates = roleDesignateSource.getRoleDesignateMap();
-            //set the JAASJettyRealm as our realm.
-            UserRealm realm = new JAASJettyRealm(realmName, securityRealmName);
-            realm = jettyContainer.addRealm(realm);
+            InternalJAASJettyRealm internalJAASJettyRealm = jettyContainer.addRealm(securityRealmName);
+            //wrap jetty realm with something that knows the dumb realmName
+            JAASJettyRealm realm = new JAASJettyRealm(realmName, internalJAASJettyRealm);
+            setRealm(realm);
             this.securityInterceptor = new SecurityContextBeforeAfter(interceptor, index++, index++, policyContextID, defaultPrincipal, authenticator, checkedPermissions, excludedPermissions, roleDesignates, realm, classLoader);
             interceptor = this.securityInterceptor;
         } else {
@@ -624,7 +631,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         infoBuilder.addAttribute("sessionTimeoutSeconds", int.class, true);
 
 
-        infoBuilder.addAttribute("virtualHosts", String[].class, true);
         infoBuilder.addAttribute("sessionManager", String.class, true);
         infoBuilder.addAttribute("componentContext", Map.class, true);
         infoBuilder.addAttribute("userTransaction", OnlineUserTransaction.class, true);
@@ -635,6 +641,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
         infoBuilder.addAttribute("contextPath", String.class, true);
 
+        infoBuilder.addReference("Host", Host.class, "Host");
         infoBuilder.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
         infoBuilder.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class, NameFactory.JCA_CONNECTION_TRACKER);
         infoBuilder.addReference("JettyContainer", JettyContainer.class, NameFactory.GERONIMO_SERVICE);
@@ -664,7 +671,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         infoBuilder.setConstructor(new String[]{
                 "objectName",
                 "deploymentDescriptor",
-                "virtualHosts",
                 "sessionManager",
                 "componentContext",
                 "userTransaction",
@@ -693,6 +699,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
                 "checkedPermissions",
                 "excludedPermissions",
 
+                "Host",
                 "TransactionContextManager",
                 "TrackedConnectionAssociator",
                 "JettyContainer",
