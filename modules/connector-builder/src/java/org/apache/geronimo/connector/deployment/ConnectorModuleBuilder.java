@@ -17,6 +17,7 @@
 package org.apache.geronimo.connector.deployment;
 
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.common.UnresolvedReferenceException;
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.apache.geronimo.connector.ActivationSpecWrapperGBean;
 import org.apache.geronimo.connector.AdminObjectWrapper;
@@ -777,7 +778,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         try {
             configuration.findGBean(containerId);
         } catch (GBeanNotFoundException e) {
-            throw new DeploymentException("Can not resolve resource ref " + containerId + " in configuration " + configuration.getId());
+            throw new UnresolvedReferenceException("Resource", false, containerId.toString());
         }
         return new ResourceReference(configuration.getId(), containerId, iface);
     }

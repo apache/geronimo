@@ -176,7 +176,25 @@ public class ENCConfigBuilder {
                     ref = refContext.getConnectionFactoryRef(containerId, iface, earContext);
                     builder.bind(name, ref);
                 } catch (UnresolvedReferenceException e) {
-                    throw new DeploymentException("Unable to resolve resource reference '" + name + "' (" + (e.isMultiple() ? "found multiple matching resources" : "no matching resources found") + ")");
+
+                    StringBuffer errorMessage = new StringBuffer("Unable to resolve resource reference '");
+                    errorMessage.append(name);
+                    errorMessage.append("' (");
+                    if (e.isMultiple()) {
+                        errorMessage.append("Found multiple matching resources.  Try being more specific in a resource-ref mapping in your Geronimo deployment plan.");
+                    } else if (gerResourceRef == null){
+                        errorMessage.append("Could not auto-map to resource.  Try adding a resource-ref mapping to your Geronimo deployment plan.");
+                    } else if (gerResourceRef.isSetResourceLink()){
+                        errorMessage.append("Could not find resource '");
+                        errorMessage.append(gerResourceRef.getResourceLink());
+                        errorMessage.append("'.  Perhaps it has not yet been configured, or your application does not have a dependency declared for that resource module?");
+                    } else {
+                        errorMessage.append("Could not find the resource specified in your Geronimo deployment plan:");
+                        errorMessage.append(gerResourceRef.getPattern());
+                    }
+                    errorMessage.append(")");
+
+                    throw new DeploymentException(errorMessage.toString());
                 }
             }
         }
