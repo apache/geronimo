@@ -34,4 +34,9 @@
             <ant:fileset dir="${basedir}/target/classes/schemaorg_apache_xmlbeans"/>
         </copy>
     </preGoal>
+
+    <postGoal name="java:compile">
+        <attainGoal name="geronimo:dependency"/>
+    </postGoal>
+
 </project>

@@ -57,9 +57,6 @@
             <type>car</type>
             <artifactId>client</artifactId>
             <version>${pom.currentVersion}</version>
-            <!--<properties>-->
-            <!--<geronimo.import>true</geronimo.import>-->
-            <!--</properties>-->
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
@@ -107,23 +104,6 @@
             <version>${stax_api_version}</version>
         </dependency>
 
-        <!--        <dependency>
-                    <groupId>concurrent</groupId>
-                    <artifactId>concurrent</artifactId>
-                    <version>${concurrent_version}</version>
-                </dependency>
-                <dependency>
-                    <groupId>howl</groupId>
-                    <artifactId>howl-logger</artifactId>
-                    <version>${howl_version}</version>
-                    <url>http://forge.objectweb.org/projects/howl</url>
-                </dependency>
-                <dependency>
-                    <groupId>activeio</groupId>
-                    <artifactId>activeio</artifactId>
-                    <version>${activeio_version}</version>
-                </dependency>
-        -->
         <!-- dependencies from plan -->
 
         <!-- common libraries used by all builders -->
@@ -139,9 +119,6 @@
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-j2ee_1.4_spec</artifactId>
             <version>${geronimo_spec_j2ee_version}</version>
-            <properties>
-                <geronimo.dependency>true</geronimo.dependency>
-            </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
@@ -189,14 +166,6 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-client-builder</artifactId>
-            <version>${geronimo_version}</version>
-            <properties>
-                <geronimo.dependency>true</geronimo.dependency>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
             <artifactId>geronimo-naming-builder</artifactId>
             <version>${geronimo_version}</version>
             <properties>
@@ -222,14 +191,6 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-security</artifactId>
-            <version>${geronimo_version}</version>
-            <properties>
-                <geronimo.dependency>true</geronimo.dependency>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-axis</artifactId>
             <version>${geronimo_version}</version>
             <properties>
                 <geronimo.dependency>true</geronimo.dependency>
@@ -279,30 +240,10 @@
             <version>${jetty_version}</version>
         </dependency>
 
-        <!-- EJBs using OpenEJB -->
-        <dependency>
-            <groupId>openejb</groupId>
-            <artifactId>openejb-pkgen-builder</artifactId>
-            <version>${openejb_version}</version>
-            <properties>
-                <geronimo.dependency>true</geronimo.dependency>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>openejb</groupId>
-            <artifactId>openejb-core</artifactId>
-            <version>${openejb_version}</version>
-            <properties>
-                <geronimo.dependency>true</geronimo.dependency>
-            </properties>
-        </dependency>
         <dependency>
             <groupId>tranql</groupId>
             <artifactId>tranql</artifactId>
             <version>${tranql_version}</version>
-            <properties>
-                <geronimo.dependency>true</geronimo.dependency>
-            </properties>
         </dependency>
 
         <!-- RARs using Geronimo Connector implementation -->

@@ -96,7 +96,7 @@
     </configuration>
     <configuration name="geronimo/openejb-deployer/${pom.currentVersion}/car">
         <gbean name="EJBBuilder">
-            <attribute name="listener">geronimo.server:J2EEApplication=null,J2EEModule=geronimo/tomcat/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=GBean,name=TomcatWebContainer</attribute>
+            <attribute name="listener">?name=TomcatWebContainer</attribute>
         </gbean>
     </configuration>
     <configuration name="geronimo/client-deployer/${pom.currentVersion}/car"/>

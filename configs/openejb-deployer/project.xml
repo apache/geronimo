@@ -49,15 +49,33 @@
                 <geronimo.import>true</geronimo.import>
             </properties>
         </dependency>
+<!--
         <dependency>
             <groupId>geronimo</groupId>
             <type>car</type>
             <artifactId>openejb</artifactId>
             <version>${pom.currentVersion}</version>
-<!--  replaced import with dependency below to avoid starting j2ee-server during build -->
             <properties>
                 <geronimo.dependency>true</geronimo.dependency>
             </properties>
+        </dependency>
+-->
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-axis</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-axis-builder</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
 
         <!-- dependencies from gbean-deployer needed as maven adds service builder to the maven.root classloader -->
@@ -124,6 +142,9 @@
             <groupId>openejb</groupId>
             <artifactId>openejb-core</artifactId>
             <version>${openejb_version}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
         </dependency>
         <dependency>
             <groupId>tranql</groupId>

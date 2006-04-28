@@ -50,6 +50,33 @@
                 <packaging.config.order>2</packaging.config.order>
             </properties>
         </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>openejb-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+            <properties>
+                <packaging.config.order>3</packaging.config.order>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>axis-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+            <properties>
+                <packaging.config.order>4</packaging.config.order>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>client-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+            <properties>
+                <packaging.config.order>5</packaging.config.order>
+            </properties>
+        </dependency>
 
         <!-- parent config -->
         <dependency>
@@ -73,11 +100,6 @@
             <version>${geronimo_spec_j2ee_version}</version>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>activemq</groupId>-->
-            <!--<artifactId>activemq-gbean-management-g1_1</artifactId>-->
-            <!--<version>${activemq_version}</version>-->
-        <!--</dependency>-->
         <dependency>
              <groupId>activemq</groupId>
              <artifactId>activemq-ra</artifactId>

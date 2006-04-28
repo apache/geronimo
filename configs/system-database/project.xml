@@ -174,6 +174,9 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-timer</artifactId>
             <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+            </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>

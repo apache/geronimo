@@ -97,6 +97,16 @@
                 <geronimo.import>true</geronimo.import>
             </properties>
         </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>system-database</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+            <properties>
+                <geronimo.import>true</geronimo.import>
+            </properties>
+        </dependency>
+
         <!-- for login module manager -->
         <dependency>
             <groupId>geronimo</groupId>
@@ -257,6 +267,14 @@
             <version>${geronimo_version}</version>
             <properties>
                 <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>jdom</groupId>
+            <artifactId>jdom</artifactId>
+            <version>${jdom_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
             </properties>
         </dependency>
 

@@ -41,6 +41,7 @@
                 <packaging.config.order>1</packaging.config.order>
             </properties>
         </dependency>
+
         <!-- parent config -->
         <dependency>
             <groupId>geronimo</groupId>
@@ -60,6 +61,7 @@
                 <geronimo.import>true</geronimo.import>
             </properties>
         </dependency>
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-timer</artifactId>
@@ -152,6 +154,9 @@
             <groupId>tranql</groupId>
             <artifactId>tranql</artifactId>
             <version>${tranql_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+            </properties>
         </dependency>
         <dependency>
             <groupId>howl</groupId>
@@ -162,6 +167,9 @@
             <groupId>antlr</groupId>
             <artifactId>antlr</artifactId>
             <version>${antlr_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+            </properties>
         </dependency>
         <dependency>
             <groupId>regexp</groupId>
