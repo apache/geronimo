@@ -98,9 +98,7 @@ public abstract class AbstractRepository implements WriteableRepository {
     }
 
     public boolean contains(Artifact artifact) {
-        if(!artifact.isResolved()) {
-            throw new IllegalArgumentException("Artifact "+artifact+" is not fully resolved");
-        }
+        // Note: getLocation(artifact) does an artifact.isResolved() check - no need to do it here.
         File location = getLocation(artifact);
         return location.canRead() && (location.isFile() || new File(location, "META-INF").isDirectory());
     }
