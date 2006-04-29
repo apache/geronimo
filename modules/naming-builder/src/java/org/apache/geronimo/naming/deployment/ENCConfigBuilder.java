@@ -288,6 +288,8 @@ public class ENCConfigBuilder {
                 //well, we know for sure an admin object is not going to be defined in a modules that can have a message-destination
                 int pos = linkName.indexOf('#');
                 if (pos > -1) {
+                    //AMM -- the following line causes blowups; e.g. to look in DayTrader EJB module for a RA -- why is that?!?
+                    //moduleURI = linkName.substring(0, pos);
                     linkName = linkName.substring(pos + 1);
                 }
             }
