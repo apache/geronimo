@@ -18,9 +18,10 @@
 package org.apache.geronimo.console.configmanager;
 
 import java.io.IOException;
+import java.io.Serializable;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import javax.portlet.ActionRequest;
@@ -31,16 +32,19 @@ import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
-
 import org.apache.geronimo.console.BasePortlet;
+import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.LifecycleException;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.management.geronimo.WebModule;
 
 public class ConfigManagerPortlet extends BasePortlet {
 
@@ -125,24 +129,28 @@ public class ConfigManagerPortlet extends BasePortlet {
             return;
         }
 
-        List configInfo = new ArrayList();
+        List moduleDetails = new ArrayList();
         ConfigurationManager configManager = ConfigurationUtil.getConfigurationManager(kernel);
         List infos = configManager.listConfigurations();
         for (Iterator j = infos.iterator(); j.hasNext();) {
             ConfigurationInfo info = (ConfigurationInfo) j.next();
             if (shouldListConfig(info)) {
-                configInfo.add(info);
+                ModuleDetails details = new ModuleDetails(info.getConfigID(), info.getType(), info.getState());
+
+                if (info.getType().getValue()== ConfigurationModuleType.WAR.getValue()){
+                    WebModule webModule = (WebModule) PortletManager.getModule(renderRequest, info.getConfigID());
+                    if (webModule != null) {
+                        details.setContextPath(webModule.getContextPath());
+                        details.setUrlFor(webModule.getURLFor());
+                    }
+                }
+                moduleDetails.add(details);
             }
         }
-        Collections.sort(configInfo, new Comparator() {
-            public int compare(Object o1, Object o2) {
-                ConfigurationInfo ci1 = (ConfigurationInfo) o1;
-                ConfigurationInfo ci2 = (ConfigurationInfo) o2;
-                return ci1.getConfigID().toString().compareTo(ci2.getConfigID().toString());
-            }
-        });
-        renderRequest.setAttribute("configurations", configInfo);
-        if (configInfo.size() == 0) {
+        Collections.sort(moduleDetails);
+        renderRequest.setAttribute("configurations", moduleDetails);
+        renderRequest.setAttribute("showWebInfo", Boolean.valueOf(getInitParameter(CONFIG_INIT_PARAM).equalsIgnoreCase(ConfigurationModuleType.WAR.getName())));
+        if (moduleDetails.size() == 0) {
             renderRequest.setAttribute("messageInstalled", "No modules found of this type<br /><br />");
         } else {
             renderRequest.setAttribute("messageInstalled", "");
@@ -173,5 +181,59 @@ public class ConfigManagerPortlet extends BasePortlet {
         maximizedView = null;
         kernel = null;
         super.destroy();
+    }
+
+    /**
+     * Convenience data holder for portlet that displays deployed modules.
+     * Includes context path information for web modules.
+     */
+    public static class ModuleDetails implements Comparable, Serializable {
+        private final Artifact configId;
+        private final ConfigurationModuleType type;
+        private final State state;
+        private URL urlFor;             // only relevant for webapps
+        private String contextPath;     // only relevant for webapps
+
+        public ModuleDetails(Artifact configId, ConfigurationModuleType type, State state) {
+            this.configId = configId;
+            this.type = type;
+            this.state = state;
+        }
+
+        public int compareTo(Object o) {
+            if (o != null && o instanceof ModuleDetails){
+                return configId.compareTo(((ModuleDetails)o).configId);
+            } else {
+                return -1;
+            }
+        }
+
+        public Artifact getConfigId() {
+            return configId;
+        }
+
+        public State getState() {
+            return state;
+        }
+
+        public URL getUrlFor() {
+            return urlFor;
+        }
+
+        public String getContextPath() {
+            return contextPath;
+        }
+
+        public void setUrlFor(URL urlFor) {
+            this.urlFor = urlFor;
+        }
+
+        public void setContextPath(String contextPath) {
+            this.contextPath = contextPath;
+        }
+
+        public ConfigurationModuleType getType() {
+            return type;
+        }
     }
 }
