@@ -29,19 +29,55 @@ import javax.xml.registry.JAXRException;
  * Simple GBean to provide access to a JAXR ConnectionFactory
  *
  * @version $Rev$ $Date$
- *
  */
 public class JAXRGBean {
 
-   public static final GBeanInfo GBEAN_INFO;
-
     private final Log log = LogFactory.getLog(JAXRGBean.class);
+    private final ClassLoader cl;
+    private final String connectionFactoryClass;
+
+    public JAXRGBean(String connectionFactoryClass, ClassLoader cl) {
+        this.cl = cl;
+        this.connectionFactoryClass = connectionFactoryClass;
+    }
+
+    /**
+     * Returns a fresh, new implementation of javax.xml.registry.ConnectionFactory
+     *
+     * @return ConnectionFactory
+     */
+    public Object $getResource() {
+        if (connectionFactoryClass != null) {
+            System.setProperty("javax.xml.registry.ConnectionFactoryClass", connectionFactoryClass);
+            //TODO consider whether we should bypass the code below and just construct it ourselves, like it does.
+        }
+        Thread currentThread = Thread.currentThread();
+        ClassLoader oldCl = currentThread.getContextClassLoader();
+        currentThread.setContextClassLoader(cl);
+        try {
+            return ConnectionFactory.newInstance();
+        } catch (JAXRException e) {
+            log.error("Error creating ConnectionFactory", e);
+        } finally {
+            currentThread.setContextClassLoader(oldCl);
+        }
+
+        return null;
+    }
+
+
+    public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(JAXRGBean.class,
                 NameFactory.JAXR_CONNECTION_FACTORY);
 
+        infoFactory.addAttribute("connectionFactoryClass", String.class, true, true);
+        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
+
         infoFactory.addOperation("$getResource");
+
+        infoFactory.setConstructor(new String[] {"connectionFactoryClass", "classLoader"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
@@ -51,20 +87,4 @@ public class JAXRGBean {
     }
 
 
-    /**
-     *  Returns a fresh, new implementation of javax.xml.registry.ConnectionFactory
-     *
-     * @return
-     */
-    public Object $getResource() {
-
-        try {
-            return ConnectionFactory.newInstance();
-        }
-        catch(JAXRException e) {
-            log.error("Error creating ConnectionFactory", e);
-        }
-
-        return null;
-    }
 }

@@ -169,6 +169,6 @@ by the server.
         </reference>
     </gbean>
 
-    <gbean name="eis/JAXR" class="org.apache.geronimo.webservices.jaxr.JAXRGBean"/>
+    <!--<gbean name="eis/JAXR" class="org.apache.geronimo.webservices.jaxr.JAXRGBean"/>-->
 
 </configuration>

@@ -43,6 +43,12 @@
     <!-- ============ -->
 
     <dependencies>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-dependency-plugin</artifactId>
+            <version>${geronimo_dependency_plugin_version}</version>
+            <type>plugin</type>
+        </dependency>
         <!-- Module Dependencies -->
 
         <dependency>
@@ -140,17 +146,26 @@
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jaxr_1.0_spec</artifactId>
             <version>${geronimo_spec_jaxr_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
 
 
+<!--
         <dependency>
             <groupId>scout</groupId>
             <artifactId>scout</artifactId>
             <version>${scout_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
+-->
 
     </dependencies>
 
+<!--
     <build>
         <resources>
             <resource>
@@ -170,5 +185,6 @@
             </excludes>
         </unitTest>
     </build>
+-->
 
 </project>

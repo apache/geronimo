@@ -97,6 +97,15 @@
                  <geronimo.import>true</geronimo.import>
              </properties>
         </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>axis</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+            <properties>
+                 <geronimo.import>true</geronimo.import>
+             </properties>
+        </dependency>
 
         <dependency>
             <groupId>juddi</groupId>
@@ -110,6 +119,15 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-uddi-db</artifactId>
             <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>scout</groupId>
+            <artifactId>scout</artifactId>
+            <version>${scout_version}</version>
             <properties>
                  <geronimo.dependency>true</geronimo.dependency>
              </properties>
