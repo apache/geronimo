@@ -64,12 +64,14 @@
 
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-timer</artifactId>
+            <artifactId>system-database</artifactId>
             <version>${geronimo_version}</version>
+            <type>car</type>
             <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
         </dependency>
+
         <dependency>
             <groupId>openejb</groupId>
             <artifactId>openejb-core</artifactId>
