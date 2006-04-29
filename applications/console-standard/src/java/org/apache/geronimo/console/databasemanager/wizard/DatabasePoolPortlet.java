@@ -26,10 +26,13 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URLEncoder;
+import java.net.URLDecoder;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.Driver;
@@ -1186,8 +1189,14 @@ public class DatabasePoolPortlet extends BasePortlet {
             url = request.getParameter("url");
             if(url != null && url.equals("")) {
                 url = null;
-            } else if(url != null && url.indexOf("%3B") > -1) {
-                url = url.replaceAll("%3B", ";"); // attempt to work around Pluto/Tomcat error with ; in a stored value
+            } else if(url != null && url.startsWith("URLENCODED")) {
+                try {
+                    url = URLDecoder.decode(url.substring(10), "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    throw new RuntimeException("Unable to decode URL", e);
+                } catch(IllegalArgumentException e) { // not encoded after all??
+                    url = url.substring(10);
+                }
             }
             urlPrototype = request.getParameter("urlPrototype");
             if(urlPrototype != null && urlPrototype.equals("")) urlPrototype = null;
@@ -1267,7 +1276,11 @@ public class DatabasePoolPortlet extends BasePortlet {
             if(user != null) response.setRenderParameter("user", user);
             if(password != null) response.setRenderParameter("password", password);
             if(url != null) { // attempt to work around Pluto/Tomcat error with ; in a stored value
-                response.setRenderParameter("url", url.replaceAll(";", "%3B"));
+                try {
+                    response.setRenderParameter("url", "URLENCODED"+URLEncoder.encode(url, "UTF-8"));
+                } catch (UnsupportedEncodingException e) {
+                    throw new RuntimeException("Unable to encode URL", e);
+                }
             }
             if(urlPrototype != null) response.setRenderParameter("urlPrototype", urlPrototype);
             if(jar1 != null) response.setRenderParameter("jar1", jar1);
