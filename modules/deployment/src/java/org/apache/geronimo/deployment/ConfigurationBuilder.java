@@ -41,7 +41,7 @@ public interface ConfigurationBuilder {
      * @return the deployment plan, or null if this builder can not handle the module
      * @throws org.apache.geronimo.common.DeploymentException if there was a problem with the configuration
      */
-    Object getDeploymentPlan(File planFile, JarFile module) throws DeploymentException;
+    Object getDeploymentPlan(File planFile, JarFile module, ModuleIDBuilder idBuilder) throws DeploymentException;
 
     /**
      * Checks what configuration URL will be used for the provided module.
@@ -51,7 +51,7 @@ public interface ConfigurationBuilder {
      * @throws IOException if there was a problem reading or writing the files
      * @throws org.apache.geronimo.common.DeploymentException if there was a problem with the configuration
      */
-    Artifact getConfigurationID(Object plan, JarFile module) throws IOException, DeploymentException;
+    Artifact getConfigurationID(Object plan, JarFile module, ModuleIDBuilder idBuilder) throws IOException, DeploymentException;
 
     /**
      * Build a configuration from a local file

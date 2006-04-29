@@ -20,6 +20,7 @@ import org.apache.geronimo.client.AppClientContainer;
 import org.apache.geronimo.client.StaticJndiContextPlugin;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
@@ -177,15 +178,15 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         return (ServiceReferenceBuilder) serviceReferenceBuilder.getElement();
     }
 
-    public Module createModule(File plan, JarFile moduleFile, Naming naming) throws DeploymentException {
-        return createModule(plan, moduleFile, "app-client", null, null, null, naming);
+    public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+        return createModule(plan, moduleFile, "app-client", null, null, null, naming, idBuilder);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming) throws DeploymentException {
-        return createModule(plan, moduleFile, targetPath, specDDUrl, environment, earName, naming);
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+        return createModule(plan, moduleFile, targetPath, specDDUrl, environment, earName, naming, idBuilder);
     }
 
-    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, AbstractName earName, Naming naming) throws DeploymentException {
+    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         assert moduleFile != null: "moduleFile is null";
         assert targetPath != null: "targetPath is null";
         assert !targetPath.endsWith("/"): "targetPath must not end with a '/'";
@@ -222,11 +223,23 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
         EnvironmentType clientEnvironmentType = gerAppClient.getClientEnvironment();
         Environment clientEnvironment = EnvironmentBuilder.buildEnvironment(clientEnvironmentType, defaultClientEnvironment);
+        if(standAlone) {
+            String name = new File(moduleFile.getName()).getName();
+            idBuilder.resolve(clientEnvironment, name+"_"+name, "jar");
+        } else {
+            Artifact earConfigId = earEnvironment.getConfigId();
+            idBuilder.resolve(clientEnvironment, earConfigId.getArtifactId() + "_" + new File(moduleFile.getName()).getName(), "jar");
+        }
         EnvironmentType serverEnvironmentType = gerAppClient.getServerEnvironment();
         Environment serverEnvironment = EnvironmentBuilder.buildEnvironment(serverEnvironmentType, defaultServerEnvironment);
-        if (earEnvironment != null) {
+        if (!standAlone) {
             EnvironmentBuilder.mergeEnvironments(earEnvironment, serverEnvironment);
             serverEnvironment = earEnvironment;
+            if(!serverEnvironment.getConfigId().isResolved()) {
+                throw new IllegalStateException("Server environment module ID should be fully resolved (not "+serverEnvironment.getConfigId()+")");
+            }
+        } else {
+            idBuilder.resolve(serverEnvironment, new File(moduleFile.getName()).getName(), "jar");
         }
 
         AbstractName moduleName;
@@ -414,6 +427,11 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
         EARContext appClientDeploymentContext = appClientModule.getEarContext();
 //        ConfigurationData appClientConfigurationData = null;
+
+        // Create a Module ID Builder defaulting to similar settings to use for any children we create
+        ModuleIDBuilder idBuilder = new ModuleIDBuilder();
+        idBuilder.setDefaultGroup(appClientModule.getClientEnvironment().getConfigId().getGroupId());
+        idBuilder.setDefaultVersion(appClientModule.getClientEnvironment().getConfigId().getVersion());
         try {
             try {
 
@@ -476,7 +494,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                                 }
                             }
                             XmlObject connectorPlan = resource.getConnector();
-                            Module connectorModule = getConnectorModuleBuilder().createModule(connectorPlan, connectorFile, path, null, appClientModule.getClientEnvironment(), null, appClientDeploymentContext.getModuleName(), earContext.getNaming());
+                            Module connectorModule = getConnectorModuleBuilder().createModule(connectorPlan, connectorFile, path, null, appClientModule.getClientEnvironment(), null, appClientDeploymentContext.getModuleName(), earContext.getNaming(), idBuilder);
                             resourceModules.add(connectorModule);
                             //TODO configStore == null is fishy, consider moving these stages for connectors into the corresponding stages for this module.
                             getConnectorModuleBuilder().installModule(connectorFile, appClientDeploymentContext, connectorModule, null, null, repositories);

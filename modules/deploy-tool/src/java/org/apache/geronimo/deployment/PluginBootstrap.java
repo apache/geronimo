@@ -79,7 +79,7 @@ public class PluginBootstrap {
 
         ArtifactManager artifactManager = new DefaultArtifactManager();
         ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.singleton(repository), null);
-        DeploymentContext context = builder.buildConfiguration(false, builder.getConfigurationID(config, null), config, null, Collections.singleton(targetConfigurationStore), artifactResolver, targetConfigurationStore);
+        DeploymentContext context = builder.buildConfiguration(false, builder.getConfigurationID(config, null, new ModuleIDBuilder()), config, null, Collections.singleton(targetConfigurationStore), artifactResolver, targetConfigurationStore);
         ConfigurationData configurationData = context.getConfigurationData();
 
         JarOutputStream out = new JarOutputStream(new FileOutputStream(carFile));

@@ -37,6 +37,7 @@ import junit.framework.TestCase;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.util.UnpackedJarFile;
 import org.apache.geronimo.gbean.AbstractName;
@@ -109,7 +110,7 @@ public class JettyModuleBuilderTest extends TestCase {
         new File(outputPath, "war").mkdir();
         File path = new File(basedir, "src/test-resources/deployables/war4");
         UnpackedJarFile jarFile = new UnpackedJarFile(path);
-        Module module = builder.createModule(null, jarFile, kernel.getNaming());
+        Module module = builder.createModule(null, jarFile, kernel.getNaming(), new ModuleIDBuilder());
         Repository repository = null;
 
         AbstractName moduleName = module.getModuleName();

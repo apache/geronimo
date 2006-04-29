@@ -103,6 +103,8 @@ public class SingleFileHotDeployer {
             }
         }
 
+        ModuleIDBuilder idBuilder = new ModuleIDBuilder();
+
         JarFile module = null;
         try {
             module = DeploymentUtil.createJarFile(dir);
@@ -116,7 +118,7 @@ public class SingleFileHotDeployer {
             ConfigurationBuilder builder = null;
             for (Iterator i = builders.iterator(); i.hasNext();) {
                 ConfigurationBuilder candidate = (ConfigurationBuilder) i.next();
-                plan = candidate.getDeploymentPlan(null, module);
+                plan = candidate.getDeploymentPlan(null, module, idBuilder);
                 if (plan != null) {
                     builder = candidate;
                     break;
@@ -127,7 +129,7 @@ public class SingleFileHotDeployer {
             }
 
             // determine the new configuration id
-            Artifact configurationId = builder.getConfigurationID(plan, module);
+            Artifact configurationId = builder.getConfigurationID(plan, module, idBuilder);
 
             // if the new configuration id isn't fully resolved, populate it with defaults
             if (!configurationId.isResolved()) {

@@ -34,6 +34,7 @@ import javax.xml.namespace.QName;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xbeans.AttributeType;
 import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
@@ -118,7 +119,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         }
     }
 
-    public Object getDeploymentPlan(File planFile, JarFile jarFile) throws DeploymentException {
+    public Object getDeploymentPlan(File planFile, JarFile jarFile, ModuleIDBuilder idBuilder) throws DeploymentException {
         if (planFile == null && jarFile == null) {
             return null;
         }
@@ -160,6 +161,23 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
             if (!configurationDoc.validate(XmlBeansUtil.createXmlOptions(errors))) {
                 throw new DeploymentException("Invalid deployment descriptor: " + errors + "\nDescriptor: " + configurationDoc.toString());
             }
+            // If there's no artifact ID and we won't be able to figure one out later, use the plan file name.  Bit of a hack.
+            if(jarFile == null && (configurationDoc.getConfiguration().getEnvironment() == null ||
+                        configurationDoc.getConfiguration().getEnvironment().getConfigId() == null ||
+                        configurationDoc.getConfiguration().getEnvironment().getConfigId().getArtifactId() == null)) {
+                if(configurationDoc.getConfiguration().getEnvironment() == null) {
+                    configurationDoc.getConfiguration().addNewEnvironment();
+                }
+                if(configurationDoc.getConfiguration().getEnvironment().getConfigId() == null) {
+                    configurationDoc.getConfiguration().getEnvironment().addNewConfigId();
+                }
+                String name = planFile.getName();
+                int pos = name.lastIndexOf('.');
+                if(pos > -1) {
+                    name = name.substring(0, pos);
+                }
+                configurationDoc.getConfiguration().getEnvironment().getConfigId().setArtifactId(name);
+            }
             return configurationDoc.getConfiguration();
         } catch (XmlException e) {
             throw new DeploymentException("Could not parse xml in plan", e);
@@ -168,11 +186,14 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         }
     }
 
-    public Artifact getConfigurationID(Object plan, JarFile module) throws IOException, DeploymentException {
+    public Artifact getConfigurationID(Object plan, JarFile module, ModuleIDBuilder idBuilder) throws IOException, DeploymentException {
         ConfigurationType configType = (ConfigurationType) plan;
         EnvironmentType environmentType = configType.getEnvironment();
-        //TODO default id based on name?
         Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
+        idBuilder.resolve(environment, module == null ? "" : new File(module.getName()).getName(), "car");
+        if(!environment.getConfigId().isResolved()) {
+            throw new IllegalStateException("Service Module ID is not fully populated ("+environment.getConfigId()+")");
+        }
         return environment.getConfigId();
     }
 
@@ -189,6 +210,9 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         type.setType(configId.getType());
         type.setVersion(configId.getVersion().toString());
         Environment environment = EnvironmentBuilder.buildEnvironment(configurationType.getEnvironment(), defaultEnvironment);
+        if(!environment.getConfigId().isResolved()) {
+            throw new IllegalStateException("Module ID should be fully resolved by now (not "+environment.getConfigId()+")");
+        }
         File outfile;
         try {
             outfile = targetConfigurationStore.createNewConfigurationDir(configId);

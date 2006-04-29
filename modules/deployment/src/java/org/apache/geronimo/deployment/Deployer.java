@@ -24,27 +24,23 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Hashtable;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-
 import javax.management.ObjectName;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
@@ -55,7 +51,6 @@ import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
-import org.apache.geronimo.kernel.repository.Version;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.main.CommandLineManifest;
 
@@ -219,12 +214,13 @@ public class Deployer {
         }
 
 //        File configurationDir = null;
+        ModuleIDBuilder idBuilder = new ModuleIDBuilder();
         try {
             Object plan = null;
             ConfigurationBuilder builder = null;
             for (Iterator i = builders.iterator(); i.hasNext();) {
                 ConfigurationBuilder candidate = (ConfigurationBuilder) i.next();
-                plan = candidate.getDeploymentPlan(planFile, module);
+                plan = candidate.getDeploymentPlan(planFile, module, idBuilder);
                 if (plan != null) {
                     builder = candidate;
                     break;
@@ -236,26 +232,10 @@ public class Deployer {
                         (moduleFile == null ? "" : (planFile == null ? "" : ", ") + "moduleFile=" + moduleFile.getAbsolutePath()) + ")");
             }
 
-            Artifact configID = builder.getConfigurationID(plan, module);
+            Artifact configID = builder.getConfigurationID(plan, module, idBuilder);
             // If the Config ID isn't fully resolved, populate it with defaults
             if (!configID.isResolved()) {
-                String group = configID.getGroupId();
-                if (group == null) {
-                    group = Artifact.DEFAULT_GROUP_ID;
-                }
-                String artifactId = configID.getArtifactId();
-                if (artifactId == null) {
-                    throw new DeploymentException("Every configuration to deploy must have a ConfigID with an ArtifactID (not " + configID + ")");
-                }
-                Version version = configID.getVersion();
-                if (version == null) {
-                    version = new Version(Long.toString(System.currentTimeMillis()));
-                }
-                String type = configID.getType();
-                if (type == null) {
-                    type = "car";
-                }
-                configID = new Artifact(group, artifactId, version, type);
+                configID = idBuilder.resolve(configID, "car");
             }
             // Make sure this configuration doesn't already exist
             try {

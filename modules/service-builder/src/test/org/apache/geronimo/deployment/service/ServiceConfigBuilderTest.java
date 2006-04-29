@@ -19,6 +19,7 @@ package org.apache.geronimo.deployment.service;
 import junit.framework.TestCase;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.FooBarBean;
+import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
 import org.apache.geronimo.deployment.xbeans.ConfigurationType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
@@ -61,7 +62,7 @@ public class ServiceConfigBuilderTest extends TestCase {
         JarFile jar = new JarFile(file);
         assertTrue(file.exists());
         ServiceConfigBuilder builder = new ServiceConfigBuilder(parentEnvironment, null, null, null, new Jsr77Naming());
-        assertNull(builder.getDeploymentPlan(null, jar));
+        assertNull(builder.getDeploymentPlan(null, jar, new ModuleIDBuilder()));
         jar.close();
     }
 

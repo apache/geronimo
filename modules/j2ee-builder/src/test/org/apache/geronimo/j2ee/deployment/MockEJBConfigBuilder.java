@@ -26,6 +26,7 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.deployment.ModuleIDBuilder;
 
 import javax.naming.Reference;
 import java.io.File;
@@ -43,13 +44,13 @@ public class MockEJBConfigBuilder extends Assert implements ModuleBuilder, EJBRe
     private ClassLoader cl;
     public EJBModule ejbModule;
 
-    public Module createModule(File plan, JarFile moduleFile, Naming naming) throws DeploymentException {
+    public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         AbstractName earName = naming.createRootName(new Artifact("test", "test-ejb-jar", "", "jar"), NameFactory.NULL, NameFactory.J2EE_APPLICATION) ;
         AbstractName moduleName = naming.createChildName(earName, "ejb-jar", NameFactory.EJB_MODULE);
         return new EJBModule(true, moduleName, null, moduleFile, "ejb.jar", null, null, null);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming) throws DeploymentException {
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         AbstractName moduleName = naming.createChildName(earName, "ejb-jar", NameFactory.EJB_MODULE);
         return new EJBModule(false, moduleName, null, moduleFile, targetPath, null, null, null);
     }

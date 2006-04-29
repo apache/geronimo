@@ -40,6 +40,7 @@ import javax.xml.namespace.QName;
 import junit.framework.TestCase;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -170,8 +171,9 @@ public class ConnectorModuleBuilderTest extends TestCase {
             ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.EMPTY_SET, null);
             try {
                 File planFile = new File(basedir, "src/test-data/data/external-application-plan.xml");
-                Object plan = configBuilder.getDeploymentPlan(planFile, rarFile);
-                context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, rarFile), plan, rarFile, Collections.singleton(configurationStore), artifactResolver, configurationStore);
+                ModuleIDBuilder idBuilder = new ModuleIDBuilder();
+                Object plan = configBuilder.getDeploymentPlan(planFile, rarFile, idBuilder);
+                context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, rarFile, idBuilder), plan, rarFile, Collections.singleton(configurationStore), artifactResolver, configurationStore);
                 configData = context.getConfigurationData();
             } finally {
                 if (context != null) {
@@ -341,7 +343,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
             JarFile rarJarFile = DeploymentUtil.createJarFile(rarFile);
             AbstractName earName = null;
             String moduleName = "geronimo/test-ear/1.0/car";
-            Module module = moduleBuilder.createModule(action.getVendorDD(), rarJarFile, moduleName, action.getSpecDD(), null, null, earName, naming);
+            Module module = moduleBuilder.createModule(action.getVendorDD(), rarJarFile, moduleName, action.getSpecDD(), null, null, earName, naming, new ModuleIDBuilder());
             if (module == null) {
                 throw new DeploymentException("Was not a connector module");
             }

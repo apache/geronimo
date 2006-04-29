@@ -16,6 +16,27 @@
  */
 package org.apache.geronimo.connector.deployment;
 
+import java.beans.Introspector;
+import java.beans.PropertyEditor;
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.net.URI;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
+import javax.naming.Reference;
+import javax.xml.namespace.QName;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.UnresolvedReferenceException;
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
@@ -38,6 +59,7 @@ import org.apache.geronimo.connector.outbound.connectionmanagerconfig.SinglePool
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionLog;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.XATransactions;
+import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
@@ -64,6 +86,10 @@ import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.management.JCAConnectionFactory;
+import org.apache.geronimo.management.geronimo.JCAAdminObject;
+import org.apache.geronimo.management.geronimo.JCAResourceAdapter;
+import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.reference.ResourceReference;
 import org.apache.geronimo.schema.SchemaConversionUtils;
@@ -86,37 +112,9 @@ import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
 import org.apache.geronimo.xbeans.j2ee.ConnectorType;
 import org.apache.geronimo.xbeans.j2ee.MessagelistenerType;
 import org.apache.geronimo.xbeans.j2ee.ResourceadapterType;
-import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
-import org.apache.geronimo.management.geronimo.JCAResourceAdapter;
-import org.apache.geronimo.management.geronimo.JCAAdminObject;
-import org.apache.geronimo.management.JCAConnectionFactory;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-
-import javax.naming.Reference;
-import javax.xml.namespace.QName;
-
-import java.beans.Introspector;
-import java.beans.PropertyEditor;
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.net.URI;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
 
 /**
  * @version $Rev:385659 $ $Date$
@@ -150,15 +148,15 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         this.defaultXAThreadCaching = defaultXAThreadCaching;
     }
 
-    public Module createModule(File plan, JarFile moduleFile, Naming naming) throws DeploymentException {
-        return createModule(plan, moduleFile, "rar", null, null, null, naming);
+    public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+        return createModule(plan, moduleFile, "rar", null, null, null, naming, idBuilder);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming) throws DeploymentException {
-        return createModule(plan, moduleFile, targetPath, specDDUrl, environment, earName, naming);
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+        return createModule(plan, moduleFile, targetPath, specDDUrl, environment, earName, naming, idBuilder);
     }
 
-    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, AbstractName earName, Naming naming) throws DeploymentException {
+    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         assert moduleFile != null: "moduleFile is null";
         assert targetPath != null: "targetPath is null";
         assert !targetPath.endsWith("/"): "targetPath must not end with a '/'";
@@ -237,6 +235,11 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         if (earEnvironment != null) {
             EnvironmentBuilder.mergeEnvironments(earEnvironment, environment);
             environment = earEnvironment;
+            if(!environment.getConfigId().isResolved()) {
+                throw new IllegalStateException("Connector module ID should be fully resolved (not "+environment.getConfigId()+")");
+            }
+        } else {
+            idBuilder.resolve(environment, new File(moduleFile.getName()).getName(), "rar");
         }
 
         AbstractName moduleName;

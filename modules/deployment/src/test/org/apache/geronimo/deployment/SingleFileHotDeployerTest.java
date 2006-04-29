@@ -245,11 +245,11 @@ public class SingleFileHotDeployerTest extends TestCase {
     }
 
     private class MockConfigurationBuilder implements ConfigurationBuilder {
-        public Object getDeploymentPlan(File planFile, JarFile module) throws DeploymentException {
+        public Object getDeploymentPlan(File planFile, JarFile module, ModuleIDBuilder idBuilder) throws DeploymentException {
             return new Object();
         }
 
-        public Artifact getConfigurationID(Object plan, JarFile module) throws IOException, DeploymentException {
+        public Artifact getConfigurationID(Object plan, JarFile module, ModuleIDBuilder idBuilder) throws IOException, DeploymentException {
             return NEW_ID;
         }
 

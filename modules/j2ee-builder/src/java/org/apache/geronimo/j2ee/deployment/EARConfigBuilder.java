@@ -38,6 +38,7 @@ import javax.xml.namespace.QName;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
@@ -86,7 +87,6 @@ import org.apache.xmlbeans.XmlObject;
 public class EARConfigBuilder implements ConfigurationBuilder {
 
     private final static QName APPLICATION_QNAME = GerApplicationDocument.type.getDocumentElementName();
-    private static final String DEFAULT_GROUPID = "defaultGroupId";
 
     private final Collection repositories;
     private final SingleElementCollection ejbConfigBuilder;
@@ -237,11 +237,11 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         return (ServiceReferenceBuilder) serviceReferenceBuilder.getElement();
     }
 
-    public Object getDeploymentPlan(File planFile, JarFile jarFile) throws DeploymentException {
+    public Object getDeploymentPlan(File planFile, JarFile jarFile, ModuleIDBuilder idBuilder) throws DeploymentException {
         if (planFile == null && jarFile == null) {
             return null;
         }
-        ApplicationInfo plan = getEarPlan(planFile, jarFile);
+        ApplicationInfo plan = getEarPlan(planFile, jarFile, idBuilder);
         if (plan != null) {
             return plan;
         }
@@ -253,16 +253,16 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         // get the modules either the application plan or for a stand alone module from the specific deployer
         Module module = null;
         if (getWebConfigBuilder() != null) {
-            module = getWebConfigBuilder().createModule(planFile, jarFile, naming);
+            module = getWebConfigBuilder().createModule(planFile, jarFile, naming, idBuilder);
         }
         if (module == null && getEjbConfigBuilder() != null) {
-            module = getEjbConfigBuilder().createModule(planFile, jarFile, naming);
+            module = getEjbConfigBuilder().createModule(planFile, jarFile, naming, idBuilder);
         }
         if (module == null && getConnectorConfigBuilder() != null) {
-            module = getConnectorConfigBuilder().createModule(planFile, jarFile, naming);
+            module = getConnectorConfigBuilder().createModule(planFile, jarFile, naming, idBuilder);
         }
         if (module == null && getAppClientConfigBuilder() != null) {
-            module = getAppClientConfigBuilder().createModule(planFile, jarFile, naming);
+            module = getAppClientConfigBuilder().createModule(planFile, jarFile, naming, idBuilder);
         }
         if (module == null) {
             return null;
@@ -278,7 +278,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 null);
     }
 
-    private ApplicationInfo getEarPlan(File planFile, JarFile earFile) throws DeploymentException {
+    private ApplicationInfo getEarPlan(File planFile, JarFile earFile, ModuleIDBuilder idBuilder) throws DeploymentException {
         String specDD;
         ApplicationType application = null;
         if (earFile != null) {
@@ -328,6 +328,10 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
         EnvironmentType environmentType = gerApplication.getEnvironment();
         Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
+        idBuilder.resolve(environment, earFile == null ? planFile.getName() : new File(earFile.getName()).getName(), "ear");
+        // Make this EAR's settings the default for child modules
+        idBuilder.setDefaultGroup(environment.getConfigId().getGroupId());
+        idBuilder.setDefaultVersion(environment.getConfigId().getVersion());
 
         Artifact artifact = environment.getConfigId();
         AbstractName earName = naming.createRootName(artifact, artifact.toString(), NameFactory.J2EE_APPLICATION);
@@ -338,7 +342,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         Set moduleLocations = new HashSet();
         LinkedHashSet modules = new LinkedHashSet();
         try {
-            addModules(earFile, application, gerApplication, moduleLocations, modules, environment, earName);
+            addModules(earFile, application, gerApplication, moduleLocations, modules, environment, earName, idBuilder);
         } catch (Throwable e) {
             // close all the modules
             for (Iterator iterator = modules.iterator(); iterator.hasNext();) {
@@ -373,7 +377,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         EnvironmentType environmentType = gerApplication.addNewEnvironment();
         ArtifactType artifactType = environmentType.addNewConfigId();
 
-        artifactType.setGroupId(DEFAULT_GROUPID);
+        artifactType.setGroupId(Artifact.DEFAULT_GROUP_ID);
 
         // set the configId
         String id = application.getId();
@@ -394,9 +398,13 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         return gerApplication;
     }
 
-    public Artifact getConfigurationID(Object plan, JarFile module) throws IOException, DeploymentException {
+    public Artifact getConfigurationID(Object plan, JarFile module, ModuleIDBuilder idBuilder) throws IOException, DeploymentException {
         ApplicationInfo applicationInfo = (ApplicationInfo) plan;
-        return applicationInfo.getEnvironment().getConfigId();
+        Artifact test = applicationInfo.getEnvironment().getConfigId();
+        if(!test.isResolved()) {
+            throw new IllegalStateException("Module ID should be fully resolved by now (not "+test+")");
+        }
+        return test;
     }
 
     public DeploymentContext buildConfiguration(boolean inPlaceDeployment, Artifact configId, Object plan, JarFile earFile, Collection configurationStores, ArtifactResolver artifactResolver, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException {
@@ -577,7 +585,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         return filter;
     }
 
-    private void addModules(JarFile earFile, ApplicationType application, GerApplicationType gerApplication, Set moduleLocations, LinkedHashSet modules, Environment environment, AbstractName earName) throws DeploymentException {
+    private void addModules(JarFile earFile, ApplicationType application, GerApplicationType gerApplication, Set moduleLocations, LinkedHashSet modules, Environment environment, AbstractName earName, ModuleIDBuilder idBuilder) throws DeploymentException {
         Map altVendorDDs = new HashMap();
         try {
             if (earFile != null) {
@@ -699,7 +707,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                             environment,
                             moduleContextInfo,
                             earName,
-                            naming);
+                            naming, idBuilder);
 
                     if (module == null) {
                         throw new DeploymentException("Module was not " + moduleTypeName + ": " + modulePath);
@@ -808,7 +816,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                         environment,
                         moduleContextInfo,
                         earName,
-                        naming);
+                        naming, idBuilder);
 
                 if (module == null) {
                     throw new DeploymentException("Module was not " + moduleTypeName + ": " + moduleName);

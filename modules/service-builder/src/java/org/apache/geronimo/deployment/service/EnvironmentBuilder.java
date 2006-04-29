@@ -54,7 +54,7 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
         Environment environment = new Environment();
         if (environmentType != null) {
             if (environmentType.isSetConfigId()) {
-                environment.setConfigId(toArtifact(environmentType.getConfigId(), "car"));
+                environment.setConfigId(toArtifact(environmentType.getConfigId(), null));
             }
 
             if (environmentType.isSetDependencies()) {

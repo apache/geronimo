@@ -45,6 +45,7 @@ import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -123,7 +124,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         return (WebServiceBuilder) webServiceBuilder.getElement();
     }
 
-    protected Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, String contextRoot, AbstractName earName, Naming naming) throws DeploymentException {
+    protected Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, String contextRoot, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         assert moduleFile != null: "moduleFile is null";
         assert targetPath != null: "targetPath is null";
         assert !targetPath.endsWith("/"): "targetPath must not end with a '/'";
@@ -171,8 +172,9 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             if (contextRoot.startsWith("/")) {
                     contextRoot = contextRoot.substring(1);
             }
-            Artifact configID = new Artifact(Artifact.DEFAULT_GROUP_ID, contextRoot, "1", "car");
-            environment.setConfigId(configID);
+            idBuilder.resolve(environment, contextRoot, "war");
+        } else {
+            idBuilder.resolve(environment, new File(moduleFile.getName()).getName(), "war");
         }
         boolean contextPriorityClassLoader = defaultContextPriorityClassloader;
         if (tomcatWebApp.isSetContextPriorityClassloader()) {
