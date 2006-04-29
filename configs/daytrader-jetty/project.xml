@@ -141,6 +141,12 @@
 <!--inessentials -->
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>openejb</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
             <version>${geronimo_version}</version>
         </dependency>
