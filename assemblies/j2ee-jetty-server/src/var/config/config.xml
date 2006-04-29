@@ -94,7 +94,7 @@
     </configuration>
     <configuration name="geronimo/openejb-deployer/${pom.currentVersion}/car">
         <gbean name="EJBBuilder">
-            <attribute name="listener">?JettyWebContainer</attribute>
+            <attribute name="listener">?name=JettyWebContainer</attribute>
         </gbean>
     </configuration>
     <configuration name="geronimo/client-deployer/${pom.currentVersion}/car"/>
