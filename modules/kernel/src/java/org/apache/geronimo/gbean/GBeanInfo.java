@@ -185,6 +185,11 @@ public final class GBeanInfo implements Serializable {
         return j2eeType;
     }
 
+    /**
+     * Gets the info for the specified attribute, or null if there is no such
+     * attribute.  Note that the attribute may have a getter or setter or both;
+     * being an attribute does not imply that both methods are available.
+     */
     public GAttributeInfo getAttribute(String name) {
         return (GAttributeInfo) attributesByName.get(name);
     }
