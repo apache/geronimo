@@ -168,31 +168,42 @@ public final class ConfigurationUtil {
     }
 
     public static void writeConfigInfo(PrintWriter writer, ConfigurationData configurationData) {
-        writer.println("id=" + configurationData.getId());
-        writer.println("type=" + configurationData.getModuleType());
-        writer.println("created=" + configurationData.getCreated());
+        writeConfigInfo("", writer, configurationData);
+    }
+    private static void writeConfigInfo(String prefix, PrintWriter writer, ConfigurationData configurationData) {
+        writer.println(prefix+"id=" + configurationData.getId());
+        writer.println(prefix+"type=" + configurationData.getModuleType());
+        writer.println(prefix+"created=" + configurationData.getCreated());
         Set ownedConfigurations = configurationData.getOwnedConfigurations();
         int i = 0;
         for (Iterator iterator = ownedConfigurations.iterator(); iterator.hasNext();) {
             Artifact ownedConfiguration = (Artifact) iterator.next();
-            writer.println("owned.configuration." + i++ + "=" + ownedConfiguration);
+            writer.println(prefix+"owned." + i++ + "=" + ownedConfiguration);
         }
+        i = 0;
+        for (Iterator it = configurationData.getChildConfigurations().values().iterator(); it.hasNext(); i++) {
+            ConfigurationData data = (ConfigurationData) it.next();
+            writeConfigInfo("child."+i+".", writer, data);
+        }
+        writer.flush();
     }
 
     public static ConfigurationInfo readConfigurationInfo(InputStream in, AbstractName storeName, File inPlaceLocation) throws IOException {
         Properties properties = new Properties();
         properties.load(in);
-
-        String id = properties.getProperty("id");
+        return readConfigurationInfo("", properties, storeName, inPlaceLocation);
+    }
+    private static ConfigurationInfo readConfigurationInfo(String prefix, Properties properties, AbstractName storeName, File inPlaceLocation) throws IOException {
+        String id = properties.getProperty(prefix+"id");
         Artifact configId = Artifact.create(id);
 
-        String type = properties.getProperty("type");
+        String type = properties.getProperty(prefix+"type");
         ConfigurationModuleType moduleType = ConfigurationModuleType.getByName(type);
         if (moduleType == null) {
             throw new IllegalArgumentException("Unknown module type: " + type);
         }
 
-        String created = properties.getProperty("created");
+        String created = properties.getProperty(prefix+"created");
         long time;
         try {
             time = Long.parseLong(created);
@@ -204,13 +215,25 @@ public final class ConfigurationUtil {
         for (Iterator iterator = properties.entrySet().iterator(); iterator.hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();
             String name = (String) entry.getKey();
-            if (name.startsWith("owned.configuration.")) {
+            if (name.startsWith(prefix+"owned.")) {
                 String value = (String) entry.getValue();
                 Artifact ownedConfiguration = Artifact.create(value);
                 ownedConfigurations.add(ownedConfiguration);
             }
         }
-        return new ConfigurationInfo(storeName, configId, moduleType, time, ownedConfigurations, inPlaceLocation);
+        LinkedHashSet childConfigurations = new LinkedHashSet();
+        int test = 0;
+        while(true) {
+            String next = prefix+"child."+test+".";
+            String value = properties.getProperty(next+".id");
+            if(value == null) {
+                break;
+            }
+            childConfigurations.add(readConfigurationInfo(next, properties, storeName, inPlaceLocation));
+            ++test;
+        }
+
+        return new ConfigurationInfo(storeName, configId, moduleType, time, ownedConfigurations, childConfigurations, inPlaceLocation);
     }
 
     /**

@@ -38,10 +38,19 @@ public class ConfigurationInfo implements Serializable {
     private final long created;
     private final File inPlaceLocation;
     private final Set ownedConfigurations = new LinkedHashSet();
+    private final Set childConfigurations = new LinkedHashSet();
     private final State state;
     private final Artifact parentID;
 
-    public ConfigurationInfo(AbstractName storeName, Artifact configID, ConfigurationModuleType type, long created, Set ownedConfigurations, File inPlaceLocation) {
+    public ConfigurationInfo(AbstractName storeName, Artifact configID, ConfigurationModuleType type, long created, Set ownedConfigurations, Set childConfigurations, File inPlaceLocation) {
+        this(storeName, configID, type, created, ownedConfigurations, childConfigurations, inPlaceLocation, null, null);
+    }
+
+    public ConfigurationInfo(AbstractName storeName, Artifact configID, ConfigurationModuleType type, long created, Set ownedConfigurations, Set childConfigurations, File inPlaceLocation, State state) {
+        this(storeName, configID, type, created, ownedConfigurations, childConfigurations, inPlaceLocation, state, null);
+    }
+
+    public ConfigurationInfo(AbstractName storeName, Artifact configID, ConfigurationModuleType type, long created, Set ownedConfigurations, Set childConfigurations, File inPlaceLocation, State state, Artifact parentID) {
         this.storeName = storeName;
         this.configID = configID;
         this.type = type;
@@ -50,31 +59,8 @@ public class ConfigurationInfo implements Serializable {
         if (ownedConfigurations != null) {
             this.ownedConfigurations.addAll(ownedConfigurations);
         }
-        state = null;
-        parentID = null;
-    }
-
-    public ConfigurationInfo(AbstractName storeName, Artifact configID, ConfigurationModuleType type, long created, Set ownedConfigurations, File inPlaceLocation, State state) {
-        this.storeName = storeName;
-        this.configID = configID;
-        this.type = type;
-        this.created = created;
-        this.inPlaceLocation = inPlaceLocation;
-        if (ownedConfigurations != null) {
-            this.ownedConfigurations.addAll(ownedConfigurations);
-        }
-        this.state = state;
-        parentID = null;
-    }
-
-    public ConfigurationInfo(AbstractName storeName, Artifact configID, ConfigurationModuleType type, long created, Set ownedConfigurations, File inPlaceLocation, State state, Artifact parentID) {
-        this.storeName = storeName;
-        this.configID = configID;
-        this.type = type;
-        this.created = created;
-        this.inPlaceLocation = inPlaceLocation;
-        if (ownedConfigurations != null) {
-            this.ownedConfigurations.addAll(ownedConfigurations);
+        if (childConfigurations != null) {
+            this.childConfigurations.addAll(childConfigurations);
         }
         this.state = state;
         this.parentID = parentID;
@@ -102,6 +88,10 @@ public class ConfigurationInfo implements Serializable {
 
     public Set getOwnedConfigurations() {
         return ownedConfigurations;
+    }
+
+    public Set getChildConfigurations() {
+        return childConfigurations;
     }
 
     public State getState() {

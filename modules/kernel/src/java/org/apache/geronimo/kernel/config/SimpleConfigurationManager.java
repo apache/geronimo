@@ -174,6 +174,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
                         configurationInfo.getType(),
                         configurationInfo.getCreated(),
                         configurationInfo.getOwnedConfigurations(),
+                        configurationInfo.getChildConfigurations(),
                         configurationInfo.getInPlaceLocation(),
                         State.RUNNING);
             } else {
@@ -182,6 +183,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
                         configurationInfo.getType(),
                         configurationInfo.getCreated(),
                         configurationInfo.getOwnedConfigurations(),
+                        configurationInfo.getChildConfigurations(),
                         configurationInfo.getInPlaceLocation(),
                         State.STOPPED);
             }

@@ -134,7 +134,7 @@ public class SingleFileHotDeployerTest extends TestCase {
         touch(watchFile1, NOW);
         touch(watchFile2, NOW);
 
-        existingConfigurationInfos.add(new ConfigurationInfo(null, NEW_ID, ConfigurationModuleType.CAR, PAST, null, dir));
+        existingConfigurationInfos.add(new ConfigurationInfo(null, NEW_ID, ConfigurationModuleType.CAR, PAST, null, null, dir));
 
         SingleFileHotDeployer singleFileHotDeployer = new SingleFileHotDeployer(dir,
                 watchPaths,
@@ -158,7 +158,7 @@ public class SingleFileHotDeployerTest extends TestCase {
         touch(watchFile1, NOW);
         touch(watchFile2, NOW);
 
-        existingConfigurationInfos.add(new ConfigurationInfo(null, DIFFERENT_ID, ConfigurationModuleType.CAR, PAST, null, dir));
+        existingConfigurationInfos.add(new ConfigurationInfo(null, DIFFERENT_ID, ConfigurationModuleType.CAR, PAST, null, null, dir));
 
         SingleFileHotDeployer singleFileHotDeployer = new SingleFileHotDeployer(dir,
                 watchPaths,
@@ -182,7 +182,7 @@ public class SingleFileHotDeployerTest extends TestCase {
         touch(watchFile1, NOW);
         touch(watchFile2, NOW);
 
-        existingConfigurationInfos.add(new ConfigurationInfo(null, OLD_VERSION_ID, ConfigurationModuleType.CAR, PAST, null, dir));
+        existingConfigurationInfos.add(new ConfigurationInfo(null, OLD_VERSION_ID, ConfigurationModuleType.CAR, PAST, null, null, dir));
 
         SingleFileHotDeployer singleFileHotDeployer = new SingleFileHotDeployer(dir,
                 watchPaths,
@@ -206,7 +206,7 @@ public class SingleFileHotDeployerTest extends TestCase {
         touch(watchFile1, PAST);
         touch(watchFile2, PAST);
 
-        existingConfigurationInfos.add(new ConfigurationInfo(null, NEW_ID, ConfigurationModuleType.CAR, NOW, null, dir));
+        existingConfigurationInfos.add(new ConfigurationInfo(null, NEW_ID, ConfigurationModuleType.CAR, NOW, null, null, dir));
 
         SingleFileHotDeployer singleFileHotDeployer = new SingleFileHotDeployer(dir,
                 watchPaths,
@@ -230,7 +230,7 @@ public class SingleFileHotDeployerTest extends TestCase {
         touch(watchFile1, PAST);
         touch(watchFile2, PAST);
 
-        existingConfigurationInfos.add(new ConfigurationInfo(null, OLD_VERSION_ID, ConfigurationModuleType.CAR, NOW, null, dir));
+        existingConfigurationInfos.add(new ConfigurationInfo(null, OLD_VERSION_ID, ConfigurationModuleType.CAR, NOW, null, null, dir));
 
         SingleFileHotDeployer singleFileHotDeployer = new SingleFileHotDeployer(dir,
                 watchPaths,
