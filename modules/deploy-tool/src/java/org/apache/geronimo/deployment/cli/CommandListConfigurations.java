@@ -42,7 +42,7 @@ import org.apache.geronimo.system.configuration.DownloadResults;
  */
 public class CommandListConfigurations extends AbstractCommand {
     public CommandListConfigurations() {
-        super("search-plugins", "3. Geronimo Configurations", "MavenRepoURL",
+        super("search-plugins", "3. Geronimo Plugins", "MavenRepoURL",
                 "Lists the Geronimo plugins available in a Maven repository "+
                 "and lets you select a plugin to download and install.  This "+
                 "is used to add new functionality to the Geronimo server.");

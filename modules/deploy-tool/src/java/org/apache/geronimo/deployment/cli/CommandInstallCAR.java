@@ -31,7 +31,7 @@ import org.apache.geronimo.system.configuration.DownloadResults;
  */
 public class CommandInstallCAR extends AbstractCommand {
     public CommandInstallCAR() {
-        super("install-plugin", "3. Geronimo Configurations", "PluginFile",
+        super("install-plugin", "3. Geronimo Plugins", "PluginFile",
                 "Installs a Geronimo plugin you've exported from a Geronimo server " +
                 "or downloaded from an external repository.  The file must be a " +
                 "properly configured Geronimo CAR file.  This is used to add new " +
