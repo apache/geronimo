@@ -90,6 +90,7 @@ public class Upgrade1_0To1_1 {
     private static final QName TYPE_QNAME = new QName("http://geronimo.apache.org/xml/ns/naming-1.1", "type");
     private static final QName MODULE_QNAME = new QName("http://geronimo.apache.org/xml/ns/naming-1.1", "module");
     private static final QName NAME_QNAME = new QName("http://geronimo.apache.org/xml/ns/naming-1.1", "name");
+    private static final QName GBEAN_NAME_QNAME = new QName(null, "gbeanName");
 ;
 
     public static void upgrade(InputStream source, Writer target) throws IOException, XmlException {
@@ -115,6 +116,7 @@ public class Upgrade1_0To1_1 {
                 } else {
                     cleanRef(cursor);
                 }
+                checkInvalid(cursor);
             }
         }
 
@@ -122,6 +124,18 @@ public class Upgrade1_0To1_1 {
         xmlOptions.setSavePrettyPrint();
         xmlObject.save(target, xmlOptions);
 
+    }
+
+    private static void checkInvalid(XmlCursor cursor) throws XmlException {
+        QName name = cursor.getName();
+        if (name != null) {
+            String localName = name.getLocalPart();
+            if ("gbean".equals(localName)) {
+                if (cursor.getAttributeText(GBEAN_NAME_QNAME) != null) {
+                    throw new XmlException("You must replace the gbeanName attribute manually: " + cursor.getAttributeText(GBEAN_NAME_QNAME));
+                }
+            }
+        }
     }
 
     private static void cleanRef(XmlCursor cursor) throws XmlException {

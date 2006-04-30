@@ -31,6 +31,7 @@ import javax.xml.namespace.QName;
 import junit.framework.TestCase;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlException;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 
 /**
@@ -58,6 +59,15 @@ public class Upgrade1_0To1_1Test extends TestCase {
 
     public void test5() throws Exception {
         test("assembly_1");
+    }
+
+    public void test6() throws Exception {
+        try {
+            test("ejb_pkgen_1");
+            fail();
+        } catch (XmlException e) {
+
+        }
     }
 
     private void test(String testName) throws Exception {
