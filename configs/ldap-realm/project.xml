@@ -53,6 +53,15 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>directory</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+            <properties>
+                <geronimo.import>true</geronimo.import>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-core</artifactId>
             <version>${geronimo_version}</version>
         </dependency>

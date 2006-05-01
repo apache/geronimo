@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<geronimo-plugin>
+<configuration>
+<name>LDAP Example Web App (Jetty)</name>
+<config-id>${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car</config-id>
+<category>Examples</category>
+<description>A web application that walks you through configuring the sample
+    data in the embedded Apache Directory LDAP server, and then tests logins
+    with a demonstration security realm configured for that LDAP server.
+    The LDAP Example web application be found via HTTP at /ldap-demo/ after
+    the plugin is installed.</description>
+<license osi-approved="true">BSD -- Apache Software License (ASL) 2.0</license>
+<geronimo-version>${pom.currentVersion}</geronimo-version>
+<prerequisite>
+<id>geronimo/jetty//car</id>
+<resource-type>Web Container</resource-type>
+<description>This version of the LDAP Example works with the Geronimo/Jetty distribution.  It is not intended to run in the Geronimo/Tomcat distribution.  There is a separate version of the LDAP Example application that works with Tomcat.  Please install the version appropriate to your Geronimo distribution.</description>
+</prerequisite>
+<dependency>geronimo/j2ee-server//car</dependency>
+<dependency>geronimo/ldap-realm//car</dependency>
+</configuration>
+<source-repository>http://www.geronimoplugins.com/repository/</source-repository>
+<backup-repository>http://www.ibiblio.org/maven2/</backup-repository>
+</geronimo-plugin>

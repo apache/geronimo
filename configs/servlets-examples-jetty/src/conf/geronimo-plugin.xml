@@ -12,7 +12,7 @@ a basic introduction to Servlet development along with sample code.</description
 <prerequisite>
 <id>geronimo/jetty//car</id>
 <resource-type>Web Container</resource-type>
-<description>This version of the Servlet Examples works with the Geronimo/Jetty distribution.  It is not intended to run in the Geronimo/Tomcat distribution.  There is a separate version of the Welcome application that works with Tomcat.  Please install the version appropriate to your Geronimo distribution.</description>
+<description>This version of the Servlet Examples works with the Geronimo/Jetty distribution.  It is not intended to run in the Geronimo/Tomcat distribution.  There is a separate version of the Servlet Examples application that works with Tomcat.  Please install the version appropriate to your Geronimo distribution.</description>
 </prerequisite>
 <dependency>geronimo/j2ee-server//car</dependency>
 </configuration>

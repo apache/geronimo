@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<geronimo-plugin>
+<configuration>
+<name>LDAP Example Security Realm</name>
+<config-id>${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car</config-id>
+<category>Examples</category>
+<description>A sample security realm pointing to an embedded Apache Directory
+   LDAP server.  This is normally used with the LDAP Example Web Application,
+   which has instructions for setting up the LDAP server and screens to test
+   logins.  You don't need this plugin in order to create LDAP security realms,
+   this is just a sample.</description>
+<license osi-approved="true">BSD -- Apache Software License (ASL) 2.0</license>
+<geronimo-version>${pom.currentVersion}</geronimo-version>
+<dependency>geronimo/j2ee-server//car</dependency>
+<dependency>geronimo/directory//car</dependency>
+</configuration>
+<source-repository>http://www.geronimoplugins.com/repository/</source-repository>
+<backup-repository>http://www.ibiblio.org/maven2/</backup-repository>
+</geronimo-plugin>
