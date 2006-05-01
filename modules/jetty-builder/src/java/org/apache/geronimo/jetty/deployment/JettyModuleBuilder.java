@@ -206,7 +206,10 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             WebAppDocument webAppDoc = SchemaConversionUtils.convertToServletSchema(parsed);
             webApp = webAppDoc.getWebApp();
         } catch (XmlException xmle) {
-            throw new DeploymentException("Error parsing web.xml", xmle);
+            // Output the target path in the error to make it clearer to the user which webapp
+            // has the problem.  The targetPath is used, as moduleFile may have an unhelpful
+            // value such as C:\geronimo-1.1\var\temp\geronimo-deploymentUtil22826.tmpdir
+            throw new DeploymentException("Error parsing web.xml for "+ targetPath, xmle);
         }
         check(webApp);
 
@@ -277,7 +280,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                             try {
                                 rawPlan = XmlBeansUtil.parse(path);
                             } catch (FileNotFoundException e1) {
-                                log.warn("Web application does not contain a WEB-INF/geronimo-web.xml deployment plan.  This may or may not be a problem, depending on whether you have things like resource references that need to be resolved.  You can also give the deployer a separate deployment plan file on the command line.");
+                                log.warn("Web application " +targetPath + " does not contain a WEB-INF/geronimo-web.xml deployment plan.  This may or may not be a problem, depending on whether you have things like resource references that need to be resolved.  You can also give the deployer a separate deployment plan file on the command line.");
                             }
                         }
                     }
@@ -298,7 +301,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             }
             return jettyWebApp;
         } catch (XmlException e) {
-            throw new DeploymentException("xml problem", e);
+            throw new DeploymentException("xml problem for web app "+targetPath, e);
         }
     }
 
@@ -318,7 +321,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         ENCConfigBuilder.registerMessageDestinations(earContext.getRefContext(), module.getName(), messageDestinations, gerMessageDestinations);
         if ((webApp.getSecurityConstraintArray().length > 0 || webApp.getSecurityRoleArray().length > 0) &&
                 !gerWebApp.isSetSecurityRealmName()) {
-            throw new DeploymentException("web.xml includes security elements but Geronimo deployment plan is not provided or does not contain <security-realm-name> element necessary to configure security accordingly.");
+            throw new DeploymentException("web.xml for web app " + module.getName() + " includes security elements but Geronimo deployment plan is not provided or does not contain <security-realm-name> element necessary to configure security accordingly.");
         }
         if (gerWebApp.isSetSecurity()) {
             if (!gerWebApp.isSetSecurityRealmName()) {
@@ -482,7 +485,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
             JspConfigType[] jspConfigArray = webApp.getJspConfigArray();
             if (jspConfigArray.length > 1) {
-                throw new DeploymentException("At most one jsp-config element, not " + jspConfigArray.length);
+                throw new DeploymentException("Web app "+ module.getName() +" cannot have more than one jsp-config element.  Currently has " + jspConfigArray.length +" jsp-config elements.");
             }
             Map tagLibMap = new HashMap();
             for (int i = 0; i < jspConfigArray.length; i++) {
@@ -496,7 +499,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
             LoginConfigType[] loginConfigArray = webApp.getLoginConfigArray();
             if (loginConfigArray.length > 1) {
-                throw new DeploymentException("At most one login-config element, not " + loginConfigArray.length);
+                throw new DeploymentException("Web app "+ module.getName() +" cannot have more than one login-config element.  Currently has " + loginConfigArray.length +" login-config elements.");
             }
             if (loginConfigArray.length == 1) {
                 LoginConfigType loginConfig = loginConfigArray[0];
@@ -544,7 +547,9 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 ServletMappingType servletMappingType = servletMappingArray[i];
                 String servletName = servletMappingType.getServletName().getStringValue().trim();
                 if (!knownServlets.contains(servletName)) {
-                    throw new DeploymentException("Servlet mapping refers to servlet '" + servletName + "' but no such servlet was found!");
+                    throw new DeploymentException("Web app " + module.getName() +
+                            " contains a servlet mapping that refers to servlet '" + servletName + 
+                            "' but no such servlet was found!");
                 }
                 String urlPattern = servletMappingType.getUrlPattern().getStringValue().trim();
                 if (!knownServletMappings.contains(urlPattern)) {
@@ -748,7 +753,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         } catch (DeploymentException de) {
             throw de;
         } catch (Exception e) {
-            throw new DeploymentException("Unable to initialize webapp GBean", e);
+            throw new DeploymentException("Unable to initialize webapp GBean for "+module.getName(), e);
         }
     }
 
@@ -839,13 +844,13 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             try {
                 servletClass = webClassLoader.loadClass(servletClassName);
             } catch (ClassNotFoundException e) {
-                throw new DeploymentException("Could not load servlet class " + servletClassName, e);
+                throw new DeploymentException("Could not load servlet class " + servletClassName, e); // TODO identify web app in message
             }
             Class baseServletClass;
             try {
                 baseServletClass = webClassLoader.loadClass(Servlet.class.getName());
             } catch (ClassNotFoundException e) {
-                throw new DeploymentException("Could not load javax.servlet.Servlet in web classloader", e);
+                throw new DeploymentException("Could not load javax.servlet.Servlet in web classloader", e); // TODO identify web app in message
             }
             if (baseServletClass.isAssignableFrom(servletClass)) {
                 servletData = new GBeanData(servletAbstractName, JettyServletHolder.GBEAN_INFO);
@@ -856,7 +861,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 //let the web service builder deal with configuring the gbean with the web service stack
                 Object portInfo = portMap.get(servletName);
                 if (portInfo == null) {
-                    throw new DeploymentException("No web service deployment info for servlet name " + servletName);
+                    throw new DeploymentException("No web service deployment info for servlet name " + servletName); // TODO identify web app in message
                 }
                 getWebServiceBuilder().configurePOJO(servletData, moduleFile, portInfo, servletClassName, webClassLoader);
             }
@@ -866,7 +871,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             //TODO MAKE THIS CONFIGURABLE!!! Jetty uses the servlet mapping set up from the default-web.xml
             servletData.setAttribute("servletClass", "org.apache.jasper.servlet.JspServlet");
         } else {
-            throw new DeploymentException("Neither servlet class nor jsp file is set for " + servletName);
+            throw new DeploymentException("Neither servlet class nor jsp file is set for " + servletName); // TODO identify web app in message
         }
 
         // link to previous servlet, if there is one, so that we
@@ -904,7 +909,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         try {
             earContext.addGBean(servletData);
         } catch (GBeanAlreadyExistsException e) {
-            throw new DeploymentException("Could not add servlet gbean to context", e);
+            throw new DeploymentException("Could not add servlet gbean to context", e); // TODO identify web app in message
         }
         return servletAbstractName;
     }

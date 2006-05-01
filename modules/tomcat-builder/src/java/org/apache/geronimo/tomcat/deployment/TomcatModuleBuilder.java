@@ -151,7 +151,10 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             WebAppDocument webAppDoc = SchemaConversionUtils.convertToServletSchema(parsed);
             webApp = webAppDoc.getWebApp();
         } catch (XmlException xmle) {
-            throw new DeploymentException("Error parsing web.xml", xmle);
+            // Output the target path in the error to make it clearer to the user which webapp
+            // has the problem.  The targetPath is used, as moduleFile may have an unhelpful
+            // value such as C:\geronimo-1.1\var\temp\geronimo-deploymentUtil22826.tmpdir
+            throw new DeploymentException("Error parsing web.xml for "+targetPath, xmle);
         }
         check(webApp);
 
@@ -224,7 +227,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                             try {
                                 rawPlan = XmlBeansUtil.parse(path);
                             } catch (FileNotFoundException e1) {
-                                log.warn("Web application does not contain a WEB-INF/geronimo-web.xml deployment plan.  This may or may not be a problem, depending on whether you have things like resource references that need to be resolved.  You can also give the deployer a separate deployment plan file on the command line.");
+                                log.warn("Web application "+ targetPath + " does not contain a WEB-INF/geronimo-web.xml deployment plan.  This may or may not be a problem, depending on whether you have things like resource references that need to be resolved.  You can also give the deployer a separate deployment plan file on the command line.");
                             }
                         }
                     }
@@ -245,7 +248,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             }
             return tomcatWebApp;
         } catch (XmlException e) {
-            throw new DeploymentException("xml problem", e);
+            throw new DeploymentException("xml problem for web app "+targetPath, e);
         }
     }
 
@@ -266,7 +269,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         ENCConfigBuilder.registerMessageDestinations(earContext.getRefContext(), module.getName(), messageDestinations, gerMessageDestinations);
         if((webApp.getSecurityConstraintArray().length > 0 || webApp.getSecurityRoleArray().length > 0) &&
                 !gerWebApp.isSetSecurityRealmName()) {
-            throw new DeploymentException("web.xml includes security elements but Geronimo deployment plan is not provided or does not contain <security-realm-name> element necessary to configure security accordingly.");
+            throw new DeploymentException("web.xml for web app " + module.getName() + " includes security elements but Geronimo deployment plan is not provided or does not contain <security-realm-name> element necessary to configure security accordingly.");
         }
         if (gerWebApp.isSetSecurity()) {
             if (!gerWebApp.isSetSecurityRealmName()) {
@@ -384,7 +387,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                         String servletClassName = servletType.getServletClass().getStringValue().trim();
                         Object portInfo = portMap.get(servletName);
                         if (portInfo == null) {
-                            throw new DeploymentException("No web service deployment info for servlet name " + servletName);
+                            throw new DeploymentException("No web service deployment info for servlet name " + servletName +" in web app "+module.getName());
                         }
 
                         WebServiceContainer wsContainer = configurePOJO(webModule.getModuleFile(), portInfo, servletClassName, moduleClassLoader);
@@ -443,7 +446,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         } catch (DeploymentException de) {
             throw de;
         } catch (Exception e) {
-            throw new DeploymentException("Unable to initialize webapp GBean", e);
+            throw new DeploymentException("Unable to initialize GBean for web app "+module.getName(), e);
         }
     }
 
