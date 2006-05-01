@@ -83,10 +83,10 @@ public class DeploymentContext {
     }
 
     public DeploymentContext(File baseDir, File inPlaceConfigurationDir, Environment environment, ConfigurationModuleType moduleType, Naming naming, ConfigurationManager configurationManager) throws DeploymentException {
-        this.configurationManager = configurationManager;
         if (baseDir == null) throw new NullPointerException("baseDir is null");
         if (environment == null) throw new NullPointerException("environment is null");
         if (moduleType == null) throw new NullPointerException("type is null");
+        if (configurationManager == null) throw new NullPointerException("configurationManager is null");
 
         if (!baseDir.exists()) {
             baseDir.mkdirs();
@@ -99,6 +99,8 @@ public class DeploymentContext {
 
         this.configuration = createTempConfiguration(environment, moduleType, baseDir, inPlaceConfigurationDir, configurationManager, naming);
 
+        this.configurationManager = configurationManager;
+        
         if (null == inPlaceConfigurationDir) {
             resourceContext = new CopyResourceContext(configuration, baseDir);
         } else {
