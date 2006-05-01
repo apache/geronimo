@@ -18,8 +18,8 @@
 package org.apache.geronimo.javamail.transport.smtp;
 
 /**
- *  General purpose Exception
- *
+ * General purpose Exception
+ * 
  * @version $Id$
  */
 class SMTPTransportException extends Exception {
@@ -32,11 +32,11 @@ class SMTPTransportException extends Exception {
         super(s);
     }
 
-    SMTPTransportException(String s, Throwable t) {
-        super(s,t);
+    SMTPTransportException(String s, Exception t) {
+        super(s, t);
     }
 
-    SMTPTransportException(Throwable t) {
-        super(t);
+    SMTPTransportException(Exception t) {
+        super("SMTP Transport error", t);
     }
 }

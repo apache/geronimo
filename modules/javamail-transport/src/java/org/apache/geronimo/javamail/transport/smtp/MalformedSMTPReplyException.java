@@ -22,7 +22,7 @@ package org.apache.geronimo.javamail.transport.smtp;
  * 
  * @version $Rev$ $Date$
  */
-class MalformedSMTPReplyException  extends Exception {
+class MalformedSMTPReplyException extends Exception {
     MalformedSMTPReplyException() {
         super();
     }
@@ -31,7 +31,7 @@ class MalformedSMTPReplyException  extends Exception {
         super(msg);
     }
 
-    MalformedSMTPReplyException(String msg, Throwable t) {
+    MalformedSMTPReplyException(String msg, Exception t) {
         super(msg, t);
     }
 }
