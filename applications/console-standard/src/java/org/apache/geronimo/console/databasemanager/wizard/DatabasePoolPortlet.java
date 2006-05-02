@@ -872,12 +872,8 @@ public class DatabasePoolPortlet extends BasePortlet {
             data.name = data.name.replaceAll("\\s", "");
             DeploymentManager mgr = PortletManager.getDeploymentManager(request);
             try {
-                URL url = getRAR(request, data.getRarPath()).toURL();
-                String str = url.toString();
-                if(str.indexOf(' ') > -1) {
-                    url = new URL(str.replaceAll(" ", "%20")); // try to avoid problems with spaces in path on Windows
-                }
-                ConnectorDeployable deployable = new ConnectorDeployable(url);
+                File rarFile = getRAR(request, data.getRarPath());
+                ConnectorDeployable deployable = new ConnectorDeployable(rarFile.toURL());
                 DeploymentConfiguration config = mgr.createConfiguration(deployable);
                 final DDBeanRoot ddBeanRoot = deployable.getDDBeanRoot();
                 Connector15DCBRoot root = (Connector15DCBRoot) config.getDConfigBeanRoot(ddBeanRoot);
@@ -970,7 +966,7 @@ public class DatabasePoolPortlet extends BasePortlet {
                     out.flush();
                     out.close();
                     Target[] targets = mgr.getTargets();
-                    ProgressObject po = mgr.distribute(targets, new File(url.getPath()), tempFile);
+                    ProgressObject po = mgr.distribute(targets, rarFile, tempFile);
                     waitForProgress(po);
                     if(po.getDeploymentStatus().isCompleted()) {
                         TargetModuleID[] ids = po.getResultTargetModuleIDs();
@@ -1037,11 +1033,11 @@ public class DatabasePoolPortlet extends BasePortlet {
     }
 
     private static File getRAR(PortletRequest request, String rarPath) {
-        org.apache.geronimo.kernel.repository.Artifact uri = org.apache.geronimo.kernel.repository.Artifact.create(rarPath);
+        org.apache.geronimo.kernel.repository.Artifact artifact = org.apache.geronimo.kernel.repository.Artifact.create(rarPath);
         Repository[] repos = PortletManager.getCurrentServer(request).getRepositories();
         for (int i = 0; i < repos.length; i++) {
             Repository repo = repos[i];
-            File url = repo.getLocation(uri);
+            File url = repo.getLocation(artifact);
             if (url != null) {
                 if (url.exists() && url.canRead() && !url.isDirectory()) {
                     return url;

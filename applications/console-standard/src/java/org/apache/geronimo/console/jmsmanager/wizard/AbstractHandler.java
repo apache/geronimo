@@ -16,6 +16,16 @@
  */
 package org.apache.geronimo.console.jmsmanager.wizard;
 
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.model.DDBeanRoot;
 import javax.enterprise.deploy.spi.DeploymentConfiguration;
@@ -23,46 +33,27 @@ import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.status.ProgressObject;
-import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
-import javax.portlet.PortletConfig;
-import javax.portlet.PortletException;
 import javax.portlet.PortletRequest;
-import javax.portlet.PortletRequestDispatcher;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
 import javax.portlet.PortletSession;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Iterator;
-import java.net.URL;
-import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.console.MultiPageAbstractHandler;
-import org.apache.geronimo.console.MultiPageModel;
-import org.apache.geronimo.deployment.service.jsr88.EnvironmentData;
-import org.apache.geronimo.deployment.tools.loader.ConnectorDeployable;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.connector.deployment.jsr88.AdminObjectDCB;
+import org.apache.geronimo.connector.deployment.jsr88.AdminObjectInstance;
+import org.apache.geronimo.connector.deployment.jsr88.ConnectionDefinition;
+import org.apache.geronimo.connector.deployment.jsr88.ConnectionDefinitionInstance;
 import org.apache.geronimo.connector.deployment.jsr88.Connector15DCBRoot;
 import org.apache.geronimo.connector.deployment.jsr88.ConnectorDCB;
 import org.apache.geronimo.connector.deployment.jsr88.ResourceAdapter;
 import org.apache.geronimo.connector.deployment.jsr88.ResourceAdapterInstance;
-import org.apache.geronimo.connector.deployment.jsr88.ConnectionDefinition;
-import org.apache.geronimo.connector.deployment.jsr88.ConnectionDefinitionInstance;
 import org.apache.geronimo.connector.deployment.jsr88.SinglePool;
-import org.apache.geronimo.connector.deployment.jsr88.AdminObjectDCB;
-import org.apache.geronimo.connector.deployment.jsr88.AdminObjectInstance;
-import org.apache.geronimo.naming.deployment.jsr88.GBeanLocator;
+import org.apache.geronimo.console.MultiPageAbstractHandler;
+import org.apache.geronimo.console.MultiPageModel;
+import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.deployment.service.jsr88.EnvironmentData;
+import org.apache.geronimo.deployment.tools.loader.ConnectorDeployable;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.naming.deployment.jsr88.GBeanLocator;
 
 /**
  * Base class for portlet helpers
@@ -475,12 +466,8 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
             //data.instanceName = data.instanceName.replaceAll("\\s", "");
             DeploymentManager mgr = PortletManager.getDeploymentManager(request);
             try {
-                URL url = PortletManager.getRepositoryEntry(request, data.getRarURI()).toURL();
-                String str = url.toString();
-                if(str.indexOf(' ') > -1) {
-                    url = new URL(str.replaceAll(" ", "%20")); // try to avoid problems with spaces in path on Windows
-                }
-                ConnectorDeployable deployable = new ConnectorDeployable(url);
+                File rarFile = PortletManager.getRepositoryEntry(request, data.getRarURI());
+                ConnectorDeployable deployable = new ConnectorDeployable(rarFile.toURL());
                 DeploymentConfiguration config = mgr.createConfiguration(deployable);
                 final DDBeanRoot ddBeanRoot = deployable.getDDBeanRoot();
                 Connector15DCBRoot root = (Connector15DCBRoot) config.getDConfigBeanRoot(ddBeanRoot);
@@ -630,7 +617,7 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
                     out.flush();
                     out.close();
                     Target[] targets = mgr.getTargets();
-                    ProgressObject po = mgr.distribute(targets, new File(url.getPath()), tempFile);
+                    ProgressObject po = mgr.distribute(targets, rarFile, tempFile);
                     waitForProgress(po);
                     if(po.getDeploymentStatus().isCompleted()) {
                         TargetModuleID[] ids = po.getResultTargetModuleIDs();
