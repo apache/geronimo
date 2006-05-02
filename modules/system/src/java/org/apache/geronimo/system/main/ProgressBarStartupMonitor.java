@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.system.serverinfo.ServerConstants;
 
 /**
  * A startup monitor that shows the progress of loading and starting
@@ -44,7 +45,7 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
     }
 
     public synchronized void systemStarted(Kernel kernel) {
-        out.println("Starting Geronimo Application Server");
+        out.println("Starting Geronimo Application Server v" + ServerConstants.getVersion());
         this.kernel = kernel;
         currentOperation = "Loading";
     }
