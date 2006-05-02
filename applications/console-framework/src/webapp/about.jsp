@@ -2,6 +2,7 @@
 <head>
 <title>Geronimo About Page</title>
 <link href="main.css" rel="stylesheet" type="text/css">
+<link rel="SHORTCUT ICON" href="/console/favicon.ico" type="image/x-icon"/>
 
   <script language="javascript">
 	  <!--
