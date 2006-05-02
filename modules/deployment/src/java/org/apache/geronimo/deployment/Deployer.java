@@ -231,7 +231,9 @@ public class Deployer {
                 }
             }
             if (builder == null) {
-                throw new DeploymentException("Cannot deploy the requested application module because no builder is able to handle it (" +
+                throw new DeploymentException("Cannot deploy the requested application module because no deployer is able to handle it. " +
+                        " This can happen if you have omitted the J2EE deployment descriptor, disabled a deployer module, or if, for example, you are trying to deploy an" +
+                        " EJB module on a minimal Geronimo server that does not have EJB support installed.  (" +
                         (planFile == null ? "" : "planFile=" + planFile.getAbsolutePath()) +
                         (moduleFile == null ? "" : (planFile == null ? "" : ", ") + "moduleFile=" + moduleFile.getAbsolutePath()) + ")");
             }
