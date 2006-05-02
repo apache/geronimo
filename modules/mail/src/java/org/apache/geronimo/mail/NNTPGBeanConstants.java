@@ -35,5 +35,16 @@ public interface NNTPGBeanConstants {
     static public final String NNTP_FACTORY_CLASS = "mail.nntp.socketFactory.class";
     static public final String NNTP_FACTORY_FALLBACK = "mail.nntp.socketFactory.fallback";
     static public final String NNTP_FACTORY_PORT = "mail.nntp.socketFactory.port";
+
+    static public final String NNTPS_PORT = "mail.nntp.port";
+    static public final String NNTPS_CONNECTION_TIMEOUT = "mail.nntp.connectiontimeout";
+    static public final String NNTPS_TIMEOUT = "mail.nntp.timeout";
+    static public final String NNTPS_FROM = "mail.nntp.from";
+    static public final String NNTPS_AUTH = "mail.nntp.auth";
+    static public final String NNTPS_REALM = "mail.nntp.sasl.realm";
+    static public final String NNTPS_QUITWAIT = "mail.nntp.quitwait";
+    static public final String NNTPS_FACTORY_CLASS = "mail.nntp.socketFactory.class";
+    static public final String NNTPS_FACTORY_FALLBACK = "mail.nntp.socketFactory.fallback";
+    static public final String NNTPS_FACTORY_PORT = "mail.nntp.socketFactory.port";
 }
 

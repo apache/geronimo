@@ -319,15 +319,15 @@ public class NNTPStoreGBean extends ProtocolGBean implements NNTPGBeanConstants 
     public void addOverrides(Properties props) {
         super.addOverrides(props);
 
-        if (port != null) props.put(NNTP_PORT, port);
-        if (connectionTimeout != null) props.put(NNTP_CONNECTION_TIMEOUT, connectionTimeout);
-        if (timeout != null) props.put(NNTP_TIMEOUT, timeout);
-        if (auth != null) props.put(NNTP_AUTH, auth);
-        if (saslRealm != null) props.put(NNTP_REALM, saslRealm);
-        if (quitWait != null) props.put(NNTP_QUITWAIT, quitWait);
-        if (socketFactoryClass != null) props.put(NNTP_FACTORY_CLASS, socketFactoryClass);
-        if (socketFactoryFallback != null) props.put(NNTP_FACTORY_FALLBACK, socketFactoryFallback);
-        if (socketFactoryPort != null) props.put(NNTP_FACTORY_PORT, socketFactoryPort);
+        if (port != null) props.put(NNTPS_PORT, port);
+        if (connectionTimeout != null) props.put(NNTPS_CONNECTION_TIMEOUT, connectionTimeout);
+        if (timeout != null) props.put(NNTPS_TIMEOUT, timeout);
+        if (auth != null) props.put(NNTPS_AUTH, auth);
+        if (saslRealm != null) props.put(NNTPS_REALM, saslRealm);
+        if (quitWait != null) props.put(NNTPS_QUITWAIT, quitWait);
+        if (socketFactoryClass != null) props.put(NNTPS_FACTORY_CLASS, socketFactoryClass);
+        if (socketFactoryFallback != null) props.put(NNTPS_FACTORY_FALLBACK, socketFactoryFallback);
+        if (socketFactoryPort != null) props.put(NNTPS_FACTORY_PORT, socketFactoryPort);
     }
 
     public void doStart() throws Exception {
