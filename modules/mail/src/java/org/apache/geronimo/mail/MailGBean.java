@@ -306,7 +306,8 @@ public class MailGBean implements GBeanLifecycle, JavaMailResource {
         if (transportProtocol != null) props.put("mail.transport.protocol", transportProtocol);
         if (host != null) props.put("mail.host", host);
         if (user != null) props.put("mail.user", user);
-        if (debug != null) props.put("mail.debug", debug);
+        // this needs to be translated into a string version.
+        if (debug != null) props.put("mail.debug", debug.toString());
 
         if (Boolean.TRUE.equals(useDefault)) {
             if (authenticator == null) {
