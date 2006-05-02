@@ -90,8 +90,12 @@ public class Deployer {
         t.setDaemon(true);
         t.start();
     }
-
+    
     public List deploy(boolean inPlace, File moduleFile, File planFile) throws DeploymentException {
+    	return deploy(inPlace, moduleFile, planFile, null);
+    }
+
+    public List deploy(boolean inPlace, File moduleFile, File planFile, String targetConfigStore) throws DeploymentException {
         File originalModuleFile = moduleFile;
         File tmpDir = null;
         if (moduleFile != null && !moduleFile.isDirectory()) {
@@ -112,7 +116,7 @@ public class Deployer {
         }
 
         try {
-            return deploy(inPlace, planFile, moduleFile, null, true, null, null, null, null, null);
+            return deploy(inPlace, planFile, moduleFile, null, true, null, null, null, null, targetConfigStore);
         } catch (DeploymentException e) {
             log.debug("Deployment failed: plan=" + planFile + ", module=" + originalModuleFile, e);
             throw e.cleanse();
@@ -277,6 +281,7 @@ public class Deployer {
             } else {
                 store = (ConfigurationStore) stores.iterator().next();
             }
+            
             // It's our responsibility to close this context, once we're done with it...
             DeploymentContext context = builder.buildConfiguration(inPlace, configID, plan, module, stores, artifactResolver, store);
             List configurations = new ArrayList();
@@ -419,6 +424,7 @@ public class Deployer {
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("remoteDeployUploadURL", String.class, false);
         infoFactory.addOperation("deploy", new Class[]{boolean.class, File.class, File.class});
+        infoFactory.addOperation("deploy", new Class[]{boolean.class, File.class, File.class, String.class});
         infoFactory.addOperation("deploy", new Class[]{boolean.class, File.class, File.class, File.class, boolean.class, String.class, String.class, String.class, String.class, String.class});
 
         infoFactory.addReference("Builders", ConfigurationBuilder.class, "ConfigBuilder");
