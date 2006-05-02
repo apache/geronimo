@@ -86,8 +86,8 @@ public class CommandListConfigurations extends AbstractCommand {
                 Map.Entry entry = (Map.Entry) it.next();
                 String category = (String) entry.getKey();
                 List items = (List) entry.getValue();
-                System.out.println();
-                System.out.print(DeployUtils.reformat(category, 4, 72));
+                out.println();
+                out.print(DeployUtils.reformat(category, 4, 72));
                 for (int i = 0; i < items.size(); i++) {
                     ConfigurationMetadata metadata = (ConfigurationMetadata) items.get(i);
                     String prefix = "    ";
@@ -99,13 +99,18 @@ public class CommandListConfigurations extends AbstractCommand {
                         }
                         prefix += ": ";
                     }
-                    System.out.print(DeployUtils.reformat(prefix+metadata.getName()+" ("+metadata.getVersion()+")", 8, 72));
-                    System.out.flush();
+                    out.print(DeployUtils.reformat(prefix+metadata.getName()+" ("+metadata.getVersion()+")", 8, 72));
+                    out.flush();
                 }
             }
-            System.out.println();
-            System.out.print("Install Service [enter number or 'q' to quit]: ");
-            System.out.flush();
+            if(available.size() == 0) {
+                out.println();
+                out.println("No plugins from this site are eligible for installation.");
+                return;
+            }
+            out.println();
+            out.print("Install Service [enter number or 'q' to quit]: ");
+            out.flush();
             try {
                 BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
                 String answer = in.readLine();
@@ -116,25 +121,25 @@ public class CommandListConfigurations extends AbstractCommand {
                 ConfigurationMetadata target = ((ConfigurationMetadata) available.get(selection - 1));
                 long start = System.currentTimeMillis();
                 Object key = mgr.startInstall(ConfigurationList.createInstallList(data, target.getConfigId()), null, null);
-                DownloadResults results = showProgress(mgr, key);
+                DownloadResults results = CommandInstallCAR.showProgress(mgr, key);
                 int time = (int)(System.currentTimeMillis() - start) / 1000;
-                System.out.println();
+                out.println();
                 if(!results.isFailed()) {
-                    System.out.println(DeployUtils.reformat("**** Installation Complete!", 4, 72));
+                    out.println(DeployUtils.reformat("**** Installation Complete!", 4, 72));
                     for (int i = 0; i < results.getDependenciesPresent().length; i++) {
                         Artifact uri = results.getDependenciesPresent()[i];
-                        System.out.print(DeployUtils.reformat("Used existing: "+uri, 4, 72));
+                        out.print(DeployUtils.reformat("Used existing: "+uri, 4, 72));
                     }
                     for (int i = 0; i < results.getDependenciesInstalled().length; i++) {
                         Artifact uri = results.getDependenciesInstalled()[i];
-                        System.out.print(DeployUtils.reformat("Installed new: "+uri, 4, 72));
+                        out.print(DeployUtils.reformat("Installed new: "+uri, 4, 72));
                     }
-                    System.out.println();
-                    System.out.println(DeployUtils.reformat("Downloaded "+(results.getTotalDownloadBytes()/1024)+" kB in "+time+"s ("+results.getTotalDownloadBytes()/(1024*time)+" kB/s)", 4, 72));
+                    out.println();
+                    out.println(DeployUtils.reformat("Downloaded "+(results.getTotalDownloadBytes()/1024)+" kB in "+time+"s ("+results.getTotalDownloadBytes()/(1024*time)+" kB/s)", 4, 72));
                 }
                 if(results.isFinished() && !results.isFailed()) {
-                    System.out.print(DeployUtils.reformat("Now starting "+target.getConfigId()+"...", 4, 72));
-                    System.out.flush();
+                    out.print(DeployUtils.reformat("Now starting "+target.getConfigId()+"...", 4, 72));
+                    out.flush();
                     new CommandStart().execute(out, connection, new String[]{target.getConfigId().toString()});
                 }
             } catch (IOException e) {
@@ -144,31 +149,6 @@ public class CommandListConfigurations extends AbstractCommand {
             }
         } else {
             throw new DeploymentException("Cannot list repositories when connected to "+connection.getServerURI());
-        }
-    }
-
-    private DownloadResults showProgress(GeronimoDeploymentManager mgr, Object key) {
-        System.out.println("Checking for status every 1000ms:");
-        while(true) {
-            DownloadResults results = mgr.checkOnInstall(key);
-            if(results.getCurrentFile() != null) {
-                if(results.getCurrentFilePercent() > -1) {
-                    System.out.println(results.getCurrentMessage()+" ("+results.getCurrentFilePercent()+"%)");
-                } else {
-                    System.out.println(results.getCurrentMessage());
-                }
-            }
-            if(results.isFinished()) {
-                if(results.isFailed()) {
-                    System.err.println("Installation FAILED: "+results.getFailure().getMessage());
-                }
-                return results;
-            }
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                return results;
-            }
         }
     }
 }

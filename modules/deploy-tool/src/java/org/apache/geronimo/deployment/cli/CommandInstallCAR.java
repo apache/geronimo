@@ -87,7 +87,7 @@ public class CommandInstallCAR extends AbstractCommand {
         }
     }
 
-    private DownloadResults showProgress(GeronimoDeploymentManager mgr, Object key) {
+    static DownloadResults showProgress(GeronimoDeploymentManager mgr, Object key) {
         System.out.println("Checking for status every 1000ms:");
         String last = null, status;
         while(true) {
