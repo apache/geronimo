@@ -28,6 +28,8 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.SimpleConfigurationManager;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ListableRepository;
@@ -61,7 +63,7 @@ public class ServiceConfigBuilderTest extends TestCase {
         File file = new File(url.getPath());
         JarFile jar = new JarFile(file);
         assertTrue(file.exists());
-        ServiceConfigBuilder builder = new ServiceConfigBuilder(parentEnvironment, null, null, null, new Jsr77Naming());
+        ServiceConfigBuilder builder = new ServiceConfigBuilder(parentEnvironment, null, new Jsr77Naming());
         assertNull(builder.getDeploymentPlan(null, jar, new ModuleIDBuilder()));
         jar.close();
     }
@@ -88,7 +90,8 @@ public class ServiceConfigBuilderTest extends TestCase {
             MockRepository mockRepository = new MockRepository();
             ArtifactManager artifactManager = new DefaultArtifactManager();
             ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.singleton(mockRepository), null);
-            DeploymentContext context = new DeploymentContext(outFile, null, environment, ConfigurationModuleType.CAR, naming, Collections.singleton(mockRepository), Collections.EMPTY_SET, artifactResolver);
+            ConfigurationManager configurationManager = new SimpleConfigurationManager(Collections.EMPTY_SET, artifactResolver, Collections.EMPTY_SET);
+            DeploymentContext context = new DeploymentContext(outFile, null, environment, ConfigurationModuleType.CAR, naming, configurationManager, Collections.singleton(mockRepository));
             AbstractName j2eeContext = naming.createRootName(environment.getConfigId(), environment.getConfigId().toString(), "Configuration");
 
             GbeanType[] gbeans = plan.getGbeanArray();

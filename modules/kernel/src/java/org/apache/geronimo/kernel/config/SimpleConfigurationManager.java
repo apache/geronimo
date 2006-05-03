@@ -128,6 +128,9 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return (ConfigurationStore[]) storeSnapshot.toArray(new ConfigurationStore[storeSnapshot.size()]);
     }
 
+    public Collection getRepositories() {
+        return repositories;
+    }
 
     public List listConfigurations() {
         List storeSnapshot = getStoreList();
@@ -229,9 +232,9 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         if(!configurationId.isResolved()) {
             throw new IllegalArgumentException("Artifact "+configurationId+" is not fully resolved");
         }
-        if (configurationModel.isLoaded(configurationId)) {
+        if (isLoaded(configurationId)) {
             // already loaded, so just mark the configuration as user loaded
-            configurationModel.load(configurationId);
+            load(configurationId);
 
             monitor.finished();
             return new LifecycleResults();
@@ -259,7 +262,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     public synchronized LifecycleResults loadConfiguration(ConfigurationData configurationData, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
         Artifact id = configurationData.getId();
         LifecycleResults results = new LifecycleResults();
-        if (!configurationModel.isLoaded(id)) {
+        if (!isLoaded(id)) {
             // recursively load configurations from the new child to the parents
             LinkedHashMap configurationsToLoad = new LinkedHashMap();
             try {
@@ -301,9 +304,13 @@ public class SimpleConfigurationManager implements ConfigurationManager {
             addNewConfigurationsToModel(actuallyLoaded);
             results.setLoaded(actuallyLoaded.keySet());
         }
-        configurationModel.load(id);
+        load(id);
         monitor.finished();
         return results;
+    }
+
+    protected void load(Artifact configurationId) throws NoSuchConfigException {
+        configurationModel.load(configurationId);
     }
 
     protected Configuration load(ConfigurationData configurationData, LinkedHashSet resolvedParentIds, Map loadedConfigurations) throws InvalidConfigException {
@@ -327,7 +334,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
             Configuration parent = null;
             if (loadedConfigurations.containsKey(resolvedArtifact)) {
                 parent = (Configuration) loadedConfigurations.get(resolvedArtifact);
-            } else if (configurations.containsKey(resolvedArtifact)) {
+            } else if (isLoaded(resolvedArtifact)) {
                 parent = getConfiguration(resolvedArtifact);
             } else {
                 throw new InvalidConfigException("Cound not find parent configuration: " + resolvedArtifact);
@@ -352,7 +359,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         configurations.put(configuration.getId(), configuration);
     }
 
-    private LinkedHashSet getLoadParents(Configuration configuration) {
+    protected LinkedHashSet getLoadParents(Configuration configuration) {
         LinkedHashSet loadParent = new LinkedHashSet(configuration.getClassParents());
         for (Iterator iterator = configuration.getChildren().iterator(); iterator.hasNext();) {
             Configuration childConfiguration = (Configuration) iterator.next();
@@ -366,7 +373,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return loadParent;
     }
 
-    private LinkedHashSet getStartParents(Configuration configuration) {
+    protected LinkedHashSet getStartParents(Configuration configuration) {
         LinkedHashSet startParent = new LinkedHashSet(configuration.getServiceParents());
         for (Iterator iterator = configuration.getChildren().iterator(); iterator.hasNext();) {
             Configuration childConfiguration = (Configuration) iterator.next();
@@ -398,7 +405,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
             for (Iterator iterator = resolvedParentIds.iterator(); iterator.hasNext();) {
                 Artifact parentId = (Artifact) iterator.next();
                 // if this parent id hasn't already been loaded and is actually a configuration
-                if (!configurations.containsKey(parentId) && isConfiguration(parentId)) {
+                if (!isLoaded(parentId) && isConfiguration(parentId)) {
                     ConfigurationData parentConfigurationData = loadConfigurationData(parentId, monitor);
                     loadDepthFirst(parentConfigurationData, configurationsToLoad, monitor);
                 }
@@ -671,11 +678,15 @@ public class SimpleConfigurationManager implements ConfigurationManager {
             results.addUnloaded(configurationId);
 
             // clean up the model
-            configurationModel.removeConfiguration(configurationId);
-            configurations.remove(configurationId);
+            removeConfigurationFromModel(configurationId);
         }
         monitor.finished();
         return results;
+    }
+
+    protected void removeConfigurationFromModel(Artifact configurationId) throws NoSuchConfigException {
+        configurationModel.removeConfiguration(configurationId);
+        configurations.remove(configurationId);
     }
 
     protected void unload(Configuration configuration) {
@@ -1018,8 +1029,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
                     for (Iterator iterator = results.getUnloaded().iterator(); iterator.hasNext();) {
                         Artifact childId = (Artifact) iterator.next();
                         configurationModel.unload(childId);
-                        configurationModel.removeConfiguration(childId);
-                        configurations.remove(childId);
+                        removeConfigurationFromModel(childId);
                     }
 
                     throw new LifecycleException("reload", newConfigurationId, results);
@@ -1072,8 +1082,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
 
                     configurations.put(configurationId, configuration);
                 } else {
-                    configurationModel.removeConfiguration(configurationId);
-                    configurations.remove(configurationId);
+                    removeConfigurationFromModel(configurationId);
                 }
             } catch (Exception e) {
                 // the configuraiton failed to restart

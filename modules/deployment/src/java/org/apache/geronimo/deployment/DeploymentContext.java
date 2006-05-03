@@ -56,12 +56,8 @@ import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.config.SimpleConfigurationManager;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.ArtifactManager;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
-import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
-import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 
 /**
@@ -78,8 +74,8 @@ public class DeploymentContext {
     private final Naming naming;
     private final List additionalDeployment = new ArrayList();
 
-    public DeploymentContext(File baseDir, File inPlaceConfigurationDir, Environment environment, ConfigurationModuleType moduleType, Naming naming, Collection repositories, Collection stores, ArtifactResolver artifactResolver) throws DeploymentException {
-        this(baseDir, inPlaceConfigurationDir, environment,  moduleType, naming, createConfigurationManager(repositories, stores, artifactResolver));
+    public DeploymentContext(File baseDir, File inPlaceConfigurationDir, Environment environment, ConfigurationModuleType moduleType, Naming naming, ConfigurationManager configurationManager, Collection repositories) throws DeploymentException {
+        this(baseDir, inPlaceConfigurationDir, environment,  moduleType, naming, createConfigurationManager(configurationManager, repositories));
     }
 
     public DeploymentContext(File baseDir, File inPlaceConfigurationDir, Environment environment, ConfigurationModuleType moduleType, Naming naming, ConfigurationManager configurationManager) throws DeploymentException {
@@ -108,10 +104,8 @@ public class DeploymentContext {
         }
     }
 
-    private static ConfigurationManager createConfigurationManager(Collection repositories, Collection stores, ArtifactResolver artifactResolver) {
-//        ArtifactManager artifactManager = new DefaultArtifactManager();
-//        ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, repositories, null);
-        return new SimpleConfigurationManager(stores, artifactResolver, repositories);
+    private static ConfigurationManager createConfigurationManager(ConfigurationManager configurationManager, Collection repositories) {
+        return new DeploymentConfigurationManager(configurationManager, repositories);
     }
 
     private static Configuration createTempConfiguration(Environment environment, ConfigurationModuleType moduleType, File baseDir, File inPlaceConfigurationDir, ConfigurationManager configurationManager, Naming naming) throws DeploymentException {

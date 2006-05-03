@@ -67,6 +67,8 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.SimpleConfigurationManager;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ArtifactManager;
@@ -109,7 +111,8 @@ public class ServiceReferenceTest extends TestCase {
         Jsr77Naming naming = new Jsr77Naming();
         ArtifactManager artifactManager = new DefaultArtifactManager();
         ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.EMPTY_SET, null);
-        context = new DeploymentContext(tmpbasedir, null, environment, ConfigurationModuleType.CAR, naming, Collections.EMPTY_SET, Collections.EMPTY_SET, artifactResolver);
+        ConfigurationManager configurationManager = new SimpleConfigurationManager(Collections.EMPTY_SET, artifactResolver, Collections.EMPTY_SET);        
+        context = new DeploymentContext(tmpbasedir, null, environment, ConfigurationModuleType.CAR, naming, configurationManager, Collections.EMPTY_SET);
 
         File moduleLocation = new File(tmpbasedir, "ejb");
         moduleLocation.mkdirs();

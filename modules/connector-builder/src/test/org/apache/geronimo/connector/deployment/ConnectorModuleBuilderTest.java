@@ -359,9 +359,8 @@ public class ConnectorModuleBuilderTest extends TestCase {
                         module.getEnvironment(),
                         module.getType(),
                         naming,
+                        configurationManager,
                         Collections.EMPTY_SET,
-                        Collections.singleton(configurationStore),
-                        artifactResolver,
                         new AbstractNameQuery(serverName, J2EEServerImpl.GBEAN_INFO.getInterfaces()),
                         module.getModuleName(), //hardcode standalone here.
                         transactionContextManagerName,

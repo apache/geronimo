@@ -59,6 +59,9 @@ import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.SimpleConfigurationManager;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
@@ -81,18 +84,23 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     private Map refRefMap;
     private static final QName SERVICE_QNAME = ConfigurationDocument.type.getDocumentElementName();
     private final Naming naming;
-
+    private final ConfigurationManager configurationManager;
 
     public ServiceConfigBuilder(Environment defaultEnvironment, Collection repositories, Naming naming) {
-        this(defaultEnvironment, repositories, null, null, naming);
+        this(defaultEnvironment, repositories, null, null, naming, null);
     }
 
     public ServiceConfigBuilder(Environment defaultEnvironment, Collection repositories, Collection xmlAttributeBuilders, Collection xmlReferenceBuilders, Kernel kernel) {
-        this(defaultEnvironment, repositories, xmlAttributeBuilders, xmlReferenceBuilders, kernel.getNaming());
+        this(defaultEnvironment, repositories, xmlAttributeBuilders, xmlReferenceBuilders, kernel.getNaming(), ConfigurationUtil.getConfigurationManager(kernel));
     }
 
     public ServiceConfigBuilder(Environment defaultEnvironment, Collection repositories, Collection xmlAttributeBuilders, Collection xmlReferenceBuilders, Naming naming) {
+        this(defaultEnvironment, repositories, xmlAttributeBuilders, xmlReferenceBuilders, naming, null);
+    }
+    private ServiceConfigBuilder(Environment defaultEnvironment, Collection repositories, Collection xmlAttributeBuilders, Collection xmlReferenceBuilders, Naming naming, ConfigurationManager configurationManager) {
         this.naming = naming;
+        this.configurationManager = configurationManager;
+
         EnvironmentBuilder environmentBuilder = new EnvironmentBuilder();
         xmlAttributeBuilderMap.put(environmentBuilder.getNamespace(), environmentBuilder);
         //cf registering EnvironmentBuilder as a property editor in the static gbeaninfo block.
@@ -220,14 +228,18 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
             throw new DeploymentException(e);
         }
 
-        DeploymentContext context = new DeploymentContext(outfile, 
+        ConfigurationManager configurationManager = this.configurationManager;
+        if (configurationManager == null) {
+            configurationManager = new SimpleConfigurationManager(configurationStores, artifactResolver, repositories);
+        }
+        DeploymentContext context = new DeploymentContext(outfile,
                 inPlaceDeployment && null != jar ? DeploymentUtil.toFile(jar) : null,
                 environment, 
                 ConfigurationModuleType.SERVICE, 
-                naming, 
-                repositories, 
-                configurationStores,
-                artifactResolver);
+                naming,
+                configurationManager,
+                repositories
+        );
         if(jar != null) {
             File file = new File(jar.getName());
             context.addIncludeAsPackedJar(URI.create(file.getName()), jar);

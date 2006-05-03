@@ -58,9 +58,8 @@ public class EARContext extends DeploymentContext {
             Environment environment,
             ConfigurationModuleType moduleType,
             Naming naming,
-            Collection repositories,
-            Collection configurationStores,
-            ArtifactResolver artifactResolver, AbstractNameQuery serverName,
+            ConfigurationManager configurationManager, Collection repositories,
+            AbstractNameQuery serverName,
             AbstractName baseName,
             AbstractNameQuery transactionContextManagerObjectName,
             AbstractNameQuery connectionTrackerObjectName,
@@ -68,7 +67,7 @@ public class EARContext extends DeploymentContext {
             AbstractNameQuery nonTransactedTimerName,
             AbstractNameQuery corbaGBeanObjectName,
             RefContext refContext) throws DeploymentException {
-        super(baseDir, inPlaceConfigurationDir, environment, moduleType, naming, repositories, configurationStores, artifactResolver);
+        super(baseDir, inPlaceConfigurationDir, environment, moduleType, naming, configurationManager, repositories);
         
         moduleName = baseName;
         this.serverName = serverName;
@@ -80,6 +79,7 @@ public class EARContext extends DeploymentContext {
         this.corbaGBeanObjectName = corbaGBeanObjectName;
         this.refContext = refContext;
     }
+
     public EARContext(File baseDir,
             File inPlaceConfigurationDir,
             Environment environment,

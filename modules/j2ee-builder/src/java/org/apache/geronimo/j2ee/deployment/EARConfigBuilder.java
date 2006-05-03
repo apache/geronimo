@@ -63,6 +63,9 @@ import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.SimpleConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
@@ -88,6 +91,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
     private final static QName APPLICATION_QNAME = GerApplicationDocument.type.getDocumentElementName();
 
+    private final ConfigurationManager configurationManager;
     private final Collection repositories;
     private final SingleElementCollection ejbConfigBuilder;
     private final SingleElementCollection webConfigBuilder;
@@ -130,6 +134,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 nonTransactionalTimerAbstractName,
                 corbaGBeanAbstractName,
                 serverName,
+                ConfigurationUtil.getConfigurationManager(kernel),
                 repositories,
                 new SingleElementCollection(ejbConfigBuilder),
                 new SingleElementCollection(ejbReferenceBuilder),
@@ -163,6 +168,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 nonTransactionalTimerAbstractName,
                 corbaGBeanAbstractName,
                 serverName,
+                null,
                 repositories,
                 new SingleElementCollection(ejbConfigBuilder),
                 new SingleElementCollection(ejbReferenceBuilder),
@@ -181,6 +187,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             AbstractNameQuery nonTransactionalTimerAbstractName,
             AbstractNameQuery corbaGBeanAbstractName,
             AbstractNameQuery serverName,
+            ConfigurationManager configurationManager,
             Collection repositories,
             SingleElementCollection ejbConfigBuilder,
             SingleElementCollection ejbReferenceBuilder,
@@ -190,6 +197,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             SingleElementCollection appClientConfigBuilder,
             SingleElementCollection serviceReferenceBuilder,
             Naming naming) {
+        this.configurationManager = configurationManager;
         this.repositories = repositories;
         this.defaultEnvironment = defaultEnvironment;
 
@@ -421,6 +429,10 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             throw new DeploymentException(e);
         }
 
+        ConfigurationManager configurationManager = this.configurationManager;
+        if (configurationManager == null) {
+            configurationManager = new SimpleConfigurationManager(configurationStores, artifactResolver, repositories);
+        }
         try {
             // Create the output ear context
             earContext = new EARContext(configurationDir,
@@ -428,9 +440,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                     applicationInfo.getEnvironment(),
                     applicationType,
                     naming,
+                    configurationManager,
                     repositories,
-                    configurationStores,
-                    artifactResolver,
                     serverName,
                     applicationInfo.getBaseName(),
                     transactionContextManagerObjectName,
