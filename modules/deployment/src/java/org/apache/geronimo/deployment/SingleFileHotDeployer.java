@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.LinkedList;
 import java.util.jar.JarFile;
 
 import org.apache.commons.logging.Log;
@@ -47,6 +48,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
  */
 public class SingleFileHotDeployer {
     private static final Log log = LogFactory.getLog(SingleFileHotDeployer.class);
+    private static final String LINE_SEP = System.getProperty("line.separator");
     private final File dir;
     private final String[] watchPaths;
     private final Collection builders;
@@ -241,11 +243,18 @@ public class SingleFileHotDeployer {
     }
 
     private void cleanupConfigurations(List configurations) {
+        LinkedList cannotBeDeletedList = new LinkedList();
         for (Iterator iterator = configurations.iterator(); iterator.hasNext();) {
             ConfigurationData configurationData = (ConfigurationData) iterator.next();
             File dir = configurationData.getConfigurationDir();
-            if (!DeploymentUtil.recursiveDelete(dir)) {
-                log.warn("Unable delete directory " + dir);
+            cannotBeDeletedList.clear();
+            if (!DeploymentUtil.recursiveDelete(dir,cannotBeDeletedList)) {
+                // Output a message to help user track down file problem
+                log.warn("Unable to delete " + cannotBeDeletedList.size() + 
+                        " files while recursively deleting directory " 
+                        + dir + LINE_SEP +
+                        "The first file that could not be deleted was:" + LINE_SEP + "  "+
+                        ( !cannotBeDeletedList.isEmpty() ? cannotBeDeletedList.getFirst() : "") );
             }
         }
     }

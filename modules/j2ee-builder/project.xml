@@ -131,19 +131,19 @@
             <version>${geronimo_spec_jaxrpc_version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>${commons_logging_version}</version>
+            <url>http://jakarta.apache.org/commons/logging/</url>
+        </dependency>
+
         <!-- test only -->
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib-nodep</artifactId>
             <version>${cglib_version}</version>
             <url>http://cglib.sf.net/</url>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>${commons_logging_version}</version>
-            <url>http://jakarta.apache.org/commons/logging/</url>
         </dependency>
 
         <dependency>

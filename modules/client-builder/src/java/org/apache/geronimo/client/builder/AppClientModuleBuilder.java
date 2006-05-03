@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.client.builder;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.client.AppClientContainer;
 import org.apache.geronimo.client.StaticJndiContextPlugin;
 import org.apache.geronimo.common.DeploymentException;
@@ -76,6 +78,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.jar.Attributes;
@@ -88,7 +91,9 @@ import java.util.zip.ZipEntry;
  * @version $Rev:385232 $ $Date$
  */
 public class AppClientModuleBuilder implements ModuleBuilder {
-
+    private static final Log log = LogFactory.getLog(AppClientModuleBuilder.class);
+    private static final String LINE_SEP = System.getProperty("line.separator");
+    
     private final Environment defaultClientEnvironment;
     private final Environment defaultServerEnvironment;
     private final AbstractNameQuery corbaGBeanObjectName;
@@ -366,7 +371,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                     new RefContext(getEjbReferenceBuilder(), getResourceReferenceBuilder(), getServiceReferenceBuilder()));
             appClientModule.setEarContext(appClientDeploymentContext);
         } catch (DeploymentException e) {
-            DeploymentUtil.recursiveDelete(appClientDir);
+            cleanupAppClientDir(appClientDir);
             throw e;
         }
 
@@ -580,7 +585,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
         } catch (Throwable e) {
             File appClientDir = appClientDeploymentContext.getBaseDir();
-            DeploymentUtil.recursiveDelete(appClientDir);
+            cleanupAppClientDir(appClientDir);
             if (e instanceof Error) {
                 throw (Error) e;
             } else if (e instanceof DeploymentException) {
@@ -679,6 +684,22 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
     }
 
+    private boolean cleanupAppClientDir(File configurationDir)
+    {
+        LinkedList cannotBeDeletedList = new LinkedList();
+               
+        if (!DeploymentUtil.recursiveDelete(configurationDir,cannotBeDeletedList)) {
+            // Output a message to help user track down file problem
+            log.warn("Unable to delete " + cannotBeDeletedList.size() + 
+                    " files while recursively deleting directory " 
+                    + configurationDir + LINE_SEP +
+                    "The first file that could not be deleted was:" + LINE_SEP + "  "+
+                    ( !cannotBeDeletedList.isEmpty() ? cannotBeDeletedList.getFirst() : "") );
+            return false;
+        }
+        return true;
+    }  
+    
     public static final GBeanInfo GBEAN_INFO;
 
     static {

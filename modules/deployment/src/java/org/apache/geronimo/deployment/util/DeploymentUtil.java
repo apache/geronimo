@@ -277,7 +277,8 @@ public final class DeploymentUtil {
         }
     }
     
-    public static boolean recursiveDelete(File root) {
+    
+    public static boolean recursiveDelete(File root, Collection unableToDeleteCollection) {
         if (root == null) {
             return true;
         }
@@ -290,12 +291,18 @@ public final class DeploymentUtil {
                     if (file.isDirectory()) {
                         recursiveDelete(file);
                     } else {
-                        file.delete();
+                        if (!file.delete() && unableToDeleteCollection != null) {
+                            unableToDeleteCollection.add(file);    
+                        }
                     }
                 }
             }
         }
         return root.delete();
+    }
+    
+    public static boolean recursiveDelete(File root) {
+        return recursiveDelete(root,null);
     }
 
     public static Collection listRecursiveFiles(File file) {

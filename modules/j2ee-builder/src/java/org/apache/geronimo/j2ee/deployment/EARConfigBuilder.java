@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.LinkedHashMap;
@@ -35,6 +36,8 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import javax.xml.namespace.QName;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -89,6 +92,9 @@ import org.apache.xmlbeans.XmlObject;
  */
 public class EARConfigBuilder implements ConfigurationBuilder {
 
+    private static final Log log = LogFactory.getLog(EARConfigBuilder.class);    
+    private static final String LINE_SEP = System.getProperty("line.separator");
+    
     private final static QName APPLICATION_QNAME = GerApplicationDocument.type.getDocumentElementName();
 
     private final ConfigurationManager configurationManager;
@@ -451,7 +457,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                     corbaGBeanObjectName,
                     new RefContext(getEjbReferenceBuilder(), getResourceReferenceBuilder(), getServiceReferenceBuilder()));
 
-            // Copy over all files that are _NOT_ modules
+            // Copy over all files that are _NOT_ modules (e.g. META-INF and APP-INF files)
             Set moduleLocations = applicationInfo.getModuleLocations();
             if (ConfigurationModuleType.EAR == applicationType && earFile != null) {
                 for (Enumeration e = earFile.entries(); e.hasMoreElements();) {
@@ -555,31 +561,31 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             if (earContext != null) {
                 earContext.close();
             }
-            DeploymentUtil.recursiveDelete(configurationDir);
+            cleanupConfigurationDir(configurationDir);
             throw new DeploymentException(e);
         } catch (IOException e) {
             if (earContext != null) {
                 earContext.close();
             }
-            DeploymentUtil.recursiveDelete(configurationDir);
+            cleanupConfigurationDir(configurationDir);
             throw e;
         } catch (DeploymentException e) {
             if (earContext != null) {
                 earContext.close();
             }
-            DeploymentUtil.recursiveDelete(configurationDir);
+            cleanupConfigurationDir(configurationDir);
             throw e;
         } catch(RuntimeException e) {
             if (earContext != null) {
                 earContext.close();
             }
-            DeploymentUtil.recursiveDelete(configurationDir);
+            cleanupConfigurationDir(configurationDir);
             throw e;
         } catch(Error e) {
             if (earContext != null) {
                 earContext.close();
             }
-            DeploymentUtil.recursiveDelete(configurationDir);
+            cleanupConfigurationDir(configurationDir);
             throw e;
         } finally {
             Set modules = applicationInfo.getModules();
@@ -590,6 +596,22 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         }
     }
 
+    private boolean cleanupConfigurationDir(File configurationDir)
+    {
+        LinkedList cannotBeDeletedList = new LinkedList();
+               
+        if (!DeploymentUtil.recursiveDelete(configurationDir,cannotBeDeletedList)) {
+            // Output a message to help user track down file problem
+            log.warn("Unable to delete " + cannotBeDeletedList.size() + 
+                    " files while recursively deleting directory " 
+                    + configurationDir + LINE_SEP +
+                    "The first file that could not be deleted was:" + LINE_SEP + "  "+
+                    ( !cannotBeDeletedList.isEmpty() ? cannotBeDeletedList.getFirst() : "") );
+            return false;
+        }
+        return true;
+    }
+    
     private static Map filter(Map original, String key, String value) {
         LinkedHashMap filter = new LinkedHashMap(original);
         filter.put(key, value);

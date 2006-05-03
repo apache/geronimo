@@ -30,6 +30,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
@@ -39,6 +40,8 @@ import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebRoleRefPermission;
 import javax.security.jacc.WebUserDataPermission;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
@@ -73,6 +76,9 @@ import org.apache.geronimo.xbeans.j2ee.WebResourceCollectionType;
  * @version $Rev$ $Date$
  */
 public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
+    private static final Log log = LogFactory.getLog(AbstractWebModuleBuilder.class);
+    private static final String LINE_SEP = System.getProperty("line.separator");
+    
     protected static final AbstractNameQuery MANAGED_CONNECTION_FACTORY_PATTERN;
     private static final AbstractNameQuery ADMIN_OBJECT_PATTERN;
     protected static final AbstractNameQuery STATELESS_SESSION_BEAN_PATTERN;
@@ -191,7 +197,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
                         module.getModuleName(),
                         earContext);
             } catch (DeploymentException e) {
-                DeploymentUtil.recursiveDelete(configurationDir);
+                cleanupConfigurationDir(configurationDir);
                 throw e;
             }
         }
@@ -504,6 +510,22 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         if (webApp.getLoginConfigArray().length > 1) throw new DeploymentException("Multiple <login-config> elements found");
     }
 
+    private boolean cleanupConfigurationDir(File configurationDir)
+    {
+        LinkedList cannotBeDeletedList = new LinkedList();
+               
+        if (!DeploymentUtil.recursiveDelete(configurationDir,cannotBeDeletedList)) {
+            // Output a message to help user track down file problem
+            log.warn("Unable to delete " + cannotBeDeletedList.size() + 
+                    " files while recursively deleting directory " 
+                    + configurationDir + LINE_SEP +
+                    "The first file that could not be deleted was:" + LINE_SEP + "  "+
+                    ( !cannotBeDeletedList.isEmpty() ? cannotBeDeletedList.getFirst() : "") );
+            return false;
+        }
+        return true;
+    }    
+    
     protected void processRoleRefPermissions(ServletType servletType, Set securityRoles, Map rolePermissions) {
         String servletName = servletType.getServletName().getStringValue().trim();
         //WebRoleRefPermissions
