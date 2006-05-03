@@ -5,11 +5,9 @@ the var/config directory) in the org.apache.geronimo.config.file system
 property.
 
 The configuration XML file lists the serialized configurations in the 
-config-store to be started.  For each configuration configured to be
-started in the config.xml file, Geronimo looks up a serialized configuration 
-by reading the geronimo/config-store/index.properties file that maps a 
-configuration name to geronimo/config-store/n directory (where n is a 
-numbered directory name).
+repository to be started.  For each configuration configured to be
+started in the config.xml file, Geronimo loads a serialized configuration 
+from under the geronimo/repository directory.
 
 A configuration can be marked as not to be loaded by setting the "load" attribute
 to "false" on the "configuration" element for a configuration.
