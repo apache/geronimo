@@ -63,6 +63,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -135,6 +136,12 @@ public class ENCConfigBuilder {
         if (refMap == null) {
             refMap = Collections.EMPTY_MAP;
         }
+        Map newMap = new HashMap();
+        for (Iterator it = refMap.keySet().iterator(); it.hasNext();) {
+            String name = (String) it.next();
+            newMap.put(name.trim(), refMap.get(name));
+        }
+        refMap = newMap;
 
         for (int i = 0; i < resourceRefs.length; i++) {
             ResourceRefType resourceRef = resourceRefs[i];
@@ -220,6 +227,12 @@ public class ENCConfigBuilder {
         if (refMap == null) {
             refMap = Collections.EMPTY_MAP;
         }
+        Map newMap = new HashMap();
+        for (Iterator it = refMap.keySet().iterator(); it.hasNext();) {
+            String name = (String) it.next();
+            newMap.put(name.trim(), refMap.get(name));
+        }
+        refMap = newMap;
 
         for (int i = 0; i < resourceEnvRefArray.length; i++) {
             ResourceEnvRefType resourceEnvRef = resourceEnvRefArray[i];
@@ -305,6 +318,12 @@ public class ENCConfigBuilder {
     }
 
     static void addEJBRefs(Configuration earContext, Configuration ejbContext, RefContext refContext, URI moduleURI, EjbRefType[] ejbRefs, Map ejbRefMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
+        Map newMap = new HashMap();
+        for (Iterator it = ejbRefMap.keySet().iterator(); it.hasNext();) {
+            String name = (String) it.next();
+            newMap.put(name.trim(), ejbRefMap.get(name));
+        }
+        ejbRefMap = newMap;
         for (int i = 0; i < ejbRefs.length; i++) {
             EjbRefType ejbRef = ejbRefs[i];
 
@@ -391,6 +410,12 @@ public class ENCConfigBuilder {
     }
 
     static void addEJBLocalRefs(Configuration ejbContext, RefContext refContext, URI moduleURI, EjbLocalRefType[] ejbLocalRefs, Map ejbLocalRefMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
+        Map newMap = new HashMap();
+        for (Iterator it = ejbLocalRefMap.keySet().iterator(); it.hasNext();) {
+            String name = (String) it.next();
+            newMap.put(name.trim(), ejbLocalRefMap.get(name));
+        }
+        ejbLocalRefMap = newMap;
         for (int i = 0; i < ejbLocalRefs.length; i++) {
             EjbLocalRefType ejbLocalRef = ejbLocalRefs[i];
 
@@ -454,6 +479,12 @@ public class ENCConfigBuilder {
 //TODO current implementation does not deal with portComponentRef links.
 
     static void addServiceRefs(EARContext earContext, Module module, ServiceRefType[] serviceRefs, Map serviceRefMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
+        Map newMap = new HashMap();
+        for (Iterator it = serviceRefMap.keySet().iterator(); it.hasNext();) {
+            String name = (String) it.next();
+            newMap.put(name.trim(), serviceRefMap.get(name));
+        }
+        serviceRefMap = newMap;
 
         RefContext refContext = earContext.getRefContext();
 
