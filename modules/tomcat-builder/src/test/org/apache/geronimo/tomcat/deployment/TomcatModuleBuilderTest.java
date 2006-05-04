@@ -110,16 +110,36 @@ public class TomcatModuleBuilderTest extends TestCase {
     private ConfigurationManager configurationManager;
     private ConfigurationStore configStore;
 
+
     public void testDeployWar4() throws Exception {
-        deployWar("war4", "foo/bar/1/car");
+        verifyStartable("war4");
     }
 
     public void testDeployWar5() throws Exception {
-        deployWar("war5", "test/foo/1/car");
+        verifyStartable("war5");
     }
 
-    public void deployWar(String warName, String name) throws Exception {
+    public void testContextRootWithSpaces() throws Exception {
+        WebModuleInfo info = deployWar("war-spaces-in-context");
+        String contextRoot = (String) kernel.getAttribute(info.moduleName, "contextPath");
+        assertNotNull(contextRoot);
+        assertEquals(contextRoot, contextRoot.trim());
+        undeployWar(info.configuration);
+    }
 
+    private void verifyStartable(String warName) throws Exception {
+        WebModuleInfo info = deployWar(warName);
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(info.moduleName));
+        Set names = info.configuration.findGBeans(new AbstractNameQuery(info.moduleName.getArtifact(), Collections.EMPTY_MAP));
+        System.out.println("names: " + names);
+        for (Iterator iterator = names.iterator(); iterator.hasNext();) {
+            AbstractName objectName = (AbstractName) iterator.next();
+            assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(objectName));
+        }
+        undeployWar(info.configuration);
+    }
+
+    private WebModuleInfo deployWar(String warName) throws Exception {
         File outputPath = new File(basedir,
                 "target/test-resources/deployables/" + warName);
         recursiveDelete(outputPath);
@@ -157,16 +177,12 @@ public class TomcatModuleBuilderTest extends TestCase {
         Configuration configuration = configurationManager.getConfiguration(configurationId);
         configurationManager.startConfiguration(configurationId);
 
-        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(moduleName));
-        Set names = configuration.findGBeans(new AbstractNameQuery(moduleName.getArtifact(), Collections.EMPTY_MAP));
-        System.out.println("names: " + names);
-        for (Iterator iterator = names.iterator(); iterator.hasNext();) {
-            AbstractName objectName = (AbstractName) iterator.next();
-            assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(objectName));
-        }
+        return new WebModuleInfo(moduleName, configuration);
+    }
 
-        configurationManager.stopConfiguration(configurationId);
-        configurationManager.unloadConfiguration(configurationId);
+    private void undeployWar(Configuration configuration) throws Exception{
+        configurationManager.stopConfiguration(configuration.getId());
+        configurationManager.unloadConfiguration(configuration.getId());
     }
 
     private EARContext createEARContext(File outputPath, Environment environment, Repository repository, ConfigurationStore configStore, AbstractName moduleName) throws DeploymentException {
@@ -416,4 +432,15 @@ public class TomcatModuleBuilderTest extends TestCase {
             GBEAN_INFO = infoBuilder.getBeanInfo();
         }
     }
+
+    private static class WebModuleInfo {
+        AbstractName moduleName;
+        Configuration configuration;
+
+        public WebModuleInfo (AbstractName moduleName, Configuration configuration){
+            this.moduleName = moduleName;
+            this.configuration = configuration;
+        }
+    }
+
 }

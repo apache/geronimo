@@ -140,6 +140,39 @@ public class JettyModuleBuilderTest extends TestCase {
 
     }
 
+    public void testContextRootWithSpaces() throws Exception {
+        File outputPath = new File(basedir, "target/test-resources/deployables/war-spaces-in-context");
+        recursiveDelete(outputPath);
+        outputPath.mkdirs();
+        new File(outputPath, "war").mkdir();
+        File path = new File(basedir, "src/test-resources/deployables/war-spaces-in-context");
+        UnpackedJarFile jarFile = new UnpackedJarFile(path);
+        Module module = builder.createModule(null, jarFile, kernel.getNaming(), new ModuleIDBuilder());
+        Repository repository = null;
+
+        AbstractName moduleName = module.getModuleName();
+        EARContext earContext = createEARContext(outputPath, defaultEnvironment, repository, configStore, moduleName);
+        module.setEarContext(earContext);
+        builder.initContext(earContext, module, cl);
+        builder.addGBeans(earContext, module, cl, Collections.EMPTY_SET);
+        ConfigurationData configurationData = earContext.getConfigurationData();
+        earContext.close();
+        module.close();
+
+        Artifact configurationId = configurationData.getId();
+        configurationManager.loadConfiguration(configurationData);
+        Configuration configuration = configurationManager.getConfiguration(configurationId);
+        configurationManager.startConfiguration(configurationId);
+
+        String contextRoot = (String) kernel.getAttribute(moduleName, "contextPath");
+        assertNotNull(contextRoot);
+        assertEquals(contextRoot, contextRoot.trim());
+
+        configurationManager.stopConfiguration(configurationId);
+        configurationManager.unloadConfiguration(configurationId);
+
+    }
+
     private EARContext createEARContext(File outputPath, Environment environment, Repository repository, ConfigurationStore configStore, AbstractName moduleName) throws DeploymentException {
         Set repositories = repository == null ? Collections.EMPTY_SET : Collections.singleton(repository);
         ArtifactManager artifactManager = new DefaultArtifactManager();

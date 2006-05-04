@@ -215,13 +215,15 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
         // parse vendor dd
         JettyWebAppType jettyWebApp = getJettyWebApp(plan, moduleFile, standAlone, targetPath, webApp);
-        if (contextRoot == null) {
+        if (contextRoot == null || contextRoot.trim().equals("")) {
             if (jettyWebApp.isSetContextRoot()) {
                 contextRoot = jettyWebApp.getContextRoot();
             } else {
                 contextRoot = determineDefaultContextRoot(webApp, standAlone, moduleFile, targetPath);
             }
         }
+
+        contextRoot = contextRoot.trim();
 
         EnvironmentType environmentType = jettyWebApp.getEnvironment();
         Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);

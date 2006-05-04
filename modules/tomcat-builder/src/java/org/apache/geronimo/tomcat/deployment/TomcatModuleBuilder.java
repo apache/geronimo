@@ -161,13 +161,15 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         // parse vendor dd
         TomcatWebAppType tomcatWebApp = getTomcatWebApp(plan, moduleFile, standAlone, targetPath, webApp);
 
-        if (contextRoot == null) {
+        if (contextRoot == null || contextRoot.trim().equals("")) {
             if (tomcatWebApp.isSetContextRoot()) {
                 contextRoot = tomcatWebApp.getContextRoot();
             } else {
                 contextRoot = determineDefaultContextRoot(webApp, standAlone, moduleFile, targetPath);
             }
         }
+
+        contextRoot = contextRoot.trim();
 
         EnvironmentType environmentType = tomcatWebApp.getEnvironment();
         Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
