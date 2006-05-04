@@ -81,6 +81,14 @@ public class SingleFileHotDeployer {
             throw new IllegalArgumentException("Directory is not a directory " + dir.getAbsolutePath());
         }
 
+        // take no action if there is nothing in the directory to deploy.   Perhaps we should
+        // consider doing an undeploy in this case if the application is already deployed. Howevr 
+        // for now this is to handle the case where the application is not already laid down at the 
+        // time of the initial deploy of this gbean.
+        if (dir.list().length == 0) {
+            return null;
+        }
+
         // get the existing inplace configuration if there is one
         ConfigurationInfo existingConfiguration = null;
         List list = configurationManager.listConfigurations();
@@ -92,7 +100,13 @@ public class SingleFileHotDeployer {
         }
         Artifact existingConfigurationId = (existingConfiguration == null) ? null : existingConfiguration.getConfigID();
 
-        if (!forceDeploy && existingConfiguration != null && !isModifedSince(existingConfiguration.getCreated())) {
+        if (!forceDeploy && existingConfiguration != null && !isModifiedSince(existingConfiguration.getCreated())) {
+            try {
+                configurationManager.loadConfiguration(existingConfigurationId);
+                configurationManager.startConfiguration(existingConfigurationId);
+            } catch (Exception e) {
+                throw new DeploymentException("Unable to load and start " + dir, e);
+            }
             return existingConfigurationId;
         }
 
@@ -135,20 +149,24 @@ public class SingleFileHotDeployer {
 
             // if the new configuration id isn't fully resolved, populate it with defaults
             if (!configurationId.isResolved()) {
-                resolve(configurationId);
+                configurationId = resolve(configurationId);
             }
 
             // if we are deploying over the exisitng version we need to uninstall first
             if(configurationId.equals(existingConfigurationId)) {
+                log.info("Undeploying " + configurationId);
                 configurationManager.uninstallConfiguration(existingConfigurationId);
             }
 
             // deploy it
+            log.info("Deploying " + configurationId + " in location " + dir);
             deployConfiguration(builder, store, configurationId, plan, module, Arrays.asList(configurationManager.getStores()), configurationManager.getArtifactResolver());
             wasDeployed = true;
 
             configurationManager.loadConfiguration(configurationId);
             configurationManager.startConfiguration(configurationId);
+
+            log.info("Successfully deployed and started " + configurationId + " in location " + dir);
 
             return configurationId;
         } catch (Exception e) {
@@ -156,9 +174,10 @@ public class SingleFileHotDeployer {
         } finally {
             DeploymentUtil.close(module);
         }
+
     }
 
-    private boolean isModifedSince(long created) {
+    private boolean isModifiedSince(long created) {
         for (int i = 0; i < watchPaths.length; i++) {
             String path = watchPaths[i];
             File file = new File(dir, path);
@@ -173,7 +192,7 @@ public class SingleFileHotDeployer {
         return false;
     }
 
-    private void resolve(Artifact configID) throws DeploymentException {
+    private Artifact resolve(Artifact configID) throws DeploymentException {
         String group = configID.getGroupId();
         if (group == null) {
             group = Artifact.DEFAULT_GROUP_ID;
@@ -190,7 +209,7 @@ public class SingleFileHotDeployer {
         if (type == null) {
             type = "car";
         }
-        configID = new Artifact(group, artifactId, version, type);
+        return new Artifact(group, artifactId, version, type);
     }
 
     private List deployConfiguration(ConfigurationBuilder builder, ConfigurationStore store, Artifact configurationId, Object plan, JarFile module, Collection stores, ArtifactResolver artifactResolver) throws DeploymentException {

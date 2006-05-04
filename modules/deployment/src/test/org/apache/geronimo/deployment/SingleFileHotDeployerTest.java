@@ -88,6 +88,9 @@ public class SingleFileHotDeployerTest extends TestCase {
         dir = new File("target/deployTest");
         dir.mkdirs();
 
+        File someFile = new File(dir, "someFile");
+        someFile.createNewFile();
+
         String watch1 = "watch1";
         String watch2 = "watch2";
         watchPaths = new String[]{watch1, watch2};
@@ -199,8 +202,8 @@ public class SingleFileHotDeployerTest extends TestCase {
     public void testNoRedeploy() throws Exception {
         shouldUninstall = false;
         shouldUnload = false;
-        shouldLoad = false;
-        shouldStart = false;
+        shouldLoad = true;
+        shouldStart = true;
         isConfigurationAlreadyLoaded = true;
 
         touch(watchFile1, PAST);
