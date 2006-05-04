@@ -31,6 +31,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
+ * Utility methods for dealing with checksums (hashes) of files in the
+ * configuration store.
+ *
  * @version $Rev$ $Date$
  */
 public class ConfigurationStoreUtil {
@@ -46,7 +49,7 @@ public class ConfigurationStoreUtil {
         // calculate the checksum
         String actualChecksum;
         try {
-            actualChecksum = calculateChecksum(file);
+            actualChecksum = calculateChecksum(file, "SHA-1");
         } catch (NoSuchAlgorithmException e) {
             throw new IOException("SHA-1 algorithm not available");
         }
@@ -119,19 +122,22 @@ public class ConfigurationStoreUtil {
     }
 
     public static String getActualChecksum(File file) {
+        return getActualChecksum(file, "SHA-1");
+    }
+    public static String getActualChecksum(File file, String algorithm) {
         try {
-            return calculateChecksum(file);
+            return calculateChecksum(file, algorithm);
         } catch (Exception e) {
             log.error("Unable to calculate checksum for configuration file: " + file.getAbsolutePath(), e);
         }
         return null;
     }
 
-    private static String calculateChecksum(File file) throws NoSuchAlgorithmException, IOException {
+    private static String calculateChecksum(File file, String algorithm) throws NoSuchAlgorithmException, IOException {
         InputStream stream = new FileInputStream(file);
 
         try {
-            MessageDigest digester = MessageDigest.getInstance("SHA-1");
+            MessageDigest digester = MessageDigest.getInstance(algorithm);
             digester.reset();
 
             byte buf[] = new byte[4096];

@@ -73,7 +73,7 @@ after the system GBeans but before the server GBeans.
     </gbean>
 
     <!-- Configuration Installer -->
-    <gbean name="ConfigurationInstaller" class="org.apache.geronimo.system.configuration.ConfigInstallerGBean">
+    <gbean name="PluginInstaller" class="org.apache.geronimo.system.plugin.PluginInstallerGBean">
       <reference name="Repository">
         <name>Repository</name>
       </reference>
@@ -89,5 +89,9 @@ after the system GBeans but before the server GBeans.
       <reference name="ThreadPool">
         <name>DefaultThreadPool</name>
       </reference>
+    </gbean>
+
+    <gbean name="DownloadedPluginRepos" class="org.apache.geronimo.system.plugin.PluginRepositoryDownloader">
+        <attribute name="repositoryList">http://people.apache.org/~ammulder/plugin-repository-list.txt</attribute>
     </gbean>
 </configuration>

@@ -22,7 +22,7 @@ import javax.enterprise.deploy.spi.DeploymentManager;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.plugin.GeronimoDeploymentManager;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.system.configuration.DownloadResults;
+import org.apache.geronimo.system.plugin.DownloadResults;
 
 /**
  * The CLI deployer logic to start.

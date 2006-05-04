@@ -17,10 +17,7 @@
 package org.apache.geronimo.console.car;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
@@ -32,14 +29,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.ajax.ProgressInfo;
-import org.apache.geronimo.console.ajax.ProgressMonitor;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.MissingDependencyException;
-import org.apache.geronimo.system.configuration.ConfigurationInstaller;
-import org.apache.geronimo.system.configuration.ConfigurationMetadata;
-import org.apache.geronimo.system.configuration.DownloadResults;
-import org.apache.geronimo.system.configuration.ConfigurationList;
+import org.apache.geronimo.system.plugin.PluginList;
+import org.apache.geronimo.system.plugin.PluginMetadata;
+import org.apache.geronimo.system.plugin.PluginInstaller;
+import org.apache.geronimo.system.plugin.DownloadResults;
 
 /**
  * Handler for the initial download screen.
@@ -71,16 +66,16 @@ public class DownloadCARHandler extends BaseImportExportHandler {
         String repo = request.getParameter("repository");
         String user = request.getParameter("repo-user");
         String pass = request.getParameter("repo-pass");
-        ConfigurationMetadata config = null;
+        PluginMetadata config = null;
         try {
-            ConfigurationList list = (ConfigurationList) request.getPortletSession(true).getAttribute(CONFIG_LIST_SESSION_KEY);
+            PluginList list = (PluginList) request.getPortletSession(true).getAttribute(CONFIG_LIST_SESSION_KEY);
             if(list == null) {
-                list = PortletManager.getCurrentServer(request).getConfigurationInstaller().listConfigurations(new URL(repo), user, pass);
+                list = PortletManager.getCurrentServer(request).getPluginInstaller().listPlugins(new URL(repo), user, pass);
                 request.getPortletSession(true).setAttribute(CONFIG_LIST_SESSION_KEY, list);
             }
-            for (int i = 0; i < list.getConfigurations().length; i++) {
-                ConfigurationMetadata metadata = list.getConfigurations()[i];
-                if(metadata.getConfigId().toString().equals(configId)) {
+            for (int i = 0; i < list.getPlugins().length; i++) {
+                PluginMetadata metadata = list.getPlugins()[i];
+                if(metadata.getModuleId().toString().equals(configId)) {
                     config = metadata;
                     break;
                 }
@@ -106,14 +101,14 @@ public class DownloadCARHandler extends BaseImportExportHandler {
         if(proceed) {
             String configId = request.getParameter("configId");
 
-            ConfigurationList installList;
+            PluginList installList;
             try {
-                ConfigurationList list = (ConfigurationList) request.getPortletSession(true).getAttribute(CONFIG_LIST_SESSION_KEY);
+                PluginList list = (PluginList) request.getPortletSession(true).getAttribute(CONFIG_LIST_SESSION_KEY);
                 if(list == null) {
-                    list = PortletManager.getCurrentServer(request).getConfigurationInstaller().listConfigurations(new URL(repo), user, pass);
+                    list = PortletManager.getCurrentServer(request).getPluginInstaller().listPlugins(new URL(repo), user, pass);
                     request.getPortletSession(true).setAttribute(CONFIG_LIST_SESSION_KEY, list);
                 }
-                installList = ConfigurationList.createInstallList(list, Artifact.create(configId));
+                installList = PluginList.createInstallList(list, Artifact.create(configId));
             } catch (FailedLoginException e) {
                 throw new PortletException("Invalid login for Maven repository '"+repo+"'", e);
             }
@@ -121,7 +116,7 @@ public class DownloadCARHandler extends BaseImportExportHandler {
                 throw new PortletException("No configuration found for '"+configId+"'");
             }
 
-            ConfigurationInstaller configInstaller = PortletManager.getCurrentServer(request).getConfigurationInstaller(); 
+            PluginInstaller configInstaller = PortletManager.getCurrentServer(request).getPluginInstaller();
             Object downloadKey = configInstaller.startInstall(installList, user, pass);
             ProgressInfo progressInfo = new ProgressInfo();
             request.getPortletSession(true).setAttribute(ProgressInfo.PROGRESS_INFO_KEY, progressInfo, PortletSession.APPLICATION_SCOPE);
@@ -137,12 +132,12 @@ public class DownloadCARHandler extends BaseImportExportHandler {
     }
 
     public static class Installer implements Runnable {
-        private ConfigurationInstaller configInstaller;
+        private PluginInstaller configInstaller;
         private Object downloadKey;
         private ProgressInfo progressInfo;
         private PortletSession session;
 
-        public Installer(ConfigurationInstaller configInstaller, Object downloadKey, ProgressInfo progressInfo, PortletSession session) {
+        public Installer(PluginInstaller configInstaller, Object downloadKey, ProgressInfo progressInfo, PortletSession session) {
             this.configInstaller = configInstaller;
             this.downloadKey = downloadKey;
             this.progressInfo = progressInfo;
@@ -153,20 +148,20 @@ public class DownloadCARHandler extends BaseImportExportHandler {
             DownloadResults results;
 
             while (true) {
-            	results = configInstaller.checkOnInstall(downloadKey);
-            	progressInfo.setMainMessage(results.getCurrentMessage());
-            	progressInfo.setProgressPercent(results.getCurrentFilePercent());
+                results = configInstaller.checkOnInstall(downloadKey);
+                progressInfo.setMainMessage(results.getCurrentMessage());
+                progressInfo.setProgressPercent(results.getCurrentFilePercent());
                 progressInfo.setFinished(results.isFinished());
                 log.info(progressInfo.getMainMessage());
                 if (results.isFinished()) {
                     log.info("Installation finished");
                     session.setAttribute(DOWNLOAD_RESULTS_SESSION_KEY, results);
                     break;
-            	} else {
-            		try { Thread.sleep(1000); } catch (InterruptedException e) {
+                } else {
+                    try { Thread.sleep(1000); } catch (InterruptedException e) {
                         log.error("Download monitor thread interrupted", e);
-					}
-            	}
+                    }
+                }
             }
         }
     }

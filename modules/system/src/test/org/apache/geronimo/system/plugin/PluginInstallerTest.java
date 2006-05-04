@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.system.configuration;
+package org.apache.geronimo.system.plugin;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,20 +46,22 @@ import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.system.threads.ThreadPool;
 
 /**
- * Tests the config installer GBean
+ * Tests the plugin installer GBean
  *
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
-public class ConfigInstallerTest extends TestCase {
+public class PluginInstallerTest extends TestCase {
+    private URL fakeRepo;
     private URL testRepo;
-    private ConfigurationInstaller installer;
+    private PluginInstaller installer;
 
     protected void setUp() throws Exception {
         super.setUp();
+        fakeRepo = new URL("http://nowhere.com/");
         String url = getClass().getResource("/geronimo-plugins.xml").toString();
         int pos = url.lastIndexOf("/");
         testRepo = new URL(url.substring(0, pos));
-        installer = new ConfigInstallerGBean(new MockConfigManager(), new MockRepository(), new MockConfigStore(),
+        installer = new PluginInstallerGBean(new MockConfigManager(), new MockRepository(), new MockConfigStore(),
                 new BasicServerInfo("."), new ThreadPool() {
             public int getPoolSize() {
                 return 0;
@@ -72,16 +74,16 @@ public class ConfigInstallerTest extends TestCase {
     }
 
     public void testParsing() throws Exception {
-        ConfigurationList list = installer.listConfigurations(testRepo, null, null);
-        assertEquals(0, list.getBackupRepositories().length);
-        assertEquals(testRepo, list.getMainRepository());
-        assertTrue(list.getConfigurations().length > 0);
+        PluginList list = installer.listPlugins(testRepo, null, null);
+        assertEquals(1, list.getRepositories().length);
+        assertEquals(fakeRepo, list.getRepositories()[0]);
+        assertTrue(list.getPlugins().length > 0);
         int prereqCount = 0;
-        for (int i = 0; i < list.getConfigurations().length; i++) {
-            ConfigurationMetadata metadata = list.getConfigurations()[i];
+        for (int i = 0; i < list.getPlugins().length; i++) {
+            PluginMetadata metadata = list.getPlugins()[i];
             prereqCount += metadata.getPrerequisites().length;
             for (int j = 0; j < metadata.getPrerequisites().length; j++) {
-                ConfigurationMetadata.Prerequisite prerequisite = metadata.getPrerequisites()[j];
+                PluginMetadata.Prerequisite prerequisite = metadata.getPrerequisites()[j];
                 assertFalse(prerequisite.isPresent());
             }
         }

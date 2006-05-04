@@ -20,12 +20,21 @@ the administrator username and password in the optional authentication fields.</
 
 <form name="<portlet:namespace/>PluginForm" action="<portlet:actionURL/>">
     <input type="hidden" name="mode" value="index-after" />
-    <b>Repository:</b> <input type="text" name="repository" value="${repository}" size="30" maxlength="200" />
-    <input type="submit" value="Search for Plugins" />
-    <br /><b>Optional Authentication:</b>
-       User: <input type="text" name="username" value="${repouser}" size="20" maxlength="200" />
-       Password: <input type="password" name="password" value="${repopass}" size="20" maxlength="200" />
-
+    <b>Repository:</b> <%-- todo: entry field for user-specified list --%>
+    <select name="repository">
+        <c:forEach var="repo" items="${repositories}">
+            <option<c:if test="${repo eq repository}"> selected</c:if>>${repo}</option>
+        </c:forEach>
+    </select>
+    <c:if test="${!empty repositories}"><br /></c:if>
+    <i>(<a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="updateList-before" /><portlet:param name="repository" value="${repository}" /></portlet:actionURL>">Update Repository List</a>)</i>
+    <%--<input type="text" name="repository" value="${repository}" size="30" maxlength="200" />--%>
+    <c:if test="${!empty repositories}">
+      <input type="submit" value="Search for Plugins" />
+      <br /><b>Optional Authentication:</b>
+         User: <input type="text" name="username" value="${repouser}" size="12" maxlength="200" />
+         Password: <input type="password" name="password" value="${repopass}" size="12" maxlength="200" />
+    </c:if>
 </form>
 
 <h2>Create Geronimo Plugin</h2>

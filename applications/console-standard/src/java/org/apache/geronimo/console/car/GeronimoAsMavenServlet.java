@@ -39,29 +39,23 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.console.util.KernelManagementHelper;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
-import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.Version;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.system.configuration.ConfigurationInstaller;
-import org.apache.geronimo.system.configuration.ConfigurationArchiveData;
-import org.apache.geronimo.system.configuration.ConfigurationMetadata;
+import org.apache.geronimo.system.plugin.PluginInstaller;
+import org.apache.geronimo.system.plugin.PluginMetadata;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
@@ -91,7 +85,7 @@ public class GeronimoAsMavenServlet extends HttpServlet {
             response.setContentType("text/xml");
             if(reply) {
                 try {
-                    generateConfigFile(kernel, response.getWriter());
+                    generateConfigFile(request, kernel, response.getWriter());
                 } catch (Exception e) {
                     throw new ServletException("Unable to generate Geronimo configuration list", e);
                 }
@@ -200,16 +194,14 @@ public class GeronimoAsMavenServlet extends HttpServlet {
         return false;
     }
 
-    private void generateConfigFile(Kernel kernel, PrintWriter out) throws ParserConfigurationException, NoSuchStoreException, TransformerException {
-        KernelManagementHelper helper = new KernelManagementHelper(kernel);
-        ServerInfo serverInfo = helper.getServers(helper.getDomains()[0])[0].getServerInfo();
-        String version = serverInfo.getVersion();
+    private void generateConfigFile(HttpServletRequest request, Kernel kernel, PrintWriter out) throws ParserConfigurationException, NoSuchStoreException, TransformerException {
         ConfigurationManager mgr = ConfigurationUtil.getConfigurationManager(kernel);
-        ConfigurationInstaller installer = getInstaller(kernel);
+        PluginInstaller installer = getInstaller(kernel);
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(true);
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document doc = builder.newDocument();
-        Element root = doc.createElement("geronimo-plugin-list");
+        Element root = doc.createElementNS("http://geronimo.apache.org/xml/ns/plugins-1.1", "geronimo-plugin-list");
         doc.appendChild(root);
         List stores = mgr.listStores();
         for (int i = 0; i < stores.size(); i++) {
@@ -217,21 +209,27 @@ public class GeronimoAsMavenServlet extends HttpServlet {
             List configs = mgr.listConfigurations(name);
             for (int j = 0; j < configs.size(); j++) {
                 ConfigurationInfo info = (ConfigurationInfo) configs.get(j);
-                ConfigurationArchiveData archiveData = installer.getPluginMetadata(info.getConfigID());
-                ConfigurationMetadata data = archiveData.getConfiguration();
-                Element config = doc.createElement("configuration");
+                PluginMetadata data = installer.getPluginMetadata(info.getConfigID());
+                Element config = doc.createElement("plugin");
                 root.appendChild(config);
                 createText(doc, config, "name", data.getName());
-                createText(doc, config, "config-id", data.getConfigId().toString());
+                createText(doc, config, "module-id", data.getModuleId().toString());
                 createText(doc, config, "category", "Geronimo Deployments");
                 createText(doc, config, "description", data.getCategory().equals("Unknown") ? "Automatically generated plugin metadata" : data.getDescription());
+                if(data.getPluginURL() != null) {
+                    createText(doc, config, "url", data.getPluginURL());
+                }
+                if(data.getAuthor() != null) {
+                    createText(doc, config, "author", data.getAuthor());
+                }
                 for (int k = 0; k < data.getLicenses().length; k++) {
-                    ConfigurationMetadata.License license = data.getLicenses()[k];
+                    PluginMetadata.License license = data.getLicenses()[k];
                     Element lic = doc.createElement("license");
                     lic.setAttribute("osi-approved", Boolean.toString(license.isOsiApproved()));
                     createText(doc, lic, license.getName());
                     config.appendChild(lic);
                 }
+                // Skip hash since the CAR will be re-exported anyway and the file will be different
                 String[] versions = data.getGeronimoVersions();
                 for (int k = 0; k < versions.length; k++) {
                     String ver = versions[k];
@@ -243,7 +241,7 @@ public class GeronimoAsMavenServlet extends HttpServlet {
                     createText(doc, config, "jvm-version", ver);
                 }
                 for (int k = 0; k < data.getPrerequisites().length; k++) {
-                    ConfigurationMetadata.Prerequisite prereq = data.getPrerequisites()[k];
+                    PluginMetadata.Prerequisite prereq = data.getPrerequisites()[k];
                     writePrerequisite(doc, config, prereq);
                 }
                 for (int k = 0; k < data.getDependencies().length; k++) {
@@ -254,20 +252,25 @@ public class GeronimoAsMavenServlet extends HttpServlet {
                     String obs = data.getObsoletes()[k];
                     createText(doc, config, "obsoletes", obs);
                 }
+                // Skip repositories since we want the download to come from here
             }
         }
+        String repo = request.getProtocol()+"://"+request.getServerName()+":"+request.getServerPort()+request.getContextPath()+request.getServletPath();
+        if(!repo.endsWith("/")) repo += "/";
+        createText(doc, root, "default-repository", repo);
         TransformerFactory xfactory = TransformerFactory.newInstance();
         Transformer xform = xfactory.newTransformer();
         xform.setOutputProperty(OutputKeys.INDENT, "yes");
+        xform.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
         xform.transform(new DOMSource(doc), new StreamResult(out));
     }
 
-    private ConfigurationInstaller getInstaller(Kernel kernel) {
-        Set names = kernel.listGBeans(new AbstractNameQuery(ConfigurationInstaller.class.getName()));
+    private PluginInstaller getInstaller(Kernel kernel) {
+        Set names = kernel.listGBeans(new AbstractNameQuery(PluginInstaller.class.getName()));
         if(names.size() == 0) {
             return null;
         }
-        return (ConfigurationInstaller) kernel.getProxyManager().createProxy((AbstractName) names.iterator().next(), ConfigurationInstaller.class);
+        return (PluginInstaller) kernel.getProxyManager().createProxy((AbstractName) names.iterator().next(), PluginInstaller.class);
     }
 
     private void generateMavenFile(Kernel kernel, PrintWriter writer, String groupId, String artifactId, boolean reply) throws ParserConfigurationException, TransformerException {
@@ -301,10 +304,10 @@ public class GeronimoAsMavenServlet extends HttpServlet {
         xform.transform(new DOMSource(doc), new StreamResult(writer));
     }
 
-    private void writePrerequisite(Document doc, Element config, ConfigurationMetadata.Prerequisite req) {
+    private void writePrerequisite(Document doc, Element config, PluginMetadata.Prerequisite req) {
         Element prereq = doc.createElement("prerequisite");
         config.appendChild(prereq);
-        createText(doc, prereq, "id", req.getConfigId().toString());
+        createText(doc, prereq, "id", req.getModuleId().toString());
         createText(doc, prereq, "resource-type", req.getResourceType());
         createText(doc, prereq, "description", req.getDescription());
     }

@@ -32,12 +32,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.system.configuration.ConfigurationArchiveData;
-import org.apache.geronimo.system.configuration.ConfigurationMetadata;
+import org.apache.geronimo.system.plugin.PluginMetadata;
 
 /**
  * Handler for the screen where you configure plugin data before exporting
@@ -61,14 +57,15 @@ public class ExportConfigHandler extends BaseImportExportHandler {
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
         String configId = request.getParameter("configId");
-        ConfigurationArchiveData data = PortletManager.getCurrentServer(request).getConfigurationInstaller().getPluginMetadata(Artifact.create(configId));
-        request.setAttribute("configId", data.getConfiguration().getConfigId());
-        request.setAttribute("name", data.getConfiguration().getName());
-        request.setAttribute("sourceRepository", data.getRepository() == null ? null : data.getRepository().toString());
-        request.setAttribute("backupRepository", combine(data.getBackups()));
-        request.setAttribute("category", data.getConfiguration().getCategory());
-        request.setAttribute("description", data.getConfiguration().getDescription());
-        ConfigurationMetadata.License[] licenses = data.getConfiguration().getLicenses();
+        PluginMetadata data = PortletManager.getCurrentServer(request).getPluginInstaller().getPluginMetadata(Artifact.create(configId));
+        request.setAttribute("configId", data.getModuleId());
+        request.setAttribute("name", data.getName());
+        request.setAttribute("repository", combine(data.getRepositories()));
+        request.setAttribute("category", data.getCategory());
+        request.setAttribute("url", data.getPluginURL());
+        request.setAttribute("author", data.getAuthor());
+        request.setAttribute("description", data.getDescription());
+        PluginMetadata.License[] licenses = data.getLicenses();
         if(licenses != null && licenses.length > 0) {
             request.setAttribute("license", licenses[0].getName());
             if(licenses[0].isOsiApproved()) {
@@ -78,16 +75,16 @@ public class ExportConfigHandler extends BaseImportExportHandler {
                 log.warn("Unable to edit plugin metadata containing more than one license!  Additional license data will not be editable.");
             }
         }
-        request.setAttribute("gerVersions", combine(data.getConfiguration().getGeronimoVersions()));
-        request.setAttribute("jvmVersions", combine(data.getConfiguration().getJvmVersions()));
-        request.setAttribute("dependencies", combine(data.getConfiguration().getDependencies()));
-        request.setAttribute("obsoletes", combine(data.getConfiguration().getObsoletes()));
-        ConfigurationMetadata.Prerequisite[] reqs = data.getConfiguration().getPrerequisites();
+        request.setAttribute("gerVersions", combine(data.getGeronimoVersions()));
+        request.setAttribute("jvmVersions", combine(data.getJvmVersions()));
+        request.setAttribute("dependencies", combine(data.getDependencies()));
+        request.setAttribute("obsoletes", combine(data.getObsoletes()));
+        PluginMetadata.Prerequisite[] reqs = data.getPrerequisites();
         if(reqs != null && reqs.length > 0) {
             for (int i = 0; i < reqs.length; i++) {
-                ConfigurationMetadata.Prerequisite req = reqs[i];
+                PluginMetadata.Prerequisite req = reqs[i];
                 String prefix = "prereq" + (i+1);
-                request.setAttribute(prefix, req.getConfigId().toString());
+                request.setAttribute(prefix, req.getModuleId().toString());
                 request.setAttribute(prefix +"type", req.getResourceType());
                 request.setAttribute(prefix +"desc", req.getDescription());
             }
@@ -100,9 +97,10 @@ public class ExportConfigHandler extends BaseImportExportHandler {
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
         String configId = request.getParameter("configId");
         String name = request.getParameter("name");
-        String repo = request.getParameter("sourceRepository");
-        String backups = request.getParameter("backupRepository");
+        String repo = request.getParameter("repository");
         String category = request.getParameter("category");
+        String url = request.getParameter("url");
+        String author = request.getParameter("author");
         String description = request.getParameter("description");
         String license = request.getParameter("license");
         String osi = request.getParameter("licenseOSI");
@@ -110,21 +108,21 @@ public class ExportConfigHandler extends BaseImportExportHandler {
         String jvms = request.getParameter("jvmVersions");
         String deps = request.getParameter("dependencies");
         String obsoletes = request.getParameter("obsoletes");
-        ConfigurationArchiveData data = PortletManager.getCurrentServer(request).getConfigurationInstaller().getPluginMetadata(Artifact.create(configId));
-        ConfigurationMetadata metadata = new ConfigurationMetadata(data.getConfiguration().getConfigId(),
-                name, description, category, true, false);
+        PluginMetadata data = PortletManager.getCurrentServer(request).getPluginInstaller().getPluginMetadata(Artifact.create(configId));
+        PluginMetadata metadata = new PluginMetadata(name, data.getModuleId(),
+                description, category, url, author, null, true, false);
         metadata.setDependencies(split(deps));
         metadata.setGeronimoVersions(split(gers));
         metadata.setJvmVersions(split(jvms));
         metadata.setObsoletes(split(obsoletes));
         List licenses = new ArrayList();
         if(license != null && !license.trim().equals("")) {
-            licenses.add(new ConfigurationMetadata.License(license.trim(), osi != null && !osi.equals("")));
+            licenses.add(new PluginMetadata.License(license.trim(), osi != null && !osi.equals("")));
         }
-        for (int i = 1; i < data.getConfiguration().getLicenses().length; i++) {
-            licenses.add(data.getConfiguration().getLicenses()[i]);
+        for (int i = 1; i < data.getLicenses().length; i++) {
+            licenses.add(data.getLicenses()[i]);
         }
-        metadata.setLicenses((ConfigurationMetadata.License[]) licenses.toArray(new ConfigurationMetadata.License[licenses.size()]));
+        metadata.setLicenses((PluginMetadata.License[]) licenses.toArray(new PluginMetadata.License[licenses.size()]));
         List prereqs = new ArrayList();
         int counter = 1;
         while(true) {
@@ -142,20 +140,16 @@ public class ExportConfigHandler extends BaseImportExportHandler {
             if(desc != null && desc.trim().equals("")) {
                 desc = null;
             }
-            prereqs.add(new ConfigurationMetadata.Prerequisite(Artifact.create(id), false, type, desc));
+            prereqs.add(new PluginMetadata.Prerequisite(Artifact.create(id), false, type, desc));
         }
-        for (int i = 3; i < data.getConfiguration().getPrerequisites().length; i++) {
-            ConfigurationMetadata.Prerequisite req = data.getConfiguration().getPrerequisites()[i];
+        for (int i = 3; i < data.getPrerequisites().length; i++) {
+            PluginMetadata.Prerequisite req = data.getPrerequisites()[i];
             prereqs.add(req);
         }
-        metadata.setPrerequisites((ConfigurationMetadata.Prerequisite[]) prereqs.toArray(new ConfigurationMetadata.Prerequisite[prereqs.size()]));
-        URL repoURL = null;
-        if(repo != null && !repo.trim().equals("")) {
-            repoURL = new URL(repo);
-        }
-        URL[] backupURLs = splitURLs(backups);
-        data = new ConfigurationArchiveData(repoURL, backupURLs, metadata);
-        PortletManager.getCurrentServer(request).getConfigurationInstaller().updatePluginMetadata(data);
+        metadata.setPrerequisites((PluginMetadata.Prerequisite[]) prereqs.toArray(new PluginMetadata.Prerequisite[prereqs.size()]));
+        URL[] backupURLs = splitURLs(repo);
+        metadata.setRepositories(backupURLs);
+        PortletManager.getCurrentServer(request).getPluginInstaller().updatePluginMetadata(metadata);
 
         response.setRenderParameter("configId", configId);
         response.setRenderParameter("name", name);

@@ -33,6 +33,7 @@ public abstract class BaseImportExportHandler extends MultiPageAbstractHandler {
     protected static final String RESULTS_MODE = "results";
     protected static final String CONFIGURE_EXPORT_MODE = "configure";
     protected static final String CONFIRM_EXPORT_MODE = "confirm";
+    protected static final String UPDATE_REPOS_MODE = "updateList";
 
     protected BaseImportExportHandler(String mode, String viewName) {
         super(mode, viewName);

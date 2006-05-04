@@ -14,18 +14,17 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.deployment.plugin;
+package org.apache.geronimo.system.plugin;
 
 import java.net.URL;
-import org.apache.geronimo.system.plugin.PluginInstaller;
-
-import javax.enterprise.deploy.spi.DeploymentManager;
 
 /**
- * Enhanced features for Geronimo deployment manager
+ * Interface for a service that lists available plugin repositories.
  *
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
-public interface GeronimoDeploymentManager extends DeploymentManager, PluginInstaller {
+public interface PluginRepositoryList {
     public URL[] getRepositories();
+    public void refresh();
+    public void addUserRepository(URL repo);
 }

@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.system.configuration;
+package org.apache.geronimo.system.plugin;
 
 import org.apache.geronimo.kernel.repository.Artifact;
 
@@ -22,7 +22,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
  * An interface for callers who want to monitor the progress of an installation.
  * These are all callbacks sent by the server.
  *
- * @see ConfigurationInstaller
+ * @see PluginInstaller
  *
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */

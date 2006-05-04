@@ -24,7 +24,7 @@ already available in the local server.</p>
                       <c:if test="${!entry.eligible}">
                           <c:forEach var="prereq" items="${entry.prerequisites}">
                               <c:if test="${!prereq.present}">
-                                  (${prereq.configIdWithStars} is not installed)
+                                  (${prereq.moduleIdWithStars} is not installed)
                               </c:if>
                           </c:forEach>
                       </c:if>
@@ -33,7 +33,7 @@ already available in the local server.</p>
           </li>
         </c:when>
         <c:otherwise>
-          <li><a href="<portlet:actionURL><portlet:param name="configId" value="${entry.configId}"/><portlet:param name="repository" value="${repository}"/><portlet:param name="repo-user" value="${repouser}"/><portlet:param name="repo-pass" value="${repopass}"/><portlet:param name="mode" value="download-before"/></portlet:actionURL>">${entry.name}<c:if test="${entry.name ne entry.configId}"> (${entry.version})</c:if></a></li>
+          <li><a href="<portlet:actionURL><portlet:param name="configId" value="${entry.moduleId}"/><portlet:param name="repository" value="${repository}"/><portlet:param name="repo-user" value="${repouser}"/><portlet:param name="repo-pass" value="${repopass}"/><portlet:param name="mode" value="download-before"/></portlet:actionURL>">${entry.name}<c:if test="${entry.name ne entry.moduleId}"> (${entry.version})</c:if></a></li>
         </c:otherwise>
       </c:choose>
     </c:forEach>

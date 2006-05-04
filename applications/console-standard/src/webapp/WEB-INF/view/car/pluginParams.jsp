@@ -36,30 +36,19 @@
               the version number for the plugin, so make sure it's correct.
             </td>
           </tr>
-        <!-- ENTRY FIELD: Source Repository -->
+          </tr>
+        <!-- ENTRY FIELD: Repositories -->
           <tr>
-            <th style="min-width: 140px"><div align="right">Download Repository:</div></th>
-            <td><input name="sourceRepository" type="text" size="30" value="${sourceRepository}" /></td>
+            <th style="min-width: 140px"><div align="right">Download Repositories:</div></th>
+            <td><textarea rows="5" cols="60" name="repository">${repository}</textarea></td>
           </tr>
           <tr>
             <td></td>
             <td>
-              The main repository that should be checked when downloading dependencies
-              for this plugin.  This should be a URL, such as
-              <tt>http://geronimoplugins.com/repository/</tt>
-            </td>
-          </tr>
-        <!-- ENTRY FIELD: Backup Repository -->
-          <tr>
-            <th style="min-width: 140px"><div align="right">Additional Repositories:</div></th>
-            <td><textarea rows="5" cols="60" name="backupRepository">${backupRepository}</textarea></td>
-          </tr>
-          <tr>
-            <td></td>
-            <td>
-              A list of additional repositories to check for any dependencies that are
-              not present in the main repository.  This should be a list of one URL per
-              line, with values such as <tt>http://www.ibiblio.org/maven2/</tt>
+              A list of repositories to check for any dependencies that need to be downloaded.
+              This should be a list of one URL per line, with values such as
+              <tt>http://geronimoplugins.com/repository/</tt> and <tt>http://www.ibiblio.org/maven2/</tt>.
+              Note that the repository this plugin is deployed to should typically be the first one listed.
             </td>
           </tr>
         <!-- ENTRY FIELD: Category -->
@@ -88,6 +77,28 @@
             <td>
               A description of this plugin.  You should use plain text only, with
               blank lines to separate paragraphs.
+            </td>
+          </tr>
+        <!-- ENTRY FIELD: URL -->
+          <tr>
+            <th style="min-width: 140px"><div align="right">Plugin URL:</div></th>
+              <td><input name="url" type="text" size="30" value="${url}" /></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>
+              A URL to get more information about the plugin (e.g. the plugin home page).
+            </td>
+          </tr>
+        <!-- ENTRY FIELD: Author -->
+          <tr>
+            <th style="min-width: 140px"><div align="right">Author:</div></th>
+              <td><input name="author" type="text" size="30" value="${author}" /></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>
+              The author of the plug, which may be a person, company, open source project, etc.
             </td>
           </tr>
         <!-- ENTRY FIELD: License -->

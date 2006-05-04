@@ -14,9 +14,10 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.system.configuration;
+package org.apache.geronimo.system.plugin;
 
 import java.io.Serializable;
+import java.net.URL;
 import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
@@ -25,26 +26,34 @@ import org.apache.geronimo.kernel.repository.Artifact;
  *
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
-public class ConfigurationMetadata implements Serializable, Comparable {
-    private final Artifact configId;
+public class PluginMetadata implements Serializable, Comparable {
     private final String name;
-    private final String description;
+    private final Artifact moduleId;
     private final String category;
-    private final boolean installed;
-    private final boolean eligible;
-    private String[] dependencies;
-    private String[] obsoletes;
+    private final String description;
+    private final String pluginURL;
+    private final String author;
     private License[] licenses;
+    private final Hash hash;
     private String[] geronimoVersions;
     private String[] jvmVersions;
-    private String[] forceStart;
     private Prerequisite[] prerequisites;
+    private String[] dependencies;
+    private String[] forceStart;
+    private String[] obsoletes;
+    private URL[] repositories;
 
-    public ConfigurationMetadata(Artifact configId, String name, String description, String category, boolean installed, boolean eligible) {
-        this.configId = configId;
+    private final boolean installed;
+    private final boolean eligible;
+
+    public PluginMetadata(String name, Artifact moduleId, String category, String description, String pluginURL, String author, Hash hash, boolean installed, boolean eligible) {
         this.name = name;
-        this.description = description;
+        this.moduleId = moduleId;
         this.category = category;
+        this.description = description;
+        this.pluginURL = pluginURL;
+        this.author = author;
+        this.hash = hash;
         this.installed = installed;
         this.eligible = eligible;
     }
@@ -65,8 +74,8 @@ public class ConfigurationMetadata implements Serializable, Comparable {
      * Gets the Config ID for this configuration, which is a globally unique
      * identifier.
      */
-    public Artifact getConfigId() {
-        return configId;
+    public Artifact getModuleId() {
+        return moduleId;
     }
 
     /**
@@ -97,7 +106,7 @@ public class ConfigurationMetadata implements Serializable, Comparable {
     }
 
     public String getVersion() {
-        return configId.getVersion() == null ? "unknown version" : configId.getVersion().toString();
+        return moduleId.getVersion() == null ? "unknown version" : moduleId.getVersion().toString();
     }
 
     /**
@@ -130,6 +139,22 @@ public class ConfigurationMetadata implements Serializable, Comparable {
         return geronimoVersions;
     }
 
+    public String getAuthor() {
+        return author;
+    }
+
+    public Hash getHash() {
+        return hash;
+    }
+
+    public String getPluginURL() {
+        return pluginURL;
+    }
+
+    public URL[] getRepositories() {
+        return repositories;
+    }
+
     public void setGeronimoVersions(String[] geronimoVersions) {
         this.geronimoVersions = geronimoVersions;
     }
@@ -154,6 +179,10 @@ public class ConfigurationMetadata implements Serializable, Comparable {
         return prerequisites;
     }
 
+    public void setRepositories(URL[] repositories) {
+        this.repositories = repositories;
+    }
+
     public void setPrerequisites(Prerequisite[] prerequisites) {
         this.prerequisites = prerequisites;
     }
@@ -164,7 +193,7 @@ public class ConfigurationMetadata implements Serializable, Comparable {
 
 
     public int compareTo(Object o) {
-        ConfigurationMetadata other = (ConfigurationMetadata) o;
+        PluginMetadata other = (PluginMetadata) o;
         int test = category.compareTo(other.category);
         if(test != 0) return test;
         test = name.compareTo(other.name);
@@ -190,28 +219,46 @@ public class ConfigurationMetadata implements Serializable, Comparable {
         }
     }
 
+    public static class Hash implements Serializable {
+        private final String type; // MD5 or SHA-1
+        private final String value;
+
+        public Hash(String type, String value) {
+            this.type = type;
+            this.value = value;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
+
     public static class Prerequisite implements Serializable {
-        private final Artifact configId;
+        private final Artifact moduleId;
         private final String resourceType;
         private final String description;
         private final boolean present;
 
-        public Prerequisite(Artifact configId, boolean present) {
-            this.configId = configId;
+        public Prerequisite(Artifact moduleId, boolean present) {
+            this.moduleId = moduleId;
             this.present = present;
             resourceType = null;
             description = null;
         }
 
-        public Prerequisite(Artifact configId, boolean present, String resourceType, String description) {
-            this.configId = configId;
+        public Prerequisite(Artifact moduleId, boolean present, String resourceType, String description) {
+            this.moduleId = moduleId;
             this.present = present;
             this.resourceType = resourceType;
             this.description = description;
         }
 
-        public Artifact getConfigId() {
-            return configId;
+        public Artifact getModuleId() {
+            return moduleId;
         }
 
         public String getResourceType() {
@@ -226,30 +273,30 @@ public class ConfigurationMetadata implements Serializable, Comparable {
             return present;
         }
 
-        public String getConfigIdWithStars() {
+        public String getModuleIdWithStars() {
             StringBuffer buf = new StringBuffer();
-            if(configId.getGroupId() == null) {
+            if(moduleId.getGroupId() == null) {
                 buf.append("*");
             } else {
-                buf.append(configId.getGroupId());
+                buf.append(moduleId.getGroupId());
             }
             buf.append("/");
-            if(configId.getArtifactId() == null) {
+            if(moduleId.getArtifactId() == null) {
                 buf.append("*");
             } else {
-                buf.append(configId.getArtifactId());
+                buf.append(moduleId.getArtifactId());
             }
             buf.append("/");
-            if(configId.getVersion() == null) {
+            if(moduleId.getVersion() == null) {
                 buf.append("*");
             } else {
-                buf.append(configId.getVersion());
+                buf.append(moduleId.getVersion());
             }
             buf.append("/");
-            if(configId.getType() == null) {
+            if(moduleId.getType() == null) {
                 buf.append("*");
             } else {
-                buf.append(configId.getType());
+                buf.append(moduleId.getType());
             }
             return buf.toString();
         }

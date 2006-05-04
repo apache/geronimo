@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.system.configuration;
+package org.apache.geronimo.system.plugin;
 
 import java.io.IOException;
 import java.io.File;
@@ -28,16 +28,18 @@ import org.apache.geronimo.kernel.repository.Artifact;
  *
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
-public interface ConfigurationInstaller {
+public interface PluginInstaller {
     /**
-     * Lists the configurations available for download in a particular Geronimo repository.
-     * @param mavenRepository The base URL to the maven repository
+     * Lists the plugins available for download in a particular Geronimo repository.
+     *
+     * @param mavenRepository The base URL to the maven repository.  This must
+     *                        contain the file geronimo-plugins.xml
      * @param username Optional username, if the maven repo uses HTTP Basic authentication.
      *                 Set this to null if no authentication is required.
      * @param password Optional password, if the maven repo uses HTTP Basic authentication.
      *                 Set this to null if no authentication is required.
      */
-    public ConfigurationList listConfigurations(URL mavenRepository, String username, String password) throws IOException, FailedLoginException;
+    public PluginList listPlugins(URL mavenRepository, String username, String password) throws IOException, FailedLoginException;
 
     /**
      * Lists the plugins installed in the local Geronimo server, by name and
@@ -53,11 +55,11 @@ public interface ConfigurationInstaller {
      * server.  Should load a saved one if available, or else create a new
      * default one to the best of its abilities.
      *
-     * @param configId Identifies the configuration.  This must match a
+     * @param moduleId Identifies the configuration.  This must match a
      *                 configuration currently installed in the local server.
      *                 The configId must be fully resolved (isResolved() == true)
      */
-    public ConfigurationArchiveData getPluginMetadata(Artifact configId);
+    public PluginMetadata getPluginMetadata(Artifact moduleId);
 
     /**
      * Saves a ConfigurationMetadata for a particular plugin, if the server is
@@ -69,7 +71,7 @@ public interface ConfigurationInstaller {
      *                 be fully resolved) identifies the configuration to save
      *                 this for.
      */
-    public void updatePluginMetadata(ConfigurationArchiveData metadata);
+    public void updatePluginMetadata(PluginMetadata metadata);
 
     /**
      * Installs a configuration from a remote repository into the local Geronimo server,
@@ -81,9 +83,9 @@ public interface ConfigurationInstaller {
      *                         Set this to null if no authentication is required.
      * @param password         Optional password, if the maven repo uses HTTP Basic authentication.
      *                         Set this to null if no authentication is required.
-     * @param configsToInstall The list of configurations to install
+     * @param pluginsToInstall The list of configurations to install
      */
-    public DownloadResults install(ConfigurationList configsToInstall, String username, String password);
+    public DownloadResults install(PluginList pluginsToInstall, String username, String password);
 
     /**
      * Installs a configuration from a remote repository into the local Geronimo server,
@@ -94,14 +96,14 @@ public interface ConfigurationInstaller {
      * throw exceptions on failure, but instead sets the failure property of the
      * DownloadPoller.
      *
-     * @param configsToInstall The list of configurations to install
+     * @param pluginsToInstall The list of configurations to install
      * @param username         Optional username, if the maven repo uses HTTP Basic authentication.
      *                         Set this to null if no authentication is required.
      * @param password         Optional password, if the maven repo uses HTTP Basic authentication.
      *                         Set this to null if no authentication is required.
      * @param poller           Will be notified with status updates as the download proceeds
      */
-    public void install(ConfigurationList configsToInstall, String username, String password, DownloadPoller poller);
+    public void install(PluginList pluginsToInstall, String username, String password, DownloadPoller poller);
 
     /**
      * Installs a configuration from a remote repository into the local Geronimo server,
@@ -110,7 +112,7 @@ public interface ConfigurationInstaller {
      * installation does not throw exceptions on failure, but instead sets the failure
      * property of the DownloadResults that the caller can poll for.
      *
-     * @param configsToInstall The list of configurations to install
+     * @param pluginsToInstall The list of configurations to install
      * @param username         Optional username, if the maven repo uses HTTP Basic authentication.
      *                         Set this to null if no authentication is required.
      * @param password         Optional password, if the maven repo uses HTTP Basic authentication.
@@ -118,7 +120,7 @@ public interface ConfigurationInstaller {
      *
      * @return A key that can be passed to checkOnInstall
      */
-    public Object startInstall(ConfigurationList configsToInstall, String username, String password);
+    public Object startInstall(PluginList pluginsToInstall, String username, String password);
 
     /**
      * Installs a configuration downloaded from a remote repository into the local Geronimo

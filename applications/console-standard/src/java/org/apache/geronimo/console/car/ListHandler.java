@@ -32,8 +32,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.system.configuration.ConfigurationMetadata;
-import org.apache.geronimo.system.configuration.ConfigurationList;
+import org.apache.geronimo.system.plugin.PluginList;
+import org.apache.geronimo.system.plugin.PluginMetadata;
 import java.util.Collections;
 import java.util.Collection;
 import java.util.Iterator;
@@ -78,15 +78,15 @@ public class ListHandler extends BaseImportExportHandler {
     }
 
     private void loadFromRepository(RenderRequest request, String repository, String username, String password) throws IOException, PortletException {
-        ConfigurationList data;
+        PluginList data;
         try {
-            data = PortletManager.getCurrentServer(request).getConfigurationInstaller().listConfigurations(new URL(repository), username, password);
+            data = PortletManager.getCurrentServer(request).getPluginInstaller().listPlugins(new URL(repository), username, password);
         } catch (FailedLoginException e) {
             throw new PortletException("Invalid login for Maven repository '"+repository+"'", e);
         }
         Map results = new HashMap();
-        for (int i = 0; i < data.getConfigurations().length; i++) {
-            ConfigurationMetadata metadata = data.getConfigurations()[i];
+        for (int i = 0; i < data.getPlugins().length; i++) {
+            PluginMetadata metadata = data.getPlugins()[i];
             List values = (List) results.get(metadata.getCategory());
             if(values == null) {
                 values = new ArrayList();

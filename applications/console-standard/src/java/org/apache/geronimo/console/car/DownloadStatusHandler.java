@@ -17,7 +17,6 @@ package org.apache.geronimo.console.car;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.URL;
 import java.util.List;
 import java.util.ArrayList;
 import javax.portlet.ActionRequest;
@@ -25,18 +24,11 @@ import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
-import javax.portlet.PortletSession;
-import javax.security.auth.login.FailedLoginException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.MultiPageModel;
-import org.apache.geronimo.console.ajax.ProgressInfo;
-import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.system.configuration.ConfigurationMetadata;
-import org.apache.geronimo.system.configuration.ConfigurationList;
-import org.apache.geronimo.system.configuration.ConfigurationInstaller;
-import org.apache.geronimo.system.configuration.DownloadResults;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.system.plugin.DownloadResults;
 
 /**
  * Handler for the initial download screen.

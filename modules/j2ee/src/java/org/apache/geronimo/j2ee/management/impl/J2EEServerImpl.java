@@ -27,7 +27,6 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
 import org.apache.geronimo.management.AppClientModule;
@@ -45,9 +44,10 @@ import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 import org.apache.geronimo.management.geronimo.SecurityRealm;
 import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.management.geronimo.WebModule;
-import org.apache.geronimo.system.configuration.ConfigurationInstaller;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.system.threads.ThreadPool;
+import org.apache.geronimo.system.plugin.PluginInstaller;
+import org.apache.geronimo.system.plugin.PluginRepositoryList;
 
 /**
  * @version $Rev$ $Date$
@@ -68,33 +68,35 @@ public class J2EEServerImpl implements J2EEServer {
     private final Collection jmsManagers;
     private final Collection threadPools;
     private final Collection repositories;
+    private final Collection pluginRepoLists;
     private final Collection writableRepos;
     private final Collection securityRealms;
     private final Collection loginServices;
     private final Collection keystoreManagers;
-    private final ConfigurationInstaller configurationInstaller;
+    private final PluginInstaller pluginInstaller;
     private final ConfigurationManager configurationManager;
 
     public J2EEServerImpl(String objectName,
-            ServerInfo serverInfo,
-            Collection jvms,
-            Collection resources,
-            Collection applications,
-            Collection appClientModules,
-            Collection webModules,
-            Collection ejbModules,
-            Collection resourceAdapterModules,
-            Collection webManagers,
-            Collection ejbManagers,
-            Collection jmsManagers,
-            Collection threadPools,
-            Collection repositories,
-            Collection writableRepos,
-            Collection securityRealms,
-            Collection loginServices,
-            Collection keystoreManagers,
-            ConfigurationInstaller configurationInstaller,
-            ConfigurationManager configurationManager) {
+                          ServerInfo serverInfo,
+                          Collection jvms,
+                          Collection resources,
+                          Collection applications,
+                          Collection appClientModules,
+                          Collection webModules,
+                          Collection ejbModules,
+                          Collection resourceAdapterModules,
+                          Collection webManagers,
+                          Collection ejbManagers,
+                          Collection jmsManagers,
+                          Collection threadPools,
+                          Collection repositories,
+                          Collection writableRepos,
+                          Collection securityRealms,
+                          Collection loginServices,
+                          Collection keystoreManagers,
+                          PluginInstaller configurationInstaller,
+                          ConfigurationManager configurationManager,
+                          Collection pluginRepoLists) {
 
         this.objectName = objectName;
         ObjectName myObjectName = ObjectNameUtil.getObjectName(this.objectName);
@@ -120,8 +122,9 @@ public class J2EEServerImpl implements J2EEServer {
         this.securityRealms = securityRealms;
         this.loginServices = loginServices;
         this.keystoreManagers = keystoreManagers;
-        this.configurationInstaller = configurationInstaller;
+        this.pluginInstaller = configurationInstaller;
         this.configurationManager = configurationManager;
+        this.pluginRepoLists = pluginRepoLists;
     }
 
     public String getObjectName() {
@@ -266,6 +269,11 @@ public class J2EEServerImpl implements J2EEServer {
         return (SecurityRealm[]) securityRealms.toArray(new SecurityRealm[securityRealms.size()]);
     }
 
+    public PluginRepositoryList[] getPluginRepositoryLists() {
+        if (pluginRepoLists == null) return new PluginRepositoryList[0];
+        return (PluginRepositoryList[]) pluginRepoLists.toArray(new PluginRepositoryList[pluginRepoLists.size()]);
+    }
+
     public ServerInfo getServerInfo() {
         return serverInfo;
     }
@@ -280,8 +288,8 @@ public class J2EEServerImpl implements J2EEServer {
         return (KeystoreManager) keystoreManagers.iterator().next();
     }
 
-    public ConfigurationInstaller getConfigurationInstaller() {
-        return configurationInstaller;
+    public PluginInstaller getPluginInstaller() {
+        return pluginInstaller;
     }
 
     public ConfigurationManager getConfigurationManager() {
@@ -318,7 +326,8 @@ public class J2EEServerImpl implements J2EEServer {
         infoFactory.addReference("SecurityRealms", SecurityRealm.class);
         infoFactory.addReference("LoginServices", LoginService.class);
         infoFactory.addReference("KeystoreManagers", KeystoreManager.class);
-        infoFactory.addReference("ConfigurationInstaller", ConfigurationInstaller.class);
+        infoFactory.addReference("PluginInstaller", PluginInstaller.class);
+        infoFactory.addReference("PluginRepoLists", PluginRepositoryList.class);
         infoFactory.addReference("ConfigurationManager", ConfigurationManager.class);
 
         infoFactory.setConstructor(new String[]{
@@ -340,8 +349,9 @@ public class J2EEServerImpl implements J2EEServer {
                 "SecurityRealms",
                 "LoginServices",
                 "KeystoreManagers",
-                "ConfigurationInstaller",
+                "PluginInstaller",
                 "ConfigurationManager",
+                "PluginRepoLists",
         });
 
         GBEAN_INFO = infoFactory.getBeanInfo();

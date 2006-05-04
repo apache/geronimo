@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<geronimo-plugin>
-<configuration>
+<geronimo-plugin xmlns="http://geronimo.apache.org/xml/ns/plugins-1.1">
 <name>Geronimo Admin Console (Jetty)</name>
-<config-id>${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car</config-id>
+<module-id>${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car</module-id>
 <category>Core Geronimo</category>
 <description>The web-based administration console for Geronimo.  You can
 reach it via HTTP at /console and use it to configure the Geronimo
@@ -10,6 +9,8 @@ installation as well as services like JDBC connection pools, JMS resources,
 security realms, keystores, etc.  It provides simple statistics on the
 running Geronimo server, as well as letting you review and deploy applications
 and plugins.</description>
+<url>http://geronimo.apache.org/</url>
+<author>The Apache Geronimo development community</author>
 <license osi-approved="true">BSD -- Apache Software License (ASL) 2.0</license>
 <geronimo-version>${pom.currentVersion}</geronimo-version>
 <prerequisite>
@@ -40,7 +41,7 @@ your Geronimo distribution.</description>
 <dependency>activemq/activemq-gbean/3.2.4-SNAPSHOT/jar</dependency>
 <dependency>activemq/activemq-core/3.2.4-SNAPSHOT/jar</dependency>
 <dependency>geronimo/geronimo-converter//jar</dependency>
-<dependency>geronimo/geronimo-util//jar</dependency></configuration>
-<source-repository>http://www.geronimoplugins.com/repository/</source-repository>
-<backup-repository>http://www.ibiblio.org/maven2/</backup-repository>
+<dependency>geronimo/geronimo-util//jar</dependency>
+<source-repository>http://www.geronimoplugins.com/repository/geronimo-1.1/</source-repository>
+<source-repository>http://www.ibiblio.org/maven2/</source-repository>
 </geronimo-plugin>

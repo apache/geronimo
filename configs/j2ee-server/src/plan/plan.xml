@@ -155,8 +155,9 @@ by the server.
         <reference name="SecurityRealms"/>
         <reference name="LoginServices"/>
         <reference name="KeystoreManagers"/>
-        <reference name="ConfigurationInstaller">
-            <name>ConfigurationInstaller</name>
+        <reference name="PluginRepoLists"/>
+        <reference name="PluginInstaller">
+            <name>PluginInstaller</name>
         </reference>
         <reference name="ConfigurationManager">
             <name>ConfigurationManager</name>

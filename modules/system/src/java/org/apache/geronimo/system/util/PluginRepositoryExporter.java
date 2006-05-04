@@ -19,10 +19,13 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.SortedSet;
+import java.util.Properties;
+import java.util.HashMap;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -35,21 +38,24 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.geronimo.kernel.config.IOUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Version;
-import org.apache.geronimo.system.configuration.ConfigInstallerGBean;
-import org.apache.geronimo.system.configuration.ConfigurationArchiveData;
-import org.apache.geronimo.system.configuration.ConfigurationInstaller;
-import org.apache.geronimo.system.configuration.ConfigurationMetadata;
 import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
+import org.apache.geronimo.system.configuration.ConfigurationStoreUtil;
 import org.apache.geronimo.system.repository.Maven1Repository;
 import org.apache.geronimo.system.repository.Maven2Repository;
 import org.apache.geronimo.system.repository.CopyArtifactTypeHandler;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.system.plugin.PluginInstallerGBean;
+import org.apache.geronimo.system.plugin.PluginInstaller;
+import org.apache.geronimo.system.plugin.PluginMetadata;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
+import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * A utility that exports a repository of plugins.
@@ -57,13 +63,19 @@ import org.xml.sax.SAXException;
  * @version $Rev: 355877 $ $Date: 2005-12-10 21:48:27 -0500 (Sat, 10 Dec 2005) $
  */
 public class PluginRepositoryExporter {
+    private final static String NAMESPACE = "http://geronimo.apache.org/xml/ns/plugins-1.1";
     private Maven1Repository sourceRepo;
     private Maven2Repository destRepo;
-    private Version targetVersion;
-    private ConfigInstallerGBean installer;
+    private Map targetVersions;
+    private PluginInstallerGBean installer;
     private File pluginList;
+    private File schema;
 
-    public PluginRepositoryExporter(String inPath, String outPath, String version) throws IOException {
+    public PluginRepositoryExporter(String inPath, String outPath, String schema) throws IOException {
+        this.schema = new File(schema);
+        if(!this.schema.isFile() || !this.schema.canRead()) {
+            throw new IllegalArgumentException("Bad schema file "+this.schema.getAbsolutePath());
+        }
         File inFile = new File(inPath);
         if(!inFile.isDirectory() || !inFile.canRead()) {
             throw new IllegalArgumentException("Bad source repo directory "+inFile.getAbsolutePath());
@@ -87,7 +99,14 @@ public class PluginRepositoryExporter {
         sourceRepo = new Maven1Repository(inFile);
         destRepo = new Maven2Repository(outFile);
         destRepo.setTypeHandler("car", new CopyArtifactTypeHandler());
-        targetVersion = new Version(version);
+        Properties props = new Properties();
+        props.load(PluginRepositoryExporter.class.getResourceAsStream("/META-INF/product-versions.properties"));
+        targetVersions = new HashMap();
+        for (Iterator it = props.keySet().iterator(); it.hasNext();) {
+            String product = (String) it.next();
+            String version = props.getProperty(product);
+            targetVersions.put(product, new Version(version));
+        }
         RepositoryConfigurationStore store = new RepositoryConfigurationStore(destRepo);
         ServerInfo info = new ServerInfo() {
             public String getBaseDirectory() {
@@ -111,7 +130,7 @@ public class PluginRepositoryExporter {
             }
 
             public String getVersion() {
-                return targetVersion.toString();
+                return null;
             }
 
             public File resolve(final String filename) {
@@ -126,7 +145,7 @@ public class PluginRepositoryExporter {
                 return null;
             }
         };
-        installer = new ConfigInstallerGBean(null, destRepo, store, info, null);
+        installer = new PluginInstallerGBean(null, destRepo, store, info, null);
     }
 
     public void execute() throws IOException {
@@ -134,10 +153,12 @@ public class PluginRepositoryExporter {
         try {
             for (Iterator it = list.iterator(); it.hasNext();) {
                 Artifact artifact = (Artifact) it.next();
-                if(((artifact.getGroupId().equals("geronimo") && artifact.getVersion().equals(targetVersion)) ||
+                if(((artifact.getGroupId().equals("geronimo")) ||
                         artifact.getGroupId().equals("activemq") ||
-                        artifact.getGroupId().equals("openejb")
+                        artifact.getGroupId().equals("openejb") ||
+                        artifact.getGroupId().equals("tranql")
                         )
+                        && artifact.getVersion().equals(targetVersions.get(artifact.getGroupId()))
                         && !artifact.getType().equals("pom") && !artifact.getType().equals("distribution") && !artifact.getType().equals("plugin") && !artifact.getType().equals("javadoc.jar")) {
                     System.out.println("Copying "+artifact);
                     if(destRepo.contains(artifact)) {
@@ -159,6 +180,7 @@ public class PluginRepositoryExporter {
             TransformerFactory xfactory = TransformerFactory.newInstance();
             Transformer xform = xfactory.newTransformer();
             xform.setOutputProperty(OutputKeys.INDENT, "yes");
+            xform.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
             System.out.println("Writing geronimo-plugins.xml file...");
             FileWriter out = new FileWriter(pluginList);
             xform.transform(new DOMSource(doc), new StreamResult(out));
@@ -225,29 +247,62 @@ public class PluginRepositoryExporter {
     }
 
 
-    private Document generateConfigFile(ConfigurationInstaller installer, Collection plugins) throws ParserConfigurationException {
+    private Document generateConfigFile(PluginInstaller installer, Collection plugins) throws ParserConfigurationException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(true);
+        factory.setValidating(true);
+        factory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaLanguage",
+                             "http://www.w3.org/2001/XMLSchema");
+        factory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaSource",
+                             schema.getName());
         DocumentBuilder builder = factory.newDocumentBuilder();
+        builder.setEntityResolver(new EntityResolver() {
+            public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+                System.out.println("RESOLVING PUB "+publicId+" SYS "+systemId);
+                return null;
+            }
+        });
         Document doc = builder.newDocument();
-        Element root = doc.createElement("geronimo-plugin-list");
+        Element root = doc.createElementNS(NAMESPACE, "geronimo-plugin-list");
+        root.setAttribute("xmlns", NAMESPACE);
         doc.appendChild(root);
         for (Iterator it = plugins.iterator(); it.hasNext();) {
             Artifact plugin = (Artifact) it.next();
             System.out.println("Including plugin data for "+plugin);
-            ConfigurationArchiveData pluginData = installer.getPluginMetadata(plugin);
-            ConfigurationMetadata data = pluginData.getConfiguration();
-            Element config = doc.createElement("configuration");
+            PluginMetadata data = installer.getPluginMetadata(plugin);
+            if(data == null) {
+                throw new IllegalArgumentException("Invalid plugin file; Log4J output for a specific error.");
+            }
+            File file = destRepo.getLocation(plugin);
+            Element config = doc.createElement("plugin");
             root.appendChild(config);
             createText(doc, config, "name", data.getName());
-            createText(doc, config, "config-id", data.getConfigId().toString());
+            createText(doc, config, "module-id", data.getModuleId().toString());
             createText(doc, config, "category", data.getCategory());
             createText(doc, config, "description", data.getDescription());
+            if(data.getPluginURL() != null) {
+                createText(doc, config, "url", data.getPluginURL());
+            }
+            if(data.getAuthor() != null) {
+                createText(doc, config, "author", data.getAuthor());
+            }
             for (int i = 0; i < data.getLicenses().length; i++) {
-                ConfigurationMetadata.License license = data.getLicenses()[i];
+                PluginMetadata.License license = data.getLicenses()[i];
                 Element lic = doc.createElement("license");
                 lic.appendChild(doc.createTextNode(license.getName()));
                 lic.setAttribute("osi-approved", license.isOsiApproved() ? "true" : "false");
                 config.appendChild(lic);
+            }
+            if(data.getHash() != null) {
+                Element hash = doc.createElement("hash");
+                hash.setAttribute("type", data.getHash().getType());
+                hash.appendChild(doc.createTextNode(data.getHash().getValue()));
+                config.appendChild(hash);
+            } else if(file.isFile() && file.canRead()) {
+                Element hash = doc.createElement("hash");
+                hash.setAttribute("type", "SHA-1");
+                hash.appendChild(doc.createTextNode(ConfigurationStoreUtil.getActualChecksum(file)));
+                config.appendChild(hash);
             }
             for (int i = 0; i < data.getGeronimoVersions().length; i++) {
                 String version = data.getGeronimoVersions()[i];
@@ -258,7 +313,7 @@ public class PluginRepositoryExporter {
                 createText(doc, config, "jvm-version", version);
             }
             for (int i = 0; i < data.getPrerequisites().length; i++) {
-                ConfigurationMetadata.Prerequisite prereq = data.getPrerequisites()[i];
+                PluginMetadata.Prerequisite prereq = data.getPrerequisites()[i];
                 writePrerequisite(doc, config, prereq);
             }
             for (int i = 0; i < data.getDependencies().length; i++) {
@@ -269,15 +324,22 @@ public class PluginRepositoryExporter {
                 String version = data.getObsoletes()[i];
                 createText(doc, config, "obsoletes", version);
             }
+            // Skip the repository, we'll specify that at the top level
+//            for (int i = 0; i < data.getRepositories().length; i++) {
+//                URL url = data.getRepositories()[i];
+//                createText(doc, config, "source-repository", url.toString());
+//            }
         }
-        createText(doc, root, "backup-repository", "http://www.ibiblio.org/maven2/");
+        Version ger = (Version) targetVersions.get("geronimo");
+        createText(doc, root, "default-repository", "http://www.geronimoplugins.com/repository/geronimo-"+ger.getMajorVersion()+"."+ger.getMinorVersion());
+        createText(doc, root, "default-repository", "http://www.ibiblio.org/maven2/");
         return doc;
     }
 
-    private void writePrerequisite(Document doc, Element config, ConfigurationMetadata.Prerequisite data) {
+    private void writePrerequisite(Document doc, Element config, PluginMetadata.Prerequisite data) {
         Element prereq = doc.createElement("prerequisite");
         config.appendChild(prereq);
-        createText(doc, prereq, "id", data.getConfigId().toString());
+        createText(doc, prereq, "id", data.getModuleId().toString());
         createText(doc, prereq, "resource-type",data.getResourceType());
         createText(doc, prereq, "description",data.getDescription());
     }

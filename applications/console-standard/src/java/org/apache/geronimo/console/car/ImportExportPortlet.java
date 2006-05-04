@@ -38,6 +38,7 @@ public class ImportExportPortlet extends MultiPagePortlet {
         addHelper(new ExportConfigHandler(), config);
         addHelper(new ExportHandler(), config);
         addHelper(new DownloadStatusHandler(), config);
+        addHelper(new UpdateListHandler(), config);
     }
 
     protected String getModelJSPVariableName() {

@@ -30,6 +30,15 @@ public interface FileWriteMonitor {
      *                 known, this will be set to a negative number.
      */
     public void writeStarted(String fileDescription, int fileSize);
+
+    /**
+     * The running count of bytes written.
+     */
     public void writeProgress(int bytes);
+
+    /**
+     * Indicates that the write completed with the specified number
+     * of total bytes.
+     */
     public void writeComplete(int bytes);
 }
