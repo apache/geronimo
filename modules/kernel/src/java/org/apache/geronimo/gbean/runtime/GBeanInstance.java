@@ -51,6 +51,7 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.NoSuchAttributeException;
 import org.apache.geronimo.kernel.NoSuchOperationException;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.management.StateManageable;
@@ -759,7 +760,7 @@ public final class GBeanInstance implements StateManageable {
                 return;
             }
         }
-        String configName = abstractName.getArtifact().toString();
+        Artifact configName = abstractName.getArtifact();
         if (configName != null) {
             manageableStore.setValue(configName, abstractName, attribute.getAttributeInfo(), value);
         } else {

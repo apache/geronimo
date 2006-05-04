@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.kernel.config;
 
+import org.apache.geronimo.kernel.repository.Artifact;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -37,7 +39,55 @@ public interface PersistentConfigurationList {
 
     List restore() throws IOException;
 
-    void addConfiguration(String configName);
+    /**
+     * Adds a configuration to the list, but does not mark it as started.
+     */
+    void addConfiguration(Artifact configName);
 
-    void removeConfiguration(String configName);
+    /**
+     * Indicates that the configuration should be started when the server is
+     * started.  The configuration should have been previously added with
+     * addConfiguration.
+     */
+    void startConfiguration(Artifact configName);
+
+    /**
+     * Indicates that the configuration should not be started when the
+     * server is started.  The configuration should have been previously added
+     * with addConfiguration (and presumably started with startConfiguration).
+     */
+    void stopConfiguration(Artifact configName);
+
+    /**
+     * Removes all record of the specified configuration from the configuration
+     * list.  This is somewhat unusual -- normally you want to remember the
+     * settings in case the configuration is deployed again later.
+     */
+    void removeConfiguration(Artifact configName);
+
+    /**
+     * Gets all configurations in the list matching the specified query,
+     * whether they are marked at starting or not.
+     * 
+     * @param query The artifact to search for, normally not fully resolved
+     *              so there may be multiple matches or matches that are not
+     *              exactly equal to the argument.
+     *
+     * @return The matching artifacts that have data in the config list.
+     */
+    Artifact[] getListedConfigurations(Artifact query);
+
+    /**
+     * Migrates settings from an old version of a configuration to a newer
+     * version of the configuration.  Used when an updated version is deployed
+     * with a newer version number in the name, but the settings used for the
+     * previous version should be carried forward.
+     *
+     * @param oldName        The name that the existing settings are under
+     * @param newName        The name to move the settings to
+     * @param configuration  The configuration itself, which can be used to
+     *                       verify that all the settings are still valid as
+     *                       they are migrated.
+     */
+    void migrateConfiguration(Artifact oldName, Artifact newName, Configuration configuration);
 }

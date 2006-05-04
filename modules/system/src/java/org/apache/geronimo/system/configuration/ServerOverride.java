@@ -17,16 +17,15 @@
 package org.apache.geronimo.system.configuration;
 
 import java.io.PrintWriter;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.geronimo.kernel.InvalidGBeanException;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * @version $Rev: 384351 $ $Date$
+ * @version $Rev$ $Date$
  */
 class ServerOverride {
     private final Map configurations = new LinkedHashMap();
@@ -43,11 +42,11 @@ class ServerOverride {
         }
     }
 
-    public ConfigurationOverride getConfiguration(String configurationName) {
+    public ConfigurationOverride getConfiguration(Artifact configurationName) {
         return getConfiguration(configurationName, false);
     }
 
-    public ConfigurationOverride getConfiguration(String configurationName, boolean create) {
+    public ConfigurationOverride getConfiguration(Artifact configurationName, boolean create) {
         ConfigurationOverride configuration = (ConfigurationOverride) configurations.get(configurationName);
         if (create && configuration == null) {
             configuration = new ConfigurationOverride(configurationName, true);
@@ -60,12 +59,23 @@ class ServerOverride {
         configurations.put(configuration.getName(), configuration);
     }
 
-    public void removeConfiguration(String configurationName) {
+    public void removeConfiguration(Artifact configurationName) {
         configurations.remove(configurationName);
     }
 
     public Map getConfigurations() {
         return configurations;
+    }
+
+    public Artifact[] queryConfigurations(Artifact query) {
+        List list = new ArrayList();
+        for (Iterator it = configurations.keySet().iterator(); it.hasNext();) {
+            Artifact test = (Artifact) it.next();
+            if(query.matches(test)) {
+                list.add(test);
+            }
+        }
+        return (Artifact[]) list.toArray(new Artifact[list.size()]);
     }
 
     public void writeXml(PrintWriter out) {

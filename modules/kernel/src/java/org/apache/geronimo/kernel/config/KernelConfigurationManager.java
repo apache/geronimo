@@ -110,6 +110,13 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
         return super.loadConfiguration(configurationId);
     }
 
+    protected void load(Artifact configurationId) throws NoSuchConfigException {
+        super.load(configurationId);
+        if (configurationList != null) {
+            configurationList.addConfiguration(configurationId);
+        }
+    }
+
     protected Configuration load(ConfigurationData configurationData, LinkedHashSet resolvedParentIds, Map loadedConfigurations) throws InvalidConfigException {
         Artifact configurationId = configurationData.getId();
         AbstractName configurationName = Configuration.getConfigurationAbstractName(configurationId);
@@ -167,14 +174,14 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
         ConfigurationUtil.startConfigurationGBeans(configuration.getAbstractName(), configuration, kernel);
 
         if (configurationList != null && configuration.getConfigurationData().isAutoStart()) {
-            configurationList.addConfiguration(configuration.getId().toString());
+            configurationList.startConfiguration(configuration.getId());
         }
     }
 
     protected void stop(Configuration configuration) {
         stopRecursive(configuration);
         if (configurationList != null) {
-            configurationList.removeConfiguration(configuration.getId().toString());
+            configurationList.stopConfiguration(configuration.getId());
         }
     }
 

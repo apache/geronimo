@@ -40,7 +40,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- * @version $Rev: 386907 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class LocalAttributeManagerTest extends TestCase {
     private static final String basedir = System.getProperties().getProperty("basedir", ".");
@@ -64,8 +64,8 @@ public class LocalAttributeManagerTest extends TestCase {
 
         // declare an attribute value so this configuration will exist in the store
         String attributeValue = "attribute value";
-        localAttributeManager.addConfiguration(configurationName.toString());
-        localAttributeManager.setValue(configurationName.toString(), gbeanName, attributeInfo, attributeValue);
+        localAttributeManager.addConfiguration(configurationName);
+        localAttributeManager.setValue(configurationName, gbeanName, attributeInfo, attributeValue);
 
         // should still load
         newDatas = new HashSet(localAttributeManager.applyOverrides(configurationName, originalDatas, getClass().getClassLoader()));
@@ -73,7 +73,7 @@ public class LocalAttributeManagerTest extends TestCase {
         assertEquals(originalDatas, newDatas);
 
         // remove the configuration from the store
-        localAttributeManager.removeConfiguration(configurationName.toString());
+        localAttributeManager.removeConfiguration(configurationName);
 
         // should still get the same gbeans, config list and gbean attribute override functions are separate interfaces.
         newDatas = new HashSet(localAttributeManager.applyOverrides(configurationName, originalDatas, getClass().getClassLoader()));
@@ -99,8 +99,8 @@ public class LocalAttributeManagerTest extends TestCase {
 
         // declare an attribute value so this configuration will exist in the store
         String attributeValue = "attribute value";
-        localAttributeManager.addConfiguration(configurationName.toString());
-        localAttributeManager.setValue(configurationName.toString(), gbeanName, attributeInfo, attributeValue);
+        localAttributeManager.addConfiguration(configurationName);
+        localAttributeManager.setValue(configurationName, gbeanName, attributeInfo, attributeValue);
 
         // should still load
         newDatas = new HashSet(localAttributeManager.applyOverrides(configurationName, originalDatas, getClass().getClassLoader()));
@@ -108,7 +108,7 @@ public class LocalAttributeManagerTest extends TestCase {
         assertEquals(originalDatas, newDatas);
 
         // set the gbean to not load
-        localAttributeManager.setShouldLoad(configurationName.toString(), gbeanName, false);
+        localAttributeManager.setShouldLoad(configurationName, gbeanName, false);
 
         // should not load
         newDatas = new HashSet(localAttributeManager.applyOverrides(configurationName, originalDatas, getClass().getClassLoader()));
@@ -120,7 +120,7 @@ public class LocalAttributeManagerTest extends TestCase {
 
     public void testSetAtrribute() throws Exception {
         String attributeValue = "attribute value";
-        localAttributeManager.setValue(configurationName.toString(), gbeanName, attributeInfo, attributeValue);
+        localAttributeManager.setValue(configurationName, gbeanName, attributeInfo, attributeValue);
         Collection gbeanDatas = new ArrayList();
         GBeanData gbeanData = new GBeanData(gbeanName, GBEAN_INFO);
         gbeanDatas.add(gbeanData);
@@ -132,7 +132,7 @@ public class LocalAttributeManagerTest extends TestCase {
         ObjectName referencePatternObjectName = new ObjectName(":name=referencePattern");
         AbstractName referencePattern = new AbstractName(configurationName, referencePatternObjectName.getKeyPropertyList(), referencePatternObjectName);
         ReferencePatterns referencePatterns = new ReferencePatterns(referencePattern);
-        localAttributeManager.setReferencePatterns(configurationName.toString(), gbeanName, referenceInfo, referencePatterns);
+        localAttributeManager.setReferencePatterns(configurationName, gbeanName, referenceInfo, referencePatterns);
         Collection gbeanDatas = new ArrayList();
         GBeanData gbeanData = new GBeanData(gbeanName, GBEAN_INFO);
         gbeanDatas.add(gbeanData);
@@ -146,7 +146,7 @@ public class LocalAttributeManagerTest extends TestCase {
         AbstractName referencePattern1 = naming.createRootName(gbeanName.getArtifact(), "name", "referencePattern1");
         AbstractName referencePattern2 = naming.createRootName(gbeanName.getArtifact(), "name", "referencePattern2");
         ReferencePatterns referencePatterns = new ReferencePatterns(new LinkedHashSet(Arrays.asList(new AbstractName[] {referencePattern1, referencePattern2})));
-        localAttributeManager.setReferencePatterns(configurationName.toString(), gbeanName, referenceInfo, referencePatterns);
+        localAttributeManager.setReferencePatterns(configurationName, gbeanName, referenceInfo, referencePatterns);
         Collection gbeanDatas = new ArrayList();
         GBeanData gbeanData = new GBeanData(gbeanName, GBEAN_INFO);
         gbeanDatas.add(gbeanData);
@@ -161,8 +161,8 @@ public class LocalAttributeManagerTest extends TestCase {
         GBeanData gbeanData = new GBeanData(gbeanName, GBEAN_INFO);
         gbeanData.setAttribute(attributeInfo.getName(), attributeValue);
         gbeanData.setReferencePattern(referenceInfo.getName(), referencePattern);
-        localAttributeManager.addConfiguration(configurationName.toString());
-        localAttributeManager.addGBean(configurationName.toString(), gbeanData);
+        localAttributeManager.addConfiguration(configurationName);
+        localAttributeManager.addGBean(configurationName, gbeanData);
 
 
         Collection gbeanDatas = new ArrayList();

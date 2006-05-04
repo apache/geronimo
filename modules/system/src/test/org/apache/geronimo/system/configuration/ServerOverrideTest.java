@@ -19,6 +19,7 @@ package org.apache.geronimo.system.configuration;
 import junit.framework.TestCase;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.ReferencePatterns;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -61,7 +62,7 @@ public class ServerOverrideTest extends TestCase {
         pizza.setReferencePatterns("oven", ovenPatterns);
         assertEquals(ovenPatterns, pizza.getReferencePatterns("oven"));
 
-        ConfigurationOverride dinnerMenu = new ConfigurationOverride("Dinner Menu", true);
+        ConfigurationOverride dinnerMenu = new ConfigurationOverride(new Artifact("test","Dinner Menu","1.0","car"), true);
         assertTrue(dinnerMenu.isLoad());
 
         dinnerMenu.setLoad(false);
@@ -72,7 +73,7 @@ public class ServerOverrideTest extends TestCase {
 
         ServerOverride restaurant = new ServerOverride();
         restaurant.addConfiguration(dinnerMenu);
-        assertSame(dinnerMenu, restaurant.getConfiguration("Dinner Menu"));
+        assertSame(dinnerMenu, restaurant.getConfiguration(new Artifact("test","Dinner Menu","1.0","car")));
     }
 
     private ReferencePatterns getReferencePatterns(AbstractNameQuery[] queries) {
@@ -111,7 +112,7 @@ public class ServerOverrideTest extends TestCase {
     }
 
     public void testConfigurationXml() throws Exception {
-        ConfigurationOverride dinnerMenu = new ConfigurationOverride("Dinner Menu", true);
+        ConfigurationOverride dinnerMenu = new ConfigurationOverride(new Artifact("test","Dinner Menu","1.0","car"), true);
         assertCopyIdentical(dinnerMenu);
 
         dinnerMenu.setLoad(false);
@@ -147,7 +148,7 @@ public class ServerOverrideTest extends TestCase {
         ServerOverride restaurant = new ServerOverride();
         assertCopyIdentical(restaurant);
 
-        ConfigurationOverride dinnerMenu = new ConfigurationOverride("Dinner Menu", false);
+        ConfigurationOverride dinnerMenu = new ConfigurationOverride(new Artifact("test","Dinner Menu","1.0","car"), false);
         restaurant.addConfiguration(dinnerMenu);
         GBeanOverride pizza = new GBeanOverride("Pizza", false);
         pizza.setAttribute("cheese", "mozzarella");
@@ -168,7 +169,7 @@ public class ServerOverrideTest extends TestCase {
         dinnerMenu.addGBean(garlicCheeseBread);
         assertCopyIdentical(restaurant);
 
-        ConfigurationOverride drinkMenu = new ConfigurationOverride("Drink Menu", false);
+        ConfigurationOverride drinkMenu = new ConfigurationOverride(new Artifact("test","Drink Menu","1.0","car"), false);
         restaurant.addConfiguration(drinkMenu);
         GBeanOverride beer = new GBeanOverride("Beer", true);
         pizza.setReferencePatterns("glass", getReferencePatterns(new AbstractNameQuery[] {

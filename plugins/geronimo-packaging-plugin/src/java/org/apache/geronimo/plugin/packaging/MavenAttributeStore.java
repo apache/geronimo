@@ -42,16 +42,16 @@ public class MavenAttributeStore implements ManageableAttributeStore {
         return datas;
     }
 
-    public void setValue(String configurationName, AbstractName gbean, GAttributeInfo attribute, Object value) {
+    public void setValue(Artifact configurationName, AbstractName gbean, GAttributeInfo attribute, Object value) {
     }
 
-    public void setReferencePatterns(String configurationName, AbstractName gbean, GReferenceInfo reference, ReferencePatterns patterns) {
+    public void setReferencePatterns(Artifact configurationName, AbstractName gbean, GReferenceInfo reference, ReferencePatterns patterns) {
     }
 
-    public void setShouldLoad(String configurationName, AbstractName gbean, boolean load) {
+    public void setShouldLoad(Artifact configurationName, AbstractName gbean, boolean load) {
     }
 
-    public void addGBean(String configurationName, GBeanData gbeanData) {
+    public void addGBean(Artifact configurationName, GBeanData gbeanData) {
     }
 
     public void save() throws IOException {

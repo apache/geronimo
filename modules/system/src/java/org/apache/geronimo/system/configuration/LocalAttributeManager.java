@@ -30,6 +30,7 @@ import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.config.PersistentConfigurationList;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.InvalidGBeanException;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -94,11 +95,10 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
         return readOnly;
     }
 
-    public synchronized Collection applyOverrides(Artifact configurationName, Collection gbeanDatas, ClassLoader classLoader) throws InvalidConfigException {
+    public synchronized Collection applyOverrides(Artifact configName, Collection gbeanDatas, ClassLoader classLoader) throws InvalidConfigException {
         // clone the datas since we will be modifying this collection
         gbeanDatas = new ArrayList(gbeanDatas);
 
-        String configName = configurationName.toString();
         ConfigurationOverride configuration = serverOverride.getConfiguration(configName);
         if (configuration == null) {
             return gbeanDatas;
@@ -151,7 +151,7 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
      * @throws org.apache.geronimo.kernel.config.InvalidConfigException
      *
      */
-    private synchronized boolean setAttributes(GBeanData data, ConfigurationOverride configuration, String configName, ClassLoader classLoader) throws InvalidConfigException {
+    private synchronized boolean setAttributes(GBeanData data, ConfigurationOverride configuration, Artifact configName, ClassLoader classLoader) throws InvalidConfigException {
         AbstractName gbeanName = data.getAbstractName();
         GBeanOverride gbean = configuration.getGBean(gbeanName);
         if (gbean == null) {
@@ -225,7 +225,7 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
     }
 
 
-    private synchronized Object getValue(GAttributeInfo attribute, String value, String configurationName, AbstractName gbeanName, ClassLoader classLoader) {
+    private synchronized Object getValue(GAttributeInfo attribute, String value, Artifact configurationName, AbstractName gbeanName, ClassLoader classLoader) {
         if (value == null) {
             return null;
         }
@@ -245,7 +245,7 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
         }
     }
 
-    public synchronized void setValue(String configurationName, AbstractName gbeanName, GAttributeInfo attribute, Object value) {
+    public synchronized void setValue(Artifact configurationName, AbstractName gbeanName, GAttributeInfo attribute, Object value) {
         if (readOnly) {
             return;
         }
@@ -268,7 +268,7 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
         }
     }
 
-    public synchronized void setReferencePatterns(String configurationName, AbstractName gbeanName, GReferenceInfo reference, ReferencePatterns patterns) {
+    public synchronized void setReferencePatterns(Artifact configurationName, AbstractName gbeanName, GReferenceInfo reference, ReferencePatterns patterns) {
         if (readOnly) {
             return;
         }
@@ -286,7 +286,7 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
         attributeChanged();
     }
 
-    public synchronized void setShouldLoad(String configurationName, AbstractName gbeanName, boolean load) {
+    public synchronized void setShouldLoad(Artifact configurationName, AbstractName gbeanName, boolean load) {
         if (readOnly) {
             return;
         }
@@ -307,7 +307,7 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
         attributeChanged();
     }
 
-    public void addGBean(String configurationName, GBeanData gbeanData) {
+    public void addGBean(Artifact configurationName, GBeanData gbeanData) {
         if (readOnly) {
             return;
         }
@@ -398,32 +398,67 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
             Map.Entry entry = (Map.Entry) iterator.next();
             ConfigurationOverride configuration = (ConfigurationOverride) entry.getValue();
             if (configuration.isLoad()) {
-                String configName = (String) entry.getKey();
-                Artifact configID = Artifact.create(configName);
+                Artifact configID = (Artifact) entry.getKey();
                 configs.add(configID);
             }
         }
         return configs;
     }
 
-    public synchronized void addConfiguration(String configurationName) {
-        ConfigurationOverride configuration = serverOverride.getConfiguration(configurationName, true);
+    public void startConfiguration(Artifact configurationName) {
+        ConfigurationOverride configuration = serverOverride.getConfiguration(configurationName, false);
+        if(configuration == null) {
+            throw new IllegalArgumentException("No such configuration "+configurationName);
+        }
         configuration.setLoad(true);
         attributeChanged();
     }
 
-    public synchronized void removeConfiguration(String configName) {
-        ConfigurationOverride configuration = serverOverride.getConfiguration(configName);
-        if (configuration == null) {
-            log.error("Trying to stop unknown configuration: " + configName);
-        } else {
-            if (configuration.getGBeans().isEmpty()) {
-                serverOverride.removeConfiguration(configName);
-            } else {
-                configuration.setLoad(false);
-            }
+    public synchronized void addConfiguration(Artifact configurationName) {
+        // Check whether we have it already
+        ConfigurationOverride configuration = serverOverride.getConfiguration(configurationName, false);
+        // If not, initialize it
+        if(configuration == null) {
+            configuration = serverOverride.getConfiguration(configurationName, true);
+            configuration.setLoad(false);
             attributeChanged();
         }
+    }
+
+    public synchronized void removeConfiguration(Artifact configName) {
+        ConfigurationOverride configuration = serverOverride.getConfiguration(configName);
+        if (configuration == null) {
+            throw new IllegalArgumentException("Trying to remove unknown configuration: " + configName);
+        } else {
+            serverOverride.removeConfiguration(configName);
+            attributeChanged();
+        }
+    }
+
+    public Artifact[] getListedConfigurations(Artifact query) {
+        return serverOverride.queryConfigurations(query);
+    }
+
+    public void stopConfiguration(Artifact configName) {
+        ConfigurationOverride configuration = serverOverride.getConfiguration(configName);
+        if (configuration == null) {
+            throw new IllegalArgumentException("Trying to stop unknown configuration: " + configName);
+        } else {
+            configuration.setLoad(false);
+            attributeChanged();
+        }
+    }
+
+    public void migrateConfiguration(Artifact oldName, Artifact newName, Configuration configuration) {
+        ConfigurationOverride configInfo = serverOverride.getConfiguration(oldName);
+        if(configInfo == null) {
+            throw new IllegalArgumentException("Trying to migrate unknown configuration: " + oldName);
+        }
+        serverOverride.removeConfiguration(oldName);
+        configInfo = new ConfigurationOverride(configInfo, newName);
+        //todo: check whether all the attributes are still valid for the new configuration
+        serverOverride.addConfiguration(configInfo);
+        attributeChanged();
     }
 
     //GBeanLifeCycle

@@ -187,11 +187,11 @@ public class ConfigurationStatus {
         }
     }
 
+    /**
+     * Stop this configuration and its children (if it's running) or do nothing
+     * (if it's not running).
+     */
     public LinkedHashSet stop(boolean gc) {
-        if (!started) {
-            throw new IllegalStateException(configurationId + " is not started");
-        }
-
         LinkedHashSet stopStatuses = new LinkedHashSet();
         stopInternal(stopStatuses, gc);
 
@@ -274,10 +274,11 @@ public class ConfigurationStatus {
         restartList.add(this);
     }
 
+    /**
+     * Unload the configuration and all its children (if it's loaded), or do
+     * nothing (if it's not loaded).
+     */
     public LinkedHashSet unload(boolean gc) {
-        if (!loaded) {
-            throw new IllegalStateException(configurationId + " is not loaded");
-        }
 
         LinkedHashSet unloadStatuses = new LinkedHashSet();
         unloadInternal(unloadStatuses, gc);
