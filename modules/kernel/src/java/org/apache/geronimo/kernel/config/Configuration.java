@@ -47,6 +47,7 @@ import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.classloader.JarFileClassLoader;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
@@ -352,12 +353,21 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
 
         log.debug("ClassPath for " + id + " resolved to " + Arrays.asList(urls));
 
-        return new MultiParentClassLoader(environment.getConfigId(),
-                urls,
-                parentClassLoaders,
-                environment.isInverseClassLoading(),
-                hiddenClasses,
-                nonOverridableClasses);
+        if (Boolean.getBoolean("Xorg.apache.geronimo.NewClassLoader")) {
+            return new JarFileClassLoader(environment.getConfigId(),
+                    urls,
+                    parentClassLoaders,
+                    environment.isInverseClassLoading(),
+                    hiddenClasses,
+                    nonOverridableClasses);
+        } else {
+            return new MultiParentClassLoader(environment.getConfigId(),
+                    urls,
+                    parentClassLoaders,
+                    environment.isInverseClassLoading(),
+                    hiddenClasses,
+                    nonOverridableClasses);
+        }
     }
 
     private void addDepthFirstServiceParents(Configuration configuration, List ancestors) {

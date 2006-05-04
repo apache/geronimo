@@ -34,7 +34,6 @@ import java.util.Map;
 
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.Environment;
 
 /**
  * A MultiParentClassLoader is a simple extension of the URLClassLoader that simply changes the single parent class
@@ -86,24 +85,6 @@ public class MultiParentClassLoader extends URLClassLoader {
 
     public MultiParentClassLoader(Artifact id, URL[] urls, ClassLoader parent, boolean inverseClassLoading, String[] hiddenClasses, String[] nonOverridableClasses) {
         this(id, urls, new ClassLoader[]{parent}, inverseClassLoading, hiddenClasses, nonOverridableClasses);
-    }
-
-    public MultiParentClassLoader(Environment environment, URL[] urls, ClassLoader parent) {
-        this(environment.getConfigId(),
-                urls,
-                new ClassLoader[]{parent},
-                environment.isInverseClassLoading(),
-                environment.getHiddenClasses(),
-                environment.getNonOverrideableClasses());
-    }
-
-    public MultiParentClassLoader(Environment environment, URL[] urls, ClassLoader[] parents) {
-        this(environment.getConfigId(),
-                urls,
-                parents,
-                environment.isInverseClassLoading(),
-                environment.getHiddenClasses(),
-                environment.getNonOverrideableClasses());
     }
 
     /**
