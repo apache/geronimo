@@ -103,6 +103,7 @@ public class NameFactory {
     public static final String CONFIGURATION_ENTRY = "ConfigurationEntry";
     public static final String PERSISTENT_CONFIGURATION_LIST = "PersistentConfigurationList"; //duplicated in FileConfigurationList
 //    public static final String URL_PATTERN = "URLPattern";
+    public static final String SERVLET_TEMPLATE = "ServletTemplate";
     public static final String SERVLET_WEB_SERVICE_TEMPLATE = "ServletWebServiceTemplate";
     public static final String CORBA_CSS = "CORBACSS";
     public static final String CORBA_TSS = "CORBATSS";

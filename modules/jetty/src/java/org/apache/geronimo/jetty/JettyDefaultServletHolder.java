@@ -40,7 +40,7 @@ public class JettyDefaultServletHolder extends JettyServletHolder {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(JettyDefaultServletHolder.class, JettyServletHolder.GBEAN_INFO, NameFactory.SERVLET);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(JettyDefaultServletHolder.class, JettyServletHolder.GBEAN_INFO, NameFactory.SERVLET_TEMPLATE);
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
