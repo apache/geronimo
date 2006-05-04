@@ -264,7 +264,7 @@ limitations under the License.
 
         <fragment name="repo" type="page">
             <navigation>
-                <title>Common Libraries</title>
+                <title>Common Libs</title>
                 <description>ico_list_16x16.gif View Repository</description>
             </navigation>
             <fragment name="row1" type="row">
@@ -372,7 +372,7 @@ limitations under the License.
         <fragment name="ear" type="page">
             <navigation>
                 <title>Application EARs</title>
-                <description>ico_list_16x16.gif Manage EARs on this server</description> 
+                <description>ico_list_16x16.gif Manage EARs on this server</description>
             </navigation>
 
             <fragment name="row1" type="row">
@@ -549,13 +549,7 @@ limitations under the License.
         </fragment>
     </fragment>
 
-    <fragment name="misc" type="page">
-        <navigation>
-            <title>Misc</title>
-            <description>ico_folder_16x16.gif Other management features</description>
-        </navigation>
-
-        <fragment name="internalDB" type="page">
+    <fragment name="internalDB" type="page">
             <navigation>
                 <title>Embedded DB</title>
                 <description>ico_folder_16x16.gif Show info about the server's internal database</description>
@@ -597,6 +591,5 @@ limitations under the License.
                     </fragment>
                 </fragment>
             </fragment>
-        </fragment>
     </fragment>
 </portal>
