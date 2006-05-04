@@ -17,8 +17,6 @@
 package org.apache.geronimo.console.util;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
@@ -42,9 +40,7 @@ import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.kernel.repository.WriteableRepository;
 import org.apache.geronimo.management.J2EEDeployedObject;
 import org.apache.geronimo.management.geronimo.J2EEDomain;
 import org.apache.geronimo.management.geronimo.J2EEServer;
@@ -259,6 +255,11 @@ public class PortletManager {
         return (WebConnector[]) manager.getConnectors(protocol);
     }
 
+    public static WebConnector getWebConnector(PortletRequest request, AbstractName connectorName) {
+        ManagementHelper helper = getManagementHelper(request);
+        return (WebConnector)helper.getObject(connectorName);
+    }
+    
     public static WebConnector[] getWebConnectorsForContainer(PortletRequest request, AbstractName managerName, AbstractName containerName, String protocol) {
         ManagementHelper helper = getManagementHelper(request);
         WebManager manager = (WebManager) helper.getObject(managerName);

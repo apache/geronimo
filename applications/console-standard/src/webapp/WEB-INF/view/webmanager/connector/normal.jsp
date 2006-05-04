@@ -32,31 +32,31 @@
                <c:when test="${info.stateName eq 'running'}">
                <a href="<portlet:actionURL portletMode="view">
                  <portlet:param name="mode" value="stop" />
-                 <portlet:param name="name" value="${info.objectName}" />
-                 <portlet:param name="managerObjectName" value="${container.managerObjectName}" />
-                 <portlet:param name="containerObjectName" value="${container.containerObjectName}" />
+                 <portlet:param name="connectorURI" value="${info.connectorURI}" />
+                 <portlet:param name="managerURI" value="${container.managerURI}" />
+                 <portlet:param name="containerURI" value="${container.containerURI}" />
                </portlet:actionURL>">stop</a>
                </c:when>
                <c:otherwise>
                <a href="<portlet:actionURL portletMode="view">
                  <portlet:param name="mode" value="start" />
-                 <portlet:param name="name" value="${info.objectName}" />
-                 <portlet:param name="managerObjectName" value="${container.managerObjectName}" />
-                 <portlet:param name="containerObjectName" value="${container.containerObjectName}" />
+                 <portlet:param name="connectorURI" value="${info.connectorURI}" />
+                 <portlet:param name="managerURI" value="${container.managerURI}" />
+                 <portlet:param name="containerURI" value="${container.containerURI}" />
                </portlet:actionURL>">start</a>
                </c:otherwise>
              </c:choose>
                <a href="<portlet:actionURL portletMode="view">
                  <portlet:param name="mode" value="edit" />
-                 <portlet:param name="name" value="${info.objectName}" />
-                 <portlet:param name="managerObjectName" value="${container.managerObjectName}" />
-                 <portlet:param name="containerObjectName" value="${container.containerObjectName}" />
+                 <portlet:param name="connectorURI" value="${info.connectorURI}" />
+                 <portlet:param name="managerURI" value="${container.managerURI}" />
+                 <portlet:param name="containerURI" value="${container.containerURI}" />
                </portlet:actionURL>">edit</a>
                <a href="<portlet:actionURL portletMode="view">
                  <portlet:param name="mode" value="delete" />
-                 <portlet:param name="name" value="${info.objectName}" />
-                 <portlet:param name="managerObjectName" value="${container.managerObjectName}" />
-                 <portlet:param name="containerObjectName" value="${container.containerObjectName}" />
+                 <portlet:param name="connectorURI" value="${info.connectorURI}" />
+                 <portlet:param name="managerURI" value="${container.managerURI}" />
+                 <portlet:param name="containerURI" value="${container.containerURI}" />
                </portlet:actionURL>">delete</a>
             </td>
             <td>${info.description}</td>
@@ -73,8 +73,8 @@
 <a href="<portlet:actionURL portletMode="view">
            <portlet:param name="mode" value="new" />
            <portlet:param name="protocol" value="${protocol}" />
-           <portlet:param name="managerObjectName" value="${container.managerObjectName}" />
-           <portlet:param name="containerObjectName" value="${container.containerObjectName}" />
+           <portlet:param name="managerURI" value="${container.managerURI}" />
+           <portlet:param name="containerURI" value="${container.containerURI}" />
            <portlet:param name="containerDisplayName" value="${container.name}" />
          </portlet:actionURL>">Add new ${protocol} listener for ${container.name}</a>
 </c:forEach>

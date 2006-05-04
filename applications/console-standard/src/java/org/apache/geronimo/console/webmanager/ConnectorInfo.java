@@ -19,14 +19,12 @@ package org.apache.geronimo.console.webmanager;
 
 import java.io.Serializable;
 
-import javax.management.ObjectName;
-
 import org.apache.geronimo.kernel.management.State;
 
 public class ConnectorInfo implements Serializable {
     private String description;
     private String displayName;
-    private String abstractName;
+    private String connectorURI;
     private String protocol;
     private int port;
     private int state;
@@ -47,23 +45,16 @@ public class ConnectorInfo implements Serializable {
         this.protocol = protocol;
     }
 
-    /**
-     * @deprecated Use getAbstractName
-     */
-    public String getObjectName() {
-        return abstractName;
-    }
-
-    public String getAbstractName() {
-        return abstractName;
+    public String getConnectorURI() {
+        return connectorURI;
     }
 
     public String getDisplayName() {
         return displayName;
     }
 
-    public void setAbstractName(String objectName) {
-        this.abstractName = objectName;
+    public void setConnectorURI(String connectorURI) {
+        this.connectorURI = connectorURI;
     }
 
     public void setDisplayName(String displayName) {
