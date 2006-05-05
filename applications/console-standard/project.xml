@@ -273,17 +273,11 @@
             <groupId>tomcat</groupId>
             <artifactId>jasper-runtime</artifactId>
             <version>${jasper_version}</version>
-            <properties>
-                <war.bundle>true</war.bundle>
-            </properties>
         </dependency>        
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>jasper-compiler</artifactId>
             <version>${jasper_version}</version>
-            <properties>
-                <war.bundle>true</war.bundle>
-            </properties>
         </dependency>
         <dependency>
             <groupId>dwr</groupId>
@@ -311,6 +305,7 @@
             <version>${geronimo_deployment_plugin_version}</version>
             <type>plugin</type>
         </dependency>
+
     </dependencies>
 
     <build>

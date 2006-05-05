@@ -1,66 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project default="default"
-    xmlns:j="jelly:core"
-    xmlns:ant="jelly:ant"
-    xmlns:define="jelly:define"
-    xmlns:velocity="jelly:velocity"
-    xmlns:deploy="geronimo:deploy"
-    xmlns:util="jelly:util">
+<project default="default">
 
-      <postGoal name="war:webapp">
-        <attainGoal name="preCompile"/>
-    </postGoal>
-
-    <!-- Output folder for compiled jsps. -->
-    <j:set var="outDir"  value="${basedir}/target/${pom.artifactId}/WEB-INF/work"/>
-   
-    <!-- pre compile jsps -->   
     <goal name="default">
-        <ant:mkdir dir="${outDir}"/>
         <attainGoal name="war:install"/>
     </goal>
 
-    
-    <!-- ==================================================== -->
-    <!-- Pre compile JSPs                                     -->
-    <!-- ==================================================== -->
-<goal name="preCompile">
-    <j:set var="webroot"  value="${basedir}/target/${pom.artifactId}"/>
-    <ant:path id="jspc.classpath">
-      <ant:path refid="maven.dependency.classpath"/>
-      <ant:pathelement path="${maven.build.dest}"/>
-    </ant:path>
-    <ant:echo>Pre-compiling JSPs from ${basedir}/src/webapp to ${outDir}.</ant:echo>
-    <!-- ant:taskdef classname="org.apache.jasper.JspC" name="ant:jasper2" classpathref="jspc.classpath"/>
-   <ant:jasper2 
-     validateXml="false" 
-     uriroot="${webroot}"
-     webapp="${basedir}/src/webapp"
-     webXmlFragment="${webroot}/generated_web.xml"
-     addWebXmlMappings="true"
-     outputDir="${outDir}" /  -->
-
-    <ant:java classname="org.apache.jasper.JspC" fork="true" failonerror="true" classpathref="jspc.classpath">
-      <arg value="-d"/>
-      <arg value="${outDir}"/>
-      <arg value="-webapp"/>
-      <arg value="${basedir}/src/webapp"/>
-      <arg value="-uriroot"/>
-      <arg value="${webroot}"/>
-      <arg value="-webinc"/>
-      <arg value="${webroot}/WEB-INF/generated-web.xml"/>
-    </ant:java>
-
-    <ant:echo>Compiling generated Java files in ${outDir}.</ant:echo>
-    <ant:javac
-            srcdir="${outDir}"
-            destdir="${outDir}"
-            debug="${maven.compile.debug}"
-            deprecation="${maven.compile.deprecation}"
-            optimize="${maven.compile.optimize}"
-            classpathref="jspc.classpath"/>
-
-        <deploy:mergeWebXML uriRoot="${webroot}" />
-  </goal>
+    <postGoal name="war:webapp">
+      <attainGoal name="preCompile"/>
+    </postGoal>
 
 </project>

@@ -25,6 +25,7 @@
     xmlns:ant="jelly:ant"
     xmlns:maven="jelly:maven"
     xmlns:define="jelly:define"
+    xmlns:deploy="geronimo:deploy"
     xmlns:velocity="jelly:velocity"
     >
 
@@ -258,5 +259,53 @@
       </j:if>
     </j:if>
   </postGoal>
+
+  <!-- ==================================================== -->
+    <!-- Pre compile JSPs                                     -->
+    <!-- ==================================================== -->
+<goal name="preCompile">
+  <!-- Output folder for compiled jsps. -->
+  <j:set var="outDir"  value="${basedir}/target/${pom.artifactId}/WEB-INF/work"/>
+  <ant:mkdir dir="${outDir}"/>
+
+    <j:set var="webroot"  value="${basedir}/target/${pom.artifactId}"/>
+    <ant:path id="jspc.classpath">
+      <ant:path refid="maven.dependency.classpath"/>
+      <ant:pathelement path="${maven.build.dest}"/>
+    </ant:path>
+    <ant:echo>Pre-compiling JSPs from ${basedir}/src/webapp to ${outDir}.</ant:echo>
+    <!-- ant:taskdef classname="org.apache.jasper.JspC" name="ant:jasper2" classpathref="jspc.classpath"/>
+   <ant:jasper2 
+     validateXml="false" 
+     uriroot="${webroot}"
+     webapp="${basedir}/src/webapp"
+     webXmlFragment="${webroot}/generated_web.xml"
+     addWebXmlMappings="true"
+     outputDir="${outDir}" /  -->
+
+    <ant:java classname="org.apache.jasper.JspC" fork="true" failonerror="true" classpathref="jspc.classpath">
+      <arg value="-d"/>
+      <arg value="${outDir}"/>
+      <arg value="-webapp"/>
+      <arg value="${basedir}/src/webapp"/>
+      <arg value="-uriroot"/>
+      <arg value="${webroot}"/>
+      <arg value="-webinc"/>
+      <arg value="${webroot}/WEB-INF/generated-web.xml"/>
+    </ant:java>
+
+    <ant:echo>Compiling generated Java files in ${outDir}.</ant:echo>
+    <ant:javac
+            srcdir="${outDir}"
+            destdir="${outDir}"
+            debug="${maven.compile.debug}"
+            deprecation="${maven.compile.deprecation}"
+            optimize="${maven.compile.optimize}"
+            classpathref="jspc.classpath"/>
+
+    <ant:echo>Merging generated-web.xml with our web.xml</ant:echo>
+    <deploy:mergeWebXML uriRoot="${webroot}" />
+  </goal>
+
 
 </project>
