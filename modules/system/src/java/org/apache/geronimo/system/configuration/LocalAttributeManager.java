@@ -408,7 +408,7 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
     public void startConfiguration(Artifact configurationName) {
         ConfigurationOverride configuration = serverOverride.getConfiguration(configurationName, false);
         if(configuration == null) {
-            throw new IllegalArgumentException("No such configuration "+configurationName);
+            return;
         }
         configuration.setLoad(true);
         attributeChanged();
@@ -428,11 +428,10 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
     public synchronized void removeConfiguration(Artifact configName) {
         ConfigurationOverride configuration = serverOverride.getConfiguration(configName);
         if (configuration == null) {
-            throw new IllegalArgumentException("Trying to remove unknown configuration: " + configName);
-        } else {
-            serverOverride.removeConfiguration(configName);
-            attributeChanged();
+            return;
         }
+        serverOverride.removeConfiguration(configName);
+        attributeChanged();
     }
 
     public Artifact[] getListedConfigurations(Artifact query) {
@@ -442,11 +441,10 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
     public void stopConfiguration(Artifact configName) {
         ConfigurationOverride configuration = serverOverride.getConfiguration(configName);
         if (configuration == null) {
-            throw new IllegalArgumentException("Trying to stop unknown configuration: " + configName);
-        } else {
-            configuration.setLoad(false);
-            attributeChanged();
+            return;
         }
+        configuration.setLoad(false);
+        attributeChanged();
     }
 
     public void migrateConfiguration(Artifact oldName, Artifact newName, Configuration configuration) {
