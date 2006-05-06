@@ -840,6 +840,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         String servletName = servletType.getServletName().getStringValue().trim();
         AbstractName servletAbstractName = earContext.getNaming().createChildName(webModuleName, servletName, NameFactory.SERVLET);
         GBeanData servletData;
+        Map initParams = new HashMap();
         if (servletType.isSetServletClass()) {
             String servletClassName = servletType.getServletClass().getStringValue().trim();
             Class servletClass;
@@ -872,6 +873,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             servletData.setAttribute("jspFile", servletType.getJspFile().getStringValue().trim());
             //TODO MAKE THIS CONFIGURABLE!!! Jetty uses the servlet mapping set up from the default-web.xml
             servletData.setAttribute("servletClass", "org.apache.jasper.servlet.JspServlet");
+	    initParams.put("development", "false");
         } else {
             throw new DeploymentException("Neither servlet class nor jsp file is set for " + servletName); // TODO identify web app in message
         }
@@ -886,7 +888,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         //TODO in init param setter, add classpath if jspFile is not null.
         servletData.setReferencePattern("JettyServletRegistration", webModuleName);
         servletData.setAttribute("servletName", servletName);
-        Map initParams = new HashMap();
         ParamValueType[] initParamArray = servletType.getInitParamArray();
         for (int j = 0; j < initParamArray.length; j++) {
             ParamValueType paramValueType = initParamArray[j];

@@ -93,8 +93,9 @@
         <attribute name="servletClass">org.apache.jasper.servlet.JspServlet</attribute>
         <attribute name="loadOnStartup">0</attribute>
         <attribute name="initParams">
- logVerbosityLevel=DEBUG
+ development=false
  fork=false
+ logVerbosityLevel=DEBUG
  xpoweredBy=false</attribute>
         <attribute name="servletMappings">*.jsp,*.jspf,*.jspx,*.xsp</attribute>
     </gbean>
