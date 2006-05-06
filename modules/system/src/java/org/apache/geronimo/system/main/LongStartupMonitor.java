@@ -48,6 +48,11 @@ public class LongStartupMonitor implements StartupMonitor {
     private int configNum;
 
     /**
+     * Length of longest Configuration Name
+     */
+    private int longestConfigNameLength;
+    
+    /**
      * Time Geronimo was started
      */
     private long started;
@@ -74,12 +79,31 @@ public class LongStartupMonitor implements StartupMonitor {
     public synchronized void foundConfigurations(Artifact[] configurations) {
         numConfigs = configurations.length;
         numConfigsDigits = Integer.toString(numConfigs).length();
+        
+        for (int i = 0, len= 0; i < configurations.length; i++) {
+            len = configurations[i].toString().length();
+            if (len > longestConfigNameLength)
+                longestConfigNameLength = len;
+        }
     }
 
     public synchronized void configurationLoading(Artifact configuration) {
-        StringBuffer buf = new StringBuffer("Configuration ").append(configuration);
-        out.print(buf.toString());
-        configNum++;
+        StringBuffer buf = new StringBuffer("Configuration ");
+        // pad config index
+        int configIndexDigits = Integer.toString(++configNum).length();
+        for (; configIndexDigits < numConfigsDigits; configIndexDigits++) {
+            buf.append(' ');
+        }
+        // append configuration index / total configs
+        buf.append(configNum).append('/').append(numConfigs).append(' ');
+        // append configuration name
+        buf.append(configuration);
+        // pad end of config name with spaces so trailing startup times will line up
+        int len = configuration.toString().length();
+        for (; len < longestConfigNameLength; len++) {
+            buf.append(' ');
+        }
+        out.print(buf);
     }
 
     public synchronized void configurationLoaded(Artifact configuration) {
@@ -93,13 +117,7 @@ public class LongStartupMonitor implements StartupMonitor {
         int time = Math.round((float) (System.currentTimeMillis() - configStarted) / 1000f);
         StringBuffer buf = new StringBuffer();
         buf.append(" started in ");
-        // pad config index
-        int configIndexDigits = Integer.toString(configNum).length();
-        for (; configIndexDigits < numConfigsDigits; configIndexDigits++) {
-            buf.append(' ');
-        }
         // pad configuration startup time
-        buf.append(configNum).append('/').append(numConfigs).append(' ');
         int timeDigits = Integer.toString(time).length();
         for (; timeDigits < MIN_TIME_WIDTH; timeDigits++) {
             buf.append(' ');
