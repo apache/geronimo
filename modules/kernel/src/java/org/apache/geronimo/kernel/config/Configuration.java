@@ -353,15 +353,15 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
 
         log.debug("ClassPath for " + id + " resolved to " + Arrays.asList(urls));
 
-        if (Boolean.getBoolean("Xorg.apache.geronimo.NewClassLoader")) {
-            return new JarFileClassLoader(environment.getConfigId(),
+        if (Boolean.getBoolean("Xorg.apache.geronimo.OldClassLoader")) {
+            return new MultiParentClassLoader(environment.getConfigId(),
                     urls,
                     parentClassLoaders,
                     environment.isInverseClassLoading(),
                     hiddenClasses,
                     nonOverridableClasses);
         } else {
-            return new MultiParentClassLoader(environment.getConfigId(),
+            return new JarFileClassLoader(environment.getConfigId(),
                     urls,
                     parentClassLoaders,
                     environment.isInverseClassLoading(),
