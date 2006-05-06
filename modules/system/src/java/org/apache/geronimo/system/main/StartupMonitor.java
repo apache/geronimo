@@ -1,6 +1,5 @@
 package org.apache.geronimo.system.main;
 
-import java.net.URI;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Artifact;
 
@@ -23,6 +22,4 @@ public interface StartupMonitor {
 
     // Indicate failures during load
     void serverStartFailed(Exception problem);
-    void loadFailed(String configuration, Exception problem);
-    void startFailed(String configuration, Exception problem);
 }

@@ -115,26 +115,10 @@ public class LongStartupMonitor implements StartupMonitor {
         StartupMonitorUtil.wrapUp(out, kernel);
     }
 
-    // TODO Review - Currently loadFailed is not called by Daemon
-    public synchronized void loadFailed(String configuration, Exception problem) {
-        out.println("Failed to load configuration " + configuration);
-        out.println();
-        problem.printStackTrace(out);
-    }
-
     public synchronized void serverStartFailed(Exception problem) {
         out.println("Server Startup failed");
         out.println();
         problem.printStackTrace(out);
     }
 
-    // TODO Review - Currently startFailed is not called by Daemon
-    public synchronized void startFailed(String configuration, Exception problem) {
-        out.println("Failed to start configuration " + configuration);
-        // We print the stack track now (rather than defering the printing of it)
-        // since other problems that may occur during the start of a configuration
-        // (e.g. an individual GBean not being able to start) produce
-        // errors in the log (and therefore standard output) immediately.
-        problem.printStackTrace(out);
-    }
 }

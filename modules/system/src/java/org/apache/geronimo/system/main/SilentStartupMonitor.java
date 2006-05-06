@@ -62,11 +62,4 @@ public class SilentStartupMonitor implements StartupMonitor {
         problem.printStackTrace(System.out);
     }
 
-    public void loadFailed(String configuration, Exception problem) {
-        problem.printStackTrace();
-    }
-
-    public void startFailed(String configuration, Exception problem) {
-        problem.printStackTrace();
-    }
 }

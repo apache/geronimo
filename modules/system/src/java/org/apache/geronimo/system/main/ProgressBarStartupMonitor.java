@@ -1,8 +1,6 @@
 package org.apache.geronimo.system.main;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -36,7 +34,6 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
     private Kernel kernel;
     private int operationLimit = 50;
     private boolean finished = false;
-    private List exceptions = new ArrayList();
     private UpdateThread thread;
 
     public synchronized void systemStarting(long startTime) {
@@ -133,29 +130,11 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
         thread.interrupt();
     }
 
-    public synchronized void loadFailed(String configuration, Exception problem) {
-        for (int i = 0; i < configurations.length; i++) {
-            if (configurations[i].equals(configuration)) {
-                configStatus[i] = STATUS_FAILED;
-            }
-        }
-        if (problem != null) exceptions.add(problem);
-    }
-
     public synchronized void serverStartFailed(Exception problem) {
         currentOperation = "Startup failed";
         repaint();
         out.println();
         problem.printStackTrace(out);
-    }
-
-    public synchronized void startFailed(String configuration, Exception problem) {
-        for (int i = 0; i < configurations.length; i++) {
-            if (configurations[i].equals(configuration)) {
-                configStatus[i] = STATUS_FAILED;
-            }
-        }
-        if (problem != null) exceptions.add(problem);
     }
 
     private synchronized void repaint() {
