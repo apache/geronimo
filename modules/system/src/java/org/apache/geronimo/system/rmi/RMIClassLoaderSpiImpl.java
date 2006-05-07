@@ -102,21 +102,26 @@ public class RMIClassLoaderSpiImpl
         
         while (stok.hasMoreTokens()) {
             String item = stok.nextToken();
-            try {
-                URL url = new URL(item);
-                // System.out.println("Created URL: " + url);
-                
-                // If we got this far then item is a valid url, so commit the current
-                // buffer and start collecting any trailing bits from where we are now
-                
-                updateCodebase(working, codebase);
-            }
-            catch (MalformedURLException ignore) {
-                // just keep going & append to the working buffer
+            // Optimisation: This optimisation to prevent unnecessary MalformedURLExceptions 
+            //   being generated is most helpful on windows where directory names in the path 
+            //   often contain spaces.  E.G:
+            //     file:/C:/Program Files/Apache Software Foundation/Maven 1.0.2/lib/ant-1.5.3-1.jar
+            //
+            //   Therefore we won't attempt URL("Files/Apache) or URL(" ") for the path delimiter.
+            if ( item.indexOf(':') != -1 )
+            {
+                try {
+                    URL url = new URL(item);
+                    // If we got this far then item is a valid url, so commit the current
+                    // buffer and start collecting any trailing bits from where we are now
+                    updateCodebase(working, codebase);
+                } catch (MalformedURLException ignore) {
+                    // just keep going & append to the working buffer
+                }
             }
             
+            // Append the URL or delimiter to the working buffer
             working.append(item);
-            // System.out.println("Added to working buffer: " + item);
         }
         
         // Handle trailing elements
@@ -164,4 +169,4 @@ public class RMIClassLoaderSpiImpl
     public interface ClassLoaderServerAware {
         public URL[] getClassLoaderServerURLs();
     }
-}
+        }
