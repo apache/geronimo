@@ -50,7 +50,7 @@ import org.apache.geronimo.kernel.Naming;
 
 
 /**
- * @version $Rev: 384667 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class SecurityBuilder {
 
@@ -184,7 +184,7 @@ public class SecurityBuilder {
                 for (int j = 0; j < roleType.sizeOfDistinguishedNameArray(); j++) {
                     GerDistinguishedNameType dnType = roleType.getDistinguishedNameArray(j);
 
-                    role.getDistinguishedNames().add(new DistinguishedName(dnType.getName(), dnType.getDesignatedRunAs()));
+                    role.getDistinguishedNames().add(new DistinguishedName(dnType.getName().trim(), dnType.getDesignatedRunAs()));
                 }
 
                 security.getRoleMappings().put(roleName, role);
@@ -206,7 +206,7 @@ public class SecurityBuilder {
             Set defaultCredentialSet = new HashSet();
             for (int i = 0; i < namedCredentials.length; i++) {
                 GerNamedUsernamePasswordCredentialType namedCredentialType = namedCredentials[i];
-                NamedUsernamePasswordCredential namedCredential = new NamedUsernamePasswordCredential(namedCredentialType.getUsername(), namedCredentialType.getPassword().toCharArray(), namedCredentialType.getName());
+                NamedUsernamePasswordCredential namedCredential = new NamedUsernamePasswordCredential(namedCredentialType.getUsername().trim(), namedCredentialType.getPassword().trim().toCharArray(), namedCredentialType.getName().trim());
                 defaultCredentialSet.add(namedCredential);
             }
             defaultPrincipal.setNamedUserPasswordCredentials(defaultCredentialSet);
@@ -216,15 +216,15 @@ public class SecurityBuilder {
 
     //used from TSSConfigEditor
     public static RealmPrincipalInfo buildRealmPrincipal(GerRealmPrincipalType realmPrincipalType) {
-        return new RealmPrincipalInfo(realmPrincipalType.getDomainName(), realmPrincipalType.getRealmName(), realmPrincipalType.getClass1(), realmPrincipalType.getName(), realmPrincipalType.isSetDesignatedRunAs());
+        return new RealmPrincipalInfo(realmPrincipalType.getDomainName().trim(), realmPrincipalType.getRealmName().trim(), realmPrincipalType.getClass1().trim(), realmPrincipalType.getName().trim(), realmPrincipalType.isSetDesignatedRunAs());
     }
 
     public static LoginDomainPrincipalInfo buildDomainPrincipal(GerLoginDomainPrincipalType domainPrincipalType) {
-        return new LoginDomainPrincipalInfo(domainPrincipalType.getDomainName(), domainPrincipalType.getClass1(), domainPrincipalType.getName(), domainPrincipalType.isSetDesignatedRunAs());
+        return new LoginDomainPrincipalInfo(domainPrincipalType.getDomainName().trim(), domainPrincipalType.getClass1().trim(), domainPrincipalType.getName().trim(), domainPrincipalType.isSetDesignatedRunAs());
     }
 
     public static PrincipalInfo buildPrincipal(GerPrincipalType principalType) {
-        return new PrincipalInfo(principalType.getClass1(), principalType.getName(), principalType.isSetDesignatedRunAs());
+        return new PrincipalInfo(principalType.getClass1().trim(), principalType.getName().trim(), principalType.isSetDesignatedRunAs());
     }
 
     public static GBeanData configureApplicationPolicyManager(Naming naming, AbstractName moduleName, Map contextIDToPermissionsMap, SecurityConfiguration securityConfiguration) {
