@@ -19,12 +19,12 @@
 <openejb-jar
     xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.0">
     <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
-        <configId>
+        <moduleId>
             <groupId>geronimo</groupId>
             <artifactId>test-ejb</artifactId>
             <version>1.0</version>
             <type>car</type>
-        </configId>
+        </moduleId>
     </environment>
 
     <cmp-connection-factory>DefaultDatasource</cmp-connection-factory>

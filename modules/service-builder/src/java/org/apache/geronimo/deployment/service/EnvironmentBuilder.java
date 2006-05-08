@@ -53,8 +53,8 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
     public static Environment buildEnvironment(EnvironmentType environmentType) {
         Environment environment = new Environment();
         if (environmentType != null) {
-            if (environmentType.isSetConfigId()) {
-                environment.setConfigId(toArtifact(environmentType.getConfigId(), null));
+            if (environmentType.isSetModuleId()) {
+                environment.setConfigId(toArtifact(environmentType.getModuleId(), null));
             }
 
             if (environmentType.isSetDependencies()) {
@@ -97,7 +97,7 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
         EnvironmentType environmentType = EnvironmentType.Factory.newInstance();
         if (environment.getConfigId() != null) {
             ArtifactType configId = toArtifactType(environment.getConfigId());
-            environmentType.setConfigId(configId);
+            environmentType.setModuleId(configId);
         }
 
         List dependencies = toArtifactTypes(environment.getDependencies());

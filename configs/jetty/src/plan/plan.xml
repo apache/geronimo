@@ -22,7 +22,7 @@
 Configuration for Jetty server.
                parentId="${pom.groupId}/rmi-naming/${pom.currentVersion}/car"
 -->
-<configuration
+<module
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
 
     >
@@ -107,4 +107,4 @@ Configuration for Jetty server.
         </reference>
     </gbean>
 
-</configuration>
+</module>

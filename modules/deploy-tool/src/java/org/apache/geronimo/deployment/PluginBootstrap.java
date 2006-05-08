@@ -22,8 +22,8 @@ import java.util.Collections;
 import java.util.jar.JarOutputStream;
 
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
-import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
-import org.apache.geronimo.deployment.xbeans.ConfigurationType;
+import org.apache.geronimo.deployment.xbeans.ModuleDocument;
+import org.apache.geronimo.deployment.xbeans.ModuleType;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
@@ -67,7 +67,7 @@ public class PluginBootstrap {
         System.out.println("    Packaging configuration " + plan);
         System.out.println();
 
-        ConfigurationType config = ConfigurationDocument.Factory.parse(plan).getConfiguration();
+        ModuleType config = ModuleDocument.Factory.parse(plan).getModule();
 
         Maven1Repository repository = new Maven1Repository(localRepo);
         ServiceConfigBuilder builder = new ServiceConfigBuilder(null, Collections.singleton(repository), new Jsr77Naming());

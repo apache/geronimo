@@ -389,7 +389,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         // construct the empty geronimo-application.xml
         GerApplicationType gerApplication = GerApplicationType.Factory.newInstance();
         EnvironmentType environmentType = gerApplication.addNewEnvironment();
-        ArtifactType artifactType = environmentType.addNewConfigId();
+        ArtifactType artifactType = environmentType.addNewModuleId();
 
         artifactType.setGroupId(Artifact.DEFAULT_GROUP_ID);
 

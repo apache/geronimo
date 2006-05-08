@@ -18,7 +18,7 @@
 
 <!-- $Rev: 378404 $ $Date: 2006-02-16 19:17:27 -0500 (Thu, 16 Feb 2006) $ -->
 
-<configuration xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
 
     <gbean name="EJBBuilder" class="org.openejb.deployment.OpenEJBModuleBuilder">
@@ -61,4 +61,4 @@
     <gbean name="ServerEJBReferenceBuilder" class="org.openejb.deployment.OpenEJBReferenceBuilder"/>
     <gbean name="WebServiceEJBLinkTemplate" class="org.openejb.server.axis.WSContainerGBean"/>
 
-</configuration>
+</module>

@@ -50,7 +50,7 @@ public class PlanParsingTest extends TestCase {
         GerWebAppDocument tomcatWebAppDoc = GerWebAppDocument.Factory.newInstance();
         GerWebAppType tomcatWebAppType = tomcatWebAppDoc.addNewWebApp();
         EnvironmentType environmentType = tomcatWebAppType.addNewEnvironment();
-        ArtifactType artifactType = environmentType.addNewConfigId();
+        ArtifactType artifactType = environmentType.addNewModuleId();
         artifactType.setArtifactId("foo");
 
         tomcatWebAppType.setContextPriorityClassloader(false);

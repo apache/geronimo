@@ -3,12 +3,12 @@
          xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
     <dep:environment>
-        <dep:configId>
+        <dep:moduleId>
             <dep:groupId>foo</dep:groupId>
             <dep:artifactId>bar</dep:artifactId>
             <dep:version>1</dep:version>
             <dep:type>car</dep:type>
-        </dep:configId>
+        </dep:moduleId>
     </dep:environment>
     <context-priority-classloader>true</context-priority-classloader>
 

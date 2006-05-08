@@ -6,10 +6,10 @@
 	xmlns:security="http://geronimo.apache.org/xml/ns/security-1.1"
 	>
 	<environment>
-		<configId>
+		<moduleId>
 			<groupId>contextRootTest</groupId>
 			<artifactId>spacesInContext</artifactId>
-		</configId>
+		</moduleId>
 	</environment>
 	
 	<context-root>

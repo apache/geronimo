@@ -23,15 +23,15 @@ Configuration for corba on a Geronimo serverl, including client and target secur
                parentId="${pom.groupId}/j2ee-server/${pom.currentVersion}/car"
 
 -->
-<configuration xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
     <environment>
-        <configId>
+        <moduleId>
             <groupId>geronimo</groupId>
             <artifactId>j2ee-corba</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
-        </configId>
+        </moduleId>
         <dependencies>
             <dependency>
                 <groupId>geronimo</groupId>
@@ -575,4 +575,4 @@ Configuration for corba on a Geronimo serverl, including client and target secur
         </dependency>
     </gbean>
 
-</configuration>
+</module>

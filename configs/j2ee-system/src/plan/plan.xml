@@ -19,14 +19,14 @@
 
 <!--
 Configuration for the innermost ring of a Geronimo server.
-This configuration should only contain critical services needed to
+This module should only contain critical services needed to
 run other Configurations - for example, the ServerInfo, Logging
 and Repository services used to load them.
 
-This configuration should *NOT* be used to provide server or application
+This module should *NOT* be used to provide server or application
 specific services - those should be provided by children.
 -->
-<configuration xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
   <!-- ServerInfo service -->
   <gbean name="ServerInfo" class="org.apache.geronimo.system.serverinfo.BasicServerInfo"/>
 
@@ -95,4 +95,4 @@ specific services - those should be provided by children.
       <name>ServerInfo</name>
     </reference>
   </gbean>
-</configuration>
+</module>

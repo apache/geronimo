@@ -52,8 +52,8 @@ public class EnvironmentData extends XmlBeanSupport {
 
     public void configure(EnvironmentType env) {
         setXmlObject(env);
-        if(env.isSetConfigId()) {
-            configId = new Artifact(env.getConfigId());
+        if(env.isSetModuleId()) {
+            configId = new Artifact(env.getModuleId());
         }
         if(env.isSetDependencies()) {
             DependenciesType deps = env.getDependencies();
@@ -77,10 +77,10 @@ public class EnvironmentData extends XmlBeanSupport {
             return;
         }
         if(old != null) {
-            getEnvironmentType().unsetConfigId();
+            getEnvironmentType().unsetModuleId();
         }
         if(configId != null) {
-            configId.configure(getEnvironmentType().addNewConfigId());
+            configId.configure(getEnvironmentType().addNewModuleId());
         }
         pcs.firePropertyChange("configId", old, configId);
     }

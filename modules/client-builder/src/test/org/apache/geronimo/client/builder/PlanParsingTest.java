@@ -33,11 +33,11 @@ public class PlanParsingTest extends TestCase {
         GerApplicationClientDocument appClientDoc = GerApplicationClientDocument.Factory.newInstance();
         GerApplicationClientType appClient = appClientDoc.addNewApplicationClient();
         EnvironmentType clientEnvironmentType = appClient.addNewClientEnvironment();
-        ArtifactType clientId = clientEnvironmentType.addNewConfigId();
+        ArtifactType clientId = clientEnvironmentType.addNewModuleId();
         clientId.setGroupId("group");
         clientId.setArtifactId("artifact");
         EnvironmentType serverEnvironmentType = appClient.addNewServerEnvironment();
-        serverEnvironmentType.setConfigId(clientId);
+        serverEnvironmentType.setModuleId(clientId);
 
         GerResourceRefType ref = appClient.addNewResourceRef();
         ref.setRefName("ref");

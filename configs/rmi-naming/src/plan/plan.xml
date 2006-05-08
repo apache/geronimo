@@ -19,12 +19,12 @@
 <!-- $Rev$ $Date$ -->
 
 <!--
-Holds the RMI naming server configuration.  This needs to be started
+Holds the RMI naming server module.  This needs to be started
 after the system GBeans but before the server GBeans.
     parentId="${pom.groupId}/j2ee-system/${pom.currentVersion}/car"
 
 -->
-<configuration
+<module
         xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
 
         >
@@ -94,4 +94,4 @@ after the system GBeans but before the server GBeans.
     <gbean name="DownloadedPluginRepos" class="org.apache.geronimo.system.plugin.PluginRepositoryDownloader">
         <attribute name="repositoryList">http://people.apache.org/~ammulder/plugin-repository-list.txt</attribute>
     </gbean>
-</configuration>
+</module>

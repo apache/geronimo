@@ -19,12 +19,12 @@
     xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.1"
     xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1">
     <environment>
-        <configId>
+        <moduleId>
             <groupId>foo</groupId>
             <artifactId>bar</artifactId>
             <version>1</version>
             <type>car</type>
-        </configId>
+        </moduleId>
     </environment>
 
     <context-root>/test</context-root>

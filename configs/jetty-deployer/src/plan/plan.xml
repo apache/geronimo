@@ -16,7 +16,7 @@
 -->
 
 <!-- $Rev$ $Date$ -->
-<configuration xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
     <gbean name="JettyWebBuilder" class="org.apache.geronimo.jetty.deployment.JettyModuleBuilder">
         <attribute name="defaultSessionTimeoutSeconds">1800</attribute>
@@ -104,4 +104,4 @@
         <attribute name="servletName">dummy</attribute>
     </gbean>
 
-</configuration>
+</module>

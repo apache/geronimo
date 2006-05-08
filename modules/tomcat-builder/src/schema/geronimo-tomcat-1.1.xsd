@@ -29,7 +29,7 @@
 
     <xs:import namespace="http://geronimo.apache.org/xml/ns/naming-1.1" schemaLocation="geronimo-naming-1.1.xsd"/>
     <xs:import namespace="http://geronimo.apache.org/xml/ns/security-1.1" schemaLocation="geronimo-security-1.1.xsd"/>
-    <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment-1.1" schemaLocation="geronimo-config-1.1.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment-1.1" schemaLocation="geronimo-module-1.1.xsd"/>
 
     <xs:element name="web-app" type="tomcat:web-appType"/>
 

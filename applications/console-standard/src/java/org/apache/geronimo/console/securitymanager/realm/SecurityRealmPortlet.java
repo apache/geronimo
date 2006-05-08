@@ -22,8 +22,8 @@ import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.AttributeType;
-import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
-import org.apache.geronimo.deployment.xbeans.ConfigurationType;
+import org.apache.geronimo.deployment.xbeans.ModuleDocument;
+import org.apache.geronimo.deployment.xbeans.ModuleType;
 import org.apache.geronimo.deployment.xbeans.DependenciesType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
@@ -321,10 +321,10 @@ public class SecurityRealmPortlet extends BasePortlet {
 
     private XmlObject actionGeneratePlan(PortletRequest request, RealmData data) {
         normalize(data);
-        ConfigurationDocument doc = ConfigurationDocument.Factory.newInstance();
-        ConfigurationType root = doc.addNewConfiguration();
+        ModuleDocument doc = ModuleDocument.Factory.newInstance();
+        ModuleType root = doc.addNewModule();
         EnvironmentType environment = root.addNewEnvironment();
-        ArtifactType configId = environment.addNewConfigId();
+        ArtifactType configId = environment.addNewModuleId();
         configId.setGroupId("console");
         configId.setArtifactId("realm-"+data.getName());
         configId.setVersion("1.0");

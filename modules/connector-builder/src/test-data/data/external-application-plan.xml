@@ -19,24 +19,24 @@
 <application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.1">
     <!--parentId="org/apache/geronimo/Server"-->
     <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
-        <configId>
+        <moduleId>
             <groupId>geronimo</groupId>
             <artifactId>test-ear</artifactId>
             <version>1.0</version>
             <type>car</type>
-        </configId>
+        </moduleId>
     </environment>
 
     <module>
         <connector>test-rar-10-noger.rar</connector>
         <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
-                <configId>
+                <moduleId>
                     <groupId>geronimo</groupId>
                     <artifactId>test-ear</artifactId>
                     <version>1.0</version>
                     <type>car</type>
-                </configId>
+                </moduleId>
             </environment>
 
             <resourceadapter>
@@ -97,12 +97,12 @@
         <connector>test-rar-15-noger.rar</connector>
         <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
-                <configId>
+                <moduleId>
                     <groupId>geronimo</groupId>
                     <artifactId>test-ear</artifactId>
                     <version>1.0</version>
                     <type>car</type>
-                </configId>
+                </moduleId>
             </environment>
 
 

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.1">
   <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
-    <dep:configId>
+    <dep:moduleId>
       <dep:groupId>default</dep:groupId>
       <dep:artifactId>transport_jsp_vehicle</dep:artifactId>
       <dep:version>1-default</dep:version>
       <dep:type>car</dep:type>
-    </dep:configId>
+    </dep:moduleId>
     <dep:dependencies>
       <dep:dependency>
         <dep:groupId>${pom.groupId}</dep:groupId>

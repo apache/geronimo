@@ -17,17 +17,17 @@
 -->
 
 
-<configuration
+<module
         xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
         >
 
     <environment>
-        <configId>
+        <moduleId>
             <groupId>geronimo</groupId>
             <artifactId>foo4</artifactId>
             <version>DEV</version>
             <type>car</type>
-        </configId>
+        </moduleId>
         <dependencies>
             <dependency>
                 <groupId>geronimo</groupId>
@@ -75,4 +75,4 @@
             <name>MyMockGMBean</name>
         </reference>
     </gbean>
-</configuration>
+</module>

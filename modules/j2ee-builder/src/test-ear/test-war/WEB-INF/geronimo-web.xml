@@ -18,12 +18,12 @@
 
 <jetty:web-app xmlns:jetty="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.1">
     <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
-        <configId>
+        <moduleId>
             <groupId>geronimo</groupId>
             <artifactId>test-ear</artifactId>
             <version>1.0</version>
             <type>car</type>
-        </configId>
+        </moduleId>
     </environment>
     <jetty:context-priority-classloader>false</jetty:context-priority-classloader>
     <!--

@@ -19,10 +19,10 @@ limitations under the License.
 <!-- $Rev$ $Date$ -->
 
 <!--
-Child of the geronimo/j2ee-server/${pom.currentVersion}/car configuration that includes deployment services
+Child of the geronimo/j2ee-server/${pom.currentVersion}/car module that includes deployment services
     parentId="geronimo/runtime-deployer/${pom.currentVersion}/car"
 -->
-<configuration
+<module
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
 
     >
@@ -36,4 +36,4 @@ Child of the geronimo/j2ee-server/${pom.currentVersion}/car configuration that i
             <name>EARBuilder</name>
         </dependency>
     </gbean>
-</configuration>
+</module>

@@ -1,11 +1,11 @@
 <application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.1">
   <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
-    <dep:configId>
+    <dep:moduleId>
       <dep:groupId>default</dep:groupId>
       <dep:artifactId>appclient_ejb_1</dep:artifactId>
       <dep:version>1-default</dep:version>
       <dep:type>car</dep:type>
-    </dep:configId>
+    </dep:moduleId>
     <dep:dependencies>
       <dep:dependency>
         <dep:groupId>${pom.groupId}</dep:groupId>
@@ -21,12 +21,12 @@
     <ejb>appclient_ejb_1_ejb.jar</ejb>
     <openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.1">
       <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
-        <dep:configId>
+        <dep:moduleId>
           <dep:groupId>default</dep:groupId>
           <dep:artifactId>ejb</dep:artifactId>
           <dep:version>1-default</dep:version>
           <dep:type>car</dep:type>
-        </dep:configId>
+        </dep:moduleId>
         <dep:dependencies/>
         <dep:hidden-classes/>
         <dep:non-overridable-classes/>
@@ -58,12 +58,12 @@
     <java>appclient_ejb_1_client.jar</java>
     <application-client xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client-1.1">
       <dep:client-environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
-        <dep:configId>
+        <dep:moduleId>
           <dep:groupId>default</dep:groupId>
           <dep:artifactId>appclient_ejb_1_appclient_ejb_1_client</dep:artifactId>
           <dep:version>1-default</dep:version>
           <dep:type>car</dep:type>
-        </dep:configId>
+        </dep:moduleId>
         <dep:dependencies>
           <dep:dependency>
             <dep:groupId>${pom.groupId}</dep:groupId>
@@ -76,12 +76,12 @@
         <dep:non-overridable-classes/>
       </dep:client-environment>
       <dep:server-environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
-        <dep:configId>
+        <dep:moduleId>
           <dep:groupId>default</dep:groupId>
           <dep:artifactId>bar</dep:artifactId>
           <dep:version>1-default</dep:version>
           <dep:type>car</dep:type>
-        </dep:configId>
+        </dep:moduleId>
         <dep:dependencies/>
         <dep:hidden-classes/>
         <dep:non-overridable-classes/>

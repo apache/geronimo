@@ -506,20 +506,20 @@
         <java>streamer.jar</java>
         <application-client  xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client-1.1">
             <client-environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
-                <configId>
+                <moduleId>
                     <groupId>${pom.groupId}</groupId>
                     <artifactId>${pom.artifactId}-streamer-client</artifactId>
                     <version>${pom.currentVersion}</version>
                     <type>car</type>
-                </configId>
+                </moduleId>
             </client-environment>
             <server-environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
-                <configId>
+                <moduleId>
                     <groupId>${pom.groupId}</groupId>
                     <artifactId>${pom.artifactId}-streamer-client-server</artifactId>
                     <version>${pom.currentVersion}</version>
                     <type>car</type>
-                </configId>
+                </moduleId>
             </server-environment>
             <resource>
                 <external-rar>activemq/activemq-ra/${activemq_version}/rar</external-rar>

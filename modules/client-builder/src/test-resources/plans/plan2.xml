@@ -4,20 +4,20 @@
     configId="client"
     parentId="org/apache/geronimo/DefaultDatabase">-->
     <dep:client-environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
-        <dep:configId>
+        <dep:moduleId>
             <dep:groupId>test</dep:groupId>
             <dep:artifactId>testclient</dep:artifactId>
             <dep:version>1</dep:version>
             <dep:type>car</dep:type>
-        </dep:configId>
+        </dep:moduleId>
     </dep:client-environment>
     <dep:server-environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
-        <dep:configId>
+        <dep:moduleId>
             <dep:groupId>test</dep:groupId>
             <dep:artifactId>testserver</dep:artifactId>
             <dep:version>1</dep:version>
             <dep:type>car</dep:type>
-        </dep:configId>
+        </dep:moduleId>
     </dep:server-environment>
     <nam:resource-ref xmlns:nam="http://geronimo.apache.org/xml/ns/naming-1.1">
         <nam:ref-name>jdbc/DB1</nam:ref-name>
@@ -27,12 +27,12 @@
         <external-rar>tranql/rars/tranql-connector-1.0-SNAPSHOT</external-rar>
         <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1">
             <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
-                <dep:configId>
+                <dep:moduleId>
                     <dep:groupId>test</dep:groupId>
                     <dep:artifactId>testclient</dep:artifactId>
                     <dep:version>1</dep:version>
                     <dep:type>car</dep:type>
-                </dep:configId>
+                </dep:moduleId>
                 <dep:dependencies>
                     <dep:dependency>
                         <dep:groupId>axion</dep:groupId>

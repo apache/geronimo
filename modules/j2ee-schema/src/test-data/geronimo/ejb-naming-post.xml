@@ -2,12 +2,12 @@
 
 <openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.1" xmlns:nam="http://geronimo.apache.org/xml/ns/naming-1.1" xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
     <dep:environment>
-        <dep:configId>
+        <dep:moduleId>
             <dep:groupId>test</dep:groupId>
             <dep:type>car</dep:type>
             <dep:artifactId>testclient</dep:artifactId>
             <dep:version>1</dep:version>
-        </dep:configId>
+        </dep:moduleId>
     </dep:environment>
     <nam:cmp-connection-factory>
         <nam:application>null</nam:application>

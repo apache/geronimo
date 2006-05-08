@@ -20,7 +20,7 @@
 <!--
 Configuration for root app client
 -->
-<configuration xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
     <!-- ServerInfo service -->
     <gbean name="ServerInfo" class="org.apache.geronimo.system.serverinfo.BasicServerInfo"/>
 
@@ -109,4 +109,4 @@ Configuration for root app client
         </reference>
     </gbean>
 
-</configuration>
+</module>

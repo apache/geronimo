@@ -20,8 +20,8 @@ import junit.framework.TestCase;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.FooBarBean;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
-import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
-import org.apache.geronimo.deployment.xbeans.ConfigurationType;
+import org.apache.geronimo.deployment.xbeans.ModuleDocument;
+import org.apache.geronimo.deployment.xbeans.ModuleType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
@@ -77,8 +77,8 @@ public class ServiceConfigBuilderTest extends TestCase {
         new ServiceConfigBuilder(parentEnvironment, null, referenceCollection, null, naming);
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         final URL plan1 = cl.getResource("services/plan1.xml");
-        ConfigurationDocument doc = ConfigurationDocument.Factory.parse(plan1);
-        ConfigurationType plan = doc.getConfiguration();
+        ModuleDocument doc = ModuleDocument.Factory.parse(plan1);
+        ModuleType plan = doc.getModule();
         File outFile = File.createTempFile("foo", "bar");
         outFile.delete();
         if (!outFile.mkdirs()) {

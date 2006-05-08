@@ -124,7 +124,7 @@ public class PlanParsingTest extends TestCase {
 
     private void addEnvironment(JettyWebAppType webApp) {
         EnvironmentType environmentType = webApp.addNewEnvironment();
-        ArtifactType configId = environmentType.addNewConfigId();
+        ArtifactType configId = environmentType.addNewModuleId();
         configId.setGroupId("g");
         configId.setArtifactId("a");
         configId.setVersion("1");

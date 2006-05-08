@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 
-<configuration xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
     <!-- Deployer used to process modules and plans -->
     <gbean name="Deployer" class="org.apache.geronimo.deployment.Deployer">
         <reference name="Store">
@@ -26,7 +26,7 @@
         </reference>
     </gbean>
 
-    <!-- Builder for handling plans defining Geronimo configurations -->
+    <!-- Builder for handling plans defining Geronimo modules -->
     <gbean name="ServiceBuilder" class="org.apache.geronimo.deployment.service.ServiceConfigBuilder">
         <!--<attribute name="defaultParentId">geronimo/j2ee-server/${pom.currentVersion}/car</attribute>-->
         <reference name="Repository">
@@ -45,4 +45,4 @@
 
     <!--<gbean name="EnvironmentBuilder" class="org.apache.geronimo.deployment.service.EnvironmentBuilder"/>-->
 
-</configuration>
+</module>

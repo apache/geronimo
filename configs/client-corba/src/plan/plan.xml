@@ -21,7 +21,7 @@
 <!--
 CSSBean examples for app client
 -->
-<configuration xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
     <gbean name="DyanmicStubClassLoader" class="org.openejb.corba.util.DynamicStubClassLoader"/>
 
@@ -148,4 +148,4 @@ CSSBean examples for app client
         </xml-attribute>
     </gbean>
 
-</configuration>
+</module>

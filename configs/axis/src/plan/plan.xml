@@ -21,16 +21,16 @@
 <!--
 Configuration for the main ring of a Geronimo server.
 
-This configuration should contain those services normally provided
+This module should contain those services normally provided
 by the server.
                parentId="${pom.groupId}/rmi-naming/${pom.currentVersion}/car"
 
 -->
-<configuration
+<module
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
 
     >
 
     <gbean name="AxisCLWorkaround" class="org.apache.geronimo.axis.AxisDiscoveryCLWorkaroundGBean"/>
 
-</configuration>
+</module>

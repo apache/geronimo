@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <web-app xmlns="http://geronimo.apache.org/xml/ns/web">
     <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
-        <dep:configId>
+        <dep:moduleId>
             <dep:groupId>test</dep:groupId>
             <dep:type>car</dep:type>
             <dep:artifactId>testclient</dep:artifactId>
             <dep:version>1</dep:version>
-        </dep:configId>
+        </dep:moduleId>
     </dep:environment>
     <context-priority-classloader>false</context-priority-classloader>
     <container-config>

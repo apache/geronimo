@@ -22,7 +22,7 @@
 Configuration for the security of a Geronimo server.
                parentId="${pom.groupId}/rmi-naming/${pom.currentVersion}/car"
 -->
-<configuration
+<module
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
 
     >
@@ -120,4 +120,4 @@ Configuration for the security of a Geronimo server.
         <attribute name="keyPasswords">geronimo=secret</attribute>
         <reference name="ServerInfo"><name>ServerInfo</name></reference>
     </gbean>
-</configuration>
+</module>

@@ -19,7 +19,7 @@
 <!-- $Rev$ $Date$ -->
 <!--               parentId="${pom.groupId}/system-database/${pom.currentVersion}/car"
 -->
-<configuration xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
 
     <!-- management -->
@@ -85,4 +85,4 @@
         </attribute>
     </gbean>
 
-</configuration>
+</module>

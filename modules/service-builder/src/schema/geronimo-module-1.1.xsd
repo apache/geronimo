@@ -32,9 +32,9 @@
         </xs:documentation>
     </xs:annotation>
 
-    <xs:element name="configuration" type="sys:configurationType"/>
+    <xs:element name="module" type="sys:moduleType"/>
 
-    <xs:complexType name="configurationType">
+    <xs:complexType name="moduleType">
         <xs:sequence>
             <xs:element ref="sys:environment"/>
             <xs:element ref="sys:gbean" minOccurs="0" maxOccurs="unbounded"/>
@@ -46,7 +46,7 @@
         <xs:key name="name-key-key">
             <xs:annotation>
                 <xs:documentation>
-                    name-key-key assures that key-values for the names of services in this configuration will
+                    name-key-key assures that key-values for the names of services in this module will
                     have unique key names.
                 </xs:documentation>
             </xs:annotation>
@@ -77,10 +77,10 @@
 
     <xs:complexType name="environmentType">
         <xs:sequence>
-            <xs:element name="configId" type="sys:artifactType" minOccurs="0" >
+            <xs:element name="moduleId" type="sys:artifactType" minOccurs="0" >
                 <xs:annotation>
                     <xs:documentation>
-                        "configId" holds elements for the groupId, artifactId, and version of the configuration
+                        "moduleId" holds elements for the groupId, artifactId, and version of the module
                         version can be ommitted in which case a timestamp is used.
                     </xs:documentation>
                 </xs:annotation>
@@ -88,7 +88,7 @@
             <xs:element name="dependencies" type="sys:dependenciesType" minOccurs="0">
                 <xs:annotation>
                     <xs:documentation>
-                        "dependences" holds all classloader and dependency configuration information for the configuration
+                        "dependences" holds all classloader and dependency information for the module
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
@@ -130,7 +130,7 @@
                 <xs:annotation>
                     <xs:documentation>
                         If the "inverse-classloading" element is specified, the standard 
-                        class loading delegation model is to be reversed for this configuration.
+                        class loading delegation model is to be reversed for this module.
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
@@ -142,12 +142,12 @@
                         be suppressed.
                         
                         An example of where this is useful is when deploying a connector on an app
-                        client in a separate (standalone) configuration (not as part of a client plan).
+                        client in a separate (standalone) module (not as part of a client plan).
                         
-                        The connector builder defaultEnvironment includes some server configurations
+                        The connector builder defaultEnvironment includes some server modules
                         that won't work on an app client, so you need to suppress the default 
                         environment and supply a complete environment including all parents for a 
-                        non-app-client configuration you want to run on an app client
+                        non-app-client module you want to run on an app client
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
@@ -159,7 +159,7 @@
             <xs:element name="dependency" type="sys:artifactType" minOccurs="0" maxOccurs="unbounded">
                 <xs:annotation>
                     <xs:documentation>
-                        "dependency" holds an artifact locating an artifact in a repo or config store.
+                        "dependency" holds an artifact locating an artifact in a repository.
                         Depending on the type of artifact and value of the import element, the artifact may be
                         included in the current classpath, be loaded as a parent, may require the services
                         in the artifact to be started, or may not be added to the classpath.
@@ -196,7 +196,7 @@
     <xs:complexType name="artifactType">
         <xs:annotation>
             <xs:documentation><![CDATA[
-                Refers to either another module (aka configuration) running in the server, or
+                Refers to either another module running in the server, or
                 an entry in the server's Repository.  In either case this effectively uses a
                 URI.
 
@@ -206,8 +206,8 @@
                 for example, the URI "postgresql/postgresql-8.0-jdbc/313/jar" for a file like
                 "repository/postgresql/postgresql-8.0-jdbc-313.jar").
 
-                When this is pointing to a module/configuration, the URI should match the
-                module's configId.  This also looks
+                When this is pointing to a module, the URI should match the
+                module's moduleId.  This also looks
                 like a Maven-style URI discussed above.
 
                 The artifactType element can take either a straight URI (as in the examples
@@ -243,11 +243,11 @@
         <xs:annotation>
             <xs:documentation><![CDATA[
             The import element is restrictive.  The default (when omitted) is to include the specified dependency in
-            the classloader (as a parent or URL) and (if the dependency is a configuration) make sure it is started
-            before starting the current configuration.  Specifying "classes" means that the classes must be included
-            in the current configurations classloader but the dependency does not need to be started. (I'm not sure this
-            is actually possible, but it is what is meant).  Specifying "services" means that the dependency (a configuration)
-            must be started before the current configuration, but it is not included as a parent classloader.
+            the classloader (as a parent or URL) and (if the dependency is a module) make sure it is started
+            before starting the current module.  Specifying "classes" means that the classes must be included
+            in the current module's classloader but the dependency does not need to be started. (I'm not sure this
+            is actually possible, but it is what is meant).  Specifying "services" means that the dependency (a module)
+            must be started before the current module, but it is not included as a parent classloader.
 
             You probably never need to use the import element.
 

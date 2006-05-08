@@ -21,10 +21,10 @@
 <!--
 Configuration for the main ring of a Geronimo server.
 
-This configuration should contain those services normally provided
+This module should contain those services normally provided
 by the server.
 -->
-<configuration
+<module
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
 
     >
@@ -41,4 +41,4 @@ by the server.
         <reference name="ServerInfo"><name>ServerInfo</name></reference>
     </gbean>
 
-</configuration>
+</module>

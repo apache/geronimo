@@ -37,8 +37,8 @@ import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xbeans.AttributeType;
-import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
-import org.apache.geronimo.deployment.xbeans.ConfigurationType;
+import org.apache.geronimo.deployment.xbeans.ModuleDocument;
+import org.apache.geronimo.deployment.xbeans.ModuleType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.xbeans.PatternType;
@@ -82,7 +82,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     private static final Map xmlReferenceBuilderMap = new HashMap();
     private Map attrRefMap;
     private Map refRefMap;
-    private static final QName SERVICE_QNAME = ConfigurationDocument.type.getDocumentElementName();
+    private static final QName SERVICE_QNAME = ModuleDocument.type.getDocumentElementName();
     private final Naming naming;
     private final ConfigurationManager configurationManager;
 
@@ -159,34 +159,34 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
             } finally {
                 cursor.dispose();
             }
-            ConfigurationDocument configurationDoc;
-            if (xmlObject instanceof ConfigurationDocument) {
-                configurationDoc = (ConfigurationDocument) xmlObject;
+            ModuleDocument moduleDoc;
+            if (xmlObject instanceof ModuleDocument) {
+                moduleDoc = (ModuleDocument) xmlObject;
             } else {
-                configurationDoc = (ConfigurationDocument) xmlObject.changeType(ConfigurationDocument.type);
+                moduleDoc = (ModuleDocument) xmlObject.changeType(ModuleDocument.type);
             }
             Collection errors = new ArrayList();
-            if (!configurationDoc.validate(XmlBeansUtil.createXmlOptions(errors))) {
-                throw new DeploymentException("Invalid deployment descriptor: " + errors + "\nDescriptor: " + configurationDoc.toString());
+            if (!moduleDoc.validate(XmlBeansUtil.createXmlOptions(errors))) {
+                throw new DeploymentException("Invalid deployment descriptor: " + errors + "\nDescriptor: " + moduleDoc.toString());
             }
             // If there's no artifact ID and we won't be able to figure one out later, use the plan file name.  Bit of a hack.
-            if(jarFile == null && (configurationDoc.getConfiguration().getEnvironment() == null ||
-                        configurationDoc.getConfiguration().getEnvironment().getConfigId() == null ||
-                        configurationDoc.getConfiguration().getEnvironment().getConfigId().getArtifactId() == null)) {
-                if(configurationDoc.getConfiguration().getEnvironment() == null) {
-                    configurationDoc.getConfiguration().addNewEnvironment();
+            if(jarFile == null && (moduleDoc.getModule().getEnvironment() == null ||
+                        moduleDoc.getModule().getEnvironment().getModuleId() == null ||
+                        moduleDoc.getModule().getEnvironment().getModuleId().getArtifactId() == null)) {
+                if(moduleDoc.getModule().getEnvironment() == null) {
+                    moduleDoc.getModule().addNewEnvironment();
                 }
-                if(configurationDoc.getConfiguration().getEnvironment().getConfigId() == null) {
-                    configurationDoc.getConfiguration().getEnvironment().addNewConfigId();
+                if(moduleDoc.getModule().getEnvironment().getModuleId() == null) {
+                    moduleDoc.getModule().getEnvironment().addNewModuleId();
                 }
                 String name = planFile.getName();
                 int pos = name.lastIndexOf('.');
                 if(pos > -1) {
                     name = name.substring(0, pos);
                 }
-                configurationDoc.getConfiguration().getEnvironment().getConfigId().setArtifactId(name);
+                moduleDoc.getModule().getEnvironment().getModuleId().setArtifactId(name);
             }
-            return configurationDoc.getConfiguration();
+            return moduleDoc.getModule();
         } catch (XmlException e) {
             throw new DeploymentException("Could not parse xml in plan", e);
         } catch (IOException e) {
@@ -195,7 +195,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     }
 
     public Artifact getConfigurationID(Object plan, JarFile module, ModuleIDBuilder idBuilder) throws IOException, DeploymentException {
-        ConfigurationType configType = (ConfigurationType) plan;
+        ModuleType configType = (ModuleType) plan;
         EnvironmentType environmentType = configType.getEnvironment();
         Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
         idBuilder.resolve(environment, module == null ? "" : new File(module.getName()).getName(), "car");
@@ -206,18 +206,18 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     }
 
     public DeploymentContext buildConfiguration(boolean inPlaceDeployment, Artifact configId, Object plan, JarFile jar, Collection configurationStores, ArtifactResolver artifactResolver, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException {
-        ConfigurationType configType = (ConfigurationType) plan;
+        ModuleType configType = (ModuleType) plan;
 
         return buildConfiguration(inPlaceDeployment, configId, configType, jar, configurationStores, artifactResolver, targetConfigurationStore);
     }
 
-    public DeploymentContext buildConfiguration(boolean inPlaceDeployment, Artifact configId, ConfigurationType configurationType, JarFile jar, Collection configurationStores, ArtifactResolver artifactResolver, ConfigurationStore targetConfigurationStore) throws DeploymentException, IOException {
-        ArtifactType type = configurationType.getEnvironment().isSetConfigId() ? configurationType.getEnvironment().getConfigId() : configurationType.getEnvironment().addNewConfigId();
+    public DeploymentContext buildConfiguration(boolean inPlaceDeployment, Artifact configId, ModuleType moduleType, JarFile jar, Collection configurationStores, ArtifactResolver artifactResolver, ConfigurationStore targetConfigurationStore) throws DeploymentException, IOException {
+        ArtifactType type = moduleType.getEnvironment().isSetModuleId() ? moduleType.getEnvironment().getModuleId() : moduleType.getEnvironment().addNewModuleId();
         type.setArtifactId(configId.getArtifactId());
         type.setGroupId(configId.getGroupId());
         type.setType(configId.getType());
         type.setVersion(configId.getVersion().toString());
-        Environment environment = EnvironmentBuilder.buildEnvironment(configurationType.getEnvironment(), defaultEnvironment);
+        Environment environment = EnvironmentBuilder.buildEnvironment(moduleType.getEnvironment(), defaultEnvironment);
         if(!environment.getConfigId().isResolved()) {
             throw new IllegalStateException("Module ID should be fully resolved by now (not "+environment.getConfigId()+")");
         }
@@ -249,7 +249,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
 
 
             AbstractName moduleName = naming.createRootName(configId, configId.toString(), NameFactory.SERVICE_MODULE);
-            GbeanType[] gbeans = configurationType.getGbeanArray();
+            GbeanType[] gbeans = moduleType.getGbeanArray();
 
             addGBeans(gbeans, cl, moduleName, context);
             return context;

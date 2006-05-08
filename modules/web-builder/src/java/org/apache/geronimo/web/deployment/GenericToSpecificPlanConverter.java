@@ -19,7 +19,7 @@ package org.apache.geronimo.web.deployment;
 import javax.xml.namespace.QName;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
+import org.apache.geronimo.deployment.xbeans.ModuleDocument;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.geronimo.security.GerSecurityDocument;
 import org.apache.geronimo.xbeans.geronimo.web.GerWebAppDocument;
@@ -37,7 +37,7 @@ public class GenericToSpecificPlanConverter {
 
     private static final QName GENERIC_CONFIG_QNAME = new QName(GENERIC_NAMESPACE, "container-config");
     private static final QName OLD_GENERIC_CONFIG_QNAME = new QName(OLD_GENERIC_NAMESPACE, "container-config");
-    private static final String SYSTEM_NAMESPACE = ConfigurationDocument.type.getDocumentElementName().getNamespaceURI();
+    private static final String SYSTEM_NAMESPACE = ModuleDocument.type.getDocumentElementName().getNamespaceURI();
     private static final QName SECURITY_QNAME = GerSecurityDocument.type.getDocumentElementName();
     private final String configNamespace;
     private final String namespace;

@@ -21,11 +21,11 @@
 <!--
 Configuration for the main ring of a Geronimo app client.
 
-This configuration should contain those services normally provided
+This module should contain those services normally provided
 by the app client.
                parentId="${pom.groupId}/client-system/${pom.currentVersion}/car"
 -->
-<configuration xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
     <!-- Naming properties -->
     <gbean name="NamingProperties" class="org.apache.geronimo.system.properties.NamingProperties">
@@ -140,4 +140,4 @@ by the app client.
             <name>ConfigurationManager</name>
         </reference>
     </gbean>
-</configuration>
+</module>

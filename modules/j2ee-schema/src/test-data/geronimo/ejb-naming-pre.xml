@@ -4,12 +4,12 @@
     xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.1">
 
     <environment>
-        <configId>
+        <moduleId>
             <groupId>test</groupId>
             <type>car</type>
             <artifactId>testclient</artifactId>
             <version>1</version>
-        </configId>
+        </moduleId>
     </environment>
 
     <cmp-connection-factory>

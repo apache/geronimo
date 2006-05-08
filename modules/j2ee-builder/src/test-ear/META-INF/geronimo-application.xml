@@ -18,12 +18,12 @@
 
 <application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.1">
     <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
-        <configId>
+        <moduleId>
             <groupId>geronimo</groupId>
             <artifactId>test-ear</artifactId>
             <version>1.0</version>
             <type>car</type>
-        </configId>
+        </moduleId>
     </environment>
     <!-- a random gbean just to verify that the deployer doesn't die because of it -->
     <gbean xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1" name="foo"

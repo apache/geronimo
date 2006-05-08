@@ -18,12 +18,12 @@
 
 <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee">
     <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
-        <configId>
+        <moduleId>
             <groupId>geronimo</groupId>
             <artifactId>test-rar</artifactId>
             <version>1.0</version>
             <type>car</type>
-        </configId>
+        </moduleId>
     </environment>
 
 </connector>

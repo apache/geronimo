@@ -15,12 +15,12 @@
 <!--$Rev: 388890 $ $Date: 2006-03-26 01:00:55 -0800 (Sun, 26 Mar 2006) $-->
 <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1">
   <environment>
-    <configId>
+    <moduleId>
       <groupId>geronimo</groupId>
       <artifactId>system-database</artifactId>
       <version>1.1-SNAPSHOT</version>
       <type>car</type>
-    </configId>
+    </moduleId>
     <dependencies>
       <dependency>
         <groupId>geronimo</groupId>
