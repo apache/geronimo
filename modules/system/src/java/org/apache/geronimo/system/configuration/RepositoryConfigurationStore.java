@@ -334,6 +334,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         }
         File location = repository.getLocation(configId);
         IOUtil.recursiveDelete(location);
+        //todo: for Maven 2 repo, delete the version directory if there's nothing left in it (probably the case)
 
         if (configurationInfo != null) {
             IOException ioException = null;

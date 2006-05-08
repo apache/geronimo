@@ -175,10 +175,10 @@ public class ConfigurationModel {
         return configurationStatus.unload(gc);
     }
 
-    public LinkedHashSet reload(Artifact exitingConfigurationId) throws NoSuchConfigException {
-        ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(exitingConfigurationId);
+    public LinkedHashSet reload(Artifact existingConfigurationId) throws NoSuchConfigException {
+        ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(existingConfigurationId);
         if (configurationStatus == null) {
-            throw new NoSuchConfigException(exitingConfigurationId);
+            return new LinkedHashSet();
         }
         return configurationStatus.reload();
     }

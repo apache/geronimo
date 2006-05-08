@@ -143,9 +143,4 @@ public abstract class AbstractCommand implements DeployCommand {
         }
         return tlist;
     }
-
-    //todo: remove this method
-    protected static Collection identifyTargetModuleIDs(TargetModuleID[] allModules, String name) throws DeploymentException {
-        return DeployUtils.identifyTargetModuleIDs(allModules, name);
-    }
 }

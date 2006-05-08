@@ -37,6 +37,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Version;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.Attributes;
@@ -140,20 +141,25 @@ public class ConfigIDExtractor {
     /**
      * Given a list of all available TargetModuleIDs and the name of a module,
      * find the TargetModuleIDs that represent that module.
+     *
+     * @param allModules  The list of all available modules
+     * @param name        The module name to search for
+     * @param fromPlan    Should be true if the module name was loaded from a
+     *                    deployment plan (thus no group means the default
+     *                    group) or false if the module name was provided by
+     *                    the user (thus no group means any group).
+     *
      * @throws DeploymentException If no TargetModuleIDs have that module.
      */
-    public static Collection identifyTargetModuleIDs(TargetModuleID[] allModules, String name) throws DeploymentException {
+    public static Collection identifyTargetModuleIDs(TargetModuleID[] allModules, String name, boolean fromPlan) throws DeploymentException {
         List list = new LinkedList();
         int pos;
         if((pos = name.indexOf('|')) > -1) {
             String target = name.substring(0, pos);
             String module = name.substring(pos+1);
             Artifact artifact = Artifact.create(module);
-            if(artifact.getGroupId() == null || artifact.getType() == null) {
-                artifact = new Artifact(artifact.getGroupId() == null ? Artifact.DEFAULT_GROUP_ID : artifact.getGroupId(),
-                        artifact.getArtifactId(), artifact.getVersion(),
-                        artifact.getType() == null ? "car" : artifact.getType());
-            }
+            artifact = new Artifact(artifact.getGroupId() == null && fromPlan ? Artifact.DEFAULT_GROUP_ID : artifact.getGroupId(),
+                    artifact.getArtifactId(), fromPlan ? (Version)null : artifact.getVersion(), artifact.getType());
             // First pass: exact match
             for(int i=0; i<allModules.length; i++) {
                 if(allModules[i].getTarget().getName().equals(target) && artifact.matches(Artifact.create(allModules[i].getModuleID()))) {
@@ -165,11 +171,13 @@ public class ConfigIDExtractor {
             return list;
         }
         // second pass: module matches
-        Artifact artifact = Artifact.create(name);
-        if(artifact.getGroupId() == null || artifact.getType() == null) {
-            artifact = new Artifact(artifact.getGroupId() == null ? Artifact.DEFAULT_GROUP_ID : artifact.getGroupId(),
-                    artifact.getArtifactId(), artifact.getVersion(),
-                    artifact.getType() == null ? "car" : artifact.getType());
+        Artifact artifact;
+        if (name.indexOf("/") > -1) {
+            artifact = Artifact.create(name);
+            artifact = new Artifact(artifact.getGroupId() == null && fromPlan ? Artifact.DEFAULT_GROUP_ID : artifact.getGroupId(),
+                    artifact.getArtifactId(), fromPlan ? (Version)null : artifact.getVersion(), artifact.getType());
+        } else {
+            artifact = new Artifact(fromPlan ? Artifact.DEFAULT_GROUP_ID : null, name, (Version)null, null);
         }
         for(int i = 0; i < allModules.length; i++) {
             if(artifact.matches(Artifact.create(allModules[i].getModuleID()))) {
@@ -194,6 +202,9 @@ public class ConfigIDExtractor {
             SAXParser parser = factory.newSAXParser();
             ConfigIdHandler handler = new ConfigIdHandler();
             parser.parse(new InputSource(plan), handler);
+            if(handler.formatIs10) {
+                System.out.println("WARNING: Geronimo deployment plan uses Geronimo 1.0 syntax.  Please update to Geronimo 1.1 syntax when possible.");
+            }
             return handler.configId;
         } catch (ParserConfigurationException e) {
             throw new IOException("Unable to read plan: "+e.getMessage());
@@ -233,6 +244,7 @@ public class ConfigIDExtractor {
         private String groupId = "", artifactId = "", version = "", type = "";
         private String inElement = null;
         private Stack parent = new Stack();
+        private boolean formatIs10 = false;
 
         public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
             if(inConfigId) {
@@ -242,6 +254,11 @@ public class ConfigIDExtractor {
             } else {
                 if(parent.size() == 2 && localName.equals("configId")) {
                     inConfigId = true; // only document/environment/configId, not e.g. configId in nested plan in EAR
+                } else {
+                    if(parent.size() == 0 && attributes.getIndex("configId") > -1) {
+                        configId = attributes.getValue("configId");
+                        formatIs10 = true;
+                    }
                 }
             }
             parent.push(localName);
@@ -249,6 +266,7 @@ public class ConfigIDExtractor {
 
         public void characters(char ch[], int start, int length) throws SAXException {
             if(inElement != null) {
+                formatIs10 = false;
                 if(inElement.equals("groupId")) groupId += new String(ch, start, length);
                 else if(inElement.equals("artifactId")) artifactId += new String(ch, start, length);
                 else if(inElement.equals("version")) version += new String(ch, start, length);
@@ -269,10 +287,9 @@ public class ConfigIDExtractor {
         }
 
         public void endDocument() throws SAXException {
-            if(type.equals("")) {
-                type = "car";
+            if(!formatIs10) {
+                configId = groupId+"/"+artifactId+"/"+version+"/"+type;
             }
-            configId = groupId+"/"+artifactId+"/"+version+"/"+type;
         }
     }
 }

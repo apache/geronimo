@@ -45,11 +45,13 @@ public class StopCommand extends CommandSupport {
                 for (int i = 0; i < modules.length; i++) {
                     TargetModuleID module = modules[i];
                     Artifact moduleID = Artifact.create(module.getModuleID());
-                    configurationManager.stopConfiguration(moduleID);
-
-
-                    configurationManager.unloadConfiguration(moduleID);
-                    addModule(module);
+                    if(configurationManager.isRunning(moduleID)) {
+                        configurationManager.stopConfiguration(moduleID);
+                    }
+                    if(configurationManager.isLoaded(moduleID)) {
+                        configurationManager.unloadConfiguration(moduleID);
+                        addModule(module);
+                    }
                 }
             } finally {
                 ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);

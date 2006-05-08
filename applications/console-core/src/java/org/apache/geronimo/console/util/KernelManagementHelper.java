@@ -509,7 +509,7 @@ public class KernelManagementHelper implements ManagementHelper {
     public J2EEDeployedObject getModuleForConfiguration(Artifact configuration) {
         ConfigurationManager manager = ConfigurationUtil.getConfigurationManager(kernel);
         Configuration config = manager.getConfiguration(configuration);
-        if (config == null) {
+        if (config == null || !manager.isRunning(configuration)) {
             return null; // The configuration is not running, so we can't get its contents
         }
         ConfigurationModuleType type = config.getModuleType();

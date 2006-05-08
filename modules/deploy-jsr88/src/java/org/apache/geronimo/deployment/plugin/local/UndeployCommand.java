@@ -59,7 +59,7 @@ public class UndeployCommand extends CommandSupport {
                     } catch (InternalKernelException e) {
                         // this is cause by the kernel being already shutdown
                     } catch (NoSuchConfigException e) {
-                        // module was already undeployed - just continue
+                        // module was already unloaded - just continue
                     }
 
                     try {

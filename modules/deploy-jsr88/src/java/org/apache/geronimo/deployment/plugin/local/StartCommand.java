@@ -52,28 +52,28 @@ public class StartCommand extends CommandSupport {
 
                     // Check to see whether the module is already started
                     Artifact moduleID = Artifact.create(module.getModuleID());
-                    AbstractName abstractName = Configuration.getConfigurationAbstractName(moduleID);
-                    if (kernel.isRunning(abstractName)) {
+                    if (configurationManager.isRunning(moduleID)) {
                         updateStatus("Module " + moduleID + " is already running");
                         Thread.sleep(100);
                         continue;
                     }
 
                     // Load
-                    configurationManager.loadConfiguration(moduleID);
+                    if(!configurationManager.isLoaded(moduleID)) {
+                        configurationManager.loadConfiguration(moduleID);
+                    }
 
                     // Start
                     configurationManager.startConfiguration(moduleID);
 
                     // Determine the child modules of the configuration
                     //TODO might be a hack
-                    String configName = abstractName.getArtifact().toString();
-                    List kids = loadChildren(kernel, configName);
+                    List kids = loadChildren(kernel, moduleID.toString());
 
                     // Build a response obect containg the started configuration and a list of it's contained modules
                     TargetModuleIDImpl id = new TargetModuleIDImpl(modules[i].getTarget(), module.getModuleID(),
                             (String[]) kids.toArray(new String[kids.size()]));
-                    if (isWebApp(kernel, configName)) {
+                    if (isWebApp(kernel, moduleID.toString())) {
                         id.setType(ModuleType.WAR);
                     }
                     if (id.getChildTargetModuleID() != null) {

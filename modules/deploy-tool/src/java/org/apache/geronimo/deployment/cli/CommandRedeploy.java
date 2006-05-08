@@ -18,6 +18,7 @@
 package org.apache.geronimo.deployment.cli;
 
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.Target;
@@ -99,11 +100,11 @@ public class CommandRedeploy extends AbstractCommand {
                     plan = test;
                 }
             } else {
-                modules.addAll(identifyTargetModuleIDs(allModules, args[1]));
+                modules.addAll(DeployUtils.identifyTargetModuleIDs(allModules, args[1], false));
             }
         }
         for(int i=2; i<args.length; i++) { // Any arguments beyond 2 must be a ModuleID or TargetModuleID
-            modules.addAll(identifyTargetModuleIDs(allModules, args[i]));
+            modules.addAll(DeployUtils.identifyTargetModuleIDs(allModules, args[i], false));
         }
         // If we don't have any moduleIDs, try to guess one.
         if(modules.size() == 0 && connection.isGeronimo()) {
@@ -116,7 +117,8 @@ public class CommandRedeploy extends AbstractCommand {
                     moduleId = DeployUtils.extractModuleIdFromArchive(module);
                     if(moduleId == null) {
                         int pos = module.getName().lastIndexOf('.');
-                        moduleId = pos > -1 ? module.getName().substring(0, pos) : module.getName();
+                        String artifactId = pos > -1 ? module.getName().substring(0, pos) : module.getName();
+                        moduleId = Artifact.DEFAULT_GROUP_ID+"/"+artifactId+"//";
                         emit("Unable to locate Geronimo deployment plan in archive.  Calculating default ModuleID from archive name.");
                     }
                 }
@@ -125,7 +127,7 @@ public class CommandRedeploy extends AbstractCommand {
             }
             if(moduleId != null) {
                 emit("Attempting to use ModuleID '"+moduleId+"'");
-                modules.addAll(identifyTargetModuleIDs(allModules, moduleId));
+                modules.addAll(DeployUtils.identifyTargetModuleIDs(allModules, moduleId, true));
             } else {
                 emit("Unable to calculate a ModuleID from supplied module and/or plan.");
             }

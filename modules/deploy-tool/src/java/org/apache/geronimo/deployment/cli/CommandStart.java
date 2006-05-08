@@ -63,7 +63,7 @@ public class CommandStart extends AbstractCommand {
         }
         List modules = new ArrayList();
         for(int i=0; i<args.length; i++) {
-            modules.addAll(identifyTargetModuleIDs(allModules, args[i]));
+            modules.addAll(DeployUtils.identifyTargetModuleIDs(allModules, args[i], false));
         }
         TargetModuleID[] ids = (TargetModuleID[]) modules.toArray(new TargetModuleID[modules.size()]);
         boolean multiple = isMultipleTargets(ids);

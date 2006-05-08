@@ -21,6 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.Map;
 import java.util.Collections;
+import java.util.Iterator;
 import java.io.Serializable;
 
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -38,8 +39,11 @@ public class LifecycleResults implements Serializable {
     private final Map failed = new LinkedHashMap();
 
     /**
-     * Was the specified configuration loaded.
-     * @param configurationId the configuration identifier
+     * Checks whether the specified configuration was loaded.
+     *
+     * @param configurationId the configuration identifier, which must be fully
+     *                        resolved (isResolved() == true)
+     *
      * @return true if the specified configuration was loaded during the lifecycle operation
      */
     public boolean wasLoaded(Artifact configurationId) {
@@ -72,8 +76,11 @@ public class LifecycleResults implements Serializable {
     }
 
     /**
-     * Was the specified configuration unloaded.
-     * @param configurationId the configuration identifier
+     * Checks whether the specified configuration was unloaded.
+     *
+     * @param configurationId the configuration identifier, which must be fully
+     *                        resolved (isResolved() == true)
+     *
      * @return true if the specified configuration was unloaded during the lifecycle operation
      */
     public boolean wasUnloaded(Artifact configurationId) {
@@ -106,8 +113,11 @@ public class LifecycleResults implements Serializable {
     }
 
     /**
-     * Was the specified configuration started.
-     * @param configurationId the configuration identifier
+     * Checks whether the specified configuration was started.
+     *
+     * @param configurationId the configuration identifier, which must be fully
+     *                        resolved (isResolved() == true)
+     *
      * @return true if the specified configuration was started during the lifecycle operation
      */
     public boolean wasStarted(Artifact configurationId) {
@@ -140,8 +150,11 @@ public class LifecycleResults implements Serializable {
     }
 
     /**
-     * Was the specified configuration stopped.
-     * @param configurationId the configuration identifier
+     * Checks whether the specified configuration was stopped.
+     *
+     * @param configurationId the configuration identifier, which must be fully
+     *                        resolved (isResolved() == true)
+     *
      * @return true if the specified configuration was stopped during the lifecycle operation
      */
     public boolean wasStopped(Artifact configurationId) {
@@ -174,12 +187,25 @@ public class LifecycleResults implements Serializable {
     }
 
     /**
-     * Was the specified configuration failed the operation and threw an exception.
-     * @param configurationId the configuration identifier
-     * @return true if the specified configuration failed the operation and threw an exception during the lifecycle operation
+     * Was the specified configuration failed the operation and threw an
+     * exception.
+     *
+     * @param configurationId the configuration identifier.  May be a partial
+     *                        ID, in which case will check whether any
+     *                        matching conifguration failed.
+     *
+     * @return true if the specified (or any matching) configuration failed
+     *              the operation and threw an exception during the lifecycle
+     *              operation
      */
     public boolean wasFailed(Artifact configurationId) {
-        return failed.containsKey(configurationId);
+        for (Iterator it = failed.keySet().iterator(); it.hasNext();) {
+            Artifact failID = (Artifact) it.next();
+            if(configurationId.matches(failID)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

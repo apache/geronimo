@@ -685,7 +685,9 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     }
 
     protected void removeConfigurationFromModel(Artifact configurationId) throws NoSuchConfigException {
-        configurationModel.removeConfiguration(configurationId);
+        if(configurationModel.containsConfiguration(configurationId)) {
+            configurationModel.removeConfiguration(configurationId);
+        }
         configurations.remove(configurationId);
     }
 
@@ -714,24 +716,50 @@ public class SimpleConfigurationManager implements ConfigurationManager {
             throw new IllegalArgumentException("Artifact "+id+" is not fully resolved");
         }
         Configuration configuration = getConfiguration(id);
-        if (configuration == null) {
-            throw new NoSuchConfigException(id);
+        if (configuration == null) { // The configuration to reload is not currently loaded
+            ConfigurationData data = null;
+            List storeSnapshot = getStoreList();
+            for (int i = 0; i < storeSnapshot.size(); i++) {
+                ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
+                if (store.containsConfiguration(id)) {
+                    try {
+                        data = store.loadConfiguration(id);
+                    } catch (Exception e) {
+                        log.warn("Unable to load existing configuration "+id+" from config store", e);
+                    }
+                }
+            }
+            if(data == null) {
+                throw new NoSuchConfigException(id);
+            }
+            UnloadedConfiguration existingUnloadedConfiguration = new UnloadedConfiguration(data, new LinkedHashSet());
+            Artifact newId = new Artifact(id.getGroupId(), id.getArtifactId(), version, id.getType());
+            ConfigurationData newData = null;
+            try {
+                newData = loadConfigurationData(newId, monitor);
+            } catch (Exception e) {
+                monitor.finished();
+                throw new LifecycleException("reload", id, e);
+            }
+
+            return reloadConfiguration(existingUnloadedConfiguration, newData, monitor);
+        } else { // The configuration to reload is loaded
+            ConfigurationData existingConfigurationData = configuration.getConfigurationData();
+            UnloadedConfiguration existingUnloadedConfiguration = new UnloadedConfiguration(existingConfigurationData, getResolvedParentIds(configuration));
+
+            Artifact newId = new Artifact(id.getGroupId(), id.getArtifactId(), version, id.getType());
+
+            // reload the ConfigurationData from a store
+            ConfigurationData configurationData = null;
+            try {
+                configurationData = loadConfigurationData(newId, monitor);
+            } catch (Exception e) {
+                monitor.finished();
+                throw new LifecycleException("reload", id, e);
+            }
+
+            return reloadConfiguration(existingUnloadedConfiguration, configurationData, monitor);
         }
-        ConfigurationData existingConfigurationData = configuration.getConfigurationData();
-        UnloadedConfiguration existingUnloadedConfiguration = new UnloadedConfiguration(existingConfigurationData, getResolvedParentIds(configuration));
-
-        Artifact newId = new Artifact(id.getGroupId(), id.getArtifactId(), version, id.getType());
-
-        // reload the ConfigurationData from a store
-        ConfigurationData configurationData = null;
-        try {
-            configurationData = loadConfigurationData(newId, monitor);
-        } catch (Exception e) {
-            monitor.finished();
-            throw new LifecycleException("reload", id, e);
-        }
-
-        return reloadConfiguration(existingUnloadedConfiguration, configurationData, monitor);
     }
 
     public LifecycleResults reloadConfiguration(ConfigurationData configurationData) throws LifecycleException, NoSuchConfigException {
@@ -872,14 +900,16 @@ public class SimpleConfigurationManager implements ConfigurationManager {
             stop(existingConfiguration);
             monitor.succeeded(existingConfigurationId);
             results.addStopped(existingConfigurationId);
-        } else {
+        } else if(existingConfiguration != null) {
             // call stop just to be sure the beans aren't running
             stop(existingConfiguration);
         }
-        monitor.unloading(existingConfigurationId);
-        unload(existingConfiguration);
-        monitor.succeeded(existingConfigurationId);
-        results.addUnloaded(existingConfigurationId);
+        if(existingConfiguration != null) {
+            monitor.unloading(existingConfigurationId);
+            unload(existingConfiguration);
+            monitor.succeeded(existingConfigurationId);
+            results.addUnloaded(existingConfigurationId);
+        }
 
         //
         // load the new configurations
@@ -964,14 +994,24 @@ public class SimpleConfigurationManager implements ConfigurationManager {
                 addNewConfigurationsToModel(loadedParents);
 
                 // now ugrade the existing node in the model
-                configurationModel.upgradeConfiguration(existingConfigurationId,
-                        newConfigurationId,
-                        getConfigurationIds(getLoadParents(newConfiguration)),
-                        getConfigurationIds(getStartParents(newConfiguration)));
+                if(configurationModel.containsConfiguration(existingConfigurationId)) {
+                    configurationModel.upgradeConfiguration(existingConfigurationId,
+                            newConfigurationId,
+                            getConfigurationIds(getLoadParents(newConfiguration)),
+                            getConfigurationIds(getStartParents(newConfiguration)));
+                } else {
+                    configurationModel.addConfiguation(newConfigurationId,
+                            getConfigurationIds(getLoadParents(newConfiguration)),
+                            getConfigurationIds(getStartParents(newConfiguration)));
+                    load(newConfigurationId);
+                }
 
                 // replace the configuraiton in he configurations map
                 configurations.remove(existingConfiguration);
                 configurations.put(newConfigurationId, newConfiguration);
+
+                // migrate the configuration settings
+                migrateConfiguration(existingConfigurationId, newConfigurationId, newConfiguration);
             } catch (Exception e) {
                 monitor.failed(configurationId, e);
                 results.addFailed(configurationId, e);
@@ -1119,11 +1159,25 @@ public class SimpleConfigurationManager implements ConfigurationManager {
             }
         }
 
+        //
+        // If nothing failed, delete all the unloaded modules that weren't reloaded
+        //
+        if(!results.wasLoaded(existingConfigurationId) && !results.wasFailed(existingConfigurationId)) {
+            try {
+                uninstallConfiguration(existingConfigurationId);
+            } catch (IOException e) {
+                log.error("Unable to uninstall configuration "+existingConfigurationId, e);
+            }
+        }
+
         monitor.finished();
         if (results.wasFailed(newConfigurationId) || !results.wasLoaded(newConfigurationId)) {
             throw new LifecycleException("restart", newConfigurationId, results);
         }
         return results;
+    }
+
+    protected void migrateConfiguration(Artifact oldName, Artifact newName, Configuration configuration) throws NoSuchConfigException {
     }
 
     private static LinkedHashSet getResolvedParentIds(Configuration configuration) {
@@ -1149,8 +1203,12 @@ public class SimpleConfigurationManager implements ConfigurationManager {
             throw new IllegalArgumentException("Artifact "+configurationId+" is not fully resolved");
         }
         if (configurations.containsKey(configurationId)) {
-            stopConfiguration(configurationId);
-            unloadConfiguration(configurationId);
+            if(isRunning(configurationId)) {
+                stopConfiguration(configurationId);
+            }
+            if(isLoaded((configurationId))) {
+                unloadConfiguration(configurationId);
+            }
         }
 
         List storeSnapshot = getStoreList();
@@ -1161,6 +1219,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
             }
         }
 
+        removeConfigurationFromModel(configurationId);
     }
 
     public ArtifactResolver getArtifactResolver() {

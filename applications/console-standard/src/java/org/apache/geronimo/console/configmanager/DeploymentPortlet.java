@@ -42,6 +42,7 @@ import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
 import org.apache.geronimo.deployment.plugin.ConfigIDExtractor;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 public class DeploymentPortlet extends BasePortlet {
     private PortletRequestDispatcher deployView;
@@ -117,6 +118,9 @@ public class DeploymentPortlet extends BasePortlet {
                 ProgressObject progress;
                 if(isRedeploy) {
                     TargetModuleID[] targets = identifyTargets(moduleFile, planFile, mgr.getAvailableModules(null, all));
+                    if(targets.length == 0) {
+                        throw new PortletException("Unable to identify modules to replace.  Please include a Geronimo deployment plan or use the command-line deployment tool.");
+                    }
                     progress = mgr.redeploy(targets, moduleFile, planFile);
                 } else {
                     progress = mgr.distribute(all, moduleFile, planFile);
@@ -161,9 +165,14 @@ public class DeploymentPortlet extends BasePortlet {
                 }
             }
             if(moduleId != null) {
-                modules.addAll(ConfigIDExtractor.identifyTargetModuleIDs(allModules, moduleId));
+                modules.addAll(ConfigIDExtractor.identifyTargetModuleIDs(allModules, moduleId, true));
             } else {
-                throw new PortletException("Unable to calculate a ModuleID from supplied module and/or plan.");
+                String name = module != null ? module.getName() : plan.getName();
+                int pos = name.lastIndexOf('.');
+                if(pos > -1) {
+                    name = name.substring(0, pos);
+                }
+                modules.addAll(ConfigIDExtractor.identifyTargetModuleIDs(allModules, Artifact.DEFAULT_GROUP_ID+"/"+name+"//", true));
             }
         } catch (IOException e) {
             throw new PortletException("Unable to read input files: "+e.getMessage());

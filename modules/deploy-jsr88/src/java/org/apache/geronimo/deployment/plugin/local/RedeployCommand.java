@@ -70,16 +70,22 @@ public class RedeployCommand extends AbstractDeployCommand {
                     copyTo(deploymentPlan, deploymentStream);
                 }
             }
-            Artifact configID;
+            Artifact configID = null;
             if(deploymentPlan != null) {
-                configID = Artifact.create(ConfigIDExtractor.extractModuleIdFromPlan(deploymentPlan));
+                String extracted = ConfigIDExtractor.extractModuleIdFromPlan(deploymentPlan);
+                if(extracted == null) {
+                    throw new IllegalStateException("Unable to find a module ID in the deployment plan -- is it valid??");
+                }
+                configID = Artifact.create(extracted);
             } else {
-                configID = Artifact.create(ConfigIDExtractor.extractModuleIdFromArchive(moduleArchive));
+                String extracted = ConfigIDExtractor.extractModuleIdFromArchive(moduleArchive);
+                if(extracted != null) {
+                    configID = Artifact.create(extracted);
+                }
             }
-            if(configID.getGroupId() == null || configID.getType() == null) {
-                configID = new Artifact(configID.getGroupId() == null ? Artifact.DEFAULT_GROUP_ID : configID.getGroupId(),
-                        configID.getArtifactId(), configID.getVersion(),
-                        configID.getType() == null ? "car" : configID.getType());
+            if(configID != null && configID.getGroupId() == null) {
+                configID = new Artifact(Artifact.DEFAULT_GROUP_ID, configID.getArtifactId(),
+                                        configID.getVersion(), configID.getType());
             }
 
             ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
@@ -87,8 +93,10 @@ public class RedeployCommand extends AbstractDeployCommand {
                 for (int i = 0; i < modules.length; i++) {
                     TargetModuleIDImpl module = (TargetModuleIDImpl) modules[i];
                     Artifact artifact = Artifact.create(module.getModuleID());
-                    if(configID.isResolved()) {
-                        if(configID.equals(artifact)) {
+                    if(configID != null && configID.isResolved()) {
+                        if(configID.getGroupId().equals(artifact.getGroupId()) &&
+                                configID.getArtifactId().equals(artifact.getArtifactId()) &&
+                                configID.getVersion().equals(artifact.getVersion())) {
                             redeploySameConfiguration(configurationManager, artifact, module.getTarget());
                         } else {
                             redeployUpdatedConfiguration(configurationManager, artifact, module.getTarget());
@@ -131,6 +139,7 @@ public class RedeployCommand extends AbstractDeployCommand {
 
         // Activate it
         //todo: make this asynchronous
+        boolean newStarted = false;
         for (Iterator it = results.getStopped().iterator(); it.hasNext();) {
             Artifact name = (Artifact) it.next();
             updateStatus("Stopped "+name);
@@ -146,11 +155,17 @@ public class RedeployCommand extends AbstractDeployCommand {
         for (Iterator it = results.getStarted().iterator(); it.hasNext();) {
             Artifact name = (Artifact) it.next();
             updateStatus("Started "+name);
+            if(configID.matches(name)) {
+                newStarted = true;
+            }
         }
         for (Iterator it = results.getFailed().keySet().iterator(); it.hasNext();) {
             Artifact name = (Artifact) it.next();
             updateStatus("Failed on "+name+": "+results.getFailedCause(name).getMessage());
             doFail((Exception)results.getFailedCause(name));
+        }
+        if(results.getFailed().size() == 0 && !newStarted) {
+            updateStatus("Note: new module was not started (probably because old module was not running).");
         }
     }
 

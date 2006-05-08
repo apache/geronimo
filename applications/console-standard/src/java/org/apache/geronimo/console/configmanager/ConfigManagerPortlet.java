@@ -75,13 +75,21 @@ public class ConfigManagerPortlet extends BasePortlet {
             Artifact configId = Artifact.create(config);
 
             if (START_ACTION.equals(action)) {
-                configurationManager.loadConfiguration(configId);
-                configurationManager.startConfiguration(configId);
-                messageStatus = "Started application<br /><br />";
+                if(!configurationManager.isLoaded(configId)) {
+                    configurationManager.loadConfiguration(configId);
+                }
+                if(!configurationManager.isRunning(configId)) {
+                    configurationManager.startConfiguration(configId);
+                    messageStatus = "Started application<br /><br />";
+                }
             } else if (STOP_ACTION.equals(action)) {
-                configurationManager.stopConfiguration(configId);
-                configurationManager.unloadConfiguration(configId);
-                messageStatus = "Stopped application<br /><br />";
+                if(configurationManager.isRunning(configId)) {
+                    configurationManager.stopConfiguration(configId);
+                }
+                if(configurationManager.isLoaded(configId)) {
+                    configurationManager.unloadConfiguration(configId);
+                    messageStatus = "Stopped application<br /><br />";
+                }
             } else if (UNINSTALL_ACTION.equals(action)) {
                 configurationManager.uninstallConfiguration(configId);
                 messageStatus = "Uninstalled application<br /><br />";

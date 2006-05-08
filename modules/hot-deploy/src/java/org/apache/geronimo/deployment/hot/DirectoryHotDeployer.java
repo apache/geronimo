@@ -163,7 +163,7 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
 
     public boolean isFileDeployed(File file, String configId) {
         try {
-            DeployUtils.identifyTargetModuleIDs(startupModules, configId).toArray(new TargetModuleID[0]);
+            DeployUtils.identifyTargetModuleIDs(startupModules, configId, true).toArray(new TargetModuleID[0]);
             return true;
         } catch (DeploymentException e) {
             log.debug("Found new file in deploy directory on startup with ID "+configId);
@@ -279,7 +279,7 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
             mgr = getDeploymentManager();
             Target[] targets = mgr.getTargets();
             TargetModuleID[] ids = mgr.getAvailableModules(null, targets);
-            ids = (TargetModuleID[]) DeployUtils.identifyTargetModuleIDs(ids, configId).toArray(new TargetModuleID[0]);
+            ids = (TargetModuleID[]) DeployUtils.identifyTargetModuleIDs(ids, configId, true).toArray(new TargetModuleID[0]);
             ProgressObject po = mgr.undeploy(ids);
             waitForProgress(po);
             if(po.getDeploymentStatus().isCompleted()) {
@@ -311,7 +311,7 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
             mgr = getDeploymentManager();
             Target[] targets = mgr.getTargets();
             TargetModuleID[] ids = mgr.getAvailableModules(null, targets);
-            ids = (TargetModuleID[]) DeployUtils.identifyTargetModuleIDs(ids, configId).toArray(new TargetModuleID[0]);
+            ids = (TargetModuleID[]) DeployUtils.identifyTargetModuleIDs(ids, configId, true).toArray(new TargetModuleID[0]);
             ProgressObject po = mgr.redeploy(ids, file, null);
             waitForProgress(po);
             if(po.getDeploymentStatus().isCompleted()) {

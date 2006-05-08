@@ -117,6 +117,13 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
         }
     }
 
+    protected void migrateConfiguration(Artifact oldName, Artifact newName, Configuration configuration) throws NoSuchConfigException {
+        super.migrateConfiguration(oldName, newName, configuration);
+        if (configurationList != null) {
+            configurationList.migrateConfiguration(oldName, newName, configuration);
+        }
+    }
+
     protected Configuration load(ConfigurationData configurationData, LinkedHashSet resolvedParentIds, Map loadedConfigurations) throws InvalidConfigException {
         Artifact configurationId = configurationData.getId();
         AbstractName configurationName = Configuration.getConfigurationAbstractName(configurationId);
