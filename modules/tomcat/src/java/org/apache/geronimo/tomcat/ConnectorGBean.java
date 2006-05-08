@@ -453,7 +453,7 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
     }
 
     public void setUseBodyEncodingForURI(boolean enabled) {
-        connector.setAttribute("socketBuffer", new Boolean(enabled));
+        connector.setAttribute("useBodyEncodingForURI", new Boolean(enabled));
     }
 
 
