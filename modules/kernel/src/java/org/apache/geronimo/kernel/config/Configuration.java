@@ -85,7 +85,6 @@ import org.apache.geronimo.kernel.repository.MissingDependencyException;
  */
 public class Configuration implements GBeanLifecycle, ConfigurationParent {
     private static final Log log = LogFactory.getLog(Configuration.class);
-    public static final Object JSR77_BASE_NAME_PROPERTY = "org.apache.geronimo.name.javax.management.j2ee.BaseName";
 
     /**
      * Converts an Artifact to an AbstractName for a configuration.  Does not
@@ -351,7 +350,20 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         }
         String[] nonOverridableClasses = (String[]) nonOverridableSet.toArray(new String[nonOverridableSet.size()]);
 
-        log.debug("ClassPath for " + id + " resolved to " + Arrays.asList(urls));
+        if (log.isDebugEnabled()) {
+            StringBuffer buf = new StringBuffer("ClassLoader structure for configuration ").append(id).append("\n");
+            buf.append("Parent configurations:\n");
+            for (Iterator iterator = classParents.iterator(); iterator.hasNext();) {
+                Configuration configuration = (Configuration) iterator.next();
+                buf.append("     ").append(configuration.getId()).append("\n");
+            }
+            buf.append("ClassPath:\n");
+            for (int i = 0; i < urls.length; i++) {
+                URL url = urls[i];
+                buf.append("     ").append(url).append("\n");
+            }
+            log.debug(buf.toString());
+        }
 
         if (Boolean.getBoolean("Xorg.apache.geronimo.OldClassLoader")) {
             return new MultiParentClassLoader(environment.getConfigId(),
