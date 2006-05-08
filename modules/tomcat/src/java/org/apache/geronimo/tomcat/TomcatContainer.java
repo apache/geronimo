@@ -238,14 +238,14 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         ctx.setContext(anotherCtxObj);
 
         // Have the context to set its properties if its a GeronimoStandardContext
-        if (anotherCtxObj instanceof GeronimoStandardContext)
+        if (anotherCtxObj instanceof GeronimoStandardContext) {
             ((GeronimoStandardContext) anotherCtxObj).setContextProperties(ctx);
-
+        }
         //Was a virtual server defined?
         String virtualServer = ctx.getVirtualServer();
-        if (virtualServer == null)
+        if (virtualServer == null) {
             virtualServer = engine.getDefaultHost();
-
+        }
         Container host = engine.findChild(virtualServer);
         if (host == null) {
             throw new IllegalArgumentException("Invalid virtual host '" + virtualServer + "'.  Do you have a matching Host entry in the plan?");

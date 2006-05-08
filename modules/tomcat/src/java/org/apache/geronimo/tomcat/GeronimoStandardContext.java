@@ -80,6 +80,12 @@ public class GeronimoStandardContext extends StandardContext {
     private int contextCount = 0;
     
     public void setContextProperties(TomcatContext ctx) throws DeploymentException {
+        //try to make sure this mbean properties match those of the TomcatWebAppContext
+        if (ctx instanceof TomcatWebAppContext) {
+            TomcatWebAppContext tctx = (TomcatWebAppContext) ctx;
+            setJavaVMs(tctx.getJavaVMs());
+            setServer(tctx.getServer());
+        }
         // Create ReadOnlyContext
         javax.naming.Context enc = null;
         Map componentContext = ctx.getComponentContext();

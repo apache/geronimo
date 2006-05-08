@@ -274,7 +274,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     }
 
     public String getServer() {
-        return server.getObjectName();
+        return server == null? null: server.getObjectName();
     }
 
     public String getDocBase() {
@@ -435,7 +435,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     }
 
     public String[] getJavaVMs() {
-        return server.getJavaVMs();
+        return server == null? new String[0]: server.getJavaVMs();
     }
 
     public String getDeploymentDescriptor() {
