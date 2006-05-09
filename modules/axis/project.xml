@@ -122,6 +122,18 @@
             </properties>
         </dependency>
 
+        <!-- provide mime attachement support -->
+        <!-- this is dangerous without a DAG classloader since
+        it introduces a second copy of the mail spec classes -->
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-javamail_1.3.1_spec</artifactId>
+            <version>${geronimo_spec_javamail_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib-nodep</artifactId>
