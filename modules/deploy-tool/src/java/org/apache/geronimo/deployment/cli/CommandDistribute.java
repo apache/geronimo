@@ -40,7 +40,7 @@ public class CommandDistribute extends AbstractCommand {
     public CommandDistribute() {
         super("distribute", "2. Other Commands", "[--inPlace] [--targets target;target;...] [module] [plan]",
                 "Processes a module and adds it to the server environment, but does "+
-                "not start it or mark it to be started in the future." +
+                "not start it or mark it to be started in the future. " +
                 "Normally both a module and plan are passed to the deployer.  " +
                 "Sometimes the module contains a plan, or requires no plan, in which case " +
                 "the plan may be omitted.  Sometimes the plan references a module already " +
