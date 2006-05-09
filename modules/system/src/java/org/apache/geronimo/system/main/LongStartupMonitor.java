@@ -4,6 +4,10 @@ import java.io.PrintStream;
 
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Artifact;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
+import java.util.Date;
 
 /**
  * A startup monitor that shows the progress of loading and starting
@@ -22,10 +26,6 @@ import org.apache.geronimo.kernel.repository.Artifact;
  * @version $Revision: 1.0$
  */
 public class LongStartupMonitor implements StartupMonitor {
-    /**
-     * Minimum width of the time (padded with leading spaces) in configuration start messages
-     */
-    private final static int MIN_TIME_WIDTH = 3;
 
     /**
      * PrintStream
@@ -114,15 +114,27 @@ public class LongStartupMonitor implements StartupMonitor {
     }
 
     public synchronized void configurationStarted(Artifact configuration) {
-        int time = Math.round((float) (System.currentTimeMillis() - configStarted) / 1000f);
+        long time = System.currentTimeMillis() - configStarted;        
         StringBuffer buf = new StringBuffer();
         buf.append(" started in ");
-        // pad configuration startup time
-        int timeDigits = Integer.toString(time).length();
-        for (; timeDigits < MIN_TIME_WIDTH; timeDigits++) {
-            buf.append(' ');
+        
+        String formattedTime = getFormattedTime(time);
+        if (formattedTime.startsWith("0.")) {
+            // don't display zero seconds
+            formattedTime = " " +formattedTime.substring(1);
         }
-        buf.append(time).append("s ");
+        
+        // if first number (e.g. seconds or minutes) is one digit,
+        // pad it with a leading space to get times to line up nicely
+        int index = formattedTime.indexOf(':'); // must look for colon first
+        if (index == -1)
+            index = formattedTime.indexOf('.');
+                
+        if (index == 1)
+            buf.append(' ');
+            
+        buf.append(formattedTime);
+        
         out.println(buf.toString());
     }
 
@@ -139,4 +151,20 @@ public class LongStartupMonitor implements StartupMonitor {
         problem.printStackTrace(out);
     }
 
+    // time formatting method - thanks to Maven 
+    private static String getFormattedTime( long time )
+    {
+        String pattern = "s.SSS's'";
+        if ( time / 60000L > 0 )
+        {
+            pattern = "m:s" + pattern;
+            if ( time / 3600000L > 0 )
+            {
+                pattern = "H:m" + pattern;
+            }
+        }
+        DateFormat fmt = new SimpleDateFormat( pattern );
+        fmt.setTimeZone( TimeZone.getTimeZone( "UTC" ) );
+        return fmt.format( new Date( time ) );
+    }
 }
