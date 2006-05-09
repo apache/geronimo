@@ -19,32 +19,11 @@
 <!-- $Rev$ $Date$ -->
 
 <!--
-Configuration for corba on a Geronimo serverl, including client and target security examples.
-               parentId="${pom.groupId}/j2ee-server/${pom.currentVersion}/car"
-
+Configuration for corba on a Geronimo server, including client and target security examples.
 -->
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
-    <environment>
-        <moduleId>
-            <groupId>geronimo</groupId>
-            <artifactId>j2ee-corba</artifactId>
-            <version>${geronimo_version}</version>
-            <type>car</type>
-        </moduleId>
-        <dependencies>
-            <dependency>
-                <groupId>geronimo</groupId>
-                <artifactId>j2ee-security</artifactId>
-                <type>car</type>
-                <import>services</import>
-            </dependency>
-        </dependencies>
-        <hidden-classes/>
-        <non-overridable-classes/>
-    </environment>
-
-    <gbean name="SystemProperties" class="org.apache.geronimo.system.properties.SystemProperties">
+    <gbean name="CORBASystemProperties" class="org.apache.geronimo.system.properties.SystemProperties">
         <attribute name="systemProperties">
             javax.rmi.CORBA.UtilClass=org.openejb.corba.util.UtilDelegateImpl
             org.openejb.corba.UtilDelegateClass=com.sun.corba.se.internal.POA.ShutdownUtilDelegate
@@ -54,7 +33,16 @@ Configuration for corba on a Geronimo serverl, including client and target secur
             javax.net.ssl.keyStorePassword=secret
             javax.net.ssl.trustStorePassword=secret
         </attribute>
+        <attribute name="systemPathProperties">
+            javax.net.ssl.keyStore=var/security/keystores/geronimo-default
+            javax.net.ssl.trustStore=var/security/keystores/geronimo-default
+        </attribute>
+
+        <reference name="ServerInfo">
+            <name>ServerInfo</name>
+        </reference>
     </gbean>
+
 
     <!-- CORBA -->
     <gbean name="DynamicORBStubClassLoader" class="org.openejb.corba.util.DynamicStubClassLoader">
@@ -78,12 +66,6 @@ Configuration for corba on a Geronimo serverl, including client and target secur
     <gbean name="Server" class="org.openejb.corba.CORBABean">
         <reference name="ThreadPool">
             <name>DefaultThreadPool</name>
-        </reference>
-        <reference name="NameService">
-            <name>NameServer</name>
-        </reference>
-        <reference name="SecurityService">
-            <name>SecurityService</name>
         </reference>
         <attribute name="args">-ORBInitRef, NameService=corbaloc::${PlanCOSNamingHost}:${PlanCOSNamingPort}/NameService</attribute>
         <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
@@ -111,8 +93,55 @@ Configuration for corba on a Geronimo serverl, including client and target secur
         <dependency>
             <name>SystemProperties</name>
         </dependency>
+        <dependency>
+            <name>NameServer</name>
+        </dependency>
+        <dependency>
+            <name>SecurityService</name>
+        </dependency>
     </gbean>
 
+    <!-- orb with no security whatsoever -->
+    <gbean name="UnprotectedServer" class="org.openejb.corba.CORBABean">
+        <reference name="ThreadPool">
+            <name>DefaultThreadPool</name>
+        </reference>
+        <attribute name="args">-ORBInitRef, NameService=corbaloc::${PlanCOSNamingHost}:${PlanCOSNamingPort}/NameService</attribute>
+        <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
+        <xml-attribute name="tssConfig">
+            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1">
+                <tss:default-principal>
+                    <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
+                </tss:default-principal>
+                <tss:compoundSecMechTypeList>
+                    <tss:compoundSecMech>
+                        <tss:GSSUP required="true" targetName="default"/>
+                        <tss:sasMech>
+                            <tss:identityTokenTypes>
+                                <tss:ITTAbsent/>
+                            </tss:identityTokenTypes>
+                        </tss:sasMech>
+                    </tss:compoundSecMech>
+                </tss:compoundSecMechTypeList>
+            </tss:tss>
+        </xml-attribute>
+        <dependency>
+            <type>CORBABean</type>
+            <name>Server</name>
+        </dependency>
+        <dependency>
+            <name>SystemProperties</name>
+        </dependency>
+        <dependency>
+            <name>NameServer</name>
+        </dependency>
+        <dependency>
+            <name>SecurityService</name>
+        </dependency>
+    </gbean>
+
+<!-- tss bean examples, specify requirements for connection to orb.  Provide a ref in an ejb -->
+    <!--
     <gbean name="SSLClientCert" class="org.openejb.corba.TSSBean">
         <attribute name="POAName">SSLClientCert</attribute>
         <reference name="Server">
@@ -138,9 +167,6 @@ Configuration for corba on a Geronimo serverl, including client and target secur
                 </tss:compoundSecMechTypeList>
             </tss:tss>
         </xml-attribute>
-        <dependency>
-            <name>SystemProperties</name>
-        </dependency>
     </gbean>
 
     <gbean name="SSLClientPassword" class="org.openejb.corba.TSSBean">
@@ -207,45 +233,6 @@ Configuration for corba on a Geronimo serverl, including client and target secur
         </dependency>
     </gbean>
 
-    <!-- orb with no security whatsoever -->
-    <gbean name="UnprotectedServer" class="org.openejb.corba.CORBABean">
-        <reference name="ThreadPool">
-            <name>DefaultThreadPool</name>
-        </reference>
-        <reference name="NameService">
-            <name>NameServer</name>
-        </reference>
-        <reference name="SecurityService">
-            <name>SecurityService</name>
-        </reference>
-        <attribute name="args">-ORBInitRef, NameService=corbaloc::${PlanCOSNamingHost}:${PlanCOSNamingPort}/NameService</attribute>
-        <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
-        <xml-attribute name="tssConfig">
-            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1">
-                <tss:default-principal>
-                    <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
-                </tss:default-principal>
-                <tss:compoundSecMechTypeList>
-                    <tss:compoundSecMech>
-                        <tss:GSSUP required="true" targetName="default"/>
-                        <tss:sasMech>
-                            <tss:identityTokenTypes>
-                                <tss:ITTAbsent/>
-                            </tss:identityTokenTypes>
-                        </tss:sasMech>
-                    </tss:compoundSecMech>
-                </tss:compoundSecMechTypeList>
-            </tss:tss>
-        </xml-attribute>
-        <dependency>
-            <type>CORBABean</type>
-            <name>Server</name>
-        </dependency>
-        <dependency>
-            <name>SystemProperties</name>
-        </dependency>
-    </gbean>
-
     <gbean name="IdentityTokenNoSecurity" class="org.openejb.corba.TSSBean">
         <attribute name="POAName">IdentityTokenNoSecurity</attribute>
         <reference name="Server">
@@ -307,8 +294,9 @@ Configuration for corba on a Geronimo serverl, including client and target secur
             <name>SystemProperties</name>
         </dependency>
     </gbean>
-
+-->
     <!--CSS beans for client security.  These specify what the client is willing to provide -->
+    <!--
     <gbean name="SSLClientCert" class="org.openejb.corba.CSSBean">
         <reference name="ThreadPool">
             <name>DefaultThreadPool</name>
@@ -574,5 +562,5 @@ Configuration for corba on a Geronimo serverl, including client and target secur
             <name>SystemProperties</name>
         </dependency>
     </gbean>
-
+-->
 </module>

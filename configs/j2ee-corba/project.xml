@@ -71,6 +71,15 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>j2ee-security</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+            <properties>
+                 <geronimo.import>true</geronimo.import>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
             <version>${geronimo_version}</version>
         </dependency>
@@ -131,11 +140,6 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-transaction</artifactId>
-            <version>${geronimo_version}</version>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-security</artifactId>
             <version>${geronimo_version}</version>
         </dependency>
         <dependency>
