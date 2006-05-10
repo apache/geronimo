@@ -17,6 +17,7 @@
 package org.apache.geronimo.common.propertyeditor;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -35,18 +36,47 @@ public class PropertiesEditor extends TextPropertyEditorSupport {
      * @throws PropertyEditorException An error occurred creating the Properties object.
      */
     public Object getValue() {
-        try {
+        Object currentValue = super.getValue();
+        if (currentValue instanceof Properties) {
+            return (Properties) currentValue;
+        } else {
             // convert the text value into an in-memory input stream we can used for
             // property loading.
-            ByteArrayInputStream stream = new ByteArrayInputStream(getAsText().getBytes());
+            ByteArrayInputStream stream = new ByteArrayInputStream(currentValue.toString().getBytes());
             // load this into a properties instance.
             Properties bundle = new Properties();
-            bundle.load(stream);
-
+            try {
+                bundle.load(stream);
+            } catch (IOException e) {
+                // any errors here are just a property exception
+                throw new PropertyEditorException(e);
+            }
             return bundle;
-        } catch (IOException e) {
-            // any errors here are just a property exception
-            throw new PropertyEditorException(e);
         }
     }
+
+    /**
+     * Provides a String version of a Properties object suitable
+     * for loading into a Properties table using the load method.
+     *
+     * @return The String value of the Properties object as created
+     *         by the store method.
+     * @throws PropertyEditorException An error occurred converting the Properties object
+     * @see Properties#store(java.io.OutputStream, String)
+     */
+    public String getAsText() {
+        Object value = getValue();
+        if (value instanceof Properties) {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            try {
+                ((Properties) value).store(baos, null);
+            } catch (IOException e) {
+                // any errors here are just a property exception
+                throw new PropertyEditorException(e);
+            }
+            return baos.toString();
+        }
+        return ("" + value);
+    }
+
 }
