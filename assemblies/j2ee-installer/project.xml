@@ -762,14 +762,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-j2ee_1.4_spec</artifactId>
-            <version>${geronimo_spec_j2ee_version}</version>
-            <properties>
-                <geronimo.assemble>repository</geronimo.assemble>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
             <version>${geronimo_spec_j2ee_connector_version}</version>
             <properties>
