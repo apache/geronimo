@@ -193,7 +193,7 @@ public class ConfigIDExtractor {
         }
         return list;
     }
-    
+
     private static String extractModuleIdFromPlan(Reader plan) throws IOException {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         factory.setNamespaceAware(true);
@@ -252,11 +252,11 @@ public class ConfigIDExtractor {
                     inElement = localName;
                 }
             } else {
-                if(parent.size() == 2 && localName.equals("configId")) {
+                if(parent.size() == 2 && localName.equals("moduleId")) {
                     inConfigId = true; // only document/environment/configId, not e.g. configId in nested plan in EAR
                 } else {
-                    if(parent.size() == 0 && attributes.getIndex("configId") > -1) {
-                        configId = attributes.getValue("configId");
+                    if(parent.size() == 0 && attributes.getIndex("moduleId") > -1) {
+                        configId = attributes.getValue("moduleId");
                         formatIs10 = true;
                     }
                 }
@@ -276,7 +276,7 @@ public class ConfigIDExtractor {
 
         public void endElement(String uri, String localName, String qName) throws SAXException {
             inElement = null;
-            if(inConfigId && localName.equals("configId")) {
+            if(inConfigId && localName.equals("moduleId")) {
                 inConfigId = false;
             }
             if(parent.peek().equals(localName)) {

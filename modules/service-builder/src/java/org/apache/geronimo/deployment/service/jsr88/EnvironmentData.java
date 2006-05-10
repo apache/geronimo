@@ -82,7 +82,7 @@ public class EnvironmentData extends XmlBeanSupport {
         if(configId != null) {
             configId.configure(getEnvironmentType().addNewModuleId());
         }
-        pcs.firePropertyChange("configId", old, configId);
+        pcs.firePropertyChange("moduleId", old, configId);
     }
 
     public Artifact[] getDependencies() {
