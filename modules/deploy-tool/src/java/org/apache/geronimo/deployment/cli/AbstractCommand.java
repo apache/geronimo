@@ -78,7 +78,7 @@ public abstract class AbstractCommand implements DeployCommand {
     }
 
     protected void emit(String message) {
-        out.println(DeployUtils.reformat(message,4,72));
+        out.print(DeployUtils.reformat(message,4,72));
         out.flush();
     }
 

@@ -132,7 +132,7 @@ public class CommandListConfigurations extends AbstractCommand {
                 int time = (int)(System.currentTimeMillis() - start) / 1000;
                 out.println();
                 if(!results.isFailed()) {
-                    out.println(DeployUtils.reformat("**** Installation Complete!", 4, 72));
+                    out.print(DeployUtils.reformat("**** Installation Complete!", 4, 72));
                     for (int i = 0; i < results.getDependenciesPresent().length; i++) {
                         Artifact uri = results.getDependenciesPresent()[i];
                         out.print(DeployUtils.reformat("Used existing: "+uri, 4, 72));
@@ -142,7 +142,7 @@ public class CommandListConfigurations extends AbstractCommand {
                         out.print(DeployUtils.reformat("Installed new: "+uri, 4, 72));
                     }
                     out.println();
-                    out.println(DeployUtils.reformat("Downloaded "+(results.getTotalDownloadBytes()/1024)+" kB in "+time+"s ("+results.getTotalDownloadBytes()/(1024*time)+" kB/s)", 4, 72));
+                    out.print(DeployUtils.reformat("Downloaded "+(results.getTotalDownloadBytes()/1024)+" kB in "+time+"s ("+results.getTotalDownloadBytes()/(1024*time)+" kB/s)", 4, 72));
                 }
                 if(results.isFinished() && !results.isFailed()) {
                     out.print(DeployUtils.reformat("Now starting "+target.getModuleId()+"...", 4, 72));

@@ -77,7 +77,7 @@ public class CommandLogin extends AbstractCommand {
             props.store(save, "Saved authentication information to connect to Geronimo servers");
             save.flush();
             save.close();
-            System.out.println(DeployUtils.reformat("Saved login for: "+connection.getServerURI(), 4, 72));
+            System.out.print(DeployUtils.reformat("Saved login for: "+connection.getServerURI(), 4, 72));
         } catch (IOException e) {
             throw new DeploymentException("Unable to save authentication to login file", e);
         }

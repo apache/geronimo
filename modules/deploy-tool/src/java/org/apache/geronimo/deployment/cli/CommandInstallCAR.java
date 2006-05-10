@@ -62,7 +62,7 @@ public class CommandInstallCAR extends AbstractCommand {
             int time = (int)(System.currentTimeMillis() - start) / 1000;
             System.out.println();
             if(!results.isFailed()) {
-                System.out.println(DeployUtils.reformat("**** Installation Complete!", 4, 72));
+                System.out.print(DeployUtils.reformat("**** Installation Complete!", 4, 72));
                 for (int i = 0; i < results.getDependenciesPresent().length; i++) {
                     Artifact uri = results.getDependenciesPresent()[i];
                     System.out.print(DeployUtils.reformat("Used existing: "+uri, 4, 72));
@@ -73,7 +73,7 @@ public class CommandInstallCAR extends AbstractCommand {
                 }
                 if(results.getTotalDownloadBytes() > 0 && time > 0) {
                     System.out.println();
-                    System.out.println(DeployUtils.reformat("Downloaded "+(results.getTotalDownloadBytes()/1024)+" kB in "+time+"s ("+results.getTotalDownloadBytes()/(1024*time)+" kB/s)", 4, 72));
+                    System.out.print(DeployUtils.reformat("Downloaded "+(results.getTotalDownloadBytes()/1024)+" kB in "+time+"s ("+results.getTotalDownloadBytes()/(1024*time)+" kB/s)", 4, 72));
                 }
             }
             if(results.isFinished() && !results.isFailed() && results.getInstalledConfigIDs().length == 1) {

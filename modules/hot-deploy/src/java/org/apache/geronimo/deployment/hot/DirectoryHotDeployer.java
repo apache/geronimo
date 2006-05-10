@@ -233,11 +233,11 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
                 modules = po.getResultTargetModuleIDs();
                 for (int i = 0; i < modules.length; i++) {
                     TargetModuleID result = modules[i];
-                    System.out.println(DeployUtils.reformat("Deployed "+result.getModuleID()+(targets.length > 1 ? " to "+result.getTarget().getName() : "")+(result.getWebURL() == null ? "" : " @ "+result.getWebURL()), 4, 72));
+                    System.out.print(DeployUtils.reformat("Deployed "+result.getModuleID()+(targets.length > 1 ? " to "+result.getTarget().getName() : "")+(result.getWebURL() == null ? "" : " @ "+result.getWebURL()), 4, 72));
                     if(result.getChildTargetModuleID() != null) {
                         for (int j = 0; j < result.getChildTargetModuleID().length; j++) {
                             TargetModuleID child = result.getChildTargetModuleID()[j];
-                            System.out.println(DeployUtils.reformat("  `-> "+child.getModuleID()+(child.getWebURL() == null ? "" : " @ "+child.getWebURL()),4, 72));
+                            System.out.print(DeployUtils.reformat("  `-> "+child.getModuleID()+(child.getWebURL() == null ? "" : " @ "+child.getWebURL()),4, 72));
                         }
                     }
                 }
@@ -286,7 +286,7 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
                 TargetModuleID[] modules = po.getResultTargetModuleIDs();
                 for (int i = 0; i < modules.length; i++) {
                     TargetModuleID result = modules[i];
-                    System.out.println(DeployUtils.reformat("Undeployed "+result.getModuleID()+(targets.length > 1 ? " to "+result.getTarget().getName() : ""), 4, 72));
+                    System.out.print(DeployUtils.reformat("Undeployed "+result.getModuleID()+(targets.length > 1 ? " to "+result.getTarget().getName() : ""), 4, 72));
                 }
             } else {
                 log.error("Unable to undeploy "+file.getAbsolutePath()+"("+configId+")"+po.getDeploymentStatus().getMessage());
@@ -318,11 +318,11 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
                 TargetModuleID[] modules = po.getResultTargetModuleIDs();
                 for (int i = 0; i < modules.length; i++) {
                     TargetModuleID result = modules[i];
-                    System.out.println(DeployUtils.reformat("Redeployed "+result.getModuleID()+(targets.length > 1 ? " to "+result.getTarget().getName() : "")+(result.getWebURL() == null ? "" : " @ "+result.getWebURL()), 4, 72));
+                    System.out.print(DeployUtils.reformat("Redeployed "+result.getModuleID()+(targets.length > 1 ? " to "+result.getTarget().getName() : "")+(result.getWebURL() == null ? "" : " @ "+result.getWebURL()), 4, 72));
                     if(result.getChildTargetModuleID() != null) {
                         for (int j = 0; j < result.getChildTargetModuleID().length; j++) {
                             TargetModuleID child = result.getChildTargetModuleID()[j];
-                            System.out.println(DeployUtils.reformat("  `-> "+child.getModuleID()+(child.getWebURL() == null ? "" : " @ "+child.getWebURL()),4, 72));
+                            System.out.print(DeployUtils.reformat("  `-> "+child.getModuleID()+(child.getWebURL() == null ? "" : " @ "+child.getWebURL()),4, 72));
                         }
                     }
                 }

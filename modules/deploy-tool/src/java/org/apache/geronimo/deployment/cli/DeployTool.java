@@ -201,7 +201,7 @@ public class DeployTool {
 
     private void processException(PrintWriter out, Exception e) {
         failed = true;
-        out.println(DeployUtils.reformat("Error: "+e.getMessage(),4,72));
+        out.print(DeployUtils.reformat("Error: "+e.getMessage(),4,72));
         if(e.getCause() != null) {
             e.getCause().printStackTrace(out);
         }
@@ -219,7 +219,7 @@ public class DeployTool {
                 out.println();
                 out.println("    deployer "+hangingIndent(command.getCommandName()+" "+command.getHelpArgumentList(), 13));
                 out.println();
-                out.println(DeployUtils.reformat(command.getHelpText(), 8, 72));
+                out.print(DeployUtils.reformat(command.getHelpText(), 8, 72));
                 out.println();
                 return;
             } else if(args[0].equals("options")) {
@@ -230,7 +230,7 @@ public class DeployTool {
                     String s = (String) it.next();
                     out.println("   "+s);
                     out.println();
-                    out.println(DeployUtils.reformat((String)map.get(s), 8, 72));
+                    out.print(DeployUtils.reformat((String)map.get(s), 8, 72));
                 }
                 return;
             } else if(args[0].equals("all")) {
@@ -241,7 +241,7 @@ public class DeployTool {
                 for (int i = 0; i < all.length; i++) {
                     DeployCommand cmd = all[i];
                     out.println("    deployer "+hangingIndent(cmd.getCommandName()+" "+cmd.getHelpArgumentList(), 13));
-                    out.println(DeployUtils.reformat(cmd.getHelpText(), 8, 72));
+                    out.print(DeployUtils.reformat(cmd.getHelpText(), 8, 72));
                 }
                 out.println();
                 return;

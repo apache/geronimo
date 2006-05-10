@@ -243,11 +243,11 @@ public class ServerConnection {
                             user = encryped.substring(7, pos);
                             password = encryped.substring(pos+1);
                         } else {
-                            System.out.println(DeployUtils.reformat("Unknown encryption used in saved login file", 4, 72));
+                            System.out.print(DeployUtils.reformat("Unknown encryption used in saved login file", 4, 72));
                         }
                     }
                 } catch (IOException e) {
-                    System.out.println(DeployUtils.reformat("Unable to read authentication from saved login file: "+e.getMessage(), 4, 72));
+                    System.out.print(DeployUtils.reformat("Unable to read authentication from saved login file: "+e.getMessage(), 4, 72));
                 } finally {
                     try {in.close();}catch(IOException e) {}
                 }
