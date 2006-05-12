@@ -32,7 +32,6 @@ import java.util.Enumeration;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
-import org.apache.geronimo.kernel.classloader.util.UnionEnumeration;
 import org.apache.geronimo.kernel.config.MultiParentClassLoader;
 import org.apache.geronimo.kernel.repository.Artifact;
 
@@ -52,7 +51,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 public class JarFileClassLoader extends MultiParentClassLoader {
     private static final URL[] EMPTY_URLS = new URL[0];
 
-    private final JarFileResourceFinder resourceFinder = new JarFileResourceFinder();
+    private final UrlResourceFinder resourceFinder = new UrlResourceFinder();
     private final AccessControlContext acc;
 
     /**
@@ -211,7 +210,7 @@ public class JarFileClassLoader extends MultiParentClassLoader {
         }
 
         // the library must be accessable on the file system
-        URL url = resourceHandle.getURL();
+        URL url = resourceHandle.getUrl();
         if (!"file".equals(url.getProtocol())) {
             return null;
         }
@@ -264,7 +263,7 @@ public class JarFileClassLoader extends MultiParentClassLoader {
                     Certificate[] certificates = resourceHandle.getCertificates();
 
                     // the code source url is used to define the package and as the security context for the class
-                    URL codeSourceUrl = resourceHandle.getCodeSourceURL();
+                    URL codeSourceUrl = resourceHandle.getCodeSourceUrl();
 
                     // define the package (required for security)
                     definePackage(className, codeSourceUrl, manifest);

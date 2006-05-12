@@ -45,12 +45,18 @@ public interface ResourceHandle {
     /**
      * Returns the URL of the resource.
      */
-    URL getURL();
+    URL getUrl();
+
+    /**
+     * Does this resource refer to a directory.  Directory resources are commly used
+     * as the basis for a URL in client application.  A directory resource has 0 bytes for it's content. 
+     */
+    boolean isDirectory();
 
     /**
      * Returns the CodeSource URL for the class or resource.
      */
-    URL getCodeSourceURL();
+    URL getCodeSourceUrl();
 
     /**
      * Returns and InputStream for reading this resource data.

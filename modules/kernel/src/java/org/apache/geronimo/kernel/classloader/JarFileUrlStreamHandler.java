@@ -29,9 +29,12 @@ import java.io.File;
  */
 public class JarFileUrlStreamHandler extends URLStreamHandler {
     public static URL createUrl(JarFile jarFile, JarEntry jarEntry) throws MalformedURLException {
+        return createUrl(jarFile, jarEntry, new File(jarFile.getName()).toURL());
+    }
+
+    public static URL createUrl(JarFile jarFile, JarEntry jarEntry, URL codeSource) throws MalformedURLException {
         JarFileUrlStreamHandler handler = new JarFileUrlStreamHandler(jarFile, jarEntry);
-        URL jarFileUrl = new File(jarFile.getName()).toURL();
-        URL url = new URL("jar", "", -1, jarFileUrl + "!/" + jarEntry.getName(), handler);
+        URL url = new URL("jar", "", -1, codeSource + "!/" + jarEntry.getName(), handler);
         handler.setExpectedUrl(url);
         return url;
     }

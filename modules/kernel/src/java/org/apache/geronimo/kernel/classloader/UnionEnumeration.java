@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.kernel.classloader.util;
+package org.apache.geronimo.kernel.classloader;
 
 import java.util.Enumeration;
 import java.util.LinkedList;

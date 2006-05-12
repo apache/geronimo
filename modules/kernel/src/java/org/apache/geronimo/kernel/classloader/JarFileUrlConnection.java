@@ -22,6 +22,8 @@ import java.io.InputStream;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLStreamHandler;
 import java.security.Permission;
 import java.security.cert.Certificate;
 import java.util.jar.Attributes;
@@ -29,19 +31,30 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
-import org.apache.geronimo.kernel.classloader.util.ClassLoaderUtil;
-
 /**
  * @version $Rev$ $Date$
  */
 public class JarFileUrlConnection extends JarURLConnection {
+    public static final URL DUMMY_JAR_URL;
+    static {
+        try {
+            DUMMY_JAR_URL = new URL("jar", "", -1, "file:dummy!/", new URLStreamHandler() {
+                protected URLConnection openConnection(URL u) {
+                    throw new UnsupportedOperationException();
+                }
+            });
+        } catch (Exception e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
+
     private final URL url;
     private final JarFile jarFile;
     private final JarEntry jarEntry;
     private final URL jarFileUrl;
 
     public JarFileUrlConnection(URL url, JarFile jarFile, JarEntry jarEntry) throws MalformedURLException {
-        super(ClassLoaderUtil.DUMMY_JAR_URL);
+        super(DUMMY_JAR_URL);
 
         if (url == null) throw new NullPointerException("url is null");
         if (jarFile == null) throw new NullPointerException("jarFile is null");

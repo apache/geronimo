@@ -22,8 +22,6 @@ import java.security.cert.Certificate;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
-import org.apache.geronimo.kernel.classloader.util.ClassLoaderUtil;
-
 /**
  * @version $Rev$ $Date$
  */
@@ -31,10 +29,10 @@ public abstract class AbstractResourceHandle implements ResourceHandle {
     public byte[] getBytes() throws IOException {
         InputStream in = getInputStream();
         try {
-            byte[] bytes = ClassLoaderUtil.getBytes(in);
+            byte[] bytes = IoUtil.getBytes(in);
             return bytes;
         } finally {
-            ClassLoaderUtil.close(in);
+            IoUtil.close(in);
         }
     }
 
@@ -52,7 +50,7 @@ public abstract class AbstractResourceHandle implements ResourceHandle {
             return null;
         }
 
-        String entry = getURL().getFile();
+        String entry = getUrl().getFile();
         return m.getAttributes(entry);
     }
 
@@ -60,6 +58,6 @@ public abstract class AbstractResourceHandle implements ResourceHandle {
     }
 
     public String toString() {
-        return "[" + getName() + ": " + getURL() + "; code source: " + getCodeSourceURL() + "]";
+        return "[" + getName() + ": " + getUrl() + "; code source: " + getCodeSourceUrl() + "]";
     }
 }

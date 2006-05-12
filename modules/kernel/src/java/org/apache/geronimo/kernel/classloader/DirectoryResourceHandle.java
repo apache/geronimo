@@ -16,34 +16,36 @@
  */
 package org.apache.geronimo.kernel.classloader;
 
-import java.util.jar.JarFile;
-import java.util.jar.JarEntry;
-import java.util.jar.Manifest;
-import java.util.jar.Attributes;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.net.URL;
 import java.net.MalformedURLException;
-import java.io.InputStream;
-import java.io.IOException;
 import java.security.cert.Certificate;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 
 /**
  * @version $Rev$ $Date$
  */
-public class JarResourceHandle extends AbstractResourceHandle {
-    private final JarFile jarFile;
-    private final JarEntry jarEntry;
+public class DirectoryResourceHandle extends AbstractResourceHandle {
+    private final String name;
+    private final File file;
+    private final Manifest manifest;
     private final URL url;
     private final URL codeSource;
 
-    public JarResourceHandle(JarFile jarFile, JarEntry jarEntry, URL codeSource) throws MalformedURLException {
-        this.jarFile = jarFile;
-        this.jarEntry = jarEntry;
-        this.url = JarFileUrlStreamHandler.createUrl(jarFile, jarEntry, codeSource);
-        this.codeSource = codeSource;
+    public DirectoryResourceHandle(String name, File file, File codeSource, Manifest manifest) throws MalformedURLException {
+        this.name = name;
+        this.file = file;
+        this.codeSource = codeSource.toURL();
+        this.manifest = manifest;
+        url = file.toURL();
     }
 
     public String getName() {
-        return jarEntry.getName();
+        return name;
     }
 
     public URL getUrl() {
@@ -55,26 +57,41 @@ public class JarResourceHandle extends AbstractResourceHandle {
     }
 
     public boolean isDirectory() {
-        return jarEntry.isDirectory();
+        return file.isDirectory();
     }
 
     public InputStream getInputStream() throws IOException {
-        return jarFile.getInputStream(jarEntry);
+        if (file.isDirectory()) {
+            return new IoUtil.EmptyInputStream();
+        }
+        return new FileInputStream(file);
     }
 
     public int getContentLength() {
-        return (int) jarEntry.getSize();
+        if (file.isDirectory() || file.length() > Integer.MAX_VALUE) {
+            return -1;
+        } else {
+            return (int) file.length();
+        }
     }
 
     public Manifest getManifest() throws IOException {
-        return jarFile.getManifest();
+        return manifest;
     }
 
     public Attributes getAttributes() throws IOException {
-        return jarEntry.getAttributes();
+        if (manifest == null) {
+            return null;
+        }
+        return manifest.getAttributes(getName());
     }
 
+    /**
+     * Always return null.  This could be implementd by verifing the signatures
+     * in the manifest file against the actual file, but we don't need this right now.
+     * @return null
+     */
     public Certificate[] getCertificates() {
-        return jarEntry.getCertificates();
+        return null;
     }
 }
