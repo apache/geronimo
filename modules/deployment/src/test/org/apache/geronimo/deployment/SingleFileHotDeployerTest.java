@@ -453,5 +453,12 @@ public class SingleFileHotDeployerTest extends TestCase {
         public ArtifactResolver getArtifactResolver() {
             return artifactResolver;
         }
+
+        public boolean isOnline() {
+            return true;
+        }
+
+        public void setOnline(boolean online) {
+        }
     }
 }

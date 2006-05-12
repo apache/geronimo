@@ -57,6 +57,7 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
     private final ArtifactManager artifactManager;
     protected final ClassLoader classLoader;
     private final ShutdownHook shutdownHook;
+    private boolean online = true;
 
     public KernelConfigurationManager(Kernel kernel,
             Collection stores,
@@ -178,11 +179,21 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
     }
 
     public void start(Configuration configuration) throws InvalidConfigException {
-        ConfigurationUtil.startConfigurationGBeans(configuration.getAbstractName(), configuration, kernel);
+        if (online) {
+            ConfigurationUtil.startConfigurationGBeans(configuration.getAbstractName(), configuration, kernel);
+        }
 
         if (configurationList != null && configuration.getConfigurationData().isAutoStart()) {
             configurationList.startConfiguration(configuration.getId());
         }
+    }
+
+    public boolean isOnline() {
+        return online;
+    }
+
+    public void setOnline(boolean online) {
+        this.online = online;
     }
 
     protected void stop(Configuration configuration) {

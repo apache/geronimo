@@ -103,33 +103,4 @@
         </dependency>
     </dependencies>
 
-    <build>
-        <resources>
-            <resource>
-                <directory>${basedir}/src/java</directory>
-                <includes>
-                    <include>**/*.xml</include>
-                    <include>**/*.properties</include>
-                </includes>
-            </resource>
-        </resources>
-        <unitTest>
-            <includes>
-                <include>**/*Test.java</include>
-            </includes>
-            <excludes>
-                <exclude>**/Abstract*.java</exclude>
-            </excludes>
-            <resources>
-                <resource>
-                    <directory>${basedir}/target/test-xdoclet/jmx/org/apache/geronimo/tools/xdoclet</directory>
-                    <targetPath>org/apache/geronimo/tools/xdoclet</targetPath>
-                    <includes>
-                        <include>*.xml</include>
-                    </includes>
-                </resource>
-            </resources>
-        </unitTest>
-    </build>
-
 </project>

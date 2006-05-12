@@ -1,0 +1,7 @@
+#list of deployers to be started for offline deployment
+geronimo/geronimo-gbean-deployer/${pom.currentVersion}/car
+geronimo/j2ee-deployer/${pom.currentVersion}/car
+geronimo/tomcat-deployer/${pom.currentVersion}/car
+geronimo/unavailable-ejb-deployer/${pom.currentVersion}/car
+geronimo/unavailable-webservices-deployer/${pom.currentVersion}/car
+geronimo/unavailable-client-deployer/${pom.currentVersion}/car

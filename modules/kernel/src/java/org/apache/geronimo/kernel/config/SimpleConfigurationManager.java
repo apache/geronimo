@@ -1226,6 +1226,17 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return artifactResolver;
     }
 
+    /**
+     * this configuration manager never starts configurations.
+     * @return false
+     */
+    public boolean isOnline() {
+        return false;
+    }
+
+    public void setOnline(boolean online) {
+    }
+
     private List getStoreList() {
         return new ArrayList(stores);
     }

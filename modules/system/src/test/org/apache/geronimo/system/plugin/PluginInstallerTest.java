@@ -123,6 +123,7 @@ public class PluginInstallerTest extends TestCase {
     }
 
     private static class MockConfigManager implements ConfigurationManager {
+
         public boolean isInstalled(Artifact configurationId) {
             return false;
         }
@@ -253,6 +254,13 @@ public class PluginInstallerTest extends TestCase {
 
         public ArtifactResolver getArtifactResolver() {
             return null;
+        }
+
+        public boolean isOnline() {
+            return true;
+        }
+
+        public void setOnline(boolean online) {
         }
     }
 }

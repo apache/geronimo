@@ -20,6 +20,9 @@ package org.apache.geronimo.system.main;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Enumeration;
+import java.net.URL;
+
 import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
@@ -31,6 +34,9 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.config.LifecycleException;
+import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.gbean.AbstractName;
@@ -61,7 +67,7 @@ public class CommandLine {
             // the interesting entries from the manifest
             CommandLineManifest manifest = CommandLineManifest.getManifestEntries();
             List configurations = manifest.getConfigurations();
-            ObjectName mainGBean = manifest.getMainGBean();
+            AbstractName mainGBean = manifest.getMainGBean();
             String mainMethod = manifest.getMainMethod();
 
             new CommandLine().invokeMainGBean(configurations, mainGBean, mainMethod, args);
@@ -78,34 +84,9 @@ public class CommandLine {
     private Kernel kernel;
     private AbstractName configurationName;
 
-    /**
-     * @deprecated use the next one with AbstractName
-     *
-     * @param configurations
-     * @param mainGBean
-     * @param mainMethod
-     * @param args
-     * @throws Exception
-     */
-    public void invokeMainGBean(List configurations, ObjectName mainGBean, String mainMethod, String[] args) throws Exception {
-        startKernel(configurations);
-
-        log.info("Server startup completed");
-
-        // invoke the main method
-        kernel.invoke(
-                mainGBean,
-                mainMethod,
-                new Object[]{args},
-                new String[]{String[].class.getName()});
-
-        log.info("Server shutdown begun");
-
-        stopKernel();
-    }
-
     public void invokeMainGBean(List configurations, AbstractName mainGBean, String mainMethod, String[] args) throws Exception {
-        startKernel(configurations);
+        startKernel();
+        loadConfigurations(configurations);
 
         log.info("Server startup completed");
 
@@ -121,7 +102,7 @@ public class CommandLine {
         stopKernel();
     }
 
-    protected void startKernel(List configurations) throws Exception {
+    protected void startKernel() throws Exception {
         ClassLoader classLoader = CommandLine.class.getClassLoader();
         InputStream in = classLoader.getResourceAsStream("META-INF/config.ser");
 
@@ -132,6 +113,31 @@ public class CommandLine {
         // load the configuration
         configurationName = ConfigurationUtil.loadBootstrapConfiguration(kernel, in, classLoader);
 
+    }
+
+    protected void startKernel(Artifact moduleId) throws Exception {
+        // boot the kernel
+        kernel = KernelFactory.newInstance().createKernel("geronimo");
+        kernel.boot();
+        ClassLoader classLoader = CommandLine.class.getClassLoader();
+        for (Enumeration modules = classLoader.getResources("META-INF/config.ser"); modules.hasMoreElements(); ) {
+            URL moduleDataURL = (URL) modules.nextElement();
+            InputStream in = moduleDataURL.openStream();
+            try {
+                ConfigurationData moduleData = ConfigurationUtil.readConfigurationData(in);
+                if (moduleId.matches(moduleData.getId())) {
+                    // load the configuration
+                    configurationName = ConfigurationUtil.loadBootstrapConfiguration(kernel, moduleData, classLoader);
+                    return;
+                }
+            } finally {
+                in.close();
+            }
+        }
+        throw new NoSuchConfigException(moduleId);
+    }
+
+    protected void loadConfigurations(List configurations) throws NoSuchConfigException, LifecycleException {
         // load and start the configurations
         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
         try {

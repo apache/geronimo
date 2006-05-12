@@ -246,7 +246,7 @@ public class MultiParentClassLoader extends URLClassLoader {
             }
         }
 
-        throw new ClassNotFoundException(name);
+        throw new ClassNotFoundException(name + " in classloader " + id);
     }
 
     private boolean isNonOverridableClass(String name) {

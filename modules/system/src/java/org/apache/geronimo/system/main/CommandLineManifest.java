@@ -30,6 +30,8 @@ import java.io.IOException;
 import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
 
+import org.apache.geronimo.gbean.AbstractName;
+
 /**
  *
  *
@@ -65,11 +67,11 @@ public class CommandLineManifest {
         // get the main gbean class
         String mainGBeanString = mainAttributes.getValue(MAIN_GBEAN);
 
-        ObjectName mainGBean = null;
+        AbstractName mainGBean = null;
         if(mainGBeanString != null) {
             try {
-                mainGBean = new ObjectName(mainGBeanString);
-            } catch (MalformedObjectNameException e) {
+                mainGBean = new AbstractName(new URI(mainGBeanString));
+            } catch (URISyntaxException e) {
                 System.err.println("Invalid Main-GBean name: " + mainGBeanString);
                 System.exit(1);
                 throw new AssertionError();
@@ -119,13 +121,13 @@ public class CommandLineManifest {
         return commandLineManifest;
     }
 
-    private final ObjectName mainGBean;
+    private final AbstractName mainGBean;
     private final String mainMethod;
     private final List configurations;
     private final List endorsedDirs;
     private final List extensionDirs;
 
-    public CommandLineManifest(ObjectName mainGBean, String mainMethod, List configurations, List endorsedDirs, List extensionDirs) {
+    public CommandLineManifest(AbstractName mainGBean, String mainMethod, List configurations, List endorsedDirs, List extensionDirs) {
         this.mainGBean = mainGBean;
         this.mainMethod = mainMethod;
         this.configurations = Collections.unmodifiableList(configurations);
@@ -133,7 +135,7 @@ public class CommandLineManifest {
         this.extensionDirs = extensionDirs;
     }
 
-    public ObjectName getMainGBean() {
+    public AbstractName getMainGBean() {
         return mainGBean;
     }
 

@@ -463,4 +463,13 @@ public interface ConfigurationManager {
      * configuration manager, etc.
      */
     ArtifactResolver getArtifactResolver();
+
+    /**
+     * Online means full functionality.  Offline typically means that configurations will never be started,
+     * although they may be marked in the persistent configuration list.
+     *
+     * @return online status of ConfigurationManager
+     */
+    boolean isOnline();
+    void setOnline(boolean online);
 }

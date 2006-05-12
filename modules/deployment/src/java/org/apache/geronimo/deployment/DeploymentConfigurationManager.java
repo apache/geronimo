@@ -84,6 +84,16 @@ public class DeploymentConfigurationManager extends SimpleConfigurationManager {
         return super.getArtifactResolver();
     }
 
+    /**
+     * This configuration manager never starts any configurations
+     * @return false
+     */
+    public boolean isOnline() {
+        return false;
+    }
+
+    public void setOnline(boolean online) {
+    }
 
     //
     // LOAD
