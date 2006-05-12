@@ -283,6 +283,9 @@ public class JarFileResourceFinder implements ResourceFinder {
             if (iterator == null) {
                 return;
             }
+            if (next != null) {
+                return;
+            }
 
             try {
                 while (iterator.hasNext()) {
