@@ -25,6 +25,16 @@
 
     <!-- replace the assemble:install goal with jelly code to build the installer -->
     <goal name="assemble:install">
+        <echo>
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    THE INSTALLER IS KNOWN NOT TO WORK
+    WE WELCOME YOUR HELP IN FIXING IT
+    SEE http://issues.apache.org/jira/browse/GERONIMO-1518 
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        </echo>
+
         <!-- assemble-to-repo will assemble but put the cars -->
         <!--    in the repository instead of the config-store-->
         <attainGoal name="assemble:assemble-to-repo"/>
