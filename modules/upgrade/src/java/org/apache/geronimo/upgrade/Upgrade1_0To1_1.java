@@ -82,19 +82,24 @@ public class Upgrade1_0To1_1 {
     private static final String DEFAULT_VERSION = "1-default";
     private static final QName CLIENT_ENVIRONMENT_QNAME = new QName("http://geronimo.apache.org/xml/ns/deployment-1.1", "client-environment");
     private static final QName SERVER_ENVIRONMENT_QNAME = new QName("http://geronimo.apache.org/xml/ns/deployment-1.1", "server-environment");
-    private static final QName EJB_LINK_QNAME = new QName("http://geronimo.apache.org/xml/ns/naming-1.1", "ejb-link");
     private static final QName PATTERN_QNAME = new QName("http://geronimo.apache.org/xml/ns/naming-1.1", "pattern");
     private static final QName GROUP_QNAME = new QName("http://geronimo.apache.org/xml/ns/naming-1.1", "groupId");
     private static final QName ARTIFACT_QNAME = new QName("http://geronimo.apache.org/xml/ns/naming-1.1", "artifactId");
-    private static final QName VERSION_QNAME = new QName("http://geronimo.apache.org/xml/ns/naming-1.1", "version");
-    private static final QName TYPE_QNAME = new QName("http://geronimo.apache.org/xml/ns/naming-1.1", "type");
     private static final QName MODULE_QNAME = new QName("http://geronimo.apache.org/xml/ns/naming-1.1", "module");
     private static final QName NAME_QNAME = new QName("http://geronimo.apache.org/xml/ns/naming-1.1", "name");
     private static final QName GBEAN_NAME_QNAME = new QName(null, "gbeanName");
-;
 
-    public static void upgrade(InputStream source, Writer target) throws IOException, XmlException {
+    public void upgrade(InputStream source, Writer target) throws IOException, XmlException {
         XmlObject xmlObject = parse(source);
+        xmlObject = upgrade(xmlObject);
+
+        XmlOptions xmlOptions = new XmlOptions();
+        xmlOptions.setSavePrettyPrint();
+        xmlObject.save(target, xmlOptions);
+
+    }
+
+    public XmlObject upgrade(XmlObject xmlObject) throws XmlException {
         XmlCursor cursor = xmlObject.newCursor();
         XmlCursor.TokenType token;
         while ((token = cursor.toNextToken()) != XmlCursor.TokenType.ENDDOC) {
@@ -119,11 +124,7 @@ public class Upgrade1_0To1_1 {
                 checkInvalid(cursor);
             }
         }
-
-        XmlOptions xmlOptions = new XmlOptions();
-        xmlOptions.setSavePrettyPrint();
-        xmlObject.save(target, xmlOptions);
-
+        return xmlObject;
     }
 
     private static void checkInvalid(XmlCursor cursor) throws XmlException {

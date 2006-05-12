@@ -73,7 +73,7 @@ public class Upgrade1_0To1_1Test extends TestCase {
     private void test(String testName) throws Exception {
         InputStream srcXml = classLoader.getResourceAsStream(testName + ".xml");
         Writer targetXml = new StringWriter();
-        Upgrade1_0To1_1.upgrade(srcXml, targetXml);
+        new Upgrade1_0To1_1().upgrade(srcXml, targetXml);
 
         String targetString = targetXml.toString();
         XmlObject targetXmlObject = XmlObject.Factory.parse(targetString);

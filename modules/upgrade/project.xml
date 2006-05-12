@@ -42,72 +42,19 @@
 
     <dependencies>
         <!-- Module Dependencies -->
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-client-builder</artifactId>
-            <version>${geronimo_version}</version>
-        </dependency>
 
-        <dependency>
-            <groupId>geronimo</groupId>                 
-            <artifactId>geronimo-connector-builder</artifactId>          
-            <version>${geronimo_version}</version>                     
-        </dependency>
-                                                                                                                             
-        <dependency>
-            <groupId>geronimo</groupId>                 
-            <artifactId>geronimo-j2ee-builder</artifactId>          
-            <version>${geronimo_version}</version>                     
-        </dependency>
-                                                                                                                             
-        <dependency>
-            <groupId>geronimo</groupId>                 
-            <artifactId>geronimo-jetty-builder</artifactId>          
-            <version>${geronimo_version}</version>                     
-        </dependency>
-                                                                                                                             
-        <dependency>
-            <groupId>geronimo</groupId>                 
-            <artifactId>geronimo-naming-builder</artifactId>          
-            <version>${geronimo_version}</version>                     
-        </dependency>
-                                                                                                                             
-        <dependency>
-            <groupId>geronimo</groupId>                 
-            <artifactId>geronimo-security-builder</artifactId>          
-            <version>${geronimo_version}</version>                     
-        </dependency>
-                                                                                                                             
         <dependency>
             <groupId>geronimo</groupId>                 
             <artifactId>geronimo-service-builder</artifactId>          
             <version>${geronimo_version}</version>                     
         </dependency>
-                                                                                                                             
-        <dependency>
-            <groupId>geronimo</groupId>                 
-            <artifactId>geronimo-tomcat-builder</artifactId>          
-            <version>${geronimo_version}</version>                     
-        </dependency>
-                                                                                                                             
-        <dependency>
-            <groupId>geronimo</groupId>                 
-            <artifactId>geronimo-web-builder</artifactId>          
-            <version>${geronimo_version}</version>                     
-        </dependency>
-                                                                                                                             
+
         <dependency>
             <groupId>geronimo</groupId>                 
             <artifactId>geronimo-common</artifactId>          
             <version>${geronimo_version}</version>                     
         </dependency>
 
-        <dependency>
-            <groupId>openejb</groupId>                 
-            <artifactId>openejb-builder</artifactId>          
-            <version>${openejb_version}</version>                     
-        </dependency>
-                             
         <dependency>
             <groupId>xmlbeans</groupId>
             <artifactId>xbean</artifactId>
@@ -124,15 +71,14 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee-schema</artifactId>
             <version>${pom.currentVersion}</version>
-            <properties>
-                <xmlbeans>true</xmlbeans>
-            </properties>
         </dependency>
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
+
         <dependency>
             <groupId>mx4j</groupId>
             <artifactId>mx4j</artifactId>
