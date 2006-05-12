@@ -781,7 +781,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         try {
             configuration.findGBean(containerId);
         } catch (GBeanNotFoundException e) {
-            throw new UnresolvedReferenceException("Resource", false, containerId.toString());
+            throw new UnresolvedReferenceException("Resource", false, containerId.toString(), configuration.getId().toString());
         }
         return new ResourceReference(configuration.getId(), containerId, iface);
     }
