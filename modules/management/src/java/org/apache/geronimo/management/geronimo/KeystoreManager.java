@@ -54,6 +54,7 @@ public interface KeystoreManager {
      * @param trustStore The trust keystore name as provided by listKeystores.
      *                   The KeystoreInstance for this keystore must have
      *                   unlocked this key.
+     * @param loader     The class loader used to resolve factory classes.
      *
      * @throws KeystoreIsLocked Occurs when the requested key keystore cannot
      *                          be used because it has not been unlocked.
@@ -80,6 +81,7 @@ public interface KeystoreManager {
      * @param trustStore The trust keystore name as provided by listKeystores.
      *                   The KeystoreInstance for this keystore must have
      *                   unlocked this key.
+     * @param loader     The class loader used to resolve factory classes.
      *
      * @throws KeystoreIsLocked Occurs when the requested key keystore cannot
      *                          be used because it has not been unlocked.
@@ -89,6 +91,28 @@ public interface KeystoreManager {
      */
     public SSLSocketFactory createSSLFactory(String provider, String protocol, String algorithm,
                                                    String keyStore, String keyAlias, String trustStore, ClassLoader loader)
+            throws KeystoreIsLocked, KeyIsLocked, NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException, KeyManagementException, NoSuchProviderException;
+
+
+    /**
+     * Gets a SocketFactory using one Keystore to access the private key
+     * and another to provide the list of trusted certificate authorities.
+     * @param provider The SSL provider to use, or null for the default
+     * @param protocol The SSL protocol to use
+     * @param algorithm The SSL algorithm to use
+     * @param trustStore The trust keystore name as provided by listKeystores.
+     *                   The KeystoreInstance for this keystore must have
+     *                   unlocked this key.
+     * @param loader     The class loader used to resolve factory classes.
+     *
+     * @throws KeystoreIsLocked Occurs when the requested key keystore cannot
+     *                          be used because it has not been unlocked.
+     * @throws KeyIsLocked Occurs when the requested private key in the key
+     *                     keystore cannot be used because it has not been
+     *                     unlocked.
+     */
+    public SSLSocketFactory createSSLFactory(String provider, String protocol, String algorithm,
+                                                   String trustStore, ClassLoader loader)
             throws KeystoreIsLocked, KeyIsLocked, NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException, KeyManagementException, NoSuchProviderException;
 
     /**

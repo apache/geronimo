@@ -177,31 +177,76 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
     /**
      * Gets a SocketFactory using one Keystore to access the private key
      * and another to provide the list of trusted certificate authorities.
-     * @param provider The SSL provider to use, or null for the default
-     * @param protocol The SSL protocol to use
-     * @param algorithm The SSL algorithm to use
-     * @param keyStore The key keystore name as provided by listKeystores.  The
-     *                 KeystoreInstance for this keystore must be unlocked.
-     * @param keyAlias The name of the private key in the keystore.  The
-     *                 KeystoreInstance for this keystore must have unlocked
-     *                 this key.
+     *
+     * @param provider   The SSL provider to use, or null for the default
+     * @param protocol   The SSL protocol to use
+     * @param algorithm  The SSL algorithm to use
      * @param trustStore The trust keystore name as provided by listKeystores.
      *                   The KeystoreInstance for this keystore must have
      *                   unlocked this key.
+     * @param loader     The class loader used to resolve factory classes.
      *
-     * @throws KeystoreIsLocked Occurs when the requested key keystore cannot
-     *                          be used because it has not been unlocked.
-     * @throws KeyIsLocked Occurs when the requested private key in the key
-     *                     keystore cannot be used because it has not been
-     *                     unlocked.
+     * @return A created SSLSocketFactory item created from the KeystoreManager.
+     * @throws KeystoreIsLocked
+     *                Occurs when the requested key keystore cannot
+     *                be used because it has not been unlocked.
+     * @throws KeyIsLocked
+     *                Occurs when the requested private key in the key
+     *                keystore cannot be used because it has not been
+     *                unlocked.
+     * @throws NoSuchAlgorithmException
+     * @throws UnrecoverableKeyException
+     * @throws KeyStoreException
+     * @throws KeyManagementException
+     * @throws NoSuchProviderException
+     */
+    public SSLSocketFactory createSSLFactory(String provider, String protocol, String algorithm, String trustStore, ClassLoader loader) throws KeystoreIsLocked, KeyIsLocked, NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException, KeyManagementException, NoSuchProviderException {
+        // typically, the keyStore and the keyAlias are not required if authentication is also not required.
+        return createSSLFactory(provider, protocol, algorithm, null, null, trustStore, loader);
+    }
+
+    /**
+     * Gets a SocketFactory using one Keystore to access the private key
+     * and another to provide the list of trusted certificate authorities.
+     *
+     * @param provider   The SSL provider to use, or null for the default
+     * @param protocol   The SSL protocol to use
+     * @param algorithm  The SSL algorithm to use
+     * @param keyStore   The key keystore name as provided by listKeystores.  The
+     *                   KeystoreInstance for this keystore must be unlocked.
+     * @param keyAlias   The name of the private key in the keystore.  The
+     *                   KeystoreInstance for this keystore must have unlocked
+     *                   this key.
+     * @param trustStore The trust keystore name as provided by listKeystores.
+     *                   The KeystoreInstance for this keystore must have
+     *                   unlocked this key.
+     * @param loader     The class loader used to resolve factory classes.
+     *
+     * @return A created SSLSocketFactory item created from the KeystoreManager.
+     * @throws KeystoreIsLocked
+     *                Occurs when the requested key keystore cannot
+     *                be used because it has not been unlocked.
+     * @throws KeyIsLocked
+     *                Occurs when the requested private key in the key
+     *                keystore cannot be used because it has not been
+     *                unlocked.
+     * @throws NoSuchAlgorithmException
+     * @throws UnrecoverableKeyException
+     * @throws KeyStoreException
+     * @throws KeyManagementException
+     * @throws NoSuchProviderException
      */
     public SSLSocketFactory createSSLFactory(String provider, String protocol, String algorithm, String keyStore, String keyAlias, String trustStore, ClassLoader loader) throws KeystoreIsLocked, KeyIsLocked, NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException, KeyManagementException, NoSuchProviderException {
-        KeystoreInstance keyInstance = getKeystore(keyStore);
-        if(keyInstance.isKeystoreLocked()) {
-            throw new KeystoreIsLocked("Keystore '"+keyStore+"' is locked; please use the keystore page in the admin console to unlock it");
-        }
-        if(keyInstance.isKeyUnlocked(keyAlias)) {
-            throw new KeystoreIsLocked("Key '"+keyAlias+"' in keystore '"+keyStore+"' is locked; please use the keystore page in the admin console to unlock it");
+        // the keyStore is optional.
+        KeystoreInstance keyInstance = null;
+        if (keyStore != null) {
+            keyInstance = getKeystore(keyStore);
+            if(keyInstance.isKeystoreLocked()) {
+                throw new KeystoreIsLocked("Keystore '"+keyStore+"' is locked; please use the keystore page in the admin console to unlock it");
+            }
+            if(keyInstance.isKeyLocked(keyAlias)) {
+                throw new KeystoreIsLocked("Key '"+keyAlias+"' in keystore '"+keyStore+"' is locked; please use the keystore page in the admin console to unlock it");
+            }
         }
         KeystoreInstance trustInstance = trustStore == null ? null : getKeystore(trustStore);
         if(trustInstance != null && trustInstance.isKeystoreLocked()) {
@@ -215,7 +260,8 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
             Class kmc = loader.loadClass("[Ljavax.net.ssl.KeyManager;");
             Class tmc = loader.loadClass("[Ljavax.net.ssl.TrustManager;");
             Class src = loader.loadClass("java.security.SecureRandom");
-            cls.getMethod("init", new Class[]{kmc, tmc, src}).invoke(ctx, new Object[]{keyInstance.getKeyManager(algorithm, keyAlias),
+            cls.getMethod("init", new Class[]{kmc, tmc, src}).invoke(ctx, new Object[]{
+                                                                            keyInstance == null ? null : keyInstance.getKeyManager(algorithm, keyAlias),
                                                                             trustInstance == null ? null : trustInstance.getTrustManager(algorithm),
                                                                             new java.security.SecureRandom()});
             Object result = cls.getMethod("getSocketFactory", new Class[0]).invoke(ctx, new Object[0]);
@@ -240,6 +286,7 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
      * @param trustStore The trust keystore name as provided by listKeystores.
      *                   The KeystoreInstance for this keystore must have
      *                   unlocked this key.
+     * @param loader     The class loader used to resolve factory classes.
      *
      * @throws KeystoreIsLocked Occurs when the requested key keystore cannot
      *                          be used because it has not been unlocked.
@@ -247,33 +294,12 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
      *                     keystore cannot be used because it has not been
      *                     unlocked.
      */
-    /**
-     * Create an SSLServerSocketFactory configured from the
-     * appropriate characteristics.
-     *
-     * @param provider   The JSSE provider to use (optional).
-     * @param protocol   The protocol we need a factory for.
-     * @param algorithm  A particular algoritm to use.
-     * @param keyStore   The keystore the factory should be configured with.
-     * @param keyAlias
-     * @param trustStore The trustStore to use for managing trust certificates.
-     * @param loader     The ClassLoader instance for loading the factory.
-     *
-     * @return An SSLServerSocketFactory instance.
-     * @exception KeystoreIsLocked
-     * @exception KeyIsLocked
-     * @exception NoSuchAlgorithmException
-     * @exception UnrecoverableKeyException
-     * @exception KeyStoreException
-     * @exception KeyManagementException
-     * @exception NoSuchProviderException
-     */
     public SSLServerSocketFactory createSSLServerFactory(String provider, String protocol, String algorithm, String keyStore, String keyAlias, String trustStore, ClassLoader loader) throws KeystoreIsLocked, KeyIsLocked, NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException, KeyManagementException, NoSuchProviderException {
         KeystoreInstance keyInstance = getKeystore(keyStore);
         if(keyInstance.isKeystoreLocked()) {
             throw new KeystoreIsLocked("Keystore '"+keyStore+"' is locked; please use the keystore page in the admin console to unlock it");
         }
-        if(keyInstance.isKeyUnlocked(keyAlias)) {
+        if(keyInstance.isKeyLocked(keyAlias)) {
             throw new KeystoreIsLocked("Key '"+keyAlias+"' in keystore '"+keyStore+"' is locked; please use the keystore page in the admin console to unlock it");
         }
         KeystoreInstance trustInstance = trustStore == null ? null : getKeystore(trustStore);

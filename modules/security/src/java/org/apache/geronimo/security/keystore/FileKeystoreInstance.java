@@ -200,7 +200,12 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
 
     public void setKeyPasswords(String passwords) {} // Just so the kernel sees the new value
 
-    public boolean isKeyUnlocked(String alias) {
+    /**
+     * Checks whether the specified private key is locked, which is to say,
+     * available for other components to use to generate socket factories.
+     * Does not check whether the unlock password is actually correct.
+     */
+    public boolean isKeyLocked(String alias) {
         return keyPasswords.get(alias) == null;
     }
 

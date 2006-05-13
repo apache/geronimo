@@ -97,11 +97,11 @@ public interface KeystoreInstance {
     public void lockPrivateKey(String alias);
 
     /**
-     * Checks whether the specified private key is unlocked, which is to say,
+     * Checks whether the specified private key is locked, which is to say,
      * available for other components to use to generate socket factories.
      * Does not check whether the unlock password is actually correct.
      */
-    public boolean isKeyUnlocked(String alias);
+    public boolean isKeyLocked(String alias);
 
     /**
      * Gets the aliases of all trusted certificate entries in the keystore.
