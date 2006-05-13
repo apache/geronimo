@@ -13,11 +13,11 @@ public interface StartupMonitor {
     // Normal calls, will generally occur in this order
     void systemStarting(long startTime);
     void systemStarted(Kernel kernel);
-    void foundConfigurations(Artifact[] configurations);
-    void configurationLoading(Artifact configuration);
-    void configurationLoaded(Artifact configuration);
-    void configurationStarting(Artifact configuration);
-    void configurationStarted(Artifact configuration);
+    void foundModules(Artifact[] modules);
+    void moduleLoading(Artifact module);
+    void moduleLoaded(Artifact module);
+    void moduleStarting(Artifact module);
+    void moduleStarted(Artifact module);
     void startupFinished();
 
     // Indicate failures during load

@@ -8,7 +8,7 @@ import org.apache.geronimo.system.serverinfo.ServerConstants;
 
 /**
  * A startup monitor that shows the progress of loading and starting
- * configurations using a text based progress bar and the use of line
+ * modules using a text based progress bar and the use of line
  * feeds to update the progress display, therefore minimizing the
  * number of lines output to the terminal.
  * <p/>
@@ -27,8 +27,8 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
     private final static int MAX_WIDTH = 70;
     private PrintStream out;
     private String currentOperation;
-    private Artifact[] configurations;
-    private char[] configStatus = new char[0];
+    private Artifact[] modules;
+    private char[] moduleStatus = new char[0];
     private long started;
     private int percent = 0;
     private Kernel kernel;
@@ -47,15 +47,15 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
         currentOperation = "Loading";
     }
 
-    public synchronized void foundConfigurations(Artifact[] configurations) {
-        this.configurations = configurations;
-        configStatus = new char[configurations.length];
-        for (int i = 0; i < configStatus.length; i++) {
-            configStatus[i] = STATUS_NOT_READY;
+    public synchronized void foundModules(Artifact[] modules) {
+        this.modules = modules;
+        moduleStatus = new char[modules.length];
+        for (int i = 0; i < moduleStatus.length; i++) {
+            moduleStatus[i] = STATUS_NOT_READY;
         }
         operationLimit = MAX_WIDTH
                 - 5 // two brackets, start and stop tokens, space afterward
-                - configurations.length // configuration tokens
+                - modules.length // module tokens
                 - 4 // 2 digits of percent plus % plus space afterward
                 - 5;// 3 digits of time plus s plus space afterward
         repaint();
@@ -70,10 +70,10 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
         }
         int percent = 0;
         if (kernel != null) percent += 5;
-        int total = configStatus.length * 2;
+        int total = moduleStatus.length * 2;
         int progress = 0;
-        for (int i = 0; i < configStatus.length; i++) {
-            char c = configStatus[i];
+        for (int i = 0; i < moduleStatus.length; i++) {
+            char c = moduleStatus[i];
             switch (c) {
                 case STATUS_LOADED:
                     progress += 1;
@@ -88,34 +88,34 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
         this.percent = percent;
     }
 
-    public synchronized void configurationLoading(Artifact configuration) {
-        currentOperation = " Loading " + configuration;
-        for (int i = 0; i < configurations.length; i++) {
-            if (configurations[i].equals(configuration)) {
-                configStatus[i] = STATUS_LOADING;
+    public synchronized void moduleLoading(Artifact module) {
+        currentOperation = " Loading " + module;
+        for (int i = 0; i < modules.length; i++) {
+            if (modules[i].equals(module)) {
+                moduleStatus[i] = STATUS_LOADING;
             }
         }
         repaint();
     }
 
-    public synchronized void configurationLoaded(Artifact configuration) {
-        for (int i = 0; i < configurations.length; i++) {
-            if (configurations[i].equals(configuration)) {
-                configStatus[i] = STATUS_LOADED;
+    public synchronized void moduleLoaded(Artifact module) {
+        for (int i = 0; i < modules.length; i++) {
+            if (modules[i].equals(module)) {
+                moduleStatus[i] = STATUS_LOADED;
             }
         }
         calculatePercent();
         repaint();
     }
 
-    public synchronized void configurationStarting(Artifact configuration) {
-        currentOperation = "Starting " + configuration;
+    public synchronized void moduleStarting(Artifact module) {
+        currentOperation = "Starting " + module;
     }
 
-    public synchronized void configurationStarted(Artifact configuration) {
-        for (int i = 0; i < configurations.length; i++) {
-            if (configurations[i].equals(configuration)) {
-                configStatus[i] = STATUS_STARTED;
+    public synchronized void moduleStarted(Artifact module) {
+        for (int i = 0; i < modules.length; i++) {
+            if (modules[i].equals(module)) {
+                moduleStatus[i] = STATUS_STARTED;
             }
         }
         calculatePercent();
@@ -141,8 +141,8 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
         StringBuffer buf = new StringBuffer();
         buf.append("\r[");
         buf.append(kernel == null ? STATUS_NOT_READY : STATUS_STARTED);
-        for (int i = 0; i < configStatus.length; i++) {
-            buf.append(configStatus[i]);
+        for (int i = 0; i < moduleStatus.length; i++) {
+            buf.append(moduleStatus[i]);
         }
         buf.append(finished ? STATUS_STARTED : STATUS_NOT_READY);
         buf.append("] ");

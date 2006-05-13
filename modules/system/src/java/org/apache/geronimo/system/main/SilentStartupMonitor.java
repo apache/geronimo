@@ -27,19 +27,19 @@ public class SilentStartupMonitor implements StartupMonitor {
         this.kernel = kernel;
     }
 
-    public void foundConfigurations(Artifact[] configurations) {
+    public void foundModules(Artifact[] modules) {
     }
 
-    public void configurationLoading(Artifact configuration) {
+    public void moduleLoading(Artifact module) {
     }
 
-    public void configurationLoaded(Artifact configuration) {
+    public void moduleLoaded(Artifact module) {
     }
 
-    public void configurationStarting(Artifact configuration) {
+    public void moduleStarting(Artifact module) {
     }
 
-    public void configurationStarted(Artifact configuration) {
+    public void moduleStarted(Artifact module) {
     }
 
     public void startupFinished() {

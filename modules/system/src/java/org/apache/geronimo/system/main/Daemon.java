@@ -50,7 +50,7 @@ public class Daemon {
     private final static String ARGUMENT_VERBOSE = "--verbose";
     private final static String ARGUMENT_MORE_VERBOSE_SHORTFORM = "-vv";
     private final static String ARGUMENT_MORE_VERBOSE = "--veryverbose";
-    private final static String ARGUMENT_CONFIG_OVERRIDE = "--override";
+    private final static String ARGUMENT_MODULE_OVERRIDE = "--override";
     private static boolean started = false;
     private static Log log;
     private StartupMonitor monitor;
@@ -100,13 +100,13 @@ public class Daemon {
         out.println("             Reduces the console log level to TRACE, resulting in still\n" +
                     "             more console output.");
         out.println();
-        out.println("  "+ARGUMENT_CONFIG_OVERRIDE+" [configId] [configId] ...");
-        out.println("             USE WITH CAUTION!  Overrides the configurations in\n" +
-                    "             var/config/config.xml such that only the configurations listed on\n" +
+        out.println("  "+ARGUMENT_MODULE_OVERRIDE+" [moduleId] [moduleId] ...");
+        out.println("             USE WITH CAUTION!  Overrides the modules in\n" +
+                    "             var/config/config.xml such that only the modules listed on\n" +
                     "             the command line will be started.  Note that many J2EE\n" +
-                    "             features depend on certain configs being started, so you\n" +
+                    "             features depend on certain modules being started, so you\n" +
                     "             should be very careful what you omit.  Any arguments after\n" +
-                    "             this are assumed to be configuration names.");
+                    "             this are assumed to be module names.");
         out.println();
         out.println("In addition you may specify a replacement for var/config/config.xml using by setting the property\n" +
                     "-Dorg.apache.geronimo.config.file=var/config/<my-config.xml>\n" +
@@ -138,7 +138,7 @@ public class Daemon {
                 if (verboseArg == null) {
                     verboseArg = ARGUMENT_MORE_VERBOSE;
                 }
-            } else if (args[i].equals(ARGUMENT_CONFIG_OVERRIDE)) {
+            } else if (args[i].equals(ARGUMENT_MODULE_OVERRIDE)) {
                 override = true;
             } else if(args[i].equalsIgnoreCase("-help") || args[i].equalsIgnoreCase("--help") ||
                     args[i].equalsIgnoreCase("-h") || args[i].equalsIgnoreCase("/?")) {
@@ -272,7 +272,7 @@ public class Daemon {
                 }
             }
 
-            monitor.foundConfigurations((Artifact[]) configs.toArray(new Artifact[configs.size()]));
+            monitor.foundModules((Artifact[]) configs.toArray(new Artifact[configs.size()]));
 
             // load the rest of the configurations
             try {
@@ -280,12 +280,12 @@ public class Daemon {
                 try {
                     for (Iterator i = configs.iterator(); i.hasNext();) {
                         Artifact configID = (Artifact) i.next();
-                        monitor.configurationLoading(configID);
+                        monitor.moduleLoading(configID);
                         configurationManager.loadConfiguration(configID);
-                        monitor.configurationLoaded(configID);
-                        monitor.configurationStarting(configID);
+                        monitor.moduleLoaded(configID);
+                        monitor.moduleStarting(configID);
                         configurationManager.startConfiguration(configID);
-                        monitor.configurationStarted(configID);
+                        monitor.moduleStarted(configID);
                     }
                 } finally {
                     ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);

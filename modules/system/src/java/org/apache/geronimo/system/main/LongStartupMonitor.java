@@ -11,9 +11,9 @@ import java.util.Date;
 
 /**
  * A startup monitor that shows the progress of loading and starting
- * configurations, outputing a new line for each configuration started
- * showing the time taken to start the configuration along with the
- * configId.
+ * modules, outputing a new line for each module started
+ * showing the time taken to start the module along with the
+ * moduleId.
  * <p/>
  * This startup monitor produces more lines of output than the
  * ProgressBarStartupMonitor but its output is suitable for redirection
@@ -33,24 +33,24 @@ public class LongStartupMonitor implements StartupMonitor {
     private PrintStream out;
 
     /**
-     * Number of configurations to start
+     * Number of modules to start
      */
-    private int numConfigs;
+    private int numModules;
 
     /**
-     * Number of digits in number of configurations to start
+     * Number of digits in number of modules to start
      */
-    private int numConfigsDigits;
+    private int numModulesDigits;
 
     /**
-     * Number of configuration currently being started
+     * Number of modules currently being started
      */
-    private int configNum;
+    private int moduleNum;
 
     /**
-     * Length of longest Configuration Name
+     * Length of longest module name
      */
-    private int longestConfigNameLength;
+    private int longestModuleNameLength;
     
     /**
      * Time Geronimo was started
@@ -58,9 +58,9 @@ public class LongStartupMonitor implements StartupMonitor {
     private long started;
 
     /**
-     * Time the current configuration being processed was started
+     * Time the current module being processed was started
      */
-    private long configStarted;
+    private long moduleStarted;
 
     /**
      * The Kernel of the system being started
@@ -76,45 +76,45 @@ public class LongStartupMonitor implements StartupMonitor {
         this.kernel = kernel;
     }
 
-    public synchronized void foundConfigurations(Artifact[] configurations) {
-        numConfigs = configurations.length;
-        numConfigsDigits = Integer.toString(numConfigs).length();
+    public synchronized void foundModules(Artifact[] modules) {
+        numModules = modules.length;
+        numModulesDigits = Integer.toString(numModules).length();
         
-        for (int i = 0, len= 0; i < configurations.length; i++) {
-            len = configurations[i].toString().length();
-            if (len > longestConfigNameLength)
-                longestConfigNameLength = len;
+        for (int i = 0, len= 0; i < modules.length; i++) {
+            len = modules[i].toString().length();
+            if (len > longestModuleNameLength)
+                longestModuleNameLength = len;
         }
     }
 
-    public synchronized void configurationLoading(Artifact configuration) {
-        StringBuffer buf = new StringBuffer("Configuration ");
-        // pad config index
-        int configIndexDigits = Integer.toString(++configNum).length();
-        for (; configIndexDigits < numConfigsDigits; configIndexDigits++) {
+    public synchronized void moduleLoading(Artifact module) {
+        StringBuffer buf = new StringBuffer("Module ");
+        // pad module index
+        int configIndexDigits = Integer.toString(++moduleNum).length();
+        for (; configIndexDigits < numModulesDigits; configIndexDigits++) {
             buf.append(' ');
         }
-        // append configuration index / total configs
-        buf.append(configNum).append('/').append(numConfigs).append(' ');
-        // append configuration name
-        buf.append(configuration);
-        // pad end of config name with spaces so trailing startup times will line up
-        int len = configuration.toString().length();
-        for (; len < longestConfigNameLength; len++) {
+        // append module index / total configs
+        buf.append(moduleNum).append('/').append(numModules).append(' ');
+        // append module name
+        buf.append(module);
+        // pad end of module with spaces so trailing startup times will line up
+        int len = module.toString().length();
+        for (; len < longestModuleNameLength; len++) {
             buf.append(' ');
         }
         out.print(buf);
     }
 
-    public synchronized void configurationLoaded(Artifact configuration) {
+    public synchronized void moduleLoaded(Artifact module) {
     }
 
-    public synchronized void configurationStarting(Artifact configuration) {
-        configStarted = System.currentTimeMillis();
+    public synchronized void moduleStarting(Artifact module) {
+        moduleStarted = System.currentTimeMillis();
     }
 
-    public synchronized void configurationStarted(Artifact configuration) {
-        long time = System.currentTimeMillis() - configStarted;        
+    public synchronized void moduleStarted(Artifact module) {
+        long time = System.currentTimeMillis() - moduleStarted;        
         StringBuffer buf = new StringBuffer();
         buf.append(" started in ");
         
