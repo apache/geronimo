@@ -73,13 +73,14 @@ public class GBeanData implements Externalizable {
     public GBeanInfo getGBeanInfo() {
         return gbeanInfo;
     }
-    
-    public void clearAttribute(String name){
+
+    public void clearAttribute(String name) {
         attributes.remove(name);
     }
-    public void clearReference(String name){
+
+    public void clearReference(String name) {
         references.remove(name);
-    }  
+    }
 
     public void setGBeanInfo(GBeanInfo gbeanInfo) {
         this.gbeanInfo = gbeanInfo;
@@ -224,13 +225,19 @@ public class GBeanData implements Externalizable {
         }
 
 
-
         try {
             // read the attributes
             int attributeCount = in.readInt();
             for (int i = 0; i < attributeCount; i++) {
                 String attributeName = (String) in.readObject();
-                Object attributeValue = in.readObject();
+                Object attributeValue = null;
+                try {
+                    attributeValue = in.readObject();
+                } catch (ClassNotFoundException e) {
+                    throw new ClassNotFoundException("Unable to find class used in GBeanData " + abstractName + ", attribute: " + attributeName, e);
+                } catch (IOException e) {
+                    throw (IOException) new IOException("Unable to deserialize GBeanData " + abstractName + ", attribute: " + attributeName).initCause(e);
+                }
                 setAttribute(attributeName, attributeValue);
             }
 
@@ -238,7 +245,14 @@ public class GBeanData implements Externalizable {
             int endpointCount = in.readInt();
             for (int i = 0; i < endpointCount; i++) {
                 String referenceName = (String) in.readObject();
-                ReferencePatterns referencePattern = (ReferencePatterns) in.readObject();
+                ReferencePatterns referencePattern;
+                try {
+                    referencePattern = (ReferencePatterns) in.readObject();
+                } catch (ClassNotFoundException e) {
+                    throw new ClassNotFoundException("Unable to find class used in GBeanData " + abstractName + ", reference: " + referenceName, e);
+                } catch (IOException e) {
+                    throw (IOException) new IOException("Unable to deserialize GBeanData " + abstractName + ", reference: " + referenceName).initCause(e);
+                }
                 setReferencePatterns(referenceName, referencePattern);
             }
 
