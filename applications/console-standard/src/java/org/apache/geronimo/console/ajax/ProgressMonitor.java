@@ -19,7 +19,7 @@ package org.apache.geronimo.console.ajax;
 
 import javax.servlet.http.HttpSession;
 
-import uk.ltd.getahead.dwr.ExecutionContext;
+import uk.ltd.getahead.dwr.WebContextFactory;
 
 /**
  * Provides information to an AJAX client during server side
@@ -29,8 +29,8 @@ public class ProgressMonitor
 {
     public ProgressInfo getProgressInfo()
     {
-        HttpSession session = ExecutionContext.get().getSession();
-        
+        HttpSession session = WebContextFactory.get().getSession(false);
+
         if (session.getAttribute(ProgressInfo.PROGRESS_INFO_KEY) != null) {
             return (ProgressInfo) session.getAttribute(ProgressInfo.PROGRESS_INFO_KEY);
         } else {
