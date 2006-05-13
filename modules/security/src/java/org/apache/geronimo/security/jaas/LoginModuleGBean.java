@@ -102,7 +102,8 @@ public class LoginModuleGBean implements LoginModuleSettings {
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(LoginModuleGBean.class, NameFactory.LOGIN_MODULE);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
-        infoFactory.addInterface(LoginModuleSettings.class, new String[] {"options", "loginModuleClass", "serverSide", "loginDomainName", "wrapPrincipals"});
+        infoFactory.addInterface(LoginModuleSettings.class, new String[] {"options", "loginModuleClass", "serverSide", "loginDomainName", "wrapPrincipals"},
+        		                 new String[] {"options", "loginModuleClass", "serverSide", "wrapPrincipals"} );
         infoFactory.setConstructor(new String[]{"loginModuleClass", "objectName", "serverSide", "wrapPrincipals", "classLoader"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
