@@ -115,12 +115,8 @@
 
     <module name="geronimo/jetty-deployer/${pom.currentVersion}/car"/>
     <module name="geronimo/welcome-jetty/${pom.currentVersion}/car"/>
-    <module name="geronimo/ldap-demo-jetty/${pom.currentVersion}/car" load="false"/>
-    <module name="geronimo/servlets-examples-jetty/${pom.currentVersion}/car" load="false"/>
-    <module name="geronimo/jsp-examples-jetty/${pom.currentVersion}/car" load="false"/>
     <module name="geronimo/webconsole-jetty/${pom.currentVersion}/car"/>
     <module name="geronimo/uddi-jetty/${pom.currentVersion}/car" load="false"/>
-    <module name="geronimo/daytrader-derby-jetty/${pom.currentVersion}/car" load="false"/>
     <module name="geronimo/remote-deploy-jetty/${pom.currentVersion}/car" />
     <module name="geronimo/hot-deployer/${pom.currentVersion}/car" />
 </attributes>

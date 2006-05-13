@@ -117,12 +117,8 @@
 
     <module name="geronimo/tomcat-deployer/${pom.currentVersion}/car"/>
     <module name="geronimo/welcome-tomcat/${pom.currentVersion}/car"/>
-    <module name="geronimo/ldap-demo-tomcat/${pom.currentVersion}/car" load="false"/>
-    <module name="geronimo/servlets-examples-tomcat/${pom.currentVersion}/car" load="false"/>
-    <module name="geronimo/jsp-examples-tomcat/${pom.currentVersion}/car" load="false"/>
     <module name="geronimo/webconsole-tomcat/${pom.currentVersion}/car"/>
     <module name="geronimo/uddi-tomcat/${pom.currentVersion}/car" load="false"/>
-    <module name="geronimo/daytrader-derby-tomcat/${pom.currentVersion}/car" load="false"/>
     <module name="geronimo/remote-deploy-tomcat/${pom.currentVersion}/car" />
     <module name="geronimo/hot-deployer/${pom.currentVersion}/car" />
 </attributes>
