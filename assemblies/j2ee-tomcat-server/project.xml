@@ -464,7 +464,7 @@
             </properties>
         </dependency>
 
-        <!--dependencies for online-deployer --> 
+        <!--dependencies for online-deployer -->
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>
@@ -506,9 +506,9 @@
         <!-- packages we include for others to use, mostly rars -->
         <dependency>
             <!-- included to make additional deployments easier -->
-            <groupId>activemq</groupId>
-            <artifactId>activemq-ra</artifactId>
-            <version>${activemq_version}</version>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-activemq-embedded-rar</artifactId>
+            <version>${pom.currentVersion}</version>
             <type>rar</type>
             <properties>
                 <geronimo.assemble>repository</geronimo.assemble>
