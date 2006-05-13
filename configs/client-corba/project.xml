@@ -59,6 +59,15 @@
                 <packaging.config.order>3</packaging.config.order>
             </properties>
         </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>axis-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+            <properties>
+                <packaging.config.order>4</packaging.config.order>
+            </properties>
+        </dependency>
 
         <!-- parent config -->
         <dependency>
