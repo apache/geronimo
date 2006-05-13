@@ -37,7 +37,7 @@ public class GeronimoSSLListener extends SslListener {
     }
 
     protected SSLServerSocketFactory createFactory() throws Exception {
-        return manager.createSSLFactory(null, getProtocol(), getAlgorithm(), keyStore, keyAlias, trustStore, SslListener.class.getClassLoader());
+        return manager.createSSLServerFactory(null, getProtocol(), getAlgorithm(), keyStore, keyAlias, trustStore, SslListener.class.getClassLoader());
     }
 
     public String getKeyStore() {
