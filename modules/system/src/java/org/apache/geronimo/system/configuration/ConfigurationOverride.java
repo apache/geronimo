@@ -97,7 +97,7 @@ class ConfigurationOverride {
     }
 
     public void writeXml(PrintWriter out) {
-        out.print("  <configuration name=\"" + name + "\"");
+        out.print("  <module name=\"" + name + "\"");
         if (!load) {
             out.print(" load=\"false\"");
         }
@@ -111,6 +111,6 @@ class ConfigurationOverride {
             gbeanOverride.writeXml(out);
         }
 
-        out.println("  </configuration>");
+        out.println("  </module>");
     }
 }

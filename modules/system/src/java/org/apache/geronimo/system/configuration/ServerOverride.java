@@ -17,7 +17,11 @@
 package org.apache.geronimo.system.configuration;
 
 import java.io.PrintWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.geronimo.kernel.InvalidGBeanException;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -34,7 +38,15 @@ class ServerOverride {
     }
 
     public ServerOverride(Element element) throws InvalidGBeanException {
-        NodeList configs = element.getElementsByTagName("configuration");
+        NodeList configs = element.getElementsByTagName("module");
+        for (int i = 0; i < configs.getLength(); i++) {
+            Element configurationElement = (Element) configs.item(i);
+            ConfigurationOverride configuration = new ConfigurationOverride(configurationElement);
+            addConfiguration(configuration);
+        }
+
+        // The config.xml file in 1.0 use configuration instead of module
+        configs = element.getElementsByTagName("configuration");
         for (int i = 0; i < configs.getLength(); i++) {
             Element configurationElement = (Element) configs.item(i);
             ConfigurationOverride configuration = new ConfigurationOverride(configurationElement);

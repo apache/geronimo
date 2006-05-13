@@ -49,9 +49,12 @@
     <xsd:element name="attributes" type="atts:attributesType"/>
 
     <xsd:complexType name="attributesType">
-        <xsd:sequence>
+        <xsd:choice>
+            <xsd:element name="module" type="atts:configurationType" minOccurs="0" maxOccurs="unbounded" />
+
+            <!-- The config.xml file in 1.0 use configuration instead of module -->
             <xsd:element name="configuration" type="atts:configurationType" minOccurs="0" maxOccurs="unbounded" />
-        </xsd:sequence>
+        </xsd:choice>
     </xsd:complexType>
 
     <xsd:complexType name="configurationType">
