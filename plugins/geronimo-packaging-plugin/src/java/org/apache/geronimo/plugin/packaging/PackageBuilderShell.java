@@ -63,6 +63,9 @@ public class PackageBuilderShell {
     private File moduleFile;
     private File packageFile;
     private String mainClass;
+    private String mainGBean;
+    private String mainMethod;
+    private String configurations;
     private String classPath;
     private String endorsedDirs;
     private String extensionDirs;
@@ -154,6 +157,30 @@ public class PackageBuilderShell {
         this.mainClass = mainClass;
     }
 
+    public String getMainGBean() {
+        return mainGBean;
+    }
+
+    public void setMainGBean(String mainGBean) {
+        this.mainGBean = mainGBean;
+    }
+
+    public String getMainMethod() {
+        return mainMethod;
+    }
+
+    public void setMainMethod(String mainMethod) {
+        this.mainMethod = mainMethod;
+    }
+
+    public String getConfigurations() {
+        return configurations;
+    }
+
+    public void setConfigurations(String configurations) {
+        this.configurations = configurations;
+    }
+
     public String getClassPath() {
         return classPath;
     }
@@ -236,6 +263,9 @@ public class PackageBuilderShell {
             set("setEndorsedDirs", endorsedDirs, String.class, packageBuilder);
             set("setExtensionDirs", extensionDirs, String.class, packageBuilder);
             set("setMainClass", mainClass, String.class, packageBuilder);
+            set("setMainMethod", mainMethod, String.class, packageBuilder);
+            set("setMainGBean", mainGBean, String.class, packageBuilder);
+            set("setConfigurations", configurations, String.class, packageBuilder);
             set("setModuleFile", moduleFile, File.class, packageBuilder);
             set("setPackageFile", packageFile, File.class, packageBuilder);
             set("setPlanFile", planFile, File.class, packageBuilder);

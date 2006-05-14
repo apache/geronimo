@@ -32,7 +32,9 @@ import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+
 import javax.management.ObjectName;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
@@ -90,9 +92,9 @@ public class Deployer {
         t.setDaemon(true);
         t.start();
     }
-    
+
     public List deploy(boolean inPlace, File moduleFile, File planFile) throws DeploymentException {
-    	return deploy(inPlace, moduleFile, planFile, null);
+        return deploy(inPlace, moduleFile, planFile, null);
     }
 
     public List deploy(boolean inPlace, File moduleFile, File planFile, String targetConfigStore) throws DeploymentException {
@@ -116,7 +118,7 @@ public class Deployer {
         }
 
         try {
-            return deploy(inPlace, planFile, moduleFile, null, true, null, null, null, null, targetConfigStore);
+            return deploy(inPlace, planFile, moduleFile, null, true, null, null, null, null, null, null, null, targetConfigStore);
         } catch (DeploymentException e) {
             log.debug("Deployment failed: plan=" + planFile + ", module=" + originalModuleFile, e);
             throw e.cleanse();
@@ -185,7 +187,7 @@ public class Deployer {
             File targetFile,
             boolean install,
             String mainClass,
-            String classPath,
+            String mainGBean, String mainMethod, String manifestConfigurations, String classPath,
             String endorsedDirs,
             String extensionDirs,
             String targetConfigurationStore) throws DeploymentException {
@@ -260,6 +262,15 @@ public class Deployer {
                 if (mainClass != null) {
                     mainAttributes.putValue(Attributes.Name.MAIN_CLASS.toString(), mainClass);
                 }
+                if (mainGBean != null) {
+                    mainAttributes.putValue(CommandLineManifest.MAIN_GBEAN.toString(), mainGBean);
+                }
+                if (mainMethod != null) {
+                    mainAttributes.putValue(CommandLineManifest.MAIN_METHOD.toString(), mainMethod);
+                }
+                if (manifestConfigurations != null) {
+                    mainAttributes.putValue(CommandLineManifest.CONFIGURATIONS.toString(), manifestConfigurations);
+                }
                 if (classPath != null) {
                     mainAttributes.putValue(Attributes.Name.CLASS_PATH.toString(), classPath);
                 }
@@ -283,7 +294,7 @@ public class Deployer {
             } else {
                 store = (ConfigurationStore) stores.iterator().next();
             }
-            
+
             // It's our responsibility to close this context, once we're done with it...
             DeploymentContext context = builder.buildConfiguration(inPlace, configID, plan, module, stores, artifactResolver, store);
             List configurations = new ArrayList();
@@ -427,7 +438,7 @@ public class Deployer {
         infoFactory.addAttribute("remoteDeployUploadURL", String.class, false);
         infoFactory.addOperation("deploy", new Class[]{boolean.class, File.class, File.class});
         infoFactory.addOperation("deploy", new Class[]{boolean.class, File.class, File.class, String.class});
-        infoFactory.addOperation("deploy", new Class[]{boolean.class, File.class, File.class, File.class, boolean.class, String.class, String.class, String.class, String.class, String.class});
+        infoFactory.addOperation("deploy", new Class[]{boolean.class, File.class, File.class, File.class, boolean.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class});
 
         infoFactory.addReference("Builders", ConfigurationBuilder.class, "ConfigBuilder");
         infoFactory.addReference("Store", ConfigurationStore.class, "ConfigurationStore");

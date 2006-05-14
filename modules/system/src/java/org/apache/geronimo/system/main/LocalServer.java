@@ -15,26 +15,18 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.deployment.cli;
+package org.apache.geronimo.system.main;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.PersistentConfigurationList;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.system.main.CommandLine;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
@@ -42,8 +34,8 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  */
 public class LocalServer extends CommandLine {
 
-    public LocalServer(String configListLocation) throws Exception {
-        startKernel(Artifact.create("geronimo/j2ee-system//car"));
+    public LocalServer(String bootModule, String configListLocation) throws Exception {
+        startKernel(Artifact.create(bootModule));
         Runtime.getRuntime().addShutdownHook(new Thread("Geronimo shutdown thread") {
             public void run() {
                 getKernel().shutdown();

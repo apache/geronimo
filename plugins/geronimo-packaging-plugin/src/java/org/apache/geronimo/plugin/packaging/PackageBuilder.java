@@ -76,6 +76,9 @@ public class PackageBuilder {
             String.class.getName(),
             String.class.getName(),
             String.class.getName(),
+            String.class.getName(),
+            String.class.getName(),
+            String.class.getName(),
     };
 
     private String repositoryClass;
@@ -93,6 +96,9 @@ public class PackageBuilder {
     private File moduleFile;
     private File packageFile;
     private String mainClass;
+    private String mainGBean;
+    private String mainMethod;
+    private String configurations;
     private String classPath;
     private String endorsedDirs;
     private String extensionDirs;
@@ -230,6 +236,30 @@ public class PackageBuilder {
      */
     public void setMainClass(String mainClass) {
         this.mainClass = mainClass;
+    }
+
+    public String getMainGBean() {
+        return mainGBean;
+    }
+
+    public void setMainGBean(String mainGBean) {
+        this.mainGBean = mainGBean;
+    }
+
+    public String getMainMethod() {
+        return mainMethod;
+    }
+
+    public void setMainMethod(String mainMethod) {
+        this.mainMethod = mainMethod;
+    }
+
+    public String getConfigurations() {
+        return configurations;
+    }
+
+    public void setConfigurations(String configurations) {
+        this.configurations = configurations;
     }
 
     public String getClassPath() {
@@ -426,7 +456,7 @@ public class PackageBuilder {
 
     private List invokeDeployer(Kernel kernel, AbstractName deployer, String targetConfigStore) throws Exception {
         boolean isExecutable = mainClass != null;
-        Object[] args = {Boolean.FALSE, planFile, moduleFile, isExecutable ? packageFile : null, Boolean.valueOf(!isExecutable), mainClass, classPath, endorsedDirs, extensionDirs, targetConfigStore};
+        Object[] args = {Boolean.FALSE, planFile, moduleFile, isExecutable ? packageFile : null, Boolean.valueOf(!isExecutable), mainClass, mainGBean, mainMethod, configurations, classPath, endorsedDirs, extensionDirs, targetConfigStore};
         return (List) kernel.invoke(deployer, "deploy", args, ARG_TYPES);
     }
 }

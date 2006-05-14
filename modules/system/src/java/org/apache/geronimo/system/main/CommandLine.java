@@ -21,9 +21,9 @@ import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Enumeration;
+import java.util.Set;
+import java.util.Collection;
 import java.net.URL;
-
-import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,7 +39,9 @@ import org.apache.geronimo.kernel.config.LifecycleException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 
 
 /**
@@ -67,7 +69,7 @@ public class CommandLine {
             // the interesting entries from the manifest
             CommandLineManifest manifest = CommandLineManifest.getManifestEntries();
             List configurations = manifest.getConfigurations();
-            AbstractName mainGBean = manifest.getMainGBean();
+            AbstractNameQuery mainGBean = manifest.getMainGBeanQuery();
             String mainMethod = manifest.getMainMethod();
 
             new CommandLine().invokeMainGBean(configurations, mainGBean, mainMethod, args);
@@ -84,11 +86,19 @@ public class CommandLine {
     private Kernel kernel;
     private AbstractName configurationName;
 
-    public void invokeMainGBean(List configurations, AbstractName mainGBean, String mainMethod, String[] args) throws Exception {
+    public void invokeMainGBean(List configurations, AbstractNameQuery mainGBeanQuery, String mainMethod, String[] args) throws Exception {
         startKernel();
         loadConfigurations(configurations);
 
         log.info("Server startup completed");
+        Set matches = kernel.listGBeans(mainGBeanQuery);
+        if (matches.isEmpty()) {
+            throw new Exception("No match for AbstractNameQuery: " + mainGBeanQuery);
+        }
+        if (matches.size() > 1) {
+            throw new Exception("Ambiguous AbstractNameQuery: " + mainGBeanQuery + " matches: " + matches);
+        }
+        AbstractName mainGBean = (AbstractName) matches.iterator().next();
 
         // invoke the main method
         kernel.invoke(
@@ -137,11 +147,12 @@ public class CommandLine {
         throw new NoSuchConfigException(moduleId);
     }
 
-    protected void loadConfigurations(List configurations) throws NoSuchConfigException, LifecycleException {
+    protected void loadConfigurations(List configurations) throws NoSuchConfigException, LifecycleException, MissingDependencyException {
         // load and start the configurations
         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+        Collection resolvedConfigurations = configurationManager.getArtifactResolver().resolveInClassLoader(configurations);
         try {
-            for (Iterator i = configurations.iterator(); i.hasNext();) {
+            for (Iterator i = resolvedConfigurations.iterator(); i.hasNext();) {
                 Artifact configID = (Artifact) i.next();
                 configurationManager.loadConfiguration(configID);
                 configurationManager.startConfiguration(configID);

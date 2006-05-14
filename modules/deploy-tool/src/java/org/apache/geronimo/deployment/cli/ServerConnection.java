@@ -46,7 +46,7 @@ import org.apache.geronimo.util.SimpleEncryption;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.KernelConfigurationManager;
+import org.apache.geronimo.system.main.LocalServer;
 
 /**
  * Supports online connections to the server, via JSR-88, valid only
@@ -197,7 +197,7 @@ public class ServerConnection {
         if (offline) {
             LocalServer localServer;
             try {
-                localServer = new LocalServer("var/config/offline-deployer-list");
+                localServer = new LocalServer("geronimo/j2ee-system//car", "var/config/offline-deployer-list");
             } catch (Exception e) {
                 throw new DeploymentException("Could not start local server", e);
             }

@@ -21,33 +21,20 @@ import java.io.InputStream;
 import java.io.FileInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.FileOutputStream;
 import java.io.PrintWriter;
+import java.io.FileWriter;
+import java.io.Writer;
 
 import org.apache.xmlbeans.XmlException;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 
 /**
  * @version $Rev:$ $Date:$
  */
-public class CLIUpgrade {
+public class UpgradeGBean {
 
-    public void execute(String infile, String outfile) throws IOException, XmlException {
-        File inFile = new File(infile);
-        if (!inFile.exists() || inFile.isDirectory()) {
-            throw new IOException("Input file " + inFile + " does not exist");
-        }
-        InputStream in = new FileInputStream(inFile);
-        File outFile = new File(outfile);
-        OutputStream out = new FileOutputStream(outFile);
-        PrintWriter outWriter = new PrintWriter(out);
-        new Upgrade1_0To1_1().upgrade(in, outWriter);
-        outWriter.flush();
-        outWriter.close();
-        in.close();
-    }
-
-    public static void main(String[] args) throws Exception {
+    public void execute(String[] args) throws Exception {
         if (args == null || args.length == 0 || args.length > 2) {
             System.out.println("Parameter usage: ");
             System.out.println("inputPlan outputPlan");
@@ -58,6 +45,38 @@ public class CLIUpgrade {
         }
         String inputFile = args[0];
         String outFile = args.length == 2? args[1]: inputFile + ".upgrade";
-        new CLIUpgrade().execute(inputFile, outFile);
+        execute(inputFile, outFile);
+    }
+
+    public void execute(String infile, String outfile) throws IOException, XmlException {
+        File inFile = new File(infile);
+        if (!inFile.exists() || inFile.isDirectory()) {
+            throw new IOException("Input file " + inFile + " does not exist");
+        }
+        InputStream in = new FileInputStream(inFile);
+        File outFile = new File(outfile);
+        Writer out = new FileWriter(outFile);
+        PrintWriter outWriter = new PrintWriter(out);
+        new Upgrade1_0To1_1().upgrade(in, outWriter);
+        outWriter.flush();
+        outWriter.close();
+        in.close();
+    }
+
+    public static void main(String[] args) throws Exception {
+        new UpgradeGBean().execute(args);
+    }
+
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(UpgradeGBean.class);
+        infoBuilder.addOperation("execute", new Class[] {String[].class});
+        infoBuilder.addOperation("execute", new Class[] {String.class, String.class});
+        GBEAN_INFO = infoBuilder.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
     }
 }

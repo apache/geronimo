@@ -502,6 +502,28 @@
             </properties>
         </dependency>
 
+        <!-- upgrader -->
+        <dependency>
+             <groupId>geronimo</groupId>
+             <artifactId>upgrade-cli</artifactId>
+             <type>car</type>
+             <version>${pom.currentVersion}</version>
+             <properties>
+                 <geronimo.assemble>install</geronimo.assemble>
+                 <geronimo.assemble.executable>bin/upgrade.jar</geronimo.assemble.executable>
+             </properties>
+         </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>upgrade</artifactId>
+            <type>car</type>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>install</geronimo.assemble>
+            </properties>
+        </dependency>
+
+
 
         <!-- packages we include for others to use, mostly rars -->
         <dependency>

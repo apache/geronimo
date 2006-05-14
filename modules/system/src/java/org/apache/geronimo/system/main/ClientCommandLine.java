@@ -16,13 +16,12 @@
  */
 package org.apache.geronimo.system.main;
 
-import java.net.URI;
 import java.util.Collections;
-import javax.management.ObjectName;
 
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.kernel.Jsr77Naming;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
  * @version $Revision$ $Date$
@@ -76,7 +75,7 @@ public class ClientCommandLine extends CommandLine {
         //this kinda sucks, but resource adapter modules deployed on the client insist on having a
         //J2EEApplication name component
         AbstractName baseName = naming.createRootName(configuration, configuration.toString(), "J2EEApplication");
-
-        invokeMainGBean(Collections.singletonList(configuration), baseName, "main", args);
+        AbstractNameQuery baseNameQuery = new AbstractNameQuery(baseName);
+        invokeMainGBean(Collections.singletonList(configuration), baseNameQuery, "main", args);
     }
 }
