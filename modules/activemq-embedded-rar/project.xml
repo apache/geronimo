@@ -27,7 +27,7 @@
     <!-- ===================== -->
 
     <name>Geronimo :: ActiveMQ Embedded RAR</name>
-    <id>geronimo-activemq-embedded-rar</id>
+    <id>ge-activemq-rar</id>
     <shortDescription>Integration with Embedded ActiveMQ</shortDescription>
     <description>Resource Adapter configuration for using ActiveMQ as a bundled JMS provider.</description>
     <url>http://geronimo.apache.org/modules/activemq-embedded-rar/</url>

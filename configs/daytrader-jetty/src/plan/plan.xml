@@ -522,7 +522,7 @@
                 </moduleId>
             </server-environment>
             <resource>
-                <external-rar>geronimo/geronimo-activemq-embedded-rar/${pom.currentVersion}/rar</external-rar>
+                <external-rar>geronimo/ge-activemq-rar/${pom.currentVersion}/rar</external-rar>
                 <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1">
                     <resourceadapter>
                         <resourceadapter-instance>
@@ -610,7 +610,7 @@
 
     <ext-module>
         <connector>TradeJMS</connector>
-        <external-path>geronimo/geronimo-activemq-embedded-rar/${pom.currentVersion}/rar</external-path>
+        <external-path>geronimo/ge-activemq-rar/${pom.currentVersion}/rar</external-path>
         <connector  xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1">
 
             <resourceadapter>
