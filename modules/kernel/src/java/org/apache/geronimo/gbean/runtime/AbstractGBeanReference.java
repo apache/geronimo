@@ -30,13 +30,13 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 /**
- * @version $Rev: 384141 $ $Date$
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractGBeanReference implements GBeanReference {
     /**
      * Should we proxy references.
      */
-    protected static final boolean NO_PROXY = Boolean.getBoolean("org.apache.geronimo.gbean.NoProxy");
+    protected static final boolean NO_PROXY = Boolean.getBoolean("Xorg.apache.geronimo.gbean.NoProxy");
     static {
         if (NO_PROXY) {
             Log log = LogFactory.getLog(AbstractGBeanReference.class);

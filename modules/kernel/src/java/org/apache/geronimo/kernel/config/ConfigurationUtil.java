@@ -60,7 +60,7 @@ public final class ConfigurationUtil {
 
     static {
         ConfigurationMarshaler marshaler = null;
-        String marshalerClass = System.getProperty("org.apache.geronimo.kernel.config.Marshaler");
+        String marshalerClass = System.getProperty("Xorg.apache.geronimo.kernel.config.Marshaler");
         if (marshalerClass != null) {
             try {
                 marshaler = createConfigurationMarshaler(marshalerClass);
