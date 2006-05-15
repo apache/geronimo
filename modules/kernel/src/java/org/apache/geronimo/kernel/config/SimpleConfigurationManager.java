@@ -1011,7 +1011,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
                 configurations.put(newConfigurationId, newConfiguration);
 
                 // migrate the configuration settings
-                migrateConfiguration(existingConfigurationId, newConfigurationId, newConfiguration);
+                migrateConfiguration(existingConfigurationId, newConfigurationId, newConfiguration, started.contains(existingConfigurationId));
             } catch (Exception e) {
                 monitor.failed(configurationId, e);
                 results.addFailed(configurationId, e);
@@ -1177,7 +1177,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return results;
     }
 
-    protected void migrateConfiguration(Artifact oldName, Artifact newName, Configuration configuration) throws NoSuchConfigException {
+    protected void migrateConfiguration(Artifact oldName, Artifact newName, Configuration configuration, boolean running) throws NoSuchConfigException {
     }
 
     private static LinkedHashSet getResolvedParentIds(Configuration configuration) {
