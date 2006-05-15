@@ -227,14 +227,12 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
         EnvironmentType environmentType = jettyWebApp.getEnvironment();
         Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
-        if (standAlone && environment.getConfigId() == null) {
-            if (contextRoot.startsWith("/")) {
-                contextRoot = contextRoot.substring(1);
-            }
-            idBuilder.resolve(environment, contextRoot, "war");
-        } else {
-            idBuilder.resolve(environment, new File(moduleFile.getName()).getName(), "war");
+        // Note: logic elsewhere depends on the default artifact ID being the file name less extension (ConfigIDExtractor)
+        String warName = new File(moduleFile.getName()).getName();
+        if(warName.lastIndexOf('.') > -1) {
+            warName = warName.substring(0, warName.lastIndexOf('.'));
         }
+        idBuilder.resolve(environment, warName, "war");
         boolean contextPriorityClassLoader = defaultContextPriorityClassloader;
         if (jettyWebApp.isSetContextPriorityClassloader()) {
             contextPriorityClassLoader = jettyWebApp.getContextPriorityClassloader();

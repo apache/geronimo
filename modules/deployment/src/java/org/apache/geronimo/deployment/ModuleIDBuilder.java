@@ -73,13 +73,13 @@ public class ModuleIDBuilder {
         if(argument.isResolved()) {
             return argument;
         }
-        if(argument.getArtifactId() == null) {
+        if(argument.getArtifactId() == null || argument.getArtifactId().equals("")) {
             throw new IllegalArgumentException("Incoming Artifact must have an ArtifactID (not "+argument+")");
         }
-        return new Artifact(argument.getGroupId() == null ? defaultGroup : argument.getGroupId(),
+        return new Artifact(argument.getGroupId() == null || argument.getGroupId().equals("") ? defaultGroup : argument.getGroupId(),
                 argument.getArtifactId(),
                 argument.getVersion() == null ? defaultVersion : argument.getVersion(),
-                argument.getType() == null ? defaultType : argument.getType());
+                argument.getType() == null || argument.getType().equals("") ? defaultType : argument.getType());
     }
 
     /**

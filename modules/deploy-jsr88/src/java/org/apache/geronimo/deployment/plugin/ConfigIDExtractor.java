@@ -87,7 +87,14 @@ public class ConfigIDExtractor {
             }
             if(target.canRead()) {
                 Reader in = new BufferedReader(new FileReader(target));
-                return extractModuleIdFromPlan(in);
+                String name = extractModuleIdFromPlan(in);
+                if(name != null) {
+                    Artifact artifact = Artifact.create(name);
+                    if(artifact.getArtifactId() == null) {
+                        name = new Artifact(artifact.getGroupId(), module.getName(), artifact.getVersion(), artifact.getType()).toString();
+                    }
+                }
+                return name;
             }
         } else {
             if(!isJarFile(module)) {
@@ -114,7 +121,14 @@ public class ConfigIDExtractor {
                 }
                 if(entry != null) {
                     Reader in = new BufferedReader(new InputStreamReader(input.getInputStream(entry)));
-                    return extractModuleIdFromPlan(in);
+                    String name = extractModuleIdFromPlan(in);
+                    if(name != null) {
+                        Artifact artifact = Artifact.create(name);
+                        if(artifact.getArtifactId() == null) {
+                            name = new Artifact(artifact.getGroupId(), module.getName(), artifact.getVersion(), artifact.getType()).toString();
+                        }
+                    }
+                    return name;
                 }
             } finally {
                 input.close();
@@ -289,6 +303,9 @@ public class ConfigIDExtractor {
         public void endDocument() throws SAXException {
             if(!formatIs10) {
                 configId = groupId+"/"+artifactId+"/"+version+"/"+type;
+            }
+            if(configId.equals("///")) {
+                configId = null;
             }
         }
     }

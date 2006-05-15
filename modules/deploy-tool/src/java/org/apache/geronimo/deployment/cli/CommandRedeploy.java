@@ -113,6 +113,13 @@ public class CommandRedeploy extends AbstractCommand {
             try {
                 if(plan != null) {
                     moduleId = DeployUtils.extractModuleIdFromPlan(plan);
+                    if(moduleId == null) { // plan just doesn't have a config ID
+                        String fileName = module == null ? plan.getName() : module.getName();
+                        int pos = fileName.lastIndexOf('.');
+                        String artifactId = pos > -1 ? module.getName().substring(0, pos) : module.getName();
+                        moduleId = Artifact.DEFAULT_GROUP_ID+"/"+artifactId+"//";
+                        emit("Unable to locate Geronimo deployment plan in archive.  Calculating default ModuleID from archive name.");
+                    }
                 } else if(module != null) {
                     moduleId = DeployUtils.extractModuleIdFromArchive(module);
                     if(moduleId == null) {

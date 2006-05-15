@@ -73,10 +73,9 @@ public class RedeployCommand extends AbstractDeployCommand {
             Artifact configID = null;
             if(deploymentPlan != null) {
                 String extracted = ConfigIDExtractor.extractModuleIdFromPlan(deploymentPlan);
-                if(extracted == null) {
-                    throw new IllegalStateException("Unable to find a module ID in the deployment plan -- is it valid??");
+                if(extracted != null) {
+                    configID = Artifact.create(extracted);
                 }
-                configID = Artifact.create(extracted);
             } else {
                 String extracted = ConfigIDExtractor.extractModuleIdFromArchive(moduleArchive);
                 if(extracted != null) {
