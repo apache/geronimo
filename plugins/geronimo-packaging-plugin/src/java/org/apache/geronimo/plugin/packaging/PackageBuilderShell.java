@@ -70,6 +70,7 @@ public class PackageBuilderShell {
     private String endorsedDirs;
     private String extensionDirs;
     private String explicitResolutionLocation;
+    private String logLevel = "INFO";
 
     public File getRepository() {
         return repository;
@@ -254,6 +255,14 @@ public class PackageBuilderShell {
         this.explicitResolutionLocation = explicitResolutionLocation;
     }
 
+    public String getLogLevel() {
+        return logLevel;
+    }
+
+    public void setLogLevel(String logLevel) {
+        this.logLevel = logLevel;
+    }
+
     public void execute() throws Exception {
         try {
             Object packageBuilder = getPackageBuilder();
@@ -276,6 +285,7 @@ public class PackageBuilderShell {
             set("setTargetRepositoryClass", Maven2Repository.class.getName(), String.class, packageBuilder);
             set("setTargetConfigurationStoreClass", RepositoryConfigurationStore.class.getName(), String.class, packageBuilder);
             set("setExplicitResolutionLocation", explicitResolutionLocation, String.class, packageBuilder);
+            set("setLogLevel", logLevel, String.class, packageBuilder);
 
             Method m = packageBuilder.getClass().getMethod("execute", new Class[]{});
             m.invoke(packageBuilder, new Object[]{});

@@ -68,6 +68,7 @@
             endorsedDirs="${geronimo.packaging.endorsedDirs}"
             extensionDirs="${geronimo.packaging.extensionDirs}"
             explicitResolutionLocation="${geronimo.packaging.explicit.versions}"
+            logLevel="${geronimo.packaging.logLevel}"
             />
     </goal>
 

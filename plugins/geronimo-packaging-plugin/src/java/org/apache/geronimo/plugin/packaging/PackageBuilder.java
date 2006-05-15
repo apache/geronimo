@@ -18,11 +18,11 @@ package org.apache.geronimo.plugin.packaging;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Collection;
 import java.util.Set;
-import java.util.HashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,15 +35,15 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.KernelConfigurationManager;
+import org.apache.geronimo.kernel.log.GeronimoLogging;
+import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.system.resolver.ExplicitDefaultArtifactResolver;
-import org.apache.log4j.BasicConfigurator;
 
 /**
  * JellyBean that builds a Geronimo Configuration using the local Mavem
@@ -103,6 +103,7 @@ public class PackageBuilder {
     private String endorsedDirs;
     private String extensionDirs;
     private String explicitResolutionLocation;
+    private String logLevel;
 
     private boolean targetSet;
 
@@ -294,6 +295,13 @@ public class PackageBuilder {
         this.explicitResolutionLocation = explicitResolutionLocation;
     }
 
+    public String getLogLevel() {
+        return logLevel;
+    }
+
+    public void setLogLevel(String logLevel) {
+        this.logLevel = logLevel;
+    }
 
     public void execute() throws Exception {
         System.out.println();
@@ -359,7 +367,11 @@ public class PackageBuilder {
             return kernel;
         }
 
-        BasicConfigurator.configure();
+        GeronimoLogging geronimoLogging = GeronimoLogging.getGeronimoLogging(logLevel);
+        if (geronimoLogging == null) {
+            geronimoLogging = GeronimoLogging.DEBUG;
+        }
+        GeronimoLogging.initialize(geronimoLogging);
         // boot one ourselves
         kernel = KernelFactory.newInstance().createKernel(KERNEL_NAME);
         kernel.boot();
