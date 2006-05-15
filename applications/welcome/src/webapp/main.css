@@ -46,7 +46,7 @@ a:hover
 
 .Logo
 {
-	background-image:url("images/head_left_754x86.gif");
+	background-image:url("/images/head_left_754x86.gif");
 	background-repeat: no-repeat;
 	width: 570px;
 	height: 86px;
@@ -60,7 +60,7 @@ a:hover
 
 .LoginLogo
 {
-	background-image:url("images/head_left_login_586x86.gif");
+	background-image:url("/images/head_left_login_586x86.gif");
 	background-repeat: no-repeat;
 	width: 570px;
 	height: 86px;
@@ -74,7 +74,7 @@ a:hover
 
 .WelcomeLogo
 {
-	background-image:url("images/welcome_head_570x86.gif");
+	background-image:url("/images/welcome_head_570x86.gif");
 	background-repeat: no-repeat;
 	width: 570px;
 	height: 86px;
@@ -88,7 +88,7 @@ a:hover
 
 .Top
 {
-	background-image:url("images/head_bgstretch_1x86.gif");
+	background-image:url("/images/head_bgstretch_1x86.gif");
 	background-repeat: repeat-x;
 	height: 86px;
 	font-size: 11px;
