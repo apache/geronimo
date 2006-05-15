@@ -109,7 +109,7 @@ public class XmlBeansUtil {
         XmlOptions options = new XmlOptions();
         options.setLoadLineNumbers();
         options.setErrorListener(errors);
-//        options.setLoadSubstituteNamespaces(NAMESPACE_UPDATES);
+        options.setLoadSubstituteNamespaces(NAMESPACE_UPDATES);
         return options;
     }
 }
