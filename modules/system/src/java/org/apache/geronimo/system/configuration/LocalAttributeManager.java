@@ -500,7 +500,7 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
 
     private synchronized void ensureParentDirectory() throws IOException {
         if (attributeFile == null) {
-            attributeFile = serverInfo.resolve(configFile);
+            attributeFile = serverInfo.resolveServer(configFile);
             tempFile = new File(attributeFile.getAbsolutePath() + TEMP_EXTENSION);
             backupFile = new File(attributeFile.getAbsolutePath() + BACKUP_EXTENSION);
         }

@@ -598,7 +598,7 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
 
     private synchronized File resolveConfigurationFile() {
         try {
-            return serverInfo.resolve(configurationFile);
+            return serverInfo.resolveServer(configurationFile);
         } catch (Exception e) {
             return null;
         }

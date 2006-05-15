@@ -55,7 +55,7 @@ public class DerbySystemGBean implements DerbySystem, GBeanLifecycle {
         // set up the system property for the database home
         actualHome = System.getProperty(SYSTEM_HOME);
         if (actualHome == null) {
-            actualHome = serverInfo.resolvePath(systemHome);
+            actualHome = serverInfo.resolveServerPath(systemHome);
         }
         System.setProperty(SYSTEM_HOME, actualHome);
 

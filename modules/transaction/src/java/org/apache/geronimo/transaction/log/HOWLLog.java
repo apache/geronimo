@@ -112,7 +112,7 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
     public void setLogFileDir(String logDir) {
         this.logFileDir = logDir;
         if (started) {
-            configuration.setLogFileDir(serverInfo.resolvePath(logDir));
+            configuration.setLogFileDir(serverInfo.resolveServerPath(logDir));
         }
     }
 

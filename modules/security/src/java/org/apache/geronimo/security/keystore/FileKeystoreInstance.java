@@ -108,7 +108,7 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
     }
 
     public void doStart() throws Exception {
-        keystoreFile = new File(serverInfo.resolve(keystorePath));
+        keystoreFile = new File(serverInfo.resolveServer(keystorePath));
         if(!keystoreFile.exists() || !keystoreFile.canRead()) {
             throw new IllegalArgumentException("Invalid keystore file ("+keystorePath+" = "+keystoreFile.getAbsolutePath()+")");
         }
