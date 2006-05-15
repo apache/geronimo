@@ -326,7 +326,9 @@ public class PluginInstallerGBean implements PluginInstaller {
             for (int i = 0; i < pluginsToInstall.getPlugins().length; i++) {
                 PluginMetadata metadata = pluginsToInstall.getPlugins()[i];
                 validatePlugin(metadata);
-                metaMap.put(metadata.getModuleId(), metadata);
+                if(metadata.getModuleId() != null) {
+                    metaMap.put(metadata.getModuleId(), metadata);
+                }
             }
 
             // Step 2: everything is valid, do the installation
@@ -354,22 +356,18 @@ public class PluginInstallerGBean implements PluginInstaller {
                         repos = metadata.getRepositories();
                     }
                     downloadArtifact(metadata.getModuleId(), metaMap, repos,
-                            username, password, new ResultsFileWriteMonitor(poller), working);
+                            username, password, new ResultsFileWriteMonitor(poller), working, false);
                 } else {
                     String[] deps = metadata.getDependencies();
                     for (int j = 0; j < deps.length; j++) {
                         String dep = deps[j];
                         Artifact entry = Artifact.create(dep);
-                        if(configManager.isRunning(entry)) {
-                            continue;
-                        }
                         URL[] repos = pluginsToInstall.getRepositories();
                         if(metadata.getRepositories().length > 0) {
                             repos = metadata.getRepositories();
                         }
                         downloadArtifact(entry, metaMap, repos,
-                                username, password, new ResultsFileWriteMonitor(poller), working);
-                        poller.addInstalledConfigID(metadata.getModuleId());
+                                username, password, new ResultsFileWriteMonitor(poller), working, false);
                     }
                 }
                 // 4. Uninstall obsolete configurations
@@ -530,14 +528,6 @@ public class PluginInstallerGBean implements PluginInstaller {
             if(configManager.isRunning(metadata.getModuleId())) {
                 throw new IllegalArgumentException("Configuration "+metadata.getModuleId()+" is already running!");
             }
-        } else { // Different validation for plugin lists
-            for (int i = 0; i < metadata.getDependencies().length; i++) {
-                String dep = metadata.getDependencies()[i];
-                Artifact artifact = Artifact.create(dep);
-                if(!artifact.isResolved()) {
-                    throw new MissingDependencyException("Configuration list "+metadata.getName()+" may not use partal artifact names for dependencies ("+dep+")");
-                }
-            }
         }
         // 2. Check that we meet the prerequisites
         PluginMetadata.Prerequisite[] prereqs = metadata.getPrerequisites();
@@ -573,7 +563,7 @@ public class PluginInstallerGBean implements PluginInstaller {
      *                                     are not accepted
      * @throws MissingDependencyException  When a dependency cannot be located in any of the listed repositories
      */
-    private void downloadArtifact(Artifact configID, Map metadata, URL[] repos, String username, String password, ResultsFileWriteMonitor monitor, Set soFar) throws IOException, FailedLoginException, MissingDependencyException {
+    private void downloadArtifact(Artifact configID, Map metadata, URL[] repos, String username, String password, ResultsFileWriteMonitor monitor, Set soFar, boolean dependency) throws IOException, FailedLoginException, MissingDependencyException {
         if(soFar.contains(configID)) {
             return; // Avoid enless work due to circular dependencies
         } else {
@@ -610,13 +600,22 @@ public class PluginInstallerGBean implements PluginInstaller {
                     log.warn("Unable to delete temporary download file "+tempFile.getAbsolutePath());
                     tempFile.deleteOnExit();
                 }
-                monitor.getResults().addDependencyInstalled(configID);
-                configID = result.getConfigID();
+                if(dependency) {
+                    monitor.getResults().addDependencyInstalled(configID);
+                    configID = result.getConfigID();
+                } else {
+                    configID = result.getConfigID();
+                    monitor.getResults().addInstalledConfigID(configID);
+                }
             } finally {
                 result.getStream().close();
             }
         } else {
-            monitor.getResults().addDependencyPresent(configID);
+            if(dependency) {
+                monitor.getResults().addDependencyPresent(configID);
+            } else {
+                monitor.getResults().addInstalledConfigID(configID);
+            }
         }
 
         try {
@@ -643,7 +642,7 @@ public class PluginInstallerGBean implements PluginInstaller {
             for (int i = 0; i < dependencies.length; i++) {
                 Dependency dep = dependencies[i];
                 Artifact artifact = dep.getArtifact();
-                downloadArtifact(artifact, metadata, repos, username, password, monitor, soFar);
+                downloadArtifact(artifact, metadata, repos, username, password, monitor, soFar, true);
             }
         } catch (NoSuchConfigException e) {
             throw new IllegalStateException("Installed configuration into repository but ConfigStore does not see it: "+e.getMessage());
@@ -707,7 +706,11 @@ public class PluginInstallerGBean implements PluginInstaller {
      * Constructs a URL to a particular artifact in a particular repository
      */
     private static URL getURL(Artifact configId, URL repository) throws MalformedURLException {
-        return new URL(repository, configId.getGroupId().replace('.','/')+"/"+configId.getArtifactId()+"/"+configId.getVersion()+"/"+configId.getArtifactId()+"-"+configId.getVersion()+"."+configId.getType());
+        if(repository.toString().endsWith("/")) {
+            return new URL(repository, configId.getGroupId().replace('.','/')+"/"+configId.getArtifactId()+"/"+configId.getVersion()+"/"+configId.getArtifactId()+"-"+configId.getVersion()+"."+configId.getType());
+        } else {
+            return new URL(new URL(repository.toString()+"/"), configId.getGroupId().replace('.','/')+"/"+configId.getArtifactId()+"/"+configId.getVersion()+"/"+configId.getArtifactId()+"-"+configId.getVersion()+"."+configId.getType());
+        }
     }
 
     /**
@@ -864,7 +867,7 @@ public class PluginInstallerGBean implements PluginInstaller {
         monitor.getResults().setCurrentMessage("Searching for "+query+" at "+url);
         String base = query.getGroupId().replace('.', '/') + "/" + query.getArtifactId();
         String path = base +"/maven-metadata.xml";
-        URL metaURL = new URL(url.toString()+path);
+        URL metaURL = new URL(url.toString().endsWith("/") ? url : new URL(url.toString()+"/"), path);
         InputStream in = connect(metaURL, username, password, monitor);
         if(in == null) {
             return null;

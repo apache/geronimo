@@ -33,15 +33,15 @@ public class PluginMetadata implements Serializable, Comparable {
     private final String description;
     private final String pluginURL;
     private final String author;
-    private License[] licenses;
+    private License[] licenses = new License[0];
     private final Hash hash;
-    private String[] geronimoVersions;
-    private String[] jvmVersions;
-    private Prerequisite[] prerequisites;
-    private String[] dependencies;
-    private String[] forceStart;
-    private String[] obsoletes;
-    private URL[] repositories;
+    private String[] geronimoVersions = new String[0];
+    private String[] jvmVersions = new String[0];
+    private Prerequisite[] prerequisites = new Prerequisite[0];
+    private String[] dependencies = new String[0];
+    private String[] forceStart = new String[0];
+    private String[] obsoletes = new String[0];
+    private URL[] repositories = new URL[0];
 
     private final boolean installed;
     private final boolean eligible;
