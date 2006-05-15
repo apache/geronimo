@@ -142,6 +142,18 @@ public class PluginRepositoryExporter {
             public String resolvePath(final String filename) {
                 return null;
             }
+            
+            public File resolveServer(final String filename) {
+                return null;
+            }
+            
+            public URI resolveServer(final URI uri) {
+                return null;
+            }
+            
+            public String resolveServerPath(final String filename) {
+                return null;
+            }
         };
         installer = new PluginInstallerGBean(null, destRepo, store, info, null);
     }
