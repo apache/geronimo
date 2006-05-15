@@ -196,7 +196,7 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
     }
 
     private static Dependency toDependency(ArtifactType artifactType) {
-        Artifact artifact = toArtifact(artifactType, "jar");
+        Artifact artifact = toArtifact(artifactType, null);
         if (ImportType.CLASSES.equals(artifactType.getImport())) {
             return new Dependency(artifact, org.apache.geronimo.kernel.repository.ImportType.CLASSES);
         } else if (ImportType.SERVICES.equals(artifactType.getImport())) {

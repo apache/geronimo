@@ -147,7 +147,11 @@ public class ServiceConfigBuilderTest extends TestCase {
 
         public SortedSet list(Artifact query) {
             System.out.println("LOOKING FOR "+query);
-            return new TreeSet();
+            SortedSet set = new TreeSet();
+            if(query.getGroupId() != null && query.getArtifactId() != null && query.getVersion() != null && query.getType() == null) {
+                set.add(new Artifact(query.getGroupId(), query.getArtifactId(), query.getVersion(), "jar"));
+            }
+            return set;
         }
     }
     private static class MockReferenceCollection extends ArrayList implements ReferenceCollection {
