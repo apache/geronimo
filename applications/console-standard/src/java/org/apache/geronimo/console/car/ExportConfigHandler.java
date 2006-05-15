@@ -110,7 +110,7 @@ public class ExportConfigHandler extends BaseImportExportHandler {
         String obsoletes = request.getParameter("obsoletes");
         PluginMetadata data = PortletManager.getCurrentServer(request).getPluginInstaller().getPluginMetadata(Artifact.create(configId));
         PluginMetadata metadata = new PluginMetadata(name, data.getModuleId(),
-                description, category, url, author, null, true, false);
+                category, description, url, author, null, true, false);
         metadata.setDependencies(split(deps));
         metadata.setGeronimoVersions(split(gers));
         metadata.setJvmVersions(split(jvms));

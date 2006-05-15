@@ -1335,7 +1335,7 @@ public class PluginInstallerGBean implements PluginInstaller {
         doc.appendChild(config);
 
         addTextChild(doc, config, "name", data.getName());
-        addTextChild(doc, config, "config-id", data.getModuleId().toString());
+        addTextChild(doc, config, "module-id", data.getModuleId().toString());
         addTextChild(doc, config, "category", data.getCategory());
         addTextChild(doc, config, "description", data.getDescription());
         if(data.getPluginURL() != null) {
