@@ -340,12 +340,16 @@ public class PluginInstallerGBean implements PluginInstaller {
                 for (int j = 0; j < metadata.getObsoletes().length; j++) {
                     String name = metadata.getObsoletes()[j];
                     Artifact obsolete = Artifact.create(name);
-                    if(configManager.isLoaded(obsolete)) {
-                        if(configManager.isRunning(obsolete)) {
-                            configManager.stopConfiguration(obsolete);
+                    Artifact[] list = configManager.getArtifactResolver().queryArtifacts(obsolete);
+                    for (int k = 0; k < list.length; k++) {
+                        Artifact artifact = list[k];
+                        if(configManager.isLoaded(artifact)) {
+                            if(configManager.isRunning(artifact)) {
+                                configManager.stopConfiguration(artifact);
+                            }
+                            configManager.unloadConfiguration(artifact);
+                            obsoletes.add(artifact);
                         }
-                        configManager.unloadConfiguration(obsolete);
-                        obsoletes.add(obsolete);
                     }
                 }
                 // 3. Download the artifact if necessary, and its dependencies
@@ -526,7 +530,18 @@ public class PluginInstallerGBean implements PluginInstaller {
         // 1. Check that it's not already running
         if(metadata.getModuleId() != null) { // that is, it's a real configuration not a plugin list
             if(configManager.isRunning(metadata.getModuleId())) {
-                throw new IllegalArgumentException("Configuration "+metadata.getModuleId()+" is already running!");
+                boolean upgrade = false;
+                for (int i = 0; i < metadata.getObsoletes().length; i++) {
+                    String obsolete = metadata.getObsoletes()[i];
+                    Artifact test = Artifact.create(obsolete);
+                    if(test.matches(metadata.getModuleId())) {
+                        upgrade = true;
+                        break;
+                    }
+                }
+                if(!upgrade) {
+                    throw new IllegalArgumentException("Configuration "+metadata.getModuleId()+" is already running!");
+                }
             }
         }
         // 2. Check that we meet the prerequisites
