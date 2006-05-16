@@ -27,5 +27,7 @@ public abstract class Naming {
 
     public abstract AbstractName createChildName(AbstractName parentAbstractName, String name, String type);
 
+    public abstract AbstractName createSiblingName(AbstractName parentAbstractName, String name, String type);
+
     public abstract AbstractName createChildName(AbstractName parentAbstractName, Artifact artifact, String name, String type);
 }

@@ -73,7 +73,7 @@ public class JettyManagerImpl implements WebManager {
      */
     public WebConnector addConnector(WebContainer container, String uniqueName, String protocol, String host, int port) {
         AbstractName containerName = kernel.getAbstractNameFor(container);
-        AbstractName name = kernel.getNaming().createChildName(containerName, uniqueName, NameFactory.GERONIMO_SERVICE);
+        AbstractName name = kernel.getNaming().createSiblingName(containerName, uniqueName, NameFactory.GERONIMO_SERVICE);
         GBeanData connector;
         if (protocol.equals(PROTOCOL_HTTP)) {
             connector = new GBeanData(name, HTTPConnector.GBEAN_INFO);

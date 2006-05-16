@@ -36,6 +36,7 @@ public class Jsr77Naming extends Naming {
     private static final String DEFAULT_SERVER_NAME = "geronimo";
     private static final String J2EE_TYPE = "j2eeType";
     private static final String J2EE_NAME = "name";
+    private static final String INVALID_GENERIC_PARENT_TYPE = "GBean";
 
     public Jsr77Naming() {
     }
@@ -54,11 +55,25 @@ public class Jsr77Naming extends Naming {
         return createChildName(parentAbstractName, parentAbstractName.getArtifact(), name, type);
     }
 
+    public AbstractName createSiblingName(AbstractName parentAbstractName, String name, String type) {
+        Map nameMap = new HashMap(parentAbstractName.getName());
+
+        nameMap.put(J2EE_TYPE, type);
+        nameMap.put(J2EE_NAME, name);
+
+        return new AbstractName(parentAbstractName.getArtifact(),
+                nameMap,
+                createObjectName(nameMap));
+    }
+
     public AbstractName createChildName(AbstractName parentAbstractName, Artifact artifact, String name, String type) {
         Map nameMap = new HashMap(parentAbstractName.getName());
 
         String parentType = (String) nameMap.remove(J2EE_TYPE);
         String parentName = (String) nameMap.remove(J2EE_NAME);
+        if (INVALID_GENERIC_PARENT_TYPE.equals(parentType)) {
+            throw new IllegalArgumentException("You can't create a child of a generic typed gbean");
+        }
         nameMap.put(parentType, parentName);
         nameMap.put(J2EE_TYPE, type);
         nameMap.put(J2EE_NAME, name);
