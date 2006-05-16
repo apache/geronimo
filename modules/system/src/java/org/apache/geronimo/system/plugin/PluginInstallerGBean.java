@@ -569,6 +569,7 @@ public class PluginInstallerGBean implements PluginInstaller {
         } else {
             soFar.add(configID);
         }
+        // Download and install the main artifact
         //todo: check all repositories?
         Artifact[] matches = configManager.getArtifactResolver().queryArtifacts(configID);
         if(matches.length == 0) { // not present, needs to be downloaded
@@ -617,7 +618,7 @@ public class PluginInstallerGBean implements PluginInstaller {
                 monitor.getResults().addInstalledConfigID(configID);
             }
         }
-
+        // Download and install the dependencies
         try {
             ConfigurationData data = null;
             if(!configID.isResolved()) {
@@ -649,6 +650,63 @@ public class PluginInstallerGBean implements PluginInstaller {
         } catch (InvalidConfigException e) {
             throw new IllegalStateException("Installed configuration into repository but ConfigStore cannot load it: "+e.getMessage());
         }
+        // Copy any files out of the artifact
+        PluginMetadata currentPlugin = configManager.isConfiguration(configID) ? getPluginMetadata(configID) : null;
+        for (int i = 0; i < currentPlugin.getFilesToCopy().length; i++) {
+            PluginMetadata.CopyFile data = currentPlugin.getFilesToCopy()[i];
+            monitor.getResults().setCurrentFilePercent(-1);
+            monitor.getResults().setCurrentFile(data.getSourceFile());
+            monitor.getResults().setCurrentMessage("Copying "+data.getSourceFile()+" from plugin to Geronimo installation");
+            Set set;
+            try {
+                set = configStore.resolve(configID, null, data.getSourceFile());
+            } catch (NoSuchConfigException e) {
+                throw new IllegalStateException("Unable to identify module "+configID+" to copy files from");
+            }
+            if(set.size() == 0) {
+                log.error("Installed configuration into repository but cannot locate file to copy "+data.getSourceFile());
+                continue;
+            }
+            File targetDir = data.isRelativeToVar() ? serverInfo.resolveServer("var/"+data.getDestDir()) : serverInfo.resolve(data.getDestDir());
+            if(!targetDir.isDirectory()) {
+                log.error("Plugin install cannot write file "+data.getSourceFile()+" to "+data.getDestDir()+" because "+targetDir.getAbsolutePath()+" is not a directory");
+                continue;
+            }
+            if(!targetDir.canWrite()) {
+                log.error("Plugin install cannot write file "+data.getSourceFile()+" to "+data.getDestDir()+" because "+targetDir.getAbsolutePath()+" is not writable");
+                continue;
+            }
+            for (Iterator it = set.iterator(); it.hasNext();) {
+                URL url = (URL) it.next();
+                String path = url.getPath();
+                if(path.lastIndexOf('/') > -1) {
+                    path = path.substring(path.lastIndexOf('/'));
+                }
+                File target = new File(targetDir, path);
+                if(!target.exists()) {
+                    if(!target.createNewFile()) {
+                        log.error("Plugin install cannot create new file "+target.getAbsolutePath());
+                        continue;
+                    }
+                }
+                if(!target.canWrite()) {
+                    log.error("Plugin install cannot write to file "+target.getAbsolutePath());
+                    continue;
+                }
+                copyFile(url.openStream(), new FileOutputStream(target));
+            }
+        }
+    }
+
+    private void copyFile(InputStream in, FileOutputStream out) throws IOException {
+        byte[] buf = new byte[4096];
+        int count;
+        while((count = in.read(buf)) > -1) {
+            out.write(buf, 0, count);
+        }
+        in.close();
+        out.flush();
+        out.close();
     }
 
     /**
@@ -969,7 +1027,8 @@ public class PluginInstallerGBean implements PluginInstaller {
         meta.setGeronimoVersions(new String[]{serverInfo.getVersion()});
         meta.setJvmVersions(new String[0]);
         meta.setLicenses(new PluginMetadata.License[0]);
-        meta.setObsoletes(new String[0]);
+        meta.setObsoletes(new String[]{new Artifact(data.getId().getGroupId(), data.getId().getArtifactId(), (Version)null, data.getId().getType()).toString()});
+        meta.setFilesToCopy(new PluginMetadata.CopyFile[0]);
         List deps = new ArrayList();
         PluginMetadata.Prerequisite prereq = null;
         prereq = processDependencyList(data.getEnvironment().getDependencies(), prereq, deps);
@@ -1107,6 +1166,15 @@ public class PluginInstallerGBean implements PluginInstaller {
             Element elem = (Element) hashList.item(0);
             hash = new PluginMetadata.Hash(elem.getAttribute("type"), getText(elem));
         }
+        NodeList fileList = plugin.getElementsByTagName("copy-file");
+        PluginMetadata.CopyFile[] files = new PluginMetadata.CopyFile[fileList.getLength()];
+        for (int i = 0; i < files.length; i++) {
+            Element node = (Element) fileList.item(i);
+            String relative = node.getAttribute("relative-to");
+            String destDir = node.getAttribute("dest-dir");
+            String fileName = getText(node);
+            files[i] = new PluginMetadata.CopyFile(relative.equals("server"), fileName, destDir);
+        }
         boolean eligible = true;
         NodeList preNodes = plugin.getElementsByTagName("prerequisite");
         PluginMetadata.Prerequisite[] prereqs = new PluginMetadata.Prerequisite[preNodes.getLength()];
@@ -1161,6 +1229,7 @@ public class PluginInstallerGBean implements PluginInstaller {
         data.setLicenses(licenses);
         data.setPrerequisites(prereqs);
         data.setRepositories(repos);
+        data.setFilesToCopy(files);
         NodeList list = plugin.getElementsByTagName("dependency");
         List start = new ArrayList();
         String deps[] = new String[list.getLength()];
@@ -1384,6 +1453,14 @@ public class PluginInstallerGBean implements PluginInstaller {
         for (int i = 0; i < data.getRepositories().length; i++) {
             URL url = data.getRepositories()[i];
             addTextChild(doc, config, "source-repository", url.toString());
+        }
+        for (int i = 0; i < data.getFilesToCopy().length; i++) {
+            PluginMetadata.CopyFile file = data.getFilesToCopy()[i];
+            Element copy = doc.createElement("copy-file");
+            copy.setAttribute("relative-to", file.isRelativeToVar() ? "server" : "geronimo");
+            copy.setAttribute("dest-dir", file.getDestDir());
+            copy.appendChild(doc.createTextNode(file.getSourceFile()));
+            config.appendChild(copy);
         }
         return doc;
     }

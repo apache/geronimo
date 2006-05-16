@@ -89,7 +89,6 @@ public class DownloadResults implements Serializable, DownloadPoller {
     }
 
     public synchronized void setFailure(Exception failure) {
-failure.printStackTrace();
         this.failure = failure;
     }
 

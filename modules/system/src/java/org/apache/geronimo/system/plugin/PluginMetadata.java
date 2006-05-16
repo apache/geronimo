@@ -42,6 +42,7 @@ public class PluginMetadata implements Serializable, Comparable {
     private String[] forceStart = new String[0];
     private String[] obsoletes = new String[0];
     private URL[] repositories = new URL[0];
+    private CopyFile[] filesToCopy = new CopyFile[0];
 
     private final boolean installed;
     private final boolean eligible;
@@ -191,6 +192,16 @@ public class PluginMetadata implements Serializable, Comparable {
         return eligible;
     }
 
+    /**
+     * Gets a list of files to copy from the plugin CAR into the server installation.
+     */
+    public CopyFile[] getFilesToCopy() {
+        return filesToCopy;
+    }
+
+    public void setFilesToCopy(CopyFile[] filesToCopy) {
+        this.filesToCopy = filesToCopy;
+    }
 
     public int compareTo(Object o) {
         PluginMetadata other = (PluginMetadata) o;
@@ -234,6 +245,30 @@ public class PluginMetadata implements Serializable, Comparable {
 
         public String getValue() {
             return value;
+        }
+    }
+
+    public static class CopyFile implements Serializable {
+        private final boolean relativeToVar;  // if not, relative to the Geronimo install directory
+        private final String sourceFile;
+        private final String destDir;
+
+        public CopyFile(boolean relativeToVar, String sourceFile, String destDir) {
+            this.relativeToVar = relativeToVar;
+            this.sourceFile = sourceFile;
+            this.destDir = destDir;
+        }
+
+        public boolean isRelativeToVar() {
+            return relativeToVar;
+        }
+
+        public String getSourceFile() {
+            return sourceFile;
+        }
+
+        public String getDestDir() {
+            return destDir;
         }
     }
 

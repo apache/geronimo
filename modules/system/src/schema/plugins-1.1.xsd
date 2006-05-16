@@ -310,6 +310,16 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
+            <xs:element name="copy-file" type="list:copy-fileType" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        Lets a plugin include files that should be copied into the Geronimo
+                        installation tree, beyond copying the plugin into the repository.  For
+                        example, this could be used to copy files into geronimo/bin, geronimo/lib,
+                        geronimo/var/security/keystores, or other Geronimo dirs.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
         </xs:sequence>
     </xs:complexType>
 
@@ -382,6 +392,52 @@
                                   MD5
                                   SHA-1
 
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="copy-fileType">
+        <xs:annotation>
+            <xs:documentation>
+                The name of a file in the plugin archive that should be copied into
+                the server installation tree somewhere when the plugin is installed.
+                There may be a path component (relative to the root of the plugin
+                archive), though that will not be used to construct the destination
+                location.  For example:
+
+                <copy-file relative-to="server" dest-dir="security/keystores">
+                    resources/keystores/my-keystore
+                </copy-file>
+
+                This will copy the file resources/keystores/my-keystore to e.g.
+                geronimo/var/security/keystores/my-keystore
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="relative-to" use="required" type="xs:string">
+                    <xs:annotation>
+                        <xs:documentation>
+                            Indicates whether the destination is relative to the Geronimo install
+                            directory or the server instance var/ directory.  The values presently
+                            supported are:
+
+                                  geronimo
+                                  server
+
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="dest-dir" use="required" type="xs:string">
+                    <xs:annotation>
+                        <xs:documentation>
+                            The directory to copy the file to, relative to either the Geronimo
+                            install dir or the server's home directory (normally var/ but may
+                            vary).
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
