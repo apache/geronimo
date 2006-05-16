@@ -32,7 +32,8 @@ public interface ServerInfo {
     public String resolveServerPath(final String filename);
 
     /**
-     * Resolves an abstract pathname to a File.
+     * Resolves a relative pathname to a File, relative to the server
+     * installation directory (e.g. "foo" becomes .../geronimo/foo)
      *
      * @param filename a <code>String</code> containing a pathname,
      * which will be resolved by {@link #resolvePath(String
@@ -41,6 +42,15 @@ public interface ServerInfo {
      */
     public File resolve(final String filename);
 
+    /**
+     * Resolves a relative pathname to a File, relative to the server
+     * configuration directory.  Normally, this is the same as the Geronimo
+     * installation directory (e.g. "foo" becomes .../geronimo/foo).
+     * However, you can pass command-line arguments to the server to relocate
+     * this to a server-instance-specific directory (e.g. "var/foo" might
+     * become .../geronimo/instance1/var/foo if the server was started with
+     * the flag indicating that the server instance dir was "instance1").
+     */
     public File resolveServer(final String filename);
 
     public URI resolve(final URI uri);
