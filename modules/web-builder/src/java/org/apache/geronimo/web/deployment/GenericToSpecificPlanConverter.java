@@ -53,6 +53,13 @@ public class GenericToSpecificPlanConverter {
         XmlCursor rawCursor = plan.newCursor();
         try {
             if (SchemaConversionUtils.findNestedElement(rawCursor, "web-app")) {
+                XmlCursor temp = rawCursor.newCursor();
+                String namespace = temp.getName().getNamespaceURI();
+                temp.dispose();
+                if(!namespace.equals(GENERIC_NAMESPACE) && !namespace.equals(this.namespace) && !namespace.equals(OLD_GENERIC_NAMESPACE)) {
+                    throw new DeploymentException("Cannot handle web plan with namespace "+namespace+" -- expecting "+GENERIC_NAMESPACE+" or "+this.namespace);
+                }
+
                 XmlObject webPlan = rawCursor.getObject().copy();
 
                 XmlCursor cursor = webPlan.newCursor();
@@ -80,8 +87,8 @@ public class GenericToSpecificPlanConverter {
                     while (cursor.hasNextToken()) {
                         if (cursor.isStart()) {
                             if (!SchemaConversionUtils.convertSingleElementToGeronimoSubSchemas(cursor, end)
-                            && !namespace.equals(cursor.getName().getNamespaceURI())) {
-                                cursor.setName(new QName(namespace, cursor.getName().getLocalPart()));
+                            && !this.namespace.equals(cursor.getName().getNamespaceURI())) {
+                                cursor.setName(new QName(this.namespace, cursor.getName().getLocalPart()));
                             }
                         }
                         cursor.toNextToken();
@@ -90,7 +97,7 @@ public class GenericToSpecificPlanConverter {
 
                     cursor.pop();
                     cursor.push();
-                    if (cursor.toChild(namespace, "security-realm-name")) {
+                    if (cursor.toChild(this.namespace, "security-realm-name")) {
                         XmlCursor other = cursor.newCursor();
                         try {
                             other.toParent();
