@@ -680,6 +680,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 appClient.getResourceEnvRefArray(), geronimoAppClient.getResourceEnvRefArray(),
                 appClient.getMessageDestinationRefArray(),
                 appClient.getServiceRefArray(), geronimoAppClient.getServiceRefArray(),
+                geronimoAppClient.getGbeanRefArray(),
                 cl);
 
     }

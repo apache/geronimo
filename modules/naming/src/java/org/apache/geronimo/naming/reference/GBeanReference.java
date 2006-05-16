@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.naming.reference;
 
+import java.util.Set;
+
 import javax.naming.NameNotFoundException;
 
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -29,8 +31,8 @@ import org.apache.geronimo.gbean.AbstractName;
 public class GBeanReference extends ConfigurationAwareReference {
     private final Class type;
 
-    public GBeanReference(Artifact configId, AbstractNameQuery abstractNameQuery, Class type) {
-        super(configId, abstractNameQuery);
+    public GBeanReference(Artifact configId, Set abstractNameQueries, Class type) {
+        super(configId, abstractNameQueries);
         this.type = type;
     }
 
@@ -43,7 +45,7 @@ public class GBeanReference extends ConfigurationAwareReference {
         try {
             target = resolveTargetName();
         } catch (GBeanNotFoundException e) {
-            throw (NameNotFoundException)new NameNotFoundException("Could not resolve gbean from name query: " + abstractNameQuery).initCause(e);
+            throw (NameNotFoundException)new NameNotFoundException("Could not resolve gbean from name query: " + abstractNameQueries).initCause(e);
         }
         try {
             return getKernel().getGBean(target);

@@ -43,7 +43,7 @@ public class ORBReference extends ConfigurationAwareReference {
             AbstractName targetName = resolveTargetName();
             return kernel.getAttribute(targetName, "ORB");
         } catch (Exception e) {
-            throw (NameNotFoundException) new NameNotFoundException("Error getting ORB attribute from CORBAGBean: name query =" + abstractNameQuery).initCause(e);
+            throw (NameNotFoundException) new NameNotFoundException("Error getting ORB attribute from CORBAGBean: name query =" + abstractNameQueries).initCause(e);
         }
     }
 }

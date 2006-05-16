@@ -77,7 +77,6 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
@@ -396,7 +395,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             // unsharableResources, applicationManagedSecurityResources
             GBeanResourceEnvironmentBuilder rebuilder = new GBeanResourceEnvironmentBuilder(webModuleData);
             //N.B. use earContext not moduleContext
-            ENCConfigBuilder.setResourceEnvironment(webModule.getModuleURI(), rebuilder, webApp.getResourceRefArray(), jettyWebApp.getResourceRefArray());
+            ENCConfigBuilder.setResourceEnvironment(rebuilder, webApp.getResourceRefArray(), jettyWebApp.getResourceRefArray());
 
             webModuleData.setAttribute("contextPath", webModule.getContextRoot());
 
@@ -927,6 +926,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 webApp.getResourceEnvRefArray(), jettyWebApp.getResourceEnvRefArray(),
                 webApp.getMessageDestinationRefArray(),
                 webApp.getServiceRefArray(), jettyWebApp.getServiceRefArray(),
+                jettyWebApp.getGbeanRefArray(),
                 cl);
     }
 

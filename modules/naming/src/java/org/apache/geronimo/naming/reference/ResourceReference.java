@@ -53,7 +53,7 @@ public class ResourceReference extends ConfigurationAwareReference {
         try {
             target = resolveTargetName();
         } catch (GBeanNotFoundException e) {
-            throw (NameNotFoundException) new NameNotFoundException("Could not resolve name query: " + abstractNameQuery).initCause(e);
+            throw (NameNotFoundException) new NameNotFoundException("Could not resolve name query: " + abstractNameQueries).initCause(e);
         }
 
         Object proxy;

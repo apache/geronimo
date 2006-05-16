@@ -27,6 +27,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 
 import java.util.Set;
+import java.util.Collections;
 
 /**
  * @version $Rev:$ $Date:$
@@ -34,11 +35,16 @@ import java.util.Set;
 public abstract class ConfigurationAwareReference extends SimpleAwareReference {
 
     private final Artifact configId;
-    protected final AbstractNameQuery abstractNameQuery;
+    protected final Set abstractNameQueries;
 
     protected ConfigurationAwareReference(Artifact configId, AbstractNameQuery abstractNameQuery) {
         this.configId = configId;
-        this.abstractNameQuery = abstractNameQuery;
+        this.abstractNameQueries = Collections.singleton(abstractNameQuery);
+    }
+
+    protected ConfigurationAwareReference(Artifact configId, Set abstractNameQueries) {
+        this.configId = configId;
+        this.abstractNameQueries = abstractNameQueries;
     }
 
     public Configuration getConfiguration() {
@@ -50,13 +56,13 @@ public abstract class ConfigurationAwareReference extends SimpleAwareReference {
     public AbstractName resolveTargetName() throws GBeanNotFoundException {
         Configuration configuration = getConfiguration();
         try {
-            return configuration.findGBean(abstractNameQuery);
+            return configuration.findGBean(abstractNameQueries);
         } catch (GBeanNotFoundException e) {
-            Set results = getKernel().listGBeans(abstractNameQuery);
+            Set results = getKernel().listGBeans(abstractNameQueries);
             if (results.size() == 1) {
                 return (AbstractName) results.iterator().next();
             }
-            throw new GBeanNotFoundException("Name query " + abstractNameQuery + " not satisfied in kernel, matches: " + results, e);
+            throw new GBeanNotFoundException("Name query " + abstractNameQueries + " not satisfied in kernel, matches: " + results, e);
         }
     }
 

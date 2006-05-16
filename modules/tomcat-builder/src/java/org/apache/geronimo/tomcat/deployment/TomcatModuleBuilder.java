@@ -61,7 +61,6 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
@@ -322,7 +321,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             // unsharableResources, applicationManagedSecurityResources
             GBeanResourceEnvironmentBuilder rebuilder = new GBeanResourceEnvironmentBuilder(webModuleData);
             //N.B. use earContext not moduleContext
-            ENCConfigBuilder.setResourceEnvironment(webModule.getModuleURI(), rebuilder, webApp.getResourceRefArray(), tomcatWebApp.getResourceRefArray());
+            ENCConfigBuilder.setResourceEnvironment(rebuilder, webApp.getResourceRefArray(), tomcatWebApp.getResourceRefArray());
 
             webModuleData.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
             webModuleData.setReferencePattern("TrackedConnectionAssociator", earContext.getConnectionTrackerObjectName());
@@ -477,6 +476,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                 webApp.getResourceEnvRefArray(), tomcatWebApp.getResourceEnvRefArray(),
                 webApp.getMessageDestinationRefArray(),
                 webApp.getServiceRefArray(), tomcatWebApp.getServiceRefArray(),
+                tomcatWebApp.getGbeanRefArray(),
                 cl);
     }
     public static final GBeanInfo GBEAN_INFO;

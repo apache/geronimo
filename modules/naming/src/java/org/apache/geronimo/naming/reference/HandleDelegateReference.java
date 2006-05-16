@@ -16,7 +16,6 @@
  */
 package org.apache.geronimo.naming.reference;
 
-import javax.management.ObjectName;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 
@@ -44,7 +43,7 @@ public class HandleDelegateReference extends ConfigurationAwareReference {
             AbstractName targetName = resolveTargetName();
             return kernel.getAttribute(targetName, "handleDelegate");
         } catch (Exception e) {
-            throw (NameNotFoundException) new NameNotFoundException("Error getting handle delegate attribute from CORBAGBean: name query =" + abstractNameQuery).initCause(e);
+            throw (NameNotFoundException) new NameNotFoundException("Error getting handle delegate attribute from CORBAGBean: name query =" + abstractNameQueries).initCause(e);
         }
     }
 }

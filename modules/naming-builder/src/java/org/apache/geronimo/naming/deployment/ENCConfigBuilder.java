@@ -17,21 +17,45 @@
 
 package org.apache.geronimo.naming.deployment;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Arrays;
+
+import javax.naming.NamingException;
+import javax.naming.Reference;
+import javax.transaction.UserTransaction;
+import javax.xml.namespace.QName;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.UnresolvedReferenceException;
 import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.ClassLoading;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.naming.java.ComponentContextBuilder;
+import org.apache.geronimo.naming.reference.GBeanReference;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbLocalRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerGbeanLocatorType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerGbeanRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerMessageDestinationType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceEnvRefType;
@@ -50,23 +74,6 @@ import org.apache.geronimo.xbeans.j2ee.ServiceRefHandlerType;
 import org.apache.geronimo.xbeans.j2ee.ServiceRefType;
 import org.apache.geronimo.xbeans.j2ee.XsdQNameType;
 import org.apache.geronimo.xbeans.j2ee.XsdStringType;
-
-import javax.naming.NamingException;
-import javax.naming.Reference;
-import javax.transaction.UserTransaction;
-import javax.xml.namespace.QName;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * @version $Rev:385232 $ $Date$
@@ -107,7 +114,7 @@ public class ENCConfigBuilder {
         } else {
             GerPatternType patternType = gerGbeanLocator.getPattern();
             //construct name from components
-            abstractNameQuery = buildAbstractNameQuery(patternType, j2eeType, null);
+            abstractNameQuery = buildAbstractNameQuery(patternType, j2eeType, null, null);
         }
         //TODO check that the query is satisfied.
         return abstractNameQuery;
@@ -131,8 +138,7 @@ public class ENCConfigBuilder {
 
     }
 
-    static void addResourceRefs(Configuration earContext, RefContext refContext, URI moduleURI, ResourceRefType[] resourceRefs, Map refMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
-        //TODO configid remove URI parameter?
+    static void addResourceRefs(Configuration earContext, RefContext refContext, ResourceRefType[] resourceRefs, Map refMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
         if (refMap == null) {
             refMap = Collections.EMPTY_MAP;
         }
@@ -218,7 +224,7 @@ public class ENCConfigBuilder {
         } else {
             //construct name from components
             GerPatternType patternType = gerResourceRef.getPattern();
-            containerId = buildAbstractNameQuery(patternType, type, NameFactory.RESOURCE_ADAPTER_MODULE);
+            containerId = buildAbstractNameQuery(patternType, type, NameFactory.RESOURCE_ADAPTER_MODULE, null);
         }
         return containerId;
     }
@@ -271,7 +277,7 @@ public class ENCConfigBuilder {
         } else {
             //construct name from components
             GerPatternType patternType = gerResourceEnvRef.getPattern();
-            containerId = buildAbstractNameQuery(patternType, NameFactory.JCA_ADMIN_OBJECT, NameFactory.RESOURCE_ADAPTER_MODULE);
+            containerId = buildAbstractNameQuery(patternType, NameFactory.JCA_ADMIN_OBJECT, NameFactory.RESOURCE_ADAPTER_MODULE, null);
         }
         return containerId;
     }
@@ -368,7 +374,7 @@ public class ENCConfigBuilder {
                         cssBean = buildAbstractNameQuery(null, null, cssLink, NameFactory.CORBA_CSS, NameFactory.EJB_MODULE);
                     } else {
                         GerPatternType css = remoteRef.getCss();
-                        cssBean = buildAbstractNameQuery(css, NameFactory.CORBA_CSS, NameFactory.EJB_MODULE);
+                        cssBean = buildAbstractNameQuery(css, NameFactory.CORBA_CSS, NameFactory.EJB_MODULE, null);
                     }
                     ejbReference = refContext.getCORBARemoteRef(earContext,
                             cssBean,
@@ -401,7 +407,7 @@ public class ENCConfigBuilder {
                     }
                 } else if (remoteRef != null) {
                     GerPatternType patternType = remoteRef.getPattern();
-                    containerQuery = buildAbstractNameQuery(patternType, null, NameFactory.EJB_MODULE);
+                    containerQuery = buildAbstractNameQuery(patternType, null, NameFactory.EJB_MODULE, null);
                 }
                 ejbReference = refContext.getEJBRemoteRef(refName, ejbContext, ejbLink, requiredModule, optionalModule, targetConfigId, containerQuery, isSession, home, remote);
             }
@@ -471,7 +477,7 @@ public class ENCConfigBuilder {
             }
         } else if (localRef != null) {
             GerPatternType patternType = localRef.getPattern();
-            containerQuery = buildAbstractNameQuery(patternType, null, NameFactory.EJB_MODULE);
+            containerQuery = buildAbstractNameQuery(patternType, null, NameFactory.EJB_MODULE, null);
         }
         return refContext.getEJBLocalRef(refName, ejbContext, ejbLink, requiredModule, optionalModule, targetConfigId, containerQuery, isSession, localHome, local);
     }
@@ -653,8 +659,7 @@ public class ENCConfigBuilder {
     }
 
 
-    public static void setResourceEnvironment(URI uri, ResourceEnvironmentBuilder builder, ResourceRefType[] resourceRefs, GerResourceRefType[] gerResourceRefs) {
-        //TODO configid remove URI parameter?
+    public static void setResourceEnvironment(ResourceEnvironmentBuilder builder, ResourceRefType[] resourceRefs, GerResourceRefType[] gerResourceRefs) {
         Map refMap = mapResourceRefs(gerResourceRefs);
         Set unshareableResources = new HashSet();
         Set applicationManagedSecurityResources = new HashSet();
@@ -698,6 +703,7 @@ public class ENCConfigBuilder {
                                             MessageDestinationRefType[] messageDestinationRefs,
                                             ServiceRefType[] serviceRefs,
                                             GerServiceRefType[] gerServiceRefs,
+                                            GerGbeanRefType[] gerGbeanRefs,
                                             ClassLoader cl) throws DeploymentException {
         ComponentContextBuilder builder = new ComponentContextBuilder();
         RefContext refContext = earContext.getRefContext();
@@ -728,7 +734,7 @@ public class ENCConfigBuilder {
         addEJBLocalRefs(ejbContext, refContext, moduleURI, ejbLocalRefs, mapEjbLocalRefs(gerEjbLocalRef), cl, builder);
 
 // resource-ref
-        addResourceRefs(earConfiguration, refContext, moduleURI, resourceRefs, mapResourceRefs(gerResourceRef), cl, builder);
+        addResourceRefs(earConfiguration, refContext, resourceRefs, mapResourceRefs(gerResourceRef), cl, builder);
 
 // resource-env-ref
         addResourceEnvRefs(earConfiguration, refContext, resourceEnvRefs, mapResourceEnvRefs(gerResourceEnvRef), cl, builder);
@@ -741,7 +747,56 @@ public class ENCConfigBuilder {
         Map serviceRefMap = mapServiceRefs(gerServiceRefs);
         addServiceRefs(earContext, module, serviceRefs, serviceRefMap, cl, builder);
 
+        addGBeanRefs(earContext, builder, refContext, gerGbeanRefs, cl);
+
         return builder.getContext();
+    }
+
+    private static void addGBeanRefs(EARContext earContext, ComponentContextBuilder builder, RefContext refContext, GerGbeanRefType[] gerGbeanRefs, ClassLoader cl) throws DeploymentException {
+        if (null == gerGbeanRefs) {
+            return;
+        }
+
+
+        for (int i = 0; i < gerGbeanRefs.length; i++) {
+            GerGbeanRefType gerGbeanRef = gerGbeanRefs[i];
+            addGBeanRef(earContext, builder, refContext, gerGbeanRef, cl);
+        }
+    }
+
+    private static void addGBeanRef(EARContext earContext, ComponentContextBuilder builder, RefContext refContext, GerGbeanRefType gerGbeanRef, ClassLoader cl) throws DeploymentException{
+        GerPatternType[] gbeanLocatorArray = gerGbeanRef.getPatternArray();
+
+        String[] interfaceTypesArray = gerGbeanRef.getRefTypeArray();
+        Set interfaceTypes = new HashSet(Arrays.asList(interfaceTypesArray));
+        Set queries = new HashSet();
+        for (int i = 0; i < gbeanLocatorArray.length; i++) {
+            GerPatternType patternType = gbeanLocatorArray[i];
+            AbstractNameQuery abstractNameQuery = buildAbstractNameQuery(patternType, null, null, interfaceTypes);
+            queries.add(abstractNameQuery);
+        }
+
+        GBeanData gBeanData;
+        Configuration configuration = earContext.getConfiguration();
+        try {
+            gBeanData = configuration.findGBeanData(queries);
+        } catch (GBeanNotFoundException e) {
+            throw new DeploymentException("Could not resolve reference at deploy time for queries " + queries, e);
+        }
+
+        if (interfaceTypes.isEmpty()) {
+            interfaceTypes.add(gBeanData.getGBeanInfo().getClassName());
+        }
+        Class gBeanType;
+        try {
+            gBeanType = ClassLoading.loadClass(gBeanData.getGBeanInfo().getClassName(), cl);
+        } catch (ClassNotFoundException e) {
+            throw new DeploymentException("Cannot load GBean class", e);
+        }
+
+        String refName = gerGbeanRef.getRefName();
+
+        builder.bind(refName, new GBeanReference(configuration.getId(), queries, gBeanType));
     }
 
     private static Map mapEjbRefs(GerEjbRefType[] refs) {
@@ -801,7 +856,7 @@ public class ENCConfigBuilder {
     }
 
     //TODO consider including target interface
-    public static AbstractNameQuery buildAbstractNameQuery(GerPatternType pattern, String type, String moduleType) {
+    public static AbstractNameQuery buildAbstractNameQuery(GerPatternType pattern, String type, String moduleType, Set interfaceTypes) {
         String groupId = pattern.isSetGroupId() ? pattern.getGroupId().trim() : null;
         String artifactid = pattern.isSetArtifactId() ? pattern.getArtifactId().trim() : null;
         String version = pattern.isSetVersion() ? pattern.getVersion().trim() : null;
@@ -814,10 +869,10 @@ public class ENCConfigBuilder {
         if (type != null) {
             nameMap.put("j2eeType", type);
         }
-        if (module != null) {
+        if (module != null && moduleType != null) {
             nameMap.put(moduleType, module);
         }
-        return new AbstractNameQuery(artifact, nameMap);
+        return new AbstractNameQuery(artifact, nameMap, interfaceTypes);
     }
 
     public static AbstractNameQuery buildAbstractNameQuery(Artifact configId, String module, String name, String type, String moduleType) {
