@@ -18,6 +18,7 @@ package org.apache.geronimo.deployment;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.jar.JarOutputStream;
 
@@ -80,13 +81,23 @@ public class PluginBootstrap {
         ArtifactManager artifactManager = new DefaultArtifactManager();
         ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.singleton(repository), null);
         DeploymentContext context = builder.buildConfiguration(false, builder.getConfigurationID(config, null, new ModuleIDBuilder()), config, null, Collections.singleton(targetConfigurationStore), artifactResolver, targetConfigurationStore);
-        ConfigurationData configurationData = context.getConfigurationData();
-
-        JarOutputStream out = new JarOutputStream(new FileOutputStream(carFile));
-        ExecutableConfigurationUtil.writeConfiguration(configurationData, out);
-        out.flush();
-        out.close();
-
-        context.close();
+        JarOutputStream out = null;
+        try {
+            ConfigurationData configurationData = context.getConfigurationData();
+            out = new JarOutputStream(new FileOutputStream(carFile));
+            ExecutableConfigurationUtil.writeConfiguration(configurationData, out);
+            out.flush();
+        } finally {
+            if (out != null)
+            {
+                try {
+                    out.close();
+                } catch (IOException ignored) {
+                    // ignored
+                }
+            }
+            if (context != null)
+                context.close();
+        }
     }
 }
