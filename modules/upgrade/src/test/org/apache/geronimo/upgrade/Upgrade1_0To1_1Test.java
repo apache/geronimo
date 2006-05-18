@@ -21,8 +21,8 @@ package org.apache.geronimo.upgrade;
 import java.net.URL;
 import java.util.List;
 import java.util.ArrayList;
+import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.StringWriter;
 import java.io.Writer;
 
@@ -32,7 +32,6 @@ import junit.framework.TestCase;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
-import org.apache.geronimo.schema.SchemaConversionUtils;
 
 /**
  * @version $Rev:$ $Date:$
@@ -72,19 +71,30 @@ public class Upgrade1_0To1_1Test extends TestCase {
 
     private void test(String testName) throws Exception {
         InputStream srcXml = classLoader.getResourceAsStream(testName + ".xml");
-        Writer targetXml = new StringWriter();
-        new Upgrade1_0To1_1().upgrade(srcXml, targetXml);
-
-        String targetString = targetXml.toString();
-        XmlObject targetXmlObject = XmlObject.Factory.parse(targetString);
-        URL expectedOutputXml = classLoader.getResource(testName + "_result.xml");
-        XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
-        List problems = new ArrayList();
-        boolean ok = compareXmlObjects(targetXmlObject, expected, problems);
-        if (!ok) {
-            System.out.println(targetString);
+        try {
+            Writer targetXml = new StringWriter();
+            new Upgrade1_0To1_1().upgrade(srcXml, targetXml);
+        
+            String targetString = targetXml.toString();
+            XmlObject targetXmlObject = XmlObject.Factory.parse(targetString);
+            URL expectedOutputXml = classLoader.getResource(testName + "_result.xml");
+            XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
+            List problems = new ArrayList();
+            boolean ok = compareXmlObjects(targetXmlObject, expected, problems);
+            if (!ok) {
+                System.out.println(targetString);
+            }
+            assertTrue("Differences: " + problems, ok);
+        } finally {
+            if (srcXml != null)
+            {
+                try {
+                    srcXml.close();
+                } catch (IOException ignored) {
+                    // ignored
+                }
+            }
         }
-        assertTrue("Differences: " + problems, ok);
     }
 
     private boolean compareXmlObjects(XmlObject xmlObject, XmlObject expectedObject, List problems) {
