@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.console.core.system.serverinfo;
 
+import java.io.InputStream;
 import java.util.Properties;
 
 public class ServerConstants {
@@ -91,12 +92,26 @@ public class ServerConstants {
      */
     static {
         Properties versionInfo = new Properties();
+        InputStream in = ServerConstants.class.getClassLoader()
+            .getResourceAsStream(PROPERTIES_FILE);
+        if(in == null) {
+            throw new ExceptionInInitializerError(new Exception(
+                    "Unable to locate geronimo-version.properties"));
+        }
+
         try {
-            versionInfo.load(ServerConstants.class.getClassLoader()
-                    .getResourceAsStream(PROPERTIES_FILE));
+            versionInfo.load(in);
         } catch (java.io.IOException e) {
             throw new ExceptionInInitializerError(new Exception(
                     "Could not load geronimo-version.properties", e));
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (java.io.IOException ignored) {
+                    // ignore
+                }
+            }
         }
         VERSION = versionInfo.getProperty("version");
         if (VERSION == null || VERSION.length() == 0) {

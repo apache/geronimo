@@ -353,9 +353,15 @@ public class JMSProviderData implements Serializable {
         Properties props = new Properties();
         try {
             props.load(in);
-            in.close();
         } catch (IOException e) {
             log.error("Unable to read JMS provider properties file", e);
+        } finally {
+            // load could fail, ensure stream is closed.
+            try {
+                in.close();
+            } catch (IOException ignore) {
+                // ignore
+            }
         }
         Set set = new HashSet();
         // Find the names of the provider entries

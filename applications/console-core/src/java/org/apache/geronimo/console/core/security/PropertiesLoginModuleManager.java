@@ -19,6 +19,7 @@ package org.apache.geronimo.console.core.security;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
@@ -58,42 +59,78 @@ public class PropertiesLoginModuleManager {
 
     private void refreshUsers() {
         users.clear();
+        InputStream in = null;
         try {
-            users.load(serverInfo.resolve(getUsersURI()).toURL().openStream());
+            in = serverInfo.resolve(getUsersURI()).toURL().openStream();
+            users.load(in);
         } catch (Exception e) {
             throw new GeronimoSecurityException(e);
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException ignored) {
+                    // ignored
+                }
+            }
         }
     }
 
     private void refreshGroups() throws GeronimoSecurityException {
         groups.clear();
+        InputStream in = null;
         try {
-            groups
-                    .load(serverInfo.resolve(getGroupsURI()).toURL()
-                            .openStream());
+            in = serverInfo.resolve(getGroupsURI()).toURL().openStream();
+            groups.load(in);
         } catch (Exception e) {
             throw new GeronimoSecurityException(e);
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException ignored) {
+                    // ignored
+                }
+            }
         }
     }
 
     public String[] getUsers() throws GeronimoSecurityException {
         users.clear();
+        InputStream in = null;
         try {
-            users.load(serverInfo.resolve(getUsersURI()).toURL().openStream());
+            in = serverInfo.resolve(getUsersURI()).toURL().openStream();
+            users.load(in);
         } catch (Exception e) {
             throw new GeronimoSecurityException(e);
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException ignored) {
+                    // ignored
+                }
+            }
         }
         return (String[]) users.keySet().toArray(new String[0]);
     }
 
     public String[] getGroups() throws GeronimoSecurityException {
         groups.clear();
+        InputStream in = null;
         try {
-            groups
-                    .load(serverInfo.resolve(getGroupsURI()).toURL()
-                            .openStream());
+            in = serverInfo.resolve(getGroupsURI()).toURL().openStream();
+            groups.load(in);
         } catch (Exception e) {
             throw new GeronimoSecurityException(e);
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException ignored) {
+                    // ignored
+                }
+            }
         }
         return (String[]) groups.keySet().toArray(new String[0]);
     }
@@ -226,23 +263,28 @@ public class PropertiesLoginModuleManager {
     }
 
     private void store(Properties props, URL url) throws Exception {
-        OutputStream out;
+        OutputStream out = null;
         try {
-            URLConnection con = url.openConnection();
-            con.setDoOutput(true);
-            out = con.getOutputStream();
-        } catch (Exception e) {
-            if ("file".equalsIgnoreCase(url.getProtocol()) && e instanceof UnknownServiceException) {
-                out = new FileOutputStream(new File(url.getFile()));
-            } else {
-                throw e;
+            try {
+                URLConnection con = url.openConnection();
+                con.setDoOutput(true);
+                out = con.getOutputStream();
+            } catch (Exception e) {
+                if ("file".equalsIgnoreCase(url.getProtocol()) && e instanceof UnknownServiceException) {
+                    out = new FileOutputStream(new File(url.getFile()));
+                } else {
+                    throw e;
+                }
             }
-        }
-        props.store(out, null);
-        try {
-            out.close();
-        } catch (IOException ie) {
-            // Ignore
+            props.store(out, null);
+        } finally {
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException ignored) {
+                    // ignored
+                }
+            }
         }
     }
 
