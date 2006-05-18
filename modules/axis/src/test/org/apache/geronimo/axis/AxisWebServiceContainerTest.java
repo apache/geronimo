@@ -15,6 +15,7 @@
  */
 package org.apache.geronimo.axis;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Collections;
@@ -94,26 +95,36 @@ public class AxisWebServiceContainerTest extends AbstractTestCase {
         URI location = new URI(serviceDesc.getEndpointURL());
         Map wsdlMap = new HashMap();
 
-        AxisWebServiceContainer continaer =
+        AxisWebServiceContainer container =
             new AxisWebServiceContainer(location, wsdlURL, service, wsdlMap, cl);
 
         InputStream in = cl.getResourceAsStream("echoString-req.txt");
 
-        AxisRequest req =
-            new AxisRequest(
-                504,
-                "text/xml; charset=utf-8",
-                in,
-                0,
-                new HashMap(),
-                location,
-                new HashMap());
-        AxisResponse res =
-            new AxisResponse("text/xml; charset=utf-8", "127.0.0.1", null, null, 8080, System.out);
-
-        req.setAttribute(WebServiceContainer.POJO_INSTANCE, pojoClass.newInstance());
-        continaer.invoke(req, res);
-        System.out.flush();
+        try {
+            AxisRequest req =
+                new AxisRequest(
+                    504,
+                    "text/xml; charset=utf-8",
+                    in,
+                    0,
+                    new HashMap(),
+                    location,
+                    new HashMap());
+            AxisResponse res =
+                new AxisResponse("text/xml; charset=utf-8", "127.0.0.1", null, null, 8080, System.out);
+        
+            req.setAttribute(WebServiceContainer.POJO_INSTANCE, pojoClass.newInstance());
+            container.invoke(req, res);
+            System.out.flush();
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException ignore) {
+                    // ignore
+                }
+            }
+        }
     }
 
     protected void setUp() throws Exception {

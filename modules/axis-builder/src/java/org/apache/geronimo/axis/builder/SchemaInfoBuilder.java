@@ -31,7 +31,6 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import javax.wsdl.Definition;
 import javax.wsdl.Import;
-import javax.wsdl.Port;
 import javax.wsdl.Service;
 import javax.wsdl.Types;
 import javax.wsdl.WSDLException;
@@ -39,7 +38,6 @@ import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.ExtensionRegistry;
 import javax.wsdl.extensions.UnknownExtensibilityElement;
 import javax.wsdl.extensions.schema.Schema;
-import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLLocator;
 import javax.wsdl.xml.WSDLReader;
@@ -51,12 +49,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.axis.server.AxisWebServiceContainer;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.wsdl.DefinitionsDocument;
 import org.apache.geronimo.xbeans.wsdl.TDefinitions;
 import org.apache.geronimo.xbeans.wsdl.TPort;
 import org.apache.geronimo.xbeans.wsdl.TService;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.xmlbeans.SchemaField;
 import org.apache.xmlbeans.SchemaGlobalElement;
@@ -81,7 +77,7 @@ import org.xml.sax.SAXException;
 public class SchemaInfoBuilder {
     private static final Log log = LogFactory.getLog(SchemaInfoBuilder.class);
     private static final SchemaTypeSystem basicTypeSystem;
-    private static final String[] errorNames = {"Error", "Warning", "Info"};
+//  private static final String[] errorNames = {"Error", "Warning", "Info"};
     private static final String SOAP_NS = "http://schemas.xmlsoap.org/wsdl/soap/";
     private static final QName ADDRESS_QNAME = new QName(SOAP_NS, "address");
     private static final QName LOCATION_QNAME = new QName("", "location");
@@ -107,6 +103,12 @@ public class SchemaInfoBuilder {
             throw new RuntimeException("Could not compile schema type system", e);
         } catch (IOException e) {
             throw new RuntimeException("Could not compile schema type system", e);
+        } finally {
+            try {
+                is.close();
+            } catch (IOException ignore) {
+                // ignore
+            }
         }
     }
 
