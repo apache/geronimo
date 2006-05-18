@@ -40,7 +40,7 @@ public class SerializedConfigurationMarshaler implements ConfigurationMarshaler 
         if (pushbackInputStream.read(streamHeader) != 2) throw new AssertionError("Cound not read stream header");
         pushbackInputStream.unread(streamHeader);
 
-        // if this is a serialized config, fallback to the serialization marshaler
+        // if this isn't a serialized config, fallback to the xstream marshaler
         if (SERIALIZED_MAGIC[0] != streamHeader[0] || SERIALIZED_MAGIC[1] != streamHeader[1]) {
             ConfigurationMarshaler marshaler;
             try {
