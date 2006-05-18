@@ -249,8 +249,18 @@ public class Daemon {
 
             // load this configuration
             InputStream in = classLoader.getResourceAsStream("META-INF/config.ser");
-            ConfigurationUtil.loadBootstrapConfiguration(kernel, in, classLoader);
-
+            try {
+                ConfigurationUtil.loadBootstrapConfiguration(kernel, in, classLoader);
+            } finally {
+                if (in != null) {
+                    try {
+                        in.close();
+                    } catch (IOException ignored) {
+                        // ignored
+                    }
+                }
+            }
+            
             monitor.systemStarted(kernel);
 
             AbstractNameQuery query = new AbstractNameQuery(PersistentConfigurationList.class.getName());

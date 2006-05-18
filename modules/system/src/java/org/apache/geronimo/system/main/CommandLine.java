@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.system.main;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
@@ -115,14 +116,22 @@ public class CommandLine {
     protected void startKernel() throws Exception {
         ClassLoader classLoader = CommandLine.class.getClassLoader();
         InputStream in = classLoader.getResourceAsStream("META-INF/config.ser");
-
-        // boot the kernel
-        kernel = KernelFactory.newInstance().createKernel("geronimo");
-        kernel.boot();
-
-        // load the configuration
-        configurationName = ConfigurationUtil.loadBootstrapConfiguration(kernel, in, classLoader);
-
+        try {
+            // boot the kernel
+            kernel = KernelFactory.newInstance().createKernel("geronimo");
+            kernel.boot();
+    
+            // load the configuration
+            configurationName = ConfigurationUtil.loadBootstrapConfiguration(kernel, in, classLoader);
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException ignored) {
+                    // ignored
+                }
+            }
+        }
     }
 
     protected void startKernel(Artifact moduleId) throws Exception {

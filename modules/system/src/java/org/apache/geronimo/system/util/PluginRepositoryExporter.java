@@ -17,6 +17,7 @@ package org.apache.geronimo.system.util;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.InputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collection;
@@ -98,7 +99,20 @@ public class PluginRepositoryExporter {
         destRepo = new Maven2Repository(outFile);
         destRepo.setTypeHandler("car", new CopyArtifactTypeHandler());
         Properties props = new Properties();
-        props.load(PluginRepositoryExporter.class.getResourceAsStream("/META-INF/product-versions.properties"));
+        InputStream is = PluginRepositoryExporter.class.getResourceAsStream("/META-INF/product-versions.properties");
+        if(is == null) {
+            throw new IOException("Unable to locate /META-INF/product-versions.properties");
+        }        
+        try {
+            props.load(is);
+        } finally {
+            try {
+                is.close();
+            } catch (IOException ignored) {
+                // ignored
+            }
+        }
+        
         targetVersions = new HashMap();
         for (Iterator it = props.keySet().iterator(); it.hasNext();) {
             String product = (String) it.next();

@@ -134,9 +134,11 @@ public class ConfigurationStoreUtil {
     }
 
     private static String calculateChecksum(File file, String algorithm) throws NoSuchAlgorithmException, IOException {
-        InputStream stream = new FileInputStream(file);
 
+        InputStream stream = null;
         try {
+            stream = new FileInputStream(file);
+            
             MessageDigest digester = MessageDigest.getInstance(algorithm);
             digester.reset();
 
@@ -151,7 +153,8 @@ public class ConfigurationStoreUtil {
             return actualChecksum;
         } finally {
             try {
-                stream.close();
+                if (stream != null)
+                    stream.close();
             } catch (IOException ignored) {
             }
         }

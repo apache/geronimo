@@ -331,7 +331,8 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
         if (!attributeFile.exists()) {
             return;
         }
-        InputSource in = new InputSource(new FileInputStream(attributeFile));
+        FileInputStream fis = new FileInputStream(attributeFile);
+        InputSource in = new InputSource(fis);
         DocumentBuilderFactory dfactory = DocumentBuilderFactory.newInstance();
         try {
             Document doc = dfactory.newDocumentBuilder().parse(in);
@@ -343,6 +344,9 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
             log.error("Unable to read saved manageable attributes", e);
         } catch (InvalidGBeanException e) {
             log.error("Unable to read saved manageable attributes", e);
+        } finally {
+            if (fis != null)
+                fis.close();
         }
     }
 
