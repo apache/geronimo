@@ -333,9 +333,15 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
         }
         FileInputStream fis = new FileInputStream(attributeFile);
         InputSource in = new InputSource(fis);
-        DocumentBuilderFactory dfactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilderFactory dFactory = DocumentBuilderFactory.newInstance();
         try {
-            Document doc = dfactory.newDocumentBuilder().parse(in);
+            dFactory.setValidating(true);
+            dFactory.setNamespaceAware(true);
+            dFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaLanguage",
+                                 "http://www.w3.org/2001/XMLSchema");
+            dFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaSource",
+                                 LocalAttributeManager.class.getResourceAsStream("/META-INF/schema/local-attributes-1.1.xsd"));
+            Document doc = dFactory.newDocumentBuilder().parse(in);
             Element root = doc.getDocumentElement();
             serverOverride = new ServerOverride(root);
         } catch (SAXException e) {

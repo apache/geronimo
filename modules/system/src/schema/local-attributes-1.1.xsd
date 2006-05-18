@@ -17,12 +17,12 @@
 -->
 
 <xsd:schema
-    targetNamespace="http://geronimo.apache.org/xml/ns/attributes"
-    xmlns:atts="http://geronimo.apache.org/xml/ns/attributes"
+    targetNamespace="http://geronimo.apache.org/xml/ns/attributes-1.1"
+    xmlns:atts="http://geronimo.apache.org/xml/ns/attributes-1.1"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     elementFormDefault="qualified"
     attributeFormDefault="unqualified"
-    version="1.0">
+    >
 
     <xsd:annotation>
         <xsd:documentation>
@@ -42,11 +42,11 @@
         </xsd:documentation>
     </xsd:annotation>
 
-    <!--
- temporary (I hope) individual elements while xmlbeans group handling is straightened out
- -->
-
+    <!-- Main element for the manageable attribute store configuration -->
     <xsd:element name="attributes" type="atts:attributesType"/>
+
+    <!-- Element used by the plugin system to list individual GBeans -->
+    <xsd:element name="gbean" type="atts:gbeanType" />
 
     <xsd:complexType name="attributesType">
         <xsd:choice>
@@ -91,6 +91,7 @@
         <xsd:simpleContent>
             <xsd:extension base="xsd:string">
                 <xsd:attribute name="name" use="required"/>
+                <xsd:attribute name="null" use="optional"/>
             </xsd:extension>
         </xsd:simpleContent>
     </xsd:complexType>
@@ -100,7 +101,12 @@
             <xsd:element name="pattern" minOccurs="1" maxOccurs="unbounded">
               <xsd:complexType>
                   <xsd:sequence>
-                      <xsd:element name="gbean-name" type="xsd:string"/>
+                      <xsd:element name="groupId" type="xsd:string" minOccurs="0"/>
+                      <xsd:element name="artifactId" type="xsd:string" minOccurs="0"/>
+                      <xsd:element name="version" type="xsd:string" minOccurs="0"/>
+                      <xsd:element name="type" type="xsd:string" minOccurs="0"/>
+                      <xsd:element name="module" type="xsd:string" minOccurs="0"/>
+                      <xsd:element name="name" type="xsd:string"/>
                   </xsd:sequence>
               </xsd:complexType>
             </xsd:element>

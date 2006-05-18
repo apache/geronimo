@@ -167,7 +167,7 @@ class GBeanOverride {
                 continue;
             }
 
-            for (int p = 0; p < references.getLength(); p++) {
+            for (int p = 0; p < patterns.getLength(); p++) {
                 Element pattern = (Element) patterns.item(p);
                 if (pattern == null)
                     continue;
