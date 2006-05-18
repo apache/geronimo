@@ -29,6 +29,8 @@ import org.apache.geronimo.security.jaas.server.JaasLoginService;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.jacc.RoleDesignateSource;
+import org.apache.geronimo.security.jacc.ApplicationPrincipalRoleConfigurationManager;
+import org.apache.geronimo.security.jacc.PrincipalRoleMapper;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -126,9 +128,10 @@ public class AbstractWebModuleTest extends TestCase {
 
     protected JettyWebAppContext setUpSecureAppContext(Map roleDesignates, Map principalRoleMap, ComponentPermissions componentPermissions, DefaultPrincipal defaultPrincipal, PermissionCollection checked, Set securityRoles) throws Exception {
         String policyContextId = "TEST";
+        PrincipalRoleMapper roleMapper = new ApplicationPrincipalRoleConfigurationManager(principalRoleMap);
         Map contextIDToPermissionsMap = new HashMap();
         contextIDToPermissionsMap.put(policyContextId, componentPermissions);
-        ApplicationPolicyConfigurationManager jacc = new ApplicationPolicyConfigurationManager(contextIDToPermissionsMap, principalRoleMap, roleDesignates, cl);
+        ApplicationPolicyConfigurationManager jacc = new ApplicationPolicyConfigurationManager(contextIDToPermissionsMap, roleDesignates, cl, roleMapper);
         jacc.doStart();
 
         FormAuthenticator formAuthenticator = new FormAuthenticator();

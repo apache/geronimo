@@ -35,6 +35,8 @@ import org.apache.geronimo.security.jaas.server.JaasLoginService;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.jacc.RoleDesignateSource;
+import org.apache.geronimo.security.jacc.ApplicationPrincipalRoleConfigurationManager;
+import org.apache.geronimo.security.jacc.PrincipalRoleMapper;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -91,9 +93,10 @@ public abstract class AbstractWebModuleTest extends TestCase {
     }
 
     protected TomcatWebAppContext setUpSecureAppContext(Map roleDesignates, Map principalRoleMap, ComponentPermissions componentPermissions, RealmGBean realm, SecurityHolder securityHolder) throws Exception {
+        PrincipalRoleMapper roleMapper = new ApplicationPrincipalRoleConfigurationManager(principalRoleMap);
         Map contextIDToPermissionsMap = new HashMap();
         contextIDToPermissionsMap.put(POLICY_CONTEXT_ID, componentPermissions);
-        ApplicationPolicyConfigurationManager jacc = new ApplicationPolicyConfigurationManager(contextIDToPermissionsMap, principalRoleMap, roleDesignates, cl);
+        ApplicationPolicyConfigurationManager jacc = new ApplicationPolicyConfigurationManager(contextIDToPermissionsMap, roleDesignates, cl, roleMapper);
         jacc.doStart();
 
         URL configurationBaseURL = new File("target/var/catalina/webapps/war3/WEB-INF/web.xml").toURL();

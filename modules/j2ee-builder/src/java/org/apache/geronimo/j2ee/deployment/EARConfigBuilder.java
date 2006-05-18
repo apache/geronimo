@@ -59,6 +59,8 @@ import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.gbean.SingleElementCollection;
 import org.apache.geronimo.j2ee.ApplicationInfo;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.management.impl.J2EEApplicationImpl;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Kernel;
@@ -88,13 +90,13 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Rev:385232 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class EARConfigBuilder implements ConfigurationBuilder {
 
-    private static final Log log = LogFactory.getLog(EARConfigBuilder.class);    
+    private static final Log log = LogFactory.getLog(EARConfigBuilder.class);
     private static final String LINE_SEP = System.getProperty("line.separator");
-    
+
     private final static QName APPLICATION_QNAME = GerApplicationDocument.type.getDocumentElementName();
 
     private final ConfigurationManager configurationManager;
@@ -543,7 +545,10 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
             //add the JACC gbean if there is a principal-role mapping
             if (earContext.getSecurityConfiguration() != null) {
+                GBeanData roleMapperData = SecurityBuilder.configureRoleMapper(naming, earContext.getModuleName(), earContext.getSecurityConfiguration());
+                earContext.addGBean(roleMapperData);
                 GBeanData jaccBeanData = SecurityBuilder.configureApplicationPolicyManager(naming, earContext.getModuleName(), earContext.getContextIDToPermissionsMap(), earContext.getSecurityConfiguration());
+                jaccBeanData.setReferencePattern("PrincipalRoleMapper", roleMapperData.getAbstractName());
                 earContext.addGBean(jaccBeanData);
                 earContext.setJaccManagerName(jaccBeanData.getAbstractName());
             }
