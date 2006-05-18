@@ -108,7 +108,7 @@ public final class ConfigurationUtil {
             if (object instanceof ConfigurationMarshaler) {
                 return (ConfigurationMarshaler) object;
             } else {
-                log.warn("Configuration marshaler class is not an istance of ConfigurationMarshaler " + marshalerClass + ": using default configuration ");
+                log.warn("Configuration marshaler class is not an instance of ConfigurationMarshaler " + marshalerClass + ": using default configuration ");
             }
         }
         return null;
