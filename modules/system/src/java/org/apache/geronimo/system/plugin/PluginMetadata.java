@@ -19,6 +19,7 @@ package org.apache.geronimo.system.plugin;
 import java.io.Serializable;
 import java.net.URL;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.system.configuration.GBeanOverride;
 
 /**
  * Various metadata on a configuration that's used when listing, importing,
@@ -43,6 +44,7 @@ public class PluginMetadata implements Serializable, Comparable {
     private String[] obsoletes = new String[0];
     private URL[] repositories = new URL[0];
     private CopyFile[] filesToCopy = new CopyFile[0];
+    private GBeanOverride[] configXmls = new GBeanOverride[0];
 
     private final boolean installed;
     private final boolean eligible;
@@ -201,6 +203,17 @@ public class PluginMetadata implements Serializable, Comparable {
 
     public void setFilesToCopy(CopyFile[] filesToCopy) {
         this.filesToCopy = filesToCopy;
+    }
+
+    /**
+     * Gets a list of settings to populate in config.xml
+     */
+    public GBeanOverride[] getConfigXmls() {
+        return configXmls;
+    }
+
+    public void setConfigXmls(GBeanOverride[] configXmls) {
+        this.configXmls = configXmls;
     }
 
     public int compareTo(Object o) {

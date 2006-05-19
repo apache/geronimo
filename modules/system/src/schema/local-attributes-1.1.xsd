@@ -92,6 +92,7 @@
             <xsd:extension base="xsd:string">
                 <xsd:attribute name="name" use="required"/>
                 <xsd:attribute name="null" use="optional"/>
+                <xsd:attribute name="value" use="optional"/>
             </xsd:extension>
         </xsd:simpleContent>
     </xsd:complexType>

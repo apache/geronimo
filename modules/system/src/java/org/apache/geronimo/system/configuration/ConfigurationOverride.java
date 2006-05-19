@@ -21,6 +21,7 @@ import org.apache.geronimo.kernel.InvalidGBeanException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.Document;
 
 import java.io.PrintWriter;
 import java.util.Iterator;
@@ -96,21 +97,19 @@ class ConfigurationOverride {
         gbeans.put(gbeanName, gbean);
     }
 
-    public void writeXml(PrintWriter out) {
-        out.print("  <module name=\"" + name + "\"");
-        if (!load) {
-            out.print(" load=\"false\"");
+    public Element writeXml(Document doc, Element root) {
+        Element module = doc.createElement("module");
+        root.appendChild(module);
+        module.setAttribute("name", name.toString());
+        if(!load) {
+            module.setAttribute("load", "false");
         }
-        out.println(">");
-
         // GBeans
         for (Iterator gb = gbeans.entrySet().iterator(); gb.hasNext();) {
             Map.Entry gbean = (Map.Entry) gb.next();
-
             GBeanOverride gbeanOverride = (GBeanOverride) gbean.getValue();
-            gbeanOverride.writeXml(out);
+            gbeanOverride.writeXml(doc, module);
         }
-
-        out.println("  </module>");
+        return module;
     }
 }

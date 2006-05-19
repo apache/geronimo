@@ -20,6 +20,7 @@ import java.beans.PropertyEditor;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.Serializable;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,11 +44,12 @@ import org.apache.geronimo.util.EncryptionManager;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.Document;
 
 /**
  * @version $Rev$ $Date$
  */
-class GBeanOverride {
+public class GBeanOverride implements Serializable {
     private final Object name;
     private boolean load;
     private final Map attributes = new LinkedHashMap();
@@ -128,7 +130,7 @@ class GBeanOverride {
                         .decrypt(attribute.getAttribute("value")));
                 continue;
             }
-            
+
             // Check to see if there is a null attribute
             if (attribute.hasAttribute("null")) {
                 String nullString = attribute.getAttribute("null");
@@ -159,7 +161,7 @@ class GBeanOverride {
 
             Set objectNamePatterns = new LinkedHashSet();
             NodeList patterns = reference.getElementsByTagName("pattern");
-            
+
             // If there is no pattern, then its an empty set, so its a
             // cleared value
             if (patterns.getLength() == 0) {
@@ -261,7 +263,7 @@ class GBeanOverride {
     public ArrayList getClearAttributes() {
         return clearAttributes;
     }
-    
+
     public ArrayList getNullAttributes() {
         return nullAttributes;
     }
@@ -269,7 +271,7 @@ class GBeanOverride {
     public boolean getNullAttribute(String attributeName) {
         return nullAttributes.contains(attributeName);
     }
-    
+
     public boolean getClearAttribute(String attributeName) {
         return clearAttributes.contains(attributeName);
     }
@@ -286,7 +288,7 @@ class GBeanOverride {
         if (!clearAttributes.contains(attributeName))
             clearAttributes.add(attributeName);
     }
-    
+
     public void setNullAttribute(String attributeName) {
         if (!nullAttributes.contains(attributeName))
             nullAttributes.add(attributeName);
@@ -318,7 +320,12 @@ class GBeanOverride {
         references.put(name, patterns);
     }
 
-    public void writeXml(PrintWriter out) {
+    /**
+     * Creates a new child of the supplied parent with the data for this
+     * GBeanOverride, adds it to the parent, and then returns the new
+     * child element.
+     */
+    public Element writeXml(Document doc, Element parent) {
         String gbeanName;
         if (name instanceof String) {
             gbeanName = (String) name;
@@ -326,15 +333,15 @@ class GBeanOverride {
             gbeanName = name.toString();
         }
 
-        out.print("    <gbean name=\"" + gbeanName + "\"");
+        Element gbean = doc.createElement("gbean");
+        parent.appendChild(gbean);
+        gbean.setAttribute("name", gbeanName);
         if (gbeanInfo != null) {
-            out.print(" gbeanInfo=\"" + gbeanInfo + "\"");
+            gbean.setAttribute("gbeanInfo", gbeanInfo);
         }
-
         if (!load) {
-            out.print(" load=\"false\"");
+            gbean.setAttribute("load", "false");
         }
-        out.println(">");
 
         // attributes
         for (Iterator iterator = attributes.entrySet().iterator(); iterator.hasNext();) {
@@ -344,22 +351,30 @@ class GBeanOverride {
             if(name.toLowerCase().indexOf("password") > -1) {
                 value = EncryptionManager.encrypt(value);
             }
+            Element attribute = doc.createElement("attribute");
+            gbean.appendChild(attribute);
+            attribute.setAttribute("name", name);
             if (value.length() == 0)
-                out.println("      <attribute name=\"" + name + "\" value=\"\" />");
+                attribute.setAttribute("value", "");
             else
-                out.println("      <attribute name=\"" + name + "\">" +  value + "</attribute>");
+                attribute.appendChild(doc.createTextNode(value));
         }
 
         // cleared attributes
         for (Iterator iterator = clearAttributes.iterator(); iterator.hasNext();) {
             String name = (String) iterator.next();
-            out.println("      <attribute name=\"" + name + "\" />");
+            Element attribute = doc.createElement("attribute");
+            gbean.appendChild(attribute);
+            attribute.setAttribute("name", name);
         }
-        
+
         // Null attributes
         for (Iterator iterator = nullAttributes.iterator(); iterator.hasNext();) {
             String name = (String) iterator.next();
-            out.println("      <attribute name=\"" + name + "\" null=\"true\" />");
+            Element attribute = doc.createElement("attribute");
+            gbean.appendChild(attribute);
+            attribute.setAttribute("name", name);
+            attribute.setAttribute("null", "true");
         }
 
         // references
@@ -368,7 +383,9 @@ class GBeanOverride {
             String name = (String) entry.getKey();
             ReferencePatterns patterns = (ReferencePatterns) entry.getValue();
 
-            out.println("      <reference name=\"" + name + "\">");
+            Element reference = doc.createElement("reference");
+            reference.setAttribute("name", name);
+            gbean.appendChild(reference);
             Set patternSet;
             if(patterns.isResolved()) {
                 patternSet = Collections.singleton(new AbstractNameQuery(patterns.getAbstractName()));
@@ -377,40 +394,54 @@ class GBeanOverride {
             }
             for (Iterator patternIterator = patternSet.iterator(); patternIterator.hasNext();) {
                 AbstractNameQuery pattern = (AbstractNameQuery) patternIterator.next();
-                out.println("          <pattern>");
+                Element pat = doc.createElement("pattern");
+                reference.appendChild(pat);
                 Artifact artifact = pattern.getArtifact();
                 if (artifact != null) {
                     if (artifact.getGroupId() != null) {
-                        out.println("              <groupId>" + artifact.getGroupId() + "</groupId>");
+                        Element group = doc.createElement("groupId");
+                        group.appendChild(doc.createTextNode(artifact.getGroupId()));
+                        pat.appendChild(group);
                     }
-                    out.println("              <artifactId>" + artifact.getArtifactId() + "</artifactId>");
+                    if(artifact.getArtifactId() != null) {
+                        Element art = doc.createElement("artifactId");
+                        art.appendChild(doc.createTextNode(artifact.getArtifactId()));
+                        pat.appendChild(art);
+                    }
                     if (artifact.getVersion() != null) {
-                        out.println("              <version>" + artifact.getVersion() + "</version>");
+                        Element version = doc.createElement("version");
+                        version.appendChild(doc.createTextNode(artifact.getVersion().toString()));
+                        pat.appendChild(version);
                     }
                     if (artifact.getType() != null) {
-                        out.println("              <type>" + artifact.getType() + "</type>");
+                        Element type = doc.createElement("type");
+                        type.appendChild(doc.createTextNode(artifact.getType()));
+                        pat.appendChild(type);
                     }
                     Map nameMap = pattern.getName();
                     if (nameMap.get("module") != null) {
-                        out.println("              <module>" + nameMap.get("module") + "</module>");
+                        Element module = doc.createElement("module");
+                        module.appendChild(doc.createTextNode(nameMap.get("module").toString()));
+                        pat.appendChild(module);
                     }
                     if (nameMap.get("name") != null) {
-                        out.println("              <name>" + nameMap.get("name") + "</name>");
+                        Element patName = doc.createElement("name");
+                        patName.appendChild(doc.createTextNode(nameMap.get("name").toString()));
+                        pat.appendChild(patName);
                     }
                 }
-                out.print(pattern.toString());
-                out.println("</pattern>");
+//                out.print(pattern.toString());
             }
-            out.println("      </reference>");
         }
 
         // cleared references
         for (Iterator iterator = clearReferences.iterator(); iterator.hasNext();) {
             String name = (String) iterator.next();
-            out.println("      <reference name=\"" + name + "\" />");
+            Element reference = doc.createElement("reference");
+            reference.setAttribute("name", name);
+            gbean.appendChild(reference);
         }
-
-        out.println("    </gbean>");
+        return gbean;
     }
 
     public static String getAsText(Object value, String type) throws InvalidAttributeException {

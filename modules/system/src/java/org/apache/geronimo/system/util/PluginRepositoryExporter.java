@@ -169,7 +169,7 @@ public class PluginRepositoryExporter {
                 return null;
             }
         };
-        installer = new PluginInstallerGBean(null, destRepo, store, info, null);
+        installer = new PluginInstallerGBean(null, destRepo, store, info, null, null);
     }
 
     public void execute() throws IOException {

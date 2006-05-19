@@ -41,12 +41,16 @@ import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.dom.DOMSource;
 import java.beans.PropertyEditor;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -61,7 +65,7 @@ import java.util.TimerTask;
  *
  * @version $Rev$ $Date$
  */
-public class LocalAttributeManager implements ManageableAttributeStore, PersistentConfigurationList, GBeanLifecycle {
+public class LocalAttributeManager implements PluginAttributeStore, PersistentConfigurationList, GBeanLifecycle {
     private final static Log log = LogFactory.getLog(LocalAttributeManager.class);
 
     private final static String CONFIG_FILE_PROPERTY = "org.apache.geronimo.config.file";
@@ -245,6 +249,18 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
         }
     }
 
+    public void setModuleGBeans(Artifact moduleName, GBeanOverride[] gbeans) {
+        if (readOnly) {
+            return;
+        }
+        ConfigurationOverride configuration = serverOverride.getConfiguration(moduleName, true);
+        for (int i = 0; i < gbeans.length; i++) {
+            GBeanOverride gbean = gbeans[i];
+            configuration.addGBean(gbean);
+        }
+        attributeChanged();
+    }
+
     public synchronized void setValue(Artifact configurationName, AbstractName gbeanName, GAttributeInfo attribute, Object value) {
         if (readOnly) {
             return;
@@ -369,9 +385,7 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
         }
 
         // write the new configuration to the temp file
-        PrintWriter out = new PrintWriter(new FileWriter(tempFile), true);
-        serverOverride.writeXml(out);
-        out.close();
+        saveXmlToFile(tempFile, serverOverride);
 
         // delete the current backup file
         if (backupFile.exists()) {
@@ -390,6 +404,29 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
         // rename the temp file the the configuration file
         if (!tempFile.renameTo(attributeFile)) {
             throw new IOException("EXTREMELY CRITICAL!  Unable to move manageable attributes working file to proper file name!  Configuration will revert to defaults unless this is manually corrected!  (could not rename " + tempFile.getAbsolutePath() + " to " + attributeFile.getAbsolutePath() + ")");
+        }
+    }
+
+    private static void saveXmlToFile(File file, ServerOverride serverOverride) {
+        DocumentBuilderFactory dFactory = DocumentBuilderFactory.newInstance();
+        dFactory.setValidating(true);
+        dFactory.setNamespaceAware(true);
+        dFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaLanguage",
+                             "http://www.w3.org/2001/XMLSchema");
+        dFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaSource",
+                             LocalAttributeManager.class.getResourceAsStream("/META-INF/schema/local-attributes-1.1.xsd"));
+        try {
+            Document doc = dFactory.newDocumentBuilder().newDocument();
+            serverOverride.writeXml(doc);
+            TransformerFactory xfactory = TransformerFactory.newInstance();
+            Transformer xform = xfactory.newTransformer();
+            xform.setOutputProperty(OutputKeys.INDENT, "yes");
+            xform.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+            xform.transform(new DOMSource(doc), new StreamResult(file));
+        } catch (ParserConfigurationException e) {
+            log.error("Unable to write config.xml", e);
+        } catch (TransformerException e) {
+            log.error("Unable to write config.xml", e);
         }
     }
 

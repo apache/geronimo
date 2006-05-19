@@ -70,7 +70,10 @@ import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.Version;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
+import org.apache.geronimo.kernel.InvalidGBeanException;
 import org.apache.geronimo.system.configuration.ConfigurationStoreUtil;
+import org.apache.geronimo.system.configuration.GBeanOverride;
+import org.apache.geronimo.system.configuration.PluginAttributeStore;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.system.threads.ThreadPool;
 import org.apache.geronimo.util.encoders.Base64;
@@ -99,8 +102,9 @@ public class PluginInstallerGBean implements PluginInstaller {
     private ServerInfo serverInfo;
     private Map asyncKeys;
     private ThreadPool threadPool;
+    private PluginAttributeStore attributeStore;
 
-    public PluginInstallerGBean(ConfigurationManager configManager, WritableListableRepository repository, ConfigurationStore configStore, ServerInfo serverInfo, ThreadPool threadPool) {
+    public PluginInstallerGBean(ConfigurationManager configManager, WritableListableRepository repository, ConfigurationStore configStore, ServerInfo serverInfo, ThreadPool threadPool, PluginAttributeStore store) {
         this.configManager = configManager;
         this.writeableRepo = repository;
         this.configStore = configStore;
@@ -108,6 +112,7 @@ public class PluginInstallerGBean implements PluginInstaller {
         this.threadPool = threadPool;
         resolver = new DefaultArtifactResolver(null, writeableRepo);
         asyncKeys = Collections.synchronizedMap(new HashMap());
+        attributeStore = store;
     }
 
     /**
@@ -380,9 +385,6 @@ public class PluginInstallerGBean implements PluginInstaller {
                     configManager.uninstallConfiguration(artifact);
                 }
                 // 5. Installation of this configuration finished successfully
-                if(metadata.getModuleId() != null) {
-                    poller.addInstalledConfigID(metadata.getModuleId());
-                }
             }
 
             // Step 3: Start anything that's marked accordingly
@@ -510,6 +512,7 @@ public class PluginInstallerGBean implements PluginInstaller {
             if(data.getModuleId() != null) {
                 ResultsFileWriteMonitor monitor = new ResultsFileWriteMonitor(poller);
                 writeableRepo.copyToRepository(carFile, data.getModuleId(), monitor);
+                installConfigXMLData(data.getModuleId(), data);
             }
 
             // 4. Use the standard logic to remove obsoletes, install dependencies, etc.
@@ -616,6 +619,7 @@ public class PluginInstallerGBean implements PluginInstaller {
                     log.warn("Unable to delete temporary download file "+tempFile.getAbsolutePath());
                     tempFile.deleteOnExit();
                 }
+                installConfigXMLData(result.getConfigID(), pluginData);
                 if(dependency) {
                     monitor.getResults().addDependencyInstalled(configID);
                     configID = result.getConfigID();
@@ -1140,7 +1144,11 @@ public class PluginInstallerGBean implements PluginInstaller {
         factory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaLanguage",
                              "http://www.w3.org/2001/XMLSchema");
         factory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaSource",
-                             PluginInstallerGBean.class.getResourceAsStream("/META-INF/schema/plugins-1.1.xsd"));
+                             new InputStream[]{
+                                     PluginInstallerGBean.class.getResourceAsStream("/META-INF/schema/local-attributes-1.1.xsd"),
+                                     PluginInstallerGBean.class.getResourceAsStream("/META-INF/schema/plugins-1.1.xsd"),
+                             }
+        );
         DocumentBuilder builder = factory.newDocumentBuilder();
         builder.setErrorHandler(new ErrorHandler() {
             public void error(SAXParseException exception) throws SAXException {
@@ -1189,6 +1197,16 @@ public class PluginInstallerGBean implements PluginInstaller {
             String destDir = node.getAttribute("dest-dir");
             String fileName = getText(node);
             files[i] = new PluginMetadata.CopyFile(relative.equals("server"), fileName, destDir);
+        }
+        NodeList gbeans = plugin.getElementsByTagName("gbean");
+        GBeanOverride[] overrides = new GBeanOverride[gbeans.getLength()];
+        for (int i = 0; i < overrides.length; i++) {
+            Element node = (Element) gbeans.item(i);
+            try {
+                overrides[i] = new GBeanOverride(node);
+            } catch (InvalidGBeanException e) {
+                log.error("Unable to process config.xml entry "+node.getAttribute("name")+" ("+node+")", e);
+            }
         }
         boolean eligible = true;
         NodeList preNodes = plugin.getElementsByTagName("prerequisite");
@@ -1245,6 +1263,7 @@ public class PluginInstallerGBean implements PluginInstaller {
         data.setPrerequisites(prereqs);
         data.setRepositories(repos);
         data.setFilesToCopy(files);
+        data.setConfigXmls(overrides);
         NodeList list = plugin.getElementsByTagName("dependency");
         List start = new ArrayList();
         String deps[] = new String[list.getLength()];
@@ -1477,6 +1496,11 @@ public class PluginInstallerGBean implements PluginInstaller {
             copy.appendChild(doc.createTextNode(file.getSourceFile()));
             config.appendChild(copy);
         }
+        for (int i = 0; i < data.getConfigXmls().length; i++) {
+            GBeanOverride override = data.getConfigXmls()[i];
+            Element gbean = override.writeXml(doc, config);
+            gbean.setAttribute("xmlns", "http://geronimo.apache.org/xml/ns/attributes-1.1");
+        }
         return doc;
     }
 
@@ -1491,6 +1515,17 @@ public class PluginInstallerGBean implements PluginInstaller {
         Element child = doc.createElement(name);
         child.appendChild(doc.createTextNode(text));
         parent.appendChild(child);
+    }
+
+    /**
+     * If a plugin includes config.xml content, copy it into the attribute
+     * store.
+     */
+    private void installConfigXMLData(Artifact configID, PluginMetadata pluginData) {
+        if(configManager.isConfiguration(configID) && attributeStore != null
+                && pluginData != null && pluginData.getConfigXmls().length > 0) {
+            attributeStore.setModuleGBeans(configID, pluginData.getConfigXmls());
+        }
     }
 
     /**
@@ -1634,9 +1669,11 @@ public class PluginInstallerGBean implements PluginInstaller {
         infoFactory.addReference("ConfigStore", ConfigurationStore.class, "ConfigurationStore");
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
         infoFactory.addReference("ThreadPool", ThreadPool.class, "GBean");
+        infoFactory.addReference("PluginAttributeStore", PluginAttributeStore.class, "AttributeStore");
         infoFactory.addInterface(PluginInstaller.class);
 
-        infoFactory.setConstructor(new String[]{"ConfigManager", "Repository", "ConfigStore", "ServerInfo","ThreadPool"});
+        infoFactory.setConstructor(new String[]{"ConfigManager", "Repository", "ConfigStore",
+                                                "ServerInfo", "ThreadPool", "PluginAttributeStore"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

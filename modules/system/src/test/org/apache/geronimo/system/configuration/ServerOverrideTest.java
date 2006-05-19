@@ -22,10 +22,18 @@ import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.dom.DOMSource;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -255,41 +263,52 @@ public class ServerOverrideTest extends TestCase {
     }
 
     private ServerOverride copy(ServerOverride server) throws Exception {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        server.writeXml(new PrintWriter(out, true));
-        System.out.println();
-        System.out.println();
-        System.out.println(new String(out.toByteArray()));
-        ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-        Element element = parseXml(in);
-        return new ServerOverride(element);
+        Document doc = createDocument();
+        return new ServerOverride(readElement(server.writeXml(doc), "attributes"));
     }
 
     private ConfigurationOverride copy(ConfigurationOverride configuration) throws Exception {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        configuration.writeXml(new PrintWriter(out, true));
-        System.out.println();
-        System.out.println();
-        System.out.println(new String(out.toByteArray()));
-        ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-        Element element = parseXml(in);
-        return new ConfigurationOverride(element);
+        Document doc = createDocument();
+        Element root = doc.createElement("temp");
+        doc.appendChild(root);
+        return new ConfigurationOverride(readElement(configuration.writeXml(doc, root), "module"));
     }
 
     private GBeanOverride copy(GBeanOverride gbean) throws Exception {
+        Document doc = createDocument();
+        Element root = doc.createElement("temp");
+        doc.appendChild(root);
+        return new GBeanOverride(readElement(gbean.writeXml(doc, root), "gbean"));
+    }
+
+    private Element parseXml(InputStream in, String name) throws Exception {
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        Document doc = documentBuilderFactory.newDocumentBuilder().parse(in);
+        Element elem = doc.getDocumentElement();
+        if(elem.getNodeName().equals(name)) {
+            return elem;
+        }
+        NodeList list = elem.getElementsByTagName(name);
+        return (Element) list.item(0);
+    }
+
+    private Document createDocument() throws ParserConfigurationException {
+        DocumentBuilderFactory dFactory = DocumentBuilderFactory.newInstance();
+        dFactory.setValidating(false);
+        return dFactory.newDocumentBuilder().newDocument();
+    }
+
+    private Element readElement(Element e, String name) throws Exception {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        gbean.writeXml(new PrintWriter(out, true));
+        TransformerFactory xfactory = TransformerFactory.newInstance();
+        Transformer xform = xfactory.newTransformer();
+        xform.setOutputProperty(OutputKeys.INDENT, "yes");
+        xform.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+        xform.transform(new DOMSource(e), new StreamResult(out));
         System.out.println();
         System.out.println();
         System.out.println(new String(out.toByteArray()));
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-        Element element = parseXml(in);
-        return new GBeanOverride(element);
-    }
-
-    private Element parseXml(InputStream in) throws Exception {
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        Document doc = documentBuilderFactory.newDocumentBuilder().parse(in);
-        return doc.getDocumentElement();
+        return parseXml(in, name);
     }
 }
