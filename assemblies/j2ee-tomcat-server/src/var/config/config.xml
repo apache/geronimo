@@ -70,6 +70,12 @@
     </module>
     <module name="geronimo/ldap-realm/${pom.currentVersion}/car" load="false"/>
     <module name="geronimo/tomcat/${pom.currentVersion}/car">
+        <gbean name="TomcatEngine">
+            <reference name="TomcatValveChain" />
+        </gbean>
+        <!-- To enable accesslogging change the load="false" below to load="true" -->
+        <gbean name="FirstValve" load="false"></gbean>
+ 
         <gbean name="TomcatResources"/>
         <gbean name="TomcatWebConnector">
             <attribute name="host">${PlanServerHostname}</attribute>
