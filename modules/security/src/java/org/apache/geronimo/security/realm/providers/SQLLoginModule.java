@@ -138,11 +138,11 @@ public class SQLLoginModule implements LoginModule {
             }
             ClassLoader cl = (ClassLoader) options.get(JaasLoginModuleUse.CLASSLOADER_LM_OPTION);
             try {
-                this.driver = (Driver) cl.loadClass((String) options.get(DRIVER)).newInstance();
+                driver = (Driver) cl.loadClass((String) options.get(DRIVER)).newInstance();
             } catch (ClassNotFoundException e) {
                 throw new IllegalArgumentException("Driver class " + options.get(DRIVER) + " is not available.  Perhaps you need to add it as a dependency in your deployment plan?");
             } catch (Exception e) {
-                throw new IllegalArgumentException("Unable to load, instantiate, register driver " + driver + ": " + e.getMessage());
+                throw new IllegalArgumentException("Unable to load, instantiate, register driver " + options.get(DRIVER) + ": " + e.getMessage());
             }
         }
     }
