@@ -107,8 +107,4 @@ public class GeronimoLogging {
     public String toString() {
         return level;
     }
-
-    public boolean equals(Object object) {
-        return object == this;
-    }
 }
