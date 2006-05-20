@@ -285,6 +285,8 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
             }
             return configuration.toString();
         } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
             if (in != null) {
                 try {
                     in.close();
@@ -292,7 +294,6 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
                     e1.printStackTrace();
                 }
             }
-            e.printStackTrace();
         }
         return null;
     }
@@ -413,7 +414,7 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
             }
             fc.close();
             raf.close();
-        } catch (Exception e) {}
+        } catch (Exception e) {} // TODO: improve exception handling
         return new SearchResults(lineCount, (LogMessage[]) list.toArray(new LogMessage[list.size()]), capped);
     }
 
