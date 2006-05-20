@@ -56,15 +56,14 @@ class InPlaceConfigurationUtil {
             File inPlaceConfigurationDir = configurationData.getInPlaceConfigurationDir();
             String absolutePath = inPlaceConfigurationDir.getAbsolutePath();
             writer.write(absolutePath);
+            writer.close(); // also flushes the stream and shouldn't normally fail
+            writer = null;
         } finally {
         	if (null != writer) {
         		try {
-        			writer.flush();
-				} catch (IOException e) {
-				}
-        		try {
         			writer.close();
-				} catch (IOException e) {
+				} catch (IOException ignored) {
+                    // ignored
 				}
         	}
         }
