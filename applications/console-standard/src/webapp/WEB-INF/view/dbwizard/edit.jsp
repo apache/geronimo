@@ -186,6 +186,31 @@ function <portlet:namespace/>validate() {
       </tr>
   </c:when>
   <c:otherwise> <%-- This is an XA or other connection factory that we don't have special parameter handling for --%>
+    <!-- ENTRY FIELD: Driver JAR -->
+  <c:choose> <%-- Can't set JAR after deployment because we don't know how to dig through dependencies yet --%>
+    <c:when test="${empty pool.abstractName}">
+      <tr>
+        <th><div align="right">Driver JAR:</div></th>
+        <td>
+          <select name="jar1">
+            <option></option>
+        <c:forEach var="jar" items="${jars}">
+            <option <c:if test="${jar == pool.jar1}">selected</c:if>>${jar}</option>
+        </c:forEach>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>The JAR holding the selected JDBC driver.  Should be installed under GERONIMO/repository/ (or
+          <input type="button" value="Download a Driver" onclick="document.<portlet:namespace/>DatabaseForm.mode.value='download';document.<portlet:namespace/>DatabaseForm.submit();return false;" />)
+        </td>
+      </tr>
+    </c:when>
+    <c:otherwise>
+      <input type="hidden" name="jar1" value="${pool.jar1}" />
+    </c:otherwise>
+  </c:choose>
     <c:forEach var="prop" items="${pool.properties}">
       <tr>
         <th><div align="right">${pool.propertyNames[prop.key]}:</div></th>
