@@ -220,6 +220,7 @@ public class JMSProviderData implements Serializable {
                     DocumentBuilder builder = factory.newDocumentBuilder();
                     doc = builder.parse(in);
                     in.close();
+                    in = null;
                     break;
                 } else in.closeEntry();
             }
@@ -227,6 +228,12 @@ public class JMSProviderData implements Serializable {
             log.error("Unable to read META-INF/ra.xml in RAR file '"+data.getRaURI()+"'", e);
         } catch (SAXException e) {
             log.error("Unable to read META-INF/ra.xml in RAR file '"+data.getRaURI()+"'", e);
+        } finally {
+            if (in != null)
+                try {
+                    in.close();        
+                } catch (IOException ignore) {
+                }
         }
         if(doc == null) {
             throw new IOException("Unable to locate META-INF/ra.xml in RAR file '"+data.getRaURI()+"'");
