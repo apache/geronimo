@@ -28,7 +28,6 @@
     </environment>
 
     <jetty:context-root>/test</jetty:context-root>
-    <jetty:context-priority-classloader>false</jetty:context-priority-classloader>
     <!--
         <jetty:security>
             <sec:default-principal>

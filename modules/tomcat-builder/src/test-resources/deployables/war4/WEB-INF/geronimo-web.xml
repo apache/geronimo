@@ -28,7 +28,6 @@
     </environment>
 
     <context-root>/test</context-root>
-    <context-priority-classloader>false</context-priority-classloader>
     <container-config>
         <tomcat xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.0/tomcat">
 <!--            <host>tomcathost</host>-->

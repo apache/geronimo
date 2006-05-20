@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application
+    xmlns="http://geronimo.apache.org/xml/ns/j2ee/application"
+    configId="servlet_1"
+    parentId="${pom.groupId}/server-security/${pom.currentVersion}/car">
+
+    <module>
+        <web>servlet_deploy_ejblink_single_web.war</web>
+        <web-app
+            xmlns="http://geronimo.apache.org/xml/ns/web"
+            configId="servlet_1_web_1">
+
+            <context-priority-classloader>false</context-priority-classloader>
+
+            <ejb-ref>
+                <ref-name>ejb/StatelessBean_ExternalJAR</ref-name>
+                <ejb-link>Stateless</ejb-link>
+            </ejb-ref>
+        </web-app>
+    </module>
+    <module>
+        <web>servlet_deploy_ejblink_single_web.war</web>
+        <web-app
+            xmlns="http://geronimo.apache.org/xml/ns/web"
+            configId="servlet_1_web_2">
+
+            <context-priority-classloader>true</context-priority-classloader>
+
+            <ejb-ref>
+                <ref-name>ejb/StatelessBean_ExternalJAR</ref-name>
+                <ejb-link>Stateless</ejb-link>
+            </ejb-ref>
+        </web-app>
+    </module>
+    <module>
+        <web>servlet_deploy_ejblink_single_web.war</web>
+        <web-app
+            xmlns="http://geronimo.apache.org/xml/ns/web"
+            configId="servlet_1_web_3">
+
+            <context-priority-classloader>false</context-priority-classloader>
+        </web-app>
+    </module>
+    <module>
+        <web>servlet_deploy_ejblink_single_web.war</web>
+        <web-app
+            xmlns="http://geronimo.apache.org/xml/ns/web"
+            configId="servlet_1_web_4">
+
+            <context-priority-classloader>true</context-priority-classloader>
+        </web-app>
+    </module>
+
+
+</application>

@@ -10,7 +10,6 @@
             <dep:type>car</dep:type>
         </dep:moduleId>
     </dep:environment>
-    <context-priority-classloader>true</context-priority-classloader>
 
     <virtual-host>foo</virtual-host>
     <virtual-host>bar</virtual-host>

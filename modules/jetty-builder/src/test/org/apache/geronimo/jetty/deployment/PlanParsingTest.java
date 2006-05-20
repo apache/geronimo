@@ -48,7 +48,7 @@ public class PlanParsingTest extends TestCase {
     private JettyModuleBuilder builder;
 
     public PlanParsingTest() throws Exception {
-        builder = new JettyModuleBuilder(defaultEnvironment, new Integer(1800), false, null, jettyContainerObjectName, new HashSet(), new HashSet(), new HashSet(), pojoWebServiceTemplate, Collections.singleton(webServiceBuilder), null);
+        builder = new JettyModuleBuilder(defaultEnvironment, new Integer(1800), null, jettyContainerObjectName, new HashSet(), new HashSet(), new HashSet(), pojoWebServiceTemplate, Collections.singleton(webServiceBuilder), null);
     }
 
     public void testContents() throws Exception {
@@ -113,7 +113,6 @@ public class PlanParsingTest extends TestCase {
         JettyWebAppDocument jettyWebAppDoc = JettyWebAppDocument.Factory.newInstance();
         JettyWebAppType webApp = jettyWebAppDoc.addNewWebApp();
         addEnvironment(webApp);
-        webApp.setContextPriorityClassloader(false);
         GerResourceRefType ref = webApp.addNewResourceRef();
         ref.setRefName("ref");
         ref.setResourceLink("target");
@@ -131,23 +130,6 @@ public class PlanParsingTest extends TestCase {
         configId.setType("car");
     }
 
-    public void testContextPriorityClassloader() throws Exception {
-        URL resourcePlan = classLoader.getResource("plans/plan3.xml");
-        assertTrue(resourcePlan != null);
-
-        JettyWebAppType jettyWebApp = builder.getJettyWebApp(new File(resourcePlan.getFile()), null, false, null, null);
-        assertFalse(jettyWebApp.getContextPriorityClassloader());
-    }
-
-    public void testContextPriorityClassloaderTrue() throws Exception {
-        URL resourcePlan = classLoader.getResource("plans/plan4.xml");
-        assertTrue(resourcePlan != null);
-
-        JettyWebAppType jettyWebApp = builder.getJettyWebApp(new File(resourcePlan.getFile()), null, false, null, null);
-        assertTrue(jettyWebApp.getContextPriorityClassloader());
-
-    }
-
     /** This test has 2 purposes: one the obvious one explicitly tested,
      * the other that passing a JettyWebAppType XmlObject in works.  This latter
      * models a web-app element inside an ear plan.
@@ -160,7 +142,6 @@ public class PlanParsingTest extends TestCase {
         JettyWebAppType webApp = jettyWebAppDoc.addNewWebApp();
         addEnvironment(webApp);
         webApp.setContextRoot("myContextRoot");
-        webApp.setContextPriorityClassloader(false);
 
         URL war = classLoader.getResource("deployables/war2.war");
         assertTrue(war != null);

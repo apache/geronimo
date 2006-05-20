@@ -99,7 +99,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
     private static final Log log = LogFactory.getLog(TomcatModuleBuilder.class);
 
     private final Environment defaultEnvironment;
-    private final boolean defaultContextPriorityClassloader;
     private final AbstractNameQuery tomcatContainerName;
 
     private final SingleElementCollection webServiceBuilder;
@@ -107,14 +106,12 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
     private static final String TOMCAT_NAMESPACE = TomcatWebAppDocument.type.getDocumentElementName().getNamespaceURI();
 
     public TomcatModuleBuilder(Environment defaultEnvironment,
-                               boolean defaultContextPriorityClassloader,
-                               AbstractNameQuery tomcatContainerName,
-                               Collection webServiceBuilder,
-                               Kernel kernel) {
+            AbstractNameQuery tomcatContainerName,
+            Collection webServiceBuilder,
+            Kernel kernel) {
         super(kernel);
         this.defaultEnvironment = defaultEnvironment;
 
-        this.defaultContextPriorityClassloader = defaultContextPriorityClassloader;
         this.tomcatContainerName = tomcatContainerName;
         this.webServiceBuilder = new SingleElementCollection(webServiceBuilder);
     }
@@ -178,12 +175,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             warName = warName.substring(0, warName.lastIndexOf('.'));
         }
         idBuilder.resolve(environment, warName, "war");
-        boolean contextPriorityClassLoader = defaultContextPriorityClassloader;
-        if (tomcatWebApp.isSetContextPriorityClassloader()) {
-            contextPriorityClassLoader = tomcatWebApp.getContextPriorityClassloader();
-        }
-        //TODO decide if we should eliminate this flag as redundant w/environment setting.
-        environment.setInverseClassLoading(contextPriorityClassLoader);
 
         Map servletNameToPathMap = buildServletNameToPathMap(webApp, contextRoot);
 
@@ -254,7 +245,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
     private TomcatWebAppType createDefaultPlan(String path) {
         TomcatWebAppType tomcatWebApp = TomcatWebAppType.Factory.newInstance();
         tomcatWebApp.setContextRoot("/" + path);
-        tomcatWebApp.setContextPriorityClassloader(defaultContextPriorityClassloader);
         return tomcatWebApp;
     }
 
@@ -484,7 +474,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(TomcatModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
-        infoBuilder.addAttribute("defaultContextPriorityClassloader", boolean.class, true, true);
         infoBuilder.addAttribute("tomcatContainerName", AbstractNameQuery.class, true, true);
         infoBuilder.addReference("WebServiceBuilder", WebServiceBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
@@ -492,7 +481,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
         infoBuilder.setConstructor(new String[]{
             "defaultEnvironment",
-            "defaultContextPriorityClassloader",
             "tomcatContainerName",
             "WebServiceBuilder",
             "kernel"});

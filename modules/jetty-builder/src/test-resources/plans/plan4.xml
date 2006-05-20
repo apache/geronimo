@@ -9,7 +9,6 @@
         </moduleId>
     </environment>
 
-    <context-priority-classloader>true</context-priority-classloader>
 
     <container-config>
         <jetty xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0/config">

@@ -20,7 +20,6 @@
 
     <gbean name="JettyWebBuilder" class="org.apache.geronimo.jetty.deployment.JettyModuleBuilder">
         <attribute name="defaultSessionTimeoutSeconds">1800</attribute>
-        <attribute name="defaultContextPriorityClassloader">false</attribute>
         <attribute name="defaultWelcomeFiles">index.html,index.htm,index.jsp</attribute>
         <attribute name="jettyContainerObjectName">?name=JettyWebContainer</attribute>
         <references name="DefaultServlets">

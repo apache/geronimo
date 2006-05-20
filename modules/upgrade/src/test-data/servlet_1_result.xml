@@ -1,0 +1,94 @@
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.1">
+  <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+    <dep:moduleId>
+      <dep:groupId>default</dep:groupId>
+      <dep:artifactId>servlet_1</dep:artifactId>
+      <dep:version>1-default</dep:version>
+      <dep:type>car</dep:type>
+    </dep:moduleId>
+    <dep:dependencies>
+      <dep:dependency>
+        <dep:groupId>${pom.groupId}</dep:groupId>
+        <dep:artifactId>server-security</dep:artifactId>
+        <dep:version>${pom.currentVersion}</dep:version>
+        <dep:type>car</dep:type>
+      </dep:dependency>
+    </dep:dependencies>
+    <dep:hidden-classes/>
+    <dep:non-overridable-classes/>
+  </dep:environment>
+  <module>
+    <web>servlet_deploy_ejblink_single_web.war</web>
+    <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.1">
+      <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+        <dep:moduleId>
+          <dep:groupId>default</dep:groupId>
+          <dep:artifactId>servlet_1_web_1</dep:artifactId>
+          <dep:version>1-default</dep:version>
+          <dep:type>car</dep:type>
+        </dep:moduleId>
+        <dep:dependencies/>
+        <dep:hidden-classes/>
+        <dep:non-overridable-classes/>
+      </dep:environment>
+      <ejb-ref>
+        <ref-name>ejb/StatelessBean_ExternalJAR</ref-name>
+        <ejb-link>Stateless</ejb-link>
+      </ejb-ref>
+    </web-app>
+  </module>
+  <module>
+    <web>servlet_deploy_ejblink_single_web.war</web>
+    <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.1">
+      <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+        <dep:moduleId>
+          <dep:groupId>default</dep:groupId>
+          <dep:artifactId>servlet_1_web_2</dep:artifactId>
+          <dep:version>1-default</dep:version>
+          <dep:type>car</dep:type>
+        </dep:moduleId>
+        <dep:dependencies/>
+        <dep:hidden-classes/>
+        <dep:non-overridable-classes/>
+      </dep:environment>
+      <!--YOU MUST INSERT THE ELEMENT <inverse-classloading/> INTO THE ENVIRONMENT ELEMENT FOR THIS MODULE-->
+      <ejb-ref>
+        <ref-name>ejb/StatelessBean_ExternalJAR</ref-name>
+        <ejb-link>Stateless</ejb-link>
+      </ejb-ref>
+    </web-app>
+  </module>
+    <module>
+      <web>servlet_deploy_ejblink_single_web.war</web>
+      <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.1">
+        <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+          <dep:moduleId>
+            <dep:groupId>default</dep:groupId>
+            <dep:artifactId>servlet_1_web_3</dep:artifactId>
+            <dep:version>1-default</dep:version>
+            <dep:type>car</dep:type>
+          </dep:moduleId>
+          <dep:dependencies/>
+          <dep:hidden-classes/>
+          <dep:non-overridable-classes/>
+        </dep:environment>
+      </web-app>
+    </module>
+    <module>
+      <web>servlet_deploy_ejblink_single_web.war</web>
+      <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.1">
+        <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+          <dep:moduleId>
+            <dep:groupId>default</dep:groupId>
+            <dep:artifactId>servlet_1_web_4</dep:artifactId>
+            <dep:version>1-default</dep:version>
+            <dep:type>car</dep:type>
+          </dep:moduleId>
+          <dep:dependencies/>
+          <dep:hidden-classes/>
+          <dep:non-overridable-classes/>
+        </dep:environment>
+        <!--YOU MUST INSERT THE ELEMENT <inverse-classloading/> INTO THE ENVIRONMENT ELEMENT FOR THIS MODULE-->
+      </web-app>
+    </module>
+</application>

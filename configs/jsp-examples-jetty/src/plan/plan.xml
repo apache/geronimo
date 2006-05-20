@@ -23,7 +23,6 @@
     >
 
     <context-root>/jsp-examples</context-root>
-    <context-priority-classloader>false</context-priority-classloader>
     <security-realm-name>geronimo-properties-realm</security-realm-name>
     <security>
         <default-principal>

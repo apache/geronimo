@@ -376,7 +376,7 @@ public class TomcatModuleBuilderTest extends TestCase {
 
         defaultEnvironment.addDependency(baseId, ImportType.ALL);
         defaultEnvironment.setConfigId(webModuleArtifact);
-        builder = new TomcatModuleBuilder(defaultEnvironment, true, new AbstractNameQuery(containerName), Collections.singleton(webServiceBuilder), null);
+        builder = new TomcatModuleBuilder(defaultEnvironment, new AbstractNameQuery(containerName), Collections.singleton(webServiceBuilder), null);
     }
 
     protected void tearDown() throws Exception {

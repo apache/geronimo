@@ -156,7 +156,7 @@
 
     <xs:complexType name="dependenciesType">
         <xs:sequence>
-            <xs:element name="dependency" type="sys:artifactType" minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="dependency" type="sys:dependencyType" minOccurs="0" maxOccurs="unbounded">
                 <xs:annotation>
                     <xs:documentation>
                         "dependency" holds an artifact locating an artifact in a repository.
@@ -234,9 +234,19 @@
                 <xs:element name="artifactId" type="xs:string"/>
                 <xs:element name="version" type="xs:string" minOccurs="0"/>
                 <xs:element name="type" type="xs:string" minOccurs="0"/>
-                <xs:element name="import" type="sys:importType" minOccurs="0"/>
 
             </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="dependencyType">
+        <xs:complexContent>
+            <xs:extension base="sys:artifactType">
+                <xs:sequence>
+                    <xs:element name="import" type="sys:importType" minOccurs="0"/>
+                </xs:sequence>
+
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
 
     <xs:simpleType name="importType">

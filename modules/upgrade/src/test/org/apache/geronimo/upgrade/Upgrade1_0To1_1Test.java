@@ -69,6 +69,10 @@ public class Upgrade1_0To1_1Test extends TestCase {
         }
     }
 
+    public void test7() throws Exception {
+        test("servlet_1");
+    }
+
     private void test(String testName) throws Exception {
         InputStream srcXml = classLoader.getResourceAsStream(testName + ".xml");
         try {

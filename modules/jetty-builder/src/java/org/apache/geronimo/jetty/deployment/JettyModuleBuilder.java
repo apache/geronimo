@@ -130,7 +130,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
     private final Collection defaultFilters;
     private final Collection defaultFilterMappings;
     private final GBeanData pojoWebServiceTemplate;
-    private final boolean defaultContextPriorityClassloader;
 
     private final SingleElementCollection webServiceBuilder;
 
@@ -141,7 +140,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
     public JettyModuleBuilder(Environment defaultEnvironment,
             Integer defaultSessionTimeoutSeconds,
-            boolean defaultContextPriorityClassloader,
             List defaultWelcomeFiles,
             AbstractNameQuery jettyContainerName,
             Collection defaultServlets,
@@ -153,7 +151,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         super(kernel);
         this.defaultEnvironment = defaultEnvironment;
         this.defaultSessionTimeoutSeconds = (defaultSessionTimeoutSeconds == null) ? new Integer(30 * 60) : defaultSessionTimeoutSeconds;
-        this.defaultContextPriorityClassloader = defaultContextPriorityClassloader;
         this.jettyContainerObjectName = jettyContainerName;
         this.defaultServlets = defaultServlets;
         this.defaultFilters = defaultFilters;
@@ -232,12 +229,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             warName = warName.substring(0, warName.lastIndexOf('.'));
         }
         idBuilder.resolve(environment, warName, "war");
-        boolean contextPriorityClassLoader = defaultContextPriorityClassloader;
-        if (jettyWebApp.isSetContextPriorityClassloader()) {
-            contextPriorityClassLoader = jettyWebApp.getContextPriorityClassloader();
-        }
-        //TODO decide if we should eliminate this flag as redundant w/environment setting.
-        environment.setInverseClassLoading(contextPriorityClassLoader);
 
         Map servletNameToPathMap = buildServletNameToPathMap(webApp, contextRoot);
 
@@ -307,7 +298,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
     private JettyWebAppType createDefaultPlan(String contextRoot) {
         JettyWebAppType jettyWebApp = JettyWebAppType.Factory.newInstance();
         jettyWebApp.setContextRoot(contextRoot);
-        jettyWebApp.setContextPriorityClassloader(defaultContextPriorityClassloader);
         return jettyWebApp;
     }
 
@@ -936,7 +926,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(JettyModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
         infoBuilder.addAttribute("defaultSessionTimeoutSeconds", Integer.class, true, true);
-        infoBuilder.addAttribute("defaultContextPriorityClassloader", boolean.class, true, true);
         infoBuilder.addAttribute("defaultWelcomeFiles", List.class, true, true);
         infoBuilder.addAttribute("jettyContainerObjectName", AbstractNameQuery.class, true, true);
         infoBuilder.addReference("DefaultServlets", JettyDefaultServletHolder.class, NameFactory.SERVLET_TEMPLATE);
@@ -950,7 +939,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         infoBuilder.setConstructor(new String[]{
                 "defaultEnvironment",
                 "defaultSessionTimeoutSeconds",
-                "defaultContextPriorityClassloader",
                 "defaultWelcomeFiles",
                 "jettyContainerObjectName",
                 "DefaultServlets",

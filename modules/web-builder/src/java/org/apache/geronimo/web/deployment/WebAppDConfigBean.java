@@ -61,27 +61,6 @@ public class WebAppDConfigBean extends DConfigBeanSupport {
         getWebApp().setContextRoot(contextRoot);
     }
 
-    /**
-     * getContextPriorityClassLoader.
-     *
-     * @return True if this context should give web application class in preference over the containers
-     *         classes, as per the servlet specification recommendations.
-     */
-    public boolean getContextPriorityClassLoader() {
-        return getWebApp().getContextPriorityClassloader();
-    }
-
-    /**
-     * setContextPriorityClassLoader.
-     *
-     * @param contextPriority True if this context should give web application class in preference over the containers
-     * classes, as per the servlet specification recommendations.
-     */
-    public void setContextPriorityClassLoader(boolean contextPriority) {
-        pcs.firePropertyChange("contextPriorityClassLoader", getContextPriorityClassLoader(), contextPriority);
-        getWebApp().setContextPriorityClassloader(contextPriority);
-    }
-
     public DConfigBean getDConfigBean(DDBean ddBean) throws ConfigurationException {
         return encHelper.getDConfigBean(ddBean);
     }

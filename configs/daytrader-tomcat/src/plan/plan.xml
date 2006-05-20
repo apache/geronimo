@@ -4,7 +4,6 @@
     <module>
         <web>web.war</web>
         <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.1">
-            <context-priority-classloader>false</context-priority-classloader>
             <service-ref>
                 <service-ref-name>service/Trade</service-ref-name>
                 <port>

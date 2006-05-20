@@ -36,6 +36,7 @@ import org.apache.geronimo.deployment.xbeans.DependenciesType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentDocument;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xbeans.ImportType;
+import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
@@ -58,7 +59,7 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
             }
 
             if (environmentType.isSetDependencies()) {
-                ArtifactType[] dependencyArray = environmentType.getDependencies().getDependencyArray();
+                DependencyType[] dependencyArray = environmentType.getDependencies().getDependencyArray();
                 LinkedHashSet dependencies = toDependencies(dependencyArray);
                 environment.setDependencies(dependencies);
             }
@@ -100,10 +101,10 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
             environmentType.setModuleId(configId);
         }
 
-        List dependencies = toArtifactTypes(environment.getDependencies());
-        ArtifactType[] artifactTypes = (ArtifactType[]) dependencies.toArray(new ArtifactType[dependencies.size()]);
+        List dependencies = toDependencyTypes(environment.getDependencies());
+        DependencyType[] dependencyTypes = (DependencyType[]) dependencies.toArray(new DependencyType[dependencies.size()]);
         DependenciesType dependenciesType = environmentType.addNewDependencies();
-        dependenciesType.setDependencyArray(artifactTypes);
+        dependenciesType.setDependencyArray(dependencyTypes);
         if (environment.isInverseClassLoading()) {
             environmentType.addNewInverseClassloading();
         }
@@ -122,11 +123,11 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
         return classFilter;
     }
 
-    private static List toArtifactTypes(Collection artifacts) {
+    private static List toDependencyTypes(Collection artifacts) {
         List dependencies = new ArrayList();
         for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
             Dependency dependency = (Dependency) iterator.next();
-            ArtifactType artifactType = toArtifactType(dependency);
+            ArtifactType artifactType = toDependencyType(dependency);
             dependencies.add(artifactType);
         }
         return dependencies;
@@ -134,6 +135,11 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
 
     private static ArtifactType toArtifactType(Artifact artifact) {
         ArtifactType artifactType = ArtifactType.Factory.newInstance();
+        fillArtifactType(artifact, artifactType);
+        return artifactType;
+    }
+
+    private static void fillArtifactType(Artifact artifact, ArtifactType artifactType) {
         if (artifact.getGroupId() != null) {
             artifactType.setGroupId(artifact.getGroupId());
         }
@@ -146,20 +152,20 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
         if (artifact.getType() != null) {
             artifactType.setType(artifact.getType());
         }
-        return artifactType;
     }
 
-    private static ArtifactType toArtifactType(Dependency dependency) {
-        ArtifactType artifactType = toArtifactType(dependency.getArtifact());
+    private static DependencyType toDependencyType(Dependency dependency) {
+        DependencyType dependencyType = DependencyType.Factory.newInstance();
+        fillArtifactType(dependency.getArtifact(), dependencyType);
 
         org.apache.geronimo.kernel.repository.ImportType importType = dependency.getImportType();
         if (importType == org.apache.geronimo.kernel.repository.ImportType.CLASSES) {
-            artifactType.setImport(ImportType.CLASSES);
+            dependencyType.setImport(ImportType.CLASSES);
         } else if (importType == org.apache.geronimo.kernel.repository.ImportType.SERVICES) {
-            artifactType.setImport(ImportType.SERVICES);
+            dependencyType.setImport(ImportType.SERVICES);
         }
 
-        return artifactType;
+        return dependencyType;
     }
 
     private static Set toFilters(ClassFilterType filterType) {
@@ -185,31 +191,30 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
         return artifacts;
     }
 
-    private static LinkedHashSet toDependencies(ArtifactType[] dependencyArray) {
+    private static LinkedHashSet toDependencies(DependencyType[] dependencyArray) {
         LinkedHashSet dependencies = new LinkedHashSet();
         for (int i = 0; i < dependencyArray.length; i++) {
-            ArtifactType artifactType = dependencyArray[i];
+            DependencyType artifactType = dependencyArray[i];
             Dependency dependency = toDependency(artifactType);
             dependencies.add(dependency);
         }
         return dependencies;
     }
 
-    private static Dependency toDependency(ArtifactType artifactType) {
-        Artifact artifact = toArtifact(artifactType, null);
-        if (ImportType.CLASSES.equals(artifactType.getImport())) {
+    private static Dependency toDependency(DependencyType dependencyType) {
+        Artifact artifact = toArtifact(dependencyType, null);
+        if (ImportType.CLASSES.equals(dependencyType.getImport())) {
             return new Dependency(artifact, org.apache.geronimo.kernel.repository.ImportType.CLASSES);
-        } else if (ImportType.SERVICES.equals(artifactType.getImport())) {
+        } else if (ImportType.SERVICES.equals(dependencyType.getImport())) {
             return new Dependency(artifact, org.apache.geronimo.kernel.repository.ImportType.SERVICES);
-        } else if (artifactType.getImport() == null) {
+        } else if (dependencyType.getImport() == null) {
             return new Dependency(artifact, org.apache.geronimo.kernel.repository.ImportType.ALL);
         } else {
-            throw new IllegalArgumentException("Unknown import type: " + artifactType.getImport());
+            throw new IllegalArgumentException("Unknown import type: " + dependencyType.getImport());
         }
     }
 
-    //TODO make private
-    static Artifact toArtifact(ArtifactType artifactType, String defaultType) {
+    private static Artifact toArtifact(ArtifactType artifactType, String defaultType) {
         String groupId = artifactType.isSetGroupId() ? trim(artifactType.getGroupId()) : null;
         String type = artifactType.isSetType() ? trim(artifactType.getType()) : defaultType;
         String artifactId = trim(artifactType.getArtifactId());

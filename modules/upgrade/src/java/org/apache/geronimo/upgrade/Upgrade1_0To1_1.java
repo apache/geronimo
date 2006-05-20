@@ -121,6 +121,7 @@ public class Upgrade1_0To1_1 {
 
                     insertEnvironment(configId, parentId, cursor, ENVIRONMENT_QNAME, suppressDefaultEnvironment);
                 } else {
+                    cleanContextPriorityClassLoader(cursor);
                     cleanRef(cursor);
                 }
                 checkInvalid(cursor);
@@ -129,20 +130,30 @@ public class Upgrade1_0To1_1 {
         return xmlObject;
     }
 
+    private void cleanContextPriorityClassLoader(XmlCursor cursor) {
+        String localName = getLocalName(cursor);
+        if ("context-priority-classloader".equals(localName)) {
+            String value = cursor.getTextValue();
+            if ("false".equals(value)) {
+                cursor.removeXml();
+            } else if ("true".equals("true")) {
+                cursor.removeXml();
+                cursor.insertComment("YOU MUST INSERT THE ELEMENT <inverse-classloading/> INTO THE ENVIRONMENT ELEMENT FOR THIS MODULE");
+            }
+        }
+    }
+
     private static void checkInvalid(XmlCursor cursor) throws XmlException {
-        QName name = cursor.getName();
-        if (name != null) {
-            String localName = name.getLocalPart();
-            if ("gbean".equals(localName)) {
-                if (cursor.getAttributeText(GBEAN_NAME_QNAME) != null) {
-                    throw new XmlException("You must replace the gbeanName attribute manually: " + cursor.getAttributeText(GBEAN_NAME_QNAME));
-                }
+        String localName = getLocalName(cursor);
+        if ("gbean".equals(localName)) {
+            if (cursor.getAttributeText(GBEAN_NAME_QNAME) != null) {
+                throw new XmlException("You must replace the gbeanName attribute manually: " + cursor.getAttributeText(GBEAN_NAME_QNAME));
             }
         }
     }
 
     private static void cleanRef(XmlCursor cursor) throws XmlException {
-        String localName = cursor.getName().getLocalPart();
+        String localName = getLocalName(cursor);
         if ("ejb-ref".equals(localName)) {
             cursor.toFirstChild();
             String application = null;
@@ -232,6 +243,11 @@ public class Upgrade1_0To1_1 {
         }
     }
 
+    private static String getLocalName(XmlCursor cursor) {
+        QName name = cursor.getName();
+        return name == null ? null : name.getLocalPart();
+    }
+
     private static void insertEnvironment(Artifact configId, Artifact parentId, XmlCursor cursor, QName environmentQname, boolean suppressDefaultEnvironment) {
         positionEnvironment(cursor);
         Environment environment = new Environment();
@@ -257,7 +273,7 @@ public class Upgrade1_0To1_1 {
             return;
         }
         do {
-            String localPart = cursor.getName().getLocalPart();
+            String localPart = getLocalName(cursor);
             if (localPart.equals("dependency") || localPart.equals("import")) {
                 extractDependency(cursor, environment);
             } else {

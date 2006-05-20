@@ -316,7 +316,7 @@ public class JettyModuleBuilderTest extends TestCase {
 
         defaultEnvironment.addDependency(baseId, ImportType.ALL);
         defaultEnvironment.setConfigId(webModuleArtifact);
-        builder = new JettyModuleBuilder(defaultEnvironment, new Integer(1800), false, Collections.EMPTY_LIST, new AbstractNameQuery(containerName), defaultServlets, defaultFilters, defaultFilterMappings, pojoWebServiceTemplate, Collections.singleton(webServiceBuilder), kernel);
+        builder = new JettyModuleBuilder(defaultEnvironment, new Integer(1800), Collections.EMPTY_LIST, new AbstractNameQuery(containerName), defaultServlets, defaultFilters, defaultFilterMappings, pojoWebServiceTemplate, Collections.singleton(webServiceBuilder), kernel);
     }
 
     protected void tearDown() throws Exception {

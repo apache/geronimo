@@ -79,8 +79,7 @@
             <version>${pom.currentVersion}</version>
         </dependency>
 
-        <!--needed only because security schema references j2ee 1.4 schema for description element -->
-<!--
+        <!--needed only because security schema references xml.xsd schema for description element -->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee-schema</artifactId>
@@ -89,7 +88,6 @@
                 <xmlbeans>true</xmlbeans>
             </properties>
         </dependency>
--->
 
         <!--pattern element in login config ref -->
         <dependency>

@@ -23,5 +23,4 @@
     >
 
     <context-root>/</context-root>
-    <context-priority-classloader>false</context-priority-classloader>
 </web-app>

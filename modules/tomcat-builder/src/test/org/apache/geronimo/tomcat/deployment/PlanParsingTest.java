@@ -35,7 +35,7 @@ public class PlanParsingTest extends TestCase {
     private TomcatModuleBuilder builder;
 
     protected void setUp() throws Exception {
-        builder = new TomcatModuleBuilder(defaultEnvironment, false, tomcatContainerObjectName, Collections.singleton(webServiceBuilder), null);
+        builder = new TomcatModuleBuilder(defaultEnvironment, tomcatContainerObjectName, Collections.singleton(webServiceBuilder), null);
     }
 
     public void testResourceRef() throws Exception {
@@ -53,7 +53,6 @@ public class PlanParsingTest extends TestCase {
         ArtifactType artifactType = environmentType.addNewModuleId();
         artifactType.setArtifactId("foo");
 
-        tomcatWebAppType.setContextPriorityClassloader(false);
         GerResourceRefType ref = tomcatWebAppType.addNewResourceRef();
         ref.setRefName("ref");
         ref.setResourceLink("target");

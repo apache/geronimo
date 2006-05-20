@@ -24,7 +24,6 @@
         <web>framework.war</web>
         <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.1">
             <context-root>/console</context-root>
-            <context-priority-classloader>false</context-priority-classloader>
             <cross-context/>
             <security-realm-name>geronimo-properties-realm</security-realm-name>
         </web-app>
@@ -34,7 +33,6 @@
         <web>standard.war</web>
         <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.1">
             <context-root>/console-standard</context-root>
-            <context-priority-classloader>false</context-priority-classloader>
             <cross-context/>
             <security-realm-name>geronimo-properties-realm</security-realm-name>
         </web-app>

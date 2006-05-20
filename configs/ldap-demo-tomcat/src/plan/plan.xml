@@ -3,7 +3,6 @@
     xmlns:sec="http://geronimo.apache.org/xml/ns/security">
     
     <context-root>/ldap-demo</context-root>
-    <context-priority-classloader>false</context-priority-classloader>
     <security-realm-name>ldap-realm</security-realm-name>
     <security>
         <default-principal realm-name="ldap-realm">
