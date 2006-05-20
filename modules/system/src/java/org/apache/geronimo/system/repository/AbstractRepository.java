@@ -175,7 +175,16 @@ public abstract class AbstractRepository implements WriteableRepository {
         if (!source.exists() || !source.canRead() || source.isDirectory()) {
             throw new IllegalArgumentException("Cannot read source file at " + source.getAbsolutePath());
         }
-        copyToRepository(new FileInputStream(source), (int)source.length(), destination, monitor);
+        FileInputStream is = new FileInputStream(source);
+        try {
+            copyToRepository(is, (int)source.length(), destination, monitor);
+        } finally {
+            try {
+                is.close();
+            } catch (IOException ignored) {
+                // ignored
+            }
+        }
     }
 
     public void copyToRepository(InputStream source, int size, Artifact destination, FileWriteMonitor monitor) throws IOException {

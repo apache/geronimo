@@ -737,19 +737,35 @@ public class PluginInstallerGBean implements PluginInstaller {
         if(in == null) {
             throw new IllegalStateException();
         }
-        monitor.writeStarted(result.getConfigID().toString(), result.fileSize);
-        File file = File.createTempFile("geronimo-plugin-download-", ".tmp");
-        FileOutputStream out = new FileOutputStream(file);
-        byte[] buf = new byte[4096];
-        int count, total = 0;
-        while((count = in.read(buf)) > -1) {
-            out.write(buf, 0, count);
-            monitor.writeProgress(total += count);
+        FileOutputStream out = null;
+        try {        
+            monitor.writeStarted(result.getConfigID().toString(), result.fileSize);
+            File file = File.createTempFile("geronimo-plugin-download-", ".tmp");
+            out = new FileOutputStream(file);
+            byte[] buf = new byte[4096];
+            int count, total = 0;
+            while((count = in.read(buf)) > -1) {
+                out.write(buf, 0, count);
+                monitor.writeProgress(total += count);
+            }
+            monitor.writeComplete(total);
+            in.close();
+            in = null;
+            out.close();
+            out = null;
+            return file;            
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException ignored) { }
+            }
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException ignored) { }
+            }
         }
-        monitor.writeComplete(total);
-        in.close();
-        out.close();
-        return file;
     }
 
     /**

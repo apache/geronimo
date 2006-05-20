@@ -21,6 +21,7 @@ import java.net.MalformedURLException;
 import java.util.List;
 import java.util.ArrayList;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -95,8 +96,9 @@ public class PluginRepositoryDownloader implements PluginRepositoryList {
      * Go download a fresh copy of the repository list.
      */
     public void refresh() {
+        BufferedReader in = null;
         try {
-            BufferedReader in = new BufferedReader(new InputStreamReader(repositoryList.openStream()));
+            in = new BufferedReader(new InputStreamReader(repositoryList.openStream()));
             String line;
             List list = new ArrayList();
             while((line = in.readLine()) != null) {
@@ -106,9 +108,16 @@ public class PluginRepositoryDownloader implements PluginRepositoryList {
                 }
             }
             in.close();
+            in = null;
             kernel.setAttribute(name, "downloadRepositories", list);
         } catch (Exception e) {
             log.error("Unable to save download repositories", e);
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException ignored) {}
+            }
         }
     }
 

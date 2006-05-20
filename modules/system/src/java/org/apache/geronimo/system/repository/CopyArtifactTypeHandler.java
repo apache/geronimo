@@ -46,10 +46,12 @@ public class CopyArtifactTypeHandler implements ArtifactTypeHandler {
             monitor.writeStarted(artifact.toString(), size);
         }
         int total = 0;
+        BufferedOutputStream out = null;
+        BufferedInputStream in = null;
         try {
             int threshold = TRANSFER_NOTIFICATION_SIZE;
-            BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(target));
-            BufferedInputStream in = new BufferedInputStream(source);
+            out = new BufferedOutputStream(new FileOutputStream(target));
+            in = new BufferedInputStream(source);
             byte[] buf = new byte[TRANSFER_BUF_SIZE];
             int count;
             while ((count = in.read(buf)) > -1) {
@@ -62,10 +64,23 @@ public class CopyArtifactTypeHandler implements ArtifactTypeHandler {
                     }
                 }
             }
-            out.flush();
-            out.close();
+            out.close(); // also flushes the stream
+            out = null;
             in.close();
+            in = null;
         } finally {
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException ignored) {
+                }
+            }
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException ignored) {
+                }
+            }
             if (monitor != null) {
                 monitor.writeComplete(total);
             }
