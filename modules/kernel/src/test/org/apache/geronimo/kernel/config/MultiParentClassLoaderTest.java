@@ -77,10 +77,12 @@ public class MultiParentClassLoaderTest extends TestCase {
             // resource shared by all jars
             InputStream in = urlClassLoader.getResourceAsStream(ENTRY_NAME );
             assertStreamContains("Should have found value from parent " + i, ENTRY_VALUE + i, in);
-
+            in.close();
+            
             // resource specific to this jar
             in = urlClassLoader.getResourceAsStream(ENTRY_NAME + i);
             assertStreamContains("Should have found value from parent " + i, ENTRY_VALUE + i + ENTRY_VALUE, in);
+            in.close();
         }
     }
 
@@ -189,14 +191,17 @@ public class MultiParentClassLoaderTest extends TestCase {
     public void testGetResourceAsStream() throws Exception {
         InputStream in = classLoader.getResourceAsStream(ENTRY_NAME + 33);
         assertStreamContains("Should have found value from my file", ENTRY_VALUE + 33 + ENTRY_VALUE, in);
+        in.close();
 
         for (int i = 0; i < parents.length; i++) {
             in = classLoader.getResourceAsStream(ENTRY_NAME + i);
             assertStreamContains("Should have found value from parent " + i, ENTRY_VALUE + i + ENTRY_VALUE, in);
+            in.close();
         }
 
         in = classLoader.getResourceAsStream(ENTRY_NAME);
         assertStreamContains("Should have found value from first parent", ENTRY_VALUE + 0, in);
+        in.close();
     }
 
     /**
