@@ -42,14 +42,14 @@ import java.util.zip.ZipEntry;
 public class IOUtil {
     public static void recursiveCopy(File srcDir, File destDir) throws IOException {
         if (srcDir == null)  throw new NullPointerException("sourceDir is null");
-        if (srcDir == null)  throw new NullPointerException("destDir is null");
+        if (destDir == null)  throw new NullPointerException("destDir is null");
         if (!srcDir.isDirectory() || ! srcDir.canRead()) {
             throw new IllegalArgumentException("Source directory must be a readable directory " + srcDir);
         }
         if (destDir.exists()) {
             throw new IllegalArgumentException("Destination directory already exists " + destDir);
         }
-        if (destDir.equals(destDir)) {
+        if (srcDir.equals(destDir)) {
             throw new IllegalArgumentException("Source and destination directory are the same " + srcDir);
         }
 
