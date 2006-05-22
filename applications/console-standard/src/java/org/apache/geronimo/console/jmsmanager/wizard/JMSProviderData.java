@@ -209,6 +209,9 @@ public class JMSProviderData implements Serializable {
 
     private static void loadRARData(JMSProviderData data, PortletRequest request) throws IOException {
         File url = PortletManager.getRepositoryEntry(request, data.getRaURI());
+        if(url == null) {
+            throw new IOException("Unable to locate entry "+data.getRaURI()+" in repository");
+        }
         ZipInputStream in = new ZipInputStream(new FileInputStream(url));
         ZipEntry entry;
         Document doc = null;
