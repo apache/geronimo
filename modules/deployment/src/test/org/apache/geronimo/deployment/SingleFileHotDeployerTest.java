@@ -78,6 +78,7 @@ public class SingleFileHotDeployerTest extends TestCase {
     private boolean shouldLoad;
     private boolean shouldStart;
     private boolean isConfigurationAlreadyLoaded;
+    private boolean isConfigurationInstalled;
 
     private File watchFile1;
     private File watchFile2;
@@ -114,6 +115,7 @@ public class SingleFileHotDeployerTest extends TestCase {
         shouldLoad = true;
         shouldStart = true;
         isConfigurationAlreadyLoaded = true;
+        isConfigurationInstalled = false;
 
         SingleFileHotDeployer singleFileHotDeployer = new SingleFileHotDeployer(dir,
                 watchPaths,
@@ -133,6 +135,7 @@ public class SingleFileHotDeployerTest extends TestCase {
         shouldLoad = true;
         shouldStart = true;
         isConfigurationAlreadyLoaded = true;
+        isConfigurationInstalled = false;
 
         touch(watchFile1, NOW);
         touch(watchFile2, NOW);
@@ -157,6 +160,7 @@ public class SingleFileHotDeployerTest extends TestCase {
         shouldLoad = true;
         shouldStart = true;
         isConfigurationAlreadyLoaded = true;
+        isConfigurationInstalled = false;
 
         touch(watchFile1, NOW);
         touch(watchFile2, NOW);
@@ -181,6 +185,7 @@ public class SingleFileHotDeployerTest extends TestCase {
         shouldLoad = true;
         shouldStart = true;
         isConfigurationAlreadyLoaded = true;
+        isConfigurationInstalled = false;
 
         touch(watchFile1, NOW);
         touch(watchFile2, NOW);
@@ -205,6 +210,7 @@ public class SingleFileHotDeployerTest extends TestCase {
         shouldLoad = true;
         shouldStart = true;
         isConfigurationAlreadyLoaded = true;
+        isConfigurationInstalled = false;
 
         touch(watchFile1, PAST);
         touch(watchFile2, PAST);
@@ -229,6 +235,7 @@ public class SingleFileHotDeployerTest extends TestCase {
         shouldLoad = true;
         shouldStart = true;
         isConfigurationAlreadyLoaded = true;
+        isConfigurationInstalled = false;
 
         touch(watchFile1, PAST);
         touch(watchFile2, PAST);
@@ -315,7 +322,7 @@ public class SingleFileHotDeployerTest extends TestCase {
         private ConfigurationData loadedConfigurationData;
 
         public boolean isInstalled(Artifact configurationId) {
-            throw new UnsupportedOperationException();
+            return isConfigurationInstalled;
         }
 
         public boolean isLoaded(Artifact configurationId) {

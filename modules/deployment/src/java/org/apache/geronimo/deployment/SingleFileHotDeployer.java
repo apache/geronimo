@@ -152,14 +152,22 @@ public class SingleFileHotDeployer {
                 configurationId = resolve(configurationId);
             }
 
+            // If we didn't find a previous configuration based upon the path then check one more time to
+            // see if one exists by the same configurationID.   This will catch situations where the target
+            // path was renamed or moved such that the path associated with the previous configuration no longer
+            // matches the patch associated with the new configuration.
+            if ((existingConfigurationId == null) && configurationManager.isInstalled(configurationId)) {
+                log.info("Existing Module found by moduleId");
+                existingConfigurationId = configurationId;
+            }
+
             // if we are deploying over the exisitng version we need to uninstall first
             if(configurationId.equals(existingConfigurationId)) {
-                log.info("Undeploying " + configurationId);
+                log.info("Undeploying " + existingConfigurationId);
                 configurationManager.uninstallConfiguration(existingConfigurationId);
             }
 
             // deploy it
-            log.info("Deploying " + configurationId + " in location " + dir);
             deployConfiguration(builder, store, configurationId, plan, module, Arrays.asList(configurationManager.getStores()), configurationManager.getArtifactResolver());
             wasDeployed = true;
 
