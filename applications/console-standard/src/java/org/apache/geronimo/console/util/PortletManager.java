@@ -18,6 +18,8 @@ package org.apache.geronimo.console.util;
 
 import java.io.File;
 import java.util.Map;
+import java.util.regex.Pattern;
+
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
 import javax.naming.InitialContext;
@@ -226,6 +228,7 @@ public class PortletManager {
 //        return result;
 //    }
 //
+
     public static WebAccessLog getWebAccessLog(PortletRequest request, AbstractName managerName, AbstractName containerName) {
         ManagementHelper helper = getManagementHelper(request);
         WebManager manager = (WebManager) helper.getObject(managerName);
@@ -257,9 +260,9 @@ public class PortletManager {
 
     public static WebConnector getWebConnector(PortletRequest request, AbstractName connectorName) {
         ManagementHelper helper = getManagementHelper(request);
-        return (WebConnector)helper.getObject(connectorName);
+        return (WebConnector) helper.getObject(connectorName);
     }
-    
+
     public static WebConnector[] getWebConnectorsForContainer(PortletRequest request, AbstractName managerName, AbstractName containerName, String protocol) {
         ManagementHelper helper = getManagementHelper(request);
         WebManager manager = (WebManager) helper.getObject(managerName);
@@ -353,12 +356,12 @@ public class PortletManager {
         J2EEServer server = getCurrentServer(request);
         Repository[] repos = server.getRepositories();
         Artifact uri = Artifact.create(repositoryURI);
-        if(!uri.isResolved()) {
+        if (!uri.isResolved()) {
             Artifact[] all = server.getConfigurationManager().getArtifactResolver().queryArtifacts(uri);
-            if(all.length == 0) {
+            if (all.length == 0) {
                 return null;
             } else {
-                uri = all[all.length-1];
+                uri = all[all.length - 1];
             }
         }
         for (int i = 0; i < repos.length; i++) {
@@ -372,7 +375,7 @@ public class PortletManager {
 
     public static J2EEDeployedObject getModule(PortletRequest request, Artifact configuration) {
         ManagementHelper helper = getManagementHelper(request);
-        return helper.getModuleForConfiguration(configuration);        
+        return helper.getModuleForConfiguration(configuration);
     }
 
     public static ConfigurationData[] getConfigurations(PortletRequest request, ConfigurationModuleType type, boolean includeChildModules) {
@@ -386,16 +389,13 @@ public class PortletManager {
      * it beats hardcoding.
      */
     public static String getConsoleFrameworkServletPath(HttpServletRequest request) {
-        String contextPath = "";
-        Object o = request.getAttribute("javax.portlet.response");
-        if (o != null && o instanceof RenderResponse) { // request came from a portlet
-            RenderResponse renderResponse = (RenderResponse) o;
-            contextPath = renderResponse.createRenderURL().toString();
-            int index = contextPath.indexOf(request.getPathInfo());
-            if(index == -1) { // todo: Hack!  But this doesn't always work otherwise if invoked from a page that was invoked from another portlet instead of a page accessed by top-level navigation
-                index = contextPath.indexOf(request.getPathInfo().substring(0, 20));
-            }
-            contextPath = contextPath.substring(0, index);
+        String contextPath;
+        Object response = request.getAttribute("javax.portlet.response");
+        if (response != null && response instanceof RenderResponse) { // request came from a portlet
+            String pathInfo = request.getPathInfo();
+            String portletPath = Pattern.compile("/").split(pathInfo)[1];
+            contextPath = ((RenderResponse) response).createRenderURL().toString();
+            contextPath = Pattern.compile("/" + portletPath).split(contextPath)[0];
         } else { // request did not come from a portlet
             contextPath = request.getContextPath();
         }
