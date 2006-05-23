@@ -144,7 +144,7 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
         }
         AbstractName aName;
         AbstractName myName = kernel.getAbstractNameFor(this);
-        aName = kernel.getNaming().createChildName(myName, name, NameFactory.KEYSTORE_INSTANCE);
+        aName = kernel.getNaming().createSiblingName(myName, name, NameFactory.KEYSTORE_INSTANCE);
         GBeanData data = new GBeanData(aName, FileKeystoreInstance.getGBeanInfo());
         try {
             String path = configuredDir.toString();
