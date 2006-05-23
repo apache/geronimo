@@ -71,6 +71,20 @@ limitations under the License.
            <param-value>/graphs</param-value>
         </init-param>
     </servlet>
+    
+    <servlet>
+        <display-name>Plan Export Forward Servlet</display-name>
+        <servlet-name>plan-export-forward</servlet-name>
+        <servlet-class>org.apache.geronimo.console.servlet.ContextForwardServlet</servlet-class>
+        <init-param>
+           <param-name>context-path</param-name>
+           <param-value>/console-standard</param-value>
+        </init-param>
+        <init-param>
+           <param-name>servlet-path</param-name>
+           <param-value>/plan-export</param-value>
+        </init-param>
+    </servlet>
 
     <servlet-mapping>
         <servlet-name>se-console</servlet-name>
@@ -91,6 +105,10 @@ limitations under the License.
     <servlet-mapping>
         <servlet-name>svg-forward</servlet-name>
         <url-pattern>/graphs/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>plan-export-forward</servlet-name>
+        <url-pattern>/plan-export</url-pattern>
     </servlet-mapping>
 
     <security-constraint>

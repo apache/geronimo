@@ -763,6 +763,11 @@ limitations under the License.
   <servlet-name>maven-repo</servlet-name>
   <servlet-class>org.apache.geronimo.console.car.GeronimoAsMavenServlet</servlet-class>
 </servlet>
+<servlet>
+  <display-name>Plan Export Servlet</display-name>
+  <servlet-name>plan-export</servlet-name>
+  <servlet-class>org.apache.geronimo.console.configmanager.PlanExportServlet</servlet-class>
+</servlet>
 
 <servlet-mapping>
   <servlet-name>dwr-invoker</servlet-name>
@@ -775,6 +780,10 @@ limitations under the License.
 <servlet-mapping>
   <servlet-name>maven-repo</servlet-name>
   <url-pattern>/maven-repo/*</url-pattern>
+</servlet-mapping>
+<servlet-mapping>
+  <servlet-name>plan-export</servlet-name>
+  <url-pattern>/plan-export</url-pattern>
 </servlet-mapping>
 
 
