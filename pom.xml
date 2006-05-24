@@ -24,7 +24,7 @@
   <artifactId>geronimo</artifactId>
   <packaging>pom</packaging>
   <name>Geronimo</name>
-  <version>1.1-SNAPSHOT</version>
+  <version>1.2-SNAPSHOT</version>
   <description>Geronimo parent</description>
   <url>http://geronimo.apache.org</url>
 
@@ -103,7 +103,7 @@
      | Geronimo module versions
      |
      -->
-    <geronimoVersion>1.0</geronimoVersion>
+    <geronimoVersion>1.2</geronimoVersion>
     
     <!--
      |

@@ -23,7 +23,7 @@
     <id>geronimo-assembly-plugin</id>
     <name>Geronimo :: Maven Assembly Plugin</name>
     <description>A plugin used to assemble a distribution of Geronimo</description>
-    <currentVersion>1.1.0-12</currentVersion>
+    <currentVersion>1.1.0-13</currentVersion>
 
     <dependencies>
         <dependency>
@@ -45,12 +45,12 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
-            <version>1.1-SNAPSHOT</version>
+            <version>1.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
-            <version>1.1-SNAPSHOT</version>
+            <version>1.2-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
