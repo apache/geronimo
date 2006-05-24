@@ -16,8 +16,7 @@
  */
 package org.apache.geronimo.kernel.repository;
 
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.util.SortedSet;
 
 /**
  * For repositories that can provide a list of their contents.
@@ -28,7 +27,16 @@ import java.net.URISyntaxException;
  */
 public interface ListableRepository extends Repository {
     /**
-     * Gets a list of all the items available in the repository.
-     */ 
-    public URI[] listURIs() throws URISyntaxException;
+     * Gets a set (with entries of type Artifact) of all the items available
+     * in the repository.
+     */
+    public SortedSet list();
+
+    /**
+     * Gets a set (with entries of type Artifact) of all the available items
+     * matching the specified artifact, which is normally not fully resolved
+     * (so the results all match whatever fields are specified on the argument
+     * Artifact).
+     */
+    public SortedSet list(Artifact query);
 }

@@ -63,12 +63,6 @@ public class DerbySystemGBeanTest extends TestCase {
 
             Properties props = System.getProperties();
             props.remove("derby.system.home");
-            props.remove("java.naming.provider.url");
-            props.remove("java.naming.factory.initial");
-            props.remove("java.naming.factory.url.pkgs");
-            props.remove("org.apache.geronimo.home.dir");
-            props.remove("org.apache.geronimo.server.dir");
-
         } catch (Exception e) {
             delete(systemDir);
             throw e;

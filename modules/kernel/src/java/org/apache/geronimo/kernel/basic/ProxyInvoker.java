@@ -16,11 +16,11 @@
  */
 package org.apache.geronimo.kernel.basic;
 
-import javax.management.ObjectName;
+import org.apache.geronimo.gbean.AbstractName;
 
 /**
  * @version $Rev$ $Date$
  */
 public interface ProxyInvoker {
-    Object invoke(ObjectName objectName, Object[] arguments) throws Throwable;
+    Object invoke(AbstractName abstractName, Object[] arguments) throws Throwable;
 }

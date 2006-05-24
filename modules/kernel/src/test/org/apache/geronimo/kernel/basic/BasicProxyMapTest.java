@@ -152,6 +152,7 @@ public class BasicProxyMapTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
+        super.setUp();
         map = new BasicProxyMap();
     }    
 }

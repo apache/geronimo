@@ -16,44 +16,20 @@
  */
 package org.apache.geronimo.console.car;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.console.MultiPageModel;
-import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanQuery;
-import org.apache.geronimo.kernel.repository.WriteableRepository;
-import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelRegistry;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-
+import java.io.IOException;
+import java.util.List;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
-import javax.management.ObjectName;
-import java.io.IOException;
-import java.io.File;
-import java.io.ObjectInputStream;
-import java.io.InputStream;
-import java.io.FileOutputStream;
-import java.io.Serializable;
-import java.util.zip.ZipFile;
-import java.util.zip.ZipEntry;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.Iterator;
-import java.net.URI;
-import java.net.URL;
-import java.net.URISyntaxException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.console.MultiPageModel;
+import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
  * Handler for the import results screen.
@@ -77,10 +53,8 @@ public class ResultsHandler extends BaseImportExportHandler {
         String pass = request.getParameter("repo-pass");
         String configId = request.getParameter("configId");
         request.setAttribute("configId", configId);
-        List configs = (List) request.getPortletSession(true).getAttribute("car.install.configurations");
-        List deps = (List) request.getPortletSession(true).getAttribute("car.install.dependencies");
+        List deps = (List) request.getPortletSession(true).getAttribute("car.install.results");
         request.setAttribute("dependencies", deps);
-        request.setAttribute("configurations", configs);
         request.setAttribute("repository", repo);
         request.setAttribute("repouser", user);
         request.setAttribute("repopass", pass);
@@ -95,13 +69,11 @@ public class ResultsHandler extends BaseImportExportHandler {
         if(!isEmpty(user)) response.setRenderParameter("repo-user", user);
         if(!isEmpty(pass)) response.setRenderParameter("repo-pass", pass);
         try {
+            //todo: hide this in PortletManager/ManagementHelper
             ConfigurationManager mgr = ConfigurationUtil.getConfigurationManager(KernelRegistry.getSingleKernel());
-            List list = mgr.loadRecursive(new URI(configId));
-            for (Iterator it = list.iterator(); it.hasNext();) {
-                URI uri = (URI) it.next();
-                mgr.loadGBeans(uri);
-                mgr.start(uri);
-            }
+            Artifact artifact = Artifact.create(configId);
+            mgr.loadConfiguration(artifact);
+            mgr.startConfiguration(artifact);
             return LIST_MODE;
         } catch (Exception e) {
             log.error("Unable to start configuration "+configId, e);

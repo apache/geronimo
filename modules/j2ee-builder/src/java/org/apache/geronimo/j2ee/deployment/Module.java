@@ -17,7 +17,6 @@
 package org.apache.geronimo.j2ee.deployment;
 
 import java.util.jar.JarFile;
-import java.util.List;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.io.IOException;
@@ -25,17 +24,20 @@ import java.io.File;
 
 import org.apache.xmlbeans.XmlObject;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.gbean.AbstractName;
 
 /**
  * @version $Rev$ $Date$
  */
 public abstract class Module {
     private final boolean standAlone;
+
+    private final AbstractName moduleName;
     private final String name;
-    private final URI configId;
-    private final List parentId;
+    private final Environment environment;
     private final URI moduleURI;
     private final JarFile moduleFile;
     private final String targetPath;
@@ -45,14 +47,17 @@ public abstract class Module {
     private final String originalSpecDD;
     private final String namespace;
 
+    private EARContext earContext;
+
     private URI uniqueModuleLocation;
 
-    protected Module(boolean standAlone, URI configId, List parentId, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String namespace) {
+    protected Module(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String namespace) {
         assert targetPath != null: "targetPath is null";
+        assert moduleName != null: "moduleName is null";
 
         this.standAlone = standAlone;
-        this.configId = configId;
-        this.parentId = parentId;
+        this.moduleName = moduleName;
+        this.environment = environment;
         this.moduleFile = moduleFile;
         this.targetPath = targetPath;
         this.specDD = specDD;
@@ -61,7 +66,7 @@ public abstract class Module {
         this.namespace = namespace;
 
         if (standAlone) {
-            name = configId.toString();
+            name = environment.getConfigId().toString();
             moduleURI = URI.create("");
         } else {
             name = targetPath;
@@ -81,12 +86,12 @@ public abstract class Module {
         return standAlone;
     }
 
-    public URI getConfigId() {
-        return configId;
+    public AbstractName getModuleName() {
+        return moduleName;
     }
 
-    public List getParentId() {
-        return parentId;
+    public Environment getEnvironment() {
+        return environment;
     }
 
     public URI getModuleURI() {
@@ -145,21 +150,56 @@ public abstract class Module {
         addClass(location, fqcn, bytes, context);
     }
 
-    private URI getUniqueModuleLocation(DeploymentContext context) {
+    private URI getUniqueModuleLocation(DeploymentContext context) throws IOException {
         if (uniqueModuleLocation == null) {
+            URI metainfUri = URI.create("META-INF/");
+            File metainfDir = context.getTargetFile(metainfUri);
+            if (!metainfDir.exists()) {
+                metainfDir.mkdirs();
+            }
+            if (!metainfDir.isDirectory()) {
+                throw new IOException("META-INF directory exists but is not a directory: " + metainfDir.getAbsolutePath());
+            }
+            if (!metainfDir.canRead()) {
+                throw new IOException("META-INF directory is not readable: " + metainfDir.getAbsolutePath());
+            }
+            if (!metainfDir.canWrite()) {
+                throw new IOException("META-INF directory is not writable: " + metainfDir.getAbsolutePath());
+            }
+
             String suffix = "";
-            URI candidateURI;
-            File candidateFile;
-            int i = 1;
+            URI generatedUri;
+            File generatedDir;
+            int i = 0;
             do {
-                candidateURI = URI.create(targetPath + "-generated" + suffix + "/");
-                candidateFile = context.getTargetFile(candidateURI);
+                generatedUri = metainfUri.resolve("geronimo-generated" + suffix + "/");
+                generatedDir = context.getTargetFile(generatedUri);
                 suffix = "" + i++;
-            } while (candidateFile.exists());
-            candidateFile.mkdirs();
-            uniqueModuleLocation = candidateURI;
+            } while (generatedDir.exists());
+            generatedDir.mkdirs();
+
+            // these shouldn't ever happen, but let's check anyway
+            if (!generatedDir.isDirectory()) {
+                throw new IOException("Geronimo generated classes directory exists but is not a directory: " + generatedDir.getAbsolutePath());
+            }
+            if (!generatedDir.canRead()) {
+                throw new IOException("Geronimo generated classes directory is not readable: " + generatedDir.getAbsolutePath());
+            }
+            if (!generatedDir.canWrite()) {
+                throw new IOException("Geronimo generated classes directory is not writable: " + generatedDir.getAbsolutePath());
+            }
+
+            uniqueModuleLocation = generatedUri;
         }
         return uniqueModuleLocation;
+    }
+
+    public EARContext getEarContext() {
+        return earContext;
+    }
+
+    public void setEarContext(EARContext earContext) {
+        this.earContext = earContext;
     }
 
     public abstract void addClass(URI location, String fqcn, byte[] bytes, DeploymentContext context) throws IOException, URISyntaxException;

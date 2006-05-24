@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 
-<!-- $Rev$ $Date$ -->
+<!-- $Rev: 371874 $ $Date: 2006-01-24 04:40:34 -0500 (Tue, 24 Jan 2006) $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -38,16 +38,19 @@
             <artifactId>geronimo-gbean-deployer</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
+            <properties>
+                <packaging.config.order>1</packaging.config.order>
+            </properties>
         </dependency>
-
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>j2ee-deployer</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
             <properties>
-                 <geronimo.import>true</geronimo.import>
-             </properties>
+                <geronimo.import>true</geronimo.import>
+                <packaging.config.order>2</packaging.config.order>
+            </properties>
         </dependency>
 
     </dependencies>

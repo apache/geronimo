@@ -18,28 +18,52 @@
 
 <!-- $Rev$ $Date$ -->
 
-<configuration
-    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-               configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
-    >
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
     <gbean name="TomcatWebBuilder" class="org.apache.geronimo.tomcat.deployment.TomcatModuleBuilder">
-        <attribute name="defaultParentId">${pom.groupId}/j2ee-server/${pom.currentVersion}/car,${pom.groupId}/tomcat/${pom.currentVersion}/car,${pom.groupId}/axis/${pom.currentVersion}/car</attribute>
-        <attribute name="defaultContextPriorityClassloader">false</attribute>
-        <attribute name="tomcatContainerObjectName">geronimo.server:name=TomcatWebContainer,*</attribute>
+        <attribute name="tomcatContainerName">?name=TomcatWebContainer</attribute>
         <references name="WebServiceBuilder">
             <pattern>
-                <module>*</module>
                 <name>WebServiceBuilder</name>
             </pattern>
             <pattern>
-                <module>*</module>
                 <name>UnavailableWebServiceBuilder</name>
             </pattern>
         </references>
-        <reference name="Repository">
-            <gbean-name>*:name=Repository,*</gbean-name>
-        </reference>
+        <xml-attribute name="defaultEnvironment">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+                <dependencies>
+                    <dependency>
+                        <groupId>${pom.groupId}</groupId>
+                        <artifactId>j2ee-server</artifactId>
+                        <!--<version>${pom.currentVersion}</version>-->
+                        <type>car</type>
+                    </dependency>
+                    <dependency>
+                        <groupId>${pom.groupId}</groupId>
+                        <artifactId>tomcat</artifactId>
+                        <!--<version>${pom.currentVersion}</version>-->
+                        <type>car</type>
+                    </dependency>
+                </dependencies>
+                <hidden-classes>
+                    <filter>antlr.</filter>
+                    <filter>org.springframework.</filter>
+                </hidden-classes>
+                <non-overridable-classes>
+                    <filter>java.</filter>
+                    <filter>javax.</filter>
+                    <filter>org.apache.geronimo.</filter>
+                    <filter>org.apache.jasper.</filter>
+                    <filter>org.apache.naming.</filter>
+                    <filter>org.apache.catalina.</filter>
+                    <filter>org.apache.tomcat.</filter>
+                    <filter>org.apache.tomcat.</filter>
+                    <filter>org.xml.</filter>
+                    <filter>org.w3c.</filter>
+                </non-overridable-classes>
+            </environment>
+        </xml-attribute>
     </gbean>
 
-</configuration>
+</module>

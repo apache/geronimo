@@ -17,50 +17,46 @@
 -->
 
 
-<configuration
-    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-    configId="test/plan1"
-    >
-    <import>
-        <groupId>geronimo</groupId>
-        <type>car</type>
-        <artifactId>foo4</artifactId>
-        <version>DEV</version>
-    </import>
+<module
+        xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
+        >
 
-    <import>
-        <uri>geronimo/foo5/DEV/car</uri>
-    </import>
+    <environment>
+        <moduleId>
+            <groupId>geronimo</groupId>
+            <artifactId>foo4</artifactId>
+            <version>DEV</version>
+            <type>car</type>
+        </moduleId>
+        <dependencies>
+            <dependency>
+                <groupId>geronimo</groupId>
+                <artifactId>foo4</artifactId>
+                <version>DEV</version>
+                <type>car</type>
+            </dependency>
 
-    <dependency>
-        <groupId>geronimo</groupId>
-        <artifactId>foo1</artifactId>
-        <version>DEV</version>
-    </dependency>
+            <dependency>
+                <groupId>geronimo</groupId>
+                <artifactId>foo1</artifactId>
+                <version>DEV</version>
+            </dependency>
 
-    <dependency>
-        <groupId>
-           geronimo
-        </groupId>
-        <artifactId>
-            foo2
-        </artifactId>
-        <version>
-            DEV
-        </version>
-    </dependency>
+            <dependency>
+                <groupId>
+                    geronimo
+                </groupId>
+                <artifactId>
+                    foo2
+                </artifactId>
+                <version>
+                    DEV
+                </version>
+            </dependency>
 
-    <dependency>
-        <uri>geronimo/foo3/DEV</uri>
-    </dependency>
-
-    <dependency>
-        <uri>
-           geronimo/foo4/DEV
-        </uri>
-    </dependency>
-
-    <gbean gbeanName="geronimo.test:name=MyMockGMBean" class="org.apache.geronimo.deployment.MockGBean">
+        </dependencies>
+    </environment>
+    <gbean name="MyMockGMBean" class="org.apache.geronimo.deployment.MockGBean">
         <attribute name="value">1234</attribute>
         <attribute name="intValue">1234</attribute>
         <xml-attribute name="fooBarBean">
@@ -76,7 +72,7 @@
             </ns:javabean>
         </xml-attribute>
         <reference name="MockEndpoint">
-            <gbean-name>geronimo.test:name=MyMockGMBean</gbean-name>
+            <name>MyMockGMBean</name>
         </reference>
     </gbean>
-</configuration>
+</module>

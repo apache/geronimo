@@ -17,40 +17,55 @@
 package org.apache.geronimo.j2ee.management.impl;
 
 import java.util.Hashtable;
+import java.util.Collection;
+import java.util.ArrayList;
 import javax.management.ObjectName;
-
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.management.J2EEServer;
-import org.apache.geronimo.management.geronimo.J2EEApplication;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.ObjectNameUtil;
+import org.apache.geronimo.management.AppClientModule;
+import org.apache.geronimo.management.EJBModule;
+import org.apache.geronimo.management.J2EEModule;
+import org.apache.geronimo.management.J2EEResource;
+import org.apache.geronimo.management.geronimo.J2EEApplication;
+import org.apache.geronimo.management.geronimo.J2EEServer;
+import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
+import org.apache.geronimo.management.geronimo.WebModule;
 
 /**
  * @version $Rev$ $Date$
  */
 public class J2EEApplicationImpl implements J2EEApplication {
-    private final String deploymentDescriptor;
-    private final String baseName;
-    private final Kernel kernel;
-    private final J2EEServer server;
     private final String objectName;
+    private final String deploymentDescriptor;
+    private final J2EEServer server;
+    private final Collection resources;
+    private final Collection appClientModules;
+    private final Collection ejbModules;
+    private final Collection resourceAdapterModules;
+    private final Collection webModules;
 
-    public J2EEApplicationImpl(Kernel kernel, String objectName, J2EEServer server, String deploymentDescriptor) {
+    public J2EEApplicationImpl(String objectName,
+            String deploymentDescriptor,
+            J2EEServer server,
+            Collection resources,
+            Collection appClientModules,
+            Collection ejbModules,
+            Collection resourceAdapterModules,
+            Collection webModules) {
+
         this.objectName = objectName;
-        ObjectName myObjectName = JMXUtil.getObjectName(this.objectName);
+        ObjectName myObjectName = ObjectNameUtil.getObjectName(this.objectName);
         verifyObjectName(myObjectName);
 
-        // build the base name used to query the server for child modules
-        Hashtable keyPropertyList = myObjectName.getKeyPropertyList();
-        String name = (String) keyPropertyList.get("name");
-        String j2eeServerName = (String) keyPropertyList.get("J2EEServer");
-        baseName = myObjectName.getDomain() + ":J2EEServer=" + j2eeServerName + ",J2EEApplication=" + name + ",";
-
-        this.kernel = kernel;
-        this.server = server;
         this.deploymentDescriptor = deploymentDescriptor;
+        this.server = server;
+        this.resources = resources;
+        this.appClientModules = appClientModules;
+        this.ejbModules = ejbModules;
+        this.resourceAdapterModules = resourceAdapterModules;
+        this.webModules = webModules;
     }
 
     public String getObjectName() {
@@ -94,15 +109,50 @@ public class J2EEApplicationImpl implements J2EEApplication {
     }
 
     public String[] getModules() {
-        return Util.getObjectNames(kernel,
-                baseName,
-                new String[]{"AppClientModule", "EJBModule", "WebModule", "ResourceAdapterModule"});
+        return Util.getObjectNames(getModulesInstances());
     }
 
-    public String[] getResources() {
-        return Util.getObjectNames(kernel,
-                baseName,
-                new String[]{"JavaMailResource", "JCAConnectionFactory", "JDBCResource", "JDBCDriver", "JMSResource", "JNDIResource", "JTAResource", "RMI_IIOPResource", "URLResource"});
+    public J2EEModule[] getModulesInstances() {
+        ArrayList objects = new ArrayList();
+        if (appClientModules != null) {
+            objects.addAll(appClientModules);
+        }
+        if (ejbModules != null) {
+            objects.addAll(ejbModules);
+        }
+        if (webModules != null) {
+            objects.addAll(webModules);
+        }
+        if (resourceAdapterModules != null) {
+            objects.addAll(resourceAdapterModules);
+        }
+
+        return (J2EEModule[]) objects.toArray(new J2EEModule[objects.size()]);
+    }
+
+    public J2EEResource[] getResources() {
+        if (resources == null) return new J2EEResource[0];
+        return (J2EEResource[]) resources.toArray(new J2EEResource[resources.size()]);
+    }
+
+    public AppClientModule[] getClientModules() {
+        if (appClientModules == null) return new AppClientModule[0];
+        return (AppClientModule[]) appClientModules.toArray(new AppClientModule[appClientModules.size()]);
+    }
+
+    public EJBModule[] getEJBModules() {
+        if (ejbModules == null) return new EJBModule[0];
+        return (EJBModule[]) ejbModules.toArray(new EJBModule[ejbModules.size()]);
+    }
+
+    public ResourceAdapterModule[] getRAModules() {
+        if (resourceAdapterModules == null) return new ResourceAdapterModule[0];
+        return (ResourceAdapterModule[]) resourceAdapterModules.toArray(new ResourceAdapterModule[resourceAdapterModules.size()]);
+    }
+
+    public WebModule[] getWebModules() {
+        if (webModules == null) return new WebModule[0];
+        return (WebModule[]) webModules.toArray(new WebModule[webModules.size()]);
     }
 
     public String getDeploymentDescriptor() {
@@ -117,20 +167,24 @@ public class J2EEApplicationImpl implements J2EEApplication {
 
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(J2EEApplicationImpl.class, NameFactory.J2EE_APPLICATION);
-        infoFactory.addAttribute("kernel", Kernel.class, false);
-        infoFactory.addAttribute("objectName", String.class, false);
-        infoFactory.addReference("j2eeServer", J2EEServer.class);
         infoFactory.addAttribute("deploymentDescriptor", String.class, true);
-        infoFactory.addAttribute("server", String.class, false);
-        infoFactory.addAttribute("modules", String[].class, false);
-        infoFactory.addAttribute("resources", String[].class, false);
-        infoFactory.addInterface(J2EEApplication.class);
+        infoFactory.addReference("Server", J2EEServer.class);
+        infoFactory.addReference("Resources", J2EEResource.class);
+        infoFactory.addReference("AppClientModules", AppClientModule.class);
+        infoFactory.addReference("EJBModules", EJBModule.class);
+        infoFactory.addReference("ResourceAdapterModules", ResourceAdapterModule.class);
+        infoFactory.addReference("WebModules", WebModule.class);
 
         infoFactory.setConstructor(new String[]{
-            "kernel",
-            "objectName",
-            "j2eeServer",
-            "deploymentDescriptor"});
+                "objectName",
+                "deploymentDescriptor",
+                "Server",
+                "Resources",
+                "AppClientModules",
+                "EJBModules",
+                "ResourceAdapterModules",
+                "WebModules",
+        });
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

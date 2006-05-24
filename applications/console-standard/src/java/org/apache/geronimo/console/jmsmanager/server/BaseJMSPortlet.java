@@ -16,15 +16,17 @@
  */
 package org.apache.geronimo.console.jmsmanager.server;
 
-import java.util.Map;
-import java.util.LinkedHashMap;
-import javax.portlet.RenderRequest;
-import javax.portlet.PortletException;
-import javax.management.ObjectName;
 import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.management.geronimo.JMSBroker;
-import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
+import org.apache.geronimo.management.geronimo.JMSManager;
+
+import javax.portlet.PortletException;
+import javax.portlet.RenderRequest;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Common methods for JMS portlets
@@ -32,22 +34,46 @@ import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
  * @version $Rev$ $Date$
  */
 public class BaseJMSPortlet extends BasePortlet {
-    protected static Map getBrokerMap(RenderRequest renderRequest, String managerObjectName) throws PortletException {
-        JMSBroker[] brokers;
-        Map map = new LinkedHashMap();
+    /**
+     * Gets a Map relating broker name to JMSBroker instance
+     */
+    protected static List getBrokerList(RenderRequest renderRequest, JMSManager manager) throws PortletException {
+
+        JMSBroker[] brokers = (JMSBroker[]) manager.getContainers();
+        List beans = new ArrayList();
         try {
-            String[] names = PortletManager.getJMSBrokerNames(renderRequest, managerObjectName);
-            brokers = new JMSBroker[names.length];
-            for (int i = 0; i < names.length; i++) {
-                String name = names[i];
-                JMSBroker broker = PortletManager.getJMSBroker(renderRequest, name);
-                brokers[i] = broker;
-                ObjectName objectName = ObjectName.getInstance(name);
-                map.put(objectName.getKeyProperty("name"), broker);
+            for (int i = 0; i < brokers.length; i++) {
+                AbstractName abstractName = PortletManager.getNameFor(renderRequest, brokers[i]);
+                String displayName = abstractName.getName().get("name").toString();
+                beans.add(new BrokerWrapper(displayName, abstractName.toString(), brokers[i]));
             }
         } catch (Exception e) {
             throw new PortletException(e);
         }
-        return map;
+        return beans;
+    }
+    
+    public static class BrokerWrapper {
+        private String brokerName;
+        private String brokerURI;
+        private JMSBroker broker;
+
+        public BrokerWrapper(String brokerName, String brokerURI, JMSBroker broker) {
+            this.brokerName = brokerName;
+            this.brokerURI = brokerURI;
+            this.broker = broker;
+        }
+
+        public String getBrokerName() {
+            return brokerName;
+        }
+
+        public JMSBroker getBroker() {
+            return broker;
+        }
+
+        public String getBrokerURI() {
+            return brokerURI;
+        }
     }
 }

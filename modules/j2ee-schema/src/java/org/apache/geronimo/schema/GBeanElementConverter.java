@@ -25,7 +25,7 @@ import org.apache.xmlbeans.XmlCursor;
  */
 public class GBeanElementConverter implements ElementConverter {
 
-    private static final String GERONIMO_SERVICE_NAMESPACE = "http://geronimo.apache.org/xml/ns/deployment-1.0";
+    private static final String GERONIMO_SERVICE_NAMESPACE = "http://geronimo.apache.org/xml/ns/deployment-1.1";
 
 
     public void convertElement(XmlCursor cursor, XmlCursor end) {

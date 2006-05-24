@@ -20,12 +20,20 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Map;
+import java.util.HashMap;
+import java.security.PermissionCollection;
+import java.security.Permissions;
+
 import javax.management.ObjectName;
+
+import org.apache.geronimo.tomcat.util.SecurityHolder;
+import org.apache.geronimo.security.jacc.ComponentPermissions;
 
 /**
  * Tests the JAAS security for Tomcat
  *
- * @version $Revision$ $Date$
+ * @version $Revision: 387050 $ $Date$
  */
 public class JAASSecurityTest extends AbstractWebModuleTest {
 
@@ -36,7 +44,7 @@ public class JAASSecurityTest extends AbstractWebModuleTest {
         startWebApp();
 
         //Begin the test
-        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8181/securetest/protected/hello.txt").openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8181/test/protected/hello.txt").openConnection();
         connection.setInstanceFollowRedirects(false);
         assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
         //Be sure we have been given the login page
@@ -46,7 +54,7 @@ public class JAASSecurityTest extends AbstractWebModuleTest {
 
         String cookie = connection.getHeaderField("Set-Cookie");
         cookie = cookie.substring(0, cookie.lastIndexOf(';'));
-        String location = "http://localhost:8181/securetest/protected/j_security_check?j_username=alan&j_password=starcraft";
+        String location = "http://localhost:8181/test/protected/j_security_check?j_username=alan&j_password=starcraft";
         connection = (HttpURLConnection) new URL(location).openConnection();
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Cookie", cookie);
@@ -68,7 +76,7 @@ public class JAASSecurityTest extends AbstractWebModuleTest {
         startWebApp();
 
         //Begin the test
-        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8181/securetest/protected/hello.txt").openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8181/test/protected/hello.txt").openConnection();
         connection.setInstanceFollowRedirects(false);
         assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
 
@@ -79,7 +87,7 @@ public class JAASSecurityTest extends AbstractWebModuleTest {
 
         String cookie = connection.getHeaderField("Set-Cookie");
         cookie = cookie.substring(0, cookie.lastIndexOf(';'));
-        String location = "http://localhost:8181/securetest/protected/j_security_check?j_username=alan&j_password=basspassword";
+        String location = "http://localhost:8181/test/protected/j_security_check?j_username=alan&j_password=basspassword";
 
         connection = (HttpURLConnection) new URL(location).openConnection();
         connection.setRequestMethod("POST");
@@ -107,7 +115,7 @@ public class JAASSecurityTest extends AbstractWebModuleTest {
         Thread.sleep(5000);
 
         //Begin the test
-        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8181/securetest/protected/hello.txt").openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8181/test/protected/hello.txt").openConnection();
         connection.setInstanceFollowRedirects(false);
         assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
 
@@ -118,16 +126,16 @@ public class JAASSecurityTest extends AbstractWebModuleTest {
 
         String cookie = connection.getHeaderField("Set-Cookie");
         cookie = cookie.substring(0, cookie.lastIndexOf(';'));
-        String location = "http://localhost:8181/securetest/protected/j_security_check?j_username=izumi&j_password=violin";
+        String location = "http://localhost:8181/test/protected/j_security_check?j_username=izumi&j_password=violin";
 
         connection = (HttpURLConnection) new URL(location).openConnection();
         connection.setRequestMethod("POST");
-        connection.setRequestProperty("Referer","http://localhost:8181/securetest/auth/logon.html?param=test");
+        connection.setRequestProperty("Referer","http://localhost:8181/test/auth/logon.html?param=test");
         connection.setRequestProperty("Cookie", cookie);
         connection.setInstanceFollowRedirects(false);
         assertEquals(HttpURLConnection.HTTP_MOVED_TEMP, connection.getResponseCode());
 
-        connection = (HttpURLConnection) new URL("http://localhost:8181/securetest/protected/hello.txt").openConnection();
+        connection = (HttpURLConnection) new URL("http://localhost:8181/test/protected/hello.txt").openConnection();
         connection.setRequestProperty("Cookie", cookie);
         connection.setInstanceFollowRedirects(false);
         reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -140,17 +148,36 @@ public class JAASSecurityTest extends AbstractWebModuleTest {
     }
 
     protected void startWebApp() throws Exception {
-        setUpJAASSecureAppContext();
+        //Set a context level Realm and ignore the Engine level to test that
+        //the override along with a Security Realm Name set overrides the Engine
+        Map initParams = new HashMap();
+        initParams.put("userClassNames", "org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
+        initParams.put("roleClassNames", "org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
+
+        RealmGBean realm = new RealmGBean("org.apache.geronimo.tomcat.realm.TomcatJAASRealm", initParams);
+        realm.doStart();
+
+        PermissionCollection excludedPermissions = new Permissions();
+        PermissionCollection uncheckedPermissions = new Permissions();
+        ComponentPermissions componentPermissions = new ComponentPermissions(excludedPermissions, uncheckedPermissions, new HashMap());
+        //Force a new realm name and ignore the application name
+        SecurityHolder securityHolder = new SecurityHolder();
+        securityHolder.setSecurityRealm(securityRealmName);
+        setUpSecureAppContext(new HashMap(),
+                new HashMap(),
+                componentPermissions,
+                realm,
+                securityHolder);
     }
 
     protected void stopWebApp() throws Exception {
-        tearDownJAASWebApp();
     }
 
     protected void setUp() throws Exception {
-        super.setUp("org.apache.geronimo.tomcat.realm.TomcatJAASRealm");
-        setUpSecurity();        
-   }
+        super.setUp();
+        super.init("org.apache.geronimo.tomcat.realm.TomcatJAASRealm");
+        setUpSecurity();
+    }
 
     protected void tearDown() throws Exception {
         tearDownSecurity();

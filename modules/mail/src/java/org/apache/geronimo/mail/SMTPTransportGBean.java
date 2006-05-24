@@ -38,41 +38,6 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
  */
 public class SMTPTransportGBean extends ProtocolGBean {
 
-    // the SMTP configuration property names
-    static public final String SMTP_PORT = "mail.smtp.port";
-    static public final String SMTP_CONNECTION_TIMEOUT = "mail.smtp.connectiontimeout";
-    static public final String SMTP_TIMEOUT = "mail.smtp.timeout";
-    static public final String SMTP_FROM = "mail.smtp.from";
-    static public final String SMTP_AUTH = "mail.smtp.auth";
-    static public final String SMTP_REALM = "mail.smtp.sasl.realm";
-    static public final String SMTP_QUITWAIT = "mail.smtp.quitwait";
-    static public final String SMTP_FACTORY_CLASS = "mail.smtp.socketFactory.class";
-    static public final String SMTP_FACTORY_FALLBACK = "mail.smtp.socketFactory.fallback";
-    static public final String SMTP_FACTORY_PORT = "mail.smtp.socketFactory.port";
-    static public final String SMTP_LOCALHOST = "mail.smtp.localhost";
-    static public final String SMTP_LOCALADDRESS = "mail.smtp.localaddress";
-    static public final String SMTP_LOCALPORT = "mail.smtp.localport";
-    static public final String SMTP_EHLO = "mail.smtp.ehlo";
-    static public final String SMTP_SUBMITTER = "mail.smtp.submitter";
-    static public final String SMTP_DSN_NOTIFY = "mail.smtp.dsn.notify";
-    static public final String SMTP_DSN_RET = "mail.smtp.dsn.ret";
-    static public final String SMTP_8BITMIME = "mail.smtp.allow8bitmime";
-    static public final String SMTP_SEND_PARTIAL = "mail.smtp.sendpartial";
-    static public final String SMTP_REPORT_SUCCESS = "mail.smtp.reportsuccess";
-    static public final String SMTP_MAIL_EXTENSION = "mail.smtp.mailextension";
-    static public final String SMTP_STARTTLS_ENABLE = "mail.smtp.starttls.enable";
-
-    static public final String GBEAN_EHLO = "ehlo";
-    static public final String GBEAN_SUBMITTER = "submitter";
-    static public final String GBEAN_DSN_NOTIFY = "dsnNotify";
-    static public final String GBEAN_DSN_RET = "dsnRet";
-    static public final String GBEAN_8BITMIME = "allow8bitmime";
-    static public final String GBEAN_SEND_PARTIAL = "sendPartical";
-    static public final String GBEAN_REPORT_SUCCESS = "reportSuccess";
-    static public final String GBEAN_MAIL_EXTENSION = "mailExtension";
-static public final String GBEAN_STARTTLS_ENABLE = "startTLSEnable";
-
-
     private final Log log = LogFactory.getLog(SMTPTransportGBean.class);
 
     private Integer port;
@@ -96,7 +61,6 @@ static public final String GBEAN_STARTTLS_ENABLE = "startTLSEnable";
     private Boolean socketFactoryFallback;
     private Integer socketFactoryPort;
     private String mailExtension;
-    private Boolean startTLSEnable;
 
 
     /**
@@ -119,7 +83,6 @@ static public final String GBEAN_STARTTLS_ENABLE = "startTLSEnable";
      * @param ehlo                  whether an attempt will be made to sign on with the EHLO command
      * @param auth                  whether an attempt will be made to authenticate the user using
      *                              the AUTH command
-     * @param startTLSEnable          the flag that enables the use of the STARTTLS command (if supported by the server) to switch the connection to a TLS-protected connection before issuing any login commands
      * @param submitter             the submitter to use in the AUTH tag in the MAIL FROM command
      * @param dsnNotify             the NOTIFY option to the RCPT command
      * @param dsnRet                the RET option to the MAIL command
@@ -147,7 +110,6 @@ static public final String GBEAN_STARTTLS_ENABLE = "startTLSEnable";
                               Integer localport,
                               Boolean ehlo,
                               Boolean auth,
-                              Boolean startTLSEnable,
                               String submitter,
                               String dsnNotify,
                               String dsnRet,
@@ -171,7 +133,6 @@ static public final String GBEAN_STARTTLS_ENABLE = "startTLSEnable";
         setLocalport(localport);
         setEhlo(ehlo);
         setAuth(auth);
-        setStartTLSEnable(startTLSEnable);
         setSubmitter(submitter);
         setDsnNotify(dsnNotify);
         setDsnRet(dsnRet);
@@ -396,43 +357,6 @@ static public final String GBEAN_STARTTLS_ENABLE = "startTLSEnable";
      */
     public void setAuth(Boolean auth) {
         this.auth = auth;
-    }
-
-    /**
-     * Returns the flag that enables the use of the STARTTLS command (if
-     * supported by the server) to switch the connection to a TLS-protected
-     * connection before issuing any login commands.
-     * <p/>
-     * If true, enables the use of the STARTTLS command (if supported by the
-     * server) to switch the connection to a TLS-protected connection before
-     * issuing any login commands. Note that an appropriate trust store must
-     * configured so that the client will trust the server's certificate.
-     * This feature only works on J2SE 1.4 and newer systems. Default is false.
-     */
-    public Boolean getStartTLSEnable() {
-        return startTLSEnable;
-    }
-
-    /**
-     * Sets the flag that enables the use of the STARTTLS command (if
-     * supported by the server) to switch the connection to a TLS-protected
-     * connection before issuing any login commands.
-     * <p/>
-     * If true, enables the use of the STARTTLS command (if supported by the
-     * server) to switch the connection to a TLS-protected connection before
-     * issuing any login commands. Note that an appropriate trust store must
-     * configured so that the client will trust the server's certificate.
-     * This feature only works on J2SE 1.4 and newer systems. Default is false.
-     * <p/>
-     * Values that are set here will override any of the corresponding value
-     * that has been set in the properties.
-     *
-     * @param startTLSEnable the flag that enables the use of the STARTTLS command (if
-     *                       supported by the server) to switch the connection to a TLS-protected
-     *                       connection before issuing any login commands
-     */
-    public void setStartTLSEnable(Boolean startTLSEnable) {
-        this.startTLSEnable = startTLSEnable;
     }
 
     /**
@@ -768,28 +692,27 @@ static public final String GBEAN_STARTTLS_ENABLE = "startTLSEnable";
     public void addOverrides(Properties props) {
         super.addOverrides(props);
 
-        if (port != null) props.put(SMTP_PORT, port);
-        if (connectionTimeout != null) props.put(SMTP_CONNECTION_TIMEOUT, connectionTimeout);
-        if (timeout != null) props.put(SMTP_TIMEOUT, timeout);
-        if (from != null) props.put(SMTP_FROM, from);
-        if (localhost != null) props.put(SMTP_LOCALHOST, localhost);
-        if (localaddress != null) props.put(SMTP_LOCALADDRESS, localaddress);
-        if (localport != null) props.put(SMTP_LOCALPORT, localport);
-        if (ehlo != null) props.put(SMTP_EHLO, ehlo);
-        if (auth != null) props.put(SMTP_AUTH, auth);
-        if (startTLSEnable != null) props.put(SMTP_STARTTLS_ENABLE, startTLSEnable);
-        if (submitter != null) props.put(SMTP_SUBMITTER, submitter);
-        if (dsnNotify != null) props.put(SMTP_DSN_NOTIFY, dsnNotify);
-        if (dsnRet != null) props.put(SMTP_DSN_RET, dsnRet);
-        if (allow8bitmime != null) props.put(SMTP_8BITMIME, allow8bitmime);
-        if (sendPartial != null) props.put(SMTP_SEND_PARTIAL, sendPartial);
-        if (saslRealm != null) props.put(SMTP_REALM, saslRealm);
-        if (quitWait != null) props.put(SMTP_QUITWAIT, quitWait);
-        if (reportSuccess != null) props.put(SMTP_REPORT_SUCCESS, reportSuccess);
-        if (socketFactoryClass != null) props.put(SMTP_FACTORY_CLASS, socketFactoryClass);
-        if (socketFactoryFallback != null) props.put(SMTP_FACTORY_FALLBACK, socketFactoryFallback);
-        if (socketFactoryPort != null) props.put(SMTP_FACTORY_PORT, socketFactoryPort);
-        if (mailExtension != null) props.put(SMTP_MAIL_EXTENSION, mailExtension);
+        if (port != null) props.put("mail.smtp.port", port);
+        if (connectionTimeout != null) props.put("mail.smtp.connectiontimeout", connectionTimeout);
+        if (timeout != null) props.put("mail.smtp.timeout", timeout);
+        if (from != null) props.put("mail.smtp.from", from);
+        if (localhost != null) props.put("mail.smtp.localhost", localhost);
+        if (localaddress != null) props.put("mail.smtp.localaddress", localaddress);
+        if (localport != null) props.put("mail.smtp.localport", localport);
+        if (ehlo != null) props.put("mail.smtp.ehlo", ehlo);
+        if (auth != null) props.put("mail.smtp.auth", auth);
+        if (submitter != null) props.put("mail.smtp.submitter", submitter);
+        if (dsnNotify != null) props.put("mail.smtp.dsn.notify", dsnNotify);
+        if (dsnRet != null) props.put("mail.smtp.dsn.ret", dsnRet);
+        if (allow8bitmime != null) props.put("mail.smtp.allow8bitmime", allow8bitmime);
+        if (sendPartial != null) props.put("mail.smtp.sendpartial", sendPartial);
+        if (saslRealm != null) props.put("mail.smtp.sasl.realm", saslRealm);
+        if (quitWait != null) props.put("mail.smtp.quitwait", quitWait);
+        if (reportSuccess != null) props.put("mail.smtp.reportsuccess", reportSuccess);
+        if (socketFactoryClass != null) props.put("mail.smtp.socketFactory.class", socketFactoryClass);
+        if (socketFactoryFallback != null) props.put("mail.smtp.socketFactory.fallback", socketFactoryFallback);
+        if (socketFactoryPort != null) props.put("mail.smtp.socketFactory.port", socketFactoryPort);
+        if (mailExtension != null) props.put("mail.smtp.mailextension", mailExtension);
     }
 
     public void doStart() throws Exception {
@@ -809,60 +732,57 @@ static public final String GBEAN_STARTTLS_ENABLE = "startTLSEnable";
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(SMTPTransportGBean.class);
 
-        infoFactory.addAttribute(GBEAN_PORT, Integer.class, true);
-        infoFactory.addAttribute(GBEAN_CONNECTION_TIMEOUT, Integer.class, true);
-        infoFactory.addAttribute(GBEAN_TIMEOUT, Integer.class, true);
-        infoFactory.addAttribute(GBEAN_AUTH, Boolean.class, true);
-        infoFactory.addAttribute(GBEAN_STARTTLS_ENABLE, Boolean.class, true);
-        infoFactory.addAttribute(GBEAN_EHLO, Boolean.class, true);
-        infoFactory.addAttribute(GBEAN_FROM, String.class, true);
-        infoFactory.addAttribute(GBEAN_LOCALHOST, String.class, true);
-        infoFactory.addAttribute(GBEAN_LOCALADDRESS, String.class, true);
-        infoFactory.addAttribute(GBEAN_LOCALPORT, Integer.class, true);
-        infoFactory.addAttribute(GBEAN_REALM, String.class, true);
-        infoFactory.addAttribute(GBEAN_QUITWAIT, Boolean.class, true);
-        infoFactory.addAttribute(GBEAN_FACTORY_CLASS, String.class, true);
-        infoFactory.addAttribute(GBEAN_FACTORY_FALLBACK, Boolean.class, true);
-        infoFactory.addAttribute(GBEAN_FACTORY_PORT, Integer.class, true);
+        infoFactory.addAttribute("port", Integer.class, true);
+        infoFactory.addAttribute("connectionTimeout", Integer.class, true);
+        infoFactory.addAttribute("timeout", Integer.class, true);
+        infoFactory.addAttribute("from", String.class, true);
+        infoFactory.addAttribute("localhost", String.class, true);
+        infoFactory.addAttribute("localaddress", String.class, true);
+        infoFactory.addAttribute("localport", Integer.class, true);
+        infoFactory.addAttribute("ehlo", Boolean.class, true);
+        infoFactory.addAttribute("auth", Boolean.class, true);
+        infoFactory.addAttribute("submitter", String.class, true);
+        infoFactory.addAttribute("dsnNotify", String.class, true);
+        infoFactory.addAttribute("dsnRet", String.class, true);
+        infoFactory.addAttribute("allow8bitmime", Boolean.class, true);
+        infoFactory.addAttribute("sendPartial", Boolean.class, true);
+        infoFactory.addAttribute("saslRealm", String.class, true);
+        infoFactory.addAttribute("quitWait", Boolean.class, true);
+        infoFactory.addAttribute("reportSuccess", Boolean.class, true);
+        infoFactory.addAttribute("socketFactoryClass", String.class, true);
+        infoFactory.addAttribute("socketFactoryFallback", Boolean.class, true);
+        infoFactory.addAttribute("socketFactoryPort", Integer.class, true);
+        infoFactory.addAttribute("mailExtension", String.class, true);
 
-        infoFactory.addAttribute(GBEAN_SUBMITTER, String.class, true);
-        infoFactory.addAttribute(GBEAN_DSN_NOTIFY, String.class, true);
-        infoFactory.addAttribute(GBEAN_DSN_RET, String.class, true);
-        infoFactory.addAttribute(GBEAN_8BITMIME, Boolean.class, true);
-        infoFactory.addAttribute(GBEAN_SEND_PARTIAL, Boolean.class, true);
-        infoFactory.addAttribute(GBEAN_REPORT_SUCCESS, Boolean.class, true);
-        infoFactory.addAttribute(GBEAN_MAIL_EXTENSION, String.class, true);
+        infoFactory.addAttribute("objectName", String.class, false);
+        infoFactory.addAttribute("protocol", String.class, false);
+        infoFactory.addAttribute("properties", Properties.class, true);
+        infoFactory.addAttribute("host", String.class, true);
+        infoFactory.addAttribute("user", String.class, true);
+        infoFactory.addOperation("addOverrides", new Class[]{Properties.class});
 
-        infoFactory.addAttribute(GBEAN_OBJECTNAME, String.class, false);
-        infoFactory.addAttribute(GBEAN_PROTOCOL, String.class, true);
-        infoFactory.addAttribute(GBEAN_PROPERTIES, Properties.class, true);
-        infoFactory.addAttribute(GBEAN_HOST, String.class, true);
-        infoFactory.addAttribute(GBEAN_USER, String.class, true);
-        infoFactory.addOperation(GBEAN_ADD_OVERRIDES, new Class[]{Properties.class});
-
-        infoFactory.setConstructor(new String[]{GBEAN_OBJECTNAME, GBEAN_PROPERTIES, GBEAN_HOST, GBEAN_USER,
-                                                GBEAN_PORT,
-                                                GBEAN_CONNECTION_TIMEOUT,
-                                                GBEAN_TIMEOUT,
-                                                GBEAN_FROM,
-                                                GBEAN_LOCALHOST,
-                                                GBEAN_LOCALADDRESS,
-                                                GBEAN_LOCALPORT,
-                                                GBEAN_EHLO,
-                                                GBEAN_AUTH,
-                                                GBEAN_STARTTLS_ENABLE,
-                                                GBEAN_SUBMITTER,
-                                                GBEAN_DSN_NOTIFY,
-                                                GBEAN_DSN_RET,
-                                                GBEAN_8BITMIME,
-                                                GBEAN_SEND_PARTIAL,
-                                                GBEAN_REALM,
-                                                GBEAN_QUITWAIT,
-                                                GBEAN_REPORT_SUCCESS,
-                                                GBEAN_FACTORY_CLASS,
-                                                GBEAN_FACTORY_FALLBACK,
-                                                GBEAN_FACTORY_PORT,
-                                                GBEAN_MAIL_EXTENSION});
+        infoFactory.setConstructor(new String[]{"objectName", "properties", "host", "user",
+                                                "port",
+                                                "connectionTimeout",
+                                                "timeout",
+                                                "from",
+                                                "localhost",
+                                                "localaddress",
+                                                "localport",
+                                                "ehlo",
+                                                "auth",
+                                                "submitter",
+                                                "dsnNotify",
+                                                "dsnRet",
+                                                "allow8bitmime",
+                                                "sendPartial",
+                                                "saslRealm",
+                                                "quitWait",
+                                                "reportSuccess",
+                                                "socketFactoryClass",
+                                                "socketFactoryFallback",
+                                                "socketFactoryPort",
+                                                "mailExtension"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

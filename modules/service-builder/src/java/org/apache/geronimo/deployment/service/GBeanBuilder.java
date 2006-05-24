@@ -18,52 +18,51 @@
 package org.apache.geronimo.deployment.service;
 
 import java.beans.PropertyEditor;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.xbeans.PatternType;
 import org.apache.geronimo.deployment.xbeans.ReferenceType;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GReferenceInfo;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.xmlbeans.XmlCursor;
+import org.apache.geronimo.gbean.ReferencePatterns;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- *
- *
  * @version $Rev$ $Date$
  */
 public class GBeanBuilder {
     private final GBeanData gbean;
     private final ClassLoader classLoader;
     private final DeploymentContext context;
-    private final J2eeContext j2eeContext;
+    private final AbstractName moduleName;
     private final Map xmlAttributeBuilderMap;
     private final Map xmlReferenceBuilderMap;
 
-    GBeanBuilder(ObjectName objectName, GBeanInfo gBeanInfo, ClassLoader classLoader, DeploymentContext context, J2eeContext j2eeContext, Map xmlAttributeBuilderMap, Map xmlReferenceBuilderMap) {
+    GBeanBuilder(AbstractName abstractName, GBeanInfo gBeanInfo, ClassLoader classLoader, DeploymentContext context, AbstractName moduleName, Map xmlAttributeBuilderMap, Map xmlReferenceBuilderMap) {
 
         this.classLoader = classLoader;
         this.context = context;
-        this.j2eeContext = j2eeContext;
-        this.gbean = new GBeanData(objectName, gBeanInfo);
+        this.moduleName = moduleName;
+        this.gbean = new GBeanData(abstractName, gBeanInfo);
         this.xmlAttributeBuilderMap = xmlAttributeBuilderMap;
         this.xmlReferenceBuilderMap = xmlReferenceBuilderMap;
     }
 
     public void setAttribute(String name, String type, String text) throws DeploymentException {
-        if(text != null) {
+        if (text != null) {
             text = text.trim(); // avoid formatting errors due to extra whitespace in XML configuration file
         }
         try {
@@ -71,7 +70,7 @@ public class GBeanBuilder {
             if (type == null) {
                 GAttributeInfo attribute = gbean.getGBeanInfo().getAttribute(name);
                 if (attribute == null) {
-                    throw new DeploymentException("Unknown attribute " + name + " on " + gbean.getName());
+                    throw new DeploymentException("Unknown attribute " + name + " on " + gbean.getAbstractName());
                 }
                 type = attribute.getType();
             }
@@ -100,7 +99,7 @@ public class GBeanBuilder {
         }
         GAttributeInfo attribute = gbean.getGBeanInfo().getAttribute(name);
         if (attribute == null) {
-            throw new DeploymentException("Unknown attribute " + name + " on " + gbean.getName());
+            throw new DeploymentException("Unknown attribute " + name + " on " + gbean.getAbstractName());
         }
         String type = attribute.getType();
         Object value = builder.getValue(xmlObject, type, classLoader);
@@ -113,70 +112,75 @@ public class GBeanBuilder {
         if (builder == null) {
             throw new DeploymentException("No reference builder deployed for namespace: " + namespace);
         }
-        Set references = builder.getReferences(xmlObject, context, j2eeContext, classLoader);
-        if (references != null && !references.isEmpty()) {
+        ReferencePatterns references = builder.getReferences(xmlObject, context, moduleName, classLoader);
+        if (references != null) {
             gbean.setReferencePatterns(name, references);
         }
     }
 
-    public void setReference(String name, ReferenceType pattern, J2eeContext j2eeContext) throws DeploymentException {
-        setReference(name, new PatternType[] { pattern }, j2eeContext);
+    public void setReference(String name, ReferenceType pattern, AbstractName parentName) throws DeploymentException {
+        setReference(name, new PatternType[]{pattern}, parentName);
     }
 
-    public void setReference(String name, PatternType[] patterns, J2eeContext j2eeContext) throws DeploymentException {
+    public void setReference(String name, PatternType[] patterns, AbstractName parentName) throws DeploymentException {
         Set patternNames = new HashSet(patterns.length);
         for (int i = 0; i < patterns.length; i++) {
-            try {
-                patternNames.add(buildObjectName(name, patterns[i], j2eeContext));
-            } catch (MalformedObjectNameException e) {
-                throw new DeploymentException("Invalid pattern for reference " + name + ": " + patterns[i], e);
-            }
+            patternNames.add(buildAbstractNameQuery(name, patterns[i]));
         }
         gbean.setReferencePatterns(name, patternNames);
     }
 
-    public void addDependency(PatternType patternType, J2eeContext j2eeContext) throws DeploymentException {
-        try {
-            ObjectName objectName = buildObjectName(null, patternType, j2eeContext);
-            gbean.getDependencies().add(objectName);
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Invalid pattern for dependency: " + patternType, e);
-        }
+    public void addDependency(PatternType patternType) throws DeploymentException {
+        AbstractNameQuery refInfo = buildAbstractNameQuery(patternType, null);
+        gbean.addDependency(refInfo);
     }
 
-    private ObjectName buildObjectName(String refName, PatternType pattern, J2eeContext j2eeContext) throws MalformedObjectNameException, DeploymentException {
-        if (pattern.isSetGbeanName()) {
-            String gbeanName = pattern.getGbeanName();
-            return ObjectName.getInstance(gbeanName);
+    private AbstractNameQuery buildAbstractNameQuery(String refName, PatternType pattern) throws DeploymentException {
+//        if (refName == null) {
+//            throw new DeploymentException("No type specified in dependency pattern " + pattern + " for gbean " + gbean.getName());
+//        }
+        assert refName != null;
+        GReferenceInfo referenceInfo = null;
+        Set referenceInfos = gbean.getGBeanInfo().getReferences();
+        for (Iterator iterator = referenceInfos.iterator(); iterator.hasNext();) {
+            GReferenceInfo testReferenceInfo = (GReferenceInfo) iterator.next();
+            String testRefName = testReferenceInfo.getName();
+            if (testRefName.equals(refName)) {
+                referenceInfo = testReferenceInfo;
+            }
         }
-        String domain = pattern.isSetDomain()? pattern.getDomain().trim(): null;
-        String server = pattern.isSetServer()? pattern.getServer().trim(): null;
-        String application = pattern.isSetApplication()? pattern.getApplication().trim(): null;
-        String moduleType = pattern.isSetModuleType()? pattern.getModuleType().trim(): null;
-        String module = pattern.isSetModule()? pattern.getModule().trim(): null;
-        String type = pattern.isSetType()? pattern.getType().trim(): null;
-        String name = pattern.getName().trim();
+        if (referenceInfo == null) {
+            throw new DeploymentException("No reference named " + refName + " in gbean " + gbean.getAbstractName());
+        }
 
+        return buildAbstractNameQuery(pattern, referenceInfo);
+    }
+
+    public static AbstractNameQuery buildAbstractNameQuery(PatternType pattern, GReferenceInfo referenceInfo) {
+        String groupId = pattern.isSetGroupId() ? pattern.getGroupId().trim() : null;
+        String artifactid = pattern.isSetArtifactId() ? pattern.getArtifactId().trim() : null;
+        String version = pattern.isSetVersion() ? pattern.getVersion().trim() : null;
+        String module = pattern.isSetModule() ? pattern.getModule().trim() : null;
+        String type = pattern.isSetType() ? pattern.getType().trim() : null;
+        String name = pattern.isSetName() ? pattern.getName().trim() : null;
+
+        Artifact artifact = artifactid != null? new Artifact(groupId, artifactid, version, "car"): null;
         //get the type from the gbean info if not supplied explicitly
-        if (type == null) {
-            if (refName == null) {
-                throw new DeploymentException("No type specified in dependency pattern " + pattern + " for gbean " + gbean.getName());
-            }
-            boolean found = false;
-            Set referenceInfos = gbean.getGBeanInfo().getReferences();
-            for (Iterator iterator = referenceInfos.iterator(); iterator.hasNext();) {
-                GReferenceInfo referenceInfo = (GReferenceInfo) iterator.next();
-                String testRefName = referenceInfo.getName();
-                if (testRefName.equals(refName)) {
-                    type = referenceInfo.getNameTypeName();
-                    found = true;
-                }
-            }
-            if (!found) {
-                throw new DeploymentException("No reference named " + refName + " in gbean " + gbean.getName());
-            }
+        if (type == null && referenceInfo != null) {
+            type = referenceInfo.getNameTypeName();
         }
-        return NameFactory.getComponentNameQuery(domain, server, application, moduleType, module, name, type, j2eeContext);
+        Map nameMap = new HashMap();
+        if (name != null) {
+            nameMap.put("name", name);
+        }
+        if (type != null) {
+            nameMap.put("j2eeType", type);
+        }
+        if (module != null) {
+            nameMap.put("J2EEModule", module);
+        }
+        Set interfaceTypes = referenceInfo == null? null: Collections.singleton(referenceInfo.getReferenceType());
+        return new AbstractNameQuery(artifact, nameMap, interfaceTypes);
     }
 
     public GBeanData getGBeanData() {

@@ -10,7 +10,8 @@
     <li>Create a <tt>workers.properties</tt> configuration file to point Apache to the
        Geronimo AJP connector</li>
     <li>Add Apache configuration information indicating which URLs should be sent to
-       Geronimo and whether Apache should server static content</li>
+       Geronimo and whether Apache should serve static content (leaving only
+       dynamic content within the web application to Geronimo)</li>
 </ol>
 <p>By answering a few questions here, we can give you specific guidance and generate
   configuration information you can use.</p>

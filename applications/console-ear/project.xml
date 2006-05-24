@@ -14,6 +14,7 @@
             <type>war</type>
             <properties>
                 <ear.bundle>true</ear.bundle>
+                <ear.bundle.name>framework.war</ear.bundle.name>
                 <ear.appxml.war.context-root>/console</ear.appxml.war.context-root>
             </properties>
         </dependency>
@@ -24,6 +25,7 @@
             <type>war</type>
             <properties>
                 <ear.bundle>true</ear.bundle>
+                <ear.bundle.name>standard.war</ear.bundle.name>
                 <ear.appxml.war.context-root>/console-standard</ear.appxml.war.context-root>
             </properties>
         </dependency>
@@ -53,6 +55,11 @@
             <groupId>concurrent</groupId>
             <artifactId>concurrent</artifactId>
             <version>${concurrent_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-j2ee_1.4_spec</artifactId>
+            <version>${geronimo_spec_j2ee_version}</version>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>

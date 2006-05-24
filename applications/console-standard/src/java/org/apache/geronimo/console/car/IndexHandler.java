@@ -16,16 +16,19 @@
  */
 package org.apache.geronimo.console.car;
 
-import org.apache.geronimo.console.MultiPageModel;
-import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.kernel.config.ConfigurationInfo;
-
+import java.io.IOException;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
-import java.io.IOException;
+import org.apache.geronimo.console.MultiPageModel;
+import org.apache.geronimo.console.util.ConfigurationData;
+import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.system.plugin.PluginRepositoryList;
 
 /**
  * Handler for the import export main screen.
@@ -38,12 +41,23 @@ public class IndexHandler extends BaseImportExportHandler {
     }
 
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
+        String repo = request.getParameter("repository");
+        if(repo != null) response.setRenderParameter("repository", repo);
         return getMode();
     }
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
-        ConfigurationInfo[] configs = PortletManager.getConfigurations(request, null, false);
+        PluginRepositoryList[] lists = PortletManager.getCurrentServer(request).getPluginRepositoryLists();
+        List list = new ArrayList();
+        for (int i = 0; i < lists.length; i++) {
+            PluginRepositoryList repo = lists[i];
+            list.addAll(Arrays.asList(repo.getRepositories()));
+        }
+        ConfigurationData[] configs = PortletManager.getConfigurations(request, null, false);
         request.setAttribute("configurations", configs);
+        request.setAttribute("repositories", list);
+        String repository = request.getParameter("repository");
+        request.setAttribute("repository", repository);
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {

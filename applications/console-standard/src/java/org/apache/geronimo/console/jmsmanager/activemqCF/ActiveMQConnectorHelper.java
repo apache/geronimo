@@ -26,6 +26,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 
 import javax.portlet.PortletRequest;
@@ -35,12 +36,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.SortedSet;
 
 public class ActiveMQConnectorHelper {
     //todo: this class is horrible and needs to be burned!
@@ -48,8 +49,7 @@ public class ActiveMQConnectorHelper {
 
     private static String MODULE_FILE;
 
-    //TODO: I feel so dirty updating this.
-    private final static String ACTIVEMQ_RAR = "repository/geronimo/rars/geronimo-activemq-embedded-rar-2.2-SNAPSHOT.rar";
+    private final static String ACTIVEMQ_RAR = "repository/activemq/rars/activemq-ra-3.2.1.rar";
 
     private static final String LINE_SEP = System.getProperty("line.separator");
 
@@ -134,7 +134,7 @@ public class ActiveMQConnectorHelper {
             file.deleteOnExit();
             savePlan(file, args);
             if(MODULE_FILE == null) {
-                MODULE_FILE = PortletManager.getServerInfo(request).resolvePath(ACTIVEMQ_RAR);
+                MODULE_FILE = PortletManager.getCurrentServer(request).getServerInfo().resolvePath(ACTIVEMQ_RAR);
             }
             deployPlan(new File(MODULE_FILE), file);
         } catch (IOException e) {
@@ -150,13 +150,12 @@ public class ActiveMQConnectorHelper {
             ConfigurationManager configurationManager = ConfigurationUtil
                     .getConfigurationManager(kernel);
             for (Iterator iterator = list.iterator(); iterator.hasNext();) {
-                URI configID = URI.create((String)iterator.next());
+                Artifact configID = Artifact.create((String)iterator.next());
                 if (!configurationManager.isLoaded(configID)) {
-                    configurationManager.load(configID);
+                    configurationManager.loadConfiguration(configID);
                 }
 
-                configurationManager.loadGBeans(configID);
-                configurationManager.start(configID);
+                configurationManager.startConfiguration(configID);
             }
         } catch (DeploymentException e) {
             StringBuffer buf = new StringBuffer(256);
@@ -181,18 +180,14 @@ public class ActiveMQConnectorHelper {
     }
 
     public List getDependencies(PortletRequest request) {
-        ListableRepository[] repo = PortletManager.getListableRepositories(request);
+        ListableRepository[] repo = PortletManager.getCurrentServer(request).getRepositories();
         List dependencies = new ArrayList();
         for (int i = 0; i < repo.length; i++) {
             ListableRepository repository = repo[i];
-            try {
-                URI[] uris = repository.listURIs();
-                for (int j = 0; j < uris.length; j++) {
-                    URI uri = uris[j];
-                    dependencies.add(uri.toString());
-                }
-            } catch (URISyntaxException e) {
-                e.printStackTrace();
+            SortedSet artifacts = repository.list();
+            for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
+                Artifact artifact = (Artifact) iterator.next();
+                dependencies.add(artifact.toString());
             }
         }
 

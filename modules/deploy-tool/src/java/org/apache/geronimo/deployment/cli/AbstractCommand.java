@@ -78,7 +78,7 @@ public abstract class AbstractCommand implements DeployCommand {
     }
 
     protected void emit(String message) {
-        out.println(DeployUtils.reformat(message,4,72));
+        out.print(DeployUtils.reformat(message,4,72));
         out.flush();
     }
 
@@ -142,10 +142,5 @@ public abstract class AbstractCommand implements DeployCommand {
             }
         }
         return tlist;
-    }
-
-    //todo: remove this method
-    protected static Collection identifyTargetModuleIDs(TargetModuleID[] allModules, String name) throws DeploymentException {
-        return DeployUtils.identifyTargetModuleIDs(allModules, name);
     }
 }

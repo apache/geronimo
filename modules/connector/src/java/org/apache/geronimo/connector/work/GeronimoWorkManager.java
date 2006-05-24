@@ -17,15 +17,6 @@
 
 package org.apache.geronimo.connector.work;
 
-import EDU.oswego.cs.dl.util.concurrent.Executor;
-import org.apache.geronimo.connector.work.pool.NullWorkExecutorPool;
-import org.apache.geronimo.connector.work.pool.ScheduleWorkExecutor;
-import org.apache.geronimo.connector.work.pool.StartWorkExecutor;
-import org.apache.geronimo.connector.work.pool.SyncWorkExecutor;
-import org.apache.geronimo.connector.work.pool.WorkExecutor;
-import org.apache.geronimo.connector.work.pool.WorkExecutorPool;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
-
 import javax.resource.spi.XATerminator;
 import javax.resource.spi.work.ExecutionContext;
 import javax.resource.spi.work.Work;
@@ -33,6 +24,12 @@ import javax.resource.spi.work.WorkCompletedException;
 import javax.resource.spi.work.WorkException;
 import javax.resource.spi.work.WorkListener;
 import javax.resource.spi.work.WorkManager;
+import org.apache.geronimo.connector.work.pool.ScheduleWorkExecutor;
+import org.apache.geronimo.connector.work.pool.StartWorkExecutor;
+import org.apache.geronimo.connector.work.pool.SyncWorkExecutor;
+import org.apache.geronimo.connector.work.pool.WorkExecutor;
+import org.apache.geronimo.pool.GeronimoExecutor;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
  * WorkManager implementation which uses under the cover three WorkExecutorPool
@@ -46,25 +43,25 @@ import javax.resource.spi.work.WorkManager;
  */
 public class GeronimoWorkManager implements WorkManager {
 
-    private final static int DEFAULT_POOL_SIZE = 10;
+//    private final static int DEFAULT_POOL_SIZE = 10;
 
     /**
      * Pool of threads used by this WorkManager in order to process
      * the Work instances submitted via the doWork methods.
      */
-    private WorkExecutorPool syncWorkExecutorPool;
+    private GeronimoExecutor syncWorkExecutorPool;
 
     /**
      * Pool of threads used by this WorkManager in order to process
      * the Work instances submitted via the startWork methods.
      */
-    private WorkExecutorPool startWorkExecutorPool;
+    private GeronimoExecutor startWorkExecutorPool;
 
     /**
      * Pool of threads used by this WorkManager in order to process
      * the Work instances submitted via the scheduleWork methods.
      */
-    private WorkExecutorPool scheduledWorkExecutorPool;
+    private GeronimoExecutor scheduledWorkExecutorPool;
 
     private final TransactionContextManager transactionContextManager;
 
@@ -76,30 +73,20 @@ public class GeronimoWorkManager implements WorkManager {
      * Create a WorkManager.
      */
     public GeronimoWorkManager() {
-        this(DEFAULT_POOL_SIZE, null);
+        this(null, null, null, null);
     }
 
-    public GeronimoWorkManager(int size, TransactionContextManager transactionContextManager) {
-        this(size, size, size, transactionContextManager);
-    }
-
-    public GeronimoWorkManager(int syncSize, int startSize, int schedSize, TransactionContextManager transactionContextManager) {
-        syncWorkExecutorPool = new NullWorkExecutorPool(syncSize);
-        startWorkExecutorPool = new NullWorkExecutorPool(startSize);
-        scheduledWorkExecutorPool = new NullWorkExecutorPool(schedSize);
+    public GeronimoWorkManager(GeronimoExecutor sync, GeronimoExecutor start, GeronimoExecutor sched, TransactionContextManager transactionContextManager) {
+        syncWorkExecutorPool = sync;
+        startWorkExecutorPool = start;
+        scheduledWorkExecutorPool = sched;
         this.transactionContextManager = transactionContextManager;
     }
 
     public void doStart() throws Exception {
-        syncWorkExecutorPool = syncWorkExecutorPool.start();
-        startWorkExecutorPool = startWorkExecutorPool.start();
-        scheduledWorkExecutorPool = scheduledWorkExecutorPool.start();
     }
 
     public void doStop() throws Exception {
-        syncWorkExecutorPool = syncWorkExecutorPool.stop();
-        startWorkExecutorPool = startWorkExecutorPool.stop();
-        scheduledWorkExecutorPool = scheduledWorkExecutorPool.stop();
     }
 
     public void doFail() {
@@ -114,40 +101,16 @@ public class GeronimoWorkManager implements WorkManager {
         return transactionContextManager;
     }
 
-    public int getSyncThreadCount() {
-        return syncWorkExecutorPool.getPoolSize();
+    public GeronimoExecutor getSyncWorkExecutorPool() {
+        return syncWorkExecutorPool;
     }
 
-    public int getSyncMaximumPoolSize() {
-        return syncWorkExecutorPool.getMaximumPoolSize();
+    public GeronimoExecutor getStartWorkExecutorPool() {
+        return startWorkExecutorPool;
     }
 
-    public void setSyncMaximumPoolSize(int maxSize) {
-        syncWorkExecutorPool.setMaximumPoolSize(maxSize);
-    }
-
-    public int getStartThreadCount() {
-        return startWorkExecutorPool.getPoolSize();
-    }
-
-    public int getStartMaximumPoolSize() {
-        return startWorkExecutorPool.getMaximumPoolSize();
-    }
-
-    public void setStartMaximumPoolSize(int maxSize) {
-        startWorkExecutorPool.setMaximumPoolSize(maxSize);
-    }
-
-    public int getScheduledThreadCount() {
-        return scheduledWorkExecutorPool.getPoolSize();
-    }
-
-    public int getScheduledMaximumPoolSize() {
-        return scheduledWorkExecutorPool.getMaximumPoolSize();
-    }
-
-    public void setScheduledMaximumPoolSize(int maxSize) {
-        scheduledWorkExecutorPool.setMaximumPoolSize(maxSize);
+    public GeronimoExecutor getScheduledWorkExecutorPool() {
+        return scheduledWorkExecutorPool;
     }
 
     /* (non-Javadoc)
@@ -230,7 +193,7 @@ public class GeronimoWorkManager implements WorkManager {
      * @exception WorkException Indicates that the Work execution has been
      * unsuccessful.
      */
-    private void executeWork(WorkerContext work, WorkExecutor workExecutor, Executor pooledExecutor) throws WorkException {
+    private void executeWork(WorkerContext work, WorkExecutor workExecutor, GeronimoExecutor pooledExecutor) throws WorkException {
         work.workAccepted(this);
         try {
             workExecutor.doExecute(work, pooledExecutor);

@@ -129,6 +129,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-j2ee-management_1.0_spec</artifactId>
+            <version>${geronimo_spec_j2ee_management_version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee-builder</artifactId>
             <version>${pom.currentVersion}</version>
@@ -173,6 +179,12 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-common</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-core</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
 
@@ -323,6 +335,17 @@
             <version>${wsdl4j_version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>xstream</groupId>
+            <artifactId>xstream</artifactId>
+            <version>${xstream_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>xpp3</groupId>
+            <artifactId>xpp3</artifactId>
+            <version>${xpp3_version}</version>
+        </dependency>
     </dependencies>
 
 </project>

@@ -17,33 +17,20 @@
 -->
 
 <!-- $Rev$ $Date$ -->
-<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.0"
-    configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car">
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.1">
 
     <ext-module>
         <web>uddi-jetty</web>
         <external-path>geronimo/geronimo-uddi-server/${pom.currentVersion}/war</external-path>
-        <web-app
-            xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0"
-                       configId="juddi-server"
-            >
+        <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.1">
 
             <context-root>/juddi</context-root>
-            <context-priority-classloader>false</context-priority-classloader>
-<!--
-            <resource-ref>
-                <ref-name>jdbc/juddiDB</ref-name>
-                <resource-link>SystemDatasource</resource-link>
-            </resource-ref>
--->
+
             <gbean name="UDDIResources" class="org.apache.geronimo.system.util.DirectoryInitializationGBean">
                 <!-- copies uddi derby db files into specified location -->
                 <attribute name="prefix">META-INF/geronimo-uddi-db</attribute>
                 <attribute name="path">var/derby</attribute>
                 <reference name="ServerInfo">
-                    <application>null</application>
-                    <moduleType>J2EEModule</moduleType>
-                    <module>geronimo/j2ee-system/${pom.currentVersion}/car</module>
                     <name>ServerInfo</name>
                 </reference>
             </gbean>
@@ -53,9 +40,7 @@
     <ext-module>
         <connector>uddi-db</connector>
         <external-path>tranql/tranql-connector-derby-embed-local/${tranql_vendors_version}/rar</external-path>
-        <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.0"
-                       configId="uddi-db"
-                  >
+        <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1">
             <resourceadapter>
                 <outbound-resourceadapter>
                     <connection-definition>
@@ -83,4 +68,5 @@
         </connector>
     </ext-module>
 
+    <gbean name="eis/JAXR" class="org.apache.geronimo.webservices.jaxr.JAXRGBean"/>
 </application>

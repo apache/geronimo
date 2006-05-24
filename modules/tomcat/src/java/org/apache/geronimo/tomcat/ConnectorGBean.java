@@ -173,7 +173,7 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
         }
         return getProtocol().toLowerCase()+"://"+connectHost+(getPort() == getDefaultPort() ? "" : ":"+getPort());
     }
-    
+
     public boolean isEmptySessionPath(){
         return connector.getEmptySessionPath();
     }
@@ -429,6 +429,34 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
         connector.setAttribute("maxSavePostSize", new Integer(kbytes));
     }
 
+    public int getMaxKeepAliveRequests() {
+        Object value = connector.getAttribute("maxKeepAliveRequests");
+        return value == null ? 100 : Integer.parseInt(value.toString());
+    }
+
+    public void setMaxKeepAliveRequests(int maxKeepAliveRequests) {
+        connector.setAttribute("maxKeepAliveRequests", new Integer(maxKeepAliveRequests));
+    }
+
+    public int getSocketBuffer() {
+        Object value = connector.getAttribute("socketBuffer");
+        return value == null ? 9000 : Integer.parseInt(value.toString());
+    }
+
+    public void setSocketBuffer(int kbytes) {
+        connector.setAttribute("socketBuffer", new Integer(kbytes));
+    }
+
+    public boolean getUseBodyEncodingForURI() {
+        Object value = connector.getAttribute("useBodyEncodingForURI");
+        return value == null ? false : Boolean.getBoolean(value.toString());
+    }
+
+    public void setUseBodyEncodingForURI(boolean enabled) {
+        connector.setAttribute("useBodyEncodingForURI", new Boolean(enabled));
+    }
+
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -437,8 +465,8 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
         infoFactory.addAttribute("protocol", String.class, true);
         infoFactory.addReference(CONNECTOR_CONTAINER_REFERENCE, TomcatContainer.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addOperation("getInternalObject");
-        infoFactory.addInterface(TomcatWebConnector.class, new String[]{"host","port","bufferSizeBytes","maxThreads","acceptQueueSize","lingerMillis","tcpNoDelay","redirectPort","minSpareThreads","maxSpareThreads","maxHttpHeaderSizeBytes","hostLookupEnabled","connectionTimeoutMillis","uploadTimeoutEnabled","connectUrl","maxPostSize","maxSavePostSize","emptySessionPath"},
-                                                           new String[]{"host","port","redirectPort"});
+        infoFactory.addInterface(TomcatWebConnector.class, new String[]{"host","port","bufferSizeBytes","maxThreads","acceptQueueSize","lingerMillis","tcpNoDelay","redirectPort","minSpareThreads","maxSpareThreads","maxHttpHeaderSizeBytes","hostLookupEnabled","connectionTimeoutMillis","uploadTimeoutEnabled","connectUrl","maxPostSize","maxSavePostSize","emptySessionPath", "maxKeepAliveRequests", "socketBuffer", "useBodyEncodingForURI"},
+                                                           new String[]{"host","port","redirectPort","maxThreads"});
         infoFactory.setConstructor(new String[] { "name", "protocol", "host", "port", "TomcatContainer"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

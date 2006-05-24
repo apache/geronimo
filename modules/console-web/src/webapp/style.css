@@ -1,0 +1,149 @@
+a           { color: #2a3542;
+              text-decoration: none;}
+a:link      { }
+a:hover     { text-decoration: underline; }
+a:active    { text-decoration: underline; }
+a:visited   { }
+
+body        { margin: 0px 0px 8px 0px;
+              font-family: verdana, arial;
+              font-size: 11px;}
+
+form        { margin: 0px;
+              padding: 0px;}
+
+h1          { font-size: 18px; }
+
+h2          { font-size: 11px;
+              margin: 0px;
+              line-height: 16px;
+              border-bottom: 1px solid #829DBD;
+              width: 160px; }
+
+#graph      { border: 1px solid black;
+              padding: 0px;
+              margin: 0px;
+              font-size: 11px;}
+
+p           { margin-top: 0px;
+              margin-bottom: 8px; }
+
+ul          { margin: 0px 0px 16px 0px;
+              padding: 0px 0px 0px 16px; }
+
+#topNavBar  { background-color: #556F8F;
+              padding-top: 4px;
+              padding-bottom: 3px;
+              border-top: 1px solid #242D39;
+              border-bottom: 1px solid #242D39; }
+
+.topNav     { color: #fff;
+              padding-left: 16px;
+              font-weight: bold; }
+
+#leftNavBar { background-color: #F4F9FE;
+              width: 176px;
+              border-right: 1px solid #242D39;
+              border-bottom: 1px solid #242D39;
+              margin-bottom: 8px;}
+
+#left       { width: 176px;
+              margin: 0px;
+              float: left;
+              line-height: 16px; }
+
+.leftNav    { margin: 0px 8px 8px 8px;
+              padding-top: 8px; }
+
+.links      { padding-left: 16px;
+              margin-bottom: 8px;
+              color: #aaa;}
+
+#panelTitle { padding: 4px 8px 3px 8px;
+              background-color: #85A1BD;
+              border: 1px solid #242D39;
+              color: #fff;
+              margin: 8px 8px 0px 184px;
+              font-weight: bold; }
+
+#panel      { padding: 8px 8px 8px 6px;
+              background-color: #fff;
+              margin: 0px 8px 8px 186px; }
+
+#panel.two          { padding: 0px;
+                      background-color: #fff;
+                      margin: 0px 8px 8px 184px; }
+
+#panel.two table    { font-size: 11px;
+                      margin-top: 8px;
+                      border-left: 1px solid #242D39;
+                      border-bottom: 1px solid #242D39;
+                      border-right: 1px solid #242D39;}
+
+.question   { font-weight: bold;
+              margin: 0px;
+              padding: 8px 0px 0px 0px;
+              color: #444;}
+
+.sponsor    { margin: 16px 0px 0px 0px;
+              text-align: center;}
+
+.textInput  { font-size: 11px;
+              font-family: verdana, arial;
+              border-top: 2px solid #242D39;
+              border-right: 1px solid #242D39;
+              border-bottom: 1px solid #242D39;
+              border-left: 2px solid #242D39;
+              margin: 2px 8px 1px 0px;
+              padding: 0px 8px 0px 8px;;}
+
+.submit     { font-size: 11px;
+              font-family: verdana, arial;
+              background-color: #DBE4EE;
+              padding: 0px 8px 0px 8px;
+              margin: 0px 8px 1px 0px;
+              border: 1px solid #242D39; }
+
+
+.paragraphHead      { margin: 16px 0px 0px 0px;
+                      color: #242D39;
+                      font-size: 14px;
+                      font-weight: bold; }
+
+.listHead    { margin: 16px 0px 0px 0px;
+               color: #242D39;
+               font-weight: bold; }
+
+.mbeanList  { margin: 0px 0px 0px 0px;
+              padding: 0px 0px 0px 16px;
+              color: #242D39; }
+
+.mbeanInfo  { background-color: #F6FBFD;
+              border: 1px solid #242D39;}
+
+
+td.name             { padding: 4px 4px 4px 16px;
+                      text-align: right;
+                      border-top: 1px solid #242D39; }
+
+td.value            { padding: 4px 16px 4px 4px;
+                      border-top: 1px solid #242D39; }
+
+td.center           { padding: 4px 4px 4px 4px;
+                      border-top: 1px solid #242D39; }
+
+td.head             { padding: 4px 16px 4px 16px;
+                      text-align: left;
+                      border-top: 1px solid #242D39;}
+
+tr.head             { background-color: #DBE4F2;
+                      color: #000;
+                      font-weight: bold; }
+
+tr.head td.name     { padding-left: 16px; }
+
+tr.head td.value    { padding-right: 16px; }
+
+tr.one              { background-color: #fff; }
+
+tr.two              { background-color: #F2F7FC; }

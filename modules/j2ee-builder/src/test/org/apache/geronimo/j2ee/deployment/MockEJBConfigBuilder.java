@@ -16,36 +16,46 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
+import junit.framework.Assert;
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.deployment.ModuleIDBuilder;
+
+import javax.naming.Reference;
 import java.io.File;
 import java.net.URI;
 import java.net.URL;
 import java.util.jar.JarFile;
-import javax.management.ObjectName;
-import javax.naming.Reference;
-
-import junit.framework.Assert;
-
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.gbean.GBeanData;
+import java.util.Collection;
 
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev:385692 $ $Date$
  */
 public class MockEJBConfigBuilder extends Assert implements ModuleBuilder, EJBReferenceBuilder {
-    public EARContext earContext;
+    private EARContext earContext;
+    private ClassLoader cl;
     public EJBModule ejbModule;
-    public ClassLoader cl;
 
-    public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
-        return new EJBModule(true, null, null, moduleFile, "ejb.jar", null, null, null);
+    public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+        AbstractName earName = naming.createRootName(new Artifact("test", "test-ejb-jar", "", "jar"), NameFactory.NULL, NameFactory.J2EE_APPLICATION) ;
+        AbstractName moduleName = naming.createChildName(earName, "ejb-jar", NameFactory.EJB_MODULE);
+        return new EJBModule(true, moduleName, null, moduleFile, "ejb.jar", null, null, null);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId, Object moduleContextInfo) throws DeploymentException {
-        return new EJBModule(false, null, null, moduleFile, targetPath, null, null, null);
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+        AbstractName moduleName = naming.createChildName(earName, "ejb-jar", NameFactory.EJB_MODULE);
+        return new EJBModule(false, moduleName, null, moduleFile, targetPath, null, null, null);
     }
 
-    public void installModule(JarFile earFile, EARContext earContext, Module ejbModule) {
+    public void installModule(JarFile earFile, EARContext earContext, Module ejbModule, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) {
         assertNotNull(earFile);
         assertNotNull(earContext);
         this.earContext = earContext;
@@ -65,7 +75,7 @@ public class MockEJBConfigBuilder extends Assert implements ModuleBuilder, EJBRe
         this.cl = cl;
     }
 
-    public void addGBeans(EARContext earContext, Module ejbModule, ClassLoader cl) {
+    public void addGBeans(EARContext earContext, Module ejbModule, ClassLoader cl, Collection repository) {
         assertEquals(this.earContext, earContext);
 //        assertEquals(this.ejbModule, ejbModule);
         assertEquals(this.cl, cl);
@@ -75,23 +85,16 @@ public class MockEJBConfigBuilder extends Assert implements ModuleBuilder, EJBRe
         return null;
     }
 
-    public Reference createEJBLocalReference(String objectName, GBeanData gbeanData, boolean isSession, String localHome, String local) throws DeploymentException {
+    public Reference createCORBAReference(Configuration configuration, AbstractNameQuery containerNameQuery, URI nsCorbaloc, String objectName, String home) throws DeploymentException {
         return null;
     }
 
-    public Reference createEJBRemoteReference(String objectName, GBeanData gbeanData, boolean isSession, String home, String remote) throws DeploymentException {
+    public Reference createEJBRemoteRef(String refName, Configuration configuration, String name, String requiredModule, String optionalModule, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String home, String remote) throws DeploymentException {
         return null;
     }
 
-    public Reference createCORBAReference(URI corbaURL, String objectName, ObjectName containerName, String home) throws DeploymentException {
+    public Reference createEJBLocalRef(String refName, Configuration configuration, String name, String requiredModule, String optionalModule, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String localHome, String local) throws DeploymentException {
         return null;
     }
 
-    public Reference getImplicitEJBRemoteRef(URI module, String refName, boolean isSession, String home, String remote, NamingContext context) throws DeploymentException {
-        return null;
-    }
-
-    public Reference getImplicitEJBLocalRef(URI module, String refName, boolean isSession, String localHome, String local, NamingContext context) throws DeploymentException {
-        return null;
-    }
 }

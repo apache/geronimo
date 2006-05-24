@@ -16,23 +16,24 @@
  */
 package org.apache.geronimo.console.car;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.console.MultiPageModel;
-import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.system.configuration.ConfigurationMetadata;
-
-import javax.portlet.ActionRequest;
-import javax.portlet.ActionResponse;
-import javax.portlet.PortletException;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.portlet.ActionRequest;
+import javax.portlet.ActionResponse;
+import javax.portlet.PortletException;
+import javax.portlet.RenderRequest;
+import javax.portlet.RenderResponse;
+import javax.security.auth.login.FailedLoginException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.console.MultiPageModel;
+import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.system.plugin.PluginList;
+import org.apache.geronimo.system.plugin.PluginMetadata;
 import java.util.Collections;
 import java.util.Collection;
 import java.util.Iterator;
@@ -76,12 +77,16 @@ public class ListHandler extends BaseImportExportHandler {
         return getMode()+BEFORE_ACTION;
     }
 
-    private void loadFromRepository(RenderRequest request, String repository, String username, String password) throws IOException {
-        ConfigurationMetadata[] data = PortletManager.getConfigurationInstaller(request).listConfigurations(new URL(repository), username, password);
-
+    private void loadFromRepository(RenderRequest request, String repository, String username, String password) throws IOException, PortletException {
+        PluginList data;
+        try {
+            data = PortletManager.getCurrentServer(request).getPluginInstaller().listPlugins(new URL(repository), username, password);
+        } catch (FailedLoginException e) {
+            throw new PortletException("Invalid login for Maven repository '"+repository+"'", e);
+        }
         Map results = new HashMap();
-        for (int i = 0; i < data.length; i++) {
-            ConfigurationMetadata metadata = data[i];
+        for (int i = 0; i < data.getPlugins().length; i++) {
+            PluginMetadata metadata = data.getPlugins()[i];
             List values = (List) results.get(metadata.getCategory());
             if(values == null) {
                 values = new ArrayList();
@@ -95,5 +100,6 @@ public class ListHandler extends BaseImportExportHandler {
             Collections.sort(list);
         }
         request.setAttribute("categories", results);
+        request.getPortletSession(true).setAttribute(CONFIG_LIST_SESSION_KEY, data);
     }
 }

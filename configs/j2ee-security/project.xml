@@ -37,6 +37,18 @@
             <artifactId>geronimo-gbean-deployer</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
+            <properties>
+                <packaging.config.order>1</packaging.config.order>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>j2ee-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+            <properties>
+                <packaging.config.order>2</packaging.config.order>
+            </properties>
         </dependency>
         <!-- parent config -->
         <dependency>
@@ -200,8 +212,8 @@
             <version>${asm_version}</version>
         </dependency>
         <dependency>
-            <groupId>incubator-activemq</groupId>
-            <artifactId>activemq-gbean-management</artifactId>
+            <groupId>activemq</groupId>
+            <artifactId>activemq-gbean-management-g1_1</artifactId>
             <version>${activemq_version}</version>
         </dependency>
         <dependency>

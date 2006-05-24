@@ -1,0 +1,221 @@
+<html>
+    <head>
+        <title>Documentation : Tools and commands</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Documentation : Tools and commands
+                                                    </span>
+				    </div>
+				    <div class="pagesubheading">
+					    This page last changed on Dec 14, 2005 by <font color="#0050B2">hcunico@gmail.com</font>.
+				    </div>
+
+				    <p><a name="Toolsandcommands-top"></a><br/>
+<em><b>Article donated by:</b> <a href="mailto:hcunico@gmail.com" title="Send mail to Hernan Cunico">Hernan Cunico</a></em></p>
+
+<p>Apache Geronimo provides several tools for administering the server. These tools are available via command line and some via a Web based console. The Web based Geronimo console is explained in detail in the following section <a href="Geronimo Administration Console.html" title="Geronimo Administration Console">Geronimo Administration Console</a>. The currently available command line tools are located in the <b>&lt;geronimo_home&gt;/bin</b> directory and are enumerated in the following list:</p>
+
+<ul>
+	<li><a href="#Toolsandcommands-startup" title="startup on Tools and commands">startup</a></li>
+	<li><a href="#Toolsandcommands-shutdown" title="shutdown on Tools and commands">shutdown</a></li>
+	<li><a href="#Toolsandcommands-geronimo" title="geronimo on Tools and commands">geronimo</a></li>
+	<li><a href="#Toolsandcommands-deploy" title="deploy on Tools and commands">deploy</a></li>
+	<li><a href="#Toolsandcommands-client" title="client on Tools and commands">client.jar</a></li>
+</ul>
+
+
+<p>Although the tools name is self-explanatory, it may not be the same case with the tool's parameters. The following sections explain more in detail these tools and commands usage.</p>
+
+<h1><a name="Toolsandcommands-startup"></a>startup <a name="Toolsandcommands-startup"></a></h1>
+<p>This command is certainly used to start the Apache Geronimo server. You can start the Apache Geronimo server in two different ways by running the following commands:</p>
+
+<p><b><tt>&lt;geronimo_home&gt;/bin/java -jar server.jar</tt></b></p>
+
+<p>or simply</p>
+
+<p><b><tt>&lt;geronimo_home&gt;/bin/startup</tt></b></p>
+
+<p>The <b><tt>startup</tt></b> command invokes the <b><tt>server.jar</tt></b>.</p>
+
+<p>In both cases this command accepts the same parameters. The available parameters are:</p>
+
+<p><b>--quiet</b><br/>
+Suppress the normal startup progress bar.  This is typically used when redirecting console output to a file, or starting the server from an IDE or other tool.</p>
+
+<p><b>--long</b><br/>
+Write startup progress to the console in a format that is suitable for redirecting console output to a file, or starting the server from an IDE or other tool (does not use linefeeds to update the progress information that is used by default if you do not specify --quiet or --long).</p>
+
+<p><b>-v --verbose</b><br/>
+Sets the console log level to <b>INFO</b>, resulting in more console output than is normally present.</p>
+
+<p><b>-vv --veryverbose</b><br/>
+Sets the console log level to <b>DEBUG</b>, resulting in even more console output.</p>
+
+<p> <b>-override [<em>configId</em>]</b><br/>
+Overrides the configurations in <b>&lt;geronimo_home&gt;/var/config.list</b> such that only the configurations listed on the command line will be started.  Note that many J2EE<br/>
+features depend on certain configs being started, so you should be very careful what you omit.  Any arguments after <b>-override</b> are assumed to be configuration names.</p>
+
+<p>When you run this command from a Microsoft Windows command line that window will get locked with the startup results screen. On a Linux based operating system you can run this command in background getting back the control for this window terminal.</p>
+
+<p>If you run the startup command without any parameters you will see a screen similar to this one.</p>
+
+<p><font color="white"><div class="preformatted" style="border-style: solid; "><div class="preformattedContent" style="background-color: #000000; ">
+<pre>Booting Geronimo Kernel (in Java 1.4.2_09)...
+Started configuration  1/23   1s geronimo/rmi-naming/1.0/car
+Started configuration  2/23   3s geronimo/j2ee-server/1.0/car
+Started configuration  3/23   2s geronimo/j2ee-security/1.0/car
+Started configuration  4/23   9s geronimo/activemq-broker/1.0/car
+Started configuration  5/23   1s geronimo/activemq/1.0/car
+Started configuration  6/23   0s geronimo/system-database/1.0/car
+Started configuration  7/23   4s geronimo/directory/1.0/car
+Started configuration  8/23   0s geronimo/ldap-realm/1.0/car
+Started configuration  9/23   2s geronimo/jetty/1.0/car
+Started configuration 10/23   0s geronimo/geronimo-gbean-deployer/1.0/car
+Started configuration 11/23   2s geronimo/j2ee-deployer/1.0/car
+Started configuration 12/23   0s geronimo/jetty-deployer/1.0/car
+Started configuration 13/23   1s geronimo/welcome-jetty/1.0/car
+Started configuration 14/23   1s geronimo/ldap-demo-jetty/1.0/car
+Started configuration 15/23   1s geronimo/servlets-examples-jetty/1.0/car
+Started configuration 16/23   2s geronimo/jsp-examples-jetty/1.0/car
+Started configuration 17/23   3s geronimo/webconsole-jetty/1.0/car
+Started configuration 18/23   1s geronimo/uddi-jetty/1.0/car
+Started configuration 19/23   1s geronimo/jmxdebug-jetty/1.0/car
+Started configuration 20/23  11s geronimo/daytrader-derby-jetty/1.0/car
+Started configuration 21/23   0s geronimo/remote-deploy-jetty/1.0/car
+Started configuration 22/23   1s geronimo/hot-deployer/1.0/car
+Started configuration 23/23   0s geronimo/j2ee-system/1.0/car
+Startup completed in 51 seconds
+  Listening on Ports:
+    1099 0.0.0.0   RMI Naming
+    1527 0.0.0.0   Derby Connector
+    4201 0.0.0.0   ActiveIO Connector EJB
+    4242 0.0.0.0   Remote Login Listener
+    8019 127.0.0.1 Jetty Connector AJP13
+    8080 0.0.0.0   Jetty Connector HTTP
+    8443 0.0.0.0   Jetty Connector HTTPS
+   61616 0.0.0.0   ActiveMQ Message Broker Connector
+
+  Started Application Modules:
+    WAR: geronimo/welcome-jetty/1.0/car
+    WAR: geronimo/servlets-examples-jetty/1.0/car
+    EAR: geronimo/daytrader-derby-jetty/1.0/car
+    EAR: geronimo/webconsole-jetty/1.0/car
+    WAR: geronimo/jmxdebug-jetty/1.0/car
+    RAR: geronimo/activemq/1.0/car
+    WAR: geronimo/ldap-demo-jetty/1.0/car
+    WAR: geronimo/jsp-examples-jetty/1.0/car
+    WAR: geronimo/remote-deploy-jetty/1.0/car
+    RAR: geronimo/system-database/1.0/car
+    EAR: geronimo/uddi-jetty/1.0/car
+
+  Web Applications:
+    http://hcunico:8080/
+    http://hcunico:8080/console
+    http://hcunico:8080/console-standard
+    http://hcunico:8080/daytrader
+    http://hcunico:8080/debug-tool
+    http://hcunico:8080/jsp-examples
+    http://hcunico:8080/juddi
+    http://hcunico:8080/ldap-demo
+    http://hcunico:8080/remote-deploy
+    http://hcunico:8080/servlets-examples
+
+Geronimo Application Server started</pre>
+</div></div></font></p>
+
+<p><a href="#Toolsandcommands-top" title="top on Tools and commands">Back to Top</a></p>
+
+<h1><a name="Toolsandcommands-shutdown"></a>shutdown <a name="Toolsandcommands-shutdown"></a></h1>
+<p>If the <tt>startup</tt> command starts the Apache Geronimo server, <b><tt>shutdown</tt></b> will definitively stop it. This command has the following syntax:</p>
+
+<p><b><tt>&lt;geronimo_home&gt;/bin/shutdown [<em>options</em>]</tt></b></p>
+
+<p>The available options are:</p>
+
+<p><b>--user [<em>user_name</em>]</b><br/>
+Specifies the user name with the authority to stop the server. By default you would normally use <b>system</b> as the user name.</p>
+
+<p><b>--password [<em>password</em>]</b><br/>
+Specifies the password for the user name you just entered. By default you would normally use <b>manager</b> as the password.</p>
+
+<p><b>--port [<em>port_number</em>]</b><br/>
+Specifies the RMI naming port to connect to the server (for example JMX connection port). By default you would normally use port <b>1099</b>.</p>
+
+<p>If you do not specify any parameters, this command will prompt you for a user name and password and will assume port 1099 by default and will not prompt for any port.</p>
+
+<p><a href="#Toolsandcommands-top" title="top on Tools and commands">Back to Top</a></p>
+
+<h1><a name="Toolsandcommands-geronimo"></a>geronimo <a name="Toolsandcommands-geronimo"></a></h1>
+<p>The <b>geronimo</b> command lets you perform the previous two actions, that is start and stop the server in different modes depending on the parameters you specify. This command has the following syntax:</p>
+
+<p><b><tt>&lt;geronimo_home&gt;/bin/geronimo [<em>options</em>]</tt></b></p>
+
+<p>The available options are:</p>
+
+<p><b>debug</b><br/>
+This option will start the server in <b>JDB</b> debugger.</p>
+
+<p><b>jpda start</b><br/>
+This option will start the server in <b>JPDA</b> debugger.</p>
+
+<p><b>run</b><br/>
+This option will start the server in the current window.</p>
+
+<p><b>start</b><br/>
+This option will start the server in a separate window just like the <a href="#Toolsandcommands-startup" title="startup on Tools and commands">startup</a> command.</p>
+
+<p><b>stop</b><br/>
+This option will stop the server.</p>
+
+<p>Both <b>start</b> and <b>stop</b> options for this command will have the same set of parameters as the <a href="#Toolsandcommands-startup" title="startup on Tools and commands">startup</a> and <a href="#Toolsandcommands-shutdown" title="shutdown on Tools and commands">shutdown</a> commands.</p>
+
+<p><a href="#Toolsandcommands-top" title="top on Tools and commands">Back to Top</a></p>
+
+<h1><a name="Toolsandcommands-deploy"></a>deploy <a name="Toolsandcommands-deploy"></a></h1>
+<p>The deployer tool is used for installing, uninstalling, starting and stopping applications and modules and for installing and uninstalling configurations (for example some configuration specific deployment plans, security realms, etc.). Due to the number of options in this case, the deployment tool is covered in detail in the Deployment section - <a href="Deployer tool.html" title="Deployer tool">Deployer tool</a>.</p>
+
+<table cellpadding='5' width='85%' cellspacing='8px' class='noteMacro' border="0" align='center'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="icons/emoticons/warning.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>This is a powerful tool with many parameters and options but it is not hard to use at all.</td></tr></table>
+
+<p>As with the startup command, the deployment tool can also be invoked in two different ways:</p>
+
+<p><b><tt>java -jar deployer.jar [<em>general_options</em>] &lt;<em>command</em>&gt; [<em>command_options</em>]</tt></b></p>
+
+<p>or simply</p>
+
+<p><b><tt>deploy [<em>general_options</em>] &lt;<em>command</em>&gt; [<em>command_options</em>]</tt></b></p>
+
+<p>Please refer to <a href="Deployer tool.html" title="Deployer tool">Deployer tool</a> for a fully detailed description of this tool options and usage.</p>
+
+<p><a href="#Toolsandcommands-top" title="top on Tools and commands">Back to Top</a></p>
+
+<h1><a name="Toolsandcommands-client.jar"></a>client.jar <a name="Toolsandcommands-client"></a></h1>
+<p>The client.jar launches the client application container. This command has the following syntax:</p>
+
+<p><b><tt>java -jar client.jar config-name [app arg] [app arg] ...</tt></b></p>
+
+<p>The first argument identifies the Geronimo configuration that contains the application client you want to run. The rest of the arguments will be passed as arguments to the client application when it is started.</p>
+
+<p><a href="#Toolsandcommands-top" title="top on Tools and commands">Back to Top</a></p>
+
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td height="12" background="border/border_bottom.gif"><img src="border/spacer.gif" width="1" height="1" border="0"/></td>
+			</tr>
+		    <tr>
+			    <td align="center"><font color="grey">Document generated by Confluence on Dec 15, 2005 19:14</font></td>
+		    </tr>
+	    </table>
+    </body>
+</html>

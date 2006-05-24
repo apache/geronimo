@@ -30,6 +30,11 @@ import javax.management.j2ee.statistics.CountStatistic;
  */
 public interface WebContainerStats extends Stats {
     /**
+     * Gets the total number of connections thus far
+     */
+    CountStatistic getTotalConnectionCount();
+ 
+    /**
      * Gets the number of connections currently open (as well as the min and
      * max since statistics gathering started).
      */
@@ -70,4 +75,9 @@ public interface WebContainerStats extends Stats {
      * figures across all requests since statistics gathering started)
      */
     TimeStatistic getRequestDuration();
+
+    /**
+     * Gets the current state of statistics collection (on or off)
+     */
+    boolean isStatsOn();
 }

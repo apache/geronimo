@@ -34,6 +34,7 @@ import javax.portlet.WindowState;
 import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.management.geronimo.JVM;
+import org.apache.geronimo.system.serverinfo.ServerConstants;
 
 /**
  * Calculates various information about the server to display in the server
@@ -55,11 +56,11 @@ public class ServerInfoPortlet extends BasePortlet {
     private PortletRequestDispatcher helpView;
 
     public void processAction(ActionRequest actionRequest,
-            ActionResponse actionResponse) throws PortletException, IOException {
+                              ActionResponse actionResponse) throws PortletException, IOException {
     }
 
     protected void doView(RenderRequest renderRequest,
-            RenderResponse renderResponse) throws IOException, PortletException {
+                          RenderResponse renderResponse) throws IOException, PortletException {
         if (WindowState.MINIMIZED.equals(renderRequest.getWindowState())) {
             return;
         }
@@ -71,6 +72,7 @@ public class ServerInfoPortlet extends BasePortlet {
 
         Date bootDate = jvm.getKernelBootTime();
         svrProps.put("Kernel Boot Time", bootDate);
+        svrProps.put("Geronimo Version", ServerConstants.getVersion());
         renderRequest.setAttribute("svrProps", svrProps);
 
         jvmProps.put("Java Version", jvm.getJavaVersion());
@@ -87,7 +89,7 @@ public class ServerInfoPortlet extends BasePortlet {
     }
 
     protected void doHelp(RenderRequest renderRequest,
-            RenderResponse renderResponse) throws PortletException, IOException {
+                          RenderResponse renderResponse) throws PortletException, IOException {
         helpView.include(renderRequest, renderResponse);
     }
 

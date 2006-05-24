@@ -38,48 +38,6 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
  */
 public class IMAPStoreGBean extends ProtocolGBean {
 
-    // the IMAP configuration property names
-    static public final String IMAP_PORT = "mail.imap.port";
-    static public final String IMAP_CONNECTION_TIMEOUT = "mail.imap.connectiontimeout";
-    static public final String IMAP_TIMEOUT = "mail.imap.timeout";
-    static public final String IMAP_FACTORY_CLASS = "mail.imap.socketFactory.class";
-    static public final String IMAP_FACTORY_FALLBACK = "mail.imap.socketFactory.fallback";
-    static public final String IMAP_FACTORY_PORT = "mail.imap.socketFactory.port";
-    static public final String IMAP_LOCALHOST = "mail.imap.localhost";
-    static public final String IMAP_LOCALADDRESS = "mail.imap.localaddress";
-    static public final String IMAP_LOCALPORT = "mail.imap.localport";
-    static public final String IMAP_PARTIAL_FETCH = "mail.imap.partialfetch";
-    static public final String IMAP_FETCH_SIZE = "mail.imap.fetchsize";
-    static public final String IMAP_STATUS_TIMEOUT = "mail.imap.statuscachetimeout";
-    static public final String IMAP_APPEND_SIZE = "mail.imap.appendbuffersize";
-    static public final String IMAP_POOL_SIZE = "mail.imap.connectionpoolsize";
-    static public final String IMAP_POOL_TIMEOUT = "mail.imap.connectionpooltimeout";
-    static public final String IMAP_SEPARATE_STORE_CONNECTION = "mail.imap.separatestoreconnection";
-    static public final String IMAP_READONLY_SELECT = "mail.imap.alloreadonlyselect";
-    static public final String IMAP_LOGIN_DISABLE = "mail.imap.auth.login.disable";
-    static public final String IMAP_PLAIN_DISABLE = "mail.imap.auth.plain.disable";
-    static public final String IMAP_STARTTLS_ENABLE = "mail.imap.auth.starttls.enable";
-    static public final String IMAP_SASL_ENABLE = "mail.imap.sasl.enable";
-    static public final String IMAP_SASL_MECHANISMS = "mail.imap.sasl.mechanisms";
-    static public final String IMAP_SASL_AUTHORIZATIONID = "mail.imap.sasl.authorizationid";
-
-
-    // the GBEAN property names
-    static public final String GBEAN_PARTIAL_FETCH = "partialFetch";
-    static public final String GBEAN_FETCH_SIZE = "fetchSize";
-    static public final String GBEAN_STATUS_TIMEOUT = "statusCacheTimeout";
-    static public final String GBEAN_APPEND_SIZE = "appendBufferSize";
-    static public final String GBEAN_POOL_SIZE = "connectionPoolSize";
-    static public final String GBEAN_POOL_TIMEOUT = "connectionPoolTimeout";
-    static public final String GBEAN_SEPARATE_STORE_CONNECTION = "separateStoreConnection";
-    static public final String GBEAN_READONLY_SELECT = "allowReadOnlySelect";
-    static public final String GBEAN_LOGIN_DISABLE = "authLoginDisable";
-    static public final String GBEAN_PLAIN_DISABLE = "authPlainDisable";
-    static public final String GBEAN_STARTTLS_ENABLE = "startTLSEnable";
-    static public final String GBEAN_SASL_ENABLE = "saslEnable";
-    static public final String GBEAN_SASL_MECHANISMS = "saslMechanisms";
-    static public final String GBEAN_SASL_AUTHORIZATIONID = "saslAuthorizationId";
-
     private final Log log = LogFactory.getLog(IMAPStoreGBean.class);
 
     private Integer port;
@@ -766,28 +724,28 @@ public class IMAPStoreGBean extends ProtocolGBean {
     public void addOverrides(Properties props) {
         super.addOverrides(props);
 
-        if (port != null) props.put(IMAP_PORT, port);
-        if (partialFetch != null) props.put(IMAP_PARTIAL_FETCH, partialFetch);
-        if (fetchSize != null) props.put(IMAP_FETCH_SIZE, fetchSize);
-        if (connectionTimeout != null) props.put(IMAP_CONNECTION_TIMEOUT, connectionTimeout);
-        if (timeout != null) props.put(IMAP_TIMEOUT, timeout);
-        if (statusCacheTimeout != null) props.put(IMAP_STATUS_TIMEOUT, statusCacheTimeout);
-        if (appendBufferSize != null) props.put(IMAP_APPEND_SIZE, appendBufferSize);
-        if (connectionPoolSize != null) props.put(IMAP_POOL_SIZE, connectionPoolSize);
-        if (connectionPoolTimeout != null) props.put(IMAP_POOL_TIMEOUT, connectionPoolTimeout);
-        if (separateStoreConnection != null) props.put(IMAP_SEPARATE_STORE_CONNECTION, separateStoreConnection);
-        if (allowReadOnlySelect != null) props.put(IMAP_READONLY_SELECT, allowReadOnlySelect);
-        if (authLoginDisable != null) props.put(IMAP_LOGIN_DISABLE, authLoginDisable);
-        if (authPlainDisable != null) props.put(IMAP_PLAIN_DISABLE, authPlainDisable);
-        if (startTLSEnable != null) props.put(IMAP_STARTTLS_ENABLE, startTLSEnable);
-        if (localaddress != null) props.put(IMAP_LOCALADDRESS, localaddress);
-        if (localport != null) props.put(IMAP_LOCALPORT, localport);
-        if (saslEnable != null) props.put(IMAP_SASL_ENABLE, saslEnable);
-        if (saslMechanisms != null) props.put(IMAP_SASL_MECHANISMS, saslMechanisms);
-        if (saslAuthorizationId != null) props.put(IMAP_SASL_AUTHORIZATIONID, saslAuthorizationId);
-        if (socketFactoryClass != null) props.put(IMAP_FACTORY_CLASS, socketFactoryClass);
-        if (socketFactoryFallback != null) props.put(IMAP_FACTORY_FALLBACK, socketFactoryFallback);
-        if (socketFactoryPort != null) props.put(IMAP_FACTORY_PORT, socketFactoryPort);
+        if (port != null) props.put("mail.imap.port", port);
+        if (partialFetch != null) props.put("mail.imap.partialfetch", partialFetch);
+        if (fetchSize != null) props.put("mail.imap.fetchsize", fetchSize);
+        if (connectionTimeout != null) props.put("mail.imap.connectiontimeout", connectionTimeout);
+        if (timeout != null) props.put("mail.imap.timeout", timeout);
+        if (statusCacheTimeout != null) props.put("mail.imap.statuscachetimeout", statusCacheTimeout);
+        if (appendBufferSize != null) props.put("mail.imap.appendbuffersize", appendBufferSize);
+        if (connectionPoolSize != null) props.put("mail.imap.connectionpoolsize", connectionPoolSize);
+        if (connectionPoolTimeout != null) props.put("mail.imap.connectionpooltimeout", connectionPoolTimeout);
+        if (separateStoreConnection != null) props.put("mail.imap.separatestoreconnection", separateStoreConnection);
+        if (allowReadOnlySelect != null) props.put("mail.imap.allowreadonlyselect", allowReadOnlySelect);
+        if (authLoginDisable != null) props.put("mail.imap.auth.login.disable", authLoginDisable);
+        if (authPlainDisable != null) props.put("mail.imap.auth.plain.disable", authPlainDisable);
+        if (startTLSEnable != null) props.put("mail.imap.auth.starttls.enable", startTLSEnable);
+        if (localaddress != null) props.put("mail.imap.localaddress", localaddress);
+        if (localport != null) props.put("mail.imap.localport", localport);
+        if (saslEnable != null) props.put("mail.imap.sasl.enable", saslEnable);
+        if (saslMechanisms != null) props.put("mail.imap.sasl.mechanisms", saslMechanisms);
+        if (saslAuthorizationId != null) props.put("mail.imap.sasl.authorizationid", saslAuthorizationId);
+        if (socketFactoryClass != null) props.put("mail.imap.socketFactory.class", socketFactoryClass);
+        if (socketFactoryFallback != null) props.put("mail.imap.socketFactory.fallback", socketFactoryFallback);
+        if (socketFactoryPort != null) props.put("mail.imap.socketFactory.port", socketFactoryPort);
     }
 
     public void doStart() throws Exception {
@@ -807,59 +765,52 @@ public class IMAPStoreGBean extends ProtocolGBean {
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(IMAPStoreGBean.class, ProtocolGBean.GBEAN_INFO);
 
-        infoFactory.addAttribute(GBEAN_PORT, Integer.class, true);
-        infoFactory.addAttribute(GBEAN_CONNECTION_TIMEOUT, Integer.class, true);
-        infoFactory.addAttribute(GBEAN_TIMEOUT, Integer.class, true);
-        infoFactory.addAttribute(GBEAN_LOCALADDRESS, String.class, true);
-        infoFactory.addAttribute(GBEAN_LOCALPORT, Integer.class, true);
-        infoFactory.addAttribute(GBEAN_FACTORY_CLASS, String.class, true);
-        infoFactory.addAttribute(GBEAN_FACTORY_FALLBACK, Boolean.class, true);
-        infoFactory.addAttribute(GBEAN_FACTORY_PORT, Integer.class, true);
-        infoFactory.addAttribute(GBEAN_PARTIAL_FETCH, Boolean.class, true);
-        infoFactory.addAttribute(GBEAN_FETCH_SIZE, Integer.class, true);
-        infoFactory.addAttribute(GBEAN_STATUS_TIMEOUT, Integer.class, true);
-        infoFactory.addAttribute(GBEAN_APPEND_SIZE, Integer.class, true);
-        infoFactory.addAttribute(GBEAN_POOL_SIZE, Integer.class, true);
-        infoFactory.addAttribute(GBEAN_POOL_TIMEOUT, Integer.class, true);
-        infoFactory.addAttribute(GBEAN_SEPARATE_STORE_CONNECTION, Boolean.class, true);
-        infoFactory.addAttribute(GBEAN_READONLY_SELECT, Boolean.class, true);
-        infoFactory.addAttribute(GBEAN_LOGIN_DISABLE, Boolean.class, true);
-        infoFactory.addAttribute(GBEAN_PLAIN_DISABLE, Boolean.class, true);
-        infoFactory.addAttribute(GBEAN_STARTTLS_ENABLE, Boolean.class, true);
-        infoFactory.addAttribute(GBEAN_SASL_ENABLE, Boolean.class, true);
-        infoFactory.addAttribute(GBEAN_SASL_MECHANISMS, String.class, true);
-        infoFactory.addAttribute(GBEAN_SASL_AUTHORIZATIONID, String.class, true);
+        infoFactory.addAttribute("port", Integer.class, true);
+        infoFactory.addAttribute("partialFetch", Boolean.class, true);
+        infoFactory.addAttribute("fetchSize", Integer.class, true);
+        infoFactory.addAttribute("connectionTimeout", Integer.class, true);
+        infoFactory.addAttribute("timeout", Integer.class, true);
+        infoFactory.addAttribute("statusCacheTimeout", Integer.class, true);
+        infoFactory.addAttribute("appendBufferSize", Integer.class, true);
+        infoFactory.addAttribute("connectionPoolSize", Integer.class, true);
+        infoFactory.addAttribute("connectionPoolTimeout", Integer.class, true);
+        infoFactory.addAttribute("separateStoreConnection", Boolean.class, true);
+        infoFactory.addAttribute("allowReadOnlySelect", Boolean.class, true);
+        infoFactory.addAttribute("authLoginDisable", Boolean.class, true);
+        infoFactory.addAttribute("authPlainDisable", Boolean.class, true);
+        infoFactory.addAttribute("startTLSEnable", Boolean.class, true);
+        infoFactory.addAttribute("localaddress", String.class, true);
+        infoFactory.addAttribute("localport", Integer.class, true);
+        infoFactory.addAttribute("saslEnable", Boolean.class, true);
+        infoFactory.addAttribute("saslMechanisms", String.class, true);
+        infoFactory.addAttribute("saslAuthorizationId", String.class, true);
+        infoFactory.addAttribute("socketFactoryClass", String.class, true);
+        infoFactory.addAttribute("socketFactoryFallback", Boolean.class, true);
+        infoFactory.addAttribute("socketFactoryPort", Integer.class, true);
 
-        infoFactory.addAttribute(GBEAN_OBJECTNAME, String.class, false);
-        infoFactory.addAttribute(GBEAN_PROTOCOL, String.class, true);
-        infoFactory.addAttribute(GBEAN_PROPERTIES, Properties.class, true);
-        infoFactory.addAttribute(GBEAN_HOST, String.class, true);
-        infoFactory.addAttribute(GBEAN_USER, String.class, true);
-        infoFactory.addOperation(GBEAN_ADD_OVERRIDES, new Class[]{Properties.class});
-
-        infoFactory.setConstructor(new String[]{GBEAN_OBJECTNAME, GBEAN_PROPERTIES, GBEAN_HOST, GBEAN_USER,
-                                                GBEAN_PORT,
-                                                GBEAN_PARTIAL_FETCH,
-                                                GBEAN_FETCH_SIZE,
-                                                GBEAN_CONNECTION_TIMEOUT,
-                                                GBEAN_TIMEOUT,
-                                                GBEAN_STATUS_TIMEOUT,
-                                                GBEAN_APPEND_SIZE,
-                                                GBEAN_POOL_SIZE,
-                                                GBEAN_POOL_TIMEOUT,
-                                                GBEAN_SEPARATE_STORE_CONNECTION,
-                                                GBEAN_READONLY_SELECT,
-                                                GBEAN_LOGIN_DISABLE,
-                                                GBEAN_PLAIN_DISABLE,
-                                                GBEAN_STARTTLS_ENABLE,
-                                                GBEAN_LOCALADDRESS,
-                                                GBEAN_LOCALPORT,
-                                                GBEAN_SASL_ENABLE,
-                                                GBEAN_SASL_MECHANISMS,
-                                                GBEAN_SASL_AUTHORIZATIONID,
-                                                GBEAN_FACTORY_CLASS,
-                                                GBEAN_FACTORY_FALLBACK,
-                                                GBEAN_FACTORY_PORT});
+        infoFactory.setConstructor(new String[]{"objectName", "properties", "host", "user",
+                                                "port",
+                                                "partialFetch",
+                                                "fetchSize",
+                                                "connectionTimeout",
+                                                "timeout",
+                                                "statusCacheTimeout",
+                                                "appendBufferSize",
+                                                "connectionPoolSize",
+                                                "connectionPoolTimeout",
+                                                "separateStoreConnection",
+                                                "allowReadOnlySelect",
+                                                "authLoginDisable",
+                                                "authPlainDisable",
+                                                "startTLSEnable",
+                                                "localaddress",
+                                                "localport",
+                                                "saslEnable",
+                                                "saslMechanisms",
+                                                "saslAuthorizationId",
+                                                "socketFactoryClass",
+                                                "socketFactoryFallback",
+                                                "socketFactoryPort"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

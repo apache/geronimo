@@ -17,22 +17,9 @@
 
 package org.apache.geronimo.console.jmsmanager.handlers;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.connector.AdminObjectWrapper;
-import org.apache.geronimo.connector.AdminObjectWrapperGBean;
-import org.apache.geronimo.console.core.jms.TopicBrowserGBean;
-import org.apache.geronimo.console.jmsmanager.AbstractJMSManager;
-import org.apache.geronimo.console.GeronimoVersion;
-import org.apache.geronimo.gbean.DynamicGAttributeInfo;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 import javax.jms.Queue;
 import javax.jms.Topic;
@@ -40,34 +27,43 @@ import javax.management.ObjectName;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.util.Arrays;
-import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.console.core.jms.TopicBrowserGBean;
+import org.apache.geronimo.console.jmsmanager.AbstractJMSManager;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Dependency;
+import org.apache.geronimo.kernel.repository.ImportType;
 
 public class CreateDestinationHandler extends AbstractJMSManager implements PortletResponseHandler {
     protected static Log log = LogFactory
             .getLog(CreateDestinationHandler.class);
 
-    private static final List parentId = Arrays.asList(new URI[] {URI.create("geronimo/activemq-broker/" + GeronimoVersion.GERONIMO_VERSION + "/car")});
+    private static final Artifact parentId = new Artifact("geronimo", "activemq-broker", org.apache.geronimo.system.serverinfo.ServerConstants.getVersion(), "car");
 
-    static final GBeanInfo QUEUE_INFO;
-
-    static final GBeanInfo TOPIC_INFO;
-
-    static {
-        GBeanInfoBuilder queueInfoBuilder = new GBeanInfoBuilder(
-                AdminObjectWrapper.class, AdminObjectWrapperGBean.GBEAN_INFO);
-        queueInfoBuilder.addAttribute(new DynamicGAttributeInfo("PhysicalName",
-                String.class.getName(), true, true, true, true));
-        QUEUE_INFO = queueInfoBuilder.getBeanInfo();
-        GBeanInfoBuilder topicInfoBuilder = new GBeanInfoBuilder(
-                AdminObjectWrapper.class, AdminObjectWrapperGBean.GBEAN_INFO);
-        topicInfoBuilder.addAttribute(new DynamicGAttributeInfo("PhysicalName",
-                String.class.getName(), true, true, true, true));
-        TOPIC_INFO = topicInfoBuilder.getBeanInfo();
-    }
+//    static final GBeanInfo QUEUE_INFO;
+//
+//    static final GBeanInfo TOPIC_INFO;
+//
+//    static {
+//        GBeanInfoBuilder queueInfoBuilder = new GBeanInfoBuilder(
+//                AdminObjectWrapper.class, AdminObjectWrapperGBean.GBEAN_INFO);
+//        queueInfoBuilder.addAttribute(new DynamicGAttributeInfo("PhysicalName",
+//                String.class.getName(), true, true, true, true));
+//        QUEUE_INFO = queueInfoBuilder.getBeanInfo();
+//        GBeanInfoBuilder topicInfoBuilder = new GBeanInfoBuilder(
+//                AdminObjectWrapper.class, AdminObjectWrapperGBean.GBEAN_INFO);
+//        topicInfoBuilder.addAttribute(new DynamicGAttributeInfo("PhysicalName",
+//                String.class.getName(), true, true, true, true));
+//        TOPIC_INFO = topicInfoBuilder.getBeanInfo();
+//    }
 
     public void processAction(ActionRequest request, ActionResponse response)
             throws IOException, PortletException {
@@ -80,28 +76,41 @@ public class CreateDestinationHandler extends AbstractJMSManager implements Port
         String destinationModuleName = request
                 .getParameter(DESTINATION_MODULE_NAME);
         try {
-            ObjectName adminObjectName = NameFactory.getComponentName(null,
-                    null, destinationApplicationName, NameFactory.JCA_RESOURCE,
-                    destinationModuleName, destinationName, null, baseContext);
+
+            Artifact configId = new Artifact(Artifact.DEFAULT_GROUP_ID, BASE_CONFIG_URI + destinationName, "0", "car");
+            ConfigurationData configurationData = new ConfigurationData(configId, kernel.getNaming());
+            configurationData.getEnvironment().addDependency(new Dependency(ACTIVEMQ_ARTIFACT, ImportType.ALL));
+
+            AbstractName adminObjectName = kernel.getNaming().createRootName(configId, destinationName, NameFactory.JCA_ADMIN_OBJECT);
+//            ObjectName adminObjectName = NameFactory.getComponentName(null,
+//                    null, destinationApplicationName, NameFactory.JCA_RESOURCE,
+//                    destinationModuleName, destinationName, null, baseContext);
 
             GBeanData adminObjectData;
             if (Topic.class.getName().equals(destinationType)) {
-                adminObjectData = new GBeanData(adminObjectName, TOPIC_INFO);
-                adminObjectData.setAttribute("adminObjectInterface", "javax.jms.Topic");
-                adminObjectData.setAttribute("adminObjectClass", "org.activemq.message.ActiveMQTopic");
+                adminObjectData = getTopicGBeanData();
+                // If we are adding a topic we have to add a browser so we can view
+                // its messages later.
+                AbstractName browserName = kernel.getNaming().createChildName(adminObjectName, destinationName, "TopicBrowser");
+                GBeanData tBrowserBeanData = new GBeanData(browserName, TopicBrowserGBean.GBEAN_INFO);
+                tBrowserBeanData.setAttribute("subscriberName", destinationName);
+                tBrowserBeanData.setReferencePattern("ConnectionFactoryWrapper", JCA_MANAGED_CONNECTION_FACTORY_NAME);
+                tBrowserBeanData.setReferencePattern("TopicWrapper",
+                        adminObjectName);
+
+                configurationData.addGBean(tBrowserBeanData);
             } else if (Queue.class.getName().equals(destinationType)) {
-                adminObjectData = new GBeanData(adminObjectName, QUEUE_INFO);
-                adminObjectData.setAttribute("adminObjectInterface", "javax.jms.Queue");
-                adminObjectData.setAttribute("adminObjectClass", "org.activemq.message.ActiveMQQueue.class");
+                adminObjectData = getQueueGBeanData();
             } else {
                 throw new PortletException(
                         "Invalid choice destination, must be FQCL of Topic or Queue, not "
                                 + destinationType);
             }
+            adminObjectData.setAbstractName(adminObjectName);
             adminObjectData.setAttribute("PhysicalName",
                     destinationPhysicalName);
+            configurationData.addGBean(adminObjectData);
 
-            URI configId = new URI(BASE_CONFIG_URI + destinationName);
 
             ConfigurationManager configurationManager = ConfigurationUtil
                     .getConfigurationManager(kernel);
@@ -111,45 +120,27 @@ public class CreateDestinationHandler extends AbstractJMSManager implements Port
             ObjectName storeName = (ObjectName) stores.iterator().next();
             File installDir = (File) kernel.invoke(storeName,
                     "createNewConfigurationDir");
-            //DeploymentContext deploymentContext = new
-            // DeploymentContext(installDir, configId,
-            // ConfigurationModuleType.SERVICE, parentId, kernel);
-            ConfigurationData configData = new ConfigurationData();
-            configData.setId(configId);
-            configData.setParentId(parentId);
-            configData.setModuleType(ConfigurationModuleType.SERVICE);
-            //deploymentContext.addGBean(adminObjectData);
-            configData.addGBean(adminObjectData);
-            // If we are adding a topic we have to add a browser so we can view
-            // its messages later.
-            if (Topic.class.getName().equals(destinationType)) {
-                GBeanData tBrowserBeanData = new GBeanData(NameFactory
-                        .getComponentName(null, null,
-                                destinationApplicationName,
-                                NameFactory.JCA_RESOURCE,
-                                destinationModuleName, destinationName,
-                                "TopicBrowser", baseContext),
-                        TopicBrowserGBean.GBEAN_INFO);
-                tBrowserBeanData
-                        .setAttribute("subscriberName", destinationName);
-                tBrowserBeanData.setReferencePattern(
-                        "ConnectionFactoryWrapper", ObjectName
-                                .getInstance(CONNECTION_FACTORY_NAME));
-                tBrowserBeanData.setReferencePattern("TopicWrapper",
-                        adminObjectName);
-
-                configData.addGBean(tBrowserBeanData);
-            }
+//            Environment environment = new Environment();
+//            environment.setConfigId(configId);
+//            environment.addDependency(parentId, ImportType.ALL);
+//            List gbeans = new ArrayList();
+//            gbeans.add(adminObjectData);
+            //TODO configid FIXME set configurationDir correctly
+            File configurationDir = null;
+//            ConfigurationData configData = new ConfigurationData(ConfigurationModuleType.SERVICE,
+//                    new LinkedHashSet(),
+//                    gbeans,
+//                    Collections.EMPTY_LIST,
+//                    environment, configurationDir,
+//                    kernel.getNaming());
 
             //saves it.
             //deploymentContext.close();
-            kernel.invoke(storeName, "install", new Object[] {configData,
-                    installDir}, new String[] {
-                    ConfigurationData.class.getName(), File.class.getName() });
+            kernel.invoke(storeName, "install", new Object[] {configurationData, installDir},
+                    new String[] {ConfigurationData.class.getName(), File.class.getName() });
 
-            configurationManager.load(configId);
-            configurationManager.loadGBeans(configId);
-            configurationManager.start(configId);
+            configurationManager.loadConfiguration(configId);
+            configurationManager.startConfiguration(configId);
 
         } catch (Exception e) {
             log.error("problem", e);

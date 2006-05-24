@@ -17,6 +17,7 @@
 package org.apache.geronimo.console;
 
 import javax.portlet.ActionResponse;
+import javax.portlet.PortletSession;
 
 /**
  * Interface for models for multi-page portlets.
@@ -24,5 +25,5 @@ import javax.portlet.ActionResponse;
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
 public interface MultiPageModel {
-    public void save(ActionResponse response);
+    public void save(ActionResponse response, PortletSession session);
 }

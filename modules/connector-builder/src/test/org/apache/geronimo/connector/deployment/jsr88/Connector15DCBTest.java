@@ -16,17 +16,6 @@
  */
 package org.apache.geronimo.connector.deployment.jsr88;
 
-import junit.framework.TestCase;
-import org.apache.geronimo.connector.deployment.RARConfiguration;
-import org.apache.geronimo.deployment.tools.loader.ConnectorDeployable;
-import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
-import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
-import org.apache.geronimo.naming.deployment.jsr88.GBeanLocator;
-
-import javax.enterprise.deploy.model.DDBeanRoot;
-import javax.enterprise.deploy.model.DDBean;
-import javax.enterprise.deploy.shared.ModuleType;
-import javax.enterprise.deploy.spi.DConfigBean;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -34,6 +23,18 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import javax.enterprise.deploy.model.DDBean;
+import javax.enterprise.deploy.model.DDBeanRoot;
+import javax.enterprise.deploy.shared.ModuleType;
+import javax.enterprise.deploy.spi.DConfigBean;
+import junit.framework.TestCase;
+import org.apache.geronimo.connector.deployment.RARConfiguration;
+import org.apache.geronimo.deployment.tools.loader.ConnectorDeployable;
+import org.apache.geronimo.deployment.service.jsr88.EnvironmentData;
+import org.apache.geronimo.deployment.service.jsr88.Artifact;
+import org.apache.geronimo.naming.deployment.jsr88.GBeanLocator;
+import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
+import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
 
 /**
  * @version $Rev$ $Date$
@@ -67,31 +68,40 @@ public class Connector15DCBTest extends TestCase {
         // Try the /connector element
         ConnectorDCB connector = (ConnectorDCB) dcbRoot.getDConfigBean(root.getChildBean(dcbRoot.getXpaths()[0])[0]);
         assertNotNull(connector);
-        assertNull(connector.getConfigID());
-        assertNull(connector.getInverseClassLoading());
-        assertNull(connector.getParentID());
-        assertNull(connector.getSuppressDefaultParentID());
-        connector.setConfigID("MyDatabase");
-        connector.setParentID("geronimo/j2ee-server/1.0/car");
-        // Try the /connector/dependency element
-        assertNotNull(connector.getDependency());
-        assertEquals(0, connector.getDependency().length);
-        Dependency dep = new Dependency();
-        connector.setDependency(new Dependency[]{dep});
-        assertEquals(1, connector.getDependency().length);
-        dep.setURI("postgresql/postgresql-8.0/313.jdbc3/jar");
-        assertNull(dep.getArtifactId());
-        assertNull(dep.getGroupId());
-        assertNull(dep.getType());
-        assertNull(dep.getVersion());
-        dep.setGroupId("postgresql");
-        dep.setArtifactId("postgresql-8.0");
-        dep.setVersion("313.jdbc3");
-        assertNull(dep.getURI());
-        assertNull(dep.getType());
-        // todo: Try the /connector/import element
-        // todo: Try the /connector/hidden-classes element
-        // todo: Try the /connector/non-overridable-classes element
+        assertNull(connector.getEnvironment());
+        EnvironmentData environment = new EnvironmentData();
+        connector.setEnvironment(environment);
+        Artifact configId = new Artifact();
+        environment.setConfigId(configId);
+        assertNull(configId.getArtifactId());
+        assertNull(configId.getGroupId());
+        assertNull(configId.getType());
+        assertNull(configId.getVersion());
+        configId.setGroupId("test");
+        configId.setArtifactId("product");
+        configId.setType("rar");
+        configId.setVersion("1.0");
+        Artifact parent = new Artifact();
+        Artifact dependency = new Artifact();
+        environment.setDependencies(new Artifact[]{parent, dependency});
+        assertNull(parent.getArtifactId());
+        assertNull(parent.getGroupId());
+        assertNull(parent.getType());
+        assertNull(parent.getVersion());
+        assertNull(dependency.getArtifactId());
+        assertNull(dependency.getGroupId());
+        assertNull(dependency.getType());
+        assertNull(dependency.getVersion());
+        parent.setGroupId("geronimo");
+        parent.setArtifactId("j2ee-server");
+        parent.setType("car");
+        assertNull(parent.getVersion());
+        dependency.setGroupId("postgresql");
+        dependency.setArtifactId("postgresql-8.0");
+        dependency.setType("jar");
+        dependency.setVersion("313.jdbc3");
+        // todo: Try the /connector/environment/hidden-classes element
+        // todo: Try the /connector/environment/non-overridable-classes element
         // Try the /connector/resourceadapter element
         assertNotNull(connector.getResourceAdapter());
         assertEquals(1, connector.getResourceAdapter().length);
@@ -163,7 +173,7 @@ public class Connector15DCBTest extends TestCase {
         pool.setMaxSize(new Integer(30));
         pool.setBlockingTimeoutMillis(new Integer(5000));
         //todo: Look at the XmlBeans tree and make sure the right stuff is in there
-//        System.out.println(dcbRoot.getConnectorDocument());
+        System.out.println(dcbRoot.getConnectorDocument());
     }
 
     public void testWriteWithNulls() throws Exception {
@@ -306,28 +316,28 @@ public class Connector15DCBTest extends TestCase {
         // Try the /connector element
         ConnectorDCB connector = (ConnectorDCB) dcbRoot.getDConfigBean(root.getChildBean(dcbRoot.getXpaths()[0])[0]);
         assertNotNull(connector);
-        assertNull(connector.getConfigID());
-        assertNull(connector.getInverseClassLoading());
-        assertNull(connector.getParentID());
-        assertNull(connector.getSuppressDefaultParentID());
-        connector.setConfigID("MyJMS");
-        connector.setParentID("geronimo/activemq/1.0/car");
+//        assertNull(connector.getConfigID());
+//        assertNull(connector.getInverseClassLoading());
+//        assertNull(connector.getParentID());
+//        assertNull(connector.getSuppressDefaultParentID());
+//        connector.setConfigID("MyJMS");
+//        connector.setParentID("geronimo/activemq/1.0/car");
         // Try the /connector/dependency element
-        assertNotNull(connector.getDependency());
-        assertEquals(0, connector.getDependency().length);
-        Dependency dep = new Dependency();
-        connector.setDependency(new Dependency[]{dep});
-        assertEquals(1, connector.getDependency().length);
-        dep.setURI("postgresql/postgresql-8.0/313.jdbc3/jar");
-        assertNull(dep.getArtifactId());
-        assertNull(dep.getGroupId());
-        assertNull(dep.getType());
-        assertNull(dep.getVersion());
-        dep.setGroupId("postgresql");
-        dep.setArtifactId("postgresql-8.0");
-        dep.setVersion("313.jdbc3");
-        assertNull(dep.getURI());
-        assertNull(dep.getType());
+//        assertNotNull(connector.getArtifactType());
+//        assertEquals(0, connector.getArtifactType().length);
+//        Artifact dep = new Artifact();
+//        connector.setDependency(new Artifact[]{dep});
+//        assertEquals(1, connector.getArtifactType().length);
+//        dep.setURI("postgresql/postgresql-8.0/313.jdbc3/jar");
+//        assertNull(dep.getArtifactId());
+//        assertNull(dep.getGroupId());
+//        assertNull(dep.getType());
+//        assertNull(dep.getVersion());
+//        dep.setGroupId("postgresql");
+//        dep.setArtifactId("postgresql-8.0");
+//        dep.setVersion("313.jdbc3");
+//        assertNull(dep.getURI());
+//        assertNull(dep.getType());
         // todo: Try the /connector/import element
         // todo: Try the /connector/hidden-classes element
         // todo: Try the /connector/non-overridable-classes element

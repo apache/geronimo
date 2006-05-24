@@ -8,14 +8,6 @@
 <input type="hidden" name="addAjpPort" value="${model.addAjpPort}"/>
 <input type="hidden" name="workersPath" value="${model.workersPath}"/>
 <input type="hidden" name="logFilePath" value="${model.logFilePath}"/>
-<c:forEach var="webApp" items="${model.webApps}" varStatus="status">
-    <input type="hidden" name="webapp.${status.index}.configId" value="${webApp.configId}"/>
-    <input type="hidden" name="webapp.${status.index}.enabled" value="${webApp.enabled}"/>
-    <input type="hidden" name="webapp.${status.index}.dynamicPattern" value="${webApp.dynamicPattern}"/>
-    <input type="hidden" name="webapp.${status.index}.serveStaticContent" value="${webApp.serveStaticContent}"/>
-    <input type="hidden" name="webapp.${status.index}.contextRoot" value="${webApp.contextRoot}"/>
-    <input type="hidden" name="webapp.${status.index}.webAppDir" value="${webApp.webAppDir}"/>
-</c:forEach>
 
 
 <p><b>Apache mod_jk</b> -- Configuration Results</p>
@@ -44,14 +36,7 @@
         location.  To install, find the following RPM on your install media and
         run a command like this:</p>
         <pre>
-rpm -Uvh <c:choose>
-            <c:when test="${model.os == 'Fedora Core 4'}">mod_jk-1.2.6-3jpp_4fc.i586.rpm</c:when>
-            <c:when test="${model.os == 'SuSE Pro 9.0'}">apache2-jakarta-tomcat-connectors-4.1.27-32.i586.rpm</c:when>
-            <c:when test="${model.os == 'SuSE Pro 9.1'}">apache2-jakarta-tomcat-connectors-5.0.19-13.i586.rpm</c:when>
-            <c:when test="${model.os == 'SuSE Pro 9.2'}">mod_jk-ap20-4.1.30-3.i586.rpm</c:when>
-            <c:when test="${model.os == 'SuSE Pro 9.3'}">mod_jk-ap20-4.1.30-3.i586.rpm</c:when>
-            <c:when test="${model.os == 'SuSE Linux 10.0'}">mod_jk-ap20-4.1.30-3.i586.rpm</c:when>
-</c:choose>
+rpm -Uvh <c:choose><c:when test="${model.os == 'Fedora Core 4'}">mod_jk-1.2.6-3jpp_4fc.i586.rpm</c:when><c:when test="${model.os == 'SuSE Pro 9.0'}">apache2-jakarta-tomcat-connectors-4.1.27-32.i586.rpm</c:when><c:when test="${model.os == 'SuSE Pro 9.1'}">apache2-jakarta-tomcat-connectors-5.0.19-13.i586.rpm</c:when><c:when test="${model.os == 'SuSE Pro 9.2'}">mod_jk-ap20-4.1.30-3.i586.rpm</c:when><c:when test="${model.os == 'SuSE Pro 9.3'}">mod_jk-ap20-4.1.30-3.i586.rpm</c:when><c:when test="${model.os == 'SuSE Linux 10.0'}">mod_jk-ap20-4.1.30-3.i586.rpm</c:when></c:choose>
         </pre>
         <p>Once the <tt>mod_jk</tt> RPM is installed, you can activate it by
    <c:choose>
@@ -133,4 +118,8 @@ worker.geronimo_ajp13.type=ajp13
 
 <p>With those steps completed, Apache should be ready to go!  Start Geronimo and restart Apache
 and try accessing a Geronimo web application through an Apache URL.  If there are any problems,
-check the Apache error log, and the mod_jk error log (at ${model.logFilePath}).</p>
+check the Apache error log, and the mod_jk error log (at <tt>${model.logFilePath}</tt>).</p>
+
+<p><a href="<portlet:actionURL portletMode="view">
+              <portlet:param name="mode" value="index-before" />
+            </portlet:actionURL>">Done</a></p>

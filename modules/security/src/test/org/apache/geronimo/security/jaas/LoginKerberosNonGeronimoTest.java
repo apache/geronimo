@@ -17,19 +17,17 @@
 
 package org.apache.geronimo.security.jaas;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Properties;
-import java.util.Set;
-import javax.management.ObjectName;
-import javax.security.auth.Subject;
-import javax.security.auth.login.LoginContext;
-import javax.security.auth.login.LoginException;
-
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.security.AbstractTest;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.RealmPrincipal;
+
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
+import java.util.Properties;
 
 
 /**
@@ -42,9 +40,8 @@ import org.apache.geronimo.security.RealmPrincipal;
  */
 public class LoginKerberosNonGeronimoTest extends AbstractTest {
 
-    protected ObjectName kerberosCE;
-    protected ObjectName kerberosLM;
-    protected ObjectName loginConfiguration;
+    protected AbstractName kerberosCE;
+    protected AbstractName kerberosLM;
 
     /**
      * Install the <code>GeronimoLoginConfiguration</code> but setup a non-Geronimo
@@ -54,22 +51,15 @@ public class LoginKerberosNonGeronimoTest extends AbstractTest {
      * @throws Exception
      */
     public void setUp() throws Exception {
+        needLoginConfiguration = true;
         super.setUp();
 
         GBeanData gbean;
 
-        loginConfiguration = new ObjectName("geronimo.security:type=LoginConfiguration");
-        gbean = new GBeanData(loginConfiguration, GeronimoLoginConfiguration.getGBeanInfo());
-        Set configurations = new HashSet();
-        configurations.add(new ObjectName("geronimo.security:type=SecurityRealm,*"));
-        configurations.add(new ObjectName("geronimo.security:type=ConfigurationEntry,*"));
-        gbean.setReferencePatterns("Configurations", configurations);
-        kernel.loadGBean(gbean, GeronimoLoginConfiguration.class.getClassLoader());
-
-        kerberosLM = new ObjectName("geronimo.security:type=LoginModule,name=TOOLAZYDOGS.COM");
-        gbean = new GBeanData(kerberosLM, LoginModuleGBean.getGBeanInfo());
+        gbean = buildGBeanData("name", "KerberosLoginModule", LoginModuleGBean.getGBeanInfo());
+        kerberosLM = gbean.getAbstractName();
         gbean.setAttribute("loginModuleClass", "com.sun.security.auth.module.Krb5LoginModule");
-        gbean.setAttribute("serverSide", new Boolean(true)); // normally not, but in this case, it's treated as server-side
+        gbean.setAttribute("serverSide", Boolean.TRUE); // normally not, but in this case, it's treated as server-side
         Properties props = new Properties();
         props.put("debug", "true");
         props.put("useTicketCache", "true");
@@ -77,11 +67,11 @@ public class LoginKerberosNonGeronimoTest extends AbstractTest {
         gbean.setAttribute("options", props);
         kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
 
-        kerberosCE = new ObjectName("geronimo.security:type=ConfigurationEntry,jaasId=kerberos-foobar");
-        gbean = new GBeanData(kerberosCE, DirectConfigurationEntry.getGBeanInfo());
+        gbean = buildGBeanData("name", "kerberosConfigurationEntry", DirectConfigurationEntry.getGBeanInfo());
+        kerberosCE = gbean.getAbstractName();
         gbean.setAttribute("applicationConfigName", "kerberos-foobar");
         gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
-        gbean.setReferencePatterns("Module", Collections.singleton(kerberosLM));
+        gbean.setReferencePattern("Module", kerberosLM);
         kernel.loadGBean(gbean, DirectConfigurationEntry.class.getClassLoader());
 
         kernel.startGBean(loginConfiguration);

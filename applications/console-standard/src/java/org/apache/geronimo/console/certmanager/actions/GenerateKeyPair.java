@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.management.ObjectName;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
@@ -31,6 +30,7 @@ import javax.portlet.RenderResponse;
 
 import org.apache.geronimo.console.certmanager.CertManagerPortlet;
 import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.gbean.AbstractName;
 
 public class GenerateKeyPair {
     public static void action(CertManagerPortlet portlet,
@@ -98,15 +98,15 @@ public class GenerateKeyPair {
                     "/WEB-INF/view/certmanager/generateKeyPairNormal.jsp");
         } else {
             try {
-                ObjectName objname = portlet.getKeyStoreObjectName();
+                AbstractName name = portlet.getKeyStoreObjectName();
 
                 String keyStoreType = (String) KernelRegistry.getSingleKernel()
-                        .getAttribute(objname, "keyStoreType");
+                        .getAttribute(name, "keyStoreType");
                 String keyStoreProvider = (String) KernelRegistry
-                        .getSingleKernel().getAttribute(objname,
+                        .getSingleKernel().getAttribute(name,
                                 "keyStoreProvider");
                 String keyStoreLocation = (String) KernelRegistry
-                        .getSingleKernel().getAttribute(objname,
+                        .getSingleKernel().getAttribute(name,
                                 "keyStoreLocation");
 
                 request.setAttribute("org.apache.geronimo.console.keystore.type",
@@ -117,7 +117,7 @@ public class GenerateKeyPair {
                         keyStoreLocation);
 
                 List storelist = (List) KernelRegistry.getSingleKernel()
-                        .invoke(objname, "getKeyStoreEntries");
+                        .invoke(name, "getKeyStoreEntries");
 
                 Iterator iter = storelist.iterator();
                 while (iter.hasNext()) {

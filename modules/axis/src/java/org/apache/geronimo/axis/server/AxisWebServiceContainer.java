@@ -57,7 +57,7 @@ public class AxisWebServiceContainer implements WebServiceContainer {
     private final URI wsdlLocation;
     private final SOAPService service;
 
-    private final ClassLoader classLoader;
+    private transient final ClassLoader classLoader;
     private final Map wsdlMap;
 
     public AxisWebServiceContainer(URI location, URI wsdlURL, SOAPService service, Map wsdlMap, ClassLoader classLoader) {
@@ -65,7 +65,11 @@ public class AxisWebServiceContainer implements WebServiceContainer {
         this.wsdlLocation = wsdlURL;
         this.service = service;
         this.wsdlMap = wsdlMap;
-        this.classLoader = classLoader;
+        if (classLoader == null) {
+            this.classLoader = Thread.currentThread().getContextClassLoader();
+        } else {
+            this.classLoader = classLoader;
+        }
     }
 
     public void invoke(Request req, Response res) throws Exception {
@@ -254,4 +258,11 @@ public class AxisWebServiceContainer implements WebServiceContainer {
         return location;
     }
 
+    protected Object readResolve() {
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        if (classLoader == null) {
+            classLoader = AxisWebServiceContainer.class.getClassLoader();
+        }
+        return new AxisWebServiceContainer(location, wsdlLocation, service, wsdlMap, classLoader);
+    }
 }

@@ -73,7 +73,6 @@ public class DirectoryInitializationGBean {
                                     out.write(buf, 0, chunk);
                                 }
                             } finally {
-                                out.flush();
                                 out.close();
                             }
                         } finally {

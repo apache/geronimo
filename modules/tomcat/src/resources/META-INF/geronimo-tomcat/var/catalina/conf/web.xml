@@ -187,6 +187,10 @@
         <servlet-name>jsp</servlet-name>
         <servlet-class>org.apache.jasper.servlet.JspServlet</servlet-class>
         <init-param>
+            <param-name>development</param-name>
+            <param-value>false</param-value>
+        </init-param>
+        <init-param>
             <param-name>fork</param-name>
             <param-value>false</param-value>
         </init-param>

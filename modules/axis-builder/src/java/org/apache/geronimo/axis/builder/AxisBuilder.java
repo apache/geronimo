@@ -16,10 +16,6 @@
  */
 package org.apache.geronimo.axis.builder;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -35,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
+
 import javax.wsdl.Binding;
 import javax.wsdl.BindingOperation;
 import javax.wsdl.Definition;
@@ -46,28 +43,16 @@ import javax.wsdl.extensions.soap.SOAPBinding;
 import javax.xml.namespace.QName;
 import javax.xml.rpc.handler.HandlerInfo;
 
-import net.sf.cglib.core.DefaultGeneratorStrategy;
-import net.sf.cglib.proxy.Callback;
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.proxy.NoOp;
-import net.sf.cglib.reflect.FastClass;
-import net.sf.cglib.reflect.FastConstructor;
-import org.apache.axis.client.Service;
 import org.apache.axis.constants.Style;
 import org.apache.axis.description.JavaServiceDesc;
 import org.apache.axis.handlers.HandlerInfoChainFactory;
 import org.apache.axis.handlers.soap.SOAPService;
 import org.apache.axis.providers.java.RPCProvider;
 import org.apache.axis.soap.SOAPConstants;
-import org.apache.geronimo.axis.client.GenericServiceEndpointWrapper;
-import org.apache.geronimo.axis.client.NoOverrideCallbackFilter;
+import org.apache.geronimo.axis.client.AxisServiceReference;
 import org.apache.geronimo.axis.client.OperationInfo;
 import org.apache.geronimo.axis.client.SEIFactory;
 import org.apache.geronimo.axis.client.SEIFactoryImpl;
-import org.apache.geronimo.axis.client.SerializableNoOp;
-import org.apache.geronimo.axis.client.ServiceImpl;
-import org.apache.geronimo.axis.client.ServiceMethodInterceptor;
 import org.apache.geronimo.axis.server.AxisWebServiceContainer;
 import org.apache.geronimo.axis.server.POJOProvider;
 import org.apache.geronimo.axis.server.ServiceInfo;
@@ -80,9 +65,6 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.ClassLoaderReference;
-import org.apache.geronimo.kernel.StoredObject;
-import org.apache.geronimo.naming.reference.DeserializingReference;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPortCompletionType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPortType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceCompletionType;
@@ -96,7 +78,7 @@ import org.apache.geronimo.xbeans.j2ee.ServiceEndpointMethodMappingType;
  * @version $Rev$ $Date$
  */
 public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
-    private static final Class[] SERVICE_CONSTRUCTOR_TYPES = new Class[]{Map.class, Map.class};
+//    private static final Class[] SERVICE_CONSTRUCTOR_TYPES = new Class[]{Map.class, Map.class};
 
     private static final SOAPConstants SOAP_VERSION = SOAPConstants.SOAP11_CONSTANTS;
 
@@ -127,13 +109,13 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
         HandlerInfoChainFactory handlerInfoChainFactory = new HandlerInfoChainFactory(serviceInfo.getHandlerInfos());
         service.setOption(org.apache.axis.Constants.ATTR_HANDLERINFOCHAIN, handlerInfoChainFactory);
 
-        URI location = null;
+        URI location;
         try {
             location = new URI(serviceDesc.getEndpointURL());
         } catch (URISyntaxException e) {
             throw new DeploymentException("Invalid webservice endpoint URI", e);
         }
-        URI wsdlURI = null;
+        URI wsdlURI;
         try {
             wsdlURI = new URI(serviceDesc.getWSDLFile());
         } catch (URISyntaxException e) {
@@ -141,14 +123,8 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
 
         }
 
-        classLoader = new ClassLoaderReference(classLoader);
         AxisWebServiceContainer axisWebServiceContainer = new AxisWebServiceContainer(location, wsdlURI, service, serviceInfo.getWsdlMap(), classLoader);
-        //targetGBean.setAttribute("webServiceContainer", axisWebServiceContainer);
-        try {
-            targetGBean.setAttribute("webServiceContainer", new StoredObject(axisWebServiceContainer)); // Hack!
-        } catch (IOException e) {
-            throw new DeploymentException("Unable to serialize the AxisWebServiceContainer", e);
-        }
+        targetGBean.setAttribute("webServiceContainer", axisWebServiceContainer);
     }
 
     public void configureEJB(GBeanData targetGBean, JarFile moduleFile, Object portInfoObject, ClassLoader classLoader) throws DeploymentException {
@@ -156,10 +132,9 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
         ServiceInfo serviceInfo = AxisServiceBuilder.createServiceInfo(portInfo, classLoader);
         targetGBean.setAttribute("serviceInfo", serviceInfo);
         JavaServiceDesc serviceDesc = serviceInfo.getServiceDesc();
-        URI location = null;
-        location = portInfo.getContextURI();
+       URI location = portInfo.getContextURI();
         targetGBean.setAttribute("location", location);
-        URI wsdlURI = null;
+        URI wsdlURI;
         try {
             wsdlURI = new URI(serviceDesc.getWSDLFile());
         } catch (URISyntaxException e) {
@@ -181,31 +156,19 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
             mapping = WSDescriptorParser.readJaxrpcMapping(moduleFile, jaxrpcMappingURI);
         }
 
-        Object service = createService(serviceInterface, schemaInfoBuilder, mapping, serviceQName, SOAP_VERSION, handlerInfos, gerServiceRefType, deploymentContext, module, classLoader);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = null;
-        try {
-            oos = new ObjectOutputStream(baos);
-            oos.writeObject(service);
-            oos.flush();
-        } catch (IOException e) {
-            throw new DeploymentException("Could not serialize service instance", e);
-        }
-        byte[] bytes = baos.toByteArray();
-        DeserializingReference reference = new DeserializingReference(bytes);
-        return reference;
+        return createService(serviceInterface, schemaInfoBuilder, mapping, serviceQName, SOAP_VERSION, handlerInfos, gerServiceRefType, deploymentContext, module, classLoader);
     }
 
     public Object createService(Class serviceInterface, SchemaInfoBuilder schemaInfoBuilder, JavaWsdlMappingType mapping, QName serviceQName, SOAPConstants soapVersion, List handlerInfos, GerServiceRefType serviceRefType, DeploymentContext context, Module module, ClassLoader classloader) throws DeploymentException {
         Map seiPortNameToFactoryMap = new HashMap();
         Map seiClassNameToFactoryMap = new HashMap();
-        Object serviceInstance = createServiceInterfaceProxy(serviceInterface, seiPortNameToFactoryMap, seiClassNameToFactoryMap, context, module, classloader);
         if (schemaInfoBuilder != null) {
-            buildSEIFactoryMap(serviceInterface, schemaInfoBuilder, serviceRefType, mapping, handlerInfos, serviceQName, soapVersion, seiPortNameToFactoryMap, seiClassNameToFactoryMap, serviceInstance, context, module, classloader);
+            buildSEIFactoryMap(schemaInfoBuilder, serviceRefType, mapping, handlerInfos, serviceQName, soapVersion, seiPortNameToFactoryMap, seiClassNameToFactoryMap, classloader);
         }
-        return serviceInstance;
+        return new AxisServiceReference(serviceInterface.getName(), seiPortNameToFactoryMap, seiClassNameToFactoryMap);
     }
 
+/*
     public Object createServiceInterfaceProxy(Class serviceInterface, Map seiPortNameToFactoryMap, Map seiClassNameToFactoryMap, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
 
         Callback callback = new ServiceMethodInterceptor(seiPortNameToFactoryMap);
@@ -238,8 +201,9 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
             throw new DeploymentException("Could not construct service instance", e.getTargetException());
         }
     }
+*/
 
-    public void buildSEIFactoryMap(Class serviceInterface, SchemaInfoBuilder schemaInfoBuilder, GerServiceRefType serviceRefType, JavaWsdlMappingType mapping, List handlerInfos, QName serviceQName, SOAPConstants soapVersion, Map seiPortNameToFactoryMap, Map seiClassNameToFactoryMap, Object serviceImpl, DeploymentContext context, Module module, ClassLoader classLoader) throws DeploymentException {
+    public void buildSEIFactoryMap(SchemaInfoBuilder schemaInfoBuilder, GerServiceRefType serviceRefType, JavaWsdlMappingType mapping, List handlerInfos, QName serviceQName, SOAPConstants soapVersion, Map seiPortNameToFactoryMap, Map seiClassNameToFactoryMap, ClassLoader classLoader) throws DeploymentException {
         Map exceptionMap = WSDescriptorParser.getExceptionMap(mapping);
 
         Definition definition = schemaInfoBuilder.getDefinition();
@@ -268,7 +232,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
                     throw new DeploymentException("No binding found with qname: " + bindingQName);
                 }
                 String credentialsName = port.isSetCredentialsName() ? port.getCredentialsName().trim() : null;
-                mapBinding(binding, mapping, serviceQName, classLoader, context, module, soapVersion, schemaInfoBuilder, portName, serviceImpl, location, handlerInfos, seiPortNameToFactoryMap, seiClassNameToFactoryMap, credentialsName, exceptionMap);
+                mapBinding(binding, mapping, serviceQName, classLoader, soapVersion, schemaInfoBuilder, portName, location, handlerInfos, seiPortNameToFactoryMap, seiClassNameToFactoryMap, credentialsName, exceptionMap);
 
             }
         } else {
@@ -310,12 +274,12 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
 
                 Binding binding = port.getBinding();
 
-                mapBinding(binding, mapping, serviceQName, classLoader, context, module, soapVersion, schemaInfoBuilder, portName, serviceImpl, location, handlerInfos, seiPortNameToFactoryMap, seiClassNameToFactoryMap, credentialsName, exceptionMap);
+                mapBinding(binding, mapping, serviceQName, classLoader, soapVersion, schemaInfoBuilder, portName, location, handlerInfos, seiPortNameToFactoryMap, seiClassNameToFactoryMap, credentialsName, exceptionMap);
             }
         }
     }
 
-    private void mapBinding(Binding binding, JavaWsdlMappingType mapping, QName serviceQName, ClassLoader classLoader, DeploymentContext context, Module module, SOAPConstants soapVersion, SchemaInfoBuilder schemaInfoBuilder, String portName, Object serviceImpl, URL location, List handlerInfos, Map seiPortNameToFactoryMap, Map seiClassNameToFactoryMap, String credentialsName, Map exceptionMap) throws DeploymentException {
+    private void mapBinding(Binding binding, JavaWsdlMappingType mapping, QName serviceQName, ClassLoader classLoader, SOAPConstants soapVersion, SchemaInfoBuilder schemaInfoBuilder, String portName, URL location, List handlerInfos, Map seiPortNameToFactoryMap, Map seiClassNameToFactoryMap, String credentialsName, Map exceptionMap) throws DeploymentException {
         Style portStyle = getStyle(binding);
 
         PortType portType = binding.getPortType();
@@ -327,9 +291,9 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
         List operations = portType.getOperations();
         OperationInfo[] operationInfos = new OperationInfo[operations.size()];
         if (endpointMappings.length == 0) {
-            doLightweightMapping(serviceQName, portType, mapping, classLoader, context, module, operations, binding, portStyle, soapVersion, operationInfos, schemaInfoBuilder, portName, serviceImpl, location, handlerInfos, seiPortNameToFactoryMap, seiClassNameToFactoryMap, credentialsName);
+            doLightweightMapping(serviceQName, portType, mapping, classLoader, operations, binding, portStyle, soapVersion, operationInfos, schemaInfoBuilder, portName, location, handlerInfos, seiPortNameToFactoryMap, seiClassNameToFactoryMap, credentialsName);
         } else {
-            doHeavyweightMapping(serviceQName, portType, endpointMappings, classLoader, context, module, operations, binding, portStyle, soapVersion, exceptionMap, schemaInfoBuilder, mapping, operationInfos, portName, serviceImpl, location, handlerInfos, seiPortNameToFactoryMap, seiClassNameToFactoryMap, credentialsName);
+            doHeavyweightMapping(serviceQName, portType, endpointMappings, classLoader, operations, binding, portStyle, soapVersion, exceptionMap, schemaInfoBuilder, mapping, operationInfos, portName, location, handlerInfos, seiPortNameToFactoryMap, seiClassNameToFactoryMap, credentialsName);
         }
     }
 
@@ -373,12 +337,11 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
         SOAPBinding soapBinding = (SOAPBinding) SchemaInfoBuilder.getExtensibilityElement(SOAPBinding.class, binding.getExtensibilityElements());
 //            String transportURI = soapBinding.getTransportURI();
         String portStyleString = soapBinding.getStyle();
-        Style portStyle = Style.getStyle(portStyleString);
-        return portStyle;
+        return Style.getStyle(portStyleString);
     }
 
     private URL getAddressLocation(Port port) throws DeploymentException {
-        SOAPAddress soapAddress = null;
+        SOAPAddress soapAddress;
         try {
             soapAddress = (SOAPAddress) SchemaInfoBuilder.getExtensibilityElement(SOAPAddress.class, port.getExtensibilityElements());
         } catch (DeploymentException e) {
@@ -386,7 +349,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
             return null;
         }
         String locationURIString = soapAddress.getLocationURI();
-        URL location = null;
+        URL location;
         try {
             location = new URL(locationURIString);
         } catch (MalformedURLException e) {
@@ -395,7 +358,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
         return location;
     }
 
-    private void doHeavyweightMapping(QName serviceName, PortType portType, ServiceEndpointInterfaceMappingType[] endpointMappings, ClassLoader classLoader, DeploymentContext context, Module module, List operations, Binding binding, Style portStyle, SOAPConstants soapVersion, Map exceptionMap, SchemaInfoBuilder schemaInfoBuilder, JavaWsdlMappingType mapping, OperationInfo[] operationInfos, String portName, Object serviceImpl, URL location, List handlerInfos, Map seiPortNameToFactoryMap, Map seiClassNameToFactoryMap, String credentialsName) throws DeploymentException {
+    private void doHeavyweightMapping(QName serviceName, PortType portType, ServiceEndpointInterfaceMappingType[] endpointMappings, ClassLoader classLoader, List operations, Binding binding, Style portStyle, SOAPConstants soapVersion, Map exceptionMap, SchemaInfoBuilder schemaInfoBuilder, JavaWsdlMappingType mapping, OperationInfo[] operationInfos, String portName, URL location, List handlerInfos, Map seiPortNameToFactoryMap, Map seiClassNameToFactoryMap, String credentialsName) throws DeploymentException {
         Class serviceEndpointInterface;
         SEIFactory seiFactory;
         //complete jaxrpc mapping file supplied
@@ -407,7 +370,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
         } catch (ClassNotFoundException e) {
             throw new DeploymentException("Could not load service endpoint interface", e);
         }
-        Class enhancedServiceEndpointClass = enhanceServiceEndpointInterface(serviceEndpointInterface, context, module, classLoader);
+//        Class enhancedServiceEndpointClass = enhanceServiceEndpointInterface(serviceEndpointInterface, context, module, classLoader);
 
         Collection operationDescs = new ArrayList();
         ServiceEndpointMethodMappingType[] methodMappings = endpointMapping.getServiceEndpointMethodMappingArray();
@@ -433,7 +396,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
                 throw new DeploymentException("No BindingOperation for operation: " + operationName + ", input: " + operation.getInput().getName() + ", output: " + (operation.getOutput() == null ? "<none>" : operation.getOutput().getName()));
             }
             ServiceEndpointMethodMappingType methodMapping = WSDescriptorParser.getMethodMappingForOperation(operationName, methodMappings);
-            HeavyweightOperationDescBuilder operationDescBuilder = new HeavyweightOperationDescBuilder(bindingOperation, mapping, methodMapping, portStyle, exceptionMap, schemaInfoBuilder, javaXmlTypeMappings, classLoader, enhancedServiceEndpointClass);
+            HeavyweightOperationDescBuilder operationDescBuilder = new HeavyweightOperationDescBuilder(bindingOperation, mapping, methodMapping, portStyle, exceptionMap, schemaInfoBuilder, javaXmlTypeMappings, classLoader, serviceEndpointInterface);
             OperationInfo operationInfo = operationDescBuilder.buildOperationInfo(soapVersion);
             operationInfos[i++] = operationInfo;
             operationDescs.add(operationInfo.getOperationDesc());
@@ -443,30 +406,29 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
         HeavyweightTypeInfoBuilder builder = new HeavyweightTypeInfoBuilder(classLoader, schemaInfoBuilder.getSchemaTypeKeyToSchemaTypeMap(), wrapperElementQNames, operationDescs, hasEncoded);
         List typeInfo = builder.buildTypeInfo(mapping);
 
-        seiFactory = createSEIFactory(serviceName, portName, enhancedServiceEndpointClass, serviceImpl, typeInfo, location, operationInfos, handlerInfos, credentialsName, context, classLoader);
+        seiFactory = createSEIFactory(serviceName, portName, serviceEndpointInterface.getName(), typeInfo, location, operationInfos, handlerInfos, credentialsName);
         seiPortNameToFactoryMap.put(portName, seiFactory);
         seiClassNameToFactoryMap.put(serviceEndpointInterface.getName(), seiFactory);
     }
 
-    private void doLightweightMapping(QName serviceName, PortType portType, JavaWsdlMappingType mapping, ClassLoader classLoader, DeploymentContext context, Module module, List operations, Binding binding, Style portStyle, SOAPConstants soapVersion, OperationInfo[] operationInfos, SchemaInfoBuilder schemaInfoBuilder, String portName, Object serviceImpl, URL location, List handlerInfos, Map seiPortNameToFactoryMap, Map seiClassNameToFactoryMap, String credentialsName) throws DeploymentException {
+    private void doLightweightMapping(QName serviceName, PortType portType, JavaWsdlMappingType mapping, ClassLoader classLoader, List operations, Binding binding, Style portStyle, SOAPConstants soapVersion, OperationInfo[] operationInfos, SchemaInfoBuilder schemaInfoBuilder, String portName, URL location, List handlerInfos, Map seiPortNameToFactoryMap, Map seiClassNameToFactoryMap, String credentialsName) throws DeploymentException {
         Class serviceEndpointInterface;
         SEIFactory seiFactory;
         //lightweight jaxrpc mapping supplied
         serviceEndpointInterface = getServiceEndpointInterfaceLightweight(portType, mapping, classLoader);
-        Class enhancedServiceEndpointClass = enhanceServiceEndpointInterface(serviceEndpointInterface, context, module, classLoader);
+//        Class enhancedServiceEndpointClass = enhanceServiceEndpointInterface(serviceEndpointInterface, context, module, classLoader);
 
         int i = 0;
         for (Iterator ops = operations.iterator(); ops.hasNext();) {
             Operation operation = (Operation) ops.next();
-            Method method = WSDescriptorParser.getMethodForOperation(enhancedServiceEndpointClass, operation);
+            Method method = WSDescriptorParser.getMethodForOperation(serviceEndpointInterface, operation);
             BindingOperation bindingOperation = binding.getBindingOperation(operation.getName(), operation.getInput().getName(), operation.getOutput() == null ? null : operation.getOutput().getName());
-            OperationInfo operationInfo = buildOperationInfoLightweight(method, bindingOperation, portStyle, soapVersion);
-            operationInfos[i++] = operationInfo;
+            operationInfos[i++] = buildOperationInfoLightweight(method, bindingOperation, portStyle, soapVersion);
         }
         LightweightTypeInfoBuilder builder = new LightweightTypeInfoBuilder(classLoader, schemaInfoBuilder.getSchemaTypeKeyToSchemaTypeMap(), Collections.EMPTY_SET);
         List typeInfo = builder.buildTypeInfo(mapping);
 
-        seiFactory = createSEIFactory(serviceName, portName, enhancedServiceEndpointClass, serviceImpl, typeInfo, location, operationInfos, handlerInfos, credentialsName, context, classLoader);
+        seiFactory = createSEIFactory(serviceName, portName, serviceEndpointInterface.getName(), typeInfo, location, operationInfos, handlerInfos, credentialsName);
         seiPortNameToFactoryMap.put(portName, seiFactory);
         seiClassNameToFactoryMap.put(serviceEndpointInterface.getName(), seiFactory);
     }
@@ -487,14 +449,9 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
     }
 
 
-    public SEIFactory createSEIFactory(QName serviceName, String portName, Class enhancedServiceEndpointClass, Object serviceImpl, List typeInfo, URL location, OperationInfo[] operationInfos, List handlerInfoInfos, String credentialsName, DeploymentContext deploymentContext, ClassLoader classLoader) throws DeploymentException {
+    public SEIFactory createSEIFactory(QName serviceName, String portName, String enhancedServiceEndpointClassName, List typeInfo, URL location, OperationInfo[] operationInfos, List handlerInfoInfos, String credentialsName) throws DeploymentException {
         List handlerInfos = buildHandlerInfosForPort(portName, handlerInfoInfos);
-        try {
-            SEIFactory factory = new SEIFactoryImpl(serviceName, portName, enhancedServiceEndpointClass, operationInfos, serviceImpl, typeInfo, location, handlerInfos, classLoader, credentialsName);
-            return factory;
-        } catch (ClassNotFoundException e) {
-            throw new DeploymentException("Could not load GenericServiceEndpoint from application classloader", e);
-        }
+        return new SEIFactoryImpl(serviceName, portName, enhancedServiceEndpointClassName, operationInfos, typeInfo, location, handlerInfos, credentialsName);
     }
 
     private List buildHandlerInfosForPort(String portName, List handlerInfoInfos) {
@@ -512,6 +469,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
         return handlerInfos;
     }
 
+/*
     public Class enhanceServiceEndpointInterface(Class serviceEndpointInterface, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
         Enhancer enhancer = new Enhancer();
         enhancer.setClassLoader(classLoader);
@@ -534,12 +492,14 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
         }
         return serviceEndpointClass;
     }
+*/
 
     public OperationInfo buildOperationInfoLightweight(Method method, BindingOperation bindingOperation, Style defaultStyle, SOAPConstants soapVersion) throws DeploymentException {
         LightweightOperationDescBuilder operationDescBuilder = new LightweightOperationDescBuilder(bindingOperation, method);
         return operationDescBuilder.buildOperationInfo(soapVersion);
     }
 
+/*
     private static class ByteArrayRetrievingGeneratorStrategy extends DefaultGeneratorStrategy {
 
         private byte[] classBytes;
@@ -553,6 +513,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
             return classBytes;
         }
     }
+*/
 
 
     public static final GBeanInfo GBEAN_INFO;

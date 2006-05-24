@@ -71,6 +71,7 @@ public class DispatchListener implements InstanceListener {
             String wrapperName = getWrapperName(request, webContext);
             context[webContext.getContextCount()] = TomcatGeronimoRealm
                     .setRequestWrapperName(wrapperName);
+
             beforeAfter.before(context, request, response);
             stack.push(context);
         }
@@ -86,6 +87,7 @@ public class DispatchListener implements InstanceListener {
             TomcatGeronimoRealm
                     .setRequestWrapperName((String) context[webContext
                             .getContextCount()]);
+
         }
     }
 
@@ -111,4 +113,5 @@ public class DispatchListener implements InstanceListener {
 
         return null;
     }
+
 }

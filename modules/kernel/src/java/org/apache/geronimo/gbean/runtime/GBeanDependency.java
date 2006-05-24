@@ -16,16 +16,11 @@
  */
 package org.apache.geronimo.gbean.runtime;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-import javax.management.ObjectName;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
-import org.apache.geronimo.kernel.DependencyManager;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
@@ -33,18 +28,22 @@ import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
 import org.apache.geronimo.kernel.management.State;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 386907 $ $Date$
  */
-public class GBeanDependency {
+public final class GBeanDependency {
+
+
+    private static final Log log = LogFactory.getLog(GBeanDependency.class);
+
     /**
      * The GBeanInstance to which this reference belongs.
      */
     private final GBeanInstance gbeanInstance;
 
     /**
-     * The target objectName patterns to watch for a connection.
+     * The target objectName targetName to watch for a connection.
      */
-    private Set patterns = Collections.EMPTY_SET;
+    private final AbstractName targetName;
 
     /**
      * Our listener for lifecycle events
@@ -52,134 +51,55 @@ public class GBeanDependency {
     private final LifecycleListener listener;
 
     /**
-     * Current set of targets
-     */
-    private final Set targets = new HashSet();
-
-    /**
      * The kernel to which the reference is bound.
      */
     private final Kernel kernel;
 
-    /**
-     * The dependency manager of the kernel.
-     */
-    private final DependencyManager dependencyManager;
+    private boolean targetRunning = false;
+    private boolean dependencyRegistered = false;
 
-    /**
-     * is this reference online
-     */
-    private boolean isOnline = false;
-
-    public GBeanDependency(GBeanInstance gbeanInstance, ObjectName pattern, Kernel kernel, DependencyManager dependencyManager) throws InvalidConfigurationException {
+    public GBeanDependency(GBeanInstance gbeanInstance, AbstractName targetName, Kernel kernel) throws InvalidConfigurationException {
         this.gbeanInstance = gbeanInstance;
         this.kernel = kernel;
-        this.dependencyManager = dependencyManager;
-        patterns = Collections.singleton(pattern);
+        this.targetName = targetName;
         listener = createLifecycleListener();
     }
 
-    private static final Log log = LogFactory.getLog(GBeanSingleReference.class);
+    public AbstractName getTargetName() {
+        return targetName;
+    }
 
-    /**
-     * Is the GBeanMBean waitng for me to start?
-     */
-    private boolean waitingForMe = false;
-
-    /**
-     * The object to which the proxy is bound
-     */
-    private ObjectName proxyTarget;
-
+    public final synchronized void online() {
+        //TODO consider including interfaces in query
+        AbstractNameQuery query = new AbstractNameQuery(targetName, null);
+        kernel.getLifecycleMonitor().addLifecycleListener(listener, query);
+        targetRunning = isRunning(kernel, targetName);
+    }
 
     public synchronized boolean start() {
-        // We only need to start if there are patterns and we don't already have a proxy
-        if (proxyTarget == null) {
-            //
-            // We must have exactally one running target
-            //
-            ObjectName objectName = getGBeanInstance().getObjectNameObject();
-            Set targets = getTargets();
-            if (targets.size() == 0) {
-                waitingForMe = true;
-                log.debug("Waiting to start " + objectName + " because no targets are running for the dependency matching the patternspatterns " + getPatternsText());
-                return false;
-            } else if (targets.size() > 1) {
-                waitingForMe = true;
-                log.debug("Waiting to start " + objectName + " because more then one targets are running for the dependency matching the patternspatterns " + getPatternsText());
-                return false;
-            }
-            waitingForMe = false;
-
-            // stop all gbeans that would match our patterns from starting
-            DependencyManager dependencyManager = getDependencyManager();
-            dependencyManager.addStartHolds(objectName, getPatterns());
-
-            // add a dependency on our target and create the proxy
-            ObjectName target = (ObjectName) targets.iterator().next();
-            proxyTarget = target;
-            dependencyManager.addDependency(objectName, target);
+        if (targetRunning && !dependencyRegistered) {
+            AbstractName abstractName = gbeanInstance.getAbstractName();
+            kernel.getDependencyManager().addDependency(abstractName, targetName);
+            dependencyRegistered = true;
         }
-
-        return true;
+        return targetRunning;
     }
 
-    private String getPatternsText() {
-        StringBuffer buf = new StringBuffer();
-        Set patterns = getPatterns();
-        for (Iterator iterator = patterns.iterator(); iterator.hasNext();) {
-            ObjectName objectName = (ObjectName) iterator.next();
-            buf.append(objectName.getCanonicalName()).append(" ");
-        }
-        return buf.toString();
-    }
 
     public synchronized void stop() {
-        waitingForMe = false;
-        ObjectName objectName = getGBeanInstance().getObjectNameObject();
-        Set patterns = getPatterns();
-        DependencyManager dependencyManager = getDependencyManager();
-        if (!patterns.isEmpty()) {
-            dependencyManager.removeStartHolds(objectName, patterns);
-        }
-
-        if (proxyTarget != null) {
-            dependencyManager.removeDependency(objectName, proxyTarget);
-            proxyTarget = null;
+        if (dependencyRegistered) {
+            AbstractName abstractName = gbeanInstance.getAbstractName();
+            kernel.getDependencyManager().removeDependency(abstractName, targetName);
+            dependencyRegistered = false;
         }
     }
 
-    protected synchronized void targetAdded(ObjectName target) {
-        // if we are running, and we now have two valid targets, which is an illegal state so we need to fail
-        GBeanInstance gbeanInstance = getGBeanInstance();
-        if (gbeanInstance.getStateInstance() == State.RUNNING) {
-            log.error("Illegal state: two or more targets are not running for a signle valued reference: " + getDescription() +
-                    ", currentTarget=" + proxyTarget +
-                    ", newTarget=" + target);
-            gbeanInstance.referenceFailed();
-        } else if (waitingForMe) {
-            Set targets = getTargets();
-            if (targets.size() == 1) {
-                // the gbean was waiting for me and not there is now just one target
-                attemptFullStart();
-            }
-        }
-    }
+    public final synchronized void offline() {
+        // make sure we are stopped
+        stop();
 
-    protected synchronized void targetRemoved(ObjectName target) {
-        GBeanInstance gbeanInstance = getGBeanInstance();
-        if (gbeanInstance.getStateInstance() == State.RUNNING) {
-            // we no longer have a valid target, which is an illegal state so we need to fail
-            log.error("Illegal state: current target for a signle valued reference stopped: " + getDescription() +
-                    ", currentTarget=" + target);
-            gbeanInstance.referenceFailed();
-        } else if (waitingForMe) {
-            Set targets = getTargets();
-            if (targets.size() == 1) {
-                // the gbean was waiting for me and not there is now just one target
-                attemptFullStart();
-            }
-        }
+        kernel.getLifecycleMonitor().removeLifecycleListener(listener);
+        targetRunning = false;
     }
 
     private synchronized void attemptFullStart() {
@@ -187,111 +107,56 @@ public class GBeanDependency {
             // there could be an issue with really badly written components holding up a stop when the
             // component never reached the starting phase... then a target registers and we automatically
             // attempt to restart
-            waitingForMe = false;
-            getGBeanInstance().start();
+//            waitingForMe = false;
+            gbeanInstance.start();
         } catch (Exception e) {
-            log.warn("Exception occured while attempting to fully start: objectName=" + getGBeanInstance().getObjectName(), e);
+            log.warn("Exception occured while attempting to fully start: objectName=" + gbeanInstance.getObjectName(), e);
         }
     }
 
     protected LifecycleListener createLifecycleListener() {
         return new LifecycleAdapter() {
-                    public void running(ObjectName objectName) {
-                        addTarget(objectName);
-                    }
-
-                    public void stopped(ObjectName objectName) {
-                        removeTarget(objectName);
-                    }
-
-                    public void failed(ObjectName objectName) {
-                        removeTarget(objectName);
-                    }
-
-                    public void unloaded(ObjectName objectName) {
-                        removeTarget(objectName);
-                    }
-                };
-    }
-
-    protected final Kernel getKernel() {
-        return kernel;
-    }
-
-    protected final DependencyManager getDependencyManager() {
-        return dependencyManager;
-    }
-
-    public final GBeanInstance getGBeanInstance() {
-        return gbeanInstance;
-    }
-
-    public final Set getPatterns() {
-        return patterns;
-    }
-
-    public final void setPatterns(Set patterns) {
-        if (isOnline) {
-            throw new IllegalStateException("Pattern set can not be modified while online");
-        }
-
-        if (patterns == null || patterns.isEmpty() || (patterns.size() == 1 && patterns.iterator().next() == null)) {
-            this.patterns = Collections.EMPTY_SET;
-        } else {
-            patterns = new HashSet(patterns);
-            for (Iterator iterator = this.patterns.iterator(); iterator.hasNext();) {
-                if (iterator.next() == null) {
-                    iterator.remove();
-                    //there can be at most one null value in a set.
-                    break;
-                }
+            public void running(AbstractName abstractName) {
+                addTarget(abstractName);
             }
-            this.patterns = Collections.unmodifiableSet(patterns);
-        }
-    }
 
-    public final synchronized void online() {
-        Set gbeans = kernel.listGBeans(patterns);
-        for (Iterator objectNameIterator = gbeans.iterator(); objectNameIterator.hasNext();) {
-            ObjectName target = (ObjectName) objectNameIterator.next();
-            if (!targets.contains(target)) {
-
-                // if the bean is running add it to the runningTargets list
-                if (isRunning(kernel, target)) {
-                    targets.add(target);
-                }
+            public void stopped(AbstractName abstractName) {
+                removeTarget(abstractName);
             }
-        }
 
-        kernel.getLifecycleMonitor().addLifecycleListener(listener, patterns);
-        isOnline = true;
+            public void failed(AbstractName abstractName) {
+                removeTarget(abstractName);
+            }
+
+            public void unloaded(AbstractName abstractName) {
+                removeTarget(abstractName);
+            }
+        };
     }
 
-    public final synchronized void offline() {
-        // make sure we are stoped
-        stop();
-
-        kernel.getLifecycleMonitor().removeLifecycleListener(listener);
-
-        targets.clear();
-        isOnline = false;
-    }
-
-    protected final Set getTargets() {
-        return targets;
-    }
-
-    protected final void addTarget(ObjectName objectName) {
-        if (!targets.contains(objectName)) {
-            targets.add(objectName);
-            targetAdded(objectName);
+    protected final void addTarget(AbstractName abstractName) {
+        // if we are running, and we now have two valid targets, which is an illegal state so we need to fail
+        synchronized (this) {
+            targetRunning = true;
+            GBeanInstance gbeanInstance1 = gbeanInstance;
+            if (gbeanInstance1.getStateInstance() == State.RUNNING) {
+                log.error("Illegal state: two or more targets are running for a dependency: " + getDescription() +
+                        ",\n    newTarget=" + abstractName);
+            }
+            attemptFullStart();
         }
     }
 
-    protected final void removeTarget(ObjectName objectName) {
-        boolean wasTarget = targets.remove(objectName);
-        if (wasTarget) {
-            targetRemoved(objectName);
+    protected final void removeTarget(AbstractName abstractName) {
+        synchronized (this) {
+            targetRunning = false;
+            GBeanInstance gbeanInstance1 = gbeanInstance;
+            if (gbeanInstance1.getStateInstance() == State.RUNNING) {
+                // we no longer have a valid target, which is an illegal state so we need to fail
+                log.error("Illegal state: current target for a single valued reference stopped: " + getDescription() +
+                        ",\n    stopped Target=" + abstractName);
+                gbeanInstance1.referenceFailed();
+            }
         }
     }
 
@@ -302,21 +167,41 @@ public class GBeanDependency {
      * @param objectName name of the component to check
      * @return true if the component is running; false otherwise
      */
-    private boolean isRunning(Kernel kernel, ObjectName objectName) {
+    private boolean isRunning(Kernel kernel, AbstractName objectName) {
         try {
             final int state = kernel.getGBeanState(objectName);
             return state == State.RUNNING_INDEX;
         } catch (GBeanNotFoundException e) {
-            // mbean is no longer registerd
+            // gbean is no longer registerd
             return false;
         } catch (Exception e) {
-            // problem getting the attribute, mbean has most likely failed
+            // problem getting the attribute, gbean has most likely failed
             return false;
         }
     }
 
     protected final String getDescription() {
         return "\n    GBeanInstance: " + gbeanInstance.getName() +
-                "\n    Pattern Name: " + getPatterns();
+                "\n    Target Name: " + targetName;
+    }
+
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final GBeanDependency that = (GBeanDependency) o;
+
+        if (gbeanInstance != null ? !gbeanInstance.equals(that.gbeanInstance) : that.gbeanInstance != null) {
+            return false;
+        }
+        return !(targetName != null ? !targetName.equals(that.targetName) : that.targetName != null);
+
+    }
+
+    public int hashCode() {
+        int result;
+        result = (gbeanInstance != null ? gbeanInstance.hashCode() : 0);
+        result = 29 * result + (targetName != null ? targetName.hashCode() : 0);
+        return result;
     }
 }

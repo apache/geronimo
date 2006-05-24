@@ -16,11 +16,10 @@
  */
 package org.apache.geronimo.deployment.service;
 
-import java.util.Set;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.xmlbeans.XmlObject;
 
 /**
@@ -30,6 +29,6 @@ public interface XmlReferenceBuilder {
 
     String getNamespace();
 
-    Set getReferences(XmlObject xmlObject, DeploymentContext context, J2eeContext j2EEContext, ClassLoader classLoader) throws DeploymentException;
+    ReferencePatterns getReferences(XmlObject xmlObject, DeploymentContext context, AbstractName moduleAbstractName, ClassLoader classLoader) throws DeploymentException;
 
 }

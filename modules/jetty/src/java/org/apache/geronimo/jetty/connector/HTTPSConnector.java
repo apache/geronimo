@@ -18,19 +18,13 @@
 package org.apache.geronimo.jetty.connector;
 
 import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLServerSocketFactory;
-import javax.net.ssl.SSLContext;
-
-import org.mortbay.http.SslListener;
-
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.jetty.JettyContainer;
 import org.apache.geronimo.jetty.JettySecureConnector;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.security.keystore.KeystoreManager;
+import org.apache.geronimo.management.geronimo.KeystoreManager;
+import org.apache.geronimo.management.geronimo.WebManager;
 
 /**
  * Implementation of a HTTPS connector based on Jetty's SslConnector (which uses pure JSSE).

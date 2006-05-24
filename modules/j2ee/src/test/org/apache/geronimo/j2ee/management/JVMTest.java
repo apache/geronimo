@@ -22,7 +22,7 @@ import javax.management.j2ee.statistics.JVMStats;
 import org.apache.geronimo.management.JVM;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 383682 $ $Date$
  */
 public class JVMTest extends Abstract77Test {
     private JVM jvm;
@@ -31,17 +31,17 @@ public class JVMTest extends Abstract77Test {
     private Runtime runtime;
 
     public void testStandardInterface() {
-        assertEquals(JVM_NAME.getCanonicalName(), jvm.getObjectName());
+        assertEquals(JVM_DATA.getAbstractName().getObjectName().getCanonicalName(), jvm.getObjectName());
         assertEquals(System.getProperty("java.version"), jvm.getJavaVersion());
         assertEquals(System.getProperty("java.vendor"), jvm.getJavaVendor());
         assertEquals(node, jvm.getNode());
     }
 
     public void testStandardAttributes() throws Exception {
-        assertEquals(JVM_NAME.getCanonicalName(), kernel.getAttribute(JVM_NAME, "objectName"));
-        assertEquals(System.getProperty("java.version"), kernel.getAttribute(JVM_NAME, "javaVersion"));
-        assertEquals(System.getProperty("java.vendor"), kernel.getAttribute(JVM_NAME, "javaVendor"));
-        assertEquals(node, kernel.getAttribute(JVM_NAME, "node"));
+        assertEquals(JVM_DATA.getAbstractName().getObjectName().getCanonicalName(), kernel.getAttribute(JVM_DATA.getAbstractName(), "objectName"));
+        assertEquals(System.getProperty("java.version"), kernel.getAttribute(JVM_DATA.getAbstractName(), "javaVersion"));
+        assertEquals(System.getProperty("java.vendor"), kernel.getAttribute(JVM_DATA.getAbstractName(), "javaVendor"));
+        assertEquals(node, kernel.getAttribute(JVM_DATA.getAbstractName(), "node"));
     }
 
     public void testGeronimoInterface() {
@@ -50,12 +50,12 @@ public class JVMTest extends Abstract77Test {
     }
 
     public void testGeronimoAttributes() throws Exception {
-        assertEquals(new Integer(runtime.availableProcessors()), kernel.getAttribute(JVM_NAME, "availableProcessors"));
+        assertEquals(new Integer(runtime.availableProcessors()), kernel.getAttribute(JVM_DATA.getAbstractName(), "availableProcessors"));
     }
 
     public void testStatistics() throws Exception {
-        assertEquals(Boolean.TRUE, kernel.getAttribute(JVM_NAME, "statisticsProvider"));
-        JVMStats stats = (JVMStats) kernel.getAttribute(JVM_NAME, "stats");
+        assertEquals(Boolean.TRUE, kernel.getAttribute(JVM_DATA.getAbstractName(), "statisticsProvider"));
+        JVMStats stats = (JVMStats) kernel.getAttribute(JVM_DATA.getAbstractName(), "stats");
         assertNotNull(stats.getHeapSize());
         assertTrue(stats.getHeapSize().getCurrent() > 0);
         assertNotNull(stats.getHeapSize().getDescription());
@@ -78,15 +78,13 @@ public class JVMTest extends Abstract77Test {
 
     protected void setUp() throws Exception {
         super.setUp();
-        jvm = (JVM) kernel.getProxyManager().createProxy(JVM_NAME, JVM.class);
-        jvmEx = (org.apache.geronimo.management.geronimo.JVM) kernel.getProxyManager().createProxy(JVM_NAME, org.apache.geronimo.management.geronimo.JVM.class);
+        jvm = (JVM) kernel.getGBean(JVM_DATA.getAbstractName());
+        jvmEx = (org.apache.geronimo.management.geronimo.JVM) kernel.getGBean(JVM_DATA.getAbstractName());
         node = InetAddress.getLocalHost().toString();
         runtime = Runtime.getRuntime();
     }
 
     protected void tearDown() throws Exception {
-        kernel.getProxyManager().destroyProxy(jvm);
-        kernel.getProxyManager().destroyProxy(jvmEx);
         super.tearDown();
     }
 }

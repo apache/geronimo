@@ -22,27 +22,23 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import javax.naming.Reference;
 import javax.xml.namespace.QName;
-
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.common.UnresolvedReferenceException;
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.apache.geronimo.connector.ActivationSpecWrapperGBean;
 import org.apache.geronimo.connector.AdminObjectWrapper;
@@ -63,14 +59,15 @@ import org.apache.geronimo.connector.outbound.connectionmanagerconfig.SinglePool
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionLog;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.XATransactions;
+import org.apache.geronimo.deployment.ModuleIDBuilder;
+import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
-import org.apache.geronimo.deployment.xbeans.ClassFilterType;
-import org.apache.geronimo.deployment.xbeans.DependencyType;
+import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
-import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.DynamicGAttributeInfo;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
@@ -82,12 +79,17 @@ import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.management.JCAConnectionFactory;
+import org.apache.geronimo.management.geronimo.JCAAdminObject;
+import org.apache.geronimo.management.geronimo.JCAResourceAdapter;
+import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.reference.ResourceReference;
 import org.apache.geronimo.schema.SchemaConversionUtils;
@@ -110,12 +112,12 @@ import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
 import org.apache.geronimo.xbeans.j2ee.ConnectorType;
 import org.apache.geronimo.xbeans.j2ee.MessagelistenerType;
 import org.apache.geronimo.xbeans.j2ee.ResourceadapterType;
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev:385659 $ $Date$
  */
 public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceBuilder {
 
@@ -125,23 +127,18 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
     private final int defaultIdleTimeoutMinutes;
     private final boolean defaultXATransactionCaching;
     private final boolean defaultXAThreadCaching;
-    private final List defaultParentId;
-    private final Repository repository;
-    private final Kernel kernel;
+    private final Environment defaultEnvironment;
     private static QName CONNECTOR_QNAME = GerConnectorDocument.type.getDocumentElementName();
     static final String GERCONNECTOR_NAMESPACE = CONNECTOR_QNAME.getNamespaceURI();
 
-    public ConnectorModuleBuilder(URI[] defaultParentId,
-                                  int defaultMaxSize,
-                                  int defaultMinSize,
-                                  int defaultBlockingTimeoutMilliseconds,
-                                  int defaultIdleTimeoutMinutes,
-                                  boolean defaultXATransactionCaching,
-                                  boolean defaultXAThreadCaching,
-                                  Repository repository,
-                                  Kernel kernel) {
-        assert repository != null;
-        this.defaultParentId = defaultParentId == null ? Collections.EMPTY_LIST : Arrays.asList(defaultParentId);
+    public ConnectorModuleBuilder(Environment defaultEnvironment,
+            int defaultMaxSize,
+            int defaultMinSize,
+            int defaultBlockingTimeoutMilliseconds,
+            int defaultIdleTimeoutMinutes,
+            boolean defaultXATransactionCaching,
+            boolean defaultXAThreadCaching) {
+        this.defaultEnvironment = defaultEnvironment;
 
         this.defaultMaxSize = defaultMaxSize;
         this.defaultMinSize = defaultMinSize;
@@ -149,19 +146,17 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         this.defaultIdleTimeoutMinutes = defaultIdleTimeoutMinutes;
         this.defaultXATransactionCaching = defaultXATransactionCaching;
         this.defaultXAThreadCaching = defaultXAThreadCaching;
-        this.repository = repository;
-        this.kernel = kernel;
     }
 
-    public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
-        return createModule(plan, moduleFile, "rar", null, true);
+    public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+        return createModule(plan, moduleFile, "rar", null, null, null, naming, idBuilder);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId, Object moduleContextInfo) throws DeploymentException {
-        return createModule(plan, moduleFile, targetPath, specDDUrl, false);
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+        return createModule(plan, moduleFile, targetPath, specDDUrl, environment, earName, naming, idBuilder);
     }
 
-    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone) throws DeploymentException {
+    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         assert moduleFile != null: "moduleFile is null";
         assert targetPath != null: "targetPath is null";
         assert !targetPath.endsWith("/"): "targetPath must not end with a '/'";
@@ -198,7 +193,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                             CONNECTOR_QNAME,
                             GerConnectorType.type);
                 } else {
-                    GerConnectorDocument gerConnectorDoc = null;
+                    GerConnectorDocument gerConnectorDoc;
                     ArrayList errors = new ArrayList();
                     if (plan != null) {
                         gerConnectorDoc = GerConnectorDocument.Factory.parse((File) plan, XmlBeansUtil.createXmlOptions(errors));
@@ -214,6 +209,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                     }
                 }
             } catch (IOException e) {
+                //do nothing
             }
 
             // if we got one extract the validate it otherwise create a default one
@@ -234,25 +230,31 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             throw new DeploymentException(e);
         }
 
-        // get the ids from either the application plan or for a stand alone module from the specific deployer
-        URI configId = null;
-        try {
-            configId = new URI(gerConnector.getConfigId());
-        } catch (URISyntaxException e) {
-            throw new DeploymentException("Invalid configId " + gerConnector.getConfigId(), e);
+        EnvironmentType environmentType = gerConnector.getEnvironment();
+        Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
+        if (earEnvironment != null) {
+            EnvironmentBuilder.mergeEnvironments(earEnvironment, environment);
+            environment = earEnvironment;
+            if(!environment.getConfigId().isResolved()) {
+                throw new IllegalStateException("Connector module ID should be fully resolved (not "+environment.getConfigId()+")");
+            }
+        } else {
+            idBuilder.resolve(environment, new File(moduleFile.getName()).getName(), "rar");
         }
 
-        List parentId = ServiceConfigBuilder.getParentID(gerConnector.getParentId(), gerConnector.getImportArray());
-        //suppressing the default parentid is mostly useful for deploying standalone connectors on the app client.
-        //The defaultParentId normally pulls in and tries to start all the base server gbeans.
-        if (!gerConnector.getSuppressDefaultParentId()) {
-            parentId.addAll(defaultParentId);
+        AbstractName moduleName;
+        if (earName == null) {
+            earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
+            moduleName = naming.createChildName(earName, environment.getConfigId().toString(), NameFactory.RESOURCE_ADAPTER_MODULE);
+        } else {
+            moduleName = naming.createChildName(earName, targetPath, NameFactory.RESOURCE_ADAPTER_MODULE);
         }
-        return new ConnectorModule(standAlone, configId, parentId, moduleFile, targetPath, connector, gerConnector, specDD);
+
+        boolean standAlone = earEnvironment == null;
+        return new ConnectorModule(standAlone, moduleName, environment, moduleFile, targetPath, connector, gerConnector, specDD);
     }
 
-    public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
-        GerConnectorType vendorConnector = (GerConnectorType) module.getVendorDD();
+    public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException {
         try {
             JarFile moduleFile = module.getModuleFile();
 
@@ -273,43 +275,44 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                 }
             }
 
-            DependencyType[] dependencies = vendorConnector.getDependencyArray();
-            ServiceConfigBuilder.addDependencies(earContext, dependencies, repository);
         } catch (IOException e) {
             throw new DeploymentException("Problem deploying connector", e);
         }
-
-        if (vendorConnector.isSetInverseClassloading()) {
-            earContext.setInverseClassloading(vendorConnector.getInverseClassloading());
-        }
-
-        ClassFilterType[] filters = vendorConnector.getHiddenClassesArray();
-        ServiceConfigBuilder.addHiddenClasses(earContext, filters);
-
-        filters = vendorConnector.getNonOverridableClassesArray();
-        ServiceConfigBuilder.addNonOverridableClasses(earContext, filters);
     }
 
     public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
-        J2eeContext earJ2eeContext = earContext.getJ2eeContext();
-        J2eeContext moduleJ2eeContext = J2eeContextImpl.newModuleContextFromApplication(earJ2eeContext, NameFactory.RESOURCE_ADAPTER_MODULE, module.getName());
-        J2eeContext resourceJ2eeContext = J2eeContextImpl.newModuleContextFromApplication(earJ2eeContext, NameFactory.JCA_RESOURCE, module.getName());
+        ConnectorModule resourceModule = (ConnectorModule) module;
+
         final ConnectorType connector = (ConnectorType) module.getSpecDD();
 
-        //set up the metadata for the ResourceAdapterModule
-        ObjectName resourceAdapterModuleName = null;
-        try {
-            resourceAdapterModuleName = NameFactory.getModuleName(null, null, null, null, null, moduleJ2eeContext);
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Could not construct module name", e);
-        }
-        GBeanData resourceAdapterModuleData = new GBeanData(resourceAdapterModuleName, ResourceAdapterModuleImplGBean.GBEAN_INFO);
+        /*
+        The chain of idiotic jsr-77 meaningless objects is:
+        ResourceAdapterModule (1)  >
+        ResourceAdapter (n, but there can only be 1 resource adapter in a rar, so we use 1) >
+        JCAResource (1) >
+        JCAConnectionFactory (n) >
+        JCAManagedConnectionFactory (1)
+        We also include:
+        JCAResourceAdapter (n)  (from JCAResource) (actual instance of ResourceAdapter)
+        TODO include admin objects (n) from JCAResource presumably
+        */
+        AbstractName resourceAdapterModuleName = resourceModule.getModuleName();
 
+        AbstractName resourceAdapterjsr77Name = earContext.getNaming().createChildName(resourceAdapterModuleName, module.getName(), NameFactory.RESOURCE_ADAPTER);
+        AbstractName jcaResourcejsr77Name = earContext.getNaming().createChildName(resourceAdapterjsr77Name, module.getName(), NameFactory.JCA_RESOURCE);
+
+        //set up the metadata for the ResourceAdapterModule
+        GBeanData resourceAdapterModuleData = new GBeanData(resourceAdapterModuleName, ResourceAdapterModuleImplGBean.GBEAN_INFO);
         // initalize the GBean
-        resourceAdapterModuleData.setReferencePattern(NameFactory.J2EE_SERVER, earContext.getServerObjectName());
-        if (!earContext.getJ2EEApplicationName().equals(NameFactory.NULL)) {
-            resourceAdapterModuleData.setReferencePattern(NameFactory.J2EE_APPLICATION, earContext.getApplicationObjectName());
+        if (earContext.getServerName() != null) {
+            //app clients don't have a Server gbean
+            resourceAdapterModuleData.setReferencePattern(NameFactory.J2EE_SERVER, earContext.getServerName());
+            //app clients don't have an application name either
+            if (!earContext.getModuleName().equals(resourceAdapterModuleName)) {
+                resourceAdapterModuleData.setReferencePattern(NameFactory.J2EE_APPLICATION, earContext.getModuleName());
+            }
         }
+        resourceAdapterModuleData.setReferencePattern("ResourceAdapter", resourceAdapterjsr77Name);
 
         resourceAdapterModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
         resourceAdapterModuleData.setAttribute("displayName", connector.getDisplayNameArray().length == 0 ? null : connector.getDisplayNameArray(0).getStringValue());
@@ -328,7 +331,8 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             resourceAdapterModuleData.setAttribute("resourceAdapterGBeanData", resourceAdapterGBeanData);
         }
 
-        if (resourceadapter.isSetInboundResourceadapter() && resourceadapter.getInboundResourceadapter().isSetMessageadapter()) {
+        if (resourceadapter.isSetInboundResourceadapter() && resourceadapter.getInboundResourceadapter().isSetMessageadapter())
+        {
             Map activationSpecInfoMap = getActivationSpecInfoMap(resourceadapter.getInboundResourceadapter().getMessageadapter().getMessagelistenerArray(), cl);
             resourceAdapterModuleData.setAttribute("activationSpecInfoMap", activationSpecInfoMap);
         }
@@ -339,126 +343,53 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             resourceAdapterModuleData.setAttribute("managedConnectionFactoryInfoMap", managedConnectionFactoryInfoMap);
         }
 
-        earContext.addGBean(resourceAdapterModuleData);
-
-        //register the instances we will create later
-        GerConnectorType geronimoConnector = (GerConnectorType) module.getVendorDD();
-        GerResourceadapterType[] geronimoResourceAdapters = geronimoConnector.getResourceadapterArray();
-        for (int k = 0; k < geronimoResourceAdapters.length; k++) {
-            GerResourceadapterType geronimoResourceAdapter = geronimoResourceAdapters[k];
-
-            if (resourceadapter.isSetResourceadapterClass()) {
-                // set the resource adapter class and activationSpec info map
-                try {
-                    if (resourceadapter.isSetInboundResourceadapter() && resourceadapter.getInboundResourceadapter().isSetMessageadapter()) {
-                        String resourceAdapterName = geronimoResourceAdapter.getResourceadapterInstance().getResourceadapterName();
-                        ObjectName resourceAdapterObjectName = NameFactory.getComponentName(null, null, null, null, null, resourceAdapterName, NameFactory.JCA_RESOURCE_ADAPTER, resourceJ2eeContext);
-                        GBeanData resourceAdapterData = new GBeanData(resourceAdapterObjectName, null);
-                        earContext.addGBean(resourceAdapterData);
-                    }
-                } catch (MalformedObjectNameException e) {
-                    throw new DeploymentException("Could not construct resource adapter instance", e);
-                }
-            }
-            if (geronimoResourceAdapter.isSetOutboundResourceadapter()) {
-                GerConnectionDefinitionType[] connectionDefinitions = geronimoResourceAdapter.getOutboundResourceadapter().getConnectionDefinitionArray();
-                for (int i = 0; i < connectionDefinitions.length; i++) {
-                    GerConnectionDefinitionType connectionDefinition = connectionDefinitions[i];
-                    GerConnectiondefinitionInstanceType[] connectionDefinitionInstances = connectionDefinition.getConnectiondefinitionInstanceArray();
-                    for (int j = 0; j < connectionDefinitionInstances.length; j++) {
-                        GerConnectiondefinitionInstanceType connectionDefinitionInstance = connectionDefinitionInstances[j];
-                        ObjectName connectionFactoryObjectName = null;
-                        try {
-                            connectionFactoryObjectName = NameFactory.getComponentName(null, null, null, null, null, connectionDefinitionInstance.getName(), NameFactory.JCA_MANAGED_CONNECTION_FACTORY, resourceJ2eeContext);
-                        } catch (MalformedObjectNameException e) {
-                            throw new DeploymentException("Could not construct resource object name", e);
-                        }
-                        GBeanData connectionFactoryData = new GBeanData(connectionFactoryObjectName, null);
-                        earContext.addGBean(connectionFactoryData);
-                    }
-                }
-            }
-        }
-        for (int i = 0; i < geronimoConnector.getAdminobjectArray().length; i++) {
-            GerAdminobjectType gerAdminObject = geronimoConnector.getAdminobjectArray()[i];
-            for (int j = 0; j < gerAdminObject.getAdminobjectInstanceArray().length; j++) {
-                GerAdminobjectInstanceType gerAdminObjectInstance = gerAdminObject.getAdminobjectInstanceArray()[j];
-
-                ObjectName adminObjectObjectName = null;
-                try {
-                    adminObjectObjectName = NameFactory.getComponentName(null, null, null, null, null, gerAdminObjectInstance.getMessageDestinationName(), NameFactory.JCA_ADMIN_OBJECT, resourceJ2eeContext);
-                } catch (MalformedObjectNameException e) {
-                    throw new DeploymentException("Could not construct resource object name", e);
-                }
-                GBeanData adminObjectData = new GBeanData(adminObjectObjectName, null);
-                earContext.addGBean(adminObjectData);
-            }
-        }
-
-    }
-
-    public void addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
-        J2eeContext earJ2eeContext = earContext.getJ2eeContext();
-        J2eeContext moduleJ2eeContext = J2eeContextImpl.newModuleContextFromApplication(earJ2eeContext, NameFactory.RESOURCE_ADAPTER_MODULE, module.getName());
-        J2eeContext resourceJ2eeContext = J2eeContextImpl.newModuleContextFromApplication(earJ2eeContext, NameFactory.JCA_RESOURCE, module.getName());
-
-        XmlObject specDD = module.getSpecDD();
-
-        // build the objectName
-        ObjectName resourceAdapterModuleName = null;
         try {
-            resourceAdapterModuleName = NameFactory.getModuleName(null, null, null, null, null, moduleJ2eeContext);
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Could not construct module name", e);
+            earContext.addGBean(resourceAdapterModuleData);
+        } catch (GBeanAlreadyExistsException e) {
+            throw new DeploymentException("Could not add resource adapter module gbean to context", e);
         }
-        GBeanData resourceAdapterModuleData = null;
-        try {
-            resourceAdapterModuleData = earContext.getGBeanInstance(resourceAdapterModuleName);
-        } catch (GBeanNotFoundException e) {
-            throw new DeploymentException("Internal consistency bug: Could not retrieve gbean data for module: " + resourceAdapterModuleName);
-        }
-        if (resourceAdapterModuleData == null) {
-            throw new DeploymentException("Internal consistency bug: gbean data for module is missing: " + resourceAdapterModuleName);
-        }
-        ObjectName resourceAdapterjsr77Name = null;
-        try {
-            resourceAdapterjsr77Name = NameFactory.getComponentName(null, null, null, null, null, resourceJ2eeContext.getJ2eeModuleName(), NameFactory.RESOURCE_ADAPTER, moduleJ2eeContext);
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Could not construct resource adapter placeholder name", e);
-        }
-        resourceAdapterModuleData.setAttribute("resourceAdapter", resourceAdapterjsr77Name.getCanonicalName());
-
-        // add it
-        earContext.addGBean(resourceAdapterModuleData);
 
         //construct the bogus resource adapter and jca resource placeholders
         GBeanData resourceAdapterData = new GBeanData(resourceAdapterjsr77Name, ResourceAdapterImplGBean.GBEAN_INFO);
-        ObjectName jcaResourcejsr77Name = null;
+        resourceAdapterData.setReferencePattern("JCAResource", jcaResourcejsr77Name);
         try {
-            //TODO double check the module type is correct.
-            jcaResourcejsr77Name = NameFactory.getComponentName(null, null, null, NameFactory.RESOURCE_ADAPTER, null, resourceJ2eeContext.getJ2eeModuleName(), NameFactory.JCA_RESOURCE, moduleJ2eeContext);
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Could not construct jca resource placeholder name", e);
+            earContext.addGBean(resourceAdapterData);
+        } catch (GBeanAlreadyExistsException e) {
+            throw new DeploymentException("Could not add resource adapter gbean to context", e);
         }
-        resourceAdapterData.setAttribute("JCAResource", jcaResourcejsr77Name.getCanonicalName());
-        earContext.addGBean(resourceAdapterData);
 
         GBeanData jcaResourceData = new GBeanData(jcaResourcejsr77Name, JCAResourceImplGBean.GBEAN_INFO);
-        earContext.addGBean(jcaResourceData);
+        Map thisModule = new LinkedHashMap(2);
+        thisModule .put(NameFactory.J2EE_APPLICATION, resourceAdapterModuleName.getNameProperty(NameFactory.J2EE_APPLICATION));
+        thisModule .put(NameFactory.RESOURCE_ADAPTER_MODULE, resourceAdapterModuleName.getNameProperty(NameFactory.J2EE_NAME));
+        jcaResourceData.setReferencePattern("ConnectionFactories", new AbstractNameQuery(resourceAdapterModuleName.getArtifact(), thisModule, JCAConnectionFactory.class.getName()));
+        jcaResourceData.setReferencePattern("ResourceAdapters", new AbstractNameQuery(resourceAdapterModuleName.getArtifact(), thisModule, JCAResourceAdapter.class.getName()));
+        jcaResourceData.setReferencePattern("AdminObjects", new AbstractNameQuery(resourceAdapterModuleName.getArtifact(), thisModule, JCAAdminObject.class.getName()));
+
+        try {
+            earContext.addGBean(jcaResourceData);
+        } catch (GBeanAlreadyExistsException e) {
+            throw new DeploymentException("Could not add jca resource gbean to context", e);
+        }
 
         GerConnectorType geronimoConnector = (GerConnectorType) module.getVendorDD();
 
         GbeanType[] gbeans = geronimoConnector.getGbeanArray();
-        ServiceConfigBuilder.addGBeans(gbeans, cl, moduleJ2eeContext, earContext);
+        ServiceConfigBuilder.addGBeans(gbeans, cl, resourceAdapterModuleName, earContext);
 
-        addConnectorGBeans(earContext, resourceJ2eeContext, resourceAdapterModuleData, (ConnectorType) specDD, geronimoConnector, cl);
+        addConnectorGBeans(earContext, jcaResourcejsr77Name, resourceAdapterModuleData, connector, geronimoConnector, cl);
+
+    }
+
+    public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Collection repository) throws DeploymentException {
+        //all our gbeans are added in  the initContext step
     }
 
     public String getSchemaNamespace() {
         return GERCONNECTOR_NAMESPACE;
     }
 
-    private void addConnectorGBeans(EARContext earContext, J2eeContext moduleJ2eeContext, GBeanData resourceAdapterModuleData, ConnectorType connector, GerConnectorType geronimoConnector, ClassLoader cl) throws DeploymentException {
+    private void addConnectorGBeans(EARContext earContext, AbstractName jcaResourceName, GBeanData resourceAdapterModuleData, ConnectorType connector, GerConnectorType geronimoConnector, ClassLoader cl) throws DeploymentException {
         ResourceadapterType resourceadapter = connector.getResourceadapter();
 
         GerResourceadapterType[] geronimoResourceAdapters = geronimoConnector.getResourceadapterArray();
@@ -466,7 +397,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             GerResourceadapterType geronimoResourceAdapter = geronimoResourceAdapters[k];
 
             // Resource Adapter
-            ObjectName resourceAdapterObjectName = null;
+            AbstractName resourceAdapterAbstractName = null;
             if (resourceadapter.isSetResourceadapterClass()) {
                 GBeanData resourceAdapterGBeanData = locateResourceAdapterGBeanData(resourceAdapterModuleData);
                 GBeanData resourceAdapterInstanceGBeanData = new GBeanData(resourceAdapterGBeanData);
@@ -474,17 +405,17 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                 setDynamicGBeanDataAttributes(resourceAdapterInstanceGBeanData, geronimoResourceAdapter.getResourceadapterInstance().getConfigPropertySettingArray(), cl);
 
                 // set the work manager name
-                ObjectName workManagerName = ENCConfigBuilder.getGBeanId(NameFactory.JCA_WORK_MANAGER, geronimoResourceAdapter.getResourceadapterInstance().getWorkmanager(), moduleJ2eeContext, earContext, kernel);
+                AbstractNameQuery workManagerName = ENCConfigBuilder.getGBeanQuery(NameFactory.JCA_WORK_MANAGER, geronimoResourceAdapter.getResourceadapterInstance().getWorkmanager());
                 resourceAdapterInstanceGBeanData.setReferencePattern("WorkManager", workManagerName);
 
                 String resourceAdapterName = geronimoResourceAdapter.getResourceadapterInstance().getResourceadapterName();
+                resourceAdapterAbstractName = earContext.getNaming().createChildName(jcaResourceName, resourceAdapterName, NameFactory.JCA_RESOURCE_ADAPTER);
+                resourceAdapterInstanceGBeanData.setAbstractName(resourceAdapterAbstractName);
                 try {
-                    resourceAdapterObjectName = NameFactory.getComponentName(null, null, null, null, null, resourceAdapterName, NameFactory.JCA_RESOURCE_ADAPTER, moduleJ2eeContext);
-                } catch (MalformedObjectNameException e) {
-                    throw new DeploymentException("Could not construct resource adapter object name", e);
+                    earContext.addGBean(resourceAdapterInstanceGBeanData);
+                } catch (GBeanAlreadyExistsException e) {
+                    throw new DeploymentException("Could not add resource adapter instance gbean to context", e);
                 }
-                resourceAdapterInstanceGBeanData.setName(resourceAdapterObjectName);
-                earContext.addGBean(resourceAdapterInstanceGBeanData);
             }
 
             // Outbound Managed Connection Factories (think JDBC data source or JMS connection factory)
@@ -495,7 +426,8 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                     throw new DeploymentException("Geronimo plan configures an outbound resource adapter but ra.xml does not describe any");
                 }
                 String transactionSupport = resourceadapter.getOutboundResourceadapter().getTransactionSupport().getStringValue().trim();
-                for (int i = 0; i < geronimoResourceAdapter.getOutboundResourceadapter().getConnectionDefinitionArray().length; i++) {
+                for (int i = 0; i < geronimoResourceAdapter.getOutboundResourceadapter().getConnectionDefinitionArray().length; i++)
+                {
                     GerConnectionDefinitionType geronimoConnectionDefinition = geronimoResourceAdapter.getOutboundResourceadapter().getConnectionDefinitionArray(i);
                     assert geronimoConnectionDefinition != null: "Null GeronimoConnectionDefinition";
 
@@ -506,10 +438,11 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                         throw new DeploymentException("No connection definition for ConnectionFactory class: " + connectionFactoryInterfaceName);
                     }
 
-                    for (int j = 0; j < geronimoConnectionDefinition.getConnectiondefinitionInstanceArray().length; j++) {
+                    for (int j = 0; j < geronimoConnectionDefinition.getConnectiondefinitionInstanceArray().length; j++)
+                    {
                         GerConnectiondefinitionInstanceType connectionfactoryInstance = geronimoConnectionDefinition.getConnectiondefinitionInstanceArray()[j];
 
-                        addOutboundGBeans(earContext, moduleJ2eeContext, resourceAdapterObjectName, connectionFactoryGBeanData, connectionfactoryInstance, transactionSupport, cl);
+                        addOutboundGBeans(earContext, jcaResourceName, resourceAdapterAbstractName, connectionFactoryGBeanData, connectionfactoryInstance, transactionSupport, cl);
                     }
                 }
             }
@@ -532,14 +465,13 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                 GerAdminobjectInstanceType gerAdminObjectInstance = gerAdminObject.getAdminobjectInstanceArray()[j];
                 setDynamicGBeanDataAttributes(adminObjectInstanceGBeanData, gerAdminObjectInstance.getConfigPropertySettingArray(), cl);
                 // add it
-                ObjectName adminObjectObjectName = null;
+                AbstractName adminObjectAbstractName = earContext.getNaming().createChildName(jcaResourceName, gerAdminObjectInstance.getMessageDestinationName().trim(), NameFactory.JCA_ADMIN_OBJECT);
+                adminObjectInstanceGBeanData.setAbstractName(adminObjectAbstractName);
                 try {
-                    adminObjectObjectName = NameFactory.getComponentName(null, null, null, null, null, gerAdminObjectInstance.getMessageDestinationName(), NameFactory.JCA_ADMIN_OBJECT, moduleJ2eeContext);
-                } catch (MalformedObjectNameException e) {
-                    throw new DeploymentException("Could not construct admin object object name", e);
+                    earContext.addGBean(adminObjectInstanceGBeanData);
+                } catch (GBeanAlreadyExistsException e) {
+                    throw new DeploymentException("Could not add admin object gbean to context", e);
                 }
-                adminObjectInstanceGBeanData.setName(adminObjectObjectName);
-                earContext.addGBean(adminObjectInstanceGBeanData);
             }
         }
     }
@@ -556,7 +488,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             //add all javabean properties that have both getter and setter.  Ignore the "required" flag from the dd.
             Map getters = new HashMap();
             Set setters = new HashSet();
-            Method[] methods = null;
+            Method[] methods;
             try {
                 Class activationSpecClass = cl.loadClass(activationSpecClassName);
                 methods = activationSpecClass.getMethods();
@@ -566,7 +498,8 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             for (int j = 0; j < methods.length; j++) {
                 Method method = methods[j];
                 String methodName = method.getName();
-                if ((methodName.startsWith("get") || methodName.startsWith("is")) && method.getParameterTypes().length == 0) {
+                if ((methodName.startsWith("get") || methodName.startsWith("is")) && method.getParameterTypes().length == 0)
+                {
                     String attributeName = (methodName.startsWith("get")) ? methodName.substring(3) : methodName.substring(2);
                     getters.put(Introspector.decapitalize(attributeName), method.getReturnType().getName());
                 } else if (methodName.startsWith("set") && method.getParameterTypes().length == 1) {
@@ -684,8 +617,8 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         }
 
         // Handle numeric fields with no value set
-        if(value.equals("")) {
-            if(Number.class.isAssignableFrom(clazz) || Date.class.isAssignableFrom(clazz)) {
+        if (value.equals("")) {
+            if (Number.class.isAssignableFrom(clazz) || Date.class.isAssignableFrom(clazz)) {
                 return null;
             }
         }
@@ -695,23 +628,18 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         return editor.getValue();
     }
 
-    private ObjectName configureConnectionManager(EARContext earContext, J2eeContext j2eeContext, String ddTransactionSupport, GerConnectiondefinitionInstanceType connectionfactoryInstance, ClassLoader cl) throws DeploymentException {
+    private AbstractName configureConnectionManager(EARContext earContext, AbstractName jcaResourceName, String ddTransactionSupport, GerConnectiondefinitionInstanceType connectionfactoryInstance, ClassLoader cl) throws DeploymentException {
 //        if (connectionfactoryInstance.getConnectionmanagerRef() != null) {
-            //we don't configure anything, just use the supplied gbean
+        //we don't configure anything, just use the supplied gbean
 //            try {
-//                return ObjectName.getInstance(connectionfactoryInstance.getConnectionmanagerRef());
-//            } catch (MalformedObjectNameException e) {
-//                throw new DeploymentException("Invalid ObjectName string supplied for ConnectionManager reference", e);
+//                return AbstractName.getInstance(connectionfactoryInstance.getConnectionmanagerRef());
+//            } catch (MalformedAbstractNameException e) {
+//                throw new DeploymentException("Invalid AbstractName string supplied for ConnectionManager reference", e);
 //            }
 //        }
 
         // create the object name for our connection manager
-        ObjectName connectionManagerObjectName = null;
-        try {
-            connectionManagerObjectName = NameFactory.getComponentName(null, null, null, null, null, connectionfactoryInstance.getName(), NameFactory.JCA_CONNECTION_MANAGER, j2eeContext);
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Could not construct connection manager object name", e);
-        }
+        AbstractName connectionManagerAbstractName = earContext.getNaming().createChildName(jcaResourceName, connectionfactoryInstance.getName().trim(), NameFactory.JCA_CONNECTION_MANAGER);
 
         // create the data holder for our connection manager
         GBeanInfo gbeanInfo;
@@ -720,18 +648,30 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         } catch (InvalidConfigurationException e) {
             throw new DeploymentException("Unable to create GMBean", e);
         }
-        GBeanData connectionManagerGBean = new GBeanData(connectionManagerObjectName, gbeanInfo);
+        GBeanData connectionManagerGBean = new GBeanData(connectionManagerAbstractName, gbeanInfo);
 
         //we configure our connection manager
         GerConnectionmanagerType connectionManager = connectionfactoryInstance.getConnectionmanager();
-        TransactionSupport transactionSupport = null;
+        TransactionSupport transactionSupport;
         if (connectionManager.isSetNoTransaction()) {
             transactionSupport = NoTransactions.INSTANCE;
         } else if (connectionManager.isSetLocalTransaction()) {
+            if ("NoTransaction".equals(ddTransactionSupport)) {
+                throw new DeploymentException("You are requesting local transaction support for a connector that does not support transactions: named: " + connectionfactoryInstance.getName().trim());
+            }
             transactionSupport = LocalTransactions.INSTANCE;
         } else if (connectionManager.isSetTransactionLog()) {
+            if ("NoTransaction".equals(ddTransactionSupport)) {
+                throw new DeploymentException("You are requesting local transaction support for a connector that does not support transactions: named: " + connectionfactoryInstance.getName().trim());
+            }
             transactionSupport = TransactionLog.INSTANCE;
         } else if (connectionManager.isSetXaTransaction()) {
+            if ("NoTransaction".equals(ddTransactionSupport)) {
+                throw new DeploymentException("You are requesting xa transaction support for a connector that does not support transactions: named: " + connectionfactoryInstance.getName().trim());
+            }
+            if ("LocalTransaction".equals(ddTransactionSupport)) {
+                throw new DeploymentException("You are requesting xa transaction support for a connector that supports only local transactions: named: " + connectionfactoryInstance.getName().trim());
+            }
             transactionSupport = new XATransactions(connectionManager.getXaTransaction().isSetTransactionCaching(),
                     connectionManager.getXaTransaction().isSetThreadCaching());
         } else if ("NoTransaction".equals(ddTransactionSupport)) {
@@ -742,9 +682,9 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             transactionSupport = new XATransactions(defaultXATransactionCaching, defaultXAThreadCaching);
         } else {
             //this should not happen
-            throw new DeploymentException("Unexpected transaction support element");
+            throw new DeploymentException("Unexpected transaction support element in connector named: " + connectionfactoryInstance.getName().trim());
         }
-        PoolingSupport pooling = null;
+        PoolingSupport pooling;
         if (connectionManager.getSinglePool() != null) {
             GerSinglepoolType pool = connectionManager.getSinglePool();
 
@@ -769,40 +709,40 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         } else if (connectionManager.getNoPool() != null) {
             pooling = new NoPool();
         } else {
-            throw new DeploymentException("Unexpected pooling support element");
+            throw new DeploymentException("Unexpected pooling support element in connector named " + connectionfactoryInstance.getName().trim());
         }
         try {
             connectionManagerGBean.setAttribute("transactionSupport", transactionSupport);
             connectionManagerGBean.setAttribute("pooling", pooling);
             connectionManagerGBean.setReferencePattern("ConnectionTracker", earContext.getConnectionTrackerObjectName());
-            connectionManagerGBean.setAttribute("containerManagedSecurity", new Boolean(connectionManager.isSetContainerManagedSecurity()));
+            connectionManagerGBean.setAttribute("containerManagedSecurity", Boolean.valueOf(connectionManager.isSetContainerManagedSecurity()));
             connectionManagerGBean.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
         } catch (Exception e) {
-            throw new DeploymentException("Problem setting up ConnectionManager", e);
+            throw new DeploymentException("Problem setting up ConnectionManager named " + connectionfactoryInstance.getName().trim(), e);
         }
 
-        earContext.addGBean(connectionManagerGBean);
-        return connectionManagerObjectName;
+        try {
+            earContext.addGBean(connectionManagerGBean);
+        } catch (GBeanAlreadyExistsException e) {
+            throw new DeploymentException("Could not add connection manager gbean to context: name: " + connectionfactoryInstance.getName().trim(), e);
+        }
+        return connectionManagerAbstractName;
     }
 
-    private void addOutboundGBeans(EARContext earContext,
-                                   J2eeContext j2eeContext,
-                                   ObjectName resourceAdapterObjectName,
-                                   GBeanData managedConnectionFactoryPrototypeGBeanData,
-                                   GerConnectiondefinitionInstanceType connectiondefinitionInstance,
-                                   String transactionSupport,
-                                   ClassLoader cl) throws DeploymentException {
+    private void addOutboundGBeans(EARContext earContext, AbstractName jcaResourceName, AbstractName resourceAdapterAbstractName, GBeanData managedConnectionFactoryPrototypeGBeanData, GerConnectiondefinitionInstanceType connectiondefinitionInstance, String transactionSupport, ClassLoader cl) throws DeploymentException {
         GBeanData managedConnectionFactoryInstanceGBeanData = new GBeanData(managedConnectionFactoryPrototypeGBeanData);
+        AbstractName connectionFactoryAbstractName = earContext.getNaming().createChildName(jcaResourceName, connectiondefinitionInstance.getName().trim(), NameFactory.JCA_CONNECTION_FACTORY);
+        AbstractName managedConnectionFactoryAbstractName = earContext.getNaming().createChildName(connectionFactoryAbstractName, connectiondefinitionInstance.getName().trim(), NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
         // ConnectionManager
-        ObjectName connectionManagerObjectName = configureConnectionManager(earContext, j2eeContext, transactionSupport, connectiondefinitionInstance, cl);
+        AbstractName connectionManagerAbstractName = configureConnectionManager(earContext, managedConnectionFactoryAbstractName, transactionSupport, connectiondefinitionInstance, cl);
 
         // ManagedConnectionFactory
         setDynamicGBeanDataAttributes(managedConnectionFactoryInstanceGBeanData, connectiondefinitionInstance.getConfigPropertySettingArray(), cl);
         try {
-            if (resourceAdapterObjectName != null) {
-                managedConnectionFactoryInstanceGBeanData.setReferencePattern("ResourceAdapterWrapper", resourceAdapterObjectName);
+            if (resourceAdapterAbstractName != null) {
+                managedConnectionFactoryInstanceGBeanData.setReferencePattern("ResourceAdapterWrapper", resourceAdapterAbstractName);
             }
-            managedConnectionFactoryInstanceGBeanData.setReferencePattern("ConnectionManagerContainer", connectionManagerObjectName);
+            managedConnectionFactoryInstanceGBeanData.setReferencePattern("ConnectionManagerContainer", connectionManagerAbstractName);
             //additional interfaces implemented by connection factory
             String[] implementedInterfaces = connectiondefinitionInstance.getImplementedInterfaceArray();
             if (implementedInterfaces != null) {
@@ -818,66 +758,93 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             throw new DeploymentException(e);
         }
 
-        ObjectName managedConnectionFactoryObjectName = null;
+        managedConnectionFactoryInstanceGBeanData.setAbstractName(managedConnectionFactoryAbstractName);
         try {
-            managedConnectionFactoryObjectName = NameFactory.getComponentName(null, null, null, null, null, connectiondefinitionInstance.getName(), NameFactory.JCA_MANAGED_CONNECTION_FACTORY, j2eeContext);
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Could not construct managed connection factory object name", e);
+            earContext.addGBean(managedConnectionFactoryInstanceGBeanData);
+        } catch (GBeanAlreadyExistsException e) {
+            throw new DeploymentException("Could not add managed connection factory gbean to context", e);
         }
-        managedConnectionFactoryInstanceGBeanData.setName(managedConnectionFactoryObjectName);
-        earContext.addGBean(managedConnectionFactoryInstanceGBeanData);
 
         // ConnectionFactory
-        ObjectName connectionFactoryObjectName = null;
-        try {
-            connectionFactoryObjectName = NameFactory.getComponentName(null, null, null, null, null, connectiondefinitionInstance.getName(), NameFactory.JCA_CONNECTION_FACTORY, j2eeContext);
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Could not construct connection factory object name", e);
-        }
-        GBeanData connectionFactoryGBeanData = new GBeanData(connectionFactoryObjectName, JCAConnectionFactoryImplGBean.GBEAN_INFO);
-        connectionFactoryGBeanData.setReferencePattern("J2EEServer", earContext.getServerObjectName());
-        connectionFactoryGBeanData.setAttribute("managedConnectionFactory", managedConnectionFactoryObjectName.getCanonicalName());
+        GBeanData connectionFactoryGBeanData = new GBeanData(connectionFactoryAbstractName, JCAConnectionFactoryImplGBean.GBEAN_INFO);
+        connectionFactoryGBeanData.setReferencePattern("JCAManagedConnectionFactory", managedConnectionFactoryAbstractName);
 
-        earContext.addGBean(connectionFactoryGBeanData);
+        try {
+            earContext.addGBean(connectionFactoryGBeanData);
+        } catch (GBeanAlreadyExistsException e) {
+            throw new DeploymentException("Could not add connection factory gbean to context", e);
+        }
     }
 
     //ResourceReferenceBuilder implementation
-    public Reference createResourceRef(String containerId, Class iface) throws DeploymentException {
-        return new ResourceReference(containerId, iface);
+    public Reference createResourceRef(AbstractNameQuery containerId, Class iface, Configuration configuration) throws DeploymentException {
+        try {
+            configuration.findGBean(containerId);
+        } catch (GBeanNotFoundException e) {
+            throw new UnresolvedReferenceException("Resource", false, containerId.toString(), configuration.getId().toString());
+        }
+        return new ResourceReference(configuration.getId(), containerId, iface);
     }
 
-    public Reference createAdminObjectRef(String containerId, Class iface) throws DeploymentException {
-        return new ResourceReference(containerId, iface);
+    public Reference createAdminObjectRef(AbstractNameQuery containerId, Class iface, Configuration configuration) throws DeploymentException {
+        try {
+            configuration.findGBean(containerId);
+        } catch (GBeanNotFoundException e) {
+            throw new DeploymentException("Can not resolve admin object ref " + containerId + " in configuration " + configuration.getId());
+        }
+        return new ResourceReference(configuration.getId(), containerId, iface);
     }
 
-    public GBeanData locateActivationSpecInfo(GBeanData resourceAdapterModuleData, String messageListenerInterface) throws DeploymentException {
-        Map activationSpecInfos = (Map) resourceAdapterModuleData.getAttribute("activationSpecInfoMap");
+    public GBeanData locateActivationSpecInfo(AbstractNameQuery resourceAdapterInstanceQuery, String messageListenerInterface, Configuration configuration) throws DeploymentException {
+        //First, locate the module gbean from the JCAResourceAdapter instance
+        AbstractName instanceName;
+        try {
+            instanceName = configuration.findGBean(resourceAdapterInstanceQuery);
+        } catch (GBeanNotFoundException e) {
+            throw new DeploymentException("No resource adapter instance gbean found matching " + resourceAdapterInstanceQuery + " from configuration " + configuration.getId());
+        }
+        String moduleName = (String) instanceName.getName().get(NameFactory.RESOURCE_ADAPTER_MODULE);
+        Map moduleNameMap = new HashMap(instanceName.getName());
+        moduleNameMap.remove(NameFactory.JCA_RESOURCE);
+        moduleNameMap.remove(NameFactory.RESOURCE_ADAPTER);
+        moduleNameMap.remove(NameFactory.RESOURCE_ADAPTER_MODULE);
+        moduleNameMap.put(NameFactory.J2EE_TYPE, NameFactory.RESOURCE_ADAPTER_MODULE);
+        moduleNameMap.put(NameFactory.J2EE_NAME, moduleName);
+        AbstractNameQuery nameQuery = new AbstractNameQuery(instanceName.getArtifact(), moduleNameMap, ResourceAdapterModule.class.getName());
+        //now find the gbeandata and extract the activation spec info.
+        GBeanData resourceModuleData;
+        try {
+            resourceModuleData = configuration.findGBeanData(nameQuery);
+        } catch (GBeanNotFoundException e) {
+            throw new DeploymentException("No resource module gbean found matching " + nameQuery + " from configuration " + configuration.getId());
+        }
+        Map activationSpecInfos = (Map) resourceModuleData.getAttribute("activationSpecInfoMap");
         if (activationSpecInfos == null) {
-            throw new DeploymentException("No activation spec info map found in resource adapter module: " + resourceAdapterModuleData.getName());
+            throw new DeploymentException("No activation spec info map found in resource adapter module: " + resourceModuleData.getAbstractName());
         }
         return (GBeanData) activationSpecInfos.get(messageListenerInterface);
     }
 
-    public GBeanData locateResourceAdapterGBeanData(GBeanData resourceAdapterModuleData) throws DeploymentException {
+    private GBeanData locateResourceAdapterGBeanData(GBeanData resourceAdapterModuleData) throws DeploymentException {
         GBeanData data = (GBeanData) resourceAdapterModuleData.getAttribute("resourceAdapterGBeanData");
         if (data == null) {
-            throw new DeploymentException("No resource adapter info found for resource adapter module: " + resourceAdapterModuleData.getName());
+            throw new DeploymentException("No resource adapter info found for resource adapter module: " + resourceAdapterModuleData.getAbstractName());
         }
         return data;
     }
 
-    public GBeanData locateAdminObjectInfo(GBeanData resourceAdapterModuleData, String adminObjectInterfaceName) throws DeploymentException {
+    private GBeanData locateAdminObjectInfo(GBeanData resourceAdapterModuleData, String adminObjectInterfaceName) throws DeploymentException {
         Map adminObjectInfos = (Map) resourceAdapterModuleData.getAttribute("adminObjectInfoMap");
         if (adminObjectInfos == null) {
-            throw new DeploymentException("No admin object infos found for resource adapter module: " + resourceAdapterModuleData.getName());
+            throw new DeploymentException("No admin object infos found for resource adapter module: " + resourceAdapterModuleData.getAbstractName());
         }
         return (GBeanData) adminObjectInfos.get(adminObjectInterfaceName);
     }
 
-    public GBeanData locateConnectionFactoryInfo(GBeanData resourceAdapterModuleData, String connectionFactoryInterfaceName) throws DeploymentException {
+    private GBeanData locateConnectionFactoryInfo(GBeanData resourceAdapterModuleData, String connectionFactoryInterfaceName) throws DeploymentException {
         Map managedConnectionFactoryInfos = (Map) resourceAdapterModuleData.getAttribute("managedConnectionFactoryInfoMap");
         if (managedConnectionFactoryInfos == null) {
-            throw new DeploymentException("No managed connection factory infos found for resource adapter module: " + resourceAdapterModuleData.getName());
+            throw new DeploymentException("No managed connection factory infos found for resource adapter module: " + resourceAdapterModuleData.getAbstractName());
         }
         return (GBeanData) managedConnectionFactoryInfos.get(connectionFactoryInterfaceName);
     }
@@ -887,7 +854,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(ConnectorModuleBuilder.class, NameFactory.MODULE_BUILDER);
 
-        infoBuilder.addAttribute("defaultParentId", URI[].class, true, true);
+        infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
         infoBuilder.addAttribute("defaultMaxSize", int.class, true, true);
         infoBuilder.addAttribute("defaultMinSize", int.class, true, true);
         infoBuilder.addAttribute("defaultBlockingTimeoutMilliseconds", int.class, true, true);
@@ -895,26 +862,20 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         infoBuilder.addAttribute("defaultXATransactionCaching", boolean.class, true, true);
         infoBuilder.addAttribute("defaultXAThreadCaching", boolean.class, true, true);
 
-        infoBuilder.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
-        infoBuilder.addAttribute("kernel", Kernel.class, false);
-
         infoBuilder.addInterface(ModuleBuilder.class);
         infoBuilder.addInterface(ResourceReferenceBuilder.class);
 
-        infoBuilder.setConstructor(new String[]{"defaultParentId",
-                                                "defaultMaxSize",
-                                                "defaultMinSize",
-                                                "defaultBlockingTimeoutMilliseconds",
-                                                "defaultIdleTimeoutMinutes",
-                                                "defaultXATransactionCaching",
-                                                "defaultXAThreadCaching",
-                                                "Repository",
-                                                "kernel"});
+        infoBuilder.setConstructor(new String[]{"defaultEnvironment",
+                "defaultMaxSize",
+                "defaultMinSize",
+                "defaultBlockingTimeoutMilliseconds",
+                "defaultIdleTimeoutMinutes",
+                "defaultXATransactionCaching",
+                "defaultXAThreadCaching"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
-    public static GBeanInfo getGBeanInfo
-            () {
+    public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
 }

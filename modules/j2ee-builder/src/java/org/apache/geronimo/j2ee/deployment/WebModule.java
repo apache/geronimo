@@ -16,29 +16,27 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
-import java.util.jar.JarFile;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.List;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.io.IOException;
+import java.util.Map;
+import java.util.jar.JarFile;
 
-import org.apache.xmlbeans.XmlObject;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 385487 $ $Date$
  */
 public class WebModule extends Module {
-
-    private final LinkedHashSet webClassPath = new LinkedHashSet();
     private final String contextRoot;
     private final Map portMap;
 
-    public WebModule(boolean standAlone, URI configId, List parentId, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String contextRoot, Map portMap, String namespace) {
-        super(standAlone, configId, parentId, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, namespace);
+    public WebModule(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String contextRoot, Map portMap, String namespace) {
+        super(standAlone, moduleName, environment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, namespace);
         this.contextRoot = contextRoot;
         this.portMap = portMap;
     }
@@ -55,18 +53,13 @@ public class WebModule extends Module {
         return portMap;
     }
 
+    //TODO configid check all modules can use this form.    Remove if!
     public void addClass(URI location, String fqcn, byte[] bytes, DeploymentContext context) throws IOException, URISyntaxException {
-        context.addClass(location, fqcn, bytes, false);
-        addToWebClasspath(location);
-    }
-
-    public void addToWebClasspath(URI location) {
-        webClassPath.add(location);
-    }
-
-    public URI[] getWebClasspath() {
-        URI[] uris = new URI[webClassPath.size()];
-        return (URI[])webClassPath.toArray(uris);
+        if (getEarContext() != null) {
+            getEarContext().addClass(location, fqcn, bytes);
+        } else {
+            context.addClass(location, fqcn, bytes);
+        }
     }
 
 }

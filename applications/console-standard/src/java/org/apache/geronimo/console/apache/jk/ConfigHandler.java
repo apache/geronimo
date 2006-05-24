@@ -35,7 +35,8 @@ public class ConfigHandler extends BaseApacheHandler {
         super(BASIC_CONFIG_MODE, "/WEB-INF/view/apache/jk/config.jsp");
     }
 
-    public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
+    public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel mpm) throws PortletException, IOException {
+        request.getPortletSession(true).removeAttribute(ApacheModel.WEB_APP_SESSION_KEY);
         return getMode();
     }
 

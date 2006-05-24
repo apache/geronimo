@@ -1,24 +1,21 @@
 package org.apache.geronimo.jetty.deployment;
 
-import java.io.File;
-import java.net.URI;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.jar.JarFile;
-import javax.management.ObjectName;
-import javax.xml.namespace.QName;
-
 import junit.framework.TestCase;
 import org.apache.geronimo.deployment.util.UnpackedJarFile;
+import org.apache.geronimo.deployment.xbeans.ArtifactType;
+import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.Jsr77Naming;
+import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
-import org.apache.geronimo.xbeans.geronimo.web.GerWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyWebAppType;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.config.GerJettyDocument;
@@ -27,18 +24,31 @@ import org.apache.geronimo.xbeans.j2ee.WebAppType;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 
+import javax.xml.namespace.QName;
+import java.io.File;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Collections;
+import java.util.jar.JarFile;
+
 /**
  */
 public class PlanParsingTest extends TestCase {
     private ClassLoader classLoader = this.getClass().getClassLoader();
 
-    ObjectName jettyContainerObjectName = JMXUtil.getObjectName("test:type=JettyContainer");
-    ObjectName pojoWebServiceTemplate = null;
-    WebServiceBuilder webServiceBuilder = null;
+    private Naming naming = new Jsr77Naming();
+    private Artifact baseId = new Artifact("test", "base", "1", "car");
+    private AbstractName baseRootName = naming.createRootName(baseId, "root", NameFactory.SERVICE_MODULE);
+    private AbstractNameQuery jettyContainerObjectName = new AbstractNameQuery(naming.createChildName(baseRootName, "jettyContainer", NameFactory.GERONIMO_SERVICE));
+    private AbstractName pojoWebServiceTemplate = null;
+    private WebServiceBuilder webServiceBuilder = null;
+    private Environment defaultEnvironment = new Environment();
     private JettyModuleBuilder builder;
 
     public PlanParsingTest() throws Exception {
-        builder = new JettyModuleBuilder(new URI[]{URI.create("defaultParent")}, new Integer(1800), false, null, jettyContainerObjectName, new HashSet(), new HashSet(), new HashSet(), pojoWebServiceTemplate, webServiceBuilder, null, null);
+        builder = new JettyModuleBuilder(defaultEnvironment, new Integer(1800), null, jettyContainerObjectName, new HashSet(), new HashSet(), new HashSet(), pojoWebServiceTemplate, Collections.singleton(webServiceBuilder), null);
     }
 
     public void testContents() throws Exception {
@@ -102,32 +112,22 @@ public class PlanParsingTest extends TestCase {
     public void testConstructPlan() throws Exception {
         JettyWebAppDocument jettyWebAppDoc = JettyWebAppDocument.Factory.newInstance();
         JettyWebAppType webApp = jettyWebAppDoc.addNewWebApp();
-        webApp.setConfigId("configId");
-        webApp.setParentId("parentId");
-        webApp.setContextPriorityClassloader(false);
+        addEnvironment(webApp);
         GerResourceRefType ref = webApp.addNewResourceRef();
         ref.setRefName("ref");
-        ref.setTargetName("target");
+        ref.setResourceLink("target");
 
         SchemaConversionUtils.validateDD(webApp);
         System.out.println(webApp.toString());
     }
 
-    public void testContextPriorityClassloader() throws Exception {
-        URL resourcePlan = classLoader.getResource("plans/plan3.xml");
-        assertTrue(resourcePlan != null);
-
-        JettyWebAppType jettyWebApp = builder.getJettyWebApp(new File(resourcePlan.getFile()), null, false, null, null);
-        assertFalse(jettyWebApp.getContextPriorityClassloader());
-    }
-
-    public void testContextPriorityClassloaderTrue() throws Exception {
-        URL resourcePlan = classLoader.getResource("plans/plan4.xml");
-        assertTrue(resourcePlan != null);
-
-        JettyWebAppType jettyWebApp = builder.getJettyWebApp(new File(resourcePlan.getFile()), null, false, null, null);
-        assertTrue(jettyWebApp.getContextPriorityClassloader());
-
+    private void addEnvironment(JettyWebAppType webApp) {
+        EnvironmentType environmentType = webApp.addNewEnvironment();
+        ArtifactType configId = environmentType.addNewModuleId();
+        configId.setGroupId("g");
+        configId.setArtifactId("a");
+        configId.setVersion("1");
+        configId.setType("car");
     }
 
     /** This test has 2 purposes: one the obvious one explicitly tested,
@@ -140,9 +140,8 @@ public class PlanParsingTest extends TestCase {
 
         JettyWebAppDocument jettyWebAppDoc = JettyWebAppDocument.Factory.newInstance();
         JettyWebAppType webApp = jettyWebAppDoc.addNewWebApp();
-        webApp.setConfigId("myId");
+        addEnvironment(webApp);
         webApp.setContextRoot("myContextRoot");
-        webApp.setContextPriorityClassloader(false);
 
         URL war = classLoader.getResource("deployables/war2.war");
         assertTrue(war != null);

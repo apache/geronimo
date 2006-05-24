@@ -37,36 +37,54 @@
             <artifactId>geronimo-gbean-deployer</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
+            <properties>
+                <packaging.config.order>1</packaging.config.order>
+            </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>j2ee-deployer</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
+            <properties>
+                <packaging.config.order>2</packaging.config.order>
+            </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>jetty-deployer</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>client-deployer</artifactId>
-            <version>${geronimo_version}</version>
-            <type>car</type>
+            <properties>
+                <packaging.config.order>3</packaging.config.order>
+            </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>openejb-deployer</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
+            <properties>
+                <packaging.config.order>4</packaging.config.order>
+            </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>axis-deployer</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
+            <properties>
+                <packaging.config.order>5</packaging.config.order>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>client-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+            <properties>
+                <packaging.config.order>6</packaging.config.order>
+            </properties>
         </dependency>
 
         <!-- parent config -->
@@ -76,165 +94,181 @@
             <version>${geronimo_version}</version>
             <type>car</type>
             <properties>
-                 <geronimo.import>true</geronimo.import>
-             </properties>
+                <geronimo.import>true</geronimo.import>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>system-database</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+            <properties>
+                <geronimo.import>true</geronimo.import>
+            </properties>
         </dependency>
 
-    <dependency>
-        <groupId>portlet-api</groupId>
-        <artifactId>portlet-api</artifactId>
-        <version>${portlet_api_version}</version>
+        <!-- for login module manager -->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>j2ee-security</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
             <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.pluto</groupId>
-        <artifactId>pluto</artifactId>
-        <version>${pluto_version}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
-    </dependency>
-    <dependency>
-        <groupId>geronimo</groupId>
-        <artifactId>geronimo-console-core</artifactId>
-        <version>${geronimo_version}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
-    </dependency>
-    <dependency>
-        <groupId>geronimo</groupId>
-        <artifactId>geronimo-management</artifactId>
-        <version>${geronimo_version}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
-    </dependency>
-    <dependency>
-        <groupId>geronimo</groupId>
-        <artifactId>geronimo-test-ddbean</artifactId>
-        <version>${geronimo_version}</version>
-        <properties>
-            <geronimo.dependency>true</geronimo.dependency>
-        </properties>
-    </dependency>
-    <dependency>
-        <groupId>geronimo</groupId>
-        <artifactId>geronimo-deploy-jsr88</artifactId>
-        <version>${geronimo_version}</version>
-        <properties>
-            <geronimo.dependency>true</geronimo.dependency>
-        </properties>
-    </dependency>
-    <dependency>
-        <groupId>geronimo</groupId>
-        <artifactId>geronimo-deploy-config</artifactId>
-        <version>${geronimo_version}</version>
-        <properties>
-            <geronimo.dependency>true</geronimo.dependency>
-        </properties>
-    </dependency>
-    <dependency>
-        <groupId>geronimo</groupId>
-        <artifactId>geronimo-service-builder</artifactId>
-        <version>${geronimo_version}</version>
-        <properties>
-            <geronimo.dependency>true</geronimo.dependency>
-        </properties>
-    </dependency>
-    <dependency>
-        <groupId>geronimo</groupId>
-        <artifactId>geronimo-connector-builder</artifactId>
-        <version>${geronimo_version}</version>
-        <properties>
-            <geronimo.dependency>true</geronimo.dependency>
-        </properties>
-    </dependency>
-    <dependency>
-        <groupId>geronimo</groupId>
-        <artifactId>geronimo-naming-builder</artifactId>
-        <version>${geronimo_version}</version>
-        <properties>
-            <geronimo.dependency>true</geronimo.dependency>
-        </properties>
-    </dependency>
-    <dependency>
-        <groupId>geronimo</groupId>
-        <artifactId>geronimo-security-builder</artifactId>
-        <version>${geronimo_version}</version>
-        <properties>
-            <geronimo.dependency>true</geronimo.dependency>
-        </properties>
-    </dependency>
-    <dependency>
-        <groupId>geronimo</groupId>
-        <artifactId>geronimo-j2ee-schema</artifactId>
-        <version>${geronimo_version}</version>
-        <properties>
-            <geronimo.dependency>true</geronimo.dependency>
-        </properties>
-    </dependency>
-    <dependency>
-        <groupId>geronimo</groupId>
-        <artifactId>geronimo-derby</artifactId>
-        <version>${pom.currentVersion}</version>
-        <properties>
-             <geronimo.dependency>true</geronimo.dependency>
-        </properties>
-    </dependency>
-    <dependency>
-        <groupId>xmlbeans</groupId>
-        <artifactId>xbean</artifactId>
-        <version>${xmlbeans_version}</version>
-        <properties>
-            <geronimo.dependency>true</geronimo.dependency>
-        </properties>
-    </dependency>
-    <dependency>
-        <groupId>stax</groupId>
-        <artifactId>stax-api</artifactId>
-        <version>${stax_api_version}</version>
-        <properties>
-            <geronimo.dependency>true</geronimo.dependency>
-        </properties>
-    </dependency>
+                <geronimo.import>true</geronimo.import>
+            </properties>
+        </dependency>
 
         <dependency>
-            <groupId>incubator-activemq</groupId>
-            <artifactId>activemq-gbean-management</artifactId>
-            <version>${activemq_version}</version>
+            <groupId>portlet-api</groupId>
+            <artifactId>portlet-api</artifactId>
+            <version>${portlet_api_version}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.pluto</groupId>
+            <artifactId>pluto</artifactId>
+            <version>${pluto_version}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-console-core</artifactId>
+            <version>${geronimo_version}</version>
             <properties>
                 <geronimo.dependency>true</geronimo.dependency>
             </properties>
         </dependency>
         <dependency>
-            <groupId>incubator-activemq</groupId>
-            <artifactId>activemq-gbean</artifactId>
-            <version>${activemq_version}</version>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-upgrade</artifactId>
+            <version>${geronimo_version}</version>
             <properties>
                 <geronimo.dependency>true</geronimo.dependency>
             </properties>
         </dependency>
         <dependency>
-            <groupId>incubator-activemq</groupId>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-management</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-test-ddbean</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-deploy-jsr88</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-deploy-config</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-service-builder</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-connector-builder</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-naming-builder</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-security-builder</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-j2ee-schema</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>xmlbeans</groupId>
+            <artifactId>xbean</artifactId>
+            <version>${xmlbeans_version}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>stax</groupId>
+            <artifactId>stax-api</artifactId>
+            <version>${stax_api_version}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>activemq</groupId>
+            <artifactId>activemq-gbean-management-g1_1</artifactId>
+            <version>${activemq_version}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>activemq</groupId>
+            <artifactId>activemq-gbean-g1_1</artifactId>
+            <version>${activemq_version}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>activemq</groupId>
             <artifactId>activemq-core</artifactId>
             <version>${activemq_version}</version>
             <properties>
                 <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.keep.version>true</geronimo.keep.version>
             </properties>
         </dependency>
-
-        <dependency>
-            <groupId>incubator-activemq</groupId>
-            <artifactId>activeio-core</artifactId>
-            <version>${activemq_activeio_version}</version>
-            <properties>
-                <geronimo.dependency>true</geronimo.dependency>
-            </properties>
-        </dependency>
-
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-converter</artifactId>
@@ -252,27 +286,20 @@
             </properties>
         </dependency>
 
-    <!-- Keystore dependency -->
-    <dependency>
-        <groupId>geronimo</groupId>
-        <artifactId>geronimo-util</artifactId>
-        <version>${geronimo_version}</version>
+        <!-- Keystore dependency -->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-util</artifactId>
+            <version>${geronimo_version}</version>
             <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
-    </dependency>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
             <version>${geronimo_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>jetty-deployer</artifactId>
-            <version>${geronimo_version}</version>
-            <type>car</type>
         </dependency>
 
         <dependency>
@@ -350,7 +377,10 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-jetty</artifactId>
             <version>${geronimo_version}</version>
-        </dependency>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+         </dependency>
 
         <dependency>
             <groupId>concurrent</groupId>

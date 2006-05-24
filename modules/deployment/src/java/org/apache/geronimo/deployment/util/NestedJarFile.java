@@ -215,12 +215,12 @@ public class NestedJarFile extends JarFile {
             return;
         }
 
-        isClosed = true;
         try {
             if (baseJar != null && isPacked()) {
                 baseJar.close();
             }
         } finally {
+            isClosed = true;
             baseJar = null;
             basePath = null;
             manifestLoaded = false;

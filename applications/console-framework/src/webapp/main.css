@@ -237,6 +237,16 @@ a:hover
         background-color: #F2F2F2;
 }
 
+.Menu .SelectedSubselection .Middle a{
+    color: #000;
+    text-decoration: none;
+}
+
+.Menu .SelectedSubselection .Middle a:hover{
+    color: #000;
+    text-decoration: underline;
+}
+
 .Gutter
 {
 	width: 5px;

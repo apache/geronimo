@@ -16,10 +16,10 @@
     limitations under the License.
 -->
 
-<configuration xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-               configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
+
         >
 
     <gbean name="WebServiceBuilder" class="org.apache.geronimo.axis.builder.AxisBuilder"/>
 
-</configuration>
+</module>

@@ -20,6 +20,8 @@ package org.apache.geronimo.management.geronimo;
 import java.util.Date;
 import java.util.Properties;
 
+import org.apache.geronimo.system.logging.SystemLog;
+
 /**
  * Geronimo extensions to the standard JSR-77 JVM type.
  *
@@ -38,7 +40,8 @@ public interface JVM extends org.apache.geronimo.management.JVM {
     Properties getSystemProperties();
 
     /**
-     * Gets the ObjectName of the system log for this JVM
+     * Gets the system log instance
      */
-    String getSystemLog();
+    SystemLog getSystemLog();
+
 }

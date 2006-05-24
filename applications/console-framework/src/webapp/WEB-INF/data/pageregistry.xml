@@ -142,7 +142,7 @@ limitations under the License.
                 </fragment>
             </fragment>
         </fragment>
-
+<!--
         <fragment name="ejb" type="page">
             <navigation>
                 <title>EJB Server</title>
@@ -157,7 +157,7 @@ limitations under the License.
                 </fragment>
             </fragment>
         </fragment>
-
+-->
         <fragment name="jmsserver" type="page">
             <navigation>
                 <title>JMS Server</title>
@@ -179,6 +179,22 @@ limitations under the License.
             </fragment>
         </fragment>
 
+        <fragment name="threads" type="page">
+            <navigation>
+                <title>Thread Pools</title>
+                <description>ico_connect_16x16.gif Monitors and configures thread pools in the server</description>
+            </navigation>
+
+            <fragment name="row1" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p1" type="portlet">
+                        <property name="portlet" value="5.80"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+        </fragment>
+
+<!--
         <fragment name="j2ca" type="page">
             <navigation>
                 <title>J2EE Connectors</title>
@@ -223,7 +239,7 @@ limitations under the License.
                 </fragment>
             </fragment>
         </fragment>
-
+-->
         <fragment name="apachejk" type="page">
             <navigation>
                 <title>Apache HTTP</title>
@@ -248,7 +264,7 @@ limitations under the License.
 
         <fragment name="repo" type="page">
             <navigation>
-                <title>Common Libraries</title>
+                <title>Common Libs</title>
                 <description>ico_list_16x16.gif View Repository</description>
             </navigation>
             <fragment name="row1" type="row">
@@ -287,6 +303,7 @@ limitations under the License.
                     </fragment>
                 </fragment>
             </fragment>
+<!--
             <fragment name="row2" type="row">
                 <fragment name="col1" type="column">
                     <fragment name="p1" type="portlet">
@@ -301,9 +318,10 @@ limitations under the License.
                     </fragment>
                 </fragment>
             </fragment>
+-->
         </fragment>
 
-
+<!--
         <fragment name="mail" type="page">
             <navigation>
                 <title>Java Mail</title>
@@ -318,6 +336,7 @@ limitations under the License.
                 </fragment>
             </fragment>
         </fragment>
+-->
     </fragment>
 
     <fragment name="apps" type="page">
@@ -353,7 +372,7 @@ limitations under the License.
         <fragment name="ear" type="page">
             <navigation>
                 <title>Application EARs</title>
-                <description>ico_list_16x16.gif Manage EARs on this server</description> 
+                <description>ico_list_16x16.gif Manage EARs on this server</description>
             </navigation>
 
             <fragment name="row1" type="row">
@@ -442,8 +461,8 @@ limitations under the License.
 
         <fragment name="import" type="page">
             <navigation>
-                <title>Import/Export</title>
-                <description>ico_list_16x16.gif Import and export configurations for this server</description>
+                <title>Plugins</title>
+                <description>ico_list_16x16.gif Import and export plugins (configurations) for this server</description>
             </navigation>
 
             <fragment name="row1" type="row">
@@ -530,13 +549,7 @@ limitations under the License.
         </fragment>
     </fragment>
 
-    <fragment name="misc" type="page">
-        <navigation>
-            <title>Misc</title>
-            <description>ico_folder_16x16.gif Other management features</description>
-        </navigation>
-
-        <fragment name="internalDB" type="page">
+    <fragment name="internalDB" type="page">
             <navigation>
                 <title>Embedded DB</title>
                 <description>ico_folder_16x16.gif Show info about the server's internal database</description>
@@ -578,6 +591,5 @@ limitations under the License.
                     </fragment>
                 </fragment>
             </fragment>
-        </fragment>
     </fragment>
 </portal>

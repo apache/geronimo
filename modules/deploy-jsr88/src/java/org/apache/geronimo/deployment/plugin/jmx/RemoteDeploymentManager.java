@@ -16,29 +16,43 @@
  */
 package org.apache.geronimo.deployment.plugin.jmx;
 
-import org.apache.geronimo.kernel.jmx.KernelDelegate;
-import org.apache.geronimo.deployment.plugin.local.DistributeCommand;
-import org.apache.geronimo.deployment.plugin.local.RedeployCommand;
-import org.apache.geronimo.deployment.plugin.GeronimoDeploymentManager;
-import org.apache.geronimo.system.configuration.ConfigurationMetadata;
-import org.apache.geronimo.system.configuration.DownloadResults;
-import org.apache.geronimo.gbean.GBeanQuery;
-
-import javax.management.MBeanServerConnection;
-import javax.management.ObjectName;
-import javax.management.remote.JMXConnector;
-import javax.enterprise.deploy.spi.Target;
-import javax.enterprise.deploy.spi.TargetModuleID;
-import java.io.IOException;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.URL;
-import java.net.URI;
 import java.util.Enumeration;
-import java.util.Set;
 import java.util.Iterator;
+import java.util.Set;
+import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
+import javax.enterprise.deploy.shared.CommandType;
+import javax.enterprise.deploy.spi.Target;
+import javax.enterprise.deploy.spi.TargetModuleID;
+import javax.enterprise.deploy.spi.status.ProgressEvent;
+import javax.enterprise.deploy.spi.status.ProgressListener;
+import javax.management.MBeanServerConnection;
+import javax.management.remote.JMXConnector;
+import javax.security.auth.login.FailedLoginException;
+
+import org.apache.geronimo.deployment.plugin.GeronimoDeploymentManager;
+import org.apache.geronimo.deployment.plugin.local.AbstractDeployCommand;
+import org.apache.geronimo.deployment.plugin.local.DistributeCommand;
+import org.apache.geronimo.deployment.plugin.local.RedeployCommand;
+import org.apache.geronimo.deployment.plugin.remote.RemoteDeployUtil;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.system.jmx.KernelDelegate;
+import org.apache.geronimo.system.plugin.DownloadResults;
+import org.apache.geronimo.system.plugin.PluginList;
+import org.apache.geronimo.system.plugin.DownloadPoller;
+import org.apache.geronimo.system.plugin.PluginMetadata;
+import org.apache.geronimo.system.plugin.PluginInstaller;
+import org.apache.geronimo.system.plugin.PluginRepositoryList;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
  * Connects to a Kernel in a remote VM (may or many not be on the same machine).
@@ -126,45 +140,134 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
         }
     }
 
-    public ConfigurationMetadata[] listConfigurations(URL mavenRepository, String username, String password) throws IOException {
-        Set set = kernel.listGBeans(new GBeanQuery(null, "org.apache.geronimo.system.configuration.ConfigurationInstaller"));
+    public PluginList listPlugins(URL mavenRepository, String username, String password) throws FailedLoginException, IOException {
+        Set set = kernel.listGBeans(new AbstractNameQuery(PluginInstaller.class.getName()));
         for (Iterator it = set.iterator(); it.hasNext();) {
-            ObjectName name = (ObjectName) it.next();
-            try {
-                return (ConfigurationMetadata[]) kernel.invoke(name, "listConfigurations", new Object[]{mavenRepository, username, password}, new String[]{URL.class.getName(), String.class.getName(), String.class.getName()});
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new IOException("Unable to list configurations: "+e.getMessage());
-            }
+            AbstractName name = (AbstractName) it.next();
+            PluginInstaller installer = (PluginInstaller) kernel.getProxyManager().createProxy(name, PluginInstaller.class);
+            PluginList results = installer.listPlugins(mavenRepository, username, password);
+            kernel.getProxyManager().destroyProxy(installer);
+            return results;
         }
         return null;
     }
 
-    public ConfigurationMetadata loadDependencies(URL mavenRepository, String username, String password, ConfigurationMetadata source) throws IOException {
-        Set set = kernel.listGBeans(new GBeanQuery(null, "org.apache.geronimo.system.configuration.ConfigurationInstaller"));
+    public DownloadResults install(PluginList installList, String username, String password) {
+        Set set = kernel.listGBeans(new AbstractNameQuery(PluginInstaller.class.getName()));
         for (Iterator it = set.iterator(); it.hasNext();) {
-            ObjectName name = (ObjectName) it.next();
-            try {
-                return (ConfigurationMetadata) kernel.invoke(name, "loadDependencies", new Object[]{mavenRepository, username, password, source}, new String[]{URL.class.getName(), ConfigurationMetadata.class.getName(), String.class.getName(), String.class.getName()});
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new IOException("Unable to load dependencies: "+e.getMessage());
-            }
+            AbstractName name = (AbstractName) it.next();
+            PluginInstaller installer = (PluginInstaller) kernel.getProxyManager().createProxy(name, PluginInstaller.class);
+            DownloadResults results = installer.install(installList, username, password);
+            kernel.getProxyManager().destroyProxy(installer);
+            return results;
         }
         return null;
     }
 
-    public DownloadResults install(URL mavenRepository, String username, String password, URI configId) throws IOException {
-        Set set = kernel.listGBeans(new GBeanQuery(null, "org.apache.geronimo.system.configuration.ConfigurationInstaller"));
+    public void install(PluginList configsToInstall, String username, String password, DownloadPoller poller) {
+        Set set = kernel.listGBeans(new AbstractNameQuery(PluginInstaller.class.getName()));
         for (Iterator it = set.iterator(); it.hasNext();) {
-            ObjectName name = (ObjectName) it.next();
-            try {
-                return (DownloadResults) kernel.invoke(name, "install", new Object[]{mavenRepository, username, password, configId}, new String[]{URL.class.getName(), String.class.getName(), String.class.getName(), URI.class.getName()});
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new IOException("Unable to install configurations: "+e.getMessage());
-            }
+            AbstractName name = (AbstractName) it.next();
+            PluginInstaller installer = (PluginInstaller) kernel.getProxyManager().createProxy(name, PluginInstaller.class);
+            installer.install(configsToInstall, username, password, poller);
+            kernel.getProxyManager().destroyProxy(installer);
+            return;
+        }
+    }
+
+    public Object startInstall(PluginList configsToInstall, String username, String password) {
+        Set set = kernel.listGBeans(new AbstractNameQuery(PluginInstaller.class.getName()));
+        for (Iterator it = set.iterator(); it.hasNext();) {
+            AbstractName name = (AbstractName) it.next();
+            PluginInstaller installer = (PluginInstaller) kernel.getProxyManager().createProxy(name, PluginInstaller.class);
+            Object result = installer.startInstall(configsToInstall, username, password);
+            kernel.getProxyManager().destroyProxy(installer);
+            return result;
         }
         return null;
+    }
+
+    public Object startInstall(File carFile, String username, String password) {
+        File[] args = new File[]{carFile};
+        if(!isSameMachine) {
+            AbstractDeployCommand progress = new AbstractDeployCommand(CommandType.DISTRIBUTE, kernel, null, null, null, null, false) {
+                public void run() {
+                }
+            };
+            progress.addProgressListener(new ProgressListener() {
+                public void handleProgressEvent(ProgressEvent event) {
+                    System.out.println(event.getDeploymentStatus().getMessage());
+                }
+            });
+            RemoteDeployUtil.uploadFilesToServer(args, progress);
+        }
+        Set set = kernel.listGBeans(new AbstractNameQuery(PluginInstaller.class.getName()));
+        for (Iterator it = set.iterator(); it.hasNext();) {
+            AbstractName name = (AbstractName) it.next();
+            PluginInstaller installer = (PluginInstaller) kernel.getProxyManager().createProxy(name, PluginInstaller.class);
+            Object result = installer.startInstall(carFile, username, password);
+            kernel.getProxyManager().destroyProxy(installer);
+            return result;
+        }
+        return null;
+    }
+
+    public DownloadResults checkOnInstall(Object key) {
+        Set set = kernel.listGBeans(new AbstractNameQuery(PluginInstaller.class.getName()));
+        for (Iterator it = set.iterator(); it.hasNext();) {
+            AbstractName name = (AbstractName) it.next();
+            PluginInstaller installer = (PluginInstaller) kernel.getProxyManager().createProxy(name, PluginInstaller.class);
+            DownloadResults result = installer.checkOnInstall(key);
+            kernel.getProxyManager().destroyProxy(installer);
+            return result;
+        }
+        return null;
+    }
+
+    public Map getInstalledPlugins() {
+        Set set = kernel.listGBeans(new AbstractNameQuery(PluginInstaller.class.getName()));
+        for (Iterator it = set.iterator(); it.hasNext();) {
+            AbstractName name = (AbstractName) it.next();
+            PluginInstaller installer = (PluginInstaller) kernel.getProxyManager().createProxy(name, PluginInstaller.class);
+            Map result = installer.getInstalledPlugins();
+            kernel.getProxyManager().destroyProxy(installer);
+            return result;
+        }
+        return null;
+    }
+
+    public PluginMetadata getPluginMetadata(Artifact configId) {
+        Set set = kernel.listGBeans(new AbstractNameQuery(PluginInstaller.class.getName()));
+        for (Iterator it = set.iterator(); it.hasNext();) {
+            AbstractName name = (AbstractName) it.next();
+            PluginInstaller installer = (PluginInstaller) kernel.getProxyManager().createProxy(name, PluginInstaller.class);
+            PluginMetadata result = installer.getPluginMetadata(configId);
+            kernel.getProxyManager().destroyProxy(installer);
+            return result;
+        }
+        return null;
+    }
+
+    public void updatePluginMetadata(PluginMetadata metadata) {
+        Set set = kernel.listGBeans(new AbstractNameQuery(PluginInstaller.class.getName()));
+        for (Iterator it = set.iterator(); it.hasNext();) {
+            AbstractName name = (AbstractName) it.next();
+            PluginInstaller installer = (PluginInstaller) kernel.getProxyManager().createProxy(name, PluginInstaller.class);
+            installer.updatePluginMetadata(metadata);
+            kernel.getProxyManager().destroyProxy(installer);
+            return;
+        }
+    }
+
+    public URL[] getRepositories() {
+        List list = new ArrayList();
+        Set set = kernel.listGBeans(new AbstractNameQuery(PluginRepositoryList.class.getName()));
+        for (Iterator it = set.iterator(); it.hasNext();) {
+            AbstractName name = (AbstractName) it.next();
+            PluginRepositoryList repo = (PluginRepositoryList) kernel.getProxyManager().createProxy(name, PluginRepositoryList.class);
+            list.addAll(Arrays.asList(repo.getRepositories()));
+            kernel.getProxyManager().destroyProxy(repo);
+        }
+        return (URL[]) list.toArray(new URL[list.size()]);
     }
 }

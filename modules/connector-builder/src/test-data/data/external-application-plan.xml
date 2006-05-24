@@ -16,16 +16,28 @@
     limitations under the License.
 -->
 
-<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.0"
-    configId="org/apache/geronimo/j2ee/deployment/test"
-    >
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.1">
     <!--parentId="org/apache/geronimo/Server"-->
+    <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+        <moduleId>
+            <groupId>geronimo</groupId>
+            <artifactId>test-ear</artifactId>
+            <version>1.0</version>
+            <type>car</type>
+        </moduleId>
+    </environment>
 
     <module>
         <connector>test-rar-10-noger.rar</connector>
-        <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.0"
-            configId="org/apache/geronimo/j2ee/deployment/test"
-            parentId="org/apache/geronimo/Server">
+        <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+                <moduleId>
+                    <groupId>geronimo</groupId>
+                    <artifactId>test-ear</artifactId>
+                    <version>1.0</version>
+                    <type>car</type>
+                </moduleId>
+            </environment>
 
             <resourceadapter>
                 <outbound-resourceadapter>
@@ -83,9 +95,16 @@
     </module>
     <module>
         <connector>test-rar-15-noger.rar</connector>
-        <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.0"
-            configId="org/apache/geronimo/j2ee/deployment/test"
-            parentId="org/apache/geronimo/Server">
+        <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+                <moduleId>
+                    <groupId>geronimo</groupId>
+                    <artifactId>test-ear</artifactId>
+                    <version>1.0</version>
+                    <type>car</type>
+                </moduleId>
+            </environment>
+
 
             <resourceadapter>
                 <resourceadapter-instance>
@@ -172,24 +191,38 @@
     <gbean name="ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean">
     </gbean>
 
+    <gbean name="DefaultThreadPool" class="org.apache.geronimo.pool.ThreadPool">
+        <attribute name="keepAliveTime">5000</attribute>
+        <attribute name="poolSize">300</attribute>
+        <attribute name="poolName">DefaultThreadPool</attribute>
+    </gbean>
+
     <gbean name="DefaultWorkManager" class="org.apache.geronimo.connector.work.GeronimoWorkManagerGBean">
-        <attribute name="syncMaximumPoolSize">10</attribute>
-        <attribute name="startMaximumPoolSize">10</attribute>
-        <attribute name="scheduledMaximumPoolSize">10</attribute>
-        <reference name="TransactionContextManager"><gbean-name>*:name=TransactionContextManager,*</gbean-name></reference>
+        <reference name="SyncPool">
+            <name>DefaultThreadPool</name>
+        </reference>
+        <reference name="StartPool">
+            <name>DefaultThreadPool</name>
+        </reference>
+        <reference name="ScheduledPool">
+            <name>DefaultThreadPool</name>
+        </reference>
+        <reference name="TransactionContextManager">
+            <name>TransactionContextManager</name>
+        </reference>
     </gbean>
 
     <gbean name="TransactionManager" class="org.apache.geronimo.transaction.manager.TransactionManagerImplGBean">
         <attribute name="defaultTransactionTimeoutSeconds">10</attribute>
         <references name="ResourceManagers">
-            <pattern><gbean-name>*:j2eeType=JCAManagedConnectionFactory,*</gbean-name></pattern>
-            <pattern><gbean-name>*:j2eeType=MessageDrivenBean,*</gbean-name></pattern>
+            <pattern><name>JCAManagedConnectionFactory</name></pattern>
+            <pattern><name>MessageDrivenBean</name></pattern>
         </references>
     </gbean>
 
     <gbean name="TransactionContextManager" class="org.apache.geronimo.transaction.context.TransactionContextManagerGBean">
-        <reference name="TransactionManager"><gbean-name>*:name=TransactionManager,*</gbean-name></reference>
-        <reference name="XidImporter"><gbean-name>*:name=TransactionManager,*</gbean-name></reference>
+        <reference name="TransactionManager"><name>TransactionManager</name></reference>
+        <reference name="XidImporter"><name>TransactionManager</name></reference>
     </gbean>
 
 </application>

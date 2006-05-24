@@ -27,5 +27,5 @@ public interface EJBModule extends J2EEModule {
      * @see "JSR77.3.9.1.1"
      * @return the ObjectNames of the EJBs in this EJB JAR
      */
-    String[] getEJBs();
+    String[] getEjbs();
 }

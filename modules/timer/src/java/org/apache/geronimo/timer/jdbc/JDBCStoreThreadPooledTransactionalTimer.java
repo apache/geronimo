@@ -23,15 +23,15 @@ import java.sql.SQLException;
 import javax.sql.DataSource;
 
 import EDU.oswego.cs.dl.util.concurrent.Executor;
-import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
+import org.apache.geronimo.connector.outbound.ConnectionFactorySource;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.timer.PersistentTimer;
 import org.apache.geronimo.timer.ThreadPooledTimer;
 import org.apache.geronimo.timer.TransactionalExecutorTaskFactory;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
  *
@@ -43,9 +43,8 @@ public class JDBCStoreThreadPooledTransactionalTimer extends ThreadPooledTimer {
 
     public JDBCStoreThreadPooledTransactionalTimer(int repeatCount,
             TransactionContextManager transactionContextManager,
-            ManagedConnectionFactoryWrapper managedConnectionFactoryWrapper,
+            ConnectionFactorySource managedConnectionFactoryWrapper,
             Executor threadPool,
-            Serializable derbySystem,
             Kernel kernel) throws SQLException {
         super(new TransactionalExecutorTaskFactory(transactionContextManager, repeatCount),
                 new JDBCWorkerPersistence(kernel.getKernelName(), (DataSource)managedConnectionFactoryWrapper.$getResource(), false), threadPool, transactionContextManager);
@@ -60,12 +59,11 @@ public class JDBCStoreThreadPooledTransactionalTimer extends ThreadPooledTimer {
 
         infoFactory.addAttribute("repeatCount", int.class, true);
         infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
-        infoFactory.addReference("ManagedConnectionFactoryWrapper", ManagedConnectionFactoryWrapper.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
+        infoFactory.addReference("ManagedConnectionFactoryWrapper", ConnectionFactorySource.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
         infoFactory.addReference("ThreadPool", Executor.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.addReference("DerbySystem", Serializable.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addAttribute("kernel", Kernel.class, false);
 
-        infoFactory.setConstructor(new String[] {"repeatCount", "TransactionContextManager", "ManagedConnectionFactoryWrapper", "ThreadPool", "DerbySystem", "kernel"});
+        infoFactory.setConstructor(new String[] {"repeatCount", "TransactionContextManager", "ManagedConnectionFactoryWrapper", "ThreadPool", "kernel"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

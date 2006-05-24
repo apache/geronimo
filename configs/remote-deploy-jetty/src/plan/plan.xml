@@ -18,14 +18,13 @@
 
 <!-- $Rev$ $Date$ -->
 
-<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0"
+<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.1"
          xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1"
-         xmlns:cfg="http://geronimo.apache.org/xml/ns/deployment-1.0"
-         configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
+         xmlns:cfg="http://geronimo.apache.org/xml/ns/deployment-1.1"
+
     >
 
     <context-root>/remote-deploy</context-root>
-    <context-priority-classloader>true</context-priority-classloader>
     <security-realm-name>geronimo-properties-realm</security-realm-name>
     <sec:security>
         <sec:default-principal>

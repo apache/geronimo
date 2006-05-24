@@ -16,27 +16,20 @@
  */
 package org.apache.geronimo.console.apache.jk;
 
-import org.apache.geronimo.console.MultiPageModel;
-import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.kernel.config.ConfigurationInfo;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.management.geronimo.WebModule;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import java.io.IOException;
+import java.util.List;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
-import java.io.IOException;
-import java.io.File;
-import java.util.List;
-import java.net.URI;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.console.MultiPageModel;
+import org.apache.geronimo.console.util.ConfigurationData;
+import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.management.geronimo.WebModule;
 
 /**
  * Handler for the screen where you select the webapps to expose through Apache
@@ -56,41 +49,28 @@ public class WebAppHandler extends BaseApacheHandler {
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel amodel) throws PortletException, IOException {
         ApacheModel model = (ApacheModel) amodel;
-        ConfigurationInfo[] webApps = PortletManager.getConfigurations(request, ConfigurationModuleType.WAR, true);
+        ConfigurationData[] webApps = PortletManager.getConfigurations(request, ConfigurationModuleType.WAR, true);
         if(model.getWebApps().size() == 0) {
             List list = model.getWebApps();
             for (int i = 0; i < webApps.length; i++) {
-                ConfigurationInfo app = webApps[i];
-                if(!app.getState().isRunning()) {
-                    continue;
-                }
-                ObjectName base = app.getStoreName();
-                WebAppData data = new WebAppData(app.getConfigID().toString(), false, null, false);
-                try {
-                    ObjectName module = ObjectName.getInstance(base.getDomain()+":J2EEServer="+base.getKeyProperty("J2EEServer")+",J2EEApplication="+app.getParentID()+",j2eeType=WebModule,name="+app.getConfigID());
-                    WebModule web = (WebModule) PortletManager.getManagedBean(request, module.getCanonicalName());
+                ConfigurationData app = webApps[i];
+                WebAppData data = new WebAppData(app.getParentName().getArtifact(), app.getChildName(), app.getModuleBeanName() == null ? null : app.getModuleBeanName(), false, null, false);
+                if (app.isRunning()) {
+                    WebModule web = (WebModule) PortletManager.getManagedBean(request, app.getModuleBeanName());
                     data.setContextRoot(web.getContextPath());
-                    ConfigurationStore store = (ConfigurationStore) PortletManager.getManagedBean(request, app.getStoreName().getCanonicalName());
-                    String path = getPathToConfiguration(store, app.getParentID() == null ? app.getConfigID() : app.getParentID());
-                    if(app.getParentID() == null) {
-                        path = path + File.separator + "web";
+                    String path;
+                    if(web.getWARDirectory().getProtocol().equals("file")) {
+                        path = web.getWARDirectory().getPath();
                     } else {
-                        path = path + File.separator + app.getConfigID();
+                        path = "WARMustBeUnpacked";
                     }
+
                     data.setWebAppDir(path);
-                } catch (MalformedObjectNameException e) {
-                    log.error("I sure didn't expect to get this exception", e);
-                } catch (NoSuchConfigException e) {
-                    log.error("I sure didn't expect to get this exception", e);
                 }
                 list.add(data);
             }
         }
         request.setAttribute("webApps", webApps);
-    }
-
-    private String getPathToConfiguration(ConfigurationStore store, URI moduleOrParentID) throws NoSuchConfigException {
-        return "PATH_IN_CONFIG_STORE"; // todo: replace this with code to actually look up the path to the module
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel amodel) throws PortletException, IOException {

@@ -16,12 +16,18 @@
     limitations under the License.
 -->
 <web-app
-    xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.0"
-    xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1"
-    configId="org/apache/geronimo/test">
+    xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.1"
+    xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1">
+    <environment>
+        <moduleId>
+            <groupId>foo</groupId>
+            <artifactId>bar</artifactId>
+            <version>1</version>
+            <type>car</type>
+        </moduleId>
+    </environment>
 
     <context-root>/test</context-root>
-    <context-priority-classloader>false</context-priority-classloader>
     <container-config>
         <tomcat xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.0/tomcat">
 <!--            <host>tomcathost</host>-->
@@ -48,7 +54,7 @@
     <gbean name="FirstValve" class="org.apache.geronimo.tomcat.ValveGBean">
         <attribute name="className">org.apache.catalina.authenticator.SingleSignOn</attribute>
         <reference name="NextValve">
-            <moduleType>J2EEModule</moduleType>
+            <!--<moduleType>J2EEModule</moduleType>-->
             <name>SecondValve</name>
         </reference>
     </gbean>

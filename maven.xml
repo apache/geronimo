@@ -18,7 +18,7 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project
+<project default="new"
     xmlns:j="jelly:core"
     xmlns:u="jelly:util"
     xmlns:ant="jelly:ant"
@@ -27,63 +27,50 @@
     xmlns:modules="local:modules"
     xmlns:gscm="g:scm">
 
+
     <goal name="new0">
-        <attainGoal name="m:tranql"/>
+        <maven:reactor basedir="${basedir}" includes="tranql/tranql/project.xml"
+            excludes="" goals="multiproject:install-callback" banner="tranql" ignoreFailures="false" />
     </goal>
 
     <goal name="new00">
-        <attainGoal name="m:tranql2"/>
+        <maven:reactor basedir="${basedir}" includes="tranql/connector/project.xml,tranql/vendor/*/*/project.xml,tranql/derby/*/project.xml"
+            excludes="" goals="multiproject:install-callback" banner="tranql-connector" ignoreFailures="false" />
     </goal>
 
     <goal name="new1">
-        <attainGoal name="m:geronimo:core"/>
+        <maven:reactor basedir="${basedir}" includes="modules/*/project.xml,plugins/*/project.xml"
+            goals="multiproject:install-callback" banner="geronimo and geronimo-plugins" ignoreFailures="false" />
     </goal>
 
     <goal name="new2">
-        <attainGoal name="m:openejb"/>
+        <maven:reactor basedir="${basedir}" includes="openejb/modules/core/project.xml,openejb/modules/pkgen-builder/project.xml,openejb/modules/openejb-builder/project.xml"
+            excludes="" goals="multiproject:install-callback" banner="openejb" ignoreFailures="false" />
     </goal>
 
     <goal name="new3">
-        <attainGoal name="m:geronimo:applications"/>
+        <maven:reactor basedir="${basedir}" includes="applications/*/project.xml,applications/daytrader/derby/project.xml"
+            excludes="" goals="multiproject:install-callback" banner="applications" ignoreFailures="false" />
     </goal>
 
     <goal name="new4">
-        <attainGoal name="m:geronimo:configs"/>
+        <maven:reactor basedir="${basedir}" includes="configs/*/project.xml"
+            excludes="" goals="multiproject:install-callback" banner="configurations" ignoreFailures="false" />
     </goal>
 
     <goal name="new5">
-        <attainGoal name="m:geronimo:assemblies"/>
+        <maven:reactor basedir="${basedir}" includes="assemblies/*/project.xml"
+            excludes="" goals="multiproject:install-callback" banner="assemblies" ignoreFailures="false" />
     </goal>
 
     <goal name="new">
         <attainGoal name="new0"/>
         <attainGoal name="new00"/>
         <attainGoal name="new1"/>
+        <attainGoal name="new2"/>
         <attainGoal name="new3"/>
         <attainGoal name="new4"/>
         <attainGoal name="new5"/>
-    	<!-- OpenEJB depends on Configs -->
-        <attainGoal name="new2"/>
-        <j:if test="${m2}">
-            <attainGoal name="m2"/>
-        </j:if>
-    </goal>
-
-    <!-- ============= -->
-    <!--    Maven 2    -->
-    <!-- ============= -->
-    <goal name="m2">
-        <j:set var="goal" value="install" />
-        <attainGoal name="execmvn" />
-    </goal>
-
-    <goal name="execmvn">
-        <ant:exec executable="mvn.bat" os="Windows XP">
-            <ant:arg line="-Dmodule=kernel ${goal}" />
-        </ant:exec>
-        <ant:exec executable="mvn" os="unix,mac">
-            <ant:arg line="-Dmodule=kernel ${goal}" />
-        </ant:exec>
     </goal>
 
     <!-- ============= -->
@@ -106,7 +93,7 @@
        |    Same as m:clean m:default
        |
        | m:rebuild-all
-       |    Same as m:clean m:clean-repo m:default and it includes geronimo-spec modules
+       |    Same as m:clean m:clean-repo m:default and it includes geronimo spec modules
        |
        | m:checkout or m:co
        |    Checks out ActiveMQ, OpenEJB, and TranQL
@@ -160,74 +147,22 @@
         </j:forEach>
     </goal>
 
-    <goal name="m:-all">
-        <!-- only setup multiproject for clean-all and eclipse goals -->
-        <j:set var="maven.multiproject.includes" value="${maven.geronimo.core.includes},${maven.tranql.core.includes},${maven.tranql.connector.includes},${maven.openejb.includes},${maven.geronimo.applications.includes},${maven.geronimo.configs.includes},${maven.geronimo.assemblies.includes}"/>
-        <j:set var="geronimo.all" value="true"/>
-    </goal>
-
-    <goal name="m:rebuild-all" prereqs="m:-all,m:clean,m:clean-repo,m:default"/>
+    <goal name="m:rebuild-all" prereqs="m:clean,m:clean-repo,m:default"/>
     <goal name="m:rebuild" prereqs="m:clean,m:default"/>
 
-    <goal name="m:build-all" prereqs="m:-all,m:default"/>
+    <goal name="m:build-all" prereqs="m:default"/>
     <goal name="m:build" prereqs="m:default"/>
     <goal name="m:default" prereqs="m:init">
-        <j:if test="${context.getVariable('geronimo.all') == 'true'}">
-            <u:available file="${basedir}/tranql">
-                <attainGoal name="m:tranql"/>
-                <attainGoal name="m:tranql2"/>
-            </u:available>
-        </j:if>
-        <attainGoal name="m:geronimo:core"/>
-        <j:if test="${context.getVariable('geronimo.all') == 'true'}">
-            <u:available file="${basedir}/openejb">
-                <attainGoal name="m:openejb"/>
-            </u:available>
-        </j:if>
-        <attainGoal name="m:geronimo:applications"/>
-        <attainGoal name="m:geronimo:configs"/>
-        <attainGoal name="m:geronimo:assemblies"/>
-        <j:if test="${m2}">
-            <attainGoal name="m2"/>
-        </j:if>
+        <!-- don't run the active mq tests they take way too long and don't complete successfully -->
+        <!-- <u:available file="${basedir}/activemq">
+            <mkdir dir="${basedir}/activemq/modules/core/target/test-reports/"/>
+            <ant:touch file="${basedir}/activemq/modules/core/target/test-reports/tstamp"/>
+        </u:available> -->
+        <j:set var="goal" value="default"/>
+        <attainGoal name="multiproject:goal"/>
     </goal>
 
-    <goal name="m:tranql">
-        <maven:reactor basedir="${basedir}" includes="${maven.tranql.core.includes}"
-            excludes="${maven.tranql.core.excludes}" goals="multiproject:install-callback" banner="tranql" ignoreFailures="false" />
-    </goal>
-
-    <goal name="m:tranql2">
-        <maven:reactor basedir="${basedir}" includes="${maven.tranql.connector.includes}"
-            excludes="${maven.tranql.connector.excludes}" goals="multiproject:install-callback" banner="tranql-connector/-vendor/-derby" ignoreFailures="false" />
-    </goal>
-
-    <goal name="m:geronimo:core">
-        <maven:reactor basedir="${basedir}" includes="${maven.geronimo.core.includes}"
-            excludes="${maven.geronimo.core.excludes}" goals="multiproject:install-callback" banner="geronimo-modules and geronimo-plugins" ignoreFailures="false" />
-    </goal>
-
-    <goal name="m:openejb">
-        <maven:reactor basedir="${basedir}" includes="${maven.openejb.includes}"
-            excludes="${maven.openejb.excludes}" goals="multiproject:install-callback" banner="openejb" ignoreFailures="false" />
-    </goal>
-
-    <goal name="m:geronimo:applications">
-        <maven:reactor basedir="${basedir}" includes="${maven.geronimo.applications.includes}"
-            excludes="${maven.geronimo.applications.excludes}" goals="multiproject:install-callback" banner="geronimo-applications" ignoreFailures="false" />
-    </goal>
-
-    <goal name="m:geronimo:configs">
-        <maven:reactor basedir="${basedir}" includes="${maven.geronimo.configs.includes}"
-            excludes="${maven.geronimo.configs.excludes}" goals="multiproject:install-callback" banner="geronimo-configs" ignoreFailures="false" />
-    </goal>
-
-    <goal name="m:geronimo:assemblies">
-        <maven:reactor basedir="${basedir}" includes="${maven.geronimo.assemblies.includes}"
-            excludes="${maven.geronimo.assemblies.excludes}" goals="multiproject:install-callback" banner="geronimo-assemblies" ignoreFailures="false" />
-    </goal>
-
-    <goal name="m:clean-all" prereqs="m:-all,m:clean"/>
+    <goal name="m:clean-all" prereqs="m:clean"/>
     <goal name="m:clean" prereqs="m:init">
         <u:tokenize var="directories" delim=",">${modules.directories}</u:tokenize>
         <j:forEach var="directory" items="${directories}">
@@ -346,7 +281,7 @@
         <!--gscm:checkout module="howl/logger" root="${geronimo.howl.cvs.access}@cvs.forge.objectweb.org:/cvsroot/howl"/-->
         <!-- http isn't working to svn.codehaus.org. so using https for now... -->
         <ant:exec dir="${basedir}" executable="svn">
-            <ant:arg line="checkout https://svn.codehaus.org/openejb/trunk/openejb2 openejb"/>
+            <ant:arg line="checkout https://svn.codehaus.org/openejb/branches/v2_1/openejb2 openejb"/>
         </ant:exec>
 <!--        <gscm:checkout-tag module="openejb" root="${geronimo.openejb.cvs.access}@cvs.openejb.org:/home/projects/openejb/scm" tag="v2_0"/> -->
 <!--
@@ -361,11 +296,9 @@
         </ant:exec>
         <!--gscm:update dir="${basedir}/activemq"/-->
         <!--gscm:update dir="${basedir}/howl/logger"/-->
-        <u:available file="${basedir}/openejb">
-            <ant:exec dir="${basedir}/openejb" executable="svn">
-                <ant:arg line="update"/>
-            </ant:exec>
-        </u:available>
+        <ant:exec dir="${basedir}/openejb" executable="svn">
+            <ant:arg line="update"/>
+        </ant:exec>
 <!--
         <gscm:update dir="${basedir}/tranql/tranql"/>
         <gscm:update dir="${basedir}/tranql/connector"/>
@@ -375,12 +308,8 @@
     <goal name="m:fresh-checkout">
         <!--delete dir="${basedir}/activemq"/-->
         <!--delete dir="${basedir}/howl"/-->
-        <u:available file="${basedir}/openejb">
-            <delete dir="${basedir}/openejb"/>
-        </u:available>
-        <u:available file="${basedir}/tranql">
-            <delete dir="${basedir}/tranql"/>
-        </u:available>
+        <delete dir="${basedir}/openejb"/>
+        <!--<delete dir="${basedir}/tranql"/>-->
         <attainGoal name="m:checkout"/>
         <ant:exec dir="${basedir}" executable="svn">
             <ant:arg line="update"/>
@@ -415,7 +344,7 @@
          -->
 
         <j:if test="${context.getVariable('module.types') == null}">
-            <j:set var="module.types" value="modules,applications,plugins"/>
+            <j:set var="module.types" value="modules,applications,plugins,openejb/modules"/>
         </j:if>
 
         <j:if test="${context.getVariable('modules') == null}">

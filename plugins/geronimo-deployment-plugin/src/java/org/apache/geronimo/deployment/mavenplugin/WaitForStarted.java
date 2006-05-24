@@ -16,29 +16,25 @@
  */
 package org.apache.geronimo.deployment.mavenplugin;
 
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.InternalKernelException;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.jmx.KernelDelegate;
-import org.apache.geronimo.kernel.management.State;
-
+import java.util.HashMap;
+import java.util.Map;
 import javax.management.MBeanServerConnection;
-import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
-import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
+
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.kernel.InternalKernelException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.system.jmx.KernelDelegate;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 public class WaitForStarted extends AbstractModuleCommand {
 
     private int maxTries = 40;
     private int retryIntervalMilliseconds = 1000;
 
-    private MBeanServerConnection mbServerConnection;
-    private Kernel kernel;
     private String id;
 
     public String getId() {
@@ -69,12 +65,14 @@ public class WaitForStarted extends AbstractModuleCommand {
 
         JMXServiceURL address = new JMXServiceURL("service:" + uri);
         ClassLoader oldcl = Thread.currentThread().getContextClassLoader();
+
+        Kernel kernel;
         try {
             Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
             for (int tries = maxTries; true; tries--) {
                 try {
                     JMXConnector jmxConnector = JMXConnectorFactory.connect(address, environment);
-                    mbServerConnection = jmxConnector.getMBeanServerConnection();
+                    MBeanServerConnection mbServerConnection = jmxConnector.getMBeanServerConnection();
                     kernel = new KernelDelegate(mbServerConnection);
                     break;
                 } catch (Exception e) {
@@ -87,16 +85,13 @@ public class WaitForStarted extends AbstractModuleCommand {
         } finally {
             Thread.currentThread().setContextClassLoader(oldcl);
         }
-        ObjectName configName = Configuration.getConfigurationObjectName(new URI(getId()));
+        AbstractName configName = Configuration.getConfigurationAbstractName(Artifact.create(getId()));
         for (int tries = maxTries; tries > 0; tries--) {
             try {
-                int state = kernel.getGBeanState(configName);
-                if (state == State.RUNNING_INDEX) {
+                if (kernel.isRunning(configName)) {
                     return;
                 }
             } catch (InternalKernelException e) {
-                //hasn't been loaded yet, keep trying
-            } catch (GBeanNotFoundException e) {
                 //hasn't been loaded yet, keep trying
             }
             Thread.sleep(retryIntervalMilliseconds);

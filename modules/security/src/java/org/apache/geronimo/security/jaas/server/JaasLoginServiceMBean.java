@@ -24,6 +24,7 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.login.LoginException;
 
 import org.apache.geronimo.common.GeronimoSecurityException;
+import org.apache.geronimo.management.geronimo.LoginService;
 
 
 /**
@@ -32,44 +33,7 @@ import org.apache.geronimo.common.GeronimoSecurityException;
  *
  * @version $Rev$ $Date$
  */
-public interface JaasLoginServiceMBean {
-    /**
-     * Return the object name of this login service.
-     *
-     * @return the object name of this service
-     */
-    public String getObjectName();
-
-    /**
-     * GBean property
-     */
-    public Collection getRealms() throws GeronimoSecurityException;
-
-    /**
-     * GBean property
-     */
-    public void setRealms(Collection realms);
-
-    /**
-     * GBean property
-     */
-    public int getMaxLoginDurationMillis();
-
-    /**
-     * GBean property
-     */
-    public void setMaxLoginDurationMillis(int maxLoginDurationMillis);
-
-    /**
-     * GBean property
-     */
-    public int getExpiredLoginScanIntervalMillis();
-
-    /**
-     * GBean property
-     */
-    public void setExpiredLoginScanIntervalMillis(int expiredLoginScanIntervalMillis);
-
+public interface JaasLoginServiceMBean extends LoginService {
     /**
      * Starts a new authentication process on behalf of an end user.  The
      * returned session id will identify that user throughout the user's interaction

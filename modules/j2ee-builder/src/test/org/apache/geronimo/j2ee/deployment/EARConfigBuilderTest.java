@@ -17,54 +17,63 @@
 
 package org.apache.geronimo.j2ee.deployment;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.jar.JarFile;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
+
 import javax.xml.namespace.QName;
 
 import junit.extensions.TestSetup;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelFactory;
-import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.Jsr77Naming;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.IOUtil;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.config.NullConfigurationStore;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.ImportType;
+import org.apache.geronimo.kernel.repository.ArtifactManager;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 
 /**
- * @version $Rev: 6687 $ $Date$
+ * @version $Rev:386276 $ $Date$
  */
 public class EARConfigBuilderTest extends TestCase {
     private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
 
-    private static String WEB_NAMESPACE="foo";
+    private static String WEB_NAMESPACE = "foo";
     private static JarFile earFile;
+    private static MockConfigStore configStore = new MockConfigStore();
+    private static ArtifactManager artifactManager = new DefaultArtifactManager();
+    private static ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.EMPTY_SET, null);
     private static MockEJBConfigBuilder ejbConfigBuilder = new MockEJBConfigBuilder();
     private static MockWARConfigBuilder webConfigBuilder = new MockWARConfigBuilder();
     private static MockConnectorConfigBuilder connectorConfigBuilder = new MockConnectorConfigBuilder();
     private static ResourceReferenceBuilder resourceReferenceBuilder = connectorConfigBuilder;
     private static ModuleBuilder appClientConfigBuilder = null;
+    private final static ModuleIDBuilder idBuilder = new ModuleIDBuilder();
     private static ServiceReferenceBuilder serviceReferenceBuilder = new ServiceReferenceBuilder() {
 
         //it could return a Service or a Reference, we don't care
@@ -73,18 +82,33 @@ public class EARConfigBuilderTest extends TestCase {
         }
     };
 
-    private static final String j2eeServerName = "someDomain";
-    private static final ObjectName transactionManagerObjectName = JMXUtil.getObjectName(j2eeServerName + ":type=TransactionManager");
-    private static final ObjectName connectionTrackerObjectName = JMXUtil.getObjectName(j2eeServerName + ":type=ConnectionTracker");
-    private static final ObjectName transactionalTimerObjectName = JMXUtil.getObjectName(j2eeServerName + ":type=ThreadPooledTimer,name=TransactionalThreaPooledTimer");
-    private static final ObjectName nonTransactionalTimerObjectName = JMXUtil.getObjectName(j2eeServerName + ":type=ThreadPooledTimer,name=NonTransactionalThreaPooledTimer");
-    private URI[] defaultParentId;
+    private static final Naming naming = new Jsr77Naming();
+
+    private static final AbstractName rootConfig = naming.createRootName(new Artifact("test", "stuff", "", "car"), "test", "test") ;
+    private static final AbstractName transactionManagerObjectName = naming.createChildName(rootConfig, "TransactionManager", "TransactionManager");
+    private static final AbstractName connectionTrackerObjectName = naming.createChildName(rootConfig, "ConnectionTracker", "ConnectionTracker");
+    private static final AbstractName transactionalTimerObjectName = naming.createChildName(rootConfig, "TransactionalThreaPooledTimer", "ThreadPooledTimer");
+    private static final AbstractName nonTransactionalTimerObjectName = naming.createChildName(rootConfig, "NonTransactionalThreaPooledTimer", "ThreadPooledTimer");
+    private static final AbstractName serverName = naming.createChildName(rootConfig, "J2EEServer", "Server");
+
+    private static final AbstractName earName = naming.createRootName(new Artifact("test", "test-ear", "", "ear"), "test", NameFactory.J2EE_APPLICATION) ;
+    private static final AbstractName ejbModuleName = naming.createChildName(earName, "ejb-jar", NameFactory.EJB_MODULE);
+    private static final AbstractName webModuleName = naming.createChildName(earName, "war", NameFactory.WEB_MODULE);
+    private static final AbstractName raModuleName = naming.createChildName(earName, "rar", NameFactory.RESOURCE_ADAPTER_MODULE);
+
+    private Environment defaultParentId;
     private static String contextRoot = "test";
     private static final Map portMap = null;
+    private final AbstractNameQuery transactionContextManagerAbstractNameQuery = new AbstractNameQuery(transactionManagerObjectName, null);
+    private final AbstractNameQuery connectionTrackerAbstractNameQuery = new AbstractNameQuery(connectionTrackerObjectName, null);
+    private final AbstractNameQuery transactionalTimerAbstractNameQuery = new AbstractNameQuery(transactionalTimerObjectName, null);
+    private final AbstractNameQuery nonTransactionalTimerAbstractNameQuery = new AbstractNameQuery(nonTransactionalTimerObjectName, null);
+    private final AbstractNameQuery corbaGBeanAbstractNameQuery = new AbstractNameQuery(serverName, null);
 
     protected void setUp() throws Exception {
         super.setUp();
-        defaultParentId = new URI[]{new URI("org/apache/geronimo/Server")};
+        defaultParentId = new Environment();
+        defaultParentId.addDependency(new Artifact("geronimo", "test", "1", "car"), ImportType.ALL);
     }
 
     public static Test suite() throws Exception {
@@ -92,10 +116,10 @@ public class EARConfigBuilderTest extends TestCase {
         TestSetup setup14 = new TestSetup(inner) {
             protected void setUp() throws Exception {
                 earFile = DeploymentUtil.createJarFile(new File(basedir, "target/test-ear14/test-ear.ear"));
-                ejbConfigBuilder.ejbModule = new EJBModule(false, null, null, null, "test-ejb-jar.jar", null, null, null);
+                ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, "test-ejb-jar.jar", null, null, null);
                 webConfigBuilder.contextRoot = contextRoot;
-                webConfigBuilder.webModule = new WebModule(false, null, null, null, "test-war.war", null, null, null, contextRoot, portMap, WEB_NAMESPACE);
-                connectorConfigBuilder.connectorModule = new ConnectorModule(false, null, null, null, "test-rar.rar", null, null, null);
+                webConfigBuilder.webModule = new WebModule(false, webModuleName, null, null, "test-war.war", null, null, null, contextRoot, portMap, WEB_NAMESPACE);
+                connectorConfigBuilder.connectorModule = new ConnectorModule(false, raModuleName, null, null, "test-rar.rar", null, null, null);
             }
 
             protected void tearDown() {
@@ -108,10 +132,10 @@ public class EARConfigBuilderTest extends TestCase {
         TestSetup setupNaked14 = new TestSetup(inner) {
             protected void setUp() throws Exception {
                 earFile = DeploymentUtil.createJarFile(new File(basedir, "target/test-ear14/test-naked-ear.ear"));
-                ejbConfigBuilder.ejbModule = new EJBModule(false, null, null, null, "test-ejb-jar.jar", null, null, null);
+                ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, "test-ejb-jar.jar", null, null, null);
                 webConfigBuilder.contextRoot = contextRoot;
-                webConfigBuilder.webModule = new WebModule(false, null, null, null, "test-war.war", null, null, null, contextRoot, portMap, WEB_NAMESPACE);
-                connectorConfigBuilder.connectorModule = new ConnectorModule(false, null, null, null, "test-rar.rar", null, null, null);
+                webConfigBuilder.webModule = new WebModule(false, webModuleName, null, null, "test-war.war", null, null, null, contextRoot, portMap, WEB_NAMESPACE);
+                connectorConfigBuilder.connectorModule = new ConnectorModule(false, raModuleName, null, null, "test-rar.rar", null, null, null);
             }
 
             protected void tearDown() {
@@ -124,10 +148,10 @@ public class EARConfigBuilderTest extends TestCase {
         TestSetup setup13 = new TestSetup(inner) {
             protected void setUp() throws Exception {
                 earFile = DeploymentUtil.createJarFile(new File(basedir, "target/test-ear13/test-ear.ear"));
-                ejbConfigBuilder.ejbModule = new EJBModule(false, null, null, null, "test-ejb-jar.jar", null, null, null);
+                ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, "test-ejb-jar.jar", null, null, null);
                 webConfigBuilder.contextRoot = contextRoot;
-                webConfigBuilder.webModule = new WebModule(false, null, null, null, "test-war.war", null, null, null, contextRoot, portMap, WEB_NAMESPACE);
-                connectorConfigBuilder.connectorModule = new ConnectorModule(false, null, null, null, "test-rar.rar", null, null, null);
+                webConfigBuilder.webModule = new WebModule(false, webModuleName, null, null, "test-war.war", null, null, null, contextRoot, portMap, WEB_NAMESPACE);
+                connectorConfigBuilder.connectorModule = new ConnectorModule(false, raModuleName, null, null, "test-rar.rar", null, null, null);
             }
 
             protected void tearDown() {
@@ -140,10 +164,10 @@ public class EARConfigBuilderTest extends TestCase {
         TestSetup setupNaked13 = new TestSetup(inner) {
             protected void setUp() throws Exception {
                 earFile = DeploymentUtil.createJarFile(new File(basedir, "target/test-ear13/test-naked-ear.ear"));
-                ejbConfigBuilder.ejbModule = new EJBModule(false, null, null, null, "test-ejb-jar.jar", null, null, null);
+                ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, "test-ejb-jar.jar", null, null, null);
                 webConfigBuilder.contextRoot = contextRoot;
-                webConfigBuilder.webModule = new WebModule(false, null, null, null, "test-war.war", null, null, null, contextRoot, portMap, WEB_NAMESPACE);
-                connectorConfigBuilder.connectorModule = new ConnectorModule(false, null, null, null, "test-rar.rar", null, null, null);
+                webConfigBuilder.webModule = new WebModule(false, webModuleName, null, null, "test-war.war", null, null, null, contextRoot, portMap, WEB_NAMESPACE);
+                connectorConfigBuilder.connectorModule = new ConnectorModule(false, raModuleName, null, null, "test-rar.rar", null, null, null);
             }
 
             protected void tearDown() {
@@ -156,10 +180,10 @@ public class EARConfigBuilderTest extends TestCase {
         TestSetup setupUnpacked = new TestSetup(inner) {
             protected void setUp() throws Exception {
                 earFile = DeploymentUtil.createJarFile(new File(basedir, "target/test-unpacked-ear/full/"));
-                ejbConfigBuilder.ejbModule = new EJBModule(false, null, null, null, "test-ejb-jar.jar/", null, null, null);
+                ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, "test-ejb-jar.jar/", null, null, null);
                 webConfigBuilder.contextRoot = contextRoot;
-                webConfigBuilder.webModule = new WebModule(false, null, null, null, "test-war.war/", null, null, null, contextRoot, portMap, WEB_NAMESPACE);
-                connectorConfigBuilder.connectorModule = new ConnectorModule(false, null, null, null, "test-rar.rar", null, null, null);
+                webConfigBuilder.webModule = new WebModule(false, webModuleName, null, null, "test-war.war/", null, null, null, contextRoot, portMap, WEB_NAMESPACE);
+                connectorConfigBuilder.connectorModule = new ConnectorModule(false, raModuleName, null, null, "test-rar.rar", null, null, null);
             }
 
             protected void tearDown() {
@@ -172,10 +196,10 @@ public class EARConfigBuilderTest extends TestCase {
         TestSetup setupUnpackedNaked = new TestSetup(inner) {
             protected void setUp() throws Exception {
                 earFile = DeploymentUtil.createJarFile(new File(basedir, "target/test-unpacked-ear/naked/"));
-                ejbConfigBuilder.ejbModule = new EJBModule(false, null, null, null, "test-ejb-jar.jar/", null, null, null);
+                ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, "test-ejb-jar.jar/", null, null, null);
                 webConfigBuilder.contextRoot = contextRoot;
-                webConfigBuilder.webModule = new WebModule(false, null, null, null, "test-war.war", null, null, null, contextRoot, portMap, WEB_NAMESPACE);
-                connectorConfigBuilder.connectorModule = new ConnectorModule(false, null, null, null, "test-rar.rar", null, null, null);
+                webConfigBuilder.webModule = new WebModule(false, webModuleName, null, null, "test-war.war", null, null, null, contextRoot, portMap, WEB_NAMESPACE);
+                connectorConfigBuilder.connectorModule = new ConnectorModule(false, raModuleName, null, null, "test-rar.rar", null, null, null);
             }
 
             protected void tearDown() {
@@ -188,10 +212,10 @@ public class EARConfigBuilderTest extends TestCase {
         TestSetup setupUnpackedAltDD = new TestSetup(inner) {
             protected void setUp() throws Exception {
                 earFile = DeploymentUtil.createJarFile(new File(basedir, "target/test-unpacked-ear/alt-dd/"));
-                ejbConfigBuilder.ejbModule = new EJBModule(false, null, null, null, "test-ejb-jar.jar/", null, null, null);
+                ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, "test-ejb-jar.jar/", null, null, null);
                 webConfigBuilder.contextRoot = contextRoot;
-                webConfigBuilder.webModule = new WebModule(false, null, null, null, "test-war.war/", null, null, null, contextRoot, portMap, WEB_NAMESPACE);
-                connectorConfigBuilder.connectorModule = new ConnectorModule(false, null, null, null, "test-rar.rar", null, null, null);
+                webConfigBuilder.webModule = new WebModule(false, webModuleName, null, null, "test-war.war/", null, null, null, contextRoot, portMap, WEB_NAMESPACE);
+                connectorConfigBuilder.connectorModule = new ConnectorModule(false, raModuleName, null, null, "test-rar.rar", null, null, null);
             }
 
             protected void tearDown() {
@@ -204,10 +228,10 @@ public class EARConfigBuilderTest extends TestCase {
         TestSetup setupPackedAltDD = new TestSetup(inner) {
             protected void setUp() throws Exception {
                 earFile = DeploymentUtil.createJarFile(new File(basedir, "target/test-unpacked-ear/alt-dd.ear"));
-                ejbConfigBuilder.ejbModule = new EJBModule(false, null, null, null, "test-ejb-jar.jar/", null, null, null);
+                ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, "test-ejb-jar.jar/", null, null, null);
                 webConfigBuilder.contextRoot = contextRoot;
-                webConfigBuilder.webModule = new WebModule(false, null, null, null, "test-war.war/", null, null, null, contextRoot, portMap, WEB_NAMESPACE);
-                connectorConfigBuilder.connectorModule = new ConnectorModule(false, null, null, null, "test-rar.rar", null, null, null);
+                webConfigBuilder.webModule = new WebModule(false, webModuleName, null, null, "test-war.war/", null, null, null, contextRoot, portMap, WEB_NAMESPACE);
+                connectorConfigBuilder.connectorModule = new ConnectorModule(false, raModuleName, null, null, "test-rar.rar", null, null, null);
             }
 
             protected void tearDown() {
@@ -231,149 +255,304 @@ public class EARConfigBuilderTest extends TestCase {
     }
 
     public void testBuildConfiguration() throws Exception {
-        Kernel kernel = KernelFactory.newInstance().createKernel("foo");
-        kernel.boot();
-
-        GBeanData store = new GBeanData(JMXUtil.getObjectName("foo:j2eeType=ConfigurationStore,name=mock"), MockConfigStore.GBEAN_INFO);
-        kernel.loadGBean(store, this.getClass().getClassLoader());
-        kernel.startGBean(store.getName());
-
-        ObjectName configurationManagerName = new ObjectName(":j2eeType=ConfigurationManager,name=Basic");
-        GBeanData configurationManagerData = new GBeanData(configurationManagerName, ConfigurationManagerImpl.GBEAN_INFO);
-        configurationManagerData.setReferencePatterns("Stores", Collections.singleton(store.getName()));
-        kernel.loadGBean(configurationManagerData, getClass().getClassLoader());
-        kernel.startGBean(configurationManagerName);
-
-        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, transactionManagerObjectName, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, null, ejbConfigBuilder, ejbConfigBuilder, webConfigBuilder, connectorConfigBuilder, resourceReferenceBuilder, appClientConfigBuilder, serviceReferenceBuilder, kernel);
-
-        File tempDir = null;
+        ConfigurationData configurationData = null;
+        DeploymentContext context = null;
         try {
-            tempDir = DeploymentUtil.createTempDir();
-            Object plan = configBuilder.getDeploymentPlan(null, earFile);
-            configBuilder.buildConfiguration(plan, earFile, tempDir);
+            EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
+                    transactionContextManagerAbstractNameQuery,
+                    connectionTrackerAbstractNameQuery,
+                    transactionalTimerAbstractNameQuery,
+                    nonTransactionalTimerAbstractNameQuery,
+                    corbaGBeanAbstractNameQuery,
+                    null,
+                    null,
+                    ejbConfigBuilder,
+                    ejbConfigBuilder,
+                    webConfigBuilder,
+                    connectorConfigBuilder,
+                    resourceReferenceBuilder,
+                    appClientConfigBuilder,
+                    serviceReferenceBuilder,
+                    naming);
+
+            Object plan = configBuilder.getDeploymentPlan(null, earFile, idBuilder);
+            context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earFile, idBuilder), plan, earFile, Collections.singleton(configStore), artifactResolver, configStore);
+            configurationData = context.getConfigurationData();
         } finally {
-            DeploymentUtil.recursiveDelete(tempDir);
-            kernel.shutdown();
+            if (context != null) {
+                context.close();
+            }
+            if (configurationData != null) {
+                DeploymentUtil.recursiveDelete(configurationData.getConfigurationDir());
+            }
         }
     }
 
     public void testBadEJBJARConfiguration() throws Exception {
-        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, transactionManagerObjectName, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, null, ejbConfigBuilder, ejbConfigBuilder, webConfigBuilder, connectorConfigBuilder, resourceReferenceBuilder, appClientConfigBuilder, serviceReferenceBuilder, null);
+        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
+                transactionContextManagerAbstractNameQuery,
+                connectionTrackerAbstractNameQuery,
+                transactionalTimerAbstractNameQuery,
+                nonTransactionalTimerAbstractNameQuery,
+                corbaGBeanAbstractNameQuery,
+                null,
+                null,
+                ejbConfigBuilder,
+                ejbConfigBuilder,
+                webConfigBuilder,
+                connectorConfigBuilder,
+                resourceReferenceBuilder,
+                appClientConfigBuilder,
+                serviceReferenceBuilder,
+                naming);
 
-        File tempDir = null;
+        ConfigurationData configurationData = null;
+        DeploymentContext context = null;
         try {
-            tempDir = DeploymentUtil.createTempDir();
-            Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-ejb-jar.xml"), earFile);
-            configBuilder.buildConfiguration(plan, earFile, tempDir);
+            Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-ejb-jar.xml"), earFile, idBuilder);
+            context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earFile, idBuilder), plan, earFile, Collections.singleton(configStore), artifactResolver, configStore);
+            configurationData = context.getConfigurationData();
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
-            if(e.getCause() instanceof IOException) {
+            if (e.getCause() instanceof IOException) {
                 fail("Should not be complaining about bad vendor DD for invalid module entry");
             }
         } finally {
-            DeploymentUtil.recursiveDelete(tempDir);
+            if (context != null) {
+                context.close();
+            }
+            if (configurationData != null) {
+                DeploymentUtil.recursiveDelete(configurationData.getConfigurationDir());
+            }
         }
     }
 
     public void testBadWARConfiguration() throws Exception {
-        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, transactionManagerObjectName, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, null, ejbConfigBuilder, ejbConfigBuilder, webConfigBuilder, connectorConfigBuilder, resourceReferenceBuilder, appClientConfigBuilder, serviceReferenceBuilder, null);
+        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
+                transactionContextManagerAbstractNameQuery,
+                connectionTrackerAbstractNameQuery,
+                transactionalTimerAbstractNameQuery,
+                nonTransactionalTimerAbstractNameQuery,
+                corbaGBeanAbstractNameQuery,
+                null,
+                null,
+                ejbConfigBuilder,
+                ejbConfigBuilder,
+                webConfigBuilder,
+                connectorConfigBuilder,
+                resourceReferenceBuilder,
+                appClientConfigBuilder,
+                serviceReferenceBuilder,
+                naming);
 
-        File tempDir = null;
+        ConfigurationData configurationData = null;
+        DeploymentContext context = null;
         try {
-            tempDir = DeploymentUtil.createTempDir();
-            Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-war.xml"), earFile);
-            configBuilder.buildConfiguration(plan, earFile, tempDir);
+            Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-war.xml"), earFile, idBuilder);
+            context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earFile, idBuilder), plan, earFile, Collections.singleton(configStore), artifactResolver, configStore);
+            configurationData = context.getConfigurationData();
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
-            if(e.getCause() instanceof IOException) {
+            if (e.getCause() instanceof IOException) {
                 fail("Should not be complaining about bad vendor DD for invalid module entry");
             }
         } finally {
-            DeploymentUtil.recursiveDelete(tempDir);
+            if (context != null) {
+                context.close();
+            }
+            if (configurationData != null) {
+                DeploymentUtil.recursiveDelete(configurationData.getConfigurationDir());
+            }
         }
     }
 
     public void testBadRARConfiguration() throws Exception {
-        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, transactionManagerObjectName, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, null, ejbConfigBuilder, ejbConfigBuilder, webConfigBuilder, connectorConfigBuilder, resourceReferenceBuilder, appClientConfigBuilder, serviceReferenceBuilder, null);
+        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
+                transactionContextManagerAbstractNameQuery,
+                connectionTrackerAbstractNameQuery,
+                transactionalTimerAbstractNameQuery,
+                nonTransactionalTimerAbstractNameQuery,
+                corbaGBeanAbstractNameQuery,
+                null,
+                null,
+                ejbConfigBuilder,
+                ejbConfigBuilder,
+                webConfigBuilder,
+                connectorConfigBuilder,
+                resourceReferenceBuilder,
+                appClientConfigBuilder,
+                serviceReferenceBuilder,
+                naming);
 
-        File tempDir = null;
+        ConfigurationData configurationData = null;
+        DeploymentContext context = null;
         try {
-            tempDir = DeploymentUtil.createTempDir();
-            Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-rar.xml"), earFile);
-            configBuilder.buildConfiguration(plan, earFile, tempDir);
+            Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-rar.xml"), earFile, idBuilder);
+            context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earFile, idBuilder), plan, earFile, Collections.singleton(configStore), artifactResolver, configStore);
+            configurationData = context.getConfigurationData();
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
-            if(e.getCause() instanceof IOException) {
+            if (e.getCause() instanceof IOException) {
                 fail("Should not be complaining about bad vendor DD for invalid module entry");
             }
         } finally {
-            DeploymentUtil.recursiveDelete(tempDir);
+            if (context != null) {
+                context.close();
+            }
+            if (configurationData != null) {
+                DeploymentUtil.recursiveDelete(configurationData.getConfigurationDir());
+            }
         }
     }
 
     public void testBadCARConfiguration() throws Exception {
-        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, transactionManagerObjectName, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, null, ejbConfigBuilder, ejbConfigBuilder, webConfigBuilder, connectorConfigBuilder, resourceReferenceBuilder, appClientConfigBuilder, serviceReferenceBuilder, null);
+        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
+                transactionContextManagerAbstractNameQuery,
+                connectionTrackerAbstractNameQuery,
+                transactionalTimerAbstractNameQuery,
+                nonTransactionalTimerAbstractNameQuery,
+                corbaGBeanAbstractNameQuery,
+                null,
+                null,
+                ejbConfigBuilder,
+                ejbConfigBuilder,
+                webConfigBuilder,
+                connectorConfigBuilder,
+                resourceReferenceBuilder,
+                appClientConfigBuilder,
+                serviceReferenceBuilder,
+                naming);
 
-        File tempDir = null;
+        ConfigurationData configurationData = null;
+        DeploymentContext context = null;
         try {
-            tempDir = DeploymentUtil.createTempDir();
-            Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-car.xml"), earFile);
-            configBuilder.buildConfiguration(plan, earFile, tempDir);
+            Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-car.xml"), earFile, idBuilder);
+            context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earFile, idBuilder), plan, earFile, Collections.singleton(configStore), artifactResolver, configStore);
+            configurationData = context.getConfigurationData();
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
-            if(e.getCause() instanceof IOException) {
+            if (e.getCause() instanceof IOException) {
                 fail("Should not be complaining about bad vendor DD for invalid module entry");
             }
         } finally {
-            DeploymentUtil.recursiveDelete(tempDir);
+            if (context != null) {
+                context.close();
+            }
+            if (configurationData != null) {
+                DeploymentUtil.recursiveDelete(configurationData.getConfigurationDir());
+            }
         }
     }
 
     public void testNoEJBDeployer() throws Exception {
-        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, transactionManagerObjectName, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, null, null, null, webConfigBuilder, connectorConfigBuilder, resourceReferenceBuilder, appClientConfigBuilder, serviceReferenceBuilder, null);
+        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
+                transactionContextManagerAbstractNameQuery,
+                connectionTrackerAbstractNameQuery,
+                transactionalTimerAbstractNameQuery,
+                nonTransactionalTimerAbstractNameQuery,
+                corbaGBeanAbstractNameQuery,
+                null,
+                null,
+                null,
+                null,
+                webConfigBuilder,
+                connectorConfigBuilder,
+                resourceReferenceBuilder,
+                appClientConfigBuilder,
+                serviceReferenceBuilder,
+                naming);
 
-        File tempDir = null;
+
+        ConfigurationData configurationData = null;
+        DeploymentContext context = null;
         try {
-            tempDir = DeploymentUtil.createTempDir();
-            Object plan = configBuilder.getDeploymentPlan(null, earFile);
-            configBuilder.buildConfiguration(plan, earFile, tempDir);
+            Object plan = configBuilder.getDeploymentPlan(null, earFile, idBuilder);
+            context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earFile, idBuilder), plan, earFile, Collections.singleton(configStore), artifactResolver, configStore);
+            configurationData = context.getConfigurationData();
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
             // expected
         } finally {
-            DeploymentUtil.recursiveDelete(tempDir);
+            if (context != null) {
+                context.close();
+            }
+            if (configurationData != null) {
+                DeploymentUtil.recursiveDelete(configurationData.getConfigurationDir());
+            }
         }
     }
 
     public void testNoWARDeployer() throws Exception {
-        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, transactionManagerObjectName, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, null, ejbConfigBuilder, null, null, connectorConfigBuilder, resourceReferenceBuilder, appClientConfigBuilder, serviceReferenceBuilder, null);
+        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
+                transactionContextManagerAbstractNameQuery,
+                connectionTrackerAbstractNameQuery,
+                transactionalTimerAbstractNameQuery,
+                nonTransactionalTimerAbstractNameQuery,
+                corbaGBeanAbstractNameQuery,
+                null,
+                null,
+                ejbConfigBuilder,
+                ejbConfigBuilder,
+                null,
+                connectorConfigBuilder,
+                resourceReferenceBuilder,
+                appClientConfigBuilder,
+                serviceReferenceBuilder,
+                naming);
 
-        File tempDir = null;
+        ConfigurationData configurationData = null;
+        DeploymentContext context = null;
         try {
-            tempDir = DeploymentUtil.createTempDir();
-            Object plan = configBuilder.getDeploymentPlan(null, earFile);
-            configBuilder.buildConfiguration(plan, earFile, tempDir);
+            Object plan = configBuilder.getDeploymentPlan(null, earFile, idBuilder);
+            context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earFile, idBuilder), plan, earFile, Collections.singleton(configStore), artifactResolver, configStore);
+            configurationData = context.getConfigurationData();
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
             // expected
         } finally {
-            DeploymentUtil.recursiveDelete(tempDir);
+            if (context != null) {
+                context.close();
+            }
+            if (configurationData != null) {
+                DeploymentUtil.recursiveDelete(configurationData.getConfigurationDir());
+            }
         }
     }
 
     public void testNoConnectorDeployer() throws Exception {
-        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, transactionManagerObjectName, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, null, ejbConfigBuilder, null, webConfigBuilder, null, resourceReferenceBuilder, appClientConfigBuilder, serviceReferenceBuilder, null);
+        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
+                transactionContextManagerAbstractNameQuery,
+                connectionTrackerAbstractNameQuery,
+                transactionalTimerAbstractNameQuery,
+                nonTransactionalTimerAbstractNameQuery,
+                corbaGBeanAbstractNameQuery,
+                null,
+                null,
+                ejbConfigBuilder,
+                null,
+                webConfigBuilder,
+                null,
+                resourceReferenceBuilder,
+                appClientConfigBuilder,
+                serviceReferenceBuilder,
+                naming);
 
-        File tempDir = null;
+        ConfigurationData configurationData = null;
+        DeploymentContext context = null;
         try {
-            tempDir = DeploymentUtil.createTempDir();
-            Object plan = configBuilder.getDeploymentPlan(null, earFile);
-            configBuilder.buildConfiguration(plan, earFile, tempDir);
+            Object plan = configBuilder.getDeploymentPlan(null, earFile, idBuilder);
+            context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earFile, idBuilder), plan, earFile, Collections.singleton(configStore), artifactResolver, configStore);
+            configurationData = context.getConfigurationData();
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
             // expected
         } finally {
-            DeploymentUtil.recursiveDelete(tempDir);
+            if (context != null) {
+                context.close();
+            }
+            if (configurationData != null) {
+                DeploymentUtil.recursiveDelete(configurationData.getConfigurationDir());
+            }
         }
     }
 
@@ -383,80 +562,36 @@ public class EARConfigBuilderTest extends TestCase {
         }
     }
 
-    public static class MockConfigStore implements ConfigurationStore {
-        private final Kernel kernel;
+    public static class MockConfigStore extends NullConfigurationStore {
+        private final Map locations = new HashMap();
 
-        public MockConfigStore(Kernel kernel) {
-            this.kernel = kernel;
+        public ConfigurationData loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
+            ConfigurationData configurationData = new ConfigurationData(configId, naming);
+            configurationData.setConfigurationStore(this);
+            return configurationData;
         }
 
-        public URI install(URL source) throws IOException, InvalidConfigException {
-            return null;
-        }
-
-        public void install(ConfigurationData configurationData, File source) throws IOException, InvalidConfigException {
-        }
-
-        public void uninstall(URI configID) throws NoSuchConfigException, IOException {
-        }
-
-        public ObjectName loadConfiguration(URI configId) throws NoSuchConfigException, IOException, InvalidConfigException {
-            ObjectName configurationObjectName = null;
-            try {
-                configurationObjectName = Configuration.getConfigurationObjectName(configId);
-            } catch (MalformedObjectNameException e) {
-                throw new InvalidConfigException(e);
-            }
-            GBeanData configData = new GBeanData(configurationObjectName, Configuration.GBEAN_INFO);
-            configData.setAttribute("id", configId);
-            configData.setAttribute("domain", "test");
-            configData.setAttribute("server", "bar");
-            configData.setAttribute("gBeanState", NO_OBJECTS_OS);
-
-            try {
-                kernel.loadGBean(configData, Configuration.class.getClassLoader());
-            } catch (Exception e) {
-                throw new InvalidConfigException("Unable to register configuration", e);
-            }
-
-            return configurationObjectName;
-        }
-
-        public boolean containsConfiguration(URI configID) {
+        public boolean containsConfiguration(Artifact configID) {
             return true;
         }
 
-        public String getObjectName() {
-            return null;
-        }
-
-        public List listConfigurations() {
-            return null;
-        }
-
-        public File createNewConfigurationDir() {
-            return null;
-        }
-
-        public final static GBeanInfo GBEAN_INFO;
-
-        private static final byte[] NO_OBJECTS_OS;
-
-        static {
-            GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(MockConfigStore.class, NameFactory.CONFIGURATION_STORE);
-            infoBuilder.addInterface(ConfigurationStore.class);
-            infoBuilder.addAttribute("kernel", Kernel.class, false);
-            infoBuilder.setConstructor(new String[] {"kernel"});
-            GBEAN_INFO = infoBuilder.getBeanInfo();
-
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        public File createNewConfigurationDir(Artifact configId) {
             try {
-                ObjectOutputStream oos = new ObjectOutputStream(baos);
-                oos.flush();
-                NO_OBJECTS_OS = baos.toByteArray();
+                File file = DeploymentUtil.createTempDir();
+                locations.put(configId, file);
+                return file;
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                return null;
             }
+        }
+
+        public Set resolve(Artifact configId, String moduleName, String pattern) throws NoSuchConfigException, MalformedURLException {
+            File file = (File) locations.get(configId);
+            if (file == null) {
+                throw new NoSuchConfigException(configId);
+            }
+            Set matches = IOUtil.search(file, pattern);
+            return matches;
         }
     }
 }

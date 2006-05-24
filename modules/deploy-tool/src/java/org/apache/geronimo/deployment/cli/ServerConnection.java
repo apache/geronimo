@@ -25,11 +25,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
+import java.io.FileNotFoundException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.jar.JarFile;
+
 import javax.enterprise.deploy.shared.factories.DeploymentFactoryManager;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
@@ -39,7 +41,12 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.plugin.factories.AuthenticationFailedException;
 import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
 import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
+import org.apache.geronimo.deployment.plugin.jmx.LocalDeploymentManager;
 import org.apache.geronimo.util.SimpleEncryption;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.system.main.LocalServer;
 
 /**
  * Supports online connections to the server, via JSR-88, valid only
@@ -49,6 +56,7 @@ import org.apache.geronimo.util.SimpleEncryption;
  */
 public class ServerConnection {
     private final static Map OPTION_HELP = new LinkedHashMap(9);
+
     static {
         OPTION_HELP.put("--uri", "A URI to contact the server.  If not specified, the deployer defaults to " +
                 "operating on a Geronimo server running on the standard port on localhost.\n" +
@@ -68,7 +76,9 @@ public class ServerConnection {
         OPTION_HELP.put("--password", "Specifies a password to use to authenticate to the server.");
         OPTION_HELP.put("--syserr", "Enables error logging to syserr.  Disabled by default.");
         OPTION_HELP.put("--verbose", "Enables verbose execution mode.  Disabled by default.");
+        OPTION_HELP.put("--offline", "Deploy offline to a local server, using whatever deployers are available in the local server");
     }
+
     public static Map getOptionHelp() {
         return OPTION_HELP;
     }
@@ -79,19 +89,18 @@ public class ServerConnection {
      * argument).  For example, if the arguments were "--user bob foo" then
      * this should return true for "--user" and "bob" and false for "foo".
      *
-     * @param args The previous arguments on the command line
+     * @param args   The previous arguments on the command line
      * @param option The argument we're checking at the moment
-     *
      * @return True if the argument we're checking is part of a general argument
      */
     public static boolean isGeneralOption(List args, String option) {
-        if(OPTION_HELP.containsKey(option) || option.equals("--url")) {
+        if (OPTION_HELP.containsKey(option) || option.equals("--url")) {
             return true;
         }
-        if(args.size() == 0) {
+        if (args.size() == 0) {
             return false;
         }
-        String last = (String) args.get(args.size()-1);
+        String last = (String) args.get(args.size() - 1);
         return last.equals("--uri") || last.equals("--url") || last.equals("--driver") || last.equals("--user") ||
                 last.equals("--password") || last.equals("--host") || last.equals("--port");
     }
@@ -110,62 +119,64 @@ public class ServerConnection {
         Integer port = null;
         this.out = out;
         this.in = in;
-        for(int i = 0; i < args.length; i++) {
+        boolean offline = false;
+        for (int i = 0; i < args.length; i++) {
             String arg = args[i];
-            if(arg.equals("--uri") || arg.equals("--url")) {
-                if(uri != null) {
+            if (arg.equals("--uri") || arg.equals("--url")) {
+                if (uri != null) {
                     throw new DeploymentSyntaxException("Cannot specify more than one URI");
-                } else if(i >= args.length-1) {
+                } else if (i >= args.length - 1) {
                     throw new DeploymentSyntaxException("Must specify a URI (e.g. --uri deployer:...)");
                 }
-                if(host != null || port != null) {
+                if (host != null || port != null) {
                     throw new DeploymentSyntaxException("Cannot specify a URI as well as a host/port");
                 }
                 uri = args[++i];
-            } else if(arg.equals("--host")) {
-                if(host != null) {
+            } else if (arg.equals("--host")) {
+                if (host != null) {
                     throw new DeploymentSyntaxException("Cannot specify more than one host");
-                } else if(i >= args.length-1) {
+                } else if (i >= args.length - 1) {
                     throw new DeploymentSyntaxException("Must specify a hostname (e.g. --host localhost)");
                 }
-                if(uri != null) {
+                if (uri != null) {
                     throw new DeploymentSyntaxException("Cannot specify a URI as well as a host/port");
                 }
                 host = args[++i];
-            } else if(arg.equals("--port")) {
-                if(port != null) {
+            } else if (arg.equals("--port")) {
+                if (port != null) {
                     throw new DeploymentSyntaxException("Cannot specify more than one port");
-                } else if(i >= args.length-1) {
+                } else if (i >= args.length - 1) {
                     throw new DeploymentSyntaxException("Must specify a port (e.g. --port 1099)");
                 }
-                if(uri != null) {
+                if (uri != null) {
                     throw new DeploymentSyntaxException("Cannot specify a URI as well as a host/port");
                 }
                 try {
                     port = new Integer(args[++i]);
                 } catch (NumberFormatException e) {
-                    throw new DeploymentSyntaxException("Port must be a number ("+e.getMessage()+")");
+                    throw new DeploymentSyntaxException("Port must be a number (" + e.getMessage() + ")");
                 }
-            } else if(arg.equals("--driver")) {
-                if(driver != null) {
+            } else if (arg.equals("--driver")) {
+                if (driver != null) {
                     throw new DeploymentSyntaxException("Cannot specify more than one driver");
-                } else if(i >= args.length-1) {
+                } else if (i >= args.length - 1) {
                     throw new DeploymentSyntaxException("Must specify a driver JAR (--driver jarfile)");
                 }
                 driver = args[++i];
-            } else if(arg.equals("--offline")) {
-                throw new DeploymentSyntaxException("This tool no longer handles offline deployment");
-            } else if(arg.equals("--user")) {
-                if(user != null) {
+            } else if (arg.equals("--offline")) {
+                //throw new DeploymentSyntaxException("This tool no longer handles offline deployment");
+                offline = true;
+            } else if (arg.equals("--user")) {
+                if (user != null) {
                     throw new DeploymentSyntaxException("Cannot specify more than one user name");
-                } else if(i >= args.length-1) {
+                } else if (i >= args.length - 1) {
                     throw new DeploymentSyntaxException("Must specify a username (--user username)");
                 }
                 user = args[++i];
-            } else if(arg.equals("--password")) {
-                if(password != null) {
+            } else if (arg.equals("--password")) {
+                if (password != null) {
                     throw new DeploymentSyntaxException("Cannot specify more than one password");
-                } else if(i >= args.length-1) {
+                } else if (i >= args.length - 1) {
                     throw new DeploymentSyntaxException("Must specify a password (--password password)");
                 }
                 password = args[++i];
@@ -174,23 +185,37 @@ public class ServerConnection {
             } else if (arg.equals("--syserr")) {
                 logToSysErr = true;
             } else {
-                throw new DeploymentException("Invalid option "+arg);
+                throw new DeploymentException("Invalid option " + arg);
             }
         }
-        if((driver != null) && uri == null) {
+        if ((driver != null) && uri == null) {
             throw new DeploymentSyntaxException("A custom driver requires a custom URI");
         }
-        if(host != null || port != null) {
-            uri = DEFAULT_URI+"://"+(host == null ? "" : host)+(port == null ? "" : ":"+port);
+        if (host != null || port != null) {
+            uri = DEFAULT_URI + "://" + (host == null ? "" : host) + (port == null ? "" : ":" + port);
         }
-        tryToConnect(uri, driver, user, password, true);
-        if(manager == null) {
+        if (offline) {
+            LocalServer localServer;
+            try {
+                localServer = new LocalServer("geronimo/j2ee-system//car", "var/config/offline-deployer-list");
+            } catch (Exception e) {
+                throw new DeploymentException("Could not start local server", e);
+            }
+            Kernel kernel = localServer.getKernel();
+            ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+            configurationManager.setOnline(false);
+
+            manager = new LocalDeploymentManager(localServer.getKernel());
+        } else {
+            tryToConnect(uri, driver, user, password, true);
+        }
+        if (manager == null) {
             throw new DeploymentException("Unexpected error; connection failed.");
         }
     }
 
     public void close() throws DeploymentException {
-        if(manager != null) {
+        if (manager != null) {
             manager.release();
         }
     }
@@ -205,44 +230,59 @@ public class ServerConnection {
 
     private void tryToConnect(String argURI, String driver, String user, String password, boolean authPrompt) throws DeploymentException {
         DeploymentFactoryManager mgr = DeploymentFactoryManager.getInstance();
-        if(driver != null) {
+        if (driver != null) {
             loadDriver(driver, mgr);
         } else {
             mgr.registerDeploymentFactory(new DeploymentFactoryImpl());
         }
         String useURI = argURI == null ? DEFAULT_URI : argURI;
 
-        if(authPrompt && user == null && password == null) {
-            File authFile = new File(System.getProperty("user.home"), ".geronimo-deployer");
-            if(authFile.exists() && authFile.canRead()) {
+        if (authPrompt && user == null && password == null) {
+            InputStream in;
+            // First check for .geronimo-deployer on class path (e.g. packaged in deployer.jar)
+            in = ServerConnection.class.getResourceAsStream("/.geronimo-deployer");
+            // If not there, check in home directory
+            if (in == null) {
+                File authFile = new File(System.getProperty("user.home"), ".geronimo-deployer");
+                if (authFile.exists() && authFile.canRead()) {
+                    try {
+                        in = new BufferedInputStream(new FileInputStream(authFile));
+                    } catch (FileNotFoundException e) {
+                    }
+                }
+            }
+            if (in != null) {
                 try {
                     Properties props = new Properties();
-                    InputStream in = new BufferedInputStream(new FileInputStream(authFile));
                     props.load(in);
-                    in.close();
-                    String encryped = props.getProperty("login."+useURI);
-                    if(encryped != null) {
-                        if(encryped.startsWith("{Standard}")) {
+                    String encryped = props.getProperty("login." + useURI);
+                    if (encryped != null) {
+                        if (encryped.startsWith("{Standard}")) {
                             SavedAuthentication auth = (SavedAuthentication) SimpleEncryption.decrypt(encryped.substring(10));
-                            if(auth.uri.equals(useURI)) {
+                            if (auth.uri.equals(useURI)) {
                                 user = auth.user;
                                 password = new String(auth.password);
                             }
-                        } else if(encryped.startsWith("{Plain}")) {
+                        } else if (encryped.startsWith("{Plain}")) {
                             int pos = encryped.indexOf("/");
                             user = encryped.substring(7, pos);
-                            password = encryped.substring(pos+1);
+                            password = encryped.substring(pos + 1);
                         } else {
-                            System.out.println(DeployUtils.reformat("Unknown encryption used in saved login file", 4, 72));
+                            System.out.print(DeployUtils.reformat("Unknown encryption used in saved login file", 4, 72));
                         }
                     }
                 } catch (IOException e) {
-                    System.out.println(DeployUtils.reformat("Unable to read authentication from saved login file: "+e.getMessage(), 4, 72));
+                    System.out.print(DeployUtils.reformat("Unable to read authentication from saved login file: " + e.getMessage(), 4, 72));
+                } finally {
+                    try {
+                        in.close();
+                    } catch (IOException e) {
+                    }
                 }
             }
         }
 
-        if(authPrompt && !useURI.equals(DEFAULT_URI) && user == null && password == null) {
+        if (authPrompt && !useURI.equals(DEFAULT_URI) && user == null && password == null) {
             // Non-standard URI, but no authentication information
             doAuthPromptAndRetry(useURI, user, password);
             return;
@@ -250,15 +290,15 @@ public class ServerConnection {
             try {
                 manager = mgr.getDeploymentManager(useURI, user, password);
                 auth = new SavedAuthentication(useURI, user, password == null ? null : password.toCharArray());
-            } catch(AuthenticationFailedException e) { // server's there, you just can't talk to it
-                if(authPrompt) {
+            } catch (AuthenticationFailedException e) { // server's there, you just can't talk to it
+                if (authPrompt) {
                     doAuthPromptAndRetry(useURI, user, password);
                     return;
                 } else {
                     throw new DeploymentException("Login Failed");
                 }
-            } catch(DeploymentManagerCreationException e) {
-                throw new DeploymentException("Unable to connect to server at "+useURI+" -- "+e.getMessage());
+            } catch (DeploymentManagerCreationException e) {
+                throw new DeploymentException("Unable to connect to server at " + useURI + " -- " + e.getMessage());
             }
         }
 
@@ -270,37 +310,37 @@ public class ServerConnection {
 
     private void loadDriver(String driver, DeploymentFactoryManager mgr) throws DeploymentException {
         File file = new File(driver);
-        if(!file.exists() || !file.canRead() || !DeployUtils.isJarFile(file)) {
-            throw new DeploymentSyntaxException("Driver '"+file.getAbsolutePath()+"' is not a readable JAR file");
+        if (!file.exists() || !file.canRead() || !DeployUtils.isJarFile(file)) {
+            throw new DeploymentSyntaxException("Driver '" + file.getAbsolutePath() + "' is not a readable JAR file");
         }
         String className = null;
         try {
             JarFile jar = new JarFile(file);
             className = jar.getManifest().getMainAttributes().getValue("J2EE-DeploymentFactory-Implementation-Class");
-            if(className == null) {
-                throw new DeploymentException("The driver JAR "+file.getAbsolutePath()+" does not specify a J2EE-DeploymentFactory-Implementation-Class; cannot load driver.");
+            if (className == null) {
+                throw new DeploymentException("The driver JAR " + file.getAbsolutePath() + " does not specify a J2EE-DeploymentFactory-Implementation-Class; cannot load driver.");
             }
             jar.close();
             DeploymentFactory factory = (DeploymentFactory) Class.forName(className).newInstance();
             mgr.registerDeploymentFactory(factory);
-        } catch(DeploymentException e) {
+        } catch (DeploymentException e) {
             throw e;
-        } catch(Exception e) {
-            throw new DeploymentSyntaxException("Unable to load driver class "+className+" from JAR "+file.getAbsolutePath(), e);
+        } catch (Exception e) {
+            throw new DeploymentSyntaxException("Unable to load driver class " + className + " from JAR " + file.getAbsolutePath(), e);
         }
     }
 
     private void doAuthPromptAndRetry(String uri, String user, String password) throws DeploymentException {
         try {
-            if(user == null) {
+            if (user == null) {
                 out.print("Username: ");
                 out.flush();
                 user = in.readLine();
             }
-            if(password == null) {
+            if (password == null) {
                 password = new PasswordPrompt("Password: ", out).getPassword(in);
             }
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new DeploymentException("Unable to prompt for login", e);
         }
         tryToConnect(uri, null, user, password, false);
@@ -337,13 +377,13 @@ public class ServerConnection {
             int priority = Thread.currentThread().getPriority();
             try {
                 Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
-                String fullPrompt = "\r"+prompt+"          "+"\r"+prompt;
+                String fullPrompt = "\r" + prompt + "          " + "\r" + prompt;
                 StringBuffer clearline = new StringBuffer();
                 clearline.append('\r');
-                for(int i=prompt.length()+10; i>=0; i--) {
+                for (int i = prompt.length() + 10; i >= 0; i--) {
                     clearline.append(' ');
                 }
-                while(!done) {
+                while (!done) {
                     out.print(fullPrompt);
                     out.flush();
                     Thread.sleep(1);
@@ -365,7 +405,7 @@ public class ServerConnection {
          * the entered password.  For this to make sense, the input reader
          * here must be part of the same console as the output writer passed
          * to the constructor.
-         *
+         * <p/>
          * For higher security, should return a char[], but that will just
          * be defeated by the JSR-88 call that takes a String anyway, so
          * why bother?

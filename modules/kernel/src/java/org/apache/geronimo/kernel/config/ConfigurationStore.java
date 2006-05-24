@@ -19,13 +19,13 @@ package org.apache.geronimo.kernel.config;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URL;
+import java.io.OutputStream;
+import java.net.MalformedURLException;
 import java.util.List;
+import java.util.Set;
 
-import javax.management.ObjectName;
-
-import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.gbean.AbstractName;
 
 /**
  * Interface to a store for Configurations.
@@ -33,50 +33,68 @@ import org.apache.geronimo.gbean.GBeanData;
  * @version $Rev$ $Date$
  */
 public interface ConfigurationStore {
+    
     /**
-     * Add the CAR at the supplied URL into this store
+     * Determines if the identified configuration is an in-place one. This 
+     * means that the configuration store only stores some meta-data and the 
+     * actual content of the configuration is rooted somewhere else.
+     * 
+     * @param configId the unique ID of the configuration, which must be fully
+     *                 resolved (isResolved() == true)
      *
-     * @param source the URL of a CAR format archive
-     * @throws IOException if the CAR could not be read
-     * @throws InvalidConfigException if there is a configuration problem with the CAR
+     * @return true if the identified configuration is an in-place one.
+     *
+     * @throws NoSuchConfigException if the configuration is not contained in
+     *                               the store
+     * @throws IOException If the store cannot be read.
      */
-    URI install(URL source) throws IOException, InvalidConfigException;
-
+    boolean isInPlaceConfiguration(Artifact configId) throws NoSuchConfigException, IOException;
+    
     /**
      * Move the unpacked configuration directory into this store
      *
      * @param configurationData the configuration data
-     * @param source the directory which contains a contiguration
      * @throws IOException if the direcotyr could not be moved into the store
      * @throws InvalidConfigException if there is a configuration problem within the source direcotry
      */
-    void install(ConfigurationData configurationData, File source) throws IOException, InvalidConfigException;
+    void install(ConfigurationData configurationData) throws IOException, InvalidConfigException;
 
     /**
      * Removes a configuration from the store
-     * @param configID the id of the configuration to remove
+     *
+     * @param configId the id of the configuration to remove, which must be
+     *                 fully resolved (isResolved() == true)
+     *
      * @throws NoSuchConfigException if the configuration is not contained in the store
      * @throws IOException if a problem occurs during the removal
      */
-    void uninstall(URI configID) throws NoSuchConfigException, IOException;
+    void uninstall(Artifact configId) throws NoSuchConfigException, IOException;
 
     /**
      * Loads the specified configuration into the kernel
-     * @param configId the id of the configuration to load
-     * @return the object name of the configuration in the kernel
+     *
+     * @param configId the id of the configuration to load, which must be fully
+     *                 resolved (isResolved() == true)
+     *
+     * @return the the configuration object
+     *
      * @throws NoSuchConfigException if the configuration is not contained in the kernel
      * @throws IOException if a problem occurs loading the configuration from the store
      * @throws InvalidConfigException if the configuration is corrupt
      */
-    ObjectName loadConfiguration(URI configId) throws NoSuchConfigException, IOException, InvalidConfigException;
+    ConfigurationData loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException;
 
     /**
-     * Determines if the store contains a configuration with the spedified ID.
+     * Determines if the store contains a configuration with the specified ID.
+     * The configuration need not be loaded or running, this just checks
+     * whether the configuration store has the data for it.
      *
-     * @param configID the unique ID of the configuration
+     * @param configId the unique ID of the configuration, which must be fully
+     *                 resolved (isResolved() == true)
+     *
      * @return true if the store contains the configuration
      */
-    boolean containsConfiguration(URI configID);
+    boolean containsConfiguration(Artifact configId);
 
     /**
      * Return the object name for the store.
@@ -86,12 +104,54 @@ public interface ConfigurationStore {
     String getObjectName();
 
     /**
+     * Return the object name for the store.
+     *
+     * @return the object name for the store
+     */
+    AbstractName getAbstractName();
+
+    /**
      * Return the configurations in the store
      *
-     * @return a List ConfigurationInfo objects
+     * @return a List (with entries of type ConfigurationInfo) of all the
+     *         configurations contained in this configuration store
      */
     List listConfigurations();
 
-    File createNewConfigurationDir();
+    /**
+     * Creates an empty directory for a new configuration with the specified configId
+     *
+     * @param configId the unique ID of the configuration, which must be fully
+     *                 resolved (isResolved() == true)
+     *
+     * @return the location of the new directory
+     * 
+     * @throws ConfigurationAlreadyExistsException if the configuration already exists in this store
+     */
+    File createNewConfigurationDir(Artifact configId) throws ConfigurationAlreadyExistsException;
 
+    /**
+     * Locate the physical locations which match the supplied path in the given
+     * artifact/module.  The path may be an Ant-style pattern.
+     *
+     * @param configId    the artifact to search, which must be fully resolved
+     *                    (isResolved() == true)
+     * @param moduleName  the module name or null to search in the top-level
+     *                    artifact location
+     * @param path        the pattern to search for within the artifact/module,
+     *                    which may also be null to identify the artifact or
+     *                    module base path
+     *
+     * @return a Set (with entries of type URL) of the matching locations
+     */
+    Set resolve(Artifact configId, String moduleName, String path) throws NoSuchConfigException, MalformedURLException;
+
+    /**
+     * Exports a configuration as a ZIP file.
+     *
+     * @param configId  The unique ID of the configuration to export, which
+     *                  must be fully resolved (isResolved() == true)
+     * @param output    The stream to write the ZIP content to
+     */
+    void exportConfiguration(Artifact configId, OutputStream output) throws IOException, NoSuchConfigException;
 }

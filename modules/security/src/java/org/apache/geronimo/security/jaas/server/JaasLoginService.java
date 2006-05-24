@@ -16,6 +16,28 @@
  */
 package org.apache.geronimo.security.jaas.server;
 
+import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
+import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.common.GeronimoSecurityException;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.IdentificationPrincipal;
+import org.apache.geronimo.security.SubjectId;
+import org.apache.geronimo.security.jaas.LoginUtils;
+import org.apache.geronimo.security.realm.SecurityRealm;
+
+import javax.crypto.Mac;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.login.LoginException;
+import javax.security.auth.spi.LoginModule;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
@@ -27,30 +49,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.crypto.Mac;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.login.LoginException;
-import javax.security.auth.spi.LoginModule;
-
-import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
-import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.apache.geronimo.common.GeronimoSecurityException;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.ReferenceCollection;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.security.IdentificationPrincipal;
-import org.apache.geronimo.security.SubjectId;
-import org.apache.geronimo.security.jaas.LoginUtils;
-import org.apache.geronimo.security.realm.SecurityRealm;
 
 
 /**
@@ -67,7 +65,7 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
     private final static int DEFAULT_MAX_LOGIN_DURATION = 1000 * 3600 * 24; // 1 day
     private final static ClockDaemon clockDaemon;
     private static long nextLoginModuleId = System.currentTimeMillis();
-    private ReferenceCollection realms;
+    private Collection realms;
     private Object expiredLoginScanIdentifier;
     private final String objectName;
     private final SecretKey key;
@@ -92,7 +90,7 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
     /**
      * GBean property
      */
-    public Collection getRealms() throws GeronimoSecurityException {
+    public Collection getRealms() {
         return realms;
     }
 
@@ -100,7 +98,7 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
      * GBean property
      */
     public void setRealms(Collection realms) {
-        this.realms = (ReferenceCollection) realms;
+        this.realms = realms;
         //todo: add listener to drop logins when realm is removed
     }
 
@@ -161,7 +159,7 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
      *         methods in this class.
      */
     public JaasSessionId connectToRealm(String realmName) {
-        SecurityRealm realm = null;
+        SecurityRealm realm;
         realm = getRealm(realmName);
         if (realm == null) {
             throw new GeronimoSecurityException("No such realm (" + realmName + ")");
@@ -210,10 +208,12 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
         try {
             module.login();
         } catch (LoginException e) {
+            //expected
         }
         try {
             module.abort();
         } catch (LoginException e) {
+            //makes no difference
         }
         return session.getHandler().finalizeCallbackList();
     }

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2005 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+
+<!-- $Rev$ $Date$ -->
+
+<project default="default"
+    >
+    <goal name="default" prereqs="assemble:install"/>
+
+    <!-- replace the assemble:install goal with jelly code to build the installer -->
+    <goal name="assemble:install">
+        <echo>
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    THE INSTALLER IS KNOWN NOT TO WORK
+    WE WELCOME YOUR HELP IN FIXING IT
+    SEE http://issues.apache.org/jira/browse/GERONIMO-1518 
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        </echo>
+
+        <!-- assemble-to-repo will assemble but put the cars -->
+        <!--    in the repository instead of the config-store-->
+        <attainGoal name="assemble:assemble-to-repo"/>
+        <!-- assemble:assemble will assemble a normal geronimo server -->
+        <!-- with the cars installed into the config-store -->
+        <!--attainGoal name="assemble:assemble"/-->
+        <!-- build the izpack installer here -->
+        <attainGoal name="izpack:izpack-installer-build"/>
+    </goal>
+
+    <preGoal name="assemble:install">
+        <attainGoal name="clean"/>
+    </preGoal>
+
+</project>

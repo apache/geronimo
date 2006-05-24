@@ -95,18 +95,29 @@ public class RMIClassLoaderSpiImplTest
             }
             String resourceName = name.replace('.', '/') + ".class";
             InputStream in = delegate.getResourceAsStream(resourceName);
-            byte[] buffer = new byte[1024];
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            int read = 0;
             try {
-                while (0 < (read = in.read(buffer))) {
-                    out.write(buffer, 0, read);
+                byte[] buffer = new byte[1024];
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                int read = 0;
+                try {
+                    while (0 < (read = in.read(buffer))) {
+                        out.write(buffer, 0, read);
+                    }
+                } catch (IOException e) {
+                    fail();
+                    return null;
                 }
-            } catch (IOException e) {
-                fail();
-                return null;
+                return defineClass(name, out.toByteArray(), 0, out.size());
+            } finally {
+                if (in != null)
+                {
+                    try {
+                        in.close();
+                    } catch (IOException ignored) {
+                        // ignored
+                    }
+                }
             }
-            return defineClass(name, out.toByteArray(), 0, out.size());
         }  
         
         public URL[] getClassLoaderServerURLs() {

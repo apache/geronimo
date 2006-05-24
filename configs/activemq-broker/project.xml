@@ -37,6 +37,9 @@
             <artifactId>geronimo-gbean-deployer</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
+            <properties>
+                <packaging.config.order>1</packaging.config.order>
+            </properties>
         </dependency>
         <!-- parent config -->
         <dependency>
@@ -142,6 +145,12 @@
             <artifactId>geronimo-jetty</artifactId>
             <version>${geronimo_version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>concurrent</groupId>
+            <artifactId>concurrent</artifactId>
+            <version>${concurrent_version}</version>
+        </dependency>
         <dependency>
             <groupId>tranql</groupId>
             <artifactId>tranql</artifactId>
@@ -183,7 +192,7 @@
             <version>${asm_version}</version>
         </dependency>
         <dependency>
-            <groupId>incubator-activemq</groupId>
+            <groupId>activemq</groupId>
             <artifactId>activemq-core</artifactId>
             <version>${activemq_version}</version>
             <properties>
@@ -191,33 +200,25 @@
              </properties>
         </dependency>
         <dependency>
-            <groupId>incubator-activemq</groupId>
-            <artifactId>activemq-gbean</artifactId>
+            <groupId>activemq</groupId>
+            <artifactId>activemq-gbean-g1_1</artifactId>
             <version>${activemq_version}</version>
             <properties>
                  <geronimo.dependency>true</geronimo.dependency>
              </properties>
         </dependency>
         <dependency>
-            <groupId>incubator-activemq</groupId>
-            <artifactId>activemq-gbean-management</artifactId>
+            <groupId>activemq</groupId>
+            <artifactId>activemq-gbean-management-g1_1</artifactId>
             <version>${activemq_version}</version>
             <properties>
                  <geronimo.dependency>true</geronimo.dependency>
              </properties>
         </dependency>
         <dependency>
-            <groupId>incubator-activemq</groupId>
-            <artifactId>activeio-core</artifactId>
-            <version>${activemq_activeio_version}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
-        </dependency>
-        <dependency>
-            <groupId>backport-util-concurrent</groupId>
-            <artifactId>backport-util-concurrent</artifactId>
-            <version>${backport_util_concurrent_version}</version>
+            <groupId>activeio</groupId>
+            <artifactId>activeio</artifactId>
+            <version>${activeio_version}</version>
             <properties>
                  <geronimo.dependency>true</geronimo.dependency>
              </properties>

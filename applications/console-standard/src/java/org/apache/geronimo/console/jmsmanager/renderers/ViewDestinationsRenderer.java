@@ -28,6 +28,7 @@ import javax.management.ObjectName;
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
+import javax.jms.Destination;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,6 +38,8 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.DependencyManager;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.AbstractName;
 
 public class ViewDestinationsRenderer extends AbstractJMSManager implements
         PortletRenderer {
@@ -58,11 +61,11 @@ public class ViewDestinationsRenderer extends AbstractJMSManager implements
             RenderResponse response) {
         Kernel kernel = KernelRegistry.getSingleKernel();
 
-        Set destinations = kernel.listGBeans(DESTINATION_QUERY);
+        Set destinations = kernel.listGBeans(new AbstractNameQuery(Destination.class.getName()));
         List destinationInfos = new ArrayList(destinations.size());
         DependencyManager dm = kernel.getDependencyManager();
         for (Iterator iterator = destinations.iterator(); iterator.hasNext();) {
-            ObjectName destinationName = (ObjectName) iterator.next();
+            AbstractName destinationName = (AbstractName) iterator.next();
 
             try {
                 Class type;
@@ -81,8 +84,7 @@ public class ViewDestinationsRenderer extends AbstractJMSManager implements
                     continue;
                 }
                 ObjectName parent = (ObjectName) i.next();
-                String adminObjectName = destinationName
-                        .getKeyProperty(NameFactory.J2EE_NAME);
+                String adminObjectName = (String) destinationName.getName().get(NameFactory.J2EE_NAME);
                 if (adminObjectName.equals("MDBTransferBeanOutQueue")
                         || adminObjectName.equals("SendReceiveQueue")) {
                     continue;
@@ -96,11 +98,10 @@ public class ViewDestinationsRenderer extends AbstractJMSManager implements
                 }
 
                 DestinationInfo info = new DestinationInfo(adminObjectName,
-                        (String) kernel.getAttribute(destinationName,
-                                "PhysicalName"), type, destinationName
-                                .getKeyProperty(NameFactory.J2EE_APPLICATION),
-                        destinationName
-                                .getKeyProperty(NameFactory.JCA_RESOURCE),
+                        (String) kernel.getAttribute(destinationName, "PhysicalName"),
+                        type,
+                        (String) destinationName.getName().get(NameFactory.J2EE_APPLICATION),
+                        (String) destinationName.getName().get(NameFactory.JCA_RESOURCE),
                         configURI);
                 destinationInfos.add(info);
             } catch (Exception e) {

@@ -72,7 +72,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
     public TomcatGeronimoRealm() {
 
      }
-    
+
     public static String setRequestWrapperName(String requestWrapperName) {
         String old = (String) currentRequestWrapperName.get();
         currentRequestWrapperName.set(requestWrapperName);

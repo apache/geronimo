@@ -1,11 +1,20 @@
 package org.apache.geronimo.tomcat.deployment;
 
 import java.io.File;
-import javax.management.ObjectName;
+import java.net.URL;
+import java.util.Collections;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.deployment.xbeans.ArtifactType;
+import org.apache.geronimo.deployment.xbeans.EnvironmentType;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.Jsr77Naming;
+import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
 import org.apache.geronimo.xbeans.geronimo.web.GerWebAppDocument;
@@ -15,37 +24,41 @@ import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppType;
 /**
  */
 public class PlanParsingTest extends TestCase {
-    ObjectName tomcatContainerObjectName = JMXUtil.getObjectName("test:type=TomcatContainer");
-    Kernel kernel = null;
+    private ClassLoader classLoader = this.getClass().getClassLoader();
+
+    private Naming naming = new Jsr77Naming();
+    private Artifact baseId = new Artifact("test", "base", "1", "car");
+    private AbstractName baseRootName = naming.createRootName(baseId, "root", NameFactory.SERVICE_MODULE);
+    private AbstractNameQuery tomcatContainerObjectName = new AbstractNameQuery(naming.createChildName(baseRootName, "TomcatContainer", NameFactory.GERONIMO_SERVICE));
+    private WebServiceBuilder webServiceBuilder = null;
+    private Environment defaultEnvironment = new Environment();
     private TomcatModuleBuilder builder;
-    private File basedir = new File(System.getProperty("basedir", "."));
 
     protected void setUp() throws Exception {
-        builder = new TomcatModuleBuilder(null, false, tomcatContainerObjectName, null, null);
+        builder = new TomcatModuleBuilder(defaultEnvironment, tomcatContainerObjectName, Collections.singleton(webServiceBuilder), null);
     }
 
     public void testResourceRef() throws Exception {
-        File resourcePlan = new File(basedir, "src/test-resources/plans/plan1.xml");
+        URL resourceURL = classLoader.getResource("plans/plan1.xml");
+        File resourcePlan = new File(resourceURL.getFile());
         assertTrue(resourcePlan.exists());
-        TomcatWebAppType jettyWebApp = builder.getTomcatWebApp(resourcePlan, null, true, null, null);
-        assertEquals(1, jettyWebApp.getResourceRefArray().length);
+        TomcatWebAppType tomcatWebApp = builder.getTomcatWebApp(resourcePlan, null, true, null, null);
+        assertEquals(1, tomcatWebApp.getResourceRefArray().length);
     }
 
     public void testConstructPlan() throws Exception {
         GerWebAppDocument tomcatWebAppDoc = GerWebAppDocument.Factory.newInstance();
         GerWebAppType tomcatWebAppType = tomcatWebAppDoc.addNewWebApp();
-        tomcatWebAppType.setConfigId("configId");
-        tomcatWebAppType.setParentId("parentId");
-        tomcatWebAppType.setContextPriorityClassloader(false);
+        EnvironmentType environmentType = tomcatWebAppType.addNewEnvironment();
+        ArtifactType artifactType = environmentType.addNewModuleId();
+        artifactType.setArtifactId("foo");
+
         GerResourceRefType ref = tomcatWebAppType.addNewResourceRef();
         ref.setRefName("ref");
-        ref.setTargetName("target");
+        ref.setResourceLink("target");
 
         SchemaConversionUtils.validateDD(tomcatWebAppType);
-        System.out.println(tomcatWebAppType.toString());
+//        System.out.println(tomcatWebAppType.toString());
     }
 
-    public void testParseSpecDD() {
-
-    }
 }

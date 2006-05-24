@@ -16,16 +16,18 @@
  */
 package org.apache.geronimo.console.apache.jk;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import javax.portlet.ActionResponse;
+import javax.portlet.PortletRequest;
+import javax.portlet.PortletSession;
 import org.apache.geronimo.console.MultiPageAbstractHandler;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.util.PortletManager;
-
-import javax.portlet.ActionResponse;
-import javax.portlet.PortletRequest;
-import java.util.List;
-import java.util.Map;
-import java.util.ArrayList;
-import java.io.Serializable;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.gbean.AbstractName;
 
 /**
  * The base class for all handlers for this portlet
@@ -44,22 +46,28 @@ public abstract class BaseApacheHandler extends MultiPageAbstractHandler {
     }
 
     public final static class WebAppData implements Serializable {
-        private String configId;
+        private String parentConfigId;
+        private String childName;
+        private String moduleBeanName;
         private boolean enabled;
         private String dynamicPattern;
         private boolean serveStaticContent;
         private String contextRoot;
         private String webAppDir;
 
-        public WebAppData(String configId, boolean enabled, String dynamicPattern, boolean serveStaticContent) {
-            this.configId = configId;
+        public WebAppData(Artifact parentConfigId, String childName, AbstractName moduleBeanName, boolean enabled, String dynamicPattern, boolean serveStaticContent) {
+            this.parentConfigId = parentConfigId.toString();
             this.enabled = enabled;
             this.dynamicPattern = dynamicPattern;
             this.serveStaticContent = serveStaticContent;
+            this.moduleBeanName = moduleBeanName == null ? null : moduleBeanName.toString();
+            this.childName = childName;
         }
 
         public WebAppData(PortletRequest request, String prefix) {
-            configId = request.getParameter(prefix+"configId");
+            parentConfigId = request.getParameter(prefix+"configId");
+            childName = request.getParameter(prefix+"childName");
+            moduleBeanName = request.getParameter(prefix+"moduleBeanName");
             dynamicPattern = request.getParameter(prefix+"dynamicPattern");
             String test = request.getParameter(prefix+"enabled");
             enabled = test != null && !test.equals("") && !test.equals("false");
@@ -70,12 +78,14 @@ public abstract class BaseApacheHandler extends MultiPageAbstractHandler {
         }
 
         public void save(ActionResponse response, String prefix) {
-            response.setRenderParameter(prefix+"configId", configId);
+            response.setRenderParameter(prefix+"configId", parentConfigId);
+            response.setRenderParameter(prefix+"moduleBeanName", moduleBeanName);
             response.setRenderParameter(prefix+"dynamicPattern", dynamicPattern);
             response.setRenderParameter(prefix+"enabled", Boolean.toString(enabled));
             response.setRenderParameter(prefix+"serveStaticContent", Boolean.toString(serveStaticContent));
-            if(contextRoot != null) response.setRenderParameter(prefix+"contextRoot", contextRoot);
-            if(webAppDir != null) response.setRenderParameter(prefix+"webAppDir", webAppDir);
+            if(!isEmpty(contextRoot)) response.setRenderParameter(prefix+"contextRoot", contextRoot);
+            if(!isEmpty(webAppDir)) response.setRenderParameter(prefix+"webAppDir", webAppDir);
+            if(!isEmpty(childName)) response.setRenderParameter(prefix+"childName", childName);
         }
 
         public boolean isEnabled() {
@@ -86,12 +96,12 @@ public abstract class BaseApacheHandler extends MultiPageAbstractHandler {
             this.enabled = enabled;
         }
 
-        public String getConfigId() {
-            return configId;
+        public String getParentConfigId() {
+            return parentConfigId;
         }
 
-        public void setConfigId(String configId) {
-            this.configId = configId;
+        public void setParentConfigId(String parentConfigId) {
+            this.parentConfigId = parentConfigId;
         }
 
         public String getDynamicPattern() {
@@ -125,9 +135,26 @@ public abstract class BaseApacheHandler extends MultiPageAbstractHandler {
         public void setWebAppDir(String webAppDir) {
             this.webAppDir = webAppDir;
         }
+
+        public String getChildName() {
+            return childName;
+        }
+
+        public String getModuleBeanName() {
+            return moduleBeanName;
+        }
+
+        public String getName() {
+            return isEmpty(childName) ? parentConfigId : childName;
+        }
+
+        public boolean isRunning() {
+            return webAppDir != null;
+        }
     }
 
     public final static class ApacheModel implements MultiPageModel {
+        public final static String WEB_APP_SESSION_KEY = "console.apache.jk.WebApps";
         private String os;
         private Integer addAjpPort;
         private String logFilePath;
@@ -139,34 +166,40 @@ public abstract class BaseApacheHandler extends MultiPageAbstractHandler {
             os = request.getParameter("os");
             logFilePath = request.getParameter("logFilePath");
             if(logFilePath == null) {
-                logFilePath = PortletManager.getServerInfo(request).resolve("var/log/apache_mod_jk.log").getPath();
+                logFilePath = PortletManager.getCurrentServer(request).getServerInfo().resolve("var/log/apache_mod_jk.log").getPath();
             }
             workersPath = request.getParameter("workersPath");
             if(workersPath == null) {
-                workersPath = PortletManager.getServerInfo(request).resolve("var/config/workers.properties").getPath();
+                workersPath = PortletManager.getCurrentServer(request).getServerInfo().resolve("var/config/workers.properties").getPath();
             }
             String ajp = request.getParameter("addAjpPort");
             if(!isEmpty(ajp)) addAjpPort = new Integer(ajp);
             int index = 0;
+            boolean found = false;
             while(true) {
                 String key = "webapp."+(index++)+".";
                 if(!map.containsKey(key+"configId")) {
                     break;
                 }
+                found = true;
                 WebAppData data = new WebAppData(request, key);
                 webApps.add(data);
             }
+            if(!found) {
+                List list = (List) request.getPortletSession(true).getAttribute(WEB_APP_SESSION_KEY);
+                if(list != null) {
+                    webApps = list;
+                }
+            }
         }
 
-        public void save(ActionResponse response) {
+        public void save(ActionResponse response, PortletSession session) {
             if(!isEmpty(os)) response.setRenderParameter("os", os);
             if(!isEmpty(logFilePath)) response.setRenderParameter("logFilePath", logFilePath);
             if(!isEmpty(workersPath)) response.setRenderParameter("workersPath", workersPath);
             if(addAjpPort != null) response.setRenderParameter("addAjpPort", addAjpPort.toString());
-            for (int i = 0; i < webApps.size(); i++) {
-                WebAppData data = (WebAppData) webApps.get(i);
-                String key = "webapp."+i+".";
-                data.save(response, key);
+            if(webApps.size() > 0) {
+                session.setAttribute(WEB_APP_SESSION_KEY, webApps);
             }
         }
 

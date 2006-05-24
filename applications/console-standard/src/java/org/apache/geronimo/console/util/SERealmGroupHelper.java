@@ -54,9 +54,6 @@ public class SERealmGroupHelper extends RealmHelper {
 
             kernel.stopGBean(ObjectNameConstants.SE_REALM_MBEAN_NAME);
             kernel.startGBean(ObjectNameConstants.SE_REALM_MBEAN_NAME);
-//            kernel.stopGBean(ObjectNameConstants.SE_REALM_IMMUTABLE_MBEAN_NAME);
-//            kernel.startGBean(ObjectNameConstants.SE_REALM_IMMUTABLE_MBEAN_NAME);
-
         } catch (Exception e) {
         }
     }

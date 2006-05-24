@@ -17,20 +17,28 @@
 
 package org.apache.geronimo.naming.reference;
 
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.repository.Artifact;
+
+import javax.naming.NameNotFoundException;
 
 /**
  * @version $Rev$ $Date$
  */
-public class ResourceReference extends SimpleAwareReference {
-    private final String containerId;
+public class ResourceReference extends ConfigurationAwareReference {
     private final Class iface;
 
-    public ResourceReference(String containerId, Class iface) {
-        this.containerId = containerId;
+    /**
+     *
+     * @param configId the configId of the configuration that holds the reference, not the resource adapter.
+     * @param abstractNameQuery query for name of the resource adapter.
+     * @param iface
+     */
+    public ResourceReference(Artifact configId, AbstractNameQuery abstractNameQuery, Class iface) {
+        super(configId, abstractNameQuery);
         this.iface = iface;
     }
 
@@ -38,24 +46,24 @@ public class ResourceReference extends SimpleAwareReference {
         return iface.getName();
     }
 
-    public Object getContent() {
+    public Object getContent() throws NameNotFoundException {
         Kernel kernel = getKernel();
 
-        ObjectName target = null;
+        AbstractName target;
         try {
-            target = ObjectName.getInstance(containerId);
-        } catch (MalformedObjectNameException e) {
-            throw (IllegalArgumentException) new IllegalArgumentException("Invalid object name in jmxRefAddr: " + containerId).initCause(e);
+            target = resolveTargetName();
+        } catch (GBeanNotFoundException e) {
+            throw (NameNotFoundException) new NameNotFoundException("Could not resolve name query: " + abstractNameQueries).initCause(e);
         }
 
-        Object proxy = null;
+        Object proxy;
         try {
             proxy = kernel.invoke(target, "$getResource");
         } catch (Exception e) {
             throw (IllegalStateException) new IllegalStateException("Could not get proxy").initCause(e);
         }
         if (proxy == null) {
-            throw new IllegalStateException("Proxy not returned. Target " + containerId + " not started");
+            throw new IllegalStateException("Proxy not returned. Target " + target + " not started");
         }
         if (!iface.isAssignableFrom(proxy.getClass())) {
             Class proxyClass = proxy.getClass();

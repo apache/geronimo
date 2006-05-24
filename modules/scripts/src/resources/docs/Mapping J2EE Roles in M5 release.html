@@ -1,0 +1,84 @@
+<html>
+    <head>
+        <title>Documentation : Mapping J2EE Roles in M5 release</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Documentation : Mapping J2EE Roles in M5 release
+                                                    </span>
+				    </div>
+				    <div class="pagesubheading">
+					    This page last changed on Dec 14, 2005 by <font color="#0050B2">hcunico@gmail.com</font>.
+				    </div>
+
+				    <p><a name="MappingJ2EERolesinM5release-top"></a><br/>
+<em><b>Article donated by:</b> <a href="mailto:simon@godik.com" title="Send mail to Simon Godik">Simon Godik</a>, <a href="mailto:hcunico@gmail.com" title="Send mail to Hernan Cunico">Hernan Cunico</a></em></p>
+
+<p>The security schema namespace for the Apache Geronimo M5 is "http://geronimo.apache.org/xml/ns/security-1.0"</p>
+
+<p>Geronimo M5 and earlier versions do not support concepts of the <tt>DomainPrincipal</tt> and <tt>RealmPrincipal</tt>. When wrapping J2EE roles to Principals, <tt>Principal</tt> elements are wrapped by the <tt>Realm</tt> elements.</p>
+
+<div class="code" style="border-style: solid; "><div class="codeContent">
+<pre class="code-xml"><span class="code-tag">&lt;xsd:complexType name=<span class="code-quote">"roleType"</span>&gt;</span>
+   <span class="code-tag">&lt;xsd:sequence&gt;</span>
+      &lt;xsd:element name=<span class="code-quote">"description"</span> type=<span class="code-quote">"security-1.0:descriptionType"</span> 
+         minOccurs=<span class="code-quote">"0"</span> maxOccurs=<span class="code-quote">"unbounded"</span>/&gt;
+      &lt;xsd:element name=<span class="code-quote">"realm"</span> type=<span class="code-quote">"security-1.0:realmType"</span> minOccurs=<span class="code-quote">"0"</span> 
+         maxOccurs=<span class="code-quote">"unbounded"</span>/&gt;
+      &lt;xsd:element name=<span class="code-quote">"distinguished-name"</span> 
+         type=<span class="code-quote">"security-1.0:distinguishedNameType"</span> minOccurs=<span class="code-quote">"0"</span> 
+         maxOccurs=<span class="code-quote">"unbounded"</span>/&gt;
+   <span class="code-tag">&lt;/xsd:sequence&gt;</span>
+   <span class="code-tag">&lt;xsd:attribute name=<span class="code-quote">"role-name"</span> type=<span class="code-quote">"xsd:string"</span> use=<span class="code-quote">"required"</span>/&gt;</span>
+<span class="code-tag">&lt;/xsd:complexType&gt;</span></pre>
+</div></div>
+
+<div class="code" style="border-style: solid; "><div class="codeContent">
+<pre class="code-xml"><span class="code-tag">&lt;?xml version=<span class="code-quote">"1.0"</span> encoding=<span class="code-quote">"UTF-8"</span>?&gt;</span>
+&lt;web-app
+    xmlns=<span class="code-quote">"http://geronimo.apache.org/xml/ns/j2ee/web-1.0"</span>
+    <span class="code-keyword">xmlns:sec</span>=<span class="code-quote">"http://geronimo.apache.org/xml/ns/security-1.0"</span>
+    configId=<span class="code-quote">"org/apache/geronimo/tools/JMXConsole"</span>
+    parentId=<span class="code-quote">"org/apache/geronimo/Server"</span>&gt;
+
+    <span class="code-tag">&lt;context-root&gt;</span>/example<span class="code-tag">&lt;/context-root&gt;</span>
+    <span class="code-tag">&lt;context-priority-classloader&gt;</span>false<span class="code-tag">&lt;/context-priority-classloader&gt;</span>
+
+    <span class="code-tag">&lt;security-realm-name&gt;</span>geronimo-properties-realm<span class="code-tag">&lt;/security-realm-name&gt;</span>
+    <span class="code-tag">&lt;sec:security&gt;</span>
+        <span class="code-tag">&lt;sec:default-principal realm-name=<span class="code-quote">"geronimo-properties-realm"</span>&gt;</span>
+            <span class="code-tag">&lt;sec:principal class=<span class="code-quote">"org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal"</span> name=<span class="code-quote">"system"</span>/&gt;</span>
+        <span class="code-tag">&lt;/sec:default-principal&gt;</span>
+        <span class="code-tag">&lt;sec:role-mappings&gt;</span>
+            <span class="code-tag">&lt;sec:role role-name=<span class="code-quote">"admin"</span>&gt;</span>
+                <span class="code-tag">&lt;sec:realm realm-name=<span class="code-quote">"geronimo-properties-realm"</span>&gt;</span>
+                    &lt;sec:principal class=<span class="code-quote">"org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal"</span>
+                        name=<span class="code-quote">"admin"</span> designated-run-as=<span class="code-quote">"true"</span>/&gt;
+                <span class="code-tag">&lt;/sec:realm&gt;</span>
+            <span class="code-tag">&lt;/sec:role&gt;</span>
+        <span class="code-tag">&lt;/sec:role-mappings&gt;</span>
+    <span class="code-tag">&lt;/sec:security&gt;</span>
+<span class="code-tag">&lt;/web-app&gt;</span></pre>
+</div></div>
+
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td height="12" background="border/border_bottom.gif"><img src="border/spacer.gif" width="1" height="1" border="0"/></td>
+			</tr>
+		    <tr>
+			    <td align="center"><font color="grey">Document generated by Confluence on Dec 15, 2005 19:14</font></td>
+		    </tr>
+	    </table>
+    </body>
+</html>

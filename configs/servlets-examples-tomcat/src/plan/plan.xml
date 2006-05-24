@@ -18,10 +18,20 @@
 
 <!-- $Rev$ $Date$ -->
 
-<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0"
-      configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
+<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.1"
+
     >
 
     <context-root>/servlets-examples</context-root>
-    <context-priority-classloader>false</context-priority-classloader>
+    <security-realm-name>geronimo-properties-realm</security-realm-name>
+    <security>
+        <default-principal>
+            <principal name="anonymous" class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" />
+        </default-principal>
+        <role-mappings>
+            <role role-name="tomcat">
+                <principal name="admin" class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" />
+            </role>
+        </role-mappings>
+    </security>
 </web-app>

@@ -17,17 +17,16 @@
 package org.apache.geronimo.tomcat;
 
 import java.io.File;
-import java.io.FileFilter;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.net.URLStreamHandlerFactory;
+import java.net.URL;
+
 import org.apache.catalina.Container;
 import org.apache.catalina.Context;
 import org.apache.catalina.Engine;
 import org.apache.catalina.Realm;
 import org.apache.catalina.connector.Connector;
-import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.realm.JAASRealm;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,20 +34,21 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.management.geronimo.NetworkConnector;
+import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.tomcat.realm.TomcatGeronimoRealm;
 import org.apache.geronimo.tomcat.realm.TomcatJAASRealm;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.webservices.WebServiceContainer;
-
+import org.apache.naming.resources.DirContextURLStreamHandlerFactory;
 
 
 /**
  * Apache Tomcat GBean
- *
- * @see http://wiki.apache.org/geronimo/Tomcat
- * @see http://nagoya.apache.org/jira/browse/GERONIMO-215
+ * http://wiki.apache.org/geronimo/Tomcat
+ * http://nagoya.apache.org/jira/browse/GERONIMO-215
  *
  * @version $Rev$ $Date$
  */
@@ -73,40 +73,62 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
 
     /**
      * Geronimo class loader
-     **/
+     */
     private ClassLoader classLoader;
 
     private final Map webServices = new HashMap();
     private final String objectName;
+    private final WebManager manager;
+    private static boolean first = true;
 
     // Required as it's referenced by deployed webapps
     public TomcatContainer() {
         this.objectName = null; // is this OK??
         setCatalinaHome(DEFAULT_CATALINA_HOME);
+        manager = null;
     }
 
     /**
      * GBean constructor (invoked dynamically when the gbean is declared in a plan)
      */
-    public TomcatContainer(ClassLoader classLoader, String catalinaHome, ObjectRetriever engineGBean, ServerInfo serverInfo, String objectName) {
+    public TomcatContainer(ClassLoader classLoader, String catalinaHome, ObjectRetriever engineGBean, ServerInfo serverInfo, String objectName, WebManager manager) {
+        // Register a stream handler factory for the JNDI protocol
+        URLStreamHandlerFactory streamHandlerFactory =
+            new DirContextURLStreamHandlerFactory();
+        if (first) {
+            first = false;
+            try {
+                URL.setURLStreamHandlerFactory(streamHandlerFactory);
+            } catch (Exception e) {
+                // Log and continue anyway, this is not critical
+                log.error("Error registering jndi stream handler", e);
+            } catch (Throwable t) {
+                // This is likely a dual registration
+                log.info("Dual registration of jndi stream handler: "
+                         + t.getMessage());
+            }
+        }
+
+
         if (catalinaHome == null)
             catalinaHome = DEFAULT_CATALINA_HOME;
 
         setCatalinaHome(serverInfo.resolveServerPath(catalinaHome));
 
-        if (classLoader == null){
+        if (classLoader == null) {
             throw new IllegalArgumentException("classLoader cannot be null.");
         }
 
-        if (engineGBean == null){
+        if (engineGBean == null) {
             throw new IllegalArgumentException("engineGBean cannot be null.");
         }
 
         this.classLoader = classLoader;
 
-        this.engine = (Engine)engineGBean.getInternalObject();
+        this.engine = (Engine) engineGBean.getInternalObject();
 
         this.objectName = objectName;
+        this.manager = manager;
     }
 
     public String getObjectName() {
@@ -125,6 +147,14 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         return true;
     }
 
+    public NetworkConnector[] getConnectors() {
+        return manager.getConnectorsForContainer(this);
+    }
+
+    public NetworkConnector[] getConnectors(String protocol) {
+        return manager.getConnectorsForContainer(this, protocol);
+    }
+
     public void doFail() {
         try {
             doStop();
@@ -134,7 +164,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
 
     /**
      * Instantiate and start up Tomcat's Embedded class
-     *
+     * <p/>
      * See org.apache.catalina.startup.Embedded for details (TODO: provide the link to the javadoc)
      */
     public void doStart() throws Exception {
@@ -163,18 +193,15 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         //Add default contexts
         File rootContext = new File(System.getProperty("catalina.home") + "/ROOT");
 
-        TomcatClassLoader tcl = null;
-        if (rootContext.exists())
-            tcl = createRootClassLoader(rootContext, classLoader);
+        String docBase = "";
+        if (rootContext.exists()) {
+            docBase = "ROOT";
+        }
 
         Container[] hosts = engine.findChildren();
-        Context defaultContext = null;
-        for(int i = 0; i < hosts.length; i++){
-            if (rootContext.exists()){
-                defaultContext = embedded.createContext("","ROOT", tcl);
-            } else {
-                defaultContext = embedded.createContext("","", classLoader);
-            }
+        Context defaultContext;
+        for (int i = 0; i < hosts.length; i++) {
+            defaultContext = embedded.createContext("", docBase, classLoader);
             hosts[i].addChild(defaultContext);
         }
 
@@ -192,37 +219,36 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
             embedded.stop();
             embedded = null;
         }
-        
+
     }
 
     /**
      * Creates and adds the context to the running host
-     *
+     * <p/>
      * It simply delegates the call to Tomcat's Embedded and Host classes
      *
      * @param ctx the context to be added
-     *
      * @see org.apache.catalina.startup.Embedded
      * @see org.apache.catalina.Host
      */
-    public void addContext(TomcatContext ctx) throws Exception{
-        Context anotherCtxObj = embedded.createContext(ctx.getContextPath(), ctx.getDocBase(), ctx.getWebClassLoader());
+    public void addContext(TomcatContext ctx) throws Exception {
+        Context anotherCtxObj = embedded.createContext(ctx.getContextPath(), ctx.getDocBase(), ctx.getClassLoader());
 
         // Set the context for the Tomcat implementation
         ctx.setContext(anotherCtxObj);
 
         // Have the context to set its properties if its a GeronimoStandardContext
-        if (anotherCtxObj instanceof GeronimoStandardContext)
-            ((GeronimoStandardContext)anotherCtxObj).setContextProperties(ctx);
-
+        if (anotherCtxObj instanceof GeronimoStandardContext) {
+            ((GeronimoStandardContext) anotherCtxObj).setContextProperties(ctx);
+        }
         //Was a virtual server defined?
         String virtualServer = ctx.getVirtualServer();
-        if (virtualServer == null)
+        if (virtualServer == null) {
             virtualServer = engine.getDefaultHost();
-
+        }
         Container host = engine.findChild(virtualServer);
-        if (host == null){
-            throw new IllegalArgumentException("Invalid virtual host '" + virtualServer +"'.  Do you have a matching Host entry in the plan?");
+        if (host == null) {
+            throw new IllegalArgumentException("Invalid virtual host '" + virtualServer + "'.  Do you have a matching Host entry in the plan?");
         }
 
         //Get the security-realm-name if there is one
@@ -232,32 +258,32 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
             securityRealmName = secHolder.getSecurityRealm();
 
         //Did we declare a GBean at the context level?
-        if (ctx.getRealm() != null){
+        if (ctx.getRealm() != null) {
             Realm realm = ctx.getRealm();
 
             //Allow for the <security-realm-name> override from the
             //geronimo-web.xml file to be used if our Realm is a JAAS type
-            if (securityRealmName != null){
-                if (realm instanceof JAASRealm){
-                    ((JAASRealm)realm).setAppName(securityRealmName);
+            if (securityRealmName != null) {
+                if (realm instanceof JAASRealm) {
+                    ((JAASRealm) realm).setAppName(securityRealmName);
                 }
             }
             anotherCtxObj.setRealm(realm);
         } else {
             Realm realm = host.getRealm();
             //Check and see if we have a declared realm name and no match to a parent name
-            if (securityRealmName != null){
+            if (securityRealmName != null) {
                 String parentRealmName = null;
-                if (realm instanceof JAASRealm){
-                    parentRealmName = ((JAASRealm)realm).getAppName();
+                if (realm instanceof JAASRealm) {
+                    parentRealmName = ((JAASRealm) realm).getAppName();
                 }
 
                 //Do we have a match to a parent?
-                if(!securityRealmName.equals(parentRealmName)){
+                if (!securityRealmName.equals(parentRealmName)) {
                     //No...we need to create a default adapter
 
                     //Is the context requiring JACC?
-                    if (secHolder.isSecurity()){
+                    if (secHolder.isSecurity()) {
                         //JACC
                         realm = new TomcatGeronimoRealm();
                     } else {
@@ -270,9 +296,9 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
                             "Creating a default " + realm.getClass().getName() +
                             " adapter for this context.");
 
-                    ((JAASRealm)realm).setUserClassNames("org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
-                    ((JAASRealm)realm).setRoleClassNames("org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
-                    ((JAASRealm)realm).setAppName(securityRealmName);
+                    ((JAASRealm) realm).setUserClassNames("org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
+                    ((JAASRealm) realm).setRoleClassNames("org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
+                    ((JAASRealm) realm).setAppName(securityRealmName);
 
                     anotherCtxObj.setRealm(realm);
                 } else {
@@ -290,14 +316,14 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
     public void removeContext(TomcatContext ctx) {
         Context context = ctx.getContext();
 
-        if (context != null){
-            if (context instanceof GeronimoStandardContext){
-                GeronimoStandardContext stdctx = (GeronimoStandardContext)context;
-                
-                try{
+        if (context != null) {
+            if (context instanceof GeronimoStandardContext) {
+                GeronimoStandardContext stdctx = (GeronimoStandardContext) context;
+
+                try {
                     stdctx.stop();
                     stdctx.destroy();
-                } catch (Exception e){
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
 
@@ -330,8 +356,8 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         }
 
         Container host = engine.findChild(virtualServer);
-        if (host == null){
-            throw new IllegalArgumentException("Invalid virtual host '" + virtualServer +"'.  Do you have a matchiing Host entry in the plan?");
+        if (host == null) {
+            throw new IllegalArgumentException("Invalid virtual host '" + virtualServer + "'.  Do you have a matchiing Host entry in the plan?");
         }
 
         host.addChild(webServiceContext);
@@ -340,45 +366,14 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
 
     public void removeWebService(String contextPath) {
         TomcatEJBWebServiceContext context = (TomcatEJBWebServiceContext) webServices.get(contextPath);
-        try{
+        try {
             context.stop();
             context.destroy();
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         context.getParent().removeChild(context);
         webServices.remove(contextPath);
-    }
-
-    private TomcatClassLoader createRootClassLoader(File baseDir, ClassLoader cl) throws Exception{
-        ArrayList urls = new ArrayList();
-
-        File webInfDir = new File(baseDir, "WEB-INF");
-
-        // check for a classes dir
-        File classesDir = new File(webInfDir, "classes");
-        if (classesDir.isDirectory()) {
-            urls.add(classesDir.toURL());
-        }
-
-        // add all of the libs
-        File libDir = new File(webInfDir, "lib");
-        if (libDir.isDirectory()) {
-            File[] libs = libDir.listFiles(new FileFilter() {
-                public boolean accept(File file) {
-                    return file.isFile() && file.getName().endsWith(".jar");
-                }
-            });
-
-            if (libs != null) {
-                for (int i = 0; i < libs.length; i++) {
-                    File lib = libs[i];
-                    urls.add(lib.toURL());
-                }
-            }
-        }
-
-        return new TomcatClassLoader((URL[])urls.toArray(new URL[0]), null, cl, false);
     }
 
     public static final GBeanInfo GBEAN_INFO;
@@ -386,7 +381,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Web Container", TomcatContainer.class);
 
-        infoFactory.setConstructor(new String[] { "classLoader", "catalinaHome", "EngineGBean", "ServerInfo", "objectName"});
+        infoFactory.setConstructor(new String[]{"classLoader", "catalinaHome", "EngineGBean", "ServerInfo", "objectName", "WebManager"});
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
@@ -397,12 +392,13 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         infoFactory.addReference("EngineGBean", ObjectRetriever.class, NameFactory.GERONIMO_SERVICE);
 
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
+        infoFactory.addReference("WebManager", WebManager.class);
 
-        infoFactory.addOperation("addContext", new Class[] { TomcatContext.class });
-        infoFactory.addOperation("removeContext", new Class[] { TomcatContext.class });
+        infoFactory.addOperation("addContext", new Class[]{TomcatContext.class});
+        infoFactory.addOperation("removeContext", new Class[]{TomcatContext.class});
 
-        infoFactory.addOperation("addConnector", new Class[] { Connector.class });
-        infoFactory.addOperation("removeConnector", new Class[] { Connector.class });
+        infoFactory.addOperation("addConnector", new Class[]{Connector.class});
+        infoFactory.addOperation("removeConnector", new Class[]{Connector.class});
 
         infoFactory.addInterface(SoapHandler.class);
         infoFactory.addInterface(TomcatWebContainer.class);

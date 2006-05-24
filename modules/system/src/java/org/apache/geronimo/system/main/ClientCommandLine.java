@@ -16,9 +16,12 @@
  */
 package org.apache.geronimo.system.main;
 
-import java.net.URI;
 import java.util.Collections;
-import javax.management.ObjectName;
+
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.kernel.Jsr77Naming;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
  * @version $Revision$ $Date$
@@ -40,7 +43,7 @@ public class ClientCommandLine extends CommandLine {
             System.exit(0);
         }
         try {
-            URI configuration = new URI(args[0]);
+            Artifact configuration = Artifact.create(args[0]);
             String[] clientArgs = new String[args.length -1];
             System.arraycopy(args, 1, clientArgs, 0, clientArgs.length);
             new ClientCommandLine(configuration, clientArgs);
@@ -67,7 +70,12 @@ public class ClientCommandLine extends CommandLine {
     }
 
 
-    public ClientCommandLine(URI configuration, String[] args) throws Exception {
-        invokeMainGBean(Collections.singletonList(configuration), new ObjectName("geronimo.client:type=ClientContainer"), "main", args);
+    public ClientCommandLine(Artifact configuration, String[] args) throws Exception {
+        Jsr77Naming naming = new Jsr77Naming();
+        //this kinda sucks, but resource adapter modules deployed on the client insist on having a
+        //J2EEApplication name component
+        AbstractName baseName = naming.createRootName(configuration, configuration.toString(), "J2EEApplication");
+        AbstractNameQuery baseNameQuery = new AbstractNameQuery(baseName);
+        invokeMainGBean(Collections.singletonList(configuration), baseNameQuery, "main", args);
     }
 }

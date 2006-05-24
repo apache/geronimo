@@ -18,19 +18,17 @@ package org.apache.geronimo.console.car;
 
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.gbean.GBeanQuery;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.repository.Artifact;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletException;
-import javax.management.ObjectName;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Set;
-import java.util.Iterator;
 
 /**
  * Servlet that lets you download a CAR from the repository
@@ -43,21 +41,15 @@ public class CARExportServlet extends HttpServlet {
         if(configId == null) {
             throw new ServletException("No configId specified for CAR download");
         }
+        Artifact artifact = Artifact.create(configId);
         Kernel kernel = KernelRegistry.getSingleKernel();
-        Set set = kernel.listGBeans(new GBeanQuery(null, ConfigurationStore.class.getName()));
-        for (Iterator it = set.iterator(); it.hasNext();) {
-            ObjectName name = (ObjectName) it.next();
-            if(name.getKeyProperty(NameFactory.J2EE_NAME).equals("Local")) {
-                response.setContentType("application/zip");
-                try {
-                    kernel.invoke(name, "exportConfiguration", new Object[]{configId, response.getOutputStream()}, new String[]{String.class.getName(), OutputStream.class.getName()});
-                    return;
-                } catch (Exception e) {
-                    throw new IOException("Unable to write ZIP file: "+e.getMessage());
-                }
-            }
+        ConfigurationManager mgr = ConfigurationUtil.getConfigurationManager(kernel);
+        ConfigurationStore store = mgr.getStoreForConfiguration(artifact);
+        try {
+            response.setContentType("application/zip");
+            store.exportConfiguration(artifact, response.getOutputStream());
+        } catch (NoSuchConfigException e) {
+            throw new ServletException("No such configuration '"+configId+"'");
         }
-        response.setContentType("text/html");
-        response.getWriter().println("<html><body><p>Error: no LocalConfigStore found in kernel</p></body></html>");
     }
 }

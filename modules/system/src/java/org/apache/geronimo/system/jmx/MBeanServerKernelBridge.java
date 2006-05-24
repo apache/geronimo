@@ -16,18 +16,17 @@
  */
 package org.apache.geronimo.system.jmx;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Collections;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.JMException;
 import javax.management.JMRuntimeException;
 import javax.management.MBeanInfo;
 import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
@@ -35,68 +34,40 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 384351 $ $Date$
  */
 public class MBeanServerKernelBridge implements GBeanLifecycle {
     private static final Log log = LogFactory.getLog(MBeanServerKernelBridge.class);
+    private static final AbstractNameQuery ALL = new AbstractNameQuery(null, Collections.EMPTY_MAP, Collections.EMPTY_SET);
+
     private final HashMap registry = new HashMap();
     private final Kernel kernel;
     private final MBeanServer mbeanServer;
-    private static final ObjectName ALL = JMXUtil.getObjectName("*:*");
 
-    public MBeanServerKernelBridge(Kernel kernel, String mbeanServerId) throws MBeanServerNotFound {
+    // todo remove this as soon as Geronimo supports factory beans    
+    public MBeanServerKernelBridge(Kernel kernel, MBeanServerReference mbeanServerReference) {
+        this(kernel, mbeanServerReference.getMBeanServer());
+    }
+
+    public MBeanServerKernelBridge(Kernel kernel, MBeanServer mbeanServer) {
         this.kernel = kernel;
-        ArrayList servers = MBeanServerFactory.findMBeanServer(mbeanServerId);
-        if (servers.size() == 0) {
-            throw new MBeanServerNotFound("No MBeanServers were found with the agent id " + mbeanServerId);
-        } else if (servers.size() > 1) {
-            throw new MBeanServerNotFound(servers.size() + " MBeanServers were found with the agent id " + mbeanServerId);
-        }
-        mbeanServer = (MBeanServer) servers.get(0);
-
+        this.mbeanServer = mbeanServer;
     }
 
     public void doStart() {
         kernel.getLifecycleMonitor().addLifecycleListener(new GBeanRegistrationListener(), ALL);
 
-        HashMap beans = new HashMap();
-        synchronized (this) {
-            Set allNames = kernel.listGBeans(ALL);
-            for (Iterator iterator = allNames.iterator(); iterator.hasNext();) {
-                ObjectName objectName = (ObjectName) iterator.next();
-                if (registry.containsKey(objectName)) {
-                    // instance already registered
-                    continue;
-                }
-                MBeanInfo mbeanInfo = null;
-                try {
-                    mbeanInfo = JMXUtil.toMBeanInfo(kernel.getGBeanInfo(objectName));
-                } catch (GBeanNotFoundException e) {
-                    // ignore - gbean already unregistered
-                    continue;
-                }
-                MBeanGBeanBridge mbeanGBeanBridge = new MBeanGBeanBridge(kernel, objectName, mbeanInfo);
-                registry.put(objectName, mbeanGBeanBridge);
-                beans.put(objectName, mbeanGBeanBridge);
-            }
-        }
-        for (Iterator iterator = beans.entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            ObjectName objectName = (ObjectName) entry.getKey();
-            MBeanGBeanBridge bridge = (MBeanGBeanBridge) entry.getValue();
-            try {
-                mbeanServer.registerMBean(bridge, objectName);
-            } catch (InstanceAlreadyExistsException e) {
-                // ignore - gbean already has an mbean shadow object
-            } catch (Exception e) {
-                log.warn("Unable to register MBean shadow object for GBean", unwrapJMException(e));
-            }
+        Set allNames = kernel.listGBeans(ALL);
+        for (Iterator iterator = allNames.iterator(); iterator.hasNext();) {
+            AbstractName abstractName = (AbstractName) iterator.next();
+            register(abstractName);
         }
     }
 
@@ -111,8 +82,9 @@ public class MBeanServerKernelBridge implements GBeanLifecycle {
             beans = new HashMap(registry);
             registry.clear();
         }
-        for (Iterator i = beans.keySet().iterator(); i.hasNext();) {
-            ObjectName objectName = (ObjectName) i.next();
+        for (Iterator i = beans.values().iterator(); i.hasNext();) {
+            MBeanGBeanBridge mbeanGBeanBridge = (MBeanGBeanBridge) i.next();
+            ObjectName objectName = mbeanGBeanBridge.getObjectName();
             try {
                 mbeanServer.unregisterMBean(objectName);
             } catch (Exception e) {
@@ -121,18 +93,18 @@ public class MBeanServerKernelBridge implements GBeanLifecycle {
         }
     }
 
-    private void register(ObjectName objectName) {
+    private void register(AbstractName abstractName) {
         try {
-            MBeanGBeanBridge mbeanGBeanBridge = null;
+            MBeanGBeanBridge mbeanGBeanBridge;
             synchronized (this) {
-                if (registry.containsKey(objectName)) {
+                if (registry.containsKey(abstractName)) {
                     return;
                 }
-                MBeanInfo mbeanInfo = JMXUtil.toMBeanInfo(kernel.getGBeanInfo(objectName));
-                mbeanGBeanBridge = new MBeanGBeanBridge(kernel, objectName, mbeanInfo);
-                registry.put(objectName, mbeanGBeanBridge);
+                MBeanInfo mbeanInfo = JMXUtil.toMBeanInfo(kernel.getGBeanInfo(abstractName));
+                mbeanGBeanBridge = new MBeanGBeanBridge(kernel, abstractName, abstractName.getObjectName(), mbeanInfo);
+                registry.put(abstractName, mbeanGBeanBridge);
             }
-            mbeanServer.registerMBean(mbeanGBeanBridge, objectName);
+            mbeanServer.registerMBean(mbeanGBeanBridge, mbeanGBeanBridge.getObjectName());
         } catch (GBeanNotFoundException e) {
             // ignore - gbean already unregistered
         } catch (InstanceAlreadyExistsException e) {
@@ -142,20 +114,21 @@ public class MBeanServerKernelBridge implements GBeanLifecycle {
         }
     }
 
-    private void unregister(ObjectName objectName) {
+    private void unregister(AbstractName abstractName) {
+        MBeanGBeanBridge mbeanGBeanBridge;
         synchronized (this) {
-            if (registry.remove(objectName) == null) {
-                return;
-            }
+            mbeanGBeanBridge = (MBeanGBeanBridge) registry.remove(abstractName);
         }
 
-        try {
-            mbeanServer.unregisterMBean(objectName);
-        } catch (InstanceNotFoundException e) {
-            // ignore - something else may have unregistered us
-            // if there truely is no GBean then we will catch it below whwn we call the superclass
-        } catch (Exception e) {
-            log.warn("Unable to unregister MBean shadow object for GBean", unwrapJMException(e));
+        if (mbeanGBeanBridge != null) {
+            try {
+                mbeanServer.unregisterMBean(mbeanGBeanBridge.getObjectName());
+            } catch (InstanceNotFoundException e) {
+                // ignore - something else may have unregistered us
+                // if there truely is no GBean then we will catch it below whwn we call the superclass
+            } catch (Exception e) {
+                log.warn("Unable to unregister MBean shadow object for GBean", unwrapJMException(e));
+            }
         }
     }
 
@@ -167,12 +140,12 @@ public class MBeanServerKernelBridge implements GBeanLifecycle {
     }
 
     private class GBeanRegistrationListener extends LifecycleAdapter {
-        public void loaded(ObjectName objectName) {
-            register(objectName);
+        public void loaded(AbstractName abstractName) {
+            register(abstractName);
         }
 
-        public void unloaded(ObjectName objectName) {
-            unregister(objectName);
+        public void unloaded(AbstractName abstractName) {
+            unregister(abstractName);
         }
     }
 
@@ -181,8 +154,8 @@ public class MBeanServerKernelBridge implements GBeanLifecycle {
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(MBeanServerKernelBridge.class);
         infoFactory.addAttribute("kernel", Kernel.class, false);
-        infoFactory.addAttribute("mbeanServerId", String.class, true);
-        infoFactory.setConstructor(new String[]{"kernel", "mbeanServerId"});
+        infoFactory.addReference("MBeanServerReference", MBeanServerReference.class);
+        infoFactory.setConstructor(new String[]{"kernel", "MBeanServerReference"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

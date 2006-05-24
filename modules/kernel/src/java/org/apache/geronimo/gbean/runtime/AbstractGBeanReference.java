@@ -16,27 +16,34 @@
  */
 package org.apache.geronimo.gbean.runtime;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-import javax.management.ObjectName;
-
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.kernel.ClassLoading;
-import org.apache.geronimo.kernel.DependencyManager;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
 import org.apache.geronimo.kernel.management.State;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 /**
  * @version $Rev$ $Date$
  */
 public abstract class AbstractGBeanReference implements GBeanReference {
+    /**
+     * Should we proxy references.
+     */
+    protected static final boolean NO_PROXY = Boolean.getBoolean("Xorg.apache.geronimo.gbean.NoProxy");
+    static {
+        if (NO_PROXY) {
+            Log log = LogFactory.getLog(AbstractGBeanReference.class);
+            log.warn("GBean reference proxies has been disabled:  This is an experimental and untested operating mode");
+        }
+    }
+
     /**
      * Name of this reference.
      */
@@ -63,20 +70,7 @@ public abstract class AbstractGBeanReference implements GBeanReference {
      */
     private final MethodInvoker setInvoker;
 
-    /**
-     * The target objectName patterns to watch for a connection.
-     */
-    private Set patterns = Collections.EMPTY_SET;
-
-    /**
-     * Our listener for lifecycle events
-     */
-    private final LifecycleListener listener;
-
-    /**
-     * Current set of targets
-     */
-    private final Set targets = new HashSet();
+    private final boolean hasTargets;
 
     /**
      * The metadata for this reference
@@ -89,25 +83,16 @@ public abstract class AbstractGBeanReference implements GBeanReference {
     private final Kernel kernel;
 
     /**
-     * The dependency manager of the kernel.
-     */
-    private final DependencyManager dependencyManager;
-
-    /**
      * Proxy for this reference
      */
     private Object proxy;
 
-    /**
-     * is this reference online
-     */
-    private boolean isOnline = false;
 
-    public AbstractGBeanReference(GBeanInstance gbeanInstance, GReferenceInfo referenceInfo, Kernel kernel, DependencyManager dependencyManager) throws InvalidConfigurationException {
+    public AbstractGBeanReference(GBeanInstance gbeanInstance, GReferenceInfo referenceInfo, Kernel kernel, boolean hasTargets) throws InvalidConfigurationException {
         this.gbeanInstance = gbeanInstance;
         this.referenceInfo = referenceInfo;
         this.kernel = kernel;
-        this.dependencyManager = dependencyManager;
+        this.hasTargets = hasTargets;
 
         this.name = referenceInfo.getName();
         try {
@@ -128,7 +113,11 @@ public abstract class AbstractGBeanReference implements GBeanReference {
             try {
                 String setterName = referenceInfo.getSetterName();
                 Method setterMethod = gbeanInstance.getType().getMethod(setterName, new Class[] {proxyType});
-                setInvoker = new FastMethodInvoker(setterMethod);
+                if (NO_PROXY) {
+                    setInvoker = new ReflectionMethodInvoker(setterMethod);
+                } else {
+                    setInvoker = new FastMethodInvoker(setterMethod);
+                }
             } catch (NoSuchMethodException e) {
                 throw new InvalidConfigurationException("Setter method not found " + getDescription());
             }
@@ -136,21 +125,10 @@ public abstract class AbstractGBeanReference implements GBeanReference {
             setInvoker = null;
         }
 
-        listener = createLifecycleListener();
     }
-
-    protected abstract LifecycleListener createLifecycleListener();
-
-    protected abstract void targetAdded(ObjectName target);
-
-    protected abstract void targetRemoved(ObjectName target);
 
     protected final Kernel getKernel() {
         return kernel;
-    }
-
-    protected final DependencyManager getDependencyManager() {
-        return dependencyManager;
     }
 
     public final GBeanInstance getGBeanInstance() {
@@ -181,91 +159,15 @@ public abstract class AbstractGBeanReference implements GBeanReference {
         this.proxy = proxy;
     }
 
-    public final Set getPatterns() {
-        return patterns;
-    }
-
-    public final void setPatterns(Set patterns) {
-        if (isOnline) {
-            throw new IllegalStateException("Pattern set can not be modified while online");
-        }
-
-        if (patterns == null || patterns.isEmpty() || (patterns.size() == 1 && patterns.iterator().next() == null)) {
-            this.patterns = Collections.EMPTY_SET;
-        } else {
-            patterns = new HashSet(patterns);
-            for (Iterator iterator = this.patterns.iterator(); iterator.hasNext();) {
-                if (iterator.next() == null) {
-                    iterator.remove();
-                    //there can be at most one null value in a set.
-                    break;
-                }
-            }
-            this.patterns = Collections.unmodifiableSet(patterns);
-        }
-    }
-
-    public final synchronized void online() {
-        Set gbeans = kernel.listGBeans(patterns);
-        for (Iterator objectNameIterator = gbeans.iterator(); objectNameIterator.hasNext();) {
-            ObjectName target = (ObjectName) objectNameIterator.next();
-            if (!targets.contains(target)) {
-
-                // if the bean is running add it to the runningTargets list
-                if (isRunning(kernel, target)) {
-                    targets.add(target);
-                }
-            }
-        }
-
-        kernel.getLifecycleMonitor().addLifecycleListener(listener, patterns);
-        isOnline = true;
-    }
-
-    public final synchronized void offline() {
-        // make sure we are stoped
-        stop();
-
-        kernel.getLifecycleMonitor().removeLifecycleListener(listener);
-
-        targets.clear();
-        isOnline = false;
-    }
-
-    protected final Set getTargets() {
-        return targets;
-    }
-
-    protected final void addTarget(ObjectName objectName) {
-        if (!targets.contains(objectName)) {
-            targets.add(objectName);
-            targetAdded(objectName);
-        }
-    }
-
-    protected final void removeTarget(ObjectName objectName) {
-        boolean wasTarget = targets.remove(objectName);
-        if (wasTarget) {
-            targetRemoved(objectName);
-        }
-    }
-
-    public final synchronized void inject(Object target) throws Exception {
-        // set the proxy into the instance
-        if (setInvoker != null && patterns.size() > 0) {
-            setInvoker.invoke(target, new Object[]{getProxy()});
-        }
-    }
-
     /**
      * Is the component in the Running state
      *
-     * @param objectName name of the component to check
+     * @param abstractName name of the component to check
      * @return true if the component is running; false otherwise
      */
-    private boolean isRunning(Kernel kernel, ObjectName objectName) {
+    protected boolean isRunning(Kernel kernel, AbstractName abstractName) {
         try {
-            final int state = kernel.getGBeanState(objectName);
+            final int state = kernel.getGBeanState(abstractName);
             return state == State.RUNNING_INDEX;
         } catch (GBeanNotFoundException e) {
             // mbean is no longer registerd
@@ -281,5 +183,12 @@ public abstract class AbstractGBeanReference implements GBeanReference {
                 "\n    Reference Name: " + getName() +
                 "\n    Reference Type: " + referenceInfo.getReferenceType() +
                 "\n    Proxy Type: " + referenceInfo.getProxyType();
+    }
+
+    public final synchronized void inject(Object target) throws Exception {
+        // set the proxy into the instance
+        if (setInvoker != null && hasTargets) {
+            setInvoker.invoke(target, new Object[]{getProxy()});
+        }
     }
 }

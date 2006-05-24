@@ -62,7 +62,7 @@ public class ContextForwardServlet extends HttpServlet {
 
     public void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        String dispatchURI = servletPath + req.getPathInfo();
+        String dispatchURI = servletPath + (req.getPathInfo() == null ? "" : req.getPathInfo());
         String queryString = req.getQueryString();
         if (queryString != null) {
             dispatchURI += "?" + queryString;

@@ -18,11 +18,10 @@
 package org.apache.geronimo.connector.outbound;
 
 import java.lang.reflect.Constructor;
-import java.util.Map;
 import java.util.HashMap;
-import java.util.Properties;
+import java.util.Map;
+
 import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
 import javax.resource.ResourceException;
 import javax.resource.spi.ManagedConnectionFactory;
 import javax.resource.spi.ResourceAdapterAssociation;
@@ -37,16 +36,16 @@ import org.apache.geronimo.connector.ResourceAdapterWrapper;
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.transaction.manager.NamedXAResource;
 import org.apache.geronimo.transaction.manager.ResourceManager;
-import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * @version $Rev$ $Date$
  */
-public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicGBean, ResourceManager, JCAManagedConnectionFactory {
+public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicGBean, ResourceManager, JCAManagedConnectionFactory, ConnectionFactorySource {
 
     private static final Log log = LogFactory.getLog(ManagedConnectionFactoryWrapper.class);
 
@@ -73,6 +72,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
     private Object proxy;
     private ConnectorMethodInterceptor interceptor;
     private final Kernel kernel;
+    private final AbstractName abstractName;
     private final String objectName;
     private final boolean isProxyable;
     private final ClassLoader classLoader;
@@ -86,6 +86,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         connectionInterface = null;
         connectionImplClass = null;
         kernel = null;
+        abstractName = null;
         objectName = null;
         allImplementedInterfaces = null;
         isProxyable = false;
@@ -103,6 +104,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
                                            ResourceAdapterWrapper resourceAdapterWrapper,
                                            ConnectionManagerContainer connectionManagerContainer,
                                            Kernel kernel,
+                                           AbstractName abstractName,
                                            String objectName,
                                            ClassLoader cl) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         this.managedConnectionFactoryClass = managedConnectionFactoryClass;
@@ -138,8 +140,8 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         delegate = new DynamicGBeanDelegate();
         delegate.addAll(managedConnectionFactory);
         this.kernel = kernel;
+        this.abstractName = abstractName;
         this.objectName = objectName;
-
     }
 
     public String getManagedConnectionFactoryClass() {
@@ -174,20 +176,8 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         return connectionManagerContainer;
     }
 
-    public String getConnectionManager() {
-        try {
-            ObjectName mine = ObjectName.getInstance(objectName);
-            Properties other = new Properties();
-            other.setProperty(NameFactory.J2EE_APPLICATION, mine.getKeyProperty(NameFactory.J2EE_APPLICATION));
-            other.setProperty(NameFactory.J2EE_SERVER, mine.getKeyProperty(NameFactory.J2EE_SERVER));
-            other.setProperty(NameFactory.JCA_RESOURCE, mine.getKeyProperty(NameFactory.JCA_RESOURCE));
-            other.setProperty(NameFactory.J2EE_TYPE, NameFactory.JCA_CONNECTION_MANAGER);
-            other.setProperty(NameFactory.J2EE_NAME, mine.getKeyProperty(NameFactory.J2EE_NAME));
-            return new ObjectName(mine.getDomain(), other).getCanonicalName();
-        } catch (MalformedObjectNameException e) {
-            log.error("Unable to construct ObjectName", e);
-            return null;
-        }
+    public Object getConnectionManager() {
+        return connectionManagerContainer.getConnectionManager();
     }
 
     public void doStart() throws Exception {
@@ -210,7 +200,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
             enhancer.setInterfaces(allImplementedInterfaces);
             enhancer.setCallbackType(net.sf.cglib.proxy.MethodInterceptor.class);
             enhancer.setUseFactory(false);//????
-            interceptor = new ConnectorMethodInterceptor(kernel.getKernelName(), ObjectName.getInstance(objectName));
+            interceptor = new ConnectorMethodInterceptor(kernel.getKernelName(), abstractName);
             enhancer.setCallbacks(new Callback[]{interceptor});
             proxy = enhancer.create(new Class[0], new Object[0]);
         } else {
@@ -320,7 +310,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
             Constructor con = cls.getConstructor(new Class[]{String.class});
             value = con.newInstance(new Object[]{value});
         }
-        kernel.setAttribute(ObjectName.getInstance(objectName), property, value);
+        kernel.setAttribute(abstractName, property, value);
     }
 
     public Object getConfigProperty(String property) throws Exception {

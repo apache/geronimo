@@ -28,7 +28,7 @@ import org.mortbay.jetty.servlet.ServletHolder;
  */
 public interface JettyServletRegistration {
 
-    void registerServletHolder(ServletHolder servletHolder, String servletName, Set servletMappings, Map webRoleRefPermissions) throws Exception;
+    void registerServletHolder(ServletHolder servletHolder, String servletName, Set servletMappings, String objectName) throws Exception;
 
     ServletHandler getServletHandler();
 

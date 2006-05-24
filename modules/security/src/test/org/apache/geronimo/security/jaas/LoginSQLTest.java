@@ -17,15 +17,7 @@
 
 package org.apache.geronimo.security.jaas;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.Properties;
-import javax.management.ObjectName;
-import javax.security.auth.Subject;
-import javax.security.auth.login.LoginContext;
-import javax.security.auth.login.LoginException;
-
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.security.AbstractTest;
 import org.apache.geronimo.security.ContextManager;
@@ -34,6 +26,14 @@ import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.Properties;
+
 
 /**
  * @version $Rev$ $Date$
@@ -41,8 +41,8 @@ import org.apache.geronimo.security.realm.GenericSecurityRealm;
 public class LoginSQLTest extends AbstractTest {
 
     private static final String hsqldbURL = "jdbc:hsqldb:target/database/LoginSQLTest";
-    protected ObjectName sqlRealm;
-    protected ObjectName sqlModule;
+    protected AbstractName sqlRealm;
+    protected AbstractName sqlModule;
 
     public void setUp() throws Exception {
         super.setUp();
@@ -81,8 +81,8 @@ public class LoginSQLTest extends AbstractTest {
 
         conn.close();
 
-        sqlModule = new ObjectName("geronimo.security:type=LoginModule,name=sql");
-        GBeanData gbean = new GBeanData(sqlModule, LoginModuleGBean.getGBeanInfo());
+        GBeanData gbean = buildGBeanData("name", "SQLLoginModule", LoginModuleGBean.getGBeanInfo());
+        sqlModule = gbean.getAbstractName();
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.SQLLoginModule");
         gbean.setAttribute("serverSide", new Boolean(true));
         Properties props = new Properties();
@@ -98,19 +98,16 @@ public class LoginSQLTest extends AbstractTest {
         kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
         kernel.startGBean(sqlModule);
 
-        ObjectName testUseName = new ObjectName("geronimo.security:type=LoginModuleUse,name=sql");
-        gbean = new GBeanData(testUseName, JaasLoginModuleUse.getGBeanInfo());
+        gbean = buildGBeanData("name", "SQLLoginModuleUse", JaasLoginModuleUse.getGBeanInfo());
+        AbstractName testUseName = gbean.getAbstractName();
         gbean.setAttribute("controlFlag", "REQUIRED");
         gbean.setReferencePattern("LoginModule", sqlModule);
         kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
         kernel.startGBean(testUseName);
 
-        sqlRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=sql-realm");
-        gbean = new GBeanData(sqlRealm, GenericSecurityRealm.getGBeanInfo());
+        gbean = buildGBeanData("name", "SQLSecurityRealm", GenericSecurityRealm.getGBeanInfo());
+        sqlRealm = gbean.getAbstractName();
         gbean.setAttribute("realmName", "sql-realm");
-//        props = new Properties();
-//        props.setProperty("LoginModule.1.REQUIRED","geronimo.security:type=LoginModule,name=sql");
-//        gbean.setAttribute("loginModuleConfiguration", props);
         gbean.setReferencePattern("LoginModuleConfiguration", testUseName);
         gbean.setReferencePattern("LoginService", loginService);
         kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());

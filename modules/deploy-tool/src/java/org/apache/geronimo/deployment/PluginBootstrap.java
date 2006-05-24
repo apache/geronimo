@@ -18,14 +18,25 @@ package org.apache.geronimo.deployment;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Collections;
 import java.util.jar.JarOutputStream;
 
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
-import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
-import org.apache.geronimo.deployment.xbeans.ConfigurationType;
+import org.apache.geronimo.deployment.xbeans.ModuleDocument;
+import org.apache.geronimo.deployment.xbeans.ModuleType;
+import org.apache.geronimo.kernel.Jsr77Naming;
+import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.NullConfigurationStore;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ArtifactManager;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
-import org.apache.geronimo.system.repository.ReadOnlyRepository;
+import org.apache.geronimo.system.repository.Maven1Repository;
 
 /**
  * @version $Rev$ $Date$
@@ -53,15 +64,40 @@ public class PluginBootstrap {
     }
 
     public void bootstrap() throws Exception {
-        ConfigurationType config = ConfigurationDocument.Factory.parse(plan).getConfiguration();
+        System.out.println();
+        System.out.println("    Packaging configuration " + plan);
+        System.out.println();
 
-        ReadOnlyRepository repository = new ReadOnlyRepository(localRepo);
-        ServiceConfigBuilder builder = new ServiceConfigBuilder(null, repository);
-        ConfigurationData configurationData = builder.buildConfiguration(config, null, buildDir);
+        ModuleType config = ModuleDocument.Factory.parse(plan).getModule();
 
-        JarOutputStream out = new JarOutputStream(new FileOutputStream(carFile));
-        ExecutableConfigurationUtil.writeConfiguration(configurationData, out);
-        out.flush();
-        out.close();
+        Maven1Repository repository = new Maven1Repository(localRepo);
+        ServiceConfigBuilder builder = new ServiceConfigBuilder(null, Collections.singleton(repository), new Jsr77Naming());
+        ConfigurationStore targetConfigurationStore = new NullConfigurationStore() {
+            public File createNewConfigurationDir(Artifact configId) throws ConfigurationAlreadyExistsException {
+                return buildDir;
+            }
+        };
+
+        ArtifactManager artifactManager = new DefaultArtifactManager();
+        ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.singleton(repository), null);
+        DeploymentContext context = builder.buildConfiguration(false, builder.getConfigurationID(config, null, new ModuleIDBuilder()), config, null, Collections.singleton(targetConfigurationStore), artifactResolver, targetConfigurationStore);
+        JarOutputStream out = null;
+        try {
+            ConfigurationData configurationData = context.getConfigurationData();
+            out = new JarOutputStream(new FileOutputStream(carFile));
+            ExecutableConfigurationUtil.writeConfiguration(configurationData, out);
+            out.flush();
+        } finally {
+            if (out != null)
+            {
+                try {
+                    out.close();
+                } catch (IOException ignored) {
+                    // ignored
+                }
+            }
+            if (context != null)
+                context.close();
+        }
     }
 }

@@ -16,33 +16,33 @@
  */
 package org.apache.geronimo.kernel.basic;
 
-import java.lang.reflect.Method;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.HashSet;
-import java.beans.Introspector;
-import javax.management.ObjectName;
-
 import net.sf.cglib.asm.Type;
 import net.sf.cglib.core.Signature;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 import net.sf.cglib.reflect.FastClass;
-import org.apache.geronimo.gbean.GOperationSignature;
-import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
+import org.apache.geronimo.gbean.GOperationSignature;
 import org.apache.geronimo.gbean.runtime.GBeanInstance;
 import org.apache.geronimo.gbean.runtime.RawInvoker;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.proxy.DeadProxyException;
-import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
 
+import java.beans.Introspector;
+import java.lang.reflect.Method;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 385487 $ $Date$
  */
 public class ProxyMethodInterceptor implements MethodInterceptor {
     /**
@@ -53,29 +53,29 @@ public class ProxyMethodInterceptor implements MethodInterceptor {
     /**
      * The object name to which we are connected.
      */
-    private final ObjectName objectName;
+    private final AbstractName abstractName;
 
     /**
      * GBeanInvokers keyed on the proxy interface method index
      */
     private ProxyInvoker[] gbeanInvokers;
 
-    public ProxyMethodInterceptor(Class proxyType, Kernel kernel, ObjectName objectName) {
+    public ProxyMethodInterceptor(Class proxyType, Kernel kernel, AbstractName abstractName) {
         assert proxyType != null;
         assert kernel != null;
-        assert objectName != null;
+        assert abstractName != null;
 
         this.proxyType = proxyType;
-        this.objectName = objectName;
-        gbeanInvokers = createGBeanInvokers(kernel, objectName);
+        this.abstractName = abstractName;
+        gbeanInvokers = createGBeanInvokers(kernel, abstractName);
     }
 
     public synchronized void destroy() {
         gbeanInvokers = null;
     }
 
-    public ObjectName getObjectName() {
-        return objectName;
+    public AbstractName getAbstractName() {
+        return abstractName;
     }
 
     public final Object intercept(final Object object, final Method method, final Object[] args, final MethodProxy proxy) throws Throwable {
@@ -90,24 +90,24 @@ public class ProxyMethodInterceptor implements MethodInterceptor {
         }
 
         if (gbeanInvoker == null) {
-            throw new UnsupportedOperationException("No implementation method: objectName=" + objectName + ", method=" + method);
+            throw new UnsupportedOperationException("No implementation method: objectName=" + abstractName + ", method=" + method);
         }
 
-        return gbeanInvoker.invoke(objectName, args);
+        return gbeanInvoker.invoke(abstractName, args);
     }
 
-    private ProxyInvoker[] createGBeanInvokers(Kernel kernel, ObjectName objectName) {
+    private ProxyInvoker[] createGBeanInvokers(Kernel kernel, AbstractName abstractName) {
         ProxyInvoker[] invokers;
         try {
-            RawInvoker rawInvoker = (RawInvoker) kernel.getAttribute(objectName, GBeanInstance.RAW_INVOKER);
+            RawInvoker rawInvoker = (RawInvoker) kernel.getAttribute(abstractName, GBeanInstance.RAW_INVOKER);
             invokers = createRawGBeanInvokers(rawInvoker, proxyType);
         } catch (Exception e) {
-            invokers = createKernelGBeanInvokers(kernel, objectName, proxyType);
+            invokers = createKernelGBeanInvokers(kernel, abstractName, proxyType);
         }
 
         // handle equals, hashCode and toString directly here
         try {
-            invokers[getSuperIndex(proxyType, proxyType.getMethod("equals", new Class[]{Object.class}))] = new EqualsInvoke(kernel.getProxyManager());
+            invokers[getSuperIndex(proxyType, proxyType.getMethod("equals", new Class[]{Object.class}))] = new EqualsInvoke(kernel);
             invokers[getSuperIndex(proxyType, proxyType.getMethod("hashCode", null))] = new HashCodeInvoke();
             invokers[getSuperIndex(proxyType, proxyType.getMethod("toString", null))] = new ToStringInvoke(proxyType.getName());
             if(GeronimoManagedBean.class.isAssignableFrom(proxyType)) {
@@ -117,7 +117,7 @@ public class ProxyMethodInterceptor implements MethodInterceptor {
                 invokers[getSuperIndex(proxyType, proxyType.getMethod("startRecursive", null))] = new StartRecursiveInvoke(kernel);
                 invokers[getSuperIndex(proxyType, proxyType.getMethod("stop", null))] = new StopInvoke(kernel);
                 invokers[getSuperIndex(proxyType, proxyType.getMethod("getStartTime", null))] = new GetStartTimeInvoke(kernel);
-                invokers[getSuperIndex(proxyType, proxyType.getMethod("getObjectName", null))] = new GetObjectNameInvoke();
+                invokers[getSuperIndex(proxyType, proxyType.getMethod("getObjectName", null))] = new GetObjectNameInvoke(kernel);
             }
         } catch (Exception e) {
             // this can not happen... all classes must implement equals, hashCode and toString
@@ -190,12 +190,12 @@ public class ProxyMethodInterceptor implements MethodInterceptor {
         return null;
     }
 
-    private ProxyInvoker[] createKernelGBeanInvokers(Kernel kernel, ObjectName objectName, Class proxyType) {
+    private ProxyInvoker[] createKernelGBeanInvokers(Kernel kernel, AbstractName abstractName, Class proxyType) {
         GBeanInfo info;
         try {
-            info = kernel.getGBeanInfo(objectName);
+            info = kernel.getGBeanInfo(abstractName);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Could not get GBeanInfo for target object: " + objectName);
+            throw new IllegalArgumentException("Could not get GBeanInfo for target object: " + abstractName);
         }
 
         // build attributeName->attributeInfo map
@@ -287,21 +287,21 @@ public class ProxyMethodInterceptor implements MethodInterceptor {
     }
 
     static final class HashCodeInvoke implements ProxyInvoker {
-        public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
-            return new Integer(objectName.hashCode());
+        public Object invoke(AbstractName abstractName, Object[] arguments) throws Throwable {
+            return new Integer(abstractName.hashCode());
         }
     }
 
     static final class EqualsInvoke implements ProxyInvoker {
-        private final ProxyManager proxyManager;
+        private final Kernel kernel;
 
-        public EqualsInvoke(ProxyManager proxyManager) {
-            this.proxyManager = proxyManager;
+        public EqualsInvoke(Kernel kernel) {
+            this.kernel = kernel;
         }
 
-        public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
-            ObjectName proxyTarget = proxyManager.getProxyTarget(arguments[0]);
-            return Boolean.valueOf(objectName.equals(proxyTarget));
+        public Object invoke(AbstractName abstractName, Object[] arguments) throws Throwable {
+            AbstractName proxyTarget = kernel.getAbstractNameFor(arguments[0]);
+            return Boolean.valueOf(abstractName.equals(proxyTarget));
         }
     }
 
@@ -312,8 +312,8 @@ public class ProxyMethodInterceptor implements MethodInterceptor {
             this.interfaceName = "[" + interfaceName + ": ";
         }
 
-        public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
-            return interfaceName + objectName + "]";
+        public Object invoke(AbstractName abstractName, Object[] arguments) throws Throwable {
+            return interfaceName + abstractName + "]";
         }
     }
 
@@ -324,8 +324,8 @@ public class ProxyMethodInterceptor implements MethodInterceptor {
             this.kernel = kernel;
         }
 
-        public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
-            return new Integer(kernel.getGBeanState(objectName));
+        public Object invoke(AbstractName abstractName, Object[] arguments) throws Throwable {
+            return new Integer(kernel.getGBeanState(abstractName));
         }
     }
 
@@ -336,8 +336,8 @@ public class ProxyMethodInterceptor implements MethodInterceptor {
             this.kernel = kernel;
         }
 
-        public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
-            return State.fromInt(kernel.getGBeanState(objectName));
+        public Object invoke(AbstractName abstractName, Object[] arguments) throws Throwable {
+            return State.fromInt(kernel.getGBeanState(abstractName));
         }
     }
 
@@ -348,8 +348,8 @@ public class ProxyMethodInterceptor implements MethodInterceptor {
             this.kernel = kernel;
         }
 
-        public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
-            kernel.startGBean(objectName);
+        public Object invoke(AbstractName abstractName, Object[] arguments) throws Throwable {
+            kernel.startGBean(abstractName);
             return null;
         }
     }
@@ -361,8 +361,8 @@ public class ProxyMethodInterceptor implements MethodInterceptor {
             this.kernel = kernel;
         }
 
-        public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
-            kernel.startRecursiveGBean(objectName);
+        public Object invoke(AbstractName abstractName, Object[] arguments) throws Throwable {
+            kernel.startRecursiveGBean(abstractName);
             return null;
         }
     }
@@ -374,8 +374,8 @@ public class ProxyMethodInterceptor implements MethodInterceptor {
             this.kernel = kernel;
         }
 
-        public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
-            return new Long(kernel.getGBeanStartTime(objectName));
+        public Object invoke(AbstractName abstractName, Object[] arguments) throws Throwable {
+            return new Long(kernel.getGBeanStartTime(abstractName));
         }
     }
 
@@ -386,15 +386,22 @@ public class ProxyMethodInterceptor implements MethodInterceptor {
             this.kernel = kernel;
         }
 
-        public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
-            kernel.stopGBean(objectName);
+        public Object invoke(AbstractName abstractName, Object[] arguments) throws Throwable {
+            kernel.stopGBean(abstractName);
             return null;
         }
     }
 
     static final class GetObjectNameInvoke implements ProxyInvoker {
-        public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
-            return objectName.getCanonicalName();
+        private Kernel kernel;
+
+        public GetObjectNameInvoke(Kernel kernel) {
+            this.kernel = kernel;
+        }
+
+        public Object invoke(AbstractName abstractName, Object[] arguments) throws Throwable {
+            GBeanData gBeanData = kernel.getGBeanData(abstractName);
+            return gBeanData.getAbstractName().getObjectName().getCanonicalName();
         }
     }
 }

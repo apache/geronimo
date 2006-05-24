@@ -33,6 +33,7 @@ import org.apache.xmlbeans.XmlOptions;
 public class GenerateServiceXml {
 
     private static final String DEPENDENCY_PROPERTY = "geronimo.dependency";
+    private static final String KEEP_VERSION_PROPERTY = "geronimo.keep.version";
 
     private List artifacts;
     private String targetDir;
@@ -65,16 +66,18 @@ public class GenerateServiceXml {
         ServiceType serviceType = serviceDocument.addNewService();
         for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
             Artifact artifact = (Artifact) iterator.next();
-            Dependency dependency = (Dependency) artifact.getDependency();
+            Dependency dependency = artifact.getDependency();
             if ("true".equals(dependency.getProperty(DEPENDENCY_PROPERTY))) {
                 String groupId = dependency.getGroupId();
                 String artifactId = dependency.getArtifactId();
-                String version = dependency.getVersion();
                 String type = dependency.getType();
-                org.apache.geronimo.deployment.xbeans.DependencyType dependencyType = serviceType.addNewDependency();
+                org.apache.geronimo.deployment.xbeans.ArtifactType dependencyType = serviceType.addNewDependency();
                 dependencyType.setGroupId(groupId);
                 dependencyType.setArtifactId(artifactId);
-                dependencyType.setVersion(version);
+                if ("true".equals(dependency.getProperty(KEEP_VERSION_PROPERTY))) {
+                    String version = dependency.getVersion();
+                    dependencyType.setVersion(version);
+                }
                 if (type != null && !"jar".equals(type)) {
                     dependencyType.setType(type);
                 }
@@ -90,7 +93,7 @@ public class GenerateServiceXml {
             } else {
                 targetDir.mkdirs();
             }
-            File output = new File(targetDir, "geronimo-service.xml");
+            File output = new File(targetDir, "geronimo-dependency.xml");
             XmlOptions xmlOptions = new XmlOptions();
             xmlOptions.setSavePrettyPrint();
             serviceDocument.save(output, xmlOptions);

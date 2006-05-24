@@ -1,1 +1,0 @@
-<%@ include file="internalDBNormal.jsp" %>

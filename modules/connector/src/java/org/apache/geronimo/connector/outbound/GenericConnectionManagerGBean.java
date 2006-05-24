@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.connector.outbound;
 
+import javax.resource.spi.ConnectionManager;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PoolingSupport;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
@@ -24,15 +25,18 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.proxy.ProxyManager;
 
 /**
  * @version $Revision$
  */
 public class GenericConnectionManagerGBean extends GenericConnectionManager implements GBeanLifecycle {
-
+    private final Kernel kernel;
 
     public GenericConnectionManagerGBean() {
         super();
+        kernel = null;
     }
 
     public GenericConnectionManagerGBean(TransactionSupport transactionSupport,
@@ -41,8 +45,20 @@ public class GenericConnectionManagerGBean extends GenericConnectionManager impl
                                          ConnectionTracker connectionTracker,
                                          TransactionContextManager transactionContextManager,
                                          String objectName,
-                                         ClassLoader classLoader) {
+                                         ClassLoader classLoader,
+                                         Kernel kernel) {
         super(transactionSupport, pooling, containerManagedSecurity, connectionTracker, transactionContextManager, objectName, classLoader);
+        this.kernel = kernel;
+    }
+
+    public ConnectionManager getConnectionManager() {
+        ConnectionManager unproxied = super.getConnectionManager();
+        ProxyManager pm = kernel.getProxyManager();
+        if(pm.isProxy(unproxied)) {
+            return unproxied;
+        } else {
+            return (ConnectionManager) pm.createProxy(kernel.getAbstractNameFor(unproxied), unproxied.getClass().getClassLoader());
+        }
     }
 
     public static final GBeanInfo GBEAN_INFO;
@@ -56,6 +72,7 @@ public class GenericConnectionManagerGBean extends GenericConnectionManager impl
 
         infoBuilder.addAttribute("objectName", String.class, false);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
+        infoBuilder.addAttribute("kernel", Kernel.class, false);
 
         infoBuilder.addReference("ConnectionTracker", ConnectionTracker.class, NameFactory.JCA_CONNECTION_TRACKER);
         infoBuilder.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
@@ -68,7 +85,8 @@ public class GenericConnectionManagerGBean extends GenericConnectionManager impl
             "ConnectionTracker",
             "TransactionContextManager",
             "objectName",
-            "classLoader"
+            "classLoader",
+            "kernel"
         });
 
         GBEAN_INFO = infoBuilder.getBeanInfo();

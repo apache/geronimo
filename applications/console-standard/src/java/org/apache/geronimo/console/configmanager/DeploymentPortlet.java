@@ -17,11 +17,19 @@
 
 package org.apache.geronimo.console.configmanager;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URI;
+import java.io.StringWriter;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ArrayList;
+import javax.enterprise.deploy.shared.factories.DeploymentFactoryManager;
+import javax.enterprise.deploy.spi.DeploymentManager;
+import javax.enterprise.deploy.spi.Target;
+import javax.enterprise.deploy.spi.TargetModuleID;
+import javax.enterprise.deploy.spi.status.ProgressObject;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletConfig;
@@ -29,36 +37,33 @@ import javax.portlet.PortletException;
 import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.portlet.PortletFileUpload;
-import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.console.BasePortlet;
-import org.apache.geronimo.console.util.ObjectNameConstants;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelRegistry;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
+import org.apache.geronimo.deployment.plugin.ConfigIDExtractor;
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.upgrade.Upgrade1_0To1_1;
+import org.w3c.dom.Document;
 
 public class DeploymentPortlet extends BasePortlet {
-    private final String LINE_SEP = System.getProperty("line.separator");
-
+    private static final String DEPLOY_VIEW          = "/WEB-INF/view/configmanager/deploy.jsp";
+    private static final String HELP_VIEW            = "/WEB-INF/view/configmanager/deployHelp.jsp";
+    private static final String MIGRATED_PLAN_PARM   = "migratedPlan";
+    private static final String ORIGINAL_PLAN_PARM   = "originalPlan";
+    private static final String FULL_STATUS_PARM     = "fullStatusMessage";
+    private static final String ABBR_STATUS_PARM     = "abbrStatusMessage";
     private PortletRequestDispatcher deployView;
-
     private PortletRequestDispatcher helpView;
-
-    private Kernel kernel;
-
-    private static final String[] ARGS = {File.class.getName(),
-                                          File.class.getName()};
-
-    private boolean messageNotRendered = true;
 
     public void processAction(ActionRequest actionRequest,
                               ActionResponse actionResponse) throws PortletException, IOException {
-        messageNotRendered = true;
         if (!PortletFileUpload.isMultipartContent(actionRequest)) {
             throw new PortletException("Expected file upload");
         }
@@ -68,6 +73,7 @@ public class DeploymentPortlet extends BasePortlet {
         File moduleFile = null;
         File planFile = null;
         String startApp = null;
+        String redeploy = null;
         try {
             List items = uploader.parseRequest(actionRequest);
             for (Iterator i = items.iterator(); i.hasNext();) {
@@ -102,67 +108,145 @@ public class DeploymentPortlet extends BasePortlet {
                     // retrieve 'startApp' form field value
                     if ("startApp".equalsIgnoreCase(item.getFieldName())) {
                         startApp = item.getString();
+                    } else if ("redeploy".equalsIgnoreCase(item.getFieldName())) {
+                        redeploy = item.getString();
                     }
                 }
             }
         } catch (FileUploadException e) {
             throw new PortletException(e);
         }
+        DeploymentFactoryManager dfm = DeploymentFactoryManager.getInstance();
+        FileInputStream fis = null;
         try {
-            List list = (List) kernel.invoke(ObjectNameConstants.DEPLOYER_OBJECT_NAME, "deploy", new Object[]{
-                moduleFile, planFile}, ARGS);
-            actionResponse.setRenderParameter("outcome",
-                    "The application was successfully deployed.<br/>");
-            // start installed app/s
-            if ((startApp != null) && "YES".equalsIgnoreCase(startApp)) {
-                ConfigurationManager configurationManager = ConfigurationUtil
-                        .getConfigurationManager(kernel);
-                for (Iterator iterator = list.iterator(); iterator.hasNext();) {
-                    URI configID = URI.create((String)iterator.next());
-                    if (!configurationManager.isLoaded(configID)) {
-                        configurationManager.load(configID);
-                    }
-                    configurationManager.loadGBeans(configID);
-                    configurationManager.start(configID);
+            DeploymentManager mgr = dfm.getDeploymentManager("deployer:geronimo:inVM", null, null);
+            try {
+                boolean isRedeploy = redeploy != null && !redeploy.equals("");
+                if(mgr instanceof JMXDeploymentManager) {
+                    ((JMXDeploymentManager)mgr).setLogConfiguration(false, true);
                 }
+                Target[] all = mgr.getTargets();
+                ProgressObject progress;
+                if(isRedeploy) {
+                    TargetModuleID[] targets = identifyTargets(moduleFile, planFile, mgr.getAvailableModules(null, all));
+                    if(targets.length == 0) {
+                        throw new PortletException("Unable to identify modules to replace.  Please include a Geronimo deployment plan or use the command-line deployment tool.");
+                    }
+                    progress = mgr.redeploy(targets, moduleFile, planFile);
+                } else {
+                    progress = mgr.distribute(all, moduleFile, planFile);
+                }
+                while(progress.getDeploymentStatus().isRunning()) {
+                    Thread.sleep(100);
+                }
+                
+                String abbrStatusMessage;
+                String fullStatusMessage = null;
+                if(progress.getDeploymentStatus().isCompleted()) {
+                    abbrStatusMessage = "The application was successfully "+(isRedeploy ? "re" : "")+"deployed.<br/>";
+                    // start installed app/s
+                    if (!isRedeploy && startApp != null && !startApp.equals("")) {
+                        progress = mgr.start(progress.getResultTargetModuleIDs());
+                        while(progress.getDeploymentStatus().isRunning()) {
+                            Thread.sleep(100);
+                        }
+                        abbrStatusMessage+="The application was successfully started";
+                    }
+                } else {
+                    fullStatusMessage = progress.getDeploymentStatus().getMessage();
+                    // for the abbreviated status message clip off everything
+                    // after the first line, which in most cases means the gnarly stacktrace 
+                    abbrStatusMessage = "Deployment failed:<br/>"
+                                      + fullStatusMessage.substring(0, fullStatusMessage.indexOf('\n'));
+                    // try to provide an upgraded version of the plan
+                    try {
+                        if (planFile != null && planFile.exists()) {
+                            byte[] plan = new byte[(int) planFile.length()];
+                            fis = new FileInputStream(planFile);
+                            fis.read(plan);
+                            DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                            Document doc = documentBuilder.parse(new ByteArrayInputStream(plan));
+                            // v1.1 switched from configId to moduleId
+                            String configId = doc.getDocumentElement().getAttribute("configId");
+                            if (configId != null && !("".equals(configId))) {
+                                StringWriter sw = new StringWriter();
+                                new Upgrade1_0To1_1().upgrade(new ByteArrayInputStream(plan), sw);
+                                // have to store the original and upgraded plans in the session
+                                // because the buffer size for render parameters is sometimes not
+                                // big enough
+                                actionRequest.getPortletSession().setAttribute(MIGRATED_PLAN_PARM, sw.getBuffer());
+                                actionRequest.getPortletSession().setAttribute(ORIGINAL_PLAN_PARM, new String(plan));
+                            }
+                        }
+                    } catch (Exception e) {
+                        // cannot provide a migrated plan in this case, most likely
+                        // because the deployment plan would not parse. a valid
+                        // status message has already been provided in this case
+                    }
+                }
+                // have to store the status messages in the portlet session
+                // because the buffer size for render parameters is sometimes not big enough
+                actionRequest.getPortletSession().setAttribute(FULL_STATUS_PARM, fullStatusMessage);
+                actionRequest.getPortletSession().setAttribute(ABBR_STATUS_PARM, abbrStatusMessage);
+            } finally {
+                mgr.release();
+                if (fis!=null) fis.close();
             }
-        } catch (DeploymentException e) {
-            e.printStackTrace();
-            StringBuffer buf = new StringBuffer(256);
-            Throwable cause = e;
-            while (cause != null) {
-                append(buf, cause.getMessage());
-                buf.append(LINE_SEP);
-                cause = cause.getCause();
-            }
-            actionResponse.setRenderParameter("outcome", buf.toString());
         } catch (Exception e) {
             throw new PortletException(e);
         }
     }
 
-    private void append(StringBuffer buf, String message) {
-        for (int i = 0; i < message.length(); i++) {
-            char ch = message.charAt(i);
-            if (ch == '<') {
-                buf.append("&lt;");
-            } else if (ch == '>') {
-                buf.append("&gt;");
-            } else {
-                buf.append(ch);
+    private TargetModuleID[] identifyTargets(File module, File plan, TargetModuleID[] allModules) throws PortletException {
+        String moduleId = null;
+        List modules = new ArrayList();
+        try {
+            if(plan != null) {
+                moduleId = ConfigIDExtractor.extractModuleIdFromPlan(plan);
+            } else if(module != null) {
+                moduleId = ConfigIDExtractor.extractModuleIdFromArchive(module);
+                if(moduleId == null) {
+                    int pos = module.getName().lastIndexOf('.');
+                    moduleId = pos > -1 ? module.getName().substring(0, pos) : module.getName();
+                }
             }
+            if(moduleId != null) {
+                modules.addAll(ConfigIDExtractor.identifyTargetModuleIDs(allModules, moduleId, true));
+            } else {
+                String name = module != null ? module.getName() : plan.getName();
+                int pos = name.lastIndexOf('.');
+                if(pos > -1) {
+                    name = name.substring(0, pos);
+                }
+                modules.addAll(ConfigIDExtractor.identifyTargetModuleIDs(allModules, Artifact.DEFAULT_GROUP_ID+"/"+name+"//", true));
+            }
+        } catch (IOException e) {
+            throw new PortletException("Unable to read input files: "+e.getMessage());
+        } catch (DeploymentException e) {
+            throw new PortletException(e.getMessage(), e);
         }
+        return (TargetModuleID[]) modules.toArray(new TargetModuleID[modules.size()]);
     }
 
     protected void doView(RenderRequest renderRequest,
                           RenderResponse renderResponse) throws PortletException, IOException {
-        if (messageNotRendered) {
-            renderRequest.setAttribute("outcome", renderRequest
-                    .getParameter("outcome"));
-            messageNotRendered = false;
-        }
+        // The deployment plans and messages from the deployers sometime exceeds
+        // the buffer size for render attributes. To avoid the buffer
+        // overrun the render attributes are temporarily stored in the portlet
+        // session during the processAction phase and then copied into render
+        // attributes here so the JSP has easier access to them. This seems
+        // to only be an issue on tomcat.
+        copyRenderAttribute(renderRequest, FULL_STATUS_PARM);
+        copyRenderAttribute(renderRequest, ABBR_STATUS_PARM);
+        copyRenderAttribute(renderRequest, MIGRATED_PLAN_PARM);
+        copyRenderAttribute(renderRequest, ORIGINAL_PLAN_PARM);
         deployView.include(renderRequest, renderResponse);
-        // clear previous message for next rendering
+    }
+    
+    private void copyRenderAttribute(RenderRequest renderRequest, String attr) {
+        Object value = renderRequest.getPortletSession().getAttribute(attr);
+        renderRequest.getPortletSession().removeAttribute(attr);
+        renderRequest.setAttribute(attr, value);
     }
 
     protected void doHelp(RenderRequest renderRequest,
@@ -172,15 +256,13 @@ public class DeploymentPortlet extends BasePortlet {
 
     public void init(PortletConfig portletConfig) throws PortletException {
         super.init(portletConfig);
-        kernel = KernelRegistry.getSingleKernel();
-        deployView = portletConfig.getPortletContext().getRequestDispatcher("/WEB-INF/view/configmanager/deploy.jsp");
-        helpView = portletConfig.getPortletContext().getRequestDispatcher("/WEB-INF/view/configmanager/deployHelp.jsp");
+        deployView = portletConfig.getPortletContext().getRequestDispatcher(DEPLOY_VIEW);
+        helpView = portletConfig.getPortletContext().getRequestDispatcher(HELP_VIEW);
     }
 
     public void destroy() {
         deployView = null;
         helpView = null;
-        kernel = null;
         super.destroy();
     }
 }

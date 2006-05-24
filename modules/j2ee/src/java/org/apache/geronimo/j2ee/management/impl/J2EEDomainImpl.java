@@ -18,30 +18,28 @@
 package org.apache.geronimo.j2ee.management.impl;
 
 import java.util.Hashtable;
+import java.util.Collection;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.management.J2EEDomain;
+import org.apache.geronimo.management.geronimo.J2EEDomain;
+import org.apache.geronimo.management.geronimo.J2EEServer;
 
 /**
  * @version $Rev$ $Date$
  */
 public class J2EEDomainImpl implements J2EEDomain {
-    private final Kernel kernel;
-    private final String baseName;
     private final String objectName;
+    private final Collection servers;
 
-    public J2EEDomainImpl(Kernel kernel, String objectName) {
+    public J2EEDomainImpl(String objectName, Collection servers) {
         this.objectName = objectName;
-        ObjectName myObjectName = JMXUtil.getObjectName(this.objectName);
+        ObjectName myObjectName = ObjectNameUtil.getObjectName(this.objectName);
         verifyObjectName(myObjectName);
-        baseName = myObjectName.getDomain() + ":";
-
-        this.kernel = kernel;
+        this.servers = servers;
     }
 
     public String getObjectName() {
@@ -81,7 +79,12 @@ public class J2EEDomainImpl implements J2EEDomain {
 
 
     public String[] getServers() {
-        return Util.getObjectNames(kernel, baseName, new String[]{"J2EEServer"});
+        return Util.getObjectNames(getServerInstances());
+    }
+
+    public J2EEServer[] getServerInstances() {
+        if (servers == null) return new J2EEServer[0];
+        return (J2EEServer[]) servers.toArray(new J2EEServer[servers.size()]);
     }
 
     public static final GBeanInfo GBEAN_INFO;
@@ -89,12 +92,8 @@ public class J2EEDomainImpl implements J2EEDomain {
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(J2EEDomainImpl.class, NameFactory.J2EE_DOMAIN);
 
-        infoFactory.addAttribute("kernel", Kernel.class, false);
-        infoFactory.addAttribute("objectName", String.class, false);
-        infoFactory.addAttribute("servers", String[].class, false);
-        infoFactory.addInterface(J2EEDomain.class);
-
-        infoFactory.setConstructor(new String[]{"kernel", "objectName"});
+        infoFactory.addReference("Servers", J2EEServer.class, NameFactory.J2EE_SERVER);
+        infoFactory.setConstructor(new String[]{"objectName", "Servers"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

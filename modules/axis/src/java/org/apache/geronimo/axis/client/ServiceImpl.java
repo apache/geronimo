@@ -23,29 +23,24 @@ import java.net.URL;
 import java.rmi.Remote;
 import java.util.Iterator;
 import java.util.Map;
-
 import javax.xml.namespace.QName;
 import javax.xml.rpc.Call;
 import javax.xml.rpc.ServiceException;
 import javax.xml.rpc.encoding.TypeMappingRegistry;
 import javax.xml.rpc.handler.HandlerRegistry;
 
-import org.apache.axis.EngineConfiguration;
 import org.apache.axis.SimpleTargetedChain;
-import org.apache.axis.transport.http.HTTPSender;
-import org.apache.axis.constants.Use;
-import org.apache.axis.encoding.TypeMappingRegistryImpl;
-import org.apache.axis.encoding.TypeMapping;
-import org.apache.axis.client.AxisClient;
 import org.apache.axis.client.Service;
-import org.apache.axis.configuration.FileProvider;
 import org.apache.axis.configuration.SimpleProvider;
+import org.apache.axis.encoding.TypeMappingRegistryImpl;
+import org.apache.axis.transport.http.HTTPSender;
 
 
 /**
- * @version $Revision$ $Date$
+ * @version $Revision:$ $Date$
  */
 public class ServiceImpl implements javax.xml.rpc.Service, Serializable {
+    private static final long serialVersionUID = 8657993237680414470L;
 
     private transient Service delegate;
     private final Map seiClassNameToFactoryMap;

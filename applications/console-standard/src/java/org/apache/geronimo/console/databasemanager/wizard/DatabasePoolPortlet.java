@@ -16,89 +16,92 @@
  */
 package org.apache.geronimo.console.databasemanager.wizard;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.File;
 import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
-import java.io.StringReader;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Properties;
-import java.net.URISyntaxException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Serializable;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.net.MalformedURLException;
-import java.sql.Driver;
-import java.sql.SQLException;
+import java.net.URLEncoder;
+import java.net.URLDecoder;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import javax.portlet.PortletRequestDispatcher;
-import javax.portlet.PortletConfig;
-import javax.portlet.PortletException;
-import javax.portlet.ActionRequest;
-import javax.portlet.ActionResponse;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
-import javax.portlet.WindowState;
-import javax.portlet.PortletRequest;
-import javax.portlet.PortletSession;
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
-import javax.enterprise.deploy.spi.DeploymentManager;
+import java.sql.Driver;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.SortedSet;
+import javax.enterprise.deploy.model.DDBean;
+import javax.enterprise.deploy.model.DDBeanRoot;
 import javax.enterprise.deploy.spi.DeploymentConfiguration;
+import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.status.ProgressObject;
-import javax.enterprise.deploy.model.DDBeanRoot;
-import javax.enterprise.deploy.model.DDBean;
-import javax.xml.parsers.DocumentBuilderFactory;
+import javax.portlet.ActionRequest;
+import javax.portlet.ActionResponse;
+import javax.portlet.PortletConfig;
+import javax.portlet.PortletException;
+import javax.portlet.PortletRequest;
+import javax.portlet.PortletRequestDispatcher;
+import javax.portlet.PortletSession;
+import javax.portlet.RenderRequest;
+import javax.portlet.RenderResponse;
+import javax.portlet.WindowState;
 import javax.xml.parsers.DocumentBuilder;
-import org.apache.geronimo.console.BasePortlet;
-import org.apache.geronimo.console.GeronimoVersion;
-import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
-import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.repository.ListableRepository;
-import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.kernel.repository.WriteableRepository;
-import org.apache.geronimo.kernel.repository.FileWriteMonitor;
-import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
-import org.apache.geronimo.deployment.tools.loader.ConnectorDeployable;
-import org.apache.geronimo.connector.deployment.jsr88.Connector15DCBRoot;
-import org.apache.geronimo.connector.deployment.jsr88.ConnectorDCB;
-import org.apache.geronimo.connector.deployment.jsr88.Dependency;
-import org.apache.geronimo.connector.deployment.jsr88.ResourceAdapter;
+import javax.xml.parsers.DocumentBuilderFactory;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.portlet.PortletFileUpload;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.connector.deployment.jsr88.ConfigPropertySetting;
 import org.apache.geronimo.connector.deployment.jsr88.ConnectionDefinition;
 import org.apache.geronimo.connector.deployment.jsr88.ConnectionDefinitionInstance;
-import org.apache.geronimo.connector.deployment.jsr88.ConfigPropertySetting;
 import org.apache.geronimo.connector.deployment.jsr88.ConnectionManager;
+import org.apache.geronimo.connector.deployment.jsr88.Connector15DCBRoot;
+import org.apache.geronimo.connector.deployment.jsr88.ConnectorDCB;
+import org.apache.geronimo.connector.deployment.jsr88.ResourceAdapter;
 import org.apache.geronimo.connector.deployment.jsr88.SinglePool;
 import org.apache.geronimo.connector.outbound.PoolingAttributes;
+import org.apache.geronimo.console.BasePortlet;
+import org.apache.geronimo.console.ajax.ProgressInfo;
+import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.converter.DatabaseConversionStatus;
 import org.apache.geronimo.converter.JDBCPool;
 import org.apache.geronimo.converter.bea.WebLogic81DatabaseConverter;
 import org.apache.geronimo.converter.jboss.JBoss4DatabaseConverter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.fileupload.portlet.PortletFileUpload;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.FileItem;
+import org.apache.geronimo.deployment.service.jsr88.EnvironmentData;
+import org.apache.geronimo.deployment.tools.loader.ConnectorDeployable;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.FileWriteMonitor;
+import org.apache.geronimo.kernel.repository.ListableRepository;
+import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.WriteableRepository;
+import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
+import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 /**
@@ -119,6 +122,7 @@ public class DatabasePoolPortlet extends BasePortlet {
     private static final String CONFIRM_URL_VIEW     = "/WEB-INF/view/dbwizard/confirmURL.jsp";
     private static final String TEST_CONNECTION_VIEW = "/WEB-INF/view/dbwizard/testConnection.jsp";
     private static final String DOWNLOAD_VIEW        = "/WEB-INF/view/dbwizard/selectDownload.jsp";
+    private static final String DOWNLOAD_STATUS_VIEW = "/WEB-INF/view/dbwizard/downloadStatus.jsp";
     private static final String SHOW_PLAN_VIEW       = "/WEB-INF/view/dbwizard/showPlan.jsp";
     private static final String IMPORT_UPLOAD_VIEW   = "/WEB-INF/view/dbwizard/importUpload.jsp";
     private static final String IMPORT_STATUS_VIEW   = "/WEB-INF/view/dbwizard/importStatus.jsp";
@@ -131,6 +135,7 @@ public class DatabasePoolPortlet extends BasePortlet {
     private static final String TEST_CONNECTION_MODE = "test";
     private static final String SHOW_PLAN_MODE       = "plan";
     private static final String DOWNLOAD_MODE        = "download";
+    private static final String DOWNLOAD_STATUS_MODE = "downloadStatus";
     private static final String EDIT_EXISTING_MODE   = "editExisting";
     private static final String SAVE_MODE            = "save";
     private static final String IMPORT_START_MODE    = "startImport";
@@ -149,6 +154,7 @@ public class DatabasePoolPortlet extends BasePortlet {
     private PortletRequestDispatcher confirmURLView;
     private PortletRequestDispatcher testConnectionView;
     private PortletRequestDispatcher downloadView;
+    private PortletRequestDispatcher downloadStatusView;
     private PortletRequestDispatcher planView;
     private PortletRequestDispatcher importUploadView;
     private PortletRequestDispatcher importStatusView;
@@ -163,6 +169,7 @@ public class DatabasePoolPortlet extends BasePortlet {
         confirmURLView = portletConfig.getPortletContext().getRequestDispatcher(CONFIRM_URL_VIEW);
         testConnectionView = portletConfig.getPortletContext().getRequestDispatcher(TEST_CONNECTION_VIEW);
         downloadView = portletConfig.getPortletContext().getRequestDispatcher(DOWNLOAD_VIEW);
+        downloadStatusView = portletConfig.getPortletContext().getRequestDispatcher(DOWNLOAD_STATUS_VIEW);
         planView = portletConfig.getPortletContext().getRequestDispatcher(SHOW_PLAN_VIEW);
         importUploadView = portletConfig.getPortletContext().getRequestDispatcher(IMPORT_UPLOAD_VIEW);
         importStatusView = portletConfig.getPortletContext().getRequestDispatcher(IMPORT_STATUS_VIEW);
@@ -177,6 +184,7 @@ public class DatabasePoolPortlet extends BasePortlet {
         confirmURLView = null;
         testConnectionView = null;
         downloadView = null;
+        downloadStatusView = null;
         planView = null;
         importUploadView = null;
         importStatusView = null;
@@ -206,9 +214,9 @@ public class DatabasePoolPortlet extends BasePortlet {
      * @param request            Pass it or die
      * @param rarPath            If we're creating a new RA, the path to identify it
      * @param displayName        If we're editing an existing RA, its name
-     * @param adapterObjectName  If we're editing an existing RA, its ObjectName
+     * @param adapterAbstractName  If we're editing an existing RA, its AbstractName
      */
-    public ResourceAdapterParams getRARConfiguration(PortletRequest request, String rarPath, String displayName, String adapterObjectName) {
+    public ResourceAdapterParams getRARConfiguration(PortletRequest request, String rarPath, String displayName, String adapterAbstractName) {
         PortletSession session = request.getPortletSession(true);
         if(rarPath != null && !rarPath.equals("")) {
             ResourceAdapterParams results = (ResourceAdapterParams) session.getAttribute(CONFIG_SESSION_KEY+"-"+rarPath, PortletSession.APPLICATION_SCOPE);
@@ -218,10 +226,10 @@ public class DatabasePoolPortlet extends BasePortlet {
                 session.setAttribute(CONFIG_SESSION_KEY+"-"+results.displayName, results, PortletSession.APPLICATION_SCOPE);
             }
             return results;
-        } else if(displayName != null && !displayName.equals("") && adapterObjectName != null && !adapterObjectName.equals("")) {
+        } else if(displayName != null && !displayName.equals("") && adapterAbstractName != null && !adapterAbstractName.equals("")) {
             ResourceAdapterParams results = (ResourceAdapterParams) session.getAttribute(CONFIG_SESSION_KEY+"-"+displayName, PortletSession.APPLICATION_SCOPE);
             if(results == null) {
-                results = loadConfigPropertiesByObjectName(request, adapterObjectName);
+                results = loadConfigPropertiesByAbstractName(request, adapterAbstractName);
                 session.setAttribute(CONFIG_SESSION_KEY+"-"+displayName, results, PortletSession.APPLICATION_SCOPE);
             }
             return results;
@@ -273,38 +281,19 @@ public class DatabasePoolPortlet extends BasePortlet {
                 }
             }
             if(found != null) {
-                DriverDownloader downloader = new DriverDownloader();
-                WriteableRepository repo = PortletManager.getWritableRepositories(actionRequest)[0];
-                try {
-                    DownloadInfo downloadInfo = new DownloadInfo();
-                    final PortletSession session = actionRequest.getPortletSession();
-                    session.setAttribute(DownloadInfo.DOWNLOAD_INFO_KEY, downloadInfo, PortletSession.APPLICATION_SCOPE);
-                    downloader.loadDriver(repo, found, downloadInfo, new FileWriteMonitor() {
-                        public void writeStarted(String fileDescription) {
-                            System.out.println("Downloading "+fileDescription);
-                            DownloadInfo downloadInfo = (DownloadInfo)session.getAttribute(DownloadInfo.DOWNLOAD_INFO_KEY);
-                            downloadInfo.setDownloadStarted(true);
-                        }
-
-                        public void writeProgress(int bytes) {
-                            System.out.print("\rDownload progress: "+(bytes/1024)+"kB");
-                            System.out.flush();
-                            DownloadInfo downloadInfo = (DownloadInfo)session.getAttribute(DownloadInfo.DOWNLOAD_INFO_KEY);
-                            downloadInfo.setBytesDownloaded(bytes);
-                        }
-
-                        public void writeComplete(int bytes) {
-                            System.out.println();
-                            System.out.println("Finished downloading "+bytes+"b");
-                            DownloadInfo downloadInfo = (DownloadInfo)session.getAttribute(DownloadInfo.DOWNLOAD_INFO_KEY);
-                            downloadInfo.setDownloadFinished(true);
-                        }
-                    });
-                    data.jar1 = found.getRepositoryURI();
-                } catch (IOException e) {
-                    log.error("Unable to download JDBC driver", e);
-                }
+                data.jar1 = found.getRepositoryURI();
+                WriteableRepository repo = PortletManager.getCurrentServer(actionRequest).getWritableRepositories()[0];
+                final PortletSession session = actionRequest.getPortletSession();
+                ProgressInfo progressInfo = new ProgressInfo();
+                progressInfo.setMainMessage("Downloading " + found.getName());
+                session.setAttribute(ProgressInfo.PROGRESS_INFO_KEY, progressInfo, PortletSession.APPLICATION_SCOPE);
+                // Start the download monitoring
+                new Thread(new Downloader(found, progressInfo, repo)).start();
+                actionResponse.setRenderParameter(MODE_KEY, DOWNLOAD_STATUS_MODE);
+            } else {
+                actionResponse.setRenderParameter(MODE_KEY, DOWNLOAD_MODE);
             }
+        } else if(mode.equals("process-"+DOWNLOAD_STATUS_MODE)) {
             if(data.getDbtype() == null || data.getDbtype().equals("Other")) {
                 actionResponse.setRenderParameter(MODE_KEY, EDIT_MODE);
             } else {
@@ -350,9 +339,9 @@ public class DatabasePoolPortlet extends BasePortlet {
             actionRequest.getPortletSession(true).setAttribute("deploymentPlan", plan);
             actionResponse.setRenderParameter(MODE_KEY, SHOW_PLAN_MODE);
         } else if(mode.equals(EDIT_EXISTING_MODE)) {
-            final String name = actionRequest.getParameter("adapterObjectName");
-            loadConnectionFactory(actionRequest, name, data.getObjectName(), data);
-            actionResponse.setRenderParameter("adapterObjectName", name);
+            final String name = actionRequest.getParameter("adapterAbstractName");
+            loadConnectionFactory(actionRequest, name, data.getAbstractName(), data);
+            actionResponse.setRenderParameter("adapterAbstractName", name);
             actionResponse.setRenderParameter(MODE_KEY, EDIT_MODE);
         } else if(mode.equals(SELECT_RDBMS_MODE)) {
             if(data.getAdapterDisplayName() == null) { // Set a default for a new pool
@@ -392,6 +381,51 @@ public class DatabasePoolPortlet extends BasePortlet {
             actionResponse.setRenderParameter(MODE_KEY, mode);
         }
         data.store(actionResponse);
+    }
+
+    private static class Downloader implements Runnable {
+        private WriteableRepository repo;
+        private DriverDownloader.DriverInfo driver;
+        private ProgressInfo progressInfo;
+
+        public Downloader(DriverDownloader.DriverInfo driver, ProgressInfo progressInfo, WriteableRepository repo) {
+            this.driver = driver;
+            this.progressInfo = progressInfo;
+            this.repo = repo;
+        }
+
+        public void run() {
+            DriverDownloader downloader = new DriverDownloader();
+            try {
+                downloader.loadDriver(repo, driver, new FileWriteMonitor() {
+                    private int fileSize;
+
+                    public void writeStarted(String fileDescription, int fileSize) {
+                        this.fileSize = fileSize;
+                        log.info("Downloading "+fileDescription);
+                    }
+
+                    public void writeProgress(int bytes) {
+                        int kbDownloaded = (int)Math.floor(bytes/1024);
+                        if (fileSize > 0) {
+                            int percent = (bytes*100)/fileSize;
+                            progressInfo.setProgressPercent(percent);
+                            progressInfo.setSubMessage(kbDownloaded + " / " + fileSize/1024 + " Kb downloaded");
+                        } else {
+                            progressInfo.setSubMessage(kbDownloaded + " Kb downloaded");
+                        }
+                    }
+
+                    public void writeComplete(int bytes) {
+                        log.info("Finished downloading "+bytes+" b");
+                    }
+                });
+            } catch (IOException e) {
+                log.error("Unable to download database driver", e);
+            } finally {
+                progressInfo.setFinished(true);
+            }
+        }
     }
 
     private void loadImportedData(PoolData data, ImportStatus.PoolProgress progress) {
@@ -472,7 +506,7 @@ public class DatabasePoolPortlet extends BasePortlet {
     private ResourceAdapterParams loadConfigPropertiesByPath(PortletRequest request, String rarPath) {
         DeploymentManager mgr = PortletManager.getDeploymentManager(request);
         try {
-            URL url = getRAR(request, rarPath);
+            URL url = getRAR(request, rarPath).toURL();
             ConnectorDeployable deployable = new ConnectorDeployable(url);
             final DDBeanRoot ddBeanRoot = deployable.getDDBeanRoot();
             String adapterName = null, adapterDesc = null;
@@ -514,8 +548,8 @@ public class DatabasePoolPortlet extends BasePortlet {
         }
     }
 
-    private ResourceAdapterParams loadConfigPropertiesByObjectName(PortletRequest request, String objectName) {
-        ResourceAdapterModule module = (ResourceAdapterModule) PortletManager.getManagedBean(request, objectName);
+    private ResourceAdapterParams loadConfigPropertiesByAbstractName(PortletRequest request, String abstractName) {
+        ResourceAdapterModule module = (ResourceAdapterModule) PortletManager.getManagedBean(request, new AbstractName(URI.create(abstractName)));
         String dd = module.getDeploymentDescriptor();
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setValidating(false);
@@ -573,18 +607,20 @@ public class DatabasePoolPortlet extends BasePortlet {
     }
 
     private void loadConnectionFactory(ActionRequest actionRequest, String adapterName, String factoryName, PoolData data) {
-        ResourceAdapterModule adapter = (ResourceAdapterModule) PortletManager.getManagedBean(actionRequest, adapterName);
-        JCAManagedConnectionFactory factory = (JCAManagedConnectionFactory) PortletManager.getManagedBean(actionRequest, factoryName);
+    	AbstractName abstractAdapterName = new AbstractName(URI.create(adapterName));
+    	AbstractName abstractFactoryName = new AbstractName(URI.create(factoryName));
+    	
+        ResourceAdapterModule adapter = (ResourceAdapterModule) PortletManager.getManagedBean(actionRequest,abstractAdapterName);  
+        JCAManagedConnectionFactory factory = (JCAManagedConnectionFactory) PortletManager.getManagedBean(actionRequest, abstractFactoryName);
         data.adapterDisplayName = adapter.getDisplayName();
         data.adapterDescription = adapter.getDescription();
         try {
-            ObjectName oname = ObjectName.getInstance(factoryName);
-            data.name = oname.getKeyProperty("name");
+        	data.name = (String)abstractFactoryName.getName().get("name");
             if(data.isGeneric()) {
-                data.url = (String) factory.getConfigProperty("connectionURL");
-                data.driverClass = (String) factory.getConfigProperty("driver");
-                data.user = (String) factory.getConfigProperty("userName");
-                data.password = (String) factory.getConfigProperty("password");
+                data.url = (String) factory.getConfigProperty("ConnectionURL");
+                data.driverClass = (String) factory.getConfigProperty("Driver");
+                data.user = (String) factory.getConfigProperty("UserName");
+                data.password = (String) factory.getConfigProperty("Password");
             } else {
                 ResourceAdapterParams params = getRARConfiguration(actionRequest, data.getRarPath(), data.getAdapterDisplayName(), adapterName);
                 for(int i=0; i<params.getConfigParams().length; i++) {
@@ -597,7 +633,7 @@ public class DatabasePoolPortlet extends BasePortlet {
             log.error("Unable to look up connection property", e);
         }
         //todo: push the lookup into ManagementHelper
-        PoolingAttributes pool = (PoolingAttributes) PortletManager.getManagedBean(actionRequest, factory.getConnectionManager());
+        PoolingAttributes pool = (PoolingAttributes) factory.getConnectionManager();
         data.minSize = Integer.toString(pool.getPartitionMinSize());
         data.maxSize = Integer.toString(pool.getPartitionMaxSize());
         data.blockingTimeout = Integer.toString(pool.getBlockingTimeoutMilliseconds());
@@ -631,6 +667,8 @@ public class DatabasePoolPortlet extends BasePortlet {
                 renderSelectRDBMS(renderRequest, renderResponse);
             } else if(mode.equals(DOWNLOAD_MODE)) {
                 renderDownload(renderRequest, renderResponse);
+            } else if(mode.equals(DOWNLOAD_STATUS_MODE)) {
+                renderDownloadStatus(renderRequest, renderResponse);
             } else if(mode.equals(BASIC_PARAMS_MODE)) {
                 renderBasicParams(renderRequest, renderResponse, data);
             } else if(mode.equals(CONFIRM_URL_MODE)) {
@@ -676,15 +714,13 @@ public class DatabasePoolPortlet extends BasePortlet {
         List list = new ArrayList();
         for (int i = 0; i < modules.length; i++) {
             ResourceAdapterModule module = modules[i];
+            AbstractName moduleName = PortletManager.getManagementHelper(renderRequest).getNameFor(module);
+            
             JCAManagedConnectionFactory[] databases = PortletManager.getOutboundFactoriesForRA(renderRequest, module, "javax.sql.DataSource");
             for (int j = 0; j < databases.length; j++) {
                 JCAManagedConnectionFactory db = databases[j];
-                try {
-                    ObjectName name = ObjectName.getInstance(db.getObjectName());
-                    list.add(new ConnectionPool(ObjectName.getInstance(module.getObjectName()), db.getObjectName(), name.getKeyProperty(NameFactory.J2EE_NAME), ((GeronimoManagedBean)db).getState()));
-                } catch (MalformedObjectNameException e) {
-                    e.printStackTrace();
-                }
+              	AbstractName dbName =  PortletManager.getManagementHelper(renderRequest).getNameFor(db);
+                list.add(new ConnectionPool(moduleName, dbName, (String)dbName.getName().get(NameFactory.J2EE_NAME), ((GeronimoManagedBean)db).getState()));
             }
         }
         Collections.sort(list);
@@ -692,11 +728,11 @@ public class DatabasePoolPortlet extends BasePortlet {
     }
 
     private void renderEdit(RenderRequest renderRequest, RenderResponse renderResponse, PoolData data) throws IOException, PortletException {
-        if(data.objectName == null || data.objectName.equals("")) {
+        if(data.abstractName == null || data.abstractName.equals("")) {
             loadDriverJARList(renderRequest);
         }
         if(!data.isGeneric()) {
-            ResourceAdapterParams params = getRARConfiguration(renderRequest, data.getRarPath(), data.getAdapterDisplayName(), renderRequest.getParameter("adapterObjectName"));
+            ResourceAdapterParams params = getRARConfiguration(renderRequest, data.getRarPath(), data.getAdapterDisplayName(), renderRequest.getParameter("adapterAbstractName"));
             data.adapterDisplayName = params.getDisplayName();
             data.adapterDescription = params.getDescription();
             Map map = new HashMap();
@@ -727,6 +763,10 @@ public class DatabasePoolPortlet extends BasePortlet {
         downloadView.include(renderRequest, renderResponse);
     }
 
+    private void renderDownloadStatus(RenderRequest renderRequest, RenderResponse renderResponse) throws IOException, PortletException {
+        downloadStatusView.include(renderRequest, renderResponse);
+    }
+
     private void renderBasicParams(RenderRequest renderRequest, RenderResponse renderResponse, PoolData data) throws IOException, PortletException {
         loadDriverJARList(renderRequest);
         // Make sure all properties available for the DB are listed
@@ -750,29 +790,25 @@ public class DatabasePoolPortlet extends BasePortlet {
     private void loadDriverJARList(RenderRequest renderRequest) {
         // List the available JARs
         List list = new ArrayList();
-        ListableRepository[] repos = PortletManager.getListableRepositories(renderRequest);
+        ListableRepository[] repos = PortletManager.getCurrentServer(renderRequest).getRepositories();
         for (int i = 0; i < repos.length; i++) {
             ListableRepository repo = repos[i];
-            try {
-                final URI[] uris = repo.listURIs();
-                outer:
-                for (int j = 0; j < uris.length; j++) {
-                    if(uris[j] == null) {
-                        continue; // probably a JAR lacks a version number in the name, etc.
+
+            SortedSet artifacts = repo.list();
+            outer:
+            for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
+                Artifact artifact = (Artifact) iterator.next();
+                String test = artifact.toString();
+                // todo should only test groupId and should check for long (org.apache.geronimo) and short form
+                for (int k = 0; k < SKIP_ENTRIES_WITH.length; k++) {
+                    String skip = SKIP_ENTRIES_WITH[k];
+                    if(test.indexOf(skip) > -1) {
+                        continue outer;
                     }
-                    String test = uris[j].toString();
-                    for (int k = 0; k < SKIP_ENTRIES_WITH.length; k++) {
-                        String skip = SKIP_ENTRIES_WITH[k];
-                        if(test.indexOf(skip) > -1) {
-                            continue outer;
-                        }
-                    }
-                    list.add(test);
                 }
-            } catch (URISyntaxException e) {
-                e.printStackTrace();
+                list.add(test);
             }
-        }
+    }
         Collections.sort(list);
         renderRequest.setAttribute("jars", list);
     }
@@ -793,7 +829,7 @@ public class DatabasePoolPortlet extends BasePortlet {
         renderRequest.setAttribute("deploymentPlan", renderRequest.getPortletSession().getAttribute("deploymentPlan"));
         // Digest the RAR URI
         String path = PortletManager.getRepositoryEntry(renderRequest, data.getRarPath()).getPath();
-        String base = PortletManager.getServerInfo(renderRequest).getCurrentBaseDirectory();
+        String base = PortletManager.getCurrentServer(renderRequest).getServerInfo().getCurrentBaseDirectory();
         if(base != null && path.startsWith(base)) {
             path = path.substring(base.length());
             if(path.startsWith("/")) {
@@ -832,44 +868,40 @@ public class DatabasePoolPortlet extends BasePortlet {
 
     private static String save(PortletRequest request, ActionResponse response, PoolData data, boolean planOnly) {
         ImportStatus status = getImportStatus(request);
-        if(data.objectName == null || data.objectName.equals("")) { // we're creating a new pool
+        if(data.abstractName == null || data.abstractName.equals("")) { // we're creating a new pool
             data.name = data.name.replaceAll("\\s", "");
             DeploymentManager mgr = PortletManager.getDeploymentManager(request);
             try {
-                URL url = getRAR(request, data.getRarPath());
-                String str = url.toString();
-                if(str.indexOf(' ') > -1) {
-                    url = new URL(str.replaceAll(" ", "%20")); // try to avoid problems with spaces in path on Windows
-                }
-                ConnectorDeployable deployable = new ConnectorDeployable(url);
+                File rarFile = getRAR(request, data.getRarPath());
+                ConnectorDeployable deployable = new ConnectorDeployable(rarFile.toURL());
                 DeploymentConfiguration config = mgr.createConfiguration(deployable);
                 final DDBeanRoot ddBeanRoot = deployable.getDDBeanRoot();
                 Connector15DCBRoot root = (Connector15DCBRoot) config.getDConfigBeanRoot(ddBeanRoot);
                 ConnectorDCB connector = (ConnectorDCB) root.getDConfigBean(ddBeanRoot.getChildBean(root.getXpaths()[0])[0]);
-                connector.setConfigID("console-db-pool-"+data.getName());
-                if(data.jar1 != null && !data.jar1.equals("")) {
-                    Dependency dep = new Dependency();
-                    connector.setDependency(new Dependency[]{dep});
-                    dep.setURI(data.jar1);
+                
+                EnvironmentData environment = new EnvironmentData();
+                connector.setEnvironment(environment);
+                org.apache.geronimo.deployment.service.jsr88.Artifact configId = new org.apache.geronimo.deployment.service.jsr88.Artifact();
+                environment.setConfigId(configId);
+                configId.setGroupId("console.dbpool");
+                configId.setArtifactId(data.getName());
+                configId.setVersion("1.0");
+                configId.setType("rar");
+
+                String[] jars = data.getJars();
+                org.apache.geronimo.deployment.service.jsr88.Artifact[] dependencies = new org.apache.geronimo.deployment.service.jsr88.Artifact[jars.length];
+                for (int i=0; i<dependencies.length; i++) {
+                	dependencies[i] = new org.apache.geronimo.deployment.service.jsr88.Artifact();
                 }
-                if(data.jar2 != null && !data.jar2.equals("")) {
-                    Dependency dep = new Dependency();
-                    Dependency[] old = connector.getDependency();
-                    Dependency[] longer = new Dependency[old.length+1];
-                    System.arraycopy(old, 0, longer, 0, old.length);
-                    longer[old.length] = dep;
-                    connector.setDependency(longer);
-                    dep.setURI(data.jar2);
+                environment.setDependencies(dependencies);
+                for (int i=0; i<dependencies.length; i++) {
+                        Artifact tmp = Artifact.create(jars[i]);
+                        dependencies[i].setGroupId(tmp.getGroupId());
+                        dependencies[i].setArtifactId(tmp.getArtifactId());
+                        dependencies[i].setVersion(tmp.getVersion().toString());
+                        dependencies[i].setType(tmp.getType());
                 }
-                if(data.jar3 != null && !data.jar3.equals("")) {
-                    Dependency dep = new Dependency();
-                    Dependency[] old = connector.getDependency();
-                    Dependency[] longer = new Dependency[old.length+1];
-                    System.arraycopy(old, 0, longer, 0, old.length);
-                    longer[old.length] = dep;
-                    connector.setDependency(longer);
-                    dep.setURI(data.jar3);
-                }
+               
                 ResourceAdapter adapter = connector.getResourceAdapter()[0];
                 ConnectionDefinition definition = new ConnectionDefinition();
                 adapter.setConnectionDefinition(new ConnectionDefinition[]{definition});
@@ -919,6 +951,7 @@ public class DatabasePoolPortlet extends BasePortlet {
                 if(data.idleTimeout != null && !data.idleTimeout.equals("")) {
                     pool.setIdleTimeoutMinutes(new Integer(data.idleTimeout));
                 }
+                
                 if(planOnly) {
                     ByteArrayOutputStream out = new ByteArrayOutputStream();
                     config.save(out);
@@ -933,7 +966,7 @@ public class DatabasePoolPortlet extends BasePortlet {
                     out.flush();
                     out.close();
                     Target[] targets = mgr.getTargets();
-                    ProgressObject po = mgr.distribute(targets, new File(url.getPath()), tempFile);
+                    ProgressObject po = mgr.distribute(targets, rarFile, tempFile);
                     waitForProgress(po);
                     if(po.getDeploymentStatus().isCompleted()) {
                         TargetModuleID[] ids = po.getResultTargetModuleIDs();
@@ -961,11 +994,11 @@ public class DatabasePoolPortlet extends BasePortlet {
                 throw new UnsupportedOperationException("Can't update a plan for an existing deployment");
             }
             try {
-                JCAManagedConnectionFactory factory = (JCAManagedConnectionFactory) PortletManager.getManagedBean(request, data.getObjectName());
+                JCAManagedConnectionFactory factory = (JCAManagedConnectionFactory) PortletManager.getManagedBean(request, new AbstractName(URI.create(data.getAbstractName())));
                 if(data.isGeneric()) {
-                    factory.setConfigProperty("connectionURL", data.getUrl());
-                    factory.setConfigProperty("userName", data.getUser());
-                    factory.setConfigProperty("password", data.getPassword());
+                    factory.setConfigProperty("ConnectionURL", data.getUrl());
+                    factory.setConfigProperty("UserName", data.getUser());
+                    factory.setConfigProperty("Password", data.getPassword());
                 } else {
                     for (Iterator it = data.getProperties().entrySet().iterator(); it.hasNext();) {
                         Map.Entry entry = (Map.Entry) it.next();
@@ -973,7 +1006,7 @@ public class DatabasePoolPortlet extends BasePortlet {
                     }
                 }
                 //todo: push the lookup into ManagementHelper
-                PoolingAttributes pool = (PoolingAttributes) PortletManager.getManagedBean(request, factory.getConnectionManager());
+                PoolingAttributes pool = (PoolingAttributes) factory.getConnectionManager();
                 pool.setPartitionMinSize(data.minSize == null || data.minSize.equals("") ? 0 : Integer.parseInt(data.minSize));
                 pool.setPartitionMaxSize(data.maxSize == null || data.maxSize.equals("") ? 10 : Integer.parseInt(data.maxSize));
                 pool.setBlockingTimeoutMilliseconds(data.blockingTimeout == null || data.blockingTimeout.equals("") ? 5000 : Integer.parseInt(data.blockingTimeout));
@@ -999,24 +1032,17 @@ public class DatabasePoolPortlet extends BasePortlet {
         return (ImportStatus) request.getPortletSession(true).getAttribute("ImportStatus");
     }
 
-    private static URL getRAR(PortletRequest request, String rarPath) {
-        try {
-            URI uri = new URI(rarPath);
-            Repository[] repos = PortletManager.getRepositories(request);
-            for (int i = 0; i < repos.length; i++) {
-                Repository repo = repos[i];
-                URL url = repo.getURL(uri);
-                if(url != null && url.getProtocol().equals("file")) {
-                    File file = new File(url.getPath());
-                    if(file.exists() && file.canRead() && !file.isDirectory()) {
-                        return url;
-                    }
+    private static File getRAR(PortletRequest request, String rarPath) {
+        org.apache.geronimo.kernel.repository.Artifact artifact = org.apache.geronimo.kernel.repository.Artifact.create(rarPath);
+        Repository[] repos = PortletManager.getCurrentServer(request).getRepositories();
+        for (int i = 0; i < repos.length; i++) {
+            Repository repo = repos[i];
+            File url = repo.getLocation(artifact);
+            if (url != null) {
+                if (url.exists() && url.canRead() && !url.isDirectory()) {
+                    return url;
                 }
             }
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
         }
         return null;
     }
@@ -1028,31 +1054,31 @@ public class DatabasePoolPortlet extends BasePortlet {
     private static Class attemptDriverLoad(PortletRequest request, PoolData data) {
         List list = new ArrayList();
         try {
-            URI one = data.getJar1() == null ? null : new URI(data.getJar1());
-            URI two = data.getJar2() == null ? null : new URI(data.getJar2());
-            URI three = data.getJar3() == null ? null : new URI(data.getJar3());
+            org.apache.geronimo.kernel.repository.Artifact one = data.getJar1() == null ? null : org.apache.geronimo.kernel.repository.Artifact.create(data.getJar1());
+            org.apache.geronimo.kernel.repository.Artifact two = data.getJar2() == null ? null : org.apache.geronimo.kernel.repository.Artifact.create(data.getJar2());
+            org.apache.geronimo.kernel.repository.Artifact three = data.getJar3() == null ? null : org.apache.geronimo.kernel.repository.Artifact.create(data.getJar3());
 
-            ListableRepository[] repos = PortletManager.getListableRepositories(request);
+            ListableRepository[] repos = PortletManager.getCurrentServer(request).getRepositories();
             for (int i = 0; i < repos.length; i++) {
                 ListableRepository repo = repos[i];
                 if(one != null) {
-                    URL url = repo.getURL(one);
+                    File url = repo.getLocation(one);
                     if(url != null) {
-                        list.add(url);
+                        list.add(url.toURL());
                         one = null;
                     }
                 }
                 if(two != null) {
-                    URL url = repo.getURL(two);
+                    File url = repo.getLocation(two);
                     if(url != null) {
-                        list.add(url);
+                        list.add(url.toURL());
                         two = null;
                     }
                 }
                 if(three != null) {
-                    URL url = repo.getURL(three);
+                    File url = repo.getLocation(three);
                     if(url != null) {
-                        list.add(url);
+                        list.add(url.toURL());
                         three = null;
                     }
                 }
@@ -1138,12 +1164,12 @@ public class DatabasePoolPortlet extends BasePortlet {
         private String maxSize;
         private String blockingTimeout;
         private String idleTimeout;
-        private String objectName;
+        private String abstractName;
         private String adapterDisplayName;
         private String adapterDescription;
         private String rarPath;
         private String importSource;
-        private Map objectNameMap; // generated as needed, don't need to read/write it
+        private Map abstractNameMap; // generated as needed, don't need to read/write it
 
         public void load(PortletRequest request) {
             name = request.getParameter("name");
@@ -1159,8 +1185,14 @@ public class DatabasePoolPortlet extends BasePortlet {
             url = request.getParameter("url");
             if(url != null && url.equals("")) {
                 url = null;
-            } else if(url != null && url.indexOf("%3B") > -1) {
-                url = url.replaceAll("%3B", ";"); // attempt to work around Pluto/Tomcat error with ; in a stored value
+            } else if(url != null && url.startsWith("URLENCODED")) {
+                try {
+                    url = URLDecoder.decode(url.substring(10), "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    throw new RuntimeException("Unable to decode URL", e);
+                } catch(IllegalArgumentException e) { // not encoded after all??
+                    url = url.substring(10);
+                }
             }
             urlPrototype = request.getParameter("urlPrototype");
             if(urlPrototype != null && urlPrototype.equals("")) urlPrototype = null;
@@ -1178,8 +1210,8 @@ public class DatabasePoolPortlet extends BasePortlet {
             if(blockingTimeout != null && blockingTimeout.equals("")) blockingTimeout = null;
             idleTimeout = request.getParameter("idleTimeout");
             if(idleTimeout != null && idleTimeout.equals("")) idleTimeout = null;
-            objectName = request.getParameter("objectName");
-            if(objectName != null && objectName.equals("")) objectName = null;
+            abstractName = request.getParameter("abstractName");
+            if(abstractName != null && abstractName.equals("")) abstractName = null;
             adapterDisplayName = request.getParameter("adapterDisplayName");
             if(adapterDisplayName != null && adapterDisplayName.equals("")) adapterDisplayName = null;
             adapterDescription = request.getParameter("adapterDescription");
@@ -1240,7 +1272,11 @@ public class DatabasePoolPortlet extends BasePortlet {
             if(user != null) response.setRenderParameter("user", user);
             if(password != null) response.setRenderParameter("password", password);
             if(url != null) { // attempt to work around Pluto/Tomcat error with ; in a stored value
-                response.setRenderParameter("url", url.replaceAll(";", "%3B"));
+                try {
+                    response.setRenderParameter("url", "URLENCODED"+URLEncoder.encode(url, "UTF-8"));
+                } catch (UnsupportedEncodingException e) {
+                    throw new RuntimeException("Unable to encode URL", e);
+                }
             }
             if(urlPrototype != null) response.setRenderParameter("urlPrototype", urlPrototype);
             if(jar1 != null) response.setRenderParameter("jar1", jar1);
@@ -1250,7 +1286,7 @@ public class DatabasePoolPortlet extends BasePortlet {
             if(maxSize != null) response.setRenderParameter("maxSize", maxSize);
             if(blockingTimeout != null) response.setRenderParameter("blockingTimeout", blockingTimeout);
             if(idleTimeout != null) response.setRenderParameter("idleTimeout", idleTimeout);
-            if(objectName != null) response.setRenderParameter("objectName", objectName);
+            if(abstractName != null) response.setRenderParameter("abstractName", abstractName);
             if(adapterDisplayName != null) response.setRenderParameter("adapterDisplayName", adapterDisplayName);
             if(adapterDescription != null) response.setRenderParameter("adapterDescription", adapterDescription);
             if(importSource != null) response.setRenderParameter("importSource", importSource);
@@ -1312,6 +1348,17 @@ public class DatabasePoolPortlet extends BasePortlet {
         public String getJar3() {
             return jar3;
         }
+        
+        public String[] getJars() {
+        	ArrayList jars = new ArrayList();
+        	if (jar1!=null && !jar1.equals(""))
+        		jars.add(jar1);
+        	if (jar2!=null && !jar2.equals(""))
+        		jars.add(jar2);
+        	if (jar3!=null && !jar3.equals(""))
+        		jars.add(jar3);
+        	return (String[])jars.toArray(new String[jars.size()]);
+        }
 
         public String getMinSize() {
             return minSize;
@@ -1337,8 +1384,8 @@ public class DatabasePoolPortlet extends BasePortlet {
             return urlPrototype;
         }
 
-        public String getObjectName() {
-            return objectName;
+        public String getAbstractName() {
+            return abstractName;
         }
 
         public String getAdapterDisplayName() {
@@ -1362,45 +1409,45 @@ public class DatabasePoolPortlet extends BasePortlet {
             return importSource;
         }
 
-        public Map getObjectNameMap() {
-            if(objectName == null) return Collections.EMPTY_MAP;
-            if(objectNameMap != null) return objectNameMap;
-            try {
-                ObjectName name = new ObjectName(objectName);
-                objectNameMap = new HashMap(name.getKeyPropertyList());
-                objectNameMap.put("domain", name.getDomain());
-                return objectNameMap;
-            } catch (MalformedObjectNameException e) {
-                return Collections.EMPTY_MAP;
-            }
+        public Map getAbstractNameMap() {
+            if(abstractName == null) return Collections.EMPTY_MAP;
+            if(abstractNameMap != null) return abstractNameMap;
+            AbstractName name = new AbstractName(URI.create(abstractName));
+            abstractNameMap = new HashMap(name.getName());
+            abstractNameMap.put("domain", name.getObjectName().getDomain());
+            abstractNameMap.put("groupId", name.getArtifact().getGroupId());
+            abstractNameMap.put("artifactId", name.getArtifact().getArtifactId());
+            abstractNameMap.put("type", name.getArtifact().getType());
+            abstractNameMap.put("version", name.getArtifact().getVersion().toString());
+            return abstractNameMap;
         }
     }
 
     public static class ConnectionPool implements Serializable, Comparable {
-        private final String adapterObjectName;
-        private final String factoryObjectName;
+        private final String adapterAbstractName;
+        private final String factoryAbstractName;
         private final String name;
         private final String parentName;
         private final int state;
 
-        public ConnectionPool(ObjectName adapterObjectName, String factoryObjectName, String name, int state) {
-            this.adapterObjectName = adapterObjectName.getCanonicalName();
-            String parent = adapterObjectName.getKeyProperty(NameFactory.J2EE_APPLICATION);
+        public ConnectionPool(AbstractName adapterAbstractName, AbstractName factoryAbstractName, String name, int state) {
+            this.adapterAbstractName = adapterAbstractName.toURI().toString();
+            String parent = (String)adapterAbstractName.getName().get(NameFactory.J2EE_APPLICATION);
             if(parent != null && parent.equals("null")) {
                 parent = null;
             }
             parentName = parent;
-            this.factoryObjectName = factoryObjectName;
+            this.factoryAbstractName = factoryAbstractName.toURI().toString();
             this.name = name;
             this.state = state;
         }
 
-        public String getAdapterObjectName() {
-            return adapterObjectName;
+        public String getAdapterAbstractName() {
+            return adapterAbstractName;
         }
 
-        public String getFactoryObjectName() {
-            return factoryObjectName;
+        public String getFactoryAbstractName() {
+            return factoryAbstractName;
         }
 
         public String getName() {

@@ -18,59 +18,73 @@
 
 
 <!--
-Configuration for the innermost ring of a Geronimo server.
-This configuration should only contain critical services needed to
-run other Configurations - for example, the ServerInfo, Logging
-and Repository services used to load them.
-
-This configuration should *NOT* be used to provide server or application
-specific services - those should be provided by children.
+Configuration for root app client
 -->
-<configuration
-    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-               configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
-    domain="geronimo.client"
-    server="client"
-    >
-
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
     <!-- ServerInfo service -->
     <gbean name="ServerInfo" class="org.apache.geronimo.system.serverinfo.BasicServerInfo"/>
 
-    <!-- Configuration Manager service -->
-    <gbean name="ConfigurationManager" class="org.apache.geronimo.kernel.config.ConfigurationManagerImpl">
-        <reference name="Stores">
-            <gbean-name>*:j2eeType=ConfigurationStore,*</gbean-name>
-        </reference>
-        <reference name="AttributeStore">
-            <name>AttributeManager</name>
-        </reference>
-        <reference name="PersistentConfigurationList">
-            <type>AttributeStore</type>
-            <name>AttributeManager</name>
-        </reference>
+    <!--Repository-->
+    <gbean name="Repository" class="org.apache.geronimo.system.repository.Maven2Repository">
+      <attribute name="root">repository/</attribute>
+      <reference name="ServerInfo">
+        <name>ServerInfo</name>
+      </reference>
     </gbean>
 
-    <!-- User-editable attribute service -->
+    <!--Configuration Store service-->
+    <gbean name="Local" class="org.apache.geronimo.system.configuration.RepositoryConfigurationStore">
+      <reference name="Repository">
+        <name>Repository</name>
+      </reference>
+    </gbean>
+
+    <!--User-editable attribute service-->
     <gbean name="AttributeManager" class="org.apache.geronimo.system.configuration.LocalAttributeManager">
-        <reference name="ServerInfo">
-            <name>ServerInfo</name>
-        </reference>
-        <attribute name="configFile">var/config/config.xml</attribute>
-        <!-- The client container should not alter the saved configuration -->
-        <attribute name="readOnly">true</attribute>
+      <reference name="ServerInfo">
+        <name>ServerInfo</name>
+      </reference>
+      <attribute name="configFile">var/config/config.xml</attribute>
     </gbean>
 
-    <!-- Configuration Store service -->
-    <gbean name="Local" class="org.apache.geronimo.system.configuration.LocalConfigStore">
-        <attribute name="root">config-store</attribute>
-        <reference name="ServerInfo">
-            <name>ServerInfo</name>
-        </reference>
+    <!-- ArtifactManager -->
+    <gbean name="ArtifactManager" class="org.apache.geronimo.kernel.repository.DefaultArtifactManager"/>
+
+    <!-- ArtifactResolver -->
+    <gbean name="ArtifactResolver" class="org.apache.geronimo.kernel.repository.DefaultArtifactResolver">
+      <reference name="ArtifactManager">
+        <name>ArtifactManager</name>
+      </reference>
+      <reference name="Repositories">
+        <!--<gbean-name>*:name=Repository,*</gbean-name>-->
+      </reference>
     </gbean>
 
-    <!-- Repository -->
-    <gbean name="Repository" class="org.apache.geronimo.system.repository.ReadOnlyRepository">
-        <attribute name="root">repository/</attribute>
+    <!--Configuration Manager service-->
+    <gbean name="ConfigurationManager" class="org.apache.geronimo.kernel.config.EditableKernelConfigurationManager">
+      <reference name="Repositories">
+      </reference>
+      <reference name="Stores">
+      </reference>
+      <reference name="AttributeStore">
+        <name>AttributeManager</name>
+      </reference>
+      <reference name="PersistentConfigurationList">
+        <type>AttributeStore</type>
+        <name>AttributeManager</name>
+      </reference>
+      <reference name="ArtifactManager">
+        <name>ArtifactManager</name>
+      </reference>
+      <reference name="ArtifactResolver">
+        <name>ArtifactResolver</name>
+      </reference>
+    </gbean>
+
+    <!-- Logging service -->
+    <gbean name="Logger" class="org.apache.geronimo.system.logging.log4j.Log4jService">
+        <attribute name="configFileName">var/log/client-log4j.properties</attribute>
+        <attribute name="refreshPeriodSeconds">60</attribute>
         <reference name="ServerInfo">
             <name>ServerInfo</name>
         </reference>
@@ -95,12 +109,4 @@ specific services - those should be provided by children.
         </reference>
     </gbean>
 
-    <!-- Logging service -->
-    <gbean name="Logger" class="org.apache.geronimo.system.logging.log4j.Log4jService">
-        <attribute name="configFileName">var/log/client-log4j.properties</attribute>
-        <attribute name="refreshPeriodSeconds">60</attribute>
-        <reference name="ServerInfo">
-            <name>ServerInfo</name>
-        </reference>
-    </gbean>
-</configuration>
+</module>

@@ -38,4 +38,5 @@ public class NullTransport extends Transport {
     protected boolean protocolConnect(String host, int port, String user, String password) throws MessagingException {
         return true; // always connect
     }
+
 }

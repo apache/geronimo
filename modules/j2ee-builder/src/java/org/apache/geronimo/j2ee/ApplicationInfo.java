@@ -16,11 +16,12 @@
  */
 package org.apache.geronimo.j2ee;
 
-import java.net.URI;
 import java.util.Set;
-import java.util.List;
+import java.util.LinkedHashSet;
 
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.xmlbeans.XmlObject;
 
 /**
@@ -28,29 +29,26 @@ import org.apache.xmlbeans.XmlObject;
  */
 public class ApplicationInfo {
     private ConfigurationModuleType type;
-    private URI configId;
-    private List parentId;
-    private String applicationName;
+    private Environment environment;
+    private AbstractName baseName;
     private XmlObject specDD;
     private XmlObject vendorDD;
-    private Set modules;
+    private LinkedHashSet modules;
     private Set moduleLocations;
     private String originalSpecDD;
 
     public ApplicationInfo() {
     }
 
-    public ApplicationInfo(ConfigurationModuleType type, URI configId, List parentId, String applicationName, XmlObject specDD, XmlObject vendorDD, Set modules, Set moduleLocations, String originalSpecDD) {
+    public ApplicationInfo(ConfigurationModuleType type, Environment environment, AbstractName baseName, XmlObject specDD, XmlObject vendorDD, LinkedHashSet modules, Set moduleLocations, String originalSpecDD) {
         assert type != null;
-        assert configId != null;
-        assert parentId != null;
+        assert environment != null;
         assert modules != null;
         assert moduleLocations != null;
 
         this.type = type;
-        this.configId = configId;
-        this.parentId = parentId;
-        this.applicationName = applicationName;
+        this.environment = environment;
+        this.baseName = baseName;
         this.specDD = specDD;
         this.vendorDD = vendorDD;
         this.modules = modules;
@@ -66,28 +64,20 @@ public class ApplicationInfo {
         this.type = type;
     }
 
-    public URI getConfigId() {
-        return configId;
+    public Environment getEnvironment() {
+        return environment;
     }
 
-    public void setConfigId(URI configId) {
-        this.configId = configId;
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
     }
 
-    public List getParentId() {
-        return parentId;
+    public AbstractName getBaseName() {
+        return baseName;
     }
 
-    public void setParentId(List parentId) {
-        this.parentId = parentId;
-    }
-
-    public String getApplicationName() {
-        return applicationName;
-    }
-
-    public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
+    public void setBaseName(AbstractName baseName) {
+        this.baseName = baseName;
     }
 
     public XmlObject getVendorDD() {
@@ -106,11 +96,11 @@ public class ApplicationInfo {
         this.specDD = specDD;
     }
 
-    public Set getModules() {
+    public LinkedHashSet getModules() {
         return modules;
     }
 
-    public void setModules(Set modules) {
+    public void setModules(LinkedHashSet modules) {
         this.modules = modules;
     }
 

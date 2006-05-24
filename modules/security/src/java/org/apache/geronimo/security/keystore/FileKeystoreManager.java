@@ -16,27 +16,6 @@
  */
 package org.apache.geronimo.security.keystore;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.j2ee.management.impl.Util;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.EditableConfigurationManager;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.util.jce.X509Principal;
-import org.apache.geronimo.util.jce.X509V1CertificateGenerator;
-
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLServerSocketFactory;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -61,9 +40,28 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Vector;
-import java.lang.reflect.InvocationTargetException;
+import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.SSLSocketFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.EditableConfigurationManager;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.management.geronimo.KeyIsLocked;
+import org.apache.geronimo.management.geronimo.KeystoreInstance;
+import org.apache.geronimo.management.geronimo.KeystoreIsLocked;
+import org.apache.geronimo.management.geronimo.KeystoreManager;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.util.jce.X509Principal;
+import org.apache.geronimo.util.jce.X509V1CertificateGenerator;
 
 /**
  * An implementation of KeystoreManager that assumes every file in a specified
@@ -77,14 +75,12 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
     private ServerInfo serverInfo;
     private URI configuredDir;
     private Collection keystores;
-    private ObjectName mine;
     private Kernel kernel;
 
-    public FileKeystoreManager(URI keystoreDir, ServerInfo serverInfo, Collection keystores, String objectName, Kernel kernel) throws MalformedObjectNameException {
+    public FileKeystoreManager(URI keystoreDir, ServerInfo serverInfo, Collection keystores, Kernel kernel) {
         configuredDir = keystoreDir;
         this.serverInfo = serverInfo;
         this.keystores = keystores;
-        mine = ObjectName.getInstance(objectName);
         this.kernel = kernel;
     }
 
@@ -111,7 +107,7 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
     public void doFail() {
     }
 
-    public String[] listKeystores() {
+    public String[] listKeystoreFiles() {
         File[] files = directory.listFiles();
         List list = new ArrayList();
         for (int i = 0; i < files.length; i++) {
@@ -121,6 +117,18 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
             }
         }
         return (String[]) list.toArray(new String[list.size()]);
+    }
+
+    public KeystoreInstance[] getKeystores() {
+        String[] names = listKeystoreFiles();
+        KeystoreInstance[] result = new KeystoreInstance[names.length];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = getKeystore(names[i]);
+            if(result[i] == null) {
+                return null;
+            }
+        }
+        return result;
     }
 
     public KeystoreInstance getKeystore(String name) {
@@ -134,17 +142,10 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
         if(!test.exists() || !test.canRead()) {
             throw new IllegalArgumentException("Cannot access keystore "+test.getAbsolutePath()+"!");
         }
-        ObjectName oName;
-        Map props = mine.getKeyPropertyList();
-        Hashtable revised = new Hashtable(props);
-        revised.put(NameFactory.J2EE_NAME, name);
-        revised.put(NameFactory.J2EE_TYPE, NameFactory.KEYSTORE_INSTANCE);
-        try {
-            oName = ObjectName.getInstance(mine.getDomain(), revised);
-        } catch (MalformedObjectNameException e) {
-            throw new IllegalArgumentException("Invalid keystore name '"+name+"' ("+e.getMessage()+")");
-        }
-        GBeanData data = new GBeanData(oName, FileKeystoreInstance.getGBeanInfo());
+        AbstractName aName;
+        AbstractName myName = kernel.getAbstractNameFor(this);
+        aName = kernel.getNaming().createSiblingName(myName, name, NameFactory.KEYSTORE_INSTANCE);
+        GBeanData data = new GBeanData(aName, FileKeystoreInstance.getGBeanInfo());
         try {
             String path = configuredDir.toString();
             if(!path.endsWith("/")) {
@@ -154,18 +155,14 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
         } catch (URISyntaxException e) {
             throw new IllegalStateException("Can't resolve keystore path: "+e.getMessage());
         }
-        data.setReferencePattern("ServerInfo", kernel.getObjectNameFor(serverInfo));
+        data.setReferencePattern("ServerInfo", kernel.getAbstractNameFor(serverInfo));
         data.setAttribute("keystoreName", name);
         EditableConfigurationManager mgr = ConfigurationUtil.getEditableConfigurationManager(kernel);
         if(mgr != null) {
             try {
-                ObjectName config = Util.getConfiguration(kernel, mine);
-                mgr.addGBeanToConfiguration(Configuration.getConfigurationID(config), data, true);
-                return (KeystoreInstance) kernel.getProxyManager().createProxy(oName, KeystoreInstance.class);
+                mgr.addGBeanToConfiguration(myName.getArtifact(), data, true);
+                return (KeystoreInstance) kernel.getProxyManager().createProxy(aName, KeystoreInstance.class);
             } catch (InvalidConfigException e) {
-                log.error("Should never happen", e);
-                throw new IllegalStateException("Unable to add Keystore GBean ("+e.getMessage()+")");
-            } catch (URISyntaxException e) {
                 log.error("Should never happen", e);
                 throw new IllegalStateException("Unable to add Keystore GBean ("+e.getMessage()+")");
             } finally {
@@ -177,12 +174,132 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
         }
     }
 
-    public SSLServerSocketFactory createSSLFactory(String provider, String protocol, String algorithm, String keyStore, String keyAlias, String trustStore, ClassLoader loader) throws KeystoreIsLocked, KeyIsLocked, NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException, KeyManagementException, NoSuchProviderException {
+    /**
+     * Gets a SocketFactory using one Keystore to access the private key
+     * and another to provide the list of trusted certificate authorities.
+     *
+     * @param provider   The SSL provider to use, or null for the default
+     * @param protocol   The SSL protocol to use
+     * @param algorithm  The SSL algorithm to use
+     * @param trustStore The trust keystore name as provided by listKeystores.
+     *                   The KeystoreInstance for this keystore must have
+     *                   unlocked this key.
+     * @param loader     The class loader used to resolve factory classes.
+     *
+     * @return A created SSLSocketFactory item created from the KeystoreManager.
+     * @throws KeystoreIsLocked
+     *                Occurs when the requested key keystore cannot
+     *                be used because it has not been unlocked.
+     * @throws KeyIsLocked
+     *                Occurs when the requested private key in the key
+     *                keystore cannot be used because it has not been
+     *                unlocked.
+     * @throws NoSuchAlgorithmException
+     * @throws UnrecoverableKeyException
+     * @throws KeyStoreException
+     * @throws KeyManagementException
+     * @throws NoSuchProviderException
+     */
+    public SSLSocketFactory createSSLFactory(String provider, String protocol, String algorithm, String trustStore, ClassLoader loader) throws KeystoreIsLocked, KeyIsLocked, NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException, KeyManagementException, NoSuchProviderException {
+        // typically, the keyStore and the keyAlias are not required if authentication is also not required.
+        return createSSLFactory(provider, protocol, algorithm, null, null, trustStore, loader);
+    }
+
+    /**
+     * Gets a SocketFactory using one Keystore to access the private key
+     * and another to provide the list of trusted certificate authorities.
+     *
+     * @param provider   The SSL provider to use, or null for the default
+     * @param protocol   The SSL protocol to use
+     * @param algorithm  The SSL algorithm to use
+     * @param keyStore   The key keystore name as provided by listKeystores.  The
+     *                   KeystoreInstance for this keystore must be unlocked.
+     * @param keyAlias   The name of the private key in the keystore.  The
+     *                   KeystoreInstance for this keystore must have unlocked
+     *                   this key.
+     * @param trustStore The trust keystore name as provided by listKeystores.
+     *                   The KeystoreInstance for this keystore must have
+     *                   unlocked this key.
+     * @param loader     The class loader used to resolve factory classes.
+     *
+     * @return A created SSLSocketFactory item created from the KeystoreManager.
+     * @throws KeystoreIsLocked
+     *                Occurs when the requested key keystore cannot
+     *                be used because it has not been unlocked.
+     * @throws KeyIsLocked
+     *                Occurs when the requested private key in the key
+     *                keystore cannot be used because it has not been
+     *                unlocked.
+     * @throws NoSuchAlgorithmException
+     * @throws UnrecoverableKeyException
+     * @throws KeyStoreException
+     * @throws KeyManagementException
+     * @throws NoSuchProviderException
+     */
+    public SSLSocketFactory createSSLFactory(String provider, String protocol, String algorithm, String keyStore, String keyAlias, String trustStore, ClassLoader loader) throws KeystoreIsLocked, KeyIsLocked, NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException, KeyManagementException, NoSuchProviderException {
+        // the keyStore is optional.
+        KeystoreInstance keyInstance = null;
+        if (keyStore != null) {
+            keyInstance = getKeystore(keyStore);
+            if(keyInstance.isKeystoreLocked()) {
+                throw new KeystoreIsLocked("Keystore '"+keyStore+"' is locked; please use the keystore page in the admin console to unlock it");
+            }
+            if(keyInstance.isKeyLocked(keyAlias)) {
+                throw new KeystoreIsLocked("Key '"+keyAlias+"' in keystore '"+keyStore+"' is locked; please use the keystore page in the admin console to unlock it");
+            }
+        }
+        KeystoreInstance trustInstance = trustStore == null ? null : getKeystore(trustStore);
+        if(trustInstance != null && trustInstance.isKeystoreLocked()) {
+            throw new KeystoreIsLocked("Keystore '"+trustStore+"' is locked; please use the keystore page in the admin console to unlock it");
+        }
+
+        // OMG this hurts, but it causes ClassCastExceptions elsewhere unless done this way!
+        try {
+            Class cls = loader.loadClass("javax.net.ssl.SSLContext");
+            Object ctx = cls.getMethod("getInstance", new Class[] {String.class}).invoke(null, new Object[]{protocol});
+            Class kmc = loader.loadClass("[Ljavax.net.ssl.KeyManager;");
+            Class tmc = loader.loadClass("[Ljavax.net.ssl.TrustManager;");
+            Class src = loader.loadClass("java.security.SecureRandom");
+            cls.getMethod("init", new Class[]{kmc, tmc, src}).invoke(ctx, new Object[]{
+                                                                            keyInstance == null ? null : keyInstance.getKeyManager(algorithm, keyAlias),
+                                                                            trustInstance == null ? null : trustInstance.getTrustManager(algorithm),
+                                                                            new java.security.SecureRandom()});
+            Object result = cls.getMethod("getSocketFactory", new Class[0]).invoke(ctx, new Object[0]);
+            return (SSLSocketFactory) result;
+        } catch (Exception e) {
+            log.error("Unable to dynamically load", e);
+            return null;
+        }
+    }
+
+    /**
+     * Gets a ServerSocketFactory using one Keystore to access the private key
+     * and another to provide the list of trusted certificate authorities.
+     * @param provider The SSL provider to use, or null for the default
+     * @param protocol The SSL protocol to use
+     * @param algorithm The SSL algorithm to use
+     * @param keyStore The key keystore name as provided by listKeystores.  The
+     *                 KeystoreInstance for this keystore must be unlocked.
+     * @param keyAlias The name of the private key in the keystore.  The
+     *                 KeystoreInstance for this keystore must have unlocked
+     *                 this key.
+     * @param trustStore The trust keystore name as provided by listKeystores.
+     *                   The KeystoreInstance for this keystore must have
+     *                   unlocked this key.
+     * @param loader     The class loader used to resolve factory classes.
+     *
+     * @throws KeystoreIsLocked Occurs when the requested key keystore cannot
+     *                          be used because it has not been unlocked.
+     * @throws KeyIsLocked Occurs when the requested private key in the key
+     *                     keystore cannot be used because it has not been
+     *                     unlocked.
+     */
+    public SSLServerSocketFactory createSSLServerFactory(String provider, String protocol, String algorithm, String keyStore, String keyAlias, String trustStore, ClassLoader loader) throws KeystoreIsLocked, KeyIsLocked, NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException, KeyManagementException, NoSuchProviderException {
         KeystoreInstance keyInstance = getKeystore(keyStore);
         if(keyInstance.isKeystoreLocked()) {
             throw new KeystoreIsLocked("Keystore '"+keyStore+"' is locked; please use the keystore page in the admin console to unlock it");
         }
-        if(keyInstance.isKeyUnlocked(keyAlias)) {
+        if(keyInstance.isKeyLocked(keyAlias)) {
             throw new KeystoreIsLocked("Key '"+keyAlias+"' in keystore '"+keyStore+"' is locked; please use the keystore page in the admin console to unlock it");
         }
         KeystoreInstance trustInstance = trustStore == null ? null : getKeystore(trustStore);
@@ -233,30 +350,30 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
         return null;
     }
 
-    public String[] getUnlockedKeyStores() {
+    public KeystoreInstance[] getUnlockedKeyStores() {
         List results = new ArrayList();
         for (Iterator it = keystores.iterator(); it.hasNext();) {
             KeystoreInstance instance = (KeystoreInstance) it.next();
             try {
                 if(!instance.isKeystoreLocked() && instance.getUnlockedKeys().length > 0) {
-                    results.add(instance.getKeystoreName());
+                    results.add(instance);
                 }
             } catch (KeystoreIsLocked locked) {}
         }
-        return (String[]) results.toArray(new String[results.size()]);
+        return (KeystoreInstance[]) results.toArray(new KeystoreInstance[results.size()]);
     }
 
-    public String[] getUnlockedTrustStores() {
+    public KeystoreInstance[] getUnlockedTrustStores() {
         List results = new ArrayList();
         for (Iterator it = keystores.iterator(); it.hasNext();) {
             KeystoreInstance instance = (KeystoreInstance) it.next();
             try {
                 if(!instance.isKeystoreLocked() && instance.isTrustStore()) {
-                    results.add(instance.getKeystoreName());
+                    results.add(instance);
                 }
             } catch (KeystoreIsLocked locked) {}
         }
-        return (String[]) results.toArray(new String[results.size()]);
+        return (KeystoreInstance[]) results.toArray(new KeystoreInstance[results.size()]);
     }
 
     public static final GBeanInfo GBEAN_INFO;
@@ -264,12 +381,11 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(FileKeystoreManager.class);
         infoFactory.addAttribute("keystoreDir", URI.class, true);
-        infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
         infoFactory.addReference("KeystoreInstances", KeystoreInstance.class, NameFactory.KEYSTORE_INSTANCE);
         infoFactory.addInterface(KeystoreManager.class);
-        infoFactory.setConstructor(new String[]{"keystoreDir", "ServerInfo", "KeystoreInstances", "objectName", "kernel"});
+        infoFactory.setConstructor(new String[]{"keystoreDir", "ServerInfo", "KeystoreInstances", "kernel"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
@@ -344,7 +460,6 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
         certgen.setSerialNumber(new BigInteger(String.valueOf(curr)));
 
         // make certificate
-        X509Certificate cert = certgen.generateX509Certificate(privateKey);
-        return cert;
+        return certgen.generateX509Certificate(privateKey);
     }
 }

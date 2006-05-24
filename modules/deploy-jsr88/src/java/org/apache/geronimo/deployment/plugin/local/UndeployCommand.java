@@ -17,21 +17,16 @@
 package org.apache.geronimo.deployment.plugin.local;
 
 import java.net.URI;
-
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.spi.TargetModuleID;
-import javax.management.ObjectName;
 
-import org.apache.geronimo.deployment.plugin.TargetImpl;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.InternalKernelException;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
  * @version $Rev$ $Date$
@@ -54,34 +49,22 @@ public class UndeployCommand extends CommandSupport {
                 for (int i = 0; i < modules.length; i++) {
                     TargetModuleIDImpl module = (TargetModuleIDImpl) modules[i];
 
-                    URI moduleID = URI.create(module.getModuleID());
+                    Artifact moduleID = Artifact.create(module.getModuleID());
                     try {
-                        try {
-                            configurationManager.stop(moduleID);
-                        } catch (InvalidConfigException e) {
-                            if(e.getCause() instanceof GBeanNotFoundException) {
-                                GBeanNotFoundException gnf = (GBeanNotFoundException) e.getCause();
-                                if(clean(gnf.getGBeanName().getKeyProperty("name")).equals(moduleID.toString())) {
-                                    // the module is not running
-                                } else {
-                                    throw gnf;
-                                }
-                            }
-                        }
-                        configurationManager.unload(moduleID);
-                        updateStatus("Module "+moduleID+" unloaded.");
+                        configurationManager.stopConfiguration(moduleID);
+
+
+                        configurationManager.unloadConfiguration(moduleID);
+                        updateStatus("Module " + moduleID + " unloaded.");
                     } catch (InternalKernelException e) {
                         // this is cause by the kernel being already shutdown
                     } catch (NoSuchConfigException e) {
-                        // module was already undeployed - just continue
+                        // module was already unloaded - just continue
                     }
 
                     try {
-                        TargetImpl target = (TargetImpl) module.getTarget();
-                        ObjectName storeName = target.getObjectName();
-                        URI configID = URI.create(module.getModuleID());
-                        kernel.invoke(storeName, "uninstall", new Object[]{configID}, UNINSTALL_SIG);
-                        updateStatus("Module "+moduleID+" uninstalled.");
+                        configurationManager.uninstallConfiguration(moduleID);
+                        updateStatus("Module " + moduleID + " uninstalled.");
                         addModule(module);
                     } catch (NoSuchConfigException e) {
                         // module was already undeployed - just continue
@@ -90,8 +73,9 @@ public class UndeployCommand extends CommandSupport {
             } finally {
                 ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
             }
+
             //todo: this will probably never happen because the command line args are compared to actual modules
-            if(getModuleCount() < modules.length) {
+            if (getModuleCount() < modules.length) {
                 updateStatus("Some of the modules to undeploy were not previously deployed.  This is not treated as an error.");
             }
             complete("Completed");

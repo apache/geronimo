@@ -16,33 +16,33 @@
  */
 package org.apache.geronimo.kernel.basic;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.reflect.FastClass;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.proxy.ProxyCreationException;
 import org.apache.geronimo.kernel.proxy.ProxyFactory;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
-import org.apache.geronimo.kernel.proxy.ProxyCreationException;
-
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.Map;
-import java.util.Collections;
-import java.lang.reflect.InvocationTargetException;
 
 /**
  * Creates proxies that communicate directly with a Kernel located in the same
  * JVM as the client.
  *
- * @version $Rev$ $Date$
+ * @version $Rev:386515 $ $Date$
  */
 public class BasicProxyManager implements ProxyManager {
     private final static String MANAGED_BEAN_NAME = "org.apache.geronimo.kernel.proxy.GeronimoManagedBean";
@@ -53,28 +53,6 @@ public class BasicProxyManager implements ProxyManager {
 
     public BasicProxyManager(Kernel kernel) {
         this.kernel = kernel;
-    }
-
-    /**
-     * Creates a proxy factory for GBeans of the specified type.  The proxy class will be created within the class
-     * loader from which the specified type was loaded, or from the system class loader if the specified type has
-     * a null class loader.
-     *
-     * @param type the type of the proxies this factory should create
-     * @return the proxy factory
-     */
-    public ProxyFactory createProxyFactory(Class type) {
-        if (type == null) throw new NullPointerException("type is null");
-
-        ClassLoader classLoader = type.getClassLoader();
-        if(classLoader == null) {
-            classLoader = getClass().getClassLoader();
-        }
-        if(classLoader == null) {
-            classLoader = ClassLoader.getSystemClassLoader();
-        }
-
-        return createProxyFactory(new Class[] {type}, classLoader);
     }
 
     public ProxyFactory createProxyFactory(Class[] types, ClassLoader classLoader) {
@@ -100,47 +78,71 @@ public class BasicProxyManager implements ProxyManager {
         return new ManagedProxyFactory(types, classLoader);
     }
 
-    public Object createProxy(ObjectName target, Class type) {
+    public Object createProxy(AbstractName target, Class type) {
         if (target == null) throw new NullPointerException("target is null");
         if (type == null) throw new NullPointerException("type is null");
 
-        ProxyFactory proxyFactory = createProxyFactory(type);
-        Object proxy = proxyFactory.createProxy(target);
-        return proxy;
-    }
-
-    public Object createProxy(ObjectName target, ClassLoader classLoader) {
-        if (target == null) throw new NullPointerException("target is null");
-        if (classLoader == null) throw new NullPointerException("classLoader is null");
-
         try {
-            GBeanInfo info = kernel.getGBeanInfo(target);
-            Set interfaces = info.getInterfaces();
-            if(interfaces.size() == 0) {
-                log.warn("No interfaces found for " + target + " ("+info.getClassName()+")");
-                return null;
-            }
-            String[] names = (String[]) interfaces.toArray(new String[0]);
-            List intfs = new ArrayList();
-            for (int i = 0; i < names.length; i++) {
-                try {
-                    intfs.add(classLoader.loadClass(names[i]));
-                } catch (ClassNotFoundException e) {
-                    log.warn("Could not load interface "+names[i]+" in provided ClassLoader for "+target.getKeyProperty("name"));
+            // if the type is visible from the target's classloader use it
+            // otherwise use the type's classloader
+            ClassLoader classLoader;
+            try {
+                classLoader = kernel.getClassLoaderFor(target);
+                if (!type.equals(ClassLoading.loadClass(type.getName(), classLoader))) {
+                    classLoader = type.getClassLoader();
                 }
+            } catch (Exception ignored) {
+                classLoader = type.getClassLoader();
             }
-            return createProxyFactory((Class[]) intfs.toArray(new Class[intfs.size()]), classLoader).createProxy(target);
+
+            // add any interface exposed by the gbean that is visible from the selected class loader
+            List types = getVisibleInterfaces(target, classLoader, true);
+            if (types == null) types = new ArrayList();
+            types.add(type);
+
+            return createProxyFactory((Class[]) types.toArray(new Class[types.size()]), classLoader).createProxy(target);
         } catch (GBeanNotFoundException e) {
             throw new IllegalArgumentException("Could not get GBeanInfo for target object: " + target);
         }
     }
 
-    public Object[] createProxies(String[] objectNameStrings, ClassLoader classLoader) throws MalformedObjectNameException {
-        Object[] result = new Object[objectNameStrings.length];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = createProxy(ObjectName.getInstance(objectNameStrings[i]), classLoader);
+    public Object createProxy(AbstractName target, ClassLoader classLoader) {
+        if (target == null) throw new NullPointerException("target is null");
+        if (classLoader == null) throw new NullPointerException("classLoader is null");
+
+        try {
+            List types = getVisibleInterfaces(target, classLoader, true);
+            if (types == null) return null;
+            return createProxyFactory((Class[]) types.toArray(new Class[types.size()]), classLoader).createProxy(target);
+        } catch (GBeanNotFoundException e) {
+            throw new IllegalArgumentException("Could not get GBeanInfo for target object: " + target);
         }
-        return result;
+    }
+
+    private List getVisibleInterfaces(AbstractName target, ClassLoader classLoader, boolean shouldLog) throws GBeanNotFoundException {
+        GBeanInfo info = kernel.getGBeanInfo(target);
+        Set interfaces = info.getInterfaces();
+        if(interfaces.size() == 0) {
+            if (shouldLog) {
+                log.warn("No interfaces found for " + target + " ("+target+")");
+            }
+            return null;
+        }
+        String[] names = (String[]) interfaces.toArray(new String[0]);
+        List types = new ArrayList();
+        for (int i = 0; i < names.length; i++) {
+            try {
+                Class type = classLoader.loadClass(names[i]);
+                if (type.isInterface()) {
+                    types.add(type);
+                }
+            } catch (ClassNotFoundException e) {
+                if (shouldLog) {
+                    log.warn("Could not load interface "+names[i]+" in provided ClassLoader for "+target);
+                }
+            }
+        }
+        return types;
     }
 
     public void destroyProxy(Object proxy) {
@@ -158,12 +160,12 @@ public class BasicProxyManager implements ProxyManager {
         return interceptors.containsKey(proxy);
     }
 
-    public ObjectName getProxyTarget(Object proxy) {
+    public AbstractName getProxyTarget(Object proxy) {
         MethodInterceptor methodInterceptor = (MethodInterceptor) interceptors.get(proxy);
         if (methodInterceptor == null) {
             return null;
         }
-        return getObjectName(methodInterceptor);
+        return getAbstractName(methodInterceptor);
     }
 
     private class ManagedProxyFactory implements ProxyFactory {
@@ -177,7 +179,7 @@ public class BasicProxyManager implements ProxyManager {
         public ManagedProxyFactory(Class[] type, ClassLoader classLoader) {
             Enhancer enhancer = new Enhancer();
             if(type.length > 1) { // shrink first -- may reduce from many to one
-                type = reduceInterfaces(type);
+                type = ClassLoading.reduceInterfaces(type);
             }
             if(type.length == 0) {
                 throw new IllegalArgumentException("Cannot generate proxy for 0 interfaces!");
@@ -201,7 +203,7 @@ public class BasicProxyManager implements ProxyManager {
             fastClass = FastClass.create(proxyType);
         }
 
-        public Object createProxy(ObjectName target) {
+        public Object createProxy(AbstractName target) {
             assert target != null: "target is null";
 
             Callback callback = getMethodInterceptor(proxyType, kernel, target);
@@ -216,7 +218,7 @@ public class BasicProxyManager implements ProxyManager {
                 if (cause instanceof RuntimeException) {
                   throw (RuntimeException) cause;
                 } else  if (cause instanceof Error) {
-                  throw (RuntimeException) cause;
+                  throw (Error) cause;
                 } else if (cause != null) {
                   throw new ProxyCreationException(cause);
                 } else {
@@ -224,84 +226,9 @@ public class BasicProxyManager implements ProxyManager {
                 }
             }
         }
-
-        /**
-         * If there are multiple interfaces, and some of them extend each other,
-         * eliminate the superclass in favor of the subclasses that extend them.
-         *
-         * If one of the entries is a class (not an interface), make sure it's
-         * the first one in the array.  If more than one of the entries is a
-         * class, throws an IllegalArgumentException
-         *
-         * @param source the original list of interfaces
-         * @return the equal or smaller list of interfaces
-         */
-        private Class[] reduceInterfaces(Class[] source) {
-            boolean changed = false;
-            Class cls = null;
-            for (int i = 0; i < source.length-1; i++) {
-                Class original = source[i];
-                if(original == null) {
-                    continue;
-                }
-                if(!original.isInterface()) {
-                    if(cls != null) {
-                        throw new IllegalArgumentException(original.getName()+" is not an interface (already have "+cls.getName()+"); can only have one non-interface class for proxy");
-                    } else {
-                        cls = original;
-                    }
-                }
-                for (int j = i+1; j < source.length; j++) {
-                    Class other = source[j];
-                    if(other == null) {
-                        continue;
-                    }
-                    if(!other.isInterface()) {
-                        if(cls != null) {
-                            throw new IllegalArgumentException(other.getName()+" is not an interface (already have "+cls.getName()+"); can only have one non-interface class for proxy");
-                        } else {
-                            cls = other;
-                        }
-                    }
-                    if(other.isAssignableFrom(original)) {
-                        source[j] = null; // clear out "other"
-                        changed = true;
-                    } else if(original.isAssignableFrom(other)) {
-                        source[i] = null; // clear out "original"
-                        changed = true;
-                        break; // the original has been eliminated; move on to the next original
-                    }
-                }
-            }
-
-            if(cls != null) {
-                if(cls != source[0]) {
-                    for (int i = 0; i < source.length; i++) {
-                        if(cls == source[i]) {
-                            Class temp = source[0];
-                            source[0] = source[i];
-                            source[i] = temp;
-                            break;
-                        }
-                    }
-                    changed = true;
-                }
-            }
-
-            if(!changed) {
-                return source;
-            }
-            List list = new ArrayList(source.length);
-            for (int i = 0; i < source.length; i++) {
-                if(source[i] != null) {
-                    list.add(source[i]);
-                }
-            }
-            return (Class[]) list.toArray(new Class[list.size()]);
-        }
     }
 
-    protected Callback getMethodInterceptor(Class proxyType, Kernel kernel, ObjectName target) {
+    protected Callback getMethodInterceptor(Class proxyType, Kernel kernel, AbstractName target) {
         return new ProxyMethodInterceptor(proxyType, kernel, target);
     }
 
@@ -309,7 +236,7 @@ public class BasicProxyManager implements ProxyManager {
          ((ProxyMethodInterceptor)methodInterceptor).destroy();
     }
 
-     protected ObjectName getObjectName(MethodInterceptor methodInterceptor) {
-        return ((ProxyMethodInterceptor)methodInterceptor).getObjectName();
+    protected AbstractName getAbstractName(MethodInterceptor methodInterceptor) {
+        return ((ProxyMethodInterceptor)methodInterceptor).getAbstractName();
     }
 }

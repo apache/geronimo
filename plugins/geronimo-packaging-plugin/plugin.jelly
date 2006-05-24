@@ -19,6 +19,7 @@
 <!-- $Rev$ $Date$ -->
 
 <project
+        xmlns:j="jelly:core"
     xmlns:artifact="artifact"
     xmlns:ant="jelly:ant"
     xmlns:velocity="jelly:velocity"
@@ -27,21 +28,17 @@
     >
     <define:taglib uri="geronimo:packaging">
         <define:jellybean name="package" className="org.apache.geronimo.plugin.packaging.PackageBuilderShell" method="execute"/>
-        <define:jellybean name="jmxDistribute" className="org.apache.geronimo.plugin.packaging.JMXDistributor" method="execute"/>
         <define:jellybean name="dependencies" className="org.apache.geronimo.plugin.packaging.PlanProcessor" method="execute"/>
+        <define:jellybean name="copyConfigs" className="org.apache.geronimo.plugin.packaging.ConfigCopier" method="execute"/>
     </define:taglib>
 
     <goal name="car" description="Package a Geronimo Configuration" prereqs="car:package"/>
 
-<!--
-    <goal name="car:prepare-plan" description="Prepare a plan by processing with velocity">
-        <ant:mkdir dir="${geronimo.packaging.buildDir}"/>
-        <velocity:merge basedir="${geronimo.packaging.srcDir}" template="${geronimo.packaging.planFile}" name="${geronimo.packaging.buildFile}"/>
-    </goal>
--->
-
     <goal name="car:prepare-plan" description="Add dependencies to a plan and process with velocity">
         <car:dependencies
+                groupId="${pom.groupId}"
+                artifactId="${pom.artifactId}"
+                version="${pom.currentVersion}"
             artifacts="${pom.artifacts}"
             targetDir="${geronimo.packaging.buildDir}"
             sourceDir="${geronimo.packaging.srcDir}"
@@ -51,35 +48,45 @@
     </goal>
 
     <goal name="car:package" prereqs="car:prepare-plan" description="Package a Geronimo Configuration">
+        <delete dir="${geronimo.packaging.targetRepository}"/>
+        <mkdir dir="${geronimo.packaging.targetRepository}"/>
         <car:package
             context="${context}"
             artifacts="${pom.artifacts}"
             pluginArtifacts="${plugin.artifacts}"
             repository="${geronimo.packaging.repository}"
-            deploymentConfig="${geronimo.packaging.deploymentConfig}"
+            targetRepository="${geronimo.packaging.targetRepository}"
             deployerName="${geronimo.packaging.deployerName}"
             planFile="${geronimo.packaging.buildFile}"
             moduleFile="${geronimo.packaging.moduleFile}"
             packageFile="${maven.build.dir}/${maven.final.name}.car"
             mainClass="${geronimo.packaging.mainClass}"
+            mainGBean="${geronimo.packaging.mainGBean}"
+            mainMethod="${geronimo.packaging.mainMethod}"
+            configurations="${geronimo.packaging.configurations}"
             classPath="${geronimo.packaging.classPath}"
             endorsedDirs="${geronimo.packaging.endorsedDirs}"
             extensionDirs="${geronimo.packaging.extensionDirs}"
+            explicitResolutionLocation="${geronimo.packaging.explicit.versions}"
             logLevel="${geronimo.packaging.logLevel}"
             />
     </goal>
 
     <goal name="car:install" prereqs="car:package" description="Install the package in the local repository">
-        <artifact:install artifact="${maven.build.dir}/${maven.final.name}.car" type="car" project="${pom}"/>
-    </goal>
-
-    <goal name="car:distribute" prereqs="car:package" description="Distribute the package to a server">
-        <car:jmxDistribute
-            user="${geronimo.packaging.user}"
-            password="${geronimo.packaging.password}"
-            url="${geronimo.packaging.url}"
-            storeName="${geronimo.packaging.storeName}"
-            artifact="${maven.build.dir}/${maven.final.name}.car"
-            />
+        <j:catch>
+            <artifact:install artifact="${maven.build.dir}/${maven.final.name}.car" type="car" project="${pom}"/>
+        </j:catch>
+        <j:catch>
+            <echo>about to copy configs</echo>
+            <car:copyConfigs
+                sourceRepositoryClass="${geronimo.packaging.install.sourceRepositoryClass}"
+                sourceConfigurationStoreClass="${geronimo.packaging.install.sourceConfigurationStoreClass}"
+                sourceRepositoryLocation="${geronimo.packaging.install.sourceRepositoryLocation}"
+                targetRepositoryClass="${geronimo.packaging.install.targetRepositoryClass}"
+                targetConfigurationStoreClass="${geronimo.packaging.install.targetConfigurationStoreClass}"
+                targetRepositoryLocation="${geronimo.packaging.install.targetRepositoryLocation}"
+                    />
+            <echo>done copying configs</echo>
+        </j:catch>
     </goal>
 </project>

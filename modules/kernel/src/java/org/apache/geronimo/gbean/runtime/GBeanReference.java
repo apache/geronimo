@@ -16,12 +16,10 @@
  */
 package org.apache.geronimo.gbean.runtime;
 
-import java.util.Set;
-
 import org.apache.geronimo.gbean.GReferenceInfo;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 384141 $ $Date$
  */
 public interface GBeanReference {
     String getName();
@@ -31,10 +29,6 @@ public interface GBeanReference {
     Class getReferenceType();
 
     Class getProxyType();
-
-    Set getPatterns();
-
-    void setPatterns(Set patterns);
 
     void online();
 

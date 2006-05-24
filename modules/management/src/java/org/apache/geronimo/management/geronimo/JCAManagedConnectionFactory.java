@@ -45,12 +45,12 @@ public interface JCAManagedConnectionFactory extends org.apache.geronimo.managem
     public Object getConfigProperty(String property) throws Exception;
 
     /**
-     * Gets the ObjectName of the ConnectionManager associated with this managed
-     * connection factory.  That object should implement
+     * Gets the ConnectionManager associated with this managed
+     * connection factory.  This object should implement
      * javax.resource.spi.ConnectionManager and
      * org.apache.geronimo.connector.outbound.PoolingAttributes
      */
-    public String getConnectionManager();
+    public Object getConnectionManager();
     
     public Object getConnectionFactory();
 }

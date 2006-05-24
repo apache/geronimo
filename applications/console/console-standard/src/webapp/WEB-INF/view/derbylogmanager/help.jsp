@@ -1,1 +1,0 @@
-This portlet views the log file for Geronimo's internal database, Derby.

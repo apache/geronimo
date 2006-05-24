@@ -16,11 +16,13 @@
  */
 package org.apache.geronimo.system.configuration;
 
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.kernel.InvalidGBeanException;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.Document;
 
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -30,17 +32,23 @@ import java.util.Map;
  * @version $Rev$ $Date$
  */
 class ConfigurationOverride {
-    private final String name;
+    private final Artifact name;
     private boolean load;
     private final Map gbeans = new LinkedHashMap();
 
-    public ConfigurationOverride(String name, boolean load) {
+    public ConfigurationOverride(Artifact name, boolean load) {
         this.name = name;
         this.load = load;
     }
 
-    public ConfigurationOverride(Element element) throws MalformedObjectNameException {
-        name = element.getAttribute("name");
+    public ConfigurationOverride(ConfigurationOverride base, Artifact name) {
+        this.name = name;
+        this.load = base.load;
+        this.gbeans.putAll(base.gbeans);
+    }
+
+    public ConfigurationOverride(Element element) throws InvalidGBeanException {
+        name = Artifact.create(element.getAttribute("name"));
 
         String loadConfigString = element.getAttribute("load");
         load = !"false".equals(loadConfigString);
@@ -53,7 +61,7 @@ class ConfigurationOverride {
         }
     }
 
-    public String getName() {
+    public Artifact getName() {
         return name;
     }
 
@@ -81,29 +89,27 @@ class ConfigurationOverride {
         return gbeans;
     }
 
-    public GBeanOverride getGBean(ObjectName gbeanName) {
+    public GBeanOverride getGBean(AbstractName gbeanName) {
         return (GBeanOverride) gbeans.get(gbeanName);
     }
 
-    public void addGBean(ObjectName gbeanName, GBeanOverride gbean) {
+    public void addGBean(AbstractName gbeanName, GBeanOverride gbean) {
         gbeans.put(gbeanName, gbean);
     }
 
-    public void writeXml(PrintWriter out) {
-        out.print("  <configuration name=\"" + name + "\"");
-        if (!load) {
-            out.print(" load=\"false\"");
+    public Element writeXml(Document doc, Element root) {
+        Element module = doc.createElement("module");
+        root.appendChild(module);
+        module.setAttribute("name", name.toString());
+        if(!load) {
+            module.setAttribute("load", "false");
         }
-        out.println(">");
-
         // GBeans
         for (Iterator gb = gbeans.entrySet().iterator(); gb.hasNext();) {
             Map.Entry gbean = (Map.Entry) gb.next();
-
             GBeanOverride gbeanOverride = (GBeanOverride) gbean.getValue();
-            gbeanOverride.writeXml(out);
+            gbeanOverride.writeXml(doc, module);
         }
-
-        out.println("  </configuration>");
+        return module;
     }
 }

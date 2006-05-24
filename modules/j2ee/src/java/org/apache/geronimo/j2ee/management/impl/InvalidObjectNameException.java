@@ -25,7 +25,7 @@ public class InvalidObjectNameException extends RuntimeException {
     private final ObjectName objectName;
 
     public InvalidObjectNameException(ObjectName objectName) {
-        super(objectName.toString());
+        super(objectName.getCanonicalName());
         this.objectName = objectName;
     }
 

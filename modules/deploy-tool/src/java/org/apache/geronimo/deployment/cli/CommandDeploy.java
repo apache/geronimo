@@ -32,7 +32,7 @@ import java.io.PrintWriter;
  */
 public class CommandDeploy extends CommandDistribute {
     public CommandDeploy() {
-        super("deploy", "1. Common Commands", "[--targets target;target;...] [module] [plan]",
+        super("deploy", "1. Common Commands", "[--inPlace] [--targets target;target;...] [module] [plan]",
                 "Normally both a module and plan are passed to the deployer.  " +
                 "Sometimes the module contains a plan, or requires no plan, in which case " +
                 "the plan may be omitted.  Sometimes the plan references a module already " +
@@ -47,8 +47,8 @@ public class CommandDeploy extends CommandDistribute {
         return "Deployed";
     }
 
-    protected ProgressObject runCommand(DeploymentManager mgr, PrintWriter out, Target[] tlist, File module, File plan) throws DeploymentException {
-        ProgressObject po = mgr.distribute(tlist, module, plan);
+    protected ProgressObject runCommand(DeploymentManager mgr, PrintWriter out, boolean inPlace, Target[] tlist, File module, File plan) throws DeploymentException {
+        ProgressObject po = super.runCommand(mgr, out, inPlace, tlist, module, plan);
         waitForProgress(out, po);
         if(po.getDeploymentStatus().isFailed()) {
             throw new DeploymentException("Unable to distribute "+(module == null ? plan.getName() : module.getName())+": "+po.getDeploymentStatus().getMessage());

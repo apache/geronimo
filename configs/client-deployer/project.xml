@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 
-<!-- $Rev$ $Date$ -->
+<!-- $Rev: 391214 $ $Date: 2006-04-03 22:42:50 -0400 (Mon, 03 Apr 2006) $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -38,9 +38,9 @@
             <artifactId>geronimo-gbean-deployer</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
-            <!--<properties>-->
-                <!--<geronimo.import>true</geronimo.import>-->
-            <!--</properties>-->
+            <properties>
+                <packaging.config.order>1</packaging.config.order>
+            </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
@@ -89,23 +89,6 @@
             <version>${stax_api_version}</version>
         </dependency>
 
-        <!--        <dependency>
-                    <groupId>concurrent</groupId>
-                    <artifactId>concurrent</artifactId>
-                    <version>${concurrent_version}</version>
-                </dependency>
-                <dependency>
-                    <groupId>howl</groupId>
-                    <artifactId>howl-logger</artifactId>
-                    <version>${howl_version}</version>
-                    <url>http://forge.objectweb.org/projects/howl</url>
-                </dependency>
-                <dependency>
-                    <groupId>activeio</groupId>
-                    <artifactId>activeio</artifactId>
-                    <version>${activeio_version}</version>
-                </dependency>
-        -->
         <!-- dependencies from plan -->
 
         <!-- common libraries used by all builders -->
@@ -118,28 +101,12 @@
             </properties>
         </dependency>
         <dependency>
-            <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-corba</artifactId>
-            <version>${geronimo_spec_corba_version}</version>
-            <properties>
-                <geronimo.dependency>true</geronimo.dependency>
-            </properties>
-        </dependency>
-        <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee-schema</artifactId>
             <version>${geronimo_version}</version>
             <properties>
                 <geronimo.dependency>true</geronimo.dependency>
             </properties>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-interceptor</artifactId>
-            <version>${geronimo_version}</version>
-            <properties>
-                <geronimo.dependency>true</geronimo.dependency>
-             </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
@@ -219,14 +186,6 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-axis-builder</artifactId>
-            <version>${geronimo_version}</version>
-            <properties>
-                <geronimo.dependency>true</geronimo.dependency>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
             <artifactId>geronimo-axis</artifactId>
             <version>${geronimo_version}</version>
             <properties>
@@ -278,14 +237,6 @@
         </dependency>
 
         <!-- EJBs using OpenEJB -->
-        <dependency>
-            <groupId>openejb</groupId>
-            <artifactId>openejb-builder</artifactId>
-            <version>${openejb_version}</version>
-            <properties>
-                <geronimo.dependency>true</geronimo.dependency>
-            </properties>
-        </dependency>
         <dependency>
             <groupId>openejb</groupId>
             <artifactId>openejb-pkgen-builder</artifactId>
@@ -343,7 +294,7 @@
         <dependency>
             <groupId>activemq</groupId>
             <artifactId>activemq-core</artifactId>
-            <version>3.2.1</version>
+            <version>${activemq_version}</version>
         </dependency>
         <dependency>
             <groupId>commons-primitives</groupId>

@@ -41,8 +41,9 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.management.geronimo.NetworkConnector;
+import org.apache.geronimo.proxy.ReflexiveInterceptor;
 import org.apache.geronimo.security.jaas.server.JaasLoginServiceMBean;
 
 
@@ -55,7 +56,7 @@ import org.apache.geronimo.security.jaas.server.JaasLoginServiceMBean;
  */
 public class JaasLoginServiceRemotingServer implements GBeanLifecycle, NetworkConnector {
 
-    public static final ObjectName REQUIRED_OBJECT_NAME = JMXUtil.getObjectName("geronimo.remoting:target=JaasLoginServiceRemotingServer");
+    public static final ObjectName REQUIRED_OBJECT_NAME = ObjectNameUtil.getObjectName("geronimo.remoting:target=JaasLoginServiceRemotingServer");
 
     private static final Log log = LogFactory.getLog(JaasLoginServiceRemotingServer.class);
     private AsyncChannelServer server;

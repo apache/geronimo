@@ -17,26 +17,35 @@
 
 package org.apache.geronimo.security;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Properties;
+import junit.framework.TestCase;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
+import org.apache.geronimo.security.jaas.LoginModuleGBean;
+import org.apache.geronimo.security.jaas.GeronimoLoginConfiguration;
+import org.apache.geronimo.security.jaas.ConfigurationEntryFactory;
+import org.apache.geronimo.security.jaas.server.JaasLoginService;
+import org.apache.geronimo.security.realm.GenericSecurityRealm;
+import org.apache.geronimo.security.realm.SecurityRealm;
+import org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingServer;
+import org.apache.geronimo.system.serverinfo.BasicServerInfo;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
+
+import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
-
-import junit.framework.TestCase;
-
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.kernel.KernelFactory;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.security.jaas.server.JaasLoginService;
-import org.apache.geronimo.security.jaas.LoginModuleGBean;
-import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
-import org.apache.geronimo.security.realm.GenericSecurityRealm;
-import org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingServer;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -44,11 +53,16 @@ import org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingServer;
  */
 public abstract class AbstractTest extends TestCase {
     protected Kernel kernel;
-    protected ObjectName loginService;
-    protected ObjectName testLoginModule;
-    protected ObjectName testRealm;
-    protected ObjectName serverStub;
+    protected AbstractName serverInfo;
+    protected AbstractName loginService;
+    protected AbstractName testLoginModule;
+    protected AbstractName testRealm;
+    protected AbstractName serverStub;
     private static final String REALM_NAME = "test-realm";
+    protected boolean timeoutTest = false;
+    protected boolean needServerInfo = false;
+    protected AbstractName loginConfiguration;
+    protected boolean needLoginConfiguration;
 
     protected void setUp() throws Exception {
         kernel = KernelFactory.newInstance().createKernel("test.kernel");
@@ -57,40 +71,53 @@ public abstract class AbstractTest extends TestCase {
         GBeanData gbean;
 
         // Create all the parts
+        if (needServerInfo) {
+            gbean = buildGBeanData("name", "ServerInfo", BasicServerInfo.GBEAN_INFO);
+            serverInfo = gbean.getAbstractName();
+            gbean.setAttribute("baseDirectory", ".");
+            kernel.loadGBean(gbean, ServerInfo.class.getClassLoader());
+            kernel.startGBean(serverInfo);
+        }
+        if (needLoginConfiguration) {
+            gbean = buildGBeanData("new", "LoginConfiguration", GeronimoLoginConfiguration.getGBeanInfo());
+            loginConfiguration = gbean.getAbstractName();
+            gbean.setReferencePattern("Configurations", new AbstractNameQuery(ConfigurationEntryFactory.class.getName()));
+            kernel.loadGBean(gbean, GeronimoLoginConfiguration.class.getClassLoader());
+        }
 
-        loginService = new ObjectName("test:name=TestLoginService");
-        gbean = new GBeanData(loginService, JaasLoginService.getGBeanInfo());
-        gbean.setReferencePatterns("Realms", Collections.singleton(new ObjectName("geronimo.security:type=SecurityRealm,*")));
-//        gbean.setAttribute("reclaimPeriod", new Long(10 * 1000));  // todo check other tests to see if ok
+        gbean = buildGBeanData("name", "TestLoginService", JaasLoginService.getGBeanInfo());
+        loginService = gbean.getAbstractName();
+        gbean.setReferencePattern("Realms", new AbstractNameQuery(SecurityRealm.class.getName()));
+        if (timeoutTest) {
+            gbean.setAttribute("expiredLoginScanIntervalMillis", new Integer(50));
+            gbean.setAttribute("maxLoginDurationMillis", new Integer(5000));
+        }
         gbean.setAttribute("algorithm", "HmacSHA1");
         gbean.setAttribute("password", "secret");
         kernel.loadGBean(gbean, JaasLoginService.class.getClassLoader());
 
-        testLoginModule = new ObjectName("geronimo.security:type=LoginModule,name=TestModule");
-        gbean = new GBeanData(testLoginModule, LoginModuleGBean.getGBeanInfo());
+        gbean = buildGBeanData("name", "TestLoginModule", LoginModuleGBean.getGBeanInfo());
+        testLoginModule = gbean.getAbstractName();
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.bridge.TestLoginModule");
-        gbean.setAttribute("serverSide", new Boolean(true));
+        gbean.setAttribute("serverSide", Boolean.TRUE);
         gbean.setAttribute("loginDomainName", "TestLoginDomain");
         kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
 
-        ObjectName testUseName = new ObjectName("geronimo.security:type=LoginModuleUse,name=TestModule");
-        gbean = new GBeanData(testUseName, JaasLoginModuleUse.getGBeanInfo());
+        gbean = buildGBeanData("name", "TestLoginModuleUse", JaasLoginModuleUse.getGBeanInfo());
+        AbstractName testUseName = gbean.getAbstractName();
         gbean.setAttribute("controlFlag", "REQUIRED");
         gbean.setReferencePattern("LoginModule", testLoginModule);
         kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
 
-        testRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=" + REALM_NAME);
-        gbean = new GBeanData(testRealm, GenericSecurityRealm.getGBeanInfo());
+        gbean = buildGBeanData("name", "SecurityRealm" + REALM_NAME, GenericSecurityRealm.getGBeanInfo());
+        testRealm = gbean.getAbstractName();
         gbean.setAttribute("realmName", REALM_NAME);
-        Properties props = new Properties();
-//        props.setProperty("LoginModule.1.REQUIRED","geronimo.security:type=LoginModule,name=TestModule");
-//        gbean.setAttribute("loginModuleConfiguration", props);
         gbean.setReferencePattern("LoginModuleConfiguration", testUseName);
         gbean.setReferencePattern("LoginService", loginService);
         kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
 
-        serverStub = new ObjectName("geronimo.remoting:target=JaasLoginServiceRemotingServer");
-        gbean = new GBeanData(serverStub, JaasLoginServiceRemotingServer.getGBeanInfo());
+        gbean = buildGBeanData("name", "JaasLoginServiceRemotingServer", JaasLoginServiceRemotingServer.getGBeanInfo());
+        serverStub = gbean.getAbstractName();
         gbean.setAttribute("protocol", "tcp");
         gbean.setAttribute("host", "0.0.0.0");
         gbean.setAttribute("port", new Integer(4242));
@@ -115,6 +142,18 @@ public abstract class AbstractTest extends TestCase {
         kernel.unloadGBean(serverStub);
 
         kernel.shutdown();
+    }
+
+
+    protected GBeanData buildGBeanData(String key, String value, GBeanInfo info) throws MalformedObjectNameException {
+        AbstractName abstractName = buildAbstractName(key, value, info);
+        return new GBeanData(abstractName, info);
+    }
+
+    private AbstractName buildAbstractName(String key, String value, GBeanInfo info) throws MalformedObjectNameException {
+        Map names = new HashMap();
+        names.put(key, value);
+        return new AbstractName(new Artifact("test", "foo", "1", "car"), names, new ObjectName("test:" + key + "=" + value));
     }
 
     public static class UsernamePasswordCallback implements CallbackHandler {

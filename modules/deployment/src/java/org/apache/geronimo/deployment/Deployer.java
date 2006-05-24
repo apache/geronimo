@@ -17,23 +17,6 @@
 
 package org.apache.geronimo.deployment;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanQuery;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
-import org.apache.geronimo.system.main.CommandLineManifest;
-
-import javax.management.ObjectName;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -41,16 +24,37 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+
+import javax.management.ObjectName;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
+import org.apache.geronimo.system.main.CommandLineManifest;
 
 /**
  * GBean that knows how to deploy modules (by consulting available module builders)
@@ -63,12 +67,23 @@ public class Deployer {
     private final Properties pendingDeletionIndex = new Properties();
     private DeployerReaper reaper;
     private final Collection builders;
-    private final ConfigurationStore store;
+    private final Collection stores;
+    private final ArtifactResolver artifactResolver;
     private final Kernel kernel;
 
-    public Deployer(Collection builders, ConfigurationStore store, Kernel kernel) {
+    public Deployer(Collection builders, Collection stores, Kernel kernel) {
+        this(builders, stores, getArtifactResolver(kernel), kernel);
+    }
+
+    private static ArtifactResolver getArtifactResolver(Kernel kernel) {
+        ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+        return configurationManager.getArtifactResolver();
+    }
+
+    public Deployer(Collection builders, Collection stores, ArtifactResolver artifactResolver, Kernel kernel) {
         this.builders = builders;
-        this.store = store;
+        this.stores = stores;
+        this.artifactResolver = artifactResolver;
         this.kernel = kernel;
 
         // Create and start the reaper...
@@ -78,13 +93,17 @@ public class Deployer {
         t.start();
     }
 
-    public List deploy(File moduleFile, File planFile) throws DeploymentException {
+    public List deploy(boolean inPlace, File moduleFile, File planFile) throws DeploymentException {
+        return deploy(inPlace, moduleFile, planFile, null);
+    }
+
+    public List deploy(boolean inPlace, File moduleFile, File planFile, String targetConfigStore) throws DeploymentException {
         File originalModuleFile = moduleFile;
         File tmpDir = null;
         if (moduleFile != null && !moduleFile.isDirectory()) {
             // todo jar url handling with Sun's VM on Windows leaves a lock on the module file preventing rebuilds
             // to address this we use a gross hack and copy the file to a temporary directory
-            // the lock on the file will prevent that being deleted properly until the URLJarFile has 
+            // the lock on the file will prevent that being deleted properly until the URLJarFile has
             // been GC'ed.
             try {
                 tmpDir = File.createTempFile("geronimo-deployer", ".tmpdir");
@@ -99,14 +118,14 @@ public class Deployer {
         }
 
         try {
-            return deploy(planFile, moduleFile, null, true, null, null, null, null);
+            return deploy(inPlace, planFile, moduleFile, null, true, null, null, null, null, null, null, null, targetConfigStore);
         } catch (DeploymentException e) {
-            log.debug("Deployment failed: plan=" + planFile +", module=" + originalModuleFile, e);
+            log.debug("Deployment failed: plan=" + planFile + ", module=" + originalModuleFile, e);
             throw e.cleanse();
         } finally {
             if (tmpDir != null) {
                 if (!DeploymentUtil.recursiveDelete(tmpDir)) {
-                    pendingDeletionIndex.setProperty(tmpDir.getName(), new String("delete"));
+                    pendingDeletionIndex.setProperty(tmpDir.getName(), "delete");
                 }
             }
         }
@@ -124,77 +143,54 @@ public class Deployer {
      */
     public String getRemoteDeployUploadURL() {
         // Get the token GBean from the remote deployment configuration
-        Set set = kernel.listGBeans(new GBeanQuery(null, "org.apache.geronimo.deployment.remote.RemoteDeployToken"));
-        if(set.size() == 0) {
+        Set set = kernel.listGBeans(new AbstractNameQuery("org.apache.geronimo.deployment.remote.RemoteDeployToken"));
+        if (set.size() == 0) {
             return null;
         }
-        ObjectName token = (ObjectName) set.iterator().next();
+        AbstractName token = (AbstractName) set.iterator().next();
         // Identify the parent configuration for that GBean
         set = kernel.getDependencyManager().getParents(token);
         ObjectName config = null;
         for (Iterator it = set.iterator(); it.hasNext();) {
-            ObjectName name = (ObjectName) it.next();
-            if(Configuration.isConfigurationObjectName(name)) {
-                config = name;
+            AbstractName name = (AbstractName) it.next();
+            if (Configuration.isConfigurationObjectName(name.getObjectName())) {
+                config = name.getObjectName();
                 break;
             }
         }
-        if(config == null) {
+        if (config == null) {
             log.warn("Unable to find remote deployment configuration; is the remote deploy web application running?");
             return null;
         }
         // Generate the URL based on the remote deployment configuration
         Hashtable hash = new Hashtable();
-        hash.put("J2EEApplication", token.getKeyProperty("J2EEApplication"));
-        hash.put("J2EEServer", token.getKeyProperty("J2EEServer"));
+        hash.put("J2EEApplication", token.getObjectName().getKeyProperty("J2EEApplication"));
         hash.put("j2eeType", "WebModule");
         try {
             hash.put("name", Configuration.getConfigurationID(config).toString());
-            ObjectName module = new ObjectName(token.getDomain(), hash);
-
-            String containerName = (String) kernel.getAttribute(module, "containerName");
-            String contextPath = (String) kernel.getAttribute(module, "contextPath");
-            String urlPrefix = getURLFor(containerName);
-            return urlPrefix+contextPath+"/upload";
+            Set names = kernel.listGBeans(new AbstractNameQuery(null, hash));
+            if (names.size() != 1) {
+                log.error("Unable to look up remote deploy upload URL");
+                return null;
+            }
+            AbstractName module = (AbstractName) names.iterator().next();
+            return kernel.getAttribute(module, "URLFor") + "/upload";
         } catch (Exception e) {
             log.error("Unable to look up remote deploy upload URL", e);
             return null;
         }
     }
 
-    /**
-     * Given a web container ObjectName, constructs a URL to point to it.
-     * Currently favors HTTP then HTTPS and ignores AJP (since AJP
-     * means it goes through a web server listening on an unknown port).
-     */
-    private String getURLFor(String containerName) throws Exception {
-        Set set = kernel.listGBeans(new GBeanQuery(null, "org.apache.geronimo.management.geronimo.WebManager"));
-        for (Iterator it = set.iterator(); it.hasNext();) {
-            ObjectName mgrName = (ObjectName) it.next();
-            String[] cntNames = (String[]) kernel.getAttribute(mgrName, "containers");
-            for (int i = 0; i < cntNames.length; i++) {
-                String cntName = cntNames[i];
-                if(cntName.equals(containerName)) {
-                    String[] cncNames = (String[]) kernel.invoke(mgrName, "getConnectorsForContainer", new Object[]{cntName}, new String[]{"java.lang.String"});
-                    Map map = new HashMap();
-                    for (int j = 0; j < cncNames.length; j++) {
-                        ObjectName cncName = ObjectName.getInstance(cncNames[j]);
-                        String protocol = (String) kernel.getAttribute(cncName, "protocol");
-                        String url = (String) kernel.getAttribute(cncName, "connectUrl");
-                        map.put(protocol, url);
-                    }
-                    String urlPrefix = null;
-                    if((urlPrefix = (String) map.get("HTTP")) == null) {
-                        urlPrefix = (String) map.get("HTTPS");
-                    }
-                    return urlPrefix;
-                }
-            }
-        }
-        return null;
-    }
-
-    public List deploy(File planFile, File moduleFile, File targetFile, boolean install, String mainClass, String classPath, String endorsedDirs, String extensionDirs) throws DeploymentException {
+    public List deploy(boolean inPlace,
+            File planFile,
+            File moduleFile,
+            File targetFile,
+            boolean install,
+            String mainClass,
+            String mainGBean, String mainMethod, String manifestConfigurations, String classPath,
+            String endorsedDirs,
+            String extensionDirs,
+            String targetConfigurationStore) throws DeploymentException {
         if (planFile == null && moduleFile == null) {
             throw new DeploymentException("No plan or module specified");
         }
@@ -210,6 +206,9 @@ public class Deployer {
 
         JarFile module = null;
         if (moduleFile != null) {
+            if (inPlace && !moduleFile.isDirectory()) {
+                throw new DeploymentException("In place deployment is not allowed for packed module");
+            }
             if (!moduleFile.exists()) {
                 throw new DeploymentException("Module file does not exist: " + moduleFile.getAbsolutePath());
             }
@@ -220,39 +219,39 @@ public class Deployer {
             }
         }
 
-        File configurationDir = null;
+//        File configurationDir = null;
+        ModuleIDBuilder idBuilder = new ModuleIDBuilder();
         try {
             Object plan = null;
             ConfigurationBuilder builder = null;
             for (Iterator i = builders.iterator(); i.hasNext();) {
                 ConfigurationBuilder candidate = (ConfigurationBuilder) i.next();
-                plan = candidate.getDeploymentPlan(planFile, module);
+                plan = candidate.getDeploymentPlan(planFile, module, idBuilder);
                 if (plan != null) {
                     builder = candidate;
                     break;
                 }
             }
             if (builder == null) {
-                throw new DeploymentException("Cannot deploy the requested application module (" +
+                throw new DeploymentException("Cannot deploy the requested application module because no deployer is able to handle it. " +
+                        " This can happen if you have omitted the J2EE deployment descriptor, disabled a deployer module, or if, for example, you are trying to deploy an" +
+                        " EJB module on a minimal Geronimo server that does not have EJB support installed.  (" +
                         (planFile == null ? "" : "planFile=" + planFile.getAbsolutePath()) +
-                        (moduleFile == null ? "" : (planFile == null ? "" : ", ")+"moduleFile=" + moduleFile.getAbsolutePath())+")");
+                        (moduleFile == null ? "" : (planFile == null ? "" : ", ") + "moduleFile=" + moduleFile.getAbsolutePath()) + ")");
             }
 
+            Artifact configID = builder.getConfigurationID(plan, module, idBuilder);
+            // If the Config ID isn't fully resolved, populate it with defaults
+            if (!configID.isResolved()) {
+                configID = idBuilder.resolve(configID, "car");
+            }
             // Make sure this configuration doesn't already exist
-            URI configID = builder.getConfigurationID(plan, module);
             try {
-                kernel.getGBeanState(Configuration.getConfigurationObjectName(configID));
-                throw new DeploymentException("Module "+configID+" already exists in the server.  Try to undeploy it first or use the redeploy command.");
+                kernel.getGBeanState(Configuration.getConfigurationAbstractName(configID));
+                throw new DeploymentException("Module " + configID + " already exists in the server.  Try to undeploy it first or use the redeploy command.");
             } catch (GBeanNotFoundException e) {
                 // this is good
             }
-
-            // create a configuration dir to write the configuration during the building proces
-            configurationDir = store.createNewConfigurationDir();
-
-            // create te meta-inf dir
-            File metaInf = new File(configurationDir, "META-INF");
-            metaInf.mkdirs();
 
             // create the manifest
             Manifest manifest;
@@ -262,6 +261,15 @@ public class Deployer {
                 mainAttributes.putValue(Attributes.Name.MANIFEST_VERSION.toString(), "1.0");
                 if (mainClass != null) {
                     mainAttributes.putValue(Attributes.Name.MAIN_CLASS.toString(), mainClass);
+                }
+                if (mainGBean != null) {
+                    mainAttributes.putValue(CommandLineManifest.MAIN_GBEAN.toString(), mainGBean);
+                }
+                if (mainMethod != null) {
+                    mainAttributes.putValue(CommandLineManifest.MAIN_METHOD.toString(), mainMethod);
+                }
+                if (manifestConfigurations != null) {
+                    mainAttributes.putValue(CommandLineManifest.CONFIGURATIONS.toString(), manifestConfigurations);
                 }
                 if (classPath != null) {
                     mainAttributes.putValue(Attributes.Name.CLASS_PATH.toString(), classPath);
@@ -276,47 +284,77 @@ public class Deployer {
                 manifest = null;
             }
 
-            ConfigurationData configurationData = builder.buildConfiguration(plan, module, configurationDir);
+            if (stores.isEmpty()) {
+                throw new DeploymentException("No ConfigurationStores!");
+            }
+            ConfigurationStore store;
+            if (targetConfigurationStore != null) {
+                AbstractName targetStoreName = new AbstractName(new URI(targetConfigurationStore));
+                store = (ConfigurationStore) kernel.getGBean(targetStoreName);
+            } else {
+                store = (ConfigurationStore) stores.iterator().next();
+            }
+
+            // It's our responsibility to close this context, once we're done with it...
+            DeploymentContext context = builder.buildConfiguration(inPlace, configID, plan, module, stores, artifactResolver, store);
+            List configurations = new ArrayList();
+            configurations.add(context.getConfigurationData());
+            configurations.addAll(context.getAdditionalDeployment());
+
+            if (configurations.isEmpty()) {
+                throw new DeploymentException("Deployer did not create any configurations");
+            }
             try {
                 if (targetFile != null) {
-                    ExecutableConfigurationUtil.createExecutableConfiguration(configurationData, manifest, configurationDir, targetFile);
+                    if (configurations.size() > 1) {
+                        throw new DeploymentException("Deployer created more than one configuration");
+                    }
+                    ConfigurationData configurationData = (ConfigurationData) configurations.get(0);
+                    ExecutableConfigurationUtil.createExecutableConfiguration(configurationData, manifest, targetFile);
                 }
                 if (install) {
-                    store.install(configurationData, configurationDir);
                     List deployedURIs = new ArrayList();
-                    deployedURIs.add(configurationData.getId().toString());
-                    // todo this should support a tree structure since configurations could be nested to any depth
-                    for (Iterator iterator = configurationData.getChildConfigurations().iterator(); iterator.hasNext();) {
-                        ConfigurationData childConfiguration = (ConfigurationData) iterator.next();
-                        deployedURIs.add(childConfiguration.getId().toString());
-                        // todo install the child conifgurations here
+                    for (Iterator iterator = configurations.iterator(); iterator.hasNext();) {
+                        ConfigurationData configurationData = (ConfigurationData) iterator.next();
+                        store.install(configurationData);
+                        deployedURIs.add(configurationData.getId().toString());
                     }
                     return deployedURIs;
                 } else {
-                    if (!DeploymentUtil.recursiveDelete(configurationDir)) {
-                        pendingDeletionIndex.setProperty(configurationDir.getName(), new String("delete"));
-                        log.debug("Queued deployment directory to be reaped " + configurationDir);                        
-                    }
+                    cleanupConfigurations(configurations);
                     return Collections.EMPTY_LIST;
                 }
+            } catch (DeploymentException e) {
+                cleanupConfigurations(configurations);
+                throw e;
+            } catch (IOException e) {
+                cleanupConfigurations(configurations);
+                throw e;
             } catch (InvalidConfigException e) {
+                cleanupConfigurations(configurations);
                 // unlikely as we just built this
                 throw new DeploymentException(e);
+            } finally {
+                if (context != null) {
+                    context.close();
+                }
             }
-        } catch(Throwable e) {
-            if (!DeploymentUtil.recursiveDelete(configurationDir)) {
-                pendingDeletionIndex.setProperty(configurationDir.getName(), new String("delete"));
-                log.debug("Queued deployment directory to be reaped " + configurationDir);                        
-            }
-            if (targetFile != null) {
-                targetFile.delete();
-            }
+        } catch (Throwable e) {
+            //TODO not clear all errors will result in total cleanup
+//            File configurationDir = configurationData.getConfigurationDir();
+//            if (!DeploymentUtil.recursiveDelete(configurationDir)) {
+//                pendingDeletionIndex.setProperty(configurationDir.getName(), new String("delete"));
+//                log.debug("Queued deployment directory to be reaped " + configurationDir);
+//            }
+//            if (targetFile != null) {
+//                targetFile.delete();
+//            }
 
             if (e instanceof Error) {
                 log.error("Deployment failed due to ", e);
-                throw (Error)e;
+                throw (Error) e;
             } else if (e instanceof DeploymentException) {
-                throw (DeploymentException)e;
+                throw (DeploymentException) e;
             } else if (e instanceof Exception) {
                 log.error("Deployment failed due to ", e);
                 throw new DeploymentException(e);
@@ -324,6 +362,17 @@ public class Deployer {
             throw new Error(e);
         } finally {
             DeploymentUtil.close(module);
+        }
+    }
+
+    private void cleanupConfigurations(List configurations) {
+        for (Iterator iterator = configurations.iterator(); iterator.hasNext();) {
+            ConfigurationData configurationData = (ConfigurationData) iterator.next();
+            File configurationDir = configurationData.getConfigurationDir();
+            if (!DeploymentUtil.recursiveDelete(configurationDir)) {
+                pendingDeletionIndex.setProperty(configurationDir.getName(), "delete");
+                log.debug("Queued deployment directory to be reaped " + configurationDir);
+            }
         }
     }
 
@@ -346,7 +395,7 @@ public class Deployer {
 
         public void run() {
             log.debug("ConfigStoreReaper started");
-            while(!done) {
+            while (!done) {
                 try {
                     Thread.sleep(reaperInterval);
                 } catch (InterruptedException e) {
@@ -357,7 +406,7 @@ public class Deployer {
         }
 
         /**
-         * For every directory in the pendingDeletionIndex, attempt to delete all 
+         * For every directory in the pendingDeletionIndex, attempt to delete all
          * sub-directories and files.
          */
         public void reap() {
@@ -367,7 +416,7 @@ public class Deployer {
             // Otherwise, attempt to delete all of the directories
             Enumeration list = pendingDeletionIndex.propertyNames();
             while (list.hasMoreElements()) {
-                String dirName = (String)list.nextElement();
+                String dirName = (String) list.nextElement();
                 File deleteDir = new File(dirName);
 
                 if (!DeploymentUtil.recursiveDelete(deleteDir)) {
@@ -377,7 +426,7 @@ public class Deployer {
             }
         }
     }
-    
+
     public static final GBeanInfo GBEAN_INFO;
 
     private static final String DEPLOYER = "Deployer";
@@ -387,8 +436,9 @@ public class Deployer {
 
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("remoteDeployUploadURL", String.class, false);
-        infoFactory.addOperation("deploy", new Class[]{File.class, File.class});
-        infoFactory.addOperation("deploy", new Class[]{File.class, File.class, File.class, boolean.class, String.class, String.class, String.class, String.class});
+        infoFactory.addOperation("deploy", new Class[]{boolean.class, File.class, File.class});
+        infoFactory.addOperation("deploy", new Class[]{boolean.class, File.class, File.class, String.class});
+        infoFactory.addOperation("deploy", new Class[]{boolean.class, File.class, File.class, File.class, boolean.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class});
 
         infoFactory.addReference("Builders", ConfigurationBuilder.class, "ConfigBuilder");
         infoFactory.addReference("Store", ConfigurationStore.class, "ConfigurationStore");

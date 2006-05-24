@@ -1,0 +1,247 @@
+<html>
+    <head>
+        <title>Documentation : Deployment plans</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Documentation : Deployment plans
+                                                    </span>
+				    </div>
+				    <div class="pagesubheading">
+					    This page last changed on Dec 14, 2005 by <font color="#0050B2">hcunico@gmail.com</font>.
+				    </div>
+
+				    <p><a name="Deploymentplans-top"></a><br/>
+<em><b>Article donated by:</b> <a href="mailto:hcunico@gmail.com" title="Send mail to Hernan Cunico">Hernan Cunico</a></em></p>
+
+<p>Deployment plans are the Geronimo version of the J2EE deployment descriptors. They are still XML files based on XML schemas and containing the configuration details for a specific application module. Via the deployment plans you can not only deploy application modules but also other configurations such as a security realm, see the <a href="Deploying secure applications.html" title="Deploying secure applications">Deploying secure applications</a> and <a href="Configuring LDAP.html#ConfiguringLDAP-DeploytheLDAPrealm" title="Deploy the LDAP realm on Configuring LDAP">Deploy the LDAP realm</a> sections for further details and examples.</p>
+
+<p>The following table illustrates the deployment descriptors name and file location for both standard J2EE and Apache Geronimo specific.</p>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'>File</th>
+<th class='confluenceTh'>Standard Deployment Descriptors in the J2EE specification</th>
+<th class='confluenceTh'>Apache Geronimo specific Deployment plan</th>
+</tr>
+<tr>
+<td class='confluenceTd'>Web Application Archive (WAR)</td>
+<td class='confluenceTd'>web.xml under the WEB-INF directory</td>
+<td class='confluenceTd'>geronimo-web.xml</td>
+</tr>
+<tr>
+<td class='confluenceTd'>Enterprise Web application archive (EAR)</td>
+<td class='confluenceTd'>application.xml</td>
+<td class='confluenceTd'>geronimo-application.xml</td>
+</tr>
+<tr>
+<td class='confluenceTd'>J2EE Connector resources archive (RAR)</td>
+<td class='confluenceTd'>ra.xml</td>
+<td class='confluenceTd'>geronimo-ra.xml</td>
+</tr>
+<tr>
+<td class='confluenceTd'>J2EE client application archive (JAR)</td>
+<td class='confluenceTd'>client.xml</td>
+<td class='confluenceTd'>geronimo-application-client.xml</td>
+</tr>
+<tr>
+<td class='confluenceTd'>JAR containing EJBs</td>
+<td class='confluenceTd'>ejb-jar.xml under the META-INF directory</td>
+<td class='confluenceTd'>openejb-jar.xml</td>
+</tr>
+</tbody></table>
+
+<p>Here are some Geronimo specific deployment plan examples:</p>
+
+<h3><a name="Deploymentplans-geronimoweb.xml"></a>geronimo-web.xml</h3>
+<div class="code" style="border-style: solid; "><div class="codeContent">
+<pre class="code-xml">&lt;web-app xmlns=<span class="code-quote">"http://geronimo.apache.org/xml/ns/web"</span>
+         <span class="code-keyword">xmlns:naming</span>=<span class="code-quote">"http://geronimo.apache.org/xml/ns/naming"</span>
+         configId=<span class="code-quote">"MDBDemoWebApp"</span>
+         parentId=<span class="code-quote">"MDBDemo"</span>&gt;
+         
+     <span class="code-tag">&lt;context-root&gt;</span>messaging-ejb<span class="code-tag">&lt;/context-root&gt;</span>    
+     
+    <span class="code-tag">&lt;ejb-ref&gt;</span>
+        <span class="code-tag">&lt;ref-name&gt;</span>ejb/CustomerHome<span class="code-tag">&lt;/ref-name&gt;</span>
+        <span class="code-tag">&lt;target-name&gt;</span>geronimo.server:EJBModule=MDBDemo,J2EEApplication=null,J2EEServer=geronimo,j2eeType=EntityBean,name=CustomerEJB<span class="code-tag">&lt;/target-name&gt;</span>
+    <span class="code-tag">&lt;/ejb-ref&gt;</span>
+
+	<span class="code-tag">&lt;resource-ref&gt;</span>
+        <span class="code-tag">&lt;ref-name&gt;</span>jms/broker<span class="code-tag">&lt;/ref-name&gt;</span>
+        <span class="code-tag">&lt;resource-link&gt;</span>DefaultActiveMQConnectionFactory<span class="code-tag">&lt;/resource-link&gt;</span>
+    <span class="code-tag">&lt;/resource-ref&gt;</span>
+    
+    <span class="code-tag">&lt;resource-env-ref&gt;</span>
+        <span class="code-tag">&lt;ref-name&gt;</span>jms/queue/DefQueue<span class="code-tag">&lt;/ref-name&gt;</span>
+        <span class="code-tag">&lt;message-destination-link&gt;</span>SendReceiveQueue<span class="code-tag">&lt;/message-destination-link&gt;</span>
+    <span class="code-tag">&lt;/resource-env-ref&gt;</span>
+    
+<span class="code-tag">&lt;/web-app&gt;</span></pre>
+</div></div>
+
+<p><a href="#Deploymentplans-top" title="top on Deployment plans">Back to Top</a></p>
+
+<h3><a name="Deploymentplans-geronimoapplication.xml"></a>geronimo-application.xml</h3>
+<div class="code" style="border-style: solid; "><div class="codeContent">
+<pre class="code-xml">&lt;application xmlns=<span class="code-quote">"http://geronimo.apache.org/xml/ns/j2ee/application"</span>
+	configId=<span class="code-quote">"com/ibm/j2g/security"</span>
+	parentId=<span class="code-quote">"org/apache/geronimo/Server"</span>&gt;
+
+    <span class="code-tag">&lt;security xmlns=<span class="code-quote">"http://geronimo.apache.org/xml/ns/security"</span>&gt;</span>
+        <span class="code-tag">&lt;default-principal realm-name=<span class="code-quote">"j2g"</span>&gt;</span>
+            <span class="code-tag">&lt;principal class=<span class="code-quote">"org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal"</span> name=<span class="code-quote">"system"</span>/&gt;</span>
+        <span class="code-tag">&lt;/default-principal&gt;</span>
+        <span class="code-tag">&lt;role-mappings&gt;</span>
+            <span class="code-tag">&lt;role role-name=<span class="code-quote">"authenticated"</span>&gt;</span>
+                <span class="code-tag">&lt;realm realm-name=<span class="code-quote">"j2g"</span>&gt;</span>
+                    <span class="code-tag">&lt;principal class=<span class="code-quote">"org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal"</span> name=<span class="code-quote">"authenticated"</span>/&gt;</span>
+                <span class="code-tag">&lt;/realm&gt;</span>
+            <span class="code-tag">&lt;/role&gt;</span>
+            <span class="code-tag">&lt;role role-name=<span class="code-quote">"uploader"</span>&gt;</span>
+                <span class="code-tag">&lt;realm realm-name=<span class="code-quote">"j2g"</span>&gt;</span>
+                    <span class="code-tag">&lt;principal class=<span class="code-quote">"org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal"</span> name=<span class="code-quote">"uploader"</span>/&gt;</span>
+               <span class="code-tag">&lt;/realm&gt;</span>
+            <span class="code-tag">&lt;/role&gt;</span>
+        <span class="code-tag">&lt;/role-mappings&gt;</span>
+    <span class="code-tag">&lt;/security&gt;</span>
+
+   	&lt;gb:gbean name=<span class="code-quote">"j2g-realm"</span> class=<span class="code-quote">"org.apache.geronimo.security.realm.GenericSecurityRealm"</span>
+   		<span class="code-keyword">xmlns:gb</span>=<span class="code-quote">"http://geronimo.apache.org/xml/ns/deployment-1.0"</span>&gt;
+        <span class="code-tag">&lt;gb:reference name=<span class="code-quote">"ServerInfo"</span>&gt;</span>
+        	<span class="code-tag">&lt;gb:application&gt;</span>*<span class="code-tag">&lt;/gb:application&gt;</span>
+        	<span class="code-tag">&lt;gb:module&gt;</span>org/apache/geronimo/System<span class="code-tag">&lt;/gb:module&gt;</span>
+        	<span class="code-tag">&lt;gb:name&gt;</span>ServerInfo<span class="code-tag">&lt;/gb:name&gt;</span>
+        <span class="code-tag">&lt;/gb:reference&gt;</span>
+        <span class="code-tag">&lt;gb:reference name=<span class="code-quote">"LoginService"</span>&gt;</span>
+        	<span class="code-tag">&lt;gb:application&gt;</span>*<span class="code-tag">&lt;/gb:application&gt;</span>
+        	<span class="code-tag">&lt;gb:module&gt;</span>org/apache/geronimo/Security<span class="code-tag">&lt;/gb:module&gt;</span>
+        	<span class="code-tag">&lt;gb:name&gt;</span>JaasLoginService<span class="code-tag">&lt;/gb:name&gt;</span>
+        <span class="code-tag">&lt;/gb:reference&gt;</span>
+    	<span class="code-tag">&lt;gb:attribute name=<span class="code-quote">"realmName"</span>&gt;</span>j2g<span class="code-tag">&lt;/gb:attribute&gt;</span>
+    	<span class="code-tag">&lt;gb:xml-reference name=<span class="code-quote">"LoginModuleConfiguration"</span>&gt;</span>
+    		<span class="code-tag">&lt;l:login-config <span class="code-keyword">xmlns:l</span>=<span class="code-quote">"http://geronimo.apache.org/xml/ns/loginconfig"</span>&gt;</span>
+    			<span class="code-tag">&lt;l:login-module control-flag=<span class="code-quote">"REQUIRED"</span> server-side=<span class="code-quote">"true"</span>&gt;</span>
+    				<span class="code-tag">&lt;l:login-domain-name&gt;</span>j2g<span class="code-tag">&lt;/l:login-domain-name&gt;</span>
+    				<span class="code-tag">&lt;l:login-module-class&gt;</span>
+    					org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule
+    				<span class="code-tag">&lt;/l:login-module-class&gt;</span>
+     				<span class="code-tag">&lt;l:option name=<span class="code-quote">"usersURI"</span>&gt;</span>
+				    	var/security/j2g_users.properties
+			        <span class="code-tag">&lt;/l:option&gt;</span>
+        			<span class="code-tag">&lt;l:option name=<span class="code-quote">"groupsURI"</span>&gt;</span>
+          				var/security/j2g_groups.properties
+        			<span class="code-tag">&lt;/l:option&gt;</span>
+    			<span class="code-tag">&lt;/l:login-module&gt;</span>
+    		<span class="code-tag">&lt;/l:login-config&gt;</span>
+    	<span class="code-tag">&lt;/gb:xml-reference&gt;</span>
+    <span class="code-tag">&lt;/gb:gbean&gt;</span>
+<span class="code-tag">&lt;/application&gt;</span></pre>
+</div></div>
+
+<p><a href="#Deploymentplans-top" title="top on Deployment plans">Back to Top</a></p>
+
+<h3><a name="Deploymentplans-geronimora.xml"></a>geronimo-ra.xml</h3>
+<div class="code" style="border-style: solid; "><div class="codeContent">
+<pre class="code-xml"><span class="code-tag">&lt;?xml version=<span class="code-quote">"1.0"</span> encoding=<span class="code-quote">"UTF-8"</span>?&gt;</span>
+&lt;connector xmlns=<span class="code-quote">"http://geronimo.apache.org/xml/ns/j2ee/connector"</span> version=<span class="code-quote">"1.5"</span>
+        configId=<span class="code-quote">"com/ibm/j2g/jca.rar"</span> 
+        parentId=<span class="code-quote">"org/apache/geronimo/Server"</span>&gt;
+
+    <span class="code-tag">&lt;resourceadapter&gt;</span>
+        <span class="code-tag">&lt;outbound-resourceadapter&gt;</span>
+            <span class="code-tag">&lt;connection-definition&gt;</span>
+                <span class="code-tag">&lt;connectionfactory-interface&gt;</span>com.ibm.j2g.jca.connector.FileRetrieverConnectionFactory<span class="code-tag">&lt;/connectionfactory-interface&gt;</span>
+                <span class="code-tag">&lt;connectiondefinition-instance&gt;</span>
+                    <span class="code-tag">&lt;name&gt;</span>FileRetriever<span class="code-tag">&lt;/name&gt;</span>
+                    <span class="code-tag"><span class="code-comment">&lt;!-- The following path refers to the Geronimo home directory --&gt;</span></span>
+                    <span class="code-tag">&lt;config-property-setting name=<span class="code-quote">"RepositoryPath"</span>&gt;</span>..<span class="code-tag">&lt;/config-property-setting&gt;</span>
+                    <span class="code-tag">&lt;connectionmanager&gt;</span>
+                        <span class="code-tag">&lt;no-transaction/&gt;</span>
+                        <span class="code-tag">&lt;no-pool/&gt;</span>
+                    <span class="code-tag">&lt;/connectionmanager&gt;</span>
+                <span class="code-tag">&lt;/connectiondefinition-instance&gt;</span>
+            <span class="code-tag">&lt;/connection-definition&gt;</span>
+        <span class="code-tag">&lt;/outbound-resourceadapter&gt;</span>
+    <span class="code-tag">&lt;/resourceadapter&gt;</span>
+<span class="code-tag">&lt;/connector&gt;</span></pre>
+</div></div>
+
+<p><a href="#Deploymentplans-top" title="top on Deployment plans">Back to Top</a></p>
+
+<h3><a name="Deploymentplans-geronimoapplicationclient.xml"></a>geronimo-application-client.xml</h3>
+
+<p><b>ANY DONATIONS WOULD BE APPRECIATED HERE</b></p>
+
+<div class="code" style="border-style: solid; "><div class="codeContent">
+<pre class="code-xml"></pre>
+</div></div>
+
+<p><a href="#Deploymentplans-top" title="top on Deployment plans">Back to Top</a></p>
+
+<h3><a name="Deploymentplans-openejbjar.xml"></a>openejb-jar.xml</h3>
+<div class="code" style="border-style: solid; "><div class="codeContent">
+<pre class="code-xml">&lt;openejb-jar
+    xmlns=<span class="code-quote">"http://www.openejb.org/xml/ns/openejb-jar"</span>
+    <span class="code-keyword">xmlns:naming</span>=<span class="code-quote">"http://geronimo.apache.org/xml/ns/naming"</span>
+    <span class="code-keyword">xmlns:security</span>=<span class="code-quote">"http://geronimo.apache.org/xml/ns/security"</span>
+    <span class="code-keyword">xmlns:sys</span>=<span class="code-quote">"http://geronimo.apache.org/xml/ns/deployment"</span>
+    configId=<span class="code-quote">"SessionBeanDemo"</span> parentId=<span class="code-quote">"org/apache/geronimo/Server"</span>&gt;
+ <span class="code-tag">&lt;enterprise-beans&gt;</span>
+ 	
+    <span class="code-tag">&lt;entity&gt;</span>
+        <span class="code-tag">&lt;ejb-name&gt;</span>CustomerEJB<span class="code-tag">&lt;/ejb-name&gt;</span>
+        <span class="code-tag">&lt;jndi-name&gt;</span>CustomerHomeRemote<span class="code-tag">&lt;/jndi-name&gt;</span>
+        <span class="code-tag">&lt;local-jndi-name&gt;</span><span class="code-tag">&lt;/local-jndi-name&gt;</span>
+        <span class="code-tag">&lt;resource-ref&gt;</span>
+            <span class="code-tag">&lt;ref-name&gt;</span>jdbc/ibm-demo<span class="code-tag">&lt;/ref-name&gt;</span>
+            <span class="code-tag">&lt;resource-link&gt;</span>SystemDatasource<span class="code-tag">&lt;/resource-link&gt;</span>
+        <span class="code-tag">&lt;/resource-ref&gt;</span>
+    <span class="code-tag">&lt;/entity&gt;</span>
+    
+    <span class="code-tag">&lt;session&gt;</span>
+        <span class="code-tag">&lt;ejb-name&gt;</span>LoanManagerEJB<span class="code-tag">&lt;/ejb-name&gt;</span>
+        <span class="code-tag">&lt;jndi-name&gt;</span>LoanManagerHomeRemote<span class="code-tag">&lt;/jndi-name&gt;</span>
+        <span class="code-tag">&lt;ejb-ref&gt;</span>
+            <span class="code-tag">&lt;ref-name&gt;</span>ejb/CustomerHomeRemote<span class="code-tag">&lt;/ref-name&gt;</span>
+            <span class="code-tag">&lt;ejb-link&gt;</span>CustomerEJB<span class="code-tag">&lt;/ejb-link&gt;</span>
+        <span class="code-tag">&lt;/ejb-ref&gt;</span>        
+   <span class="code-tag">&lt;/session&gt;</span>
+ 	
+ 	<span class="code-tag">&lt;session&gt;</span>
+        <span class="code-tag">&lt;ejb-name&gt;</span>StatefulLoanManagerEJB<span class="code-tag">&lt;/ejb-name&gt;</span>
+        <span class="code-tag">&lt;jndi-name&gt;</span>StatefulLoanManagerHomeRemote<span class="code-tag">&lt;/jndi-name&gt;</span>
+        <span class="code-tag">&lt;ejb-ref&gt;</span>
+            <span class="code-tag">&lt;ref-name&gt;</span>ejb/CustomerHomeRemote<span class="code-tag">&lt;/ref-name&gt;</span>
+            <span class="code-tag">&lt;ejb-link&gt;</span>CustomerEJB<span class="code-tag">&lt;/ejb-link&gt;</span>
+        <span class="code-tag">&lt;/ejb-ref&gt;</span>        
+   <span class="code-tag">&lt;/session&gt;</span>
+   
+ <span class="code-tag">&lt;/enterprise-beans&gt;</span>
+    
+<span class="code-tag">&lt;/openejb-jar&gt;</span></pre>
+</div></div>
+
+<p><a href="#Deploymentplans-top" title="top on Deployment plans">Back to Top</a></p>
+
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td height="12" background="border/border_bottom.gif"><img src="border/spacer.gif" width="1" height="1" border="0"/></td>
+			</tr>
+		    <tr>
+			    <td align="center"><font color="grey">Document generated by Confluence on Dec 15, 2005 19:14</font></td>
+		    </tr>
+	    </table>
+    </body>
+</html>

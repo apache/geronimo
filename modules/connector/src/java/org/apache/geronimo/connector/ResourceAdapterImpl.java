@@ -16,22 +16,23 @@
  */
 package org.apache.geronimo.connector;
 
-import org.apache.geronimo.management.ResourceAdapter;
+import org.apache.geronimo.management.geronimo.ResourceAdapter;
+import org.apache.geronimo.management.geronimo.JCAResource;
 
 /**
  * @version $Rev$ $Date$
  */
 public class ResourceAdapterImpl implements ResourceAdapter {
     private final String objectName;
-    private final String jcaResource;
+    private final JCAResource jcaResource;
 
-    public ResourceAdapterImpl(String objectName, String jcaResource) {
+    public ResourceAdapterImpl(String objectName, JCAResource jcaResource) {
         this.objectName = objectName;
         this.jcaResource = jcaResource;
     }
 
     public String[] getJCAResources() {
-        return new String[] {jcaResource};
+        return new String[] {jcaResource.getObjectName()};
     }
 
     public String getObjectName() {
@@ -48,5 +49,9 @@ public class ResourceAdapterImpl implements ResourceAdapter {
 
     public boolean isEventProvider() {
         return false;
+    }
+
+    public JCAResource[] getJCAResourceImplementations() {
+        return new JCAResource[] {jcaResource};
     }
 }

@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.deployment.util;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -35,6 +36,7 @@ import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**
  * @version $Rev$ $Date$
@@ -132,6 +134,14 @@ public final class DeploymentUtil {
         }
     }
 
+    public static File toFile(JarFile jarFile) throws IOException {
+        if (jarFile instanceof UnpackedJarFile) {
+            return ((UnpackedJarFile) jarFile).getBaseDir();
+        } else {
+        	throw new IOException("jarFile is not a directory");
+        }
+    }
+
     // be careful with this method as it can leave a temp lying around
     public static File toFile(JarFile jarFile, String path) throws IOException {
         if (jarFile instanceof UnpackedJarFile) {
@@ -148,6 +158,19 @@ public final class DeploymentUtil {
     }
 
     public static URL createJarURL(JarFile jarFile, String path) throws MalformedURLException {
+        if (jarFile instanceof NestedJarFile) {
+            NestedJarFile nestedJar = (NestedJarFile) jarFile;
+            if (nestedJar.isUnpacked()) {
+                JarFile baseJar = nestedJar.getBaseJar();
+                String basePath = nestedJar.getBasePath();
+                if (baseJar instanceof UnpackedJarFile) {
+                    File baseDir = ((UnpackedJarFile) baseJar).getBaseDir();
+                    baseDir = new File(baseDir, basePath);
+                    return new File(baseDir, path).toURL();
+                }
+            }
+        }
+        
         if (jarFile instanceof UnpackedJarFile) {
             File baseDir = ((UnpackedJarFile) jarFile).getBaseDir();
             return new File(baseDir, path).toURL();
@@ -220,7 +243,42 @@ public final class DeploymentUtil {
         }
     }
 
-    public static boolean recursiveDelete(File root) {
+    public static void unzipToDirectory(ZipFile zipFile, File destDir) throws IOException {
+        Enumeration entries = zipFile.entries();
+        try {
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = (ZipEntry) entries.nextElement();
+                if (entry.isDirectory()) {
+                    File dir = new File(destDir, entry.getName());
+                    boolean success = dir.mkdirs();
+                    if (!success) {
+                        throw new IOException("Cannot create directory " + dir.getAbsolutePath());
+                    }
+                } else {
+                    File file = new File(destDir, entry.getName());
+                    OutputStream out = null;
+                    InputStream in = null;
+                    try {
+                        out = new BufferedOutputStream(new FileOutputStream(file));
+                        in = zipFile.getInputStream(entry);
+                        writeAll(in, out);
+                    } finally {
+                        if (null != out) {
+                            out.close();
+                        }
+                        if (null != in) {
+                            in.close();
+                        }
+                    }
+                }
+            }
+        } finally {
+            zipFile.close();
+        }
+    }
+    
+    
+    public static boolean recursiveDelete(File root, Collection unableToDeleteCollection) {
         if (root == null) {
             return true;
         }
@@ -233,12 +291,18 @@ public final class DeploymentUtil {
                     if (file.isDirectory()) {
                         recursiveDelete(file);
                     } else {
-                        file.delete();
+                        if (!file.delete() && unableToDeleteCollection != null) {
+                            unableToDeleteCollection.add(file);    
+                        }
                     }
                 }
             }
         }
         return root.delete();
+    }
+    
+    public static boolean recursiveDelete(File root) {
+        return recursiveDelete(root,null);
     }
 
     public static Collection listRecursiveFiles(File file) {
@@ -253,10 +317,9 @@ public final class DeploymentUtil {
             return;
         }
         for (int i = 0; i < files.length; i++) {
+            collection.add(files[i]);
             if (files[i].isDirectory()) {
                 listRecursiveFiles(files[i], collection);
-            } else {
-                collection.add(files[i]);
             }
         }
     }

@@ -17,17 +17,6 @@
 
 package org.apache.geronimo.plugin.assembly;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.net.URI;
-import java.net.URL;
-
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.system.repository.FileSystemRepository;
-
 /**
  * JellyBean that installs configuration artifacts into a repository based ConfigurationStore,  It also copies all
  * configuration dependencies into the repository
@@ -35,62 +24,4 @@ import org.apache.geronimo.system.repository.FileSystemRepository;
  * @version $Rev$ $Date$
  */
 public class RepoConfigInstaller extends BaseConfigInstaller {
-
-    public void execute() throws Exception {
-        Repository sourceRepo = new InnerRepository();
-        URI rootURI = targetRoot.toURI().resolve(targetRepository);
-        FileSystemRepository targetRepo = new FileSystemRepository(rootURI, null);
-        InstallAdapter installAdapter = new CopyConfigStore(targetRepo);
-        targetRepo.doStart();
-
-        try {
-            execute(installAdapter, sourceRepo, targetRepo);
-        } finally {
-            targetRepo.doStop();
-        }
-
-    }
-
-    private static class CopyConfigStore implements InstallAdapter {
-
-        private final FileSystemRepository targetRepo;
-
-        public CopyConfigStore(FileSystemRepository targetRepo) {
-            this.targetRepo = targetRepo;
-        }
-
-        public GBeanData install(Repository sourceRepo, URI configId) throws IOException, InvalidConfigException {
-            URL sourceURL = sourceRepo.getURL(configId);
-            InputStream in = sourceURL.openStream();
-            try {
-                if (!targetRepo.hasURI(configId)) {
-                    targetRepo.copyToRepository(in, configId, new StartFileWriteMonitor());
-                }
-            } finally {
-                in.close();
-            }
-            URL targetURL = targetRepo.getURL(configId);
-            GBeanData config = new GBeanData();
-            URL baseURL = new URL("jar:" + targetURL.toString() + "!/");
-            InputStream jis = null;
-            try {
-                URL stateURL = new URL(baseURL, "META-INF/config.ser");
-                jis = stateURL.openStream();
-                ObjectInputStream ois = new ObjectInputStream(jis);
-                config.readExternal(ois);
-            } catch (ClassNotFoundException e) {
-                throw new InvalidConfigException("Unable to load class from config: " + configId, e);
-            } finally {
-                if (jis != null) {
-                    jis.close();
-                }
-            }
-            return config;
-        }
-
-        public boolean containsConfiguration(URI configID) {
-            return targetRepo.hasURI(configID);
-        }
-    }
-
 }

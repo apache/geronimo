@@ -20,7 +20,8 @@ package org.apache.geronimo.connector;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.management.ResourceAdapter;
+import org.apache.geronimo.management.geronimo.ResourceAdapter;
+import org.apache.geronimo.management.geronimo.JCAResource;
 
 public class ResourceAdapterImplGBean {
 
@@ -29,7 +30,8 @@ public class ResourceAdapterImplGBean {
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(ResourceAdapterImplGBean.class, ResourceAdapterImpl.class, NameFactory.RESOURCE_ADAPTER);
         infoBuilder.addAttribute("objectName", String.class, false);
-        infoBuilder.addAttribute("JCAResource", String.class, true);
+        infoBuilder.addReference("JCAResource", JCAResource.class, NameFactory.JCA_RESOURCE);
+        infoBuilder.addAttribute("JCAResources", String[].class, false);
         infoBuilder.addInterface(ResourceAdapter.class);
 
         infoBuilder.setConstructor(new String[]{

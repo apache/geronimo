@@ -45,7 +45,6 @@
             <xs:group ref="sys:classloader-include-infoGroup"/>
 
 
-            <xs:element ref="naming:gbean-ref" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element ref="naming:ejb-ref" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element ref="naming:service-ref" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element ref="naming:resource-ref" minOccurs="0" maxOccurs="unbounded"/>

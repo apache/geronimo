@@ -20,26 +20,34 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
-import java.util.List;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 385487 $ $Date$
  */
 public class AppClientModule extends Module {
+    private final Environment clientEnvironment;
     private JarFile earFile;
     private Collection resourceModules;
 
-    public AppClientModule(boolean standAlone, URI configId, List parentId, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
-        super(standAlone, configId, parentId, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null);
+
+    public AppClientModule(boolean standAlone, AbstractName moduleName, Environment serverEnvironment, Environment clientEnvironment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
+        super(standAlone, moduleName, serverEnvironment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null);
+        this.clientEnvironment = clientEnvironment;
     }
 
     public ConfigurationModuleType getType() {
         return ConfigurationModuleType.CAR;
+    }
+
+    public Environment getClientEnvironment() {
+        return clientEnvironment;
     }
 
     public JarFile getEarFile() {
@@ -51,7 +59,7 @@ public class AppClientModule extends Module {
     }
 
     public void addClass(URI location, String fqcn, byte[] bytes, DeploymentContext context) throws IOException, URISyntaxException {
-        context.addClass(location, fqcn, bytes, true);
+        context.addClass(location, fqcn, bytes);
     }
 
     public void setResourceModules(Collection resourceModules) {

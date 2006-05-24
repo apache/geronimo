@@ -17,29 +17,21 @@
 
 package org.apache.geronimo.deployment.plugin.local;
 
-import java.net.URI;
 import java.util.List;
-import java.util.Set;
-import java.util.ArrayList;
-import java.util.Iterator;
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.TargetModuleID;
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
 
+import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.gbean.AbstractName;
 
 /**
- *
- *
- * @version $Rev$ $Date$
+ * @version $Rev:392614 $ $Date$
  */
 public class StartCommand extends CommandSupport {
     private final Kernel kernel;
@@ -59,41 +51,40 @@ public class StartCommand extends CommandSupport {
                     TargetModuleID module = modules[i];
 
                     // Check to see whether the module is already started
-                    URI moduleID = URI.create(module.getModuleID());
-                    try {
-                        if(kernel.getGBeanState(Configuration.getConfigurationObjectName(moduleID)) == State.RUNNING_INDEX) {
-                            updateStatus("Module "+moduleID+" is already running");
-                            Thread.sleep(100);
-                            continue;
-                        }
-                    } catch (GBeanNotFoundException e) {
-                        // That means that the configuration may have been distributed but has not yet been loaded.
-                        // That's fine, we'll load it next.
+                    Artifact moduleID = Artifact.create(module.getModuleID());
+                    if (configurationManager.isRunning(moduleID)) {
+                        updateStatus("Module " + moduleID + " is already running");
+                        Thread.sleep(100);
+                        continue;
                     }
 
-                    // Load and start the module
-                    List list = configurationManager.loadRecursive(moduleID);
-                    for (int j = 0; j < list.size(); j++) {
-                        URI name = (URI) list.get(j);
-                        configurationManager.loadGBeans(name);
-                        configurationManager.start(name);
-                        String configName = name.toString();
-                        List kids = loadChildren(kernel, configName);
-                        TargetModuleIDImpl id = new TargetModuleIDImpl(modules[i].getTarget(), configName,
-                                (String[]) kids.toArray(new String[kids.size()]));
-                        if(isWebApp(kernel, configName)) {
-                            id.setType(ModuleType.WAR);
-                        }
-                        if(id.getChildTargetModuleID() != null) {
-                            for (int k = 0; k < id.getChildTargetModuleID().length; k++) {
-                                TargetModuleIDImpl child = (TargetModuleIDImpl) id.getChildTargetModuleID()[k];
-                                if(isWebApp(kernel, child.getModuleID())) {
-                                    child.setType(ModuleType.WAR);
-                                }
+                    // Load
+                    if(!configurationManager.isLoaded(moduleID)) {
+                        configurationManager.loadConfiguration(moduleID);
+                    }
+
+                    // Start
+                    configurationManager.startConfiguration(moduleID);
+
+                    // Determine the child modules of the configuration
+                    //TODO might be a hack
+                    List kids = loadChildren(kernel, moduleID.toString());
+
+                    // Build a response obect containg the started configuration and a list of it's contained modules
+                    TargetModuleIDImpl id = new TargetModuleIDImpl(modules[i].getTarget(), module.getModuleID(),
+                            (String[]) kids.toArray(new String[kids.size()]));
+                    if (isWebApp(kernel, moduleID.toString())) {
+                        id.setType(ModuleType.WAR);
+                    }
+                    if (id.getChildTargetModuleID() != null) {
+                        for (int k = 0; k < id.getChildTargetModuleID().length; k++) {
+                            TargetModuleIDImpl child = (TargetModuleIDImpl) id.getChildTargetModuleID()[k];
+                            if (isWebApp(kernel, child.getModuleID())) {
+                                child.setType(ModuleType.WAR);
                             }
                         }
-                        addModule(id);
                     }
+                    addModule(id);
                 }
             } finally {
                 ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);

@@ -21,12 +21,14 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
+
 import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
 
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deploy.DistinguishedName;
 import org.apache.geronimo.security.deploy.LoginDomainPrincipalInfo;
@@ -47,10 +49,6 @@ import org.apache.geronimo.xbeans.geronimo.security.GerRealmPrincipalType;
 import org.apache.geronimo.xbeans.geronimo.security.GerRoleMappingsType;
 import org.apache.geronimo.xbeans.geronimo.security.GerRoleType;
 import org.apache.geronimo.xbeans.geronimo.security.GerSecurityType;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.common.DeploymentException;
 
 
 /**
@@ -151,7 +149,7 @@ public class SecurityBuilder {
     }
 
     private static Security buildSecurityConfig(GerSecurityType securityType) {
-        Security security = null;
+        Security security;
 
         if (securityType == null) {
             return null;
@@ -188,7 +186,7 @@ public class SecurityBuilder {
                 for (int j = 0; j < roleType.sizeOfDistinguishedNameArray(); j++) {
                     GerDistinguishedNameType dnType = roleType.getDistinguishedNameArray(j);
 
-                    role.getDistinguishedNames().add(new DistinguishedName(dnType.getName(), dnType.getDesignatedRunAs()));
+                    role.getDistinguishedNames().add(new DistinguishedName(dnType.getName().trim(), dnType.getDesignatedRunAs()));
                 }
 
                 security.getRoleMappings().put(roleName, role);
@@ -210,7 +208,7 @@ public class SecurityBuilder {
             Set defaultCredentialSet = new HashSet();
             for (int i = 0; i < namedCredentials.length; i++) {
                 GerNamedUsernamePasswordCredentialType namedCredentialType = namedCredentials[i];
-                NamedUsernamePasswordCredential namedCredential = new NamedUsernamePasswordCredential(namedCredentialType.getUsername(), namedCredentialType.getPassword().toCharArray(), namedCredentialType.getName());
+                NamedUsernamePasswordCredential namedCredential = new NamedUsernamePasswordCredential(namedCredentialType.getUsername().trim(), namedCredentialType.getPassword().trim().toCharArray(), namedCredentialType.getName().trim());
                 defaultCredentialSet.add(namedCredential);
             }
             defaultPrincipal.setNamedUserPasswordCredentials(defaultCredentialSet);
@@ -220,33 +218,31 @@ public class SecurityBuilder {
 
     //used from TSSConfigEditor
     public static RealmPrincipalInfo buildRealmPrincipal(GerRealmPrincipalType realmPrincipalType) {
-        return new RealmPrincipalInfo(realmPrincipalType.getDomainName(), realmPrincipalType.getRealmName(), realmPrincipalType.getClass1(), realmPrincipalType.getName(), realmPrincipalType.isSetDesignatedRunAs());
+        return new RealmPrincipalInfo(realmPrincipalType.getDomainName().trim(), realmPrincipalType.getRealmName().trim(), realmPrincipalType.getClass1().trim(), realmPrincipalType.getName().trim(), realmPrincipalType.isSetDesignatedRunAs());
     }
 
     public static LoginDomainPrincipalInfo buildDomainPrincipal(GerLoginDomainPrincipalType domainPrincipalType) {
-        return new LoginDomainPrincipalInfo(domainPrincipalType.getDomainName(), domainPrincipalType.getClass1(), domainPrincipalType.getName(), domainPrincipalType.isSetDesignatedRunAs());
+        return new LoginDomainPrincipalInfo(domainPrincipalType.getDomainName().trim(), domainPrincipalType.getClass1().trim(), domainPrincipalType.getName().trim(), domainPrincipalType.isSetDesignatedRunAs());
     }
 
     public static PrincipalInfo buildPrincipal(GerPrincipalType principalType) {
-        return new PrincipalInfo(principalType.getClass1(), principalType.getName(), principalType.isSetDesignatedRunAs());
+        return new PrincipalInfo(principalType.getClass1().trim(), principalType.getName().trim(), principalType.isSetDesignatedRunAs());
     }
 
-    public static void configureApplicationPolicyManager(ObjectName name, Map contextIDToPermissionsMap, SecurityConfiguration securityConfiguration, J2eeContext appJ2eeContext, DeploymentContext deploymentContext) throws DeploymentException {
-        ObjectName roleMapperName = null;
-        try {
-            roleMapperName = NameFactory.getComponentName(null, null, null, null, "RoleMapper", "RoleMapper", appJ2eeContext);
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Could not construct mapper object name", e);
-        }
+    public static GBeanData configureRoleMapper(Naming naming, AbstractName moduleName, SecurityConfiguration securityConfiguration) {
+        AbstractName roleMapperName = naming.createChildName(moduleName, "RoleMapper", "RoleMapper");
         GBeanData roleMapperData = new GBeanData(roleMapperName, ApplicationPrincipalRoleConfigurationManager.GBEAN_INFO);
         roleMapperData.setAttribute("principalRoleMap", securityConfiguration.getPrincipalRoleMap());
-        deploymentContext.addGBean(roleMapperData);
+        return roleMapperData;
+    }
 
-        GBeanData jaccBeanData = new GBeanData(name, ApplicationPolicyConfigurationManager.GBEAN_INFO);
+    public static GBeanData configureApplicationPolicyManager(Naming naming, AbstractName moduleName, Map contextIDToPermissionsMap, SecurityConfiguration securityConfiguration) {
+        AbstractName jaccBeanName = naming.createChildName(moduleName, NameFactory.JACC_MANAGER, NameFactory.JACC_MANAGER);
+        GBeanData jaccBeanData = new GBeanData(jaccBeanName, ApplicationPolicyConfigurationManager.GBEAN_INFO);
         jaccBeanData.setAttribute("contextIdToPermissionsMap", contextIDToPermissionsMap);
         jaccBeanData.setAttribute("roleDesignates", securityConfiguration.getRoleDesignates());
-        jaccBeanData.setReferencePattern("PrincipalRoleMapper", roleMapperName);
-        deploymentContext.addGBean(jaccBeanData);
+//        jaccBeanData.setReferencePattern("PrincipalRoleMapper", roleMapperName);
+        return jaccBeanData;
 
     }
 

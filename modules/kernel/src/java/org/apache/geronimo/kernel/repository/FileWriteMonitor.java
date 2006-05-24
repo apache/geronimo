@@ -22,7 +22,23 @@ package org.apache.geronimo.kernel.repository;
  * @version $Rev$ $Date$
  */
 public interface FileWriteMonitor {
-    public void writeStarted(String fileDescription);
+    /**
+     * @param fileSize If it's known ahead of time, this is the total size of
+     *                 the file to be written.  This would typically be the
+     *                 case for a copy operation, for example, but not
+     *                 necessarily for a download.  If the file size is not
+     *                 known, this will be set to a negative number.
+     */
+    public void writeStarted(String fileDescription, int fileSize);
+
+    /**
+     * The running count of bytes written.
+     */
     public void writeProgress(int bytes);
+
+    /**
+     * Indicates that the write completed with the specified number
+     * of total bytes.
+     */
     public void writeComplete(int bytes);
 }

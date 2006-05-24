@@ -22,8 +22,6 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
 
 import org.activeio.Packet;
 import org.activeio.RequestChannel;
@@ -36,15 +34,15 @@ import org.activeio.net.SocketMetadata;
 import org.activeio.net.SocketSyncChannelFactory;
 import org.activeio.packet.ByteArrayPacket;
 
-import org.apache.geronimo.interceptor.Interceptor;
-import org.apache.geronimo.interceptor.Invocation;
-import org.apache.geronimo.interceptor.InvocationResult;
+import org.apache.geronimo.core.service.Interceptor;
+import org.apache.geronimo.core.service.Invocation;
+import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.kernel.ObjectInputStreamExt;
 
 /**
  * @version $Rev$ $Date$
  */
-public class RequestChannelInterceptor implements Interceptor, InvocationHandler {
+public class RequestChannelInterceptor implements Interceptor {
 
     private final ClassLoader cl;
     private final URI target;
@@ -54,16 +52,6 @@ public class RequestChannelInterceptor implements Interceptor, InvocationHandler
         this.cl = cl;
     }
 
-
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        Invocation invocation = new SerializableInvocation(method, args, proxy);
-        InvocationResult result = invoke(invocation);
-        if( result.isException() ) {
-            throw result.getException();
-        }
-        return result.getResult();
-    }
-
     public InvocationResult invoke(Invocation invocation) throws Throwable {
 
         ClassLoader originalLoader = Thread.currentThread().getContextClassLoader();
@@ -71,18 +59,18 @@ public class RequestChannelInterceptor implements Interceptor, InvocationHandler
 
             RequestChannel channel = createRequestChannel(target);
             Packet response;
-            try {
+            try { 
                 channel.start();
                 Packet request = serialize(invocation);
                 response = channel.request(request, Service.WAIT_FOREVER_TIMEOUT);
             } finally {
-                channel.dispose();
+                channel.dispose();                
             }
-
+            
             Object obj;
-            try {
+            try {            
                 obj =  deserialize(response, cl);
-            } catch ( ClassNotFoundException e ) {
+            } catch ( ClassNotFoundException e ) { 
                 // Weird.
                 Thread.currentThread().setContextClassLoader(RequestChannelInterceptor.class.getClassLoader());
                 response.clear();
@@ -94,20 +82,20 @@ public class RequestChannelInterceptor implements Interceptor, InvocationHandler
                 throw ((RequestChannelInterceptorInvoker.ThrowableWrapper) obj).exception;
             }
             return (InvocationResult)obj;
-
+            
         } finally {
             Thread.currentThread().setContextClassLoader(originalLoader);
         }
     }
-
+    
     private static RequestChannel createRequestChannel(URI target) throws IOException, URISyntaxException {
         SocketSyncChannelFactory factory = new SocketSyncChannelFactory();
         SyncChannel channel = factory.openSyncChannel(target);
         SocketMetadata socket = (SocketMetadata) channel.narrow(SocketMetadata.class);
         socket.setTcpNoDelay(true);
         return new AsyncChannelToClientRequestChannel(
-                   new PacketAggregatingSyncChannel(
-                       channel));
+	               new PacketAggregatingSyncChannel(
+                       channel));        
     }
 
     /**

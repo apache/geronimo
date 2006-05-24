@@ -17,10 +17,10 @@
 package org.apache.geronimo.management.stats;
 
 import java.io.Serializable;
-import java.util.Map;
 import java.util.HashMap;
-import javax.management.j2ee.statistics.Stats;
+import java.util.Map;
 import javax.management.j2ee.statistics.Statistic;
+import javax.management.j2ee.statistics.Stats;
 
 /**
  * Geronimo implementation of the JSR-77 Stats interface.  Dynamically tracks
@@ -38,6 +38,16 @@ public class StatsImpl implements Stats, Serializable {
 
     protected void addStat(String name, Statistic value) {
         stats.put(name, value);
+    }
+
+    /**
+     * Used when the available statistics are dynamic (e.g. depend on the
+     * current clients of the service, etc.).
+     * 
+     * @param name The statistic to remove
+     */
+    protected void removeStat(String name) {
+        stats.remove(name);
     }
 
     public Statistic getStatistic(String statisticName) {

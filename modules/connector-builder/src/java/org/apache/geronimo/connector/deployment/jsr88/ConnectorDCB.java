@@ -16,27 +16,26 @@
  */
 package org.apache.geronimo.connector.deployment.jsr88;
 
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.LinkedHashMap;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import javax.enterprise.deploy.model.DDBean;
-import javax.enterprise.deploy.model.XpathListener;
 import javax.enterprise.deploy.model.XpathEvent;
+import javax.enterprise.deploy.model.XpathListener;
 import javax.enterprise.deploy.spi.DConfigBean;
 import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
-
 import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
-import org.apache.geronimo.deployment.xbeans.DependencyType;
+import org.apache.geronimo.deployment.service.jsr88.EnvironmentData;
+import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
+import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorType;
 import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
-import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
-import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlCursor;
 
@@ -49,8 +48,8 @@ import org.apache.xmlbeans.XmlCursor;
 public class ConnectorDCB extends DConfigBeanSupport {
     private DDBean resourceAdapterDDBean;
     private ResourceAdapter[] resourceAdapter = new ResourceAdapter[0];
-    private Dependency[] dependency = new Dependency[0];
     private AdminObjectDCB[] adminobjects = new AdminObjectDCB[0];
+    private EnvironmentData environment;
 
     public ConnectorDCB(DDBean connectorDDBean, final GerConnectorType connector) {
         super(connectorDDBean, connector);
@@ -107,13 +106,13 @@ public class ConnectorDCB extends DConfigBeanSupport {
         //todo: Handle the hidden-classes children
         //todo: Handle the non-overridable-classes children
         // Handle the dependency children
-        DependencyType[] deps = connector.getDependencyArray();
-        if(deps != null && deps.length > 0) {
-            dependency = new Dependency[deps.length];
-            for (int i = 0; i < deps.length; i++) {
-                dependency[i] = new Dependency(deps[i]);
-            }
-        }
+//        ArtifactType[] deps = connector.getDependencyArray();
+//        if(deps != null && deps.length > 0) {
+//            dependency = new Artifact[deps.length];
+//            for (int i = 0; i < deps.length; i++) {
+//                dependency[i] = new Artifact(deps[i]);
+//            }
+//        }
         // Handle the resource adapter children
         GerResourceadapterType[] adapters = connector.getResourceadapterArray();
         if(adapters == null || adapters.length == 0) {
@@ -212,61 +211,25 @@ public class ConnectorDCB extends DConfigBeanSupport {
     // ----------------------- JavaBean Properties for /connector ----------------------
 
     //todo: the following child elements
-    // import*
-    // hidden-classes*
-    // non-overridable-classes*
     // gbean*
 
-    public String getConfigID() {
-        return getConnector().getConfigId();
+    public EnvironmentData getEnvironment() {
+        return environment;
     }
 
-    public void setConfigID(String configId) {
-        String old = getConfigID();
-        getConnector().setConfigId(configId);
-        pcs.firePropertyChange("configID", old, configId);
-    }
-
-    public String getParentID() {
-        return getConnector().getParentId();
-    }
-
-    public void setParentID(String parentId) {
-        String old = getParentID();
-        if(parentId == null) {
-            getConnector().unsetParentId();
-        } else {
-            getConnector().setParentId(parentId);
+    public void setEnvironment(EnvironmentData environment) {
+        EnvironmentData old = this.environment;
+        this.environment = environment;
+        if((old == null && environment == null) || (old != null&& old == environment)) {
+            return;
         }
-        pcs.firePropertyChange("parentID", old, parentId);
-    }
-
-    public Boolean getSuppressDefaultParentID() {
-        return getConnector().isSetSuppressDefaultParentId() ? getConnector().getSuppressDefaultParentId() ? Boolean.TRUE : Boolean.FALSE : null;
-    }
-
-    public void setSuppressDefaultParentID(Boolean suppress) {
-        Boolean old = getSuppressDefaultParentID();
-        if(suppress == null) {
-            getConnector().unsetSuppressDefaultParentId();
-        } else {
-            getConnector().setSuppressDefaultParentId(suppress.booleanValue());
+        if(old != null) {
+            getConnector().unsetEnvironment();
         }
-        pcs.firePropertyChange("suppressDefaultParentID", old, suppress);
-    }
-
-    public Boolean getInverseClassLoading() {
-        return getConnector().isSetInverseClassloading() ? getConnector().getInverseClassloading() ? Boolean.TRUE : Boolean.FALSE : null;
-    }
-
-    public void setInverseClassLoading(Boolean inverse) {
-        Boolean old = getInverseClassLoading();
-        if(inverse == null) {
-            getConnector().unsetInverseClassloading();
-        } else {
-            getConnector().setInverseClassloading(inverse.booleanValue());
+        if(environment != null) {
+            environment.configure(getConnector().addNewEnvironment());
         }
-        pcs.firePropertyChange("inverseClassLoading", old, inverse);
+        pcs.firePropertyChange("environment", old, environment);
     }
 
     public ResourceAdapter[] getResourceAdapter() {
@@ -314,53 +277,6 @@ public class ConnectorDCB extends DConfigBeanSupport {
             ra.configure(resourceAdapterDDBean, getConnector().addNewResourceadapter());
         }
         pcs.firePropertyChange("resourceAdapter", old, resourceAdapter);
-    }
-
-    public Dependency[] getDependency() {
-        return dependency;
-    }
-
-    public void setDependency(Dependency[] dependency) {
-        Dependency[] old = this.dependency;
-        Set before = new HashSet();
-        for (int i = 0; i < old.length; i++) {
-            before.add(old[i]);
-        }
-        this.dependency = dependency;
-        // Handle current or new resource adapters
-        for (int i = 0; i < dependency.length; i++) {
-            Dependency dep = dependency[i];
-            if(dep.getDependency() == null) {
-                dep.configure(getConnector().addNewDependency());
-            } else {
-                before.remove(dep);
-            }
-        }
-        // Handle removed resource adapters
-        for (Iterator it = before.iterator(); it.hasNext();) {
-            Dependency dep = (Dependency) it.next();
-            DependencyType all[] = getConnector().getDependencyArray();
-            for (int i = 0; i < all.length; i++) {
-                if(all[i] == dep) {
-                    getConnector().removeDependency(i);
-                    break;
-                }
-            }
-        }
-        pcs.firePropertyChange("dependency", old, dependency);
-    }
-
-    public Dependency getDependency(int index) {
-        return dependency[index];
-    }
-
-    public void setDependency(int index, Dependency dep) {
-        Dependency[] old = this.dependency;
-        dependency[index] = dep;
-        if(dep.getDependency() == null) {
-            dep.configure(getConnector().addNewDependency());
-        }
-        pcs.firePropertyChange("dependency", old, dependency);
     }
 
 

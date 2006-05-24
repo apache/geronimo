@@ -1,6 +1,7 @@
 package org.apache.geronimo.connector.deployment;
 
 import java.io.File;
+import java.net.URL;
 
 import javax.xml.namespace.QName;
 
@@ -18,13 +19,14 @@ import org.apache.xmlbeans.XmlObject;
  */
 public class PlanParsingTest extends TestCase {
     private final static QName CONNECTOR_QNAME = GerConnectorDocument.type.getDocumentElementName();
+    private ClassLoader classLoader = this.getClass().getClassLoader();
 
     File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
 
     public void testLoadGeronimoDeploymentDescriptor10() throws Exception {
-        File geronimoDD = new File(basedir, "src/test-data/connector_1_0/geronimo-ra.xml");
-        assertTrue(geronimoDD.exists());
-        XmlObject plan = XmlBeansUtil.parse(geronimoDD.toURL());
+        URL srcXml = classLoader.getResource("connector_1_0/geronimo-ra.xml");
+//        File geronimoDD = new File(basedir, "src/test-data/connector_1_0/geronimo-ra.xml");
+        XmlObject plan = XmlBeansUtil.parse(srcXml);
         GerConnectorDocument connectorDocument = (GerConnectorDocument) plan.changeType(GerConnectorDocument.type);
         GerConnectorType connector = (GerConnectorType) SchemaConversionUtils.fixGeronimoSchema(connectorDocument, CONNECTOR_QNAME, GerConnectorType.type);
         SchemaConversionUtils.validateDD(connector);
@@ -32,28 +34,31 @@ public class PlanParsingTest extends TestCase {
     }
 
     public void testLoadJ2eeDeploymentDescriptor() throws Exception {
-        File j2eeDD = new File(basedir, "src/test-data/connector_1_5/ra.xml");
-        assertTrue(j2eeDD.exists());
-        XmlObject plan = XmlBeansUtil.parse(j2eeDD.toURL());
+        URL srcXml = classLoader.getResource("connector_1_5/ra.xml");
+//        File j2eeDD = new File(basedir, "src/test-data/connector_1_5/ra.xml");
+//        assertTrue(j2eeDD.exists());
+        XmlObject plan = XmlBeansUtil.parse(srcXml);
         ConnectorDocument connectorDocument = (ConnectorDocument) plan.changeType(ConnectorDocument.type);
         assertNotNull(connectorDocument.getConnector().getResourceadapter());
         SchemaConversionUtils.validateDD(connectorDocument);
     }
 
     public void testLoadGeronimoDeploymentDescriptor15() throws Exception {
-        File geronimoDD = new File(basedir, "src/test-data/connector_1_5/geronimo-ra.xml");
-        assertTrue(geronimoDD.exists());
-        XmlObject plan = XmlBeansUtil.parse(geronimoDD.toURL());
+        URL srcXml = classLoader.getResource("connector_1_5/geronimo-ra.xml");
+//        File geronimoDD = new File(basedir, "src/test-data/connector_1_5/geronimo-ra.xml");
+//        assertTrue(geronimoDD.exists());
+        XmlObject plan = XmlBeansUtil.parse(srcXml);
         GerConnectorDocument connectorDocument = (GerConnectorDocument) plan.changeType(GerConnectorDocument.type);
         GerConnectorType connector = (GerConnectorType) SchemaConversionUtils.fixGeronimoSchema(connectorDocument, CONNECTOR_QNAME, GerConnectorType.type);
         assertEquals(1, connector.getResourceadapterArray().length);
     }
 
     public void testResourceAdapterNameUniqueness() throws Exception {
-        File resourcePlan = new File(basedir, "src/test-data/data/dup-resourceadapter-name.xml");
-        assertTrue(resourcePlan.exists());
+        URL srcXml = classLoader.getResource("data/dup-resourceadapter-name.xml");
+//        File resourcePlan = new File(basedir, "src/test-data/data/dup-resourceadapter-name.xml");
+//        assertTrue(resourcePlan.exists());
 
-        XmlObject plan = XmlBeansUtil.parse(resourcePlan.toURL());
+        XmlObject plan = XmlBeansUtil.parse(srcXml);
         GerConnectorDocument doc = (GerConnectorDocument) plan.changeType(GerConnectorDocument.type);
         if (doc == null) {
             doc = (GerConnectorDocument) plan;
@@ -67,10 +72,11 @@ public class PlanParsingTest extends TestCase {
     }
 
     public void testConnectionFactoryNameUniqueness() throws Exception {
-        File resourcePlan = new File(basedir, "src/test-data/data/dup-connectionfactoryinstance-name.xml");
-        assertTrue(resourcePlan.exists());
+        URL srcXml = classLoader.getResource("data/dup-connectionfactoryinstance-name.xml");
+//        File resourcePlan = new File(basedir, "src/test-data/data/dup-connectionfactoryinstance-name.xml");
+//        assertTrue(resourcePlan.exists());
 
-        XmlObject plan = XmlBeansUtil.parse(resourcePlan.toURL());
+        XmlObject plan = XmlBeansUtil.parse(srcXml);
         GerConnectorDocument doc = (GerConnectorDocument) plan.changeType(GerConnectorDocument.type);
         if (doc == null) {
             doc = (GerConnectorDocument) plan;
@@ -84,10 +90,11 @@ public class PlanParsingTest extends TestCase {
     }
 
     public void testAdminObjectNameUniqueness() throws Exception {
-        File resourcePlan = new File(basedir, "src/test-data/data/dup-admin-object-name.xml");
-        assertTrue(resourcePlan.exists());
+        URL srcXml = classLoader.getResource("data/dup-admin-object-name.xml");
+//        File resourcePlan = new File(basedir, "src/test-data/data/dup-admin-object-name.xml");
+//        assertTrue(resourcePlan.exists());
 
-        XmlObject plan = XmlBeansUtil.parse(resourcePlan.toURL());
+        XmlObject plan = XmlBeansUtil.parse(srcXml);
         GerConnectorDocument doc = (GerConnectorDocument) plan.changeType(GerConnectorDocument.type);
         if (doc == null) {
             doc = (GerConnectorDocument) plan;
@@ -101,10 +108,11 @@ public class PlanParsingTest extends TestCase {
     }
 
     public void testRectifyPlan() throws Exception {
-        File resourcePlan = new File(basedir, "src/test-data/data/old-schema-plan.xml");
-        assertTrue(resourcePlan.exists());
+        URL srcXml = classLoader.getResource("data/old-schema-plan.xml");
+//        File resourcePlan = new File(basedir, "src/test-data/data/old-schema-plan.xml");
+//        assertTrue(resourcePlan.exists());
 
-        XmlObject plan = XmlBeansUtil.parse(resourcePlan.toURL());
+        XmlObject plan = XmlBeansUtil.parse(srcXml);
         GerConnectorDocument doc = (GerConnectorDocument) plan.changeType(GerConnectorDocument.type);
         if (doc == null) {
             doc = (GerConnectorDocument) plan;

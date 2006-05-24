@@ -16,9 +16,15 @@
     limitations under the License.
 -->
 
-<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.0"
-    configId="org/apache/geronimo/j2ee/deployment/test"
-    parentId="org/apache/geronimo/Server">
+<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1">
+    <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+        <moduleId>
+            <groupId>geronimo</groupId>
+            <artifactId>test-ear</artifactId>
+            <version>1.0</version>
+            <type>car</type>
+        </moduleId>
+    </environment>
 
     <resourceadapter>
         <outbound-resourceadapter>
@@ -77,7 +83,20 @@
     </resourceadapter>
 
     <!--normally this is in the j2ee-server-plan.xml.  It is included here so the gbeans can start in unit tests-->
-    <gbean name="ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean">
+    <gbean name="ConnectionTracker"
+           class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean">
     </gbean>
+
+    <gbean name="TransactionContextManager"
+            class="org.apache.geronimo.transaction.context.TransactionContextManagerGBean">
+ <!--
+         <reference name="TransactionManager">
+             <name>TransactionManager</name>
+         </reference>
+         <reference name="XidImporter">
+             <name>TransactionManager</name>
+         </reference>
+ -->
+     </gbean>
 
 </connector>

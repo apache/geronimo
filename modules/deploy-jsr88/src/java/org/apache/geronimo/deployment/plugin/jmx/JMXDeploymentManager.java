@@ -16,24 +16,11 @@
  */
 package org.apache.geronimo.deployment.plugin.jmx;
 
-import org.apache.geronimo.connector.deployment.RARConfigurer;
-import org.apache.geronimo.deployment.plugin.TargetImpl;
-import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
-import org.apache.geronimo.deployment.plugin.local.CommandSupport;
-import org.apache.geronimo.deployment.plugin.local.DistributeCommand;
-import org.apache.geronimo.deployment.plugin.local.RedeployCommand;
-import org.apache.geronimo.deployment.plugin.local.StartCommand;
-import org.apache.geronimo.deployment.plugin.local.StopCommand;
-import org.apache.geronimo.deployment.plugin.local.UndeployCommand;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.ConfigurationInfo;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.NoSuchStoreException;
-import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.web.deployment.WARConfigurer;
-
+import java.io.File;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import javax.enterprise.deploy.model.DeployableObject;
 import javax.enterprise.deploy.shared.DConfigBeanVersionType;
 import javax.enterprise.deploy.shared.ModuleType;
@@ -45,13 +32,24 @@ import javax.enterprise.deploy.spi.exceptions.DConfigBeanVersionUnsupportedExcep
 import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
 import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.enterprise.deploy.spi.status.ProgressObject;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import java.io.File;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import org.apache.geronimo.connector.deployment.RARConfigurer;
+import org.apache.geronimo.deployment.plugin.TargetImpl;
+import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
+import org.apache.geronimo.deployment.plugin.local.CommandSupport;
+import org.apache.geronimo.deployment.plugin.local.DistributeCommand;
+import org.apache.geronimo.deployment.plugin.local.RedeployCommand;
+import org.apache.geronimo.deployment.plugin.local.StartCommand;
+import org.apache.geronimo.deployment.plugin.local.StopCommand;
+import org.apache.geronimo.deployment.plugin.local.UndeployCommand;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ConfigurationInfo;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.NoSuchStoreException;
+import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.web.deployment.WARConfigurer;
 
 
 /**
@@ -65,7 +63,7 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
     protected void initialize(Kernel kernel) {
         this.kernel = kernel;
         configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
-        commandContext = new CommandContext(true, true, null, null);
+        commandContext = new CommandContext(true, true, null, null, false);
     }
 
     public void setAuthentication(String username, String password) {
@@ -95,7 +93,7 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
 
         Target[] targets = new Target[stores.size()];
         for (int i = 0; i < stores.size(); i++) {
-            ObjectName storeName = (ObjectName) stores.get(i);
+            AbstractName storeName = (AbstractName) stores.get(i);
             targets[i] = new TargetImpl(storeName, null);
         }
         return targets;
@@ -140,7 +138,7 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
             ArrayList result = new ArrayList();
             for (int i = 0; i < targetList.length; i++) {
                 TargetImpl target = (TargetImpl) targetList[i];
-                ObjectName storeName = target.getObjectName();
+                AbstractName storeName = target.getAbstractName();
                 List infos = configurationManager.listConfigurations(storeName);
                 for (int j = 0; j < infos.size(); j++) {
                     ConfigurationInfo info = (ConfigurationInfo) infos.get(j);
@@ -165,8 +163,6 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
             return result.size() == 0 ? null : (TargetModuleID[]) result.toArray(new TargetModuleID[result.size()]);
         } catch (NoSuchStoreException e) {
             throw (TargetException) new TargetException(e.getMessage()).initCause(e);
-        } catch (MalformedObjectNameException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -319,50 +315,8 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
         commandContext.setLogErrors(shouldLog);
         commandContext.setVerbose(verboseStatus);
     }
-
-    public static class CommandContext {
-        private boolean logErrors;
-        private boolean verbose;
-        private String username;
-        private String password;
-
-        private CommandContext(boolean logErrors, boolean verbose, String username, String password) {
-            this.logErrors = logErrors;
-            this.verbose = verbose;
-            this.username = username;
-            this.password = password;
-        }
-
-        public boolean isLogErrors() {
-            return logErrors;
-        }
-
-        public void setLogErrors(boolean logErrors) {
-            this.logErrors = logErrors;
-        }
-
-        public boolean isVerbose() {
-            return verbose;
-        }
-
-        public void setVerbose(boolean verbose) {
-            this.verbose = verbose;
-        }
-
-        private void setUsername(String username) {
-            this.username = username;
-        }
-
-        private void setPassword(String password) {
-            this.password = password;
-        }
-
-        public String getUsername() {
-            return username;
-        }
-
-        public String getPassword() {
-            return password;
-        }
+    
+    public void setInPlace(boolean inPlace) {
+        commandContext.setInPlace(inPlace);
     }
 }

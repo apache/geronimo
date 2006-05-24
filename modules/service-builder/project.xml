@@ -81,6 +81,12 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-deploy-config</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
@@ -141,6 +147,18 @@
             <artifactId>xml-resolver</artifactId>
             <version>${xml_resolver_version}</version>
             <url>http://xml.apache.org/commons</url>
+        </dependency>
+
+        <dependency>
+            <groupId>xstream</groupId>
+            <artifactId>xstream</artifactId>
+            <version>${xstream_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>xpp3</groupId>
+            <artifactId>xpp3</artifactId>
+            <version>${xpp3_version}</version>
         </dependency>
     </dependencies>
 

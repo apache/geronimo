@@ -54,6 +54,13 @@
             <version>${geronimo_spec_j2ee_deployment_version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-qname_1.1_spec</artifactId>
+            <version>${geronimo_spec_j2ee_deployment_version}</version>
+            <type>test</type>
+        </dependency>
+
         <!-- Thirdparty -->
 
         <dependency>
@@ -82,35 +89,18 @@
             <artifactId>mx4j</artifactId>
             <version>${mx4j_version}</version>
         </dependency>
-    </dependencies>
 
-    <build>
-        <resources>
-            <resource>
-                <directory>${basedir}/src/java</directory>
-                <includes>
-                    <include>**/*.xml</include>
-                    <include>**/*.properties</include>
-                </includes>
-            </resource>
-        </resources>
-        <unitTest>
-            <includes>
-                <include>**/*Test.java</include>
-            </includes>
-            <excludes>
-                <exclude>**/Abstract*.java</exclude>
-            </excludes>
-            <resources>
-                <resource>
-                    <directory>${basedir}/target/test-xdoclet/jmx/org/apache/geronimo/tools/xdoclet</directory>
-                    <targetPath>org/apache/geronimo/tools/xdoclet</targetPath>
-                    <includes>
-                        <include>*.xml</include>
-                    </includes>
-                </resource>
-            </resources>
-        </unitTest>
-    </build>
+        <dependency>
+            <groupId>xstream</groupId>
+            <artifactId>xstream</artifactId>
+            <version>${xstream_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>xpp3</groupId>
+            <artifactId>xpp3</artifactId>
+            <version>${xpp3_version}</version>
+        </dependency>
+    </dependencies>
 
 </project>

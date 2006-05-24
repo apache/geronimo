@@ -21,12 +21,10 @@ package org.apache.geronimo.security.jaas;
  */
 public interface JaasLoginModuleChain {
     /**
-     * Gets the ObjectName of the login module that this node in the
-     * chain corresponds to (a LoginModuleGBean).
-     *
-     * @return The ObjectName of the login module GBean, in String form.
+     * Gets the login module that this node in the chain corresponds to
+     * (a LoginModuleGBean).
      */
-    String getLoginModuleName();
+    LoginModuleSettings getLoginModule();
 
     /**
      * Gets the ObjectName of the next node in the chain after this one
@@ -35,7 +33,7 @@ public interface JaasLoginModuleChain {
      * @return The ObjectName of the next node, in String form, or null
      *         if this is the last.
      */
-    public String getNextName();
+    public JaasLoginModuleChain getNext();
 
     /**
      * The String form of the control flag for the login module at this

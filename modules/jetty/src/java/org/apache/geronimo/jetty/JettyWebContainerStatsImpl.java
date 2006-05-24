@@ -1,21 +1,22 @@
 package org.apache.geronimo.jetty;
 
+import org.apache.geronimo.management.stats.CountStatisticImpl;
+import org.apache.geronimo.management.stats.RangeStatisticImpl;
+import org.apache.geronimo.management.stats.StatisticImpl;
+import org.apache.geronimo.management.stats.StatsImpl;
+import org.apache.geronimo.management.stats.TimeStatisticImpl;
+
+import javax.management.j2ee.statistics.CountStatistic;
 import javax.management.j2ee.statistics.RangeStatistic;
 import javax.management.j2ee.statistics.TimeStatistic;
-import javax.management.j2ee.statistics.CountStatistic;
-import org.apache.geronimo.management.geronimo.stats.WebContainerStats;
-import org.apache.geronimo.management.stats.RangeStatisticImpl;
-import org.apache.geronimo.management.stats.TimeStatisticImpl;
-import org.apache.geronimo.management.stats.CountStatisticImpl;
-import org.apache.geronimo.management.stats.StatsImpl;
-import org.apache.geronimo.management.stats.StatisticImpl;
 
 /**
  * Jetty implementation of the Geronimo stats interface WebContainerStats
  *
  * @version $Revision: 1.0$
  */
-public class JettyWebContainerStatsImpl extends StatsImpl implements WebContainerStats {
+public class JettyWebContainerStatsImpl extends StatsImpl implements JettyWebContainerStats {
+    private CountStatisticImpl totalConnectionCount;
     private RangeStatisticImpl openConnectionCount;
     private RangeStatisticImpl connectionRequestCount;
     private TimeStatisticImpl connectionDuration;
@@ -23,8 +24,11 @@ public class JettyWebContainerStatsImpl extends StatsImpl implements WebContaine
     private CountStatisticImpl totalRequestCount;
     private RangeStatisticImpl activeRequestCount;
     private TimeStatisticImpl requestDuration;
+    private boolean statsOn=false;
 
     public JettyWebContainerStatsImpl() {
+        totalConnectionCount = new CountStatisticImpl("Total Connections", StatisticImpl.UNIT_COUNT,
+                "The total number of connections since last reset");
         openConnectionCount = new RangeStatisticImpl("Open Connections", StatisticImpl.UNIT_COUNT,
                 "The number of connections open at present");
         connectionRequestCount = new RangeStatisticImpl("Connection Request Count", StatisticImpl.UNIT_COUNT,
@@ -38,8 +42,9 @@ public class JettyWebContainerStatsImpl extends StatsImpl implements WebContaine
         activeRequestCount = new RangeStatisticImpl("Active Request Count", StatisticImpl.UNIT_COUNT,
                 "The number of requests being processed concurrently");
         requestDuration = new TimeStatisticImpl("Request Duration", StatisticImpl.UNIT_TIME_MILLISECOND,
-                "The legnth of time that it's taken to handle individual requests");
+                "The length of time that it's taken to handle individual requests");
 
+        addStat("TotalConnectionCount", totalConnectionCount);
         addStat("OpenConnectionCount", openConnectionCount);
         addStat("ConnectionRequestCount", connectionRequestCount);
         addStat("ConnectionDuration", connectionDuration);
@@ -48,6 +53,11 @@ public class JettyWebContainerStatsImpl extends StatsImpl implements WebContaine
         addStat("ActiveRequestCount", activeRequestCount);
         addStat("RequestDuration", requestDuration);
     }
+
+    public CountStatistic getTotalConnectionCount() {
+        return totalConnectionCount;
+    }
+
     public RangeStatistic getOpenConnectionCount() {
         return openConnectionCount;
     }
@@ -74,6 +84,18 @@ public class JettyWebContainerStatsImpl extends StatsImpl implements WebContaine
 
     public TimeStatistic getRequestDuration() {
         return requestDuration;
+    }
+
+    public boolean isStatsOn() {
+        return statsOn;
+    }
+
+    public void setStatsOn(boolean on) {
+        statsOn = on;
+    }
+
+    public CountStatisticImpl getTotalConnectionCountImpl() {
+        return totalConnectionCount;
     }
 
     public RangeStatisticImpl getOpenConnectionCountImpl() {

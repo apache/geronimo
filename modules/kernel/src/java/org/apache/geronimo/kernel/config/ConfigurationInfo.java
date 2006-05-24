@@ -17,10 +17,13 @@
 package org.apache.geronimo.kernel.config;
 
 import java.io.Serializable;
-import java.net.URI;
-import javax.management.ObjectName;
+import java.io.File;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
  * 
@@ -28,45 +31,74 @@ import org.apache.geronimo.kernel.management.State;
  * @version $Rev$ $Date$
  */
 public class ConfigurationInfo implements Serializable {
-    private final ObjectName storeName;
-    private final URI parentID;
-    private final URI configID;
-    private final State state;
+    private static final long serialVersionUID = -16555213664245560L;
+    private final AbstractName storeName;
+    private final Artifact configID;
     private final ConfigurationModuleType type;
+    private final long created;
+    private final File inPlaceLocation;
+    private final Set ownedConfigurations = new LinkedHashSet();
+    private final Set childConfigurations = new LinkedHashSet();
+    private final State state;
+    private final Artifact parentID;
 
-    public ConfigurationInfo(ObjectName storeName, URI configID, State state, ConfigurationModuleType type) {
-        this.storeName = storeName;
-        this.configID = configID;
-        this.state = state;
-        this.type = type;
-        this.parentID = null;
+    public ConfigurationInfo(AbstractName storeName, Artifact configID, ConfigurationModuleType type, long created, Set ownedConfigurations, Set childConfigurations, File inPlaceLocation) {
+        this(storeName, configID, type, created, ownedConfigurations, childConfigurations, inPlaceLocation, null, null);
     }
 
-    public ConfigurationInfo(ObjectName storeName, URI parentID, URI configID, State state, ConfigurationModuleType type) {
+    public ConfigurationInfo(AbstractName storeName, Artifact configID, ConfigurationModuleType type, long created, Set ownedConfigurations, Set childConfigurations, File inPlaceLocation, State state) {
+        this(storeName, configID, type, created, ownedConfigurations, childConfigurations, inPlaceLocation, state, null);
+    }
+
+    public ConfigurationInfo(AbstractName storeName, Artifact configID, ConfigurationModuleType type, long created, Set ownedConfigurations, Set childConfigurations, File inPlaceLocation, State state, Artifact parentID) {
         this.storeName = storeName;
+        this.configID = configID;
+        this.type = type;
+        this.created = created;
+        this.inPlaceLocation = inPlaceLocation;
+        if (ownedConfigurations != null) {
+            this.ownedConfigurations.addAll(ownedConfigurations);
+        }
+        if (childConfigurations != null) {
+            this.childConfigurations.addAll(childConfigurations);
+        }
+        this.state = state;
         this.parentID = parentID;
-        this.configID = configID;
-        this.state = state;
-        this.type = type;
     }
 
-    public ObjectName getStoreName() {
+    public AbstractName getStoreName() {
         return storeName;
     }
 
-    public URI getConfigID() {
+    public Artifact getConfigID() {
         return configID;
+    }
+
+    public ConfigurationModuleType getType() {
+        return type;
+    }
+
+    public long getCreated() {
+        return created;
+    }
+
+    public File getInPlaceLocation() {
+        return inPlaceLocation;
+    }
+
+    public Set getOwnedConfigurations() {
+        return ownedConfigurations;
+    }
+
+    public Set getChildConfigurations() {
+        return childConfigurations;
     }
 
     public State getState() {
         return state;
     }
-    
-    public ConfigurationModuleType getType() {
-        return type;
-    }
 
-    public URI getParentID() {
+    public Artifact getParentID() {
         return parentID;
     }
 }

@@ -19,7 +19,6 @@ package org.apache.geronimo.gbean;
 import java.beans.Introspector;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,6 +26,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Arrays;
+
+import org.apache.geronimo.kernel.ClassLoading;
+import org.apache.geronimo.kernel.Kernel;
 
 /**
  * @version $Rev$ $Date$
@@ -80,19 +83,6 @@ public class GBeanInfoBuilder {
         if (sourceClass == null) throw new NullPointerException("sourceClass is null");
         if (gbeanType == null) throw new NullPointerException("gbeanType is null");
         return createStatic(sourceClass, gbeanType.getName(), gbeanType, null, j2eeType);
-    }
-
-    public static GBeanInfoBuilder createStatic(Class sourceClass, Class gbeanType, GBeanInfo source, String j2eeType) {
-        if (sourceClass == null) throw new NullPointerException("sourceClass is null");
-        if (gbeanType == null) throw new NullPointerException("gbeanType is null");
-        return createStatic(sourceClass, gbeanType.getName(), gbeanType, source, j2eeType);
-    }
-
-    public static GBeanInfoBuilder createStatic(Class sourceClass, String name, Class gbeanType, String j2eeType) {
-        if (sourceClass == null) throw new NullPointerException("sourceClass is null");
-        if (name == null) throw new NullPointerException("name is null");
-        if (gbeanType == null) throw new NullPointerException("gbeanType is null");
-        return createStatic(sourceClass, name, gbeanType, null, j2eeType);
     }
 
     public static GBeanInfoBuilder createStatic(Class sourceClass, String name, Class gbeanType, GBeanInfo source, String j2eeType) {
@@ -206,6 +196,71 @@ public class GBeanInfoBuilder {
         } else {
             this.j2eeType = DEFAULT_J2EE_TYPE; //NameFactory.GERONIMO_SERVICE
         }
+
+        // add all interfaces based on GBean type
+        if (gbeanType.isArray()) {
+            throw new IllegalArgumentException("GBean is an array type: gbeanType=" + gbeanType.getName());
+        }
+        Set allTypes = ClassLoading.getAllTypes(gbeanType);
+        for (Iterator iterator = allTypes.iterator(); iterator.hasNext();) {
+            Class type = (Class) iterator.next();
+            addInterface(type);
+        }
+    }
+
+    public void setPersistentAttributes(String[] persistentAttributes) {
+        for (int i = 0; i < persistentAttributes.length; i++) {
+            String attributeName = persistentAttributes[i];
+            GAttributeInfo attribute = (GAttributeInfo) attributes.get(attributeName);
+            if (attribute != null && !references.containsKey(attributeName)) {
+                if (isMagicAttribute(attribute)) {
+                    // magic attributes can't be persistent
+                    continue;
+                }
+                attributes.put(attributeName,
+                        new GAttributeInfo(attributeName,
+                                attribute.getType(),
+                                true,
+                                attribute.isManageable(),
+                                attribute.getGetterName(),
+                                attribute.getSetterName()));
+            } else {
+                if (attributeName.equals("kernel")) {
+                    addAttribute("kernel", Kernel.class, false);
+                } else if (attributeName.equals("classLoader")) {
+                    addAttribute("classLoader", ClassLoader.class, false);
+                } else if (attributeName.equals("abstractName")) {
+                    addAttribute("abstractName", AbstractName.class, false);
+                } else if (attributeName.equals("objectName")) {
+                    addAttribute("obectName", String.class, false);
+                }
+            }
+        }
+    }
+
+    public void setManageableAttributes(String[] manageableAttributes) {
+        for (int i = 0; i < manageableAttributes.length; i++) {
+            String attributeName = manageableAttributes[i];
+            GAttributeInfo attribute = (GAttributeInfo) attributes.get(attributeName);
+            if (attribute != null) {
+                attributes.put(attributeName,
+                        new GAttributeInfo(attributeName,
+                                attribute.getType(),
+                                attribute.isPersistent(),
+                                true,
+                                attribute.getGetterName(),
+                                attribute.getSetterName()));
+            }
+        }
+    }
+
+    private boolean isMagicAttribute(GAttributeInfo attributeInfo) {
+        String name = attributeInfo.getName();
+        String type = attributeInfo.getType();
+        return ("kernel".equals(name) && Kernel.class.getName().equals(type)) ||
+                ("classLoader".equals(name) && ClassLoader.class.getName().equals(type)) ||
+                ("abstractName".equals(name) && AbstractName.class.getName().equals(type)) ||
+                ("objectName".equals(name) && String.class.getName().equals(type));
     }
 
     public void addInterface(Class intf) {
@@ -217,6 +272,7 @@ public class GBeanInfoBuilder {
     public void addInterface(Class intf, String[] persistentAttributes) {
         addInterface(intf, persistentAttributes, new String[0]);
     }
+
     public void addInterface(Class intf, String[] persistentAttributes, String[] manageableAttributes) {
         Set persistentNames = new HashSet(Arrays.asList(persistentAttributes));
         Set manageableNames = new HashSet(Arrays.asList(manageableAttributes));
@@ -237,13 +293,13 @@ public class GBeanInfoBuilder {
                                     null));
                 } else {
                     if (!attributeType.equals(attribute.getType())) {
-                        throw new IllegalArgumentException("Getter and setter type do not match: " + attributeName);
+                        throw new IllegalArgumentException("Getter and setter type do not match: " + attributeName + " for gbeanType: " + gbeanType.getName());
                     }
                     attributes.put(attributeName,
                             new GAttributeInfo(attributeName,
                                     attributeType,
-                                    attribute.isPersistent(),
-                                    attribute.isManageable(),
+                                    attribute.isPersistent() || persistentNames.contains(attributeName),
+                                    attribute.isManageable() || manageableNames.contains(attributeName),
                                     method.getName(),
                                     attribute.getSetterName()));
                 }
@@ -261,13 +317,13 @@ public class GBeanInfoBuilder {
                                     method.getName()));
                 } else {
                     if (!attributeType.equals(attribute.getType())) {
-                        throw new IllegalArgumentException("Getter and setter type do not match: " + attributeName);
+                        throw new IllegalArgumentException("Getter and setter type do not match: " + attributeName + " for gbeanType: " + gbeanType.getName());
                     }
                     attributes.put(attributeName,
                             new GAttributeInfo(attributeName,
                                     attributeType,
-                                    attribute.isPersistent(),
-                                    attribute.isManageable(),
+                                    attribute.isPersistent() || persistentNames.contains(attributeName),
+                                    attribute.isManageable() || manageableNames.contains(attributeName),
                                     attribute.getGetterName(),
                                     method.getName()));
                 }
@@ -275,9 +331,7 @@ public class GBeanInfoBuilder {
                 addOperation(new GOperationInfo(method.getName(), method.getParameterTypes()));
             }
         }
-        if(intf.isInterface()) {
-            addInterface(interfaces, intf);
-        }
+        addInterface(interfaces, intf);
     }
 
     private static void addInterface(Set set, Class intf) {
@@ -317,10 +371,13 @@ public class GBeanInfoBuilder {
     public void setConstructor(GConstructorInfo constructor) {
         assert constructor != null;
         this.constructor = constructor;
+        List names = constructor.getAttributeNames();
+        setPersistentAttributes((String[]) names.toArray(new String[names.size()]));
     }
 
     public void setConstructor(String[] names) {
         constructor = new GConstructorInfo(names);
+        setPersistentAttributes(names);
     }
 
     public void addOperation(GOperationInfo operationInfo) {
@@ -374,7 +431,7 @@ public class GBeanInfoBuilder {
                 if (setter == null) {
                     setter = searchForSetterMethod(referenceName, Collection.class.getName(), gbeanType);
                     if (setter == null) {
-                        throw new InvalidConfigurationException("Reference must be a constructor argument or have a setter: name=" + referenceName);
+                        throw new InvalidConfigurationException("Reference must be a constructor argument or have a setter: name=" + referenceName + " for gbeanType: " + gbeanType);
                     }
                 }
                 proxyType = setter.getParameterTypes()[0].getName();
@@ -383,7 +440,7 @@ public class GBeanInfoBuilder {
             }
 
             if (!proxyType.equals(Collection.class.getName()) && !proxyType.equals(referenceType)) {
-                throw new InvalidConfigurationException("Reference proxy type must be Collection or " + referenceType + ": name=" + referenceName);
+                throw new InvalidConfigurationException("Reference proxy type must be Collection or " + referenceType + ": name=" + referenceName + " for gbeanType: " + gbeanType.getName());
             }
 
             referenceInfos.add(new GReferenceInfo(referenceName, referenceType, proxyType, setterName, namingType));
@@ -398,14 +455,14 @@ public class GBeanInfoBuilder {
         boolean[] isReference = new boolean[arguments.size()];
         for (int i = 0; i < argumentTypes.length; i++) {
             String argumentName = (String) arguments.get(i);
-            if (attributes.containsKey(argumentName)) {
+            if (references.containsKey(argumentName)) {
+                argumentTypes[i] = ((RefInfo) references.get(argumentName)).getJavaType();
+                isReference[i] = true;
+            } else if (attributes.containsKey(argumentName)) {
                 GAttributeInfo attribute = (GAttributeInfo) attributes.get(argumentName);
                 argumentTypes[i] = attribute.getType();
                 isReference[i] = false;
-            } else if (references.containsKey(argumentName)) {
-                argumentTypes[i] = ((RefInfo) references.get(argumentName)).getJavaType();
-                isReference[i] = true;
-            }
+            }  
         }
 
         Constructor[] constructors = gbeanType.getConstructors();

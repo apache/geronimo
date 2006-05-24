@@ -385,6 +385,30 @@ limitations under the License.
     </portlet>
 
     <portlet>
+        <description>Portlet for configuring Thread Pools</description>
+        <portlet-name>ThreadPool</portlet-name>
+        <display-name>Thread Pool Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.threads.ThreadPoolPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+<!--            <portlet-mode>HELP</portlet-mode>-->
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>Thread Pool Configuration</title>
+            <short-title>Thread Pools</short-title>
+            <keywords>Thread Pool</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
         <description>Portlet for displaying J2CA server info</description>
         <portlet-name>J2CAServer</portlet-name>
         <display-name>J2CA Server Portlet</display-name>

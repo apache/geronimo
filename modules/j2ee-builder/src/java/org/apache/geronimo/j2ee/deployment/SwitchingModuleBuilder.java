@@ -16,9 +16,25 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.deployment.ModuleIDBuilder;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.ReferenceCollection;
+import org.apache.geronimo.gbean.ReferenceCollectionEvent;
+import org.apache.geronimo.gbean.ReferenceCollectionListener;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
+
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
@@ -26,31 +42,18 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.jar.JarFile;
 
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.ReferenceCollection;
-import org.apache.geronimo.gbean.ReferenceCollectionEvent;
-import org.apache.geronimo.gbean.ReferenceCollectionListener;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
-
 /**
- * @version $Rev$ $Date$
+ * @version $Rev:386276 $ $Date$
  */
 public class SwitchingModuleBuilder implements ModuleBuilder {
 
-    private final ReferenceCollection builders;
     private final Map namespaceToBuilderMap = new HashMap();
 
     private String defaultNamespace;
 
     public SwitchingModuleBuilder(Collection builders) {
-        this.builders = (ReferenceCollection) builders;
-        this.builders.addReferenceCollectionListener(new ReferenceCollectionListener() {
+        ReferenceCollection buildersCollection = (ReferenceCollection) builders;
+        buildersCollection.addReferenceCollectionListener(new ReferenceCollectionListener() {
             public void memberAdded(ReferenceCollectionEvent event) {
                 ModuleBuilder builder = (ModuleBuilder) event.getMember();
                 String namespace = builder.getSchemaNamespace();
@@ -79,7 +82,7 @@ public class SwitchingModuleBuilder implements ModuleBuilder {
         this.defaultNamespace = defaultNamespace;
     }
 
-    public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
+    public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         String namespace;
         if (plan == null) {
             namespace = defaultNamespace;
@@ -88,7 +91,7 @@ public class SwitchingModuleBuilder implements ModuleBuilder {
         }
         ModuleBuilder builder = getBuilderFromNamespace(namespace);
         if (builder != null) {
-            return builder.createModule(plan, moduleFile);
+            return builder.createModule(plan, moduleFile, naming, idBuilder);
         } else {
             return null;
         }
@@ -113,8 +116,7 @@ public class SwitchingModuleBuilder implements ModuleBuilder {
         try {
             while (cursor.hasNextToken()){
                 if (cursor.isStart()) {
-                    String namespace = cursor.getName().getNamespaceURI();
-                    return namespace;
+                    return cursor.getName().getNamespaceURI();
                 }
                 cursor.toNextToken();
             }
@@ -132,20 +134,20 @@ public class SwitchingModuleBuilder implements ModuleBuilder {
         return builder;
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId, Object moduleContextInfo) throws DeploymentException {
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         String namespace = getNamespaceFromPlan(plan);
         ModuleBuilder builder = getBuilderFromNamespace(namespace);
         if (builder != null) {
-            return builder.createModule(plan, moduleFile, targetPath, specDDUrl, earConfigId, moduleContextInfo);
+            return builder.createModule(plan, moduleFile, targetPath, specDDUrl, environment, moduleContextInfo, earName, naming, idBuilder);
         } else {
             return null;
         }
     }
 
-    public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
+    public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repositories) throws DeploymentException {
         String namespace = module.getNamespace();
         ModuleBuilder builder = getBuilderFromNamespace(namespace);
-        builder.installModule(earFile, earContext, module);
+        builder.installModule(earFile, earContext, module, configurationStores, targetConfigurationStore, repositories);
     }
 
     public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
@@ -154,10 +156,10 @@ public class SwitchingModuleBuilder implements ModuleBuilder {
         builder.initContext(earContext, module, cl);
     }
 
-    public void addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
+    public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Collection repositories) throws DeploymentException {
         String namespace = module.getNamespace();
         ModuleBuilder builder = getBuilderFromNamespace(namespace);
-        builder.addGBeans(earContext, module, cl);
+        builder.addGBeans(earContext, module, cl, repositories);
     }
 
     public String getSchemaNamespace() {

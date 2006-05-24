@@ -17,6 +17,8 @@
 
 package org.apache.geronimo.gbean.runtime;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
@@ -24,6 +26,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,21 +34,32 @@ import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.*;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.GConstructorInfo;
+import org.apache.geronimo.gbean.GOperationInfo;
+import org.apache.geronimo.gbean.GOperationSignature;
+import org.apache.geronimo.gbean.GReferenceInfo;
+import org.apache.geronimo.gbean.InvalidConfigurationException;
+import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.DependencyManager;
-import org.apache.geronimo.kernel.NoSuchAttributeException;
-import org.apache.geronimo.kernel.NoSuchOperationException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.NoSuchAttributeException;
+import org.apache.geronimo.kernel.NoSuchOperationException;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.config.ManageableAttributeStore;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.management.StateManageable;
 
 /**
  * A GBeanInstance is a J2EE Management Managed Object, and is standard base for Geronimo services.
  *
- * @version $Rev$ $Date$
+ * @version $Rev:385718 $ $Date$
  */
 public final class GBeanInstance implements StateManageable {
     private static final Log log = LogFactory.getLog(GBeanInstance.class);
@@ -55,7 +69,9 @@ public final class GBeanInstance implements StateManageable {
     private static final int RUNNING = 2;
     private static final int DESTROYING = 3;
 
-    /** Attribute name used to retrieve the RawInvoker for the GBean */
+    /**
+     * Attribute name used to retrieve the RawInvoker for the GBean
+     */
     public static final String RAW_INVOKER = "$$RAW_INVOKER$$";
 
     /**
@@ -70,9 +86,9 @@ public final class GBeanInstance implements StateManageable {
     private ManageableAttributeStore manageableStore;
 
     /**
-     * The unique name of this service.
+     * the abstract name of this service
      */
-    private final ObjectName objectName;
+    private final AbstractName abstractName;
 
     /**
      * This handles all state transiitions for this instance.
@@ -175,11 +191,6 @@ public final class GBeanInstance implements StateManageable {
     private long startTime;
 
     /**
-     * Is this gbean enabled?  A disabled gbean can not be started.
-     */
-    private boolean enabled = true;
-
-    /**
      * This is used to signal the creating thread that it should
      * fail when it returns from usercode.  This is set when a
      * reference has gone offline during construction.
@@ -187,25 +198,33 @@ public final class GBeanInstance implements StateManageable {
     private boolean shouldFail = false;
 
     /**
+     * Used to track instance
+     */
+    private InstanceRegistry instanceRegistry;
+
+    private String stateReason;
+
+    /**
      * Construct a GBeanMBean using the supplied GBeanData and class loader
      *
-     * @param gbeanData the data for the new GBean including GBeanInfo, intial attribute values, and reference patterns
+     * @param gbeanData   the data for the new GBean including GBeanInfo, intial attribute values, and reference patterns
      * @param classLoader the class loader used to load the gbean instance and attribute/reference types
-     * @throws org.apache.geronimo.gbean.InvalidConfigurationException if the gbeanInfo is inconsistent with the actual java classes, such as
-     * mismatched attribute types or the intial data cannot be set
+     * @throws org.apache.geronimo.gbean.InvalidConfigurationException
+     *          if the gbeanInfo is inconsistent with the actual java classes, such as
+     *          mismatched attribute types or the intial data cannot be set
      */
     public GBeanInstance(GBeanData gbeanData, Kernel kernel, DependencyManager dependencyManager, LifecycleBroadcaster lifecycleBroadcaster, ClassLoader classLoader) throws InvalidConfigurationException {
-        this.objectName = gbeanData.getName();
+        this.abstractName = gbeanData.getAbstractName();
         this.kernel = kernel;
         this.lifecycleBroadcaster = lifecycleBroadcaster;
-        this.gbeanInstanceState = new GBeanInstanceState(objectName, kernel, dependencyManager, this, lifecycleBroadcaster);
+        this.gbeanInstanceState = new GBeanInstanceState(abstractName, kernel, dependencyManager, this, lifecycleBroadcaster);
         this.classLoader = classLoader;
 
         GBeanInfo gbeanInfo = gbeanData.getGBeanInfo();
         try {
             type = classLoader.loadClass(gbeanInfo.getClassName());
         } catch (ClassNotFoundException e) {
-            throw new InvalidConfigurationException("Could not load GBeanInfo class from classloader: " + classLoader + 
+            throw new InvalidConfigurationException("Could not load GBeanInfo class from classloader: " + classLoader +
                     " className=" + gbeanInfo.getClassName());
         }
 
@@ -231,26 +250,39 @@ public final class GBeanInstance implements StateManageable {
 
         // references
         Set referencesSet = new HashSet();
+        Set dependencySet = new HashSet();
+        // add the references
+        Map dataReferences = gbeanData.getReferences();
         for (Iterator iterator = gbeanInfo.getReferences().iterator(); iterator.hasNext();) {
             GReferenceInfo referenceInfo = (GReferenceInfo) iterator.next();
+            String referenceName = referenceInfo.getName();
+            ReferencePatterns referencePatterns = (ReferencePatterns) dataReferences.remove(referenceName);
             if (referenceInfo.getProxyType().equals(Collection.class.getName())) {
-                referencesSet.add(new GBeanCollectionReference(this, referenceInfo, kernel, dependencyManager));
+                referencesSet.add(new GBeanCollectionReference(this, referenceInfo, kernel, referencePatterns));
+
             } else {
-                referencesSet.add(new GBeanSingleReference(this, referenceInfo, kernel, dependencyManager));
+                referencesSet.add(new GBeanSingleReference(this, referenceInfo, kernel, referencePatterns));
+                if (referencePatterns != null) {
+                    dependencySet.add(new GBeanDependency(this, referencePatterns.getAbstractName(), kernel));
+                }
             }
         }
-        references = (GBeanReference[]) referencesSet.toArray(new GBeanReference[gbeanInfo.getReferences().size()]);
+        if (!dataReferences.isEmpty()) {
+            throw new IllegalStateException("Attempting to set unknown references: " + dataReferences.keySet());
+        }
+
+        references = (GBeanReference[]) referencesSet.toArray(new GBeanReference[referencesSet.size()]);
         for (int i = 0; i < references.length; i++) {
             referenceIndex.put(references[i].getName(), new Integer(i));
         }
 
-        dependencies = new GBeanDependency[gbeanData.getDependencies().size()];
-        int j = 0;
+        //dependencies
         for (Iterator iterator = gbeanData.getDependencies().iterator(); iterator.hasNext();) {
-            ObjectName dependencyName = (ObjectName) iterator.next();
-            GBeanDependency dependency = new GBeanDependency(this, dependencyName, kernel, dependencyManager);
-            dependencies[j++] = dependency;
+            AbstractName dependencyName = ((ReferencePatterns) iterator.next()).getAbstractName();
+            dependencySet.add(new GBeanDependency(this, dependencyName, kernel));
         }
+
+        dependencies = (GBeanDependency[]) dependencySet.toArray(new GBeanDependency[dependencySet.size()]);
 
         // framework operations -- all framework operations have currently been removed
 
@@ -279,15 +311,15 @@ public final class GBeanInstance implements StateManageable {
         Class[] parameterTypes = new Class[arguments.size()];
         for (int i = 0; i < parameterTypes.length; i++) {
             String argumentName = (String) arguments.get(i);
-            if (attributeIndex.containsKey(argumentName)) {
-                Integer index = (Integer) attributeIndex.get(argumentName);
-                GBeanAttribute attribute = attributes[index.intValue()];
-                parameterTypes[i] = attribute.getType();
-            } else if (referenceIndex.containsKey(argumentName)) {
+            if (referenceIndex.containsKey(argumentName)) {
                 Integer index = (Integer) referenceIndex.get(argumentName);
                 GBeanReference reference = references[index.intValue()];
                 parameterTypes[i] = reference.getProxyType();
-            }
+            } else if (attributeIndex.containsKey(argumentName)) {
+                Integer index = (Integer) attributeIndex.get(argumentName);
+                GBeanAttribute attribute = attributes[index.intValue()];
+                parameterTypes[i] = attribute.getType();
+            } 
         }
         try {
             constructor = type.getConstructor(parameterTypes);
@@ -296,7 +328,7 @@ public final class GBeanInstance implements StateManageable {
             Constructor[] constructors = type.getConstructors();
             for (int i = 0; i < constructors.length; i++) {
                 Constructor testConstructor = constructors[i];
-                buf.append("constructor types: " + testConstructor.getParameterTypes() + "\n");
+                buf.append("constructor types: ").append(testConstructor.getParameterTypes()).append("\n");
                 if (testConstructor.getParameterTypes().length == parameterTypes.length) {
                     Class[] testParameterTypes = testConstructor.getParameterTypes();
                     for (int k = 0; k < testParameterTypes.length; k++) {
@@ -331,51 +363,33 @@ public final class GBeanInstance implements StateManageable {
                 Map.Entry entry = (Map.Entry) iterator.next();
                 String attributeName = (String) entry.getKey();
                 Object attributeValue = entry.getValue();
-                if ("gbeanEnabled".equals(attributeName)) {
-                    enabled = ((Boolean)attributeValue).booleanValue();
-                } else {
-                    if(entry.getValue() != null) {
+                    if (entry.getValue() != null) {
                         setAttribute(attributeName, attributeValue, false);
                     }
-                }
             }
 
-            // add the references
-            Map dataReferences = gbeanData.getReferences();
-            for (Iterator iterator = dataReferences.entrySet().iterator(); iterator.hasNext();) {
-                Map.Entry entry = (Map.Entry) iterator.next();
-                String referenceName = (String) entry.getKey();
-                Set referencePattern = (Set) entry.getValue();
-                getReferenceByName(referenceName).setPatterns(referencePattern);
-            }
         } catch (Exception e) {
-            throw new InvalidConfigurationException("GBeanData could not be loaded into the GBeanMBean", e);
+            throw new InvalidConfigurationException("Could not inject configuration data into the GBean " + abstractName, e);
         }
 
-        for (int i = 0; i < references.length; i++) {
-            references[i].online();
-        }
         for (int i = 0; i < dependencies.length; i++) {
             dependencies[i].online();
         }
-        lifecycleBroadcaster.fireLoadedEvent();
+        for (int i = 0; i < references.length; i++) {
+            references[i].online();
+        }
     }
 
     public void die() throws GBeanNotFoundException {
         synchronized (this) {
             if (dead) {
                 // someone beat us to the punch... this instance should have never been found in the first place
-                throw new GBeanNotFoundException(objectName);
+                throw new GBeanNotFoundException(abstractName);
             }
             dead = true;
         }
 
         // if the bean is already stopped or failed, this will do nothing; otherwise it will shutdown the bean
-        int state = getState();
-        if (state != State.STOPPED_INDEX && state != State.FAILED_INDEX) {
-            log.error("GBeanInstance should already be stopped before die() is called: objectName=" + objectName + " state=" + State.fromInt(state));
-        }
-
         gbeanInstanceState.fail();
 
         for (int i = 0; i < references.length; i++) {
@@ -388,10 +402,11 @@ public final class GBeanInstance implements StateManageable {
         // tell everyone we are done
         lifecycleBroadcaster.fireUnloadedEvent();
 
-        if(manageableStore != null) {
-            kernel.getProxyManager().destroyProxy(manageableStore);
-            manageableStore = null;
-        }
+        manageableStore = null;
+    }
+
+    public synchronized void setInstanceRegistry(InstanceRegistry instanceRegistry) {
+        this.instanceRegistry = instanceRegistry;
     }
 
     /**
@@ -423,6 +438,14 @@ public final class GBeanInstance implements StateManageable {
     }
 
     /**
+     * Gets the reason we are in the current state.
+     * @return the reason we are in the current state
+     */
+    public String getStateReason() {
+        return stateReason;
+    }
+
+    /**
      * The java type of the wrapped gbean instance
      *
      * @return the java type of the gbean
@@ -436,29 +459,15 @@ public final class GBeanInstance implements StateManageable {
     }
 
     public final String getObjectName() {
-        return objectName.getCanonicalName();
+        return abstractName.getObjectName().getCanonicalName();
     }
 
     public final ObjectName getObjectNameObject() {
-        return objectName;
+        return abstractName.getObjectName();
     }
 
-    /**
-     * Is this gbean enabled.  A disabled gbean can not be started.
-     *
-     * @return true if the gbean is enabled and can be started
-     */
-    public synchronized final boolean isEnabled() {
-        return enabled;
-    }
-
-    /**
-     * Changes the enabled status.
-     *
-     * @param enabled the new enabled flag
-     */
-    public synchronized final void setEnabled(boolean enabled) {
-        this.enabled = enabled;
+    public final AbstractName getAbstractName() {
+        return abstractName;
     }
 
     public synchronized final long getStartTime() {
@@ -511,10 +520,7 @@ public final class GBeanInstance implements StateManageable {
     public final void start() {
         synchronized (this) {
             if (dead) {
-                throw new IllegalStateException("A dead GBean can not be started: objectName=" + objectName);
-            }
-            if (!enabled) {
-                throw new IllegalStateException("A disabled GBean can not be started: objectName=" + objectName);
+                throw new IllegalStateException("A dead GBean can not be started: abstractName=" + abstractName);
             }
         }
         gbeanInstanceState.start();
@@ -528,10 +534,7 @@ public final class GBeanInstance implements StateManageable {
     public final void startRecursive() {
         synchronized (this) {
             if (dead) {
-                throw new IllegalStateException("A dead GBean can not be started: objectName=" + objectName);
-            }
-            if (!enabled) {
-                throw new IllegalStateException("A disabled GBean can not be started: objectName=" + objectName);
+                throw new IllegalStateException("A dead GBean can not be started: abstractName=" + abstractName);
             }
         }
         gbeanInstanceState.startRecursive();
@@ -559,7 +562,7 @@ public final class GBeanInstance implements StateManageable {
      * @return the gbean data
      */
     public GBeanData getGBeanData() {
-        GBeanData gbeanData = new GBeanData(objectName, gbeanInfo);
+        GBeanData gbeanData = new GBeanData(abstractName, gbeanInfo);
 
         // copy target into local variables from within a synchronized block to gaurentee a consistent read
         int state;
@@ -594,9 +597,21 @@ public final class GBeanInstance implements StateManageable {
         for (int i = 0; i < references.length; i++) {
             GBeanReference reference = references[i];
             String name = reference.getName();
-            Set patterns = reference.getPatterns();
-            gbeanData.setReferencePatterns(name, patterns);
+            if(reference instanceof GBeanSingleReference) {
+                AbstractName abstractName = ((GBeanSingleReference) reference).getTargetName();
+                if(abstractName != null) {
+                    gbeanData.setReferencePattern(name, abstractName);
+                }
+            } else if(reference instanceof GBeanCollectionReference) {
+                Set patterns = ((GBeanCollectionReference) reference).getPatterns();
+                if(patterns != null) {
+                    gbeanData.setReferencePatterns(name, patterns);
+                }
+            } else {
+                throw new IllegalStateException("Unrecognized GBeanReference '"+reference.getClass().getName()+"'");
+            }
         }
+        //TODO copy the dependencies??
         return gbeanData;
     }
 
@@ -606,7 +621,7 @@ public final class GBeanInstance implements StateManageable {
      *
      * @param index the index of the attribute
      * @return the attribute value
-     * @throws Exception if a target instance throws and exception
+     * @throws Exception                 if a target instance throws and exception
      * @throws IndexOutOfBoundsException if the index is invalid
      */
     public Object getAttribute(int index) throws Exception {
@@ -623,10 +638,10 @@ public final class GBeanInstance implements StateManageable {
         if (state != DESTROYED || attribute.isFramework()) {
             return attribute.getValue(instance);
         } else {
-            if(attribute.isPersistent()) {
+            if (attribute.isPersistent()) {
                 return attribute.getPersistentValue();
             } else {
-                throw new IllegalStateException("Cannot retrieve the value for non-persistent attribute "+attribute.getName()+" when GBeanInstance is DESTROYED");
+                throw new IllegalStateException("Cannot retrieve the value for non-persistent attribute \"" + attribute.getName() + "\" when GBeanInstance is DESTROYED");
             }
         }
     }
@@ -637,7 +652,7 @@ public final class GBeanInstance implements StateManageable {
      *
      * @param attributeName the name of the attribute to retrieve
      * @return the attribute value
-     * @throws Exception if a problem occurs while getting the value
+     * @throws Exception                if a problem occurs while getting the value
      * @throws NoSuchAttributeException if the attribute name is not found in the map
      */
     public Object getAttribute(String attributeName) throws NoSuchAttributeException, Exception {
@@ -662,10 +677,10 @@ public final class GBeanInstance implements StateManageable {
         if (state != DESTROYED || attribute.isFramework()) {
             return attribute.getValue(instance);
         } else {
-            if(attribute.isPersistent()) {
+            if (attribute.isPersistent()) {
                 return attribute.getPersistentValue();
             } else {
-                throw new IllegalStateException("Cannot retrieve the value for non-persistent attribute "+attributeName+" when GBeanInstance is DESTROYED");
+                throw new IllegalStateException("Cannot retrieve the value for non-persistent attribute " + attributeName + " when gbean has been destroyed: " + abstractName);
             }
         }
     }
@@ -676,7 +691,7 @@ public final class GBeanInstance implements StateManageable {
      *
      * @param index the index of the attribute
      * @param value the new value of attribute value
-     * @throws Exception if a target instance throws and exception
+     * @throws Exception                 if a target instance throws and exception
      * @throws IndexOutOfBoundsException if the index is invalid
      */
     public void setAttribute(int index, Object value) throws Exception, IndexOutOfBoundsException {
@@ -699,7 +714,7 @@ public final class GBeanInstance implements StateManageable {
         } else {
             attribute.setPersistentValue(value);
         }
-        if(manage && attribute.isManageable()) {
+        if (manage && attribute.isManageable()) {
             updateManageableAttribute(attribute, value);
         }
     }
@@ -709,8 +724,8 @@ public final class GBeanInstance implements StateManageable {
      * first be looked up in a HashMap.
      *
      * @param attributeName the name of the attribute to retrieve
-     * @param value the new attribute value
-     * @throws Exception if a target instance throws and exception
+     * @param value         the new attribute value
+     * @throws Exception                if a target instance throws and exception
      * @throws NoSuchAttributeException if the attribute name is not found in the map
      */
     public void setAttribute(String attributeName, Object value) throws Exception, NoSuchAttributeException {
@@ -733,55 +748,57 @@ public final class GBeanInstance implements StateManageable {
         } else {
             attribute.setPersistentValue(value);
         }
-        if(manage && attribute.isManageable()) {
+        if (manage && attribute.isManageable()) {
             updateManageableAttribute(attribute, value);
         }
     }
 
     private void updateManageableAttribute(GBeanAttribute attribute, Object value) {
-        if(manageableStore == null) {
-            Set set = kernel.listGBeans(new GBeanQuery(null, ManageableAttributeStore.class.getName()));
-            if(set.size() == 0) {
+        if (manageableStore == null) {
+            manageableStore = getManageableAttributeStore();
+            if (manageableStore == null) {
                 return;
             }
-            manageableStore = (ManageableAttributeStore) kernel.getProxyManager().createProxy((ObjectName) set.iterator().next(),
-                                                                                              ManageableAttributeStore.class);
         }
-        String configName = null;
-        Set set = kernel.getDependencyManager().getParents(objectName);
+        Artifact configName = abstractName.getArtifact();
+        if (configName != null) {
+            manageableStore.setValue(configName, abstractName, attribute.getAttributeInfo(), value);
+        } else {
+            log.error("Unable to identify Configuration for GBean " + abstractName + ".  Manageable attribute " + attribute.getName() + " was not updated in persistent store.");
+        }
+    }
+
+    private ManageableAttributeStore getManageableAttributeStore() {
+        Set set = kernel.listGBeans(new AbstractNameQuery(ManageableAttributeStore.class.getName()));
         for (Iterator iterator = set.iterator(); iterator.hasNext();) {
-            ObjectName name = (ObjectName) iterator.next();
-            if(Configuration.isConfigurationObjectName(name)) {
-                configName = ObjectName.unquote(name.getKeyProperty("name"));
-                break;
+            AbstractName abstractName1 = (AbstractName) iterator.next();
+            try {
+                return (ManageableAttributeStore) kernel.getGBean(abstractName1);
+            } catch (GBeanNotFoundException e) {
+                // ignored... gbean was unregistered
             }
         }
-        if(configName != null) {
-            manageableStore.setValue(configName, objectName, attribute.getAttributeInfo(), value);
-        } else {
-            log.error("Unable to identify Configuration for GBean "+objectName+".  Manageable attribute "+attribute.getName()+" was not updated in persistent store.");
-        }
+        return null;
     }
 
     private GBeanAttribute getAttributeByName(String name) throws NoSuchAttributeException {
         Integer index = (Integer) attributeIndex.get(name);
         if (index == null) {
-            throw new NoSuchAttributeException("Unknown attribute " + name + " in gbean " + objectName);
+            throw new NoSuchAttributeException("Unknown attribute \"" + name + "\" in gbean " + abstractName);
         }
-        GBeanAttribute attribute = attributes[index.intValue()];
-        return attribute;
+        return attributes[index.intValue()];
     }
 
     /**
      * Invokes an opreation using the operation index.  This is the most efficient way to invoke
      * an operation as it avoids a HashMap lookup.
      *
-     * @param index the index of the attribute
+     * @param index     the index of the attribute
      * @param arguments the arguments to the operation
      * @return the result of the operation
-     * @throws Exception if a target instance throws and exception
+     * @throws Exception                 if a target instance throws and exception
      * @throws IndexOutOfBoundsException if the index is invalid
-     * @throws IllegalStateException if the gbean instance has been destroyed
+     * @throws IllegalStateException     if the gbean instance has been destroyed
      */
     public Object invoke(int index, Object[] arguments) throws Exception {
         GBeanOperation operation = operations[index];
@@ -795,7 +812,7 @@ public final class GBeanInstance implements StateManageable {
         }
 
         if (state == DESTROYED && !operation.isFramework()) {
-            throw new IllegalStateException("Operations can only be invoke while the GBean instance is running: " + objectName);
+            throw new IllegalStateException("Operations can only be invoke while the GBean instance is running: " + abstractName);
         }
         return operation.invoke(instance, arguments);
     }
@@ -806,12 +823,12 @@ public final class GBeanInstance implements StateManageable {
      * GOperationSignature object.
      *
      * @param operationName the name of the operation to invoke
-     * @param arguments arguments to the operation
-     * @param types types of the operation arguemtns
+     * @param arguments     arguments to the operation
+     * @param types         types of the operation arguemtns
      * @return the result of the operation
-     * @throws Exception if a target instance throws and exception
+     * @throws Exception                if a target instance throws and exception
      * @throws NoSuchOperationException if the operation signature is not found in the map
-     * @throws IllegalStateException if the gbean instance has been destroyed
+     * @throws IllegalStateException    if the gbean instance has been destroyed
      */
     public Object invoke(String operationName, Object[] arguments, String[] types) throws Exception, NoSuchOperationException {
         GOperationSignature signature = new GOperationSignature(operationName, types);
@@ -830,7 +847,7 @@ public final class GBeanInstance implements StateManageable {
         }
 
         if (state == DESTROYED && !operation.isFramework()) {
-            throw new IllegalStateException("Operations can only be invoke while the GBean is running: " + objectName);
+            throw new IllegalStateException("Operations can only be invoke while the GBean is running: " + abstractName);
         }
         return operation.invoke(instance, arguments);
     }
@@ -840,8 +857,7 @@ public final class GBeanInstance implements StateManageable {
         if (index == null) {
             throw new IllegalArgumentException("Unknown reference " + name);
         }
-        GBeanReference reference = references[index.intValue()];
-        return reference;
+        return references[index.intValue()];
     }
 
     boolean createInstance() throws Exception {
@@ -853,19 +869,34 @@ public final class GBeanInstance implements StateManageable {
             } else if (instanceState == DESTROYING) {
                 // this should never ever happen... this method is protected by the GBeanState class which should
                 // prevent stuff like this happening, but check anyway
+                stateReason = "an internal error has occurred.  An was made to start an instance that was still stopping which is an illegal state transition.";
                 throw new IllegalStateException("A stopping instance can not be started until fully stopped");
             }
             assert instanceState == DESTROYED;
 
+            stateReason = null;
+
             // Call all start on every reference.  This way the dependecies are held until we can start
-            boolean allStarted = true;
-            for (int i = 0; i < references.length; i++) {
-                allStarted = references[i].start() && allStarted;
-            }
+            LinkedHashSet unstarted = new LinkedHashSet();
             for (int i = 0; i < dependencies.length; i++) {
-                allStarted = dependencies[i].start() && allStarted;
+                if (!dependencies[i].start()) {
+                    unstarted.add(dependencies[i].getTargetName());
+                }
             }
-            if (!allStarted) {
+            for (int i = 0; i < references.length; i++) {
+                if (!references[i].start()) {
+                    if (references[i] instanceof GBeanSingleReference) {
+                        GBeanSingleReference reference = (GBeanSingleReference) references[i];
+                        unstarted.add(reference.getTargetName());
+                    }
+                }
+            }
+            if (!unstarted.isEmpty()) {
+                if (unstarted.size() == 1) {
+                    stateReason = unstarted.iterator().next() + " did not start.";
+                } else {
+                    stateReason = "the following dependent services did not start: " + unstarted;
+                }
                 return false;
             }
 
@@ -886,13 +917,14 @@ public final class GBeanInstance implements StateManageable {
             Iterator names = constructorInfo.getAttributeNames().iterator();
             for (int i = 0; i < parameters.length; i++) {
                 String name = (String) names.next();
-                if (attributeIndex.containsKey(name)) {
+                if (referenceIndex.containsKey(name)) {
+                    parameters[i] = getReferenceByName(name).getProxy();
+                } else if (attributeIndex.containsKey(name)) {
                     GBeanAttribute attribute = getAttributeByName(name);
                     parameters[i] = attribute.getPersistentValue();
-                } else if (referenceIndex.containsKey(name)) {
-                    parameters[i] = getReferenceByName(name).getProxy();
                 } else {
-                    throw new InvalidConfigurationException("Unknown attribute or reference name in constructor: name=" + name);
+                    stateReason = "the service constructor definition contained the name '" + name + "' which is not a known attribute or reference of the service.";
+                    throw new InvalidConfigurationException("Unknown attribute or reference name in constructor: referenceName=" + name + ", gbean=" + abstractName);
                 }
             }
 
@@ -906,9 +938,11 @@ public final class GBeanInstance implements StateManageable {
                 } else if (targetException instanceof Error) {
                     throw (Error) targetException;
                 }
+                stateReason = "the service constructor threw an exception. \n" + printException(e);
                 throw e;
             } catch (IllegalArgumentException e) {
-                log.warn("Constructor mismatch for " + objectName, e);
+                stateReason = "the service constructor threw an exception due to a parameter type mismatch. \n" + printException(e);
+                log.warn("Constructor mismatch for " + abstractName, e);
                 throw e;
             }
 
@@ -922,27 +956,48 @@ public final class GBeanInstance implements StateManageable {
             // inject the persistent attribute value into the new instance
             for (int i = 0; i < attributes.length; i++) {
                 checkIfShouldFail();
-                attributes[i].inject(instance);
+                try {
+                    attributes[i].inject(instance);
+                } catch (Exception e) {
+                    stateReason = "the setter for attribute '" + attributes[i].getName() + "' threw an exception. \n" + printException(e);
+                    throw e;
+                }
             }
 
             // inject the proxies into the new instance
             for (int i = 0; i < references.length; i++) {
                 checkIfShouldFail();
-                references[i].inject(instance);
+                try {
+                    references[i].inject(instance);
+                } catch (Exception e) {
+                    stateReason = "the setter for reference '" + references[i].getName() + "' threw an exception. \n" + printException(e);
+                    throw e;
+                }
             }
 
             if (instance instanceof GBeanLifecycle) {
                 checkIfShouldFail();
-                ((GBeanLifecycle) instance).doStart();
+                try {
+                    ((GBeanLifecycle) instance).doStart();
+                } catch (Exception e) {
+                    stateReason = "the doStart method threw an exception. \n" + printException(e);
+                    throw e;
+                }
             }
+
 
             // all done... we are now fully running
             synchronized (this) {
                 checkIfShouldFail();
+                if (instanceRegistry != null) {
+                    instanceRegistry.instanceCreated(instance, this);
+                }
                 instanceState = RUNNING;
                 this.notifyAll();
             }
 
+
+            stateReason = null;
             return true;
         } catch (Throwable t) {
             // something went wrong... we need to destroy this instance
@@ -954,7 +1009,7 @@ public final class GBeanInstance implements StateManageable {
                 try {
                     ((GBeanLifecycle) instance).doFail();
                 } catch (Throwable ignored) {
-                    log.error("Problem in doFail of " + objectName, ignored);
+                    log.error("Problem in doFail of " + abstractName, ignored);
                 }
             }
 
@@ -984,6 +1039,14 @@ public final class GBeanInstance implements StateManageable {
         } finally {
             Thread.currentThread().setContextClassLoader(oldCL);
         }
+    }
+
+    private String printException(Throwable t) {
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(stringWriter);
+        t.printStackTrace(printWriter);
+        printWriter.flush();
+        return stringWriter.toString();
     }
 
     private synchronized void checkIfShouldFail() throws Exception {
@@ -1021,7 +1084,8 @@ public final class GBeanInstance implements StateManageable {
                 return false;
             }
             assert instanceState == RUNNING;
-
+            stateReason = null;
+            
             // we are definately going to stop... if this fails the must clean up these variables
             instanceState = DESTROYING;
             instance = target;
@@ -1039,7 +1103,7 @@ public final class GBeanInstance implements StateManageable {
                     GBeanAttribute attribute = attributes[i];
                     if (attribute.isPersistent() && attribute.isReadable()) {
                         // copy the current attribute value to the persistent value
-                        Object value = null;
+                        Object value;
                         try {
                             value = attribute.getValue(instance);
                         } catch (Throwable e) {
@@ -1078,13 +1142,13 @@ public final class GBeanInstance implements StateManageable {
                     try {
                         ((GBeanLifecycle) instance).doStop();
                     } catch (Throwable ignored) {
-                        log.error("Problem in doStop of " + objectName, ignored);
+                        log.error("Problem in doStop of " + abstractName, ignored);
                     }
                 } else {
                     try {
                         ((GBeanLifecycle) instance).doFail();
                     } catch (Throwable ignored) {
-                        log.error("Problem in doFail of " + objectName, ignored);
+                        log.error("Problem in doFail of " + abstractName, ignored);
                     }
                 }
             }
@@ -1104,6 +1168,9 @@ public final class GBeanInstance implements StateManageable {
 
             target = null;
             instanceState = DESTROYED;
+            if (instanceRegistry != null) {
+                instanceRegistry.instanceDestroyed(instance);
+            }
             startTime = 0;
         }
 
@@ -1117,6 +1184,13 @@ public final class GBeanInstance implements StateManageable {
         //
         //  Special attributes
         //
+        attributesMap.put("abstractName",
+                GBeanAttribute.createSpecialAttribute((GBeanAttribute) attributesMap.get("abstractName"),
+                        this,
+                        "abstractName",
+                        AbstractName.class,
+                        getAbstractName()));
+
         attributesMap.put("objectName",
                 GBeanAttribute.createSpecialAttribute((GBeanAttribute) attributesMap.get("objectName"),
                         this,
@@ -1173,15 +1247,15 @@ public final class GBeanInstance implements StateManageable {
 
     public boolean equals(Object obj) {
         if (obj == this) return true;
-        if (obj instanceof GBeanInstance == false) return false;
-        return objectName.equals(((GBeanInstance)obj).objectName);
+        if (!(obj instanceof GBeanInstance)) return false;
+        return abstractName.equals(((GBeanInstance) obj).abstractName);
     }
 
     public int hashCode() {
-        return objectName.hashCode();
+        return abstractName.hashCode();
     }
 
     public String toString() {
-        return objectName.toString();
+        return abstractName.toString();
     }
 }

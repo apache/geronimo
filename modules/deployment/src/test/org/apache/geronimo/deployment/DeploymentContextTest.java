@@ -18,16 +18,25 @@ package org.apache.geronimo.deployment;
 
 import java.io.File;
 import java.net.URI;
-import java.net.URLClassLoader;
 import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.Collections;
 
 import javax.sql.DataSource;
 
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import junit.framework.TestCase;
+import net.sf.cglib.core.DefaultGeneratorStrategy;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.core.DefaultGeneratorStrategy;
-import junit.framework.TestCase;
+import org.apache.geronimo.kernel.Jsr77Naming;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.SimpleConfigurationManager;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.ArtifactManager;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 
 /**
  * @version $Rev$ $Date$
@@ -41,8 +50,13 @@ public class DeploymentContextTest extends TestCase {
         basedir.mkdirs();
         try {
             basedir.deleteOnExit();
-            URI configID = new URI("test");
-            DeploymentContext context = new DeploymentContext(basedir, configID, ConfigurationModuleType.CAR, null, "foo", "bar", null);
+            Environment environment = new Environment();
+            Artifact configId = new Artifact("foo", "artifact", "1", "car");
+            environment.setConfigId(configId);
+            ArtifactManager artifactManager = new DefaultArtifactManager();
+            ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.EMPTY_SET, null);
+            SimpleConfigurationManager configurationManager = new SimpleConfigurationManager(Collections.EMPTY_SET, artifactResolver, Collections.EMPTY_SET);
+            DeploymentContext context = new DeploymentContext(basedir, null, environment, ConfigurationModuleType.CAR, new Jsr77Naming(), configurationManager, Collections.EMPTY_SET);
             Enhancer enhancer = new Enhancer();
             enhancer.setInterfaces(new Class[]{DataSource.class});
             enhancer.setCallbackType(MethodInterceptor.class);
@@ -55,8 +69,8 @@ public class DeploymentContextTest extends TestCase {
             enhancer.setClassLoader(new URLClassLoader(new URL[0], this.getClass().getClassLoader()));
             Class type = enhancer.createClass();
             URI location = new URI("cglib/");
-            context.addClass(location, type.getName(), classBytes, true);
-            ClassLoader cl = context.getClassLoader(null);
+            context.addClass(location, type.getName(), classBytes);
+            ClassLoader cl = context.getClassLoader();
             Class loadedType = cl.loadClass(type.getName());
             assertTrue(DataSource.class.isAssignableFrom(loadedType));
             assertTrue(type != loadedType);

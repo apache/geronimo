@@ -100,9 +100,14 @@ public class MasterLoginModuleInfo implements Serializable {
         Properties props = new Properties();
         try {
             props.load(in);
-            in.close();
         } catch (IOException e) {
             log.error("Unable to read login module properties file", e);
+        } finally {
+            try {
+                in.close();
+            } catch (java.io.IOException ignored) {
+                // ignore
+            }
         }
         for (Iterator it = props.keySet().iterator(); it.hasNext();) {
             String key = (String) it.next();

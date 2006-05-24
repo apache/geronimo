@@ -16,20 +16,21 @@
  */
 package org.apache.geronimo.naming.reference;
 
-import javax.management.ObjectName;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.AbstractName;
 
 /**
  * @version $Rev: 356097 $ $Date: 2005-12-11 17:29:03 -0800 (Sun, 11 Dec 2005) $
  */
-public class HandleDelegateReference extends SimpleAwareReference {
-    private final ObjectName corbaGBean;
+public class HandleDelegateReference extends ConfigurationAwareReference {
 
-    public HandleDelegateReference(ObjectName corbaGBean) {
-        this.corbaGBean = corbaGBean;
+    public HandleDelegateReference(Artifact configId, AbstractNameQuery abstractNameQuery) {
+        super(configId, abstractNameQuery);
     }
 
     public String getClassName() {
@@ -39,9 +40,10 @@ public class HandleDelegateReference extends SimpleAwareReference {
     public Object getContent() throws NamingException {
         Kernel kernel = getKernel();
         try {
-            return kernel.getAttribute(corbaGBean, "handleDelegate");
+            AbstractName targetName = resolveTargetName();
+            return kernel.getAttribute(targetName, "handleDelegate");
         } catch (Exception e) {
-            throw (NameNotFoundException) new NameNotFoundException("Error getting ORB attribut from CORBAGBean: objectName=" + corbaGBean).initCause(e);
+            throw (NameNotFoundException) new NameNotFoundException("Error getting handle delegate attribute from CORBAGBean: name query =" + abstractNameQueries).initCause(e);
         }
     }
 }

@@ -17,19 +17,6 @@
 
 package org.apache.geronimo.plugin.assembly;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.util.List;
-
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.system.configuration.LocalConfigStore;
-import org.apache.geronimo.system.repository.FileSystemRepository;
-
 /**
  * JellyBean that installs configuration artifacts into a LocalConfigurationStore,  It also copies all
  * configuration dependencies into the repository
@@ -37,37 +24,4 @@ import org.apache.geronimo.system.repository.FileSystemRepository;
  * @version $Rev$ $Date$
  */
 public class LocalConfigInstaller extends BaseConfigInstaller {
-
-    public void execute() throws Exception {
-        final LocalConfigStore store = new LocalConfigStore(new File(targetRoot, targetConfigStore));
-        store.doStart();
-        InstallAdapter installAdapter = new InstallAdapter() {
-
-            public GBeanData install(Repository sourceRepo, URI configId) throws IOException, InvalidConfigException {
-                URL artifact = sourceRepo.getURL(configId);
-                GBeanData config = store.install2(artifact);
-                return config;
-            }
-
-            public boolean containsConfiguration(URI configID) {
-                return store.containsConfiguration(configID);
-            }
-        };
-        Repository sourceRepo = new InnerRepository();
-        URI rootURI = targetRoot.toURI().resolve(targetRepository);
-        FileSystemRepository targetRepo = new FileSystemRepository(rootURI, null);
-        targetRepo.doStart();
-
-        try {
-            try {
-                execute(installAdapter, sourceRepo, targetRepo);
-            } finally {
-                store.doStop();
-            }
-        } finally {
-            targetRepo.doStop();
-        }
-
-    }
-
 }

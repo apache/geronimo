@@ -21,5 +21,5 @@ package org.apache.geronimo.management.geronimo;
  *
  * @version $Rev$ $Date$
  */
-public interface JMSBroker {
+public interface JMSBroker extends NetworkContainer {
 }

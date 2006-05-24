@@ -20,9 +20,10 @@ package org.apache.geronimo.management.geronimo;
  * @version $Rev$ $Date$
  */
 public interface ResourceAdapterModule extends org.apache.geronimo.management.ResourceAdapterModule {
-    public String getDisplayName();
-    public String getDescription();
-    public String getVendorName();
-    public String getResourceAdapterVersion();
-    public String getEISType();
+    String getDisplayName();
+    String getDescription();
+    String getVendorName();
+    String getResourceAdapterVersion();
+    String getEISType();
+    ResourceAdapter[] getResourceAdapterInstances();
 }

@@ -28,7 +28,8 @@ import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
 public class PasswordCredentialLoginModuleWrapper extends LoginModuleGBean {
     public static final String MANAGED_CONNECTION_FACTORY_OPTION = "geronimo.managedconnectionfactory.option";
 
-    public void setManagedConnectionFactoryWrapper(ManagedConnectionFactoryWrapper managedConnectionFactoryWrapper) {
+    public PasswordCredentialLoginModuleWrapper(String loginModuleClass, String objectName, boolean serverSide, boolean wrapPrincipals, ManagedConnectionFactoryWrapper managedConnectionFactoryWrapper, ClassLoader classLoader) {
+        super(loginModuleClass, objectName, serverSide, wrapPrincipals, classLoader);
         ManagedConnectionFactory managedConnectionFactory = managedConnectionFactoryWrapper.$getManagedConnectionFactory();
         Properties options = getOptions();
         options.put(MANAGED_CONNECTION_FACTORY_OPTION, managedConnectionFactory);

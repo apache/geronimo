@@ -34,12 +34,6 @@ public interface JettyContainer extends WebContainer {
     void addContext(HttpContext context);
 
     void removeContext(HttpContext context);
-    
-    String getLocalSessionManager();
-    void setLocalSessionManager(String localSessionManagerClassname);
-    
-    String getDistributableSessionManager();
-    void setDistributableSessionManager(String distributableSessionManagerClassname);
 
     InternalJAASJettyRealm addRealm(String realmName);
 
@@ -52,32 +46,6 @@ public interface JettyContainer extends WebContainer {
     boolean getCollectStatistics();
 
     long getCollectStatisticsStarted();
-
-    int getConnections();
-
-    int getConnectionsOpen();
-
-    int getConnectionsOpenMax();
-
-    long getConnectionsDurationAve();
-
-    long getConnectionsDurationMax();
-
-    int getConnectionsRequestsAve();
-
-    int getConnectionsRequestsMax();
-
-    int getErrors();
-
-    int getRequests();
-
-    int getRequestsActive();
-
-    int getRequestsActiveMax();
-
-    long getRequestsDurationAve();
-
-    long getRequestsDurationMax();
 
     void setRequestLog(RequestLog log);
 

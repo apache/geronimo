@@ -18,64 +18,55 @@ package org.apache.geronimo.plugin.packaging;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.KernelRegistry;
-import org.apache.geronimo.kernel.log.GeronimoLogging;
+import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.kernel.config.KernelConfigurationManager;
+import org.apache.geronimo.kernel.log.GeronimoLogging;
+import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
+import org.apache.geronimo.system.resolver.ExplicitDefaultArtifactResolver;
 
 /**
  * JellyBean that builds a Geronimo Configuration using the local Mavem
  * infrastructure.
  *
- * @version $Rev$ $Date$
+ * @version $Rev:385659 $ $Date$
  */
 public class PackageBuilder {
 
     private static Log log = LogFactory.getLog(PackageBuilder.class);
 
     private static final String KERNEL_NAME = "geronimo.maven";
-    /**
-     * The name of the GBean that will load dependencies from the Maven repository.
-     */
-    private static final ObjectName REPOSITORY_NAME;
-
-    /**
-     * The name of the GBean that will load Configurations from the Maven repository.
-     */
-    private static final ObjectName CONFIGSTORE_NAME;
-
-    /**
-     * The name of the GBean that will manage Configurations.
-     */
-    private static final ObjectName CONFIGMANAGER_NAME;
-
-    /**
-     * The name of the GBean that will provide values for managed attributes.
-     */
-    private static final ObjectName ATTRIBUTESTORE_NAME;
 
     /**
      * Reference to the kernel that will last the lifetime of this classloader.
      * The KernelRegistry keeps soft references that may be garbage collected.
      */
     private static Kernel kernel;
+    private static AbstractName targetConfigStoreAName;
+    private static AbstractName targetRepositoryAName;
 
     private static final String[] ARG_TYPES = {
+            boolean.class.getName(),
             File.class.getName(),
             File.class.getName(),
             File.class.getName(),
@@ -84,35 +75,37 @@ public class PackageBuilder {
             String.class.getName(),
             String.class.getName(),
             String.class.getName(),
+            String.class.getName(),
+            String.class.getName(),
+            String.class.getName(),
+            String.class.getName(),
     };
-
-    static {
-        try {
-            REPOSITORY_NAME = new ObjectName(KERNEL_NAME + ":name=Repository");
-            CONFIGSTORE_NAME = new ObjectName(KERNEL_NAME + ":name=MavenConfigStore,j2eeType=ConfigurationStore");
-            CONFIGMANAGER_NAME = new ObjectName(KERNEL_NAME + ":name=ConfigurationManager,j2eeType=ConfigurationManager");
-            ATTRIBUTESTORE_NAME = new ObjectName(KERNEL_NAME + ":name=ManagedAttributeStore");
-        } catch (MalformedObjectNameException e) {
-            throw new ExceptionInInitializerError(e.getMessage());
-        }
-    }
 
     private String repositoryClass;
     private String configurationStoreClass;
+    private String targetRepositoryClass;
+    private String targetConfigurationStoreClass;
 
     private File repository;
-    private String deploymentConfigString;
-    private URI[] deploymentConfig;
-    private ObjectName deployerName;
+    private File targetRepository;
+    private Collection deploymentConfigs;
+//    private Artifact[] deploymentConfig;
+    private AbstractName deployerName;
 
     private File planFile;
     private File moduleFile;
     private File packageFile;
     private String mainClass;
+    private String mainGBean;
+    private String mainMethod;
+    private String configurations;
     private String classPath;
     private String endorsedDirs;
     private String extensionDirs;
+    private String explicitResolutionLocation;
     private String logLevel;
+
+    private boolean targetSet;
 
     public String getRepositoryClass() {
         return repositoryClass;
@@ -144,8 +137,32 @@ public class PackageBuilder {
         this.repository = repository;
     }
 
-    public String getDeploymentConfig() {
-        return deploymentConfigString;
+    public String getTargetRepositoryClass() {
+        return targetRepositoryClass;
+    }
+
+    public void setTargetRepositoryClass(String targetRepositoryClass) {
+        this.targetRepositoryClass = targetRepositoryClass;
+    }
+
+    public String getTargetConfigurationStoreClass() {
+        return targetConfigurationStoreClass;
+    }
+
+    public void setTargetConfigurationStoreClass(String targetConfigurationStoreClass) {
+        this.targetConfigurationStoreClass = targetConfigurationStoreClass;
+    }
+
+    public File getTargetRepository() {
+        return targetRepository;
+    }
+
+    public void setTargetRepository(File targetRepository) {
+        this.targetRepository = targetRepository;
+    }
+
+    public Collection getDeploymentConfig() {
+        return deploymentConfigs;
     }
 
     /**
@@ -153,14 +170,8 @@ public class PackageBuilder {
      *
      * @param deploymentConfigString comma-separated list of the ids of the Configurations performing the deployment
      */
-    public void setDeploymentConfig(String deploymentConfigString) {
-        this.deploymentConfigString = deploymentConfigString;
-        String[] configNames = deploymentConfigString.split(",");
-        deploymentConfig = new URI[configNames.length];
-        for (int i = 0; i < configNames.length; i++) {
-            String configName = configNames[i];
-            deploymentConfig[i] = URI.create(configName);
-        }
+    public void setDeploymentConfig(Collection deploymentConfigString) {
+        this.deploymentConfigs = deploymentConfigString;
     }
 
     public String getDeployerName() {
@@ -173,11 +184,7 @@ public class PackageBuilder {
      * @param deployerName the name of the Deployer GBean
      */
     public void setDeployerName(String deployerName) {
-        try {
-            this.deployerName = new ObjectName(deployerName);
-        } catch (MalformedObjectNameException e) {
-            throw new IllegalArgumentException("deployerName is not a valid ObjectName: " + deployerName);
-        }
+        this.deployerName = new AbstractName(URI.create(deployerName));
     }
 
     public File getPlanFile() {
@@ -232,6 +239,30 @@ public class PackageBuilder {
         this.mainClass = mainClass;
     }
 
+    public String getMainGBean() {
+        return mainGBean;
+    }
+
+    public void setMainGBean(String mainGBean) {
+        this.mainGBean = mainGBean;
+    }
+
+    public String getMainMethod() {
+        return mainMethod;
+    }
+
+    public void setMainMethod(String mainMethod) {
+        this.mainMethod = mainMethod;
+    }
+
+    public String getConfigurations() {
+        return configurations;
+    }
+
+    public void setConfigurations(String configurations) {
+        this.configurations = configurations;
+    }
+
     public String getClassPath() {
         return classPath;
     }
@@ -256,6 +287,14 @@ public class PackageBuilder {
         this.extensionDirs = extensionDirs;
     }
 
+    public String getExplicitResolutionLocation() {
+        return explicitResolutionLocation;
+    }
+
+    public void setExplicitResolutionLocation(String explicitResolutionLocation) {
+        this.explicitResolutionLocation = explicitResolutionLocation;
+    }
+
     public String getLogLevel() {
         return logLevel;
     }
@@ -265,36 +304,50 @@ public class PackageBuilder {
     }
 
     public void execute() throws Exception {
+        System.out.println();
+        System.out.println("    Packaging configuration " + planFile);
+        System.out.println();
         try {
-            Kernel kernel = createKernel(repository, repositoryClass, configurationStoreClass, logLevel);
+            Kernel kernel = createKernel();
+            if(!targetSet) {
+                setTargetConfigStore();
+            }
 
             // start the Configuration we're going to use for this deployment
             ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
             try {
-                for (int i = 0; i < deploymentConfig.length; i++) {
-                    URI configName = deploymentConfig[i];
+                for (Iterator iterator = deploymentConfigs.iterator(); iterator.hasNext();) {
+                    String artifactName = (String) iterator.next();
+                    Artifact configName = Artifact.create(artifactName);
                     if (!configurationManager.isLoaded(configName)) {
-                        List configs = configurationManager.loadRecursive(configName);
-                        for (Iterator iterator = configs.iterator(); iterator.hasNext(); ) {
-                            URI ancestorConfigName = (URI) iterator.next();
-                            try {
-                                configurationManager.loadGBeans(ancestorConfigName);
-                            } catch (Throwable e) {
-                                throw new RuntimeException("Could not start configuration: " + configName, e);
-                            }
-                        }
-                        configurationManager.start(configName);
+                        configurationManager.loadConfiguration(configName);
+                        configurationManager.startConfiguration(configName);
                     }
                 }
             } finally {
                 ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
             }
 
-            ObjectName deployer = locateDeployer(kernel);
-            invokeDeployer(kernel, deployer);
+            AbstractName deployer = locateDeployer(kernel);
+            invokeDeployer(kernel, deployer, targetConfigStoreAName.toString());
             System.out.println("Generated package " + packageFile);
         } catch (Exception e) {
-            log.error(e.getClass().getName()+": "+e.getMessage(), e);
+            log.error(e.getClass().getName() + ": " + e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    private void setTargetConfigStore() throws Exception {
+        try {
+            kernel.stopGBean(targetRepositoryAName);
+            kernel.setAttribute(targetRepositoryAName, "root", targetRepository.toURI());
+            kernel.startGBean(targetRepositoryAName);
+            if(kernel.getGBeanState(targetConfigStoreAName) != State.RUNNING_INDEX) {
+                throw new IllegalStateException("After restarted repository then config store is not running");
+            }
+            targetSet = true;
+        } catch (Exception e) {
+            e.printStackTrace();
             throw e;
         }
     }
@@ -302,7 +355,7 @@ public class PackageBuilder {
     /**
      * Create a Geronimo Kernel to contain the deployment configurations.
      */
-    private static synchronized Kernel createKernel(File repository, String repoClass, String configStoreClass, String logLevel) throws Exception {
+    private synchronized Kernel createKernel() throws Exception {
         // first return our cached version
         if (kernel != null) {
             return kernel;
@@ -323,7 +376,7 @@ public class PackageBuilder {
         kernel = KernelFactory.newInstance().createKernel(KERNEL_NAME);
         kernel.boot();
 
-        bootDeployerSystem(kernel, repository, repoClass, configStoreClass);
+        bootDeployerSystem();
 
         return kernel;
     }
@@ -333,36 +386,65 @@ public class PackageBuilder {
      * This contains Repository and ConfigurationStore GBeans that map to
      * the local maven installation.
      */
-    private static void bootDeployerSystem(Kernel kernel, File repository, String repoClass, String configStoreClass) throws Exception {
+    private void bootDeployerSystem() throws Exception {
+        Artifact baseId = new Artifact("geronimo", "packaging", "fixed", "car");
+        Naming naming = kernel.getNaming();
+        ConfigurationData bootstrap = new ConfigurationData(baseId, naming);
         ClassLoader cl = PackageBuilder.class.getClassLoader();
-        GBeanInfo repoInfo = GBeanInfo.getGBeanInfo(repoClass, cl);
-        GBeanData repoGBean = new GBeanData(REPOSITORY_NAME, repoInfo);
-        repoGBean.setAttribute("root", repository);
-        kernel.loadGBean(repoGBean, cl);
-        kernel.startGBean(REPOSITORY_NAME);
+        Set repoNames = new HashSet();
 
-        GBeanInfo configStoreInfo = GBeanInfo.getGBeanInfo(configStoreClass, cl);
-        GBeanData storeGBean = new GBeanData(CONFIGSTORE_NAME, configStoreInfo);
-        Set refs = configStoreInfo.getReferences();
-        for (Iterator iterator = refs.iterator(); iterator.hasNext();) {
-            GReferenceInfo refInfo = (GReferenceInfo) iterator.next();
-            if ("Repository".equals(refInfo.getName())) {
-                storeGBean.setReferencePattern("Repository", REPOSITORY_NAME);
-                break;
-            }
+        //Source repo
+        GBeanData repoGBean = bootstrap.addGBean("SourceRepository", GBeanInfo.getGBeanInfo(repositoryClass, cl));
+        URI repositoryURI = repository.toURI();
+        repoGBean.setAttribute("root", repositoryURI);
+        repoNames.add(repoGBean.getAbstractName());
+
+        //Target repo
+        GBeanData targetRepoGBean = bootstrap.addGBean("TargetRepository", GBeanInfo.getGBeanInfo(targetRepositoryClass, cl));
+        URI targetRepositoryURI = targetRepository.toURI();
+        targetRepoGBean.setAttribute("root", targetRepositoryURI);
+        repoNames.add(targetRepoGBean.getAbstractName());
+        targetRepositoryAName = targetRepoGBean.getAbstractName();
+
+        GBeanData artifactManagerGBean = bootstrap.addGBean("ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
+
+        GBeanData artifactResolverGBean = bootstrap.addGBean("ArtifactResolver", ExplicitDefaultArtifactResolver.GBEAN_INFO);
+        artifactResolverGBean.setAttribute("versionMapLocation", explicitResolutionLocation);
+        ReferencePatterns repoPatterns = new ReferencePatterns(repoNames);
+        artifactResolverGBean.setReferencePatterns("Repositories", repoPatterns);
+        artifactResolverGBean.setReferencePattern("ArtifactManager", artifactManagerGBean.getAbstractName());
+
+        Set storeNames = new HashSet();
+        //source config store
+        GBeanInfo configStoreInfo = GBeanInfo.getGBeanInfo(configurationStoreClass, cl);
+        GBeanData storeGBean = bootstrap.addGBean("ConfigStore", configStoreInfo);
+        if (configStoreInfo.getReference("Repository") != null) {
+            storeGBean.setReferencePattern("Repository", repoGBean.getAbstractName());
         }
-        kernel.loadGBean(storeGBean, cl);
-        kernel.startGBean(CONFIGSTORE_NAME);
+        storeNames.add(storeGBean.getAbstractName());
 
-        GBeanData configManagerGBean = new GBeanData(CONFIGMANAGER_NAME, ConfigurationManagerImpl.GBEAN_INFO);
-        configManagerGBean.setReferencePattern("Stores", CONFIGSTORE_NAME);
-        configManagerGBean.setReferencePattern("AttributeStore", ATTRIBUTESTORE_NAME);
-        kernel.loadGBean(configManagerGBean, cl);
-        kernel.startGBean(CONFIGMANAGER_NAME);
+        //target config store
+        GBeanInfo targetConfigStoreInfo = GBeanInfo.getGBeanInfo(targetConfigurationStoreClass, cl);
+        GBeanData targetStoreGBean = bootstrap.addGBean("TargetConfigStore", targetConfigStoreInfo);
+        if (targetConfigStoreInfo.getReference("Repository") != null) {
+            targetStoreGBean.setReferencePattern("Repository", targetRepoGBean.getAbstractName());
+        }
+        storeNames.add(targetStoreGBean.getAbstractName());
 
-        GBeanData attrManagerGBean = new GBeanData(ATTRIBUTESTORE_NAME, MavenAttributeStore.GBEAN_INFO);
-        kernel.loadGBean(attrManagerGBean, cl);
-        kernel.startGBean(ATTRIBUTESTORE_NAME);
+        targetConfigStoreAName = targetStoreGBean.getAbstractName();
+        targetSet = true;
+
+        GBeanData attrManagerGBean = bootstrap.addGBean("AttributeStore", MavenAttributeStore.GBEAN_INFO);
+
+        GBeanData configManagerGBean = bootstrap.addGBean("ConfigManager", KernelConfigurationManager.GBEAN_INFO);
+        configManagerGBean.setReferencePatterns("Stores", new ReferencePatterns(storeNames));
+        configManagerGBean.setReferencePattern("AttributeStore", attrManagerGBean.getAbstractName());
+        configManagerGBean.setReferencePattern("ArtifactManager", artifactManagerGBean.getAbstractName());
+        configManagerGBean.setReferencePattern("ArtifactResolver", artifactResolverGBean.getAbstractName());
+        configManagerGBean.setReferencePatterns("Repositories", repoPatterns);
+
+        ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, cl);
+
     }
 
     /**
@@ -372,20 +454,21 @@ public class PackageBuilder {
      * @return the ObjectName of the Deployer GBean
      * @throws IllegalStateException if there is not exactly one GBean matching the deployerName pattern
      */
-    private ObjectName locateDeployer(Kernel kernel) {
-        Iterator i = kernel.listGBeans(deployerName).iterator();
+    private AbstractName locateDeployer(Kernel kernel) {
+        Iterator i = kernel.listGBeans(new AbstractNameQuery(deployerName)).iterator();
         if (!i.hasNext()) {
             throw new IllegalStateException("No deployer found matching deployerName: " + deployerName);
         }
-        ObjectName deployer = (ObjectName) i.next();
+        AbstractName deployer = (AbstractName) i.next();
         if (i.hasNext()) {
             throw new IllegalStateException("Multiple deployers found matching deployerName: " + deployerName);
         }
         return deployer;
     }
 
-    private List invokeDeployer(Kernel kernel, ObjectName deployer) throws Exception {
-        Object[] args = {planFile, moduleFile, packageFile, Boolean.FALSE, mainClass, classPath, endorsedDirs, extensionDirs};
+    private List invokeDeployer(Kernel kernel, AbstractName deployer, String targetConfigStore) throws Exception {
+        boolean isExecutable = mainClass != null;
+        Object[] args = {Boolean.FALSE, planFile, moduleFile, isExecutable ? packageFile : null, Boolean.valueOf(!isExecutable), mainClass, mainGBean, mainMethod, configurations, classPath, endorsedDirs, extensionDirs, targetConfigStore};
         return (List) kernel.invoke(deployer, "deploy", args, ARG_TYPES);
     }
 }

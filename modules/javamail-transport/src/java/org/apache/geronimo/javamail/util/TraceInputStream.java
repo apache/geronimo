@@ -25,7 +25,7 @@ import java.io.OutputStream;
 import org.apache.geronimo.mail.util.QuotedPrintableEncoderStream;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 390524 $ $Date: 2006-03-31 17:24:52 -0500 (Fri, 31 Mar 2006) $
  */
 public class TraceInputStream extends FilterInputStream {
     // the current debug setting

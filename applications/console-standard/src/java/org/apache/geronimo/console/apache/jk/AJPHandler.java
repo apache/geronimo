@@ -16,20 +16,19 @@
  */
 package org.apache.geronimo.console.apache.jk;
 
-import org.apache.geronimo.console.MultiPageModel;
-import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.management.geronimo.WebManager;
-import org.apache.geronimo.management.geronimo.WebConnector;
-import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import java.io.IOException;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
-import java.io.IOException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.console.MultiPageModel;
+import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.management.geronimo.NetworkConnector;
+import org.apache.geronimo.management.geronimo.WebConnector;
+import org.apache.geronimo.management.geronimo.WebManager;
 
 /**
  * ReplaceMe
@@ -48,9 +47,9 @@ public class AJPHandler extends BaseApacheHandler {
         // See if any AJP listeners are defined
         for (int i = 0; i < managers.length; i++) {
             WebManager manager = managers[i];
-            String[] connectors = manager.getConnectors(WebManager.PROTOCOL_AJP);
+            NetworkConnector[] connectors = manager.getConnectors(WebManager.PROTOCOL_AJP);
             if(connectors.length > 0) {
-                log.warn("Found AJP listener on port "+PortletManager.getWebConnector(request, connectors[0]).getPort());
+                log.warn("Found AJP listener on port "+connectors[0].getPort());
                 return BASIC_CONFIG_MODE+BEFORE_ACTION;
             }
         }
@@ -60,7 +59,7 @@ public class AJPHandler extends BaseApacheHandler {
         while(true) {
             for (int i = 0; i < managers.length; i++) {
                 WebManager manager = managers[i];
-                WebConnector[] cons = PortletManager.getWebConnectors(request, ((GeronimoManagedBean)manager).getObjectName());
+                WebConnector[] cons = (WebConnector[]) manager.getConnectors();
                 for (int j = 0; j < cons.length; j++) {
                     WebConnector con = cons[j];
                     if(con.getPort() == port) {
@@ -89,7 +88,7 @@ public class AJPHandler extends BaseApacheHandler {
         WebManager[] managers = PortletManager.getWebManagers(request);
         for (int i = 0; i < managers.length; i++) {
             WebManager manager = managers[i];
-            WebConnector[] cons = PortletManager.getWebConnectors(request, ((GeronimoManagedBean)manager).getObjectName());
+            WebConnector[] cons = (WebConnector[]) manager.getConnectors();
             for (int j = 0; j < cons.length; j++) {
                 WebConnector con = cons[j];
                 if(con.getPort() == model.getAddAjpPort().intValue()) {

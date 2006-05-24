@@ -16,47 +16,72 @@
  */
 package org.apache.geronimo.plugin.assembly;
 
+import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ArtifactManager;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.FileWriteMonitor;
+import org.apache.geronimo.kernel.repository.MissingDependencyException;
+import org.apache.geronimo.kernel.repository.Dependency;
+import org.apache.geronimo.kernel.repository.WritableListableRepository;
+import org.apache.geronimo.system.repository.Maven1Repository;
+import org.apache.geronimo.system.repository.Maven2Repository;
+import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
+import org.apache.geronimo.system.resolver.ExplicitDefaultArtifactResolver;
+
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URL;
-import java.net.MalformedURLException;
 import java.util.Iterator;
-import java.util.List;
-
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.repository.FileWriteMonitor;
-import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.system.repository.FileSystemRepository;
-import org.apache.geronimo.gbean.GBeanData;
+import java.util.LinkedHashSet;
+import java.util.Collections;
 
 /**
  * @version $Rev$ $Date$
  */
 public class BaseConfigInstaller {
+    public static final FileWriteMonitor LOG_COPY_START = new StartFileWriteMonitor();
+
     /**
      * root file of the targetConfigStore and TargetRepository.  Typically $GERONIMO_HOME of the
      * geronimo server being assembled
      */
-    protected File targetRoot;
+    private File targetRoot;
+
     /**
      * location of the target config store relative to targetRoot.  Typically "config-store"
      */
-    protected String targetConfigStore;
+    private String targetConfigStore;
+
     /**
      * location of the target repository relative to targetRoot.  Typically "repository"
      */
-    protected String targetRepository;
+    private String targetRepository;
+
     /**
      * location of the configuration to be installed relative to the sourceRepository
      */
     private String artifact;
+
     /**
      * location of the source repository for the dependencies
      */
     private File sourceRepository;
-    protected URI sourceRepositoryURI;
+
+    private String explicitResolutionLocation;
+
+    private ArtifactResolver artifactResolver;
+
+    private WritableListableRepository targetRepo;
+    private RepositoryConfigurationStore targetStore;
+
+    private WritableListableRepository sourceRepo;
+    private RepositoryConfigurationStore sourceStore;
 
     public File getTargetRoot() {
         return targetRoot;
@@ -96,62 +121,103 @@ public class BaseConfigInstaller {
 
     public void setSourceRepository(File sourceRepository) {
         this.sourceRepository = sourceRepository;
-        sourceRepositoryURI = sourceRepository.toURI();
     }
 
-    public URI getSourceRepositoryURI() {
-        return sourceRepositoryURI;
+    public String getExplicitResolutionLocation() {
+        return explicitResolutionLocation;
     }
 
-    public void setSourceRepositoryURI(URI sourceRepositoryURI) {
-        this.sourceRepositoryURI = sourceRepositoryURI;
+    public void setExplicitResolutionLocation(String explicitResolutionLocation) {
+        this.explicitResolutionLocation = explicitResolutionLocation;
     }
 
-    protected void execute(InstallAdapter installAdapter, Repository sourceRepo, FileSystemRepository targetRepo) throws IOException, InvalidConfigException {
-        URI configId = URI.create(artifact);
-        execute(configId, installAdapter, sourceRepo,  targetRepo);
-    }
+    public void execute() throws Exception {
+        sourceRepo = new Maven1Repository(getSourceRepository());
+        sourceStore = new RepositoryConfigurationStore(sourceRepo);
 
-    protected void execute(URI configId, InstallAdapter installAdapter, Repository sourceRepo, FileSystemRepository targetRepo) throws IOException, InvalidConfigException {
-        if (installAdapter.containsConfiguration(configId)) {
+        targetRepo = new Maven2Repository(new File(targetRoot, targetRepository));
+        targetStore = new RepositoryConfigurationStore(targetRepo);
+
+        ArtifactManager artifactManager = new DefaultArtifactManager();
+        artifactResolver = new ExplicitDefaultArtifactResolver(explicitResolutionLocation,
+                artifactManager,
+                Collections.singleton(sourceRepo),
+                null);
+
+
+        Artifact configId = Artifact.create(artifact);
+
+        // does this configuration exist?
+        if (!sourceRepo.contains(configId)) {
+            throw new NoSuchConfigException(configId);
+        }
+
+        // is this config already installed?
+        if (targetStore.containsConfiguration(configId)) {
             System.out.println("Configuration " + configId + " already present in configuration store");
             return;
         }
-        GBeanData config = installAdapter.install(sourceRepo, configId);
-        List dependencies = (List) config.getAttribute("dependencies");
-        System.out.println("Installed configuration " + configId);
+        execute(configId);
+    }
 
-        FileWriteMonitor monitor = new StartFileWriteMonitor();
+    private void execute(Artifact configId) throws IOException, InvalidConfigException, MissingDependencyException {
+        LinkedHashSet dependencies;
+        if (sourceStore.containsConfiguration(configId)) {
+            // Copy the configuration into the target configuration store
+            if (!targetStore.containsConfiguration(configId)) {
+                File sourceFile = sourceRepo.getLocation(configId);
+                InputStream in = new FileInputStream(sourceFile);
+                try {
+                    targetStore.install(in, (int)sourceFile.length(), configId, LOG_COPY_START);
+                } finally {
+                    in.close();
+                }
+            }
 
+            // Determine the dependencies of this configuration
+            try {
+                ConfigurationData configurationData = targetStore.loadConfiguration(configId);
+                Environment environment = configurationData.getEnvironment();
+                dependencies = new LinkedHashSet();
+                for (Iterator iterator = environment.getDependencies().iterator(); iterator.hasNext();) {
+                    Dependency dependency = (Dependency) iterator.next();
+                    dependencies.add(dependency.getArtifact());
+                }
+
+                System.out.println("Installed configuration " + configId);
+            } catch (IOException e) {
+                throw new InvalidConfigException("Unable to load configuration: " + configId, e);
+            } catch (NoSuchConfigException e) {
+                throw new InvalidConfigException("Unable to load configuration: " + configId, e);
+            }
+        } else {
+            if (!sourceRepo.contains(configId)) {
+                throw new RuntimeException("Dependency: " + configId + " not found in local maven repo: for configuration: " + artifact);
+            }
+
+            // Copy the artifact into the target repo
+            if (!targetRepo.contains(configId)) {
+                File sourceFile = sourceRepo.getLocation(configId);
+                InputStream in = new FileInputStream(sourceFile);
+                try {
+                    targetRepo.copyToRepository(in, (int)sourceFile.length(), configId, LOG_COPY_START);
+                } finally {
+                    in.close();
+                }
+            }
+
+            // Determine the dependencies of this artifact
+            dependencies = sourceRepo.getDependencies(configId);
+        }
+        dependencies = artifactResolver.resolveInClassLoader(dependencies);
         for (Iterator iterator = dependencies.iterator(); iterator.hasNext();) {
-            URI dependency = (URI) iterator.next();
-            if (!sourceRepo.hasURI(dependency)) {
-                throw new RuntimeException("Dependency: " + dependency + " not found in local maven repo: for configuration: " + artifact);
-            }
-            if (!targetRepo.hasURI(dependency)) {
-                URL sourceURL = sourceRepo.getURL(dependency);
-                InputStream in = sourceURL.openStream();
-                targetRepo.copyToRepository(in, dependency, monitor);
-            }
-        }
-        URI[] parentId = (URI[]) config.getAttribute("parentId");
-        if (parentId != null) {
-            for (int i = 0; i < parentId.length; i++) {
-                URI parent = parentId[i];
-                execute(parent, installAdapter, sourceRepo, targetRepo);
-            }
+            Artifact artifact = (Artifact) iterator.next();
+            execute(artifact);
         }
     }
 
-    protected interface InstallAdapter {
-
-        GBeanData install(Repository sourceRepo, URI configId) throws IOException, InvalidConfigException;
-
-        boolean containsConfiguration(URI configID);
-    }
-
-    protected static class StartFileWriteMonitor implements FileWriteMonitor {
-        public void writeStarted(String fileDescription) {
+    private static class StartFileWriteMonitor implements FileWriteMonitor {
+        public void writeStarted(String fileDescription, int fileSize) {
             System.out.println("Copying " + fileDescription);
         }
 
@@ -161,42 +227,6 @@ public class BaseConfigInstaller {
 
         public void writeComplete(int bytes) {
 
-        }
-    }
-
-    protected class InnerRepository implements Repository {
-
-        public boolean hasURI(URI uri) {
-            uri = resolve(uri);
-            if ("file".equals(uri.getScheme())) {
-                return new File(uri).canRead();
-            } else {
-                try {
-                    uri.toURL().openStream().close();
-                    return true;
-                } catch (IOException e) {
-                    return false;
-                }
-            }
-        }
-
-        public URL getURL(URI uri) throws MalformedURLException {
-            uri = resolve(uri);
-            return uri.toURL();
-        }
-
-        /**
-         * todo if the uri has a scheme, don't dissect it.
-         *
-         * @param uri
-         * @return
-         */
-        private URI resolve(final URI uri) {
-            String[] bits = uri.toString().split("/");
-            StringBuffer buf = new StringBuffer(bits[0]).append('/');
-            String type = bits.length >= 4 ? bits[3] : "jar";
-            buf.append(type).append('s').append('/').append(bits[1]).append('-').append(bits[2]).append('.').append(type);
-            return sourceRepositoryURI.resolve(buf.toString());
         }
     }
 }

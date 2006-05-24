@@ -41,9 +41,9 @@ import org.apache.xmlbeans.XmlOptions;
 public class SchemaConversionUtils {
     static final String J2EE_NAMESPACE = "http://java.sun.com/xml/ns/j2ee";
 
-    static final String GERONIMO_NAMING_NAMESPACE = "http://geronimo.apache.org/xml/ns/naming-1.0";
+    static final String GERONIMO_NAMING_NAMESPACE = "http://geronimo.apache.org/xml/ns/naming-1.1";
     private static final String GERONIMO_SECURITY_NAMESPACE = "http://geronimo.apache.org/xml/ns/security-1.1";
-    private static final String GERONIMO_SERVICE_NAMESPACE = "http://geronimo.apache.org/xml/ns/deployment-1.0";
+    private static final String GERONIMO_SERVICE_NAMESPACE = "http://geronimo.apache.org/xml/ns/deployment-1.1";
 
     private static final QName RESOURCE_ADAPTER_VERSION = new QName(J2EE_NAMESPACE, "resourceadapter-version");
     private static final QName TAGLIB = new QName(J2EE_NAMESPACE, "taglib");
@@ -62,16 +62,13 @@ public class SchemaConversionUtils {
         GERONIMO_SCHEMA_CONVERSIONS.put("cmp-connection-factory", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
         GERONIMO_SCHEMA_CONVERSIONS.put("workmanager", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
         GERONIMO_SCHEMA_CONVERSIONS.put("resource-adapter", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
+        GERONIMO_SCHEMA_CONVERSIONS.put("web-container", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
 
         GERONIMO_SCHEMA_CONVERSIONS.put("security", new SecurityElementConverter());
         GERONIMO_SCHEMA_CONVERSIONS.put("default-principal", new NamespaceElementConverter(GERONIMO_SECURITY_NAMESPACE));
 
         GERONIMO_SCHEMA_CONVERSIONS.put("gbean", new GBeanElementConverter());
-        GERONIMO_SCHEMA_CONVERSIONS.put("import", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
-        GERONIMO_SCHEMA_CONVERSIONS.put("hidden-classes", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
-        GERONIMO_SCHEMA_CONVERSIONS.put("non-overridable-classes", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
-        GERONIMO_SCHEMA_CONVERSIONS.put("dependency", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
-        GERONIMO_SCHEMA_CONVERSIONS.put("include", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
+        GERONIMO_SCHEMA_CONVERSIONS.put("environment", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
     }
 
     private SchemaConversionUtils() {
@@ -298,15 +295,13 @@ public class SchemaConversionUtils {
                     cursor.pop();
                     do {
                         String name = cursor.getName().getLocalPart();
-                        if ("filter".equals(name) || "servlet".equals(name) || "context-param".equals(name)) {
+                        if ("filter".equals(name) || "servlet".equals(name)) {
                             cursor.push();
                             cursor.toFirstChild();
                             convertToDescriptionGroup(cursor, moveable);
-                            while (cursor.toNextSibling(J2EE_NAMESPACE, "init-param")) {
-                                cursor.push();
+                            if (cursor.toNextSibling(J2EE_NAMESPACE, "init-param")) {
                                 cursor.toFirstChild();
                                 convertToDescriptionGroup(cursor, moveable);
-                                cursor.pop();
                             }
                             cursor.pop();
                         }
@@ -430,7 +425,7 @@ public class SchemaConversionUtils {
         } finally {
             cursor.dispose();
         }
-        throw new IllegalArgumentException("xmlobject did not have desired element: " + desiredElement + "/n" + xmlObject);
+        throw new IllegalArgumentException("xmlobject did not have desired element: " + desiredElement + "\n" + xmlObject);
     }
 
 

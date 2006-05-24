@@ -18,31 +18,31 @@
           </tr>
 <c:forEach var="entry" items="${brokers}">
           <tr>
-            <td>${entry.key}</td>
-            <td>${entry.value.stateInstance}</td>
+            <td>${entry.brokerName}</td>
+            <td>${entry.broker.stateInstance}</td>
 <!--
             <td>
              <c:choose>
-               <c:when test="${entry.value.stateInstance.name eq 'running'}">
+               <c:when test="${entry.broker.stateInstance.name eq 'running'}">
                <a href="<portlet:actionURL portletMode="view">
                  <portlet:param name="mode" value="stop" />
-                 <portlet:param name="objectName" value="${entry.value.objectName}" />
+                 <portlet:param name="objectName" value="${entry.brokerURI}" />
                </portlet:actionURL>">stop</a>
                </c:when>
                <c:otherwise>
                <a href="<portlet:actionURL portletMode="view">
                  <portlet:param name="mode" value="start" />
-                 <portlet:param name="objectName" value="${entry.value.objectName}" />
+                 <portlet:param name="objectName" value="${entry.brokerURI}" />
                </portlet:actionURL>">start</a>
                </c:otherwise>
              </c:choose>
                <a href="<portlet:actionURL portletMode="view">
                  <portlet:param name="mode" value="edit" />
-                 <portlet:param name="objectName" value="${entry.value.objectName}" />
+                 <portlet:param name="objectName" value="${entry.brokerURI}" />
                </portlet:actionURL>">edit</a>
                <a href="<portlet:actionURL portletMode="view">
                  <portlet:param name="mode" value="delete" />
-                 <portlet:param name="objectName" value="${entry.value.objectName}" />
+                 <portlet:param name="objectName" value="${entry.brokerURI}" />
                </portlet:actionURL>">delete</a>
              </td>
 -->

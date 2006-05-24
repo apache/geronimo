@@ -138,7 +138,7 @@ public class JettyFilterMapping implements Serializable {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(JettyFilterMapping.class, NameFactory.WEB_FILTER_MAPPING);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(JettyFilterMapping.class, NameFactory.URL_WEB_FILTER_MAPPING);
         infoBuilder.addAttribute("urlPattern", String.class, true);
         infoBuilder.addAttribute("requestDispatch", boolean.class, true);
         infoBuilder.addAttribute("forwardDispatch", boolean.class, true);
@@ -147,7 +147,7 @@ public class JettyFilterMapping implements Serializable {
 
         infoBuilder.addReference("Filter", JettyFilterHolder.class, NameFactory.WEB_FILTER);
         infoBuilder.addReference("Servlet", JettyServletHolder.class, NameFactory.SERVLET);
-        infoBuilder.addReference("Previous", JettyFilterMapping.class, NameFactory.WEB_FILTER_MAPPING);
+        infoBuilder.addReference("Previous", JettyFilterMapping.class, NameFactory.URL_WEB_FILTER_MAPPING);
         infoBuilder.addReference("JettyServletRegistration", JettyServletRegistration.class, NameFactory.WEB_MODULE);
 
         infoBuilder.setConstructor(new String[]{"urlPattern",

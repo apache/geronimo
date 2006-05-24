@@ -16,26 +16,31 @@
  */
 package org.apache.geronimo.console.jmsmanager.wizard;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import javax.portlet.PortletRequest;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.util.PortletManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-
-import java.io.Serializable;
-import java.io.InputStream;
-import java.io.IOException;
-import java.util.*;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipEntry;
-import java.net.URL;
-import javax.portlet.PortletRequest;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * Loads data on JMS providers known to the console.  Reads from a properties
@@ -203,8 +208,11 @@ public class JMSProviderData implements Serializable {
     }
 
     private static void loadRARData(JMSProviderData data, PortletRequest request) throws IOException {
-        URL url = PortletManager.getRepositoryEntry(request, data.getRaURI());
-        ZipInputStream in = new ZipInputStream(url.openStream());
+        File url = PortletManager.getRepositoryEntry(request, data.getRaURI());
+        if(url == null) {
+            throw new IOException("Unable to locate entry "+data.getRaURI()+" in repository");
+        }
+        ZipInputStream in = new ZipInputStream(new FileInputStream(url));
         ZipEntry entry;
         Document doc = null;
         try {
@@ -215,6 +223,7 @@ public class JMSProviderData implements Serializable {
                     DocumentBuilder builder = factory.newDocumentBuilder();
                     doc = builder.parse(in);
                     in.close();
+                    in = null;
                     break;
                 } else in.closeEntry();
             }
@@ -222,6 +231,12 @@ public class JMSProviderData implements Serializable {
             log.error("Unable to read META-INF/ra.xml in RAR file '"+data.getRaURI()+"'", e);
         } catch (SAXException e) {
             log.error("Unable to read META-INF/ra.xml in RAR file '"+data.getRaURI()+"'", e);
+        } finally {
+            if (in != null)
+                try {
+                    in.close();        
+                } catch (IOException ignore) {
+                }
         }
         if(doc == null) {
             throw new IOException("Unable to locate META-INF/ra.xml in RAR file '"+data.getRaURI()+"'");
@@ -348,9 +363,15 @@ public class JMSProviderData implements Serializable {
         Properties props = new Properties();
         try {
             props.load(in);
-            in.close();
         } catch (IOException e) {
             log.error("Unable to read JMS provider properties file", e);
+        } finally {
+            // load could fail, ensure stream is closed.
+            try {
+                in.close();
+            } catch (IOException ignore) {
+                // ignore
+            }
         }
         Set set = new HashSet();
         // Find the names of the provider entries

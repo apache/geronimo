@@ -1,0 +1,7 @@
+#list of deployers to be started for offline deployment
+geronimo/geronimo-gbean-deployer//car
+geronimo/j2ee-deployer//car
+geronimo/openejb-deployer//car
+geronimo/client-deployer//car
+geronimo/axis-deployer//car
+geronimo/jetty-deployer//car

@@ -17,20 +17,13 @@
 
 package org.apache.geronimo.console.configmanager;
 
-import org.apache.geronimo.console.BasePortlet;
-import org.apache.geronimo.console.util.SecurityConstants;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelRegistry;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationInfo;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.config.NoSuchStoreException;
-import org.apache.geronimo.kernel.management.State;
-
-import javax.management.ObjectName;
+import java.io.IOException;
+import java.io.Serializable;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletConfig;
@@ -39,15 +32,19 @@ import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
-import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Collections;
+import org.apache.geronimo.console.BasePortlet;
+import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.kernel.config.ConfigurationInfo;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.LifecycleException;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.management.geronimo.WebModule;
 
 public class ConfigManagerPortlet extends BasePortlet {
 
@@ -57,19 +54,7 @@ public class ConfigManagerPortlet extends BasePortlet {
 
     private static final String UNINSTALL_ACTION = "uninstall";
 
-    private static final String CONTAINSCONFIG_METHOD = "containsConfiguration";
-
-    private static final String UNINSTALL_METHOD = "uninstall";
-
-    private static final String[] CONTAINSCONFIG_SIG = {URI.class.getName()};
-
-    private static final String[] UNINSTALL_SIG = {URI.class.getName()};
-
-    private static final String QUEUETOPIC_URI = "runtimedestination/";
-
     private static final String CONFIG_INIT_PARAM = "config-type";
-
-    private String messageInstalled = "";
 
     private String messageStatus = "";
 
@@ -81,90 +66,48 @@ public class ConfigManagerPortlet extends BasePortlet {
 
     private PortletRequestDispatcher helpView;
 
-    private static final Collection EXCLUDED;
-
-    static {
-        // Add list of the configurationIDs that you do not want to list to this
-        // List.
-        EXCLUDED = new ArrayList();
-    }
-
-    public void processAction(ActionRequest actionRequest,
-                              ActionResponse actionResponse) throws PortletException, IOException {
+    public void processAction(ActionRequest actionRequest, ActionResponse actionResponse) throws PortletException, IOException {
         String action = actionRequest.getParameter("action");
         actionResponse.setRenderParameter("message", ""); // set to blank first
         try {
-            ConfigurationManager configurationManager = ConfigurationUtil
-                    .getConfigurationManager(kernel);
+            ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
             String config = getConfigID(actionRequest);
-            URI configID = URI.create(config);
+            Artifact configId = Artifact.create(config);
 
             if (START_ACTION.equals(action)) {
-                List list = configurationManager.loadRecursive(configID);
-                for (Iterator it = list.iterator(); it.hasNext();) {
-                    URI uri = (URI) it.next();
-                    configurationManager.loadGBeans(uri);
-                    configurationManager.start(uri);
+                if(!configurationManager.isLoaded(configId)) {
+                    configurationManager.loadConfiguration(configId);
                 }
-                messageStatus = "Started application<br /><br />";
+                if(!configurationManager.isRunning(configId)) {
+                    configurationManager.startConfiguration(configId);
+                    messageStatus = "Started application<br /><br />";
+                }
             } else if (STOP_ACTION.equals(action)) {
-                configurationManager.stop(configID);
-                configurationManager.unload(configID);
-                messageStatus = "Stopped application<br /><br />";
+                if(configurationManager.isRunning(configId)) {
+                    configurationManager.stopConfiguration(configId);
+                }
+                if(configurationManager.isLoaded(configId)) {
+                    configurationManager.unloadConfiguration(configId);
+                    messageStatus = "Stopped application<br /><br />";
+                }
             } else if (UNINSTALL_ACTION.equals(action)) {
-                uninstallConfig(actionRequest);
+                configurationManager.uninstallConfiguration(configId);
                 messageStatus = "Uninstalled application<br /><br />";
             } else {
-                messageStatus = "Invalid value for changeState: " + action
-                        + "<br /><br />";
-                throw new PortletException("Invalid value for changeState: "
-                        + action);
+                messageStatus = "Invalid value for changeState: " + action + "<br /><br />";
+                throw new PortletException("Invalid value for changeState: " + action);
             }
         } catch (NoSuchConfigException e) {
             // ignore this for now
             messageStatus = "Configuration not found<br /><br />";
             throw new PortletException("Configuration not found", e);
-        } catch (InvalidConfigException e) {
-            messageStatus = "Configuration not found<br /><br />";
-            throw new PortletException("Configuration not found", e);
+        } catch (LifecycleException e) {
+            // todo we have a much more detailed report now
+            messageStatus = "Lifecycle operation failed<br /><br />";
+            throw new PortletException("Exception", e);
         } catch (Exception e) {
             messageStatus = "Encountered an unhandled exception<br /><br />";
             throw new PortletException("Exception", e);
-        }
-    }
-
-    /**
-     * Uninstall an application configuration
-     *
-     * @param actionRequest
-     * @throws PortletException
-     * @throws Exception
-     */
-    private void uninstallConfig(ActionRequest actionRequest)
-            throws PortletException, Exception {
-        ConfigurationManager configManager = ConfigurationUtil
-                .getConfigurationManager(kernel);
-        List configStores = configManager.listStores();
-        int size = configStores.size();
-        String configID = getConfigID(actionRequest);
-        URI configURI = URI.create(configID);
-        for (int i = 0; i < size; i++) {
-            ObjectName configStore = (ObjectName) configStores.get(i);
-            Boolean result = (Boolean) kernel.invoke(configStore,
-                    CONTAINSCONFIG_METHOD,
-                    new Object[]{configURI}, CONTAINSCONFIG_SIG);
-            if (result.booleanValue() == true) {
-                // stop config if running
-                if (configManager.isLoaded(configURI)) {
-                    int state = kernel.getGBeanState(Configuration.getConfigurationObjectName(configURI));
-                    if (state == State.RUNNING.toInt()) {
-
-                        configManager.stop(configURI);
-                        configManager.unload(configURI);
-                    }
-                }
-                kernel.invoke(configStore, UNINSTALL_METHOD, new Object[]{configURI}, UNINSTALL_SIG);
-            }
         }
     }
 
@@ -174,10 +117,7 @@ public class ConfigManagerPortlet extends BasePortlet {
      */
     private boolean shouldListConfig(ConfigurationInfo info) {
         String configType = getInitParameter(CONFIG_INIT_PARAM);
-        if (configType != null && !info.getType().getName().equalsIgnoreCase(configType))
-            return false;
-        else
-            return true;
+        return configType == null || info.getType().getName().equalsIgnoreCase(configType);
     }
 
     /*
@@ -188,55 +128,41 @@ public class ConfigManagerPortlet extends BasePortlet {
      * actionRequest.getParameter("configId")); } return configID; }
      */
 
-    private String getConfigID(ActionRequest actionRequest)
-            throws PortletException {
+    private String getConfigID(ActionRequest actionRequest) {
         return actionRequest.getParameter("configId");
     }
 
-    protected void doView(RenderRequest renderRequest,
-                          RenderResponse renderResponse) throws IOException, PortletException {
+    protected void doView(RenderRequest renderRequest, RenderResponse renderResponse) throws IOException, PortletException {
         if (WindowState.MINIMIZED.equals(renderRequest.getWindowState())) {
             return;
         }
 
-        List configInfo = new ArrayList();
-        ConfigurationManager configManager = ConfigurationUtil
-                .getConfigurationManager(kernel);
-        List stores = configManager.listStores();
-        for (Iterator i = stores.iterator(); i.hasNext();) {
-            ObjectName storeName = (ObjectName) i.next();
-            try {
-                List infos = configManager.listConfigurations(storeName);
-                for (Iterator j = infos.iterator(); j.hasNext();) {
-                    ConfigurationInfo info = (ConfigurationInfo) j.next();
-                    if (shouldListConfig(info)) {
-                        // TODO: Check if this is the right solution
-                        // Disregard JMS Queues and Topics &&
-                        if (!info.getConfigID().getPath().startsWith(QUEUETOPIC_URI)
-                                && !info
-                                .getConfigID()
-                                .getPath()
-                                .startsWith(SecurityConstants.SECURITY_CONFIG_PREFIX)) {
-                            configInfo.add(info);
-                        }
+        List moduleDetails = new ArrayList();
+        ConfigurationManager configManager = ConfigurationUtil.getConfigurationManager(kernel);
+        List infos = configManager.listConfigurations();
+        for (Iterator j = infos.iterator(); j.hasNext();) {
+            ConfigurationInfo info = (ConfigurationInfo) j.next();
+            if (shouldListConfig(info)) {
+                ModuleDetails details = new ModuleDetails(info.getConfigID(), info.getType(), info.getState());
+
+                if (info.getType().getValue()== ConfigurationModuleType.WAR.getValue()){
+                    WebModule webModule = (WebModule) PortletManager.getModule(renderRequest, info.getConfigID());
+                    if (webModule != null) {
+                        details.setContextPath(webModule.getContextPath());
+                        details.setUrlFor(webModule.getURLFor());
                     }
                 }
-            } catch (NoSuchStoreException e) {
-                // we just got this list so this should not happen
-                // in the unlikely event it does, just continue
+                moduleDetails.add(details);
             }
         }
-        Collections.sort(configInfo, new Comparator() {
-            public int compare(Object o1, Object o2) {
-                ConfigurationInfo ci1 = (ConfigurationInfo) o1;
-                ConfigurationInfo ci2 = (ConfigurationInfo) o2;
-                return ci1.getConfigID().toString().compareTo(ci2.getConfigID().toString());
-            }
-        });
-        renderRequest.setAttribute("configurations", configInfo);
-        messageInstalled = configInfo.size() == 0 ? "No modules found of this type<br /><br />"
-                : "";
-        renderRequest.setAttribute("messageInstalled", messageInstalled);
+        Collections.sort(moduleDetails);
+        renderRequest.setAttribute("configurations", moduleDetails);
+        renderRequest.setAttribute("showWebInfo", Boolean.valueOf(getInitParameter(CONFIG_INIT_PARAM).equalsIgnoreCase(ConfigurationModuleType.WAR.getName())));
+        if (moduleDetails.size() == 0) {
+            renderRequest.setAttribute("messageInstalled", "No modules found of this type<br /><br />");
+        } else {
+            renderRequest.setAttribute("messageInstalled", "");
+        }
         renderRequest.setAttribute("messageStatus", messageStatus);
         messageStatus = "";
         if (WindowState.NORMAL.equals(renderRequest.getWindowState())) {
@@ -246,8 +172,7 @@ public class ConfigManagerPortlet extends BasePortlet {
         }
     }
 
-    protected void doHelp(RenderRequest renderRequest,
-                          RenderResponse renderResponse) throws PortletException, IOException {
+    protected void doHelp(RenderRequest renderRequest, RenderResponse renderResponse) throws PortletException, IOException {
         helpView.include(renderRequest, renderResponse);
     }
 
@@ -264,5 +189,59 @@ public class ConfigManagerPortlet extends BasePortlet {
         maximizedView = null;
         kernel = null;
         super.destroy();
+    }
+
+    /**
+     * Convenience data holder for portlet that displays deployed modules.
+     * Includes context path information for web modules.
+     */
+    public static class ModuleDetails implements Comparable, Serializable {
+        private final Artifact configId;
+        private final ConfigurationModuleType type;
+        private final State state;
+        private URL urlFor;             // only relevant for webapps
+        private String contextPath;     // only relevant for webapps
+
+        public ModuleDetails(Artifact configId, ConfigurationModuleType type, State state) {
+            this.configId = configId;
+            this.type = type;
+            this.state = state;
+        }
+
+        public int compareTo(Object o) {
+            if (o != null && o instanceof ModuleDetails){
+                return configId.compareTo(((ModuleDetails)o).configId);
+            } else {
+                return -1;
+            }
+        }
+
+        public Artifact getConfigId() {
+            return configId;
+        }
+
+        public State getState() {
+            return state;
+        }
+
+        public URL getUrlFor() {
+            return urlFor;
+        }
+
+        public String getContextPath() {
+            return contextPath;
+        }
+
+        public void setUrlFor(URL urlFor) {
+            this.urlFor = urlFor;
+        }
+
+        public void setContextPath(String contextPath) {
+            this.contextPath = contextPath;
+        }
+
+        public ConfigurationModuleType getType() {
+            return type;
+        }
     }
 }

@@ -19,6 +19,7 @@ package org.apache.geronimo.connector.outbound;
 
 import javax.resource.ResourceException;
 import javax.resource.spi.ManagedConnectionFactory;
+import javax.resource.spi.ConnectionManager;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
@@ -35,6 +36,8 @@ public interface ConnectionManagerContainer {
     Object createConnectionFactory(ManagedConnectionFactory mcf) throws ResourceException;
 
     ReturnableXAResource getRecoveryXAResource(ManagedConnectionFactory managedConnectionFactory) throws ResourceException;
+
+    ConnectionManager getConnectionManager();
 
     public class ReturnableXAResource implements NamedXAResource {
         private final ConnectionInterceptor stack;

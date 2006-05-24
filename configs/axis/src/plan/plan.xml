@@ -16,21 +16,21 @@
     limitations under the License.
 -->
 
-<!-- $Rev$ $Date$ -->
+<!-- $Rev: 366676 $ $Date: 2006-01-07 00:37:04 -0500 (Sat, 07 Jan 2006) $ -->
 
 <!--
 Configuration for the main ring of a Geronimo server.
 
-This configuration should contain those services normally provided
+This module should contain those services normally provided
 by the server.
                parentId="${pom.groupId}/rmi-naming/${pom.currentVersion}/car"
 
 -->
-<configuration
-    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-               configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
+<module
+    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
+
     >
 
     <gbean name="AxisCLWorkaround" class="org.apache.geronimo.axis.AxisDiscoveryCLWorkaroundGBean"/>
 
-</configuration>
+</module>

@@ -17,7 +17,14 @@
 
 package org.apache.geronimo.console.webmanager;
 
-import java.io.IOException;
+import org.apache.geronimo.console.BasePortlet;
+import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.management.geronimo.WebContainer;
+import org.apache.geronimo.management.geronimo.WebManager;
+import org.apache.geronimo.management.geronimo.stats.WebContainerStats;
+import org.apache.geronimo.management.StatisticsProvider;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -27,10 +34,7 @@ import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
-
-import org.apache.geronimo.console.BasePortlet;
-import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.management.geronimo.WebContainer;
+import java.io.IOException;
 
 /**
  * Basic portlet showing statistics for a web container
@@ -38,6 +42,8 @@ import org.apache.geronimo.management.geronimo.WebContainer;
  * @version $Rev$ $Date$
  */
 public class WebManagerPortlet extends BasePortlet {
+    private final static Log log = LogFactory.getLog(WebManagerPortlet.class);
+
     private PortletRequestDispatcher normalView;
 
     private PortletRequestDispatcher maximizedView;
@@ -45,15 +51,14 @@ public class WebManagerPortlet extends BasePortlet {
     private PortletRequestDispatcher helpView;
 
     public void processAction(ActionRequest actionRequest,
-            ActionResponse actionResponse) throws PortletException, IOException {
+                              ActionResponse actionResponse) throws PortletException, IOException {
         try {
-            String[] names = PortletManager.getWebManagerNames(actionRequest);  //todo: handle multiple
-            if (names != null) {
-                String managerName = names[0];  //todo: handle multiple
-                String[] containers = PortletManager.getWebContainerNames(actionRequest, managerName);  //todo: handle multiple
+            WebManager[] managers = PortletManager.getCurrentServer(actionRequest).getWebManagers();
+            if (managers != null) {
+                WebManager manager = managers[0];  //todo: handle multiple
+                WebContainer[] containers = (WebContainer[]) manager.getContainers();
                 if (containers != null) {
-                    String containerName = containers[0];  //todo: handle multiple
-                    WebContainer container = PortletManager.getWebContainer(actionRequest, containerName);
+                    WebContainer container = containers[0];  //todo: handle multiple
                     String server = getWebServerType(container.getClass());
                     String action = actionRequest.getParameter("stats");
                     if (action != null) {
@@ -65,7 +70,7 @@ public class WebManagerPortlet extends BasePortlet {
                             //todo:   Any Tomcat specific processing?
                         }
                         else {
-                            //todo:   Handle "should not occur" condition
+                            log.error("Unrecognized Web Container");
                         }
                     }
                     if (actionRequest.getParameter("resetStats") != null) {
@@ -76,16 +81,16 @@ public class WebManagerPortlet extends BasePortlet {
                             //todo:   Any Tomcat specific processing?
                         }
                         else {
-                            //todo:   Handle "should not occur" condition
+                            log.error("Unrecognized Web Container");
                         }
                     }
                 }
                 else {
-                    // todo  - Handle "should not occur" error  - message?
+                    log.error("Error attempting to retrieve the web containers");
                 }
             }
             else {
-                // todo  - Handle "should not occur" error  - message?
+                log.error("Error attempting to retrieve the web managers");
             }
         } catch (Exception e) {
             throw new PortletException(e);
@@ -93,38 +98,57 @@ public class WebManagerPortlet extends BasePortlet {
     }
 
     protected void doView(RenderRequest renderRequest,
-            RenderResponse renderResponse) throws IOException, PortletException {
+                          RenderResponse renderResponse) throws IOException, PortletException {
         if (WindowState.MINIMIZED.equals(renderRequest.getWindowState())) {
             return;
         }
         try {
-            String[] names = PortletManager.getWebManagerNames(renderRequest);  //todo: handle multiple
-            if (names != null) {
-                String managerName = names[0];  //todo: handle multiple
-                String[] containers = PortletManager.getWebContainerNames(renderRequest, managerName);  //todo: handle multiple
+            WebManager[] managers = PortletManager.getCurrentServer(renderRequest).getWebManagers();
+            if (managers != null) {
+                WebManager manager = managers[0];  //todo: handle multiple
+                WebContainer[] containers = (WebContainer[]) manager.getContainers();
                 if (containers != null) {
-                    String containerName = containers[0];  //todo: handle multiple
-                    WebContainer container = PortletManager.getWebContainer(renderRequest, containerName);
-                    String server = getWebServerType(container.getClass());
-                    StatisticsHelper helper = null;
-                    if(server.equals(WEB_SERVER_JETTY)) {
-                        helper = new JettyStatisticsHelper();
-                    } else if(server.equals(WEB_SERVER_TOMCAT)) {
-                        //todo     - Handle Tomcat logs
+                    WebContainer container = containers[0];  //todo: handle multiple
+                    if(container.isStatisticsProvider()) {
+                        WebContainerStats webStats = (WebContainerStats) ((StatisticsProvider)container).getStats();
+                        if (webStats.isStatsOn()) {
+                            renderRequest.setAttribute("statsOn", Boolean.TRUE);
+                            renderRequest.setAttribute("totalRequestCount", new Long(webStats.getTotalRequestCount().getCount()));
+                            renderRequest.setAttribute("totalConnectionCount", new Long(webStats.getTotalConnectionCount().getCount()));
+                            renderRequest.setAttribute("totalErrorCount", new Long(webStats.getTotalErrorCount().getCount()));
+                            renderRequest.setAttribute("activeRequestCountCurrent", new Long(webStats.getActiveRequestCount().getCurrent()));
+                            renderRequest.setAttribute("activeRequestCountLow", new Long(webStats.getActiveRequestCount().getLowWaterMark()));
+                            renderRequest.setAttribute("activeRequestCountHigh", new Long(webStats.getActiveRequestCount().getHighWaterMark()));
+                            renderRequest.setAttribute("connectionRequestCountCurrent", new Long(webStats.getConnectionRequestCount().getCurrent()));
+                            renderRequest.setAttribute("connectionRequestCountLow", new Long(webStats.getConnectionRequestCount().getLowWaterMark()));
+                            renderRequest.setAttribute("connectionRequestCountHigh", new Long(webStats.getConnectionRequestCount().getHighWaterMark()));
+    //                          renderRequest.setAttribute("connectionRequestsAve", new Long(0));   /* Can't really compute this for a range ... do we still need it (from old portlet) */
+                            renderRequest.setAttribute("openConnectionCountCurrent", new Long(webStats.getOpenConnectionCount().getCurrent()));
+                            renderRequest.setAttribute("openConnectionCountLow", new Long(webStats.getOpenConnectionCount().getLowWaterMark()));
+                            renderRequest.setAttribute("openConnectionCountHigh", new Long(webStats.getOpenConnectionCount().getHighWaterMark()));
+                            renderRequest.setAttribute("requestDurationCount", new Long(webStats.getRequestDuration().getCount()));
+                            renderRequest.setAttribute("requestDurationMinTime", new Long(webStats.getRequestDuration().getMinTime()));
+                            renderRequest.setAttribute("requestDurationMaxTime", new Long(webStats.getRequestDuration().getMaxTime()));
+                            renderRequest.setAttribute("requestDurationTotalTime", new Long(webStats.getRequestDuration().getTotalTime()));
+    //                          renderRequest.setAttribute("requestDurationAve", new Long(0));  /* Would this be valuable to calculate?  We used to show this in the old jetty only portlet */
+                            renderRequest.setAttribute("connectionDurationCount", new Long(webStats.getConnectionDuration().getCount()));
+                            renderRequest.setAttribute("connectionDurationMinTime", new Long(webStats.getConnectionDuration().getMinTime()));
+                            renderRequest.setAttribute("connectionDurationMaxTime", new Long(webStats.getConnectionDuration().getMaxTime()));
+                            renderRequest.setAttribute("connectionDurationTotalTime", new Long(webStats.getConnectionDuration().getTotalTime()));
+    //                          renderRequest.setAttribute("connectionDurationAve", new Long(0));   /* Wouldl this be valueable to calculate?  We used to show this in the old jetty only portlet */
+                        } else {
+                            renderRequest.setAttribute("statsSupported", Boolean.TRUE);
+                            renderRequest.setAttribute("statsMessage", "Statistics are not currently being collected.");
+                        }
+                    } else {
+                        renderRequest.setAttribute("statsSupported", Boolean.FALSE);
+                        renderRequest.setAttribute("statsMessage", "Web statistics are not supported for the current web container.");
                     }
-                    else {
-                        // todo   - Log error, unknown server
-                    }
-                    if(helper != null) {
-                        helper.gatherStatistics(container, renderRequest);
-                    }
+                } else {
+                    log.error("Error attempting to retrieve the web containers");
                 }
-                else {
-                    // todo  - Handle "should not occur" error  - message?
-                }
-            }
-            else {
-                // todo  - Handle "should not occur" error  - message?
+            } else {
+                log.error("Error attempting to retrieve the web managers");
             }
         } catch (Exception e) {
             throw new PortletException(e);
@@ -137,7 +161,7 @@ public class WebManagerPortlet extends BasePortlet {
     }
 
     protected void doHelp(RenderRequest renderRequest,
-            RenderResponse renderResponse) throws PortletException, IOException {
+                          RenderResponse renderResponse) throws PortletException, IOException {
         helpView.include(renderRequest, renderResponse);
     }
 

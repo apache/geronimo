@@ -16,71 +16,89 @@
  */
 package org.apache.geronimo.deployment.service;
 
-import java.net.URI;
-import java.net.URL;
-import java.net.MalformedURLException;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Arrays;
-import java.util.Set;
-import javax.management.ObjectName;
 import junit.framework.TestCase;
-import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
-import org.apache.geronimo.deployment.xbeans.ConfigurationType;
-import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.FooBarBean;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.deployment.ModuleIDBuilder;
+import org.apache.geronimo.deployment.xbeans.ModuleDocument;
+import org.apache.geronimo.deployment.xbeans.ModuleType;
+import org.apache.geronimo.deployment.xbeans.GbeanType;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.SimpleConfigurationManager;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ListableRepository;
+import org.apache.geronimo.kernel.repository.ArtifactManager;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
+import org.apache.geronimo.kernel.Jsr77Naming;
+import org.apache.geronimo.kernel.Naming;
+
+import javax.management.ObjectName;
+import java.io.File;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.LinkedHashSet;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.Collections;
+import java.util.jar.JarFile;
 
 /**
  * @version $Rev$ $Date$
  */
 public class ServiceConfigBuilderTest extends TestCase {
 
-    private URI[] parentIdArray = new URI[] {URI.create("test/foo")};
-    private List parentId = Arrays.asList(parentIdArray);
+    private Environment parentEnvironment = new Environment();
+
+    public void testNonService() throws Exception {
+        URL url = getClass().getResource("/empty.jar");
+        File file = new File(url.getPath());
+        JarFile jar = new JarFile(file);
+        assertTrue(file.exists());
+        ServiceConfigBuilder builder = new ServiceConfigBuilder(parentEnvironment, null, new Jsr77Naming());
+        assertNull(builder.getDeploymentPlan(null, jar, new ModuleIDBuilder()));
+        jar.close();
+    }
 
     public void testJavaBeanXmlAttribute() throws Exception {
         ReferenceCollection referenceCollection = new MockReferenceCollection();
         JavaBeanXmlAttributeBuilder javaBeanXmlAttributeBuilder = new JavaBeanXmlAttributeBuilder();
         //this is kind of cheating, we rely on the builder to iterate through existing members of the collection.
         referenceCollection.add(javaBeanXmlAttributeBuilder);
-        new ServiceConfigBuilder(parentIdArray, null, referenceCollection, null, null);
+        Naming naming = new Jsr77Naming();
+        new ServiceConfigBuilder(parentEnvironment, null, referenceCollection, null, naming);
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         final URL plan1 = cl.getResource("services/plan1.xml");
-        ConfigurationDocument doc = ConfigurationDocument.Factory.parse(plan1);
-        ConfigurationType plan = doc.getConfiguration();
+        ModuleDocument doc = ModuleDocument.Factory.parse(plan1);
+        ModuleType plan = doc.getModule();
         File outFile = File.createTempFile("foo", "bar");
         outFile.delete();
         if (!outFile.mkdirs()) {
             fail("could not create temp dir");
         }
         try {
-            DeploymentContext context = new DeploymentContext(outFile, URI.create("foo/bar"), ConfigurationModuleType.SERVICE, parentId, "domain", "server", null);
-            J2eeContext j2eeContext = new J2eeContextImpl("domain", "server", "null", "test", "configtest", "foo", NameFactory.J2EE_MODULE);
-            ServiceConfigBuilder.addDependencies(context, plan.getDependencyArray(), new Repository() {
 
-                public boolean hasURI(URI uri) {
-                    return true;
-                }
+            Environment environment = EnvironmentBuilder.buildEnvironment(plan.getEnvironment());
+            MockRepository mockRepository = new MockRepository();
+            ArtifactManager artifactManager = new DefaultArtifactManager();
+            ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.singleton(mockRepository), null);
+            ConfigurationManager configurationManager = new SimpleConfigurationManager(Collections.EMPTY_SET, artifactResolver, Collections.EMPTY_SET);
+            DeploymentContext context = new DeploymentContext(outFile, null, environment, ConfigurationModuleType.CAR, naming, configurationManager, Collections.singleton(mockRepository));
+            AbstractName j2eeContext = naming.createRootName(environment.getConfigId(), environment.getConfigId().toString(), "Configuration");
 
-                public URL getURL(URI uri) throws MalformedURLException {
-                    return plan1;
-                }
-            });
             GbeanType[] gbeans = plan.getGbeanArray();
             ServiceConfigBuilder.addGBeans(gbeans, cl, j2eeContext, context);
-            Set beanDatas = context.listGBeans(new ObjectName("*:*"));
-            assertEquals(1, beanDatas.size());
-            ObjectName beanName = (ObjectName) beanDatas.iterator().next();
+            Set gbeanNames = context.getGBeanNames();
+            assertEquals(1, gbeanNames.size());
+            AbstractName beanName = (AbstractName) gbeanNames.iterator().next();
             GBeanData data = context.getGBeanInstance(beanName);
             FooBarBean fooBarBean = (FooBarBean) data.getAttribute("fooBarBean");
             assertNotNull(fooBarBean);
@@ -110,6 +128,32 @@ public class ServiceConfigBuilderTest extends TestCase {
         file.delete();
     }
 
+    private static class MockRepository implements ListableRepository {
+        public boolean contains(Artifact artifact) {
+            return true;
+        }
+
+        public File getLocation(Artifact artifact) {
+            return new File(".");
+        }
+
+        public LinkedHashSet getDependencies(Artifact artifact) {
+            return new LinkedHashSet();
+        }
+
+        public SortedSet list() {
+            return new TreeSet();
+        }
+
+        public SortedSet list(Artifact query) {
+            System.out.println("LOOKING FOR "+query);
+            SortedSet set = new TreeSet();
+            if(query.getGroupId() != null && query.getArtifactId() != null && query.getVersion() != null && query.getType() == null) {
+                set.add(new Artifact(query.getGroupId(), query.getArtifactId(), query.getVersion(), "jar"));
+            }
+            return set;
+        }
+    }
     private static class MockReferenceCollection extends ArrayList implements ReferenceCollection {
 
         public void addReferenceCollectionListener(ReferenceCollectionListener listener) {

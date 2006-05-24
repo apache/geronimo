@@ -18,7 +18,6 @@ package org.apache.geronimo.client;
 
 import java.util.Iterator;
 import java.util.Map;
-import javax.management.ObjectName;
 import javax.naming.InitialContext;
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -29,6 +28,7 @@ import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.Kernel;
 
 /**
@@ -51,7 +51,7 @@ public class StaticJndiContextPlugin implements AppClientPlugin {
         this.context = EnterpriseNamingContext.createEnterpriseNamingContext(context);
     }
 
-    public void startClient(ObjectName appClientModuleName, Kernel kernel, ClassLoader classLoader) throws Exception {
+    public void startClient(AbstractName appClientModuleName, Kernel kernel, ClassLoader classLoader) throws Exception {
         RootContext.setComponentContext(context);
         System.setProperty("java.naming.factory.initial", "com.sun.jndi.rmi.registry.RegistryContextFactory");
         System.setProperty("java.naming.factory.url.pkgs", "org.apache.geronimo.naming");
@@ -59,7 +59,7 @@ public class StaticJndiContextPlugin implements AppClientPlugin {
         new InitialContext().lookup("java:comp/env");
     }
 
-    public void stopClient(ObjectName appClientModuleName) throws Exception {
+    public void stopClient(AbstractName appClientModuleName) throws Exception {
         RootContext.setComponentContext(null);
     }
 

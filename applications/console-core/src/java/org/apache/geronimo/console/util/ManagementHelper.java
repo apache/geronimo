@@ -16,52 +16,36 @@
  */
 package org.apache.geronimo.console.util;
 
-import java.net.URI;
 import java.util.Map;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
-import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.kernel.config.ConfigurationInfo;
+
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.management.AppClientModule;
 import org.apache.geronimo.management.EJB;
 import org.apache.geronimo.management.EJBModule;
 import org.apache.geronimo.management.J2EEDeployedObject;
-import org.apache.geronimo.management.J2EEDomain;
 import org.apache.geronimo.management.J2EEModule;
-import org.apache.geronimo.management.J2EEResource;
-import org.apache.geronimo.management.JCAConnectionFactory;
 import org.apache.geronimo.management.JDBCDataSource;
 import org.apache.geronimo.management.JDBCDriver;
 import org.apache.geronimo.management.JDBCResource;
 import org.apache.geronimo.management.JMSResource;
-import org.apache.geronimo.management.ResourceAdapter;
 import org.apache.geronimo.management.Servlet;
-import org.apache.geronimo.management.WebModule;
-import org.apache.geronimo.management.geronimo.EJBConnector;
-import org.apache.geronimo.management.geronimo.EJBManager;
 import org.apache.geronimo.management.geronimo.J2EEApplication;
+import org.apache.geronimo.management.geronimo.J2EEDomain;
 import org.apache.geronimo.management.geronimo.J2EEServer;
 import org.apache.geronimo.management.geronimo.JCAAdminObject;
+import org.apache.geronimo.management.geronimo.JCAConnectionFactory;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.management.geronimo.JCAResource;
-import org.apache.geronimo.management.geronimo.JMSBroker;
-import org.apache.geronimo.management.geronimo.JMSConnector;
-import org.apache.geronimo.management.geronimo.JMSManager;
 import org.apache.geronimo.management.geronimo.JVM;
+import org.apache.geronimo.management.geronimo.ResourceAdapter;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
-import org.apache.geronimo.management.geronimo.WebAccessLog;
-import org.apache.geronimo.management.geronimo.WebConnector;
-import org.apache.geronimo.management.geronimo.WebContainer;
-import org.apache.geronimo.management.geronimo.WebManager;
-import org.apache.geronimo.pool.GeronimoExecutor;
-import org.apache.geronimo.security.jaas.server.JaasLoginServiceMBean;
-import org.apache.geronimo.security.realm.SecurityRealm;
-import org.apache.geronimo.security.keystore.KeystoreManager;
+import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.system.logging.SystemLog;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.system.configuration.ConfigurationInstaller;
 
 /**
  * A helper interface to navigate between management objects.  This is not
@@ -73,12 +57,7 @@ public interface ManagementHelper {
     // root properties
     J2EEDomain[] getDomains();
 
-    // domain properties
-    J2EEServer[] getServers(J2EEDomain domain);
-    // todo: security realm
-
     // server properties
-    J2EEDeployedObject[] getDeployedObjects(J2EEServer server);
     J2EEApplication[] getApplications(J2EEServer server);
     AppClientModule[] getAppClients(J2EEServer server);
     WebModule[] getWebModules(J2EEServer server);
@@ -88,43 +67,10 @@ public interface ManagementHelper {
     ResourceAdapterModule[] getOutboundRAModules(J2EEServer server, String[] connectionFactoryInterfaces);
     ResourceAdapterModule[] getAdminObjectModules(J2EEServer server, String[] adminObjectInterfaces);
     JCAManagedConnectionFactory[] getOutboundFactories(J2EEServer server, String connectionFactoryInterface);
-    J2EEResource[] getResources(J2EEServer server);
     JCAResource[] getJCAResources(J2EEServer server);
     JDBCResource[] getJDBCResources(J2EEServer server);
     JMSResource[] getJMSResources(J2EEServer server);
     JVM[] getJavaVMs(J2EEServer server);
-    Repository[] getRepositories(J2EEServer server);
-    SecurityRealm[] getSecurityRealms(J2EEServer server);
-    ServerInfo getServerInfo(J2EEServer server);
-    JaasLoginServiceMBean getLoginService(J2EEServer server);
-    KeystoreManager getKeystoreManager(J2EEServer server);
-    ConfigurationInstaller getConfigurationInstaller(J2EEServer server);
-    WebManager[] getWebManagers(J2EEServer server);
-    WebAccessLog getWebAccessLog(WebManager manager, WebContainer container);
-    WebAccessLog getWebAccessLog(WebManager manager, String containerObjectName);
-    WebContainer[] getWebContainers(WebManager manager);
-    WebConnector[] getWebConnectorsForContainer(WebManager manager, WebContainer container, String protocol);
-    WebConnector[] getWebConnectorsForContainer(WebManager manager, WebContainer container);
-    WebConnector[] getWebConnectorsForContainer(WebManager manager, String containerObjectName, String protocol);
-    WebConnector[] getWebConnectorsForContainer(WebManager manager, String containerObjectName);
-    WebConnector[] getWebConnectors(WebManager manager, String protocol);
-    WebConnector[] getWebConnectors(WebManager manager);
-    EJBManager[] getEJBManagers(J2EEServer server);
-//todo    EJBContainer[] getEJBContainers(EJBManager manager);
-//todo    EJBConnector[] getEJBConnectors(EJBManager manager, EJBContainer container, String protocol);
-//todo    EJBConnector[] getEJBConnectors(EJBManager manager, EJBContainer container);
-    EJBConnector[] getEJBConnectors(EJBManager container, String protocol);
-    EJBConnector[] getEJBConnectors(EJBManager container);
-    JMSManager[] getJMSManagers(J2EEServer server);
-    JMSBroker[] getJMSBrokers(JMSManager manager);
-    JMSConnector[] getJMSConnectors(JMSManager manager, String protocol);
-    JMSConnector[] getJMSConnectors(JMSManager manager);
-    JMSConnector[] getJMSConnectorsForContainer(JMSManager manager, JMSBroker broker, String protocol);
-    JMSConnector[] getJMSConnectorsForContainer(JMSManager manager, JMSBroker broker);
-    JMSConnector[] getJMSConnectorsForContainer(JMSManager manager, String brokerObjectName, String protocol);
-    JMSConnector[] getJMSConnectorsForContainer(JMSManager manager, String brokerObjectName);
-    GeronimoExecutor[] getThreadPools(J2EEServer server);
-    //todo: repository, embedded database
 
     // JVM properties
     SystemLog getSystemLog(JVM jvm);
@@ -135,7 +81,6 @@ public interface ManagementHelper {
     WebModule[] getWebModules(J2EEApplication application);
     EJBModule[] getEJBModules(J2EEApplication application);
     ResourceAdapterModule[] getRAModules(J2EEApplication application);
-    J2EEResource[] getResources(J2EEApplication application);
     JCAResource[] getJCAResources(J2EEApplication application);
     JDBCResource[] getJDBCResources(J2EEApplication application);
     JMSResource[] getJMSResources(J2EEApplication application);
@@ -160,13 +105,21 @@ public interface ManagementHelper {
     JCAManagedConnectionFactory getManagedConnectionFactory(JCAConnectionFactory factory);
 
     // Generic utility methods
-    Object getObject(String objectName);
-    URI getConfigurationNameFor(String objectName);
-    String getGBeanDescription(String objectName);
+    Object getObject(AbstractName abstractName);
+    Artifact getConfigurationNameFor(AbstractName abstractName);
+    String getGBeanDescription(AbstractName abstractName);
 
     // Misc
     void testLoginModule(J2EEServer server, LoginModule module, Map options);
     Subject testLoginModule(J2EEServer server, LoginModule module, Map options, String username, String password) throws LoginException;
     Object[] findByInterface(Class iface);
-    ConfigurationInfo[] getConfigurations(ConfigurationModuleType type, boolean includeChildModules);
+    AbstractName getNameFor(Object component);
+    ConfigurationData[] getConfigurations(ConfigurationModuleType type, boolean includeChildModules);
+    /**
+     * Gets a JSR-77 Module (WebModule, EJBModule, etc.) for the specified configuration.
+     * Note: this only works if the configuration is running at the time you ask.
+     *
+     * @return The Module, or null if the configuration is not running.
+     */
+    J2EEDeployedObject getModuleForConfiguration(Artifact configuration);
 }

@@ -26,6 +26,7 @@ import java.util.StringTokenizer;
 
 import java.rmi.server.RMIClassLoader;
 import java.rmi.server.RMIClassLoaderSpi;
+import EDU.oswego.cs.dl.util.concurrent.ConcurrentReaderHashMap;
 
 /**
  * An implementation of {@link RMIClassLoaderSpi} which provides normilzation
@@ -37,12 +38,16 @@ public class RMIClassLoaderSpiImpl
     extends RMIClassLoaderSpi
 {
     private RMIClassLoaderSpi delegate = RMIClassLoader.getDefaultProviderInstance();
-    
+
+    //TODO: Not sure of the best initial size.  Starting with 100 which should be reasonable.
+    private ConcurrentReaderHashMap cachedCodebases = new ConcurrentReaderHashMap(100, 0.75F);
+
+
     public Class loadClass(String codebase, String name, ClassLoader defaultLoader)
         throws MalformedURLException, ClassNotFoundException
     {
         if (codebase != null) {
-            codebase = normalizeCodebase(codebase);
+            codebase = getNormalizedCodebase(codebase);
         }
         
         return delegate.loadClass(codebase, name, defaultLoader);
@@ -52,7 +57,7 @@ public class RMIClassLoaderSpiImpl
         throws MalformedURLException, ClassNotFoundException
     {
         if (codebase != null) {
-            codebase = normalizeCodebase(codebase);
+            codebase = getNormalizedCodebase(codebase);
         }
         
         return delegate.loadProxyClass(codebase, interfaces, defaultLoader);
@@ -62,7 +67,7 @@ public class RMIClassLoaderSpiImpl
         throws MalformedURLException
     {
         if (codebase != null) {
-            codebase = normalizeCodebase(codebase);
+            codebase = getNormalizedCodebase(codebase);
         }
         
         return delegate.getClassLoader(codebase);
@@ -89,13 +94,37 @@ public class RMIClassLoaderSpiImpl
         
         return delegate.getClassAnnotation(type);
     }
-    
+
+    /**
+     * Uses a ConcurrentReaderHashmap to save the contents of previous parses.
+     *
+     * @param codebase
+     * @return
+     * @throws MalformedURLException
+     */
+    private String getNormalizedCodebase(String codebase)
+            throws MalformedURLException {
+        String cachedCodebase = (String)cachedCodebases.get(codebase);
+        if (cachedCodebase != null)
+            return cachedCodebase;
+
+        String normalizedCodebase = normalizeCodebase(codebase);
+        String oldValue = (String)cachedCodebases.put(codebase, normalizedCodebase);
+
+        // If there was a previous value remove the one we just added to make sure the
+        // cache doesn't grow.
+        if (oldValue != null) {
+            cachedCodebases.remove(codebase);
+        }
+        return normalizedCodebase;  // We can use the oldValue
+    }
+
+
     static String normalizeCodebase(String input)
         throws MalformedURLException
     {
         assert input != null;
-        // System.out.println("Input codebase: " + input);
-        
+
         StringBuffer codebase = new StringBuffer();
         StringBuffer working = new StringBuffer();
         StringTokenizer stok = new StringTokenizer(input, " \t\n\r\f", true);
@@ -169,4 +198,4 @@ public class RMIClassLoaderSpiImpl
     public interface ClassLoaderServerAware {
         public URL[] getClassLoaderServerURLs();
     }
-        }
+}

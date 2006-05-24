@@ -17,26 +17,26 @@
 package org.apache.geronimo.j2ee.deployment;
 
 import java.net.URI;
-import javax.management.ObjectName;
+import java.util.Set;
 import javax.naming.Reference;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev:390932 $ $Date$
  */
 public interface EJBReferenceBuilder {
 
-    Reference createEJBLocalReference(String objectName, GBeanData gbeanData, boolean isSession, String localHome, String local) throws DeploymentException;
+    Reference createCORBAReference(Configuration configuration, AbstractNameQuery containerNameQuery, URI nsCorbaloc, String objectName, String home) throws DeploymentException;
 
-    Reference createEJBRemoteReference(String objectName, GBeanData gbeanData, boolean isSession, String home, String remote) throws DeploymentException;
+    Reference createEJBRemoteRef(String refName, Configuration configuration, String name, String requiredModule, String optionalModule, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String home, String remote) throws DeploymentException;
 
-    Reference createCORBAReference(URI corbaURL, String objectName, ObjectName containerName, String home) throws DeploymentException;
-
-    Reference getImplicitEJBRemoteRef(URI module, String refName, boolean isSession, String home, String remote, NamingContext context) throws DeploymentException;
-
-    Reference getImplicitEJBLocalRef(URI module, String refName, boolean isSession, String localHome, String local, NamingContext context) throws DeploymentException;
-
+    Reference createEJBLocalRef(String refName, Configuration configuration, String name, String requiredModule, String optionalModule, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String localHome, String local) throws DeploymentException;
 }

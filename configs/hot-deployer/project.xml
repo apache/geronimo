@@ -32,7 +32,16 @@
             <version>${geronimo_packaging_plugin_version}</version>
             <type>plugin</type>
         </dependency>
-
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-gbean-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+            <properties>
+                <packaging.config.order>1</packaging.config.order>
+            </properties>
+        </dependency>
+       
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>rmi-naming</artifactId>
@@ -40,6 +49,16 @@
             <type>car</type>
             <properties>
                  <geronimo.import>true</geronimo.import>
+             </properties>
+        </dependency>
+        <!-- should be services-only dependency -->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>j2ee-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+            <properties>
+                 <geronimo.reference>true</geronimo.reference>
              </properties>
         </dependency>
 
@@ -85,6 +104,13 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
             <version>${geronimo_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>jetty-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
         </dependency>
 
         <dependency>
@@ -164,6 +190,12 @@
             <version>${geronimo_version}</version>
         </dependency>
         <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-jetty</artifactId>
+            <version>${geronimo_version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>concurrent</groupId>
             <artifactId>concurrent</artifactId>
             <version>${concurrent_version}</version>
@@ -209,8 +241,8 @@
             <version>${asm_version}</version>
         </dependency>
         <dependency>
-            <groupId>incubator-activemq</groupId>
-            <artifactId>activemq-gbean-management</artifactId>
+            <groupId>activemq</groupId>
+            <artifactId>activemq-gbean-management-g1_1</artifactId>
             <version>${activemq_version}</version>
         </dependency>
         <dependency>

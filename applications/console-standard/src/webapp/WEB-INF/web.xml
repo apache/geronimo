@@ -219,6 +219,19 @@ limitations under the License.
         </init-param>
     </servlet>
     <servlet>
+        <display-name>Pluto Wrapper for Thread Pool Portlet</display-name>
+        <servlet-name>ThreadPool</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.threads.ThreadPoolPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.ThreadPool</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
         <display-name>Pluto Wrapper for New Keystore Portlet</display-name>
         <servlet-name>Keystores</servlet-name>
         <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
@@ -750,6 +763,11 @@ limitations under the License.
   <servlet-name>maven-repo</servlet-name>
   <servlet-class>org.apache.geronimo.console.car.GeronimoAsMavenServlet</servlet-class>
 </servlet>
+<servlet>
+  <display-name>Plan Export Servlet</display-name>
+  <servlet-name>plan-export</servlet-name>
+  <servlet-class>org.apache.geronimo.console.configmanager.PlanExportServlet</servlet-class>
+</servlet>
 
 <servlet-mapping>
   <servlet-name>dwr-invoker</servlet-name>
@@ -762,6 +780,10 @@ limitations under the License.
 <servlet-mapping>
   <servlet-name>maven-repo</servlet-name>
   <url-pattern>/maven-repo/*</url-pattern>
+</servlet-mapping>
+<servlet-mapping>
+  <servlet-name>plan-export</servlet-name>
+  <url-pattern>/plan-export</url-pattern>
 </servlet-mapping>
 
 
@@ -825,6 +847,10 @@ limitations under the License.
     <servlet-mapping>
         <servlet-name>Keystore</servlet-name>
         <url-pattern>/Keystore/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ThreadPool</servlet-name>
+        <url-pattern>/ThreadPool/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>Keystores</servlet-name>
@@ -916,6 +942,27 @@ limitations under the License.
         <servlet-name>BPMStatistics</servlet-name>
         <url-pattern>/BPMStatistics/*</url-pattern>
     </servlet-mapping>
+    
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name></web-resource-name>
+            <url-pattern>/</url-pattern>
+            <http-method>GET</http-method>
+            <http-method>POST</http-method>
+            <http-method>PUT</http-method>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>admin</role-name>
+        </auth-constraint>
+    </security-constraint>
+    <login-config>
+        <auth-method>BASIC</auth-method>
+        <realm-name>geronimo-properties-realm</realm-name>
+    </login-config>
+    <security-role>
+        <role-name>admin</role-name>
+    </security-role>
+    
 
     <servlet-mapping>
         <servlet-name>JMSManager</servlet-name>
@@ -976,27 +1023,6 @@ limitations under the License.
         <servlet-name>RunSQL</servlet-name>
         <url-pattern>/RunSQL/*</url-pattern>
     </servlet-mapping>
-    
-    <security-constraint>
-        <web-resource-collection>
-            <web-resource-name></web-resource-name>
-            <url-pattern>/</url-pattern>
-            <http-method>GET</http-method>
-            <http-method>POST</http-method>
-            <http-method>PUT</http-method>
-        </web-resource-collection>
-        <auth-constraint>
-            <role-name>admin</role-name>
-        </auth-constraint>
-    </security-constraint>
-    <login-config>
-        <auth-method>BASIC</auth-method>
-        <realm-name>geronimo-properties-realm</realm-name>
-    </login-config>
-    <security-role>
-        <role-name>admin</role-name>
-    </security-role>
-    
     <servlet-mapping>
         <servlet-name>ImportExport</servlet-name>
         <url-pattern>/ImportExport/*</url-pattern>

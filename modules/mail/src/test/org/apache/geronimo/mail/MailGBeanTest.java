@@ -16,17 +16,14 @@
  */
 package org.apache.geronimo.mail;
 
+import java.util.Collections;
 import java.util.Properties;
+
 import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.Transport;
-import javax.management.ObjectName;
 
 import junit.framework.TestCase;
-
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.kernel.KernelFactory;
-import org.apache.geronimo.kernel.Kernel;
 
 
 /**
@@ -34,24 +31,14 @@ import org.apache.geronimo.kernel.Kernel;
  */
 public class MailGBeanTest extends TestCase {
 
-    private Kernel kernel;
-    private ObjectName mailName;
-    private ObjectName protocolName;
-    private static final String KERNEL_NAME = "testKernel";
-
     public void testProperties() throws Exception {
         Properties properties = new Properties();
         properties.put("mail.store.protocol", "testStore");
         properties.put("mail.transport.protocol", "testTransport");
 
-        mailName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,J2EEType=JavaMailResource,name=default");
-        GBeanData cmf = new GBeanData(mailName, MailGBean.getGBeanInfo());
-        cmf.setAttribute("useDefault", new Boolean(true));
-        cmf.setAttribute("properties", properties);
-        kernel.loadGBean(cmf, MailGBean.class.getClassLoader());
-        kernel.startGBean(mailName);
-
-        Object proxy = kernel.invoke(mailName, "$getResource");
+        MailGBean mail = new MailGBean("test:name=mail", null, Boolean.TRUE, properties, null, null, null, null, null, null);
+        mail.doStart();
+        Object proxy = mail.$getResource();
 
         assertNotNull(proxy);
         assertTrue(proxy instanceof Session);
@@ -64,7 +51,6 @@ public class MailGBeanTest extends TestCase {
         assertNotNull(transport);
         assertTrue(transport instanceof TestTransport);
 
-        kernel.stopGBean(mailName);
     }
 
     public void testDefaultOverrides() throws Exception {
@@ -72,16 +58,9 @@ public class MailGBeanTest extends TestCase {
         properties.put("mail.store.protocol", "POOKIE");
         properties.put("mail.transport.protocol", "BEAR");
 
-        mailName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,J2EEType=JavaMailResource,name=default");
-        GBeanData cmf = new GBeanData(mailName, MailGBean.getGBeanInfo());
-        cmf.setAttribute("useDefault", new Boolean(true));
-        cmf.setAttribute("properties", properties);
-        cmf.setAttribute("storeProtocol", "test");
-        cmf.setAttribute("transportProtocol", "test");
-        kernel.loadGBean(cmf, MailGBean.class.getClassLoader());
-        kernel.startGBean(mailName);
-
-        Object proxy = kernel.invoke(mailName, "$getResource");
+        MailGBean mail = new MailGBean("test:name=mail", null, Boolean.TRUE, properties, null, "test", "test", null, null, null);
+        mail.doStart();
+        Object proxy = mail.$getResource();
 
         assertNotNull(proxy);
         assertTrue(proxy instanceof Session);
@@ -94,7 +73,6 @@ public class MailGBeanTest extends TestCase {
         assertNotNull(transport);
         assertTrue(transport instanceof TestTransport);
 
-        kernel.stopGBean(mailName);
     }
 
     public void testSMTPOverrides() throws Exception {
@@ -103,24 +81,12 @@ public class MailGBeanTest extends TestCase {
         properties.put("mail.transport.protocol", "BEAR");
         properties.put("mail.smtp.ehlo", "true");
 
-        mailName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,J2EEType=JavaMailResource,name=default");
-        GBeanData cmf = new GBeanData(mailName, MailGBean.getGBeanInfo());
-        cmf.setReferencePattern("Protocols", new ObjectName("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,type=JavaMailProtocol,*"));
-        cmf.setAttribute("useDefault", new Boolean(true));
-        cmf.setAttribute("properties", properties);
-        cmf.setAttribute("storeProtocol", "test");
-        cmf.setAttribute("transportProtocol", "test");
+        SMTPTransportGBean protocol = new SMTPTransportGBean("test:name=smtp", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+        protocol.doStart();
 
-
-        kernel.loadGBean(cmf, MailGBean.class.getClassLoader());
-        kernel.startGBean(mailName);
-
-        protocolName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,type=JavaMailProtocol,name=smtp");
-        GBeanData smtp = new GBeanData(protocolName, SMTPTransportGBean.getGBeanInfo());
-        kernel.loadGBean(smtp, SMTPTransportGBean.class.getClassLoader());
-        kernel.startGBean(protocolName);
-
-        Object proxy = kernel.invoke(mailName, "$getResource");
+        MailGBean mail = new MailGBean("test:name=mail", Collections.singleton(protocol), Boolean.TRUE, properties, null, "test", "test", null, null, null);
+        mail.doStart();
+        Object proxy = mail.$getResource();
 
         assertNotNull(proxy);
         assertTrue(proxy instanceof Session);
@@ -136,117 +102,20 @@ public class MailGBeanTest extends TestCase {
         TestTransport testTransport = (TestTransport) transport;
         assertFalse(testTransport.isEHLO());
 
-        kernel.stopGBean(protocolName);
-        kernel.stopGBean(mailName);
-    }
-
-    public void testSMTPSOverrides() throws Exception {
-        Properties properties = new Properties();
-        properties.put("mail.store.protocol", "POOKIE");
-        properties.put("mail.transport.protocol", "BEAR");
-        properties.put("mail.smtps.ehlo", "true");
-
-        mailName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,J2EEType=JavaMailResource,name=default");
-        GBeanData cmf = new GBeanData(mailName, MailGBean.getGBeanInfo());
-        cmf.setReferencePattern("Protocols", new ObjectName("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,type=JavaMailProtocol,*"));
-        cmf.setAttribute("useDefault", new Boolean(true));
-        cmf.setAttribute("properties", properties);
-        cmf.setAttribute("storeProtocol", "test");
-        cmf.setAttribute("transportProtocol", "test");
-
-
-        kernel.loadGBean(cmf, MailGBean.class.getClassLoader());
-        kernel.startGBean(mailName);
-
-        protocolName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,type=JavaMailProtocol,name=smtps");
-        GBeanData smtp = new GBeanData(protocolName, SMTPSTransportGBean.getGBeanInfo());
-        kernel.loadGBean(smtp, SMTPSTransportGBean.class.getClassLoader());
-        kernel.startGBean(protocolName);
-
-        Object proxy = kernel.invoke(mailName, "$getResource");
-
-        assertNotNull(proxy);
-        assertTrue(proxy instanceof Session);
-
-        Store store = ((Session) proxy).getStore();
-        assertNotNull(store);
-        assertTrue(store instanceof TestStore);
-
-        Transport transport = ((Session) proxy).getTransport();
-        assertNotNull(transport);
-        assertTrue(transport instanceof TestTransport);
-
-        TestTransport testTransport = (TestTransport) transport;
-        assertFalse(testTransport.isEHLO());
-
-        kernel.stopGBean(protocolName);
-        kernel.stopGBean(mailName);
-    }
-
-    public void testNNTPPostOverrides() throws Exception {
-        Properties properties = new Properties();
-        properties.put("mail.store.protocol", "POOKIE");
-        properties.put("mail.transport.protocol", "BEAR");
-        properties.put("mail.nntp.quitwait", "true");
-
-        mailName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,J2EEType=JavaMailResource,name=default");
-        GBeanData cmf = new GBeanData(mailName, MailGBean.getGBeanInfo());
-        cmf.setReferencePattern("Protocols", new ObjectName("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,type=JavaMailProtocol,*"));
-        cmf.setAttribute("useDefault", new Boolean(true));
-        cmf.setAttribute("properties", properties);
-        cmf.setAttribute("storeProtocol", "test");
-        cmf.setAttribute("transportProtocol", "test");
-
-
-        kernel.loadGBean(cmf, MailGBean.class.getClassLoader());
-        kernel.startGBean(mailName);
-
-        protocolName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,type=JavaMailProtocol,name=nntp-post");
-        GBeanData nntp = new GBeanData(protocolName, NNTPTransportGBean.getGBeanInfo());
-        kernel.loadGBean(nntp, NNTPTransportGBean.class.getClassLoader());
-        kernel.startGBean(protocolName);
-
-        Object proxy = kernel.invoke(mailName, "$getResource");
-
-        assertNotNull(proxy);
-        assertTrue(proxy instanceof Session);
-
-        Store store = ((Session) proxy).getStore();
-        assertNotNull(store);
-        assertTrue(store instanceof TestStore);
-
-        Transport transport = ((Session) proxy).getTransport();
-        assertNotNull(transport);
-        assertTrue(transport instanceof TestTransport);
-
-        TestTransport testTransport = (TestTransport) transport;
-        assertFalse(testTransport.isQuitWait());
-
-        kernel.stopGBean(protocolName);
-        kernel.stopGBean(mailName);
     }
 
     public void testPOP3Overrides() throws Exception {
         Properties properties = new Properties();
         properties.put("mail.store.protocol", "POOKIE");
         properties.put("mail.transport.protocol", "BEAR");
+        properties.put("mail.pop3.ehlo", "true");
 
-        mailName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,J2EEType=JavaMailResource,name=default");
-        GBeanData cmf = new GBeanData(mailName, MailGBean.getGBeanInfo());
-        cmf.setReferencePattern("Protocols", new ObjectName("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,type=JavaMailProtocol,*"));
-        cmf.setAttribute("useDefault", new Boolean(true));
-        cmf.setAttribute("properties", properties);
-        cmf.setAttribute("storeProtocol", "test");
-        cmf.setAttribute("transportProtocol", "test");
-        kernel.loadGBean(cmf, MailGBean.class.getClassLoader());
-        kernel.startGBean(mailName);
+        POP3StoreGBean protocol = new POP3StoreGBean("test:name=pop3", null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+        protocol.doStart();
 
-        protocolName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,type=JavaMailProtocol,name=pop3");
-        GBeanData pop3 = new GBeanData(protocolName, POP3StoreGBean.getGBeanInfo());
-        kernel.loadGBean(pop3, POP3StoreGBean.class.getClassLoader());
-        kernel.startGBean(protocolName);
-
-        Object proxy = kernel.invoke(mailName, "$getResource");
+        MailGBean mail = new MailGBean("test:name=mail", Collections.singleton(protocol), Boolean.TRUE, properties, null, "test", "test", null, null, null);
+        mail.doStart();
+        Object proxy = mail.$getResource();
 
         assertNotNull(proxy);
         assertTrue(proxy instanceof Session);
@@ -259,71 +128,21 @@ public class MailGBeanTest extends TestCase {
         assertNotNull(transport);
         assertTrue(transport instanceof TestTransport);
 
-        kernel.stopGBean(protocolName);
-        kernel.stopGBean(mailName);
-    }
-
-    public void testNNTPStoreOverrides() throws Exception {
-        Properties properties = new Properties();
-        properties.put("mail.store.protocol", "POOKIE");
-        properties.put("mail.transport.protocol", "BEAR");
-        properties.put("mail.nntp.quitwait", "true");
-
-        mailName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,J2EEType=JavaMailResource,name=default");
-        GBeanData cmf = new GBeanData(mailName, MailGBean.getGBeanInfo());
-        cmf.setReferencePattern("Protocols", new ObjectName("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,type=JavaMailProtocol,*"));
-        cmf.setAttribute("useDefault", new Boolean(true));
-        cmf.setAttribute("properties", properties);
-        cmf.setAttribute("storeProtocol", "test");
-        cmf.setAttribute("transportProtocol", "test");
-        kernel.loadGBean(cmf, MailGBean.class.getClassLoader());
-        kernel.startGBean(mailName);
-
-        protocolName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,type=JavaMailProtocol,name=nntp");
-        GBeanData nntp = new GBeanData(protocolName, NNTPStoreGBean.getGBeanInfo());
-        kernel.loadGBean(nntp, NNTPStoreGBean.class.getClassLoader());
-        kernel.startGBean(protocolName);
-
-        Object proxy = kernel.invoke(mailName, "$getResource");
-
-        assertNotNull(proxy);
-        assertTrue(proxy instanceof Session);
-
-        Store store = ((Session) proxy).getStore();
-        assertNotNull(store);
-        assertTrue(store instanceof TestStore);
-
-        Transport transport = ((Session) proxy).getTransport();
-        assertNotNull(transport);
-        assertTrue(transport instanceof TestTransport);
-
-        kernel.stopGBean(protocolName);
-        kernel.stopGBean(mailName);
     }
 
     public void testIMAPOverrides() throws Exception {
         Properties properties = new Properties();
         properties.put("mail.store.protocol", "POOKIE");
         properties.put("mail.transport.protocol", "BEAR");
+        properties.put("mail.imap.ehlo", "true");
 
-        mailName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,J2EEType=JavaMailResource,name=default");
-        GBeanData cmf = new GBeanData(mailName, MailGBean.getGBeanInfo());
-        cmf.setReferencePattern("Protocols", new ObjectName("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,type=JavaMailProtocol,*"));
-        cmf.setAttribute("useDefault", new Boolean(true));
-        cmf.setAttribute("properties", properties);
-        cmf.setAttribute("storeProtocol", "testStore");
-        cmf.setAttribute("transportProtocol", "testTransport");
-        kernel.loadGBean(cmf, MailGBean.class.getClassLoader());
-        kernel.startGBean(mailName);
+        IMAPStoreGBean protocol = new IMAPStoreGBean("test:name=imap", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+        protocol.doStart();
 
-        protocolName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,type=JavaMailProtocol,name=imap");
-        GBeanData imap = new GBeanData(protocolName, IMAPStoreGBean.getGBeanInfo());
+        MailGBean mail = new MailGBean("test:name=mail", Collections.singleton(protocol), Boolean.TRUE, properties, null, "test", "test", null, null, null);
+        mail.doStart();
+        Object proxy = mail.$getResource();
 
-
-        kernel.loadGBean(imap, IMAPStoreGBean.class.getClassLoader());
-        kernel.startGBean(protocolName);
-
-        Object proxy = kernel.invoke(mailName, "$getResource");
 
         assertNotNull(proxy);
         assertTrue(proxy instanceof Session);
@@ -336,16 +155,6 @@ public class MailGBeanTest extends TestCase {
         assertNotNull(transport);
         assertTrue(transport instanceof TestTransport);
 
-        kernel.stopGBean(protocolName);
-        kernel.stopGBean(mailName);
     }
 
-    protected void setUp() throws Exception {
-        kernel = KernelFactory.newInstance().createKernel(KERNEL_NAME);
-        kernel.boot();
-    }
-
-    protected void tearDown() throws Exception {
-        kernel.shutdown();
-    }
 }

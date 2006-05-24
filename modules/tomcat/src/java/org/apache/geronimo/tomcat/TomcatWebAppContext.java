@@ -17,16 +17,6 @@
 
 package org.apache.geronimo.tomcat;
 
-import java.net.URI;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.management.ObjectName;
-
 import org.apache.catalina.Context;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Realm;
@@ -41,16 +31,33 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
 import org.apache.geronimo.management.geronimo.WebModule;
+import org.apache.geronimo.management.geronimo.WebContainer;
+import org.apache.geronimo.management.geronimo.WebConnector;
 import org.apache.geronimo.security.jacc.RoleDesignateSource;
 import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.naming.resources.DirContextURLStreamHandler;
+
+import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
+import javax.naming.directory.DirContext;
+
+import java.net.URI;
+import java.net.URL;
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.HashMap;
 
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
@@ -63,11 +70,9 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
     protected final TomcatContainer container;
 
-    private final ClassLoader webClassLoader;
+    private final ClassLoader classLoader;
 
     protected Context context = null;
-
-    private final URI webAppRoot;
 
     private String path = null;
 
@@ -78,13 +83,13 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private final Realm realm;
 
     private final List valveChain;
-    
+
     private final CatalinaCluster catalinaCluster;
-    
+
     private final Manager manager;
 
     private final boolean crossContext;
-    
+
     private final boolean disableCookies;
 
     private final Map componentContext;
@@ -113,13 +118,12 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
     private final String originalSpecDD;
 
+    private final URL configurationBaseURL;
+
     public TomcatWebAppContext(
             ClassLoader classLoader,
             String objectName,
             String originalSpecDD,
-            URI relativeWebAppRoot,
-            URI[] webClassPath,
-            boolean contextPriorityClassLoader,
             URL configurationBaseUrl,
             SecurityHolder securityHolder,
             String virtualServer,
@@ -144,8 +148,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             throws Exception {
 
         assert classLoader != null;
-        assert relativeWebAppRoot != null;
-        assert webClassPath != null;
         assert configurationBaseUrl != null;
         assert transactionContextManager != null;
         assert trackedConnectionAssociator != null;
@@ -154,18 +156,17 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
 
         this.objectName = objectName;
-        URI root = null;
-        //TODO is there a simpler way to do this?
+        URI root;
+//        TODO is there a simpler way to do this?
         if (configurationBaseUrl.getProtocol().equalsIgnoreCase("file")) {
             root = new URI("file", configurationBaseUrl.getPath(), null);
         } else {
             root = URI.create(configurationBaseUrl.toString());
         }
-        this.webAppRoot = root.resolve(relativeWebAppRoot);
+        this.setDocBase(root.getPath());
         this.container = container;
         this.originalSpecDD = originalSpecDD;
 
-        this.setDocBase(this.webAppRoot.getPath());
         this.virtualServer = virtualServer;
         this.securityHolder = securityHolder;
 
@@ -179,9 +180,11 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         this.server = server;
         this.application = application;
 
+        this.configurationBaseURL = configurationBaseUrl;
+
         if (tomcatRealm != null){
             realm = (Realm)tomcatRealm.getInternalObject();
-            if (!(realm instanceof Realm)){
+            if (realm == null){
                 throw new IllegalArgumentException("tomcatRealm must be an instance of org.apache.catalina.Realm.");
             }
         } else{
@@ -200,39 +203,32 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         } else {
             valveChain = null;
         }
-        
+
         //Add the cluster
         if (cluster != null)
-           catalinaCluster = (CatalinaCluster)cluster.getInternalObject(); 
+           catalinaCluster = (CatalinaCluster)cluster.getInternalObject();
         else
             catalinaCluster = null;
 
         //Add the manager
         if (manager != null)
-           this.manager = (Manager)manager.getInternalObject(); 
+           this.manager = (Manager)manager.getInternalObject();
         else
             this.manager = null;
 
         this.crossContext = crossContext;
-        
+
         this.disableCookies = disableCookies;
 
         this.webServices = webServices;
 
-        URL webAppRootURL = webAppRoot.toURL();
-
-        URL[] urls = new URL[webClassPath.length];
-        for (int i = 0; i < webClassPath.length; i++) {
-            URI classPathEntry = webClassPath[i];
-            classPathEntry = root.resolve(classPathEntry);
-            urls[i] = classPathEntry.toURL();
-        }
-
-        this.webClassLoader = new TomcatClassLoader(urls, webAppRootURL, classLoader, contextPriorityClassLoader);
+        this.classLoader = classLoader;
 
         this.kernel = kernel;
-        ObjectName myObjectName = JMXUtil.getObjectName(objectName);
-        verifyObjectName(myObjectName);
+        if (objectName != null) {
+            ObjectName myObjectName = ObjectNameUtil.getObjectName(objectName);
+            verifyObjectName(myObjectName);
+        }
 
         if (securityHolder != null){
             if (roleDesignateSource == null) {
@@ -260,12 +256,25 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         return true;
     }
 
-    public String getContainerName() {
-        return container.getObjectName();
+    public URL getWARDirectory() {
+        return configurationBaseURL;
+    }
+
+    public String getWARName() {
+        //todo: make this return something more consistent
+        try {
+            return ObjectName.getInstance(objectName).getKeyProperty(NameFactory.J2EE_NAME);
+        } catch (MalformedObjectNameException e) {
+            return null;
+        }
+    }
+
+    public WebContainer getContainer() {
+        return container;
     }
 
     public String getServer() {
-        return server.getObjectName();
+        return server == null? null: server.getObjectName();
     }
 
     public String getDocBase() {
@@ -284,12 +293,16 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         return virtualServer;
     }
 
-    public ClassLoader getWebClassLoader() {
-        return webClassLoader;
+    public ClassLoader getClassLoader() {
+        return classLoader;
     }
 
     public Kernel getKernel() {
         return kernel;
+    }
+
+    public boolean isDisableCookies() {
+        return disableCookies;
     }
 
     public TransactionContextManager getTransactionContextManager() {
@@ -302,6 +315,30 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
     public void setContext(Context context) {
         this.context = context;
+    }
+
+    public URL getURLFor() {
+        WebConnector[] connectors = (WebConnector[]) container.getConnectors();
+        Map map = new HashMap();
+        for (int i = 0; i < connectors.length; i++) {
+            WebConnector connector = connectors[i];
+            map.put(connector.getProtocol(), connector.getConnectUrl());
+        }
+        String urlPrefix;
+        if((urlPrefix = (String) map.get("HTTP")) == null) {
+            if((urlPrefix = (String) map.get("HTTPS")) == null) {
+                urlPrefix = (String) map.get("AJP");
+            }
+        }
+        if(urlPrefix == null) {
+            return null;
+        }
+        try {
+            return new URL(urlPrefix + getContextPath());
+        } catch (MalformedURLException e) {
+            log.error("Bad URL to connect to web app", e);
+            return null;
+        }
     }
 
     public String getContextPath() {
@@ -340,19 +377,14 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     public CatalinaCluster getCluster() {
         return catalinaCluster;
     }
-    
+
     public Manager getManager() {
         return manager;
     }
-    
+
     public boolean isCrossContext() {
         return crossContext;
     }
-    
-    public boolean isDisableCookies() {
-        return disableCookies;
-    }
-
 
     public Map getWebServices(){
         return webServices;
@@ -403,7 +435,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     }
 
     public String[] getJavaVMs() {
-        return server.getJavaVMs();
+        return server == null? new String[0]: server.getJavaVMs();
     }
 
     public String getDeploymentDescriptor() {
@@ -416,15 +448,19 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         container.addContext(this);
         // Is it necessary - doesn't Tomcat Embedded take care of it?
         // super.start();
+        //register the classloader <> dir context association so that tomcat's jndi based getResources works.
+        DirContext resources = context.getResources();
+        DirContextURLStreamHandler.bind((ClassLoader) classLoader, resources);
 
         log.debug("TomcatWebAppContext started for " + path);
     }
 
     public void doStop() throws Exception {
         container.removeContext(this);
-
+        DirContextURLStreamHandler.unbind((ClassLoader) classLoader);
+ 
         // No more logging will occur for this ClassLoader. Inform the LogFactory to avoid a memory leak.
-        LogFactory.release(webClassLoader);
+//        LogFactory.release(classLoader);
 
         log.debug("TomcatWebAppContext stopped");
     }
@@ -433,7 +469,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         container.removeContext(this);
 
         // No more logging will occur for this ClassLoader. Inform the LogFactory to avoid a memory leak.
-        LogFactory.release(webClassLoader);
+//        LogFactory.release(classLoader);
 
         log.warn("TomcatWebAppContext failed");
     }
@@ -446,9 +482,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
         infoBuilder.addAttribute("objectName", String.class, false);
         infoBuilder.addAttribute("deploymentDescriptor", String.class, true);
-        infoBuilder.addAttribute("webAppRoot", URI.class, true);
-        infoBuilder.addAttribute("webClassPath", URI[].class, true);
-        infoBuilder.addAttribute("contextPriorityClassLoader", boolean.class, true);
         infoBuilder.addAttribute("configurationBaseUrl", URL.class, true);
 
         infoBuilder.addAttribute("contextPath", String.class, true);
@@ -481,9 +514,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
                 "classLoader",
                 "objectName",
                 "deploymentDescriptor",
-                "webAppRoot",
-                "webClassPath",
-                "contextPriorityClassLoader",
                 "configurationBaseUrl",
                 "securityHolder",
                 "virtualServer",

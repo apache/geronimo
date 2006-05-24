@@ -23,34 +23,50 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.lifecycle.LifecycleMonitor;
 import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
 import org.apache.geronimo.gbean.runtime.LifecycleBroadcaster;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.GBeanData;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 386505 $ $Date$
  */
 public class BasicLifecycleMonitor implements LifecycleMonitor {
     private static final Log log = LogFactory.getLog(BasicLifecycleMonitor.class);
 
-    private final Kernel kernel;
 
     // todo we should only hold weak references to the listeners
+    /**
+     * Map of AbstractName to set of Listeners interested in this name.
+     */
     private final Map boundListeners = new HashMap();
+
+    /**
+     * Map of listener to patterns they are interested in.
+     */
     private final Map listenerPatterns = new HashMap();
 
     public BasicLifecycleMonitor(Kernel kernel) {
-        this.kernel = kernel;
 
         // register for state change notifications with all mbeans that match the target patterns
-        Set names = this.kernel.listGBeans((ObjectName)null);
+        Set names = kernel.listGBeans((AbstractNameQuery)null);
         for (Iterator objectNameIterator = names.iterator(); objectNameIterator.hasNext();) {
-            addSource((ObjectName) objectNameIterator.next());
+            AbstractName source = (AbstractName) objectNameIterator.next();
+            GBeanData gBeanData;
+            try {
+                gBeanData = kernel.getGBeanData(source);
+            } catch (GBeanNotFoundException e) {
+                //this should never happen
+                throw new AssertionError(e);
+            }
+            addSource(source, gBeanData.getGBeanInfo().getInterfaces());
         }
     }
 
@@ -59,45 +75,47 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
         listenerPatterns.clear();
     }
 
-    private synchronized void addSource(ObjectName source) {
+    private synchronized void addSource(AbstractName source, Set interfaceTypes) {
         if (boundListeners.containsKey(source)) {
             // already registered
             return;
         }
 
         // find all listeners interested in events from this source
-        HashSet listeners = new HashSet();
+        SourceInfo sourceInfo = new SourceInfo(interfaceTypes);
+        HashSet listeners = sourceInfo.getListeners();
         for (Iterator listenerIterator = listenerPatterns.entrySet().iterator(); listenerIterator.hasNext();) {
             Map.Entry entry = (Map.Entry) listenerIterator.next();
             Set patterns = (Set) entry.getValue();
             for (Iterator patternIterator = patterns.iterator(); patternIterator.hasNext();) {
-                ObjectName pattern = (ObjectName) patternIterator.next();
-                if (pattern.apply(source)) {
+                AbstractNameQuery pattern = (AbstractNameQuery) patternIterator.next();
+                if (pattern.matches(source, interfaceTypes)) {
                     LifecycleListener listener = (LifecycleListener) entry.getKey();
                     listeners.add(listener);
                 }
             }
         }
 
-        boundListeners.put(source, listeners);
+        boundListeners.put(source, sourceInfo);
     }
 
-    private synchronized void removeSource(ObjectName source) {
+    private synchronized void removeSource(AbstractName source) {
         boundListeners.remove(source);
     }
 
-    public synchronized void addLifecycleListener(LifecycleListener listener, ObjectName pattern) {
+    public synchronized void addLifecycleListener(LifecycleListener listener, AbstractNameQuery pattern) {
         addLifecycleListener(listener, Collections.singleton(pattern));
     }
 
     public synchronized void addLifecycleListener(LifecycleListener listener, Set patterns) {
         for (Iterator patternIterator = patterns.iterator(); patternIterator.hasNext();) {
-            ObjectName pattern = (ObjectName) patternIterator.next();
+            AbstractNameQuery pattern = (AbstractNameQuery) patternIterator.next();
             for (Iterator iterator = boundListeners.entrySet().iterator(); iterator.hasNext();) {
                 Map.Entry entry = (Map.Entry) iterator.next();
-                ObjectName source = (ObjectName) entry.getKey();
-                if (pattern.apply(source)) {
-                    Set listeners = (Set) entry.getValue();
+                AbstractName source = (AbstractName) entry.getKey();
+                SourceInfo sourceInfo = (SourceInfo) entry.getValue();
+                if (pattern.matches(source, sourceInfo.getInterfaceTypes())) {
+                    Set listeners = sourceInfo.getListeners();
                     listeners.add(listener);
                 }
             }
@@ -107,35 +125,35 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
 
     public synchronized void removeLifecycleListener(LifecycleListener listener) {
         for (Iterator iterator = boundListeners.values().iterator(); iterator.hasNext();) {
-            Set set = (Set) iterator.next();
-            set.remove(listener);
+            SourceInfo sourceInfo = (SourceInfo) iterator.next();
+            sourceInfo.getListeners().remove(listener);
         }
         listenerPatterns.remove(listener);
     }
 
-    private synchronized Set getTargets(ObjectName source) {
-        Set targets = (Set) boundListeners.get(source);
+    private synchronized Set getTargets(AbstractName source) {
+        SourceInfo targets = (SourceInfo) boundListeners.get(source);
         if (targets == null) {
             // no one is interested in this event
             return Collections.EMPTY_SET;
         } else {
-            return new HashSet(targets);
+            return new HashSet(targets.getListeners());
         }
     }
 
-    private void fireLoadedEvent(ObjectName objectName) {
-        Set targets = getTargets(objectName);
+    private void fireLoadedEvent(AbstractName refInfoName) {
+        Set targets = getTargets(refInfoName);
         for (Iterator iterator = targets.iterator(); iterator.hasNext();) {
             LifecycleListener listener = (LifecycleListener) iterator.next();
             try {
-                listener.loaded(objectName);
+                listener.loaded(refInfoName);
             } catch (Throwable e) {
                 log.warn("Exception occured while notifying listener", e);
             }
         }
     }
 
-    private void fireStartingEvent(ObjectName source) {
+    private void fireStartingEvent(AbstractName source) {
         Set targets = getTargets(source);
         for (Iterator iterator = targets.iterator(); iterator.hasNext();) {
             LifecycleListener listener = (LifecycleListener) iterator.next();
@@ -147,7 +165,7 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
         }
     }
 
-    private void fireRunningEvent(ObjectName source) {
+    private void fireRunningEvent(AbstractName source) {
         Set targets = getTargets(source);
         for (Iterator iterator = targets.iterator(); iterator.hasNext();) {
             LifecycleListener listener = (LifecycleListener) iterator.next();
@@ -159,7 +177,7 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
         }
     }
 
-    private void fireStoppingEvent(ObjectName source) {
+    private void fireStoppingEvent(AbstractName source) {
         Set targets = getTargets(source);
         for (Iterator iterator = targets.iterator(); iterator.hasNext();) {
             LifecycleListener listener = (LifecycleListener) iterator.next();
@@ -171,7 +189,7 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
         }
     }
 
-    private void fireStoppedEvent(ObjectName source) {
+    private void fireStoppedEvent(AbstractName source) {
         Set targets = getTargets(source);
         for (Iterator iterator = targets.iterator(); iterator.hasNext();) {
             LifecycleListener listener = (LifecycleListener) iterator.next();
@@ -183,7 +201,7 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
         }
     }
 
-    private void fireFailedEvent(ObjectName source) {
+    private void fireFailedEvent(AbstractName source) {
         Set targets = getTargets(source);
         for (Iterator iterator = targets.iterator(); iterator.hasNext();) {
             LifecycleListener listener = (LifecycleListener) iterator.next();
@@ -195,7 +213,7 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
         }
     }
 
-    private void fireUnloadedEvent(ObjectName source) {
+    private void fireUnloadedEvent(AbstractName source) {
         Set targets = getTargets(source);
         for (Iterator iterator = targets.iterator(); iterator.hasNext();) {
             LifecycleListener listener = (LifecycleListener) iterator.next();
@@ -207,45 +225,65 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
         }
     }
 
-    public LifecycleBroadcaster createLifecycleBroadcaster(ObjectName objectName) {
-        return new RawLifecycleBroadcaster(objectName);
+    public LifecycleBroadcaster createLifecycleBroadcaster(AbstractName abstractName, Set interfaceTypes) {
+        return new RawLifecycleBroadcaster(abstractName, interfaceTypes);
     }
 
     private class RawLifecycleBroadcaster implements LifecycleBroadcaster {
-        private final ObjectName objectName;
+        private final AbstractName abstractName;
+        private final Set interfaceTypes;
 
-        public RawLifecycleBroadcaster(ObjectName objectName) {
-            this.objectName = objectName;
+        public RawLifecycleBroadcaster(AbstractName abstractName, Set interfaceTypes) {
+            this.abstractName = abstractName;
+            this.interfaceTypes = interfaceTypes;
         }
 
         public void fireLoadedEvent() {
-            addSource(objectName);
-            BasicLifecycleMonitor.this.fireLoadedEvent(objectName);
+            addSource(abstractName, interfaceTypes);
+            BasicLifecycleMonitor.this.fireLoadedEvent(abstractName);
         }
 
         public void fireStartingEvent() {
-            BasicLifecycleMonitor.this.fireStartingEvent(objectName);
+            BasicLifecycleMonitor.this.fireStartingEvent(abstractName);
         }
 
         public void fireRunningEvent() {
-            BasicLifecycleMonitor.this.fireRunningEvent(objectName);
+            BasicLifecycleMonitor.this.fireRunningEvent(abstractName);
         }
 
         public void fireStoppingEvent() {
-            BasicLifecycleMonitor.this.fireStoppingEvent(objectName);
+            BasicLifecycleMonitor.this.fireStoppingEvent(abstractName);
         }
 
         public void fireStoppedEvent() {
-            BasicLifecycleMonitor.this.fireStoppedEvent(objectName);
+            BasicLifecycleMonitor.this.fireStoppedEvent(abstractName);
         }
 
         public void fireFailedEvent() {
-            BasicLifecycleMonitor.this.fireFailedEvent(objectName);
+            BasicLifecycleMonitor.this.fireFailedEvent(abstractName);
         }
 
         public void fireUnloadedEvent() {
-            BasicLifecycleMonitor.this.fireUnloadedEvent(objectName);
-            removeSource(objectName);
+            BasicLifecycleMonitor.this.fireUnloadedEvent(abstractName);
+            removeSource(abstractName);
         }
     }
+
+    private final class SourceInfo {
+        private final Set interfaceTypes;
+        private final HashSet listeners = new HashSet();
+
+        public SourceInfo(Set interfaceTypes) {
+            this.interfaceTypes = interfaceTypes;
+        }
+
+        public Set getInterfaceTypes() {
+            return interfaceTypes;
+        }
+
+        public HashSet getListeners() {
+            return listeners;
+        }
+    }
+
 }

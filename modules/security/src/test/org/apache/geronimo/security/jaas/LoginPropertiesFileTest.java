@@ -17,25 +17,20 @@
 
 package org.apache.geronimo.security.jaas;
 
-import java.io.File;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Properties;
-import java.util.Set;
-import javax.management.ObjectName;
-import javax.security.auth.Subject;
-import javax.security.auth.login.LoginContext;
-import javax.security.auth.login.LoginException;
-
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.security.AbstractTest;
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.DomainPrincipal;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
-import org.apache.geronimo.security.DomainPrincipal;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
-import org.apache.geronimo.system.serverinfo.BasicServerInfo;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
+
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
+import java.io.File;
+import java.util.Properties;
 
 
 /**
@@ -43,36 +38,22 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  */
 public class LoginPropertiesFileTest extends AbstractTest {
 
-    protected ObjectName serverInfo;
-    protected ObjectName loginConfiguration;
-    protected ObjectName clientLM;
-    protected ObjectName clientCE;
-    protected ObjectName testCE;
-    protected ObjectName testRealm;
+    protected AbstractName clientLM;
+    protected AbstractName clientCE;
+    protected AbstractName testCE;
+    protected AbstractName testRealm;
 
     public void setUp() throws Exception {
+        needServerInfo = true;
+        needLoginConfiguration = true;
         super.setUp();
 
         GBeanData gbean;
 
-        serverInfo = new ObjectName("geronimo.system:role=ServerInfo");
-        gbean = new GBeanData(serverInfo, BasicServerInfo.GBEAN_INFO);
-        gbean.setAttribute("baseDirectory", ".");
-        kernel.loadGBean(gbean, ServerInfo.class.getClassLoader());
-        kernel.startGBean(serverInfo);
-
-        loginConfiguration = new ObjectName("geronimo.security:type=LoginConfiguration");
-        gbean = new GBeanData(loginConfiguration, GeronimoLoginConfiguration.getGBeanInfo());
-        Set configurations = new HashSet();
-        configurations.add(new ObjectName("geronimo.security:type=SecurityRealm,*"));
-        configurations.add(new ObjectName("geronimo.security:type=ConfigurationEntry,*"));
-        gbean.setReferencePatterns("Configurations", configurations);
-        kernel.loadGBean(gbean, GeronimoLoginConfiguration.class.getClassLoader());
-
-        clientLM = new ObjectName("geronimo.security:type=LoginModule,name=properties-client");
-        gbean = new GBeanData(clientLM, LoginModuleGBean.getGBeanInfo());
+        gbean = buildGBeanData("name", "ClientPropertiesLoginModule", LoginModuleGBean.getGBeanInfo());
+        clientLM = gbean.getAbstractName();
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.jaas.client.JaasLoginCoordinator");
-        gbean.setAttribute("serverSide", new Boolean(false));
+        gbean.setAttribute("serverSide", Boolean.FALSE);
         Properties props = new Properties();
         props.put("host", "localhost");
         props.put("port", "4242");
@@ -80,17 +61,18 @@ public class LoginPropertiesFileTest extends AbstractTest {
         gbean.setAttribute("options", props);
         kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
 
-        clientCE = new ObjectName("geronimo.security:type=ConfigurationEntry,jaasId=properties-client");
-        gbean = new GBeanData(clientCE, DirectConfigurationEntry.getGBeanInfo());
+        gbean = buildGBeanData("name", "ClientConfigurationEntry", DirectConfigurationEntry.getGBeanInfo());
+        clientCE = gbean.getAbstractName();
         gbean.setAttribute("applicationConfigName", "properties-client");
         gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
-        gbean.setReferencePatterns("Module", Collections.singleton(clientLM));
+        gbean.setAttribute("wrapPrincipals", Boolean.TRUE);
+        gbean.setReferencePattern("Module", clientLM);
         kernel.loadGBean(gbean, DirectConfigurationEntry.class.getClassLoader());
 
-        testCE = new ObjectName("geronimo.security:type=LoginModule,name=properties");
-        gbean = new GBeanData(testCE, LoginModuleGBean.getGBeanInfo());
+        gbean = buildGBeanData("name", "PropertiesLoginModule", LoginModuleGBean.getGBeanInfo());
+        testCE = gbean.getAbstractName();
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule");
-        gbean.setAttribute("serverSide", new Boolean(true));
+        gbean.setAttribute("serverSide", Boolean.TRUE);
         props = new Properties();
         props.put("usersURI", new File(new File("."), "src/test-data/data/users.properties").toURI().toString());
         props.put("groupsURI", new File(new File("."), "src/test-data/data/groups.properties").toURI().toString());
@@ -99,18 +81,17 @@ public class LoginPropertiesFileTest extends AbstractTest {
         gbean.setAttribute("wrapPrincipals", Boolean.TRUE);
         kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
 
-        ObjectName testUseName = new ObjectName("geronimo.security:type=LoginModuleUse,name=properties");
-        gbean = new GBeanData(testUseName, JaasLoginModuleUse.getGBeanInfo());
+        gbean = buildGBeanData("name", "PropertiesLoginModuleUse", JaasLoginModuleUse.getGBeanInfo());
+        AbstractName testUseName = gbean.getAbstractName();
         gbean.setAttribute("controlFlag", "REQUIRED");
         gbean.setReferencePattern("LoginModule", testCE);
         kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
 
-        testRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=properties-realm");
-        gbean = new GBeanData(testRealm, GenericSecurityRealm.getGBeanInfo());
+        gbean = buildGBeanData("name", "PropertiesSecurityRealm", GenericSecurityRealm.getGBeanInfo());
+        testRealm = gbean.getAbstractName();
         gbean.setAttribute("realmName", "properties-realm");
-//        gbean.setAttribute("loginModuleConfiguration", props);
         gbean.setReferencePattern("LoginModuleConfiguration", testUseName);
-        gbean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfo));
+        gbean.setReferencePattern("ServerInfo", serverInfo);
         gbean.setReferencePattern("LoginService", loginService);
         kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
 

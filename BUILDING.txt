@@ -1,11 +1,11 @@
-Welcome to Apache Geronimo
-==========================
+Welcome to Geronimo
+===================
  
 To build me please install Maven from here - version 1.0.2 or later.
 
 	http://maven.apache.org/
 
-In addition you should have JDK 1.4.2_08 or later installed with JAVA_HOME
+In addition you should have JDK 1.4.x installed with JAVA_HOME
 environment defined to point to this JDK.
 
 * NOTE * Currently Geronimo requires the Sun 1.4 JDK for building.  Newer JDK 
@@ -20,83 +20,35 @@ all the Geronimo sources and installing them in your local maven
 repository, simply type "maven" in the root of the Geronimo
 source tree:
 
-        $> maven
+        $> maven 
 
 That command will run the default "new" target and compile 
-Geronimo, using recent binary builds of OpenEJB and build j2ee-jetty-server
-and j2ee-tomcat-server assemblies. 
-
-In some cases synchronized changes are made to several of the 
-dependent projects at once, and you may have trouble building the HEAD code 
-of Geronimo against the older binaries of OpenEJB.  
+Geronimo, using recent binary builds of OpenEJB and TranQL.  In 
+some cases synchronized changes are made to several of the 
+projects at once, and you may have trouble building the HEAD code 
+of Geronimo against the older binaries of OpenEJB of TranQL.  
 In that case, you can run:
 
-1.	$> maven m:co
-	$> maven m:rebuild-all
+	$> maven m:co
+	$> maven m:clean m:clean-repo new
 
-The first command checks out the latest OpenEJB code,
+The first command checks out the latest OpenEJB and TranQL code,
 while the second cleans and previous build output and rebuilds
-Geronimo, OpenEJB from scratch. You can stop the build when you get to the
-assembly module, and certainly when you get to itests.
+Geronimo, OpenEJB, and TranQL from scratch.
 
-2. build the plugins explicitly:
-
-      $> cd plugins
-      $> maven -o multiproject:install
-      $> cd ..
-
-3. build the configs:
-
-      $> cd configs
-      $> maven -o multiproject:install
-      $> cd ..
-
-This step uses the packaging plugin to build all the
-configurations we need for both jetty and tomcat servers, and installs
-them in your local maven repo as .car files.
-
-4. build the servers:
-
-      $> cd assemblies
-      $> cd j2ee-jetty-server
-      $> maven -o clean default
-
-                OR 
-
-      $> cd ../j2ee-tomcat-server
-      $> maven -o clean default
-
-To run the server :
-
-      $> cd assemblies/j2ee-jetty-server/target/geronimo-1.2-SNAPSHOT
-
-or
-
-      $> cd assemblies/j2ee-tomcat-server/target/geronimo-1.2-SNAPSHOT
-
-and finally execute the following command:
-
-      $> java -jar bin/server.jar
+To run the server, change into one of the assemblies directory
+and start the server using a command like this:
 	
-NOTE: The configIds of these configurations are incompatible with 
-      the configIds used by the previous assembly.  If you deploy 
-      anything on these servers and you specify a parentId or an
-      import you will have to modify them.
+        $> cd assemblies/j2ee-jetty-server
+        $> cd target/geronimo-1.0
+        $> java -jar bin/server.jar
 
-To stop the server :
-
-       $ java -jar bin/shutdown.jar 
-
+To stop the server use ctrl-C or use the shutdown JAR.
 (See http://wiki.apache.org/geronimo/Running for more information).
 
 To do a clean rebuild of Geronimo type
 
-        $> maven rebuild
-
-         -or (a slower option)-
-
-        $> maven clean
-        $> maven
+        $> maven m:clean m:clean-repo new
 
 To only build select modules (assumes that depends are installed
 already):
@@ -108,14 +60,8 @@ To clean your workspace:
         $> maven clean
 
 NOTE: You need to build the server first for this to work due to 
-      a problem with dependencies and the reactor.
+      a problem with dependencies & the reactor.
 
 To removal all build generated files:
 
         $> maven clobber
-
-For the HTML website:
-
-        $> maven site
-
-Have fun!

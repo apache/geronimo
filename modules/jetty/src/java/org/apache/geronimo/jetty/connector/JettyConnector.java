@@ -264,7 +264,7 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Jetty HTTP Connector", JettyConnector.class);
         infoFactory.addReference(CONNECTOR_CONTAINER_REFERENCE, JettyContainer.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addInterface(JettyWebConnector.class, new String[]{"host", "port", "minThreads","maxThreads","bufferSizeBytes","acceptQueueSize","lingerMillis","tcpNoDelay","redirectPort","connectUrl","maxIdleTimeMs","lowThreads","lowThreadsMaxIdleTimeMs",},
-                                                          new String[]{"host", "port", "redirectPort"});
+                                                          new String[]{"host", "port", "redirectPort", "maxThreads", "minThreads"});
         infoFactory.setConstructor(new String[] {"JettyContainer"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

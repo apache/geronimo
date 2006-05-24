@@ -16,23 +16,22 @@
  */
 package org.apache.geronimo.system.main;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.StringTokenizer;
-import java.util.Collections;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
-import java.net.URL;
+import java.io.IOException;
 import java.net.JarURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.io.IOException;
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.StringTokenizer;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
+
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
- *
- *
  * @version $Rev$ $Date$
  */
 public class CommandLineManifest {
@@ -65,11 +64,11 @@ public class CommandLineManifest {
         // get the main gbean class
         String mainGBeanString = mainAttributes.getValue(MAIN_GBEAN);
 
-        ObjectName mainGBean = null;
-        if(mainGBeanString != null) {
+        AbstractNameQuery mainGBean = null;
+        if (mainGBeanString != null) {
             try {
-                mainGBean = new ObjectName(mainGBeanString);
-            } catch (MalformedObjectNameException e) {
+                mainGBean = new AbstractNameQuery(new URI(mainGBeanString));
+            } catch (URISyntaxException e) {
                 System.err.println("Invalid Main-GBean name: " + mainGBeanString);
                 System.exit(1);
                 throw new AssertionError();
@@ -83,15 +82,10 @@ public class CommandLineManifest {
         List configurations = new ArrayList();
         String configurationsString = mainAttributes.getValue(CONFIGURATIONS);
         if (configurationsString != null) {
-            for (StringTokenizer tokenizer = new StringTokenizer(configurationsString, " "); tokenizer.hasMoreTokens();) {
+            for (StringTokenizer tokenizer = new StringTokenizer(configurationsString, " "); tokenizer.hasMoreTokens();)
+            {
                 String configuration = tokenizer.nextToken();
-                try {
-                    configurations.add(new URI(configuration));
-                } catch (URISyntaxException e) {
-                    System.err.println("Invalid URI in Manifest Configurations entry: " + configuration);
-                    System.exit(1);
-                    throw new AssertionError();
-                }
+                configurations.add(Artifact.create(configuration));
             }
         }
 
@@ -109,7 +103,8 @@ public class CommandLineManifest {
         List extensionDirs = new ArrayList();
         String extensionDirsString = mainAttributes.getValue(EXTENSION_DIRS);
         if (extensionDirsString != null) {
-            for (StringTokenizer tokenizer = new StringTokenizer(extensionDirsString, " "); tokenizer.hasMoreTokens();) {
+            for (StringTokenizer tokenizer = new StringTokenizer(extensionDirsString, " "); tokenizer.hasMoreTokens();)
+            {
                 String directory = tokenizer.nextToken();
                 extensionDirs.add(directory);
             }
@@ -119,13 +114,13 @@ public class CommandLineManifest {
         return commandLineManifest;
     }
 
-    private final ObjectName mainGBean;
+    private final AbstractNameQuery mainGBean;
     private final String mainMethod;
     private final List configurations;
     private final List endorsedDirs;
     private final List extensionDirs;
 
-    public CommandLineManifest(ObjectName mainGBean, String mainMethod, List configurations, List endorsedDirs, List extensionDirs) {
+    public CommandLineManifest(AbstractNameQuery mainGBean, String mainMethod, List configurations, List endorsedDirs, List extensionDirs) {
         this.mainGBean = mainGBean;
         this.mainMethod = mainMethod;
         this.configurations = Collections.unmodifiableList(configurations);
@@ -133,7 +128,7 @@ public class CommandLineManifest {
         this.extensionDirs = extensionDirs;
     }
 
-    public ObjectName getMainGBean() {
+    public AbstractNameQuery getMainGBeanQuery() {
         return mainGBean;
     }
 

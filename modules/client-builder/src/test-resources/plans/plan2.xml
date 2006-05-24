@@ -1,32 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<application-client xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client-1.0"
-    clientConfigId="test-client"
+<application-client xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client-1.1">
+   <!-- clientConfigId="test-client"
     configId="client"
-    parentId="org/apache/geronimo/DefaultDatabase">
-    <resource-ref>
-        <ref-name>jdbc/DB1</ref-name>
-        <target-name>DefaultDatabase</target-name>
-    </resource-ref>
+    parentId="org/apache/geronimo/DefaultDatabase">-->
+    <dep:client-environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+        <dep:moduleId>
+            <dep:groupId>test</dep:groupId>
+            <dep:artifactId>testclient</dep:artifactId>
+            <dep:version>1</dep:version>
+            <dep:type>car</dep:type>
+        </dep:moduleId>
+    </dep:client-environment>
+    <dep:server-environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+        <dep:moduleId>
+            <dep:groupId>test</dep:groupId>
+            <dep:artifactId>testserver</dep:artifactId>
+            <dep:version>1</dep:version>
+            <dep:type>car</dep:type>
+        </dep:moduleId>
+    </dep:server-environment>
+    <nam:resource-ref xmlns:nam="http://geronimo.apache.org/xml/ns/naming-1.1">
+        <nam:ref-name>jdbc/DB1</nam:ref-name>
+        <nam:resource-link>DefaultDatabase</nam:resource-link>
+    </nam:resource-ref>
     <resource>
-        <external-rar>tranql/rars/tranql-connector-1.2-SNAPSHOT</external-rar>
-        <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.0"
-            configId="org/apache/geronimo/DefaultDatabase"
-            parentId="org/apache/geronimo/Server">
+        <external-rar>tranql/rars/tranql-connector-1.0-SNAPSHOT</external-rar>
+        <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1">
+            <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+                <dep:moduleId>
+                    <dep:groupId>test</dep:groupId>
+                    <dep:artifactId>testclient</dep:artifactId>
+                    <dep:version>1</dep:version>
+                    <dep:type>car</dep:type>
+                </dep:moduleId>
+                <dep:dependencies>
+                    <dep:dependency>
+                        <dep:groupId>axion</dep:groupId>
+                        <dep:artifactId>axion</dep:artifactId>
+                        <dep:version>1</dep:version>
+                    </dep:dependency>
+                </dep:dependencies>
 
-            <dependency>
-                <uri>axion/jars/axion-${axion_version}.jar</uri>
-            </dependency>
-            <dependency>
-                <uri>commons-collections/jars/commons-collections-${commons_collections_version}.jar</uri>
-            </dependency>
-
-            <dependency>
-                <uri>commons-primitives/jars/commons-primitives-${commons_primitives_version}.jar</uri>
-            </dependency>
-
-            <dependency>
-                <uri>regexp/jars/regexp-${regexp_version}.jar</uri>
-            </dependency>
+            </dep:environment>
 
             <resourceadapter>
                 <outbound-resourceadapter>

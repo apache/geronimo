@@ -22,9 +22,8 @@
 Configuration for the security of a Geronimo app client.
 
 -->
-<configuration
-    xmlns="http://geronimo.apache.org/xml/ns/deployment"
-               configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
+<module
+    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
     >
 
 
@@ -46,10 +45,10 @@ Configuration for the security of a Geronimo app client.
     <gbean name="LoginConfiguration" class="org.apache.geronimo.security.jaas.GeronimoLoginConfiguration">
         <references name="Configurations">
             <pattern>
-                <gbean-name>geronimo.client:j2eeType=SecurityRealm,*</gbean-name>
+                <type>SecurityRealm</type>
             </pattern>
             <pattern>
-                <gbean-name>geronimo.client:j2eeType=ConfigurationEntry,*</gbean-name>
+                <type>ConfigurationEntry</type>
             </pattern>
         </references>
     </gbean>
@@ -79,7 +78,7 @@ Configuration for the security of a Geronimo app client.
         class="org.apache.geronimo.security.realm.GenericSecurityRealm">
         <attribute name="realmName">client-properties-realm</attribute>
         <xml-reference name="LoginModuleConfiguration">
-            <lc:login-config xmlns:lc="http://geronimo.apache.org/xml/ns/loginconfig">
+            <lc:login-config xmlns:lc="http://geronimo.apache.org/xml/ns/loginconfig-1.1">
                 <lc:login-module control-flag="REQUIRED" server-side="true" wrap-principals="true">
                     <lc:login-domain-name>client-properties-realm</lc:login-domain-name>
                     <lc:login-module-class>org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule</lc:login-module-class>
@@ -112,4 +111,4 @@ Configuration for the security of a Geronimo app client.
     </gbean>
 
 
-</configuration>
+</module>

@@ -16,15 +16,14 @@
  */
 package org.apache.geronimo.console.keystores;
 
-import org.apache.geronimo.console.MultiPageModel;
-import org.apache.geronimo.console.util.PortletManager;
-
+import java.io.IOException;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
-import java.io.IOException;
+import org.apache.geronimo.console.MultiPageModel;
+import org.apache.geronimo.console.util.PortletManager;
 
 /**
  * Handler for entering a password to unlock a keystore
@@ -55,7 +54,7 @@ public class CreateKeystoreHandler extends BaseKeystoreHandler {
             response.setRenderParameter("filename", filename);
             return getMode();
         }
-        PortletManager.getKeystoreManager(request).createKeystore(filename, password.toCharArray());
+        PortletManager.getCurrentServer(request).getKeystoreManager().createKeystore(filename, password.toCharArray());
 
         return LIST_MODE+BEFORE_ACTION;
     }

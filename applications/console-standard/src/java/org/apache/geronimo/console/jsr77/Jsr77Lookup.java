@@ -19,10 +19,10 @@ package org.apache.geronimo.console.jsr77;
 import javax.servlet.http.HttpSession;
 import javax.management.j2ee.statistics.JVMStats;
 import javax.management.j2ee.statistics.BoundedRangeStatistic;
-import uk.ltd.getahead.dwr.ExecutionContext;
+import uk.ltd.getahead.dwr.WebContextFactory;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.console.util.ManagementHelper;
-import org.apache.geronimo.management.J2EEDomain;
+import org.apache.geronimo.management.geronimo.J2EEDomain;
 import org.apache.geronimo.management.StatisticsProvider;
 import org.apache.geronimo.management.geronimo.J2EEServer;
 import org.apache.geronimo.management.geronimo.JVM;
@@ -34,10 +34,10 @@ import org.apache.geronimo.management.geronimo.JVM;
  */
 public class Jsr77Lookup {
     public DynamicServerInfo getJavaVMStatistics() {
-        HttpSession session = ExecutionContext.get().getSession();
+        HttpSession session = WebContextFactory.get().getSession(false);
         ManagementHelper helper = PortletManager.getManagementHelper(session);
         J2EEDomain[] domains = helper.getDomains();
-        J2EEServer[] servers = helper.getServers(domains[0]);
+        J2EEServer[] servers = domains[0].getServerInstances();
         JVM[] jvms = helper.getJavaVMs(servers[0]);
         long elapsed = System.currentTimeMillis() - jvms[0].getKernelBootTime().getTime();
         if(jvms[0].isStatisticsProvider()) {

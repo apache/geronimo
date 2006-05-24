@@ -1,0 +1,376 @@
+<html>
+    <head>
+        <title>Documentation : JBoss to Geronimo - Web Services Migration</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Documentation : JBoss to Geronimo - Web Services Migration
+                                                    </span>
+				    </div>
+				    <div class="pagesubheading">
+					    This page last changed on Dec 14, 2005 by <font color="#0050B2">hcunico@gmail.com</font>.
+				    </div>
+
+				    <p><a name="JBosstoGeronimo-WebServicesMigration-top"></a><br/>
+<em><b>Article donated by:</b> <a href="mailto:shvb@isg.axmor.com" title="Send mail to Vladimir Shraibman">Vladimir Shraibman</a>, <a href="mailto:artem@us.ibm.com" title="Send mail to Artem Papkov">Artem Papkov</a>, <a href="mailto:hcunico@gmail.com" title="Send mail to Hernan Cunico">Hernan Cunico</a></em></p>
+
+<h1><a name="JBosstoGeronimo-WebServicesMigration-Overview"></a>Overview</h1>
+<p>This article will help you migrate Web services applications developed for JBoss v4 to Apache Geronimo. This article is part of a series of migration articles covering different types of applications migration.</p>
+
+<p>This article provides some details on the differences between these two application servers as well as a detailed step-by-step migration procedure for porting Web services applications from JBoss v4 to Apache Geronimo. To define a common starting point (the source environment) we provide steps for deploying the sample Search a Phone Directory Web services application into the JBoss source environment. Then you will be guided through the application migration and deployment process onto Apache Geronimo.</p>
+
+<p>This article is organized in the following sections:</p>
+
+<ul>
+	<li><a href="#JBosstoGeronimo-WebServicesMigration-implementation" title="implementation on JBoss to Geronimo - Web Services Migration">Web Services implementation analysis</a></li>
+	<li><a href="#JBosstoGeronimo-WebServicesMigration-sampleApp" title="sampleApp on JBoss to Geronimo - Web Services Migration">Sample application</a></li>
+	<li><a href="#JBosstoGeronimo-WebServicesMigration-JBoss" title="JBoss on JBoss to Geronimo - Web Services Migration">The JBoss environment</a></li>
+	<li><a href="#JBosstoGeronimo-WebServicesMigration-Geronimo" title="Geronimo on JBoss to Geronimo - Web Services Migration">The Geronimo environment</a></li>
+	<li><a href="#JBosstoGeronimo-WebServicesMigration-migration" title="migration on JBoss to Geronimo - Web Services Migration">Step-by-step migration</a></li>
+	<li><a href="#JBosstoGeronimo-WebServicesMigration-summary" title="summary on JBoss to Geronimo - Web Services Migration">Summary</a></li>
+</ul>
+
+
+<h1><a name="JBosstoGeronimo-WebServicesMigration-WebServicesimplementationanalysis"></a>Web Services implementation analysis <a name="JBosstoGeronimo-WebServicesMigration-implementation"></a></h1>
+<p>Web services implementation may vary from one vendor to another. The purpose of this section is to provide comparison of JBoss and Apache Geronimo features which are used in the implementation of the sample application described further in this article. You can use the information below to identify the differences of these two servers and plan for migration accordingly.</p>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'>Features</th>
+<th class='confluenceTh'>JBoss v4</th>
+<th class='confluenceTh'>Apache Geronimo</th>
+</tr>
+<tr>
+<td class='confluenceTd'>Web services engine</td>
+<td class='confluenceTd'>Currently uses Apache Axis. However, JBoss plans to implement its own engine in the near future.</td>
+<td class='confluenceTd'>Uses Apache Axis.</td>
+</tr>
+<tr>
+<td class='confluenceTd'>Document/literal Web services</td>
+<td class='confluenceTd'>Runs server and Web client endpoints generated according to Java Web services specification.</td>
+<td class='confluenceTd'>Runs server and Web client endpoints generated according to Java Web services specification. However, it requires that an element defined in the XML schema and representing request message of an operation has exactly the same name as the operation.</td>
+</tr>
+</tbody></table>
+
+<p>The described Geronimo requirement for names of request elements and operations is be illustrated by the following example where names which must be the same are marked with bold:</p>
+
+<p>The following example illustrates the requirement from Geronimo of having the same name the request elements. Look for the three occurences of <b>myOperation"</b>.</p>
+
+<div class="code" style="border-style: solid; "><div class="codeContent">
+<pre class="code-xml">&lt;wsdl:definitions targetNamespace=<span class="code-quote">"http://myService.com/service"</span>
+        <span class="code-keyword">xmlns:wsdl</span>=<span class="code-quote">"http://schemas.xmlsoap.org/wsdl/"</span>
+        <span class="code-keyword">xmlns:soap</span>=<span class="code-quote">"http://schemas.xmlsoap.org/wsdl/soap/"</span>
+        <span class="code-keyword">xmlns:xsd</span>=<span class="code-quote">"http://www.w3.org/2001/XMLSchema"</span>
+        <span class="code-keyword">xmlns:tns</span>=<span class="code-quote">"http://myService.com/service"</span>
+        <span class="code-keyword">xmlns:types</span>=<span class="code-quote">"http://myService.com/service/types"</span>&gt;
+    
+    <span class="code-tag">&lt;wsdl:types&gt;</span>
+        <span class="code-tag">&lt;xsd:schema targetNamespace=<span class="code-quote">"http://myService.com/service/types"</span>&gt;</span>
+            <span class="code-tag">&lt;xsd:element name=<span class="code-quote">"myOperation"</span>&gt;</span>...<span class="code-tag">&lt;/xsd:element&gt;</span>
+            <span class="code-tag">&lt;xsd:element name=<span class="code-quote">"myOperationResponse"</span>&gt;</span>...<span class="code-tag">&lt;/xsd:element&gt;</span>
+        <span class="code-tag">&lt;/xsd:schema&gt;</span>
+    <span class="code-tag">&lt;/wsdl:types&gt;</span>
+
+    <span class="code-tag">&lt;wsdl:message name=<span class="code-quote">"myOperationRequest"</span>&gt;</span>
+        <span class="code-tag">&lt;wsdl:part element=<span class="code-quote">"types:myOperation"</span> name=<span class="code-quote">"parameters"</span>/&gt;</span>
+    <span class="code-tag">&lt;/wsdl:message&gt;</span>
+    <span class="code-tag">&lt;wsdl:message name=<span class="code-quote">"myOperationResponse"</span>&gt;</span>
+        <span class="code-tag">&lt;wsdl:part element=<span class="code-quote">"types:myOperationResponse"</span> name=<span class="code-quote">"result"</span>/&gt;</span>
+    <span class="code-tag">&lt;/wsdl:message&gt;</span>
+
+    <span class="code-tag">&lt;wsdl:portType name=<span class="code-quote">"myServicePortType"</span>&gt;</span>
+        <span class="code-tag">&lt;wsdl:operation name=<span class="code-quote">"myOperation"</span>&gt;</span>
+            &lt;wsdl:input message=<span class="code-quote">"tns:myOperationRequest"</span>
+                    name=<span class="code-quote">"myOperationRequest"</span>/&gt;
+            &lt;wsdl:output message=<span class="code-quote">"tns:myOperationResponse"</span>
+                    name=<span class="code-quote">"myOperationResponse"</span>/&gt;
+        <span class="code-tag">&lt;/wsdl:operation&gt;</span>
+    <span class="code-tag">&lt;/wsdl:portType&gt;</span>
+    ...
+<span class="code-tag">&lt;/wsdl:definitions&gt;</span></pre>
+</div></div>
+
+<p><a href="#JBosstoGeronimo-WebServicesMigration-top" title="top on JBoss to Geronimo - Web Services Migration">Back to Top</a></p>
+
+<h1><a name="JBosstoGeronimo-WebServicesMigration-Sampleapplication"></a>Sample application <a name="JBosstoGeronimo-WebServicesMigration-sampleApp"></a></h1>
+<p>This article contains the <a href="http://localhost:9090/download/attachments/1568/webservices.zip?version=1" title="webservices.zip attached to JBoss to Geronimo - Web Services Migration">Search a Phone Directory Web services application</a> to demonstrate Web services migration from JBoss to Geronimo. The application implements both server and Web-client sides of a simple service which searches through a phone directory. The user works with the Web-client to test the application. The user specifies a search criterion and receives the search results.</p>
+
+<p><img src="JBoss to Geronimo - Web Services Migration_attachments/WebServices_flow.jpg" align="absmiddle" border="0" /></p>
+
+<p>Download the Search a Phone Directory Web services application from the following link:</p>
+
+<p><a href="http://localhost:9090/download/attachments/1568/webservices.zip?version=1" title="webservices.zip attached to JBoss to Geronimo - Web Services Migration">Web Services Sample</a></p>
+
+<p>After extracting the ZIP file, a <b>webservices</b> directory is created, from now on this directory will be referred as <b>&lt;webservices_home&gt;</b>.</p>
+
+<p>The Web service is generic in implementation and is based on the document/literal encoding style. The WSDL document describing the service can be found in the directory <b>&lt;webservices_home&gt;/web/WEB-INF/wsdl</b>.</p>
+
+<p><a href="#JBosstoGeronimo-WebServicesMigration-top" title="top on JBoss to Geronimo - Web Services Migration">Back to Top</a></p>
+
+<h2><a name="JBosstoGeronimo-WebServicesMigration-ApplicationclassesandJSPpages"></a>Application classes and JSP pages</h2>
+<p>The sample application consists of the following packages, the source code can be found in the &lt;webservices_home&gt;/src directory.</p>
+
+<ul>
+	<li>com.ibm.j2g.webservices.server - Implementation of the server endpoint of the Web service:
+	<ul>
+		<li>SearchPhonesServer classes - Implements business logic of the service.</li>
+		<li>PersonPhone, Search, SearchPhonesPortType and SearchResponse classes - Generated from the WSDL document by Java Web Services Development Pack.</li>
+	</ul>
+	</li>
+	<li>com.ibm.j2g.webservices.client - Implementation of the client endpoint of the Web service:
+	<ul>
+		<li>PersonPhone, Search, SearchPhonesPortType, SearchPhonesService and SearchResponse classes - Generated from the WSDL document.</li>
+	</ul>
+	</li>
+</ul>
+
+
+<p>In addition to these packages, the client endpoint of the Web service also consists a single JSP page. This JSP displays a search form, sends request to the server endpoint and displays the search results.</p>
+
+<h2><a name="JBosstoGeronimo-WebServicesMigration-Toolsused"></a>Tools used</h2>
+<p>The tools used for developing and building the sample application are:</p>
+
+<h3><a name="JBosstoGeronimo-WebServicesMigration-JavaWebServicesDevelopmentPack%28JWSDP%29"></a>Java Web Services Development Pack (JWSDP)</h3>
+<p>JWSDP provides a number of tools useful in development of different Web services. It was used for generation of JAXP-RPC mapping files located in the directory <b>&lt;webservices_home&gt;/web</b> and auxiliary Java classes and interfaces described above. Java Web Services Development Pack can be downloaded from the following URL:</p>
+
+<p><a href="http://java.sun.com/webservices" title="Visit page outside Confluence">&#104;ttp://java.sun.com/webservices</a></p>
+
+<h3><a name="JBosstoGeronimo-WebServicesMigration-Eclipse"></a>Eclipse</h3>
+<p>The Eclipse IDE was used for development of the sample application. This is a very powerful and popular open source development tool. Integration plug-ins are available for both JBoss and Geronimo. Eclipse can be downloaded from the following URL:<br/>
+<a href="http://www.eclipse.org" title="Visit page outside Confluence">&#104;ttp://www.eclipse.org</a></p>
+
+<h3><a name="JBosstoGeronimo-WebServicesMigration-ApacheAnt"></a>Apache Ant</h3>
+<p>Ant is a pure Java build tool. It is used for building the war files and populating the database for the Online Brokerage application. Ant can be downloaded from the following URL:<br/>
+<a href="http://ant.apache.org" title="Visit page outside Confluence">&#104;ttp://ant.apache.org</a></p>
+
+<p><a href="#JBosstoGeronimo-WebServicesMigration-top" title="top on JBoss to Geronimo - Web Services Migration">Back to Top</a></p>
+
+<h1><a name="JBosstoGeronimo-WebServicesMigration-TheJBossenvironment"></a>The JBoss environment <a name="JBosstoGeronimo-WebServicesMigration-JBoss"></a></h1>
+<p>This section shows you how and where the sample JBoss reference environment was installed so you can map this scenario to your own implementation.</p>
+
+<p>Detailed instructions for installing, configuring, and managing JBoss are provided in the product documentation. Check the product Web site for the most updated documents.</p>
+
+<p>The following list highlights the general tasks you will need to complete to install and configure the initial environment as the starting point for deploying the sample application.</p>
+
+<ol>
+	<li>Download and install JBoss v4 as explained in the product documentation guides. From now on the installation directory will be referred as <b>&lt;jboss_home&gt;</b></li>
+	<li>Create a copy of the default JBoss v4 application server. Copy recursively <b>&lt;jboss_home&gt;\server\default</b> to <b>&lt;jboss_home&gt;\server\&lt;your_server_name&gt;</b></li>
+	<li>Start the new server by running the <tt>run.sh -c &lt;your_server_name&gt;</tt> command from the <b>&lt;jboss_home&gt;\bin</b> directory.</li>
+	<li>Once the server is started, you can verify that it is running by opening a Web browser and pointing it to this URL: <a href="http://localhost:8080" title="Visit page outside Confluence">&#104;ttp://localhost:8080</a>. You should see the JBoss Welcome window and be able to access the JBoss console.</li>
+	<li>Once the application server is up and running, the next step is to install and configure all the remaining prerequisite software required by the sample application. This step is described in the following section.</li>
+</ol>
+
+
+<p><a href="#JBosstoGeronimo-WebServicesMigration-top" title="top on JBoss to Geronimo - Web Services Migration">Back to Top</a></p>
+
+<h2><a name="JBosstoGeronimo-WebServicesMigration-Installandconfigureprerequisitesoftware"></a>Install and configure prerequisite software</h2>
+<p>Compiling the source code of the sample application requires Java libraries that provide J2EE API interfaces. Build scripts included with the sample application package are configured for using JAR files provided by a JBoss installation.</p>
+
+<p>The only additional software required for building the application is Apache Ant. If you still do not have Ant installed this is a good time for doing it and make sure that <b>&lt;ant_home&gt;\bin</b> directory is added to the system's path variable.</p>
+
+<p>Apache Ant can be downloaded from the following URL:</p>
+
+<p><a href="http://ant.apache.org" title="Visit page outside Confluence">&#104;ttp://ant.apache.org</a></p>
+
+<p><a href="#JBosstoGeronimo-WebServicesMigration-top" title="top on JBoss to Geronimo - Web Services Migration">Back to Top</a></p>
+
+<h2><a name="JBosstoGeronimo-WebServicesMigration-Buildthesampleapplication"></a>Build the sample application</h2>
+<p>The Search a Phone Directory Web services sample application included with this article provides an Ant script that you will use in order to build modules of the application. If you have not downloaded the sample application yet, this is a good time  for doing it. Download the Search a Phone Directory application package from the following link:</p>
+
+<p><a href="http://localhost:9090/download/attachments/1568/webservices.zip?version=1" title="webservices.zip attached to JBoss to Geronimo - Web Services Migration">Web Services Sample</a></p>
+
+<p>After extracting the zip file, a <b>webservices</b> directory is created. From now on this directory will be referred as <b>&lt;webservices_home&gt;</b>. In that directory open the <b>build.properties</b> file and edit the properties starting with the prefix <b>jboss</b> to match your environment as shown in the following example. </p>
+
+<p>You should also ensure that the property <b>server.port</b> specifies the actual port used by JBoss on the local host. This number will be parsed to the <b>&lt;webservices_home&gt;/web/WEB-INF/search-phones-service.wsdl</b> file which is used by the Web service client endpoint to locate the server endpoint of the service. The remaining properties are not relevant at this point in time, you will use them later to build the Geronimo version of the sample application.</p>
+
+<div class="preformatted" style="border-style: solid; "><div class="preformattedHeader" style="border-bottom-style: solid; "><b>build.properties</b></div><div class="preformattedContent">
+<pre># Name of the server to build the application for:
+server.name = jboss
+
+# Port number occupied by the server on the local host
+# (used by the web services client to locate the server
+# endpoint):
+server.port = 8080
+
+# Home directory of JBoss 4.0.2 J2ee Application Server and
+# name of the server instance on which the application
+# should be deployed (this instance should be either a copy
+# of the default JBoss server or the default server itself
+# because its libs are also used for building the source
+# code):
+jboss.home = &lt;jboss_home&gt;
+jboss.server = &lt;your_server_name&gt;
+
+# Home directory of Geronimo Application Server
+# and its administrator credentials:
+geronimo.home = &lt;geronimo_home&gt;
+geronimo.user = system
+geronimo.password = manager</pre>
+</div></div>
+
+<table cellpadding='5' width='85%' cellspacing='8px' class='noteMacro' border="0" align='center'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="icons/emoticons/warning.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>When specifying the directories and paths in the build.properties file, make sure to use just the forward slash "/" , otherwise the build will not locate the required files.</td></tr></table>
+
+<p>From a command prompt or shell go to the &lt;webservices_home&gt; directory and run the <b>ant build</b> command. This will create the WAR file and place it directly into the &lt;webservices_home&gt; directory.</p>
+
+<p>In addition to the compiled Java classes and the previously mentioned WSDL and JAXP-RPC mapping files the WEB-INF directory of the archive contains standard <b>web.xml</b> and <b>webservices.xml</b> deployment descriptors and a descriptor specific to JBoss <b>jboss-web.xml</b>. The JBoss deployment descriptor is illustrated in the following example.</p>
+
+<div class="code" style="border-style: solid; "><div class="codeHeader" style="border-bottom-style: solid; "><b>jboss-web.xml</b></div><div class="codeContent">
+<pre class="code-xml"><span class="code-tag">&lt;?xml version=<span class="code-quote">"1.0"</span> encoding=<span class="code-quote">"UTF-8"</span>?&gt;</span>
+&lt;!DOCTYPE jboss-web PUBLIC
+        <span class="code-quote">"-//JBoss//DTD Web Application 2.3//EN"</span>
+        <span class="code-quote">"http://www.jboss.org/j2ee/dtd/jboss-web_3_2.dtd"</span>&gt;
+
+<span class="code-tag">&lt;jboss-web&gt;</span>
+    <span class="code-tag">&lt;context-root&gt;</span>/webservices<span class="code-tag">&lt;/context-root&gt;</span>
+<span class="code-tag">&lt;/jboss-web&gt;</span></pre>
+</div></div>
+
+<p>Since this sample application does not use any resources no features specific to JBoss this file just provides the context root for the application. This path is optional and in case of such a simple descriptor you can build and deploy the application even without it.</p>
+
+<p><a href="#JBosstoGeronimo-WebServicesMigration-top" title="top on JBoss to Geronimo - Web Services Migration">Back to Top</a></p>
+
+<h2><a name="JBosstoGeronimo-WebServicesMigration-Deploythesampleapplication"></a>Deploy the sample application</h2>
+<p>To deploy the Search a Phone Directory Web services application, copy the <b>webservices.war</b> file from the &lt;webservices_home&gt; directory into the  &lt;jboss_home&gt;\server\&lt;your_server_name&gt;\deploy directory.</p>
+
+<p>Alternatively, you may run the command <b>ant deploy</b> that will build the application and deploy it to JBoss automatically.</p>
+
+<p>If JBoss is running, it will automatically deploy and start the application. Otherwise, the application will be deployed and started at the next invocation of the application server.</p>
+
+<p><a href="#JBosstoGeronimo-WebServicesMigration-top" title="top on JBoss to Geronimo - Web Services Migration">Back to Top</a></p>
+
+<h2><a name="JBosstoGeronimo-WebServicesMigration-Testthesampleapplication"></a>Test the sample application</h2>
+<p>To test the application, open a Web browser and access the following URL:</p>
+
+<p><a href="http://localhost:8080/webservices" title="Visit page outside Confluence">&#104;ttp://localhost:8080/webservices</a></p>
+
+<p>This brings up the JSP page of the sample application. Use the input form to search through the directory.</p>
+
+<p><img src="JBoss to Geronimo - Web Services Migration_attachments/WebServices_testing.jpg" align="absmiddle" border="0" /></p>
+
+<p><a href="#JBosstoGeronimo-WebServicesMigration-top" title="top on JBoss to Geronimo - Web Services Migration">Back to Top</a></p>
+
+<h1><a name="JBosstoGeronimo-WebServicesMigration-TheGeronimoenvironment"></a>The Geronimo environment <a name="JBosstoGeronimo-WebServicesMigration-Geronimo"></a></h1>
+<p>Download and install Geronimo from the following URL:</p>
+
+<p><a href="http://geronimo.apache.org/downloads.html" title="Visit page outside Confluence">&#104;ttp://geronimo.apache.org/downloads.html</a></p>
+
+<p>The release notes available there provide clear instructions on system requirements and how to install and start Geronimo.  Throughout the rest of this article we will refer to the Geronimo installation directory as <b>&lt;geronimo_home&gt;</b>.</p>
+
+<table cellpadding='5' width='85%' cellspacing='8px' class='warningMacro' border="0" align='center'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="icons/emoticons/forbidden.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td><b class="strong">TCP/IP ports conflict</b><br />If you are planning to run JBoss and Geronimo on the same machine consider to change the default service ports on, at least, one of these servers.</td></tr></table>
+
+<p><a href="#JBosstoGeronimo-WebServicesMigration-top" title="top on JBoss to Geronimo - Web Services Migration">Back to Top</a></p>
+
+<h1><a name="JBosstoGeronimo-WebServicesMigration-Stepbystepmigration"></a>Step-by-step migration <a name="JBosstoGeronimo-WebServicesMigration-migration"></a></h1>
+<p>As it was described in the beginning of this article, Geronimo does not allow an XML schema element representing request message of an operation to have a name different from the name of the operation. Hence if your WSDL defines unsupported names you need to correct the WSDL and generate or re-generate required Java classes. Depending on your coding approach, this may require manual modification of classes implementing endpoint of the Web service.</p>
+
+<p>The Search a Phone Directory Web services sample application uses WSDL names convention supported by both servers. Therefore the only thing that you need to do prior to deploy the application on Geronimo is to replace the deployment descriptor specific to JBoss with one specific to Geronimo. The <b>geronimo-web.xml</b> file is located in the &lt;webservices_home&gt;/web/WEB-INF directory  and its contents is listed below.</p>
+
+<div class="code" style="border-style: solid; "><div class="codeHeader" style="border-bottom-style: solid; "><b>geronimo-web.xml</b></div><div class="codeContent">
+<pre class="code-xml"><span class="code-tag">&lt;?xml version=<span class="code-quote">"1.0"</span> encoding=<span class="code-quote">"UTF-8"</span>?&gt;</span>
+&lt;web-app xmlns=<span class="code-quote">"http://geronimo.apache.org/xml/ns/web"</span> 
+        configId=<span class="code-quote">"com/ibm/j2g/webservices.war"</span>&gt;
+
+    <span class="code-tag">&lt;context-root&gt;</span>/webservices<span class="code-tag">&lt;/context-root&gt;</span>
+
+<span class="code-tag">&lt;/web-app&gt;</span></pre>
+</div></div>
+
+<p>Similar to JBoss, this descriptor just specifies the context root path for the application and in this case due to its simplicity the file is optional for inclusion into the WAR archive.</p>
+
+<p>These are the only changes required to run the Web services application on Geronimo.</p>
+
+<p><a href="#JBosstoGeronimo-WebServicesMigration-top" title="top on JBoss to Geronimo - Web Services Migration">Back to Top</a></p>
+
+<h2><a name="JBosstoGeronimo-WebServicesMigration-Buildthemigratedsampleapplication"></a>Build the migrated sample application</h2>
+<p>In order to build the WAR file for Geronimo, you need tomodify the <b>build.properties</b> file so that the <b>server.name</b> property value is set to <b>geronimo</b> and properties which start from the prefix <b>geronimo</b> match your environment as shown in the following example. You should also ensure that the property <b>server.port</b> specifies the actual TCP/IP port used by Geronimo on the local host. This port number will be parsed to the file &lt;webservices_home&gt;/web/WEB-INF/search-phones-service.wsdl file which is used by the Web service client endpoint to locate the server endpoint of the service.</p>
+
+<div class="preformatted" style="border-style: solid; "><div class="preformattedHeader" style="border-bottom-style: solid; "><b>build.properties</b></div><div class="preformattedContent">
+<pre># Name of the server to build the application for:
+server.name = geronimo
+
+# Port number occupied by the server on the local host
+# (used by the web services client to locate the server
+# endpoint):
+server.port = 8080
+
+# Home directory of JBoss 4.0.2 J2ee Application Server and
+# name of the server instance on which the application
+# should be deployed (this instance should be either a copy
+# of the default JBoss server or the default server itself
+# because its libs are also used for building the source
+# code):
+jboss.home = &lt;jboss_home&gt;
+jboss.server = &lt;your_server_name&gt;
+
+# Home directory of Geronimo Application Server
+# and its administrator credentials:
+geronimo.home = &lt;geronimo_home&gt;
+geronimo.user = system
+geronimo.password = manager</pre>
+</div></div>
+
+<table cellpadding='5' width='85%' cellspacing='8px' class='noteMacro' border="0" align='center'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="icons/emoticons/warning.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td><b class="strong">Modifying the source code</b><br />If you modify the Java source code of this application, ensure that the properties which start with the prefix <b>jboss</b> still match your environment. The build scripts still refer to JBoss libraries for J2EE API interfaces required for the source code compilation. Alternatively, you can update the classpath specified in the <b>build.xml</b> file so that it refers to the library <b>&lt;geronimo_home&gt;/repository/geronimo-spec/jars/geronimo-spec-j2ee-1.4-rc5.jar</b> instead of JBoss JARs.</td></tr></table>
+
+<p>Now run the command <b>ant build</b>. This will create the Geronimo version of the WAR file in which the deployment descriptor jboss-web.xml is replaced with the geronimo-web.xml and place it directly into the &lt;webservices_home&gt; directory.</p>
+
+<p><a href="#JBosstoGeronimo-WebServicesMigration-top" title="top on JBoss to Geronimo - Web Services Migration">Back to Top</a></p>
+
+<h2><a name="JBosstoGeronimo-WebServicesMigration-Deploythemigratedsampleapplication"></a>Deploy the migrated sample application</h2>
+<p>To deploy the migrated Search a Phone Directory Web services application, make sure the Geronimo server is up and running. </p>
+
+<p>From a command line, change directory to &lt;webservices_home&gt; and type the following command:</p>
+
+<p><tt>java -jar &lt;geronimo_home&gt;/bin/deployer.jar --user system --password manager deploy webservices.war</tt></p>
+
+<p>Another way to deploy the WAR file on Geronimo (that is running on the default port 8080) is to update the build.properties file so that the properties which starts with <b>geronimo</b> match with your environment and invoke the <b>ant deploy</b> command. The script executed by Ant will uninstall the sample application if installed and deploy the latest built created on the previous step.</p>
+
+<p>Once the application is deployed, open a Web browser and access the following URL:</p>
+
+<p><a href="http://localhost:8080/webservices" title="Visit page outside Confluence">&#104;ttp://localhost:8080/webservices</a></p>
+
+<p>You should see the same JSP page of the application as you tested when running the Web services sample on JBoss.</p>
+
+<p><a href="#JBosstoGeronimo-WebServicesMigration-top" title="top on JBoss to Geronimo - Web Services Migration">Back to Top</a></p>
+
+<h1><a name="JBosstoGeronimo-WebServicesMigration-Summary"></a>Summary <a name="JBosstoGeronimo-WebServicesMigration-summary"></a></h1>
+<p>This article showed how to migrate a Web services application that uses document/literal encoding from JBoss to Apache Geronimo. It showed that if the WSDL document follows the widely accepted names conventions then the migration will take minimum effort or even the very same application could be redeployed on any of the servers without any changes at all.</p>
+
+<p><a href="#JBosstoGeronimo-WebServicesMigration-top" title="top on JBoss to Geronimo - Web Services Migration">Back to Top</a></p>
+
+				    					    <br/>
+                        <div class="tabletitle">
+                            <a name="attachments">Attachments:</a>
+                        </div>
+
+                        <div class="greybox" align="left">
+                                                            <img src="icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="JBoss to Geronimo - Web Services Migration_attachments/webservices.zip">webservices.zip</a> (application/x-zip-compressed)
+                                <br/>
+                                                            <img src="icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="JBoss to Geronimo - Web Services Migration_attachments/WebServices_flow.jpg">WebServices_flow.jpg</a> (image/pjpeg)
+                                <br/>
+                                                            <img src="icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="JBoss to Geronimo - Web Services Migration_attachments/WebServices_testing.jpg">WebServices_testing.jpg</a> (image/pjpeg)
+                                <br/>
+                                                    </div>
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td height="12" background="border/border_bottom.gif"><img src="border/spacer.gif" width="1" height="1" border="0"/></td>
+			</tr>
+		    <tr>
+			    <td align="center"><font color="grey">Document generated by Confluence on Dec 15, 2005 19:14</font></td>
+		    </tr>
+	    </table>
+    </body>
+</html>

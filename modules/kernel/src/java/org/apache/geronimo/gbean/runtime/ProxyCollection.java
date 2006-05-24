@@ -16,57 +16,59 @@
  */
 package org.apache.geronimo.gbean.runtime;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.management.ObjectName;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
-import org.apache.geronimo.kernel.proxy.ProxyManager;
-import org.apache.geronimo.kernel.proxy.ProxyFactory;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+
+import javax.management.ObjectName;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 383682 $ $Date$
  */
 class ProxyCollection implements ReferenceCollection {
     private static final Log log = LogFactory.getLog(ProxyCollection.class);
     private final String name;
-    private final ProxyManager proxyManager;
-    private final ProxyFactory factory;
+    private final Kernel kernel;
     private final Map proxies = new HashMap();
     private final Set listeners = new HashSet();
     private boolean stopped = false;
+    private final Class type;
 
-    public ProxyCollection(String name, Class type, ProxyManager proxyManager, Set targets) {
+    public ProxyCollection(String name, Class type, Set targets, Kernel kernel) {
         this.name = name;
-        this.proxyManager = proxyManager;
-        factory = proxyManager.createProxyFactory(type);
+        this.kernel = kernel;
+        this.type = type;
 
         for (Iterator iterator = targets.iterator(); iterator.hasNext();) {
-            addTarget((ObjectName) iterator.next());
+            addTarget((AbstractName) iterator.next());
         }
     }
 
     synchronized void destroy() {
         stopped = true;
-        for (Iterator iterator = proxies.values().iterator(); iterator.hasNext();) {
-            proxyManager.destroyProxy(iterator.next());
+        if (!AbstractGBeanReference.NO_PROXY) {
+            for (Iterator iterator = proxies.values().iterator(); iterator.hasNext();) {
+                kernel.getProxyManager().destroyProxy(iterator.next());
+            }
         }
         proxies.clear();
         listeners.clear();
     }
 
-    void addTarget(ObjectName target) {
+    void addTarget(AbstractName target) {
         Object proxy;
         ArrayList listenerCopy;
         synchronized (this) {
@@ -76,7 +78,17 @@ class ProxyCollection implements ReferenceCollection {
             }
 
             // create and add the proxy
-            proxy = factory.createProxy(target);
+            if (AbstractGBeanReference.NO_PROXY) {
+                try {
+                    proxy = kernel.getGBean(target);
+                } catch (GBeanNotFoundException e) {
+                    // gbean disappeard on us
+                    log.debug("GBean was unloaded before it could be added to reference collections: " + target);
+                    return;
+                }
+            } else {
+                proxy = kernel.getProxyManager().createProxy(target, type);
+            }
             proxies.put(target, proxy);
 
             // make a snapshot of the listeners
@@ -94,7 +106,7 @@ class ProxyCollection implements ReferenceCollection {
         }
     }
 
-    void removeTarget(ObjectName target) {
+    void removeTarget(AbstractName target) {
         Object proxy;
         ArrayList listenerCopy;
         synchronized (this) {
@@ -121,7 +133,9 @@ class ProxyCollection implements ReferenceCollection {
         }
 
         // destroy the proxy
-        proxyManager.destroyProxy(proxy);
+        if (!AbstractGBeanReference.NO_PROXY) {
+            kernel.getProxyManager().destroyProxy(proxy);
+        }
     }
 
     public synchronized ObjectName[] getMemberObjectNames() {

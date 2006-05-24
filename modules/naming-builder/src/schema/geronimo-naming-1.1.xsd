@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2004-2005 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<xsd:schema
+        targetNamespace="http://geronimo.apache.org/xml/ns/naming-1.1"
+        xmlns:gernaming="http://geronimo.apache.org/xml/ns/naming-1.1"
+        xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.1"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        elementFormDefault="qualified"
+        attributeFormDefault="unqualified"
+        version="1.0">
+
+    <xsd:import namespace="http://geronimo.apache.org/xml/ns/deployment-1.1" schemaLocation="geronimo-module-1.1.xsd"/>
+
+    <xsd:annotation>
+        <xsd:documentation>
+            <![CDATA[
+            Partial schema containing common naming elements which can be included in other schemas.
+            ]]>
+        </xsd:documentation>
+    </xsd:annotation>
+
+
+    <xsd:element name="gbean-ref" type="gernaming:gbean-refType"/>
+    <xsd:element name="ejb-ref" type="gernaming:ejb-refType"/>
+    <!--    <xsd:element name="ejb-local-ref" type="gernaming:ejb-local-refType"/>-->
+    <xsd:element name="service-ref" type="gernaming:service-refType"/>
+    <xsd:element name="resource-ref" type="gernaming:resource-refType"/>
+    <xsd:element name="resource-env-ref" type="gernaming:resource-env-refType"/>
+
+    <xsd:element name="message-destination" type="gernaming:message-destinationType"/>
+
+    <xsd:group name="jndiEnvironmentRefsGroup">
+        <xsd:annotation>
+            <xsd:documentation>
+
+                This group keeps the usage of the contained JNDI environment
+                reference elements consistent across J2EE deployment descriptors.
+
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="gbean-ref" type="gernaming:gbean-refType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="ejb-ref" type="gernaming:ejb-refType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="ejb-local-ref" type="gernaming:ejb-local-refType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="service-ref" type="gernaming:service-refType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="resource-ref" type="gernaming:resource-refType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="resource-env-ref" type="gernaming:resource-env-refType" minOccurs="0"
+                         maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:group>
+
+    <!--ejb-link acts like ejb-link in spec descriptors-->
+    <!--resource-link contains the name of the outbound-connectionfactory-instance -->
+    <!--message-destination-link acts like message-destination-link in spec descriptors-->
+    <!--url in resource-ref contains the url for URL typed resource refs-->
+    <!--Possibly the external-uri element should be revived to connect to other naming systems-->
+    <!--when server to server communication exists we will need an element in ejb-ref to specify the geronimo server
+    we wish to talk to.  It might be possible to use the objectName server element for this depending on what we decide it means-->
+    <!--otherwise you can supply the entire object name using the gbean-nameGroup-->
+
+    <xsd:complexType name="ejb-refType">
+        <xsd:sequence>
+            <xsd:element name="ref-name" type="xsd:string"/>
+            <xsd:choice>
+                <xsd:element name="pattern" type="gernaming:patternType"/>
+                <xsd:group ref="gernaming:corbaNameGroup"/>
+                <xsd:element name="ejb-link" type="xsd:string"/>
+            </xsd:choice>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="ejb-local-refType">
+        <xsd:sequence>
+            <xsd:element name="ref-name" type="xsd:string"/>
+            <xsd:choice>
+                <xsd:element name="pattern" type="gernaming:patternType"/>
+                <xsd:element name="ejb-link" type="xsd:string"/>
+            </xsd:choice>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="resource-refType">
+        <xsd:sequence>
+            <xsd:element name="ref-name" type="xsd:string"/>
+            <xsd:choice>
+                <xsd:element name="pattern" type="gernaming:patternType"/>
+                <xsd:element name="resource-link" type="xsd:string"/>
+                <xsd:element name="url" type="xsd:string"/>
+            </xsd:choice>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="gbean-refType">
+        <xsd:sequence>
+            <xsd:element name="ref-name" type="xsd:string"/>
+            <xsd:element name="ref-type" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                <xsd:element name="pattern" type="gernaming:patternType"/>
+            </xsd:choice>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <!--used by openejb cmp datasource specification -->
+    <xsd:element name="cmp-connection-factory" type="gernaming:resource-locatorType"/>
+
+    <!--used by openejb mdb resource adapter specification -->
+    <xsd:element name="resource-adapter" type="gernaming:resource-locatorType"/>
+
+    <xsd:complexType name="resource-locatorType">
+        <xsd:sequence>
+            <xsd:choice>
+                <xsd:element name="pattern" type="gernaming:patternType"/>
+                <xsd:element name="resource-link" type="xsd:string"/>
+                <xsd:element name="url" type="xsd:string"/>
+            </xsd:choice>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="resource-env-refType">
+        <xsd:sequence>
+            <xsd:element name="ref-name" type="xsd:string"/>
+            <xsd:choice>
+                <xsd:element name="pattern" type="gernaming:patternType"/>
+                <xsd:element name="message-destination-link" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            This element is deprecated and should not be used. Use admin-object-link instead.
+                            That is effectively a renamed version of this.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:sequence>
+                    <xsd:element name="admin-object-module" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="admin-object-link" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:choice>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="message-destinationType">
+        <xsd:sequence>
+            <xsd:element name="message-destination-name" type="xsd:string"/>
+            <xsd:choice>
+                <xsd:element name="pattern" type="gernaming:patternType"/>
+                <xsd:sequence>
+                    <xsd:element name="admin-object-module" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="admin-object-link" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:choice>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <!--used by resource adapter -->
+    <xsd:element name="workmanager" type="gernaming:gbean-locatorType"/>
+
+    <!-- used by web apps/builders-->
+    <xsd:element name="web-container" type="gernaming:gbean-locatorType"/>
+
+    <xsd:complexType name="gbean-locatorType">
+        <xsd:sequence>
+            <xsd:choice>
+                <xsd:element name="pattern" type="gernaming:patternType"/>
+                <xsd:element name="gbean-link" type="xsd:string"/>
+            </xsd:choice>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="patternType">
+        <xsd:sequence>
+            <xsd:element name="groupId" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="artifactId" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="version" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="module" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="name" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:group name="serverGroup">
+        <xsd:annotation>
+            <xsd:documentation>This group contains the protocol, address, and port for a server</xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="protocol" type="xsd:string"/>
+            <xsd:element name="host" type="xsd:string"/>
+            <xsd:element name="port" type="xsd:int"/>
+        </xsd:sequence>
+    </xsd:group>
+
+    <xsd:complexType name="portType">
+        <xsd:sequence>
+            <xsd:element name="port-name" type="xsd:string"/>
+            <xsd:group ref="gernaming:serverGroup" minOccurs="0"/>
+            <xsd:element name="uri" type="xsd:string"/>
+            <xsd:element name="credentials-name" type="xsd:string" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="service-refType">
+        <xsd:sequence>
+            <xsd:element name="service-ref-name" type="xsd:string"/>
+            <xsd:choice>
+                <xsd:element name="service-completion" type="gernaming:service-completionType"/>
+                <xsd:element name="port" type="gernaming:portType" maxOccurs="unbounded"/>
+            </xsd:choice>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="service-completionType">
+        <xsd:sequence>
+            <xsd:element name="service-name" type="xsd:string"/>
+            <xsd:element name="port-completion" type="gernaming:port-completionType" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="port-completionType">
+        <xsd:sequence>
+            <xsd:element name="port" type="gernaming:portType"/>
+            <xsd:element name="binding-name" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:group name="corbaNameGroup">
+        <xsd:annotation>
+            <xsd:documentation>
+                This group contains the location of the CORBA name server, the
+                name, and the client security server used to make interop calls.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="ns-corbaloc" type="xsd:anyURI">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        The corbaloc used to access the CORBA name server.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="name" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        The name of the object in the name server.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:choice>
+                <xsd:element name="css" type="gernaming:patternType"/>
+                <xsd:element name="css-link" type="xsd:string"/>
+                <xsd:element name="css-name" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The GBean name of the client security server used to make interop calls.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+            </xsd:choice>
+        </xsd:sequence>
+    </xsd:group>
+
+</xsd:schema>

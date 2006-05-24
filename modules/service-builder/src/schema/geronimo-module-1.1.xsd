@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2004 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<xs:schema
+    targetNamespace="http://geronimo.apache.org/xml/ns/deployment-1.1"
+    xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.1"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified"
+    >
+    <xs:annotation>
+        <xs:documentation>
+            Schema for Geronimo Services deployment plans.
+            Instance documents should begin with the element:
+
+            &gt;gbeans xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"&lt;
+        </xs:documentation>
+    </xs:annotation>
+
+    <xs:element name="module" type="sys:moduleType"/>
+
+    <xs:complexType name="moduleType">
+        <xs:sequence>
+            <xs:element ref="sys:environment"/>
+            <xs:element ref="sys:gbean" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="environment" type="sys:environmentType">
+<!--    TODO figure out why this doesn't work
+        <xs:key name="name-key-key">
+            <xs:annotation>
+                <xs:documentation>
+                    name-key-key assures that key-values for the names of services in this module will
+                    have unique key names.
+                </xs:documentation>
+            </xs:annotation>
+            <xs:selector xpath="sys:name-key"/>
+            <xs:field xpath="sys:name-key/key"/>
+        </xs:key>
+-->
+    </xs:element>
+    <xs:element name="client-environment" type="sys:environmentType">
+<!--
+        <xs:annotation>
+            <xs:documentation>
+                TODO document me - am I only used by the app client builder?
+            </xs:documentation>
+        </xs:annotation>
+-->        
+    </xs:element>
+    
+    <xs:element name="server-environment" type="sys:environmentType">
+<!--
+        <xs:annotation>
+            <xs:documentation>
+                TODO document me - am I only used by the app client builder?
+            </xs:documentation>
+        </xs:annotation>
+-->
+    </xs:element>
+
+    <xs:complexType name="environmentType">
+        <xs:sequence>
+            <xs:element name="moduleId" type="sys:artifactType" minOccurs="0" >
+                <xs:annotation>
+                    <xs:documentation>
+                        "moduleId" holds elements for the groupId, artifactId, and version of the module
+                        version can be ommitted in which case a timestamp is used.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="dependencies" type="sys:dependenciesType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        "dependences" holds all classloader and dependency information for the module
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="hidden-classes" type="sys:classFilterType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        A list of classes which will never be loaded from parent ClassLoaders of this
+                        module.  For example, if Log4J was listed here, the module would never see
+                        Geronimo's copy of Log4J.  If the module provided it's own Log4J JAR it would
+                        use that, otherwise it would not be able to load Log4J at all.
+
+                        The classes are specified in zero or more child "filter" elements
+                        where each filter element specifies a fully-qualified class name or
+                        prefix.  Essentially, any class that starts with one of the prefixes listed
+                        here will be treated as hidden.  For example, if you specify two filter elements
+                        containing "java.util" and "java.lang" then you would really screw up your application.  :)
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="non-overridable-classes" type="sys:classFilterType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        A list of classes which will only be loaded from parent ClassLoaders of this
+                        module (never from the module's own ClassLoader).  For example, this is used
+                        to prevent a web application from redefining "javax.servlet", so those
+                        classes will *always* be loaded from the server instead of from the web
+                        web application's own ClassPath.
+
+                        The classes are specified in zero or more child "filter" elements
+                        where each filter element specifies a fully-qualified class name or
+                        prefix.  Essentially, any class that starts with one of the prefixes listed
+                        here will be treated as hidden.  For example, specifying two filter elements
+                        containing "javax.servlet" and "javax.ejb" would protect some of the core 
+                        J2EE classes from being overridden.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inverse-classloading" type="sys:emptyType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        If the "inverse-classloading" element is specified, the standard 
+                        class loading delegation model is to be reversed for this module.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="suppress-default-environment" type="sys:emptyType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        If the "suppress-default-environment" element is specified then any
+                        default environment build by a builder when deploying the plan will
+                        be suppressed.
+                        
+                        An example of where this is useful is when deploying a connector on an app
+                        client in a separate (standalone) module (not as part of a client plan).
+                        
+                        The connector builder defaultEnvironment includes some server modules
+                        that won't work on an app client, so you need to suppress the default 
+                        environment and supply a complete environment including all parents for a 
+                        non-app-client module you want to run on an app client
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="dependenciesType">
+        <xs:sequence>
+            <xs:element name="dependency" type="sys:dependencyType" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        "dependency" holds an artifact locating an artifact in a repository.
+                        Depending on the type of artifact and value of the import element, the artifact may be
+                        included in the current classpath, be loaded as a parent, may require the services
+                        in the artifact to be started, or may not be added to the classpath.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="emptyType"/>
+
+     <xs:element name="gbean" type="sys:gbeanType">
+        <xs:annotation>
+            <xs:documentation>
+                Adds a new custom component to the server.  The component will be deployed
+                when this application module is deployed, but it is not in any way protected,
+                so once it is up and running, other modules can refer to it normally.
+            </xs:documentation>
+        </xs:annotation>
+    </xs:element>
+
+    <xs:complexType name="classFilterType">
+        <xs:sequence>
+            <xs:element name="filter" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        A fully-qualified class name or prefix to be filtered.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="artifactType">
+        <xs:annotation>
+            <xs:documentation><![CDATA[
+                Refers to either another module running in the server, or
+                an entry in the server's Repository.  In either case this effectively uses a
+                URI.
+
+                When this is pointing to a repository entry, the URI must have a form
+                acceptable to the repository, which is currently a URI consisting of
+                Maven-style identifiers separated by slashes (groupId/artifactId/version/type,
+                for example, the URI "postgresql/postgresql-8.0-jdbc/313/jar" for a file like
+                "repository/postgresql/postgresql-8.0-jdbc-313.jar").
+
+                When this is pointing to a module, the URI should match the
+                module's moduleId.  This also looks
+                like a Maven-style URI discussed above.
+
+                The artifactType element can take either a straight URI (as in the examples
+                above), or maven-style identifier fragments (groupId, type, artifactId, and
+                version), which it will compose into a URI by adding up the fragments with
+                slashes in between.
+
+                There is a correspondence between the xml format and a URI.  For example, the URI
+
+                postgresql/postgresql-8.0-jdbc/313/jar
+
+                corresponds to the xml:
+
+                <groupId>postgresql</groupId>
+                <artifactId>postgresql-8.0-jdbc</artifactId>
+                <version>313</version>
+                <type>jar</type>
+
+          ]]></xs:documentation>
+        </xs:annotation>
+            <xs:sequence>
+                <!-- TODO not sure if groupId can in fact be optional -->
+                <xs:element name="groupId" type="xs:string" minOccurs="0"/>
+                <xs:element name="artifactId" type="xs:string"/>
+                <xs:element name="version" type="xs:string" minOccurs="0"/>
+                <xs:element name="type" type="xs:string" minOccurs="0"/>
+
+            </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="dependencyType">
+        <xs:complexContent>
+            <xs:extension base="sys:artifactType">
+                <xs:sequence>
+                    <xs:element name="import" type="sys:importType" minOccurs="0"/>
+                </xs:sequence>
+
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:simpleType name="importType">
+        <xs:annotation>
+            <xs:documentation><![CDATA[
+            The import element is restrictive.  The default (when omitted) is to include the specified dependency in
+            the classloader (as a parent or URL) and (if the dependency is a module) make sure it is started
+            before starting the current module.  Specifying "classes" means that the classes must be included
+            in the current module's classloader but the dependency does not need to be started. (I'm not sure this
+            is actually possible, but it is what is meant).  Specifying "services" means that the dependency (a module)
+            must be started before the current module, but it is not included as a parent classloader.
+
+            You probably never need to use the import element.
+
+          ]]></xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="classes"/>
+            <xs:enumeration value="services"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="gbeanType">
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="attribute" type="sys:attributeType"/>
+            <xs:element name="xml-attribute" type="sys:xml-attributeType"/>
+            <xs:element name="reference" type="sys:referenceType"/>
+            <xs:element name="references" type="sys:referencesType"/>
+            <xs:element name="xml-reference" type="sys:xml-attributeType"/>
+            <xs:element name="dependency" type="sys:patternType"/>
+        </xs:choice>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="class" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="attributeType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="name" type="xs:string"/>
+                <xs:attribute name="type" type="xs:string"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="xml-attributeType">
+        <xs:sequence>
+            <xs:any namespace="##any" processContents="lax"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string"/>
+    </xs:complexType>
+
+    <xs:complexType name="referencesType">
+        <xs:sequence>
+            <xs:element name="pattern" type="sys:patternType" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string"/>
+    </xs:complexType>
+
+    <xs:complexType name="patternType">
+        <xs:annotation>
+            <xs:documentation>This group contains the components of an abstract name</xs:documentation>
+        </xs:annotation>
+         <xs:sequence>
+            <xs:sequence>
+                <xs:element name="groupId" type="xs:string" minOccurs="0"/>
+                <xs:element name="artifactId" type="xs:string" minOccurs="0"/>
+                <xs:element name="version" type="xs:string" minOccurs="0"/>
+                <xs:element name="module" type="xs:string" minOccurs="0"/>
+                <xs:element name="type" type="xs:string" minOccurs="0"/>
+                <xs:element name="name" type="xs:string" minOccurs="0"/>
+            </xs:sequence>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="referenceType">
+        <xs:complexContent>
+            <xs:extension base="sys:patternType">
+                <xs:attribute name="name" type="xs:string"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:element name="service" type="sys:serviceType"/>
+
+    <xs:complexType name="serviceType">
+        <xs:sequence>
+            <xs:element name="dependency" type="sys:artifactType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>

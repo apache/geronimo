@@ -19,7 +19,6 @@ package org.apache.geronimo.console.certmanager;
 
 import java.io.IOException;
 import java.util.Enumeration;
-import javax.management.ObjectName;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.GenericPortlet;
@@ -39,6 +38,7 @@ import org.apache.geronimo.console.certmanager.actions.UploadCertificateFile;
 import org.apache.geronimo.console.certmanager.actions.ViewKeyStore;
 import org.apache.geronimo.console.certmanager.actions.ViewKeyStoreEntryDetail;
 import org.apache.geronimo.console.util.ObjectNameConstants;
+import org.apache.geronimo.gbean.AbstractName;
 
 public class CertManagerPortlet extends GenericPortlet {
 
@@ -56,7 +56,7 @@ public class CertManagerPortlet extends GenericPortlet {
         this.ctx.log("Certificate manager portlet initialized");
     }
 
-    public ObjectName getKeyStoreObjectName() {
+    public AbstractName getKeyStoreObjectName() {
         return ObjectNameConstants.KEYSTORE_OBJ_NAME;
     }
 

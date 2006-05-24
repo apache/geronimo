@@ -42,7 +42,6 @@ import org.apache.catalina.valves.ValveBase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.kernel.StoredObject;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
 import org.apache.geronimo.naming.reference.KernelAwareReference;
@@ -81,6 +80,12 @@ public class GeronimoStandardContext extends StandardContext {
     private int contextCount = 0;
     
     public void setContextProperties(TomcatContext ctx) throws DeploymentException {
+        //try to make sure this mbean properties match those of the TomcatWebAppContext
+        if (ctx instanceof TomcatWebAppContext) {
+            TomcatWebAppContext tctx = (TomcatWebAppContext) ctx;
+            setJavaVMs(tctx.getJavaVMs());
+            setServer(tctx.getServer());
+        }
         // Create ReadOnlyContext
         javax.naming.Context enc = null;
         Map componentContext = ctx.getComponentContext();
@@ -92,7 +97,7 @@ public class GeronimoStandardContext extends StandardContext {
                         ((KernelAwareReference) value).setKernel(ctx.getKernel());
                     }
                     if (value instanceof ClassLoaderAwareReference) {
-                        ((ClassLoaderAwareReference) value).setClassLoader(ctx.getWebClassLoader());
+                        ((ClassLoaderAwareReference) value).setClassLoader(ctx.getClassLoader());
                     }
                 }
                 enc = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext);
@@ -130,7 +135,7 @@ public class GeronimoStandardContext extends StandardContext {
                  */
                 DefaultPrincipal defaultPrincipal = securityHolder.getDefaultPrincipal();
                 if (defaultPrincipal != null) {
-                    defaultSubject = ConfigurationUtil.generateDefaultSubject(defaultPrincipal, ctx.getWebClassLoader());
+                    defaultSubject = ConfigurationUtil.generateDefaultSubject(defaultPrincipal, ctx.getClassLoader());
                     ContextManager.registerSubject(defaultSubject);
                     SubjectId id = ContextManager.getSubjectId(defaultSubject);
                     defaultSubject.getPrincipals().add(new IdentificationPrincipal(id));
@@ -173,7 +178,7 @@ public class GeronimoStandardContext extends StandardContext {
         this.webServiceMap = ctx.getWebServices();
 
         this.setCrossContext(ctx.isCrossContext());
-        
+
         this.setCookies(!ctx.isDisableCookies());
         
         //Set the Dispatch listener
@@ -231,15 +236,9 @@ public class GeronimoStandardContext extends StandardContext {
             if (!baseServletClass.isAssignableFrom(servletClass)) {
                 //Nope - its probably a webservice, so lets see...
                 if (webServiceMap != null) {
-                    StoredObject storedObject = (StoredObject) webServiceMap.get(wrapper.getName());
+                    WebServiceContainer webServiceContainer = (WebServiceContainer) webServiceMap.get(wrapper.getName());
 
-                    if (storedObject != null) {
-                        WebServiceContainer webServiceContainer;
-                        try {
-                            webServiceContainer = (WebServiceContainer) storedObject.getObject(cl);
-                        } catch (IOException io) {
-                            throw new RuntimeException(io);
-                        }
+                    if (webServiceContainer != null) {
                         //Yep its a web service
                         //So swap it out with a POJOWebServiceServlet
                         wrapper.setServletClass("org.apache.geronimo.webservices.POJOWebServiceServlet");
@@ -329,7 +328,7 @@ public class GeronimoStandardContext extends StandardContext {
         
         super.setLoader(loader);
     }
-    
+
     private class SystemMethodValve extends ValveBase {
 
         public void invoke(Request request, Response response) throws IOException, ServletException {

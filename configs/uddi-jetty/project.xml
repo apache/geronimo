@@ -37,42 +37,69 @@
             <artifactId>geronimo-gbean-deployer</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
+            <properties>
+                <packaging.config.order>1</packaging.config.order>
+            </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>j2ee-deployer</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
+            <properties>
+                <packaging.config.order>2</packaging.config.order>
+            </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>jetty-deployer</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>client-deployer</artifactId>
-            <version>${geronimo_version}</version>
-            <type>car</type>
+            <properties>
+                <packaging.config.order>3</packaging.config.order>
+            </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>openejb-deployer</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
+            <properties>
+                <packaging.config.order>4</packaging.config.order>
+            </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>axis-deployer</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
+            <properties>
+                <packaging.config.order>5</packaging.config.order>
+            </properties>
         </dependency>
- 
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>client-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+            <properties>
+                <packaging.config.order>6</packaging.config.order>
+            </properties>
+        </dependency>
+
         <!-- parent config -->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>system-database</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+            <properties>
+                 <geronimo.import>true</geronimo.import>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>axis</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
             <properties>
@@ -92,6 +119,15 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-uddi-db</artifactId>
             <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>scout</groupId>
+            <artifactId>scout</artifactId>
+            <version>${scout_version}</version>
             <properties>
                  <geronimo.dependency>true</geronimo.dependency>
              </properties>
@@ -251,11 +287,6 @@
             <groupId>asm</groupId>
             <artifactId>asm</artifactId>
             <version>${asm_version}</version>
-        </dependency>
-        <dependency>
-            <groupId>incubator-activemq</groupId>
-            <artifactId>activemq-gbean-management</artifactId>
-            <version>${activemq_version}</version>
         </dependency>
         <dependency>
             <groupId>activeio</groupId>

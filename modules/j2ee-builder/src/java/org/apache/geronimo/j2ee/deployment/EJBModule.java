@@ -16,26 +16,23 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.jar.JarFile;
-import java.util.List;
-import java.io.IOException;
 
-import javax.management.ObjectName;
-
-import org.apache.xmlbeans.XmlObject;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Rev: 6509 $ $Date$
+ * @version $Rev: 385487 $ $Date$
  */
 public class EJBModule extends Module {
-    private ObjectName moduleCmpEngineName;
-
-    public EJBModule(boolean standAlone, URI configId, List parentId, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
-        super(standAlone, configId, parentId, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null);
+    public EJBModule(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
+        super(standAlone, moduleName, environment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null);
     }
 
     public ConfigurationModuleType getType() {
@@ -43,15 +40,7 @@ public class EJBModule extends Module {
     }
 
     public void addClass(URI location, String fqcn, byte[] bytes, DeploymentContext context) throws IOException, URISyntaxException {
-        context.addClass(location, fqcn, bytes, true);
-    }
-
-    public ObjectName getModuleCmpEngineName() {
-        return moduleCmpEngineName;
-    }
-
-    public void setModuleCmpEngineName(ObjectName moduleCmpEngineName) {
-        this.moduleCmpEngineName = moduleCmpEngineName;
+        context.addClass(location, fqcn, bytes);
     }
 }
 

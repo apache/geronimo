@@ -17,22 +17,29 @@
 
 package org.apache.geronimo.console.logmanager;
 
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.Map;
-import java.util.LinkedHashMap;
-
-import javax.portlet.*;
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
-
-import org.apache.geronimo.console.BasePortlet;
-import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.management.geronimo.WebAccessLog;
-import org.apache.geronimo.management.geronimo.WebManager;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.console.BasePortlet;
+import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.management.geronimo.WebAccessLog;
+import org.apache.geronimo.management.geronimo.WebContainer;
+import org.apache.geronimo.management.geronimo.WebManager;
+
+import javax.portlet.ActionRequest;
+import javax.portlet.ActionResponse;
+import javax.portlet.PortletConfig;
+import javax.portlet.PortletContext;
+import javax.portlet.PortletException;
+import javax.portlet.PortletRequestDispatcher;
+import javax.portlet.RenderRequest;
+import javax.portlet.RenderResponse;
+import javax.portlet.WindowState;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class WebAccessLogViewerPortlet extends BasePortlet {
     private final static Log log = LogFactory.getLog(WebAccessLogViewerPortlet.class);
@@ -52,7 +59,7 @@ public class WebAccessLogViewerPortlet extends BasePortlet {
             return;
         }
 
-        String[] names = PortletManager.getWebManagerNames(renderRequest);
+        WebManager[] managers = PortletManager.getCurrentServer(renderRequest).getWebManagers();
 
         //todo: new
         Map products = new LinkedHashMap();
@@ -61,28 +68,24 @@ public class WebAccessLogViewerPortlet extends BasePortlet {
             renderRequest.setAttribute("selectedContainer", chosen);
         }
         WebAccessLog chosenLog = null;
-        if(names != null) {
-            for (int i = 0; i < names.length; i++) {
-                String webManagerName = names[i];
-                WebManager manager = (WebManager) PortletManager.getManagedBean(renderRequest, webManagerName);
-                String[] containers = PortletManager.getWebContainerNames(renderRequest, webManagerName);
+        if(managers != null) {
+            for (int i = 0; i < managers.length; i++) {
+                WebManager manager = managers[i];
+                AbstractName managerName = PortletManager.getNameFor(renderRequest, manager);
+                WebContainer[] containers = (WebContainer[]) manager.getContainers();
                 if (containers != null) {
                     for (int j = 0; j < containers.length; j++) {
-                        String containerName = containers[j];
-                        String combined = webManagerName+"%"+containerName;
+                        WebContainer container = containers[j];
+                        AbstractName containerName = PortletManager.getNameFor(renderRequest, container);
+                        String combined = managerName+"%"+containerName;
                         if(containers.length == 1) {
                             products.put(manager.getProductName(), combined);
                         } else {
-                            try {
-                                ObjectName containerON = ObjectName.getInstance(containerName);
-                                products.put(manager.getProductName()+" ("+containerON.getKeyProperty(NameFactory.J2EE_NAME)+")", combined);
-                            } catch (MalformedObjectNameException e) {
-                                log.error("Unable to parse ObjectName", e);
-                            }
+                            products.put(manager.getProductName()+" ("+containerName.getName().get(NameFactory.J2EE_NAME)+")", combined);
                         }
                         if(chosenLog == null) { // will pick the correct match, or the first if no selection is specified
                             if(chosen == null || chosen.equals(combined)) {
-                                chosenLog = PortletManager.getWebAccessLog(renderRequest, webManagerName, containerName);
+                                chosenLog = PortletManager.getWebAccessLog(renderRequest, managerName, containerName);
                             }
                         }
                     }

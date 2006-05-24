@@ -160,8 +160,8 @@ public class SecurityTest extends AbstractWebModuleTest {
     }
 
     protected void startWebApp(Map roleDesignates, Map principalRoleMap, ComponentPermissions componentPermissions, DefaultPrincipal defaultPrincipal, PermissionCollection checked, Set securityRoles) throws Exception {
-        setUpSecureAppContext(roleDesignates, principalRoleMap, componentPermissions, defaultPrincipal, checked, securityRoles);
-        setUpStaticContentServlet();
+        JettyWebAppContext app = setUpSecureAppContext(roleDesignates, principalRoleMap, componentPermissions, defaultPrincipal, checked, securityRoles);
+        setUpStaticContentServlet(app);
 //        start(appName, app);
     }
 

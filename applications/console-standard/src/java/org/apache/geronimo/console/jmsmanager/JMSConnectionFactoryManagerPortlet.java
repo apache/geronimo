@@ -17,15 +17,15 @@
 
 package org.apache.geronimo.console.jmsmanager;
 
-import org.apache.geronimo.console.BasePortlet;
-import org.apache.geronimo.console.GeronimoVersion;
-import org.apache.geronimo.console.databasemanager.DataSourceInfo;
-import org.apache.geronimo.console.jmsmanager.activemqCF.ActiveMQConnectorHelper;
-import org.apache.geronimo.gbean.GAttributeInfo;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelRegistry;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -40,27 +40,27 @@ import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import org.apache.geronimo.console.BasePortlet;
+import org.apache.geronimo.console.databasemanager.DataSourceInfo;
+import org.apache.geronimo.console.jmsmanager.activemqCF.ActiveMQConnectorHelper;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.kernel.ObjectNameUtil;
 
 public class JMSConnectionFactoryManagerPortlet extends BasePortlet {
 
     private final static ActiveMQConnectorHelper helper = new ActiveMQConnectorHelper();
 
-    private final static String PARENT_ID = "geronimo/activemq-broker/" + GeronimoVersion.GERONIMO_VERSION + "/car";
+    private final static String PARENT_ID = "geronimo/activemq-broker/" + org.apache.geronimo.system.serverinfo.ServerConstants.getVersion() + "/car";
 
     private final static String ADD_MODE = "addACF";
 
     private final static String SUBMIT_CREATE = "Create";
 
-    private final ObjectName DATABASE_QUERY = JMXUtil
+    private final ObjectName DATABASE_QUERY = ObjectNameUtil
             .getObjectName("*:j2eeType=JCAManagedConnectionFactory,*");
 
     protected final String NORMAL_VIEW = "/WEB-INF/view/jmsmanager/activemq/normal.jsp";;

@@ -18,26 +18,21 @@
 
 <!-- $Rev$ $Date$ -->
 
-<application
-    xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.0"
-    configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
-    >
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.1">
 
     <module>
-        <web>geronimo-console-framework-${pom.currentVersion}.war</web>
-        <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0" configId="console">
+        <web>framework.war</web>
+        <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.1">
             <context-root>/console</context-root>
-            <context-priority-classloader>false</context-priority-classloader>
             <cross-context/>
             <security-realm-name>geronimo-properties-realm</security-realm-name>
         </web-app>
     </module>
 
     <module>
-        <web>geronimo-console-standard-${pom.currentVersion}.war</web>
-        <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0" configId="console-standard">
+        <web>standard.war</web>
+        <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.1">
             <context-root>/console-standard</context-root>
-            <context-priority-classloader>false</context-priority-classloader>
             <cross-context/>
             <security-realm-name>geronimo-properties-realm</security-realm-name>
         </web-app>
@@ -63,15 +58,9 @@
     <!-- Console specific server info -->
     <gbean name="PropertiesLoginManager" class="org.apache.geronimo.console.core.security.PropertiesLoginModuleManager">
         <reference name="ServerInfo">
-            <application>null</application>
-            <moduleType>J2EEModule</moduleType>
-            <module>${pom.groupId}/j2ee-system/${pom.currentVersion}/car</module>
             <name>ServerInfo</name>
         </reference>
         <reference name="LoginModule">
-            <application>null</application>
-            <moduleType>J2EEModule</moduleType>
-            <module>${pom.groupId}/j2ee-security/${pom.currentVersion}/car</module>
             <name>properties-login</name>
         </reference>
     </gbean>
@@ -83,9 +72,6 @@
         <attribute name="keyStoreProvider">SUN</attribute>
         <attribute name="keyStorePassword">password</attribute>
         <reference name="serverInfo">
-            <application>null</application>
-            <moduleType>J2EEModule</moduleType>
-            <module>${pom.groupId}/j2ee-system/${pom.currentVersion}/car</module>
             <name>ServerInfo</name>
         </reference>
     </gbean>

@@ -19,11 +19,15 @@ package org.apache.geronimo.deployment;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
 import java.util.jar.JarFile;
-import java.net.URI;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
 
 /**
  * @version $Rev$ $Date$
@@ -37,7 +41,7 @@ public interface ConfigurationBuilder {
      * @return the deployment plan, or null if this builder can not handle the module
      * @throws org.apache.geronimo.common.DeploymentException if there was a problem with the configuration
      */
-    Object getDeploymentPlan(File planFile, JarFile module) throws DeploymentException;
+    Object getDeploymentPlan(File planFile, JarFile module, ModuleIDBuilder idBuilder) throws DeploymentException;
 
     /**
      * Checks what configuration URL will be used for the provided module.
@@ -47,17 +51,20 @@ public interface ConfigurationBuilder {
      * @throws IOException if there was a problem reading or writing the files
      * @throws org.apache.geronimo.common.DeploymentException if there was a problem with the configuration
      */
-    URI getConfigurationID(Object plan, JarFile module) throws IOException, DeploymentException;
+    Artifact getConfigurationID(Object plan, JarFile module, ModuleIDBuilder idBuilder) throws IOException, DeploymentException;
 
     /**
      * Build a configuration from a local file
      *
+     * @param inPlaceDeployment true if the deployment is in-place.
      * @param plan the deployment plan
      * @param module the module to build
-     * @param outfile the file in which the configiguration files should be written
-     * @return the Configuration information
+     * @param configurationStores
+     * @param artifactResolver
+     * @param targetConfigurationStore
+     * @return the deployment context created from the deployment (the contexts must be closed by the caller)
      * @throws IOException if there was a problem reading or writing the files
      * @throws org.apache.geronimo.common.DeploymentException if there was a problem with the configuration
      */
-    ConfigurationData buildConfiguration(Object plan, JarFile module, File outfile) throws IOException, DeploymentException;
+    DeploymentContext buildConfiguration(boolean inPlaceDeployment, Artifact configId, Object plan, JarFile module, Collection configurationStores, ArtifactResolver artifactResolver, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException;
 }

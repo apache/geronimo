@@ -1,17 +1,16 @@
 package org.apache.geronimo.system.main;
 
-import java.net.URI;
-import java.util.Set;
 import java.util.Iterator;
+import java.util.Set;
 
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.management.State;
-import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
-
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
  * @version $Rev$ $Date$
@@ -28,32 +27,31 @@ public class SilentStartupMonitor implements StartupMonitor {
         this.kernel = kernel;
     }
 
-    public void foundConfigurations(URI[] configurations) {
+    public void foundModules(Artifact[] modules) {
     }
 
-    public void configurationLoading(URI configuration) {
+    public void moduleLoading(Artifact module) {
     }
 
-    public void configurationLoaded(URI configuration) {
+    public void moduleLoaded(Artifact module) {
     }
 
-    public void configurationStarting(URI configuration) {
+    public void moduleStarting(Artifact module) {
     }
 
-    public void configurationStarted(URI configuration) {
+    public void moduleStarted(Artifact module) {
     }
 
     public void startupFinished() {
         try {
-            Set gbeans = kernel.listGBeans(ObjectName.getInstance("*:*"));
+            Set gbeans = kernel.listGBeans((AbstractNameQuery)null);
             for (Iterator it = gbeans.iterator(); it.hasNext();) {
-                ObjectName name = (ObjectName) it.next();
+                AbstractName name = (AbstractName) it.next();
                 int state = kernel.getGBeanState(name);
                 if (state != State.RUNNING_INDEX) {
                     log.warn("Unable to start "+name+" ("+State.fromInt(state).getName()+")");
                 }
             }
-        } catch (MalformedObjectNameException e) {
         } catch (GBeanNotFoundException e) {
         }
         System.out.println("Geronimo startup complete");
@@ -64,11 +62,4 @@ public class SilentStartupMonitor implements StartupMonitor {
         problem.printStackTrace(System.out);
     }
 
-    public void loadFailed(String configuration, Exception problem) {
-        problem.printStackTrace();
-    }
-
-    public void startFailed(String configuration, Exception problem) {
-        problem.printStackTrace();
-    }
 }

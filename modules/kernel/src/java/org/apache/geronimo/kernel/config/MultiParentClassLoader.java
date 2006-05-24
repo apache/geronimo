@@ -16,23 +16,24 @@
  */
 package org.apache.geronimo.kernel.config;
 
-import org.apache.commons.logging.LogFactory;
-
 import java.beans.Introspector;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamClass;
 import java.lang.reflect.Field;
-import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLStreamHandlerFactory;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
  * A MultiParentClassLoader is a simple extension of the URLClassLoader that simply changes the single parent class
@@ -40,94 +41,125 @@ import java.util.Map;
  * with a operation that checks each parent in order.  This getParent method of this class will always return null,
  * which may be interpreted by the calling code to mean that this class loader is a direct child of the system class
  * loader.
+ *
  * @version $Rev$ $Date$
  */
 public class MultiParentClassLoader extends URLClassLoader {
-    private final URI id;
+    private final Artifact id;
     private final ClassLoader[] parents;
     private final boolean inverseClassLoading;
     private final String[] hiddenClasses;
     private final String[] nonOverridableClasses;
+    private final String[] hiddenResources;
+    private final String[] nonOverridableResources;
+    private boolean destroyed = false;
 
     /**
      * Creates a named class loader with no parents.
-     * @param id the id of this class loader
+     *
+     * @param id   the id of this class loader
      * @param urls the urls from which this class loader will classes and resources
      */
-    public MultiParentClassLoader(URI id, URL[] urls) {
+    public MultiParentClassLoader(Artifact id, URL[] urls) {
         super(urls);
         this.id = id;
-        parents = new ClassLoader[0];
+        parents = new ClassLoader[]{ClassLoader.getSystemClassLoader()};
         inverseClassLoading = false;
         hiddenClasses = new String[0];
         nonOverridableClasses = new String[0];
+        hiddenResources = new String[0];
+        nonOverridableResources = new String[0];
     }
+
 
     /**
      * Creates a named class loader as a child of the specified parent.
-     * @param id the id of this class loader
-     * @param urls the urls from which this class loader will classes and resources
+     *
+     * @param id     the id of this class loader
+     * @param urls   the urls from which this class loader will classes and resources
      * @param parent the parent of this class loader
      */
-    public MultiParentClassLoader(URI id, URL[] urls, ClassLoader parent) {
-        this(id, urls, new ClassLoader[] {parent});
+    public MultiParentClassLoader(Artifact id, URL[] urls, ClassLoader parent) {
+        this(id, urls, new ClassLoader[]{parent});
     }
 
-    public MultiParentClassLoader(URI id, URL[] urls, ClassLoader parent, boolean inverseClassLoading, String[] hiddenClasses, String[] nonOverridableClasses) {
-        this(id, urls, new ClassLoader[] {parent}, inverseClassLoading, hiddenClasses, nonOverridableClasses);
+    public MultiParentClassLoader(Artifact id, URL[] urls, ClassLoader parent, boolean inverseClassLoading, String[] hiddenClasses, String[] nonOverridableClasses) {
+        this(id, urls, new ClassLoader[]{parent}, inverseClassLoading, hiddenClasses, nonOverridableClasses);
     }
 
     /**
      * Creates a named class loader as a child of the specified parent and using the specified URLStreamHandlerFactory
      * for accessing the urls..
-     * @param id the id of this class loader
-     * @param urls the urls from which this class loader will classes and resources
-     * @param parent the parent of this class loader
+     *
+     * @param id      the id of this class loader
+     * @param urls    the urls from which this class loader will classes and resources
+     * @param parent  the parent of this class loader
      * @param factory the URLStreamHandlerFactory used to access the urls
      */
-    public MultiParentClassLoader(URI id, URL[] urls, ClassLoader parent, URLStreamHandlerFactory factory) {
-        this(id, urls, new ClassLoader[] {parent}, factory);
+    public MultiParentClassLoader(Artifact id, URL[] urls, ClassLoader parent, URLStreamHandlerFactory factory) {
+        this(id, urls, new ClassLoader[]{parent}, factory);
     }
 
     /**
      * Creates a named class loader as a child of the specified parents.
-     * @param id the id of this class loader
-     * @param urls the urls from which this class loader will classes and resources
+     *
+     * @param id      the id of this class loader
+     * @param urls    the urls from which this class loader will classes and resources
      * @param parents the parents of this class loader
      */
-    public MultiParentClassLoader(URI id, URL[] urls, ClassLoader[] parents) {
+    public MultiParentClassLoader(Artifact id, URL[] urls, ClassLoader[] parents) {
         super(urls);
         this.id = id;
         this.parents = copyParents(parents);
         inverseClassLoading = false;
         hiddenClasses = new String[0];
         nonOverridableClasses = new String[0];
+        hiddenResources = new String[0];
+        nonOverridableResources = new String[0];
     }
 
-    public MultiParentClassLoader(URI id, URL[] urls, ClassLoader[] parents, boolean inverseClassLoading, String[] hiddenClasses, String[] nonOverridableClasses) {
-        super(urls, new FilteringParentCL(hiddenClasses));
+    public MultiParentClassLoader(Artifact id, URL[] urls, ClassLoader[] parents, boolean inverseClassLoading, Collection hiddenClasses, Collection nonOverridableClasses) {
+        this(id, urls, parents, inverseClassLoading, (String[]) hiddenClasses.toArray(new String[hiddenClasses.size()]), (String[]) nonOverridableClasses.toArray(new String[nonOverridableClasses.size()]));
+    }
+
+    public MultiParentClassLoader(Artifact id, URL[] urls, ClassLoader[] parents, boolean inverseClassLoading, String[] hiddenClasses, String[] nonOverridableClasses) {
+        super(urls);
         this.id = id;
         this.parents = copyParents(parents);
         this.inverseClassLoading = inverseClassLoading;
         this.hiddenClasses = hiddenClasses;
         this.nonOverridableClasses = nonOverridableClasses;
+        hiddenResources = toResources(hiddenClasses);
+        nonOverridableResources = toResources(nonOverridableClasses);
+    }
+
+    private String[] toResources(String[] classes) {
+        String[] resources = new String[classes.length];
+        for (int i = 0; i < classes.length; i++) {
+            String className = classes[i];
+            resources[i] = className.replace('.', '/');
+        }
+        return resources;
     }
 
     /**
      * Creates a named class loader as a child of the specified parents and using the specified URLStreamHandlerFactory
      * for accessing the urls..
-     * @param id the id of this class loader
-     * @param urls the urls from which this class loader will classes and resources
+     *
+     * @param id      the id of this class loader
+     * @param urls    the urls from which this class loader will classes and resources
      * @param parents the parents of this class loader
      * @param factory the URLStreamHandlerFactory used to access the urls
      */
-    public MultiParentClassLoader(URI id, URL[] urls, ClassLoader[] parents, URLStreamHandlerFactory factory) {
+    public MultiParentClassLoader(Artifact id, URL[] urls, ClassLoader[] parents, URLStreamHandlerFactory factory) {
         super(urls, null, factory);
         this.id = id;
         this.parents = copyParents(parents);
         inverseClassLoading = false;
         hiddenClasses = new String[0];
         nonOverridableClasses = new String[0];
+        hiddenResources = new String[0];
+        nonOverridableResources = new String[0];
     }
 
     private static ClassLoader[] copyParents(ClassLoader[] parents) {
@@ -144,71 +176,98 @@ public class MultiParentClassLoader extends URLClassLoader {
 
     /**
      * Gets the id of this class loader.
+     *
      * @return the id of this class loader
      */
-    public URI getId() {
+    public Artifact getId() {
         return id;
     }
 
     /**
      * Gets the parents of this class loader.
+     *
      * @return the parents of this class loader
      */
     public ClassLoader[] getParents() {
         return parents;
     }
 
+    public void addURL(URL url) {
+        // todo this needs a security check
+        super.addURL(url);
+    }
+
     protected synchronized Class loadClass(String name, boolean resolve) throws ClassNotFoundException {
-        Class clazz = findLoadedClass(name);
-
-        if (null != clazz) {
-            if (resolve) {
-                resolveClass(clazz);
-            }
-            return clazz;
+        //
+        // Check if class is in the loaded classes cache
+        //
+        Class cachedClass = findLoadedClass(name);
+        if (cachedClass != null) {
+            return resolveClass(cachedClass, resolve);
         }
 
-        if (inverseClassLoading) {
-            boolean checkMe = true;
-            for (int i = 0; i < nonOverridableClasses.length && checkMe; i++) {
-                if (name.startsWith(nonOverridableClasses[i])) {
-                    checkMe = false;
-                }
-            }
-
-            if (checkMe) {
-                try {
-                    clazz = findClass(name);
-                    if (resolve) {
-                        resolveClass(clazz);
-                    }
-                    return clazz;
-                } catch (ClassNotFoundException ignored) {
-                }
+        //
+        // if we are using inverse class loading, check local urls first
+        //
+        if (inverseClassLoading && !isDestroyed() && !isNonOverridableClass(name)) {
+            try {
+                Class clazz = findClass(name);
+                return resolveClass(clazz, resolve);
+            } catch (ClassNotFoundException ignored) {
             }
         }
 
-        boolean checkParents = true;
-        for (int i = 0; i < hiddenClasses.length && checkParents; i++) {
-            if (name.startsWith(hiddenClasses[i])) {
-                checkParents = false;
-            }
-        }
-        if (checkParents) {
-            for (int i = 0; i < parents.length && clazz == null; i++) {
+        //
+        // Check parent class loaders
+        //
+        if (!isHiddenClass(name)) {
+            for (int i = 0; i < parents.length; i++) {
                 ClassLoader parent = parents[i];
                 try {
-                    clazz = parent.loadClass(name);
+                    Class clazz = parent.loadClass(name);
+                    return resolveClass(clazz, resolve);
                 } catch (ClassNotFoundException ignored) {
                     // this parent didn't have the class; try the next one
                 }
             }
         }
-        
-        if (null == clazz) {
-            return super.loadClass(name, resolve);
+
+        //
+        // if we are not using inverse class loading, check local urls now
+        //
+        // don't worry about excluding non-overridable classes here... we
+        // have alredy checked he parent and the parent didn't have the
+        // class, so we can override now
+        if (!isDestroyed()) {
+            try {
+                Class clazz = findClass(name);
+                return resolveClass(clazz, resolve);
+            } catch (ClassNotFoundException ignored) {
+            }
         }
-        
+
+        throw new ClassNotFoundException(name + " in classloader " + id);
+    }
+
+    private boolean isNonOverridableClass(String name) {
+        for (int i = 0; i < nonOverridableClasses.length; i++) {
+            if (name.startsWith(nonOverridableClasses[i])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isHiddenClass(String name) {
+        for (int i = 0; i < hiddenClasses.length; i++) {
+            if (name.startsWith(hiddenClasses[i])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Class resolveClass(Class clazz, boolean resolve) {
         if (resolve) {
             resolveClass(clazz);
         }
@@ -216,51 +275,114 @@ public class MultiParentClassLoader extends URLClassLoader {
     }
 
     public URL getResource(String name) {
-        URL url = null;
-        
-        if (inverseClassLoading) {
-            url = super.getResource(name);
-            if (null != url) {
+        if (isDestroyed()) {
+            return null;
+        }
+
+        //
+        // if we are using inverse class loading, check local urls first
+        //
+        if (inverseClassLoading && !isDestroyed() && !isNonOverridableResource(name)) {
+            URL url = findResource(name);
+            if (url != null) {
                 return url;
             }
         }
-        
-        for (int i = 0; i < parents.length && url == null; i++) {
-            ClassLoader parent = parents[i];
-            url = parent.getResource(name);
+
+        //
+        // Check parent class loaders
+        //
+        if (!isHiddenResource(name)) {
+            for (int i = 0; i < parents.length; i++) {
+                ClassLoader parent = parents[i];
+                URL url = parent.getResource(name);
+                if (url != null) {
+                    return url;
+                }
+            }
         }
 
-        if (url == null && false == inverseClassLoading) {
+        //
+        // if we are not using inverse class loading, check local urls now
+        //
+        // don't worry about excluding non-overridable resources here... we
+        // have alredy checked he parent and the parent didn't have the
+        // resource, so we can override now
+        if (!isDestroyed()) {
             // parents didn't have the resource; attempt to load it from my urls
-            return super.getResource(name);
-        } else {
-            return url;
+            return findResource(name);
         }
+
+        return null;
     }
 
     public Enumeration findResources(String name) throws IOException {
+        if (isDestroyed()) {
+            return Collections.enumeration(Collections.EMPTY_SET);
+        }
+
         List resources = new ArrayList();
 
-        // Add resources from all parents
+        //
+        // if we are using inverse class loading, add the resources from local urls first
+        //
+        if (inverseClassLoading && !isDestroyed()) {
+            List myResources = Collections.list(super.findResources(name));
+            resources.addAll(myResources);
+        }
+
+        //
+        // Add parent resources
+        //
         for (int i = 0; i < parents.length; i++) {
             ClassLoader parent = parents[i];
             List parentResources = Collections.list(parent.getResources(name));
             resources.addAll(parentResources);
         }
 
-        // Add the resources from my urls
-        List myResources = Collections.list(super.findResources(name));
-        resources.addAll(myResources);
+        //
+        // if we are not using inverse class loading, add the resources from local urls now
+        //
+        if (!inverseClassLoading && !isDestroyed()) {
+            List myResources = Collections.list(super.findResources(name));
+            resources.addAll(myResources);
+        }
 
-        // return an enumeration over the list
         return Collections.enumeration(resources);
+    }
+
+    private boolean isNonOverridableResource(String name) {
+        for (int i = 0; i < nonOverridableResources.length; i++) {
+            if (name.startsWith(nonOverridableResources[i])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isHiddenResource(String name) {
+        for (int i = 0; i < hiddenResources.length; i++) {
+            if (name.startsWith(hiddenResources[i])) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public String toString() {
         return "[" + getClass().getName() + " id=" + id + "]";
     }
 
+    public synchronized boolean isDestroyed() {
+        return destroyed;
+    }
+
     public void destroy() {
+        synchronized(this) {
+            if (destroyed) return;
+            destroyed = true;
+        }
+
         LogFactory.release(this);
         clearSoftCache(ObjectInputStream.class, "subclassAudits");
         clearSoftCache(ObjectOutputStream.class, "subclassAudits");
@@ -273,31 +395,9 @@ public class MultiParentClassLoader extends URLClassLoader {
         Introspector.flushCaches();
     }
 
-    private static class FilteringParentCL extends ClassLoader {
-        private final String[] hiddenClasses;
-
-        public FilteringParentCL(String[] hiddenClasses) {
-            this.hiddenClasses = hiddenClasses;
-        }
-        
-        protected synchronized Class loadClass(String name, boolean resolve) throws ClassNotFoundException {
-            boolean checkParents = true;
-            for (int i = 0; i < hiddenClasses.length && checkParents; i++) {
-                if (name.startsWith(hiddenClasses[i])) {
-                    checkParents = false;
-                }
-            }
-            
-            if (checkParents) {
-                return super.loadClass(name, resolve);
-            }
-
-            throw new ClassNotFoundException(name);
-        }
-    }
-    
-    private static Object lock = new Object();
+    private static final Object lock = new Object();
     private static boolean clearSoftCacheFailed = false;
+
     private static void clearSoftCache(Class clazz, String fieldName) {
         Map cache = null;
         try {
@@ -319,5 +419,5 @@ public class MultiParentClassLoader extends URLClassLoader {
             }
         }
     }
-    
+
 }

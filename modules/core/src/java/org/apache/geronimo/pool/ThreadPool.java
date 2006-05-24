@@ -17,22 +17,41 @@
 
 package org.apache.geronimo.pool;
 
-import javax.management.ObjectName;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import javax.management.MalformedObjectNameException;
-import EDU.oswego.cs.dl.util.concurrent.Executor;
+import javax.management.ObjectName;
+import javax.management.j2ee.statistics.BoundedRangeStatistic;
+import javax.management.j2ee.statistics.CountStatistic;
+import javax.management.j2ee.statistics.Stats;
 import EDU.oswego.cs.dl.util.concurrent.PooledExecutor;
 import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.management.J2EEManagedObject;
+import org.apache.geronimo.management.StatisticsProvider;
+import org.apache.geronimo.management.geronimo.stats.ThreadPoolStats;
+import org.apache.geronimo.management.stats.BoundedRangeImpl;
+import org.apache.geronimo.management.stats.CountStatisticImpl;
+import org.apache.geronimo.management.stats.StatsImpl;
 
 /**
  * @version $Rev$ $Date$
  */
-public class ThreadPool implements GeronimoExecutor, GBeanLifecycle {
+public class ThreadPool implements GeronimoExecutor, GBeanLifecycle, J2EEManagedObject, StatisticsProvider {
     private PooledExecutor executor;
     private ClassLoader classLoader;
     private ObjectName objectName;
+    private boolean waitWhenBlocked;
+
+    // Statistics-related fields follow
+    private boolean statsActive = true;
+    private PoolStatsImpl stats = new PoolStatsImpl();
+    private Map clients = new HashMap();
+
 
     public ThreadPool(int poolSize, String poolName, long keepAliveTime, ClassLoader classLoader, String objectName) {
         PooledExecutor p = new PooledExecutor(poolSize);
@@ -43,7 +62,7 @@ public class ThreadPool implements GeronimoExecutor, GBeanLifecycle {
         try {
             this.objectName = ObjectName.getInstance(objectName);
         } catch (MalformedObjectNameException e) {
-            throw new IllegalStateException("Bad object name injected: "+e.getMessage());
+            throw new IllegalStateException("Bad object name injected: " + e.getMessage());
         }
 
         executor = p;
@@ -58,9 +77,110 @@ public class ThreadPool implements GeronimoExecutor, GBeanLifecycle {
         return objectName.getCanonicalName();
     }
 
+    public boolean isEventProvider() {
+        return true;
+    }
+
+    public boolean isStateManageable() {
+        return true;
+    }
+
+    public boolean isStatisticsProvider() {
+        return true;
+    }
+
+    public Stats getStats() {
+        stats.threadsInUse.setLowerBound(0);
+        stats.threadsInUse.setUpperBound(executor.getMaximumPoolSize());
+        int inUse = executor.getPoolSize();
+        stats.threadsInUse.setCurrent(inUse);
+        if (inUse < stats.threadsInUse.getLowWaterMark()) {
+            stats.threadsInUse.setLowWaterMark(inUse);
+        }
+        if (inUse > stats.threadsInUse.getHighWaterMark()) {
+            stats.threadsInUse.setHighWaterMark(inUse);
+        }
+        if (statsActive) {
+            synchronized (this) {
+                stats.prepareConsumers(clients);
+            }
+        } else {
+            stats.prepareConsumers(Collections.EMPTY_MAP);
+        }
+        return stats;
+    }
+
+    public static class PoolStatsImpl extends StatsImpl implements ThreadPoolStats {
+        private BoundedRangeImpl threadsInUse = new BoundedRangeImpl("Threads In Use", "", "The number of threads in use by this thread pool");
+        private Map consumers = new HashMap();
+
+        public PoolStatsImpl() {
+            addStat(threadsInUse.getName(), threadsInUse);
+        }
+
+        public BoundedRangeStatistic getThreadsInUse() {
+            return threadsInUse;
+        }
+
+        public CountStatistic getCountForConsumer(String consumer) {
+            return (CountStatistic) consumers.get(consumer);
+        }
+
+        public String[] getThreadConsumers() {
+            return (String[]) consumers.keySet().toArray(new String[consumers.size()]);
+        }
+
+        public void prepareConsumers(Map clients) {
+            Map result = new HashMap();
+            for (Iterator it = clients.keySet().iterator(); it.hasNext();) {
+                String client = (String) it.next();
+                Integer count = (Integer) clients.get(client);
+                CountStatisticImpl stat = (CountStatisticImpl) consumers.get(client);
+                if (stat == null) {
+                    stat = new CountStatisticImpl("Threads for " + client, "", "The number of threads used by the client known as '" + client + "'", count.intValue());
+                    addStat(stat.getName(), stat);
+                } else {
+                    consumers.remove(client);
+                    stat.setCount(count.intValue());
+                }
+                result.put(client, stat);
+            }
+            for (Iterator it = consumers.keySet().iterator(); it.hasNext();) {
+                String client = (String) it.next();
+                removeStat(((CountStatisticImpl) consumers.get(client)).getName());
+            }
+            consumers = result;
+        }
+    }
+
+
+    public int getPoolSize() {
+        return executor.getMaximumPoolSize();
+    }
+
     public void execute(Runnable command) throws InterruptedException {
+        execute("Unknown", command);
+    }
+
+    public void execute(final String consumerName, final Runnable runnable) throws InterruptedException {
+        Runnable command;
+        if (statsActive) {
+            command = new Runnable() {
+                public void run() {
+                    startWork(consumerName);
+                    try {
+                        runnable.run();
+                    } finally {
+                        finishWork(consumerName);
+                    }
+                }
+            };
+        } else {
+            command = runnable;
+        }
+
         PooledExecutor p;
-        synchronized(this) {
+        synchronized (this) {
             p = executor;
         }
         if (p == null) {
@@ -70,12 +190,43 @@ public class ThreadPool implements GeronimoExecutor, GBeanLifecycle {
         p.execute(task);
     }
 
+    private synchronized void startWork(String consumerName) {
+        Integer test = (Integer) clients.get(consumerName);
+        if (test == null) {
+            clients.put(consumerName, new Integer(1));
+        } else {
+            clients.put(consumerName, new Integer(test.intValue() + 1));
+        }
+    }
+
+    private synchronized void finishWork(String consumerName) {
+        Integer test = (Integer) clients.get(consumerName);
+        if (test.intValue() == 1) {
+            clients.remove(consumerName);
+        } else {
+            clients.put(consumerName, new Integer(test.intValue() - 1));
+        }
+    }
+
+    public void setWaitWhenBlocked(boolean wait) {
+        waitWhenBlocked = wait;
+        if(wait) {
+            executor.waitWhenBlocked();
+        } else {
+            executor.abortWhenBlocked();
+        }
+    }
+
+    public boolean isWaitWhenBlocked() {
+        return waitWhenBlocked;
+    }
+
     public void doStart() throws Exception {
     }
 
     public void doStop() throws Exception {
         PooledExecutor p;
-        synchronized(this) {
+        synchronized (this) {
             p = executor;
             executor = null;
             classLoader = null;
@@ -151,13 +302,14 @@ public class ThreadPool implements GeronimoExecutor, GBeanLifecycle {
         infoFactory.addAttribute("poolSize", int.class, true);
         infoFactory.addAttribute("poolName", String.class, true);
         infoFactory.addAttribute("keepAliveTime", long.class, true);
+        infoFactory.addAttribute("waitWhenBlocked", boolean.class, true);
 
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
         infoFactory.addInterface(GeronimoExecutor.class);
 
-        infoFactory.setConstructor(new String[] {"poolSize", "poolName", "keepAliveTime", "classLoader", "objectName"});
+        infoFactory.setConstructor(new String[]{"poolSize", "poolName", "keepAliveTime", "classLoader", "objectName"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

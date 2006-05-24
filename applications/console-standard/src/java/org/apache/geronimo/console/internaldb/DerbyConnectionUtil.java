@@ -20,13 +20,18 @@ package org.apache.geronimo.console.internaldb;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Iterator;
 
-import javax.management.ObjectName;
 import javax.sql.DataSource;
 
-import org.apache.geronimo.console.GeronimoVersion;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.KernelRegistry;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Version;
 
 /**
  * A static class to handle retreiving connections. This class is built to
@@ -37,7 +42,9 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
  */
 public class DerbyConnectionUtil {
 
-    public static final String CREATE_DB_PROP = ";create=true";
+    private final static Log log = LogFactory.getLog(DerbyConnectionUtil.class);
+
+	public static final String CREATE_DB_PROP = ";create=true";
 
     public static final String SHUTDOWN_DB_PROP = ";shutdown=true";
 
@@ -52,9 +59,21 @@ public class DerbyConnectionUtil {
     private static final String PROTOCOL = "jdbc:derby:";
 
     private static final String EMPTY_PROPS = "";
-
-    private static final ObjectName SYSTEM_DATASOURCE_NAME = JMXUtil
-            .getObjectName("geronimo.server:J2EEApplication=null,J2EEServer=geronimo,JCAResource=geronimo/system-database/"+GeronimoVersion.GERONIMO_VERSION+"/car,j2eeType=JCAManagedConnectionFactory,name=SystemDatasource");
+    
+    private static AbstractName SYSTEM_DATASOURCE_NAME = null;
+    
+    static {
+    	// look up the system data source name without using the version number
+    	HashMap props = new HashMap();
+    	props.put("name","SystemDatasource");
+    	props.put("j2eeType","JCAManagedConnectionFactory");
+    	Artifact systemDB = new Artifact("geronimo", "system-database", (Version)null, "car");
+    	AbstractNameQuery query = new AbstractNameQuery(systemDB,props);
+    	Iterator iter = KernelRegistry.getSingleKernel().listGBeans(query).iterator();
+    	if (iter.hasNext()) {
+    		SYSTEM_DATASOURCE_NAME = (AbstractName)iter.next();
+    	}
+    }
 
     /**
      * Get database connection.
@@ -68,8 +87,7 @@ public class DerbyConnectionUtil {
         try {
             Class.forName(driver).newInstance();
         } catch (Exception e) {
-            // Problem loading driver class
-            return null;
+        	log.error("Problem loading driver class", e);
         }
         // If we are looking for the SystemDatabase get it from the kernel
         // because it is not binded to our JNDI Context.
@@ -87,7 +105,7 @@ public class DerbyConnectionUtil {
      *            the name of the database to connect to.
      * @param properties
      *            the properties to pass to the connection string.
-     * @return
+     * @return connection
      */
     public static Connection getDerbyConnection(String dbName, String properties)
             throws SQLException {
@@ -119,19 +137,18 @@ public class DerbyConnectionUtil {
      * Get the datasource if dbName is == SYSTEM_DB, otherwise returns null.
      *
      * @param dbName
-     * @return
+     * @return datasource
      */
     public static DataSource getDataSource(String dbName) {
         try {
-            if (SYSTEM_DB.equalsIgnoreCase(dbName)) {
-                return (DataSource) KernelRegistry.getSingleKernel().invoke(
-                        SYSTEM_DATASOURCE_NAME, "$getResource");
-            } else {
-                return null;
+            if (SYSTEM_DATASOURCE_NAME!=null && SYSTEM_DB.equalsIgnoreCase(dbName)) {
+            	return (DataSource) KernelRegistry.getSingleKernel().invoke(
+            			SYSTEM_DATASOURCE_NAME, "$getResource");
             }
         } catch (Exception e) {
-            return null;
+        	log.error("Problem getting datasource " + dbName, e);
         }
+        return null;
     }
 
 }

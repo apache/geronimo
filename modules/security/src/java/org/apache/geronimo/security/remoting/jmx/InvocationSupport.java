@@ -20,9 +20,8 @@ import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.net.URI;
 
-import org.apache.geronimo.interceptor.Invocation;
-import org.apache.geronimo.interceptor.InvocationKey;
-
+import org.apache.geronimo.core.service.Invocation;
+import org.apache.geronimo.core.service.InvocationKey;
 /**
  * @version $Rev$ $Date$
  */
@@ -48,7 +47,7 @@ public final class InvocationSupport implements Serializable, InvocationKey {
     public static void putInvocationType(Invocation invocation, InvocationType type) {
         invocation.put(INVOCATION_TYPE, type);
     }
-
+    
     private final transient String name;
     private final int ordinal;
 
@@ -83,9 +82,9 @@ public final class InvocationSupport implements Serializable, InvocationKey {
         }
         return false;
     }
-
+    
     /**
-     * @see org.apache.geronimo.interceptor.InvocationKey#isTransient()
+     * @see org.apache.geronimo.core.service.InvocationKey#isTransient()
      */
     public boolean isTransient() {
         return true;

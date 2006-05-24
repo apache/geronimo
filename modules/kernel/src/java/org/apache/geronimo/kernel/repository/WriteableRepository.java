@@ -33,8 +33,14 @@ public interface WriteableRepository extends Repository {
      * to upload the file to the server's filesystem, even if the
      * the server is just going to turn around and upload it to some
      * other remote location.
+     *
+     * @param source       A file representing the data for the new repository
+     *                     entry
+     * @param destination  A fully-resolved artifact that tells the repository
+     *                     where it should save the data to
+     * @param monitor      Tracks the progress of the installation
      */
-    public void copyToRepository(File source, URI destination, FileWriteMonitor monitor) throws IOException;
+    public void copyToRepository(File source, Artifact destination, FileWriteMonitor monitor) throws IOException;
 
     /**
      * Copies the contents of an arbitrary stream into the repository.
@@ -42,6 +48,12 @@ public interface WriteableRepository extends Repository {
      * to upload the content to the server's JVM, even if the the server
      * is just going to turn around and upload it to some other remote
      * location.  The source will be closed when the write completes.
+     *
+     * @param source       A stream representing the data for the new
+     *                     repository entry
+     * @param destination  A fully-resolved artifact that tells the repository
+     *                     where it should save the data to
+     * @param monitor      Tracks the progress of the installation
      */
-    public void copyToRepository(InputStream source, URI destination, FileWriteMonitor monitor) throws IOException;
+    public void copyToRepository(InputStream source, int size, Artifact destination, FileWriteMonitor monitor) throws IOException;
 }

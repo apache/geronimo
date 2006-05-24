@@ -16,12 +16,12 @@
     limitations under the License.
 -->
 
-<configuration xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-               configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
+
         >
 
     <gbean name="UnavailableWebServiceBuilder" class="org.apache.geronimo.j2ee.deployment.UnavailableWebServiceBuilder" />
 
     <gbean name="UnavailableServiceReferenceBuilder" class="org.apache.geronimo.j2ee.deployment.UnavailableServiceReferenceBuilder" />
 
-</configuration>
+</module>

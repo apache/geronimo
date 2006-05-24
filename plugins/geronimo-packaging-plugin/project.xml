@@ -22,13 +22,13 @@
     <groupId>geronimo</groupId>
     <id>geronimo-packaging-plugin</id>
     <name>Geronimo :: Maven Packaging Plugin</name>
-    <currentVersion>1.2.0-3</currentVersion>
+    <currentVersion>1.1.0-9</currentVersion>
 
     <dependencies>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
-            <version>1.2-SNAPSHOT</version>
+            <version>1.1-SNAPSHOT</version>
             <properties>
                 <packaging.classpath>true</packaging.classpath>
             </properties>
@@ -37,11 +37,30 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
-            <version>1.2-SNAPSHOT</version>
+            <version>1.1-SNAPSHOT</version>
             <properties>
                 <packaging.classpath>true</packaging.classpath>
             </properties>
         </dependency>
+        <!-- needed for PlanProcessor to load EnvironmentBuilder which uses DeploymentException -->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-common</artifactId>
+            <version>1.1-SNAPSHOT</version>
+            <properties>
+                <packaging.classpath>true</packaging.classpath>
+            </properties>
+        </dependency>
+<!--
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-j2ee</artifactId>
+            <version>1.1-SNAPSHOT</version>
+            <properties>
+                <packaging.classpath>true</packaging.classpath>
+            </properties>
+        </dependency>
+-->
 
         <dependency>
             <groupId>cglib</groupId>
@@ -93,11 +112,29 @@
             </properties>
         </dependency>
 
+        <dependency>
+            <groupId>xstream</groupId>
+            <artifactId>xstream</artifactId>
+            <version>1.1.3</version>
+            <properties>
+                <packaging.classpath>true</packaging.classpath>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>xpp3</groupId>
+            <artifactId>xpp3</artifactId>
+            <version>1.1.3.3</version>
+            <properties>
+                <packaging.classpath>true</packaging.classpath>
+            </properties>
+        </dependency>
+
         <!-- dependency addition -->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-service-builder</artifactId>
-            <version>1.2-SNAPSHOT</version>
+            <version>1.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>xmlbeans</groupId>
@@ -136,6 +173,7 @@
 
     <build>
         <sourceDirectory>src/java</sourceDirectory>
+        <unitTestSourceDirectory>${basedir}/src/test</unitTestSourceDirectory>
 
         <resources>
             <resource>
@@ -148,6 +186,22 @@
                 </includes>
             </resource>
         </resources>
+        <unitTest>
+            <includes>
+                <include>**/*Test.java</include>
+            </includes>
+            <excludes>
+                <exclude>**/Abstract*.java</exclude>
+            </excludes>
+            <resources>
+                <resource>
+                    <directory>${basedir}/src/test-resources</directory>
+                    <includes>
+                        <include>**/*</include>
+                    </includes>
+                </resource>
+            </resources>
+        </unitTest>
     </build>
 </project>
 

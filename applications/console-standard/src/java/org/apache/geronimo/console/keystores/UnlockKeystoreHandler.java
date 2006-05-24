@@ -17,7 +17,7 @@
 package org.apache.geronimo.console.keystores;
 
 import org.apache.geronimo.console.MultiPageModel;
-import org.apache.geronimo.security.keystore.KeystoreIsLocked;
+import org.apache.geronimo.management.geronimo.KeystoreIsLocked;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;

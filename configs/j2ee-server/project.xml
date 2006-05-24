@@ -25,7 +25,6 @@
     <name>Server Configuration for the J2EE Server</name>
 
     <dependencies>
-
         <!-- dependency on deployer -->
         <dependency>
             <groupId>geronimo</groupId>
@@ -38,8 +37,10 @@
             <artifactId>geronimo-gbean-deployer</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
+            <properties>
+                <packaging.config.order>1</packaging.config.order>
+            </properties>
         </dependency>
-
         <!-- parent config -->
         <dependency>
             <groupId>geronimo</groupId>
@@ -50,18 +51,9 @@
                  <geronimo.import>true</geronimo.import>
              </properties>
         </dependency>
-
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-core</artifactId>
-            <version>${geronimo_version}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-interceptor</artifactId>
             <version>${geronimo_version}</version>
             <properties>
                  <geronimo.dependency>true</geronimo.dependency>
@@ -115,6 +107,11 @@
              </properties>
         </dependency>
         <dependency>
+            <groupId>activemq</groupId>
+            <artifactId>activemq-gbean-management-g1_1</artifactId>
+            <version>${activemq_version}</version>
+        </dependency>
+        <dependency>
             <groupId>activeio</groupId>
             <artifactId>activeio</artifactId>
             <version>${activeio_version}</version>
@@ -149,16 +146,6 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-management</artifactId>
-            <version>${geronimo_version}</version>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-j2ee</artifactId>
-            <version>${geronimo_version}</version>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
             <artifactId>geronimo-naming</artifactId>
             <version>${geronimo_version}</version>
         </dependency>
@@ -189,9 +176,19 @@
             <version>${concurrent_version}</version>
         </dependency>
         <dependency>
+            <groupId>tranql</groupId>
+            <artifactId>tranql</artifactId>
+            <version>${tranql_version}</version>
+        </dependency>
+        <dependency>
             <groupId>howl</groupId>
             <artifactId>howl-logger</artifactId>
             <version>${howl_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>antlr</groupId>
+            <artifactId>antlr</artifactId>
+            <version>${antlr_version}</version>
         </dependency>
         <dependency>
             <groupId>regexp</groupId>

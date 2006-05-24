@@ -22,14 +22,14 @@
 Configuration for the security of a Geronimo server.
                parentId="${pom.groupId}/rmi-naming/${pom.currentVersion}/car"
 -->
-<configuration
-    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-               configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
+<module
+    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
+
     >
     <!--runtime dependencies-->
 
     <gbean name="SecurityService" class="org.apache.geronimo.security.SecurityServiceImpl">
-        <reference name="ServerInfo"><module>geronimo/j2ee-system/${pom.currentVersion}/car</module><name>ServerInfo</name></reference>
+        <reference name="ServerInfo"><name>ServerInfo</name></reference>
         <attribute name="policyConfigurationFactory">org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>
         <attribute name="policyProvider">org.apache.geronimo.security.jacc.GeronimoPolicy</attribute>
     </gbean>
@@ -38,19 +38,19 @@ Configuration for the security of a Geronimo server.
     <!-- Register GeronimoLoginConfiguration as the LoginConfiguration handler -->
     <gbean name="LoginConfiguration" class="org.apache.geronimo.security.jaas.GeronimoLoginConfiguration">
         <references name="Configurations">
-            <pattern><gbean-name>geronimo.server:j2eeType=SecurityRealm,*</gbean-name></pattern>
-            <pattern><gbean-name>geronimo.server:j2eeType=ConfigurationEntry,*</gbean-name></pattern>
+            <pattern><type>SecurityRealm</type></pattern>
+            <pattern><type>ConfigurationEntry</type></pattern>
         </references>
     </gbean>
 
     <gbean name="JaasLoginService" class="org.apache.geronimo.security.jaas.server.JaasLoginService">
-        <reference name="Realms"><application>*</application><module>*</module><name>*</name></reference>
+        <reference name="Realms"></reference>
         <!--        <attribute name="reclaimPeriod">100000</attribute>-->
         <attribute name="algorithm">HmacSHA1</attribute>
         <attribute name="password">secret</attribute>
     </gbean>
 
-    <gbean gbeanName="geronimo.remoting:target=JaasLoginServiceRemotingServer" class="org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingServer">
+    <gbean name="JaasLoginServiceRemotingServer" class="org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingServer">
         <attribute name="protocol">tcp</attribute>
         <attribute name="host">${PlanServerHostname}</attribute>
         <attribute name="port">${PlanRemoteLoginPort}</attribute>
@@ -59,8 +59,14 @@ Configuration for the security of a Geronimo server.
 
     <!-- JMX Remoting -->
     <gbean name="JMXService" class="org.apache.geronimo.jmxremoting.JMXConnector">
-        <attribute name="url">service:jmx:rmi://${PlanServerHostname}/jndi/rmi:/JMXConnector</attribute>
+        <attribute name="protocol">rmi</attribute>
+        <attribute name="host">${PlanServerHostname}</attribute>
+        <attribute name="port">${PlanJMXPort}</attribute>
+        <attribute name="urlPath">/jndi/rmi://${PlanServerHostname}:${PlanNamingPort}/JMXConnector</attribute>
         <attribute name="applicationConfigName">JMX</attribute>
+        <reference name="MBeanServerReference">
+            <name>MBeanServerReference</name>
+        </reference>
     </gbean>
 
 
@@ -82,7 +88,7 @@ Configuration for the security of a Geronimo server.
         <reference name="LoginModuleConfiguration">
             <name>properties-login</name>
         </reference>
-        <reference name="ServerInfo"><module>geronimo/j2ee-system/${pom.currentVersion}/car</module><name>ServerInfo</name></reference>
+        <reference name="ServerInfo"><name>ServerInfo</name></reference>
         <reference name="LoginService"><name>JaasLoginService</name></reference>
     </gbean>
     <gbean name="properties-login" class="org.apache.geronimo.security.jaas.JaasLoginModuleUse">
@@ -100,11 +106,18 @@ Configuration for the security of a Geronimo server.
 
     <gbean name="KeystoreManager" class="org.apache.geronimo.security.keystore.FileKeystoreManager">
         <attribute name="keystoreDir">var/security/keystores</attribute>
-        <reference name="ServerInfo"><module>geronimo/j2ee-system/${pom.currentVersion}/car</module><name>ServerInfo</name></reference>
+        <reference name="ServerInfo"><name>ServerInfo</name></reference>
         <references name="KeystoreInstances">
           <pattern>
-            <gbean-name>geronimo.server:j2eeType=Keystore,*</gbean-name>
+            <type>Keystore</type>
           </pattern>
         </references>
     </gbean>
-</configuration>
+    <gbean name="geronimo-default" class="org.apache.geronimo.security.keystore.FileKeystoreInstance">
+        <attribute name="keystoreName">geronimo-default</attribute>
+        <attribute name="keystorePath">var/security/keystores/geronimo-default</attribute>
+        <attribute name="keystorePassword">secret</attribute>
+        <attribute name="keyPasswords">geronimo=secret</attribute>
+        <reference name="ServerInfo"><name>ServerInfo</name></reference>
+    </gbean>
+</module>

@@ -16,24 +16,30 @@
  */
 package org.apache.geronimo.console.jmsmanager.wizard;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.portlet.ActionRequest;
+import javax.portlet.ActionResponse;
+import javax.portlet.PortletException;
+import javax.portlet.PortletRequest;
+import javax.portlet.RenderRequest;
+import javax.portlet.RenderResponse;
+
+import org.apache.geronimo.console.MultiPageModel;
+import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
-import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
-import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.management.geronimo.JCAAdminObject;
+import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.management.geronimo.JCAResource;
-import org.apache.geronimo.management.ResourceAdapter;
-import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.console.MultiPageModel;
-
-import javax.portlet.*;
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.List;
-import java.util.ArrayList;
+import org.apache.geronimo.management.geronimo.ResourceAdapter;
+import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 
 /**
  * A handles for the front page that lists available resources.
@@ -56,15 +62,14 @@ public class ListScreenHandler extends AbstractHandler {
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
         JMSResourceData data = (JMSResourceData) model;
         String provider = request.getParameter(PROVIDER_PARAMETER);
-        if(isEmpty(provider)) {
-            return SELECT_PROVIDER_MODE+BEFORE_ACTION;
+        if (isEmpty(provider)) {
+            return SELECT_PROVIDER_MODE + BEFORE_ACTION;
         }
         JMSProviderData providerData = JMSProviderData.getProviderByName(provider);
         data.setRarURI(providerData.getRaURI());
         data.setDependency(providerData.getDependency());
-        return CONFIGURE_RA_MODE+BEFORE_ACTION;
+        return CONFIGURE_RA_MODE + BEFORE_ACTION;
     }
-
 
 
     private void populateExistingList(PortletRequest renderRequest) {
@@ -73,7 +78,7 @@ public class ListScreenHandler extends AbstractHandler {
 
         // Get the list of connection factories
         ResourceAdapterModule[] modules = PortletManager.getOutboundRAModules(renderRequest, new String[]{
-                "javax.jms.ConnectionFactory","javax.jms.QueueConnectionFactory","javax.jms.TopicConnectionFactory",});
+                "javax.jms.ConnectionFactory", "javax.jms.QueueConnectionFactory", "javax.jms.TopicConnectionFactory",});
         try {
             for (int i = 0; i < modules.length; i++) {
                 ResourceAdapterModule module = modules[i];
@@ -81,89 +86,90 @@ public class ListScreenHandler extends AbstractHandler {
                 JMSResourceSummary target = null;
                 for (int j = 0; j < resources.size(); j++) {
                     JMSResourceSummary data = (JMSResourceSummary) resources.get(j);
-                    if(data.adapterObjectName.equals(module.getObjectName())) {
+                    if (data.adapterObjectName.equals(module.getObjectName())) {
                         target = data;
                         break;
                     }
                 }
-                if(target == null) {
+                if (target == null) {
                     ResourceAdapter[] adapters = PortletManager.getResourceAdapters(renderRequest, module);
                     String name = null;
-                    if(adapters.length == 1 && adapters[0].getJCAResources().length == 1) {
+                    if (adapters.length == 1 && adapters[0].getJCAResources().length == 1) {
                         JCAResource[] resource = PortletManager.getJCAResources(renderRequest, adapters[0]);
-                        if(resource.length == 1 && resource[0].getResourceAdapterInstances().length == 1) {
-                            name = ObjectName.getInstance(resource[0].getResourceAdapterInstances()[0]).getKeyProperty(NameFactory.J2EE_NAME);
+                        if (resource.length == 1 && resource[0].getResourceAdapterInstances().length == 1) {
+                            name = ObjectName.getInstance(resource[0].getResourceAdapterInstanceNames()[0]).getKeyProperty(NameFactory.J2EE_NAME);
                         }
                     }
-                    if(name == null) {
+                    if (name == null) {
                         name = ObjectName.getInstance(module.getObjectName()).getKeyProperty(NameFactory.J2EE_NAME);
                     }
-                    target = new JMSResourceSummary(PortletManager.getConfigurationFor(renderRequest, module.getObjectName()).toString(),
-                                                    module.getObjectName(), name, ((GeronimoManagedBean)module).getState());
+                    target = new JMSResourceSummary(PortletManager.getConfigurationFor(renderRequest, PortletManager.getNameFor(renderRequest, module)).toString(),
+                            module.getObjectName(), name, ((GeronimoManagedBean) module).getState());
                     resources.add(target);
                 }
 
                 JCAManagedConnectionFactory[] factories = PortletManager.getOutboundFactoriesForRA(renderRequest, module, new String[]{
-                        "javax.jms.ConnectionFactory", "javax.jms.QueueConnectionFactory", "javax.jms.TopicConnectionFactory", });
+                        "javax.jms.ConnectionFactory", "javax.jms.QueueConnectionFactory", "javax.jms.TopicConnectionFactory",});
                 for (int j = 0; j < factories.length; j++) {
                     JCAManagedConnectionFactory factory = factories[j];
                     ObjectName name = ObjectName.getInstance(factory.getObjectName());
                     target.getConnectionFactories().add(new ConnectionFactorySummary(factory.getObjectName(), name.getKeyProperty(NameFactory.J2EE_NAME),
-                                                      ((GeronimoManagedBean)factory).getState()));
+                            ((GeronimoManagedBean) factory).getState()));
                 }
             }
 
             // Get the list of admin objects
-            modules = PortletManager.getAdminObjectModules(renderRequest, new String[]{"javax.jms.Queue","javax.jms.Topic"});
+            modules = PortletManager.getAdminObjectModules(renderRequest, new String[]{"javax.jms.Queue", "javax.jms.Topic"});
             for (int i = 0; i < modules.length; i++) {
                 ResourceAdapterModule module = modules[i];
 
                 JMSResourceSummary target = null;
                 for (int j = 0; j < resources.size(); j++) {
                     JMSResourceSummary data = (JMSResourceSummary) resources.get(j);
-                    if(data.adapterObjectName.equals(module.getObjectName())) {
+                    if (data.adapterObjectName.equals(module.getObjectName())) {
                         target = data;
                         break;
                     }
                 }
-                if(target == null) {
+                if (target == null) {
                     ResourceAdapter[] adapters = PortletManager.getResourceAdapters(renderRequest, module);
                     String name = null;
-                    if(adapters.length == 1 && adapters[0].getJCAResources().length == 1) {
+                    if (adapters.length == 1 && adapters[0].getJCAResources().length == 1) {
                         JCAResource[] resource = PortletManager.getJCAResources(renderRequest, adapters[0]);
-                        if(resource.length == 1 && resource[0].getResourceAdapterInstances().length == 1) {
-                            name = ObjectName.getInstance(resource[0].getResourceAdapterInstances()[0]).getKeyProperty(NameFactory.J2EE_NAME);
+                        if (resource.length == 1 && resource[0].getResourceAdapterInstances().length == 1) {
+                            name = ObjectName.getInstance(resource[0].getResourceAdapterInstanceNames()[0]).getKeyProperty(NameFactory.J2EE_NAME);
                         }
                     }
-                    if(name == null) {
+                    if (name == null) {
                         name = ObjectName.getInstance(module.getObjectName()).getKeyProperty(NameFactory.J2EE_NAME);
                     }
-                    target = new JMSResourceSummary(PortletManager.getConfigurationFor(renderRequest, module.getObjectName()).toString(),
-                                                    module.getObjectName(), name, ((GeronimoManagedBean)module).getState());
+                    target = new JMSResourceSummary(PortletManager.getConfigurationFor(renderRequest, PortletManager.getNameFor(renderRequest, module)).toString(),
+                            module.getObjectName(), name, ((GeronimoManagedBean) module).getState());
                     resources.add(target);
                 }
 
-                JCAAdminObject[] admins = PortletManager.getAdminObjectsForRA(renderRequest, module, new String[]{"javax.jms.Queue","javax.jms.Topic"});
+                JCAAdminObject[] admins = PortletManager.getAdminObjectsForRA(renderRequest, module, new String[]{"javax.jms.Queue", "javax.jms.Topic"});
                 for (int j = 0; j < admins.length; j++) {
                     GeronimoManagedBean bean = (GeronimoManagedBean) admins[j];
                     ObjectName name = ObjectName.getInstance(bean.getObjectName());
                     target.getAdminObjects().add(new AdminObjectSummary(bean.getObjectName(), name.getKeyProperty(NameFactory.J2EE_NAME),
-                                                      admins[j].getAdminObjectInterface().indexOf("Queue") > -1 ? "Queue" : "Topic",
-                                                      bean.getState()));
+                            admins[j].getAdminObjectInterface().indexOf("Queue") > -1 ? "Queue" : "Topic",
+                            bean.getState()));
                 }
             }
         } catch (MalformedObjectNameException e) {
             e.printStackTrace();
         }
 
+        Collections.sort(resources);
         renderRequest.setAttribute("resources", resources);
         // Get the list of JMS providers
         renderRequest.setAttribute("providers", JMSProviderData.getAllProviders());
     }
 
 
-
     public static class JMSResourceSummary implements Serializable, Comparable {
+        private static final long serialVersionUID = -2788803234448047035L;
         private final String configurationName;
         private final String adapterObjectName;
         private final String name;
@@ -179,7 +185,7 @@ public class ListScreenHandler extends AbstractHandler {
             try {
                 ObjectName objectName = ObjectName.getInstance(adapterObjectName);
                 String parent = objectName.getKeyProperty(NameFactory.J2EE_APPLICATION);
-                if(parent != null && parent.equals("null")) {
+                if (parent != null && parent.equals("null")) {
                     parent = null;
                 }
                 parentName = parent;
@@ -222,20 +228,20 @@ public class ListScreenHandler extends AbstractHandler {
         }
 
         public int compareTo(Object o) {
-            final JMSResourceSummary pool = (JMSResourceSummary)o;
-            int names = configurationName.compareTo(pool.configurationName);
-            if(parentName == null) {
-                if(pool.parentName == null) {
+            final JMSResourceSummary pool = (JMSResourceSummary) o;
+            int names = name.toLowerCase().compareTo(pool.name.toLowerCase());
+            if (parentName == null) {
+                if (pool.parentName == null) {
                     return names;
                 } else {
                     return -1;
                 }
             } else {
-                if(pool.parentName == null) {
+                if (pool.parentName == null) {
                     return 1;
                 } else {
                     int test = parentName.compareTo(pool.parentName);
-                    if(test != 0) {
+                    if (test != 0) {
                         return test;
                     } else {
                         return names;
@@ -246,6 +252,7 @@ public class ListScreenHandler extends AbstractHandler {
     }
 
     public static class ConnectionFactorySummary implements Serializable, Comparable {
+        private static final long serialVersionUID = 5777507920880039759L;
         private final String factoryObjectName;
         private final String name;
         private final int state;
@@ -273,13 +280,14 @@ public class ListScreenHandler extends AbstractHandler {
         }
 
         public int compareTo(Object o) {
-            final ConnectionFactorySummary pool = (ConnectionFactorySummary)o;
+            final ConnectionFactorySummary pool = (ConnectionFactorySummary) o;
             return name.compareTo(pool.name);
         }
     }
 
 
     public static class AdminObjectSummary implements Serializable, Comparable {
+        private static final long serialVersionUID = 3941332145785485903L;
         private final String adminObjectName;
         private final String name;
         private final String type;
@@ -313,7 +321,7 @@ public class ListScreenHandler extends AbstractHandler {
         }
 
         public int compareTo(Object o) {
-            final AdminObjectSummary pool = (AdminObjectSummary)o;
+            final AdminObjectSummary pool = (AdminObjectSummary) o;
             int result = name.compareTo(pool.name);
             return result == 0 ? type.compareTo(pool.type) : result;
         }

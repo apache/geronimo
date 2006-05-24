@@ -19,7 +19,8 @@ package org.apache.geronimo.deployment.hot;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanQuery;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
 import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
@@ -36,7 +37,7 @@ import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 import javax.enterprise.deploy.spi.factories.DeploymentFactory;
-import javax.management.ObjectName;
+
 import java.io.File;
 import java.util.Set;
 import java.util.Iterator;
@@ -163,7 +164,7 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
 
     public boolean isFileDeployed(File file, String configId) {
         try {
-            DeployUtils.identifyTargetModuleIDs(startupModules, configId).toArray(new TargetModuleID[0]);
+            DeployUtils.identifyTargetModuleIDs(startupModules, configId, true).toArray(new TargetModuleID[0]);
             return true;
         } catch (DeploymentException e) {
             log.debug("Found new file in deploy directory on startup with ID " + configId);
@@ -177,10 +178,9 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
         }
 
         // a bit of a hack, but the PersistentConfigurationList is the only thing that knows whether the server is full started!
-        GBeanQuery query = new GBeanQuery(null, PersistentConfigurationList.class.getName());
-        Set configLists = kernel.listGBeans(query);
+        Set configLists = kernel.listGBeans(new AbstractNameQuery(PersistentConfigurationList.class.getName()));
         for (Iterator i = configLists.iterator(); i.hasNext();) {
-            ObjectName configListName = (ObjectName) i.next();
+            AbstractName configListName = (AbstractName) i.next();
             try {
                 Boolean result = (Boolean) kernel.getAttribute(configListName, "kernelFullyStarted");
                 if (!result.booleanValue()) {
@@ -239,11 +239,11 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
                 modules = po.getResultTargetModuleIDs();
                 for (int i = 0; i < modules.length; i++) {
                     TargetModuleID result = modules[i];
-                    System.out.println(DeployUtils.reformat("Deployed " + result.getModuleID() + (targets.length > 1 ? " to " + result.getTarget().getName() : "") + (result.getWebURL() == null ? "" : " @ " + result.getWebURL()), 4, 72));
+                    System.out.print(DeployUtils.reformat("Deployed " + result.getModuleID() + (targets.length > 1 ? " to " + result.getTarget().getName() : "") + (result.getWebURL() == null ? "" : " @ " + result.getWebURL()), 4, 72));
                     if (result.getChildTargetModuleID() != null) {
                         for (int j = 0; j < result.getChildTargetModuleID().length; j++) {
                             TargetModuleID child = result.getChildTargetModuleID()[j];
-                            System.out.println(DeployUtils.reformat("  `-> " + child.getModuleID() + (child.getWebURL() == null ? "" : " @ " + child.getWebURL()), 4, 72));
+                            System.out.print(DeployUtils.reformat("  `-> " + child.getModuleID() + (child.getWebURL() == null ? "" : " @ " + child.getWebURL()), 4, 72));
                         }
                     }
                 }
@@ -287,14 +287,14 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
             mgr = getDeploymentManager();
             Target[] targets = mgr.getTargets();
             TargetModuleID[] ids = mgr.getAvailableModules(null, targets);
-            ids = (TargetModuleID[]) DeployUtils.identifyTargetModuleIDs(ids, configId).toArray(new TargetModuleID[0]);
+            ids = (TargetModuleID[]) DeployUtils.identifyTargetModuleIDs(ids, configId, true).toArray(new TargetModuleID[0]);
             ProgressObject po = mgr.undeploy(ids);
             waitForProgress(po);
             if (po.getDeploymentStatus().isCompleted()) {
                 TargetModuleID[] modules = po.getResultTargetModuleIDs();
                 for (int i = 0; i < modules.length; i++) {
                     TargetModuleID result = modules[i];
-                    System.out.println(DeployUtils.reformat("Undeployed " + result.getModuleID() + (targets.length > 1 ? " to " + result.getTarget().getName() : ""), 4, 72));
+                    System.out.print(DeployUtils.reformat("Undeployed " + result.getModuleID() + (targets.length > 1 ? " to " + result.getTarget().getName() : ""), 4, 72));
                 }
             } else {
                 log.error("Unable to undeploy " + file.getAbsolutePath() + "(" + configId + ")" + po.getDeploymentStatus().getMessage());
@@ -319,7 +319,7 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
             mgr = getDeploymentManager();
             Target[] targets = mgr.getTargets();
             TargetModuleID[] ids = mgr.getAvailableModules(null, targets);
-            ids = (TargetModuleID[]) DeployUtils.identifyTargetModuleIDs(ids, configId).toArray(new TargetModuleID[0]);
+            ids = (TargetModuleID[]) DeployUtils.identifyTargetModuleIDs(ids, configId, true).toArray(new TargetModuleID[0]);
             ProgressObject po;
             if (DeployUtils.isJarFile(file) || file.isDirectory()) {
                 po = mgr.redeploy(ids, file, null);
@@ -331,11 +331,11 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
                 TargetModuleID[] modules = po.getResultTargetModuleIDs();
                 for (int i = 0; i < modules.length; i++) {
                     TargetModuleID result = modules[i];
-                    System.out.println(DeployUtils.reformat("Redeployed " + result.getModuleID() + (targets.length > 1 ? " to " + result.getTarget().getName() : "") + (result.getWebURL() == null ? "" : " @ " + result.getWebURL()), 4, 72));
+                    System.out.print(DeployUtils.reformat("Redeployed " + result.getModuleID() + (targets.length > 1 ? " to " + result.getTarget().getName() : "") + (result.getWebURL() == null ? "" : " @ " + result.getWebURL()), 4, 72));
                     if (result.getChildTargetModuleID() != null) {
                         for (int j = 0; j < result.getChildTargetModuleID().length; j++) {
                             TargetModuleID child = result.getChildTargetModuleID()[j];
-                            System.out.println(DeployUtils.reformat("  `-> " + child.getModuleID() + (child.getWebURL() == null ? "" : " @ " + child.getWebURL()), 4, 72));
+                            System.out.print(DeployUtils.reformat("  `-> " + child.getModuleID() + (child.getWebURL() == null ? "" : " @ " + child.getWebURL()), 4, 72));
                         }
                     }
                 }

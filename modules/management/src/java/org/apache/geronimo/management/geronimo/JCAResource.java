@@ -29,5 +29,22 @@ public interface JCAResource extends org.apache.geronimo.management.JCAResource 
      * @return the ObjectNames of the resource adapter instances provided by this
      *         resource
      */
-    public String[] getResourceAdapterInstances();
+    String[] getResourceAdapterInstanceNames();
+
+    JCAResourceAdapter[] getResourceAdapterInstances();
+    JCAConnectionFactory[] getConnectionFactoryInstances();
+
+    JCAManagedConnectionFactory[] getOutboundFactories();
+
+    JCAManagedConnectionFactory[] getOutboundFactories(String connectionFactoryInterface);
+
+    JCAManagedConnectionFactory[] getOutboundFactories(String[] connectionFactoryInterfaces);
+
+    String[] getAdminObjects();
+
+    JCAAdminObject[] getAdminObjectInstances();
+
+    JCAAdminObject[] getAdminObjectInstances(String adminObjectInterface);
+
+    JCAAdminObject[] getAdminObjectInstances(String[] adminObjectInterfaces);
 }

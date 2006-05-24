@@ -18,9 +18,15 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project default="default">
+<project default="default" xmlns:velocity="jelly:velocity">
 
     <goal name="default">
         <attainGoal name="car:install"/>
     </goal>
+
+    <preGoal name="car:install">
+        <velocity:merge basedir="${basedir}/src/conf"
+          template="geronimo-plugin.xml"
+          name="${geronimo.packaging.targetRepository}/${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/${pom.artifactId}-${pom.currentVersion}.car/META-INF/geronimo-plugin.xml"/>
+    </preGoal>
 </project>

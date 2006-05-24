@@ -17,220 +17,244 @@
 
 package org.apache.geronimo.kernel.config;
 
-import java.net.URI;
+import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.Set;
 
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Environment;
 
 /**
  * @version $Rev$ $Date$
  */
-public class ConfigurationData {
+public class ConfigurationData implements Serializable {
+    private static final long serialVersionUID = 4324193220056650732L;
+
     /**
-     * URI used to referr to this configuration in the configuration manager
+     * The time at which this configuration was created.
      */
-    private URI id;
+    private final long created = System.currentTimeMillis();
 
     /**
      * Identifies the type of configuration (WAR, RAR et cetera)
      */
-    private ConfigurationModuleType moduleType;
+    private final ConfigurationModuleType moduleType;
 
     /**
-     * The uri of the parent of this configuration.  May be null.
+     * Defines the configuration id, parent configurations, and classpath
      */
-    private List parentId;
+    private final Environment environment;
 
     /**
-     * The domain name of the configurations.  This is used to autogenerate names for sub components.
-     */
-    private String domain;
-
-    /**
-     * The server name of the configurations.  This is used to autogenerate names for sub components.
-     */
-    private String server;
-
-    /**
-     * List of URIs of jar files on which this configuration is dependent on.
-     */
-    private final LinkedHashSet dependencies = new LinkedHashSet();
-
-    /**
-     * List of URIs in this configuration's classpath.
+     * List of URIs in this configuration's classpath.  These are for the classes directly included in the configuration
      */
     private final LinkedHashSet classPath = new LinkedHashSet();
 
     /**
-     * GBeans contained in this configuration.
+     * The gbeans contained in this configuration
      */
-    private final List gbeans = new ArrayList();
+    private final GBeanState gbeanState;
 
     /**
      * Child configurations of this configuration
      */
-    private final List childConfigurations = new ArrayList();
+    private final Map childConfigurations = new LinkedHashMap();
 
     /**
-     * If true, then inverse the standard class loading delegation model.
+     * Configurations owned by this configuration.  This is only used for cascade-uninstall.
      */
-    private boolean inverseClassLoading;
+    private final Set ownedConfigurations = new LinkedHashSet();
+
+    /**
+     * The base file of the configuation
+     */
+    private transient File configurationDir;
     
     /**
-     * Class filters defining the classes hidden from the configuration.
+     * The base file of an in-place configuration
      */
-    private final Set hiddenClasses = new HashSet();
+    private File inPlaceConfigurationDir;
 
     /**
-     * Class filters defining the classes that the configuration cannot
-     * override.  
+     * Should this configuraiton be autoStarted
      */
-    private final Set nonOverridableClasses = new HashSet();
-    
-    public ConfigurationData() {
+    private boolean autoStart = true;
+
+    /**
+     * The naming system
+     */
+    private transient Naming naming;
+
+    /**
+     * The configuration store from which this configuration was loaded, or null if it was not loaded from a configuration store.
+     */
+    private transient ConfigurationStore configurationStore;
+
+    public ConfigurationData(Artifact configId, Naming naming, GBeanState gbeanState) {
+        this(new Environment(configId), naming, gbeanState);
     }
 
-    public ConfigurationData(ConfigurationData configurationData) {
-        id = configurationData.id;
-        moduleType = configurationData.moduleType;
-        parentId = configurationData.getParentId();
-        domain = configurationData.domain;
-        server = configurationData.server;
-        setDependencies(new ArrayList(configurationData.dependencies));
-        setClassPath(new ArrayList(configurationData.classPath));
-        setGBeans(configurationData.gbeans);
-        setChildConfigurations(configurationData.childConfigurations);
-        inverseClassLoading = configurationData.inverseClassLoading;
-        hiddenClasses.addAll(configurationData.hiddenClasses);
-        nonOverridableClasses.addAll(configurationData.nonOverridableClasses);
+    public ConfigurationData(Environment environment, Naming naming, GBeanState gbeanState) {
+        if (environment == null) throw new NullPointerException("environment is null");
+        if (environment.getConfigId() == null) throw new NullPointerException("environment.configId is null");
+        if (naming == null) throw new NullPointerException("naming is null");
+
+        this.environment = environment;
+        this.naming = naming;
+        this.gbeanState = gbeanState;
+
+        this.moduleType = ConfigurationModuleType.CAR;
     }
 
-    public URI getId() {
-        return id;
+    public ConfigurationData(Artifact configId, Naming naming) {
+        this(new Environment(configId), naming);
     }
 
-    public void setId(URI id) {
-        this.id = id;
+    public ConfigurationData(Environment environment, Naming naming) {
+        this(null, null, null, null, environment, null, null, naming);
+    }
+
+    public ConfigurationData(ConfigurationModuleType moduleType, LinkedHashSet classPath, List gbeans, Map childConfigurations, Environment environment, File configurationDir, File inPlaceConfigurationDir, Naming naming) {
+        if (naming == null) throw new NullPointerException("naming is null");
+        this.naming = naming;
+        if (moduleType != null) {
+            this.moduleType = moduleType;
+        } else {
+            this.moduleType = ConfigurationModuleType.CAR;
+        }
+        if (classPath != null) {
+            this.classPath.addAll(classPath);
+        }
+        gbeanState = ConfigurationUtil.newGBeanState(gbeans);
+        if (childConfigurations != null) {
+            this.childConfigurations.putAll(childConfigurations);
+        }
+
+        if (environment == null) throw new NullPointerException("environment is null");
+        if (environment.getConfigId() == null) throw new NullPointerException("environment.configId is null");
+        this.environment = environment;
+        this.configurationDir = configurationDir;
+        this.inPlaceConfigurationDir = inPlaceConfigurationDir;
+    }
+
+    public Artifact getId() {
+        return environment.getConfigId();
+    }
+
+    /**
+     * Gets the time at which this configuration was created (or deployed).
+     * @return the time at which this configuration was created (or deployed)
+     */
+    public long getCreated() {
+        return created;
     }
 
     public ConfigurationModuleType getModuleType() {
         return moduleType;
     }
 
-    public void setModuleType(ConfigurationModuleType moduleType) {
-        this.moduleType = moduleType;
-    }
-
-    public List getParentId() {
-        return parentId;
-    }
-
-    public void setParentId(List parentId) {
-        this.parentId = parentId;
-    }
-
-    public String getDomain() {
-        return domain;
-    }
-
-    public void setDomain(String domain) {
-        this.domain = domain;
-    }
-
-    public String getServer() {
-        return server;
-    }
-
-    public void setServer(String server) {
-        this.server = server;
-    }
-
-    public List getDependencies() {
-        return Collections.unmodifiableList(new ArrayList(dependencies));
-    }
-
-    public void setDependencies(List dependencies) {
-        this.dependencies.clear();
-        for (Iterator iterator = dependencies.iterator(); iterator.hasNext();) {
-            URI dependency = (URI) iterator.next();
-            addDependency(dependency);
-        }
-    }
-
-    public void addDependency(URI dependency) {
-        assert dependency != null;
-        this.dependencies.add(dependency);
-    }
-
     public List getClassPath() {
         return Collections.unmodifiableList(new ArrayList(classPath));
     }
 
-    public void setClassPath(List classPath) {
-        this.classPath.clear();
-        for (Iterator iterator = classPath.iterator(); iterator.hasNext();) {
-            URI location = (URI) iterator.next();
-            addClassPathLocation(location);
-        }
-    }
-
-    public void addClassPathLocation(URI location) {
-        assert location != null;
-        this.classPath.add(location);
-    }
-
-    public List getGBeans() {
-        return Collections.unmodifiableList(gbeans);
-    }
-
-    public void setGBeans(List gbeans) {
-        this.gbeans.clear();
-        for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
-            GBeanData gbeanData = (GBeanData) iterator.next();
-            addGBean(gbeanData);
-        }
+    public List getGBeans(ClassLoader classLoader) throws InvalidConfigException {
+        if (classLoader == null) throw new NullPointerException("classLoader is null");
+        return gbeanState.getGBeans(classLoader);
     }
 
     public void addGBean(GBeanData gbeanData) {
-        assert gbeanData != null;
-        gbeans.add(gbeanData);
+        if (gbeanData == null) throw new NullPointerException("gbeanData is null");
+        gbeanState.addGBean(gbeanData);
     }
 
-    public List getChildConfigurations() {
-        return Collections.unmodifiableList(childConfigurations);
+    public GBeanData addGBean(String name, GBeanInfo gbeanInfo) {
+        if (name == null) throw new NullPointerException("name is null");
+        if (gbeanInfo == null) throw new NullPointerException("gbeanInfo is null");
+        return gbeanState.addGBean(name, gbeanInfo, naming, environment);
     }
 
-    public void setChildConfigurations(List childConfigurations) {
-        this.childConfigurations.clear();
-        for (Iterator iterator = childConfigurations.iterator(); iterator.hasNext();) {
-            ConfigurationData configurationData = (ConfigurationData) iterator.next();
-            addChildConfiguration(configurationData);
-        }
+    public GBeanState getGbeanState() {
+        return gbeanState;
     }
+
+    /**
+     * Gets a map of Artifact (config ID) to ConfigurationData for nested
+     * configurations (as in, a WAR within an EAR, not dependencies between
+     * totally separate configurations).
+     */
+    public Map getChildConfigurations() {
+        return Collections.unmodifiableMap(childConfigurations);
+    }
+
     public void addChildConfiguration(ConfigurationData configurationData) {
-        assert configurationData != null;
-        childConfigurations.add(configurationData);
+        if (configurationData == null) throw new NullPointerException("configurationData is null");
+        childConfigurations.put(configurationData.getId(), configurationData);
     }
 
-    public boolean isInverseClassloading() {
-        return inverseClassLoading;
+    /**
+     * Gets the configurations owned by this configuration.  This is only used
+     * for cascade-uninstall.
+     * 
+     * @return the configurations owned by this configuration
+     */
+    public Set getOwnedConfigurations() {
+        return Collections.unmodifiableSet(ownedConfigurations);
     }
-    
-    public void setInverseClassloading(boolean inverseClassLoading) {
-        this.inverseClassLoading = inverseClassLoading;
+
+    public void addOwnedConfigurations(Artifact id) {
+        if (id == null) throw new NullPointerException("id is null");
+        if (!id.isResolved()) throw new IllegalArgumentException("id is not resolved: " + id);
+        ownedConfigurations.add(id);
     }
-    
-    public Set getHiddenClasses() {
-        return hiddenClasses;
+
+    public Environment getEnvironment() {
+        return environment;
     }
-    
-    public Set getNonOverridableClasses() {
-        return nonOverridableClasses;
+
+	public File getInPlaceConfigurationDir() {
+		return inPlaceConfigurationDir;
+	}
+
+    public File getConfigurationDir() {
+        return configurationDir;
+    }
+
+    public void setConfigurationDir(File configurationDir) {
+        if (configurationDir == null) throw new NullPointerException("configurationDir is null");
+        this.configurationDir = configurationDir;
+    }
+
+    public Naming getNaming() {
+        return naming;
+    }
+
+    public void setNaming(Naming naming) {
+        this.naming = naming;
+    }
+
+    public boolean isAutoStart() {
+        return autoStart;
+    }
+
+    public void setAutoStart(boolean autoStart) {
+        this.autoStart = autoStart;
+    }
+
+    public ConfigurationStore getConfigurationStore() {
+        return configurationStore;
+    }
+
+    public void setConfigurationStore(ConfigurationStore configurationStore) {
+        if (configurationStore == null) throw new NullPointerException("configurationStore is null");
+        this.configurationStore = configurationStore;
     }
 }

@@ -30,7 +30,7 @@
         <define:taglib uri="geronimo:gbean-deployer-boot">
             <define:jellybean name="boot" className="org.apache.geronimo.deployment.PluginBootstrap" method="bootstrap"/>
         </define:taglib>
-
+        <ant:mkdir dir="${maven.build.dir}/repository"/>
         <boot:boot
                 localRepo="${maven.repo.local}"
                 plan="${geronimo.packaging.buildFile}"

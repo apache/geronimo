@@ -25,22 +25,17 @@ public class DomainTest extends Abstract77Test {
     private J2EEDomain domain;
 
     public void testStandardInterface() throws Exception {
-        assertEquals(DOMAIN_NAME.toString(), domain.getObjectName());
-        assertObjectNamesEqual(new String[]{SERVER_NAME.toString()}, domain.getServers());
+        assertEquals(DOMAIN_DATA.getAbstractName().getObjectName().getCanonicalName(), domain.getObjectName());
+        assertObjectNamesEqual(new String[]{SERVER_DATA.getAbstractName().getObjectName().getCanonicalName()}, domain.getServers());
     }
 
     public void testStandardAttributes() throws Exception {
-        assertEquals(DOMAIN_NAME.toString(), kernel.getAttribute(DOMAIN_NAME, "objectName"));
-        assertObjectNamesEqual(new String[]{SERVER_NAME.toString()}, (String[]) kernel.getAttribute(DOMAIN_NAME, "servers"));
+        assertEquals(DOMAIN_DATA.getAbstractName().getObjectName().getCanonicalName(), kernel.getAttribute(DOMAIN_DATA.getAbstractName(), "objectName"));
+        assertObjectNamesEqual(new String[]{SERVER_DATA.getAbstractName().getObjectName().getCanonicalName()}, (String[]) kernel.getAttribute(DOMAIN_DATA.getAbstractName(), "servers"));
     }
 
     protected void setUp() throws Exception {
         super.setUp();
-        domain = (J2EEDomain) kernel.getProxyManager().createProxy(DOMAIN_NAME, J2EEDomain.class);
-    }
-
-    protected void tearDown() throws Exception {
-        kernel.getProxyManager().destroyProxy(domain);
-        super.tearDown();
+        domain = (J2EEDomain) kernel.getGBean(DOMAIN_DATA.getAbstractName());
     }
 }

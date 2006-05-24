@@ -17,13 +17,16 @@
 
 package org.apache.geronimo.deployment.plugin.local;
 
-import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
-import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager.CommandContext;
-import org.apache.geronimo.gbean.GBeanQuery;
-import org.apache.geronimo.kernel.InternalKernelException;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import javax.enterprise.deploy.shared.ActionType;
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.shared.ModuleType;
@@ -35,19 +38,13 @@ import javax.enterprise.deploy.spi.status.DeploymentStatus;
 import javax.enterprise.deploy.spi.status.ProgressEvent;
 import javax.enterprise.deploy.spi.status.ProgressListener;
 import javax.enterprise.deploy.spi.status.ProgressObject;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
+import org.apache.geronimo.deployment.plugin.jmx.CommandContext;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.kernel.InternalKernelException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 
 /**
  * @version $Rev$ $Date$
@@ -59,7 +56,7 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
     private String message;
     private final Set listeners = new HashSet();
     private final List moduleIDs = new ArrayList();
-    private CommandContext commandContext = null; //todo: this is pretty bad; should add it into constructor
+    protected CommandContext commandContext = null; //todo: this is pretty bad; should add it into constructor
 
     private ProgressEvent event = null;
 
@@ -107,12 +104,12 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
     }
 
     public void addProgressListener(ProgressListener pol) {
-        ProgressEvent event = null;
+        ProgressEvent event;
         synchronized (this) {
             listeners.add(pol);
             event = this.event;
         }
-        if (event != null) {
+        if(event != null) {
             pol.handleProgressEvent(event);
         }
     }
@@ -135,7 +132,7 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
 
     public void doFail(Exception e) {
         if (e instanceof InternalKernelException) {
-            Exception test = (Exception)((InternalKernelException)e).getCause();
+            Exception test = (Exception)e.getCause();
             if(test != null) {
                 e = test;
             }
@@ -246,7 +243,7 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
     }
 
     public void setCommandContext(CommandContext commandContext) {
-        this.commandContext = commandContext;
+        this.commandContext = new CommandContext(commandContext);
     }
 
     public static ModuleType convertModuleType(ConfigurationModuleType type) {
@@ -269,13 +266,11 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
     }
 
     public static boolean isWebApp(Kernel kernel, String configName) {
-        try {
-            Set set = kernel.listGBeans(new ObjectName("*:j2eeType=WebModule,name="+configName+",*"));
-            return set.size() > 0;
-        } catch (MalformedObjectNameException e) {
-            e.printStackTrace();
-            return false;
-        }
+        Map filter = new HashMap();
+        filter.put("j2eeType", "WebModule");
+        filter.put("name", configName);
+        Set set = kernel.listGBeans(new AbstractNameQuery(null, filter));
+        return set.size() > 0;
     }
 
     protected void addWebURLs(Kernel kernel) {
@@ -288,26 +283,17 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
      */
     public static void addWebURLs(Kernel kernel, List moduleIDs) {
         Set webApps = null;
-        Map containers = null;
-        try {
-            containers = mapContainersToURLs(kernel);
-        } catch (Exception e) {
-            e.printStackTrace();
-            containers = Collections.EMPTY_MAP;
-        }
         for (int i = 0; i < moduleIDs.size(); i++) {
             TargetModuleIDImpl id = (TargetModuleIDImpl) moduleIDs.get(i);
             if(id.getType() != null && id.getType().getValue() == ModuleType.WAR.getValue()) {
                 if(webApps == null) {
-                    webApps = kernel.listGBeans(new GBeanQuery(null, "org.apache.geronimo.management.geronimo.WebModule"));
+                    webApps = kernel.listGBeans(new AbstractNameQuery("org.apache.geronimo.management.geronimo.WebModule"));
                 }
                 for (Iterator it = webApps.iterator(); it.hasNext();) {
-                    ObjectName name = (ObjectName) it.next();
-                    if(name.getKeyProperty("name").equals(id.getModuleID())) {
+                    AbstractName name = (AbstractName) it.next();
+                    if(name.getName().get("name").equals(id.getModuleID())) {
                         try {
-                            String container = (String) kernel.getAttribute(name, "containerName");
-                            String context = (String) kernel.getAttribute(name, "contextPath");
-                            id.setWebURL(containers.get(container)+context);
+                            id.setWebURL(kernel.getAttribute(name, "URLFor").toString());
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -320,70 +306,43 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
         }
     }
 
-    public static List loadChildren(Kernel kernel, String configName) throws MalformedObjectNameException {
+    public static List loadChildren(Kernel kernel, String configName) {
         List kids = new ArrayList();
-        Set test = kernel.listGBeans(new ObjectName("*:J2EEApplication="+configName+",j2eeType=WebModule,*"));
+
+        Map filter = new HashMap();
+        filter.put("J2EEApplication", configName);
+
+        filter.put("j2eeType", "WebModule");
+        Set test = kernel.listGBeans(new AbstractNameQuery(null, filter));
         for (Iterator it = test.iterator(); it.hasNext();) {
-            ObjectName child = (ObjectName) it.next();
-            String childName = child.getKeyProperty("name");
+            AbstractName child = (AbstractName) it.next();
+            String childName = child.getNameProperty("name");
             kids.add(childName);
         }
-        test = kernel.listGBeans(new ObjectName("*:J2EEApplication="+configName+",j2eeType=EJBModule,*"));
+
+        filter.put("j2eeType", "EJBModule");
+        test = kernel.listGBeans(new AbstractNameQuery(null, filter));
         for (Iterator it = test.iterator(); it.hasNext();) {
-            ObjectName child = (ObjectName) it.next();
-            String childName = child.getKeyProperty("name");
+            AbstractName child = (AbstractName) it.next();
+            String childName = child.getNameProperty("name");
             kids.add(childName);
         }
-        test = kernel.listGBeans(new ObjectName("*:J2EEApplication="+configName+",j2eeType=AppClientModule,*"));
+
+        filter.put("j2eeType", "AppClientModule");
+        test = kernel.listGBeans(new AbstractNameQuery(null, filter));
         for (Iterator it = test.iterator(); it.hasNext();) {
-            ObjectName child = (ObjectName) it.next();
-            String childName = child.getKeyProperty("name");
+            AbstractName child = (AbstractName) it.next();
+            String childName = child.getNameProperty("name");
             kids.add(childName);
         }
-        test = kernel.listGBeans(new ObjectName("*:J2EEApplication="+configName+",j2eeType=ResourceAdapterModule,*"));
+
+        filter.put("j2eeType", "ResourceAdapterModule");
+        test = kernel.listGBeans(new AbstractNameQuery(null, filter));
         for (Iterator it = test.iterator(); it.hasNext();) {
-            ObjectName child = (ObjectName) it.next();
-            String childName = child.getKeyProperty("name");
+            AbstractName child = (AbstractName) it.next();
+            String childName = child.getNameProperty("name");
             kids.add(childName);
         }
         return kids;
-    }
-
-    /**
-     * Generates a Map where the keys are web container object names (as Strings)
-     * and the values are URLs (as Strings) to connect to a web app running in
-     * the matching container (though the web app context needs to be added to
-     * the end to be complete).
-     *
-     * NOTE: same as a method in geronimo-system WebAppUtil, but neither
-     *       module should obviously be dependent on the other and it's not
-     *       clear that this belongs in geronimo-common
-     */
-    public static Map mapContainersToURLs(Kernel kernel) throws Exception {
-        Map containers = new HashMap();
-        Set set = kernel.listGBeans(new GBeanQuery(null, "org.apache.geronimo.management.geronimo.WebManager"));
-        for (Iterator it = set.iterator(); it.hasNext();) {
-            ObjectName mgrName = (ObjectName) it.next();
-            String[] cntNames = (String[]) kernel.getAttribute(mgrName, "containers");
-            for (int i = 0; i < cntNames.length; i++) {
-                String cntName = cntNames[i];
-                String[] cncNames = (String[]) kernel.invoke(mgrName, "getConnectorsForContainer", new Object[]{cntName}, new String[]{"java.lang.String"});
-                Map map = new HashMap();
-                for (int j = 0; j < cncNames.length; j++) {
-                    ObjectName cncName = ObjectName.getInstance(cncNames[j]);
-                    String protocol = (String) kernel.getAttribute(cncName, "protocol");
-                    String url = (String) kernel.getAttribute(cncName, "connectUrl");
-                    map.put(protocol, url);
-                }
-                String urlPrefix = "";
-                if((urlPrefix = (String) map.get("HTTP")) == null) {
-                    if((urlPrefix = (String) map.get("HTTPS")) == null) {
-                        urlPrefix = (String) map.get("AJP");
-                    }
-                }
-                containers.put(cntName, urlPrefix);
-            }
-        }
-        return containers;
     }
 }

@@ -58,6 +58,34 @@ limitations under the License.
         </init-param>
     </servlet>
 
+    <servlet>
+        <display-name>SVG Forward Servlet</display-name>
+        <servlet-name>svg-forward</servlet-name>
+        <servlet-class>org.apache.geronimo.console.servlet.ContextForwardServlet</servlet-class>
+        <init-param>
+           <param-name>context-path</param-name>
+           <param-value>/console-standard</param-value>
+        </init-param>
+        <init-param>
+           <param-name>servlet-path</param-name>
+           <param-value>/graphs</param-value>
+        </init-param>
+    </servlet>
+    
+    <servlet>
+        <display-name>Plan Export Forward Servlet</display-name>
+        <servlet-name>plan-export-forward</servlet-name>
+        <servlet-class>org.apache.geronimo.console.servlet.ContextForwardServlet</servlet-class>
+        <init-param>
+           <param-name>context-path</param-name>
+           <param-value>/console-standard</param-value>
+        </init-param>
+        <init-param>
+           <param-name>servlet-path</param-name>
+           <param-value>/plan-export</param-value>
+        </init-param>
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>se-console</servlet-name>
         <url-pattern>/portal/*</url-pattern>
@@ -70,11 +98,25 @@ limitations under the License.
         <servlet-name>dwr-forward</servlet-name>
         <url-pattern>/dwr/*</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>car-export-forward</servlet-name>
+        <url-pattern>/car-export</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>svg-forward</servlet-name>
+        <url-pattern>/graphs/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>plan-export-forward</servlet-name>
+        <url-pattern>/plan-export</url-pattern>
+    </servlet-mapping>
 
     <security-constraint>
         <web-resource-collection>
             <web-resource-name></web-resource-name>
             <url-pattern>/dwr/*</url-pattern>
+            <url-pattern>/car-export</url-pattern>
+            <url-pattern>/graphs/*</url-pattern>
             <url-pattern>/portal/*</url-pattern>
             <http-method>GET</http-method>
             <http-method>POST</http-method>

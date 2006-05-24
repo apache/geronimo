@@ -16,30 +16,42 @@
  */
 package org.apache.geronimo.console.securitymanager.realm;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Serializable;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.io.BufferedReader;
-import java.io.StringReader;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.Arrays;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.console.BasePortlet;
+import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.deployment.xbeans.ArtifactType;
+import org.apache.geronimo.deployment.xbeans.AttributeType;
+import org.apache.geronimo.deployment.xbeans.ModuleDocument;
+import org.apache.geronimo.deployment.xbeans.ModuleType;
+import org.apache.geronimo.deployment.xbeans.DependenciesType;
+import org.apache.geronimo.deployment.xbeans.EnvironmentType;
+import org.apache.geronimo.deployment.xbeans.GbeanType;
+import org.apache.geronimo.deployment.xbeans.ReferenceType;
+import org.apache.geronimo.deployment.xbeans.XmlAttributeType;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ListableRepository;
+import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
+import org.apache.geronimo.security.jaas.JaasLoginModuleChain;
+import org.apache.geronimo.security.jaas.LoginModuleSettings;
+import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
+import org.apache.geronimo.security.realm.providers.FileAuditLoginModule;
+import org.apache.geronimo.security.realm.providers.GeronimoPasswordCredentialLoginModule;
+import org.apache.geronimo.security.realm.providers.RepeatedFailureLockoutLoginModule;
+import org.apache.geronimo.security.realm.SecurityRealm;
+import org.apache.geronimo.xbeans.geronimo.loginconfig.GerControlFlagType;
+import org.apache.geronimo.xbeans.geronimo.loginconfig.GerLoginConfigDocument;
+import org.apache.geronimo.xbeans.geronimo.loginconfig.GerLoginConfigType;
+import org.apache.geronimo.xbeans.geronimo.loginconfig.GerLoginModuleType;
+import org.apache.geronimo.xbeans.geronimo.loginconfig.GerOptionType;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
+
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
@@ -58,36 +70,30 @@ import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 import javax.security.auth.Subject;
 import javax.security.auth.spi.LoginModule;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.console.BasePortlet;
-import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.deployment.xbeans.AttributeType;
-import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
-import org.apache.geronimo.deployment.xbeans.ConfigurationType;
-import org.apache.geronimo.deployment.xbeans.DependencyType;
-import org.apache.geronimo.deployment.xbeans.GbeanType;
-import org.apache.geronimo.deployment.xbeans.ReferenceType;
-import org.apache.geronimo.deployment.xbeans.XmlAttributeType;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
-import org.apache.geronimo.kernel.repository.ListableRepository;
-import org.apache.geronimo.security.realm.SecurityRealm;
-import org.apache.geronimo.security.realm.providers.FileAuditLoginModule;
-import org.apache.geronimo.security.realm.providers.GeronimoPasswordCredentialLoginModule;
-import org.apache.geronimo.security.realm.providers.RepeatedFailureLockoutLoginModule;
-import org.apache.geronimo.security.jaas.JaasLoginModuleChain;
-import org.apache.geronimo.security.jaas.LoginModuleSettings;
-import org.apache.geronimo.xbeans.geronimo.loginconfig.GerControlFlagType;
-import org.apache.geronimo.xbeans.geronimo.loginconfig.GerLoginConfigDocument;
-import org.apache.geronimo.xbeans.geronimo.loginconfig.GerLoginConfigType;
-import org.apache.geronimo.xbeans.geronimo.loginconfig.GerLoginModuleType;
-import org.apache.geronimo.xbeans.geronimo.loginconfig.GerOptionType;
-import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlOptions;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Serializable;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.SortedSet;
 
 /**
  * A portlet that lists, creates, and edits security realms.
@@ -200,7 +206,7 @@ public class SecurityRealmPortlet extends BasePortlet {
             actionLoadExistingRealm(actionRequest, data);
             actionResponse.setRenderParameter(MODE_KEY, EDIT_MODE);
         } else if(mode.equals(CONFIGURE_MODE)) {
-            if(data.getObjectName() != null || (data.getRealmType() != null && data.getRealmType().equals("Other"))) {
+            if(data.getAbstractName() != null || (data.getRealmType() != null && data.getRealmType().equals("Other"))) {
                 actionResponse.setRenderParameter(MODE_KEY, EDIT_MODE);
             } else {
                 actionResponse.setRenderParameter(MODE_KEY, CONFIGURE_MODE);
@@ -254,6 +260,7 @@ public class SecurityRealmPortlet extends BasePortlet {
         Map options = new HashMap();
         try {
             LoginModule module = loadModule(request, data, options);
+            log.warn("Testing with options "+options);
             try {
                 PortletManager.testLoginModule(request, module, options);
                 return null;
@@ -271,18 +278,16 @@ public class SecurityRealmPortlet extends BasePortlet {
         ClassLoader loader = getClass().getClassLoader();
         if(data.jar != null && !data.jar.equals("")) {
             try {
-                URI one = new URI(data.getJar());
-                ListableRepository[] repos = PortletManager.getListableRepositories(request);
+                Artifact one = Artifact.create(data.getJar());
+                ListableRepository[] repos = PortletManager.getCurrentServer(request).getRepositories();
                 for (int i = 0; i < repos.length; i++) {
                     ListableRepository repo = repos[i];
-                    URL url = repo.getURL(one);
-                    if(url != null) {
-                        loader = new URLClassLoader(new URL[]{url}, loader);
+                    File file = repo.getLocation(one);
+                    if(file != null) {
+                        loader = new URLClassLoader(new URL[]{file.toURL()}, loader);
                         break;
                     }
                 }
-            } catch (URISyntaxException e) {
-                log.warn("Unable to construct JAR file reference", e);
             } catch (MalformedURLException e) {
                 log.warn("Repository unable to look up JAR file", e);
             }
@@ -296,6 +301,7 @@ public class SecurityRealmPortlet extends BasePortlet {
                 options.put(key, value);
             }
         }
+        options.put(JaasLoginModuleUse.CLASSLOADER_LM_OPTION, loader);
         return module;
     }
 
@@ -315,14 +321,30 @@ public class SecurityRealmPortlet extends BasePortlet {
 
     private XmlObject actionGeneratePlan(PortletRequest request, RealmData data) {
         normalize(data);
-        ConfigurationDocument doc = ConfigurationDocument.Factory.newInstance();
-        ConfigurationType root = doc.addNewConfiguration();
-        root.setConfigId("SecurityRealm"+data.getName());
-        // Use a parentId of null to pick up the default
+        ModuleDocument doc = ModuleDocument.Factory.newInstance();
+        ModuleType root = doc.addNewModule();
+        EnvironmentType environment = root.addNewEnvironment();
+        ArtifactType configId = environment.addNewModuleId();
+        configId.setGroupId("console");
+        configId.setArtifactId("realm-"+data.getName());
+        configId.setVersion("1.0");
+        configId.setType("car");
+
+        // Parent
+
+        DependenciesType dependenciesType = environment.addNewDependencies();
+        ArtifactType parent = dependenciesType.addNewDependency();
+        parent.setGroupId("geronimo");
+        parent.setArtifactId("j2ee-security");
+        parent.setType("car");
         // Dependencies
         if(data.getJar() != null) {
-            DependencyType jar = root.addNewDependency();
-            jar.setUri(data.getJar());
+            ArtifactType artifactType = dependenciesType.addNewDependency();
+            Artifact artifact = Artifact.create(data.getJar());
+            artifactType.setGroupId(artifact.getGroupId());
+            artifactType.setArtifactId(artifact.getArtifactId());
+            artifactType.setVersion(artifact.getVersion().toString());
+            artifactType.setType(artifact.getType());
         }
         // Build the realm GBean
         GbeanType realm = root.addNewGbean();
@@ -333,10 +355,10 @@ public class SecurityRealmPortlet extends BasePortlet {
         realmName.setStringValue(data.getName());
         ReferenceType serverInfo = realm.addNewReference();
         serverInfo.setName2("ServerInfo");
-        serverInfo.setGbeanName(PortletManager.getCurrentServer(request).getServerInfo());
+        serverInfo.setName((String)PortletManager.getNameFor(request, PortletManager.getCurrentServer(request).getServerInfo()).getName().get("name"));
         ReferenceType loginService = realm.addNewReference();
         loginService.setName2("LoginService");
-        loginService.setGbeanName(PortletManager.getCurrentServer(request).getLoginService());
+        loginService.setName((String)PortletManager.getNameFor(request, PortletManager.getCurrentServer(request).getLoginService()).getName().get("name"));
         XmlAttributeType config = realm.addNewXmlReference();
         // Construct the content to put in the XmlAttributeType
         GerLoginConfigDocument lcDoc = GerLoginConfigDocument.Factory.newInstance();
@@ -378,8 +400,13 @@ public class SecurityRealmPortlet extends BasePortlet {
                             final String testApp = objectName.getKeyProperty(NameFactory.J2EE_APPLICATION);
                             if(testName.equals(poolName) && testApp.equals(appName)) {
                                 String moduleName = objectName.getKeyProperty(NameFactory.JCA_RESOURCE);
-                                DependencyType imp = root.addNewImport();
-                                imp.setUri(moduleName);
+
+                                ArtifactType artifactType = dependenciesType.addNewDependency();
+                                Artifact artifact = Artifact.create(moduleName);
+                                artifactType.setGroupId(artifact.getGroupId());
+                                artifactType.setArtifactId(artifact.getArtifactId());
+                                artifactType.setVersion(artifact.getVersion().toString());
+                                artifactType.setType(artifact.getType());
                                 break;
                             }
                         } catch (MalformedObjectNameException e) {
@@ -403,32 +430,31 @@ public class SecurityRealmPortlet extends BasePortlet {
     }
 
     private void actionLoadExistingRealm(PortletRequest request, RealmData data) {
-        SecurityRealm realm = (SecurityRealm) PortletManager.getManagedBean(request, data.getObjectName());
+        SecurityRealm realm = (SecurityRealm) PortletManager.getManagedBean(request, new AbstractName(URI.create(data.getAbstractName())));
         data.name = realm.getRealmName();
         List list = new ArrayList();
-        JaasLoginModuleChain node = (JaasLoginModuleChain) PortletManager.getManagedBean(request, realm.getLoginModuleChainName());
+        JaasLoginModuleChain node = realm.getLoginModuleChain();
         while(node != null) {
             LoginModuleDetails details = new LoginModuleDetails();
             details.setControlFlag(node.getControlFlag());
-            LoginModuleSettings module = (LoginModuleSettings) PortletManager.getManagedBean(request, node.getLoginModuleName());
+            LoginModuleSettings module = node.getLoginModule();
             details.setLoginDomainName(module.getLoginDomainName());
             details.setClassName(module.getLoginModuleClass());
             details.setServerSide(module.isServerSide());
             details.setWrapPrincipals(module.isWrapPrincipals());
             details.setOptions(module.getOptions());
             list.add(details);
-            final String next = node.getNextName();
-            if(next == null) {
+            node = node.getNext();
+            if(node == null) {
                 break;
             }
-            node = (JaasLoginModuleChain) PortletManager.getManagedBean(request, next);
         }
         data.modules = (LoginModuleDetails[]) list.toArray(new LoginModuleDetails[list.size()]);
     }
 
     private void actionSaveRealm(PortletRequest request, RealmData data) {
         normalize(data);
-        if(data.objectName == null || data.objectName.equals("")) { // we're creating a new realm
+        if(data.getAbstractName() == null || data.getAbstractName().equals("")) { // we're creating a new realm
             try {
                 XmlObject plan = actionGeneratePlan(request, data);
                 data.name = data.name.replaceAll("\\s", "");
@@ -455,25 +481,24 @@ public class SecurityRealmPortlet extends BasePortlet {
                 log.error("Unable to save security realm", e);
             }
         } else {
-            SecurityRealm realm = (SecurityRealm) PortletManager.getManagedBean(request, data.getObjectName());
+            SecurityRealm realm = (SecurityRealm) PortletManager.getManagedBean(request, new AbstractName(URI.create(data.getAbstractName())));
             // index existing modules
             Map nodes = new HashMap();
-            JaasLoginModuleChain node = (JaasLoginModuleChain) PortletManager.getManagedBean(request, realm.getLoginModuleChainName());
+            JaasLoginModuleChain node = realm.getLoginModuleChain();
             while(node != null) {
-                LoginModuleSettings module = (LoginModuleSettings) PortletManager.getManagedBean(request, node.getLoginModuleName());
+                LoginModuleSettings module = node.getLoginModule();
                 nodes.put(module.getLoginDomainName(), node);
-                final String next = node.getNextName();
-                if(next == null) {
+                node = node.getNext();
+                if(node == null) {
                     break;
                 }
-                node = (JaasLoginModuleChain) PortletManager.getManagedBean(request, next);
             }
             // apply settings
             for (int i = 0; i < data.getModules().length; i++) {
                 LoginModuleDetails details = data.getModules()[i];
                 node = (JaasLoginModuleChain) nodes.get(details.getLoginDomainName());
                 node.setControlFlag(details.getControlFlag());
-                LoginModuleSettings module = (LoginModuleSettings) PortletManager.getManagedBean(request, node.getLoginModuleName());
+                LoginModuleSettings module = node.getLoginModule();
                 module.setOptions(details.getOptions());
                 module.setServerSide(details.isServerSide());
                 module.setWrapPrincipals(details.isWrapPrincipals());
@@ -483,16 +508,15 @@ public class SecurityRealmPortlet extends BasePortlet {
     }
 
     private void renderList(RenderRequest request, RenderResponse response) throws IOException, PortletException {
-        SecurityRealm[] realms = PortletManager.getSecurityRealms(request);
+        // Unfortunately there are two classes named SecurityRealm; one extends the other
+        // The array type is management.geronimo.SecurityRealm (the superclass)
+        // The array entry types are security.realm.SecurityRealm (the subclass)
+        org.apache.geronimo.management.geronimo.SecurityRealm[] realms = PortletManager.getCurrentServer(request).getSecurityRealms();
         ExistingRealm[] results = new ExistingRealm[realms.length];
         for (int i = 0; i < results.length; i++) {
             final GeronimoManagedBean managedBean = (GeronimoManagedBean)realms[i];
-            try {
-                results[i] = new ExistingRealm(realms[i].getRealmName(), ObjectName.getInstance(managedBean.getObjectName()),
-                        managedBean.getState());
-            } catch (MalformedObjectNameException e) {
-                log.error("Unable to retrieve ObjectName for security realm", e);
-            }
+            results[i] = new ExistingRealm(realms[i].getRealmName(), PortletManager.getNameFor(request, realms[i]),
+                    managedBean.getState());
         }
         request.setAttribute("realms", results);
         listView.include(request, response);
@@ -589,7 +613,7 @@ public class SecurityRealmPortlet extends BasePortlet {
                 if(appName != null && !appName.equals("null")) {
                     display = display+" ("+appName+")";
                 }
-                pools.add(new DatabasePool(name, display, appName, factory.getObjectName()));
+                pools.add(new DatabasePool(name, display, appName, PortletManager.getNameFor(renderRequest, factory)));
             }
             renderRequest.setAttribute("pools", pools);
         } catch (MalformedObjectNameException e) {
@@ -600,27 +624,23 @@ public class SecurityRealmPortlet extends BasePortlet {
     private void loadDriverJARList(RenderRequest renderRequest) {
         // List the available JARs
         List list = new ArrayList();
-        ListableRepository[] repos = PortletManager.getListableRepositories(renderRequest);
+        ListableRepository[] repos = PortletManager.getCurrentServer(renderRequest).getRepositories();
         for (int i = 0; i < repos.length; i++) {
             ListableRepository repo = repos[i];
-            try {
-                final URI[] uris = repo.listURIs();
-                outer:
-                for (int j = 0; j < uris.length; j++) {
-                    if(uris[j] == null) {
-                        continue; // probably a JAR lacks a version number in the name, etc.
+
+            SortedSet artifacts = repo.list();
+            outer:
+            for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
+                Artifact artifact = (Artifact) iterator.next();
+                String test = artifact.toString();
+                // todo should only test groupId and should check for long (org.apache.geronimo) and short form
+                for (int k = 0; k < SKIP_ENTRIES_WITH.length; k++) {
+                    String skip = SKIP_ENTRIES_WITH[k];
+                    if(test.indexOf(skip) > -1) {
+                        continue outer;
                     }
-                    String test = uris[j].toString();
-                    for (int k = 0; k < SKIP_ENTRIES_WITH.length; k++) {
-                        String skip = SKIP_ENTRIES_WITH[k];
-                        if(test.indexOf(skip) > -1) {
-                            continue outer;
-                        }
-                    }
-                    list.add(test);
                 }
-            } catch (URISyntaxException e) {
-                e.printStackTrace();
+                list.add(test);
             }
         }
         Collections.sort(list);
@@ -703,7 +723,7 @@ public class SecurityRealmPortlet extends BasePortlet {
         } else {
             list.addAll(Arrays.asList(data.modules));
         }
-        if(data.getObjectName() == null) {
+        if(data.getAbstractName() == null) {
             for(int i=list.size(); i<5; i++) {
                 LoginModuleDetails module = new LoginModuleDetails();
                 list.add(module);
@@ -722,7 +742,7 @@ public class SecurityRealmPortlet extends BasePortlet {
         private String lockoutWindow;
         private String lockoutDuration;
         private boolean storePassword;
-        private String objectName; // used when editing existing realms
+        private String abstractName; // used when editing existing realms
         private LoginModuleDetails[] modules;
 
         public void load(PortletRequest request) {
@@ -740,8 +760,8 @@ public class SecurityRealmPortlet extends BasePortlet {
             if(lockoutWindow != null && lockoutWindow.equals("")) lockoutWindow = null;
             lockoutDuration = request.getParameter("lockoutDuration");
             if(lockoutDuration != null && lockoutDuration.equals("")) lockoutDuration = null;
-            objectName = request.getParameter("objectName");
-            if(objectName != null && objectName.equals("")) objectName = null;
+            abstractName = request.getParameter("objectName");
+            if(abstractName != null && abstractName.equals("")) abstractName = null;
             String test = request.getParameter("storePassword");
             storePassword = test != null && !test.equals("") && !test.equals("false");
             Map map = request.getParameterMap();
@@ -835,7 +855,7 @@ public class SecurityRealmPortlet extends BasePortlet {
             if(lockoutCount != null) response.setRenderParameter("lockoutCount", lockoutCount);
             if(lockoutWindow != null) response.setRenderParameter("lockoutWindow", lockoutWindow);
             if(lockoutDuration != null) response.setRenderParameter("lockoutDuration", lockoutDuration);
-            if(objectName != null) response.setRenderParameter("objectName", objectName);
+            if(abstractName != null) response.setRenderParameter("objectName", abstractName);
             if(storePassword) response.setRenderParameter("storePassword", "true");
             for (Iterator it = options.keySet().iterator(); it.hasNext();) {
                 String name = (String) it.next();
@@ -901,8 +921,15 @@ public class SecurityRealmPortlet extends BasePortlet {
             return lockoutCount != null || lockoutWindow != null || lockoutDuration != null;
         }
 
+        /**
+         * @deprecated Use getAbstractName() instead
+         */
         public String getObjectName() {
-            return objectName;
+            return abstractName;
+        }
+
+        public String getAbstractName() {
+            return abstractName;
         }
 
         public boolean isTestable() {
@@ -982,14 +1009,14 @@ public class SecurityRealmPortlet extends BasePortlet {
 
     public static class ExistingRealm implements Serializable {
         private final String name;
-        private final String objectName;
+        private final String abstractName;
         private final String parentName;
         private final int state;
 
-        public ExistingRealm(String name, ObjectName objectName, int state) {
+        public ExistingRealm(String name, AbstractName objectName, int state) {
             this.name = name;
-            this.objectName = objectName.getCanonicalName();
-            String parent = objectName.getKeyProperty(NameFactory.J2EE_APPLICATION);
+            this.abstractName = objectName.toString();
+            String parent = (String) objectName.getName().get(NameFactory.J2EE_APPLICATION);
             if(parent != null && parent.equals("null")) {
                 parent = null;
             }
@@ -1002,8 +1029,15 @@ public class SecurityRealmPortlet extends BasePortlet {
             return name;
         }
 
+        /**
+         * @deprecated Use getAbstractName() instead
+         */
         public String getObjectName() {
-            return objectName;
+            return abstractName;
+        }
+
+        public String getAbstractName() {
+            return abstractName;
         }
 
         public String getParentName() {
@@ -1023,13 +1057,13 @@ public class SecurityRealmPortlet extends BasePortlet {
         private final String name;
         private final String displayName;
         private final String applicationName;
-        private final String objectName;
+        private final String abstractName;
 
-        public DatabasePool(String name, String displayName, String applicationName, String objectName) {
+        public DatabasePool(String name, String displayName, String applicationName, AbstractName abstractName) {
             this.name = name;
             this.displayName = displayName;
             this.applicationName = applicationName;
-            this.objectName = objectName;
+            this.abstractName = abstractName.toString();
         }
 
         public String getName() {
@@ -1040,8 +1074,15 @@ public class SecurityRealmPortlet extends BasePortlet {
             return applicationName;
         }
 
+        /**
+         * @deprecated Use getAbstractName() instead
+         */
         public String getObjectName() {
-            return objectName;
+            return abstractName;
+        }
+
+        public String getAbstrcatName() {
+            return abstractName;
         }
 
         public String getDisplayName() {

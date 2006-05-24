@@ -16,27 +16,14 @@
  */
 package org.apache.geronimo.console.jmsmanager.wizard;
 
-import java.io.IOException;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Iterator;
-import javax.portlet.PortletException;
-import javax.portlet.ActionResponse;
 import javax.portlet.PortletConfig;
-import javax.portlet.RenderResponse;
-import javax.portlet.RenderRequest;
-import javax.portlet.ActionRequest;
-import javax.portlet.WindowState;
+import javax.portlet.PortletException;
 import javax.portlet.PortletRequest;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.console.BasePortlet;
-import org.apache.geronimo.console.MultiPagePortlet;
 import org.apache.geronimo.console.MultiPageModel;
+import org.apache.geronimo.console.MultiPagePortlet;
 
 /**
- * A portlet that lets you configure and deploy JDBC connection pools.
+ * A portlet that lets you configure and deploy JMS resources.
  *
  * @version $Rev: 368994 $ $Date: 2006-01-14 02:07:18 -0500 (Sat, 14 Jan 2006) $
  */

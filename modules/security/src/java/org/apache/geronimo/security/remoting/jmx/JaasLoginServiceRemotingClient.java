@@ -20,8 +20,8 @@ package org.apache.geronimo.security.remoting.jmx;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.lang.reflect.Proxy;
 
+import org.apache.geronimo.proxy.ProxyContainer;
 import org.apache.geronimo.security.jaas.server.JaasLoginServiceMBean;
 
 
@@ -34,7 +34,7 @@ public class JaasLoginServiceRemotingClient {
     static public JaasLoginServiceMBean create(String host, int port) throws IllegalArgumentException {
         URI target;
         try {
-            target = new URI("async", null, host, port, "/JMX", null, JaasLoginServiceRemotingServer.REQUIRED_OBJECT_NAME.toString());
+            target = new URI("async", null, host, port, "/JMX", null, JaasLoginServiceRemotingServer.REQUIRED_OBJECT_NAME.getCanonicalName());
             return create(target);
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("Bad host or port.");
@@ -49,8 +49,9 @@ public class JaasLoginServiceRemotingClient {
 
         // Setup the client side container..
         RequestChannelInterceptor remoteInterceptor = new RequestChannelInterceptor(target, cl);
-        Class[] interfaces = new Class[]{JaasLoginServiceMBean.class};
-        return (JaasLoginServiceMBean) Proxy.newProxyInstance(cl, interfaces, remoteInterceptor);
+        ProxyContainer clientContainer = new ProxyContainer(remoteInterceptor);
+        return (JaasLoginServiceMBean) clientContainer.createProxy(cl , new Class[]{JaasLoginServiceMBean.class});
+
     }
 
 }

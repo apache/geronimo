@@ -16,19 +16,21 @@
  */
 package org.apache.geronimo.console.jmsmanager.wizard;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.net.URI;
-import java.net.URISyntaxException;
+import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ListableRepository;
+
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
-import org.apache.geronimo.kernel.repository.ListableRepository;
-import org.apache.geronimo.console.util.PortletManager;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.SortedSet;
 import org.apache.geronimo.console.MultiPageModel;
 
 /**
@@ -55,40 +57,36 @@ public class SelectProviderHandler extends AbstractHandler {
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
         JMSResourceData data = (JMSResourceData) model;
         String rar = request.getParameter(RAR_FILE_PARAMETER);
-        if(isEmpty(rar)) {
-            return SELECT_PROVIDER_MODE+BEFORE_ACTION;
+        if (isEmpty(rar)) {
+            return SELECT_PROVIDER_MODE + BEFORE_ACTION;
         }
         data.setRarURI(rar);
-        return CONFIGURE_RA_MODE+BEFORE_ACTION;
+        return CONFIGURE_RA_MODE + BEFORE_ACTION;
     }
 
     private void loadRARList(RenderRequest renderRequest) {
         // List the available RARs
         List list = new ArrayList();
-        ListableRepository[] repos = PortletManager.getListableRepositories(renderRequest);
+        ListableRepository[] repos = PortletManager.getCurrentServer(renderRequest).getRepositories();
         for (int i = 0; i < repos.length; i++) {
             ListableRepository repo = repos[i];
-            try {
-                final URI[] uris = repo.listURIs();
-                outer:
-                for (int j = 0; j < uris.length; j++) {
-                    if(uris[j] == null) {
-                        continue; // probably a JAR lacks a version number in the name, etc.
-                    }
-                    String test = uris[j].toString();
-                    if(!test.endsWith("/rar")) { //todo: may need to change this logic if configId format changes
-                        continue;
-                    }
-                    for (int k = 0; k < SKIP_RARS_CONTAINING.length; k++) {
-                        String skip = SKIP_RARS_CONTAINING[k];
-                        if(test.indexOf(skip) > -1) {
-                            continue outer;
-                        }
-                    }
-                    list.add(test);
+            final SortedSet artifacts = repo.list();
+            outer:
+            for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
+            	Artifact artifact = (Artifact)iterator.next();
+                String test = artifact.toString();
+                if (!test.endsWith("/rar")) { //todo: may need to change this logic if configId format changes
+                    continue;
+                } else if (repo.getLocation(artifact).isDirectory()) {
+                	continue;
                 }
-            } catch (URISyntaxException e) {
-                e.printStackTrace();
+                for (int k = 0; k < SKIP_RARS_CONTAINING.length; k++) {
+                    String skip = SKIP_RARS_CONTAINING[k];
+                    if (test.indexOf(skip) > -1) {
+                        continue outer;
+                    }
+                }
+                list.add(test);
             }
         }
         Collections.sort(list);

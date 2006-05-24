@@ -124,7 +124,7 @@ public abstract class MultiPagePortlet extends BasePortlet {
             actionResponse.setRenderParameter(MODE_KEY, mode);
         }
         if(model != null) {
-            model.save(actionResponse);
+            model.save(actionResponse, actionRequest.getPortletSession(true));
         }
     }
 

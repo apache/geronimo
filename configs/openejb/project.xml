@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 
-<!-- $Rev$ $Date$ -->
+<!-- $Rev: 389311 $ $Date: 2006-03-27 17:19:34 -0500 (Mon, 27 Mar 2006) $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -37,7 +37,11 @@
             <artifactId>geronimo-gbean-deployer</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
+            <properties>
+                <packaging.config.order>1</packaging.config.order>
+            </properties>
         </dependency>
+
         <!-- parent config -->
         <dependency>
             <groupId>geronimo</groupId>
@@ -57,14 +61,17 @@
                 <geronimo.import>true</geronimo.import>
             </properties>
         </dependency>
+
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-timer</artifactId>
+            <artifactId>system-database</artifactId>
             <version>${geronimo_version}</version>
+            <type>car</type>
             <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
         </dependency>
+
         <dependency>
             <groupId>openejb</groupId>
             <artifactId>openejb-core</artifactId>
@@ -88,15 +95,15 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-j2ee_1.4_spec</artifactId>
-            <version>${geronimo_spec_j2ee_version}</version>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-corba</artifactId>
+            <version>${geronimo_spec_corba_version}</version>
         </dependency>
 
         <dependency>
-            <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-corba</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-j2ee_1.4_spec</artifactId>
+            <version>${geronimo_spec_j2ee_version}</version>
         </dependency>
 
         <dependency>
@@ -149,6 +156,9 @@
             <groupId>tranql</groupId>
             <artifactId>tranql</artifactId>
             <version>${tranql_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+            </properties>
         </dependency>
         <dependency>
             <groupId>howl</groupId>
@@ -159,6 +169,9 @@
             <groupId>antlr</groupId>
             <artifactId>antlr</artifactId>
             <version>${antlr_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+            </properties>
         </dependency>
         <dependency>
             <groupId>regexp</groupId>

@@ -16,40 +16,237 @@
  */
 package org.apache.geronimo.kernel.config;
 
-import java.util.Set;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.File;
+import java.net.URL;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
-import javax.management.ObjectName;
+import java.util.Set;
+import java.util.List;
+import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Properties;
+import java.util.Map;
+import java.util.LinkedHashSet;
 
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GReferenceInfo;
+import org.apache.geronimo.gbean.InvalidConfigurationException;
+import org.apache.geronimo.gbean.ReferencePatterns;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.ClassLoading;
+import org.apache.geronimo.kernel.InternalKernelException;
+import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.gbean.GBeanQuery;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev:386276 $ $Date$
  */
 public final class ConfigurationUtil {
+    private static final Log log = LogFactory.getLog(ConfigurationUtil.class);
+    private static final ConfigurationMarshaler configurationMarshaler;
+
+    static {
+        ConfigurationMarshaler marshaler = null;
+        String marshalerClass = System.getProperty("Xorg.apache.geronimo.kernel.config.Marshaler");
+        if (marshalerClass != null) {
+            try {
+                marshaler = createConfigurationMarshaler(marshalerClass);
+            } catch (Exception e) {
+                log.error("Error creating configuration marshaler class " + marshalerClass , e);
+            }
+        }
+
+        // todo this code effectively makes the default format xstream
+        //if (marshaler == null) {
+        //    try {
+        //        marshaler = createConfigurationMarshaler("org.apache.geronimo.kernel.config.xstream.XStreamConfigurationMarshaler");
+        //    } catch (Throwable ignored) {
+        //    }
+        //}
+
+        if (marshaler == null) {
+            marshaler = new SerializedConfigurationMarshaler();
+        }
+
+        configurationMarshaler = marshaler;
+    }
+
+    public static ConfigurationMarshaler createConfigurationMarshaler(String marshalerClass) throws Exception {
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        Class clazz = null;
+        if (classLoader != null) {
+            try {
+                clazz = ClassLoading.loadClass(marshalerClass, classLoader);
+            } catch (ClassNotFoundException ignored) {
+                // doesn't matter
+            }
+        }
+        if (clazz == null) {
+            classLoader = ConfigurationUtil.class.getClassLoader();
+            try {
+                clazz = ClassLoading.loadClass(marshalerClass, classLoader);
+            } catch (ClassNotFoundException ignored) {
+                // doesn't matter
+            }
+        }
+
+        if (clazz != null) {
+            Object object = clazz.newInstance();
+            if (object instanceof ConfigurationMarshaler) {
+                return (ConfigurationMarshaler) object;
+            } else {
+                log.warn("Configuration marshaler class is not an instance of ConfigurationMarshaler " + marshalerClass + ": using default configuration ");
+            }
+        }
+        return null;
+    }
+
     private ConfigurationUtil() {
+    }
+
+    public static GBeanState newGBeanState(Collection gbeans) {
+        return configurationMarshaler.newGBeanState(gbeans);
+    }
+
+    public static AbstractName loadBootstrapConfiguration(Kernel kernel, InputStream in, ClassLoader classLoader) throws Exception {
+        ConfigurationData configurationData = readConfigurationData(in);
+        return loadBootstrapConfiguration(kernel, configurationData, classLoader);
+    }
+
+    public static AbstractName loadBootstrapConfiguration(Kernel kernel, ConfigurationData configurationData, ClassLoader classLoader) throws Exception {
+        if (kernel == null) throw new NullPointerException("kernel is null");
+        if (configurationData == null) throw new NullPointerException("configurationData is null");
+        if (classLoader == null) throw new NullPointerException("classLoader is null");
+
+        // a bootstrap configuration can not have any dependencies
+        List dependencies = configurationData.getEnvironment().getDependencies();
+        if (!dependencies.isEmpty()) {
+            configurationData.getEnvironment().setDependencies(Collections.EMPTY_SET);
+//            throw new InvalidConfigurationException("Booststrap configuration can not have dependendencies: " + dependencies);
+        }
+
+        // build the gbean data
+        Artifact configId = configurationData.getId();
+        AbstractName abstractName = Configuration.getConfigurationAbstractName(configId);
+        GBeanData gbeanData = new GBeanData(abstractName, Configuration.GBEAN_INFO);
+        gbeanData.setAttribute("configurationData", configurationData);
+        gbeanData.setAttribute("configurationResolver", new ConfigurationResolver(configurationData, null, null));
+
+        // load and start the gbean
+        kernel.loadGBean(gbeanData, classLoader);
+        kernel.startGBean(gbeanData.getAbstractName());
+
+        Configuration configuration = (Configuration) kernel.getGBean(gbeanData.getAbstractName());
+
+        // start the gbeans
+        startConfigurationGBeans(configuration.getAbstractName(), configuration, kernel);
+
+        ConfigurationManager configurationManager = getConfigurationManager(kernel);
+        configurationManager.loadConfiguration(configId);
+        return gbeanData.getAbstractName();
+    }
+
+    public static void writeConfigurationData(ConfigurationData configurationData, OutputStream out) throws IOException {
+        configurationMarshaler.writeConfigurationData(configurationData, out);
+    }
+
+    public static ConfigurationData readConfigurationData(InputStream in) throws IOException, ClassNotFoundException {
+        return configurationMarshaler.readConfigurationData(in);
+    }
+
+    public static void writeConfigInfo(PrintWriter writer, ConfigurationData configurationData) {
+        writeConfigInfo("", writer, configurationData);
+    }
+    private static void writeConfigInfo(String prefix, PrintWriter writer, ConfigurationData configurationData) {
+        writer.println(prefix+"id=" + configurationData.getId());
+        writer.println(prefix+"type=" + configurationData.getModuleType());
+        writer.println(prefix+"created=" + configurationData.getCreated());
+        Set ownedConfigurations = configurationData.getOwnedConfigurations();
+        int i = 0;
+        for (Iterator iterator = ownedConfigurations.iterator(); iterator.hasNext();) {
+            Artifact ownedConfiguration = (Artifact) iterator.next();
+            writer.println(prefix+"owned." + i++ + "=" + ownedConfiguration);
+        }
+        i = 0;
+        for (Iterator it = configurationData.getChildConfigurations().values().iterator(); it.hasNext(); i++) {
+            ConfigurationData data = (ConfigurationData) it.next();
+            writeConfigInfo("child."+i+".", writer, data);
+        }
+        writer.flush();
+    }
+
+    public static ConfigurationInfo readConfigurationInfo(InputStream in, AbstractName storeName, File inPlaceLocation) throws IOException {
+        Properties properties = new Properties();
+        properties.load(in);
+        return readConfigurationInfo("", properties, storeName, inPlaceLocation);
+    }
+    private static ConfigurationInfo readConfigurationInfo(String prefix, Properties properties, AbstractName storeName, File inPlaceLocation) throws IOException {
+        String id = properties.getProperty(prefix+"id");
+        Artifact configId = Artifact.create(id);
+
+        String type = properties.getProperty(prefix+"type");
+        ConfigurationModuleType moduleType = ConfigurationModuleType.getByName(type);
+        if (moduleType == null) {
+            throw new IllegalArgumentException("Unknown module type: " + type);
+        }
+
+        String created = properties.getProperty(prefix+"created");
+        long time;
+        try {
+            time = Long.parseLong(created);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid created time: " + created);
+        }
+
+        LinkedHashSet ownedConfigurations = new LinkedHashSet();
+        for (Iterator iterator = properties.entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            String name = (String) entry.getKey();
+            if (name.startsWith(prefix+"owned.")) {
+                String value = (String) entry.getValue();
+                Artifact ownedConfiguration = Artifact.create(value);
+                ownedConfigurations.add(ownedConfiguration);
+            }
+        }
+        LinkedHashSet childConfigurations = new LinkedHashSet();
+        int test = 0;
+        while(true) {
+            String next = prefix+"child."+test+".";
+            String value = properties.getProperty(next+".id");
+            if(value == null) {
+                break;
+            }
+            childConfigurations.add(readConfigurationInfo(next, properties, storeName, inPlaceLocation));
+            ++test;
+        }
+
+        return new ConfigurationInfo(storeName, configId, moduleType, time, ownedConfigurations, childConfigurations, inPlaceLocation);
     }
 
     /**
      * Gets a reference or proxy to the ConfigurationManager running in the specified kernel.
      *
      * @return The ConfigurationManager
-     *
      * @throws IllegalStateException Occurs if a ConfigurationManager cannot be identified
      */
     public static ConfigurationManager getConfigurationManager(Kernel kernel) {
-        Set names = kernel.listGBeans(new GBeanQuery(null, ConfigurationManager.class.getName()));
+        Set names = kernel.listGBeans(new AbstractNameQuery(ConfigurationManager.class.getName()));
         for (Iterator iterator = names.iterator(); iterator.hasNext();) {
-            ObjectName objectName = (ObjectName) iterator.next();
-            try {
-                if (kernel.getGBeanState(objectName) != State.RUNNING_INDEX) {
-                    iterator.remove();
-                }
-            } catch (GBeanNotFoundException e) {
-                // bean died
+            AbstractName abstractName = (AbstractName) iterator.next();
+            if (!kernel.isRunning(abstractName)) {
                 iterator.remove();
             }
         }
@@ -59,7 +256,7 @@ public final class ConfigurationUtil {
         if (names.size() > 1) {
             throw new IllegalStateException("More than one Configuration Manager was found in the kernel");
         }
-        ObjectName configurationManagerName = (ObjectName) names.iterator().next();
+        AbstractName configurationManagerName = (AbstractName) names.iterator().next();
         return (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
     }
 
@@ -67,19 +264,13 @@ public final class ConfigurationUtil {
      * Gets a reference or proxy to an EditableConfigurationManager running in the specified kernel, if there is one.
      *
      * @return The EdtiableConfigurationManager, or none if there is not one available.
-     *
      * @throws IllegalStateException Occurs if there are multiple EditableConfigurationManagers in the kernel.
      */
     public static EditableConfigurationManager getEditableConfigurationManager(Kernel kernel) {
-        Set names = kernel.listGBeans(new GBeanQuery(null, EditableConfigurationManager.class.getName()));
+        Set names = kernel.listGBeans(new AbstractNameQuery(EditableConfigurationManager.class.getName()));
         for (Iterator iterator = names.iterator(); iterator.hasNext();) {
-            ObjectName objectName = (ObjectName) iterator.next();
-            try {
-                if (kernel.getGBeanState(objectName) != State.RUNNING_INDEX) {
-                    iterator.remove();
-                }
-            } catch (GBeanNotFoundException e) {
-                // bean died
+            AbstractName abstractName = (AbstractName) iterator.next();
+            if (!kernel.isRunning(abstractName)) {
                 iterator.remove();
             }
         }
@@ -89,7 +280,7 @@ public final class ConfigurationUtil {
         if (names.size() > 1) {
             throw new IllegalStateException("More than one Configuration Manager was found in the kernel");
         }
-        ObjectName configurationManagerName = (ObjectName) names.iterator().next();
+        AbstractName configurationManagerName = (AbstractName) names.iterator().next();
         return (EditableConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, EditableConfigurationManager.class);
     }
 
@@ -97,4 +288,156 @@ public final class ConfigurationUtil {
         kernel.getProxyManager().destroyProxy(configurationManager);
     }
 
+    static void preprocessGBeanData(AbstractName configurationName, Configuration configuration, GBeanData gbeanData) throws InvalidConfigException {
+        for (Iterator references = gbeanData.getReferencesNames().iterator(); references.hasNext();) {
+            String referenceName = (String) references.next();
+            GReferenceInfo referenceInfo = gbeanData.getGBeanInfo().getReference(referenceName);
+            if (referenceInfo == null) {
+                throw new InvalidConfigException("No reference named " + referenceName + " in gbean " + gbeanData.getAbstractName());
+            }
+            boolean isSingleValued = !referenceInfo.getProxyType().equals(Collection.class.getName());
+            if (isSingleValued) {
+                ReferencePatterns referencePatterns = gbeanData.getReferencePatterns(referenceName);
+                AbstractName abstractName;
+                try {
+                    abstractName = configuration.findGBean(referencePatterns);
+                } catch (GBeanNotFoundException e) {
+                    throw new InvalidConfigException("Unable to resolve reference \"" + referenceName + "\" in gbean " + gbeanData.getAbstractName() + " to a gbean matching the pattern " + referencePatterns, e);
+                }
+                gbeanData.setReferencePatterns(referenceName, new ReferencePatterns(abstractName));
+            }
+        }
+
+        Set newDependencies = new HashSet();
+        for (Iterator dependencyIterator = gbeanData.getDependencies().iterator(); dependencyIterator.hasNext();) {
+            ReferencePatterns referencePatterns = (ReferencePatterns) dependencyIterator.next();
+            AbstractName abstractName;
+            try {
+                abstractName = configuration.findGBean(referencePatterns);
+            } catch (GBeanNotFoundException e) {
+                throw new InvalidConfigException("Unable to resolve dependency in gbean " + gbeanData.getAbstractName(), e);
+            }
+            newDependencies.add(new ReferencePatterns(abstractName));
+        }
+        gbeanData.setDependencies(newDependencies);
+
+        // If the GBean has a configurationBaseUrl attribute, set it
+        // todo Even though this is not used by the classloader, web apps still need this.  WHY???
+        GAttributeInfo attribute = gbeanData.getGBeanInfo().getAttribute("configurationBaseUrl");
+        if (attribute != null && attribute.getType().equals("java.net.URL")) {
+            try {
+                Set set = configuration.getConfigurationResolver().resolve("");
+                if (set.size() != 1) {
+                    throw new AssertionError("Expected one match for pattern \".\", but got " + set.size() + " matches");
+                }
+                URL baseURL = (URL) set.iterator().next();
+                gbeanData.setAttribute("configurationBaseUrl", baseURL);
+            } catch (Exception e) {
+                throw new InvalidConfigException("Unable to set attribute named " + "configurationBaseUrl" + " in gbean " + gbeanData.getAbstractName(), e);
+            }
+        }
+
+        // add a dependency from the gbean to the configuration
+        gbeanData.addDependency(configurationName);
+    }
+
+    static void startConfigurationGBeans(AbstractName configurationName, Configuration configuration, Kernel kernel) throws InvalidConfigException {
+        Collection gbeans = configuration.getGBeans().values();
+
+        List loaded = new ArrayList(gbeans.size());
+        List started = new ArrayList(gbeans.size());
+
+        try {
+            // register all the GBeans
+            for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
+                GBeanData gbeanData = (GBeanData) iterator.next();
+
+                // copy the gbeanData object as not to mutate the original
+                gbeanData = new GBeanData(gbeanData);
+
+                // preprocess the gbeanData (resolve references, set base url, declare dependency, etc.)
+                preprocessGBeanData(configurationName, configuration, gbeanData);
+
+                try {
+                    kernel.loadGBean(gbeanData, configuration.getConfigurationClassLoader());
+                    loaded.add(gbeanData.getAbstractName());
+                } catch (GBeanAlreadyExistsException e) {
+                    throw new InvalidConfigException(e);
+                }
+            }
+
+            try {
+                // start the gbeans
+                for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
+                    GBeanData gbeanData = (GBeanData) iterator.next();
+                    AbstractName gbeanName = gbeanData.getAbstractName();
+                    kernel.startRecursiveGBean(gbeanName);
+                    started.add(gbeanName);
+                }
+
+                // assure all of the gbeans are started
+                List unstarted = new ArrayList();
+                for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
+                    GBeanData gbeanData = (GBeanData) iterator.next();
+                    AbstractName gbeanName = gbeanData.getAbstractName();
+                    if (State.RUNNING_INDEX != kernel.getGBeanState(gbeanName)) {
+                        String stateReason = null;
+                        if (kernel instanceof BasicKernel) {
+                            stateReason = ((BasicKernel) kernel).getStateReason(gbeanName);
+                        }
+                        String name = gbeanName.toURI().getQuery();
+                        if (stateReason != null) {
+                            unstarted.add("The service " + name + " did not start because " + stateReason);
+                        } else {
+                            unstarted.add("The service " + name + " did not start for an unknown reason");
+                        }
+                    }
+                }
+                if (!unstarted.isEmpty()) {
+                    StringBuffer message = new StringBuffer();
+                    message.append("Configuration ").append(configuration.getId()).append(" failed to start due to the following reasons:\n");
+                    for (Iterator iterator = unstarted.iterator(); iterator.hasNext();) {
+                        String reason = (String) iterator.next();
+                        message.append("  ").append(reason).append("\n");
+                    }
+                    throw new InvalidConfigurationException(message.toString());
+                }
+            } catch (GBeanNotFoundException e) {
+                throw new InvalidConfigException(e);
+            }
+
+            for (Iterator iterator = configuration.getChildren().iterator(); iterator.hasNext();) {
+                Configuration childConfiguration = (Configuration) iterator.next();
+                ConfigurationUtil.startConfigurationGBeans(configurationName, childConfiguration, kernel);
+            }
+        } catch (Throwable e) {
+            for (Iterator iterator = started.iterator(); iterator.hasNext();) {
+                AbstractName gbeanName = (AbstractName) iterator.next();
+                try {
+                    kernel.stopGBean(gbeanName);
+                } catch (GBeanNotFoundException ignored) {
+                } catch (IllegalStateException ignored) {
+                } catch (InternalKernelException kernelException) {
+                    log.debug("Error cleaning up after failed start of configuration " + configuration.getId() + " gbean " + gbeanName, kernelException);
+                }
+            }
+            for (Iterator iterator = loaded.iterator(); iterator.hasNext();) {
+                AbstractName gbeanName = (AbstractName) iterator.next();
+                try {
+                    kernel.unloadGBean(gbeanName);
+                } catch (GBeanNotFoundException ignored) {
+                } catch (IllegalStateException ignored) {
+                } catch (InternalKernelException kernelException) {
+                    log.debug("Error cleaning up after failed start of configuration " + configuration.getId() + " gbean " + gbeanName, kernelException);
+                }
+            }
+            if (e instanceof Error) {
+                throw (Error) e;
+            }                         
+            if (e instanceof InvalidConfigException) {
+                throw (InvalidConfigException) e;
+            }
+            throw new InvalidConfigException("Unknown start exception", e);
+        }
+    }
 }

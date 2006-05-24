@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app
+	xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.1"
+	xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.1"
+	xmlns:naming="http://geronimo.apache.org/xml/ns/naming-1.1"
+	xmlns:security="http://geronimo.apache.org/xml/ns/security-1.1"
+	>
+	<environment>
+		<moduleId>
+			<groupId>contextRootTest</groupId>
+			<artifactId>spacesInContext</artifactId>
+		</moduleId>
+	</environment>
+	
+	<context-root>
+        test-spaces
+    </context-root>
+</web-app>

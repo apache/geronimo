@@ -16,25 +16,24 @@
  */
 package org.apache.geronimo.connector.outbound;
 
-import java.util.Hashtable;
+import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
+import org.apache.geronimo.kernel.ObjectNameUtil;
+import org.apache.geronimo.management.geronimo.JCAConnectionFactory;
+import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 
 import javax.management.ObjectName;
-
-import org.apache.geronimo.management.J2EEServer;
-import org.apache.geronimo.management.JCAConnectionFactory;
-import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import java.util.Hashtable;
 
 /**
  * @version $Rev$ $Date$
  */
 public class JCAConnectionFactoryImpl implements JCAConnectionFactory  {
     private final String objectName;
-    private final String managedConnectionFactory;
+    private final JCAManagedConnectionFactory managedConnectionFactory;
 
-    public JCAConnectionFactoryImpl(String objectName, J2EEServer server, String managedConnectionFactory) {
+    public JCAConnectionFactoryImpl(String objectName, JCAManagedConnectionFactory managedConnectionFactory) {
         // todo do we really need to do this at runtime - shouldn't the builder set this up correctly?
-        ObjectName myObjectName = JMXUtil.getObjectName(objectName);
+        ObjectName myObjectName = ObjectNameUtil.getObjectName(objectName);
         verifyObjectName(myObjectName);
 
         this.objectName = objectName;
@@ -42,6 +41,10 @@ public class JCAConnectionFactoryImpl implements JCAConnectionFactory  {
     }
 
     public String getManagedConnectionFactory() {
+        return managedConnectionFactory.getObjectName();
+    }
+
+    public JCAManagedConnectionFactory getManagedConnectionFactoryInstance() {
         return managedConnectionFactory;
     }
 
@@ -87,5 +90,4 @@ public class JCAConnectionFactoryImpl implements JCAConnectionFactory  {
 //            throw new InvalidObjectNameException("JCAConnectionFactory object name can only have j2eeType, name, JCAResource, and J2EEServer properties", objectName);
 //        }
     }
-
 }

@@ -30,13 +30,13 @@ import javax.portlet.PortletException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.jmsmanager.AbstractJMSManager;
-import org.apache.geronimo.console.util.ObjectNameConstants;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.DependencyManager;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 public class RemoveDestinationHandler extends AbstractJMSManager implements
         PortletResponseHandler {
@@ -51,8 +51,8 @@ public class RemoveDestinationHandler extends AbstractJMSManager implements
         try {
             ConfigurationManager configurationManager = ConfigurationUtil
                     .getConfigurationManager(kernel);
-            URI destinationConfigURI = new URI(destinationConfigURIName);
-            ObjectName configurationObjectName = Configuration.getConfigurationObjectName(destinationConfigURI);
+            Artifact destinationConfigArtifact = Artifact.create(destinationConfigURIName);
+            AbstractName configurationObjectName = Configuration.getConfigurationAbstractName(destinationConfigArtifact);
 
             List stores = configurationManager.listStores();
             assert stores.size() == 1 :"Piling one hack on another, this code only works with exactly one store";
@@ -64,7 +64,7 @@ public class RemoveDestinationHandler extends AbstractJMSManager implements
             // "getConfiguration", new Object[]{destinationConfigURI}, new
             // String[]{URI.class.getName()});
             GBeanData topicBrowser = kernel.getGBeanData(configurationObjectName);
-            java.util.Set children = dm.getChildren(topicBrowser.getName());
+            java.util.Set children = dm.getChildren(topicBrowser.getAbstractName());
             for (Iterator i = children.iterator(); i.hasNext();) {
                 ObjectName o = (ObjectName) i.next();
                 if ("TopicBrowser".equals(o.getKeyProperty("j2eeType"))) {
@@ -77,7 +77,7 @@ public class RemoveDestinationHandler extends AbstractJMSManager implements
             //kernel.stopConfiguration(destinationConfigURI);
             kernel.stopGBean(configurationObjectName);
             kernel.invoke(storeName, "uninstall",
-                    new Object[] {destinationConfigURI},
+                    new Object[] {destinationConfigArtifact},
                     new String[] {URI.class.getName()});
         } catch (Exception e) {
             log.error("problem removing destination: "

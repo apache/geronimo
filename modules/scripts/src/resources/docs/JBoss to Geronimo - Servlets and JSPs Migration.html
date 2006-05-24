@@ -1,0 +1,402 @@
+<html>
+    <head>
+        <title>Documentation : JBoss to Geronimo - Servlets and JSPs Migration</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Documentation : JBoss to Geronimo - Servlets and JSPs Migration
+                                                    </span>
+				    </div>
+				    <div class="pagesubheading">
+					    This page last changed on Dec 14, 2005 by <font color="#0050B2">hcunico@gmail.com</font>.
+				    </div>
+
+				    <p><a name="JBosstoGeronimo-ServletsandJSPsMigration-top"></a><br/>
+<em><b>Article donated by:</b> <a href="mailto:gupta_aditya84@yahoo.co.in" title="Send mail to Aditya Gupta">Aditya Gupta</a>, <a href="mailto:hcunico@gmail.com" title="Send mail to Hernan Cunico">Hernan Cunico</a></em></p>
+
+<h1><a name="JBosstoGeronimo-ServletsandJSPsMigration-Overview"></a>Overview</h1>
+<p>This article will help you migrate servlets and JSPs deployed JBoss v4 to Apache Geronimo. This article is part of a series of migration articles covering different types of applications migration.</p>
+
+<p>This article covers the migration one of the most fundamental aspects of J2EE; servlets and JSPs. The sample application used for this migration exercise is <a href="http://localhost:9090/download/attachments/1564/college_fest.zip?version=1" title="college_fest.zip attached to JBoss to Geronimo - Servlets and JSPs Migration">College Fest</a> which just contains servlets and JSPs for handling the flow of control. The College Fest sample application does not use any database, for details on migrating JDBC applications refer to the <a href="JBoss to Geronimo - JDBC Migration.html" title="JBoss to Geronimo - JDBC Migration">JBoss to Geronimo \- JDBC Migration</a> article.</p>
+
+<p>After reading this article you should be able to reconfigure the JBoss build files and the deployment descriptors to set up the Apache Geronimo destination environment and then deploying simple Web applications.</p>
+
+<p>This article is organized in the following sections:</p>
+
+<ul>
+	<li><a href="#JBosstoGeronimo-ServletsandJSPsMigration-implementation" title="implementation on JBoss to Geronimo - Servlets and JSPs Migration">Servlets and JSPs implementation analysis</a></li>
+	<li><a href="#JBosstoGeronimo-ServletsandJSPsMigration-sampleApp" title="sampleApp on JBoss to Geronimo - Servlets and JSPs Migration">Sample application</a></li>
+	<li><a href="#JBosstoGeronimo-ServletsandJSPsMigration-JBoss" title="JBoss on JBoss to Geronimo - Servlets and JSPs Migration">The JBoss environment</a></li>
+	<li><a href="#JBosstoGeronimo-ServletsandJSPsMigration-Geronimo" title="Geronimo on JBoss to Geronimo - Servlets and JSPs Migration">The Geronimo environment</a></li>
+	<li><a href="#JBosstoGeronimo-ServletsandJSPsMigration-migration" title="migration on JBoss to Geronimo - Servlets and JSPs Migration">Step-by-step migration</a></li>
+	<li><a href="#JBosstoGeronimo-ServletsandJSPsMigration-summary" title="summary on JBoss to Geronimo - Servlets and JSPs Migration">Summary</a></li>
+</ul>
+
+
+<h1><a name="JBosstoGeronimo-ServletsandJSPsMigration-ServletsandJSPsimplementationanalysis"></a>Servlets and JSPs implementation analysis <a name="JBosstoGeronimo-ServletsandJSPsMigration-implementation"></a></h1>
+<p>Servlets and JSPs implementations may vary from one application server to another. The purpose of this section is to provide servlets and JSPs specific feature-to-feature comparison between JBoss and Apache Geronimo so you can clearly identify the differences and plan accordingly before migration.</p>
+
+<p>Apache Geronimo includes a Web application container supporting J2EE Web applications. The Web container itself supports basic configuration such as network ports and SSL options, and each Web application may include Geronimo-specific configuration information as well. Web applications participate in the Geronimo security infrastructure, so authenticating to a Web application allows access to secure EJBs and Connectors as well.</p>
+
+<p>Apache Geronimo currently supports two Web containers: <b>Jetty</b> and <b>Tomcat</b>.</p>
+
+<h3><a name="JBosstoGeronimo-ServletsandJSPsMigration-Jetty"></a>Jetty</h3>
+<p>Jetty is a 100% Java HTTP Server and Servlet Container. This means that you do not need to configure and run a separate Web server in order to use servlets and JSPs to generate dynamic content. Jetty is a fully featured Web server for static and dynamic content.</p>
+
+<p>Unlike separate server/container solutions, Jetty's Web server and Web application run in the same process without interconnection overheads and complications.  Furthermore, as a pure java component, Jetty can be easily included in your application for demonstration, distribution or deployment. Jetty is available on all Java supported platforms.</p>
+
+<p>In Geronimo, you need to explicitly configure the pathways used by browsers attempting to connect to the Web container. In the case of Jetty, the default Web container, these pathways are known as connectors. The standard configuration includes a Jetty connector supporting HTTP on port 8080, as well as a HTTPS connector on port 8443.</p>
+
+<p>Each Jetty connector is a GBean, so the process of configuring a Jetty connector involves configuring a GBean. For further details on GBeans you may refer to the <a href="http://www-128.ibm.com/developerworks/java/library/j-geron1" title="Visit page outside Confluence">Geronimo! Part 1: The J2EE 1.4 engine that could</a> article.</p>
+
+<h3><a name="JBosstoGeronimo-ServletsandJSPsMigration-ApacheTomcat"></a>Apache Tomcat</h3>
+<p>Apache Tomcat is the servlet container that is used in the official Reference Implementation for the Java Servlet and JavaServer Pages technologies.</p>
+
+<p><a href="http://java.sun.com/products/servlet" title="Visit page outside Confluence">&#104;ttp://java.sun.com/products/servlet</a><br/>
+<a href="http://java.sun.com/products/jsp" title="Visit page outside Confluence">&#104;ttp://java.sun.com/products/jsp</a></p>
+
+<h2><a name="JBosstoGeronimo-ServletsandJSPsMigration-Thedifferences"></a>The differences</h2>
+<p>JBoss v4 supports only Tomcat 5.5, which is the default Web container. The embedded Tomcat service is the expanded SAR <b>jbossweb-tomcat55.sar</b> in the deploy directory. The web.xml file that provides a default configuration set for Web application is also found in this exapanded SAR directory structure. </p>
+
+<p>The HTTP connector is set up on port 8080 and port 8009 is used if you want to connect via a separate Web server such as Apache HTTP.</p>
+
+<p>In addition to the default Web container, the second major difference lies in the deployment plan. A deployment plan in Geronimo is similar to a J2EE deployment descriptor in the sense that it is an XML file that contains the configuration information for a specific application module or service.</p>
+
+<p>For very simple Web applications with no security nor resource references, a Geronimo deployment plan is not required, a default context root and dependencies will be provided automatically at deployment time.</p>
+
+<p>The Geronimo Web application deployment plan is <b>geronimo-web.xml</b>. The corresponding deployment descriptor in Jboss is <b>jboss-web.xml</b>. For further details on Geronimo deployment architecture you may refer to the <a href="http://www.ibm.com/developerworks/library/os-ag-deploy" title="Visit page outside Confluence">Understand Geronimo's deployment architecture</a> article.</p>
+
+<p>Another difference with servlets and JSPs lies in the way the Web application is deployed. In Geronimo, the application package (ear, war, rar or jar) is deployed using the deployment tool <b>deployer.jar</b> located in the &lt;geronimo_home&gt;/bin directory.<br/>
+<a name="JBosstoGeronimo-ServletsandJSPsMigration-deploymentTool"></a><br/>
+The deployer.jar deploys the application module based on the information provided in the deployment plan (if a plan is provided) to the Geronimo server. The server then saves the metadata to a configuration store and the executables to a binary repository. The following figure illustrates the behavior of the deployment tool.</p>
+
+<p><img src="JBoss to Geronimo - Servlets and JSPs Migration_attachments/deployer.jpg" align="absmiddle" border="0" /></p>
+
+<p>In JBoss, a Web application is deployed by simply copying the application package (ear, war, rar or jar) into the &lt;jboss_home&gt;/server/&lt;your_server_name&gt;/deploy directory from where the server detects its presence and deploys it accordingly.</p>
+
+<p>The following table summarizes the differences between JBoss and Geronimo.</p>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'>Feature</th>
+<th class='confluenceTh'>JBoss v4</th>
+<th class='confluenceTh'>Apache Geronimo</th>
+</tr>
+<tr>
+<td class='confluenceTd'>Deployment descriptor/plan</td>
+<td class='confluenceTd'>jboss.xml</td>
+<td class='confluenceTd'>geronimo-jetty.xml</td>
+</tr>
+<tr>
+<td class='confluenceTd'>Method of deployment</td>
+<td class='confluenceTd'>Copy the package (ear, war, rar or jar) to the deploy folder of the JBoss server &lt;jboss_home&gt;/server/&lt;your_server_name&gt;/deploy</td>
+<td class='confluenceTd'>Deployer tool deployer.jar in server's bin directory<br/>
+&lt;geronimo_home&gt;/bin</td>
+</tr>
+<tr>
+<td class='confluenceTd'>Web container</td>
+<td class='confluenceTd'>Apache Tomcat 5.5</td>
+<td class='confluenceTd'>Jetty and/or Apache Tomcat</td>
+</tr>
+</tbody></table>
+
+<p><a href="#JBosstoGeronimo-ServletsandJSPsMigration-top" title="top on JBoss to Geronimo - Servlets and JSPs Migration">Back to Top</a></p>
+
+<h1><a name="JBosstoGeronimo-ServletsandJSPsMigration-Sampleapplication"></a>Sample application <a name="JBosstoGeronimo-ServletsandJSPsMigration-sampleApp"></a></h1>
+<p>The <a href="http://localhost:9090/download/attachments/1564/college_fest.zip?version=1" title="college_fest.zip attached to JBoss to Geronimo - Servlets and JSPs Migration">College Fest</a> application handles registration for events at a college festival. This is a very simple application that does not use any type of database. The College Fest application has the following four pages:</p>
+
+<ul>
+	<li>Welcome page</li>
+	<li>Event List page</li>
+	<li>Event Details page</li>
+	<li>Registration page</li>
+</ul>
+
+
+<p>The following figure illustrates the application flow:</p>
+
+<p><img src="JBoss to Geronimo - Servlets and JSPs Migration_attachments/webApp_flow.jpg" align="absmiddle" border="0" /></p>
+
+<p>The user access the Welcome page and enters user name and college. From there the user can see the list of available events. The user can access the details for each Event by clicking them from the list. From the Event details page the user can register for that particular event. </p>
+
+<h2><a name="JBosstoGeronimo-ServletsandJSPsMigration-ApplicationclassesandJSPpages"></a>Application classes and JSP pages</h2>
+<p>The College Fest sample application consists of the following two servlets:</p>
+<ul>
+	<li>WelcomeServlet - Handles user login and then grabs the user name and dispatches this to the next servlet.</li>
+	<li>PersonalServlet - Personalizes the page for the user and hands over control to welcome.jsp.</li>
+</ul>
+
+
+<p>The College Fest sample application also includes the following JSP pages:</p>
+<ul>
+	<li>welcome.jsp - Displays the events list to the user so that s/he can choose on what event to register.</li>
+	<li>dc.jsp - Displays the details for the Dumb Charades event.</li>
+	<li>pp.jsp - Displays the details for the Pot Potpourri event.</li>
+	<li>wtgw.jsp - Displays the details for the  What's The Good Word event.</li>
+	<li>gq.jsp - Displays the details for the General Quiz event.</li>
+	<li>team_reg.jsp - Handles the user registration for one event.</li>
+</ul>
+
+
+<h2><a name="JBosstoGeronimo-ServletsandJSPsMigration-Toolsused"></a>Tools used</h2>
+<p>The tools used for developing and building the College Fest sample application are:</p>
+
+<h3><a name="JBosstoGeronimo-ServletsandJSPsMigration-Eclipse"></a>Eclipse</h3>
+<p>The Eclipse IDE was used for development of the sample application. This is a very powerful and popular open source development tool. Integration plug-ins are available for both JBoss and Geronimo. Eclipse can be downloaded from the following URL:<br/>
+<a href="http://www.eclipse.org" title="Visit page outside Confluence">&#104;ttp://www.eclipse.org</a></p>
+
+<h3><a name="JBosstoGeronimo-ServletsandJSPsMigration-ApacheAnt"></a>Apache Ant</h3>
+<p>Ant is a pure Java build tool. It is used for building the war files for the College Fest application. Ant can be downloaded from the following URL:<br/>
+<a href="http://ant.apache.org" title="Visit page outside Confluence">&#104;ttp://ant.apache.org</a></p>
+
+<p><a href="#JBosstoGeronimo-ServletsandJSPsMigration-top" title="top on JBoss to Geronimo - Servlets and JSPs Migration">Back to Top</a></p>
+
+<h1><a name="JBosstoGeronimo-ServletsandJSPsMigration-TheJBossenvironment"></a>The JBoss environment <a name="JBosstoGeronimo-ServletsandJSPsMigration-JBoss"></a></h1>
+<p>This section shows you how and where the sample JBoss reference environment was installed so you can map this scenario to your own implementation.</p>
+
+<p>Detailed instructions for installing, configuring, and managing JBoss are provided in the product documentation. Check the product Web site for the most updated documents.</p>
+
+<p>The following list highlights the general tasks you will need to complete to install and configure the initial environment as the starting point for deploying the sample application.</p>
+
+<ol>
+	<li>Download and install JBoss v4 as explained in the product documentation guides. From now on the installation directory will be referred as <b>&lt;jboss_home&gt;</b></li>
+	<li>Create a copy of the default JBoss v4 application server. Copy recursively <b>&lt;jboss_home&gt;\server\default</b> to <b>&lt;jboss_home&gt;\server\&lt;your_server_name&gt;</b></li>
+	<li>Start the new server by running the <tt>run.sh -c &lt;your_server_name&gt;</tt> command from the <b>&lt;jboss_home&gt;\bin</b> directory.</li>
+	<li>Once the server is started, you can verify that it is running by opening a Web browser and pointing it to this URL: <a href="http://localhost:8080" title="Visit page outside Confluence">&#104;ttp://localhost:8080</a>. You should see the JBoss Welcome window and be able to access the JBoss console.</li>
+	<li>Once the application server is up and running, the next step is to install and configure all the remaining prerequisite software required by the sample application. This step is described in the following section.</li>
+</ol>
+
+
+<p>As mentioned before, Apache Ant is used to build the binaries for the College Fest application. If you do not have Ant installed this is a good time for doing it and make sure that <b>&lt;ant_home&gt;\bin</b> directory is added to the system's path variable.</p>
+
+<p>Apache Ant can be downloaded from the following URL:</p>
+
+<p><a href="http://ant.apache.org" title="Visit page outside Confluence">&#104;ttp://ant.apache.org</a></p>
+
+<h2><a name="JBosstoGeronimo-ServletsandJSPsMigration-Buildthesampleapplication"></a>Build the sample application</h2>
+<p>The College Fest application included with this article provides an Ant script that you will use in order to build the application. Download the College Fest application from the following link:</p>
+
+<p><a href="http://localhost:9090/download/attachments/1564/college_fest.zip?version=1" title="college_fest.zip attached to JBoss to Geronimo - Servlets and JSPs Migration">College Fest</a></p>
+
+<p>After extracting the zip file, a college_fest directory is created. In that directory open the <b>build.properties</b> file and edit the properties to match your environment as shown in the following example:</p>
+
+<div class="preformatted" style="border-style: solid; "><div class="preformattedHeader" style="border-bottom-style: solid; "><b>Update the build.properties file</b></div><div class="preformattedContent">
+<pre>#Replace java.home with your jdk directory
+java.home=&lt;JAVA_HOME&gt;
+#Replace j2ee.home with the parent directory of lib/j2ee.jar
+j2ee.home=&lt;jboss_home&gt;/server/&lt;your_server_name&gt;
+#Replace with jboss home directory
+jboss.server=&lt;jboss_home&gt;/server/&lt;your_server_name&gt;</pre>
+</div></div>
+
+<p>In the college_fest directory you can also find two build files, build.xml and jboss-build.xml. build.xml is the default build file so if you just type <b>ant</b>  this file will be used for building the application. For this particular sample application the jboss-build.xml file is provided.</p>
+
+<p>From a command line, still within the college_fest directory type the following command:</p>
+
+<p><tt>ant -f jboss-build.xml deploy</tt></p>
+
+<p>With this command, ant will use the targets defined in the jboss-build.xml file to build the College Fest application and deploy it to the JBoss server. Take a special look at <b>&lt;target name="deploy" ...&gt;</b>, here is where the jboss-build.xml tell ant where to deploy the WAR file. The following example shows the definitions in the jboss-build.xml file.</p>
+
+<div class="code" style="border-style: solid; "><div class="codeHeader" style="border-bottom-style: solid; "><b>jboss-build.xml</b></div><div class="codeContent">
+<pre class="code-xml"><span class="code-tag">&lt;?xml version=<span class="code-quote">"1.0"</span>?&gt;</span>
+<span class="code-tag"><span class="code-comment">&lt;!-- build file for building a war --&gt;</span></span>
+
+<span class="code-tag">&lt;project name=<span class="code-quote">"build"</span> default=<span class="code-quote">"war"</span> basedir=<span class="code-quote">"."</span>&gt;</span>
+
+    <span class="code-tag">&lt;property file=<span class="code-quote">"build.properties"</span>/&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"src.dir"</span> value=<span class="code-quote">"src"</span>/&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"dest.dir"</span> value=<span class="code-quote">"bin"</span>/&gt;</span>
+    
+
+      <span class="code-tag">&lt;target name=<span class="code-quote">"compile"</span>&gt;</span>
+         <span class="code-tag">&lt;mkdir dir=<span class="code-quote">"${dest.dir}"</span>/&gt;</span>
+		 <span class="code-tag">&lt;javac srcdir=<span class="code-quote">"${src.dir}"</span> destdir=<span class="code-quote">"${dest.dir}"</span>&gt;</span>
+		 <span class="code-tag">&lt;classpath path=<span class="code-quote">"${java.home}/lib/tools.jar"</span>/&gt;</span>
+		 <span class="code-tag">&lt;classpath path=<span class="code-quote">"${j2ee.home}/lib/j2ee.jar"</span>/&gt;</span>
+		 <span class="code-tag">&lt;/javac&gt;</span>
+      <span class="code-tag">&lt;/target&gt;</span>
+
+    <span class="code-tag">&lt;target name=<span class="code-quote">"war"</span> depends=<span class="code-quote">"compile"</span>&gt;</span>
+      <span class="code-tag">&lt;war destfile=<span class="code-quote">"college_fest.war"</span> webxml=<span class="code-quote">"WEB-INF/web.xml"</span>&gt;</span>
+    	 <span class="code-tag">&lt;zipfileset dir=<span class="code-quote">"jsp"</span> prefix=<span class="code-quote">"jsp"</span>/&gt;</span>   	 
+         <span class="code-tag">&lt;zipfileset dir=<span class="code-quote">"pix"</span> prefix=<span class="code-quote">"pix"</span>/&gt;</span>   	 
+    	 <span class="code-tag">&lt;classes dir=<span class="code-quote">"${dest.dir}"</span>/&gt;</span>    
+      <span class="code-tag">&lt;/war&gt;</span>
+    <span class="code-tag">&lt;/target&gt;</span>
+
+    <span class="code-tag">&lt;target name=<span class="code-quote">"deploy"</span> depends=<span class="code-quote">"war"</span>&gt;</span>
+         <span class="code-tag">&lt;copy file=<span class="code-quote">"college_fest.war"</span> todir=<span class="code-quote">"${jboss.server}/deploy"</span>/&gt;</span>
+    <span class="code-tag">&lt;/target&gt;</span>
+
+    <span class="code-tag">&lt;target name=<span class="code-quote">"undeploy"</span>&gt;</span>
+         <span class="code-tag">&lt;delete file=<span class="code-quote">"${jboss.server}/deploy/college_fest.war"</span>/&gt;</span>
+    <span class="code-tag">&lt;/target&gt;</span>
+<span class="code-tag">&lt;/project&gt;</span></pre>
+</div></div>
+
+<p>The war created by the ant build contains a JBoss specific deployment descriptor, the <b>jboss-web.xml</b> file in the WEB-INF directory of the WAR is shown in the following example.</p>
+
+<div class="code" style="border-style: solid; "><div class="codeHeader" style="border-bottom-style: solid; "><b>JBoss deployment descriptor</b></div><div class="codeContent">
+<pre class="code-xml"><span class="code-tag">&lt;?xml version=<span class="code-quote">"1.0"</span> encoding=<span class="code-quote">"UTF-8"</span>?&gt;</span>
+
+<span class="code-tag">&lt;jboss-web&gt;</span>
+
+    <span class="code-tag">&lt;context-root&gt;</span>college_fest<span class="code-tag">&lt;/context-root&gt;</span>
+    <span class="code-tag">&lt;context-priority-classloader&gt;</span>
+      false
+    <span class="code-tag">&lt;/context-priority-classloader&gt;</span>
+<span class="code-tag">&lt;/jboss-web&gt;</span></pre>
+</div></div>
+
+<p><a href="#JBosstoGeronimo-ServletsandJSPsMigration-top" title="top on JBoss to Geronimo - Servlets and JSPs Migration">Back to Top</a></p>
+
+<h2><a name="JBosstoGeronimo-ServletsandJSPsMigration-Deploythesampleapplication"></a>Deploy the sample application</h2>
+<p>The previous step showed how to deploy the application at build time by specifying a customized jboss-build.xml file. If you used the default build.xml file at build time you still need to deploy the College Fest application manually. To deploy the College Fest application in JBoss, copy the <b>college_fest.war</b> file you just built with Ant to the following directory:</p>
+
+<p>&lt;jboss_home&gt;\server\&lt;your_server_name&gt;\deploy</p>
+
+<p>If JBoss is already started, it will automatically deploy and start the application; otherwise, the application will be deployed and started at the next startup.</p>
+
+<p><a href="#JBosstoGeronimo-ServletsandJSPsMigration-top" title="top on JBoss to Geronimo - Servlets and JSPs Migration">Back to Top</a></p>
+
+<h2><a name="JBosstoGeronimo-ServletsandJSPsMigration-Testingtheapplication"></a>Testing the application <a name="JBosstoGeronimo-ServletsandJSPsMigration-test"></a></h2>
+<p>To test the application, open a Web browser and access the following URL:</p>
+
+<p><a href="http://localhost:8080/college_fest" title="Visit page outside Confluence">&#104;ttp://localhost:8080/college_fest</a></p>
+
+<p>You should see the Welcome screen where you can login with your name and college. When you enter your name a college and click Submit you will see a message at the end on the page stating your name with a link to "Click here" to enter the site. Browse the site and check the options, at this point the College Fest application is configured and running.</p>
+
+<p><a href="#JBosstoGeronimo-ServletsandJSPsMigration-top" title="top on JBoss to Geronimo - Servlets and JSPs Migration">Back to Top</a></p>
+
+<h1><a name="JBosstoGeronimo-ServletsandJSPsMigration-TheGeronimoenvironment"></a>The Geronimo environment <a name="JBosstoGeronimo-ServletsandJSPsMigration-Geronimo"></a></h1>
+<p>Download and install Geronimo from the following URL:</p>
+
+<p><a href="http://geronimo.apache.org/downloads.html" title="Visit page outside Confluence">&#104;ttp://geronimo.apache.org/downloads.html</a></p>
+
+<p>The release notes available there provide clear instructions on system requirements and how to install and start Geronimo.  Throughout the rest of this article we will refer to the Geronimo installation directory as <b>&lt;geronimo_home&gt;</b>.</p>
+
+<table cellpadding='5' width='85%' cellspacing='8px' class='warningMacro' border="0" align='center'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="icons/emoticons/forbidden.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td><b class="strong">TCP/IP ports conflict</b><br />If you are planning to run JBoss and Geronimo on the same machine consider to change the default service ports on, at least, one of these servers.</td></tr></table>
+
+<p><a href="#JBosstoGeronimo-ServletsandJSPsMigration-top" title="top on JBoss to Geronimo - Servlets and JSPs Migration">Back to Top</a></p>
+
+<h1><a name="JBosstoGeronimo-ServletsandJSPsMigration-Stepbystepmigration"></a>Step-by-step migration <a name="JBosstoGeronimo-ServletsandJSPsMigration-migration"></a></h1>
+<p>In order to migrate the College Fest application to Geronimo you need to replace the jboss-web.xml file with a <b>geronimo-web.xml</b> file which is the Geronimo specific descriptor file. The geronimo-web.xml file is located in the WEB-INF directory withing the college_fest directory structure. The Geronimo deployment plan geronimo-web.xml is illustrated in the following example.</p>
+
+<div class="code" style="border-style: solid; "><div class="codeHeader" style="border-bottom-style: solid; "><b>Geronimo deployment plan</b></div><div class="codeContent">
+<pre class="code-xml"><span class="code-tag">&lt;?xml version=<span class="code-quote">"1.0"</span> encoding=<span class="code-quote">"UTF-8"</span>?&gt;</span>
+
+<span class="code-tag">&lt;web-app xmlns=<span class="code-quote">"http://geronimo.apache.org/xml/ns/web"</span> configId=<span class="code-quote">"college_fest"</span> parentId=<span class="code-quote">"org/apache/geronimo/Server"</span>&gt;</span>
+
+    <span class="code-tag">&lt;context-root&gt;</span>college_fest<span class="code-tag">&lt;/context-root&gt;</span>
+    <span class="code-tag">&lt;context-priority-classloader&gt;</span>
+      false
+    <span class="code-tag">&lt;/context-priority-classloader&gt;</span>
+    
+<span class="code-tag">&lt;/web-app&gt;</span></pre>
+</div></div>
+
+<p>Given that College Fest is a very simple application, the Geronimo deployment plan will also be very simple. Remember that this application does not use any database access nor has security configured. While reading other articles in the <b>JBoss to Geronimo</b> migration series, you will notice how the complexity of the deployment plan increases as the sample applications for the different migration scenarios also grow in complexity.</p>
+
+<p>Earlier in this article it was discussed the behavior of the <a href="#JBosstoGeronimo-ServletsandJSPsMigration-deploymentTool" title="deploymentTool on JBoss to Geronimo - Servlets and JSPs Migration">deployment tool</a>. During the deployment process, you provide to the deployment tool the application module and a deployment plan. The College Fest sample application is so simple that you may choose not to provide any deployment plan and let Geronimo do the deployment with a default set of values (a default context root for example).</p>
+
+<p>Last time you built the College Fest sample application it was configured for ant to use the jboss-build.xml file instead of the default build.xml. The following example shows the content of the default build.xml file.</p>
+
+<div class="code" style="border-style: solid; "><div class="codeHeader" style="border-bottom-style: solid; "><b>build.xml</b></div><div class="codeContent">
+<pre class="code-xml"><span class="code-tag">&lt;?xml version=<span class="code-quote">"1.0"</span>?&gt;</span>
+<span class="code-tag"><span class="code-comment">&lt;!-- build file for building a war --&gt;</span></span>
+
+<span class="code-tag">&lt;project name=<span class="code-quote">"build"</span> default=<span class="code-quote">"war"</span> basedir=<span class="code-quote">"."</span>&gt;</span>
+	<span class="code-tag">&lt;property file=<span class="code-quote">"build.properties"</span>/&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"src.dir"</span> value=<span class="code-quote">"src"</span>/&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"dest.dir"</span> value=<span class="code-quote">"bin"</span>/&gt;</span>
+	
+	<span class="code-tag">&lt;target name=<span class="code-quote">"compile"</span>&gt;</span>
+		<span class="code-tag">&lt;mkdir dir=<span class="code-quote">"${dest.dir}"</span>/&gt;</span>
+
+                  <span class="code-tag">&lt;javac srcdir=<span class="code-quote">"${src.dir}"</span> destdir=<span class="code-quote">"${dest.dir}"</span>&gt;</span>
+			<span class="code-tag">&lt;classpath path=<span class="code-quote">"${java.home}/lib/tools.jar"</span>/&gt;</span>
+			<span class="code-tag">&lt;classpath path=<span class="code-quote">"${j2ee.home}/lib/j2ee.jar"</span>/&gt;</span>
+                  <span class="code-tag">&lt;/javac&gt;</span>
+          <span class="code-tag">&lt;/target&gt;</span>
+
+          <span class="code-tag">&lt;target name=<span class="code-quote">"war"</span> depends=<span class="code-quote">"compile"</span>&gt;</span>
+		<span class="code-tag">&lt;war destfile=<span class="code-quote">"college_fest.war"</span> webxml=<span class="code-quote">"WEB-INF/web.xml"</span>&gt;</span>
+			<span class="code-tag">&lt;zipfileset dir=<span class="code-quote">"jsp"</span> prefix=<span class="code-quote">"jsp"</span>/&gt;</span>
+			<span class="code-tag">&lt;zipfileset dir=<span class="code-quote">"pix"</span> prefix=<span class="code-quote">"pix"</span>/&gt;</span>
+			<span class="code-tag">&lt;classes dir=<span class="code-quote">"${dest.dir}"</span>/&gt;</span>
+		<span class="code-tag">&lt;/war&gt;</span>
+	 <span class="code-tag">&lt;/target&gt;</span>
+<span class="code-tag">&lt;/project&gt;</span></pre>
+</div></div>
+
+<p>Open the <b>build.properties</b> file and remove the jboss.server entry, there is no need for adding the directory for the Geronimo server since that information is not needed by the build.xml file that you will be using when running ant.</p>
+
+<p><tt>jboss.server=&lt;jboss_home&gt;/server/&lt;your_server_name&gt;</tt></p>
+
+<p>Run <b>ant</b> from the command line without specifying any additional parameters, a college_fest.war file will be created in the root directory of the College Fest application directory structure.</p>
+
+<p><a href="#JBosstoGeronimo-ServletsandJSPsMigration-top" title="top on JBoss to Geronimo - Servlets and JSPs Migration">Back to Top</a></p>
+
+<h2><a name="JBosstoGeronimo-ServletsandJSPsMigration-Deploythemigratedsampleapplication"></a>Deploy the migrated sample application</h2>
+<p>To deploy the migrated College Fest application, make sure the Geronimo server is up and running. </p>
+
+<p>From a command line, change directory to &lt;geronimo_home&gt; and type the following command:</p>
+
+<p><tt>java -jar bin/deployer.jar --user system --password manager deploy &lt;college_fest_home&gt;/college_fest.war</tt></p>
+
+<p>Once the application is deployed, open a Web browser and access the following URL:</p>
+
+<p><a href="http://localhost:8080/college_fest/welcome" title="Visit page outside Confluence">&#104;ttp://localhost:8080/college_fest/welcome</a></p>
+
+<p>Repeat the steps you did when <a href="#JBosstoGeronimo-ServletsandJSPsMigration-test" title="test on JBoss to Geronimo - Servlets and JSPs Migration">Testing the application</a> on the JBoss environment.</p>
+
+<p><a href="#JBosstoGeronimo-ServletsandJSPsMigration-top" title="top on JBoss to Geronimo - Servlets and JSPs Migration">Back to Top</a></p>
+
+<h1><a name="JBosstoGeronimo-ServletsandJSPsMigration-Summary"></a>Summary <a name="JBosstoGeronimo-ServletsandJSPsMigration-summary"></a></h1>
+<p>This article has shown you how to migrate a simple Servlet and JSPs application, from JBoss to the Apache Geronimo application server. You followed step-by-step instructions to build the application, deploy and run it, and then migrate it to the Geronimo environment.</p>
+
+<p>Some remarks after reading this article:</p>
+<ul>
+	<li>Apache Geronimo provides two different Web containers, Jetty and Apache Tomcat.</li>
+	<li>You learnt that for deploying an application in Geronimo you have to use the deployment tool (deployer.jar).</li>
+	<li>Not always a Geronimo deployment plan is needed, if the application does not use resource references you can accept the deployment defaults from Geronimo.</li>
+</ul>
+
+
+				    					    <br/>
+                        <div class="tabletitle">
+                            <a name="attachments">Attachments:</a>
+                        </div>
+
+                        <div class="greybox" align="left">
+                                                            <img src="icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="JBoss to Geronimo - Servlets and JSPs Migration_attachments/college_fest.zip">college_fest.zip</a> (application/x-zip-compressed)
+                                <br/>
+                                                            <img src="icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="JBoss to Geronimo - Servlets and JSPs Migration_attachments/deployer.jpg">deployer.jpg</a> (image/pjpeg)
+                                <br/>
+                                                            <img src="icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="JBoss to Geronimo - Servlets and JSPs Migration_attachments/webApp_flow.jpg">webApp_flow.jpg</a> (image/pjpeg)
+                                <br/>
+                                                    </div>
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td height="12" background="border/border_bottom.gif"><img src="border/spacer.gif" width="1" height="1" border="0"/></td>
+			</tr>
+		    <tr>
+			    <td align="center"><font color="grey">Document generated by Confluence on Dec 15, 2005 19:14</font></td>
+		    </tr>
+	    </table>
+    </body>
+</html>

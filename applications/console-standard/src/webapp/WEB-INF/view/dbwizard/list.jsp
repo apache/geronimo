@@ -52,13 +52,13 @@
              </c:choose>--%>
       <a href="<portlet:actionURL portletMode="view">
         <portlet:param name="mode" value="editExisting" />
-        <portlet:param name="adapterObjectName" value="${pool.adapterObjectName}" />
-        <portlet:param name="objectName" value="${pool.factoryObjectName}" />
+        <portlet:param name="adapterAbstractName" value="${pool.adapterAbstractName}" />
+        <portlet:param name="abstractName" value="${pool.factoryAbstractName}" />
       </portlet:actionURL>">edit</a>
       <a href="<portlet:actionURL portletMode="view">
         <portlet:param name="mode" value="usage" />
         <portlet:param name="name" value="${pool.name}" />
-        <portlet:param name="objectName" value="${pool.factoryObjectName}" />
+        <portlet:param name="abstractName" value="${pool.factoryAbstractName}" />
       </portlet:actionURL>">usage</a>
            <%--<a href="<portlet:actionURL portletMode="view">
                  <portlet:param name="mode" value="delete" />

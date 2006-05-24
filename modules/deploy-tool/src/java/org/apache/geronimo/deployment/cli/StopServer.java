@@ -32,7 +32,7 @@ import javax.management.remote.JMXServiceURL;
 
 import org.apache.geronimo.deployment.cli.ServerConnection.PasswordPrompt;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.KernelDelegate;
+import org.apache.geronimo.system.jmx.KernelDelegate;
 
 /**
  * @version $Rev$ $Date$

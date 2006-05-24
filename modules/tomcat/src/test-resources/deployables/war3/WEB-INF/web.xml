@@ -38,7 +38,7 @@
         </web-resource-collection>
         <auth-constraint>
             <role-name>content-administrator</role-name>
-            <role-name>auto-administrator</role-name> -->
+            <role-name>auto-administrator</role-name>
         </auth-constraint>
     </security-constraint>
 

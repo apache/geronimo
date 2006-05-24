@@ -68,7 +68,7 @@ public class UnresolvedEJBRefException extends DeploymentException {
         }
         msg.append(" for reference ").append(refName).append(" to a ");
         msg.append((local ? "local " : "remote "));
-        msg.append((session ? "session " : "entity "));
+        msg.append((session ? "session" : "entity"));
 
         msg.append(" bean that has the home interface ").append(homeInterface);
         msg.append(" and the ").append(local ? "local" : "remote");

@@ -17,7 +17,7 @@
 package org.apache.geronimo.jetty.connector;
 
 import org.mortbay.http.SslListener;
-import org.apache.geronimo.security.keystore.KeystoreManager;
+import org.apache.geronimo.management.geronimo.KeystoreManager;
 
 import javax.net.ssl.SSLServerSocketFactory;
 
@@ -37,7 +37,8 @@ public class GeronimoSSLListener extends SslListener {
     }
 
     protected SSLServerSocketFactory createFactory() throws Exception {
-        return manager.createSSLFactory(null, getProtocol(), getAlgorithm(), keyStore, keyAlias, trustStore, SslListener.class.getClassLoader());
+        // we need the server factory version.
+        return manager.createSSLServerFactory(null, getProtocol(), getAlgorithm(), keyStore, keyAlias, trustStore, SslListener.class.getClassLoader());
     }
 
     public String getKeyStore() {

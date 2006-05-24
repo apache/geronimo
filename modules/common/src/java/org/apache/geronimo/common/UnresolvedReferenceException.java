@@ -25,11 +25,13 @@ public class UnresolvedReferenceException extends DeploymentException {
     private String resourceType;
     private boolean multiple;
     private String nameQuery;
+    private final String moduleName;
 
-    public UnresolvedReferenceException(String resourceType, boolean multiple, String nameQuery) {
+    public UnresolvedReferenceException(String resourceType, boolean multiple, String nameQuery, String moduleName) {
         this.resourceType = resourceType;
         this.multiple = multiple;
         this.nameQuery = nameQuery;
+        this.moduleName = moduleName;
     }
 
     public String getResourceType() {
@@ -44,7 +46,11 @@ public class UnresolvedReferenceException extends DeploymentException {
         return nameQuery;
     }
 
+    public String getModuleName() {
+        return moduleName;
+    }
+
     public String getMessage() {
-        return (multiple ? "Ambiguous " : "Unknown ") + resourceType + " reference (query=" + nameQuery + ")";
+        return (multiple ? "Ambiguous " : "Unknown ") + resourceType + " reference (query=" + nameQuery + ") from module: " + moduleName;
     }
 }

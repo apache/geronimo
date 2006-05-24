@@ -1,0 +1,69 @@
+<%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<portlet:defineObjects/>
+<% String dwrForwarderServlet = org.apache.geronimo.console.util.PortletManager.getConsoleFrameworkServletPath(request) + "/../dwr"; %>
+<script type='text/javascript' src='<%= dwrForwarderServlet %>/interface/ProgressMonitor.js'></script>
+<script type='text/javascript' src='<%= dwrForwarderServlet %>/engine.js'></script>
+<script type='text/javascript' src='<%= dwrForwarderServlet %>/util.js'></script>
+
+<script type="text/javascript">
+DWREngine.setErrorHandler(<portlet:namespace/>onError);
+function <portlet:namespace/>refreshProgress()
+{
+    metadata = {};
+    metadata.callback=<portlet:namespace/>updateProgress;
+    metadata.errorHandler=<portlet:namespace/>onError;
+    ProgressMonitor.getProgressInfo(metadata);
+}
+
+function <portlet:namespace/>onError() {
+    DWRUtil.setValue("<portlet:namespace/>ErrorArea", 'I had a problem!');
+}
+
+function <portlet:namespace/>updateProgress(progressInfo)
+{
+    // get the bean values from DWR
+    var progressPercent = progressInfo.progressPercent;
+    var mainMessage = progressInfo.mainMessage;
+    var subMessage = progressInfo.subMessage;
+    var finished = progressInfo.finished;
+
+    // set the bean values in the HTML document
+    if (mainMessage != null) {
+	    document.getElementById('<portlet:namespace/>progressMeterMainMessage').innerHTML = mainMessage;
+    }
+    if (subMessage != null) {
+	    document.getElementById('<portlet:namespace/>progressMeterSubMessage').innerHTML = subMessage;
+    }
+    if (progressPercent > -1) {
+       document.getElementById('<portlet:namespace/>progressMeterShell').style.display = 'block';
+       document.getElementById('<portlet:namespace/>progressMeterBar').style.width = parseInt(progressPercent * 3.5) + 'px';
+    }
+    if(finished) {
+        document.forms['<portlet:namespace/>ContinueForm'].submit();
+    } else {
+        window.setTimeout('<portlet:namespace/>refreshProgress()', 1000);
+    }
+    return true;
+}
+
+function <portlet:namespace/>startProgress()
+{
+    document.getElementById('<portlet:namespace/>progressMeterMainMessage').innerHTML = 'Processing...';
+    document.getElementById('<portlet:namespace/>progressMeter').style.display = 'block';
+    window.setTimeout("<portlet:namespace/>refreshProgress()", 1000);
+    return true;
+}
+</script>
+
+<div id="<portlet:namespace/>progressMeter" style="display: none; padding-top: 5px;">
+    <br/>
+    <div>
+        <div id="<portlet:namespace/>progressMeterMainMessage"></div>
+        <div id="<portlet:namespace/>progressMeterSubMessage"></div>
+        <div id="<portlet:namespace/>progressMeterShell" style="display: none; width: 350px; height: 20px; border: 1px inset; background: #eee;">
+            <div id="<portlet:namespace/>progressMeterBar" style="width: 0; height: 20px; border-right: 1px solid #444; background: #9ACB34;"></div>
+        </div>
+    </div>
+</div>
+
+<div id="<portlet:namespace/>ErrorArea"></div>

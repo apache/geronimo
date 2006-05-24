@@ -5,10 +5,10 @@
 <form name="<portlet:namespace/>" action="<portlet:actionURL/>">
 <input type="hidden" name="mode" value="${mode}">
 <input type="hidden" name="protocol" value="${protocol}">
-<input type="hidden" name="containerObjectName" value="${containerObjectName}">
-<input type="hidden" name="managerObjectName" value="${managerObjectName}">
+<input type="hidden" name="containerURI" value="${containerURI}">
+<input type="hidden" name="managerURI" value="${managerURI}">
 <c:if test="${mode eq 'save'}">
-  <input type="hidden" name="objectName" value="${objectName}">
+  <input type="hidden" name="connectorURI" value="${connectorURI}">
 </c:if>
 <table width="100%%"  border="0">
 
@@ -28,7 +28,7 @@
 <c:if test="${mode eq 'add'}">
   <tr>
     <td><div align="right">Unique Name: </div></td>
-    <td><input name="name" type="text" size="30"></td>
+    <td><input name="displayName" type="text" size="30"></td>
   </tr>
   <tr>
     <td><div align="right"></div></td>

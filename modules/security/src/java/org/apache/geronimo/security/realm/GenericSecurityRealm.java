@@ -34,6 +34,7 @@ import org.apache.geronimo.security.jaas.client.JaasLoginCoordinator;
 import org.apache.geronimo.security.jaas.server.JaasLoginModuleConfiguration;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.LoginModuleControlFlag;
+import org.apache.geronimo.security.jaas.JaasLoginModuleChain;
 import org.apache.geronimo.security.jaas.server.JaasLoginServiceMBean;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
@@ -109,8 +110,8 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
         return config;
     }
 
-    public String getLoginModuleChainName() {
-        return kernel.getObjectNameFor(loginModuleUse).getCanonicalName();
+    public JaasLoginModuleChain getLoginModuleChain() {
+        return loginModuleUse;
     }
 
     /**
@@ -159,9 +160,16 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
     public JaasLoginModuleConfiguration generateConfiguration() {
         Map options = new HashMap();
         options.put(JaasLoginCoordinator.OPTION_REALM, realmName);
-        options.put(JaasLoginCoordinator.OPTION_KERNEL, kernel.getKernelName());
-        if (loginService != null) {
-            options.put(JaasLoginCoordinator.OPTION_SERVICENAME, loginService.getObjectName());
+        if (kernel != null) {
+            options.put(JaasLoginCoordinator.OPTION_KERNEL, kernel.getKernelName());
+            if (loginService != null) {
+                options.put(JaasLoginCoordinator.OPTION_SERVICENAME, loginService.getObjectName());
+            }
+        } else {
+            if (loginService != null) {
+                //this can be used for testing without a kernel.
+                options.put(JaasLoginCoordinator.OPTION_SERVICE_INSTANCE, loginService);
+            }
         }
 
         return new JaasLoginModuleConfiguration(JaasLoginCoordinator.class.getName(), LoginModuleControlFlag.REQUIRED, options, true, realmName, wrapPrincipals, JaasLoginCoordinator.class.getClassLoader());

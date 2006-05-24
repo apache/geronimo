@@ -37,6 +37,9 @@
             <artifactId>geronimo-gbean-deployer</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
+            <properties>
+                <packaging.config.order>1</packaging.config.order>
+            </properties>
         </dependency>
         <!-- parent config -->
         <dependency>
@@ -49,6 +52,14 @@
              </properties>
         </dependency>
 
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-gbean-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+        </dependency>
+
+<!--  Individual Spec references  -->
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-activation_1.0.2_spec</artifactId>
@@ -170,6 +181,8 @@
              </properties>
         </dependency>
 
+
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-management</artifactId>
@@ -189,14 +202,6 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-core</artifactId>
-            <version>${geronimo_version}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-interceptor</artifactId>
             <version>${geronimo_version}</version>
             <properties>
                  <geronimo.dependency>true</geronimo.dependency>
@@ -267,19 +272,11 @@
             <artifactId>geronimo-axis</artifactId>
             <version>${geronimo_version}</version>
         </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-jetty</artifactId>
-            <version>${geronimo_version}</version>
-        </dependency>
 
         <dependency>
             <groupId>concurrent</groupId>
             <artifactId>concurrent</artifactId>
             <version>${concurrent_version}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
         </dependency>
     <!--transaction module requires tranql for cache class -->
 <!-- TODO this is false.  tranql should not be needed here -->
@@ -328,10 +325,11 @@
             <version>${asm_version}</version>
         </dependency>
         <dependency>
-            <groupId>incubator-activemq</groupId>
-            <artifactId>activemq-gbean-management</artifactId>
+            <groupId>activemq</groupId>
+            <artifactId>activemq-gbean-management-g1_1</artifactId>
             <version>${activemq_version}</version>
         </dependency>
+    <!-- remote login -->
         <dependency>
             <groupId>activeio</groupId>
             <artifactId>activeio</artifactId>

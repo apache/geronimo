@@ -25,12 +25,14 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
+import java.util.TreeMap;
+import java.util.Collection;
 
-import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.system.repository.Maven1Repository;
+import org.apache.geronimo.system.repository.Maven2Repository;
+import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
 import org.apache.maven.jelly.MavenJellyContext;
 import org.apache.maven.project.Dependency;
 import org.apache.maven.repository.Artifact;
@@ -42,6 +44,8 @@ import org.apache.maven.repository.Artifact;
  * @version $Rev$ $Date$
  */
 public class PackageBuilderShell {
+    private static final String PACKAGING_CLASSPATH_PROPERTY = "packaging.classpath";
+    private static final String PACKAGING_CONFIG_PROPERTY = "packaging.config.order";
     private static Log log = LogFactory.getLog(PlanProcessor.class);
 
     private List artifacts;
@@ -51,17 +55,21 @@ public class PackageBuilderShell {
     private static ClassLoader classLoader;
 
     private File repository;
-    private String deploymentConfigString;
+    private File targetRepository;
+    private Collection deploymentConfigList;
     private String deployerName;
 
     private File planFile;
     private File moduleFile;
     private File packageFile;
     private String mainClass;
+    private String mainGBean;
+    private String mainMethod;
+    private String configurations;
     private String classPath;
     private String endorsedDirs;
     private String extensionDirs;
-    private static final String PACKAGING_CLASSPATH_PROPERTY = "packaging.classpath";
+    private String explicitResolutionLocation;
     private String logLevel = "INFO";
 
     public File getRepository() {
@@ -77,17 +85,12 @@ public class PackageBuilderShell {
         this.repository = repository;
     }
 
-    public String getDeploymentConfig() {
-        return deploymentConfigString;
+    public File getTargetRepository() {
+        return targetRepository;
     }
 
-    /**
-     * Set the id of the Configuration to use to perform the packaging.
-     *
-     * @param deploymentConfigString comma-separated list of the ids of the Configurations performing the deployment
-     */
-    public void setDeploymentConfig(String deploymentConfigString) {
-        this.deploymentConfigString = deploymentConfigString;
+    public void setTargetRepository(File targetRepository) {
+        this.targetRepository = targetRepository;
     }
 
     public String getDeployerName() {
@@ -155,6 +158,30 @@ public class PackageBuilderShell {
         this.mainClass = mainClass;
     }
 
+    public String getMainGBean() {
+        return mainGBean;
+    }
+
+    public void setMainGBean(String mainGBean) {
+        this.mainGBean = mainGBean;
+    }
+
+    public String getMainMethod() {
+        return mainMethod;
+    }
+
+    public void setMainMethod(String mainMethod) {
+        this.mainMethod = mainMethod;
+    }
+
+    public String getConfigurations() {
+        return configurations;
+    }
+
+    public void setConfigurations(String configurations) {
+        this.configurations = configurations;
+    }
+
     public String getClassPath() {
         return classPath;
     }
@@ -185,6 +212,23 @@ public class PackageBuilderShell {
 
     public void setArtifacts(List artifacts) {
         this.artifacts = artifacts;
+        TreeMap tree = new TreeMap();
+        for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
+            Artifact artifact = (Artifact) iterator.next();
+            Dependency dependency = artifact.getDependency();
+            if (dependency.getProperty(PACKAGING_CONFIG_PROPERTY) != null) {
+                String orderString = dependency.getProperty(PACKAGING_CONFIG_PROPERTY);
+                try {
+                    Integer order = Integer.decode(orderString);
+                    String artifactString = dependency.getGroupId() + "/" + dependency.getArtifactId() + "/" + dependency.getVersion() + "/" + dependency.getType();
+                    tree.put(order, artifactString);
+                } catch(NumberFormatException e) {
+                    System.out.println("Could not interpret order for " + dependency);
+                }
+            }
+        }
+
+        deploymentConfigList = tree.values();
     }
 
     public List getPluginArtifacts() {
@@ -203,6 +247,14 @@ public class PackageBuilderShell {
         this.context = context;
     }
 
+    public String getExplicitResolutionLocation() {
+        return explicitResolutionLocation;
+    }
+
+    public void setExplicitResolutionLocation(String explicitResolutionLocation) {
+        this.explicitResolutionLocation = explicitResolutionLocation;
+    }
+
     public String getLogLevel() {
         return logLevel;
     }
@@ -216,16 +268,23 @@ public class PackageBuilderShell {
             Object packageBuilder = getPackageBuilder();
             set("setClassPath", classPath, String.class, packageBuilder);
             set("setDeployerName", deployerName, String.class, packageBuilder);
-            set("setDeploymentConfig", deploymentConfigString, String.class, packageBuilder);
+            set("setDeploymentConfig", deploymentConfigList, Collection.class, packageBuilder);
             set("setEndorsedDirs", endorsedDirs, String.class, packageBuilder);
             set("setExtensionDirs", extensionDirs, String.class, packageBuilder);
             set("setMainClass", mainClass, String.class, packageBuilder);
+            set("setMainMethod", mainMethod, String.class, packageBuilder);
+            set("setMainGBean", mainGBean, String.class, packageBuilder);
+            set("setConfigurations", configurations, String.class, packageBuilder);
             set("setModuleFile", moduleFile, File.class, packageBuilder);
             set("setPackageFile", packageFile, File.class, packageBuilder);
             set("setPlanFile", planFile, File.class, packageBuilder);
             set("setRepository", repository, File.class, packageBuilder);
-            set("setRepositoryClass", MavenRepository.class.getName(), String.class, packageBuilder);
+            set("setRepositoryClass", Maven1Repository.class.getName(), String.class, packageBuilder);
             set("setConfigurationStoreClass", MavenConfigStore.class.getName(), String.class, packageBuilder);
+            set("setTargetRepository", targetRepository, File.class, packageBuilder);
+            set("setTargetRepositoryClass", Maven2Repository.class.getName(), String.class, packageBuilder);
+            set("setTargetConfigurationStoreClass", RepositoryConfigurationStore.class.getName(), String.class, packageBuilder);
+            set("setExplicitResolutionLocation", explicitResolutionLocation, String.class, packageBuilder);
             set("setLogLevel", logLevel, String.class, packageBuilder);
 
             Method m = packageBuilder.getClass().getMethod("execute", new Class[]{});
@@ -248,17 +307,18 @@ public class PackageBuilderShell {
             List urls = new ArrayList();
             for (Iterator iterator = pluginArtifacts.iterator(); iterator.hasNext();) {
                 Artifact artifact = (Artifact) iterator.next();
-                Dependency dependency = (Dependency) artifact.getDependency();
+                Dependency dependency = artifact.getDependency();
                 if ("true".equals(dependency.getProperty(PACKAGING_CLASSPATH_PROPERTY))) {
                     String urlString = artifact.getUrlPath();
                     URL url = new File(repo + urlString).toURL();
                     urls.add(url);
                 }
             }
+
             boolean found = false;
             for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
                 Artifact artifact = (Artifact) iterator.next();
-                Dependency dependency = (Dependency) artifact.getDependency();
+                Dependency dependency = artifact.getDependency();
                 if ("geronimo".equals(dependency.getGroupId())
                 && "geronimo-packaging-plugin".equals(dependency.getArtifactId())
                 && "plugin".equals(dependency.getType())) {

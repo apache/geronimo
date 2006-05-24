@@ -16,18 +16,20 @@
  */
 package org.apache.geronimo.plugin.packaging;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.Collection;
-import java.util.Set;
-import javax.management.ObjectName;
-
 import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GReferenceInfo;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.config.ManageableAttributeStore;
+import org.apache.geronimo.kernel.repository.Artifact;
+
+import javax.management.ObjectName;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Set;
 
 /**
  * @version $Rev$ $Date$
@@ -36,23 +38,20 @@ public class MavenAttributeStore implements ManageableAttributeStore {
     public MavenAttributeStore() {
     }
 
-    public Collection setAttributes(URI configurationName, Collection datas, ClassLoader classLoader) {
+    public Collection applyOverrides(Artifact configurationName, Collection datas, ClassLoader classLoader) {
         return datas;
     }
 
-    public void setValue(String configurationName, ObjectName gbean, GAttributeInfo attribute, Object value) {
+    public void setValue(Artifact configurationName, AbstractName gbean, GAttributeInfo attribute, Object value) {
     }
 
-    public void setReferencePattern(String configurationName, ObjectName gbean, GReferenceInfo reference, ObjectName pattern) {
+    public void setReferencePatterns(Artifact configurationName, AbstractName gbean, GReferenceInfo reference, ReferencePatterns patterns) {
     }
 
-    public void setReferencePatterns(String configurationName, ObjectName gbean, GReferenceInfo reference, Set patterns) {
+    public void setShouldLoad(Artifact configurationName, AbstractName gbean, boolean load) {
     }
 
-    public void setShouldLoad(String configurationName, ObjectName gbean, boolean load) {
-    }
-
-    public void addGBean(String configurationName, GBeanData gbeanData) {
+    public void addGBean(Artifact configurationName, GBeanData gbeanData) {
     }
 
     public void save() throws IOException {

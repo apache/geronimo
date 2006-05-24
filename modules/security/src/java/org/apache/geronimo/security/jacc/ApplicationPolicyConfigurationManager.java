@@ -62,7 +62,7 @@ public class ApplicationPolicyConfigurationManager implements GBeanLifecycle, Ro
             String contextID = (String) entry.getKey();
             ComponentPermissions componentPermissions = (ComponentPermissions) entry.getValue();
 
-            PolicyConfiguration policyConfiguration = policyConfigurationFactory.getPolicyConfiguration(contextID, true);
+            PolicyConfiguration policyConfiguration = policyConfigurationFactory.getPolicyConfiguration(contextID, false);
             contextIdToPolicyConfigurationMap.put(contextID, policyConfiguration);
             policyConfiguration.addToExcludedPolicy(componentPermissions.getExcludedPermissions());
             policyConfiguration.addToUncheckedPolicy(componentPermissions.getUncheckedPermissions());
@@ -155,7 +155,7 @@ public class ApplicationPolicyConfigurationManager implements GBeanLifecycle, Ro
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
-    public GBeanInfo getGBeanInfo() {
+    public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
 }

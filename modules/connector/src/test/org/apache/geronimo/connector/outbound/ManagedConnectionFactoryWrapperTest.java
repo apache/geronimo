@@ -22,8 +22,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.Collections;
-import javax.management.ObjectName;
+import java.util.HashMap;
+import java.util.Map;
 import javax.resource.cci.Connection;
 import javax.resource.cci.ConnectionFactory;
 
@@ -35,24 +35,21 @@ import org.apache.geronimo.connector.mock.MockManagedConnectionFactory;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoPool;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoTransactions;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 386505 $ $Date$
  */
 public class ManagedConnectionFactoryWrapperTest extends TestCase {
 
     private Kernel kernel;
-    private ObjectName managedConnectionFactoryName;
-    private ObjectName ctcName;
-    private ObjectName cmfName;
+    private AbstractName managedConnectionFactoryName;
     private static final String KERNEL_NAME = "testKernel";
     private static final String TARGET_NAME = "testCFName";
 
@@ -104,32 +101,33 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
+        super.setUp();
         kernel = KernelFactory.newInstance().createKernel(KERNEL_NAME);
         kernel.boot();
         ClassLoader cl = MockConnectionTrackingCoordinator.class.getClassLoader();
-        ctcName = ObjectName.getInstance("test:role=ConnectionTrackingCoordinator");
-        GBeanData ctc = new GBeanData(ctcName, MockConnectionTrackingCoordinator.getGBeanInfo());
+
+        GBeanData ctc = buildGBeanData("name", "ConnectionTrackingCoordinator", MockConnectionTrackingCoordinator.getGBeanInfo());
+        AbstractName ctcName = ctc.getAbstractName();
         kernel.loadGBean(ctc, cl);
 
-        cmfName = ObjectName.getInstance("test:role=ConnectionManagerContainer");
-        GBeanData cmf = new GBeanData(cmfName, GenericConnectionManagerGBean.getGBeanInfo());
+        GBeanData cmf = buildGBeanData("name", "ConnectionManagerContainer", GenericConnectionManagerGBean.getGBeanInfo());
+        AbstractName cmfName = cmf.getAbstractName();
         cmf.setAttribute("transactionSupport", NoTransactions.INSTANCE);
         cmf.setAttribute("pooling", new NoPool());
-        cmf.setReferencePatterns("ConnectionTracker", Collections.singleton(ctcName));
+        cmf.setReferencePattern("ConnectionTracker", ctcName);
         kernel.loadGBean(cmf, cl);
 
-        J2eeContext j2eeContext = new J2eeContextImpl("test.domain", "geronimo", "testapplication", "noModuleType", "testmodule", TARGET_NAME, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
-        managedConnectionFactoryName = NameFactory.getComponentName(null, null, null, NameFactory.JCA_RESOURCE, null, null, null, j2eeContext);
 
-        GBeanData mcfw = new GBeanData(managedConnectionFactoryName, ManagedConnectionFactoryWrapperGBean.getGBeanInfo());
+        GBeanData mcfw = buildGBeanData("name", TARGET_NAME, ManagedConnectionFactoryWrapperGBean.getGBeanInfo());
+        managedConnectionFactoryName = mcfw.getAbstractName();
         mcfw.setAttribute("managedConnectionFactoryClass", MockManagedConnectionFactory.class.getName());
         mcfw.setAttribute("connectionFactoryInterface", ConnectionFactory.class.getName());
-        mcfw.setAttribute("implementedInterfaces", new String[] {Serializable.class.getName(), ConnectionFactoryExtension.class.getName()});
+        mcfw.setAttribute("implementedInterfaces", new String[]{Serializable.class.getName(), ConnectionFactoryExtension.class.getName()});
         mcfw.setAttribute("connectionFactoryImplClass", MockConnectionFactory.class.getName());
         mcfw.setAttribute("connectionInterface", Connection.class.getName());
         mcfw.setAttribute("connectionImplClass", MockConnection.class.getName());
         //"ResourceAdapterWrapper",
-        mcfw.setReferencePatterns("ConnectionManagerContainer", Collections.singleton(cmfName));
+        mcfw.setReferencePattern("ConnectionManagerContainer", cmfName);
         //"ManagedConnectionFactoryListener",
         kernel.loadGBean(mcfw, cl);
 
@@ -137,19 +135,31 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
         kernel.startGBean(cmfName);
         kernel.startGBean(managedConnectionFactoryName);
     }
+    private GBeanData buildGBeanData(String key, String value, GBeanInfo info) {
+        AbstractName abstractName = buildAbstractName(key, value);
+        return new GBeanData(abstractName, info);
+    }
+
+    private AbstractName buildAbstractName(String key, String value) {
+        Map names = new HashMap();
+        names.put(key, value);
+        return new AbstractName(new Artifact("test", "foo", "1", "car"), names);
+    }
+
 
     protected void tearDown() throws Exception {
         kernel.stopGBean(managedConnectionFactoryName);
         kernel.shutdown();
+        super.tearDown();
     }
 
     public static class MockConnectionTrackingCoordinator implements ConnectionTracker {
         public void handleObtained(ConnectionTrackingInterceptor connectionTrackingInterceptor,
-                ConnectionInfo connectionInfo) {
+                                   ConnectionInfo connectionInfo) {
         }
 
         public void handleReleased(ConnectionTrackingInterceptor connectionTrackingInterceptor,
-                ConnectionInfo connectionInfo) {
+                                   ConnectionInfo connectionInfo) {
         }
 
         public void setEnvironment(ConnectionInfo connectionInfo, String key) {

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<geronimo-plugin xmlns="http://geronimo.apache.org/xml/ns/plugins-1.1">
+<name>Geronimo Admin Console (Jetty)</name>
+<module-id>${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car</module-id>
+<category>Core Geronimo</category>
+<description>The web-based administration console for Geronimo.  You can
+reach it via HTTP at /console and use it to configure the Geronimo
+installation as well as services like JDBC connection pools, JMS resources,
+security realms, keystores, etc.  It provides simple statistics on the
+running Geronimo server, as well as letting you review and deploy applications
+and plugins.</description>
+<url>http://geronimo.apache.org/</url>
+<author>The Apache Geronimo development community</author>
+<license osi-approved="true">BSD -- Apache Software License (ASL) 2.0</license>
+<geronimo-version>${pom.currentVersion}</geronimo-version>
+<prerequisite>
+<id>geronimo/jetty//car</id>
+<resource-type>Web Container</resource-type>
+<description>This version of the admin console works with the Geronimo/Jetty distribution.
+It is not intended to run in the Geronimo/Tomcat distribution.  There is a separate version
+of the admin console that works with Tomcat.  Please install the version appropriate to
+your Geronimo distribution.</description>
+</prerequisite>
+<dependency>geronimo/j2ee-server//car</dependency>
+<dependency>geronimo/j2ee-security//car</dependency>
+<dependency>portlet-api/portlet-api/1.0/jar</dependency>
+<dependency>org.apache.pluto/pluto/1.0.1/jar</dependency>
+<dependency>geronimo/geronimo-console-core//jar</dependency>
+<dependency>geronimo/geronimo-management//jar</dependency>
+<dependency>geronimo/geronimo-test-ddbean//jar</dependency>
+<dependency>geronimo/geronimo-deploy-jsr88//jar</dependency>
+<dependency>geronimo/geronimo-deploy-config//jar</dependency>
+<dependency>geronimo/geronimo-service-builder//jar</dependency>
+<dependency>geronimo/geronimo-connector-builder//jar</dependency>
+<dependency>geronimo/geronimo-naming-builder//jar</dependency>
+<dependency>geronimo/geronimo-security-builder//jar</dependency>
+<dependency>geronimo/geronimo-j2ee-schema//jar</dependency>
+<dependency>xmlbeans/xbean/2.0.0/jar</dependency>
+<dependency>stax/stax-api/1.0/jar</dependency>
+<dependency>activemq/activemq-gbean-management/3.2.4-SNAPSHOT/jar</dependency>
+<dependency>activemq/activemq-gbean/3.2.4-SNAPSHOT/jar</dependency>
+<dependency>activemq/activemq-core/3.2.4-SNAPSHOT/jar</dependency>
+<dependency>geronimo/geronimo-converter//jar</dependency>
+<dependency>geronimo/geronimo-util//jar</dependency>
+<source-repository>http://www.geronimoplugins.com/repository/geronimo-1.1/</source-repository>
+<source-repository>http://www.ibiblio.org/maven2/</source-repository>
+</geronimo-plugin>

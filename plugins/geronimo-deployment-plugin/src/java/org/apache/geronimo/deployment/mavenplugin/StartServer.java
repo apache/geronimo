@@ -18,23 +18,20 @@
 package org.apache.geronimo.deployment.mavenplugin;
 
 import java.io.File;
-import java.io.ObjectInputStream;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
-import javax.management.ObjectName;
 
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
  *
@@ -95,39 +92,22 @@ public class StartServer {
         File root = new File(getGeronimoHome());
         URL systemURL = new File(root, "bin/server.jar").toURL();
         URL configURL = new URL("jar:" + systemURL.toString() + "!/META-INF/config.ser");
-        GBeanData configuration = new GBeanData();
-        ObjectInputStream ois = new ObjectInputStream(configURL.openStream());
-        try {
-            configuration.readExternal(ois);
-        } finally {
-            ois.close();
-        }
-        URI configurationId = (URI) configuration.getAttribute("id");
-        ObjectName configName = Configuration.getConfigurationObjectName(configurationId);
-        configuration.setName(configName);
-        configuration.setAttribute("baseURL", systemURL);
+        InputStream in = configURL.openStream();
 
         // build a basic kernel without a configuration-store, our configuration store is
         Kernel kernel = KernelFactory.newInstance().createKernel(getKernelName());
         kernel.boot();
 
-        kernel.loadGBean(configuration, this.getClass().getClassLoader());
-        kernel.startGBean(configName);
-        kernel.invoke(configName, "loadGBeans", new Object[] {null}, new String[] {ManageableAttributeStore.class.getName()});
-        kernel.invoke(configName, "startRecursiveGBeans");
+        ConfigurationUtil.loadBootstrapConfiguration(kernel, in, this.getClass().getClassLoader());
 
         // load the rest of the configuration listed on the command line
         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
         try {
             for (Iterator i = configList.iterator(); i.hasNext();) {
-                URI configID = (URI) i.next();
-                List list = configurationManager.loadRecursive(configID);
-                for (Iterator iterator = list.iterator(); iterator.hasNext();) {
-                    URI name = (URI) iterator.next();
-                    configurationManager.loadGBeans(name);
-                    configurationManager.start(name);
-                    System.out.println("started gbean: " + name);
-                }
+                Artifact configID = (Artifact) i.next();
+                configurationManager.loadConfiguration(configID);
+                configurationManager.startConfiguration(configID);
+                System.out.println("started gbean: " + configID);
             }
         } finally {
             ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);

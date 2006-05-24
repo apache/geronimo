@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.management.geronimo;
 
+import org.apache.geronimo.gbean.AbstractName;
+
 /**
  * Base management interface for a network technology with associated
  * containers and connectors.  Examples might be Web, EJB, JMS (all
@@ -28,9 +30,14 @@ package org.apache.geronimo.management.geronimo;
  */
 public interface NetworkManager {
     /**
-     * Gets the network containers.
+     * Gets the name of the product that this manager manages.
      */
-    public String[] getContainers();
+    public String getProductName();
+
+    /**
+     * Gets the network containers (web, EJB, JMS, etc.)
+     */
+    public Object[] getContainers();
 
     /**
      * Gets the protocols which this container can configure connectors for.
@@ -41,34 +48,37 @@ public interface NetworkManager {
      * Removes a connector.  This shuts it down if necessary, and removes it
      * from the server environment.  It must be a connector that uses this
      * network technology.
+     * @param connectorName
      */
-    public void removeConnector(String objectName);
+    public void removeConnector(AbstractName connectorName);
 
     /**
-     * Gets the ObjectNames of any existing connectors for this network
+     * Gets any existing connectors for this network
      * technology for the specified protocol.
      *
      * @param protocol A protocol as returned by getSupportedProtocols
      */
-    public String[] getConnectors(String protocol);
+    public NetworkConnector[] getConnectors(String protocol);
 
     /**
-     * Gets the ObjectNames of any existing connectors associated with this
+     * Gets any existing connectors associated with this
      * network technology.
      */
-    public String[] getConnectors();
+    public NetworkConnector[] getConnectors();
 
     /**
      * Gets the ObjectNames of any existing connectors for the specified
      * container for the specified protocol.
      *
+     * @param container The container to get connectors for
      * @param protocol A protocol as returned by getSupportedProtocols
      */
-    public String[] getConnectorsForContainer(String containerObjectName, String protocol);
+    public NetworkConnector[] getConnectorsForContainer(Object container, String protocol);
 
     /**
      * Gets the ObjectNames of any existing connectors for the specified
      * container.
+     * @param container The container to get connectors for
      */
-    public String[] getConnectorsForContainer(String containerObjectName);
+    public NetworkConnector[] getConnectorsForContainer(Object container);
 }

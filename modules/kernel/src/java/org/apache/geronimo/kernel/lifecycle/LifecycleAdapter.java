@@ -16,30 +16,30 @@
  */
 package org.apache.geronimo.kernel.lifecycle;
 
-import javax.management.ObjectName;
+import org.apache.geronimo.gbean.AbstractName;
 
 /**
  * @version $Rev$ $Date$
  */
 public class LifecycleAdapter implements LifecycleListener {
-    public void loaded(ObjectName objectName) {
+    public void loaded(AbstractName abstractName) {
     }
 
-    public void starting(ObjectName objectName) {
+    public void starting(AbstractName abstractName) {
     }
 
-    public void running(ObjectName objectName) {
+    public void running(AbstractName abstractName) {
     }
 
-    public void stopping(ObjectName objectName) {
+    public void stopping(AbstractName abstractName) {
     }
 
-    public void stopped(ObjectName objectName) {
+    public void stopped(AbstractName abstractName) {
     }
 
-    public void failed(ObjectName objectName) {
+    public void failed(AbstractName abstractName) {
     }
 
-    public void unloaded(ObjectName objectName) {
+    public void unloaded(AbstractName abstractName) {
     }
 }

@@ -16,6 +16,18 @@
  */
 package org.apache.geronimo.management.geronimo;
 
+import org.apache.geronimo.management.J2EEDeployedObject;
+import org.apache.geronimo.management.J2EEResource;
+import org.apache.geronimo.management.AppClientModule;
+import org.apache.geronimo.management.EJBModule;
+import org.apache.geronimo.kernel.repository.ListableRepository;
+import org.apache.geronimo.kernel.repository.WritableListableRepository;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.system.threads.ThreadPool;
+import org.apache.geronimo.system.plugin.PluginInstaller;
+import org.apache.geronimo.system.plugin.PluginRepositoryList;
+
 /**
  * Geronimo-specific extensions to the standard J2EE server management
  * interface.
@@ -24,98 +36,116 @@ package org.apache.geronimo.management.geronimo;
  */
 public interface J2EEServer extends org.apache.geronimo.management.J2EEServer {
     /**
-     * Gets the ObjectName of the Web Container associated with this
-     * J2EEServer, or null if there is none in the current server
-     * configuration.
-     *
-     * @return The ObjectName of the web container, in String form.
+     * A list of all of the J2EEApplication and J2EEModule types deployed on this J2EEServer.
+     * @see "JSR77.3.3.1.1"
+     * @return the deployed objects on this server
      */
-    public String[] getWebManagers();
+    J2EEDeployedObject[] getDeployedObjectInstances();
 
     /**
-     * Gets the ObjectName of the EJB Container associated with this
-     * J2EEServer, or null if there is none in the current server
-     * configuration.
-     *
-     * @return The ObjectName of the EJB container, in String form.
+     * A list of resources available to this server.
+     * @see "JSR77.3.3.1.2"
+     * @return the resources available to this server
      */
-    public String[] getEJBManagers();
+    J2EEResource[] getResourceInstances();
 
     /**
-     * Gets the ObjectName of the JMS Manager associated with this
-     * J2EEServer, or null if there is none in the current server
-     * configuration.
-     *
-     * @return The ObjectName of the JMS Manager, in String form.
+     * A list of all Java virtual machines on which this J2EEServer has running threads.
+     * @see "JSR77.3.3.1.3"
+     * @return the JVMs for this server
      */
-    public String[] getJMSManagers();
+    JVM[] getJavaVMInstances();
 
     /**
-     * Gets the ObjectNames of the thread pools associated with this
-     * J2EEServer.
-     *
-     * @return The ObjectNames of the thread pools, in String form.
+     * Gets the Web Managers associated with this J2EEServer, or null if
+     * there are none in the current server configuration.
      */
-    public String[] getThreadPools();
+    public WebManager[] getWebManagers();
 
     /**
-     * Gets the ObjectNames of the Repositories associated with this
-     * J2EEServer.
-     *
-     * @see org.apache.geronimo.kernel.repository.Repository
-     *
-     * @return The ObjectNames of the repositories, in String form.
+     * Gets the EJB Managers associated with this J2EEServer, or null if
+     * there are none in the current server configuration.
      */
-    public String[] getRepositories();
+    public EJBManager[] getEJBManagers();
 
     /**
-     * Gets the ObjectNames of the SecurityRealms associated with this
-     * J2EEServer.
-     *
-     * @see org.apache.geronimo.security.realm.SecurityRealm
-     *
-     * @return The ObjectNames of the realms, in String form.
+     * Gets the JMS Managers associated with this J2EEServer, or null if
+     * there are none in the current server configuration.
      */
-    public String[] getSecurityRealms();
+    public JMSManager[] getJMSManagers();
 
     /**
-     * Gets the ObjectName of the ServerInfo associated with this
-     * J2EEServer.
-     *
-     * @see org.apache.geronimo.system.serverinfo.ServerInfo
-     *
-     * @return The ObjectName of the ServerInfo, in String form.
+     * Gets the thread pools associated with this J2EEServer.
      */
-    public String getServerInfo();
+    public ThreadPool[] getThreadPools();
 
     /**
-     * Gets the ObjectName of the LoginService associated with this
-     * J2EEServer.
-     *
-     * @see org.apache.geronimo.security.jaas.server.JaasLoginServiceMBean
-     *
-     * @return The ObjectName of the LoginService, in String form.
+     * Gets the Repositories associated with this J2EEServer.
      */
-    public String getLoginService();
+    public ListableRepository[] getRepositories();
 
     /**
-     * Gets the ObjectName of the KeystoreManager associated with this
-     * J2EEServer.
-     *
-     * @see org.apache.geronimo.security.keystore.KeystoreManager
-     *
-     * @return The ObjectName of the KeystoreManager, in String form.
+     * Gets the writable repositories associated with this J2EEServer.
      */
-    public String getKeystoreManager();
+    public WritableListableRepository[] getWritableRepositories();
 
     /**
-     * Gets the ObjectName of the ConfigurationInstaller associated with this
-     * J2EEServer.
-     *
-     * @see org.apache.geronimo.system.configuration.ConfigurationInstaller
-     *
-     * @return The ObjectName of the ConfigurationInstaller, in String form.
+     * Gets the SecurityRealms associated with this J2EEServer.
      */
-    public String getConfigurationInstaller();
+    public SecurityRealm[] getSecurityRealms();
 
+    /**
+     * Gets the ServerInfo associated with this J2EEServer.
+     */
+    public ServerInfo getServerInfo();
+
+    /**
+     * Gets the LoginService associated with this J2EEServer.
+     */
+    public LoginService getLoginService();
+
+    /**
+     * Gets the KeystoreManager associated with this J2EEServer.
+     */
+    public KeystoreManager getKeystoreManager();
+
+    /**
+     * Gets the lists of plugin repositories available in this server.
+     */
+    public PluginRepositoryList[] getPluginRepositoryLists();
+
+    /**
+     * Gets the PluginInstaller associated with this J2EEServer.
+     */
+    public PluginInstaller getPluginInstaller();
+
+    /**
+     * Gets the ConfigurationManager associated with this J2EEServer.
+     */
+    public ConfigurationManager getConfigurationManager();
+
+    /**
+     * Gets the applications currently running in this J2EEServer.
+     */
+    J2EEApplication[] getApplications();
+
+    /**
+     * Gets the application clients currently running in this J2EEServer.
+     */
+    AppClientModule[] getAppClients();
+
+    /**
+     * Gets the web modules currently running in this J2EEServer.
+     */
+    WebModule[] getWebModules();
+
+    /**
+     * Gets the EJB modules currently running in this J2EEServer.
+     */
+    EJBModule[] getEJBModules();
+
+    /**
+     * Gets the J2EE Connector modules currently running in this J2EEServer.
+     */
+    ResourceAdapterModule[] getResourceAdapterModules();
 }

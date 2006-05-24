@@ -17,7 +17,8 @@
 package org.apache.geronimo.console.jmsmanager.server;
 
 import java.io.IOException;
-import java.util.Map;
+import java.util.List;
+import java.net.URI;
 import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -27,6 +28,8 @@ import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 import javax.portlet.PortletConfig;
 import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.management.geronimo.JMSManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -47,17 +50,17 @@ public class JMSBrokerPortlet extends BaseJMSPortlet {
                               ActionResponse actionResponse) throws PortletException, IOException {
         try {
             String mode = actionRequest.getParameter("mode");
-            String name = actionRequest.getParameter("objectName");
+            String brokerURI = actionRequest.getParameter("brokerURI");
             if(mode.equals("start")) {
                 try {
                     //todo: this only goes into the "starting" state, doesn't make it to "running" -- what's up with that?
-                    PortletManager.getManagedBean(actionRequest, name).startRecursive();
+                    PortletManager.getManagedBean(actionRequest, new AbstractName(URI.create(brokerURI))).startRecursive();
                 } catch (Exception e) {
                     throw new PortletException(e);
                 }
             } else if(mode.equals("stop")) {
                 try {
-                    PortletManager.getManagedBean(actionRequest, name).stop();
+                    PortletManager.getManagedBean(actionRequest,  new AbstractName(URI.create(brokerURI))).stop();
                 } catch (Exception e) {
                     throw new PortletException(e);
                 }
@@ -83,9 +86,9 @@ public class JMSBrokerPortlet extends BaseJMSPortlet {
             if (WindowState.MINIMIZED.equals(renderRequest.getWindowState())) {
                 return;
             }
-            String managerName = PortletManager.getJMSManagerNames(renderRequest)[0];  //todo: handle multiple
-            Map map = getBrokerMap(renderRequest, managerName);
-            renderRequest.setAttribute("brokers", map.entrySet());
+            JMSManager manager = PortletManager.getCurrentServer(renderRequest).getJMSManagers()[0];  //todo: handle multiple
+            List beans = getBrokerList(renderRequest, manager);
+            renderRequest.setAttribute("brokers", beans);
             if (WindowState.NORMAL.equals(renderRequest.getWindowState())) {
                 normalView.include(renderRequest, renderResponse);
             } else {

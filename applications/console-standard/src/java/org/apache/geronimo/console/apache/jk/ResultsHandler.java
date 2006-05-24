@@ -16,19 +16,16 @@
  */
 package org.apache.geronimo.console.apache.jk;
 
-import org.apache.geronimo.console.MultiPageModel;
-import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.kernel.config.ConfigurationInfo;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.management.geronimo.WebManager;
-
+import java.io.IOException;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
-import java.io.IOException;
-import java.util.List;
+import org.apache.geronimo.console.MultiPageModel;
+import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.management.geronimo.NetworkConnector;
+import org.apache.geronimo.management.geronimo.WebManager;
 
 /**
  * Handler for the screen where you select the webapps to expose through Apache
@@ -55,9 +52,9 @@ public class ResultsHandler extends BaseApacheHandler {
             // See if any AJP listeners are defined
             for (int i = 0; i < managers.length; i++) {
                 WebManager manager = managers[i];
-                String[] connectors = manager.getConnectors(WebManager.PROTOCOL_AJP);
+                NetworkConnector[] connectors = manager.getConnectors(WebManager.PROTOCOL_AJP);
                 if(connectors.length > 0) {
-                    port = Integer.toString(PortletManager.getWebConnector(request, connectors[0]).getPort());
+                    port = Integer.toString(connectors[0].getPort());
                     break;
                 }
             }

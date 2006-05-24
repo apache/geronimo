@@ -21,46 +21,60 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.FileWriter;
+import java.io.Writer;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.Arrays;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
 
 /**
  * @version $Rev$ $Date$
  */
 public final class ExecutableConfigurationUtil {
+    private static final String META_INF = "META-INF";
+    private static final String CONFIG_SER = "config.ser";
+    private static final String CONFIG_INFO = "config.info";
+    private static final String META_INF_STARTUP_JAR = META_INF + "/startup-jar";
+    private static final String META_INF_CONFIG_SER = META_INF + "/" + CONFIG_SER;
+    private static final String META_INF_CONFIG_SER_SHA1 = META_INF_CONFIG_SER + ".sha1";
+    private static final String META_INF_CONFIG_INFO = META_INF + "/" + CONFIG_INFO;
+
+    private static final Collection EXCLUDED = Arrays.asList(new String[] {META_INF_STARTUP_JAR, META_INF_CONFIG_SER, META_INF_CONFIG_SER_SHA1, META_INF_CONFIG_INFO});
+
     private ExecutableConfigurationUtil() {
     }
 
-    public static void createExecutableConfiguration(ConfigurationData configurationData, Manifest manifest, File configurationDir, File destinationFile) throws IOException, InvalidConfigException {
+    public static void createExecutableConfiguration(ConfigurationData configurationData, Manifest manifest, File destinationFile) throws IOException {
+        File configurationDir = configurationData.getConfigurationDir();
+        
+        // ensure parent directories have been created
+        File parent = destinationFile.getParentFile();
+        if (parent != null && !parent.exists()) parent.mkdirs();
+        
         JarOutputStream out = null;
         try {
             byte[] buffer = new byte[4096];
 
             if (manifest != null) {
-                out = new JarOutputStream(new FileOutputStream(destinationFile), manifest);
+                out = new JarOutputStream(new FileOutputStream(destinationFile, false), manifest);
 
                 // add the startup file which allows us to locate the startup directory
-                out.putNextEntry(new ZipEntry("META-INF/startup-jar"));
+                out.putNextEntry(new ZipEntry(META_INF_STARTUP_JAR));
                 out.closeEntry();
             } else {
-                out = new JarOutputStream(new FileOutputStream(destinationFile));
+                out = new JarOutputStream(new FileOutputStream(destinationFile, false));
             }
 
             // write the configurationData
@@ -71,19 +85,21 @@ public final class ExecutableConfigurationUtil {
             for (Iterator iterator = files.iterator(); iterator.hasNext();) {
                 File file = (File) iterator.next();
                 String relativePath = baseURI.relativize(file.toURI()).getPath();
-                InputStream in = new FileInputStream(file);
-                try {
-                    out.putNextEntry(new ZipEntry(relativePath));
+                if (!EXCLUDED.contains(relativePath)) {
+                    InputStream in = new FileInputStream(file);
                     try {
-                        int count;
-                        while ((count = in.read(buffer)) > 0) {
-                            out.write(buffer, 0, count);
+                        out.putNextEntry(new ZipEntry(relativePath));
+                        try {
+                            int count;
+                            while ((count = in.read(buffer)) > 0) {
+                                out.write(buffer, 0, count);
+                            }
+                        } finally {
+                            out.closeEntry();
                         }
                     } finally {
-                        out.closeEntry();
+                        close(in);
                     }
-                } finally {
-                    close(in);
                 }
             }
         } finally {
@@ -91,91 +107,62 @@ public final class ExecutableConfigurationUtil {
         }
     }
 
-    public static void writeConfiguration(ConfigurationData configurationData, JarOutputStream out) throws IOException, InvalidConfigException {
-
-        // convert the configuration data to a gbeandata object
-        GBeanData configurationGBeanData = ExecutableConfigurationUtil.getConfigurationGBeanData(configurationData);
-
+    public static void writeConfiguration(ConfigurationData configurationData, JarOutputStream out) throws IOException {
         // save the persisted form in the source directory
-        out.putNextEntry(new ZipEntry("META-INF/config.ser"));
-        ObjectOutputStream objectOutputStream = null;
+        out.putNextEntry(new ZipEntry(META_INF_CONFIG_SER));
+        ConfigurationStoreUtil.ChecksumOutputStream sumOut = new ConfigurationStoreUtil.ChecksumOutputStream(out);
         try {
-            objectOutputStream = new ObjectOutputStream(out);
-            configurationGBeanData.writeExternal(objectOutputStream);
-        } catch (IOException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new InvalidConfigException("Unable to save configuration state", e);
+            ConfigurationUtil.writeConfigurationData(configurationData, sumOut);
         } finally {
-            if (objectOutputStream != null) {
-                try {
-                    objectOutputStream.flush();
-                } catch (IOException ignored) {
-                }
-            }
+            out.closeEntry();
+        }
+
+        // write the checksum file
+        out.putNextEntry(new ZipEntry(META_INF_CONFIG_SER_SHA1));
+        try {
+            OutputStreamWriter writer = new OutputStreamWriter(out);
+            writer.write(sumOut.getChecksum());
+            writer.flush();
+        } finally {
+            out.closeEntry();
+        }
+
+        // write the info file
+        out.putNextEntry(new ZipEntry(META_INF_CONFIG_INFO));
+        try {
+            PrintWriter writer = new PrintWriter(new OutputStreamWriter(out));
+            ConfigurationUtil.writeConfigInfo(writer, configurationData);
+            writer.flush();
+        } finally {
             out.closeEntry();
         }
     }
 
-    public static void writeConfiguration(ConfigurationData configurationData, File source) throws InvalidConfigException, IOException {
-        // convert the configuration data to a gbeandata object
-        GBeanData configurationGBeanData = getConfigurationGBeanData(configurationData);
-
+    public static void writeConfiguration(ConfigurationData configurationData, File source) throws IOException {
         // save the persisted form in the source directory
-        File metaInf = new File(source, "META-INF");
+        File metaInf = new File(source, META_INF);
         metaInf.mkdirs();
-        File configSer = new File(metaInf, "config.ser");
-        ObjectOutputStream out = null;
+        File configSer = new File(metaInf, CONFIG_SER);
+
+        OutputStream out = new FileOutputStream(configSer);
         try {
-            out = new ObjectOutputStream(new FileOutputStream(configSer));
-            try {
-                configurationGBeanData.writeExternal(out);
-            } catch (IOException e) {
-                throw e;
-            } catch (Exception e) {
-                throw new InvalidConfigException("Unable to save configuration state", e);
-            }
+            ConfigurationUtil.writeConfigurationData(configurationData, out);
         } finally {
-            if (out != null) {
-                try {
-                    out.flush();
-                } catch (Exception ignored) {
-                }
-                try {
-                    out.close();
-                } catch (Exception ignored) {
-                }
-            }
+            flush(out);
+            close(out);
         }
-    }
 
-    public static GBeanData getConfigurationGBeanData(ConfigurationData configurationData) throws InvalidConfigException {
+        // write the check sum file
+        ConfigurationStoreUtil.writeChecksumFor(configSer);
+
+        // write the info file
+        PrintWriter writer = null;
         try {
-            URI id = configurationData.getId();
-            GBeanData config = new GBeanData(Configuration.getConfigurationObjectName(id), Configuration.GBEAN_INFO);
-            config.setAttribute("id", id);
-            config.setAttribute("type", configurationData.getModuleType());
-            config.setAttribute("domain", configurationData.getDomain());
-            config.setAttribute("server", configurationData.getServer());
-
-            List parentId = configurationData.getParentId();
-            if (parentId.size() > 0) {
-                config.setAttribute("parentId", parentId.toArray(new URI[parentId.size()]));
-            }
-
-            config.setAttribute("gBeanState", Configuration.storeGBeans(configurationData.getGBeans()));
-            config.setReferencePatterns("Repositories", Collections.singleton(new ObjectName("*:name=Repository,*")));
-            config.setAttribute("dependencies", configurationData.getDependencies());
-            config.setAttribute("classPath", configurationData.getClassPath());
-            config.setAttribute("inverseClassLoading", Boolean.valueOf(configurationData.isInverseClassloading()));
-            Set set = configurationData.getHiddenClasses();
-            config.setAttribute("hiddenClasses", set.toArray(new String[set.size()]));
-            set = configurationData.getNonOverridableClasses();
-            config.setAttribute("nonOverridableClasses", set.toArray(new String[set.size()]));
-            
-            return config;
-        } catch (MalformedObjectNameException e) {
-            throw new InvalidConfigException(e);
+            writer = new PrintWriter(new FileWriter(new File(metaInf, CONFIG_INFO)));
+            ConfigurationUtil.writeConfigInfo(writer, configurationData);
+        } finally {
+            flush(writer);
+            close(writer);
         }
     }
 
@@ -199,6 +186,24 @@ public final class ExecutableConfigurationUtil {
         }
     }
 
+    private static void flush(OutputStream thing) {
+        if (thing != null) {
+            try {
+                thing.flush();
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    private static void flush(Writer thing) {
+        if (thing != null) {
+            try {
+                thing.flush();
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
     private static void close(InputStream thing) {
         if (thing != null) {
             try {
@@ -209,6 +214,15 @@ public final class ExecutableConfigurationUtil {
     }
 
     private static void close(OutputStream thing) {
+        if (thing != null) {
+            try {
+                thing.close();
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    private static void close(Writer thing) {
         if (thing != null) {
             try {
                 thing.close();

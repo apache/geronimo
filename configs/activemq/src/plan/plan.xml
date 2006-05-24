@@ -18,8 +18,8 @@
 
 <!-- $Rev$ $Date$ -->
 
-<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.0"
-               configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
+<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1"
+
     >
     <resourceadapter>
         <resourceadapter-instance>
@@ -54,7 +54,7 @@
     </resourceadapter>
     <adminobject>
         <adminobject-interface>javax.jms.Queue</adminobject-interface>
-        <adminobject-class>org.apache.activemq.command.ActiveMQQueue</adminobject-class>
+        <adminobject-class>org.codehaus.activemq.message.ActiveMQQueue</adminobject-class>
         <adminobject-instance>
             <message-destination-name>MDBTransferBeanOutQueue</message-destination-name>
             <config-property-setting name="PhysicalName">MDBTransferBeanOutQueue</config-property-setting>
@@ -62,7 +62,7 @@
     </adminobject>
     <adminobject>
         <adminobject-interface>javax.jms.Queue</adminobject-interface>
-        <adminobject-class>org.apache.activemq.command.ActiveMQQueue</adminobject-class>
+        <adminobject-class>org.codehaus.activemq.message.ActiveMQQueue</adminobject-class>
         <adminobject-instance>
             <message-destination-name>SendReceiveQueue</message-destination-name>
             <config-property-setting name="PhysicalName">SendReceiveQueue</config-property-setting>

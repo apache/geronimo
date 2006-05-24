@@ -18,24 +18,24 @@ package org.apache.geronimo.connector;
 
 import java.util.Hashtable;
 import java.util.Map;
-
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
+import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
+import org.apache.geronimo.management.geronimo.ResourceAdapter;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
-import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 395155 $ $Date$
  */
 public class ResourceAdapterModuleImpl implements ResourceAdapterModule {
     private final J2EEServer server;
     private final J2EEApplication application;
     private final String deploymentDescriptor;
-    private final String[] resourceAdapters;
+    private final ResourceAdapter resourceAdapter;
 
     private final GBeanData resourceAdapterGBeanData;
     private final Map activationSpecInfoMap;
@@ -48,10 +48,10 @@ public class ResourceAdapterModuleImpl implements ResourceAdapterModule {
     private final String resourceAdapterVersion;
     private final String eisType;
 
-    public ResourceAdapterModuleImpl(String resourceAdapter,
-                                     String objectName, 
-                                     J2EEServer server, 
-                                     J2EEApplication application, 
+    public ResourceAdapterModuleImpl(String objectName,
+                                     ResourceAdapter resourceAdapter,
+                                     J2EEServer server,
+                                     J2EEApplication application,
                                      String deploymentDescriptor,
                                      GBeanData resourceAdapterGBeanData,
                                      Map activationSpecInfoMap,
@@ -63,10 +63,10 @@ public class ResourceAdapterModuleImpl implements ResourceAdapterModule {
                                      String resourceAdapterVersion,
                                      String eisType) {
         this.objectName = objectName;
-        ObjectName myObjectName = JMXUtil.getObjectName(objectName);
+        ObjectName myObjectName = ObjectNameUtil.getObjectName(objectName);
         verifyObjectName(myObjectName);
 
-        this.resourceAdapters = new String[] {resourceAdapter};
+        this.resourceAdapter = resourceAdapter;
 
         this.server = server;
         this.application = application;
@@ -119,7 +119,7 @@ public class ResourceAdapterModuleImpl implements ResourceAdapterModule {
     }
 
     public String[] getResourceAdapters() {
-        return resourceAdapters;
+        return new String[]{resourceAdapter.getObjectName()};
     }
 
     public GBeanData getResourceAdapterGBeanData() {
@@ -156,6 +156,10 @@ public class ResourceAdapterModuleImpl implements ResourceAdapterModule {
 
     public String getEISType() {
         return eisType;
+    }
+
+    public ResourceAdapter[] getResourceAdapterInstances() {
+        return new ResourceAdapter[] {resourceAdapter};
     }
 
     /**

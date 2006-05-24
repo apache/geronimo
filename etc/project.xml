@@ -40,8 +40,8 @@
 
     <inceptionYear>2003</inceptionYear>
     <logo>http://incubator.apache.org/geronimo/images/geronimo.gif</logo>
-    <description>Apache Geronimo - J2EE Application Server</description>
-    <shortDescription>Apache Geronimo - J2EE Application Server</shortDescription>
+    <description>Geronimo J2EE Application Server</description>
+    <shortDescription>Geronimo J2EE Application Server</shortDescription>
     <url>http://geronimo.apache.org/</url>
     <issueTrackingUrl>http://issues.apache.org/jira/secure/BrowseProject.jspa?id=10220</issueTrackingUrl>
 
@@ -86,6 +86,11 @@
     <currentVersion>${geronimo_version}</currentVersion>
 
     <versions>
+        <version>
+            <id>1.0</id>
+            <name>1.0</name>
+            <tag>v1_0_0</tag>
+        </version>
         <version>
             <id>1.0-M5</id>
             <name>1.0-M5</name>
@@ -183,9 +188,16 @@
         </developer>
 
         <developer>
-            <name>Jules Gosnell</name>
+            <name>Jules Golsnell</name>
             <id>jules</id>
             <email>jules@apache.org</email>
+            <organization></organization>
+        </developer>
+
+        <developer>
+            <name>Matt Hogstrom</name>
+            <id>hogstrom</id>
+            <email>hogstrom@apache.org</email>
             <organization></organization>
         </developer>
 
@@ -218,6 +230,13 @@
         </developer>
 
         <developer>
+            <name>Kevan Miller</name>
+            <id>kevan</id>
+            <email>kevan@apache.org</email>
+            <organization></organization>
+        </developer>
+
+        <developer>
             <name>Richard Monson-Haefel</name>
             <id>rmonson</id>
             <email>rmonson@apache.org</email>
@@ -235,6 +254,13 @@
             <name>Srinath Perera</name>
             <id>hemapani</id>
             <email>hemapani@apache.org</email>
+            <organization></organization>
+        </developer>
+
+        <developer>
+            <name>John Sisson</name>
+            <id>jsisson</id>
+            <email>jsisson@apache.org</email>
             <organization></organization>
         </developer>
 
@@ -335,8 +361,7 @@
         <nagEmailAddress>dev@geronimo.apache.org</nagEmailAddress>
         <sourceDirectory>${basedir}/src/java</sourceDirectory>
         <unitTestSourceDirectory>${basedir}/src/test</unitTestSourceDirectory>
-        <defaultGoal>default</defaultGoal>
-        
+
         <resources>
             <resource>
                 <directory>${basedir}/src/java</directory>
@@ -353,7 +378,7 @@
             <resource>
                 <directory>${basedir}/target/etc</directory>
                 <includes>
-                    <include>META-INF/geronimo-service.xml</include>
+                    <include>META-INF/geronimo-dependency.xml</include>
                 </includes>
             </resource>
         </resources>

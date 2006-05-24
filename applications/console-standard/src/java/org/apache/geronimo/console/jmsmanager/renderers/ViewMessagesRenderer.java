@@ -42,6 +42,7 @@ import javax.portlet.RenderResponse;
 
 import org.apache.geronimo.console.jmsmanager.AbstractJMSManager;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.gbean.AbstractName;
 
 public class ViewMessagesRenderer extends AbstractJMSManager implements
         PortletRenderer {
@@ -65,9 +66,10 @@ public class ViewMessagesRenderer extends AbstractJMSManager implements
 
         List ret = new ArrayList();
         try {
-            ObjectName adminObjectName = NameFactory.getComponentName(null,
-                    null, destinationApplicationName, NameFactory.JCA_RESOURCE,
-                    destinationModuleName, destinationName, null, baseContext);
+            //TODO configid disabled
+            AbstractName adminObjectName = null;//NameFactory.getComponentName(null,
+//                    null, destinationApplicationName, NameFactory.JCA_RESOURCE,
+//                    destinationModuleName, destinationName, null, baseContext);
             Destination dest = (Destination) kernel.invoke(adminObjectName,
                     "$getResource");
             if (dest instanceof Queue) {
@@ -78,7 +80,7 @@ public class ViewMessagesRenderer extends AbstractJMSManager implements
                 QueueBrowser qBrowser = null;
                 try {
                     qConFactory = (QueueConnectionFactory) kernel.invoke(
-                            ObjectName.getInstance(CONNECTION_FACTORY_NAME),
+                            JCA_MANAGED_CONNECTION_FACTORY_NAME,
                             "$getResource");
                     qConnection = qConFactory.createQueueConnection();
                     qSession = qConnection.createQueueSession(false,
@@ -114,10 +116,11 @@ public class ViewMessagesRenderer extends AbstractJMSManager implements
                     }
                 }
             } else if (dest instanceof Topic) {
-                ObjectName tBrowserObjName = NameFactory.getComponentName(null,
-                        null, destinationApplicationName,
-                        NameFactory.JCA_RESOURCE, destinationModuleName,
-                        destinationName, "TopicBrowser", baseContext);
+                //TODO configid disabled
+                AbstractName tBrowserObjName = null;//NameFactory.getComponentName(null,
+//                        null, destinationApplicationName,
+//                        NameFactory.JCA_RESOURCE, destinationModuleName,
+//                        destinationName, "TopicBrowser", baseContext);
                 ret = (List) kernel.invoke(tBrowserObjName, "getMessages");
             }
         } catch (Exception e) {

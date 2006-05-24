@@ -37,6 +37,9 @@
             <artifactId>geronimo-gbean-deployer</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
+            <properties>
+                <packaging.config.order>1</packaging.config.order>
+            </properties>
         </dependency>
         <!-- parent config -->
         <dependency>
@@ -55,7 +58,7 @@
             <version>${geronimo_version}</version>
             <type>car</type>
             <properties>
-                 <geronimo.import>true</geronimo.import>
+                <geronimo.dependency>true</geronimo.dependency>
             </properties>
         </dependency>
 
@@ -64,7 +67,7 @@
             <artifactId>geronimo-jetty-builder</artifactId>
             <version>${geronimo_version}</version>
             <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.dependency>true</geronimo.dependency>
              </properties>
         </dependency>
 
@@ -196,8 +199,8 @@
             <version>${asm_version}</version>
         </dependency>
         <dependency>
-            <groupId>incubator-activemq</groupId>
-            <artifactId>activemq-gbean-management</artifactId>
+            <groupId>activemq</groupId>
+            <artifactId>activemq-gbean-management-g1_1</artifactId>
             <version>${activemq_version}</version>
         </dependency>
         <dependency>

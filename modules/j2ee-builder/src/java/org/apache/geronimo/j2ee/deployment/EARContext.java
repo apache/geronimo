@@ -17,59 +17,61 @@
 package org.apache.geronimo.j2ee.deployment;
 
 import java.io.File;
-import java.net.URI;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.List;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 
 /**
- * @version $Rev: 6509 $ $Date$
+ * @version $Rev:386276 $ $Date$
  */
-public class EARContext extends DeploymentContext implements NamingContext {
-    private final ObjectName domainObjectName;
-    private final ObjectName serverObjectName;
-    private final ObjectName applicationObjectName;
+public class EARContext extends DeploymentContext {
 
-    private final ObjectName transactionContextManagerObjectName;
-    private final ObjectName connectionTrackerObjectName;
+    private final AbstractNameQuery transactionContextManagerObjectName;
+    private final AbstractNameQuery connectionTrackerObjectName;
 
-    private final ObjectName transactedTimerName;
-    private final ObjectName nonTransactedTimerName;
+    private final AbstractNameQuery transactedTimerName;
+    private final AbstractNameQuery nonTransactedTimerName;
 
-    private final ObjectName corbaGBeanObjectName;
+    private final AbstractNameQuery corbaGBeanObjectName;
 
     private final RefContext refContext;
-    private final J2eeContext j2eeContext;
+    private final AbstractName moduleName;
+    private final AbstractNameQuery serverName;
 
     private final Map contextIDToPermissionsMap = new HashMap();
-    private ObjectName jaccManagerName;
+    private AbstractName jaccManagerName;
     private SecurityConfiguration securityConfiguration;
-    private final ObjectName transactionManagerObjectName;
 
-    public EARContext(File baseDir, URI id, ConfigurationModuleType moduleType, List parentID, Kernel kernel, String j2eeApplicationName, ObjectName transactionManagerObjectName, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactedTimerName, ObjectName nonTransactedTimerName, ObjectName corbaGBeanObjectName, RefContext refContext) throws MalformedObjectNameException, DeploymentException {
-        super(baseDir, id, moduleType, parentID, kernel);
-        j2eeContext = new J2eeContextImpl(getDomain(), getServer(), j2eeApplicationName == null ? NameFactory.NULL : j2eeApplicationName, NameFactory.J2EE_MODULE, NameFactory.NULL, null, null);
-        domainObjectName = NameFactory.getDomainName(null, j2eeContext);
-        serverObjectName = NameFactory.getServerName(null, null, j2eeContext);
+    public EARContext(File baseDir,
+            File inPlaceConfigurationDir,
+            Environment environment,
+            ConfigurationModuleType moduleType,
+            Naming naming,
+            ConfigurationManager configurationManager, Collection repositories,
+            AbstractNameQuery serverName,
+            AbstractName baseName,
+            AbstractNameQuery transactionContextManagerObjectName,
+            AbstractNameQuery connectionTrackerObjectName,
+            AbstractNameQuery transactedTimerName,
+            AbstractNameQuery nonTransactedTimerName,
+            AbstractNameQuery corbaGBeanObjectName,
+            RefContext refContext) throws DeploymentException {
+        super(baseDir, inPlaceConfigurationDir, environment, moduleType, naming, configurationManager, repositories);
+        
+        moduleName = baseName;
+        this.serverName = serverName;
 
-        if (j2eeApplicationName != null) {
-            applicationObjectName = NameFactory.getApplicationName(null, null, null, j2eeContext);
-        } else {
-            applicationObjectName = null;
-        }
-
-        this.transactionManagerObjectName = transactionManagerObjectName;
         this.transactionContextManagerObjectName = transactionContextManagerObjectName;
         this.connectionTrackerObjectName = connectionTrackerObjectName;
         this.transactedTimerName = transactedTimerName;
@@ -78,51 +80,67 @@ public class EARContext extends DeploymentContext implements NamingContext {
         this.refContext = refContext;
     }
 
-    public String getJ2EEDomainName() {
-        return j2eeContext.getJ2eeDomainName();
+    public EARContext(File baseDir,
+            File inPlaceConfigurationDir,
+            Environment environment,
+            ConfigurationModuleType moduleType,
+            Naming naming,
+            ConfigurationManager configurationManager,
+            AbstractNameQuery serverName,
+            AbstractName baseName,
+            AbstractNameQuery transactionContextManagerObjectName,
+            AbstractNameQuery connectionTrackerObjectName,
+            AbstractNameQuery transactedTimerName,
+            AbstractNameQuery nonTransactedTimerName,
+            AbstractNameQuery corbaGBeanObjectName,
+            RefContext refContext) throws DeploymentException {
+        super(baseDir, inPlaceConfigurationDir, environment, moduleType, naming, configurationManager);
+
+        moduleName = baseName;
+        this.serverName = serverName;
+
+        this.transactionContextManagerObjectName = transactionContextManagerObjectName;
+        this.connectionTrackerObjectName = connectionTrackerObjectName;
+        this.transactedTimerName = transactedTimerName;
+        this.nonTransactedTimerName = nonTransactedTimerName;
+        this.corbaGBeanObjectName = corbaGBeanObjectName;
+        this.refContext = refContext;
     }
 
-    public String getJ2EEServerName() {
-        return j2eeContext.getJ2eeServerName();
+    public EARContext(File baseDir, File inPlaceConfigurationDir, Environment environment, ConfigurationModuleType moduleType, AbstractName baseName, EARContext parent) throws DeploymentException {
+        super(baseDir, inPlaceConfigurationDir, environment, moduleType, parent.getNaming(), parent.getConfigurationManager());
+        moduleName = baseName;
+        this.serverName = parent.getServerName();
+
+        this.transactionContextManagerObjectName = parent.getTransactionContextManagerObjectName();
+        this.connectionTrackerObjectName = parent.getConnectionTrackerObjectName();
+        this.transactedTimerName = parent.getTransactedTimerName();
+        this.nonTransactedTimerName = parent.getNonTransactedTimerName();
+        this.corbaGBeanObjectName = parent.getCORBAGBeanObjectName();
+        this.refContext = parent.getRefContext();
     }
 
-    public String getJ2EEApplicationName() {
-        return j2eeContext.getJ2eeApplicationName();
+    public AbstractNameQuery getServerName() {
+        return serverName;
     }
 
-    public ObjectName getDomainObjectName() {
-        return domainObjectName;
-    }
-
-    public ObjectName getServerObjectName() {
-        return serverObjectName;
-    }
-
-    public ObjectName getApplicationObjectName() {
-        return applicationObjectName;
-    }
-
-    public ObjectName getTransactionManagerObjectName() {
-        return transactionManagerObjectName;
-    }
-
-    public ObjectName getTransactionContextManagerObjectName() {
+    public AbstractNameQuery getTransactionContextManagerObjectName() {
         return transactionContextManagerObjectName;
     }
 
-    public ObjectName getConnectionTrackerObjectName() {
+    public AbstractNameQuery getConnectionTrackerObjectName() {
         return connectionTrackerObjectName;
     }
 
-    public ObjectName getTransactedTimerName() {
+    public AbstractNameQuery getTransactedTimerName() {
         return transactedTimerName;
     }
 
-    public ObjectName getNonTransactedTimerName() {
+    public AbstractNameQuery getNonTransactedTimerName() {
         return nonTransactedTimerName;
     }
 
-    public ObjectName getCORBAGBeanObjectName() {
+    public AbstractNameQuery getCORBAGBeanObjectName() {
         return corbaGBeanObjectName;
     }
 
@@ -130,8 +148,8 @@ public class EARContext extends DeploymentContext implements NamingContext {
         return refContext;
     }
 
-    public J2eeContext getJ2eeContext() {
-        return j2eeContext;
+    public AbstractName getModuleName() {
+        return moduleName;
     }
 
     public Map getContextIDToPermissionsMap() {
@@ -145,11 +163,11 @@ public class EARContext extends DeploymentContext implements NamingContext {
         }
     }
 
-    public void setJaccManagerName(ObjectName jaccManagerName) {
+    public void setJaccManagerName(AbstractName jaccManagerName) {
         this.jaccManagerName = jaccManagerName;
     }
 
-    public ObjectName getJaccManagerName() {
+    public AbstractName getJaccManagerName() {
         return jaccManagerName;
     }
 

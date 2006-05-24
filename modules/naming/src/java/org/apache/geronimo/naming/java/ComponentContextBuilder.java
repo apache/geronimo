@@ -17,18 +17,16 @@
 
 package org.apache.geronimo.naming.java;
 
-import java.util.Map;
-import java.util.HashMap;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.naming.NamingException;
-import javax.transaction.UserTransaction;
-
-import org.apache.geronimo.kernel.ClassLoading;
-import org.apache.geronimo.naming.reference.GBeanProxyReference;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.naming.reference.KernelReference;
 import org.apache.geronimo.naming.reference.ORBReference;
 import org.apache.geronimo.naming.reference.HandleDelegateReference;
+
+import javax.naming.NamingException;
+import javax.transaction.UserTransaction;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * TODO consider removing this class. The only purpose is to slightly hide the internalBind method.
@@ -47,12 +45,12 @@ public class ComponentContextBuilder {
         context.put("UserTransaction", userTransaction);
     }
 
-    public void addORB(ObjectName corbaGBeanObjectName) {
-        context.put("ORB", new ORBReference(corbaGBeanObjectName));
+    public void addORB(Artifact configId, AbstractNameQuery corbaGBeanObjectName) {
+        context.put("ORB", new ORBReference(configId, corbaGBeanObjectName));
     }
 
-    public void addHandleDelegateReference(ObjectName corbaGBeanObjectName) {
-        context.put("HandleDelegate", new HandleDelegateReference(corbaGBeanObjectName));
+    public void addHandleDelegateReference(Artifact configId, AbstractNameQuery corbaGBeanNameQuery) {
+        context.put("HandleDelegate", new HandleDelegateReference(configId, corbaGBeanNameQuery));
     }
 
     public void bind(String name, Object value) {
@@ -86,24 +84,24 @@ public class ComponentContextBuilder {
         } else if ("java.lang.Double".equals(type)) {
             value = Double.valueOf(text);
         } else {
-            Class clazz = null;
-            try {
-                clazz = ClassLoading.loadClass(type, classLoader);
-            } catch (ClassNotFoundException e) {
-                throw new IllegalArgumentException("Could not load class for env-entry " + name + ", " + type);
-            }
-            ObjectName objectName = null;
-            try {
-                objectName = ObjectName.getInstance(text);
-            } catch (MalformedObjectNameException e) {
-                throw new IllegalArgumentException("If env-entry type is not String, Character, Byte, Short, Integer, Long, " +
-                        "Boolean, Double, or Float, the text value must be a valid ObjectName for use in a GBeanProxy:" +
-                        " name= " + name +
-                        ", value=" + type +
-                        ", text=" + text);
-            }
-            value = new GBeanProxyReference(objectName, clazz);
-
+//            Class clazz = null;
+//            try {
+//                clazz = ClassLoading.loadClass(type, classLoader);
+//            } catch (ClassNotFoundException e) {
+//                throw new IllegalArgumentException("Could not load class for env-entry " + name + ", " + type);
+//            }
+//            ObjectName objectName = null;
+//            try {
+//                objectName = ObjectName.getInstance(text);
+//            } catch (MalformedObjectNameException e) {
+//                throw new IllegalArgumentException("If env-entry type is not String, Character, Byte, Short, Integer, Long, " +
+//                        "Boolean, Double, or Float, the text value must be a valid ObjectName for use in a GBeanProxy:" +
+//                        " name= " + name +
+//                        ", value=" + type +
+//                        ", text=" + text);
+//            }
+//            value = new GBeanProxyReference(configId, objectName, clazz);
+            throw new IllegalArgumentException("No proxy references right now");
         }
         context.put(ENV + name, value);
     }

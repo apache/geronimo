@@ -1,7 +1,7 @@
 package org.apache.geronimo.deployment.mavenplugin;
 
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.KernelDelegate;
+import org.apache.geronimo.system.jmx.KernelDelegate;
 
 import javax.management.MBeanServerConnection;
 import javax.management.remote.JMXConnector;

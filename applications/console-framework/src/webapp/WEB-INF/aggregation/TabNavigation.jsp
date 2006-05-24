@@ -22,7 +22,7 @@ limitations under the License.
 <jsp:useBean id="fragment" type="org.apache.pluto.portalImpl.aggregation.navigation.TabNavigation" scope="request" />
 
 <table width="200px" border="0" cellpadding="0" cellspacing="0"> 
-  				 <tr><td CLASS="ReallyDarkBackground"><STRONG>&nbsp;Console Navigation</TD></TR>
+  				 <tr><td CLASS="ReallyDarkBackground"><STRONG>&nbsp;Console Navigation</strong></TD></TR>
   				 <tr><td><div class="Selection"><table width="100%" border="0" cellpadding="0" cellspacing="0">
               <tr>
 							  <td class="CollapsedLeft"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td>
@@ -77,7 +77,7 @@ limitations under the License.
 						if (tree[i].depth>0)
 						{
 %>
-								<tr><td><div class="Subselection"><table width="100%" border="0" cellpadding="1" cellspacing="0"> 
+								<tr><td><div class="<%=partOfNav ? "SelectedSubselection " : "" %>Subselection"><table width="100%" border="0" cellpadding="1" cellspacing="0"> 
                 <tr>
                   <td class="Left">&nbsp;</td> 
                   <td class="Indent">&nbsp;</td> 
@@ -89,18 +89,9 @@ limitations under the License.
   							&nbsp;&nbsp;&nbsp;
 <%
               }
-							  if (!partOfNav)
-								{
 %>
-                    <a href="<%=new PortalURL(request, nav.getLinkedFragment()).toString()%>"><img border="0" src="<%=request.getContextPath()%>/images/<%=imageName%>">&nbsp;<%=nav.getTitle()%></a>
-<%
-								}
-								else
-								{
-%>                  <img border="0" src="<%=request.getContextPath()%>/images/<%=imageName%>">&nbsp;<%=nav.getTitle()%>
-<%
-								}
-%>
+             <a href="<%=new PortalURL(request, nav.getLinkedFragment()).toString()%>"><img border="0" src="<%=request.getContextPath()%>/images/<%=imageName%>">&nbsp;<%=nav.getTitle()%></a>
+
                   </td> 
                   <td class="Right">&nbsp;</td> 
                 </tr> 

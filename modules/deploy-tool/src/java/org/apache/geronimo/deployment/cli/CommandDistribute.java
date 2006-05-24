@@ -17,17 +17,19 @@
 
 package org.apache.geronimo.deployment.cli;
 
-import org.apache.geronimo.common.DeploymentException;
-
-import javax.enterprise.deploy.spi.DeploymentManager;
-import javax.enterprise.deploy.spi.Target;
-import javax.enterprise.deploy.spi.TargetModuleID;
-import javax.enterprise.deploy.spi.status.ProgressObject;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+
+import javax.enterprise.deploy.spi.DeploymentManager;
+import javax.enterprise.deploy.spi.Target;
+import javax.enterprise.deploy.spi.TargetModuleID;
+import javax.enterprise.deploy.spi.status.ProgressObject;
+
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
 
 /**
  * The CLI deployer logic to distribute.
@@ -36,9 +38,9 @@ import java.util.StringTokenizer;
  */
 public class CommandDistribute extends AbstractCommand {
     public CommandDistribute() {
-        super("distribute", "2. Other Commands", "[--targets target;target;...] [module] [plan]",
+        super("distribute", "2. Other Commands", "[--inPlace] [--targets target;target;...] [module] [plan]",
                 "Processes a module and adds it to the server environment, but does "+
-                "not start it or mark it to be started in the future." +
+                "not start it or mark it to be started in the future. " +
                 "Normally both a module and plan are passed to the deployer.  " +
                 "Sometimes the module contains a plan, or requires no plan, in which case " +
                 "the plan may be omitted.  Sometimes the plan references a module already " +
@@ -46,15 +48,32 @@ public class CommandDistribute extends AbstractCommand {
                 "not need to be provided.\n" +
                 "If no targets are provided, the module is distributed to all available " +
                 "targets.  Geronimo only provides one target (ever), so this is primarily " +
-                "useful when using a different driver.");
+                "useful when using a different driver.\n" +
+                "If inPlace is provided, the module is not copied to the configuration " +
+                "store of the selected targets. The targets directly use the module.");
     }
 
     protected CommandDistribute(String command, String group, String helpArgumentList, String helpText) {
         super(command, group, helpArgumentList, helpText);
     }
 
-    protected ProgressObject runCommand(DeploymentManager mgr, PrintWriter out, Target[] tlist, File module, File plan) throws DeploymentException {
-        return mgr.distribute(tlist, module, plan);
+    protected ProgressObject runCommand(DeploymentManager mgr, PrintWriter out, boolean inPlace, Target[] tlist, File module, File plan) throws DeploymentException {
+        if (inPlace) {
+            if (!(mgr instanceof JMXDeploymentManager)) {
+                throw new DeploymentSyntaxException(
+                        "Target DeploymentManager is not a Geronimo one. \n" +
+                        "Cannot perform in-place deployment.");
+            }
+            JMXDeploymentManager jmxMgr = (JMXDeploymentManager) mgr;
+            try {
+                jmxMgr.setInPlace(true);
+                return mgr.distribute(tlist, module, plan);
+            } finally {
+                jmxMgr.setInPlace(false);
+            }
+        } else {
+            return mgr.distribute(tlist, module, plan);
+        }
     }
 
     protected String getAction() {
@@ -65,6 +84,10 @@ public class CommandDistribute extends AbstractCommand {
         if(args.length == 0) {
             throw new DeploymentSyntaxException("Must specify a module or plan (or both)");
         }
+        
+        BooleanHolder inPlaceHolder = new BooleanHolder();
+        args = processInPlace(args, inPlaceHolder);
+        
         List targets = new ArrayList();
         args = processTargets(args, targets);
         if(args.length > 2) {
@@ -106,10 +129,10 @@ public class CommandDistribute extends AbstractCommand {
         if(plan != null) {
             plan = plan.getAbsoluteFile();
         }
-        executeOnline(connection, targets, out, module, plan);
+        executeOnline(connection, inPlaceHolder.inPlace, targets, out, module, plan);
     }
 
-    private void executeOnline(ServerConnection connection, List targets, PrintWriter out, File module, File plan) throws DeploymentException {
+    private void executeOnline(ServerConnection connection, boolean inPlace, List targets, PrintWriter out, File module, File plan) throws DeploymentException {
         final DeploymentManager mgr = connection.getDeploymentManager();
         TargetModuleID[] results;
         boolean multipleTargets;
@@ -117,12 +140,12 @@ public class CommandDistribute extends AbstractCommand {
         if(targets.size() > 0) {
             Target[] tlist = identifyTargets(targets, mgr);
             multipleTargets = tlist.length > 1;
-            po = runCommand(mgr, out, tlist, module, plan);
+            po = runCommand(mgr, out, inPlace, tlist, module, plan);
             waitForProgress(out, po);
         } else {
             final Target[] tlist = mgr.getTargets();
             multipleTargets = tlist.length > 1;
-            po = runCommand(mgr, out, tlist, module, plan);
+            po = runCommand(mgr, out, inPlace, tlist, module, plan);
             waitForProgress(out, po);
         }
 
@@ -130,11 +153,11 @@ public class CommandDistribute extends AbstractCommand {
         results = po.getResultTargetModuleIDs();
         for (int i = 0; i < results.length; i++) {
             TargetModuleID result = results[i];
-            out.println(DeployUtils.reformat(getAction()+" "+result.getModuleID()+(multipleTargets ? " to "+result.getTarget().getName() : "")+(result.getWebURL() == null || !getAction().equals("Deployed") ? "" : " @ "+result.getWebURL()), 4, 72));
+            out.print(DeployUtils.reformat(getAction()+" "+result.getModuleID()+(multipleTargets ? " to "+result.getTarget().getName() : "")+(result.getWebURL() == null || !getAction().equals("Deployed") ? "" : " @ "+result.getWebURL()), 4, 72));
             if(result.getChildTargetModuleID() != null) {
                 for (int j = 0; j < result.getChildTargetModuleID().length; j++) {
                     TargetModuleID child = result.getChildTargetModuleID()[j];
-                    out.println(DeployUtils.reformat("  `-> "+child.getModuleID()+(child.getWebURL() == null || !getAction().equals("Deployed") ? "" : " @ "+child.getWebURL()),4, 72));
+                    out.print(DeployUtils.reformat("  `-> "+child.getModuleID()+(child.getWebURL() == null || !getAction().equals("Deployed") ? "" : " @ "+child.getWebURL()),4, 72));
                 }
             }
         }
@@ -158,5 +181,19 @@ public class CommandDistribute extends AbstractCommand {
             args = temp;
         }
         return args;
+    }
+    
+    private String[] processInPlace(String[] args, BooleanHolder inPlaceHolder) {
+        if(args.length >= 2 && args[0].equals("--inPlace")) {
+        	inPlaceHolder.inPlace = true;
+            String[] temp = new String[args.length - 1];
+            System.arraycopy(args, 1, temp, 0, temp.length);
+            args = temp;
+        }
+        return args;
+    }
+    
+    private final class BooleanHolder {
+    	public boolean inPlace;
     }
 }

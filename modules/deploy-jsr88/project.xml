@@ -86,13 +86,13 @@
 
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-system</artifactId>
+            <artifactId>geronimo-deployment</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-deployment</artifactId>
+            <artifactId>geronimo-system</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
 

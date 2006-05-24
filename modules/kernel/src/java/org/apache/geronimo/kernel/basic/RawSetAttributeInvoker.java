@@ -16,9 +16,8 @@
  */
 package org.apache.geronimo.kernel.basic;
 
-import javax.management.ObjectName;
-
 import org.apache.geronimo.gbean.runtime.RawInvoker;
+import org.apache.geronimo.gbean.AbstractName;
 
 /**
  * @version $Rev$ $Date$
@@ -32,7 +31,7 @@ public final class RawSetAttributeInvoker implements ProxyInvoker {
         this.methodIndex = methodIndex;
     }
 
-    public Object invoke(final ObjectName objectName, final Object[] arguments) throws Throwable {
+    public Object invoke(final AbstractName abstractName, final Object[] arguments) throws Throwable {
         rawInvoker.setAttribute(methodIndex, arguments[0]);
         return null;
     }

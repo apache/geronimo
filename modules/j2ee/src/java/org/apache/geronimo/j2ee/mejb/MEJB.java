@@ -38,8 +38,7 @@ import javax.management.j2ee.Management;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.MBeanServerDelegate;
+import org.apache.geronimo.system.jmx.MBeanServerReference;
 import org.apache.geronimo.management.J2EEManagedObject;
 
 /**
@@ -48,12 +47,17 @@ import org.apache.geronimo.management.J2EEManagedObject;
  * @version $Rev$ $Date$
  */
 public class MEJB implements Management {
-    private final MBeanServer mbeanServer;
     private final String objectName;
+    private final MBeanServer mbeanServer;
 
-    public MEJB(String objectName, Kernel kernel) {
-        mbeanServer = new MBeanServerDelegate(kernel);
+    // todo remove this as soon as Geronimo supports factory beans
+    public MEJB(String objectName, MBeanServerReference mbeanServerReference) {
+        this(objectName, mbeanServerReference.getMBeanServer());
+    }
+
+    public MEJB(String objectName, MBeanServer mbeanServer) {
         this.objectName = objectName;
+        this.mbeanServer = mbeanServer;
     }
 
     public MBeanInfo getMBeanInfo(ObjectName objectName) throws InstanceNotFoundException, IntrospectionException, ReflectionException {
@@ -142,11 +146,11 @@ public class MEJB implements Management {
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(MEJB.class);
         infoBuilder.addAttribute("objectName", String.class, false);
-        infoBuilder.addAttribute("kernel", Kernel.class, false);
+        infoBuilder.addReference("MBeanServerReference", MBeanServerReference.class);
         infoBuilder.addInterface(Management.class);
         infoBuilder.addInterface(J2EEManagedObject.class);
 
-        infoBuilder.setConstructor(new String[]{"objectName", "kernel"});
+        infoBuilder.setConstructor(new String[]{"objectName", "MBeanServerReference"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

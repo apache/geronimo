@@ -6,8 +6,8 @@
 <!-- any comments added to this file will be lost.            -->
 <!-- ======================================================== -->
 
-<attributes xmlns="http://geronimo.apache.org/xml/ns/attributes">
-    <configuration name="geronimo/rmi-naming/${pom.currentVersion}/car">
+<attributes xmlns="http://geronimo.apache.org/xml/ns/attributes-1.1">
+    <module name="geronimo/rmi-naming/${pom.currentVersion}/car">
         <gbean name="RMIRegistry">
             <attribute name="port">${PlanNamingPort}</attribute>
         </gbean>
@@ -15,28 +15,22 @@
             <!-- Check whether this really works if host name is 0.0.0.0 -->
             <attribute name="namingProviderUrl">rmi://${PlanServerHostname}:${PlanNamingPort}</attribute>
         </gbean>
-    </configuration>
-    <configuration name="geronimo/j2ee-server/${pom.currentVersion}/car"/>
-    <configuration name="geronimo/j2ee-security/${pom.currentVersion}/car">
+    </module>
+    <module name="geronimo/j2ee-server/${pom.currentVersion}/car"/>
+    <module name="geronimo/j2ee-security/${pom.currentVersion}/car">
         <gbean name="geronimo.remoting:target=JaasLoginServiceRemotingServer">
             <attribute name="host">${PlanServerHostname}</attribute>
             <attribute name="port">${PlanRemoteLoginPort}</attribute>
         </gbean>
-        <gbean name="JMXConnector">
-            <attribute name="url">service:jmx:rmi://${PlanServerHostname}/jndi/rmi:/JMXConnector</attribute>
+        <gbean name="JMXService">
+            <attribute name="protocol">rmi</attribute>
+            <attribute name="host">${PlanServerHostname}</attribute>
+            <attribute name="port">${PlanJMXPort}</attribute>
+            <attribute name="urlPath">/jndi/rmi://${PlanServerHostname}:${PlanNamingPort}/JMXConnector</attribute>
         </gbean>
-        <gbean name="geronimo.server:J2EEApplication=null,J2EEModule=geronimo/j2ee-security/1.2-SNAPSHOT/car,J2EEServer=geronimo,j2eeType=Keystore,name=geronimo-default" gbeanInfo="org.apache.geronimo.security.keystore.FileKeystoreInstance">
-            <attribute name="keystoreName">geronimo-default</attribute>
-            <attribute name="keystorePassword">{Simple}rO0ABXNyABlqYXZheC5jcnlwdG8uU2VhbGVkT2JqZWN0PjY9psO3VHACAARbAA1lbmNvZGVkUGFyYW1zdAACW0JbABBlbmNyeXB0ZWRDb250ZW50cQB+AAFMAAlwYXJhbXNBbGd0ABJMamF2YS9sYW5nL1N0cmluZztMAAdzZWFsQWxncQB+AAJ4cHB1cgACW0Ks8xf4BghU4AIAAHhwAAAAEArVToThqcjvbXFD5C2uUmpwdAADQUVT</attribute>
-            <attribute name="keyPasswords">{Simple}rO0ABXNyABlqYXZheC5jcnlwdG8uU2VhbGVkT2JqZWN0PjY9psO3VHACAARbAA1lbmNvZGVkUGFyYW1zdAACW0JbABBlbmNyeXB0ZWRDb250ZW50cQB+AAFMAAlwYXJhbXNBbGd0ABJMamF2YS9sYW5nL1N0cmluZztMAAdzZWFsQWxncQB+AAJ4cHB1cgACW0Ks8xf4BghU4AIAAHhwAAAAIGdUCEvsw3HNoD82HNiAiTo5m8E/c8pnljroPhWCnB89cHQAA0FFUw==</attribute>
-            <attribute name="keystorePath">var/security/keystores/geronimo-default</attribute>
-            <reference name="ServerInfo">
-                <pattern><gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=geronimo/j2ee-system/1.2-SNAPSHOT/car,J2EEServer=geronimo,j2eeType=GBean,name=ServerInfo</gbean-name></pattern>
-            </reference>
-        </gbean>
-    </configuration>
+    </module>
 
-    <configuration name="geronimo/tomcat/${pom.currentVersion}/car">
+    <module name="geronimo/tomcat/${pom.currentVersion}/car">
         <gbean name="TomcatResources"/>
         <gbean name="TomcatWebConnector">
             <attribute name="host">${PlanServerHostname}</attribute>
@@ -52,24 +46,28 @@
             <attribute name="host">${PlanServerHostname}</attribute>
             <attribute name="port">${PlanHTTPSPortPrimary}</attribute>
         </gbean>
-    </configuration>
-    <configuration name="geronimo/geronimo-gbean-deployer/${pom.currentVersion}/car"/>
-    <configuration name="geronimo/j2ee-deployer/${pom.currentVersion}/car">
+    </module>
+    <module name="geronimo/geronimo-gbean-deployer/${pom.currentVersion}/car"/>
+    <module name="geronimo/j2ee-deployer/${pom.currentVersion}/car">
         <gbean name="WebBuilder">
-            <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0</attribute>
+            <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.1</attribute>
         </gbean>
-    </configuration>
+    </module>
 
-    <configuration name="geronimo/tomcat-deployer/${pom.currentVersion}/car">
-        <gbean name="TomcatWebBuilder">
-            <attribute name="defaultParentId">${pom.groupId}/j2ee-server/${pom.currentVersion}/car,${pom.groupId}/tomcat/${pom.currentVersion}/car</attribute>
+    <module name="geronimo/tomcat-deployer/${pom.currentVersion}/car"/>
+
+    <module name="geronimo/unavailable-ejb-deployer/${pom.currentVersion}/car"/>
+
+    <module name="geronimo/unavailable-webservices-deployer/${pom.currentVersion}/car"/>
+    <module name="geronimo/unavailable-client-deployer/${pom.currentVersion}/car"/>
+
+    <module name="geronimo/sharedlib/${pom.currentVersion}/car">
+        <gbean name="SharedLib">
+            <attribute name="classesDirs">var/shared/classes</attribute>
+            <attribute name="libDirs">var/shared/lib</attribute>
         </gbean>
-    </configuration>
-    <configuration name="geronimo/unavailable-ejb-deployer/${pom.currentVersion}/car"/>
+    </module>
 
-    <configuration name="geronimo/unavailable-webservices-deployer/${pom.currentVersion}/car"/>
-    <configuration name="geronimo/unavailable-client-deployer/${pom.currentVersion}/car"/>
-
-    <!--<configuration name="geronimo/remote-deploy-tomcat/${pom.currentVersion}/car"/>-->
-    <!--<configuration name="geronimo/hot-deployer/${pom.currentVersion}/car"/>-->
+    <!--<module name="geronimo/remote-deploy-tomcat/${pom.currentVersion}/car"/>-->
+    <!--<module name="geronimo/hot-deployer/${pom.currentVersion}/car"/>-->
 </attributes>

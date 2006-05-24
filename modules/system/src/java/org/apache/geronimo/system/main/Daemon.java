@@ -17,39 +17,31 @@
 
 package org.apache.geronimo.system.main;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.PrintStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
-import javax.management.ObjectName;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.GeronimoEnvironment;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanQuery;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.config.PersistentConfigurationList;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
-import org.apache.geronimo.system.jmx.MBeanServerKernelBridge;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.serverinfo.DirectoryUtils;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
 /**
- * @version $Rev$ $Date$
+ * @version $Rev:385659 $ $Date$
  */
 public class Daemon {
     private final static String ARGUMENT_NO_PROGRESS = "--quiet";
@@ -58,7 +50,7 @@ public class Daemon {
     private final static String ARGUMENT_VERBOSE = "--verbose";
     private final static String ARGUMENT_MORE_VERBOSE_SHORTFORM = "-vv";
     private final static String ARGUMENT_MORE_VERBOSE = "--veryverbose";
-    private final static String ARGUMENT_CONFIG_OVERRIDE = "--override";
+    private final static String ARGUMENT_MODULE_OVERRIDE = "--override";
     private static boolean started = false;
     private static Log log;
     private StartupMonitor monitor;
@@ -108,13 +100,13 @@ public class Daemon {
         out.println("             Reduces the console log level to TRACE, resulting in still\n" +
                     "             more console output.");
         out.println();
-        out.println("  "+ARGUMENT_CONFIG_OVERRIDE+" [configId] [configId] ...");
-        out.println("             USE WITH CAUTION!  Overrides the configurations in\n" +
-                    "             var/config/config.xml such that only the configurations listed on\n" +
+        out.println("  "+ARGUMENT_MODULE_OVERRIDE+" [moduleId] [moduleId] ...");
+        out.println("             USE WITH CAUTION!  Overrides the modules in\n" +
+                    "             var/config/config.xml such that only the modules listed on\n" +
                     "             the command line will be started.  Note that many J2EE\n" +
-                    "             features depend on certain configs being started, so you\n" +
+                    "             features depend on certain modules being started, so you\n" +
                     "             should be very careful what you omit.  Any arguments after\n" +
-                    "             this are assumed to be configuration names.");
+                    "             this are assumed to be module names.");
         out.println();
         out.println("In addition you may specify a replacement for var/config/config.xml using by setting the property\n" +
                     "-Dorg.apache.geronimo.config.file=var/config/<my-config.xml>\n" +
@@ -131,14 +123,7 @@ public class Daemon {
         boolean help = false;
         for (int i = 0; i < args.length; i++) {
             if(override) {
-                try {
-                    configs.add(new URI(args[i]));
-                } catch (URISyntaxException e) {
-                    System.err.println("Invalid configuration-id: " + args[i]);
-                    e.printStackTrace();
-                    System.exit(1);
-                    throw new AssertionError();
-                }
+                configs.add(Artifact.create(args[i]));
             } else if (args[i].equals(ARGUMENT_NO_PROGRESS)) {
                 noProgressArg = ARGUMENT_NO_PROGRESS;
             } else if (args[i].equals(ARGUMENT_LONG_PROGRESS)) {
@@ -153,7 +138,7 @@ public class Daemon {
                 if (verboseArg == null) {
                     verboseArg = ARGUMENT_MORE_VERBOSE;
                 }
-            } else if (args[i].equals(ARGUMENT_CONFIG_OVERRIDE)) {
+            } else if (args[i].equals(ARGUMENT_MODULE_OVERRIDE)) {
                 override = true;
             } else if(args[i].equalsIgnoreCase("-help") || args[i].equalsIgnoreCase("--help") ||
                     args[i].equalsIgnoreCase("-h") || args[i].equalsIgnoreCase("/?")) {
@@ -193,11 +178,11 @@ public class Daemon {
                 monitor = new ProgressBarStartupMonitor();
         }                                                            
 
-        JVMCheck();
+        // JVMCheck();   // Removed for 1.1
     }
 
     private void JVMCheck() {
-        String jvmVersion = (String)System.getProperty("java.specification.version");
+        String jvmVersion = System.getProperty("java.specification.version");
         if (! jvmVersion.equals("1.4"))
             log.warn("\n====================================== Warning =======================================\n" +
                      " Geronimo is currently only certified on version 1.4 of the Java Virtual Machine.\n" +
@@ -239,27 +224,7 @@ public class Daemon {
             List extensionDirsFromManifest = manifestEntries.getExtensionDirs();
             AddToSystemProperty(extensionDirs, extensionDirsFromManifest, geronimoInstallDirectory);
 
-
-            // load this configuration
             ClassLoader classLoader = Daemon.class.getClassLoader();
-            GBeanData configuration = new GBeanData();
-            ObjectInputStream ois = new ObjectInputStream(classLoader.getResourceAsStream("META-INF/config.ser"));
-            try {
-                configuration.readExternal(ois);
-            } finally {
-                ois.close();
-            }
-            URI configurationId = (URI) configuration.getAttribute("id");
-            ObjectName configName = Configuration.getConfigurationObjectName(configurationId);
-            configuration.setName(configName);
-
-            // todo: JNB for now we clear out the dependency list but we really need a way to resolve them
-            configuration.setAttribute("dependencies", Collections.EMPTY_LIST);
-            configuration.setAttribute("baseURL", classLoader.getResource("/"));
-
-            // create a mbean server
-            MBeanServer mbeanServer = MBeanServerFactory.createMBeanServer("geronimo");
-            String mbeanServerId = (String) mbeanServer.getAttribute(new ObjectName("JMImplementation:type=MBeanServerDelegate"), "MBeanServerId");
 
             // create the kernel
             final Kernel kernel = KernelFactory.newInstance().createKernel("geronimo");
@@ -273,10 +238,6 @@ public class Daemon {
                 throw new AssertionError();
             }
 
-            // load this configuration into the kernel
-            kernel.loadGBean(configuration, classLoader);
-            kernel.startGBean(configName);
-
             // add our shutdown hook
             Runtime.getRuntime().addShutdownHook(new Thread("Geronimo shutdown thread") {
                 public void run() {
@@ -286,25 +247,29 @@ public class Daemon {
                 }
             });
 
-            // add the jmx bridge
-            ObjectName mbeanServerKernelBridgeName = new ObjectName("geronimo.boot:role=MBeanServerKernelBridge");
-            GBeanData mbeanServerKernelBridge = new GBeanData(mbeanServerKernelBridgeName, MBeanServerKernelBridge.GBEAN_INFO);
-            mbeanServerKernelBridge.setAttribute("mbeanServerId", mbeanServerId);
-            kernel.loadGBean(mbeanServerKernelBridge, classLoader);
-            kernel.startGBean(mbeanServerKernelBridgeName);
-
-            // start this configuration
-            kernel.invoke(configName, "loadGBeans", new Object[]{null}, new String[]{ManageableAttributeStore.class.getName()});
-            kernel.invoke(configName, "startRecursiveGBeans");
+            // load this configuration
+            InputStream in = classLoader.getResourceAsStream("META-INF/config.ser");
+            try {
+                ConfigurationUtil.loadBootstrapConfiguration(kernel, in, classLoader);
+            } finally {
+                if (in != null) {
+                    try {
+                        in.close();
+                    } catch (IOException ignored) {
+                        // ignored
+                    }
+                }
+            }
+            
             monitor.systemStarted(kernel);
 
-            GBeanQuery query = new GBeanQuery(null, PersistentConfigurationList.class.getName());
+            AbstractNameQuery query = new AbstractNameQuery(PersistentConfigurationList.class.getName());
 
             if (configs.isEmpty()) {
                 // --override wasn't used (nothing explicit), see what was running before
                 Set configLists = kernel.listGBeans(query);
                 for (Iterator i = configLists.iterator(); i.hasNext();) {
-                    ObjectName configListName = (ObjectName) i.next();
+                    AbstractName configListName = (AbstractName) i.next();
                     try {
                         configs.addAll((List) kernel.invoke(configListName, "restore"));
                     } catch (IOException e) {
@@ -317,24 +282,20 @@ public class Daemon {
                 }
             }
 
-            monitor.foundConfigurations((URI[]) configs.toArray(new URI[configs.size()]));
+            monitor.foundModules((Artifact[]) configs.toArray(new Artifact[configs.size()]));
 
             // load the rest of the configurations
             try {
                 ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
                 try {
                     for (Iterator i = configs.iterator(); i.hasNext();) {
-                        URI configID = (URI) i.next();
-                        monitor.configurationLoading(configID);
-                        List list = configurationManager.loadRecursive(configID);
-                        monitor.configurationLoaded(configID);
-                        monitor.configurationStarting(configID);
-                        for (Iterator iterator = list.iterator(); iterator.hasNext();) {
-                            URI name = (URI) iterator.next();
-                            configurationManager.loadGBeans(name);
-                            configurationManager.start(name);
-                        }
-                        monitor.configurationStarted(configID);
+                        Artifact configID = (Artifact) i.next();
+                        monitor.moduleLoading(configID);
+                        configurationManager.loadConfiguration(configID);
+                        monitor.moduleLoaded(configID);
+                        monitor.moduleStarting(configID);
+                        configurationManager.startConfiguration(configID);
+                        monitor.moduleStarted(configID);
                     }
                 } finally {
                     ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
@@ -355,7 +316,7 @@ public class Daemon {
             // Tell every persistent configuration list that the kernel is now fully started
             Set configLists = kernel.listGBeans(query);
             for (Iterator i = configLists.iterator(); i.hasNext();) {
-                ObjectName configListName = (ObjectName) i.next();
+                AbstractName configListName = (AbstractName) i.next();
                 kernel.setAttribute(configListName, "kernelFullyStarted", Boolean.TRUE);
             }
 

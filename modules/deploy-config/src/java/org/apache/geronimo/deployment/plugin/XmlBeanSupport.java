@@ -74,4 +74,13 @@ public abstract class XmlBeanSupport { // should implement Serializable or Exter
     protected SchemaTypeLoader getSchemaTypeLoader() {
         return null;
     }
+
+    // Must be public but should not be a JavaBean property -- sigh
+    public boolean configured() {
+        return getXmlObject() != null;
+    }
+
+    protected static boolean isEmpty(String s) {
+        return s == null || s.trim().equals("");
+    }
 }

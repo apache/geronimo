@@ -19,7 +19,6 @@ package org.apache.geronimo.console.certmanager.actions;
 
 import java.io.IOException;
 import java.security.cert.Certificate;
-import javax.management.ObjectName;
 import javax.portlet.PortletException;
 import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.RenderRequest;
@@ -29,6 +28,7 @@ import org.apache.geronimo.console.certmanager.CertManagerPortlet;
 import org.apache.geronimo.console.core.keystore.KeyEntryInfo;
 import org.apache.geronimo.console.util.ObjectNameConstants;
 import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.gbean.AbstractName;
 
 public class ViewKeyStoreEntryDetail {
 
@@ -43,9 +43,9 @@ public class ViewKeyStoreEntryDetail {
 
         try {
             // entry info
-            ObjectName objname = ObjectNameConstants.KEYSTORE_OBJ_NAME;
+            AbstractName name = ObjectNameConstants.KEYSTORE_OBJ_NAME;
             KeyEntryInfo kinfo = (KeyEntryInfo) KernelRegistry
-                    .getSingleKernel().invoke(objname, "getKeyEntryInfo",
+                    .getSingleKernel().invoke(name, "getKeyEntryInfo",
                             new Object[] { alias },
                             new String[] { "java.lang.String" });
 
@@ -53,7 +53,7 @@ public class ViewKeyStoreEntryDetail {
 
             // get keystore certificate chain by the alias
             Certificate[] chain = (Certificate[]) KernelRegistry
-                    .getSingleKernel().invoke(objname, "getCertificateChain",
+                    .getSingleKernel().invoke(name, "getCertificateChain",
                             new Object[] { alias },
                             new String[] { "java.lang.String" });
 

@@ -36,11 +36,12 @@ to a pool, and also what the application will need in order to access the pool.<
 <p>To point the resource reference to a specific database pool in Gernimo, the web application
 needs to have a <tt>geronimo-web.xml</tt> deployment plan.  That may be packaged in the WAR
 in the <tt>WEB-INF</tt> directory, or it may be provided separately on the command line to
-the deploy tool.  The <tt>geronimo-web.xml</tt> plan should have a <tt>resource-ref</tt>
-block corresponding to the one above, which maps the resource reference to a specific database
-pool.  In that block, the <tt>ref-name</tt> must match the <tt>res-ref-name</tt> from
-the <tt>web.xml</tt> (above) and the <tt>resource-link</tt> must point to the database
-pool.</p>
+the deploy tool.  The <tt>geronimo-web.xml</tt> plan should have a <tt>dependency</tt>
+element pointing to the database pool module, and a <tt>resource-ref</tt> block corresponding
+to the <tt>web.xml</tt> <tt>resource-ref</tt> above, which maps the resource reference to a
+specific database pool.  In that block, the <tt>ref-name</tt> must match the
+<tt>res-ref-name</tt> from the <tt>web.xml</tt> (above) and the <tt>resource-link</tt> must
+point to the database pool by name.</p>
 
 <p><i>If you have only one pool named ${pool.name} deployed in Geronimo, you can point to it
 like this.</i></p>
@@ -48,50 +49,55 @@ like this.</i></p>
 <pre>
 &lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;web-app
-    xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.0"
-    xmlns:naming="http://geronimo.apache.org/xml/ns/naming-1.0"
-    configId="MyConfigName"&gt;
+    xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.1"&gt;
+    &lt;environment&gt;
+      &lt;configId&gt;
+        &lt;artifactId&gt;MyWebApp&lt;/artifactId&gt;
+      &lt;/configId&gt;
+    &lt;/environment&gt;
 
     &lt;context-root&gt;/MyWebApp&lt;/context-root&gt;
     &lt;context-priority-classloader&gt;true&lt;/context-priority-classloader&gt;
 
     &lt;!-- security settings, if any, go here --&gt;
 
-    &lt;naming:resource-ref&gt;
-        &lt;naming:ref-name&gt;<b>jdbc/MyDataSource</b>&lt;/naming:ref-name&gt;
-        <b>&lt;naming:resource-link&gt;${pool.name}&lt;/naming:resource-link&gt;</b>
-    &lt;/naming:resource-ref&gt;
+    &lt;resource-ref&gt;
+        &lt;ref-name&gt;<b>jdbc/MyDataSource</b>&lt;/ref-name&gt;
+        <b>&lt;resource-link&gt;${pool.name}&lt;/resource-link&gt;</b>
+    &lt;/resource-ref&gt;
 &lt;/web-app&gt;
 </pre>
 
-<p>That will search for a pool named ${pool.name} in both the current application and
-as a server-wide pool.</p>
+<p>That will search for a pool named ${pool.name} in the current application and any
+modules listed as dependencies (and their dependencies, etc.).</p>
 
-<p><i>If you have more than one pool named ${pool.name} (for example, one as a server-wide
-pool and one deployed within an application EAR), then you can specify the pool to use
-more explicitly like this:</i></p>
+<p><i>If you have more than one pool named ${pool.name} (for example, two dependencies
+that <b>each</b> include a component named ${pool.name}), then you can specify the
+pool to use more explicitly like this:</i></p>
 
 <pre>
 &lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;web-app
-    xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.0"
-    xmlns:naming="http://geronimo.apache.org/xml/ns/naming-1.0"
-    configId="MyConfigName"&gt;
+    xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.1"&gt;
+    &lt;environment&gt;
+      &lt;configId&gt;
+        &lt;artifactId&gt;MyWebApp&lt;/artifactId&gt;
+      &lt;/configId&gt;
+    &lt;/environment&gt;
 
     &lt;context-root&gt;/MyWebApp&lt;/context-root&gt;
     &lt;context-priority-classloader&gt;true&lt;/context-priority-classloader&gt;
 
     &lt;!-- security settings, if any, go here --&gt;
 
-    &lt;naming:resource-ref&gt;
-        &lt;naming:ref-name&gt;<b>jdbc/MyDataSource</b>&lt;/naming:ref-name&gt;
-        <b>&lt;naming:domain&gt;${pool.objectNameMap['domain']}&lt;/naming:domain&gt;
-        &lt;naming:server&gt;${pool.objectNameMap['J2EEServer']}&lt;/naming:server&gt;
-        &lt;naming:application&gt;${pool.objectNameMap['J2EEApplication']}&lt;/naming:application&gt;
-        &lt;naming:module&gt;${pool.objectNameMap['JCAResource']}&lt;/naming:module&gt;
-        &lt;naming:type&gt;${pool.objectNameMap['j2eeType']}&lt;/naming:type&gt;
-        &lt;naming:name&gt;${pool.objectNameMap['name']}&lt;/naming:name&gt;</b>
-    &lt;/naming:resource-ref&gt;
+    &lt;resource-ref&gt;
+        &lt;ref-name&gt;<b>jdbc/MyDataSource</b>&lt;/ref-name&gt;
+        <b>&lt;pattern&gt;
+          &lt;groupId&gt;${pool.abstractNameMap['groupId']}&lt;/groupId&gt;
+          &lt;artifactId&gt;${pool.abstractNameMap['artifactId']}&lt;/artifactId&gt;
+          &lt;name&gt;${pool.abstractNameMap['name']}&lt;/name&gt;
+        &lt;/pattern&gt;</b>
+    &lt;/resource-ref&gt;
 &lt;/web-app&gt;
 </pre>
 

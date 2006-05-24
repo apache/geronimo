@@ -16,23 +16,6 @@
  */
 package org.apache.geronimo.security.keystore;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.util.jce.X509Principal;
-import org.apache.geronimo.util.jce.X509V1CertificateGenerator;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
-
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -41,6 +24,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
+import java.net.URI;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -63,7 +47,23 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
-import java.net.URI;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.management.geronimo.KeystoreInstance;
+import org.apache.geronimo.management.geronimo.KeystoreIsLocked;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.util.jce.X509Principal;
+import org.apache.geronimo.util.jce.X509V1CertificateGenerator;
 
 /**
  * Implementation of KeystoreInstance that accesses a keystore file on the
@@ -82,7 +82,7 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
     private char[] keystorePassword; // Used to "unlock" the keystore for other services
     private Map keyPasswords = new HashMap();
     private Kernel kernel;
-    private ObjectName objectName;
+    private AbstractName abstractName;
     private char[] openPassword; // The password last used to open the keystore for editing
     // The following variables are the state of the keystore, which should be chucked if the file on disk changes
     private List privateKeys = new ArrayList();
@@ -90,12 +90,12 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
     private KeyStore keystore;
     private long keystoreReadDate = Long.MIN_VALUE;
 
-    public FileKeystoreInstance(ServerInfo serverInfo, URI keystorePath, String keystoreName, String keystorePassword, String keyPasswords, Kernel kernel, String objectName) throws MalformedObjectNameException {
+    public FileKeystoreInstance(ServerInfo serverInfo, URI keystorePath, String keystoreName, String keystorePassword, String keyPasswords, Kernel kernel, AbstractName abstractName) {
         this.serverInfo = serverInfo;
         this.keystorePath = keystorePath;
         this.keystoreName = keystoreName;
         this.kernel = kernel;
-        this.objectName = ObjectName.getInstance(objectName);
+        this.abstractName = abstractName;
         this.keystorePassword = keystorePassword == null ? null : keystorePassword.toCharArray();
         if(keyPasswords != null) {
             String[] keys = keyPasswords.split("\\]\\!\\[");
@@ -108,7 +108,7 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
     }
 
     public void doStart() throws Exception {
-        keystoreFile = new File(serverInfo.resolve(keystorePath));
+        keystoreFile = new File(serverInfo.resolveServer(keystorePath));
         if(!keystoreFile.exists() || !keystoreFile.canRead()) {
             throw new IllegalArgumentException("Invalid keystore file ("+keystorePath+" = "+keystoreFile.getAbsolutePath()+")");
         }
@@ -192,7 +192,7 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
             buf.append(entry.getKey()).append("=").append(entry.getValue());
         }
         try {
-            kernel.setAttribute(objectName, "keyPasswords", buf.toString());
+            kernel.setAttribute(abstractName, "keyPasswords", buf.toString());
         } catch (Exception e) {
             log.error("Unable to save key passwords in keystore '"+keystoreName+"'", e);
         }
@@ -200,7 +200,12 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
 
     public void setKeyPasswords(String passwords) {} // Just so the kernel sees the new value
 
-    public boolean isKeyUnlocked(String alias) {
+    /**
+     * Checks whether the specified private key is locked, which is to say,
+     * available for other components to use to generate socket factories.
+     * Does not check whether the unlock password is actually correct.
+     */
+    public boolean isKeyLocked(String alias) {
         return keyPasswords.get(alias) == null;
     }
 
@@ -319,10 +324,10 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
         infoFactory.addAttribute("keystorePassword", String.class, true, true);
         infoFactory.addAttribute("keyPasswords", String.class, true, true);
         infoFactory.addAttribute("kernel", Kernel.class, false);
-        infoFactory.addAttribute("objectName", String.class, false);
+        infoFactory.addAttribute("abstractName", AbstractName.class, false);
         infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addInterface(KeystoreInstance.class);
-        infoFactory.setConstructor(new String[]{"ServerInfo","keystorePath", "keystoreName", "keystorePassword", "keyPasswords", "kernel", "objectName"});
+        infoFactory.setConstructor(new String[]{"ServerInfo","keystorePath", "keystoreName", "keystorePassword", "keyPasswords", "kernel", "abstractName"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

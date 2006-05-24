@@ -44,6 +44,16 @@
             <artifactId>geronimo-j2ee-management_1.0_spec</artifactId>
             <version>${geronimo_spec_j2ee_management_version}</version>
         </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-kernel</artifactId>
+            <version>${geronimo_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-system</artifactId>
+            <version>${geronimo_version}</version>
+        </dependency>
     </dependencies>
 
     <build>

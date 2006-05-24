@@ -16,20 +16,22 @@
  */
 package org.apache.geronimo.console.keystores;
 
-import org.apache.geronimo.console.MultiPageModel;
-import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.security.keystore.KeystoreManager;
-import org.apache.geronimo.security.keystore.KeystoreIsLocked;
-
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
 import javax.portlet.PortletSession;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
-import java.io.IOException;
-import java.util.Map;
-import java.util.HashMap;
+import org.apache.geronimo.console.MultiPageModel;
+import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.management.geronimo.KeystoreInstance;
+import org.apache.geronimo.management.geronimo.KeystoreIsLocked;
+import org.apache.geronimo.management.geronimo.KeystoreManager;
 
 /**
  * Handler for the keystore list screen.
@@ -46,20 +48,21 @@ public class ListHandler extends BaseKeystoreHandler {
     }
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
-        KeystoreManager manager = PortletManager.getKeystoreManager(request);
-        String[] names = manager.listKeystores();
+        KeystoreManager manager = PortletManager.getCurrentServer(request).getKeystoreManager();
+        KeystoreInstance[] keystores = manager.getKeystores();
         PortletSession session = request.getPortletSession(true);
-        KeystoreData[] keystores = new KeystoreData[names.length];
+        KeystoreData[] datas = new KeystoreData[keystores.length];
         Map keys = new HashMap();
-        for (int i = 0; i < names.length; i++) {
-            String name = names[i];
+        for (int i = 0; i < datas.length; i++) {
+            AbstractName aName = PortletManager.getNameFor(request, keystores[i]);
+            String name = (String) aName.getName().get(NameFactory.J2EE_NAME);
             KeystoreData data = (KeystoreData) session.getAttribute(KEYSTORE_DATA_PREFIX+name);
             if(data == null) {
                 data = new KeystoreData();
-                data.setInstance(manager.getKeystore(name));
+                data.setInstance(keystores[i]);
                 session.setAttribute(KEYSTORE_DATA_PREFIX+name, data);
             }
-            keystores[i] = data;
+            datas[i] = data;
             if(!data.getInstance().isKeystoreLocked()) {
                 try {
                     String[] all = data.getInstance().getUnlockedKeys();
@@ -71,7 +74,7 @@ public class ListHandler extends BaseKeystoreHandler {
                 } catch (KeystoreIsLocked locked) {}
             }
         }
-        request.setAttribute("keystores", keystores);
+        request.setAttribute("keystores", datas);
         request.setAttribute("keys", keys);
     }
 

@@ -21,9 +21,9 @@
 <!--
 Configuration for Tomcat server.
 -->
-<configuration
-    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-               configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
+<module
+    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
+
     >
 
     <gbean name="TomcatResources" class="org.apache.geronimo.system.util.DirectoryInitializationGBean">
@@ -31,7 +31,6 @@ Configuration for Tomcat server.
         <attribute name="prefix">META-INF/geronimo-tomcat</attribute>
         <attribute name="path">var/catalina</attribute>
         <reference name="ServerInfo">
-            <module>geronimo/j2ee-system/${pom.currentVersion}/car</module>
             <name>ServerInfo</name>
         </reference>
     </gbean>
@@ -50,8 +49,10 @@ Configuration for Tomcat server.
             <name>TomcatEngine</name>
         </reference>
         <reference name="ServerInfo">
-            <module>geronimo/j2ee-system/${pom.currentVersion}/car</module>
             <name>ServerInfo</name>
+        </reference>
+        <reference name="WebManager">
+            <name>TomcatWebManager</name>
         </reference>
     </gbean>
 
@@ -108,7 +109,6 @@ Configuration for Tomcat server.
             <name>TomcatWebContainer</name>
         </reference>
         <reference name="ServerInfo">
-            <module>geronimo/j2ee-system/${pom.currentVersion}/car</module>
             <name>ServerInfo</name>
         </reference>
     </gbean>
@@ -124,7 +124,7 @@ Configuration for Tomcat server.
         </reference>
         <references name="Hosts">
             <pattern>
-                <gbean-name>geronimo.server:j2eeType=Host,*</gbean-name>
+                <type>Host</type>
             </pattern>
         </references>
         <reference name="RealmGBean">
@@ -134,19 +134,24 @@ Configuration for Tomcat server.
             <name>FirstValve</name>
         </reference>
         <dependency>
-            <type>GBean</type>
             <name>TomcatResources</name>
         </dependency>
+        <!-- n.b. is you have more hosts, you want them to start before the engine gbean -->
+        <!-- ensure this by including dependencies like this -->
+<!--
+        <dependency>
+            <name>MyAdditionalHost</name>
+        </dependency>
+-->
     </gbean>
 
     <gbean name="TomcatAccessLogManager" class="org.apache.geronimo.tomcat.TomcatLogManagerImpl">
         <reference name="ServerInfo">
-            <module>geronimo/j2ee-system/${pom.currentVersion}/car</module>
             <name>ServerInfo</name>
         </reference>
         <references name="LogGBeans">
             <pattern>
-                <gbean-name>geronimo.server:name=FirstValve,*</gbean-name>
+                <name>FirstValve</name>
             </pattern>
         </references>
     </gbean>
@@ -210,4 +215,4 @@ Configuration for Tomcat server.
         -->
     </gbean>
 
-</configuration>
+</module>

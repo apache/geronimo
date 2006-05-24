@@ -46,7 +46,7 @@ public interface TomcatContext {
     
     public String getVirtualServer();
     
-    public ClassLoader getWebClassLoader();
+    public ClassLoader getClassLoader();
     
     public Map getComponentContext();
 
@@ -69,7 +69,7 @@ public interface TomcatContext {
     public Manager getManager();
     
     public boolean isCrossContext();
-    
+
     public boolean isDisableCookies();
     
     public Map getWebServices();

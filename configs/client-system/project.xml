@@ -37,6 +37,9 @@
             <artifactId>geronimo-gbean-deployer</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
+            <properties>
+                <packaging.config.order>1</packaging.config.order>
+            </properties>
         </dependency>
 
         <!-- dependencies referenced in the plan -->
@@ -71,6 +74,14 @@
             <properties>
                  <geronimo.dependency>true</geronimo.dependency>
              </properties>
+        </dependency>
+        <dependency>
+            <groupId>concurrent</groupId>
+            <artifactId>concurrent</artifactId>
+            <version>${concurrent_version}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
         </dependency>
         <dependency>
             <groupId>commons-cli</groupId>

@@ -81,6 +81,18 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-kernel</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-security</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-security-builder</artifactId>
             <version>${pom.currentVersion}</version>
             <properties>
@@ -113,6 +125,18 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-j2ee-jacc_1.0_spec</artifactId>
+            <version>${geronimo_spec_j2ee_jacc_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-servlet_2.4_spec</artifactId>
+            <version>${geronimo_spec_servlet_version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee-schema</artifactId>
             <version>${pom.currentVersion}</version>
@@ -137,6 +161,13 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee</artifactId>
             <version>${geronimo_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>${commons_logging_version}</version>
+            <url>http://jakarta.apache.org/commons/logging/</url>
         </dependency>
 
         <dependency>

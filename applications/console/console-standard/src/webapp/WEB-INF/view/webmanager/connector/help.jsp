@@ -1,1 +1,0 @@
-The Connector Manager displays connections of all types and provide the capability to modify connections for this web server. 
