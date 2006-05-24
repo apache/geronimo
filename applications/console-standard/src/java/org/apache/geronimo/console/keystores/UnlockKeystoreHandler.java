@@ -67,16 +67,18 @@ public class UnlockKeystoreHandler extends BaseKeystoreHandler {
         char[] storePass = password.toCharArray();
         data.getInstance().unlockKeystore(storePass);
         if(data.getKeys() != null && data.getKeys().length > 0) {
+            // if it's unlocked for editing and has keys
             try {
                 data.getInstance().unlockPrivateKey(alias, keyPassword.toCharArray());
             } catch (KeystoreIsLocked e) {
                 throw new PortletException("Invalid password for keystore", e);
             }
-        } else {
+        } else if(data.getInstance().listPrivateKeys(storePass) != null && data.getInstance().listPrivateKeys(storePass).length > 0) {
+            // if it's locked for editing but has keys
             response.setRenderParameter("keystore", keystore);
             response.setRenderParameter("password", password);
             return UNLOCK_KEY+BEFORE_ACTION;
-        }
+        } // otherwise it has no keys
         return LIST_MODE+BEFORE_ACTION;
     }
 }

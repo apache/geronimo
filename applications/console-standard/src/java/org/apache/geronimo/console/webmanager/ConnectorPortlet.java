@@ -359,6 +359,26 @@ public class ConnectorPortlet extends BasePortlet {
                     if(server.equals(WEB_SERVER_JETTY)) {
                         int minThreads = ((Number)getProperty(connector, "minThreads")).intValue();
                         renderRequest.setAttribute("minThreads", String.valueOf(minThreads));
+                        KeystoreManager mgr = PortletManager.getCurrentServer(renderRequest).getKeystoreManager();
+                        KeystoreInstance[] stores = mgr.getUnlockedKeyStores();
+                        String[] storeNames = new String[stores.length];
+                        for (int i = 0; i < storeNames.length; i++) {
+                            storeNames[i] = stores[i].getKeystoreName();
+                        }
+                        renderRequest.setAttribute("keyStores", storeNames);
+                        KeystoreInstance[] trusts = mgr.getUnlockedTrustStores();
+                        String[] trustNames = new String[trusts.length];
+                        for (int i = 0; i < trustNames.length; i++) {
+                            trustNames[i] = trusts[i].getKeystoreName();
+                        }
+                        renderRequest.setAttribute("trustStores", trustNames);
+                        Map aliases = new HashMap();
+                        for (int i = 0; i < stores.length; i++) {
+                            try {
+                                aliases.put(stores[i].getKeystoreName(), stores[i].getUnlockedKeys());
+                            } catch (KeystoreIsLocked locked) {}
+                        }
+                        renderRequest.setAttribute("unlockedKeys", aliases);
                     }
                     else if (server.equals(WEB_SERVER_TOMCAT)) {
                         //todo:   Any Tomcat specific processing?

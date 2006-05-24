@@ -69,7 +69,7 @@ public class ListHandler extends BaseKeystoreHandler {
                     if(all.length > 0) {
                         keys.put(data.getInstance().getKeystoreName(), all.length+" key"+(all.length > 1 ? "s" : "")+" ready");
                     } else {
-                        keys.put(data.getInstance().getKeystoreName(), "NO KEYS READY");
+                        keys.put(data.getInstance().getKeystoreName(), "trust store only");
                     }
                 } catch (KeystoreIsLocked locked) {}
             }
