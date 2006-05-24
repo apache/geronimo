@@ -761,6 +761,9 @@
             <groupId>concurrent</groupId>
             <artifactId>concurrent</artifactId>
             <version>${concurrent_version}</version>
+            <properties>
+                <geronimo.assemble>library</geronimo.assemble>
+            </properties>
         </dependency>
 
         <dependency>

@@ -277,9 +277,6 @@
             <groupId>concurrent</groupId>
             <artifactId>concurrent</artifactId>
             <version>${concurrent_version}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
         </dependency>
     <!--transaction module requires tranql for cache class -->
 <!-- TODO this is false.  tranql should not be needed here -->
