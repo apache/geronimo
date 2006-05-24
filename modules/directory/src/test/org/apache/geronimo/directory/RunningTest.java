@@ -42,8 +42,10 @@ public class RunningTest extends TestCase {
 
         Hashtable env = new Hashtable();
         env.put(Context.PROVIDER_URL, "ldap://localhost:9389");
+        String ldapContextFactory = System.getProperty("initial.context.factory");
+        if (ldapContextFactory == null) ldapContextFactory = "com.sun.jndi.ldap.LdapCtxFactory";
         env.put(Context.INITIAL_CONTEXT_FACTORY,
-                "com.sun.jndi.ldap.LdapCtxFactory");
+                ldapContextFactory);
         //env.put( Context.SECURITY_AUTHENTICATION, "simple");
         env.put( Context.SECURITY_PRINCIPAL, PRINCIPAL);
         env.put( Context.SECURITY_CREDENTIALS, CREDENTIALS);
