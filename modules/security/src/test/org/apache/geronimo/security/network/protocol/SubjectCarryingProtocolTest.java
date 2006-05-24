@@ -17,7 +17,9 @@
 
 package org.apache.geronimo.security.network.protocol;
 
-import com.sun.security.auth.login.ConfigFile;
+//  Removed to allow building Geronimo on non-Sun JDK.  When this test case is updated and enabled
+//  again it should be updated so that it is not specific to the Sun JDK.
+// import com.sun.security.auth.login.ConfigFile;
 import org.activeio.AcceptListener;
 import org.activeio.AsyncChannelServer;
 import org.activeio.Channel;
@@ -194,7 +196,7 @@ public class SubjectCarryingProtocolTest extends AbstractTest implements Request
         kernel.unloadGBean(testRealm);
         kernel.unloadGBean(serverInfo);
         super.tearDown();
-        Configuration.setConfiguration(new ConfigFile());
+//        Configuration.setConfiguration(new ConfigFile());
     }
 
     public Packet onRequest(Packet packet) {
