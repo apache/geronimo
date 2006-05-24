@@ -126,12 +126,26 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
 
     public boolean unlockKeystore(char[] password) {
         //todo: test whether password is correct and if not return false
-        keystorePassword = password;
+        try {
+            kernel.setAttribute(abstractName, "keystorePassword", password == null ? null : new String(password));
+        } catch (Exception e) {
+            throw (IllegalStateException)new IllegalStateException("Unable to set attribute keystorePassword on myself!").initCause(e);
+        }
         return true;
     }
 
+    public void setKeystorePassword(String password) {
+        keystorePassword = password == null ? null : password.toCharArray();
+    }
+
     public void lockKeystore() {
-        keystorePassword = null;
+        try {
+            kernel.setAttribute(abstractName, "keystorePassword", null);
+            keyPasswords.clear();
+            storePasswords();
+        } catch (Exception e) {
+            throw (IllegalStateException)new IllegalStateException("Unable to set attribute keystorePassword on myself!").initCause(e);
+        }
     }
 
     public boolean isKeystoreLocked() {
@@ -178,8 +192,8 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
     }
 
     public void lockPrivateKey(String alias) {
-        storePasswords();
         keyPasswords.remove(alias);
+        storePasswords();
     }
 
     private void storePasswords() {
@@ -192,7 +206,7 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
             buf.append(entry.getKey()).append("=").append(entry.getValue());
         }
         try {
-            kernel.setAttribute(abstractName, "keyPasswords", buf.toString());
+            kernel.setAttribute(abstractName, "keyPasswords", buf.length() == 0 ? null : buf.toString());
         } catch (Exception e) {
             log.error("Unable to save key passwords in keystore '"+keystoreName+"'", e);
         }

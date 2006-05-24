@@ -120,7 +120,8 @@
       </tr>
       <tr>
         <td><div align="right"></div></td>
-        <td>The keystore to use for accessing the server's private key</td>
+        <td>The keystore containing the trusted certificate entries, including
+            Certification Authority (CA) certificates</td>
       </tr>
 
 </c:if>
