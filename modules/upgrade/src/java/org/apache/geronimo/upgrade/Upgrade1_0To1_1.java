@@ -63,6 +63,7 @@ public class Upgrade1_0To1_1 {
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/security", "http://geronimo.apache.org/xml/ns/security-1.1");
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/security-1.0", "http://geronimo.apache.org/xml/ns/security-1.1");
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/web", "http://geronimo.apache.org/xml/ns/j2ee/web-1.1");
+        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/web-1.0", "http://geronimo.apache.org/xml/ns/j2ee/web-1.1");
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/web-1.0", "http://geronimo.apache.org/xml/ns/j2ee/web-1.1");
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/web/jetty", "http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.1");
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/web/jetty-1.0", "http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.1");
