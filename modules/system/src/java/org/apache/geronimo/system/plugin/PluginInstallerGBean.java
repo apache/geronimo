@@ -513,6 +513,9 @@ public class PluginInstallerGBean implements PluginInstaller {
                 ResultsFileWriteMonitor monitor = new ResultsFileWriteMonitor(poller);
                 writeableRepo.copyToRepository(carFile, data.getModuleId(), monitor);
                 installConfigXMLData(data.getModuleId(), data);
+                if(data.getFilesToCopy() != null) {
+                    extractPluginFiles(data.getModuleId(), data, monitor);
+                }
             }
 
             // 4. Use the standard logic to remove obsoletes, install dependencies, etc.
@@ -588,7 +591,7 @@ public class PluginInstallerGBean implements PluginInstaller {
             soFar.add(configID);
         }
         // Download and install the main artifact
-        //todo: check all repositories?
+        boolean pluginWasInstalled = false;
         Artifact[] matches = configManager.getArtifactResolver().queryArtifacts(configID);
         if(matches.length == 0) { // not present, needs to be downloaded
             OpenResult result = openStream(configID, repos, username, password, monitor);
@@ -627,6 +630,7 @@ public class PluginInstallerGBean implements PluginInstaller {
                     configID = result.getConfigID();
                     monitor.getResults().addInstalledConfigID(configID);
                 }
+                pluginWasInstalled = true;
             } finally {
                 result.getStream().close();
             }
@@ -671,6 +675,12 @@ public class PluginInstallerGBean implements PluginInstaller {
         }
         // Copy any files out of the artifact
         PluginMetadata currentPlugin = configManager.isConfiguration(configID) ? getPluginMetadata(configID) : null;
+        if(pluginWasInstalled && currentPlugin != null && currentPlugin.getFilesToCopy() != null) {
+            extractPluginFiles(configID, currentPlugin, monitor);
+        }
+    }
+
+    private void extractPluginFiles(Artifact configID, PluginMetadata currentPlugin, ResultsFileWriteMonitor monitor) throws IOException {
         for (int i = 0; i < currentPlugin.getFilesToCopy().length; i++) {
             PluginMetadata.CopyFile data = currentPlugin.getFilesToCopy()[i];
             monitor.getResults().setCurrentFilePercent(-1);
