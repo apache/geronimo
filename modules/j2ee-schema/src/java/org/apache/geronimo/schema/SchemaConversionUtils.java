@@ -69,6 +69,8 @@ public class SchemaConversionUtils {
 
         GERONIMO_SCHEMA_CONVERSIONS.put("gbean", new GBeanElementConverter());
         GERONIMO_SCHEMA_CONVERSIONS.put("environment", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
+        GERONIMO_SCHEMA_CONVERSIONS.put("client-environment", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
+        GERONIMO_SCHEMA_CONVERSIONS.put("server-environment", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
     }
 
     private SchemaConversionUtils() {

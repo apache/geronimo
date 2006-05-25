@@ -90,6 +90,16 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>openejb</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+            <properties>
+                 <geronimo.import>true</geronimo.import>
+             </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
             <version>${geronimo_version}</version>
         </dependency>
@@ -187,14 +197,6 @@
             <groupId>tranql</groupId>
             <artifactId>tranql</artifactId>
             <version>${tranql_version}</version>
-        </dependency>
-        <dependency>
-            <groupId>openejb</groupId>
-            <artifactId>openejb-core</artifactId>
-            <version>${openejb_version}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-            </properties>
         </dependency>
         <dependency>
             <groupId>howl</groupId>
