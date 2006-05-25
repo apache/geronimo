@@ -119,7 +119,14 @@ public class Maven1Repository extends AbstractRepository implements WritableList
                 String artifactId = matcher.group(3);
                 String version = matcher.group(4);
                 String type = matcher.group(2);
-                artifacts.add(new Artifact(groupId, artifactId, version, type));
+                if(groupId.indexOf('/') > -1 || artifactId.indexOf('/') > -1 || type.indexOf('/') > -1 ||
+                    version.indexOf('/') > -1) {
+                    log.warn("could not resolve URI for malformed repository entry: " + names[i] +
+                    " - the filename should look like: <groupId>/<type>s/<artifactId>-<version>.<type>   "+
+                    "Perhaps you put in a file without a version number in the name?");
+                } else {
+                    artifacts.add(new Artifact(groupId, artifactId, version, type));
+                }
             } else {
             	log.warn("could not resolve URI for malformed repository entry: " + names[i] +
             	" - the filename should look like: <groupId>/<type>s/<artifactId>-<version>.<type>   "+
