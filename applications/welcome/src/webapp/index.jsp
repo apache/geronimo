@@ -132,14 +132,17 @@
                 <p>Your web deployment plan should look like this, and you can either pack it into
                 the WAR at <tt>WEB-INF/geronimo-web.xml</tt> or provide it as a separate argument
                 to the deploy tool.</p>
-<pre>&lt;web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.0"
-         configId="MyApplication"&gt;
+<pre>&lt;web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.1"&gt;
+    &lt;environment&gt;
+        &lt;moduleId&gt;
+            &lt;artifactId&gt;MyApplication&lt;/artifactId&gt;
+        &lt;/moduleId&gt;
+    &lt;/environment&gt;
     &lt;context-root&gt;/&lt;/context-root&gt;
-    &lt;context-priority-classloader&gt;false&lt;/context-priority-classloader&gt;
 &lt;/web-app&gt;</pre>
                 <p>Then you can stop this application and deploy yours from the <a href="/console">Admin Console</a> or from the command line with a sequence of commands like this:</p>
                 <% boolean jetty = application.getServerInfo().toLowerCase().indexOf("jetty") > -1; %>
-<pre>java -jar bin/deployer.jar stop geronimo/welcome-<% if(jetty) {%>jetty<%} else {%>tomcat<%}%>/1.0/car
+<pre>java -jar bin/deployer.jar stop welcome-<% if(jetty) {%>jetty<%} else {%>tomcat<%}%>
 java -jar bin/deployer.jar deploy MyWebApp.war</pre>
             </div>
 
@@ -151,7 +154,7 @@ java -jar bin/deployer.jar deploy MyWebApp.war</pre>
            </ul>
 
             <p>Thanks for using Geronimo!</p>
-
+<!-- Needs to be updated if we want to keep using it
             <div style="margin-left: 50px; margin-right: 50px; padding: 10px; background-color:#eee">
                 <p><b>Would you like a slimmer Geronimo installation?</b><br />
                  Geronimo ships with a number of sample applications and demonstration services
@@ -242,7 +245,7 @@ java -jar bin/deployer.jar deploy MyWebApp.war</pre>
                     </tr>
                 </table>
             </div>
-
+-->
 
             <p align="right"><font size=-1>
             <img src="<%=request.getContextPath()%>/images/powered_by_100x30.gif"/>

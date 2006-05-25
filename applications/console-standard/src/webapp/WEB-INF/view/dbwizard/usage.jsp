@@ -51,13 +51,18 @@ like this.</i></p>
 &lt;web-app
     xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.1"&gt;
     &lt;environment&gt;
-      &lt;configId&gt;
-        &lt;artifactId&gt;MyWebApp&lt;/artifactId&gt;
-      &lt;/configId&gt;
+        &lt;moduleId&gt;
+            &lt;artifactId&gt;MyWebApp&lt;/artifactId&gt;
+        &lt;/moduleId&gt;
+        &lt;dependencies&gt;
+            <b>&lt;dependency&gt;
+                &lt;groupId&gt;${pool.abstractNameMap['groupId']}&lt;/groupId&gt;
+                &lt;artifactId&gt;${pool.abstractNameMap['artifactId']}&lt;/artifactId&gt;
+            &lt;/dependency&gt;</b>
+        &lt;/dependencies&gt;
     &lt;/environment&gt;
 
     &lt;context-root&gt;/MyWebApp&lt;/context-root&gt;
-    &lt;context-priority-classloader&gt;true&lt;/context-priority-classloader&gt;
 
     &lt;!-- security settings, if any, go here --&gt;
 
@@ -80,13 +85,18 @@ pool to use more explicitly like this:</i></p>
 &lt;web-app
     xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.1"&gt;
     &lt;environment&gt;
-      &lt;configId&gt;
-        &lt;artifactId&gt;MyWebApp&lt;/artifactId&gt;
-      &lt;/configId&gt;
+        &lt;moduleId&gt;
+            &lt;artifactId&gt;MyWebApp&lt;/artifactId&gt;
+        &lt;/moduleId&gt;
+        &lt;dependencies&gt;
+            <b>&lt;dependency&gt;
+                &lt;groupId&gt;${pool.abstractNameMap['groupId']}&lt;/groupId&gt;
+                &lt;artifactId&gt;${pool.abstractNameMap['artifactId']}&lt;/artifactId&gt;
+            &lt;/dependency&gt;</b>
+        &lt;/dependencies&gt;
     &lt;/environment&gt;
 
     &lt;context-root&gt;/MyWebApp&lt;/context-root&gt;
-    &lt;context-priority-classloader&gt;true&lt;/context-priority-classloader&gt;
 
     &lt;!-- security settings, if any, go here --&gt;
 
