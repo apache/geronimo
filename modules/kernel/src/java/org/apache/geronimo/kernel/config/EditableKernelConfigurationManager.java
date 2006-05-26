@@ -43,8 +43,9 @@ public class EditableKernelConfigurationManager extends KernelConfigurationManag
             ArtifactManager artifactManager,
             ArtifactResolver artifactResolver,
             Collection repositories,
+            Collection watchers,
             ClassLoader classLoader) {
-        super(kernel, stores, attributeStore, configurationList, artifactManager, artifactResolver, repositories, classLoader);
+        super(kernel, stores, attributeStore, configurationList, artifactManager, artifactResolver, repositories, watchers, classLoader);
     }
 
     public void addGBeanToConfiguration(Artifact configurationId, GBeanData gbean, boolean start) throws InvalidConfigException {
@@ -157,7 +158,7 @@ public class EditableKernelConfigurationManager extends KernelConfigurationManag
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(EditableKernelConfigurationManager.class, KernelConfigurationManager.GBEAN_INFO, "ConfigurationManager");
         infoFactory.addInterface(EditableConfigurationManager.class);
-        infoFactory.setConstructor(new String[]{"kernel", "Stores", "AttributeStore", "PersistentConfigurationList", "ArtifactManager", "ArtifactResolver", "Repositories", "classLoader"});
+        infoFactory.setConstructor(new String[]{"kernel", "Stores", "AttributeStore", "PersistentConfigurationList", "ArtifactManager", "ArtifactResolver", "Repositories", "Watchers", "classLoader"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -66,11 +66,12 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
             ArtifactManager artifactManager,
             ArtifactResolver artifactResolver,
             Collection repositories,
+            Collection watchers,
             ClassLoader classLoader) {
 
         super(stores,
                 createArtifactResolver(artifactResolver, artifactManager, repositories),
-                repositories);
+                repositories, watchers);
 
         this.kernel = kernel;
         this.attributeStore = attributeStore;
@@ -334,9 +335,10 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
         infoFactory.addReference("ArtifactManager", ArtifactManager.class, "ArtifactManager");
         infoFactory.addReference("ArtifactResolver", ArtifactResolver.class, "ArtifactResolver");
         infoFactory.addReference("Repositories", Repository.class, "Repository");
+        infoFactory.addReference("Watchers", DeploymentWatcher.class);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addInterface(ConfigurationManager.class);
-        infoFactory.setConstructor(new String[]{"kernel", "Stores", "AttributeStore", "PersistentConfigurationList", "ArtifactManager", "ArtifactResolver", "Repositories", "classLoader"});
+        infoFactory.setConstructor(new String[]{"kernel", "Stores", "AttributeStore", "PersistentConfigurationList", "ArtifactManager", "ArtifactResolver", "Repositories", "Watchers", "classLoader"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

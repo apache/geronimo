@@ -19,6 +19,8 @@ package org.apache.geronimo.deployment.hot;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
 import org.apache.geronimo.deployment.cli.DeployUtils;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.config.IOUtil;
 
 import java.io.File;
 import java.io.Serializable;
@@ -29,6 +31,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.LinkedList;
+import java.util.Set;
 
 /**
  * Meant to be run as a Thread that tracks the contents of a directory.
@@ -107,7 +110,8 @@ public class DirectoryMonitor implements Runnable {
     private File directory;
     private boolean done = false;
     private Listener listener; // a little cheesy, but do we really need multiple listeners?
-    private Map files = new HashMap();
+    private final Map files = new HashMap();
+    private volatile String workingOnConfigId;
 
     public DirectoryMonitor(File directory, Listener listener, int pollIntervalMillis) {
         this.directory = directory;
@@ -155,6 +159,34 @@ public class DirectoryMonitor implements Runnable {
         this.done = true;
     }
 
+    public void removeModuleId(Artifact id) {
+        log.info("Hot deployer notified that an artifact was removed: "+id);
+        if(id.toString().equals(workingOnConfigId)) {
+            // since the redeploy process inserts a new thread to handle progress,
+            // this is called by a different thread than the hot deploy thread during
+            // a redeploy, and this check must be executed outside the synchronized
+            // block or else it will cause a deadlock!
+            return; // don't react to events we generated ourselves
+        }
+        synchronized(files) {
+            for (Iterator it = files.keySet().iterator(); it.hasNext();) {
+                String path = (String) it.next();
+                FileInfo info = (FileInfo) files.get(path);
+                Artifact target = Artifact.create(info.getConfigId());
+                if(id.matches(target)) { // need to remove record & delete file
+                    File file = new File(path);
+                    if(file.exists()) { // if not, probably it's deletion kicked off this whole process
+                        log.info("Hot deployer deleting "+id);
+                        if(!IOUtil.recursiveDelete(file)) {
+                            log.error("Hot deployer unable to delete "+path);
+                        }
+                        it.remove();
+                    }
+                }
+            }
+        }
+    }
+
     public void run() {
         boolean serverStarted = false, initialized = false;
         while (!done) {
@@ -163,19 +195,23 @@ public class DirectoryMonitor implements Runnable {
             } catch (InterruptedException e) {
                 continue;
             }
-            if (listener != null) {
-                if (!serverStarted && listener.isServerRunning()) {
-                    serverStarted = true;
-                }
-                if (serverStarted) {
-                    if (!initialized) {
-                        initialized = true;
-                        initialize();
-                        listener.started();
-                    } else {
-                        scanDirectory();
+            try {
+                if (listener != null) {
+                    if (!serverStarted && listener.isServerRunning()) {
+                        serverStarted = true;
+                    }
+                    if (serverStarted) {
+                        if (!initialized) {
+                            initialized = true;
+                            initialize();
+                            listener.started();
+                        } else {
+                            scanDirectory();
+                        }
                     }
                 }
+            } catch (Exception e) {
+                log.error("Error during hot deployment", e);
             }
         }
     }
@@ -196,6 +232,7 @@ public class DirectoryMonitor implements Runnable {
                     if (listener != null) {
                         now.setModified(listener.getDeploymentTime(child, now.getConfigId()));
                     }
+log.info("At startup, found "+now.getPath()+" with deploy time "+now.getModified()+" and file time "+new File(now.getPath()).lastModified());
                     files.put(now.getPath(), now);
                 }
             } catch (Exception e) {
@@ -215,87 +252,93 @@ public class DirectoryMonitor implements Runnable {
             done = true;
             return;
         }
-        HashSet oldList = new HashSet(files.keySet());
-        List actions = new LinkedList();
-        for (int i = 0; i < children.length; i++) {
-            File child = children[i];
-            if (!child.canRead()) {
-                continue;
-            }
-            FileInfo now = child.isDirectory() ? getDirectoryInfo(child) : getFileInfo(child);
-            FileInfo then = (FileInfo) files.get(now.getPath());
-            if (then == null) { // Brand new, wait a bit to make sure it's not still changing
-                now.setNewFile(true);
-                files.put(now.getPath(), now);
-                log.debug("New File: " + now.getPath());
-            } else {
-                oldList.remove(then.getPath());
-                if (now.isSame(then)) { // File is the same as the last time we scanned it
-                    if (then.isChanging()) {
-                        log.debug("File finished changing: " + now.getPath());
-                        // Used to be changing, now in (hopefully) its final state
-                        if (then.isNewFile()) {
-                            actions.add(new FileAction(FileAction.NEW_FILE, child, then));
-                        } else {
-                            actions.add(new FileAction(FileAction.UPDATED_FILE, child, then));
-                        }
-                        then.setChanging(false);
-                    } // else it's just totally unchanged and we ignore it this pass
-                } else {
-                    // The two records are different -- record the latest as a file that's changing
-                    // and later when it stops changing we'll do the add or update as appropriate.
-                    now.setConfigId(then.getConfigId());
-                    now.setNewFile(then.isNewFile());
+        synchronized (files) {
+            Set oldList = new HashSet(files.keySet());
+            List actions = new LinkedList();
+            for (int i = 0; i < children.length; i++) {
+                File child = children[i];
+                if (!child.canRead()) {
+                    continue;
+                }
+                FileInfo now = child.isDirectory() ? getDirectoryInfo(child) : getFileInfo(child);
+                FileInfo then = (FileInfo) files.get(now.getPath());
+                if (then == null) { // Brand new, wait a bit to make sure it's not still changing
+                    now.setNewFile(true);
                     files.put(now.getPath(), now);
-                    log.debug("File Changed: " + now.getPath());
-                }
-            }
-        }
-        // Look for any files we used to know about but didn't find in this pass
-        for (Iterator it = oldList.iterator(); it.hasNext();) {
-            String name = (String) it.next();
-            FileInfo info = (FileInfo) files.get(name);
-            log.debug("File removed: " + name);
-            if (info.isNewFile()) { // Was never added, just whack it
-                files.remove(name);
-            } else {
-                actions.add(new FileAction(FileAction.REMOVED_FILE, new File(name), info));
-            }
-        }
-        if (listener != null) {
-            // First pass: validate all changed files, so any obvious errors come out first
-            for (Iterator it = actions.iterator(); it.hasNext();) {
-                FileAction action = (FileAction) it.next();
-                if (!listener.validateFile(action.child, action.info.getConfigId())) {
-                    resolveFile(action);
-                    it.remove();
-                }
-            }
-            // Second pass: do what we're meant to do
-            for (Iterator it = actions.iterator(); it.hasNext();) {
-                FileAction action = (FileAction) it.next();
-                try {
-                    if (action.action == FileAction.REMOVED_FILE) {
-                        if (listener.fileRemoved(action.child, action.info.getConfigId())) {
-                            files.remove(action.child.getPath());
-                        }
-                    } else if (action.action == FileAction.NEW_FILE) {
-                        String result = listener.fileAdded(action.child);
-                        if (result != null) {
-                            if (!result.equals("")) {
-                                action.info.setConfigId(result);
+                    log.debug("New File: " + now.getPath());
+                } else {
+                    oldList.remove(then.getPath());
+                    if (now.isSame(then)) { // File is the same as the last time we scanned it
+                        if (then.isChanging()) {
+                            log.debug("File finished changing: " + now.getPath());
+                            // Used to be changing, now in (hopefully) its final state
+                            if (then.isNewFile()) {
+                                actions.add(new FileAction(FileAction.NEW_FILE, child, then));
                             } else {
-                                action.info.setConfigId(calculateModuleId(action.child));
+                                actions.add(new FileAction(FileAction.UPDATED_FILE, child, then));
                             }
-                            action.info.setNewFile(false);
-                        }
-                    } else if (action.action == FileAction.UPDATED_FILE) {
-                        listener.fileUpdated(action.child, action.info.getConfigId());
+                            then.setChanging(false);
+                        } // else it's just totally unchanged and we ignore it this pass
+                    } else if(then.isNewFile() || now.getModified() > then.getModified()) {
+                        // The two records are different -- record the latest as a file that's changing
+                        // and later when it stops changing we'll do the add or update as appropriate.
+                        now.setConfigId(then.getConfigId());
+                        now.setNewFile(then.isNewFile());
+                        files.put(now.getPath(), now);
+                        log.debug("File Changed: " + now.getPath());
                     }
-                } catch (Exception e) {
-                    log.error("Unable to " + action.getActionName() + " file " + action.child.getAbsolutePath(), e);
-                } finally {
-                    resolveFile(action);
+                }
+            }
+            // Look for any files we used to know about but didn't find in this pass
+            for (Iterator it = oldList.iterator(); it.hasNext();) {
+                String name = (String) it.next();
+                FileInfo info = (FileInfo) files.get(name);
+                log.debug("File removed: " + name);
+                if (info.isNewFile()) { // Was never added, just whack it
+                    files.remove(name);
+                } else {
+                    actions.add(new FileAction(FileAction.REMOVED_FILE, new File(name), info));
+                }
+            }
+            if (listener != null) {
+                // First pass: validate all changed files, so any obvious errors come out first
+                for (Iterator it = actions.iterator(); it.hasNext();) {
+                    FileAction action = (FileAction) it.next();
+                    if (!listener.validateFile(action.child, action.info.getConfigId())) {
+                        resolveFile(action);
+                        it.remove();
+                    }
+                }
+                // Second pass: do what we're meant to do
+                for (Iterator it = actions.iterator(); it.hasNext();) {
+                    FileAction action = (FileAction) it.next();
+                    try {
+                        if (action.action == FileAction.REMOVED_FILE) {
+                            workingOnConfigId = action.info.getConfigId();
+                            if (listener.fileRemoved(action.child, action.info.getConfigId())) {
+                                files.remove(action.child.getPath());
+                            }
+                            workingOnConfigId = null;
+                        } else if (action.action == FileAction.NEW_FILE) {
+                            String result = listener.fileAdded(action.child);
+                            if (result != null) {
+                                if (!result.equals("")) {
+                                    action.info.setConfigId(result);
+                                } else {
+                                    action.info.setConfigId(calculateModuleId(action.child));
+                                }
+                                action.info.setNewFile(false);
+                            }
+                        } else if (action.action == FileAction.UPDATED_FILE) {
+                            workingOnConfigId = action.info.getConfigId();
+                            listener.fileUpdated(action.child, action.info.getConfigId());
+                            workingOnConfigId = null;
+                        }
+                    } catch (Exception e) {
+                        log.error("Unable to " + action.getActionName() + " file " + action.child.getAbsolutePath(), e);
+                    } finally {
+                        resolveFile(action);
+                    }
                 }
             }
         }

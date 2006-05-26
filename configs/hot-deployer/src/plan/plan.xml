@@ -30,6 +30,9 @@ Child of the geronimo/j2ee-server/${pom.currentVersion}/car module that includes
         <reference name="ServerInfo">
             <name>ServerInfo</name>
         </reference>
+        <reference name="ConfigManager">
+            <name>ConfigurationManager</name>
+        </reference>
 		<attribute name="path">deploy/</attribute>
         <attribute name="pollIntervalMillis">2000</attribute>
         <dependency>

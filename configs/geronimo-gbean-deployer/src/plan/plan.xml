@@ -24,6 +24,8 @@
          </reference>
         <reference name="Builders">
         </reference>
+        <reference name="Watchers">
+        </reference>
     </gbean>
 
     <!-- Builder for handling plans defining Geronimo modules -->

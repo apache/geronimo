@@ -27,7 +27,12 @@ import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
 import org.apache.geronimo.deployment.cli.DeployUtils;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.kernel.config.PersistentConfigurationList;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.DeploymentWatcher;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -47,7 +52,7 @@ import java.util.Iterator;
  *
  * @version $Rev$ $Date$
  */
-public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //todo: write unit tests
+public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBeanLifecycle { //todo: write unit tests
     private static final Log log = LogFactory.getLog("org.apache.geronimo.deployment.hot.Hot Deployer");
     // Try to make this stand out as the user is likely to get a ton of errors if this comes up
     private static final String BAD_LAYOUT_MESSAGE = "CANNOT DEPLOY: It looks like you unpacked an application or module " +
@@ -57,6 +62,7 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
     private DirectoryMonitor monitor;
     private String path;
     private ServerInfo serverInfo;
+    private ConfigurationManager configManager;
     private int pollIntervalMillis;
     private String deploymentURI = "deployer:geronimo:inVM";
     private String deploymentUser;
@@ -66,11 +72,21 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
     private transient TargetModuleID[] startupModules = null;
     private transient boolean serverRunning = false;
 
-    public DirectoryHotDeployer(String path, int pollIntervalMillis, ServerInfo serverInfo, Kernel kernel) {
+    public DirectoryHotDeployer(String path, int pollIntervalMillis, ServerInfo serverInfo, ConfigurationManager configManager, Kernel kernel) {
         this.path = path;
         this.serverInfo = serverInfo;
         this.pollIntervalMillis = pollIntervalMillis;
         this.kernel = kernel;
+        this.configManager = configManager;
+    }
+
+    public void deployed(Artifact id) {
+        // no action when something is deployed
+    }
+
+    public void undeployed(Artifact id) {
+        // check to see whether the artifact was hot deployed, and if so, delete it
+        monitor.removeModuleId(id);
     }
 
     public String getPath() {
@@ -195,7 +211,14 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
     }
 
     public long getDeploymentTime(File file, String configId) {
-        return file.lastModified(); //todo: how can we find out when a module was deployed?
+        try {
+            Artifact art = configManager.getArtifactResolver().resolveInClassLoader(Artifact.create(configId));
+            Configuration config = configManager.getConfiguration(art);
+            return config.getCreated();
+        } catch (MissingDependencyException e) {
+            log.error("Unknown configuration "+configId);
+            return -1;
+        }
     }
 
     public void started() {
@@ -374,11 +397,12 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
         infoFactory.addAttribute("deploymentUser", String.class, true, true);
         infoFactory.addAttribute("deploymentPassword", String.class, true, true);
 
+        infoFactory.addReference("ConfigManager", ConfigurationManager.class, "ConfigurationManager");
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
         infoFactory.addAttribute("kernel", Kernel.class, false, false);
         infoFactory.addInterface(HotDeployer.class);
 
-        infoFactory.setConstructor(new String[]{"path", "pollIntervalMillis", "ServerInfo", "kernel"});
+        infoFactory.setConstructor(new String[]{"path", "pollIntervalMillis", "ServerInfo", "ConfigManager", "kernel"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
