@@ -118,31 +118,41 @@ public abstract class AbstractRepository implements WriteableRepository {
         }
         ClassLoader depCL = new URLClassLoader(new URL[]{url}, ClassLoader.getSystemClassLoader());
         InputStream is = depCL.getResourceAsStream("META-INF/geronimo-dependency.xml");
-        if (is != null) {
-            InputSource in = new InputSource(is);
-            DocumentBuilderFactory dfactory = DocumentBuilderFactory.newInstance();
-            dfactory.setNamespaceAware(true);
-            try {
-                Document doc = dfactory.newDocumentBuilder().parse(in);
-                Element root = doc.getDocumentElement();
-                NodeList configs = root.getElementsByTagNameNS(NAMESPACE, "dependency");
-                for (int i = 0; i < configs.getLength(); i++) {
-                    Element dependencyElement = (Element) configs.item(i);
-                    String groupId = getString(dependencyElement, "groupId");
-                    String artifactId = getString(dependencyElement, "artifactId");
-                    String version = getString(dependencyElement, "version");
-                    String type = getString(dependencyElement, "type");
-                    if (type == null) {
-                        type = "jar";
+        try {
+            if (is != null) {
+                InputSource in = new InputSource(is);
+                DocumentBuilderFactory dfactory = DocumentBuilderFactory.newInstance();
+                dfactory.setNamespaceAware(true);
+                try {
+                    Document doc = dfactory.newDocumentBuilder().parse(in);
+                    Element root = doc.getDocumentElement();
+                    NodeList configs = root.getElementsByTagNameNS(NAMESPACE, "dependency");
+                    for (int i = 0; i < configs.getLength(); i++) {
+                        Element dependencyElement = (Element) configs.item(i);
+                        String groupId = getString(dependencyElement, "groupId");
+                        String artifactId = getString(dependencyElement, "artifactId");
+                        String version = getString(dependencyElement, "version");
+                        String type = getString(dependencyElement, "type");
+                        if (type == null) {
+                            type = "jar";
+                        }
+                        dependencies.add(new Artifact(groupId, artifactId,  version, type));
                     }
-                    dependencies.add(new Artifact(groupId, artifactId,  version, type));
+                } catch (IOException e) {
+                    throw (IllegalStateException)new IllegalStateException("Unable to parse geronimo-dependency.xml file in " + url).initCause(e);
+                } catch (ParserConfigurationException e) {
+                    throw (IllegalStateException)new IllegalStateException("Unable to parse geronimo-dependency.xml file in " + url).initCause(e);
+                } catch (SAXException e) {
+                    throw (IllegalStateException)new IllegalStateException("Unable to parse geronimo-dependency.xml file in " + url).initCause(e);
                 }
-            } catch (IOException e) {
-                throw (IllegalStateException)new IllegalStateException("Unable to parse geronimo-dependency.xml file in " + url).initCause(e);
-            } catch (ParserConfigurationException e) {
-                throw (IllegalStateException)new IllegalStateException("Unable to parse geronimo-dependency.xml file in " + url).initCause(e);
-            } catch (SAXException e) {
-                throw (IllegalStateException)new IllegalStateException("Unable to parse geronimo-dependency.xml file in " + url).initCause(e);
+            }
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException ignore) {
+                    // ignore
+                }
             }
         }
         return dependencies;
