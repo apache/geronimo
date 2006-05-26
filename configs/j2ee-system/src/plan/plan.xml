@@ -72,6 +72,8 @@ specific services - those should be provided by children.
     </reference>
     <reference name="Stores">
     </reference>
+    <reference name="Watchers">
+    </reference>
     <reference name="AttributeStore">
       <name>AttributeManager</name>
     </reference>

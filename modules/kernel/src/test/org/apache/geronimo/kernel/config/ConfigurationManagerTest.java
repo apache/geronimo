@@ -731,6 +731,7 @@ public class ConfigurationManagerTest extends TestCase {
                 artifactManager,
                 artifactResolver,
                 Collections.singleton(testRepository),
+                Collections.EMPTY_SET,
                 KernelConfigurationManager.class.getClassLoader());
     }
 

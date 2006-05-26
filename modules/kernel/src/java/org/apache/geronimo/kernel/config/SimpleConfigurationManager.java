@@ -51,14 +51,21 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     protected final Map configurations = new LinkedHashMap();
     protected final ConfigurationModel configurationModel = new ConfigurationModel();
     protected final Collection repositories;
+    protected final Collection watchers;
 
     public SimpleConfigurationManager(Collection stores, ArtifactResolver artifactResolver, Collection repositories) {
+        this(stores, artifactResolver, repositories, Collections.EMPTY_SET);
+    }
+    
+    public SimpleConfigurationManager(Collection stores, ArtifactResolver artifactResolver, Collection repositories, Collection watchers) {
         if (stores == null) stores = Collections.EMPTY_SET;
         if (repositories == null) repositories = Collections.EMPTY_SET;
+        if (watchers == null) watchers = Collections.EMPTY_SET;
 
         this.stores = stores;
         this.artifactResolver = artifactResolver;
         this.repositories = repositories;
+        this.watchers = watchers;
     }
 
     public synchronized boolean isInstalled(Artifact configId) {
@@ -1220,6 +1227,14 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         }
 
         removeConfigurationFromModel(configurationId);
+        notifyWatchers(configurationId);
+    }
+
+    private void notifyWatchers(Artifact id) {
+        for (Iterator it = watchers.iterator(); it.hasNext();) {
+            DeploymentWatcher watcher = (DeploymentWatcher) it.next();
+            watcher.undeployed(id);
+        }
     }
 
     public ArtifactResolver getArtifactResolver() {

@@ -51,6 +51,7 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.config.DeploymentWatcher;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
@@ -68,11 +69,12 @@ public class Deployer {
     private DeployerReaper reaper;
     private final Collection builders;
     private final Collection stores;
+    private final Collection watchers;
     private final ArtifactResolver artifactResolver;
     private final Kernel kernel;
 
-    public Deployer(Collection builders, Collection stores, Kernel kernel) {
-        this(builders, stores, getArtifactResolver(kernel), kernel);
+    public Deployer(Collection builders, Collection stores, Collection watchers, Kernel kernel) {
+        this(builders, stores, watchers, getArtifactResolver(kernel), kernel);
     }
 
     private static ArtifactResolver getArtifactResolver(Kernel kernel) {
@@ -80,9 +82,10 @@ public class Deployer {
         return configurationManager.getArtifactResolver();
     }
 
-    public Deployer(Collection builders, Collection stores, ArtifactResolver artifactResolver, Kernel kernel) {
+    public Deployer(Collection builders, Collection stores, Collection watchers, ArtifactResolver artifactResolver, Kernel kernel) {
         this.builders = builders;
         this.stores = stores;
+        this.watchers = watchers;
         this.artifactResolver = artifactResolver;
         this.kernel = kernel;
 
@@ -319,6 +322,7 @@ public class Deployer {
                         store.install(configurationData);
                         deployedURIs.add(configurationData.getId().toString());
                     }
+                    notifyWatchers(deployedURIs);
                     return deployedURIs;
                 } else {
                     cleanupConfigurations(configurations);
@@ -362,6 +366,21 @@ public class Deployer {
             throw new Error(e);
         } finally {
             DeploymentUtil.close(module);
+        }
+    }
+
+    private void notifyWatchers(List list) {
+        Artifact[] arts = new Artifact[list.size()];
+        for (int i = 0; i < list.size(); i++) {
+            String s = (String) list.get(i);
+            arts[i] = Artifact.create(s);
+        }
+        for (Iterator it = watchers.iterator(); it.hasNext();) {
+            DeploymentWatcher watcher = (DeploymentWatcher) it.next();
+            for (int i = 0; i < arts.length; i++) {
+                Artifact art = arts[i];
+                watcher.deployed(art);
+            }
         }
     }
 
@@ -442,8 +461,9 @@ public class Deployer {
 
         infoFactory.addReference("Builders", ConfigurationBuilder.class, "ConfigBuilder");
         infoFactory.addReference("Store", ConfigurationStore.class, "ConfigurationStore");
+        infoFactory.addReference("Watchers", DeploymentWatcher.class);
 
-        infoFactory.setConstructor(new String[]{"Builders", "Store", "kernel"});
+        infoFactory.setConstructor(new String[]{"Builders", "Store", "Watchers", "kernel"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
