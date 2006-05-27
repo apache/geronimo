@@ -33,7 +33,7 @@ import javax.enterprise.deploy.model.DDBean;
  * out again it'll be a little different, but that way this can be a DConfigBean
  * instead of a POJO (the loading code is in ConnectorDCB).
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class AdminObjectDCB extends DConfigBeanSupport {
     private AdminObjectInstance[] adminObjectInstance = new AdminObjectInstance[0];

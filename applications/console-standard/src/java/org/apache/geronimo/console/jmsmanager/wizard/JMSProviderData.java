@@ -46,7 +46,7 @@ import org.xml.sax.SAXException;
  * Loads data on JMS providers known to the console.  Reads from a properties
  * file on the class path.
  *
- * @version $Rev: 368994 $ $Date: 2006-01-14 02:07:18 -0500 (Sat, 14 Jan 2006) $
+ * @version $Rev$ $Date$
  */
 public class JMSProviderData implements Serializable {
     private final static Log log = LogFactory.getLog(JMSProviderData.class);

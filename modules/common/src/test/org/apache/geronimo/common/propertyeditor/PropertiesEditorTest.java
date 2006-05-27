@@ -23,7 +23,7 @@ import java.util.Properties;
 /**
  * Unit test for {@link PropertiesEditor} class.
  *
- * @version $Rev: 356022 $ $Date: 2005-12-11 15:58:34 -0500 (Sun, 11 Dec 2005) $
+ * @version $Rev$ $Date$
  */
 public class PropertiesEditorTest extends AbstractMapEditorTest {
 

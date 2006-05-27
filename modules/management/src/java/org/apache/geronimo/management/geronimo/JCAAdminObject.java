@@ -23,7 +23,7 @@ import org.apache.geronimo.management.J2EEManagedObject;
 /**
  * Management interface for admin objects
  *
- * @version $Rev: 368994 $ $Date: 2006-01-14 02:07:18 -0500 (Sat, 14 Jan 2006) $
+ * @version $Rev$ $Date$
  */
 public interface JCAAdminObject extends J2EEManagedObject {
     public String getAdminObjectClass();

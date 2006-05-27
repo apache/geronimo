@@ -33,7 +33,7 @@ import org.apache.geronimo.management.geronimo.WebManager;
 /**
  * ReplaceMe
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class AJPHandler extends BaseApacheHandler {
     private final static Log log = LogFactory.getLog(AJPHandler.class);

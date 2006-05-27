@@ -22,7 +22,7 @@ import org.apache.geronimo.management.J2EEManagedObject;
 /**
  * Represents the JSR-77 type with the same name
  *
- * @version $Rev: 355877 $ $Date: 2005-12-10 18:48:27 -0800 (Sat, 10 Dec 2005) $
+ * @version $Rev$ $Date$
  */
 public interface JCAResourceAdapter extends J2EEManagedObject {
     //TODO consider adding references to ManagedConnectionFactory and ActivationSpec/MessageEndpointFactory.

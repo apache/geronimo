@@ -27,7 +27,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 /**
  * Metadata on a list of configurations available in a remote server.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class PluginList implements Serializable {
     private final URL[] repositories;

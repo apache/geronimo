@@ -25,7 +25,7 @@ import java.io.OutputStream;
  * canonicalization and "byte-stuff" so that data content does not get mistaken
  * for a message data-end marker (CRLF.CRLF)l
  * 
- * @version $Rev: 390524 $ $Date: 2006-03-31 17:24:52 -0500 (Fri, 31 Mar 2006) $
+ * @version $Rev$ $Date$
  */
 public class MIMEOutputStream extends OutputStream {
 

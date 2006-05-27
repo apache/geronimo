@@ -39,7 +39,7 @@ import org.apache.geronimo.util.CertificateUtil;
 /**
  * The base class for all handlers for this portlet
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public abstract class BaseKeystoreHandler extends MultiPageAbstractHandler {
     private final static Log log = LogFactory.getLog(BaseKeystoreHandler.class);

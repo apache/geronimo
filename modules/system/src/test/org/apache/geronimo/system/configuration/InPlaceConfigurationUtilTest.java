@@ -27,7 +27,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 
 /**
- * @version $Rev: 391886 $ $Date: 2006-04-06 13:15:39 +1000 (Thu, 06 Apr 2006) $
+ * @version $Rev$ $Date$
  */
 public class InPlaceConfigurationUtilTest extends TestCase {
     private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));

@@ -29,7 +29,7 @@ import javax.enterprise.deploy.model.DDBean;
  * several instances per resource adapter, it's not 1:1 and this is not
  * a DConfigBean.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class ResourceAdapterInstance extends ConfigHolder {
     private DDBean resourceAdapter;

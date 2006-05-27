@@ -37,7 +37,7 @@ import org.apache.geronimo.console.MultiPageModel;
  * Handler for the screen where you select a JMS provider (because
  * you didn't want one of the ones we know about).
  *
- * @version $Rev: 368994 $ $Date: 2006-01-14 02:07:18 -0500 (Sat, 14 Jan 2006) $
+ * @version $Rev$ $Date$
  */
 public class SelectProviderHandler extends AbstractHandler {
     private final static String[] SKIP_RARS_CONTAINING = new String[]{"tranql"};

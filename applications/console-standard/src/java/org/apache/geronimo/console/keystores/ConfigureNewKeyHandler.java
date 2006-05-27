@@ -28,7 +28,7 @@ import java.io.IOException;
 /**
  * Handler for collecting the settings necessary to generate a new private key.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class ConfigureNewKeyHandler extends BaseKeystoreHandler {
     public ConfigureNewKeyHandler() {

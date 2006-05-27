@@ -24,7 +24,7 @@ import javax.enterprise.deploy.spi.DeploymentManager;
 /**
  * Enhanced features for Geronimo deployment manager
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public interface GeronimoDeploymentManager extends DeploymentManager, PluginInstaller {
     public URL[] getRepositories();

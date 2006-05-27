@@ -90,7 +90,7 @@ import org.xml.sax.helpers.DefaultHandler;
 /**
  * A GBean that knows how to download configurations from a Maven repository.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class PluginInstallerGBean implements PluginInstaller {
     private final static Log log = LogFactory.getLog(PluginInstallerGBean.class);

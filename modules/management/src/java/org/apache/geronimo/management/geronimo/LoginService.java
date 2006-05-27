@@ -24,7 +24,7 @@ import java.util.Collection;
  * The meat of this is in a Geronimo-specific extension, but it's not yet clear
  * how much of that should be moved here to be "portable".
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public interface LoginService {
     /**

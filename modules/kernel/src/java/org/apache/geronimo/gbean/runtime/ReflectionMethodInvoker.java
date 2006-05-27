@@ -20,7 +20,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 
 /**
- * @version $Rev$ $Date: 2005-12-10 18:48:27 -0800 (Sat, 10 Dec 2005) $
+ * @version $Rev$ $Date$
  */
 public final class ReflectionMethodInvoker implements MethodInvoker {
     private final Method method;

@@ -34,7 +34,7 @@ import java.util.Iterator;
 /**
  * Base class for beans that hold an array of config property settings.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public abstract class ConfigHolder extends XmlBeanSupport  {
     final XpathListener xpathListener = new XpathListener() {

@@ -28,7 +28,7 @@ import org.apache.geronimo.console.MultiPageModel;
 /**
  * Handles the page that shows a deployment plan
  *
- * @version $Rev: 368994 $ $Date: 2006-01-14 02:07:18 -0500 (Sat, 14 Jan 2006) $
+ * @version $Rev$ $Date$
  */
 public class ShowPlanHandler extends AbstractHandler {
     public ShowPlanHandler() {

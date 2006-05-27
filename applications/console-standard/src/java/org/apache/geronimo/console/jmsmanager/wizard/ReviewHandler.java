@@ -28,7 +28,7 @@ import javax.portlet.RenderResponse;
 /**
  * HAndles the screen where you review your progress so far
  *
- * @version $Rev: 368994 $ $Date: 2006-01-14 02:07:18 -0500 (Sat, 14 Jan 2006) $
+ * @version $Rev$ $Date$
  */
 public class ReviewHandler extends AbstractHandler {
     public ReviewHandler() {

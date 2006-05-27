@@ -25,7 +25,7 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 /**
  *
  *
- * @version $Rev: 356022 $ $Date: 2005-12-11 12:58:34 -0800 (Sun, 11 Dec 2005) $
+ * @version $Rev$ $Date$
  *
  * */
 public class AbstractNameQueryEditor extends TextPropertyEditorSupport {

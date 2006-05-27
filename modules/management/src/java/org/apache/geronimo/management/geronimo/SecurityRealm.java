@@ -23,7 +23,7 @@ package org.apache.geronimo.management.geronimo;
  * for a portable security layer and what's Geronimo-specific.  Currently the meaty extension
  * interface is in o.a.g.security
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public interface SecurityRealm {
     /**

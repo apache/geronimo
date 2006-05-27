@@ -28,7 +28,7 @@ import java.io.IOException;
 /**
  * Handler for preventing the editing of a keystore.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class LockEditKeystoreHandler extends BaseKeystoreHandler {
     public LockEditKeystoreHandler() {

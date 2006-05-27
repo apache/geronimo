@@ -22,7 +22,7 @@ package org.apache.geronimo.kernel.repository;
  *
  * Note there is a separate method to call if you expect multiple matches.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class MultipleMatchesException extends Exception {
     private final Artifact artifact;

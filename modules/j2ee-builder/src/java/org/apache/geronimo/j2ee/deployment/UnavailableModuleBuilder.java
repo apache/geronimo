@@ -16,7 +16,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 
 /**
- * @version $Rev: 356097 $ $Date: 2005-12-11 17:29:03 -0800 (Sun, 11 Dec 2005) $
+ * @version $Rev$ $Date$
  */
 public class UnavailableModuleBuilder implements ModuleBuilder {
 

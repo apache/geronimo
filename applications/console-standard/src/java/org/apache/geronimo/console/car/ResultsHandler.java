@@ -34,7 +34,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 /**
  * Handler for the import results screen.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class ResultsHandler extends BaseImportExportHandler {
     private final static Log log = LogFactory.getLog(ResultsHandler.class);

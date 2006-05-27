@@ -39,7 +39,7 @@ import java.util.Collection;
 /**
  * Handler for entering a password to unlock a keystore
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class ConfirmCertificateHandler extends BaseKeystoreHandler {
     private final static Log log = LogFactory.getLog(ConfirmCertificateHandler.class);

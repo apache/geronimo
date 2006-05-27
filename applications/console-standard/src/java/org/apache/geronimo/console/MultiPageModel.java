@@ -22,7 +22,7 @@ import javax.portlet.PortletSession;
 /**
  * Interface for models for multi-page portlets.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public interface MultiPageModel {
     public void save(ActionResponse response, PortletSession session);

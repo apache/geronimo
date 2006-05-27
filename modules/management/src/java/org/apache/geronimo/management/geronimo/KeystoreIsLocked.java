@@ -20,7 +20,7 @@ package org.apache.geronimo.management.geronimo;
  * Exception indicating that the keystore you tried to do something with is
  * locked.  It must be unlocked before it can be used in this way.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class KeystoreIsLocked extends Exception {
     public KeystoreIsLocked(String message) {
