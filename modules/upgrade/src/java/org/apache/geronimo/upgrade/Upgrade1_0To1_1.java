@@ -90,6 +90,7 @@ public class Upgrade1_0To1_1 {
     private static final QName ARTIFACT_QNAME = new QName("http://geronimo.apache.org/xml/ns/naming-1.1", "artifactId");
     private static final QName MODULE_QNAME = new QName("http://geronimo.apache.org/xml/ns/naming-1.1", "module");
     private static final QName NAME_QNAME = new QName("http://geronimo.apache.org/xml/ns/naming-1.1", "name");
+    private static final QName NAME_QNAME2 = new QName("http://geronimo.apache.org/xml/ns/deployment-1.1", "name");
     private static final QName GBEAN_NAME_QNAME = new QName(null, "gbeanName");
 
     public void upgrade(InputStream source, Writer target) throws IOException, XmlException {
@@ -190,14 +191,7 @@ public class Upgrade1_0To1_1 {
                 } else if ("ejb-link".equals(localName)) {
                     break;
                 } else if ("target-name".equals(localName)) {
-                    String targetNameString = cursor.getTextValue();
-                    cursor.removeXml();
-                    ObjectName targetName;
-                    try {
-                        targetName = ObjectName.getInstance(targetNameString);
-                    } catch (MalformedObjectNameException e) {
-                        throw new XmlException("Invalid object name: " + targetNameString);
-                    }
+                    ObjectName targetName = extractObjectName(cursor);
                     name = targetName.getKeyProperty("name");
                     application = targetName.getKeyProperty("J2EEApplication");
                     if ("null".equals(application)) {
@@ -241,7 +235,24 @@ public class Upgrade1_0To1_1 {
                 cursor.insertElementWithText(NAME_QNAME, name);
                 cursor.toNextToken();
             }
+        } else if ("gbean-name".equals(localName)) {
+            ObjectName targetName = extractObjectName(cursor);
+            String name = targetName.getKeyProperty("name");
+            cursor.insertComment("CHECK THAT THE TARGET GBEAN IS IN THE ANCESTOR SET OF THIS MODULE AND THAT THE NAME UNIQUELY IDENTIFIES IT");
+            cursor.insertElementWithText(NAME_QNAME2, name);
         }
+    }
+
+    private static ObjectName extractObjectName(XmlCursor cursor) throws XmlException {
+        String targetNameString = cursor.getTextValue();
+        cursor.removeXml();
+        ObjectName targetName;
+        try {
+            targetName = ObjectName.getInstance(targetNameString);
+        } catch (MalformedObjectNameException e) {
+            throw new XmlException("Invalid object name: " + targetNameString);
+        }
+        return targetName;
     }
 
     private static String getLocalName(XmlCursor cursor) {

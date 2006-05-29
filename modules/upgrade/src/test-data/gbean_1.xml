@@ -1,0 +1,41 @@
+<?xml version="1.0" ?>
+
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application"
+  configId="hello"
+  parentId="geronimo/j2ee-security/1.0.1-SNAPSHOT/car">
+
+
+    <gbean name="hello-realm" class="org.apache.geronimo.security.realm.GenericSecurityRealm">
+        <attribute name="realmName">hello-realm</attribute>
+        <reference name="LoginModuleConfiguration">
+            <name>hello-login-chain</name>
+        </reference>
+        <reference name="ServerInfo">
+            <gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=geronimo/j2ee-system/1.0.1-SNAPSHOT/car,J2EEServer=geronimo,j2eeType=GBean,name=ServerInfo</gbean-name>
+        </reference>
+        <reference name="LoginService">
+            <gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=geronimo/j2ee-security/1.0.1-SNAPSHOT/car,J2EEServer=geronimo,j2eeType=JaasLoginService,name=JaasLoginService</gbean-name>
+        </reference>
+    </gbean>
+
+
+    <gbean name="hello-login-chain" class="org.apache.geronimo.security.jaas.JaasLoginModuleUse">
+        <attribute name="controlFlag">REQUIRED</attribute>
+        <reference name="LoginModule">
+            <name>hello-login</name>
+        </reference>
+    </gbean>
+
+
+    <gbean name="hello-login" class="org.apache.geronimo.security.jaas.LoginModuleGBean">
+        <attribute name="loginModuleClass">foo.auth.LoginModule</attribute>
+        <attribute name="serverSide">true</attribute>
+        <attribute name="options">
+            usersURI=var/security/demo_users.properties
+            groupsURI=var/security/demo_groups.properties
+        </attribute>
+        <attribute name="loginDomainName">hello-realm</attribute>
+    </gbean>
+
+
+</application>
