@@ -34,7 +34,7 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class Upgrade1_0To1_1Test extends TestCase {
 
@@ -71,6 +71,10 @@ public class Upgrade1_0To1_1Test extends TestCase {
 
     public void test7() throws Exception {
         test("servlet_1");
+    }
+
+    public void test8() throws Exception {
+        test("gbean_1");
     }
 
     private void test(String testName) throws Exception {
