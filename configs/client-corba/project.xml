@@ -72,7 +72,7 @@
         <!-- parent config -->
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>client</artifactId>
+            <artifactId>client-security</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
             <properties>
