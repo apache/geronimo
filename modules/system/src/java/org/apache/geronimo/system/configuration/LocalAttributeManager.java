@@ -36,9 +36,12 @@ import org.apache.geronimo.kernel.InvalidGBeanException;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerFactory;
@@ -349,6 +352,7 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         }
         FileInputStream fis = new FileInputStream(attributeFile);
         InputSource in = new InputSource(fis);
+        in.setSystemId(attributeFile.toString());
         DocumentBuilderFactory dFactory = DocumentBuilderFactory.newInstance();
         try {
             dFactory.setValidating(true);
@@ -357,7 +361,36 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
                                  "http://www.w3.org/2001/XMLSchema");
             dFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaSource",
                                  LocalAttributeManager.class.getResourceAsStream("/META-INF/schema/local-attributes-1.1.xsd"));
-            Document doc = dFactory.newDocumentBuilder().parse(in);
+            
+            DocumentBuilder builder = dFactory.newDocumentBuilder();
+            builder.setErrorHandler(new ErrorHandler() {
+                public void error(SAXParseException exception) {
+                    log.error("Unable to read saved manageable attributes. " +
+                        "SAX parse error: " + exception.getMessage() +
+                        " at line " + exception.getLineNumber() + 
+                        ", column " + exception.getColumnNumber() +
+                        " in entity " + exception.getSystemId());
+                    // TODO throw an exception here?
+                }
+
+                public void fatalError(SAXParseException exception) {
+                    log.error("Unable to read saved manageable attributes. " +
+                            "Fatal SAX parse error: " + exception.getMessage() +
+                            " at line " + exception.getLineNumber() + 
+                            ", column " + exception.getColumnNumber() +
+                            " in entity " + exception.getSystemId());
+                    // TODO throw an exception here?                    
+                }
+
+                public void warning(SAXParseException exception) {
+                    log.error("SAX parse warning whilst reading saved manageable attributes: " +
+                            exception.getMessage() +
+                            " at line " + exception.getLineNumber() + 
+                            ", column " + exception.getColumnNumber() +
+                            " in entity " + exception.getSystemId());
+                }
+            });            
+            Document doc = builder.parse(in);
             Element root = doc.getDocumentElement();
             serverOverride = new ServerOverride(root);
         } catch (SAXException e) {
