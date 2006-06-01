@@ -23,7 +23,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
  * Extension to the ManageableAttributeStore that supports the plugin
  * installer.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public interface PluginAttributeStore extends ManageableAttributeStore {
 

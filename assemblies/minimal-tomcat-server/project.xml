@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 
-<!-- $Rev: 389341 $ $Date: 2006-03-27 20:08:39 -0500 (Mon, 27 Mar 2006) $ -->
+<!-- $Rev$ $Date$ -->
 <project>
     <pomVersion>3</pomVersion>
     <extend>../../etc/project.xml</extend>

@@ -39,7 +39,7 @@ import org.apache.geronimo.system.plugin.DownloadResults;
 /**
  * Handler for the initial download screen.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class DownloadCARHandler extends BaseImportExportHandler {
     private final static Log log = LogFactory.getLog(DownloadCARHandler.class);

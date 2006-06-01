@@ -19,7 +19,7 @@ package org.apache.geronimo.management.geronimo;
 /**
  * Geronimo extension of the standard J2EEDomain class.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public interface J2EEDomain extends org.apache.geronimo.management.J2EEDomain {
     public J2EEServer[] getServerInstances();

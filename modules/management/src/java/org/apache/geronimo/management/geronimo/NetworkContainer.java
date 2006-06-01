@@ -20,7 +20,7 @@ import org.apache.geronimo.management.J2EEManagedObject;
 /**
  * Basic operations for a network container.
  *
- * @version $Rev: 355877 $ $Date: 2005-12-10 21:48:27 -0500 (Sat, 10 Dec 2005) $
+ * @version $Rev$ $Date$
  */
 public interface NetworkContainer extends J2EEManagedObject {
     /**

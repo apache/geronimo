@@ -70,7 +70,7 @@ import org.apache.geronimo.util.jce.X509V1CertificateGenerator;
  * local filesystem, identified by the file's name (the last component of
  * the name only, not the full path).
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
     private static final Log log = LogFactory.getLog(FileKeystoreInstance.class);

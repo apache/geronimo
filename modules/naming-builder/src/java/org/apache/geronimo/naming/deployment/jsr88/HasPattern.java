@@ -30,7 +30,7 @@ import org.apache.xmlbeans.impl.values.XmlObjectBase;
  * Has 1 JavaBean Properties           <br />
  *  - pattern (type Pattern)           </p>
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class HasPattern extends XmlBeanSupport {
     public HasPattern() {

@@ -26,7 +26,7 @@ import org.apache.geronimo.kernel.repository.Environment;
  * an EAR may have a module ID with only an artifactId, and contain a web
  * app with no Geronimo plan and an EJB JAR with a module ID with no version.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class ModuleIDBuilder {
     private Version defaultVersion;

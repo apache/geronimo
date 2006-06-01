@@ -12,7 +12,7 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.-->
-<!--$Rev: 388890 $ $Date: 2006-03-26 01:00:55 -0800 (Sun, 26 Mar 2006) $-->
+<!--$Rev$ $Date$-->
 <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1">
   <environment>
     <moduleId>

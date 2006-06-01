@@ -18,7 +18,7 @@ package org.apache.geronimo.deployment.plugin.jmx;
 
 
 /**
- * @version $Rev: 355877 $ $Date: 2005-12-11 13:48:27 +1100 (Sun, 11 Dec 2005) $
+ * @version $Rev$ $Date$
  */
 public class CommandContext {
     private boolean logErrors;

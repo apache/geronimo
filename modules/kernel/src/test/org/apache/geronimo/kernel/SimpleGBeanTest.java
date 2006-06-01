@@ -27,7 +27,7 @@ import org.apache.geronimo.kernel.config.KernelConfigurationManager;
 import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
- * @version $Rev: 386505 $ $Date: 2006-03-16 18:21:37 -0800 (Thu, 16 Mar 2006) $
+ * @version $Rev$ $Date$
  */
 public class SimpleGBeanTest extends TestCase {
     public void test() throws Exception {

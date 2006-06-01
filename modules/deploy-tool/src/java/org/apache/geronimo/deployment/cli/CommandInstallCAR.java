@@ -27,7 +27,7 @@ import org.apache.geronimo.system.plugin.DownloadResults;
 /**
  * The CLI deployer logic to start.
  *
- * @version $Rev: 356097 $ $Date: 2005-12-11 20:29:03 -0500 (Sun, 11 Dec 2005) $
+ * @version $Rev$ $Date$
  */
 public class CommandInstallCAR extends AbstractCommand {
     public CommandInstallCAR() {

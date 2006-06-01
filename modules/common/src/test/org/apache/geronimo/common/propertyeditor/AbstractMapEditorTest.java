@@ -25,7 +25,7 @@ import junit.framework.TestCase;
  * Abstract superclass for map editor tests.  Implement the two abstract methods and initialize
  * editor in the setUp() method.
  *
- * @version $Rev: 356022 $ $Date: 2005-12-11 15:58:34 -0500 (Sun, 11 Dec 2005) $
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractMapEditorTest extends TestCase {
     PropertyEditor editor;

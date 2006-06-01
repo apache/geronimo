@@ -25,7 +25,7 @@ import org.apache.geronimo.system.configuration.GBeanOverride;
  * Various metadata on a configuration that's used when listing, importing,
  * and exporting configurations.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class PluginMetadata implements Serializable, Comparable {
     private final String name;

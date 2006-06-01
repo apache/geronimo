@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
 /**
  * Various utility functions for dealing with X.509 certificates
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class CertificateUtil {
     public static String generateFingerprint(Certificate cert, String digestAlgorithm) throws NoSuchAlgorithmException, CertificateEncodingException, IOException {

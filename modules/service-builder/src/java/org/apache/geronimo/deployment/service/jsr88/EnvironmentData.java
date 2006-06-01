@@ -29,7 +29,7 @@ import org.apache.xmlbeans.XmlBeans;
  * Represents an environmentType (e.g. an environment element) in a Geronimo
  * deployment plan.
  *
- * @version $Rev: 355877 $ $Date: 2005-12-10 21:48:27 -0500 (Sat, 10 Dec 2005) $
+ * @version $Rev$ $Date$
  */
 public class EnvironmentData extends XmlBeanSupport {
     static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderForClassLoader(EnvironmentType.class.getClassLoader());

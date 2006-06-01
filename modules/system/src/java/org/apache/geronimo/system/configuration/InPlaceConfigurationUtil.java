@@ -30,7 +30,7 @@ import java.io.Writer;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 
 /**
- * @version $Rev: 391886 $ $Date: 2006-04-06 13:15:39 +1000 (Thu, 06 Apr 2006) $
+ * @version $Rev$ $Date$
  */
 class InPlaceConfigurationUtil {
 	private static final String IN_PLACE_LOCATION_FILE = "inPlaceLocation.config";

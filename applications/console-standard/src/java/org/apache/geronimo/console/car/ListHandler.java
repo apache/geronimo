@@ -41,7 +41,7 @@ import java.util.Iterator;
 /**
  * Handler for the import export list screen.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class ListHandler extends BaseImportExportHandler {
     private final static Log log = LogFactory.getLog(ListHandler.class);

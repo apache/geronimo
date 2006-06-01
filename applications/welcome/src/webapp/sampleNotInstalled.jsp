@@ -13,7 +13,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 --%>
-<!-- $Rev: 357437 $ $Date: 2005-12-18 00:23:31 -0500 (Sun, 18 Dec 2005) $ -->
+<!-- $Rev$ $Date$ -->
 <!doctype html public "-//w3c//dtd html 4.0 transitional//en" "http://www.w3.org/TR/REC-html40/strict.dtd">
 <%@ page session="false" %>
 <html>

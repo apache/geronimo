@@ -23,7 +23,7 @@ import java.io.Serializable;
  * so that the bundle of elements can be get, set, and edited together
  * separate from any other elements that may be on the parent.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class Pattern implements Serializable {
     private String groupId;

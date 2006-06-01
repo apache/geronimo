@@ -25,7 +25,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
  * Provides the results of a configuration download operation.  This is updated
  * along the way for callers who want to monitor the ongoing progress.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class DownloadResults implements Serializable, DownloadPoller {
     private List removedConfigIDs = new ArrayList();

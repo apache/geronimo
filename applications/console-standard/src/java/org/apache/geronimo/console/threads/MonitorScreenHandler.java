@@ -33,7 +33,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 /**
  * A handles for the page that gives statistics about a particular thread pool.
  *
- * @version $Rev: 368994 $ $Date: 2006-01-14 02:07:18 -0500 (Sat, 14 Jan 2006) $
+ * @version $Rev$ $Date$
  */
 public class MonitorScreenHandler extends AbstractThreadHandler {
     public MonitorScreenHandler() {

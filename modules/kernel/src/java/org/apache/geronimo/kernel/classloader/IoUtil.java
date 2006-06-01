@@ -47,7 +47,7 @@ import org.apache.geronimo.kernel.classloader.JarResourceLocation;
 import org.apache.geronimo.kernel.classloader.DirectoryResourceLocation;
 
 /**
- * @version $Rev$ $Date: 2006-05-03 19:53:50 -0700 (Wed, 03 May 2006) $
+ * @version $Rev$ $Date$
  */
 public final class IoUtil {
     private IoUtil() {

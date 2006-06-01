@@ -37,7 +37,7 @@ import org.mortbay.http.HttpRequest;
 
 
 /**
- * @version $Rev: 367263 $ $Date: 2006-01-09 02:19:08 -0800 (Mon, 09 Jan 2006) $
+ * @version $Rev$ $Date$
  */
 public class InternalJAASJettyRealm {
     private static Log log = LogFactory.getLog(InternalJAASJettyRealm.class);

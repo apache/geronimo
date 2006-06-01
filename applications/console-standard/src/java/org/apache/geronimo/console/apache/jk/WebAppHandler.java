@@ -34,7 +34,7 @@ import org.apache.geronimo.management.geronimo.WebModule;
 /**
  * Handler for the screen where you select the webapps to expose through Apache
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class WebAppHandler extends BaseApacheHandler {
     private final static Log log = LogFactory.getLog(WebAppHandler.class);

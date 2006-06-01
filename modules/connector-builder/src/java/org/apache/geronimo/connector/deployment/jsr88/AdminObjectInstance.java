@@ -25,7 +25,7 @@ import javax.enterprise.deploy.model.DDBean;
  * Represents /connector/adminobject/adminobject-instance in the
  * Geronimo Connector deployment plan.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class AdminObjectInstance extends ConfigHolder {
     private DDBean adminObject;

@@ -55,7 +55,7 @@ import org.apache.commons.logging.LogFactory;
  * Implementation of ConfigurationStore GBean that installs/loads Configurations from a 
  * repository.
  *
- * @version $Rev: 378459 $ $Date: 2006-02-17 00:37:43 -0800 (Fri, 17 Feb 2006) $
+ * @version $Rev$ $Date$
  */
 public class RepositoryConfigurationStore implements ConfigurationStore {
     private final static Log log = LogFactory.getLog(RepositoryConfigurationStore.class);

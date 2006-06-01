@@ -23,7 +23,7 @@ import org.apache.geronimo.kernel.config.MultiParentClassLoader;
 /**
  * Shows the ID and contents of a ClassLoader
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class ClassLoaderDumper {
     public static void dump(Object o) {

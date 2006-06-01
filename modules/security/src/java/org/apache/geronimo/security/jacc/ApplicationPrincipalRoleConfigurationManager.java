@@ -38,7 +38,7 @@ import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.SubjectId;
 
 /**
- * @version $Rev: 371127 $ $Date: 2006-01-21 14:30:34 -0800 (Sat, 21 Jan 2006) $
+ * @version $Rev$ $Date$
  */
 public class ApplicationPrincipalRoleConfigurationManager implements PrincipalRoleMapper {
 

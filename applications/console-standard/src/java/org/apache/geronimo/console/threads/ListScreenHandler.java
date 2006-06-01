@@ -33,7 +33,7 @@ import org.apache.geronimo.system.threads.ThreadPool;
 /**
  * A handles for the front page that lists available thread pools.
  *
- * @version $Rev: 368994 $ $Date: 2006-01-14 02:07:18 -0500 (Sat, 14 Jan 2006) $
+ * @version $Rev$ $Date$
  */
 public class ListScreenHandler extends AbstractThreadHandler {
     public ListScreenHandler() {

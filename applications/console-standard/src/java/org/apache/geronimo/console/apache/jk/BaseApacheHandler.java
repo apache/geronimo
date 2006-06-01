@@ -32,7 +32,7 @@ import org.apache.geronimo.gbean.AbstractName;
 /**
  * The base class for all handlers for this portlet
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public abstract class BaseApacheHandler extends MultiPageAbstractHandler {
     protected static final String INDEX_MODE = "index";

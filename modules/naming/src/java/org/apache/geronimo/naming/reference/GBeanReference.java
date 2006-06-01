@@ -26,7 +26,7 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.AbstractName;
 
 /**
- * @version $Rev: 385372 $ $Date: 2006-03-12 13:44:50 -0800 (Sun, 12 Mar 2006) $
+ * @version $Rev$ $Date$
  */
 public class GBeanReference extends ConfigurationAwareReference {
     private final Class type;

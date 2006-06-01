@@ -36,7 +36,7 @@ import java.util.Properties;
  * to handle a single page -- the action request before the page is rendered,
  * the render request, and the action request after the page is rendered.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public abstract class MultiPageAbstractHandler {
     protected final static String BEFORE_ACTION="-before";
