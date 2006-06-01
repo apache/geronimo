@@ -52,9 +52,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * Implementation of ConfigurationStore that loads Configurations from a repository.
- * This implementation is read-only on the assumption that a separate maven task will
- * handle installation of a built package into the repository.
+ * Implementation of ConfigurationStore GBean that installs/loads Configurations from a 
+ * repository.
  *
  * @version $Rev: 378459 $ $Date: 2006-02-17 00:37:43 -0800 (Fri, 17 Feb 2006) $
  */
