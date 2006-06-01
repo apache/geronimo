@@ -18,7 +18,7 @@
     </module>
     <module name="geronimo/j2ee-server/${pom.currentVersion}/car"/>
     <module name="geronimo/j2ee-security/${pom.currentVersion}/car">
-        <gbean name="geronimo.remoting:target=JaasLoginServiceRemotingServer">
+        <gbean name="JaasLoginServiceRemotingServer">
             <attribute name="host">${PlanServerHostname}</attribute>
             <attribute name="port">${PlanRemoteLoginPort}</attribute>
         </gbean>
