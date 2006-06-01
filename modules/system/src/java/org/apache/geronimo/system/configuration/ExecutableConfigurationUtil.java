@@ -63,18 +63,22 @@ public final class ExecutableConfigurationUtil {
         File parent = destinationFile.getParentFile();
         if (parent != null && !parent.exists()) parent.mkdirs();
         
+        FileOutputStream fos = null;
         JarOutputStream out = null;
         try {
             byte[] buffer = new byte[4096];
 
+            fos = new FileOutputStream(destinationFile, false);
+            
             if (manifest != null) {
-                out = new JarOutputStream(new FileOutputStream(destinationFile, false), manifest);
+                out = new JarOutputStream(fos, manifest); 
 
                 // add the startup file which allows us to locate the startup directory
                 out.putNextEntry(new ZipEntry(META_INF_STARTUP_JAR));
+                // intentionally empty ZipEntry
                 out.closeEntry();
             } else {
-                out = new JarOutputStream(new FileOutputStream(destinationFile, false));
+                out = new JarOutputStream(fos);
             }
 
             // write the configurationData
@@ -104,14 +108,16 @@ public final class ExecutableConfigurationUtil {
             }
         } finally {
             close(out);
+            close(fos); // do this in case JarOutputStream contructor threw an exception
         }
     }
 
     public static void writeConfiguration(ConfigurationData configurationData, JarOutputStream out) throws IOException {
         // save the persisted form in the source directory
         out.putNextEntry(new ZipEntry(META_INF_CONFIG_SER));
-        ConfigurationStoreUtil.ChecksumOutputStream sumOut = new ConfigurationStoreUtil.ChecksumOutputStream(out);
+        ConfigurationStoreUtil.ChecksumOutputStream sumOut = null;
         try {
+            sumOut = new ConfigurationStoreUtil.ChecksumOutputStream(out);
             ConfigurationUtil.writeConfigurationData(configurationData, sumOut);
         } finally {
             out.closeEntry();
