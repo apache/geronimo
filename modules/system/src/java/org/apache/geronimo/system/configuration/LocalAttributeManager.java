@@ -116,6 +116,7 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         for (Iterator iterator = gbeanDatas.iterator(); iterator.hasNext();) {
             GBeanData gbeanData = (GBeanData) iterator.next();
             datasByName.put(gbeanData.getAbstractName(), gbeanData);
+            datasByName.put(gbeanData.getAbstractName().getName().get("name"), gbeanData);
         }
 
         // add the new GBeans
@@ -123,11 +124,20 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
             Map.Entry entry = (Map.Entry) iterator.next();
             Object name = entry.getKey();
             GBeanOverride gbean = (GBeanOverride) entry.getValue();
-            if (!datasByName.containsKey(name) && gbean.getGBeanInfo() != null && gbean.isLoad()) {
-                if (!(name instanceof AbstractName)) {
-                    throw new InvalidConfigException("New GBeans must be specified with a full abstractName:" +
-                            " configuration=" + configName +
-                            " gbeanName=" + name);
+            if (!datasByName.containsKey(name) && gbean.isLoad()) {
+                if (gbean.getGBeanInfo() == null || !(name instanceof AbstractName)) {
+                    String sep = "";
+                    StringBuffer message = new StringBuffer("New GBeans must be specified with ");
+                    if (gbean.getGBeanInfo() == null) {
+                        message.append("a GBeanInfo ");
+                        sep = "and ";
+                    }
+                    if (!(name instanceof AbstractName)) {
+                        message.append(sep).append("a full AbstractName ");
+                    }
+                    message.append("configuration=").append(configName);
+                    message.append(" gbeanName=").append(name);
+                    throw new InvalidConfigException(message.toString());
                 }
                 GBeanInfo gbeanInfo = GBeanInfo.getGBeanInfo(gbean.getGBeanInfo(), classLoader);
                 AbstractName abstractName = (AbstractName)name;
@@ -191,15 +201,15 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
 
         //Clear attributes
         for (Iterator iterator = gbean.getClearAttributes().iterator(); iterator.hasNext();){
-           String attribute = (String) iterator.next(); 
+           String attribute = (String) iterator.next();
            if (gbean.getClearAttribute(attribute)){
                data.clearAttribute(attribute);
-           }    
-        }   
-        
+           }
+        }
+
         //Null attributes
         for (Iterator iterator = gbean.getNullAttributes().iterator(); iterator.hasNext();){
-           String attribute = (String) iterator.next(); 
+           String attribute = (String) iterator.next();
            if (gbean.getNullAttribute(attribute)){
                data.setAttribute(attribute, null);
            }
@@ -222,7 +232,7 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
 
         //Clear references
         for (Iterator iterator = gbean.getClearReferences().iterator(); iterator.hasNext();){
-           String reference = (String) iterator.next(); 
+           String reference = (String) iterator.next();
            if (gbean.getClearReference(reference)){
                data.clearReference(reference);
            }
@@ -361,13 +371,13 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
                                  "http://www.w3.org/2001/XMLSchema");
             dFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaSource",
                                  LocalAttributeManager.class.getResourceAsStream("/META-INF/schema/local-attributes-1.1.xsd"));
-            
+
             DocumentBuilder builder = dFactory.newDocumentBuilder();
             builder.setErrorHandler(new ErrorHandler() {
                 public void error(SAXParseException exception) {
                     log.error("Unable to read saved manageable attributes. " +
                         "SAX parse error: " + exception.getMessage() +
-                        " at line " + exception.getLineNumber() + 
+                        " at line " + exception.getLineNumber() +
                         ", column " + exception.getColumnNumber() +
                         " in entity " + exception.getSystemId());
                     // TODO throw an exception here?
@@ -376,20 +386,20 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
                 public void fatalError(SAXParseException exception) {
                     log.error("Unable to read saved manageable attributes. " +
                             "Fatal SAX parse error: " + exception.getMessage() +
-                            " at line " + exception.getLineNumber() + 
+                            " at line " + exception.getLineNumber() +
                             ", column " + exception.getColumnNumber() +
                             " in entity " + exception.getSystemId());
-                    // TODO throw an exception here?                    
+                    // TODO throw an exception here?
                 }
 
                 public void warning(SAXParseException exception) {
                     log.error("SAX parse warning whilst reading saved manageable attributes: " +
                             exception.getMessage() +
-                            " at line " + exception.getLineNumber() + 
+                            " at line " + exception.getLineNumber() +
                             ", column " + exception.getColumnNumber() +
                             " in entity " + exception.getSystemId());
                 }
-            });            
+            });
             Document doc = builder.parse(in);
             Element root = doc.getDocumentElement();
             serverOverride = new ServerOverride(root);
