@@ -28,9 +28,11 @@ import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.Jsr77Naming;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 
 import javax.management.ObjectName;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -118,7 +120,7 @@ public class LocalAttributeManagerTest extends TestCase {
         assertEquals(attributeValue, gbeanData.getAttribute(attributeInfo.getName()));
     }
 
-    public void testSetAtrribute() throws Exception {
+    public void testSetAttribute() throws Exception {
         String attributeValue = "attribute value";
         localAttributeManager.setValue(configurationName, gbeanName, attributeInfo, attributeValue);
         Collection gbeanDatas = new ArrayList();
@@ -145,7 +147,7 @@ public class LocalAttributeManagerTest extends TestCase {
 
         AbstractName referencePattern1 = naming.createRootName(gbeanName.getArtifact(), "name", "referencePattern1");
         AbstractName referencePattern2 = naming.createRootName(gbeanName.getArtifact(), "name", "referencePattern2");
-        ReferencePatterns referencePatterns = new ReferencePatterns(new LinkedHashSet(Arrays.asList(new AbstractName[] {referencePattern1, referencePattern2})));
+        ReferencePatterns referencePatterns = new ReferencePatterns(new LinkedHashSet(Arrays.asList(new AbstractName[]{referencePattern1, referencePattern2})));
         localAttributeManager.setReferencePatterns(configurationName, gbeanName, referenceInfo, referencePatterns);
         Collection gbeanDatas = new ArrayList();
         GBeanData gbeanData = new GBeanData(gbeanName, GBEAN_INFO);
@@ -175,6 +177,18 @@ public class LocalAttributeManagerTest extends TestCase {
         assertSame(gbeanData.getAbstractName(), newGBeanData.getAbstractName());
         assertEquals(Collections.singleton(referencePattern), newGBeanData.getReferencePatterns(referenceInfo.getName()).getPatterns());
         assertEquals(attributeValue, newGBeanData.getAttribute(attributeInfo.getName()));
+    }
+
+    public void testBadGBeanSpec() throws Exception {
+        String attributeValue = "attribute value";
+        localAttributeManager.addConfiguration(configurationName);
+        localAttributeManager.setValue(configurationName, gbeanName, attributeInfo, attributeValue);
+        try {
+            localAttributeManager.applyOverrides(configurationName, Collections.EMPTY_SET, getClass().getClassLoader());
+            fail("no gbeans were specified in the 'plan' so overrides should fail");
+        } catch (InvalidConfigException e) {
+            //pass
+        }
     }
 
     protected void setUp() throws Exception {
