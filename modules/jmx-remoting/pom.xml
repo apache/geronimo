@@ -25,23 +25,22 @@
         <version>1.2-SNAPSHOT</version>
     </parent>
 
-    <artifactId>geronimo-activation</artifactId>
-    <name>Geronimo :: Activation</name>
+    <artifactId>geronimo-jmx-remoting</artifactId>
     <version>${geronimoVersion}</version>
-    <description>Geronimo Activation implements Content Handlers for use in conjuction with the Java Activation Framework.</description>
-    <properties>
-        <maven.test.skip>true</maven.test.skip>
-    </properties>
+    <name>Geronimo :: JMX Remoting</name>
+    <description>Provides remote access to a Geronimo server using JSR 160 JMX Remoting</description>
 
     <dependencies>
+<!-- gets mx4j transitively -->
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-activation_1.0.2_spec</artifactId>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-system</artifactId>
         </dependency>
 
+<!-- all the specs should be added to the classpath transitively -->
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-javamail_1.3.1_spec</artifactId>
+            <groupId>mx4j</groupId>
+            <artifactId>mx4j-remote</artifactId>
         </dependency>
     </dependencies>
 </project>

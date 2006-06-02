@@ -25,23 +25,36 @@
         <version>1.2-SNAPSHOT</version>
     </parent>
 
-    <artifactId>geronimo-activation</artifactId>
-    <name>Geronimo :: Activation</name>
+    <artifactId>geronimo-core</artifactId>
     <version>${geronimoVersion}</version>
-    <description>Geronimo Activation implements Content Handlers for use in conjuction with the Java Activation Framework.</description>
-    <properties>
-        <maven.test.skip>true</maven.test.skip>
-    </properties>
+    <packaging>jar</packaging>
+    <name>Geronimo :: Core</name>
+    <description>Geronimo Core J2EE Utilities</description>
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-activation_1.0.2_spec</artifactId>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-javamail_1.3.1_spec</artifactId>
+            <groupId>concurrent</groupId>
+            <artifactId>concurrent</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-kernel</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-system</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-management</artifactId>
         </dependency>
     </dependencies>
 </project>

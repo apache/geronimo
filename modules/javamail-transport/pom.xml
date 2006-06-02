@@ -25,13 +25,10 @@
         <version>1.2-SNAPSHOT</version>
     </parent>
 
-    <artifactId>geronimo-activation</artifactId>
-    <name>Geronimo :: Activation</name>
+    <artifactId>geronimo-javamail-transport</artifactId>
     <version>${geronimoVersion}</version>
-    <description>Geronimo Activation implements Content Handlers for use in conjuction with the Java Activation Framework.</description>
-    <properties>
-        <maven.test.skip>true</maven.test.skip>
-    </properties>
+    <name>Geronimo :: JavaMail Transport</name>
+    <description>Geronimo JavaMail Transport</description>
 
     <dependencies>
         <dependency>

@@ -25,23 +25,29 @@
         <version>1.2-SNAPSHOT</version>
     </parent>
 
-    <artifactId>geronimo-activation</artifactId>
-    <name>Geronimo :: Activation</name>
+    <artifactId>geronimo-deploy-config</artifactId>
     <version>${geronimoVersion}</version>
-    <description>Geronimo Activation implements Content Handlers for use in conjuction with the Java Activation Framework.</description>
-    <properties>
-        <maven.test.skip>true</maven.test.skip>
-    </properties>
+    <packaging>jar</packaging>
+    <name>Geronimo :: Deploy :: Common Config</name>
+    <description>The deployment module contains basic infrastructure and base classes for module builders / deployers. This module contains infrastructure and base classes for JSR-88 DConfigBeans.</description>
 
+    <!-- ============ -->
+    <!-- Dependencies -->
+    <!-- ============ -->
     <dependencies>
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-activation_1.0.2_spec</artifactId>
+            <groupId>xmlbeans</groupId>
+            <artifactId>xbean</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>stax</groupId>
+            <artifactId>stax-api</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-javamail_1.3.1_spec</artifactId>
+            <artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>
         </dependency>
     </dependencies>
 </project>
