@@ -30,7 +30,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.deployment.PluginBootstrap;
+import org.apache.geronimo.deployment.PluginBootstrap2;
 import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
 import org.apache.geronimo.system.repository.Maven2Repository;
 import org.apache.maven.artifact.Artifact;
@@ -165,7 +165,7 @@ public class PackageBuilderShellMojo extends AbstractPackagingMojo {
 	}
 
 	public void executeBootShell() throws Exception {
-		PluginBootstrap boot = new PluginBootstrap();
+		PluginBootstrap2 boot = new PluginBootstrap2();
 		boot.setBuildDir(buildDir);
 		boot.setCarFile(packageFile);
 		boot.setLocalRepo(repository);

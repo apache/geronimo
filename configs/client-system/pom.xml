@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+  
+  Copyright 2006 The Apache Software Foundation
+  
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+  http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<!-- $Rev$ $Date$ -->
+<project>
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>configs-parent</artifactId>
+        <version>1.2-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>client-system</artifactId>
+    <version>${geronimoVersion}</version>
+    <packaging>car</packaging>
+    <name>System Configuration for the J2EE Client</name>
+
+    <build>
+        <plugins>
+            <plugin>                
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>geronimo-packaging-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <!-- uses default DeploymentConfig=geronimo-gbean-deployer -->
+                    <!-- written to Manifest.mf -->
+                    <classPath>../lib/geronimo-qname_1.1_spec-${geronimoSpecQnameVersion}.jar \
+    ../lib/geronimo-common-${geronimoVersion}.jar \
+    ../lib/geronimo-kernel-${geronimoVersion}.jar \
+    ../lib/geronimo-system-${geronimoVersion}.jar \
+    ../lib/geronimo-util-${geronimoVersion}.jar \
+    ../lib/cglib-nodep-${cglibVersion}.jar \
+    ../lib/commons-cli-${commonsCliVersion}.jar \
+    ../lib/commons-logging-${commonsLoggingVersion}.jar \
+    ../lib/log4j-${log4jVersion}.jar \
+    ../lib/mx4j-${mx4jVersion}.jar \
+    ../lib/mx4j-remote-${mx4jVersion}.jar \
+    ../lib/endorsed/xercesImpl-${xercesVersion}.jar \
+    ../lib/endorsed/xmlParserAPIs-${xmlParserApisVersion}.jar \
+    ../lib/xpp3-${xpp3Version}.jar \
+    ../lib/xstream-${xstreamVersion}.jar \</classPath>
+                     <mainClass>org.apache.geronimo.system.main.ClientCommandLine</mainClass>
+                     <!-- default endorsedDirs and extensionDirs -->
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <!-- ============ -->
+    <!-- Dependencies -->
+    <!-- ============ -->
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-kernel</artifactId>
+        </dependency>
+        <!-- To Do - are the deps of g-system needed in the plan.xml ? -->
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-system</artifactId>
+        </dependency>
+        <!-- need qname_spec ? -->
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>${xercesVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xmlParserAPIs</artifactId>
+            <version>${xmlParserApisVersion}</version>
+        </dependency>
+
+    </dependencies>
+</project>

@@ -16,18 +16,20 @@
  */
 package org.apache.geronimo.plugin.packaging;
 
-import java.io.IOException;
-import java.util.Collection;
-
-import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GReferenceInfo;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.repository.Artifact;
+
+import javax.management.ObjectName;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Set;
 
 /**
  * @version $Rev$ $Date$

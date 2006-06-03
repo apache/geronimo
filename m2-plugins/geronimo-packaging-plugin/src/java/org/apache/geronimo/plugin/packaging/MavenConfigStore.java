@@ -57,7 +57,6 @@ public class MavenConfigStore extends RepositoryConfigurationStore {
             }
             // create the meta-inf dir
             File metaInf = new File(tmpFile, "META-INF");
-            System.out.println("********** creating file " + tmpFile);
             metaInf.mkdirs();
             return tmpFile;
         } catch (IOException e) {
@@ -73,7 +72,6 @@ public class MavenConfigStore extends RepositoryConfigurationStore {
         }
         Artifact configId = configurationData.getId();
         File targetFile = repository.getLocation(configId);
-        System.out.println("*************** creating from " + source + " to " + targetFile);
         ExecutableConfigurationUtil.createExecutableConfiguration(configurationData, null, targetFile);
     }
 

@@ -443,6 +443,7 @@ public class PackageBuilder {
         configManagerGBean.setReferencePattern("ArtifactManager", artifactManagerGBean.getAbstractName());
         configManagerGBean.setReferencePattern("ArtifactResolver", artifactResolverGBean.getAbstractName());
         configManagerGBean.setReferencePatterns("Repositories", repoPatterns);
+
         ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, cl);
 
     }
