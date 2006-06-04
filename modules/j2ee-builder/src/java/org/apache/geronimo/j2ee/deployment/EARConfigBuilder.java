@@ -21,17 +21,19 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.LinkedHashMap;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import javax.xml.namespace.QName;
@@ -65,12 +67,7 @@ import org.apache.geronimo.j2ee.management.impl.J2EEApplicationImpl;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.SimpleConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.*;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
@@ -562,35 +559,19 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             // it's the caller's responsibility to close the context...
             return earContext;
         } catch (GBeanAlreadyExistsException e) {
-            // todo delete owned configuraitons like appclients
-            if (earContext != null) {
-                earContext.close();
-            }
-            cleanupConfigurationDir(configurationDir);
+            cleanupContext(earContext, configurationDir);
             throw new DeploymentException(e);
         } catch (IOException e) {
-            if (earContext != null) {
-                earContext.close();
-            }
-            cleanupConfigurationDir(configurationDir);
+            cleanupContext(earContext, configurationDir);
             throw e;
         } catch (DeploymentException e) {
-            if (earContext != null) {
-                earContext.close();
-            }
-            cleanupConfigurationDir(configurationDir);
+            cleanupContext(earContext, configurationDir);
             throw e;
         } catch(RuntimeException e) {
-            if (earContext != null) {
-                earContext.close();
-            }
-            cleanupConfigurationDir(configurationDir);
+            cleanupContext(earContext, configurationDir);
             throw e;
         } catch(Error e) {
-            if (earContext != null) {
-                earContext.close();
-            }
-            cleanupConfigurationDir(configurationDir);
+            cleanupContext(earContext, configurationDir);
             throw e;
         } finally {
             Set modules = applicationInfo.getModules();
@@ -598,6 +579,29 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 Module module = (Module) iterator.next();
                 module.close();
             }
+        }
+    }
+
+    private void cleanupContext(EARContext earContext, File configurationDir) {
+        List configurations = new ArrayList();
+        if (earContext != null) {
+            configurations.addAll(earContext.getAdditionalDeployment());
+            try {
+                earContext.close();
+            } catch (IOException ioe) {
+                // ignore any cleanup problems
+            } catch (DeploymentException de) {
+                // ignore any cleanup problems
+            }
+        }
+        // configurationDir is created before we create an EARContext
+        if (configurationDir != null) {
+            cleanupConfigurationDir(configurationDir);
+        }
+        // cleanup any other configurations generated (e.g. AppClient config dirs)
+        for (Iterator iterator = configurations.iterator(); iterator.hasNext();) {
+            ConfigurationData configurationData = (ConfigurationData) iterator.next();
+            cleanupConfigurationDir(configurationData.getConfigurationDir());
         }
     }
 
