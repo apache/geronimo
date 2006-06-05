@@ -37,6 +37,8 @@
         </init-param>
     </servlet>
 
+    <!-- [INSERT FRAGMENT HERE] --> 
+
     <servlet-mapping>
         <servlet-name>jsp_sample_installer</servlet-name>
         <url-pattern>/jsp-examples/*</url-pattern>

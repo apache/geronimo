@@ -24,6 +24,8 @@
         <servlet-class>org.apache.geronimo.deployment.remote.BarfServlet</servlet-class>
     </servlet>
 
+    <!-- [INSERT FRAGMENT HERE] --> 
+
     <servlet-mapping>
         <servlet-name>404-error</servlet-name>
         <url-pattern>/</url-pattern>

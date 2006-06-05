@@ -26,6 +26,8 @@
         <welcome-file>index.html</welcome-file>
     </welcome-file-list>
 
+<!-- [INSERT FRAGMENT HERE] --> 
+
     <security-constraint>
       <web-resource-collection>
         <web-resource-name>Admin Role</web-resource-name>

@@ -21,6 +21,8 @@
          xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
          version="2.4">
 
+  <!-- [INSERT FRAGMENT HERE] --> 
+
     <!-- Welcome File List -->
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>

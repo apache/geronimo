@@ -946,8 +946,8 @@
                 <module>m2-plugins</module>
                 <module>openejb/modules</module>
                 <module>configs</module>
-                <!--
                 <module>applications</module>
+                <!--
                 <module>assemblies</module>
                 -->
             </modules>
