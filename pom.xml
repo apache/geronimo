@@ -764,7 +764,7 @@
 
         <site>
             <id>geronimo-website</id>
-            <url>scpexe://minotaur.apache.org/www/geronimo.apache.org/maven/</url>
+            <url>scpexe://people.apache.org/www/geronimo.apache.org/maven/</url>
         </site>
     </distributionManagement>
 
