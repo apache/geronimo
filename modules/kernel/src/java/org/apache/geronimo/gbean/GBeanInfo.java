@@ -67,7 +67,7 @@ public final class GBeanInfo implements Serializable {
             throw new InvalidConfigurationException("Could not find getGBeanInfo method on " + className, e);
         }
         try {
-            return (GBeanInfo) method.invoke(clazz, new Object[]{});
+            return (GBeanInfo) method.invoke(null, new Object[]{});
         } catch (Exception e) {
             throw new InvalidConfigurationException("Could not get GBeanInfo from class: " + className, e);
         }
