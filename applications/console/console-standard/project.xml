@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
     <pomVersion>3</pomVersion>
-    <extend>../../etc/project.xml</extend>
+    <extend>../../../etc/project.xml</extend>
 
     <id>geronimo-console-standard</id>
     <name>Geronimo :: Console :: Standard Portlets</name>
