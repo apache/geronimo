@@ -1,0 +1,21 @@
+<?xml version="1.0"?> 
+
+<!--DOCTYPE application-client PUBLIC 
+    "-//Sun Microsystems, Inc.//DTD J2EE Application Client 1.2//EN" 
+    "http://java.sun.com/j2ee/dtds/application-client_1_2.dtd"--> 
+    
+<application-client xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/applicationclient_1_4.xsd"
+    version="1.4">
+
+    <display-name>Magic G Ball</display-name>
+	<ejb-ref>
+		<ejb-ref-name>mGball</ejb-ref-name>
+		<ejb-ref-type>Session</ejb-ref-type>
+		<home>org.acme.MagicGBallHome</home>
+		<remote>org.acme.MagicGBall</remote>
+		<ejb-link>magicGball-ejb.jar#MagicGBall</ejb-link>
+	</ejb-ref>
+</application-client>
+
