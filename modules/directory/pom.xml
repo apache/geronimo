@@ -30,6 +30,11 @@
     <name>Geronimo :: Directory</name>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/resources2</directory>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

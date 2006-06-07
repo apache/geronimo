@@ -62,9 +62,9 @@
                 <module>j2ee</module>
                 <module>j2ee-builder</module>
                 <module>j2ee-schema</module>
-<!--                <module>jetty</module>
+                <module>jetty</module>
                 <module>jetty-builder</module>
-                <module>javamail-transport</module>  -->
+<!--                <module>javamail-transport</module>  -->
                 <module>jmx-remoting</module>
                 <module>kernel</module>
                 <module>management</module>

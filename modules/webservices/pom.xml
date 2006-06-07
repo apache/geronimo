@@ -30,6 +30,14 @@
     <name>Geronimo :: Web Services</name>
     <description>Geronimo Web Services</description>
 
+    <build>
+        <resources>
+            <resource>
+                <directory>src/resources2</directory>
+            </resource>
+        </resources>
+    </build>
+    
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>

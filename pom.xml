@@ -629,6 +629,12 @@
 
             <dependency>
                 <groupId>org.apache.geronimo.modules</groupId>
+                <artifactId>geronimo-jetty</artifactId>
+                <version>${geronimoVersion}</version>
+            </dependency>
+                                                                                                                                                                                                                   
+            <dependency>
+                <groupId>org.apache.geronimo.modules</groupId>
                 <artifactId>geronimo-jmx-remoting</artifactId>
                 <version>${geronimoVersion}</version>
             </dependency>
