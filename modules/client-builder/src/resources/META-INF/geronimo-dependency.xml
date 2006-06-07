@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<dep:service xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
-  <dep:dependency>
-    <dep:groupId>org.apache.geronimo.modules</dep:groupId>
-    <dep:artifactId>geronimo-client</dep:artifactId>
-  </dep:dependency>
-</dep:service>

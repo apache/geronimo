@@ -66,7 +66,7 @@
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-webservices</artifactId>
-        </dependency>        
+        </dependency>
 
         <dependency>
             <groupId>jetty</groupId>
@@ -74,10 +74,28 @@
             <version>${jettyVersion}</version>
         </dependency>
         <!-- these are included in geronimo-dependency.xml -->
-        <!-- servlet-spec was not needed in M1 -->
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-servlet_2.4_spec</artifactId>
+           <groupId>springframework</groupId>
+            <artifactId>spring</artifactId>
+            <version>${wadiSpringVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>activecluster</groupId>
+            <artifactId>activecluster</artifactId>
+            <version>${wadiActiveClusterVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>wadi</groupId>
+            <artifactId>wadi-core</artifactId>
+            <version>${wadiVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>wadi</groupId>
+            <artifactId>wadi-jetty5</artifactId>
+            <version>${wadiVersion}</version>
         </dependency>
 
         <dependency>
@@ -109,7 +127,6 @@
             <artifactId>commons-collections</artifactId>
             <version>${commonsCollectionsVersion}</version>
         </dependency>
-
         <dependency>
             <groupId>commons-primitives</groupId>
             <artifactId>commons-primitives</artifactId>
