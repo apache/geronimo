@@ -59,6 +59,16 @@ public abstract class AbstractCollectionEditorTest extends TestCase {
         checkContents(collection);
     }
 
+    public void testEmpty() {
+        String input = "[]";
+        editor.setAsText(input);
+        Object output = editor.getValue();
+        assertNotNull(output);
+        checkType(output);
+        Collection collection = (Collection) output;
+        assertEquals(0, collection.size());
+    }
+
     private void checkContents(Collection collection) {
         assertEquals(2, collection.size());
         Iterator iterator = collection.iterator();

@@ -76,7 +76,7 @@ public class PluginRepositoryDownloader implements PluginRepositoryList {
         for (int i = 0; i < downloadRepositories.size(); i++) {
             String url = (String) downloadRepositories.get(i);
             try {
-                list.add(new URL(url));
+                list.add(new URL(url.trim()));
             } catch (MalformedURLException e) {
                 log.error("Unable to format plugin repository URL "+url, e);
             }
@@ -84,7 +84,7 @@ public class PluginRepositoryDownloader implements PluginRepositoryList {
         for (int i = 0; i < userRepositories.size(); i++) {
             String url = (String) userRepositories.get(i);
             try {
-                list.add(new URL(url));
+                list.add(new URL(url.trim()));
             } catch (MalformedURLException e) {
                 log.error("Unable to format plugin repository URL "+url, e);
             }
