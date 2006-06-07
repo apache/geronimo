@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dep:service xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+  <dep:dependency>
+    <dep:groupId>jetty</dep:groupId>
+    <dep:artifactId>org.mortbay.jetty</dep:artifactId>
+  </dep:dependency>
+  <dep:dependency>
+    <dep:groupId>tomcat</dep:groupId>
+    <dep:artifactId>jasper-compiler</dep:artifactId>
+  </dep:dependency>
+  <dep:dependency>
+    <dep:groupId>tomcat</dep:groupId>
+    <dep:artifactId>jasper-compiler-jdt</dep:artifactId>
+  </dep:dependency>
+  <dep:dependency>
+    <dep:groupId>tomcat</dep:groupId>
+    <dep:artifactId>jasper-runtime</dep:artifactId>
+  </dep:dependency>
+  <dep:dependency>
+    <dep:groupId>commons-el</dep:groupId>
+    <dep:artifactId>commons-el</dep:artifactId>
+  </dep:dependency>
+</dep:service>
