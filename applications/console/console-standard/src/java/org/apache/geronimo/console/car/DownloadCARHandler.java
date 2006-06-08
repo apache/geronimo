@@ -152,9 +152,9 @@ public class DownloadCARHandler extends BaseImportExportHandler {
                 progressInfo.setMainMessage(results.getCurrentMessage());
                 progressInfo.setProgressPercent(results.getCurrentFilePercent());
                 progressInfo.setFinished(results.isFinished());
-                log.info(progressInfo.getMainMessage());
+                log.debug(progressInfo.getMainMessage());
                 if (results.isFinished()) {
-                    log.info("Installation finished");
+                    log.debug("Installation finished");
                     session.setAttribute(DOWNLOAD_RESULTS_SESSION_KEY, results);
                     break;
                 } else {

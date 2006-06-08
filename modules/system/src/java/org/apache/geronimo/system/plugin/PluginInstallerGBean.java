@@ -21,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.BufferedOutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -37,8 +38,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import javax.security.auth.login.FailedLoginException;
 import javax.xml.parsers.DocumentBuilder;
@@ -174,6 +178,15 @@ public class PluginInstallerGBean implements PluginInstaller {
      *                 The configId must be fully resolved (isResolved() == true)
      */
     public PluginMetadata getPluginMetadata(Artifact moduleId) {
+        if(configManager != null) {
+            if(!configManager.isConfiguration(moduleId)) {
+                return null;
+            }
+        } else {
+            if(!configStore.containsConfiguration(moduleId)) {
+                return null;
+            }
+        }
         File dir = writeableRepo.getLocation(moduleId);
         Document doc;
         ConfigurationData configData;
@@ -216,8 +229,10 @@ public class PluginInstallerGBean implements PluginInstaller {
             overrideDependencies(configData, result);
             return result;
         } catch (InvalidConfigException e) {
+            e.printStackTrace();
             log.warn("Unable to generate metadata for "+moduleId, e);
         } catch (Exception e) {
+            e.printStackTrace();
             log.warn("Invalid XML at "+source, e);
         }
         return null;
@@ -238,25 +253,73 @@ public class PluginInstallerGBean implements PluginInstaller {
         if(dir == null) {
             throw new IllegalArgumentException(metadata.getModuleId()+" is not installed!");
         }
-        File meta = new File(dir, "META-INF");
-        if(!meta.isDirectory() || !meta.canRead()) {
-            throw new IllegalArgumentException(metadata.getModuleId()+" is not a plugin!");
-        }
-        File xml = new File(meta, "geronimo-plugin.xml");
-        try {
-            if(!xml.isFile()) {
-                if(!xml.createNewFile()) {
-                    throw new RuntimeException("Cannot create plugin metadata file for "+metadata.getModuleId());
+        if(!dir.isDirectory()) { // must be a packed (JAR-formatted) plugin
+            try {
+                File temp = new File(dir.getParentFile(), dir.getName()+".temp");
+                JarFile input = new JarFile(dir);
+                Manifest manifest = input.getManifest();
+                JarOutputStream out = manifest == null ? new JarOutputStream(new BufferedOutputStream(new FileOutputStream(temp)))
+                        : new JarOutputStream(new BufferedOutputStream(new FileOutputStream(temp)), manifest);
+                Enumeration enum = input.entries();
+                byte[] buf = new byte[4096];
+                int count;
+                while (enum.hasMoreElements()) {
+                    JarEntry entry = (JarEntry) enum.nextElement();
+                    if(entry.getName().equals("META-INF/geronimo-plugin.xml")) {
+                        entry = new JarEntry(entry.getName());
+                        out.putNextEntry(entry);
+                        Document doc = writePluginMetadata(metadata);
+                        TransformerFactory xfactory = TransformerFactory.newInstance();
+                        Transformer xform = xfactory.newTransformer();
+                        xform.setOutputProperty(OutputKeys.INDENT, "yes");
+                        xform.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+                        xform.transform(new DOMSource(doc), new StreamResult(out));
+                    } else if(entry.getName().equals("META-INF/MANIFEST.MF")) {
+                        // do nothing, already passed in a manifest
+                    } else {
+                        out.putNextEntry(entry);
+                        InputStream in = input.getInputStream(entry);
+                        while((count = in.read(buf)) > -1) {
+                            out.write(buf, 0, count);
+                        }
+                        in.close();
+                        out.closeEntry();
+                    }
                 }
+                out.flush();
+                out.close();
+                input.close();
+                if(!dir.delete()) {
+                    throw new IOException("Unable to delete old plugin at "+dir.getAbsolutePath());
+                }
+                if(!temp.renameTo(dir)) {
+                    throw new IOException("Unable to move new plugin "+temp.getAbsolutePath()+" to "+dir.getAbsolutePath());
+                }
+            } catch (Exception e) {
+                log.error("Unable to update plugin metadata", e);
+                throw new RuntimeException("Unable to update plugin metadata", e);
             }
-            Document doc = writePluginMetadata(metadata);
-            TransformerFactory xfactory = TransformerFactory.newInstance();
-            Transformer xform = xfactory.newTransformer();
-            xform.setOutputProperty(OutputKeys.INDENT, "yes");
-            xform.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-            xform.transform(new DOMSource(doc), new StreamResult(xml));
-        } catch (Exception e) {
-            log.error("Unable to save plugin metadata for "+metadata.getModuleId(), e);
+        } else {
+            File meta = new File(dir, "META-INF");
+            if(!meta.isDirectory() || !meta.canRead()) {
+                throw new IllegalArgumentException(metadata.getModuleId()+" is not a plugin!");
+            }
+            File xml = new File(meta, "geronimo-plugin.xml");
+            try {
+                if(!xml.isFile()) {
+                    if(!xml.createNewFile()) {
+                        throw new RuntimeException("Cannot create plugin metadata file for "+metadata.getModuleId());
+                    }
+                }
+                Document doc = writePluginMetadata(metadata);
+                TransformerFactory xfactory = TransformerFactory.newInstance();
+                Transformer xform = xfactory.newTransformer();
+                xform.setOutputProperty(OutputKeys.INDENT, "yes");
+                xform.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+                xform.transform(new DOMSource(doc), new StreamResult(xml));
+            } catch (Exception e) {
+                log.error("Unable to save plugin metadata for "+metadata.getModuleId(), e);
+            }
         }
     }
 
@@ -1522,10 +1585,14 @@ public class PluginInstallerGBean implements PluginInstaller {
             copy.appendChild(doc.createTextNode(file.getSourceFile()));
             config.appendChild(copy);
         }
-        for (int i = 0; i < data.getConfigXmls().length; i++) {
-            GBeanOverride override = data.getConfigXmls()[i];
-            Element gbean = override.writeXml(doc, config);
-            gbean.setAttribute("xmlns", "http://geronimo.apache.org/xml/ns/attributes-1.1");
+        if(data.getConfigXmls().length > 0) {
+            Element content = doc.createElement("config-xml-content");
+            for (int i = 0; i < data.getConfigXmls().length; i++) {
+                GBeanOverride override = data.getConfigXmls()[i];
+                Element gbean = override.writeXml(doc, content);
+                gbean.setAttribute("xmlns", "http://geronimo.apache.org/xml/ns/attributes-1.1");
+            }
+            config.appendChild(content);
         }
         return doc;
     }

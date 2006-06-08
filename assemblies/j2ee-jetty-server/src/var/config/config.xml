@@ -15,6 +15,10 @@
             <!-- Check whether this really works if host name is 0.0.0.0 -->
             <attribute name="namingProviderUrl">rmi://${PlanServerHostname}:${PlanNamingPort}</attribute>
         </gbean>
+        <gbean name="DownloadedPluginRepos">
+          <attribute name="repositoryList">http://people.apache.org/~ammulder/plugin-repository-list-1.2.txt</attribute>
+          <attribute name="userRepositories">[]</attribute>
+        </gbean>
     </module>
     <module name="geronimo/j2ee-server/${pom.currentVersion}/car">
     </module>
@@ -62,13 +66,6 @@
         </gbean>
     </module>
     <module name="geronimo/activemq/${pom.currentVersion}/car"/>
-    <module name="geronimo/directory/${pom.currentVersion}/car" load="false">
-        <gbean name="geronimo.server:name=DirectoryService">
-            <attribute name="host">${PlanServerHostname}</attribute>
-            <attribute name="port">${PlanLdapPort}</attribute>
-        </gbean>
-    </module>
-    <module name="geronimo/ldap-realm/${pom.currentVersion}/car" load="false"/>
     <module name="geronimo/jetty/${pom.currentVersion}/car">
         <gbean name="JettyWebConnector">
             <attribute name="host">${PlanServerHostname}</attribute>
