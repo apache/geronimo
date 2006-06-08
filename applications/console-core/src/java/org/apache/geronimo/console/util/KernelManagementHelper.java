@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.lang.reflect.Array;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -38,6 +39,7 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
@@ -532,6 +534,18 @@ public class KernelManagementHelper implements ManagementHelper {
         } catch (GBeanNotFoundException e) {
             throw new IllegalStateException("Bad config ID: " + e.getMessage());
         }
+    }
+
+    public Object[] getGBeansImplementing(Class iface) {
+        Set set = kernel.listGBeans(new AbstractNameQuery(iface.getName()));
+        Object[] result = (Object[]) Array.newInstance(iface, set.size());
+        int index = 0;
+        ProxyManager mgr = kernel.getProxyManager();
+        for (Iterator it = set.iterator(); it.hasNext();) {
+            AbstractName name = (AbstractName) it.next();
+            result[index++] = mgr.createProxy(name, iface);
+        }
+        return result;
     }
 
     /**
