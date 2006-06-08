@@ -538,7 +538,7 @@ limitations under the License.
                 </fragment>
             </fragment>
         </fragment>
-
+<!-- Don't include this in the 1.1 release
         <fragment name="keystore" type="page">
             <navigation>
                 <title>Old Keystore</title>
@@ -553,6 +553,7 @@ limitations under the License.
                 </fragment>
             </fragment>
         </fragment>
+-->
     </fragment>
 
     <fragment name="internalDB" type="page">
