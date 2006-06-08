@@ -186,6 +186,7 @@
             <artifactId>pluto</artifactId>
             <version>${pluto_version}</version>
         </dependency>
+<!-- Appears to be unnecessary
         <dependency>
             <groupId>castor</groupId>
             <artifactId>castor</artifactId>
@@ -194,6 +195,7 @@
                 <war.bundle>true</war.bundle>
             </properties>
         </dependency>
+-->
 
         <!-- JMS dependencies -->
          <dependency>
