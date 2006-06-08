@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dep:service xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+  <dep:dependency>
+    <dep:groupId>axis</dep:groupId>
+    <dep:artifactId>axis</dep:artifactId>
+  </dep:dependency>
+  <dep:dependency>
+    <dep:groupId>commons-discovery</dep:groupId>
+    <dep:artifactId>commons-discovery</dep:artifactId>
+  </dep:dependency>
+  <dep:dependency>
+    <dep:groupId>org.apache.geronimo.specs</dep:groupId>
+    <dep:artifactId>geronimo-javamail_1.3.1_spec</dep:artifactId>
+  </dep:dependency>
+  <dep:dependency>
+    <dep:groupId>wsdl4j</dep:groupId>
+    <dep:artifactId>wsdl4j</dep:artifactId>
+  </dep:dependency>
+</dep:service>
