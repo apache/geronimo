@@ -30,10 +30,15 @@ import java.util.Set;
 import java.util.Collections;
 
 /**
- * @version $Rev:$ $Date:$
+ * TODO: document me
+ *
+ * NOTE: this class is serialized when modules are installed.  Any changes should
+ * be carefully reviewed to ensure they don't cause deserialization errors!
+ *
+ * @version $Rev$ $Date$
  */
 public abstract class ConfigurationAwareReference extends SimpleAwareReference {
-
+    private static final long serialVersionUID = 283358809226901462L;
     private final Artifact configId;
     protected final Set abstractNameQueries;
 
