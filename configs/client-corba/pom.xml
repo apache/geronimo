@@ -24,12 +24,25 @@
         <artifactId>configs-parent</artifactId>
         <version>1.2-SNAPSHOT</version>
     </parent>
-
-    <artifactId>j2ee-server</artifactId>
+    <groupId>org.apache.geronimo.configs</groupId>
+    <artifactId>client-corba</artifactId>
     <version>${geronimoVersion}</version>
     <packaging>car</packaging>
-    <name>Server Configuration for the J2EE Server</name>
+    <name>Corba Configuration for the J2EE Client</name>
 
+    <properties>
+        <PlanCOSNamingHost>localhost</PlanCOSNamingHost>
+        <PlanCOSNamingPort>1050</PlanCOSNamingPort>
+        <PlanORBSSLHost>localhost</PlanORBSSLHost>
+        <PlanORBSSLPort>2001</PlanORBSSLPort>
+
+        <PlanHTTPPort>8080</PlanHTTPPort>
+        <PlanHTTPSPort>8443</PlanHTTPSPort>
+        <PlanOpenEJBPort>4201</PlanOpenEJBPort>
+        <PlanServerHostname>localhost</PlanServerHostname>
+        <PlanClientAddresses>127.0.0.1</PlanClientAddresses>
+        <PlanRemoteLoginPort>4242</PlanRemoteLoginPort>
+    </properties>
     <build>
         <plugins>
             <!-- This plugin needed to support package type car -->
@@ -37,6 +50,9 @@
                 <groupId>org.apache.geronimo.plugins</groupId>
                 <artifactId>geronimo-packaging-plugin</artifactId>
                 <extensions>true</extensions>
+                <configuration>
+<deploymentConfig>${gbeanDeployer},${j2eeDeployer},${openejbDeployer},${axisDeployer}</deploymentConfig>            
+                 </configuration>
             </plugin>
         </plugins>
     </build>
@@ -49,38 +65,25 @@
         <!-- parent config -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>rmi-naming</artifactId>
-            <!--<version>${geronimoVersion}</version>-->
+            <artifactId>client</artifactId>
+            <version>${geronimoVersion}</version>
             <type>car</type>
         </dependency>
-        <!-- June 7 2006 djencks.  Compared with project.xml. activeio removed, it's in rmi-naming -->
 
-        <!-- ThreadPool -->
+        <!-- to enforce build order -->
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-core</artifactId>
-        </dependency>
-        <!-- ?????? -->
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-common</artifactId>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>openejb-deployer</artifactId>
+            <version>${geronimoVersion}</version>
+            <type>car</type>
+            <scope>provided</scope>
         </dependency>
 
+        <!-- needed by GBean, this was not a dep in M1-->
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-connector</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-webservices</artifactId>
-        </dependency>
-
-        <!-- purpose unknown -->
-        <dependency>
-            <groupId>asm</groupId>
-            <artifactId>asm</artifactId>
-        </dependency>
-
+            <groupId>openejb</groupId>
+            <artifactId>openejb-core</artifactId>
+            <version>${openejbVersion}</version>
+        </dependency> 
     </dependencies>
 </project>

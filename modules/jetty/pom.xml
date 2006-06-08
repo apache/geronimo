@@ -78,31 +78,6 @@
             <artifactId>org.mortbay.jetty</artifactId>
             <version>${jettyVersion}</version>
         </dependency>
-        <!-- these are included in geronimo-dependency.xml -->
-        <dependency>
-           <groupId>springframework</groupId>
-            <artifactId>spring</artifactId>
-            <version>${wadiSpringVersion}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>activecluster</groupId>
-            <artifactId>activecluster</artifactId>
-            <version>${wadiActiveClusterVersion}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>wadi</groupId>
-            <artifactId>wadi-core</artifactId>
-            <version>${wadiVersion}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>wadi</groupId>
-            <artifactId>wadi-jetty5</artifactId>
-            <version>${wadiVersion}</version>
-        </dependency>
-
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>jasper-compiler</artifactId>

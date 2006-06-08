@@ -19,21 +19,30 @@
 <!-- $Rev$ $Date$ -->
 <project>
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>configs-parent</artifactId>
         <version>1.2-SNAPSHOT</version>
     </parent>
 
-    <artifactId>j2ee-server</artifactId>
+    <groupId>org.apache.geronimo.configs</groupId>
+    <artifactId>jetty</artifactId>
     <version>${geronimoVersion}</version>
     <packaging>car</packaging>
-    <name>Server Configuration for the J2EE Server</name>
+    <name>Jetty Configuration for the J2EE Server</name>
+
+    <properties>
+        <PlanHTTPPort>8090</PlanHTTPPort>
+        <PlanHTTPSPort>8453</PlanHTTPSPort>
+        <PlanAJPPort2>8019</PlanAJPPort2>
+        <PlanServerHostname>localhost</PlanServerHostname>
+    </properties>
 
     <build>
         <plugins>
-            <!-- This plugin needed to support package type car -->
             <plugin>
+                <!-- uses geronimo-gbean-deployer -->
                 <groupId>org.apache.geronimo.plugins</groupId>
                 <artifactId>geronimo-packaging-plugin</artifactId>
                 <extensions>true</extensions>
@@ -46,41 +55,21 @@
     <!-- ============ -->
 
     <dependencies>
-        <!-- parent config -->
+        <!-- parent -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>rmi-naming</artifactId>
-            <!--<version>${geronimoVersion}</version>-->
+            <artifactId>j2ee-security</artifactId>
             <type>car</type>
         </dependency>
-        <!-- June 7 2006 djencks.  Compared with project.xml. activeio removed, it's in rmi-naming -->
-
-        <!-- ThreadPool -->
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-core</artifactId>
-        </dependency>
-        <!-- ?????? -->
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-common</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-connector</artifactId>
+            <artifactId>geronimo-jetty</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-webservices</artifactId>
         </dependency>
-
-        <!-- purpose unknown -->
-        <dependency>
-            <groupId>asm</groupId>
-            <artifactId>asm</artifactId>
-        </dependency>
-
     </dependencies>
 </project>

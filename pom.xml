@@ -37,8 +37,8 @@
         <notifiers>
             <notifier>
                 <type>mail</type>
-                <sendOnError />
-                <sendOnFailure />
+                <sendOnError/>
+                <sendOnFailure/>
                 <address>dev@geronimo.org</address>
             </notifier>
         </notifiers>
@@ -97,36 +97,36 @@
         <maven.compiler.optimize>true</maven.compiler.optimize>
         <maven.compiler.debug>true</maven.compiler.debug>
         -->
-        
+
         <!--
          |
          | Geronimo module versions
          |
          -->
         <geronimoVersion>1.2-SNAPSHOT</geronimoVersion>
-        
+
         <!--
          |
          | Geronimo specification versions
          |
          -->
-        <geronimoSpecActivationVersion>1.0</geronimoSpecActivationVersion>
-        <geronimoSpecCorbaVersion>1.0-SNAPSHOT</geronimoSpecCorbaVersion>
-        <geronimoSpecEjbVersion>1.0</geronimoSpecEjbVersion>
-        <geronimoSpecJ2eeVersion>1.1-SNAPSHOT</geronimoSpecJ2eeVersion>
-        <geronimoSpecJ2eeConnectorVersion>1.0</geronimoSpecJ2eeConnectorVersion>
-        <geronimoSpecJ2eeDeploymentVersion>1.0</geronimoSpecJ2eeDeploymentVersion>
-        <geronimoSpecJ2eeJaccVersion>1.0</geronimoSpecJ2eeJaccVersion>
-        <geronimoSpecJ2eeManagementVersion>1.0</geronimoSpecJ2eeManagementVersion>
-        <geronimoSpecJavamailVersion>1.1-SNAPSHOT</geronimoSpecJavamailVersion>
-        <geronimoSpecJaxrVersion>1.0</geronimoSpecJaxrVersion>
-        <geronimoSpecJaxrpcVersion>1.0</geronimoSpecJaxrpcVersion>
-        <geronimoSpecJmsVersion>1.0</geronimoSpecJmsVersion>
-        <geronimoSpecJspVersion>1.0</geronimoSpecJspVersion>
-        <geronimoSpecJtaVersion>1.0</geronimoSpecJtaVersion>
-        <geronimoSpecQnameVersion>1.0</geronimoSpecQnameVersion>
-        <geronimoSpecSaajVersion>1.0</geronimoSpecSaajVersion>
-        <geronimoSpecServletVersion>1.0</geronimoSpecServletVersion>
+        <geronimoSpecActivationVersion>1.1</geronimoSpecActivationVersion>
+        <geronimoSpecCorbaVersion>1.0</geronimoSpecCorbaVersion>
+        <geronimoSpecEjbVersion>1.0.1</geronimoSpecEjbVersion>
+        <geronimoSpecJ2eeVersion>1.1</geronimoSpecJ2eeVersion>
+        <geronimoSpecJ2eeConnectorVersion>1.0.1</geronimoSpecJ2eeConnectorVersion>
+        <geronimoSpecJ2eeDeploymentVersion>1.0.1</geronimoSpecJ2eeDeploymentVersion>
+        <geronimoSpecJ2eeJaccVersion>1.0.1</geronimoSpecJ2eeJaccVersion>
+        <geronimoSpecJ2eeManagementVersion>1.0.1</geronimoSpecJ2eeManagementVersion>
+        <geronimoSpecJavamailVersion>1.1</geronimoSpecJavamailVersion>
+        <geronimoSpecJaxrVersion>1.0.1</geronimoSpecJaxrVersion>
+        <geronimoSpecJaxrpcVersion>1.0.1</geronimoSpecJaxrpcVersion>
+        <geronimoSpecJmsVersion>1.0.1</geronimoSpecJmsVersion>
+        <geronimoSpecJspVersion>1.0.1</geronimoSpecJspVersion>
+        <geronimoSpecJtaVersion>1.0.1</geronimoSpecJtaVersion>
+        <geronimoSpecQnameVersion>1.0.1</geronimoSpecQnameVersion>
+        <geronimoSpecSaajVersion>1.0.1</geronimoSpecSaajVersion>
+        <geronimoSpecServletVersion>1.0.1</geronimoSpecServletVersion>
 
         <!--
          |
@@ -157,7 +157,7 @@
         <commonsElVersion>1.0</commonsElVersion>
         <commonsFileuploadVersion>1.1-dev</commonsFileuploadVersion>
         <commonsHttpclientVersion>2.0.1</commonsHttpclientVersion>
-        <commonsIoVersion>1.0</commonsIoVersion>
+        <commonsIoVersion>1.1</commonsIoVersion>
         <commonsJxpathVersion>1.1</commonsJxpathVersion>
         <commonsLangVersion>2.0</commonsLangVersion>
         <commonsLoggingVersion>1.0.4</commonsLoggingVersion>
@@ -200,9 +200,9 @@
         <staxApiVersion>1.0</staxApiVersion>
         <tomcatAjpVersion>5.5.15</tomcatAjpVersion>
         <tomcatVersion>5.5.15</tomcatVersion>
-        <tranqlConnectorVersion>1.2-SNAPSHOT</tranqlConnectorVersion>
+        <tranqlConnectorVersion>1.3-SNAPSHOT</tranqlConnectorVersion>
         <tranqlVendorsVersion>1.1</tranqlVendorsVersion>
-        <tranqlVersion>1.3-SNAPSHOT</tranqlVersion>
+        <tranqlVersion>1.4-SNAPSHOT</tranqlVersion>
         <velocityVersion>1.4</velocityVersion>
         <wadiActiveClusterVersion>1.2-20051115174934</wadiActiveClusterVersion>
         <wadiSpringVersion>1.5.2</wadiSpringVersion>
@@ -213,7 +213,7 @@
         <xfireVersion>20050202</xfireVersion>
         <xmlApisVersion>1.0.b2</xmlApisVersion>
         <xmlbeansVersion>2.0.0</xmlbeansVersion>
-        <xmlbeansMavenPluginVersion>2.0</xmlbeansMavenPluginVersion>
+        <xmlbeansMavenPluginVersion>2.0.1-SNAPSHOT</xmlbeansMavenPluginVersion>
         <xmlParserApisVersion>2.2.1</xmlParserApisVersion>
         <xmlpullVersion>1.1.3.4d_b4_min</xmlpullVersion>
         <xmlResolverVersion>1.1</xmlResolverVersion>
@@ -632,7 +632,13 @@
                 <artifactId>geronimo-jetty</artifactId>
                 <version>${geronimoVersion}</version>
             </dependency>
-                                                                                                                                                                                                                   
+
+            <dependency>
+                <groupId>org.apache.geronimo.modules</groupId>
+                <artifactId>geronimo-jetty-builder</artifactId>
+                <version>${geronimoVersion}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.apache.geronimo.modules</groupId>
                 <artifactId>geronimo-jmx-remoting</artifactId>
@@ -746,6 +752,327 @@
                 <artifactId>geronimo-axis-builder</artifactId>
                 <version>${geronimoVersion}</version>
             </dependency>
+
+            <!-- geronimo configurations (modules) -->
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>activemq</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>activemq-broker</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>axis</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>axis-deployer</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>client</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>client-corba</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>client-deployer</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>client-security</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>client-system</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>console-jetty</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>console-tomcat</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>daytrader-jetty</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>daytrader-tomcat</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>directory</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>geronimo-gbean-deployer</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>hot-deployer</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>j2ee-corba</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>j2ee-deployer</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>j2ee-security</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>j2ee-server</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>j2ee-system</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>javamail</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>jetty</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>jetty-deployer</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>jsp-examples-jetty</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>jsp-examples-tomcat</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>ldap-demo-jetty</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>ldap-demo-tomcat</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>ldap-realm</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>online-deployer</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>openejb</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>openejb-deployer</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>project.properties</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>remote-deploy-jetty</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>remote-deploy-tomcat</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>rmi-naming</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>servlets-examples-jetty</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>servlets-examples-tomcat</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>sharedlib</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>shutdown</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>system-database</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>tomcat</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>tomcat-deployer</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>uddi-jetty</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>uddi-tomcat</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>unavailable-client-deployer</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>unavailable-ejb-deployer</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>unavailable-webservices-deployer</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>upgrade</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>upgrade-cli</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>velocity.log</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>welcome-jetty</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>welcome-tomcat</artifactId>
+                <type>car</type>
+                <version>${geronimoVersion}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -797,82 +1124,83 @@
             </testResource>
         </testResources>
         <pluginManagement>
-        <plugins>
-            <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-surefire-plugin</artifactId>
 
-                <!-- <version>2.1.3-SNAPSHOT</version> -->
-                <configuration>
-                    <!-- Todo move these here -->
-                    <!--
-                    <systemProperties>
-                        <property>
-                          <name>log4j.configuration</name>
-                          <value>${basedir}/log4j.properties</value>
-                        </property>
-                        <property>
-                          <name>java.security.auth.login.config</name>
-                          <value>${basedir}/src/test-data/data/login.config</value>
-                        </property>
-                    </systemProperties>
-                    -->
-                    <forkMode>once</forkMode>
-                    <workingDirectory>${basedir}</workingDirectory>
-                </configuration>
-            </plugin>
+                    <!-- <version>2.1.3-SNAPSHOT</version> -->
+                    <configuration>
+                        <!-- Todo move these here -->
+                        <!--
+                        <systemProperties>
+                            <property>
+                              <name>log4j.configuration</name>
+                              <value>${basedir}/log4j.properties</value>
+                            </property>
+                            <property>
+                              <name>java.security.auth.login.config</name>
+                              <value>${basedir}/src/test-data/data/login.config</value>
+                            </property>
+                        </systemProperties>
+                        -->
+                        <forkMode>once</forkMode>
+                        <workingDirectory>${basedir}</workingDirectory>
+                    </configuration>
+                </plugin>
 
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.1</version>
-            </plugin>
+                <plugin>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <version>1.1</version>
+                </plugin>
 
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.4</source>
-                    <target>1.4</target>
-                    <optimize>true</optimize>
-                </configuration>
-                <inherited>true</inherited>
-            </plugin>
+                <plugin>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <configuration>
+                        <source>1.4</source>
+                        <target>1.4</target>
+                        <optimize>true</optimize>
+                    </configuration>
+                    <inherited>true</inherited>
+                </plugin>
 
-            <plugin>
-                <artifactId>maven-one-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <configuration>
-                            <remoteRepositoryUrl>scpexe://cvs.apache.org/www/cvs.apache.org/repository</remoteRepositoryUrl>
-                        </configuration>
-                        <goals>
-                            <goal>install-maven-one-repository</goal>
-                            <goal>deploy-maven-one-repository</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </pluginManagement>
+                <plugin>
+                    <artifactId>maven-one-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <configuration>
+                                <remoteRepositoryUrl>
+                                    scpexe://cvs.apache.org/www/cvs.apache.org/repository</remoteRepositoryUrl>
+                            </configuration>
+                            <goals>
+                                <goal>install-maven-one-repository</goal>
+                                <goal>deploy-maven-one-repository</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <extensions>
-          <extension>
-            <groupId>org.apache.maven.wagon</groupId>
-            <artifactId>wagon-ssh-external</artifactId>
-            <version>1.0-alpha-5</version>
-          </extension>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ssh-external</artifactId>
+                <version>1.0-alpha-5</version>
+            </extension>
         </extensions>
     </build>
 
     <repositories>
-      <repository>
-              <id>codehaus-dist</id>
-              <name>Codehaus-Distribution</name>
-              <url>http://dist.codehaus.org</url>
-              <layout>legacy</layout>
-              <snapshots>
-                  <enabled>true</enabled>
-                  <updatePolicy>daily</updatePolicy>
-                  <checksumPolicy>ignore</checksumPolicy>
-              </snapshots>
-          </repository>
+        <repository>
+            <id>codehaus-dist</id>
+            <name>Codehaus-Distribution</name>
+            <url>http://dist.codehaus.org</url>
+            <layout>legacy</layout>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </snapshots>
+        </repository>
 
         <repository>
             <snapshots>

@@ -186,6 +186,12 @@
         </dependency>
 
         <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commonsIoVersion}</version>
+        </dependency>
+
+        <dependency>
             <groupId>commons-primitives</groupId>
             <artifactId>commons-primitives</artifactId>
             <version>${commonsPrimitivesVersion}</version>

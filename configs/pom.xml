@@ -69,7 +69,7 @@
           <module>axis</module>
           <module>axis-deployer</module>
           <module>client</module>
-<!--          <module>client-corba</module> -->
+          <module>client-corba</module>
           <module>client-deployer</module>
           <module>client-security</module>
           <module>client-system</module>
@@ -80,21 +80,21 @@
           <module>directory</module>
           <module>geronimo-gbean-deployer</module>
           <module>hot-deployer</module>
-<!--          <module>j2ee-corba</module> -->
+          <module>j2ee-corba</module>
           <module>j2ee-deployer</module>
           <module>j2ee-security</module>
           <module>j2ee-server</module>
           <module>j2ee-system</module>
-<!--          <module>javamail</module>
+<!--          <module>javamail</module> -->
           <module>jetty</module>
           <module>jetty-deployer</module>
-          <module>jsp-examples-jetty</module>
+<!--          <module>jsp-examples-jetty</module>
           <module>jsp-examples-tomcat</module>
           <module>ldap-demo-jetty</module>
           <module>ldap-demo-tomcat</module> -->
           <module>ldap-realm</module>
           <module>online-deployer</module>
-<!--          <module>openejb</module> -->
+          <module>openejb</module>
           <module>openejb-deployer</module>
 <!--          <module>remote-deploy-jetty</module>
           <module>remote-deploy-tomcat</module> -->
