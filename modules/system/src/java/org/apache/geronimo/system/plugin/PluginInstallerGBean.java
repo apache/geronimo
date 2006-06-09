@@ -260,11 +260,11 @@ public class PluginInstallerGBean implements PluginInstaller {
                 Manifest manifest = input.getManifest();
                 JarOutputStream out = manifest == null ? new JarOutputStream(new BufferedOutputStream(new FileOutputStream(temp)))
                         : new JarOutputStream(new BufferedOutputStream(new FileOutputStream(temp)), manifest);
-                Enumeration enum = input.entries();
+                Enumeration en = input.entries();
                 byte[] buf = new byte[4096];
                 int count;
-                while (enum.hasMoreElements()) {
-                    JarEntry entry = (JarEntry) enum.nextElement();
+                while (en.hasMoreElements()) {
+                    JarEntry entry = (JarEntry) en.nextElement();
                     if(entry.getName().equals("META-INF/geronimo-plugin.xml")) {
                         entry = new JarEntry(entry.getName());
                         out.putNextEntry(entry);
@@ -298,13 +298,14 @@ public class PluginInstallerGBean implements PluginInstaller {
             } catch (Exception e) {
                 log.error("Unable to update plugin metadata", e);
                 throw new RuntimeException("Unable to update plugin metadata", e);
-            }
+            } // TODO this really should have a finally block to ensure streams are closed
         } else {
             File meta = new File(dir, "META-INF");
             if(!meta.isDirectory() || !meta.canRead()) {
                 throw new IllegalArgumentException(metadata.getModuleId()+" is not a plugin!");
             }
             File xml = new File(meta, "geronimo-plugin.xml");
+            FileOutputStream fos = null;
             try {
                 if(!xml.isFile()) {
                     if(!xml.createNewFile()) {
@@ -316,9 +317,21 @@ public class PluginInstallerGBean implements PluginInstaller {
                 Transformer xform = xfactory.newTransformer();
                 xform.setOutputProperty(OutputKeys.INDENT, "yes");
                 xform.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-                xform.transform(new DOMSource(doc), new StreamResult(xml));
+                fos = new FileOutputStream(xml);
+                // use a FileOutputStream instead of a File on the StreamResult 
+                // constructor as problems were encountered with the file not being closed.
+                StreamResult sr = new StreamResult(fos); 
+                xform.transform(new DOMSource(doc), sr);
             } catch (Exception e) {
                 log.error("Unable to save plugin metadata for "+metadata.getModuleId(), e);
+            } finally {
+                if (fos != null) {
+                    try {
+                        fos.close();
+                    } catch (IOException ignored) {
+                        // ignored
+                    }
+                }
             }
         }
     }
