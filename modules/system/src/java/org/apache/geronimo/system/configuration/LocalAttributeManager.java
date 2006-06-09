@@ -53,6 +53,8 @@ import javax.xml.transform.dom.DOMSource;
 import java.beans.PropertyEditor;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -458,6 +460,7 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
                              "http://www.w3.org/2001/XMLSchema");
         dFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaSource",
                              LocalAttributeManager.class.getResourceAsStream("/META-INF/schema/local-attributes-1.1.xsd"));
+        FileOutputStream fos = null;
         try {
             Document doc = dFactory.newDocumentBuilder().newDocument();
             serverOverride.writeXml(doc);
@@ -465,11 +468,26 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
             Transformer xform = xfactory.newTransformer();
             xform.setOutputProperty(OutputKeys.INDENT, "yes");
             xform.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-            xform.transform(new DOMSource(doc), new StreamResult(file));
+            fos = new FileOutputStream(file);
+            // use a FileOutputStream instead of a File on the StreamResult 
+            // constructor as problems were encountered with the file not being closed.
+            StreamResult sr = new StreamResult(fos); 
+            xform.transform(new DOMSource(doc), sr);
+        } catch (FileNotFoundException e) {
+            // file is directory or cannot be created/opened
+            log.error("Unable to write config.xml", e);
         } catch (ParserConfigurationException e) {
             log.error("Unable to write config.xml", e);
         } catch (TransformerException e) {
             log.error("Unable to write config.xml", e);
+        } finally {
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException ignored) {
+                    // ignored
+                }
+            }
         }
     }
 
