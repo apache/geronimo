@@ -71,6 +71,42 @@ public class GBeanOverride implements Serializable {
         gbeanInfo = null;
     }
 
+    public GBeanOverride(GBeanOverride original, String oldArtifact, String newArtifact) {
+        Object name = original.name;
+        if(name instanceof String) {
+            name = replace((String)name, oldArtifact, newArtifact);
+        } else if(name instanceof AbstractName) {
+            String value = name.toString();
+            value = replace(value, oldArtifact, newArtifact);
+            name = new AbstractName(URI.create(value));
+        }
+        this.name = name;
+        this.load = original.load;
+        this.attributes.putAll(original.attributes);
+        this.references.putAll(original.references);
+        this.clearAttributes.addAll(original.clearAttributes);
+        this.nullAttributes.addAll(original.nullAttributes);
+        this.clearReferences.addAll(original.clearReferences);
+        this.gbeanInfo = original.gbeanInfo;
+    }
+
+    private static String replace(String original, String oldArtifact, String newArtifact) {
+        int pos = original.indexOf(oldArtifact);
+        if(pos == -1) {
+            return original;
+        }
+        int last = -1;
+        StringBuffer buf = new StringBuffer();
+        while(pos > -1) {
+            buf.append(original.substring(last+1, pos));
+            buf.append(newArtifact);
+            last = pos+oldArtifact.length()-1;
+            pos = original.indexOf(oldArtifact, last);
+        }
+        buf.append(original.substring(last+1));
+        return buf.toString();
+    }
+
     public GBeanOverride(GBeanData gbeanData) throws InvalidAttributeException {
         GBeanInfo gbeanInfo = gbeanData.getGBeanInfo();
         this.gbeanInfo = gbeanInfo.getSourceClass();
