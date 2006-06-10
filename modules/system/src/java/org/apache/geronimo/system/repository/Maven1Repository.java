@@ -66,16 +66,18 @@ public class Maven1Repository extends AbstractRepository implements WritableList
             path = new File(path, query.getType() + "s");
 
             File[] files = path.listFiles();
-            for (int i = 0; i < files.length; i++) {
-                File file = files[i];
-                String fileName = file.getName();
-                if (fileName.startsWith(query.getArtifactId() + "-") && fileName.endsWith("." + query.getType())) {
-                    String version = fileName.substring(query.getArtifactId().length() + 1);
-                    version = version.substring(0, version.length() - 1 - query.getType().length());
-                    if(query.getVersion() != null && !query.getVersion().toString().equals(version)) {
-                        continue;
+            if (files != null) {
+                for (int i = 0; i < files.length; i++) {
+                    File file = files[i];
+                    String fileName = file.getName();
+                    if (fileName.startsWith(query.getArtifactId() + "-") && fileName.endsWith("." + query.getType())) {
+                        String version = fileName.substring(query.getArtifactId().length() + 1);
+                        version = version.substring(0, version.length() - 1 - query.getType().length());
+                        if(query.getVersion() != null && !query.getVersion().toString().equals(version)) {
+                            continue;
+                        }
+                        artifacts.add(new Artifact(query.getGroupId(), query.getArtifactId(), version, query.getType()));
                     }
-                    artifacts.add(new Artifact(query.getGroupId(), query.getArtifactId(), version, query.getType()));
                 }
             }
         } else {
