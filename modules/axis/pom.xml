@@ -30,7 +30,13 @@
     <packaging>jar</packaging>
     <name>Geronimo :: Axis</name>
     <description>Geronimo Axis Integration</description>
-
+    <build>
+        <resources>
+            <resource>
+                <directory>src/resources2</directory>
+            </resource>
+        </resources>
+    </build>
     <!-- ============ -->
     <!-- Dependencies -->
     <!-- ============ -->

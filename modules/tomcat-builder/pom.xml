@@ -151,29 +151,24 @@
             <artifactId>geronimo-naming-builder</artifactId>
         </dependency>
 
-        <!-- These require dependencies.dependency.version -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-tomcat</artifactId>
-            <version>${geronimoVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-service-builder</artifactId>
-            <version>${geronimoVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-j2ee-builder</artifactId>
-            <version>${geronimoVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-security-builder</artifactId>
-            <version>${geronimoVersion}</version>
         </dependency>
 
         <dependency>

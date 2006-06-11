@@ -31,7 +31,6 @@
     <description>Geronimo Tomcat integration</description>
 
     <properties>
-        <wadiVersion>2.0M1</wadiVersion>
         <buildDir>${project.build.directory}</buildDir>
         <endorsedDir>${buildDir}/endorsed</endorsedDir>
         <localRepoDir>${settings.localRepository}</localRepoDir>
@@ -40,7 +39,7 @@
     <build>
         <resources>
             <resource>
-                <directory>src/resources</directory>
+                <directory>src/resources2</directory>
             </resource>
         </resources>
 
@@ -136,7 +135,7 @@
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-security</artifactId>
         </dependency>
-
+        <!-- cglib, commons-logging, log4j, mx4j coming from kernel --> 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-system</artifactId>
@@ -150,33 +149,11 @@
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-webservices</artifactId>
-            <!-- ws uses dependencies.dependency.version -->
-            <version>${geronimoVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-security-builder</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib-nodep</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>mx4j</groupId>
-            <artifactId>mx4j</artifactId>
         </dependency>
 
         <dependency>

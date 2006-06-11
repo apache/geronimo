@@ -19,29 +19,30 @@
 <!-- $Rev$ $Date$ -->
 <project>
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>configs-parent</artifactId>
         <version>1.2-SNAPSHOT</version>
     </parent>
 
-    <artifactId>tomcat</artifactId>
+    <groupId>org.apache.geronimo.configs</groupId>
+    <artifactId>servlet-examples-tomcat</artifactId>
     <version>${geronimoVersion}</version>
     <packaging>car</packaging>
-    <name>Tomcat Configuration for the J2EE Server</name>
-    <properties>
-        <PlanHTTPPort2>8090</PlanHTTPPort2>
-        <PlanHTTPSPort2>8453</PlanHTTPSPort2>
-        <PlanAJPPort2>8019</PlanAJPPort2>
-        <PlanServerHostname>localhost</PlanServerHostname>
-    </properties>
+    <name>Servlet Examples for Tomcat</name>
+
     <build>
         <plugins>
+            <!-- This plugin needed to support package type car -->
             <plugin>
-                <!-- uses geronimo-gbean-deployer -->
                 <groupId>org.apache.geronimo.plugins</groupId>
                 <artifactId>geronimo-packaging-plugin</artifactId>
                 <extensions>true</extensions>
+                <configuration>
+                    <deploymentConfig>${j2eeTomcatServer}</deploymentConfig>
+<moduleFile>${settings.localRepository}/geronimo-samples/geronimo-servlet-examples-tomcat/${tomcatVersion}/geronimo-servlet-examples-tomcat-${tomcatVersion}.war</moduleFile>
+                </configuration>
             </plugin>
         </plugins>
     </build>
@@ -51,22 +52,19 @@
     <!-- ============ -->
 
     <dependencies>
-        <!-- parent -->
+        <!-- To enforce build order --> 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>rmi-naming</artifactId>
-            <version>${geronimoVersion}</version>
+            <artifactId>tomcat-deployer</artifactId>
             <type>car</type>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-tomcat</artifactId>
+            <groupId>geronimo-samples</groupId>
+            <artifactId>geronimo-servlet-examples-tomcat</artifactId>
+            <version>${tomcatVersion}</version>
+            <type>war</type>
         </dependency>
-        <!-- this should have come via g-tomcat
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-webservices</artifactId>
-        </dependency> -->
     </dependencies>
 </project>

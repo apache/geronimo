@@ -46,7 +46,7 @@
                 <artifactId>geronimo-packaging-plugin</artifactId>
                 <extensions>true</extensions>
                 <configuration>
-                    <deploymentConfig>${gbeanDeployer},${j2eeDeployer},${clientDeployer},${openejbDeployer},${axisDeployer}</deploymentConfig>
+                    <deploymentConfig>${j2eeNowebServer}</deploymentConfig>
                     <moduleFile>${settings.localRepository}/tranql/tranql-connector-derby-embed-xa/${tranqlVendorsVersion}/tranql-connector-derby-embed-xa-${tranqlVendorsVersion}.rar</moduleFile>
                 </configuration>
             </plugin>
@@ -62,8 +62,28 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-server</artifactId>
-            <version>${geronimoVersion}</version>
             <type>car</type>
+        </dependency>
+        <!-- make sure all the deployers are available -->
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>axis-deployer</artifactId>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>client-deployer</artifactId>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>openejb-deployer</artifactId>
+            <type>car</type>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>

@@ -19,54 +19,62 @@
 <!-- $Rev$ $Date$ -->
 <project>
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>configs-parent</artifactId>
         <version>1.2-SNAPSHOT</version>
     </parent>
 
-    <artifactId>tomcat</artifactId>
+    <groupId>org.apache.geronimo.configs</groupId>
+    <artifactId>activemq</artifactId>
     <version>${geronimoVersion}</version>
     <packaging>car</packaging>
-    <name>Tomcat Configuration for the J2EE Server</name>
-    <properties>
-        <PlanHTTPPort2>8090</PlanHTTPPort2>
-        <PlanHTTPSPort2>8453</PlanHTTPSPort2>
-        <PlanAJPPort2>8019</PlanAJPPort2>
-        <PlanServerHostname>localhost</PlanServerHostname>
-    </properties>
+    <name>Activemq Configuration</name>
+
     <build>
         <plugins>
+            <!-- This plugin needed to support package type car -->
             <plugin>
-                <!-- uses geronimo-gbean-deployer -->
                 <groupId>org.apache.geronimo.plugins</groupId>
                 <artifactId>geronimo-packaging-plugin</artifactId>
                 <extensions>true</extensions>
+                <configuration>
+                    <deploymentConfig>${j2eeNowebServer}</deploymentConfig>  <!-- no web deployer -->
+                   <moduleFile>${settings.localRepository}/org/apache/geronimo/modules/ge-activemq-rar/${geronimoVersion}/ge-activemq-rar-${geronimoVersion}.rar</moduleFile> 
+                </configuration>
             </plugin>
         </plugins>
     </build>
+  
+    <properties>
+        <PlanServerHostname>localhost</PlanServerHostname>
+        <PlanActiveMQPort>61616</PlanActiveMQPort>
+    </properties>
 
     <!-- ============ -->
     <!-- Dependencies -->
     <!-- ============ -->
 
     <dependencies>
-        <!-- parent -->
+        <!-- parent config -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>rmi-naming</artifactId>
-            <version>${geronimoVersion}</version>
+            <artifactId>activemq-broker</artifactId>
+            <type>car</type>
+        </dependency>
+        <!-- To enforce build order -->
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>system-database</artifactId>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-tomcat</artifactId>
+            <artifactId>ge-activemq-rar</artifactId>
+            <type>rar</type>
         </dependency>
-        <!-- this should have come via g-tomcat
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-webservices</artifactId>
-        </dependency> -->
+
     </dependencies>
 </project>
