@@ -186,7 +186,9 @@ public class GBeanData implements Externalizable {
                 out.writeObject(name);
                 out.writeObject(value);
             } catch (IOException e) {
-                throw (IOException) new IOException("Unable to write attribute: " + name).initCause(e);
+                throw (IOException) new IOException("Unable to write attribute: " + name + " in gbean: " + abstractName).initCause(e);
+            } catch (NoClassDefFoundError e) {
+                throw (IOException) new IOException("Unable to write attribute: " + name + " in gbean: " + abstractName).initCause(e);
             }
         }
 
@@ -200,14 +202,18 @@ public class GBeanData implements Externalizable {
                 out.writeObject(name);
                 out.writeObject(value);
             } catch (IOException e) {
-                throw (IOException) new IOException("Unable to write reference pattern: " + name).initCause(e);
+                throw (IOException) new IOException("Unable to write reference pattern: " + name + " in gbean: " + abstractName).initCause(e);
             }
         }
         //write the dependencies
         out.writeInt(dependencies.size());
         for (Iterator iterator = dependencies.iterator(); iterator.hasNext();) {
             ReferencePatterns referencePatterns = (ReferencePatterns) iterator.next();
-            out.writeObject(referencePatterns);
+            try {
+                out.writeObject(referencePatterns);
+            } catch (IOException e) {
+                throw (IOException) new IOException("Unable to write dependency pattern in gbean: " + abstractName).initCause(e);
+            }
         }
 
     }
@@ -230,7 +236,7 @@ public class GBeanData implements Externalizable {
             int attributeCount = in.readInt();
             for (int i = 0; i < attributeCount; i++) {
                 String attributeName = (String) in.readObject();
-                Object attributeValue = null;
+                Object attributeValue;
                 try {
                     attributeValue = in.readObject();
                 } catch (ClassNotFoundException e) {
