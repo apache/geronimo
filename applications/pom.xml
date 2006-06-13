@@ -28,7 +28,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.geronimo.applications</groupId>
   <artifactId>applications-parent</artifactId>
-  <version>${geronimoVersion}</version>
+  <version>1.2-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Geronimo Applications</name>
   <description>Geronimo Applications</description>
@@ -43,7 +43,7 @@
           <!-- webXml>${basedir}/target/jspweb.xml</webXml  -->
         </configuration>
       </plugin>
-      <!--
+      <!-- 
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>jspc-maven-plugin</artifactId>
@@ -69,11 +69,11 @@
   <modules>
     <module>demo</module>
     <module>ldap-realm-demo</module>
-    <!-- module>magicGball</module  -->
-    <!-- module>remote-deploy</module  -->
+    <module>magicGball</module>
+    <module>remote-deploy</module>
     <module>uddi-db</module>
     <module>uddi-server</module>
-    <!-- module>console</module  -->
+    <module>console</module>
     <module>welcome</module>
   </modules>
 </project>

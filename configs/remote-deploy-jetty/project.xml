@@ -99,14 +99,6 @@
             <artifactId>geronimo-servlet_2.4_spec</artifactId>
             <version>${geronimo_spec_servlet_version}</version>
         </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-remote-deploy-lib</artifactId>
-            <version>${pom.currentVersion}</version>
-            <properties>
-                <geronimo.dependency>true</geronimo.dependency>
-            </properties>
-        </dependency>
         <!-- parent config -->
         <dependency>
             <groupId>geronimo</groupId>
