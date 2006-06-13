@@ -59,6 +59,7 @@ public class SchemaConversionUtils {
         GERONIMO_SCHEMA_CONVERSIONS.put("service-ref", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
         GERONIMO_SCHEMA_CONVERSIONS.put("resource-ref", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
         GERONIMO_SCHEMA_CONVERSIONS.put("resource-env-ref", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
+        GERONIMO_SCHEMA_CONVERSIONS.put("message-destination", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
         GERONIMO_SCHEMA_CONVERSIONS.put("cmp-connection-factory", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
         GERONIMO_SCHEMA_CONVERSIONS.put("workmanager", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
         GERONIMO_SCHEMA_CONVERSIONS.put("resource-adapter", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));

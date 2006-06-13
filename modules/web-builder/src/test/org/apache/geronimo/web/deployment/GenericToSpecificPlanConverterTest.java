@@ -34,18 +34,21 @@ public class GenericToSpecificPlanConverterTest extends TestCase {
     private ClassLoader classLoader = this.getClass().getClassLoader();
 
     public void testConvertPlan1() throws Exception {
-        testConvertPlan("plans/tomcat-pre.xml");
+        testConvertPlan("plans/tomcat-pre.xml", "plans/tomcat-post.xml");
     }
     public void testConvertPlan2() throws Exception {
-        testConvertPlan("plans/tomcat-pre2.xml");
+        testConvertPlan("plans/tomcat-pre2.xml", "plans/tomcat-post.xml");
     }
     public void testConvertPlan3() throws Exception {
-        testConvertPlan("plans/tomcat-pre3.xml");
+        testConvertPlan("plans/tomcat-pre3.xml", "plans/tomcat-post.xml");
+    }
+    public void testConvertPlanMessageDestination1() throws Exception {
+        testConvertPlan("plans/web-md-pre.xml", "plans/web-md-post.xml");
     }
 
-    public void testConvertPlan(String prePlanName) throws Exception {
+    public void testConvertPlan(String prePlanName, String postPlanName) throws Exception {
         URL srcXml = classLoader.getResource(prePlanName);
-        URL expectedOutputXml = classLoader.getResource("plans/tomcat-post.xml");
+        URL expectedOutputXml = classLoader.getResource(postPlanName);
         XmlObject rawPlan = XmlBeansUtil.parse(srcXml);
         System.out.println("RAW PLAN " + rawPlan.toString());
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
