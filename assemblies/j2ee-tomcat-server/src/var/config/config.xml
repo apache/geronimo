@@ -70,8 +70,9 @@
         <gbean name="TomcatEngine">
             <reference name="TomcatValveChain" />
         </gbean>
-        <!-- To enable accesslogging change the load="false" below to load="true" -->
+        <!-- To disable accesslogging uncomment the following line
         <gbean name="FirstValve" load="false"></gbean>
+        -->
  
         <gbean name="TomcatResources"/>
         <gbean name="TomcatWebConnector">
