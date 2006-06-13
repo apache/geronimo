@@ -516,6 +516,27 @@ public class SchemaConversionUtilsTest extends TestCase {
         }
 
     }
+    public void testWebMessageDestination1() throws Exception {
+        URL srcXml = classLoader.getResource("geronimo/web-md-pre.xml");
+        URL expectedOutputXml = classLoader.getResource("geronimo/web-md-post.xml");
+        XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
+        XmlCursor cursor = xmlObject.newCursor();
+        try {
+            SchemaConversionUtils.convertToGeronimoSubSchemas(cursor);
+                    System.out.println(xmlObject.toString());
+            XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
+            System.out.println(expected.toString());
+            List problems = new ArrayList();
+            boolean ok = compareXmlObjects(xmlObject, expected, problems);
+            assertTrue("Differences: " + problems, ok);
+            SchemaConversionUtils.convertToGeronimoSubSchemas(cursor);
+            boolean ok2 = compareXmlObjects(xmlObject, expected, problems);
+            assertTrue("Differences: " + problems, ok2);
+        } finally {
+            cursor.dispose();
+        }
+
+    }
 
     private boolean compareXmlObjects(XmlObject xmlObject, XmlObject expectedObject, List problems) {
         XmlCursor test = xmlObject.newCursor();
