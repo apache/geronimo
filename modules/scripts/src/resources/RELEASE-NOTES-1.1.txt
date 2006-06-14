@@ -191,6 +191,20 @@ Geronimo 1.1 has passed the J2EE(tm) certification test suite and it is
 officially J2EE certified.
 
 
+Works In Progress
+-----------------
+
+* Geronimo has two system properties that should not be modified by the user
+  even though they are visible in some property files.  They are:
+    org.apache.geronimo.server.dir
+    org.apache.geronimo.server.name
+
+  These are subject to change and will be documented in a future release
+
+* The GERONIMO_HOME environment variable in the startup scripts is not
+  currently used and is subject to change in a future release.
+
+
 Specific Issues, Features and Improvements fixed in Version 1.1
 ---------------------------------------------------------------
 
