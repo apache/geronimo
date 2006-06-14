@@ -13,7 +13,7 @@ Wiki:          http://cwiki.apache.org/geronimo
 
 System Requirements
 -------------------
-You need a platform that supports the Sun JDK 1.4.2.  CORBA support requires a 
+You need a platform that supports the Sunå JDK 1.4.2.  CORBA support requires a 
 Sun Java 1.4.2 VM (specifically 1.4.2_08 or a higher 1.4.2_* release).
 
 For users that do not require CORBA for their applications may also choose to use
@@ -126,7 +126,7 @@ Significant Changes Since the 1.0 Release
    Pools, remote HTTPd configuration wizard and plugins are some of these new 
    features.
  * All the applications (except for those deployed via Hot Deployment) are 
-   stored in the <geronimo_home>/repository directory. Previous config-store has 
+   stored in the <geronimo_home>/repository directory. Previous config-store has
    been removed.
  * Enhanced SMTP support.
  * Keystore configuration.
@@ -139,8 +139,14 @@ Significant Changes Since the 1.0 Release
    "Using the plugin infrastructure, applications or modules can be copied from 
    one Geronimo installation to another (from developer to developer, test to 
    production, etc.).
- * Geronimo also supports in-place deployments.  This means an archive or a directory 
-   can be deployed without being copied into the Geronimo directory structure.
+ * Geronimo also supports in-place deployments.  This means an archive or a 
+   directory can be deployed without being copied into the Geronimo directory 
+   structure.
+ * Shared Library Support that allows users an easy way to share classes across
+   applications.
+ * Upgrade tool. This tool makes easy the migration of deployment plans from the
+   the previous release.
+ * Dependent Package Upgrades (Tomcat, Jetty, etc.).
 
 
 Choice of Web container
