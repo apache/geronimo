@@ -204,6 +204,24 @@ Works In Progress
 * The GERONIMO_HOME environment variable in the startup scripts is not
   currently used and is subject to change in a future release.
 
+Known Issues
+------------
+* WAR in an EAR cannot use a database pool by including a dependency on it 
+  The EAR must declare the dependency.
+
+* Manifest Class-Path for WAR in EAR was respected in 1.0, is ignored in 1.1
+  This will be addressed in 1.1.1
+
+* Cannot create an EJB reference to an EJB in another module.
+  This will be addressed in 1.1.1
+
+* In-place deployment does not work for EJB modules
+  This will be addressed in a follow on release.
+
+* Creating a new activeio listener from the JMS server portlet fails
+  with NoSuchMethodError.  There's some discussion of this issue in GERONIMO-1906.
+  This issue will be addressed in 1.1.1
+
 
 Specific Issues, Features and Improvements fixed in Version 1.1
 ---------------------------------------------------------------
