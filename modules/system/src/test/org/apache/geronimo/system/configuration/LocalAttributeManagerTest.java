@@ -28,9 +28,11 @@ import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.Jsr77Naming;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 
 import javax.management.ObjectName;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -118,7 +120,7 @@ public class LocalAttributeManagerTest extends TestCase {
         assertEquals(attributeValue, gbeanData.getAttribute(attributeInfo.getName()));
     }
 
-    public void testSetAtrribute() throws Exception {
+    public void testSetAttribute() throws Exception {
         String attributeValue = "attribute value";
         localAttributeManager.setValue(configurationName, gbeanName, attributeInfo, attributeValue);
         Collection gbeanDatas = new ArrayList();
@@ -145,7 +147,7 @@ public class LocalAttributeManagerTest extends TestCase {
 
         AbstractName referencePattern1 = naming.createRootName(gbeanName.getArtifact(), "name", "referencePattern1");
         AbstractName referencePattern2 = naming.createRootName(gbeanName.getArtifact(), "name", "referencePattern2");
-        ReferencePatterns referencePatterns = new ReferencePatterns(new LinkedHashSet(Arrays.asList(new AbstractName[] {referencePattern1, referencePattern2})));
+        ReferencePatterns referencePatterns = new ReferencePatterns(new LinkedHashSet(Arrays.asList(new AbstractName[]{referencePattern1, referencePattern2})));
         localAttributeManager.setReferencePatterns(configurationName, gbeanName, referenceInfo, referencePatterns);
         Collection gbeanDatas = new ArrayList();
         GBeanData gbeanData = new GBeanData(gbeanName, GBEAN_INFO);
@@ -177,11 +179,48 @@ public class LocalAttributeManagerTest extends TestCase {
         assertEquals(attributeValue, newGBeanData.getAttribute(attributeInfo.getName()));
     }
 
+    public void testBadGBeanSpec() throws Exception {
+        String attributeValue = "attribute value";
+        localAttributeManager.addConfiguration(configurationName);
+        localAttributeManager.setValue(configurationName, gbeanName, attributeInfo, attributeValue);
+        try {
+            localAttributeManager.applyOverrides(configurationName, Collections.EMPTY_SET, getClass().getClassLoader());
+            fail("no gbeans were specified in the 'plan' so overrides should fail");
+        } catch (InvalidConfigException e) {
+            //pass
+        }
+    }
+
+    public void testMigrate() throws Exception {
+        String attributeValue = "attribute value";
+        AbstractNameQuery referencePattern = new AbstractNameQuery(LocalAttributeManagerTest.class.getName());
+
+        localAttributeManager.addConfiguration(configurationName);
+        localAttributeManager.setValue(configurationName, gbeanName, attributeInfo, attributeValue);
+
+        Collection gbeanDatas = new ArrayList();
+        GBeanData gbeanData = new GBeanData(gbeanName, GBEAN_INFO);
+        gbeanDatas.add(gbeanData);
+        gbeanDatas = localAttributeManager.applyOverrides(configurationName, gbeanDatas, getClass().getClassLoader());
+        assertEquals(attributeValue, gbeanData.getAttribute(attributeInfo.getName()));
+
+        Artifact newArtifact = Artifact.create("configuration/name/2/car");
+        localAttributeManager.migrateConfiguration(configurationName, newArtifact, null);
+        ObjectName objectName = ObjectName.getInstance(":name=gbean,parent="+newArtifact+",foo=bar");
+        AbstractName newGBeanName = new AbstractName(newArtifact, objectName.getKeyPropertyList(), objectName);
+
+        gbeanDatas = new ArrayList();
+        gbeanData = new GBeanData(newGBeanName, GBEAN_INFO);
+        gbeanDatas.add(gbeanData);
+        gbeanDatas = localAttributeManager.applyOverrides(newArtifact, gbeanDatas, getClass().getClassLoader());
+        assertEquals(attributeValue, gbeanData.getAttribute(attributeInfo.getName()));
+    }
+
     protected void setUp() throws Exception {
         super.setUp();
         localAttributeManager = new LocalAttributeManager("target/test-config.xml", false, new BasicServerInfo(basedir));
         configurationName = Artifact.create("configuration/name/1/car");
-        ObjectName objectName = ObjectName.getInstance(":name=gbean");
+        ObjectName objectName = ObjectName.getInstance(":name=gbean,parent="+configurationName+",foo=bar");
         gbeanName = new AbstractName(configurationName, objectName.getKeyPropertyList(), objectName);
         attributeInfo = GBEAN_INFO.getAttribute("attribute");
         referenceInfo = GBEAN_INFO.getReference("reference");

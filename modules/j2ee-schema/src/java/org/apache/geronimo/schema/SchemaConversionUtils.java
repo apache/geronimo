@@ -59,6 +59,7 @@ public class SchemaConversionUtils {
         GERONIMO_SCHEMA_CONVERSIONS.put("service-ref", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
         GERONIMO_SCHEMA_CONVERSIONS.put("resource-ref", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
         GERONIMO_SCHEMA_CONVERSIONS.put("resource-env-ref", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
+        GERONIMO_SCHEMA_CONVERSIONS.put("message-destination", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
         GERONIMO_SCHEMA_CONVERSIONS.put("cmp-connection-factory", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
         GERONIMO_SCHEMA_CONVERSIONS.put("workmanager", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
         GERONIMO_SCHEMA_CONVERSIONS.put("resource-adapter", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
@@ -297,13 +298,15 @@ public class SchemaConversionUtils {
                     cursor.pop();
                     do {
                         String name = cursor.getName().getLocalPart();
-                        if ("filter".equals(name) || "servlet".equals(name)) {
+                        if ("filter".equals(name) || "servlet".equals(name) || "context-param".equals(name)) {
                             cursor.push();
                             cursor.toFirstChild();
                             convertToDescriptionGroup(cursor, moveable);
-                            if (cursor.toNextSibling(J2EE_NAMESPACE, "init-param")) {
+                            while (cursor.toNextSibling(J2EE_NAMESPACE, "init-param")) {
+                                cursor.push();
                                 cursor.toFirstChild();
                                 convertToDescriptionGroup(cursor, moveable);
+                                cursor.pop();
                             }
                             cursor.pop();
                         }

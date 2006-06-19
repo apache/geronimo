@@ -34,6 +34,9 @@
         <reference name="JMSManager">
             <name>ActiveMQManager</name>
         </reference>
+        <dependency>
+            <name>SystemProperties</name>
+        </dependency>
     </gbean>
 
     <gbean name="ActiveMQ.cache" class="org.activemq.store.cache.SimpleCachePersistenceAdapterGBean">

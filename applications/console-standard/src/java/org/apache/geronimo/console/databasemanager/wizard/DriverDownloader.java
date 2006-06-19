@@ -22,6 +22,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -186,7 +187,9 @@ public class DriverDownloader {
         }
     }
 
-    public static class DriverInfo implements Comparable {
+    public static class DriverInfo implements Comparable, Serializable {
+        private final static long serialVersionUID = -1202452382992975449L;
+        
         private String name;
         private String repositoryURI;
         private String unzipPath;

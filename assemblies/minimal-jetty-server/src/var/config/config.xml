@@ -15,6 +15,10 @@
             <!-- Check whether this really works if host name is 0.0.0.0 -->
             <attribute name="namingProviderUrl">rmi://${PlanServerHostname}:${PlanNamingPort}</attribute>
         </gbean>
+        <gbean name="DownloadedPluginRepos">
+          <attribute name="repositoryList">http://people.apache.org/~ammulder/plugin-repository-list-1.1.txt</attribute>
+          <attribute name="userRepositories">[]</attribute>
+        </gbean>
     </module>
     <module name="geronimo/j2ee-server/${pom.currentVersion}/car"/>
     <module name="geronimo/j2ee-security/${pom.currentVersion}/car">
@@ -40,7 +44,7 @@
             <attribute name="host">${PlanServerHostname}</attribute>
             <attribute name="port">${PlanHTTPSPortPrimary}</attribute>
         </gbean>
-        <gbean name="JettyAJPConnector">
+        <gbean name="JettyAJP13Connector">
             <attribute name="host">0.0.0.0</attribute>
             <attribute name="port">8009</attribute>
         </gbean>

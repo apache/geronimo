@@ -37,6 +37,11 @@ the administrator username and password in the optional authentication fields.</
     </c:if>
 </form>
 
+<h2>Remove Geronimo Plugins</h2>
+
+<p>To remove a plugin, use the categories under <b>Applications</b> to locate the
+plugin module and uninstall it.</p>
+
 <h2>Create Geronimo Plugin</h2>
 
 <p>Choose a configuration in the current Geronimo server to export as a Geronimo

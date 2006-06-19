@@ -228,23 +228,25 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
             throw new DeploymentException(e);
         }
 
-        ConfigurationManager configurationManager = this.configurationManager;
-        if (configurationManager == null) {
-            configurationManager = new SimpleConfigurationManager(configurationStores, artifactResolver, repositories);
-        }
-        DeploymentContext context = new DeploymentContext(outfile,
-                inPlaceDeployment && null != jar ? DeploymentUtil.toFile(jar) : null,
-                environment, 
-                ConfigurationModuleType.SERVICE, 
-                naming,
-                configurationManager,
-                repositories
-        );
-        if(jar != null) {
-            File file = new File(jar.getName());
-            context.addIncludeAsPackedJar(URI.create(file.getName()), jar);
-        }
+        DeploymentContext context = null;
         try {
+            ConfigurationManager configurationManager = this.configurationManager;
+            if (configurationManager == null) {
+                configurationManager = new SimpleConfigurationManager(configurationStores, artifactResolver, repositories);
+            }
+
+            context = new DeploymentContext(outfile,
+                    inPlaceDeployment && null != jar ? DeploymentUtil.toFile(jar) : null,
+                    environment,
+                    ConfigurationModuleType.SERVICE,
+                    naming,
+                    configurationManager,
+                    repositories);
+            if(jar != null) {
+                File file = new File(jar.getName());
+                context.addIncludeAsPackedJar(URI.create(file.getName()), jar);
+            }
+
             ClassLoader cl = context.getClassLoader();
 
 
@@ -253,13 +255,34 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
 
             addGBeans(gbeans, cl, moduleName, context);
             return context;
-        } catch (RuntimeException t) {
-            context.close();
-            throw t;
+        } catch (DeploymentException de) {
+            cleanupAfterFailedBuild(context, outfile);
+            throw de;
+        } catch (IOException ie) {
+            cleanupAfterFailedBuild(context, outfile);
+            throw ie;
+        } catch (RuntimeException re) {
+            cleanupAfterFailedBuild(context, outfile);
+            throw re;
         } catch (Error e) {
-            context.close();
+            cleanupAfterFailedBuild(context, outfile);
             throw e;
-        } 
+        }
+    }
+
+    private void cleanupAfterFailedBuild(DeploymentContext context, File directory) {
+        try {
+            if (context !=null) {
+                context.close();
+            }
+        } catch (DeploymentException de) {
+            // ignore error on cleanup
+        } catch (IOException ioe) {
+            // ignore error on cleanu
+        }
+        if (directory != null) {
+            DeploymentUtil.recursiveDelete(directory);
+        }
     }
 
     public static void addGBeans(GbeanType[] gbeans, ClassLoader cl, AbstractName moduleName, DeploymentContext context) throws DeploymentException {

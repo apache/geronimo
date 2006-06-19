@@ -237,7 +237,8 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             setVirtualHosts(host.getVirtualHosts());
         }
 
-        handler = new WebApplicationHandler();
+        //use our wrapper to avoid leaking subject back to the caller
+        handler = new JettyWebApplicationHandler();
         addHandler(handler);
 
         userTransaction.setUp(transactionContextManager, trackedConnectionAssociator);

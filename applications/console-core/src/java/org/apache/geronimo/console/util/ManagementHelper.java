@@ -122,4 +122,5 @@ public interface ManagementHelper {
      * @return The Module, or null if the configuration is not running.
      */
     J2EEDeployedObject getModuleForConfiguration(Artifact configuration);
+    Object[] getGBeansImplementing(Class iface);
 }

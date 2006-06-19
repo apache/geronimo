@@ -105,7 +105,6 @@
                         <a href="http://geronimo.apache.org/faq.html">FAQ</a><br />
                         <a href="http://geronimo.apache.org/redirects/wiki.html">Wiki</a><br />
                         <a href="http://geronimo.apache.org/documentation.html">Geronimo Documentation</a><br />
-                        <a href="http://geronimo.apache.org/redirects/additionalDocumentation.html">Additional Documentation</a><br />
                         &nbsp;<br />
                     </td>
                 </tr>

@@ -1,0 +1,141 @@
+=========================================================================
+==  NOTICE file corresponding to section 4(d) of the Apache License,   ==
+==  Version 2.0, in this case for the Apache Geronimo distribution.    ==
+=========================================================================
+
+This product includes software developed by
+The Apache Software Foundation (http://www.apache.org/).
+
+
+=========================================================================
+==  Geronimo Web Console Notice                                        ==
+=========================================================================
+
+Portions of the Web Console were orginally developed by International 
+Business Machines Corporation and are licensed to the Apache Software 
+Foundation under the "Software Grant and Corporate Contribution License 
+Agreement", informally known as the "IBM Console CLA".
+
+
+=========================================================================
+==  ANTLR Notice                                                       ==
+=========================================================================
+
+This product includes software developed by the ANTLR project. 
+(http://www.antlr.org/)
+
+
+=========================================================================
+==  Castor Notice                                                      ==
+=========================================================================
+
+This product includes software developed by the Exolab project. 
+((http://www.exolab.org/)
+
+
+=========================================================================
+==  Derby Notice                                                       ==
+=========================================================================
+
+Portions of Derby were orginally developed by
+International Business Machines Corporation and are
+licensed to the Apache Software Foundation under the
+"Software Grant and Corporate Contribution License Agreement",
+informally known as the "Derby CLA".
+
+The portion of the functionTests under 'nist' was originally 
+developed by the National Institute of Standards and Technology (NIST), 
+an agency of the United States Department of Commerce, and adapted by
+International Business Machines Corporation in accordance with the NIST
+Software Acknowledgment and Redistribution document at
+http://www.itl.nist.gov/div897/ctg/sql_form.htm
+
+
+=========================================================================
+==  DOM4J Notice                                                       ==
+=========================================================================
+
+This product includes software developed by the DOM4J Project 
+(http://www.dom4j.org).
+
+
+=========================================================================
+==  JDBM Notice                                                        ==
+=========================================================================
+
+This product includes software developed by the JDBM Project 
+(http://jdbm.sourceforge.net/).
+
+
+=========================================================================
+==  JDOM Notice                                                        ==
+=========================================================================
+
+This product includes software developed by the JDOM Project 
+(http://www.jdom.org/).
+
+
+=========================================================================
+==  MX4J Notice                                                        ==
+=========================================================================
+
+This product includes software developed by the MX4J project 
+(http://sourceforge.net/projects/mx4j).
+
+
+=========================================================================
+==  WSDL4J Notice                                                      ==
+=========================================================================
+
+The Program includes all or portions of the following software which is 
+subject to the Common Public License ("CPL Code").  This software 
+consists of voluntary contributions made by many individuals on behalf of
+the WSDL4J project.
+
+You may download the source version of the WSDL4J component at 
+http://sourceforge.net/projects/wsdl4j
+
+
+=========================================================================
+==  Xerces Notice                                                      ==
+=========================================================================
+
+Portions of this software were originally based on the following:
+  - software copyright (c) 1999, IBM Corporation., http://www.ibm.com.
+  - software copyright (c) 1999, Sun Microsystems., http://www.sun.com.
+  - voluntary contributions made by Paul Eng on behalf of the 
+    Apache Software Foundation that were originally developed at 
+    iClick, Inc., software copyright (c) 1999.
+
+
+=========================================================================
+==  XmlBeans Notice                                                    ==
+=========================================================================
+
+Portions of this software were originally based on the following:
+  - software copyright (c) 2000-2003, BEA Systems, <http://www.bea.com/>.
+
+Aside from contributions to the Apache XMLBeans project, this
+software also includes:
+
+ - one or more source files from the Apache Xerces-J and Apache Axis
+   products, Copyright (c) 1999-2003 Apache Software Foundation
+
+ - W3C XML Schema documents Copyright 2001-2003 (c) World Wide Web
+   Consortium (Massachusetts Institute of Technology, European Research
+   Consortium for Informatics and Mathematics, Keio University)
+
+ - resolver.jar from Apache Xml Commons project,
+   Copyright (c) 2001-2003 Apache Software Foundation
+
+ - Piccolo XML Parser for Java from http://piccolo.sourceforge.net/,
+   Copyright 2002 Yuval Oren under the terms of the Apache Software 
+   License 2.0
+
+
+=========================================================================
+==  XPP3 Notice                                                         ==
+=========================================================================
+
+This product includes software developed by the Indiana University 
+  Extreme! Lab (http://www.extreme.indiana.edu/).

@@ -117,6 +117,15 @@
                 <geronimo.import>true</geronimo.import>
             </properties>
         </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>jetty</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+            <properties>
+              <geronimo.import>true</geronimo.import>
+            </properties>
+         </dependency>
 
         <dependency>
             <groupId>portlet-api</groupId>
@@ -373,14 +382,6 @@
             <artifactId>geronimo-axis</artifactId>
             <version>${geronimo_version}</version>
         </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-jetty</artifactId>
-            <version>${geronimo_version}</version>
-            <properties>
-                <geronimo.dependency>true</geronimo.dependency>
-            </properties>
-         </dependency>
 
         <dependency>
             <groupId>concurrent</groupId>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml-fragment xmlns:nam="http://geronimo.apache.org/xml/ns/naming-1.1" xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+  <dep:environment>
+    <dep:moduleId>
+      <dep:groupId>geronimo</dep:groupId>
+      <dep:artifactId>wtf</dep:artifactId>
+      <dep:version>1.1</dep:version>
+      <dep:type>war</dep:type>
+    </dep:moduleId>
+  </dep:environment>
+  <nam:message-destination>
+    <nam:message-destination-name>x</nam:message-destination-name>
+    <nam:admin-object-link>y</nam:admin-object-link>
+  </nam:message-destination>
+</xml-fragment>

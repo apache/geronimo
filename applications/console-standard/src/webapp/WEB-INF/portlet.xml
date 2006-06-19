@@ -1102,15 +1102,14 @@ limitations under the License.
         <supports>
             <mime-type>text/html</mime-type>
             <portlet-mode>VIEW</portlet-mode>
-            <portlet-mode>HELP</portlet-mode>
         </supports>
 
         <supported-locale>en</supported-locale>
 
         <portlet-info>
-            <title>Import/Export Configurations</title>
-            <short-title>Import/Export</short-title>
-            <keywords>Import Export CAR Configuration</keywords>
+            <title>Create and Install Plugins</title>
+            <short-title>Create/Install Plugins</short-title>
+            <keywords>Import Export Create Install Plugins Modules</keywords>
         </portlet-info>
     </portlet>
 

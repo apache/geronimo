@@ -458,11 +458,17 @@ limitations under the License.
                 </fragment>
             </fragment>
         </fragment>
+    </fragment>
 
+    <fragment name="plugins" type="page">
+        <navigation>
+            <title>Plugins</title>
+            <description>ico_folder_16x16.gif Manage plugins on this server</description>
+        </navigation>
         <fragment name="import" type="page">
             <navigation>
-                <title>Plugins</title>
-                <description>ico_list_16x16.gif Import and export plugins (configurations) for this server</description>
+                <title>Create/Install</title>
+                <description>ico_list_16x16.gif Create or install plugin modules for this server</description>
             </navigation>
 
             <fragment name="row1" type="row">
@@ -532,7 +538,7 @@ limitations under the License.
                 </fragment>
             </fragment>
         </fragment>
-
+<!-- Don't include this in the 1.1 release
         <fragment name="keystore" type="page">
             <navigation>
                 <title>Old Keystore</title>
@@ -547,6 +553,7 @@ limitations under the License.
                 </fragment>
             </fragment>
         </fragment>
+-->
     </fragment>
 
     <fragment name="internalDB" type="page">

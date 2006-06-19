@@ -99,7 +99,7 @@
 
     <xsd:complexType name="referenceType">
         <xsd:sequence>
-            <xsd:element name="pattern" minOccurs="1" maxOccurs="unbounded">
+            <xsd:element name="pattern" minOccurs="0" maxOccurs="unbounded">
               <xsd:complexType>
                   <xsd:sequence>
                       <xsd:element name="groupId" type="xsd:string" minOccurs="0"/>

@@ -16,9 +16,6 @@
  */
 package org.apache.geronimo.jetty;
 
-import org.apache.geronimo.webservices.WebServiceContainer;
-import org.mortbay.http.*;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -26,6 +23,20 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.security.auth.Subject;
+
+import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.webservices.WebServiceContainer;
+import org.mortbay.http.Authenticator;
+import org.mortbay.http.BasicAuthenticator;
+import org.mortbay.http.ClientCertAuthenticator;
+import org.mortbay.http.DigestAuthenticator;
+import org.mortbay.http.HttpContext;
+import org.mortbay.http.HttpException;
+import org.mortbay.http.HttpHandler;
+import org.mortbay.http.HttpRequest;
+import org.mortbay.http.HttpResponse;
 
 /**
  * Delegates requests to a WebServiceContainer which is presumably for an EJB WebService.
@@ -142,12 +153,19 @@ public class JettyEJBWebServiceContext extends HttpContext implements HttpHandle
             Thread currentThread = Thread.currentThread();
             ClassLoader oldClassLoader = currentThread.getContextClassLoader();
             currentThread.setContextClassLoader(classLoader);
+            //hard to imagine this could be anything but null, but....
+            Subject oldSubject = ContextManager.getCurrentCaller();
             try {
                 if (authenticator != null) {
                     String pathInContext = org.mortbay.util.URI.canonicalPath(req.getPath());
                     if (authenticator.authenticate(realm, pathInContext, req, res) == null) {
                         throw new HttpException(403);
                     }
+                } else {
+                    //EJB will figure out correct defaultSubject shortly
+                    //TODO consider replacing the GenericEJBContainer.DefaultSubjectInterceptor with this line
+                    //setting the defaultSubject.
+                    ContextManager.setCurrentCaller(null);
                 }
                 try {
                     webServiceContainer.invoke(request, response);
@@ -158,6 +176,7 @@ public class JettyEJBWebServiceContext extends HttpContext implements HttpHandle
                     throw (HttpException) new HttpException(500, "Could not process message!").initCause(e);
                 }
             } finally {
+                ContextManager.setCurrentCaller(oldSubject);
                 currentThread.setContextClassLoader(oldClassLoader);
             }
         }

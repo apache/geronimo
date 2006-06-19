@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.Properties;
 import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -40,6 +42,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Version;
 import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
 import org.apache.geronimo.system.configuration.ConfigurationStoreUtil;
+import org.apache.geronimo.system.configuration.GBeanOverride;
 import org.apache.geronimo.system.repository.Maven1Repository;
 import org.apache.geronimo.system.repository.Maven2Repository;
 import org.apache.geronimo.system.repository.CopyArtifactTypeHandler;
@@ -53,16 +56,48 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
-import org.xml.sax.EntityResolver;
-import org.xml.sax.InputSource;
 
 /**
- * A utility that exports a repository of plugins.
+ * A utility that exports a repository of plugins.  To use this:
+ *
+ * 1) Clear out your Maven repo
+ * 2) Build Geronimo or any plugins
+ * 3) Create an output repo
+ * 4) Rsync the current plugin site to the output repo
+ * 5) Run this against your Maven repo and the output repo
+ * 6) Rsync the output repo to the plugin site
+ *
+ * It will migrate all the plugins from the Maven repo location to the output
+ * location, updating the supported Geronimo versions for any that declare only
+ * a snapshot release (using the map below), and calculating hashes for all the
+ * plugins.  It will update the master plugin metadata file and the Maven
+ * metadata file for each artifact directory.
  *
  * @version $Rev$ $Date$
  */
 public class PluginRepositoryExporter {
     private final static String NAMESPACE = "http://geronimo.apache.org/xml/ns/plugins-1.1";
+    private final static Map VERSION_MAP = new HashMap();
+    static {
+        List list = new ArrayList();
+        list.add("1.1-SNAPSHOT");
+        list.add("1.1-20060607");
+        list.add("1.1-rc1");
+        list.add("1.1-rc2");
+        list.add("1.1-rc3");
+        list.add("1.1");
+        VERSION_MAP.put("1.1-SNAPSHOT", list);
+        list = new ArrayList();
+        list.add("1.2-SNAPSHOT");
+        list.add("1.2-beta1");
+        list.add("1.2-beta2");
+        list.add("1.2-beta3");
+        list.add("1.2-rc1");
+        list.add("1.2-rc2");
+        list.add("1.2-rc3");
+        list.add("1.2");
+        VERSION_MAP.put("1.2-SNAPSHOT", list);
+    }
     private Maven1Repository sourceRepo;
     private Maven2Repository destRepo;
     private Map targetVersions;
@@ -196,6 +231,7 @@ public class PluginRepositoryExporter {
                     if(!artifactDir.isDirectory() || !artifactDir.canRead()) {
                         throw new IllegalStateException("Failed to located group/artifact dir for "+artifact+" (got "+artifactDir.getAbsolutePath()+")");
                     }
+                    updatePluginMetadata(artifact);
                     updateMavenMetadata(artifactDir, artifact);
                 }
             }
@@ -215,6 +251,42 @@ public class PluginRepositoryExporter {
             throw new IOException("Unable to format XML output: "+e.getMessage());
         }
 
+    }
+
+    private void updatePluginMetadata(Artifact artifact) {
+        PluginMetadata data = installer.getPluginMetadata(artifact);
+        if(data == null) {
+            return;
+        }
+        if(data.getGeronimoVersions() != null && data.getGeronimoVersions().length == 1 &&
+                VERSION_MAP.containsKey(data.getGeronimoVersions()[0])) {
+            data.setGeronimoVersions((String[]) ((List) VERSION_MAP.get(data.getGeronimoVersions()[0])).toArray(new String[0]));
+            if(data.getHash() != null) {
+                data = copy(data);
+            }
+            installer.updatePluginMetadata(data);
+        }
+    }
+
+    /**
+     * Create a copy of a metadata, but with an empty hash.  Used when
+     * something changed so an existing hash would be invalid.
+     */
+    private PluginMetadata copy(PluginMetadata source) {
+        PluginMetadata data = new PluginMetadata(source.getName(), source.getModuleId(), source.getCategory(),
+                source.getDescription(), source.getPluginURL(), source.getAuthor(), null, source.isInstalled(),
+                source.isEligible());
+        data.setConfigXmls(source.getConfigXmls());
+        data.setDependencies(source.getDependencies());
+        data.setFilesToCopy(source.getFilesToCopy());
+        data.setForceStart(source.getForceStart());
+        data.setGeronimoVersions(source.getGeronimoVersions());
+        data.setJvmVersions(source.getJvmVersions());
+        data.setLicenses(source.getLicenses());
+        data.setObsoletes(source.getObsoletes());
+        data.setPrerequisites(source.getPrerequisites());
+        data.setRepositories(source.getRepositories());
+        return data;
     }
 
     private void updateMavenMetadata(File dir, Artifact artifact) throws TransformerException, IOException, SAXException, ParserConfigurationException {
@@ -280,12 +352,6 @@ public class PluginRepositoryExporter {
         factory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaSource",
                              schema.getName());
         DocumentBuilder builder = factory.newDocumentBuilder();
-        builder.setEntityResolver(new EntityResolver() {
-            public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
-                System.out.println("RESOLVING PUB "+publicId+" SYS "+systemId);
-                return null;
-            }
-        });
         Document doc = builder.newDocument();
         Element root = doc.createElementNS(NAMESPACE, "geronimo-plugin-list");
         root.setAttribute("xmlns", NAMESPACE);
@@ -353,6 +419,23 @@ public class PluginRepositoryExporter {
 //                URL url = data.getRepositories()[i];
 //                createText(doc, config, "source-repository", url.toString());
 //            }
+            for (int i = 0; i < data.getFilesToCopy().length; i++) {
+                PluginMetadata.CopyFile copyFile = data.getFilesToCopy()[i];
+                Element copy = doc.createElement("copy-file");
+                copy.setAttribute("relative-to", copyFile.isRelativeToVar() ? "server" : "geronimo");
+                copy.setAttribute("dest-dir", copyFile.getDestDir());
+                copy.appendChild(doc.createTextNode(copyFile.getSourceFile()));
+                config.appendChild(copy);
+            }
+            if(data.getConfigXmls().length > 0) {
+                Element content = doc.createElement("config-xml-content");
+                for (int i = 0; i < data.getConfigXmls().length; i++) {
+                    GBeanOverride override = data.getConfigXmls()[i];
+                    Element gbean = override.writeXml(doc, content);
+                    gbean.setAttribute("xmlns", "http://geronimo.apache.org/xml/ns/attributes-1.1");
+                }
+                config.appendChild(content);
+            }
         }
         Version ger = (Version) targetVersions.get("geronimo");
         createText(doc, root, "default-repository", "http://www.geronimoplugins.com/repository/geronimo-"+ger.getMajorVersion()+"."+ger.getMinorVersion());

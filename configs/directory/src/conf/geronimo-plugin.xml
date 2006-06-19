@@ -26,4 +26,11 @@ http://directory.apache.org/subprojects/apacheds/index.html
 <dependency>geronimo/geronimo-directory//jar</dependency>
 <source-repository>http://www.geronimoplugins.com/repository/geronimo-1.1/</source-repository>
 <source-repository>http://www.ibiblio.org/maven2/</source-repository>
+<config-xml-content>
+  <gbean xmlns="http://geronimo.apache.org/xml/ns/attributes-1.1"
+         name="DirectoryService">
+    <attribute name="host">0.0.0.0</attribute>
+    <attribute name="port">1389</attribute>
+  </gbean>
+</config-xml-content>
 </geronimo-plugin>
