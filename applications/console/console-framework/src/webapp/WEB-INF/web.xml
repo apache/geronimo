@@ -86,6 +86,8 @@ limitations under the License.
         </init-param>
     </servlet>
 
+<!-- [INSERT FRAGMENT HERE] -->
+
     <servlet-mapping>
         <servlet-name>se-console</servlet-name>
         <url-pattern>/portal/*</url-pattern>

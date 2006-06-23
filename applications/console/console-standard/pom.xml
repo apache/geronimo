@@ -33,6 +33,11 @@
 
   <dependencies>
     <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-servlet_2.4_spec</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.apache.geronimo.applications.console</groupId>
       <artifactId>geronimo-console-core</artifactId>
       <version>${geronimoVersion}</version>
@@ -78,6 +83,11 @@
       <artifactId>geronimo-upgrade</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.pluto</groupId>
+      <artifactId>pluto</artifactId>
+      <version>${plutoVersion}</version>
+    </dependency>
 
     <!-- JMS dependencies -->
     <dependency>
@@ -113,23 +123,6 @@
         <filtering>true</filtering>
       </resource>
     </resources>
-
-    <!--
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>jspc-maven-plugin</artifactId>
-        <executions>
-          <execution>
-              <id>jspc</id>
-              <goals>
-                  <goal>compile</goal>
-              </goals>
-            </execution>
-        </executions>
-      </plugin>
-    </plugins>
-    -->
 
   </build>
 

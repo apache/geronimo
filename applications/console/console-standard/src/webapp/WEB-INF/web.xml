@@ -769,6 +769,8 @@ limitations under the License.
   <servlet-class>org.apache.geronimo.console.configmanager.PlanExportServlet</servlet-class>
 </servlet>
 
+<!-- [INSERT FRAGMENT HERE] -->
+
 <servlet-mapping>
   <servlet-name>dwr-invoker</servlet-name>
   <url-pattern>/dwr/*</url-pattern>

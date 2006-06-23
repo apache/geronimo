@@ -7,6 +7,7 @@
 		<display-name>MagicGBallServlet</display-name>
         <servlet-class>org.acme.MagicGBallServlet</servlet-class>
 	</servlet>
+<!-- [INSERT FRAGMENT HERE] --> 
 	<servlet-mapping>
         <servlet-name>MagicGBallServlet</servlet-name>
 		<url-pattern>/ask</url-pattern>

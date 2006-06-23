@@ -59,23 +59,4 @@
     </dependency>
   </dependencies>
 
-  <!--
-   <build>
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>jspc-maven-plugin</artifactId>
-        <executions>
-          <execution>
-              <id>jspc</id>
-              <goals>
-                  <goal>compile</goal>
-              </goals>
-            </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
-  -->
-
 </project>

@@ -188,7 +188,7 @@
         <minaVersion>0.7.3</minaVersion>
         <mockobjectsVersion>0.09</mockobjectsVersion>
         <mx4jVersion>3.0.1</mx4jVersion>
-        <openejbVersion>2.1-SNAPSHOT</openejbVersion>
+        <openejbVersion>2.2-SNAPSHOT</openejbVersion>
         <oroVersion>2.0.8</oroVersion>
         <p2psocketsVersion>1.1.2</p2psocketsVersion>
         <plutoVersion>1.0.1</plutoVersion>
@@ -1214,7 +1214,7 @@
     </build>
 
     <repositories>
-        <repository>
+      <repository>
             <id>codehaus-dist</id>
             <name>Codehaus-Distribution</name>
             <url>http://dist.codehaus.org</url>
@@ -1289,6 +1289,16 @@
             <releases>
                 <enabled>false</enabled>
             </releases>
+        </pluginRepository>
+        <pluginRepository>
+            <id>codehaus-dist</id>
+            <name>Codehaus-Mojo-Distribution</name>
+            <url>http://dist.codehaus.org/mojo/m2-snapshots</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </snapshots>
         </pluginRepository>
     </pluginRepositories>
 

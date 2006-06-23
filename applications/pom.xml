@@ -39,20 +39,26 @@
         <artifactId>maven-war-plugin</artifactId>
         <configuration>
           <warSourceDirectory>${basedir}/src/webapp</warSourceDirectory>
-          <!-- classesArchiveName>classes.jar</classesArchiveName  -->
-          <!-- webXml>${basedir}/target/jspweb.xml</webXml  -->
+          <archiveClasses>true</archiveClasses>
+          <webXml>${basedir}/target/jspweb.xml</webXml>
         </configuration>
       </plugin>
-      <!-- 
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>jspc-maven-plugin</artifactId>
-        <configuration>
-          <warSourceDirectory>${basedir}/src/webapp</warSourceDirectory>
-          <inputWebXml>${basedir}/src/webapp/WEB-INF/web.xml</inputWebXml>
-        </configuration>
+        <executions>
+           <execution>
+               <id>jspc</id>
+              <goals>
+                  <goal>compile</goal>
+              </goals>
+              <configuration>
+                <warSourceDirectory>${basedir}/src/webapp</warSourceDirectory>
+                <inputWebXml>${basedir}/src/webapp/WEB-INF/web.xml</inputWebXml>
+              </configuration>
+             </execution>
+         </executions>
       </plugin>
-      -->
     </plugins>
   </build>
 

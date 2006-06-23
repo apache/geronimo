@@ -32,23 +32,18 @@
   <name>Geronimo UDDI Server</name>
   <description>Geronimo UDDI Server</description>
 
-  <!--
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>jspc-maven-plugin</artifactId>
-        <executions>
-          <execution>
-              <id>jspc</id>
-              <goals>
-                  <goal>compile</goal>
-              </goals>
-            </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
-  -->
+<dependencies>
+  <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-j2ee_1.4_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+  <dependency>
+            <groupId>juddi</groupId>
+            <artifactId>juddi</artifactId>
+            <version>${juddiVersion}</version>
+            <scope>provided</scope>
+        </dependency>
+  </dependencies>
 
 </project>
