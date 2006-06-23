@@ -80,9 +80,10 @@
         </dependency>  
 
         <dependency>
-            <groupId>openejb</groupId>
-            <artifactId>openejb-core</artifactId>
-            <version>${openejbVersion}</version>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>openejb</artifactId>
+            <version>${geronimoVersion}</version>
+            <type>car</type>
         </dependency>
     </dependencies>
 </project>
