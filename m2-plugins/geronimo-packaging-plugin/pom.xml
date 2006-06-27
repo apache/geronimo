@@ -5,6 +5,7 @@
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>plugins-parent</artifactId>
         <version>1.2-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>geronimo-packaging-plugin</artifactId>
