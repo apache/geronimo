@@ -21,6 +21,7 @@
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>modules-parent</artifactId>
         <version>1.2-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -42,7 +43,9 @@
     <!-- ============ -->
     <!-- Dependencies -->
     <!-- ============ -->
+    
     <dependencies>
+    
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-system</artifactId>
@@ -52,6 +55,13 @@
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-management</artifactId>
         </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-ejb_2.1_spec</artifactId>
+        </dependency>
+        
     </dependencies>
+    
 </project>
 
