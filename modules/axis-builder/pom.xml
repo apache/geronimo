@@ -72,7 +72,7 @@
                     <xmlConfigs>
                         <xmlConfig implementation="java.io.File">src/schema/xmlconfig.xml</xmlConfig>
                     </xmlConfigs>
-                <!--          <download>true</download> -->
+                    <!-- <download>true</download> -->
                 </configuration>
             </plugin>
         </plugins>
