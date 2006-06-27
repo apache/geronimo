@@ -58,7 +58,7 @@
                 <module>directory</module>
                 <module>hot-deploy</module>
                 <module>installer-processing</module>
-<!--        <module>installer-support</module> -->
+                <!-- <module>installer-support</module> -->
                 <module>j2ee</module>
                 <module>j2ee-builder</module>
                 <module>j2ee-schema</module>
@@ -75,8 +75,8 @@
                 <module>security</module>
                 <module>security-builder</module>
                 <module>service-builder</module>
-<!--        <module>session</module>
-        <module>spring</module> -->
+                <!-- <module>session</module> -->
+                <!-- <module>spring</module> -->
                 <module>system</module>
                 <module>test-ddbean</module>
                 <module>timer</module>
