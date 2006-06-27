@@ -17,13 +17,15 @@
 -->
 <!-- $Rev$ $Date$ -->
 <project>
+    <modelVersion>4.0.0</modelVersion>
+    
     <parent>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>modules-parent</artifactId>
         <version>1.2-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <modelVersion>4.0.0</modelVersion>
     <artifactId>geronimo-web-builder</artifactId>
     <name>Geronimo :: Web :: Builder</name>
     <version>${geronimoVersion}</version>
@@ -120,7 +122,12 @@
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>
         </dependency>
-
+        
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-servlet_2.4_spec</artifactId>
+        </dependency>
+        
         <dependency>
             <groupId>mx4j</groupId>
             <artifactId>mx4j</artifactId>
