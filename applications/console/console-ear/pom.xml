@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  
     Copyright 2006 The Apache Software Foundation
     
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,31 +18,32 @@
 <!-- $Rev$ $Date$ -->
 
 <project>
-  <parent>
-    <groupId>org.apache.geronimo.applications.console</groupId>
-    <artifactId>console-parent</artifactId>
-    <version>1.2-SNAPSHOT</version>
-  </parent>
+    <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <groupId>org.apache.geronimo.applications.console</groupId>
+        <artifactId>console-parent</artifactId>
+        <version>1.2-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
 
-  <modelVersion>4.0.0</modelVersion>
-  <artifactId>geronimo-console</artifactId>
-  <packaging>ear</packaging>
-  <version>1.2-SNAPSHOT</version>
-  <name>Geronimo :: Console :: Application EAR</name>
+    <artifactId>geronimo-console</artifactId>
+    <packaging>ear</packaging>
+    <name>Geronimo :: Console :: Application EAR</name>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.apache.geronimo.applications.console</groupId>
-      <artifactId>geronimo-console-framework</artifactId>
-      <version>${geronimoVersion}</version>
-      <type>war</type>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.geronimo.applications.console</groupId>
-      <artifactId>geronimo-console-standard</artifactId>
-      <version>${geronimoVersion}</version>
-      <type>war</type>
-    </dependency>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.applications.console</groupId>
+            <artifactId>geronimo-console-framework</artifactId>
+            <version>${geronimoVersion}</version>
+            <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.applications.console</groupId>
+            <artifactId>geronimo-console-standard</artifactId>
+            <version>${geronimoVersion}</version>
+            <type>war</type>
+        </dependency>
     <!-- dependency>
       <groupId>org.apache.geronimo.applications.console</groupId>
       <artifactId>geronimo-console-core</artifactId>
@@ -83,32 +83,32 @@
       <groupId>org.apache.geronimo.modules</groupId>
       <artifactId>geronimo-management</artifactId>
     </dependency -->
-  </dependencies>
+    </dependencies>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-ear-plugin</artifactId>
-        <configuration>
-          <displayName>Geronimo Console Application</displayName>
-          <generateApplicationXml>true</generateApplicationXml>
-          <version>1.4</version>
-           <modules>
-             <webModule>
-               <groupId>org.apache.geronimo.applications.console</groupId>
-                <artifactId>geronimo-console-framework</artifactId>
-               <contextRoot>/console</contextRoot>
-             </webModule>
-             <webModule>
-               <groupId>org.apache.geronimo.applications.console</groupId>
-                <artifactId>geronimo-console-standard</artifactId>
-               <contextRoot>/console-standard</contextRoot>
-             </webModule>
-          </modules>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-ear-plugin</artifactId>
+                <configuration>
+                    <displayName>Geronimo Console Application</displayName>
+                    <generateApplicationXml>true</generateApplicationXml>
+                    <version>1.4</version>
+                    <modules>
+                        <webModule>
+                            <groupId>org.apache.geronimo.applications.console</groupId>
+                            <artifactId>geronimo-console-framework</artifactId>
+                            <contextRoot>/console</contextRoot>
+                        </webModule>
+                        <webModule>
+                            <groupId>org.apache.geronimo.applications.console</groupId>
+                            <artifactId>geronimo-console-standard</artifactId>
+                            <contextRoot>/console-standard</contextRoot>
+                        </webModule>
+                    </modules>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

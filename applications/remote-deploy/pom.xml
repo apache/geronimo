@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  
     Copyright 2006 The Apache Software Foundation
     
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,36 +18,36 @@
 <!-- $Rev$ $Date$ -->
 
 <project>
-  <parent>
-    <groupId>org.apache.geronimo.applications</groupId>
-    <artifactId>applications-parent</artifactId>
-    <version>1.2-SNAPSHOT</version>
-  </parent>
+    <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <groupId>org.apache.geronimo.applications</groupId>
+        <artifactId>applications-parent</artifactId>
+        <version>1.2-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
 
-  <modelVersion>4.0.0</modelVersion>
-  <version>${geronimoVersion}</version>
-  <artifactId>geronimo-remote-deploy</artifactId>
-  <packaging>war</packaging>
-  <name>Geronimo Remote Deploy Application</name>
-  <description>
+    <artifactId>geronimo-remote-deploy</artifactId>
+    <packaging>war</packaging>
+    <name>Geronimo Remote Deploy Application</name>
+    <description>
         This application is essentially a servlet that accepts file upload
         requests from remote clients, which is necessary for remote
         deployment operations to work properly.
-  </description>
+    </description>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-servlet_2.4_spec</artifactId>
-      <scope>provided</scope>
-    </dependency>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-servlet_2.4_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
-     <dependency>
-       <groupId>org.apache.geronimo.modules</groupId>
-       <artifactId>geronimo-kernel</artifactId>
-       <version>${geronimoVersion}</version>
-    </dependency>
-  </dependencies>
-
-
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-kernel</artifactId>
+            <version>${geronimoVersion}</version>
+        </dependency>
+    </dependencies>
+    
 </project>

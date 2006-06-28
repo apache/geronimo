@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  
     Copyright 2006 The Apache Software Foundation
     
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,31 +18,32 @@
 <!-- $Rev$ $Date$ -->
 
 <project>
-  <parent>
-    <groupId>org.apache.geronimo.applications</groupId>
-    <artifactId>applications-parent</artifactId>
-    <version>1.2-SNAPSHOT</version>
-  </parent>
+    <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <groupId>org.apache.geronimo.applications</groupId>
+        <artifactId>applications-parent</artifactId>
+        <version>1.2-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
 
-  <modelVersion>4.0.0</modelVersion>
-  <version>${geronimoVersion}</version>
-  <artifactId>geronimo-uddi-server</artifactId>
-  <packaging>war</packaging>
-  <name>Geronimo UDDI Server</name>
-  <description>Geronimo UDDI Server</description>
+    <artifactId>geronimo-uddi-server</artifactId>
+    <packaging>war</packaging>
+    <name>Geronimo UDDI Server</name>
+    <description>Geronimo UDDI Server</description>
 
-<dependencies>
-  <dependency>
+    <dependencies>
+        <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-j2ee_1.4_spec</artifactId>
             <scope>provided</scope>
         </dependency>
-  <dependency>
+        <dependency>
             <groupId>juddi</groupId>
             <artifactId>juddi</artifactId>
             <version>${juddiVersion}</version>
             <scope>provided</scope>
         </dependency>
-  </dependencies>
+    </dependencies>
 
 </project>

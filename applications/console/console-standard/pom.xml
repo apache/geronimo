@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  
     Copyright 2006 The Apache Software Foundation
     
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,111 +18,112 @@
 <!-- $Rev$ $Date$ -->
 
 <project>
-  <parent>
-    <groupId>org.apache.geronimo.applications.console</groupId>
-    <artifactId>console-parent</artifactId>
-    <version>1.2-SNAPSHOT</version>
-  </parent>
+    <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <groupId>org.apache.geronimo.applications.console</groupId>
+        <artifactId>console-parent</artifactId>
+        <version>1.2-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
 
-  <modelVersion>4.0.0</modelVersion>
-  <artifactId>geronimo-console-standard</artifactId>
-  <packaging>war</packaging>
-  <version>1.2-SNAPSHOT</version>
-  <name>Geronimo :: Console :: Standard Portlets</name>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>geronimo-console-standard</artifactId>
+    <packaging>war</packaging>
+    <name>Geronimo :: Console :: Standard Portlets</name>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-servlet_2.4_spec</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.geronimo.applications.console</groupId>
-      <artifactId>geronimo-console-core</artifactId>
-      <version>${geronimoVersion}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>castor</groupId>
-      <artifactId>castor</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.geronimo.modules</groupId>
-      <artifactId>geronimo-converter</artifactId>
-      <version>${geronimoVersion}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.geronimo.modules</groupId>
-      <artifactId>geronimo-derby</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.geronimo.modules</groupId>
-      <artifactId>geronimo-deploy-jsr88</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>commons-digester</groupId>
-      <artifactId>commons-digester</artifactId>
-      <version>${commonsDigesterVersion}</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-fileupload</groupId>
-      <artifactId>commons-fileupload</artifactId>
-      <version>${commonsFileuploadVersion}</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <version>${commonsIoVersion}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.geronimo.modules</groupId>
-      <artifactId>geronimo-upgrade</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.pluto</groupId>
-      <artifactId>pluto</artifactId>
-      <version>${plutoVersion}</version>
-    </dependency>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-servlet_2.4_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.applications.console</groupId>
+            <artifactId>geronimo-console-core</artifactId>
+            <version>${geronimoVersion}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>castor</groupId>
+            <artifactId>castor</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-converter</artifactId>
+            <version>${geronimoVersion}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-derby</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-deploy-jsr88</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-digester</groupId>
+            <artifactId>commons-digester</artifactId>
+            <version>${commonsDigesterVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>${commonsFileuploadVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commonsIoVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-upgrade</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.pluto</groupId>
+            <artifactId>pluto</artifactId>
+            <version>${plutoVersion}</version>
+        </dependency>
+        
+        <!-- JMS dependencies -->
+        <dependency>
+            <groupId>activemq</groupId>
+            <artifactId>activemq-core</artifactId>
+            <version>${activeMqVersion}</version>
+            <scope>provided</scope>
+        </dependency>
+        
+        <!-- Used to pre compile JSPs -->
+        <dependency>
+            <groupId>taglibs</groupId>
+            <artifactId>standard</artifactId>
+            <version>${standardTaglibsVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jstl</artifactId>
+            <version>${jstlVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>dwr</groupId>
+            <artifactId>dwr</artifactId>
+            <version>${dwrVersion}</version>
+        </dependency>
+    </dependencies>
 
-    <!-- JMS dependencies -->
-    <dependency>
-      <groupId>activemq</groupId>
-      <artifactId>activemq-core</artifactId>
-      <version>${activeMqVersion}</version>
-      <scope>provided</scope>
-    </dependency>
+    <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/conf</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
 
-
-    <!-- Used to pre compile JSPs -->
-    <dependency>
-      <groupId>taglibs</groupId>
-      <artifactId>standard</artifactId>
-      <version>${standardTaglibsVersion}</version>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>jstl</artifactId>
-      <version>${jstlVersion}</version>
-    </dependency>
-    <dependency>
-      <groupId>dwr</groupId>
-      <artifactId>dwr</artifactId>
-      <version>${dwrVersion}</version>
-    </dependency>
-  </dependencies>
-
-  <build>
-    <resources>
-      <resource>
-        <directory>${basedir}/src/conf</directory>
-        <filtering>true</filtering>
-      </resource>
-    </resources>
-
-  </build>
+    </build>
 
 </project>

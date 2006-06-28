@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-
     Copyright 2006 The Apache Software Foundation
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,16 +14,20 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
+
 <!-- $Rev$ $Date$ -->
+
 <project>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.apache.geronimo</groupId>
     <artifactId>geronimo-parent</artifactId>
-    <version>1.2-SNAPSHOT</version>
-    <packaging>pom</packaging>
     <name>Geronimo</name>
     <description>Geronimo parent</description>
+    
+    <version>1.2-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    
     <url>http://geronimo.apache.org</url>
 
     <issueManagement>
@@ -380,7 +383,9 @@
             <dependency>
                 <groupId>org.objectweb.howl</groupId>
                 <artifactId>howl</artifactId>
-                <version>${howlVersion}</version>
+                <version>1.0.1-1</version>
+                <type>jar</type>
+                <scope>compile</scope>
             </dependency>
 
             <dependency>

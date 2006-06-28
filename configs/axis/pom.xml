@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
-  
   Copyright 2006 The Apache Software Foundation
   
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,16 +18,18 @@
 <!-- $Rev$ $Date$ -->
 <project>
     <modelVersion>4.0.0</modelVersion>
+    
     <parent>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>configs-parent</artifactId>
         <version>1.2-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>axis</artifactId>
-    <version>${geronimoVersion}</version>
     <packaging>car</packaging>
     <name>Axis Configuration for the J2EE Server</name>
+    
     <build>
         <plugins>
             <plugin>

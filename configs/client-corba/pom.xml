@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
-  
   Copyright 2006 The Apache Software Foundation
   
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,16 +16,19 @@
 -->
 
 <!-- $Rev$ $Date$ -->
+
 <project>
     <modelVersion>4.0.0</modelVersion>
+    
     <parent>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>configs-parent</artifactId>
         <version>1.2-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
+    
     <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>client-corba</artifactId>
-    <version>${geronimoVersion}</version>
     <packaging>car</packaging>
     <name>Corba Configuration for the J2EE Client</name>
 
@@ -35,7 +37,6 @@
         <PlanCOSNamingPort>1050</PlanCOSNamingPort>
         <PlanORBSSLHost>localhost</PlanORBSSLHost>
         <PlanORBSSLPort>2001</PlanORBSSLPort>
-
         <PlanHTTPPort>8080</PlanHTTPPort>
         <PlanHTTPSPort>8443</PlanHTTPSPort>
         <PlanOpenEJBPort>4201</PlanOpenEJBPort>
@@ -43,6 +44,7 @@
         <PlanClientAddresses>127.0.0.1</PlanClientAddresses>
         <PlanRemoteLoginPort>4242</PlanRemoteLoginPort>
     </properties>
+    
     <build>
         <plugins>
             <!-- This plugin needed to support package type car -->
@@ -51,7 +53,7 @@
                 <artifactId>geronimo-packaging-plugin</artifactId>
                 <extensions>true</extensions>
                 <configuration>
-<deploymentConfig>${gbeanDeployer},${j2eeDeployer},${openejbDeployer},${axisDeployer}</deploymentConfig>            
+                    <deploymentConfig>${gbeanDeployer},${j2eeDeployer},${openejbDeployer},${axisDeployer}</deploymentConfig>            
                  </configuration>
             </plugin>
         </plugins>

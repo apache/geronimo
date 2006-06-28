@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  
     Copyright 2006 The Apache Software Foundation
     
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,16 +18,17 @@
 <!-- $Rev$ $Date$ -->
 
 <project>
-  <parent>
-    <groupId>org.apache.geronimo.applications.magicGball</groupId>
-    <version>1.2-SNAPSHOT</version>
-    <artifactId>magicGball-parent</artifactId>
-  </parent>
-
-  <modelVersion>4.0.0</modelVersion>
-  <artifactId>magicGball-ejb</artifactId>
-  <version>1.2-SNAPSHOT</version>
-  <packaging>ejb</packaging>
-  <name>Geronimo :: The Magic G Ball Sample :: EJB</name>
+    <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <groupId>org.apache.geronimo.applications.magicGball</groupId>
+        <version>1.2-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+        <artifactId>magicGball-parent</artifactId>
+    </parent>
+    
+    <artifactId>magicGball-ejb</artifactId>
+    <packaging>ejb</packaging>
+    <name>Geronimo :: The Magic G Ball Sample :: EJB</name>
 
 </project>

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  
     Copyright 2006 The Apache Software Foundation
     
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,119 +18,121 @@
 <!-- $Rev$ $Date$ -->
 
 <project>
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.apache.geronimo</groupId>
-    <artifactId>geronimo-parent</artifactId>
-    <version>1.2-SNAPSHOT</version>
-  </parent>
+    <parent>
+        <groupId>org.apache.geronimo</groupId>
+        <artifactId>geronimo-parent</artifactId>
+        <version>1.2-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
 
-  <groupId>org.apache.geronimo.configs</groupId>
-  <artifactId>configs-parent</artifactId>
-  <version>1.2-SNAPSHOT</version>
-  <packaging>pom</packaging>
-  <name>Geronimo Configs</name>
-  <description>Geronimo Configs</description>
+    <groupId>org.apache.geronimo.configs</groupId>
+    <artifactId>configs-parent</artifactId>
+    <packaging>pom</packaging>
+    <name>Geronimo Configs</name>
+    <description>Geronimo Configs</description>
 
-  <properties>
-      <pom.currentVersion>${pom.version}</pom.currentVersion>
-      <!-- add from etc/explicit_version.properties here to use filter-->
-      <gbeanDeployer>org.apache.geronimo.configs/geronimo-gbean-deployer/${geronimoVersion}/car</gbeanDeployer>
-      <j2eeDeployer>org.apache.geronimo.configs/j2ee-deployer/${geronimoVersion}/car</j2eeDeployer>
-      <clientDeployer>org.apache.geronimo.configs/client-deployer/${geronimoVersion}/car</clientDeployer>
-      <openejbDeployer>org.apache.geronimo.configs/openejb-deployer/${geronimoVersion}/car</openejbDeployer>
-      <axisDeployer>org.apache.geronimo.configs/axis-deployer/${geronimoVersion}/car</axisDeployer> 
-      <tomcatDeployer>org.apache.geronimo.configs/tomcat-deployer/${geronimoVersion}/car</tomcatDeployer>
+    <properties>
+        <pom.currentVersion>${pom.version}</pom.currentVersion>
+        
+        <!-- add from etc/explicit_version.properties here to use filter-->
+        <gbeanDeployer>org.apache.geronimo.configs/geronimo-gbean-deployer/${geronimoVersion}/car</gbeanDeployer>
+        <j2eeDeployer>org.apache.geronimo.configs/j2ee-deployer/${geronimoVersion}/car</j2eeDeployer>
+        <clientDeployer>org.apache.geronimo.configs/client-deployer/${geronimoVersion}/car</clientDeployer>
+        <openejbDeployer>org.apache.geronimo.configs/openejb-deployer/${geronimoVersion}/car</openejbDeployer>
+        <axisDeployer>org.apache.geronimo.configs/axis-deployer/${geronimoVersion}/car</axisDeployer>
+        <tomcatDeployer>org.apache.geronimo.configs/tomcat-deployer/${geronimoVersion}/car</tomcatDeployer>
 
-<j2eeTomcatServer>org.apache.geronimo.configs/geronimo-gbean-deployer/${geronimoVersion}/car,org.apache.geronimo.configs/j2ee-deployer/${geronimoVersion}/car,org.apache.geronimo.configs/tomcat-deployer/${geronimoVersion}/car,org.apache.geronimo.configs/client-deployer/${geronimoVersion}/car,org.apache.geronimo.configs/openejb-deployer/${geronimoVersion}/car,org.apache.geronimo.configs/axis-deployer/${geronimoVersion}/car</j2eeTomcatServer>
-<j2eeJettyServer>org.apache.geronimo.configs/geronimo-gbean-deployer/${geronimoVersion}/car,org.apache.geronimo.configs/j2ee-deployer/${geronimoVersion}/car,org.apache.geronimo.configs/jetty-deployer/${geronimoVersion}/car,org.apache.geronimo.configs/client-deployer/${geronimoVersion}/car,org.apache.geronimo.configs/openejb-deployer/${geronimoVersion}/car,org.apache.geronimo.configs/axis-deployer/${geronimoVersion}/car</j2eeJettyServer>
-<!-- no web deployer -->
-<j2eeNowebServer>org.apache.geronimo.configs/geronimo-gbean-deployer/${geronimoVersion}/car,org.apache.geronimo.configs/j2ee-deployer/${geronimoVersion}/car,org.apache.geronimo.configs/client-deployer/${geronimoVersion}/car,org.apache.geronimo.configs/openejb-deployer/${geronimoVersion}/car,org.apache.geronimo.configs/axis-deployer/${geronimoVersion}/car</j2eeNowebServer>
-  </properties>
+        <j2eeTomcatServer>org.apache.geronimo.configs/geronimo-gbean-deployer/${geronimoVersion}/car,org.apache.geronimo.configs/j2ee-deployer/${geronimoVersion}/car,org.apache.geronimo.configs/tomcat-deployer/${geronimoVersion}/car,org.apache.geronimo.configs/client-deployer/${geronimoVersion}/car,org.apache.geronimo.configs/openejb-deployer/${geronimoVersion}/car,org.apache.geronimo.configs/axis-deployer/${geronimoVersion}/car</j2eeTomcatServer>
+        <j2eeJettyServer>org.apache.geronimo.configs/geronimo-gbean-deployer/${geronimoVersion}/car,org.apache.geronimo.configs/j2ee-deployer/${geronimoVersion}/car,org.apache.geronimo.configs/jetty-deployer/${geronimoVersion}/car,org.apache.geronimo.configs/client-deployer/${geronimoVersion}/car,org.apache.geronimo.configs/openejb-deployer/${geronimoVersion}/car,org.apache.geronimo.configs/axis-deployer/${geronimoVersion}/car</j2eeJettyServer>
+        <!-- no web deployer -->
+        <j2eeNowebServer>org.apache.geronimo.configs/geronimo-gbean-deployer/${geronimoVersion}/car,org.apache.geronimo.configs/j2ee-deployer/${geronimoVersion}/car,org.apache.geronimo.configs/client-deployer/${geronimoVersion}/car,org.apache.geronimo.configs/openejb-deployer/${geronimoVersion}/car,org.apache.geronimo.configs/axis-deployer/${geronimoVersion}/car</j2eeNowebServer>
+    </properties>
 
-  <build>
-    <pluginManagement>
-      <plugins>
-            <plugin>
-                <groupId>org.apache.geronimo.plugins</groupId>
-                <artifactId>geronimo-packaging-plugin</artifactId>
-                <version>${geronimoPackagingPluginVersion}</version>
-            </plugin>
-      </plugins>
-    </pluginManagement>
-  </build>
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.geronimo.plugins</groupId>
+                    <artifactId>geronimo-packaging-plugin</artifactId>
+                    <version>${geronimoPackagingPluginVersion}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 
-  <profiles>
-    <profile>
-      <id>default</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <modules>
-<!--          <module>activemq</module>
-          <module>activemq-broker</module> -->
-          <module>axis</module>
-          <module>axis-deployer</module>
-          <module>client</module>
-          <module>client-corba</module>
-          <module>client-deployer</module>
-          <module>client-security</module>
-          <module>client-system</module>
-<!--          <module>console-jetty</module>
-          <module>console-tomcat</module> -->
-<!--          <module>daytrader-jetty</module>
-          <module>daytrader-tomcat</module> -->
-          <module>directory</module>
-          <module>geronimo-gbean-deployer</module>
-          <module>hot-deployer</module>
-          <module>j2ee-corba</module>
-          <module>j2ee-deployer</module>
-          <module>j2ee-security</module>
-          <module>j2ee-server</module>
-          <module>j2ee-system</module>
-          <module>javamail</module>
-          <module>jetty</module>
-          <module>jetty-deployer</module>
-          <module>jsp-examples-jetty</module>
-          <module>jsp-examples-tomcat</module>
-          <module>ldap-demo-jetty</module>
-          <module>ldap-demo-tomcat</module>
-          <module>ldap-realm</module>
-          <module>online-deployer</module>
-          <module>openejb</module>
-          <module>openejb-deployer</module>
-<!--          <module>remote-deploy-jetty</module>
-          <module>remote-deploy-tomcat</module> -->
-          <module>rmi-naming</module>
-          <module>servlets-examples-jetty</module>
-          <module>servlets-examples-tomcat</module>
-          <module>sharedlib</module>
-          <module>shutdown</module>
-          <module>system-database</module>
-          <module>tomcat</module>
-          <module>tomcat-deployer</module>          
-<!--          <module>uddi-jetty</module>
-          <module>uddi-tomcat</module> -->
-          <module>unavailable-client-deployer</module>
-          <module>unavailable-ejb-deployer</module>
-          <module>unavailable-webservices-deployer</module>
-          <module>upgrade</module>
-          <module>upgrade-cli</module>
-          <module>welcome-jetty</module>
-          <module>welcome-tomcat</module>
-      </modules>
-    </profile>
-    <profile>
-      <id>singlemodule</id>
-      <activation>
-        <property>
-          <name>module</name>
-        </property>
-      </activation>
-      <modules>
-         <module>${module}</module>
-      </modules>
-    </profile>
-  </profiles>
+    <profiles>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <!-- <module>activemq</module> -->
+                <!-- <module>activemq-broker</module> -->
+                <module>axis</module>
+                <module>axis-deployer</module>
+                <module>client</module>
+                <module>client-corba</module>
+                <module>client-deployer</module>
+                <module>client-security</module>
+                <module>client-system</module>
+                <!-- <module>console-jetty</module> -->
+                <!-- <module>console-tomcat</module> -->
+                <!-- <module>daytrader-jetty</module> -->
+                <!-- <module>daytrader-tomcat</module> -->
+                <module>directory</module>
+                <module>geronimo-gbean-deployer</module>
+                <module>hot-deployer</module>
+                <module>j2ee-corba</module>
+                <module>j2ee-deployer</module>
+                <module>j2ee-security</module>
+                <module>j2ee-server</module>
+                <module>j2ee-system</module>
+                <module>javamail</module>
+                <module>jetty</module>
+                <module>jetty-deployer</module>
+                <module>jsp-examples-jetty</module>
+                <module>jsp-examples-tomcat</module>
+                <module>ldap-demo-jetty</module>
+                <module>ldap-demo-tomcat</module>
+                <module>ldap-realm</module>
+                <module>online-deployer</module>
+                <module>openejb</module>
+                <module>openejb-deployer</module>
+                <!-- <module>remote-deploy-jetty</module> -->
+                <!-- <module>remote-deploy-tomcat</module> -->
+                <module>rmi-naming</module>
+                <module>servlets-examples-jetty</module>
+                <module>servlets-examples-tomcat</module>
+                <module>sharedlib</module>
+                <module>shutdown</module>
+                <module>system-database</module>
+                <module>tomcat</module>
+                <module>tomcat-deployer</module>
+                <!-- <module>uddi-jetty</module> -->
+                <!-- <module>uddi-tomcat</module> -->
+                <module>unavailable-client-deployer</module>
+                <module>unavailable-ejb-deployer</module>
+                <module>unavailable-webservices-deployer</module>
+                <module>upgrade</module>
+                <module>upgrade-cli</module>
+                <module>welcome-jetty</module>
+                <module>welcome-tomcat</module>
+            </modules>
+        </profile>
+        
+        <profile>
+            <id>singlemodule</id>
+            <activation>
+                <property>
+                    <name>module</name>
+                </property>
+            </activation>
+            <modules>
+                <module>${module}</module>
+            </modules>
+        </profile>
+    </profiles>
 </project>

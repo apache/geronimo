@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  
     Copyright 2006 The Apache Software Foundation
     
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,67 +18,67 @@
 <!-- $Rev$ $Date$ -->
 
 <project>
-  <parent>
-    <groupId>org.apache.geronimo</groupId>
-    <artifactId>geronimo-parent</artifactId>
-    <version>1.2-SNAPSHOT</version>
-  </parent>
+    <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <groupId>org.apache.geronimo</groupId>
+        <artifactId>geronimo-parent</artifactId>
+        <version>1.2-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
 
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>org.apache.geronimo.applications</groupId>
-  <artifactId>applications-parent</artifactId>
-  <version>1.2-SNAPSHOT</version>
-  <packaging>pom</packaging>
-  <name>Geronimo Applications</name>
-  <description>Geronimo Applications</description>
+    <groupId>org.apache.geronimo.applications</groupId>
+    <artifactId>applications-parent</artifactId>
+    <packaging>pom</packaging>
+    <name>Geronimo Applications</name>
+    <description>Geronimo Applications</description>
 
-  <build>
-    <plugins>
-      <plugin>
-        <artifactId>maven-war-plugin</artifactId>
-        <configuration>
-          <warSourceDirectory>${basedir}/src/webapp</warSourceDirectory>
-          <archiveClasses>true</archiveClasses>
-          <webXml>${basedir}/target/jspweb.xml</webXml>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>jspc-maven-plugin</artifactId>
-        <executions>
-           <execution>
-               <id>jspc</id>
-              <goals>
-                  <goal>compile</goal>
-              </goals>
-              <configuration>
-                <warSourceDirectory>${basedir}/src/webapp</warSourceDirectory>
-                <inputWebXml>${basedir}/src/webapp/WEB-INF/web.xml</inputWebXml>
-              </configuration>
-             </execution>
-         </executions>
-      </plugin>
-    </plugins>
-  </build>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <warSourceDirectory>${basedir}/src/webapp</warSourceDirectory>
+                    <archiveClasses>true</archiveClasses>
+                    <webXml>${basedir}/target/jspweb.xml</webXml>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jspc-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>jspc</id>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <warSourceDirectory>${basedir}/src/webapp</warSourceDirectory>
+                            <inputWebXml>${basedir}/src/webapp/WEB-INF/web.xml</inputWebXml>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
-  <dependencies>
-    <dependency>
-        <groupId>tomcat</groupId>
-        <artifactId>jasper-runtime</artifactId>
-        <version>${jasperVersion}</version>
-        <scope>provided</scope>
-    </dependency>        
-  </dependencies>
+    <dependencies>
+        <dependency>
+            <groupId>tomcat</groupId>
+            <artifactId>jasper-runtime</artifactId>
+            <version>${jasperVersion}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
-
-  <modules>
-    <module>demo</module>
-    <module>ldap-realm-demo</module>
-    <module>magicGball</module>
-    <module>remote-deploy</module>
-    <module>uddi-db</module>
-    <module>uddi-server</module>
-    <module>console</module>
-    <module>welcome</module>
-  </modules>
+    <modules>
+        <module>demo</module>
+        <module>ldap-realm-demo</module>
+        <module>magicGball</module>
+        <module>remote-deploy</module>
+        <module>uddi-db</module>
+        <module>uddi-server</module>
+        <module>console</module>
+        <module>welcome</module>
+    </modules>
 </project>

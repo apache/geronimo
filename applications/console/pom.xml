@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  
     Copyright 2006 The Apache Software Foundation
     
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,39 +18,40 @@
 <!-- $Rev$ $Date$ -->
 
 <project>
-  <parent>
-    <groupId>org.apache.geronimo.applications</groupId>
-    <artifactId>applications-parent</artifactId>
-    <version>1.2-SNAPSHOT</version>
-  </parent>
+    <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <groupId>org.apache.geronimo.applications</groupId>
+        <artifactId>applications-parent</artifactId>
+        <version>1.2-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
 
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>org.apache.geronimo.applications.console</groupId>
-  <artifactId>console-parent</artifactId>
-  <version>1.2-SNAPSHOT</version>
-  <packaging>pom</packaging>
-  <name>Geronimo Console Application</name>
-  <description>Geronimo Console Application</description>
+    <groupId>org.apache.geronimo.applications.console</groupId>
+    <artifactId>console-parent</artifactId>
+    <packaging>pom</packaging>
+    <name>Geronimo Console Application</name>
+    <description>Geronimo Console Application</description>
 
-  <dependencies>
-    <dependency>
-      <groupId>portlet-api</groupId>
-      <artifactId>portlet-api</artifactId>
-      <version>${portletApiVersion}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-jsp_2.0_spec</artifactId>
-      <scope>provided</scope>
-    </dependency>
-  </dependencies>
+    <dependencies>
+        <dependency>
+            <groupId>portlet-api</groupId>
+            <artifactId>portlet-api</artifactId>
+            <version>${portletApiVersion}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jsp_2.0_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
-  <modules>
-    <module>console-core</module>
-    <module>console-standard</module>
-    <module>console-framework</module>
-    <module>console-ear</module>
-  </modules>
+    <modules>
+        <module>console-core</module>
+        <module>console-standard</module>
+        <module>console-framework</module>
+        <module>console-ear</module>
+    </modules>
 
 </project>

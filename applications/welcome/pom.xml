@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  
     Copyright 2006 The Apache Software Foundation
     
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,24 +18,25 @@
 <!-- $Rev$ $Date$ -->
 
 <project>
-  <parent>
-    <groupId>org.apache.geronimo.applications</groupId>
-    <artifactId>applications-parent</artifactId>
-    <version>1.2-SNAPSHOT</version>
-  </parent>
+    <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <groupId>org.apache.geronimo.applications</groupId>
+        <artifactId>applications-parent</artifactId>
+        <version>1.2-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
 
-  <modelVersion>4.0.0</modelVersion>
-  <version>${geronimoVersion}</version>
-  <artifactId>geronimo-welcome</artifactId>
-  <packaging>war</packaging>
-  <name>Geronimo Welcome Application</name>
-  <description>
+    <artifactId>geronimo-welcome</artifactId>
+    <packaging>war</packaging>
+    <name>Geronimo Welcome Application</name>
+    <description>
         This is a very simple application that is intended to serve as the default page
         that can be viewed when the server is first installed so that someone can see
         that the installation is working.
-  </description>
+    </description>
 
-  <dependencies>
+    <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-kernel</artifactId>
@@ -52,6 +52,6 @@
             <artifactId>geronimo-j2ee_1.4_spec</artifactId>
             <scope>provided</scope>
         </dependency>
-  </dependencies>
+    </dependencies>
 
 </project>

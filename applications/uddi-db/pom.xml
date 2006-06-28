@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  
     Copyright 2006 The Apache Software Foundation
     
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,60 +18,58 @@
 <!-- $Rev$ $Date$ -->
 
 <project>
-  <parent>
-    <groupId>org.apache.geronimo.applications</groupId>
-    <artifactId>applications-parent</artifactId>
-    <version>1.2-SNAPSHOT</version>
-  </parent>
-
-  <modelVersion>4.0.0</modelVersion>
-  <artifactId>geronimo-uddi-db</artifactId>
-  <version>${geronimoVersion}</version>
-  <name>Geronimo UDDI Server Database</name>
-  <description>Geronimo UDDI Server Database</description>
-
-  <build>
+    <modelVersion>4.0.0</modelVersion>
     
+    <parent>
+        <groupId>org.apache.geronimo.applications</groupId>
+        <artifactId>applications-parent</artifactId>
+        <version>1.2-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
 
-    <resources>
-      <resource>
+    <artifactId>geronimo-uddi-db</artifactId>
+    <name>Geronimo UDDI Server Database</name>
+    <description>Geronimo UDDI Server Database</description>
+
+    <build>
+        <resources>
+            <resource>
         <!-- ${project.build.directory} doesn't work in the following line. -->
-        <directory>${basedir}/target/resources</directory>
-      </resource>
-    </resources>
+                <directory>${basedir}/target/resources</directory>
+            </resource>
+        </resources>
 
+        <plugins>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <tasks>
+                                <property name="derby.system.home" value="${project.build.directory}/resources/META-INF/${pom.artifactId}/var/derby"/>
+                                <property name="derby.storage.fileSyncTransactionLog" value="true"/>
+                                <delete dir="${derby.system.home}"/>
+                                <mkdir dir="${derby.system.home}"/>
+                                <sql driver="org.apache.derby.jdbc.EmbeddedDriver"
+                                        url="jdbc:derby:${derby.system.home}/UddiDatabase;create=true"
+                                        userid="" password="" autocommit="true" onerror="abort" delimiter=";">
+                                    <fileset dir="src/sql"/>
+                                    <classpath>
+                                        <fileset dir="${settings.localRepository}/org/apache/derby/derby/${derbyVersion}">
+                                            <include name="**/derby-${derbyVersion}.jar" />
+                                        </fileset>
+                                    </classpath>
+                                </sql>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
-    <plugins>
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>generate-resources</phase>
-            <configuration>
-              <tasks>
-                <property name="derby.system.home" value="${project.build.directory}/resources/META-INF/${pom.artifactId}/var/derby"/>
-                <property name="derby.storage.fileSyncTransactionLog" value="true"/>
-                <delete dir="${derby.system.home}"/>
-                <mkdir dir="${derby.system.home}"/>
-                <sql driver="org.apache.derby.jdbc.EmbeddedDriver"
-                  url="jdbc:derby:${derby.system.home}/UddiDatabase;create=true"
-                  userid="" password="" autocommit="true" onerror="abort" delimiter=";">
-                  <fileset dir="src/sql"/>
-                  <classpath>
-                    <fileset dir="${settings.localRepository}/org/apache/derby/derby/${derbyVersion}">
-                      <include name="**/derby-${derbyVersion}.jar" />
-                    </fileset>
-                  </classpath>
-                </sql>
-              </tasks>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
-
-  </project>
+</project>

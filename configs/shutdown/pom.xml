@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
-  
   Copyright 2006 The Apache Software Foundation
   
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,18 +16,21 @@
 -->
 
 <!-- $Rev$ $Date$ -->
+
 <project>
     <modelVersion>4.0.0</modelVersion>
+    
     <parent>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>configs-parent</artifactId>
         <version>1.2-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>shutdown</artifactId>
-    <version>${geronimoVersion}</version>
     <packaging>car</packaging>
     <name>Shutdown Configuration</name>
+    
     <build>
         <plugins>
             <plugin>                
@@ -39,24 +41,20 @@
                     <!-- uses default DeploymentConfig=geronimo-gbean-deployer -->
                     <!-- written to Manifest.mf -->
                     <classPath>../lib/geronimo-deploy-tool-${geronimoVersion}.jar \
-    ../lib/geronimo-common-${geronimoVersion}.jar \
-    ../lib/geronimo-kernel-${geronimoVersion}.jar \
-    ../lib/geronimo-system-${geronimoVersion}.jar \
-    ../lib/geronimo-util-${geronimoVersion}.jar \
-    ../lib/cglib-nodep-${cglibVersion}.jar \
-    ../lib/commons-cli-${commonsCliVersion}.jar \
-    ../lib/commons-logging-${commonsLoggingVersion}.jar \
-    ../lib/log4j-${log4jVersion}.jar \
-    ../lib/mx4j-${mx4jVersion}.jar \
-    ../lib/mx4j-remote-${mx4jVersion}.jar</classPath>
+                        ../lib/geronimo-common-${geronimoVersion}.jar \
+                        ../lib/geronimo-kernel-${geronimoVersion}.jar \
+                        ../lib/geronimo-system-${geronimoVersion}.jar \
+                        ../lib/geronimo-util-${geronimoVersion}.jar \
+                        ../lib/cglib-nodep-${cglibVersion}.jar \
+                        ../lib/commons-cli-${commonsCliVersion}.jar \
+                        ../lib/commons-logging-${commonsLoggingVersion}.jar \
+                        ../lib/log4j-${log4jVersion}.jar \
+                        ../lib/mx4j-${mx4jVersion}.jar \
+                        ../lib/mx4j-remote-${mx4jVersion}.jar</classPath>
                      <mainClass>org.apache.geronimo.deployment.cli.StopServer</mainClass>
                 </configuration>
             </plugin>
         </plugins>
     </build>
 
-    <!-- ============ -->
-    <!-- Dependencies -->
-    <!-- ============ -->
-    <!-- none -->
 </project>

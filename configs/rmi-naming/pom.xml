@@ -17,22 +17,26 @@
 -->
 
 <!-- $Rev$ $Date$ -->
+
 <project>
     <modelVersion>4.0.0</modelVersion>
+    
     <parent>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>configs-parent</artifactId>
         <version>1.2-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>rmi-naming</artifactId>
-    <version>${geronimoVersion}</version>
     <packaging>car</packaging>
     <name>RMI Naming configuration</name>
+    
     <properties>
         <PlanServerHostname>localhost</PlanServerHostname>
         <PlanNamingPort>1099</PlanNamingPort>
     </properties>
+    
     <build>
         <plugins>
             <!-- This plugin needed to support package type car -->
