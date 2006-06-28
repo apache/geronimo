@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
-
     Copyright 2006 The Apache Software Foundation
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +14,9 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
+
 <!-- $Rev$ $Date$ -->
+
 <project>
     <modelVersion>4.0.0</modelVersion>
 
@@ -23,10 +24,10 @@
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>modules-parent</artifactId>
         <version>1.2-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>geronimo-deploy-config</artifactId>
-    <version>${geronimoVersion}</version>
     <packaging>jar</packaging>
     <name>Geronimo :: Deploy :: Common Config</name>
     <description>The deployment module contains basic infrastructure and base classes for module builders / deployers. This module contains infrastructure and base classes for JSR-88 DConfigBeans.</description>
@@ -34,6 +35,7 @@
     <!-- ============ -->
     <!-- Dependencies -->
     <!-- ============ -->
+    
     <dependencies>
         <dependency>
             <groupId>xmlbeans</groupId>

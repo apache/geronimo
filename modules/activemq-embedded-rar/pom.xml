@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
-  
     Copyright 2006 The Apache Software Foundation
     
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,50 +18,52 @@
 <!-- $Rev$ $Date$ -->
 
 <project>
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.apache.geronimo.modules</groupId>
-    <artifactId>modules-parent</artifactId>
-    <version>1.2-SNAPSHOT</version>
-  </parent>
+    <parent>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>modules-parent</artifactId>
+        <version>1.2-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
 
-  <artifactId>ge-activemq-rar</artifactId>
-  <version>${geronimoVersion}</version>
-  <packaging>rar</packaging>
-  <name>Geronimo :: ActiveMQ Embedded RAR</name>
-  <description>Resource Adapter configuration for using ActiveMQ as a bundled JMS provider.</description>
+    <artifactId>ge-activemq-rar</artifactId>
+    <packaging>rar</packaging>
+    <name>Geronimo :: ActiveMQ Embedded RAR</name>
+    <description>Resource Adapter configuration for using ActiveMQ as a bundled JMS provider.</description>
 
-  <build>
-    <plugins>
-      <plugin>
-        <artifactId>maven-rar-plugin</artifactId>
-        <version>${mavenRarPluginVersion}</version>
-        <configuration>
-          <raXmlFile>${basedir}/src/rar/META-INF/ra.xml</raXmlFile>
-          <includeJar>false</includeJar>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
-  <dependencies>
-    <dependency>
-      <groupId>activemq</groupId>
-      <artifactId>activemq-core</artifactId>
-      <version>${activeMqVersion}</version>
-    </dependency>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-rar-plugin</artifactId>
+                <version>${mavenRarPluginVersion}</version>
+                <configuration>
+                    <raXmlFile>${basedir}/src/rar/META-INF/ra.xml</raXmlFile>
+                    <includeJar>false</includeJar>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    
+    <dependencies>
+        <dependency>
+            <groupId>activemq</groupId>
+            <artifactId>activemq-core</artifactId>
+            <version>${activeMqVersion}</version>
+        </dependency>
 
-    <dependency>
-      <groupId>activemq</groupId>
-      <artifactId>activemq-ra</artifactId>
-      <version>${activeMqVersion}</version>
-      <!--  Can't be found anywhere -->
-      <exclusions>
-        <exclusion>
-          <groupId>incubator-derby</groupId>
-          <artifactId>derby</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-  </dependencies>
+        <dependency>
+            <groupId>activemq</groupId>
+            <artifactId>activemq-ra</artifactId>
+            <version>${activeMqVersion}</version>
+            
+            <!--  Can't be found anywhere -->
+            <exclusions>
+                <exclusion>
+                    <groupId>incubator-derby</groupId>
+                    <artifactId>derby</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
 </project>

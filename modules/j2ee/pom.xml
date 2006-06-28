@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
-
     Copyright 2006 The Apache Software Foundation
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,8 +14,12 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
+
 <!-- $Rev$ $Date$ -->
+
 <project>
+    <modelVersion>4.0.0</modelVersion>
+    
     <parent>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>modules-parent</artifactId>
@@ -24,10 +27,8 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <modelVersion>4.0.0</modelVersion>
     <artifactId>geronimo-j2ee</artifactId>
     <name>Geronimo :: J2EE</name>
-    <version>${geronimoVersion}</version>
     <description>Geronimo J2EE Services</description>
 
     <build>
@@ -45,12 +46,12 @@
     <!-- ============ -->
     
     <dependencies>
-    
+        
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-system</artifactId>
         </dependency>
-
+        
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-management</artifactId>

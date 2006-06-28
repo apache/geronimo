@@ -14,12 +14,14 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
+
 <!-- $Rev: 411333 $ $Date: 2006-06-02 18:35:57 -0500 (Fri, 02 Jun 2006) $ -->
+
 <project
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns="http://maven.apache.org/POM/4.0.0">
-  
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://maven.apache.org/POM/4.0.0">
+
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -30,24 +32,25 @@
     </parent>
 
     <artifactId>geronimo-activemq-gbean-management</artifactId>
-    <version>${geronimoVersion}</version>
     <name>Geronimo :: ActiveMQ :: GBean Interfaces</name>
     <description>ActiveMQ Management Interfaces used by Geronimo</description>
 
     <dependencies>
 
-      <dependency>
-          <groupId>org.apache.geronimo.modules</groupId>
-          <artifactId>geronimo-management</artifactId>
-      </dependency>
-      <dependency>
-        <groupId>backport-util-concurrent</groupId>
-        <artifactId>backport-util-concurrent</artifactId>
-      </dependency>
-      <dependency>
-        <groupId>log4j</groupId>
-        <artifactId>log4j</artifactId>
-      </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-management</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>backport-util-concurrent</groupId>
+            <artifactId>backport-util-concurrent</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+        </dependency>
 
-   </dependencies> 
+    </dependencies>
 </project>

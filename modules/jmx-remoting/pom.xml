@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
-
     Copyright 2006 The Apache Software Foundation
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +14,9 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
+
 <!-- $Rev$ $Date$ -->
+
 <project>
     <modelVersion>4.0.0</modelVersion>
 
@@ -23,21 +24,21 @@
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>modules-parent</artifactId>
         <version>1.2-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>geronimo-jmx-remoting</artifactId>
-    <version>${geronimoVersion}</version>
     <name>Geronimo :: JMX Remoting</name>
     <description>Provides remote access to a Geronimo server using JSR 160 JMX Remoting</description>
 
     <dependencies>
-<!-- gets mx4j transitively -->
+        <!-- gets mx4j transitively -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-system</artifactId>
         </dependency>
-
-<!-- all the specs should be added to the classpath transitively -->
+        
+        <!-- all the specs should be added to the classpath transitively -->
         <dependency>
             <groupId>mx4j</groupId>
             <artifactId>mx4j-remote</artifactId>

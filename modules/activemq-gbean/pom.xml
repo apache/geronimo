@@ -14,12 +14,14 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
+
 <!-- $Rev: 411333 $ $Date: 2006-06-02 18:35:57 -0500 (Fri, 02 Jun 2006) $ -->
+
 <project
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns="http://maven.apache.org/POM/4.0.0">
-  
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://maven.apache.org/POM/4.0.0">
+
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -30,54 +32,54 @@
     </parent>
 
     <artifactId>geronimo-activemq-gbean</artifactId>
-    <version>${geronimoVersion}</version>
     <name>ActiveMQ :: GBeans</name>
     <description>Geronimo ActiveMQ Integration</description>
-      
+
     <dependencies>
 
-      <dependency>
-        <groupId>incubator-activemq</groupId>
-        <artifactId>activemq-core</artifactId>
-        <version>4.0-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>incubator-activemq</groupId>
-        <artifactId>activeio-core</artifactId>
-        <version>3.0-SNAPSHOT</version>
-      </dependency>  
-      
-      <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-activemq-gbean-management</artifactId>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-kernel</artifactId>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-system</artifactId>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-management</artifactId>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-j2ee</artifactId>
-      </dependency>
-  
-      <dependency>
-        <groupId>commons-logging</groupId>
-        <artifactId>commons-logging</artifactId>
-      </dependency>
+        <dependency>
+            <groupId>incubator-activemq</groupId>
+            <artifactId>activemq-core</artifactId>
+            <version>4.0-SNAPSHOT</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>incubator-activemq</groupId>
+            <artifactId>activeio-core</artifactId>
+            <version>3.0-SNAPSHOT</version>
+        </dependency>
 
-      <dependency>
-        <groupId>mx4j</groupId>
-        <artifactId>mx4j</artifactId>
-      </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-activemq-gbean-management</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-kernel</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-system</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-management</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-j2ee</artifactId>
+        </dependency>
 
-    </dependencies> 
-    
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>mx4j</groupId>
+            <artifactId>mx4j</artifactId>
+        </dependency>
+
+    </dependencies>
+
 </project>
