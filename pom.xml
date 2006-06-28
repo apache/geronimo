@@ -169,7 +169,7 @@
         <dom4jVersion>1.4</dom4jVersion>
         <dwrVersion>1.1.1</dwrVersion>
         <eclipseCompilerVersion>3.0.1</eclipseCompilerVersion>
-        <howlVersion>0.1.11</howlVersion>
+        <howlVersion>1.0.1-1</howlVersion>
         <hsqldbVersion>1.7.2.2</hsqldbVersion>
         <jasperVersion>5.5.15</jasperVersion>
         <javaccVersion>2.1</javaccVersion>
@@ -378,8 +378,8 @@
             </dependency>
 
             <dependency>
-                <groupId>howl</groupId>
-                <artifactId>howl-logger</artifactId>
+                <groupId>org.objectweb.howl</groupId>
+                <artifactId>howl</artifactId>
                 <version>${howlVersion}</version>
             </dependency>
 

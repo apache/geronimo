@@ -155,8 +155,8 @@
             <artifactId>geronimo-webservices</artifactId>
         </dependency>
         <dependency>
-            <groupId>howl</groupId>
-            <artifactId>howl-logger</artifactId>
+            <groupId>org.objectweb.howl</groupId>
+            <artifactId>howl</artifactId>
         </dependency>
         <!-- remote login -->
         <dependency>

@@ -767,8 +767,8 @@
         </dependency>
 
         <dependency>
-            <groupId>howl</groupId>
-            <artifactId>howl-logger</artifactId>
+            <groupId>org.objectweb.howl</groupId>
+            <artifactId>howl</artifactId>
             <version>${howl_version}</version>
         </dependency>
 
