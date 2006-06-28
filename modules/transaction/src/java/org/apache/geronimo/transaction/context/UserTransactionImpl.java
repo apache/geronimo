@@ -40,10 +40,15 @@ public class UserTransactionImpl implements UserTransaction, Serializable {
         protected Object initialValue() {
             return OFFLINE;
         }
-    };
+    }
 
     public UserTransactionImpl() {
         state.set(OFFLINE);
+    }
+
+    public UserTransactionImpl(TransactionContextManager transactionContextManager, TrackedConnectionAssociator trackedConnectionAssociator) {
+        state.set(OFFLINE);
+        ONLINE.setUp(transactionContextManager, trackedConnectionAssociator);
     }
 
     public void setUp(TransactionContextManager transactionContextManager, TrackedConnectionAssociator trackedConnectionAssociator) {

@@ -15,18 +15,16 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.core.service;
-
+package org.apache.geronimo.interceptor;
 
 /**
- *
- *
- *
  * @version $Rev$ $Date$
  */
-public interface Invocation {
-
-    Object get(InvocationKey key);
-    void put(InvocationKey key, Object value);
+public interface InvocationKey {
     
+    /**
+     * 
+     * @return
+     */
+    boolean isTransient();
 }

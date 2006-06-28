@@ -68,7 +68,7 @@
             <version>${geronimo_version}</version>
             <type>car</type>
             <properties>
-                <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.import>true</geronimo.import>
             </properties>
         </dependency>
 

@@ -29,14 +29,13 @@ import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 
 /**
  * @version $Rev:386276 $ $Date$
  */
 public class EARContext extends DeploymentContext {
-
+    private final AbstractNameQuery transactionManagerObjectName;
     private final AbstractNameQuery transactionContextManagerObjectName;
     private final AbstractNameQuery connectionTrackerObjectName;
 
@@ -61,6 +60,7 @@ public class EARContext extends DeploymentContext {
             ConfigurationManager configurationManager, Collection repositories,
             AbstractNameQuery serverName,
             AbstractName baseName,
+            AbstractNameQuery transactionManagerObjectName,
             AbstractNameQuery transactionContextManagerObjectName,
             AbstractNameQuery connectionTrackerObjectName,
             AbstractNameQuery transactedTimerName,
@@ -68,10 +68,10 @@ public class EARContext extends DeploymentContext {
             AbstractNameQuery corbaGBeanObjectName,
             RefContext refContext) throws DeploymentException {
         super(baseDir, inPlaceConfigurationDir, environment, moduleType, naming, configurationManager, repositories);
-        
+
         moduleName = baseName;
         this.serverName = serverName;
-
+        this.transactionManagerObjectName = transactionManagerObjectName;
         this.transactionContextManagerObjectName = transactionContextManagerObjectName;
         this.connectionTrackerObjectName = connectionTrackerObjectName;
         this.transactedTimerName = transactedTimerName;
@@ -88,6 +88,7 @@ public class EARContext extends DeploymentContext {
             ConfigurationManager configurationManager,
             AbstractNameQuery serverName,
             AbstractName baseName,
+            AbstractNameQuery transactionManagerObjectName,
             AbstractNameQuery transactionContextManagerObjectName,
             AbstractNameQuery connectionTrackerObjectName,
             AbstractNameQuery transactedTimerName,
@@ -99,6 +100,7 @@ public class EARContext extends DeploymentContext {
         moduleName = baseName;
         this.serverName = serverName;
 
+        this.transactionManagerObjectName = transactionManagerObjectName;
         this.transactionContextManagerObjectName = transactionContextManagerObjectName;
         this.connectionTrackerObjectName = connectionTrackerObjectName;
         this.transactedTimerName = transactedTimerName;
@@ -112,6 +114,7 @@ public class EARContext extends DeploymentContext {
         moduleName = baseName;
         this.serverName = parent.getServerName();
 
+        this.transactionManagerObjectName = parent.getTransactionManagerObjectName();
         this.transactionContextManagerObjectName = parent.getTransactionContextManagerObjectName();
         this.connectionTrackerObjectName = parent.getConnectionTrackerObjectName();
         this.transactedTimerName = parent.getTransactedTimerName();
@@ -122,6 +125,10 @@ public class EARContext extends DeploymentContext {
 
     public AbstractNameQuery getServerName() {
         return serverName;
+    }
+
+    public AbstractNameQuery getTransactionManagerObjectName() {
+        return transactionManagerObjectName;
     }
 
     public AbstractNameQuery getTransactionContextManagerObjectName() {

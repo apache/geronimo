@@ -39,7 +39,7 @@
                 <packaging.config.order>1</packaging.config.order>
             </properties>
         </dependency>
-        
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>j2ee-deployer</artifactId>

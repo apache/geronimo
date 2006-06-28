@@ -363,6 +363,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                     earContext.getConfigurationManager(),
                     null, //no server name needed on client
                     clientBaseName,
+                    null,
                     transactionContextManagerObjectName,
                     connectionTrackerObjectName,
                     null,

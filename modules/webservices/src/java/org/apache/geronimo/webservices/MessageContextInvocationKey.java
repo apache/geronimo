@@ -16,7 +16,7 @@
  */
 package org.apache.geronimo.webservices;
 
-import org.apache.geronimo.core.service.InvocationKey;
+import org.apache.geronimo.interceptor.InvocationKey;
 
 /**
  * @version $Rev$ $Date$

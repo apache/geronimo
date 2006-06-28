@@ -61,25 +61,23 @@ import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.gbean.SingleElementCollection;
 import org.apache.geronimo.j2ee.ApplicationInfo;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.management.impl.J2EEApplicationImpl;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.SimpleConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.SimpleConfigurationManager;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.management.J2EEServer;
 import org.apache.geronimo.management.J2EEResource;
+import org.apache.geronimo.management.J2EEServer;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
@@ -114,6 +112,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
     private final Environment defaultEnvironment;
     private final AbstractNameQuery serverName;
+    private final AbstractNameQuery transactionManagerObjectName;
     private final AbstractNameQuery transactionContextManagerObjectName;
     private final AbstractNameQuery connectionTrackerObjectName;
     private final AbstractNameQuery transactionalTimerObjectName;
@@ -121,8 +120,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private final AbstractNameQuery corbaGBeanObjectName;
     private final Naming naming;
 
-
     public EARConfigBuilder(Environment defaultEnvironment,
+            AbstractNameQuery transactionManagerAbstractName,
             AbstractNameQuery transactionContextManagerAbstractName,
             AbstractNameQuery connectionTrackerAbstractName,
             AbstractNameQuery transactionalTimerAbstractName,
@@ -139,6 +138,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             Collection serviceReferenceBuilder,
             Kernel kernel) {
         this(defaultEnvironment,
+                transactionManagerAbstractName,
                 transactionContextManagerAbstractName,
                 connectionTrackerAbstractName,
                 transactionalTimerAbstractName,
@@ -157,6 +157,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 kernel.getNaming());
     }
     public EARConfigBuilder(Environment defaultEnvironment,
+            AbstractNameQuery transactionManagerAbstractName,
             AbstractNameQuery transactionContextManagerAbstractName,
             AbstractNameQuery connectionTrackerAbstractName,
             AbstractNameQuery transactionalTimerAbstractName,
@@ -173,6 +174,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             ServiceReferenceBuilder serviceReferenceBuilder,
             Naming naming) {
         this(defaultEnvironment,
+                transactionManagerAbstractName,
                 transactionContextManagerAbstractName,
                 connectionTrackerAbstractName,
                 transactionalTimerAbstractName,
@@ -192,6 +194,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     }
 
     private EARConfigBuilder(Environment defaultEnvironment,
+            AbstractNameQuery transactionManagerAbstractName,
             AbstractNameQuery transactionContextManagerAbstractName,
             AbstractNameQuery connectionTrackerAbstractName,
             AbstractNameQuery transactionalTimerAbstractName,
@@ -219,6 +222,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         this.connectorConfigBuilder = connectorConfigBuilder;
         this.appClientConfigBuilder = appClientConfigBuilder;
         this.serviceReferenceBuilder = serviceReferenceBuilder;
+        this.transactionManagerObjectName = transactionManagerAbstractName;
         this.transactionContextManagerObjectName = transactionContextManagerAbstractName;
         this.connectionTrackerObjectName = connectionTrackerAbstractName;
         this.transactionalTimerObjectName = transactionalTimerAbstractName;
@@ -455,6 +459,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                     repositories,
                     serverName,
                     applicationInfo.getBaseName(),
+                    transactionManagerObjectName,
                     transactionContextManagerObjectName,
                     connectionTrackerObjectName,
                     transactionalTimerObjectName,
@@ -915,6 +920,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(EARConfigBuilder.class, NameFactory.CONFIG_BUILDER);
         infoFactory.addAttribute("defaultEnvironment", Environment.class, true, true);
+        infoFactory.addAttribute("transactionManagerAbstractName", AbstractNameQuery.class, true);
         infoFactory.addAttribute("transactionContextManagerAbstractName", AbstractNameQuery.class, true);
         infoFactory.addAttribute("connectionTrackerAbstractName", AbstractNameQuery.class, true);
         infoFactory.addAttribute("transactionalTimerAbstractName", AbstractNameQuery.class, true);
@@ -937,6 +943,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
         infoFactory.setConstructor(new String[]{
                 "defaultEnvironment",
+                "transactionManagerAbstractName",
                 "transactionContextManagerAbstractName",
                 "connectionTrackerAbstractName",
                 "transactionalTimerAbstractName",

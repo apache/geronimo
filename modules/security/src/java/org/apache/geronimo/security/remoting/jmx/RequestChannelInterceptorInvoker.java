@@ -24,9 +24,9 @@ import org.activeio.Packet;
 import org.activeio.RequestListener;
 import org.activeio.packet.EmptyPacket;
 
-import org.apache.geronimo.core.service.Interceptor;
-import org.apache.geronimo.core.service.Invocation;
-import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.interceptor.Interceptor;
+import org.apache.geronimo.interceptor.Invocation;
+import org.apache.geronimo.interceptor.InvocationResult;
 
 /**
  * @version $Rev$ $Date$
@@ -61,29 +61,29 @@ public class RequestChannelInterceptorInvoker implements RequestListener {
         Thread currentThread = Thread.currentThread();
         ClassLoader orig = currentThread.getContextClassLoader();
         try {
-            
+
             Invocation marshalledInvocation;
-            
+
             try {
                 currentThread.setContextClassLoader(classloader);
                 marshalledInvocation = (Invocation) RequestChannelInterceptor.deserialize(request,classloader);
             } catch (Throwable e) {
                 // Could not deserialize the invocation...
                 e.printStackTrace();
-                return RequestChannelInterceptor.serialize(new ThrowableWrapper(e));                
+                return RequestChannelInterceptor.serialize(new ThrowableWrapper(e));
             }
 
             try {
                 InvocationResult rc = next.invoke(marshalledInvocation);
-                return RequestChannelInterceptor.serialize(rc);                
+                return RequestChannelInterceptor.serialize(rc);
             } catch (Throwable e) {
-                return RequestChannelInterceptor.serialize(new ThrowableWrapper(e));                
+                return RequestChannelInterceptor.serialize(new ThrowableWrapper(e));
             }
 
-            
+
         } catch (IOException e) {
             // TODO: handle this.
-            return EmptyPacket.EMPTY_PACKET;            
+            return EmptyPacket.EMPTY_PACKET;
         } finally {
             currentThread.setContextClassLoader(orig);
         }

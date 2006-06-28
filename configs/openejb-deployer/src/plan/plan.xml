@@ -17,12 +17,14 @@
 -->
 
 <!-- $Rev$ $Date$ -->
-
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
-
-
-    <gbean name="EJBBuilder" class="org.openejb.deployment.OpenEJBModuleBuilder">
+    <gbean name="EJBBuilder" class="org.openejb.deployment.OpenEjbModuleBuilder">
         <attribute name="listener">?name=WebContainer</attribute>
+        <attribute name="defaultStatelessEjbContainer">StatelessEjbContainer</attribute>
+        <attribute name="defaultStatefulEjbContainer">StatefulEjbContainer</attribute>
+        <attribute name="defaultBmpEjbContainer">BmpEjbContainer</attribute>
+        <attribute name="defaultCmpEjbContainer">CmpEjbContainer</attribute>
+        <attribute name="defaultMdbEjbContainer">MdbEjbContainer</attribute>
         <reference name="WebServiceLinkTemplate">
             <name>WebServiceEJBLinkTemplate</name>
         </reference>
@@ -57,8 +59,12 @@
     <gbean name="CSSAttributeBuilder" class="org.openejb.corba.security.config.css.CSSConfigEditor"/>
     <gbean name="TSSAttributeBuilder" class="org.openejb.corba.security.config.tss.TSSConfigEditor"/>
 
-    <gbean name="ClientEJBReferenceBuilder" class="org.openejb.deployment.RemoteEJBReferenceBuilder"/>
-    <gbean name="ServerEJBReferenceBuilder" class="org.openejb.deployment.OpenEJBReferenceBuilder"/>
+    <gbean name="ClientEJBReferenceBuilder" class="org.openejb.deployment.RemoteEjbReferenceBuilder">
+        <attribute name="host">${PlanServerHostname}</attribute>
+        <attribute name="port">${PlanOpenEJBPort}</attribute>
+    </gbean>
+
+    <gbean name="ServerEJBReferenceBuilder" class="org.openejb.deployment.OpenEjbReferenceBuilder"/>
     <gbean name="WebServiceEJBLinkTemplate" class="org.openejb.server.axis.WSContainerGBean"/>
 
 </module>

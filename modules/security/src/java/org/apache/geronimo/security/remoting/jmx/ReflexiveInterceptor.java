@@ -15,15 +15,15 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.proxy;
+package org.apache.geronimo.security.remoting.jmx;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import org.apache.geronimo.core.service.Interceptor;
-import org.apache.geronimo.core.service.Invocation;
-import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.core.service.SimpleInvocationResult;
+import org.apache.geronimo.interceptor.Interceptor;
+import org.apache.geronimo.interceptor.Invocation;
+import org.apache.geronimo.interceptor.InvocationResult;
+import org.apache.geronimo.interceptor.SimpleInvocationResult;
 
 /**
  * @version $Rev$ $Date$
@@ -38,9 +38,9 @@ public class ReflexiveInterceptor implements Interceptor {
 
     public InvocationResult invoke(Invocation invocation) throws Throwable {
         try {
-
-            Method m = ProxyInvocation.getMethod(invocation);
-            Object args[] = ProxyInvocation.getArguments(invocation);
+            SerializableInvocation proxyInvocation = (SerializableInvocation) invocation;
+            Method m = proxyInvocation.getMethod();
+            Object args[] = proxyInvocation.getArgs();
             Object rc = m.invoke(target, args);
             return new SimpleInvocationResult(true, rc);
 

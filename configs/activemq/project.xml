@@ -34,47 +34,11 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-gbean-deployer</artifactId>
-            <version>${geronimo_version}</version>
-            <type>car</type>
-            <properties>
-                <packaging.config.order>1</packaging.config.order>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
             <artifactId>j2ee-deployer</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
             <properties>
-                <packaging.config.order>2</packaging.config.order>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>openejb-deployer</artifactId>
-            <version>${geronimo_version}</version>
-            <type>car</type>
-            <properties>
-                <packaging.config.order>3</packaging.config.order>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>axis-deployer</artifactId>
-            <version>${geronimo_version}</version>
-            <type>car</type>
-            <properties>
-                <packaging.config.order>4</packaging.config.order>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>client-deployer</artifactId>
-            <version>${geronimo_version}</version>
-            <type>car</type>
-            <properties>
-                <packaging.config.order>5</packaging.config.order>
+                <packaging.config.order>1</packaging.config.order>
             </properties>
         </dependency>
 

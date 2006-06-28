@@ -61,7 +61,7 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>openejb-deployer</artifactId>
+            <artifactId>axis-deployer</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
             <properties>
@@ -70,7 +70,7 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>axis-deployer</artifactId>
+            <artifactId>openejb-deployer</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
             <properties>

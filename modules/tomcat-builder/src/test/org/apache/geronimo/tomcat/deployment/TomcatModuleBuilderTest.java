@@ -198,6 +198,7 @@ public class TomcatModuleBuilderTest extends TestCase {
                 repositories,
                 new AbstractNameQuery(serverName),
                 moduleName,
+                null,
                 new AbstractNameQuery(tcmName),
                 new AbstractNameQuery(ctcName),
                 null,

@@ -46,7 +46,7 @@
         <!-- only for ComponentContextInterceptor -->
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-core</artifactId>
+            <artifactId>geronimo-interceptor</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
 

@@ -28,9 +28,11 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Rev: 385487 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class EJBModule extends Module {
+    private AbstractName moduleCmpEngineName;
+
     public EJBModule(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
         super(standAlone, moduleName, environment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null);
     }
@@ -41,6 +43,14 @@ public class EJBModule extends Module {
 
     public void addClass(URI location, String fqcn, byte[] bytes, DeploymentContext context) throws IOException, URISyntaxException {
         context.addClass(location, fqcn, bytes);
+    }
+
+    public AbstractName getModuleCmpEngineName() {
+        return moduleCmpEngineName;
+    }
+
+    public void setModuleCmpEngineName(AbstractName moduleCmpEngineName) {
+        this.moduleCmpEngineName = moduleCmpEngineName;
     }
 }
 

@@ -17,21 +17,26 @@
 
 package org.apache.geronimo.transaction.context;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import javax.resource.spi.XATerminator;
+import javax.transaction.InvalidTransactionException;
+import javax.transaction.NotSupportedException;
+import javax.transaction.Status;
+import javax.transaction.SystemException;
+import javax.transaction.Transaction;
+import javax.transaction.TransactionManager;
+import javax.transaction.xa.XAException;
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.transaction.ExtendedTransactionManager;
 import org.apache.geronimo.transaction.ImportedTransactionActiveException;
 import org.apache.geronimo.transaction.XAWork;
 import org.apache.geronimo.transaction.manager.XidImporter;
-
-import javax.resource.spi.XATerminator;
-import javax.transaction.*;
-import javax.transaction.xa.XAException;
-import javax.transaction.xa.XAResource;
-import javax.transaction.xa.Xid;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 /**
  * @version $Rev$ $Date$
@@ -82,7 +87,7 @@ public class TransactionContextManager implements XATerminator, XAWork {
 
     public TransactionContext newBeanTransactionContext(long transactionTimeoutMilliseconds) throws NotSupportedException, SystemException {
         TransactionContext ctx = getContext();
-        if (ctx instanceof UnspecifiedTransactionContext == false) {
+        if (!(ctx instanceof UnspecifiedTransactionContext)) {
             throw new NotSupportedException("Previous Transaction has not been committed");
         }
         UnspecifiedTransactionContext oldContext = (UnspecifiedTransactionContext) ctx;

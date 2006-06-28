@@ -44,7 +44,7 @@
     </goal>
 
     <goal name="new2">
-        <maven:reactor basedir="${basedir}" includes="openejb/modules/core/project.xml,openejb/modules/pkgen-builder/project.xml,openejb/modules/openejb-builder/project.xml"
+        <maven:reactor basedir="${basedir}" includes="openejb/modules/openejb-core/project.xml,openejb/modules/openejb-pkgen-builder/project.xml,openejb/modules/openejb-builder/project.xml"
             excludes="" goals="multiproject:install-callback" banner="openejb" ignoreFailures="false" />
     </goal>
 

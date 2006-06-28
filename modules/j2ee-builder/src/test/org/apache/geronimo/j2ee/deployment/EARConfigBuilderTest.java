@@ -42,6 +42,7 @@ import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationData;
@@ -99,6 +100,7 @@ public class EARConfigBuilderTest extends TestCase {
     private Environment defaultParentId;
     private static String contextRoot = "test";
     private static final Map portMap = null;
+    private final AbstractNameQuery transactionManagerAbstractNameQuery = new AbstractNameQuery(transactionManagerObjectName, null);
     private final AbstractNameQuery transactionContextManagerAbstractNameQuery = new AbstractNameQuery(transactionManagerObjectName, null);
     private final AbstractNameQuery connectionTrackerAbstractNameQuery = new AbstractNameQuery(connectionTrackerObjectName, null);
     private final AbstractNameQuery transactionalTimerAbstractNameQuery = new AbstractNameQuery(transactionalTimerObjectName, null);
@@ -259,6 +261,7 @@ public class EARConfigBuilderTest extends TestCase {
         DeploymentContext context = null;
         try {
             EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
+                    transactionManagerAbstractNameQuery,
                     transactionContextManagerAbstractNameQuery,
                     connectionTrackerAbstractNameQuery,
                     transactionalTimerAbstractNameQuery,
@@ -277,7 +280,7 @@ public class EARConfigBuilderTest extends TestCase {
 
             Object plan = configBuilder.getDeploymentPlan(null, earFile, idBuilder);
             context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earFile, idBuilder), plan, earFile, Collections.singleton(configStore), artifactResolver, configStore);
-            configurationData = context.getConfigurationData();
+            configurationData = getConfigurationData(context);
         } finally {
             if (context != null) {
                 context.close();
@@ -290,6 +293,7 @@ public class EARConfigBuilderTest extends TestCase {
 
     public void testBadEJBJARConfiguration() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
+                transactionManagerAbstractNameQuery,
                 transactionContextManagerAbstractNameQuery,
                 connectionTrackerAbstractNameQuery,
                 transactionalTimerAbstractNameQuery,
@@ -311,7 +315,7 @@ public class EARConfigBuilderTest extends TestCase {
         try {
             Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-ejb-jar.xml"), earFile, idBuilder);
             context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earFile, idBuilder), plan, earFile, Collections.singleton(configStore), artifactResolver, configStore);
-            configurationData = context.getConfigurationData();
+            configurationData = getConfigurationData(context);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
             if (e.getCause() instanceof IOException) {
@@ -329,6 +333,7 @@ public class EARConfigBuilderTest extends TestCase {
 
     public void testBadWARConfiguration() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
+                transactionManagerAbstractNameQuery,
                 transactionContextManagerAbstractNameQuery,
                 connectionTrackerAbstractNameQuery,
                 transactionalTimerAbstractNameQuery,
@@ -350,7 +355,7 @@ public class EARConfigBuilderTest extends TestCase {
         try {
             Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-war.xml"), earFile, idBuilder);
             context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earFile, idBuilder), plan, earFile, Collections.singleton(configStore), artifactResolver, configStore);
-            configurationData = context.getConfigurationData();
+            configurationData = getConfigurationData(context);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
             if (e.getCause() instanceof IOException) {
@@ -368,6 +373,7 @@ public class EARConfigBuilderTest extends TestCase {
 
     public void testBadRARConfiguration() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
+                transactionManagerAbstractNameQuery,
                 transactionContextManagerAbstractNameQuery,
                 connectionTrackerAbstractNameQuery,
                 transactionalTimerAbstractNameQuery,
@@ -389,7 +395,7 @@ public class EARConfigBuilderTest extends TestCase {
         try {
             Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-rar.xml"), earFile, idBuilder);
             context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earFile, idBuilder), plan, earFile, Collections.singleton(configStore), artifactResolver, configStore);
-            configurationData = context.getConfigurationData();
+            configurationData = getConfigurationData(context);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
             if (e.getCause() instanceof IOException) {
@@ -407,6 +413,7 @@ public class EARConfigBuilderTest extends TestCase {
 
     public void testBadCARConfiguration() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
+                transactionManagerAbstractNameQuery,
                 transactionContextManagerAbstractNameQuery,
                 connectionTrackerAbstractNameQuery,
                 transactionalTimerAbstractNameQuery,
@@ -428,7 +435,7 @@ public class EARConfigBuilderTest extends TestCase {
         try {
             Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-car.xml"), earFile, idBuilder);
             context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earFile, idBuilder), plan, earFile, Collections.singleton(configStore), artifactResolver, configStore);
-            configurationData = context.getConfigurationData();
+            configurationData = getConfigurationData(context);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
             if (e.getCause() instanceof IOException) {
@@ -446,6 +453,7 @@ public class EARConfigBuilderTest extends TestCase {
 
     public void testNoEJBDeployer() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
+                transactionManagerAbstractNameQuery,
                 transactionContextManagerAbstractNameQuery,
                 connectionTrackerAbstractNameQuery,
                 transactionalTimerAbstractNameQuery,
@@ -468,7 +476,7 @@ public class EARConfigBuilderTest extends TestCase {
         try {
             Object plan = configBuilder.getDeploymentPlan(null, earFile, idBuilder);
             context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earFile, idBuilder), plan, earFile, Collections.singleton(configStore), artifactResolver, configStore);
-            configurationData = context.getConfigurationData();
+            configurationData = getConfigurationData(context);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
             // expected
@@ -484,6 +492,7 @@ public class EARConfigBuilderTest extends TestCase {
 
     public void testNoWARDeployer() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
+                transactionManagerAbstractNameQuery,
                 transactionContextManagerAbstractNameQuery,
                 connectionTrackerAbstractNameQuery,
                 transactionalTimerAbstractNameQuery,
@@ -505,7 +514,7 @@ public class EARConfigBuilderTest extends TestCase {
         try {
             Object plan = configBuilder.getDeploymentPlan(null, earFile, idBuilder);
             context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earFile, idBuilder), plan, earFile, Collections.singleton(configStore), artifactResolver, configStore);
-            configurationData = context.getConfigurationData();
+            configurationData = getConfigurationData(context);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
             // expected
@@ -521,6 +530,7 @@ public class EARConfigBuilderTest extends TestCase {
 
     public void testNoConnectorDeployer() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
+                transactionManagerAbstractNameQuery,
                 transactionContextManagerAbstractNameQuery,
                 connectionTrackerAbstractNameQuery,
                 transactionalTimerAbstractNameQuery,
@@ -542,7 +552,7 @@ public class EARConfigBuilderTest extends TestCase {
         try {
             Object plan = configBuilder.getDeploymentPlan(null, earFile, idBuilder);
             context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earFile, idBuilder), plan, earFile, Collections.singleton(configStore), artifactResolver, configStore);
-            configurationData = context.getConfigurationData();
+            configurationData = getConfigurationData(context);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
             // expected
@@ -554,6 +564,13 @@ public class EARConfigBuilderTest extends TestCase {
                 DeploymentUtil.recursiveDelete(configurationData.getConfigurationDir());
             }
         }
+    }
+
+    private ConfigurationData getConfigurationData(DeploymentContext context) throws Exception {
+        // add the a j2ee server so the application context reference can be resolved
+        context.addGBean("geronimo", J2EEServerImpl.GBEAN_INFO);
+
+        return context.getConfigurationData();
     }
 
     private static void close(Module module) {
