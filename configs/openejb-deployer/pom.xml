@@ -32,6 +32,15 @@
     <packaging>car</packaging>
     <name>openejb Configuration for performing J2EE deployments</name>
     
+    <properties>
+        <!--<PlanHTTPPort>8080</PlanHTTPPort>-->
+        <!--<PlanHTTPSPort>8443</PlanHTTPSPort>-->
+        <PlanOpenEJBPort>4201</PlanOpenEJBPort>
+        <PlanServerHostname>localhost</PlanServerHostname>
+        <!--<PlanClientAddresses>127.0.0.1</PlanClientAddresses>-->
+        <!--<PlanRemoteLoginPort>4242</PlanRemoteLoginPort>-->
+    </properties>
+
     <build>
         <plugins>
             <plugin>
@@ -57,13 +66,13 @@
         </dependency>
 
         <!-- import the classes ???? -->
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>j2ee-server</artifactId>
-            <version>${geronimoVersion}</version>
-            <type>car</type>
-            <scope>compile</scope>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.configs</groupId>-->
+            <!--<artifactId>j2ee-server</artifactId>-->
+            <!--<version>${geronimoVersion}</version>-->
+            <!--<type>car</type>-->
+            <!--<scope>compile</scope>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>

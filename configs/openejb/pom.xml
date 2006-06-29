@@ -70,12 +70,10 @@
             <version>${geronimoVersion}</version>
             <type>car</type>
         </dependency>
-        <!-- only include classes -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>system-database</artifactId>
             <version>${geronimoVersion}</version>
-            <scope>compile</scope> <!-- this is a hack -->
             <type>car</type>
         </dependency>
 
@@ -84,22 +82,22 @@
             <artifactId>openejb-core</artifactId>
             <version>${openejbVersion}</version>
         </dependency>
-        <dependency>
-            <groupId>tranql</groupId>
-            <artifactId>tranql</artifactId>
-            <version>${tranqlVersion}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>tranql</groupId>-->
+            <!--<artifactId>tranql</artifactId>-->
+            <!--<version>${tranqlVersion}</version>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>antlr</groupId>
-            <artifactId>antlr</artifactId>
-            <version>${antlrVersion}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>antlr</groupId>-->
+            <!--<artifactId>antlr</artifactId>-->
+            <!--<version>${antlrVersion}</version>-->
+        <!--</dependency>-->
         <!-- for GBean in the plan -->
-        <dependency>
-            <groupId>activeio</groupId>
-            <artifactId>activeio</artifactId>
-            <version>${activeIoVersion}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>activeio</groupId>-->
+            <!--<artifactId>activeio</artifactId>-->
+            <!--<version>${activeIoVersion}</version>-->
+        <!--</dependency>-->
     </dependencies>
 </project>
