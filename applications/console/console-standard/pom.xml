@@ -27,7 +27,6 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <modelVersion>4.0.0</modelVersion>
     <artifactId>geronimo-console-standard</artifactId>
     <packaging>war</packaging>
     <name>Geronimo :: Console :: Standard Portlets</name>

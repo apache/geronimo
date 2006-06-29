@@ -27,7 +27,6 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.geronimo.applications.magicGball</groupId>
     <artifactId>magicGball-parent</artifactId>
     <packaging>pom</packaging>
