@@ -136,7 +136,7 @@
          | Geronimo plugin versions
          |
          -->
-        <geronimoPackagingPluginVersion>1.2.0</geronimoPackagingPluginVersion>
+        <geronimoPackagingPluginVersion>1.2-SNAPSHOT</geronimoPackagingPluginVersion>
 
         <!--
          |
