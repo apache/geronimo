@@ -297,7 +297,7 @@
         <dependency>
             <groupId>axion</groupId>
             <artifactId>axion</artifactId>
-            <version>1.0-M3-dev</version>
+            <version>${axion_version}</version>
         </dependency>
         <dependency>
             <groupId>activemq</groupId>
