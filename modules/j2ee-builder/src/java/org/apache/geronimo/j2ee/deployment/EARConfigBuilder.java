@@ -44,13 +44,14 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
+import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
+import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
-import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.util.NestedJarFile;
 import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
-import org.apache.geronimo.deployment.xbeans.GbeanType;
+import org.apache.geronimo.deployment.xbeans.ServiceDocument;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -79,12 +80,11 @@ import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.management.J2EEResource;
 import org.apache.geronimo.management.J2EEServer;
 import org.apache.geronimo.schema.SchemaConversionUtils;
-import org.apache.geronimo.security.deployment.SecurityBuilder;
-import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationDocument;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerExtModuleType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerModuleType;
+import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
 import org.apache.geronimo.xbeans.j2ee.ApplicationType;
 import org.apache.geronimo.xbeans.j2ee.ModuleType;
 import org.apache.xmlbeans.XmlException;
@@ -99,6 +99,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private static final String LINE_SEP = System.getProperty("line.separator");
 
     private final static QName APPLICATION_QNAME = GerApplicationDocument.type.getDocumentElementName();
+    private static final QName SECURITY_QNAME = GerSecurityDocument.type.getDocumentElementName();
+    private static final QName SERVICE_QNAME = ServiceDocument.type.getDocumentElementName();
 
     private final ConfigurationManager configurationManager;
     private final Collection repositories;
@@ -109,6 +111,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private final SingleElementCollection ejbReferenceBuilder;
     private final SingleElementCollection resourceReferenceBuilder;
     private final SingleElementCollection serviceReferenceBuilder;
+    private final NamespaceDrivenBuilderCollection securityBuilders;
+    private final NamespaceDrivenBuilderCollection serviceBuilders;
 
     private final Environment defaultEnvironment;
     private final AbstractNameQuery serverName;
@@ -136,6 +140,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             Collection resourceReferenceBuilder,
             Collection appClientConfigBuilder,
             Collection serviceReferenceBuilder,
+            Collection securityBuilders,
+            Collection serviceBuilders,
             Kernel kernel) {
         this(defaultEnvironment,
                 transactionManagerAbstractName,
@@ -154,6 +160,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 new SingleElementCollection(resourceReferenceBuilder),
                 new SingleElementCollection(appClientConfigBuilder),
                 new SingleElementCollection(serviceReferenceBuilder),
+                securityBuilders,
+                serviceBuilders,
                 kernel.getNaming());
     }
     public EARConfigBuilder(Environment defaultEnvironment,
@@ -172,6 +180,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             ResourceReferenceBuilder resourceReferenceBuilder,
             ModuleBuilder appClientConfigBuilder,
             ServiceReferenceBuilder serviceReferenceBuilder,
+            NamespaceDrivenBuilder securityBuilder,
+            NamespaceDrivenBuilder serviceBuilder,
             Naming naming) {
         this(defaultEnvironment,
                 transactionManagerAbstractName,
@@ -190,6 +200,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 new SingleElementCollection(resourceReferenceBuilder),
                 new SingleElementCollection(appClientConfigBuilder),
                 new SingleElementCollection(serviceReferenceBuilder),
+                securityBuilder == null? Collections.EMPTY_SET: Collections.singleton(securityBuilder),
+                serviceBuilder == null? Collections.EMPTY_SET: Collections.singleton(serviceBuilder),
                 naming);
     }
 
@@ -210,7 +222,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             SingleElementCollection resourceReferenceBuilder,
             SingleElementCollection appClientConfigBuilder,
             SingleElementCollection serviceReferenceBuilder,
-            Naming naming) {
+            Collection securityBuilders,
+            Collection serviceBuilders, Naming naming) {
         this.configurationManager = configurationManager;
         this.repositories = repositories;
         this.defaultEnvironment = defaultEnvironment;
@@ -222,6 +235,9 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         this.connectorConfigBuilder = connectorConfigBuilder;
         this.appClientConfigBuilder = appClientConfigBuilder;
         this.serviceReferenceBuilder = serviceReferenceBuilder;
+        this.securityBuilders = new NamespaceDrivenBuilderCollection(securityBuilders);
+        this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders);
+
         this.transactionManagerObjectName = transactionManagerAbstractName;
         this.transactionContextManagerObjectName = transactionContextManagerAbstractName;
         this.connectionTrackerObjectName = connectionTrackerAbstractName;
@@ -327,14 +343,14 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             XmlObject rawPlan;
             try {
                 if (planFile != null) {
-                    rawPlan = XmlBeansUtil.parse(planFile.toURL());
+                    rawPlan = XmlBeansUtil.parse(planFile.toURL(), getClass().getClassLoader());
                     gerApplication = (GerApplicationType) SchemaConversionUtils.fixGeronimoSchema(rawPlan, APPLICATION_QNAME, GerApplicationType.type);
                     if (gerApplication == null) {
                         return null;
                     }
                 } else {
                     URL path = DeploymentUtil.createJarURL(earFile, "META-INF/geronimo-application.xml");
-                    rawPlan = XmlBeansUtil.parse(path);
+                    rawPlan = XmlBeansUtil.parse(path, getClass().getClassLoader());
                     gerApplication = (GerApplicationType) SchemaConversionUtils.fixGeronimoSchema(rawPlan, APPLICATION_QNAME, GerApplicationType.type);
                 }
             } catch (IOException e) {
@@ -507,8 +523,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
             // add gbeans declared in the geronimo-application.xml
             if (geronimoApplication != null) {
-                GbeanType[] gbeans = geronimoApplication.getGbeanArray();
-                ServiceConfigBuilder.addGBeans(gbeans, cl, earContext.getModuleName(), earContext);
+                securityBuilders.build(geronimoApplication, earContext, earContext);
+                serviceBuilders.build(geronimoApplication, earContext, earContext);
             }
 
             // Create the J2EEApplication managed object
@@ -543,22 +559,6 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 gbeanData.setReferencePatterns("ResourceAdapterModules", new ReferencePatterns(new AbstractNameQuery(null, thisApp, org.apache.geronimo.management.geronimo.ResourceAdapterModule.class.getName())));
                 gbeanData.setReferencePatterns("WebModules", new ReferencePatterns(new AbstractNameQuery(null, thisApp, org.apache.geronimo.management.geronimo.WebModule.class.getName())));
                 earContext.addGBean(gbeanData);
-            }
-
-            //look for application plan security config
-            if (geronimoApplication != null && geronimoApplication.isSetSecurity()) {
-                SecurityConfiguration securityConfiguration = SecurityBuilder.buildSecurityConfiguration(geronimoApplication.getSecurity(), cl);
-                earContext.setSecurityConfiguration(securityConfiguration);
-            }
-
-            //add the JACC gbean if there is a principal-role mapping
-            if (earContext.getSecurityConfiguration() != null) {
-                GBeanData roleMapperData = SecurityBuilder.configureRoleMapper(naming, earContext.getModuleName(), earContext.getSecurityConfiguration());
-                earContext.addGBean(roleMapperData);
-                GBeanData jaccBeanData = SecurityBuilder.configureApplicationPolicyManager(naming, earContext.getModuleName(), earContext.getContextIDToPermissionsMap(), earContext.getSecurityConfiguration());
-                jaccBeanData.setReferencePattern("PrincipalRoleMapper", roleMapperData.getAbstractName());
-                earContext.addGBean(jaccBeanData);
-                earContext.setJaccManagerName(jaccBeanData.getAbstractName());
             }
 
             // each module can now add it's GBeans
@@ -619,11 +619,11 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private boolean cleanupConfigurationDir(File configurationDir)
     {
         LinkedList cannotBeDeletedList = new LinkedList();
-               
+
         if (!DeploymentUtil.recursiveDelete(configurationDir,cannotBeDeletedList)) {
             // Output a message to help user track down file problem
-            log.warn("Unable to delete " + cannotBeDeletedList.size() + 
-                    " files while recursively deleting directory " 
+            log.warn("Unable to delete " + cannotBeDeletedList.size() +
+                    " files while recursively deleting directory "
                     + configurationDir + LINE_SEP +
                     "The first file that could not be deleted was:" + LINE_SEP + "  "+
                     ( !cannotBeDeletedList.isEmpty() ? cannotBeDeletedList.getFirst() : "") );
@@ -631,7 +631,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         }
         return true;
     }
-    
+
     private static Map filter(Map original, String key, String value) {
         LinkedHashMap filter = new LinkedHashMap(original);
         filter.put(key, value);
@@ -918,30 +918,32 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(EARConfigBuilder.class, NameFactory.CONFIG_BUILDER);
-        infoFactory.addAttribute("defaultEnvironment", Environment.class, true, true);
-        infoFactory.addAttribute("transactionManagerAbstractName", AbstractNameQuery.class, true);
-        infoFactory.addAttribute("transactionContextManagerAbstractName", AbstractNameQuery.class, true);
-        infoFactory.addAttribute("connectionTrackerAbstractName", AbstractNameQuery.class, true);
-        infoFactory.addAttribute("transactionalTimerAbstractName", AbstractNameQuery.class, true);
-        infoFactory.addAttribute("nonTransactionalTimerAbstractName", AbstractNameQuery.class, true);
-        infoFactory.addAttribute("corbaGBeanAbstractName", AbstractNameQuery.class, true);
-        infoFactory.addAttribute("serverName", AbstractNameQuery.class, true);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(EARConfigBuilder.class, NameFactory.CONFIG_BUILDER);
+        infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
+        infoBuilder.addAttribute("transactionManagerAbstractName", AbstractNameQuery.class, true);
+        infoBuilder.addAttribute("transactionContextManagerAbstractName", AbstractNameQuery.class, true);
+        infoBuilder.addAttribute("connectionTrackerAbstractName", AbstractNameQuery.class, true);
+        infoBuilder.addAttribute("transactionalTimerAbstractName", AbstractNameQuery.class, true);
+        infoBuilder.addAttribute("nonTransactionalTimerAbstractName", AbstractNameQuery.class, true);
+        infoBuilder.addAttribute("corbaGBeanAbstractName", AbstractNameQuery.class, true);
+        infoBuilder.addAttribute("serverName", AbstractNameQuery.class, true);
 
-        infoFactory.addReference("Repositories", Repository.class, "Repository");
-        infoFactory.addReference("EJBConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
-        infoFactory.addReference("EJBReferenceBuilder", EJBReferenceBuilder.class, NameFactory.MODULE_BUILDER);
-        infoFactory.addReference("WebConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
-        infoFactory.addReference("ConnectorConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
-        infoFactory.addReference("ResourceReferenceBuilder", ResourceReferenceBuilder.class, NameFactory.MODULE_BUILDER);
-        infoFactory.addReference("AppClientConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
-        infoFactory.addReference("ServiceReferenceBuilder", ServiceReferenceBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("Repositories", Repository.class, "Repository");
+        infoBuilder.addReference("EJBConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("EJBReferenceBuilder", EJBReferenceBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("WebConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("ConnectorConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("ResourceReferenceBuilder", ResourceReferenceBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("AppClientConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("ServiceReferenceBuilder", ServiceReferenceBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("SecurityBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
 
-        infoFactory.addAttribute("kernel", Kernel.class, false);
+        infoBuilder.addAttribute("kernel", Kernel.class, false);
 
-        infoFactory.addInterface(ConfigurationBuilder.class);
+        infoBuilder.addInterface(ConfigurationBuilder.class);
 
-        infoFactory.setConstructor(new String[]{
+        infoBuilder.setConstructor(new String[]{
                 "defaultEnvironment",
                 "transactionManagerAbstractName",
                 "transactionContextManagerAbstractName",
@@ -958,10 +960,12 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 "ResourceReferenceBuilder",
                 "AppClientConfigBuilder",
                 "ServiceReferenceBuilder",
+                "SecurityBuilders",
+                "ServiceBuilders",
                 "kernel"
         });
 
-        GBEAN_INFO = infoFactory.getBeanInfo();
+        GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {

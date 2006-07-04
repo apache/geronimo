@@ -41,6 +41,8 @@
             </activation>
             <modules>
                 <module>activation</module>
+                <module>activemq-gbean</module>
+                <module>activemq-gbean-management</module>
                 <module>activemq-embedded-rar</module>
                 <module>axis</module>
                 <module>axis-builder</module>

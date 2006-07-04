@@ -33,7 +33,7 @@ import org.apache.geronimo.security.jacc.ComponentPermissions;
 /**
  * Tests the JAAS security for Tomcat
  *
- * @version $Revision: 387050 $ $Date$
+ * @version $Revision$ $Date$
  */
 public class JAASSecurityTest extends AbstractWebModuleTest {
 

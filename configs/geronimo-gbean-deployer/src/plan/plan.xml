@@ -35,6 +35,13 @@
             <!--<pattern><gbean-name>geronimo.maven:name=Repository</gbean-name></pattern>-->
             <!--<pattern><gbean-name>geronimo.server:name=Repository,*</gbean-name></pattern>-->
         </reference>
+        <reference name="ServiceBuilders">
+            <name>GBeanBuilder</name>
+        </reference>
+    </gbean>
+
+    <!-- NamespaceDriveBuilder for handling gbeans -->
+    <gbean name="GBeanBuilder" class="org.apache.geronimo.deployment.service.GBeanBuilder">
         <reference name="XmlAttributeBuilders">
             <!--<module>*</module>-->
             <!--<name>*</name>-->

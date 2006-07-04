@@ -36,7 +36,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>xmlbeans-maven-plugin</artifactId>
-                <version>${xmlbeansMavenPluginVersion}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -46,8 +45,10 @@
                 </executions>
 
                 <configuration>
-                    <download>true</download>
-                    <sourceSchemas>j2ee_1_4schema/application_1_4.xsd,j2ee_1_4schema/j2ee_jaxrpc_mapping_1_1.xsd,j2ee_1_3schema/connector_1_0.xsd,j2ee_1_4schema/j2ee_1_4.xsd,j2ee_1_4schema/connector_1_5.xsd,j2ee_1_4schema/ejb-jar_2_1.xsd,j2ee_1_4schema/web-app_2_4.xsd,j2ee_1_4schema/application-client_1_4.xsd,j2ee_1_4schema/j2ee_web_services_1_1.xsd</sourceSchemas>
+                    <!--<download>true</download>-->
+                    <debug>true</debug>
+                    <catalogLocation>${basedir}/src/catalog/resolver-catalog.xml</catalogLocation>
+                    <sourceSchemas>j2ee_1_4schema/application_1_4.xsd,j2ee_1_4schema/j2ee_jaxrpc_mapping_1_1.xsd,j2ee_1_3schema/connector_1_0.xsd,j2ee_1_4schema/j2ee_1_4.xsd,j2ee_1_4schema/connector_1_5.xsd,j2ee_1_4schema/ejb-jar_2_1.xsd,j2ee_1_4schema/web-app_2_4.xsd,j2ee_1_4schema/application-client_1_4.xsd,j2ee_1_4schema/j2ee_web_services_1_1.xsd,j2ee_1_4schema/j2ee_web_services_client_1_1.xsd</sourceSchemas>
                     <schemaDirectory>src</schemaDirectory>
                     <!-- <catalogLocation>src/catalog</catalogLocation> -->
                     <xmlConfigs>
@@ -59,6 +60,11 @@
     </build>
 
     <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-service-builder</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>xmlbeans</groupId>
             <artifactId>xbean</artifactId>

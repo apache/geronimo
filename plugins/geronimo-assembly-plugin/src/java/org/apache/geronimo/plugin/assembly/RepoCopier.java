@@ -28,7 +28,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class RepoCopier {
 

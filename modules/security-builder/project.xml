@@ -72,6 +72,15 @@
             <artifactId>geronimo-deployment</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
+        
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-j2ee-builder</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <xmlbeans>true</xmlbeans>
+            </properties>
+        </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>

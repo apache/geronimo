@@ -22,7 +22,8 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.geronimo.deployment.xbeans.ServiceDocument;
-import org.apache.geronimo.deployment.xbeans.ServiceType;
+import org.apache.geronimo.deployment.xbeans.DependenciesType;
+import org.apache.geronimo.deployment.xbeans.DependenciesDocument;
 import org.apache.maven.project.Dependency;
 import org.apache.maven.repository.Artifact;
 import org.apache.xmlbeans.XmlOptions;
@@ -62,8 +63,8 @@ public class GenerateServiceXml {
         if (targetDir == null) {
             throw new RuntimeException("No target directory supplied");
         }
-        ServiceDocument serviceDocument = ServiceDocument.Factory.newInstance();
-        ServiceType serviceType = serviceDocument.addNewService();
+        DependenciesDocument serviceDocument = DependenciesDocument.Factory.newInstance();
+        DependenciesType serviceType = serviceDocument.addNewDependencies();
         for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
             Artifact artifact = (Artifact) iterator.next();
             Dependency dependency = artifact.getDependency();

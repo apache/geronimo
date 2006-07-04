@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.jar.JarOutputStream;
 
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
+import org.apache.geronimo.deployment.service.GBeanBuilder;
 import org.apache.geronimo.deployment.xbeans.ModuleDocument;
 import org.apache.geronimo.deployment.xbeans.ModuleType;
 import org.apache.geronimo.kernel.Jsr77Naming;
@@ -71,7 +72,8 @@ public class PluginBootstrap2 {
         ModuleType config = ModuleDocument.Factory.parse(plan).getModule();
 
         Maven2Repository repository = new Maven2Repository(localRepo);
-        ServiceConfigBuilder builder = new ServiceConfigBuilder(null, Collections.singleton(repository), new Jsr77Naming());
+        GBeanBuilder gBeanBuilder = new GBeanBuilder(null, null);
+        ServiceConfigBuilder builder = new ServiceConfigBuilder(null, Collections.singleton(repository), Collections.singleton(gBeanBuilder), new Jsr77Naming());
         ConfigurationStore targetConfigurationStore = new NullConfigurationStore() {
             public File createNewConfigurationDir(Artifact configId) throws ConfigurationAlreadyExistsException {
                 return buildDir;

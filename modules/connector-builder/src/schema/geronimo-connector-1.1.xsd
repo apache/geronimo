@@ -297,7 +297,7 @@
 
             <xs:element name="adminobject" type="ger:adminobjectType" minOccurs="0" maxOccurs="unbounded"/>
 
-            <xs:element ref="sys:gbean" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="sys:service" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
 
     </xs:complexType>

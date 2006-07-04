@@ -31,7 +31,7 @@ import java.io.FileOutputStream;
 import junit.framework.TestCase;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class UrlResourceFinderTest extends TestCase {
     private File jarFile;

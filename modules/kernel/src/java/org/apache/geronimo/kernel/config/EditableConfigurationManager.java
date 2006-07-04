@@ -25,7 +25,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
  * A specialized ConfigurationManager that can change the set of GBeans
  * included in the configuration at runtime.
  *
- * @version $Rev: 384351 $ $Date$
+ * @version $Rev$ $Date$
  */
 public interface EditableConfigurationManager extends ConfigurationManager {
     /**

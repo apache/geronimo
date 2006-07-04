@@ -69,8 +69,8 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
-                <!-- <module>activemq</module> -->
-                <!-- <module>activemq-broker</module> -->
+                <!--<module>activemq-broker</module>-->
+                <!--<module>activemq</module>-->
                 <module>axis</module>
                 <module>axis-deployer</module>
                 <module>client</module>
@@ -78,10 +78,10 @@
                 <module>client-deployer</module>
                 <module>client-security</module>
                 <module>client-system</module>
-                <!-- <module>console-jetty</module> -->
-                <!-- <module>console-tomcat</module> -->
-                <!-- <module>daytrader-jetty</module> -->
-                <!-- <module>daytrader-tomcat</module> -->
+                 <module>console-jetty</module>
+                 <module>console-tomcat</module>
+                 <!--<module>daytrader-jetty</module>-->
+                 <!--<module>daytrader-tomcat</module>-->
                 <module>directory</module>
                 <module>geronimo-gbean-deployer</module>
                 <module>hot-deployer</module>
@@ -101,8 +101,8 @@
                 <module>online-deployer</module>
                 <module>openejb</module>
                 <module>openejb-deployer</module>
-                <!-- <module>remote-deploy-jetty</module> -->
-                <!-- <module>remote-deploy-tomcat</module> -->
+                 <!--<module>remote-deploy-jetty</module>-->
+                 <!--<module>remote-deploy-tomcat</module>-->
                 <module>rmi-naming</module>
                 <module>servlets-examples-jetty</module>
                 <module>servlets-examples-tomcat</module>
@@ -111,8 +111,8 @@
                 <module>system-database</module>
                 <module>tomcat</module>
                 <module>tomcat-deployer</module>
-                <!-- <module>uddi-jetty</module> -->
-                <!-- <module>uddi-tomcat</module> -->
+                 <!--<module>uddi-jetty</module>-->
+                 <!--<module>uddi-tomcat</module>-->
                 <module>unavailable-client-deployer</module>
                 <module>unavailable-ejb-deployer</module>
                 <module>unavailable-webservices-deployer</module>

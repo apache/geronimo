@@ -29,7 +29,7 @@ import org.apache.geronimo.management.geronimo.ResourceAdapter;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 
 /**
- * @version $Rev: 395155 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class ResourceAdapterModuleImpl implements ResourceAdapterModule {
     private final J2EEServer server;

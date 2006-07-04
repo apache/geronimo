@@ -35,7 +35,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>xmlbeans-maven-plugin</artifactId>
-                <version>${xmlbeansMavenPluginVersion}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -64,6 +63,11 @@
         <dependency>
             <groupId>stax</groupId>
             <artifactId>stax-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-security-builder</artifactId>
         </dependency>
 
         <dependency>

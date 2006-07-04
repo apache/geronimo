@@ -18,7 +18,7 @@
 package org.apache.geronimo.management.geronimo;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public interface JCAConnectionFactory extends org.apache.geronimo.management.JCAConnectionFactory {
     JCAManagedConnectionFactory getManagedConnectionFactoryInstance();

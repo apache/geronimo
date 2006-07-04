@@ -32,7 +32,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.Jsr77Naming;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class AbstractName implements Serializable {
     private static final long serialVersionUID = 3584199042821734754L;

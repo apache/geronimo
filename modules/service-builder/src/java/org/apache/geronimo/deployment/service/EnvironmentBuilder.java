@@ -45,7 +45,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttributeBuilder {
     private final static QName QNAME = EnvironmentDocument.type.getDocumentElementName();

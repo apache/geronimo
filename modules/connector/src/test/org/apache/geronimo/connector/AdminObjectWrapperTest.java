@@ -38,7 +38,7 @@ import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
- * @version $Rev: 386505 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class AdminObjectWrapperTest extends TestCase {
 

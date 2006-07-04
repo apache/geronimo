@@ -3,13 +3,13 @@ package org.apache.geronimo.client.builder;
 import java.io.File;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientDocument;
 import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xbeans.ArtifactType;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 
 /**
  */
@@ -19,7 +19,7 @@ public class PlanParsingTest extends TestCase {
     File basedir = new File(System.getProperty("basedir", "."));
 
     protected void setUp() throws Exception {
-        builder = new AppClientModuleBuilder(new Environment(), null, null, null, null, null, null, null, null);
+        builder = new AppClientModuleBuilder(new Environment(), null, null, null, null, null, null, null, null, null, null);
     }
 
     public void testResourceRef() throws Exception {
@@ -43,7 +43,7 @@ public class PlanParsingTest extends TestCase {
         ref.setRefName("ref");
         ref.setResourceLink("target");
 
-        SchemaConversionUtils.validateDD(appClient);
+        XmlBeansUtil.validateDD(appClient);
 //        System.out.println(appClient.toString());
     }
 

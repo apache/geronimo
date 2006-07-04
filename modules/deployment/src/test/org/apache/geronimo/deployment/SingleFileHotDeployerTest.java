@@ -267,6 +267,7 @@ public class SingleFileHotDeployerTest extends TestCase {
             return new DeploymentContext(dir,
                     dir,
                     new Environment(configId),
+                    null,
                     ConfigurationModuleType.CAR,
                     new Jsr77Naming(),
                     new SimpleConfigurationManager(Collections.singletonList(store), artifactResolver, Collections.EMPTY_SET));

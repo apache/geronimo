@@ -76,6 +76,10 @@
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-connector-builder</artifactId>
         </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo.modules</groupId>
+      <artifactId>geronimo-security-builder</artifactId>
+    </dependency>
 
         <!-- tranql uses 1.0.3 -->
         <dependency>

@@ -30,7 +30,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class LocalServer extends CommandLine {
 

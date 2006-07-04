@@ -35,8 +35,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
+
 import javax.naming.Reference;
 import javax.xml.namespace.QName;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.UnresolvedReferenceException;
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
@@ -60,11 +62,11 @@ import org.apache.geronimo.connector.outbound.connectionmanagerconfig.Transactio
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.XATransactions;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
+import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
+import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
-import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
-import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -120,6 +122,8 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Rev:385659 $ $Date$
  */
 public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceBuilder {
+    private static QName CONNECTOR_QNAME = GerConnectorDocument.type.getDocumentElementName();
+    static final String GERCONNECTOR_NAMESPACE = CONNECTOR_QNAME.getNamespaceURI();
 
     private final int defaultMaxSize;
     private final int defaultMinSize;
@@ -128,8 +132,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
     private final boolean defaultXATransactionCaching;
     private final boolean defaultXAThreadCaching;
     private final Environment defaultEnvironment;
-    private static QName CONNECTOR_QNAME = GerConnectorDocument.type.getDocumentElementName();
-    static final String GERCONNECTOR_NAMESPACE = CONNECTOR_QNAME.getNamespaceURI();
+    private final NamespaceDrivenBuilderCollection serviceBuilders;
 
     public ConnectorModuleBuilder(Environment defaultEnvironment,
             int defaultMaxSize,
@@ -137,7 +140,8 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             int defaultBlockingTimeoutMilliseconds,
             int defaultIdleTimeoutMinutes,
             boolean defaultXATransactionCaching,
-            boolean defaultXAThreadCaching) {
+            boolean defaultXAThreadCaching,
+            Collection serviceBuilders) {
         this.defaultEnvironment = defaultEnvironment;
 
         this.defaultMaxSize = defaultMaxSize;
@@ -146,6 +150,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         this.defaultIdleTimeoutMinutes = defaultIdleTimeoutMinutes;
         this.defaultXATransactionCaching = defaultXATransactionCaching;
         this.defaultXAThreadCaching = defaultXAThreadCaching;
+        this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders);
     }
 
     public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
@@ -225,7 +230,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                 cursor.dispose();
             }
 
-            SchemaConversionUtils.validateDD(gerConnector);
+            XmlBeansUtil.validateDD(gerConnector);
         } catch (XmlException e) {
             throw new DeploymentException(e);
         }
@@ -235,8 +240,8 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         if (earEnvironment != null) {
             EnvironmentBuilder.mergeEnvironments(earEnvironment, environment);
             environment = earEnvironment;
-            if(!environment.getConfigId().isResolved()) {
-                throw new IllegalStateException("Connector module ID should be fully resolved (not "+environment.getConfigId()+")");
+            if (!environment.getConfigId().isResolved()) {
+                throw new IllegalStateException("Connector module ID should be fully resolved (not " + environment.getConfigId() + ")");
             }
         } else {
             idBuilder.resolve(environment, new File(moduleFile.getName()).getName(), "rar");
@@ -374,8 +379,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
 
         GerConnectorType geronimoConnector = (GerConnectorType) module.getVendorDD();
 
-        GbeanType[] gbeans = geronimoConnector.getGbeanArray();
-        ServiceConfigBuilder.addGBeans(gbeans, cl, resourceAdapterModuleName, earContext);
+        serviceBuilders.build(geronimoConnector, earContext, earContext);
 
         addConnectorGBeans(earContext, jcaResourcejsr77Name, resourceAdapterModuleData, connector, geronimoConnector, cl);
 
@@ -862,6 +866,8 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         infoBuilder.addAttribute("defaultXATransactionCaching", boolean.class, true, true);
         infoBuilder.addAttribute("defaultXAThreadCaching", boolean.class, true, true);
 
+        infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
+
         infoBuilder.addInterface(ModuleBuilder.class);
         infoBuilder.addInterface(ResourceReferenceBuilder.class);
 
@@ -871,7 +877,8 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                 "defaultBlockingTimeoutMilliseconds",
                 "defaultIdleTimeoutMinutes",
                 "defaultXATransactionCaching",
-                "defaultXAThreadCaching"});
+                "defaultXAThreadCaching",
+                "ServiceBuilders"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

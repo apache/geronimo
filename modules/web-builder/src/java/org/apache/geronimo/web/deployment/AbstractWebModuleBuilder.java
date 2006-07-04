@@ -39,12 +39,16 @@ import java.util.zip.ZipEntry;
 import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebRoleRefPermission;
 import javax.security.jacc.WebUserDataPermission;
+import javax.xml.namespace.QName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
+import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.deployment.xbeans.ServiceDocument;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.deployment.EARContext;
@@ -71,6 +75,8 @@ import org.apache.geronimo.xbeans.j2ee.ServletType;
 import org.apache.geronimo.xbeans.j2ee.UrlPatternType;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
 import org.apache.geronimo.xbeans.j2ee.WebResourceCollectionType;
+import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$
@@ -78,16 +84,23 @@ import org.apache.geronimo.xbeans.j2ee.WebResourceCollectionType;
 public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     private static final Log log = LogFactory.getLog(AbstractWebModuleBuilder.class);
     private static final String LINE_SEP = System.getProperty("line.separator");
-    
+
     protected static final AbstractNameQuery MANAGED_CONNECTION_FACTORY_PATTERN;
     private static final AbstractNameQuery ADMIN_OBJECT_PATTERN;
     protected static final AbstractNameQuery STATELESS_SESSION_BEAN_PATTERN;
     protected static final AbstractNameQuery STATEFUL_SESSION_BEAN_PATTERN;
     protected static final AbstractNameQuery ENTITY_BEAN_PATTERN;
     protected final Kernel kernel;
+    protected final NamespaceDrivenBuilderCollection securityBuilders;
+    protected final NamespaceDrivenBuilderCollection serviceBuilders;
+    private static final QName SECURITY_QNAME = GerSecurityDocument.type.getDocumentElementName();
+    private static final QName SERVICE_QNAME = ServiceDocument.type.getDocumentElementName();
 
-    protected AbstractWebModuleBuilder(Kernel kernel) {
+    protected AbstractWebModuleBuilder(Kernel kernel, Collection securityBuilders, Collection serviceBuilders) {
         this.kernel = kernel;
+        this.securityBuilders = new NamespaceDrivenBuilderCollection(securityBuilders);
+        this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders);
+
     }
 
     static {
@@ -218,7 +231,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
                     moduleContext.addFile(targetPath, warFile, entry);
                 }
             }
-            
+
             //always add WEB-INF/classes to the classpath regardless of whether
             //any classes exist
             moduleContext.getConfiguration().addToClassPath("WEB-INF/classes/");
@@ -512,19 +525,19 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     private boolean cleanupConfigurationDir(File configurationDir)
     {
         LinkedList cannotBeDeletedList = new LinkedList();
-               
+
         if (!DeploymentUtil.recursiveDelete(configurationDir,cannotBeDeletedList)) {
             // Output a message to help user track down file problem
-            log.warn("Unable to delete " + cannotBeDeletedList.size() + 
-                    " files while recursively deleting directory " 
+            log.warn("Unable to delete " + cannotBeDeletedList.size() +
+                    " files while recursively deleting directory "
                     + configurationDir + LINE_SEP +
                     "The first file that could not be deleted was:" + LINE_SEP + "  "+
                     ( !cannotBeDeletedList.isEmpty() ? cannotBeDeletedList.getFirst() : "") );
             return false;
         }
         return true;
-    }    
-    
+    }
+
     protected void processRoleRefPermissions(ServletType servletType, Set securityRoles, Map rolePermissions) {
         String servletName = servletType.getServletName().getStringValue().trim();
         //WebRoleRefPermissions
@@ -550,6 +563,15 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             addPermissionToRole(roleName, new WebRoleRefPermission(servletName, roleName), rolePermissions);
         }
 //        servletData.setAttribute("webRoleRefPermissions", webRoleRefPermissions);
+    }
+
+    protected void buildSubstitutionGroups(XmlObject gerWebApp, boolean hasSecurityRealmName, Module module, EARContext earContext) throws DeploymentException {
+        XmlObject[] securityElements = XmlBeansUtil.selectSubstitutionGroupElements(SECURITY_QNAME, gerWebApp);
+        if (securityElements.length > 0 && !hasSecurityRealmName) {
+            throw new DeploymentException("You have supplied a security configuration for web app " + module.getName() + " but no security-realm-name to allow login");
+        }
+        securityBuilders.build(gerWebApp, earContext, module.getEarContext());
+        serviceBuilders.build(gerWebApp, earContext, module.getEarContext());
     }
 
     class UncheckedItem {

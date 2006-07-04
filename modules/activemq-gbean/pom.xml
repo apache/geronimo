@@ -18,9 +18,9 @@
 <!-- $Rev: 411333 $ $Date: 2006-06-02 18:35:57 -0500 (Fri, 02 Jun 2006) $ -->
 
 <project
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns="http://maven.apache.org/POM/4.0.0">
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://maven.apache.org/POM/4.0.0">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -42,7 +42,7 @@
             <artifactId>activemq-core</artifactId>
             <version>4.0-SNAPSHOT</version>
         </dependency>
-        
+
         <dependency>
             <groupId>incubator-activemq</groupId>
             <artifactId>activeio-core</artifactId>
@@ -81,5 +81,9 @@
         </dependency>
 
     </dependencies>
-
+    <build>
+        <defaultGoal>install</defaultGoal>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <testSourceDirectory>src/test/java</testSourceDirectory>
+    </build>
 </project>

@@ -21,7 +21,7 @@ import org.apache.geronimo.management.J2EEServer;
 
 
 /**
- * @version $Rev: 383682 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class ServerTest extends Abstract77Test {
     private J2EEServer server;

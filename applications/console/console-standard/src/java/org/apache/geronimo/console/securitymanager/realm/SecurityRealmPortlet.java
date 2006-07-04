@@ -29,6 +29,7 @@ import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.xbeans.ReferenceType;
 import org.apache.geronimo.deployment.xbeans.XmlAttributeType;
+import org.apache.geronimo.deployment.xbeans.AbstractServiceType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
@@ -70,6 +71,7 @@ import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 import javax.security.auth.Subject;
 import javax.security.auth.spi.LoginModule;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
@@ -103,26 +105,26 @@ import java.util.SortedSet;
 public class SecurityRealmPortlet extends BasePortlet {
     private final static Log log = LogFactory.getLog(SecurityRealmPortlet.class);
     private final static String[] SKIP_ENTRIES_WITH = new String[]{"geronimo", "tomcat", "tranql", "commons", "directory", "activemq"};
-    private static final String LIST_VIEW          = "/WEB-INF/view/realmwizard/list.jsp";
-    private static final String EDIT_VIEW          = "/WEB-INF/view/realmwizard/edit.jsp";
-    private static final String SELECT_TYPE_VIEW   = "/WEB-INF/view/realmwizard/selectType.jsp";
-    private static final String CONFIGURE_VIEW     = "/WEB-INF/view/realmwizard/configure.jsp";
-    private static final String ADVANCED_VIEW      = "/WEB-INF/view/realmwizard/advanced.jsp";
-    private static final String TEST_LOGIN_VIEW    = "/WEB-INF/view/realmwizard/testLogin.jsp";
-    private static final String TEST_RESULTS_VIEW  = "/WEB-INF/view/realmwizard/testResults.jsp";
-    private static final String SHOW_PLAN_VIEW     = "/WEB-INF/view/realmwizard/showPlan.jsp";
-    private static final String USAGE_VIEW         = "/WEB-INF/view/realmwizard/usage.jsp";
-    private static final String LIST_MODE          = "list";
-    private static final String EDIT_MODE          = "edit";
-    private static final String SELECT_TYPE_MODE   = "type";
-    private static final String CONFIGURE_MODE     = "configure";
-    private static final String ADVANCED_MODE      = "advanced";
-    private static final String TEST_LOGIN_MODE    = "test";
-    private static final String TEST_RESULTS_MODE  = "results";
-    private static final String SHOW_PLAN_MODE     = "plan";
+    private static final String LIST_VIEW = "/WEB-INF/view/realmwizard/list.jsp";
+    private static final String EDIT_VIEW = "/WEB-INF/view/realmwizard/edit.jsp";
+    private static final String SELECT_TYPE_VIEW = "/WEB-INF/view/realmwizard/selectType.jsp";
+    private static final String CONFIGURE_VIEW = "/WEB-INF/view/realmwizard/configure.jsp";
+    private static final String ADVANCED_VIEW = "/WEB-INF/view/realmwizard/advanced.jsp";
+    private static final String TEST_LOGIN_VIEW = "/WEB-INF/view/realmwizard/testLogin.jsp";
+    private static final String TEST_RESULTS_VIEW = "/WEB-INF/view/realmwizard/testResults.jsp";
+    private static final String SHOW_PLAN_VIEW = "/WEB-INF/view/realmwizard/showPlan.jsp";
+    private static final String USAGE_VIEW = "/WEB-INF/view/realmwizard/usage.jsp";
+    private static final String LIST_MODE = "list";
+    private static final String EDIT_MODE = "edit";
+    private static final String SELECT_TYPE_MODE = "type";
+    private static final String CONFIGURE_MODE = "configure";
+    private static final String ADVANCED_MODE = "advanced";
+    private static final String TEST_LOGIN_MODE = "test";
+    private static final String TEST_RESULTS_MODE = "results";
+    private static final String SHOW_PLAN_MODE = "plan";
     private static final String EDIT_EXISTING_MODE = "editExisting";
-    private static final String USAGE_MODE         = "usage";
-    private static final String SAVE_MODE          = "save";
+    private static final String USAGE_MODE = "usage";
+    private static final String SAVE_MODE = "save";
     private static final String MODE_KEY = "mode";
 
     private PortletRequestDispatcher listView;
@@ -165,13 +167,13 @@ public class SecurityRealmPortlet extends BasePortlet {
         String mode = actionRequest.getParameter(MODE_KEY);
         RealmData data = new RealmData();
         data.load(actionRequest);
-        if(mode.equals(SELECT_TYPE_MODE)) {
-            data.realmType="Properties File Realm";
+        if (mode.equals(SELECT_TYPE_MODE)) {
+            data.realmType = "Properties File Realm";
             actionResponse.setRenderParameter(MODE_KEY, SELECT_TYPE_MODE);
-        } else if(mode.equals("process-"+SELECT_TYPE_MODE)) {
-            if(data.getName() != null && !data.getName().trim().equals("")) {
+        } else if (mode.equals("process-" + SELECT_TYPE_MODE)) {
+            if (data.getName() != null && !data.getName().trim().equals("")) {
                 // Config properties have to be set in render since they have values of null
-                if(data.getRealmType().equals("Other")) {
+                if (data.getRealmType().equals("Other")) {
                     actionResponse.setRenderParameter(MODE_KEY, EDIT_MODE);
                 } else {
                     actionResponse.setRenderParameter(MODE_KEY, CONFIGURE_MODE);
@@ -179,39 +181,40 @@ public class SecurityRealmPortlet extends BasePortlet {
             } else {
                 actionResponse.setRenderParameter(MODE_KEY, SELECT_TYPE_MODE);
             }
-        } else if(mode.equals("process-"+CONFIGURE_MODE)) {
+        } else if (mode.equals("process-" + CONFIGURE_MODE)) {
             final String error = actionTestLoginModuleLoad(actionRequest, data);
-            if(error == null) {
+            if (error == null) {
                 actionResponse.setRenderParameter(MODE_KEY, ADVANCED_MODE);
             } else {
                 actionResponse.setRenderParameter("LoginModuleError", error);
                 actionResponse.setRenderParameter(MODE_KEY, CONFIGURE_MODE);
             }
-        } else if(mode.equals("process-"+ADVANCED_MODE)) {
+        } else if (mode.equals("process-" + ADVANCED_MODE)) {
             String test = actionRequest.getParameter("test");
-            if(test == null || test.equals("true")) {
+            if (test == null || test.equals("true")) {
                 actionResponse.setRenderParameter(MODE_KEY, TEST_LOGIN_MODE);
             } else {
                 actionSaveRealm(actionRequest, data);
                 actionResponse.setRenderParameter(MODE_KEY, LIST_MODE);
             }
-        } else if(mode.equals("process-"+TEST_LOGIN_MODE)) {
+        } else if (mode.equals("process-" + TEST_LOGIN_MODE)) {
             actionAttemptLogin(data, actionRequest, actionRequest.getPortletSession(true), actionRequest.getParameter("username"), actionRequest.getParameter("password"));
             actionResponse.setRenderParameter(MODE_KEY, TEST_RESULTS_MODE);
-        } else if(mode.equals(SHOW_PLAN_MODE)) {
+        } else if (mode.equals(SHOW_PLAN_MODE)) {
             XmlObject object = actionGeneratePlan(actionRequest, data);
             savePlanToSession(actionRequest.getPortletSession(true), object);
             actionResponse.setRenderParameter(MODE_KEY, SHOW_PLAN_MODE);
-        } else if(mode.equals(EDIT_EXISTING_MODE)) {
+        } else if (mode.equals(EDIT_EXISTING_MODE)) {
             actionLoadExistingRealm(actionRequest, data);
             actionResponse.setRenderParameter(MODE_KEY, EDIT_MODE);
-        } else if(mode.equals(CONFIGURE_MODE)) {
-            if(data.getAbstractName() != null || (data.getRealmType() != null && data.getRealmType().equals("Other"))) {
+        } else if (mode.equals(CONFIGURE_MODE)) {
+            if (data.getAbstractName() != null || (data.getRealmType() != null && data.getRealmType().equals("Other")))
+            {
                 actionResponse.setRenderParameter(MODE_KEY, EDIT_MODE);
             } else {
                 actionResponse.setRenderParameter(MODE_KEY, CONFIGURE_MODE);
             }
-        } else if(mode.equals(SAVE_MODE)) {
+        } else if (mode.equals(SAVE_MODE)) {
             actionSaveRealm(actionRequest, data);
             actionResponse.setRenderParameter(MODE_KEY, LIST_MODE);
         } else {
@@ -229,26 +232,26 @@ public class SecurityRealmPortlet extends BasePortlet {
             RealmData data = new RealmData();
             data.load(renderRequest);
             renderRequest.setAttribute("realm", data);
-            if(mode == null || mode.equals("")) {
+            if (mode == null || mode.equals("")) {
                 mode = LIST_MODE;
             }
-            if(mode.equals(LIST_MODE)) {
+            if (mode.equals(LIST_MODE)) {
                 renderList(renderRequest, renderResponse);
-            } else if(mode.equals(EDIT_MODE)) {
+            } else if (mode.equals(EDIT_MODE)) {
                 renderEdit(renderRequest, renderResponse, data);
-            } else if(mode.equals(SELECT_TYPE_MODE)) {
+            } else if (mode.equals(SELECT_TYPE_MODE)) {
                 renderSelectType(renderRequest, renderResponse);
-            } else if(mode.equals(CONFIGURE_MODE)) {
+            } else if (mode.equals(CONFIGURE_MODE)) {
                 renderConfigure(renderRequest, renderResponse, data);
-            } else if(mode.equals(ADVANCED_MODE)) {
+            } else if (mode.equals(ADVANCED_MODE)) {
                 renderAdvanced(renderRequest, renderResponse, data);
-            } else if(mode.equals(TEST_LOGIN_MODE)) {
+            } else if (mode.equals(TEST_LOGIN_MODE)) {
                 renderTestLoginForm(renderRequest, renderResponse);
-            } else if(mode.equals(TEST_RESULTS_MODE)) {
+            } else if (mode.equals(TEST_RESULTS_MODE)) {
                 renderTestResults(renderRequest, renderResponse);
-            } else if(mode.equals(SHOW_PLAN_MODE)) {
+            } else if (mode.equals(SHOW_PLAN_MODE)) {
                 renderPlan(renderRequest, renderResponse);
-            } else if(mode.equals(USAGE_MODE)) {
+            } else if (mode.equals(USAGE_MODE)) {
                 renderUsage(renderRequest, renderResponse);
             }
         } catch (Throwable e) {
@@ -260,30 +263,30 @@ public class SecurityRealmPortlet extends BasePortlet {
         Map options = new HashMap();
         try {
             LoginModule module = loadModule(request, data, options);
-            log.warn("Testing with options "+options);
+            log.warn("Testing with options " + options);
             try {
                 PortletManager.testLoginModule(request, module, options);
                 return null;
             } catch (Exception e) {
                 log.warn("Unable to initialize LoginModule", e);
-                return "Unable to initialize LoginModule: "+e.getMessage();
+                return "Unable to initialize LoginModule: " + e.getMessage();
             }
         } catch (Exception e) {
             log.warn("Unable to load LoginModule class", e);
-            return "Unable to load LoginModule class: "+e.getMessage();
+            return "Unable to load LoginModule class: " + e.getMessage();
         }
     }
 
     private LoginModule loadModule(PortletRequest request, RealmData data, Map options) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
         ClassLoader loader = getClass().getClassLoader();
-        if(data.jar != null && !data.jar.equals("")) {
+        if (data.jar != null && !data.jar.equals("")) {
             try {
                 Artifact one = Artifact.create(data.getJar());
                 ListableRepository[] repos = PortletManager.getCurrentServer(request).getRepositories();
                 for (int i = 0; i < repos.length; i++) {
                     ListableRepository repo = repos[i];
                     File file = repo.getLocation(one);
-                    if(file != null) {
+                    if (file != null) {
                         loader = new URLClassLoader(new URL[]{file.toURL()}, loader);
                         break;
                     }
@@ -297,7 +300,7 @@ public class SecurityRealmPortlet extends BasePortlet {
         for (Iterator it = data.getOptions().keySet().iterator(); it.hasNext();) {
             String key = (String) it.next();
             final Object value = data.getOptions().get(key);
-            if(value != null && !value.equals("")) {
+            if (value != null && !value.equals("")) {
                 options.put(key, value);
             }
         }
@@ -315,7 +318,7 @@ public class SecurityRealmPortlet extends BasePortlet {
             session.setAttribute("TestLoginPrincipals", sub.getPrincipals());
         } catch (Exception e) {
             log.warn("Test login failed", e);
-            session.setAttribute("TestLoginError", "Login Failed: "+(e.getMessage() == null ? "no message" : e.getMessage()));
+            session.setAttribute("TestLoginError", "Login Failed: " + (e.getMessage() == null ? "no message" : e.getMessage()));
         }
     }
 
@@ -326,7 +329,7 @@ public class SecurityRealmPortlet extends BasePortlet {
         EnvironmentType environment = root.addNewEnvironment();
         ArtifactType configId = environment.addNewModuleId();
         configId.setGroupId("console");
-        configId.setArtifactId("realm-"+data.getName());
+        configId.setArtifactId("realm-" + data.getName());
         configId.setVersion("1.0");
         configId.setType("car");
 
@@ -338,7 +341,7 @@ public class SecurityRealmPortlet extends BasePortlet {
         parent.setArtifactId("j2ee-security");
         parent.setType("car");
         // Dependencies
-        if(data.getJar() != null) {
+        if (data.getJar() != null) {
             ArtifactType artifactType = dependenciesType.addNewDependency();
             Artifact artifact = Artifact.create(data.getJar());
             artifactType.setGroupId(artifact.getGroupId());
@@ -347,7 +350,8 @@ public class SecurityRealmPortlet extends BasePortlet {
             artifactType.setType(artifact.getType());
         }
         // Build the realm GBean
-        GbeanType realm = root.addNewGbean();
+        GbeanType realm = GbeanType.Factory.newInstance();
+        root.setServiceArray(new AbstractServiceType[]{realm});
         realm.setName(data.getName());
         realm.setClass1("org.apache.geronimo.security.realm.GenericSecurityRealm");
         AttributeType realmName = realm.addNewAttribute();
@@ -355,25 +359,25 @@ public class SecurityRealmPortlet extends BasePortlet {
         realmName.setStringValue(data.getName());
         ReferenceType serverInfo = realm.addNewReference();
         serverInfo.setName2("ServerInfo");
-        serverInfo.setName((String)PortletManager.getNameFor(request, PortletManager.getCurrentServer(request).getServerInfo()).getName().get("name"));
+        serverInfo.setName((String) PortletManager.getNameFor(request, PortletManager.getCurrentServer(request).getServerInfo()).getName().get("name"));
         ReferenceType loginService = realm.addNewReference();
         loginService.setName2("LoginService");
-        loginService.setName((String)PortletManager.getNameFor(request, PortletManager.getCurrentServer(request).getLoginService()).getName().get("name"));
+        loginService.setName((String) PortletManager.getNameFor(request, PortletManager.getCurrentServer(request).getLoginService()).getName().get("name"));
         XmlAttributeType config = realm.addNewXmlReference();
         // Construct the content to put in the XmlAttributeType
         GerLoginConfigDocument lcDoc = GerLoginConfigDocument.Factory.newInstance();
         GerLoginConfigType login = lcDoc.addNewLoginConfig();
         for (int i = 0; i < data.getModules().length; i++) {
             LoginModuleDetails details = data.getModules()[i];
-            if(details.getLoginDomainName() == null || details.getLoginDomainName().equals("")) {
+            if (details.getLoginDomainName() == null || details.getLoginDomainName().equals("")) {
                 continue;
             }
             GerLoginModuleType module = login.addNewLoginModule();
             module.setControlFlag(details.getControlFlag().equals("OPTIONAL") ? GerControlFlagType.OPTIONAL :
                     details.getControlFlag().equals("REQUIRED") ? GerControlFlagType.REQUIRED :
-                    details.getControlFlag().equals("REQUISITE") ? GerControlFlagType.REQUISITE :
-                    details.getControlFlag().equals("SUFFICIENT") ? GerControlFlagType.SUFFICIENT :
-                    GerControlFlagType.OPTIONAL);
+                            details.getControlFlag().equals("REQUISITE") ? GerControlFlagType.REQUISITE :
+                                    details.getControlFlag().equals("SUFFICIENT") ? GerControlFlagType.SUFFICIENT :
+                                            GerControlFlagType.OPTIONAL);
             module.setServerSide(details.isServerSide());
             module.setLoginDomainName(details.getLoginDomainName());
             module.setLoginModuleClass(details.getClassName());
@@ -386,11 +390,11 @@ public class SecurityRealmPortlet extends BasePortlet {
             }
 
             // bit of a hack -- to put the DataSource module in as a parent for SQL modules
-            if(details.getClassName().indexOf("SQL") > -1) {
+            if (details.getClassName().indexOf("SQL") > -1) {
                 String poolName = (String) details.getOptions().get("dataSourceName");
                 String appName = (String) details.getOptions().get("dataSourceApplication");
-                if(poolName != null) {
-                    if(appName == null) appName = "null";
+                if (poolName != null) {
+                    if (appName == null) appName = "null";
                     JCAManagedConnectionFactory[] factories = PortletManager.getOutboundFactoriesOfType(request, "javax.sql.DataSource");
                     for (int j = 0; j < factories.length; j++) {
                         JCAManagedConnectionFactory factory = factories[j];
@@ -398,7 +402,7 @@ public class SecurityRealmPortlet extends BasePortlet {
                             ObjectName objectName = ObjectName.getInstance(factory.getObjectName());
                             final String testName = objectName.getKeyProperty(NameFactory.J2EE_NAME);
                             final String testApp = objectName.getKeyProperty(NameFactory.J2EE_APPLICATION);
-                            if(testName.equals(poolName) && testApp.equals(appName)) {
+                            if (testName.equals(poolName) && testApp.equals(appName)) {
                                 String moduleName = objectName.getKeyProperty(NameFactory.JCA_RESOURCE);
 
                                 ArtifactType artifactType = dependenciesType.addNewDependency();
@@ -434,7 +438,7 @@ public class SecurityRealmPortlet extends BasePortlet {
         data.name = realm.getRealmName();
         List list = new ArrayList();
         JaasLoginModuleChain node = realm.getLoginModuleChain();
-        while(node != null) {
+        while (node != null) {
             LoginModuleDetails details = new LoginModuleDetails();
             details.setControlFlag(node.getControlFlag());
             LoginModuleSettings module = node.getLoginModule();
@@ -445,7 +449,7 @@ public class SecurityRealmPortlet extends BasePortlet {
             details.setOptions(module.getOptions());
             list.add(details);
             node = node.getNext();
-            if(node == null) {
+            if (node == null) {
                 break;
             }
         }
@@ -454,14 +458,14 @@ public class SecurityRealmPortlet extends BasePortlet {
 
     private void actionSaveRealm(PortletRequest request, RealmData data) {
         normalize(data);
-        if(data.getAbstractName() == null || data.getAbstractName().equals("")) { // we're creating a new realm
+        if (data.getAbstractName() == null || data.getAbstractName().equals("")) { // we're creating a new realm
             try {
                 XmlObject plan = actionGeneratePlan(request, data);
                 data.name = data.name.replaceAll("\\s", "");
                 DeploymentManager mgr = PortletManager.getDeploymentManager(request);
-                File tempFile = File.createTempFile("console-deployment",".xml");
+                File tempFile = File.createTempFile("console-deployment", ".xml");
                 tempFile.deleteOnExit();
-                log.debug("Writing security realm deployment plan to "+tempFile.getAbsolutePath());
+                log.debug("Writing security realm deployment plan to " + tempFile.getAbsolutePath());
                 PrintWriter out = new PrintWriter(new FileWriter(tempFile));
                 savePlanToStream(plan, out);
                 out.flush();
@@ -469,11 +473,11 @@ public class SecurityRealmPortlet extends BasePortlet {
                 Target[] targets = mgr.getTargets();
                 ProgressObject po = mgr.distribute(targets, null, tempFile);
                 waitForProgress(po);
-                if(po.getDeploymentStatus().isCompleted()) {
+                if (po.getDeploymentStatus().isCompleted()) {
                     TargetModuleID[] ids = po.getResultTargetModuleIDs();
                     po = mgr.start(ids);
                     waitForProgress(po);
-                    if(po.getDeploymentStatus().isCompleted()) {
+                    if (po.getDeploymentStatus().isCompleted()) {
                         System.out.println("Deployment completed successfully!");
                     }
                 }
@@ -485,11 +489,11 @@ public class SecurityRealmPortlet extends BasePortlet {
             // index existing modules
             Map nodes = new HashMap();
             JaasLoginModuleChain node = realm.getLoginModuleChain();
-            while(node != null) {
+            while (node != null) {
                 LoginModuleSettings module = node.getLoginModule();
                 nodes.put(module.getLoginDomainName(), node);
                 node = node.getNext();
-                if(node == null) {
+                if (node == null) {
                     break;
                 }
             }
@@ -514,7 +518,7 @@ public class SecurityRealmPortlet extends BasePortlet {
         org.apache.geronimo.management.geronimo.SecurityRealm[] realms = PortletManager.getCurrentServer(request).getSecurityRealms();
         ExistingRealm[] results = new ExistingRealm[realms.length];
         for (int i = 0; i < results.length; i++) {
-            final GeronimoManagedBean managedBean = (GeronimoManagedBean)realms[i];
+            final GeronimoManagedBean managedBean = (GeronimoManagedBean) realms[i];
             results[i] = new ExistingRealm(realms[i].getRealmName(), PortletManager.getNameFor(request, realms[i]),
                     managedBean.getState());
         }
@@ -534,7 +538,7 @@ public class SecurityRealmPortlet extends BasePortlet {
 
     private void renderConfigure(RenderRequest request, RenderResponse response, RealmData data) throws IOException, PortletException {
         // Pass errors through
-        if(request.getParameter("LoginModuleError") != null) {
+        if (request.getParameter("LoginModuleError") != null) {
             request.setAttribute("LoginModuleError", request.getParameter("LoginModuleError"));
         }
         // Clear out any cached modules
@@ -543,13 +547,13 @@ public class SecurityRealmPortlet extends BasePortlet {
         MasterLoginModuleInfo info = getSelectedModule(data);
         for (int i = 0; i < info.getOptions().length; i++) {
             MasterLoginModuleInfo.OptionInfo option = info.getOptions()[i];
-            if(!data.getOptions().containsKey(option.getName())) {
+            if (!data.getOptions().containsKey(option.getName())) {
                 data.getOptions().put(option.getName(), null);
             }
         }
         data.reorderOptions(info.getOptions());
         request.setAttribute("optionMap", info.getOptionMap());
-        if(info.getName().indexOf("SQL") > -1) {
+        if (info.getName().indexOf("SQL") > -1) {
             loadDriverJARList(request);
             loadDatabasePoolList(request);
         }
@@ -570,9 +574,9 @@ public class SecurityRealmPortlet extends BasePortlet {
     private void renderTestResults(RenderRequest request, RenderResponse response) throws IOException, PortletException {
         PortletSession session = request.getPortletSession();
         String status = (String) session.getAttribute("TestLoginError");
-        if(status == null) {
+        if (status == null) {
             Set principals = (Set) session.getAttribute("TestLoginPrincipals");
-            status = "Login succeeded with "+(principals == null ? 0 : principals.size())+" principals";
+            status = "Login succeeded with " + (principals == null ? 0 : principals.size()) + " principals";
             request.setAttribute("principals", principals);
         }
         request.setAttribute("LoginResults", status);
@@ -593,7 +597,7 @@ public class SecurityRealmPortlet extends BasePortlet {
         MasterLoginModuleInfo[] all = MasterLoginModuleInfo.getAllModules();
         for (int i = 0; i < all.length; i++) {
             MasterLoginModuleInfo info = all[i];
-            if(info.getName().equals(data.getRealmType())) {
+            if (info.getName().equals(data.getRealmType())) {
                 return info;
             }
         }
@@ -610,8 +614,8 @@ public class SecurityRealmPortlet extends BasePortlet {
                 final String name = objectName.getKeyProperty(NameFactory.J2EE_NAME);
                 String display = name;
                 final String appName = objectName.getKeyProperty(NameFactory.J2EE_APPLICATION);
-                if(appName != null && !appName.equals("null")) {
-                    display = display+" ("+appName+")";
+                if (appName != null && !appName.equals("null")) {
+                    display = display + " (" + appName + ")";
                 }
                 pools.add(new DatabasePool(name, display, appName, PortletManager.getNameFor(renderRequest, factory)));
             }
@@ -636,7 +640,7 @@ public class SecurityRealmPortlet extends BasePortlet {
                 // todo should only test groupId and should check for long (org.apache.geronimo) and short form
                 for (int k = 0; k < SKIP_ENTRIES_WITH.length; k++) {
                     String skip = SKIP_ENTRIES_WITH[k];
-                    if(test.indexOf(skip) > -1) {
+                    if (test.indexOf(skip) > -1) {
                         continue outer;
                     }
                 }
@@ -667,7 +671,7 @@ public class SecurityRealmPortlet extends BasePortlet {
     }
 
     private static void waitForProgress(ProgressObject po) {
-        while(po.getDeploymentStatus().isRunning()) {
+        while (po.getDeploymentStatus().isRunning()) {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
@@ -678,7 +682,7 @@ public class SecurityRealmPortlet extends BasePortlet {
 
     public static void normalize(RealmData data) {
         List list = new ArrayList();
-        if(data.modules == null) {
+        if (data.modules == null) {
             LoginModuleDetails module = new LoginModuleDetails();
             module.setClassName(getSelectedModule(data).getClassName());
             module.setControlFlag("REQUIRED");
@@ -687,32 +691,32 @@ public class SecurityRealmPortlet extends BasePortlet {
             Properties props = module.getOptions();
             for (Iterator it = data.getOptions().entrySet().iterator(); it.hasNext();) {
                 Map.Entry entry = (Map.Entry) it.next();
-                props.setProperty((String)entry.getKey(), (String) entry.getValue());
+                props.setProperty((String) entry.getKey(), (String) entry.getValue());
             }
             list.add(module);
-            if(data.isStorePassword()) {
+            if (data.isStorePassword()) {
                 module = new LoginModuleDetails();
                 module.setClassName(GeronimoPasswordCredentialLoginModule.class.getName());
                 module.setControlFlag("OPTIONAL");
-                module.setLoginDomainName(data.getName()+"-Password");
+                module.setLoginDomainName(data.getName() + "-Password");
                 module.setServerSide(true);
                 list.add(module);
             }
-            if(data.getAuditPath() != null) {
+            if (data.getAuditPath() != null) {
                 module = new LoginModuleDetails();
                 module.setClassName(FileAuditLoginModule.class.getName());
                 module.setControlFlag("OPTIONAL");
-                module.setLoginDomainName(data.getName()+"-Audit");
+                module.setLoginDomainName(data.getName() + "-Audit");
                 module.setServerSide(true);
                 props = module.getOptions();
                 props.setProperty("file", data.getAuditPath());
                 list.add(module);
             }
-            if(data.isLockoutEnabled()) {
+            if (data.isLockoutEnabled()) {
                 module = new LoginModuleDetails();
                 module.setClassName(RepeatedFailureLockoutLoginModule.class.getName());
                 module.setControlFlag("REQUISITE");
-                module.setLoginDomainName(data.getName()+"-Lockout");
+                module.setLoginDomainName(data.getName() + "-Lockout");
                 module.setServerSide(true);
                 props = module.getOptions();
                 props.setProperty("failureCount", data.getLockoutCount());
@@ -723,8 +727,8 @@ public class SecurityRealmPortlet extends BasePortlet {
         } else {
             list.addAll(Arrays.asList(data.modules));
         }
-        if(data.getAbstractName() == null) {
-            for(int i=list.size(); i<5; i++) {
+        if (data.getAbstractName() == null) {
+            for (int i = list.size(); i < 5; i++) {
                 LoginModuleDetails module = new LoginModuleDetails();
                 list.add(module);
             }
@@ -747,30 +751,31 @@ public class SecurityRealmPortlet extends BasePortlet {
 
         public void load(PortletRequest request) {
             name = request.getParameter("name");
-            if(name != null && name.equals("")) name = null;
+            if (name != null && name.equals("")) name = null;
             realmType = request.getParameter("realmType");
-            if(realmType != null && realmType.equals("")) realmType = null;
+            if (realmType != null && realmType.equals("")) realmType = null;
             jar = request.getParameter("jar");
-            if(jar != null && jar.equals("")) jar = null;
+            if (jar != null && jar.equals("")) jar = null;
             auditPath = request.getParameter("auditPath");
-            if(auditPath != null && auditPath.equals("")) auditPath = null;
+            if (auditPath != null && auditPath.equals("")) auditPath = null;
             lockoutCount = request.getParameter("lockoutCount");
-            if(lockoutCount != null && lockoutCount.equals("")) lockoutCount = null;
+            if (lockoutCount != null && lockoutCount.equals("")) lockoutCount = null;
             lockoutWindow = request.getParameter("lockoutWindow");
-            if(lockoutWindow != null && lockoutWindow.equals("")) lockoutWindow = null;
+            if (lockoutWindow != null && lockoutWindow.equals("")) lockoutWindow = null;
             lockoutDuration = request.getParameter("lockoutDuration");
-            if(lockoutDuration != null && lockoutDuration.equals("")) lockoutDuration = null;
+            if (lockoutDuration != null && lockoutDuration.equals("")) lockoutDuration = null;
             abstractName = request.getParameter("objectName");
-            if(abstractName != null && abstractName.equals("")) abstractName = null;
+            if (abstractName != null && abstractName.equals("")) abstractName = null;
             String test = request.getParameter("storePassword");
             storePassword = test != null && !test.equals("") && !test.equals("false");
             Map map = request.getParameterMap();
             for (Iterator it = map.keySet().iterator(); it.hasNext();) {
                 String key = (String) it.next();
-                if(key.startsWith("option-")) {
-                    if(key.equals("option-databasePoolObjectName")) { // special handling for a data source, where there's one select corresponding to two properties
+                if (key.startsWith("option-")) {
+                    if (key.equals("option-databasePoolObjectName"))
+                    { // special handling for a data source, where there's one select corresponding to two properties
                         String nameString = request.getParameter(key);
-                        if(nameString != null && !nameString.equals("")) {
+                        if (nameString != null && !nameString.equals("")) {
                             try {
                                 ObjectName on = ObjectName.getInstance(nameString);
                                 options.put("dataSourceName", on.getKeyProperty(NameFactory.J2EE_NAME));
@@ -782,7 +787,7 @@ public class SecurityRealmPortlet extends BasePortlet {
                     } else {
                         final String optionName = key.substring(7);
                         final String value = request.getParameter(key);
-                        if(value != null && !value.equals("")) {
+                        if (value != null && !value.equals("")) {
                             options.put(optionName, value);
                         }
                     }
@@ -790,57 +795,57 @@ public class SecurityRealmPortlet extends BasePortlet {
             }
             int count = 0;
             List list = new ArrayList();
-            while(true) {
+            while (true) {
                 int index = count;
                 ++count;
-                String name = request.getParameter("module-domain-"+index);
-                if(name == null || name.equals("")) break;
+                String name = request.getParameter("module-domain-" + index);
+                if (name == null || name.equals("")) break;
                 LoginModuleDetails details = new LoginModuleDetails();
                 details.setLoginDomainName(name);
-                String cls = request.getParameter("module-class-"+index);
-                if(cls == null || cls.equals("")) continue;
+                String cls = request.getParameter("module-class-" + index);
+                if (cls == null || cls.equals("")) continue;
                 details.setClassName(cls);
-                String flag = request.getParameter("module-control-"+index);
-                if(flag == null || flag.equals("")) continue;
+                String flag = request.getParameter("module-control-" + index);
+                if (flag == null || flag.equals("")) continue;
                 details.setControlFlag(flag);
-                String wrap = request.getParameter("module-wrap-"+index);
-                if(wrap == null || wrap.equals("")) continue;
+                String wrap = request.getParameter("module-wrap-" + index);
+                if (wrap == null || wrap.equals("")) continue;
                 details.setWrapPrincipals(Boolean.valueOf(wrap).booleanValue());
-                String server = request.getParameter("module-server-"+index);
-                if(server == null || server.equals("")) continue;
+                String server = request.getParameter("module-server-" + index);
+                if (server == null || server.equals("")) continue;
                 details.setServerSide(Boolean.valueOf(server).booleanValue());
-                String options = request.getParameter("module-options-"+index);
-                if(options != null && !options.equals("")) {
+                String options = request.getParameter("module-options-" + index);
+                if (options != null && !options.equals("")) {
                     BufferedReader in = new BufferedReader(new StringReader(options));
                     String line;
                     try {
-                        while((line = in.readLine()) != null) {
-                            if(line.startsWith("#") || line.equals("")) {
+                        while ((line = in.readLine()) != null) {
+                            if (line.startsWith("#") || line.equals("")) {
                                 continue;
                             }
                             int pos = line.indexOf('=');
-                            if(pos > -1) {
-                                details.getOptions().setProperty(line.substring(0, pos), line.substring(pos+1));
+                            if (pos > -1) {
+                                details.getOptions().setProperty(line.substring(0, pos), line.substring(pos + 1));
                             }
                         }
                     } catch (IOException e) {
-                        log.error("Unable to read properties '"+options+"'", e);
+                        log.error("Unable to read properties '" + options + "'", e);
                     }
                 }
                 list.add(details);
             }
-            if(list.size() > 0) {
+            if (list.size() > 0) {
                 modules = (LoginModuleDetails[]) list.toArray(new LoginModuleDetails[list.size()]);
             }
         }
 
         public void reorderOptions(MasterLoginModuleInfo.OptionInfo[] info) {
-            if(info == null || info.length == 0) {
+            if (info == null || info.length == 0) {
                 return; // Probably SQL or something that handles this manually
             }
             Map map = new LinkedHashMap();
-            for(int i=0; i<info.length;i++) {
-                if(options.containsKey(info[i].getName())) {
+            for (int i = 0; i < info.length; i++) {
+                if (options.containsKey(info[i].getName())) {
                     map.put(info[i].getName(), options.get(info[i].getName()));
                 }
             }
@@ -848,31 +853,35 @@ public class SecurityRealmPortlet extends BasePortlet {
         }
 
         public void store(ActionResponse response) {
-            if(name != null) response.setRenderParameter("name", name);
-            if(realmType != null) response.setRenderParameter("realmType", realmType);
-            if(jar != null) response.setRenderParameter("jar", jar);
-            if(auditPath != null) response.setRenderParameter("auditPath", auditPath);
-            if(lockoutCount != null) response.setRenderParameter("lockoutCount", lockoutCount);
-            if(lockoutWindow != null) response.setRenderParameter("lockoutWindow", lockoutWindow);
-            if(lockoutDuration != null) response.setRenderParameter("lockoutDuration", lockoutDuration);
-            if(abstractName != null) response.setRenderParameter("objectName", abstractName);
-            if(storePassword) response.setRenderParameter("storePassword", "true");
+            if (name != null) response.setRenderParameter("name", name);
+            if (realmType != null) response.setRenderParameter("realmType", realmType);
+            if (jar != null) response.setRenderParameter("jar", jar);
+            if (auditPath != null) response.setRenderParameter("auditPath", auditPath);
+            if (lockoutCount != null) response.setRenderParameter("lockoutCount", lockoutCount);
+            if (lockoutWindow != null) response.setRenderParameter("lockoutWindow", lockoutWindow);
+            if (lockoutDuration != null) response.setRenderParameter("lockoutDuration", lockoutDuration);
+            if (abstractName != null) response.setRenderParameter("objectName", abstractName);
+            if (storePassword) response.setRenderParameter("storePassword", "true");
             for (Iterator it = options.keySet().iterator(); it.hasNext();) {
                 String name = (String) it.next();
                 String value = (String) options.get(name);
-                if(value != null) {
-                    response.setRenderParameter("option-"+name, value);
+                if (value != null) {
+                    response.setRenderParameter("option-" + name, value);
                 }
             }
-            if(modules != null) {
+            if (modules != null) {
                 for (int i = 0; i < modules.length; i++) {
                     LoginModuleDetails module = modules[i];
-                    if(module.getLoginDomainName() != null) response.setRenderParameter("module-domain-"+i, module.getLoginDomainName());
-                    if(module.getClassName() != null) response.setRenderParameter("module-class-"+i, module.getClassName());
-                    if(module.getControlFlag() != null) response.setRenderParameter("module-control-"+i, module.getControlFlag());
-                    response.setRenderParameter("module-wrap-"+i, Boolean.toString(module.isWrapPrincipals()));
-                    response.setRenderParameter("module-server-"+i, Boolean.toString(module.isServerSide()));
-                    if(module.getOptions().size() > 0) response.setRenderParameter("module-options-"+i, module.getOptionString());
+                    if (module.getLoginDomainName() != null)
+                        response.setRenderParameter("module-domain-" + i, module.getLoginDomainName());
+                    if (module.getClassName() != null)
+                        response.setRenderParameter("module-class-" + i, module.getClassName());
+                    if (module.getControlFlag() != null)
+                        response.setRenderParameter("module-control-" + i, module.getControlFlag());
+                    response.setRenderParameter("module-wrap-" + i, Boolean.toString(module.isWrapPrincipals()));
+                    response.setRenderParameter("module-server-" + i, Boolean.toString(module.isServerSide()));
+                    if (module.getOptions().size() > 0)
+                        response.setRenderParameter("module-options-" + i, module.getOptionString());
                 }
             }
         }
@@ -1017,7 +1026,7 @@ public class SecurityRealmPortlet extends BasePortlet {
             this.name = name;
             this.abstractName = objectName.toString();
             String parent = (String) objectName.getName().get(NameFactory.J2EE_APPLICATION);
-            if(parent != null && parent.equals("null")) {
+            if (parent != null && parent.equals("null")) {
                 parent = null;
             }
             parentName = parent;
@@ -1090,20 +1099,20 @@ public class SecurityRealmPortlet extends BasePortlet {
         }
 
         public int compareTo(Object o) {
-            final DatabasePool pool = (DatabasePool)o;
+            final DatabasePool pool = (DatabasePool) o;
             int names = name.compareTo(pool.name);
-            if(applicationName == null) {
-                if(pool.applicationName == null) {
+            if (applicationName == null) {
+                if (pool.applicationName == null) {
                     return names;
                 } else {
                     return -1;
                 }
             } else {
-                if(pool.applicationName == null) {
+                if (pool.applicationName == null) {
                     return 1;
                 } else {
                     int test = applicationName.compareTo(pool.applicationName);
-                    if(test != 0) {
+                    if (test != 0) {
                         return test;
                     } else {
                         return names;

@@ -27,7 +27,7 @@ import org.apache.geronimo.kernel.MockGBean;
 import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
- * @version $Rev: 383682 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class GBeanAttributeTest extends TestCase {
 

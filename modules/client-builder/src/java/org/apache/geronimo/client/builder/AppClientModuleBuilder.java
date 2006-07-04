@@ -16,6 +16,23 @@
  */
 package org.apache.geronimo.client.builder;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
+import java.util.zip.ZipEntry;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.client.AppClientContainer;
@@ -23,6 +40,8 @@ import org.apache.geronimo.client.StaticJndiContextPlugin;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
+import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
+import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
@@ -44,6 +63,7 @@ import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
+import org.apache.geronimo.j2ee.deployment.SecurityBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEAppClientModuleImpl;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
@@ -57,7 +77,6 @@ import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.apache.geronimo.security.deployment.SecurityBuilder;
 import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientDocument;
 import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientType;
 import org.apache.geronimo.xbeans.geronimo.client.GerResourceType;
@@ -68,23 +87,6 @@ import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
 import org.apache.geronimo.xbeans.j2ee.MessageDestinationType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.jar.Attributes;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
-import java.util.zip.ZipEntry;
 
 
 /**
@@ -104,6 +106,9 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     private final SingleElementCollection connectorModuleBuilder;
     private final SingleElementCollection resourceReferenceBuilder;
     private final SingleElementCollection serviceReferenceBuilder;
+    private final SingleElementCollection securityBuilder;
+    private final NamespaceDrivenBuilderCollection serviceBuilder;
+
     private static final String GERAPPCLIENT_NAMESPACE = GerApplicationClientDocument.type.getDocumentElementName().getNamespaceURI();
 
     public AppClientModuleBuilder(Environment defaultClientEnvironment,
@@ -114,7 +119,9 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             EJBReferenceBuilder ejbReferenceBuilder,
             ModuleBuilder connectorModuleBuilder,
             ResourceReferenceBuilder resourceReferenceBuilder,
-            ServiceReferenceBuilder serviceReferenceBuilder) {
+            ServiceReferenceBuilder serviceReferenceBuilder,
+            NamespaceDrivenBuilder securityBuilder,
+            NamespaceDrivenBuilder serviceBuilder) {
         this(defaultClientEnvironment,
                 defaultServerEnvironment,
                 transactionContextManagerObjectName,
@@ -123,7 +130,9 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 new SingleElementCollection(ejbReferenceBuilder),
                 new SingleElementCollection(connectorModuleBuilder),
                 new SingleElementCollection(resourceReferenceBuilder),
-                new SingleElementCollection(serviceReferenceBuilder));
+                new SingleElementCollection(serviceReferenceBuilder),
+                new SingleElementCollection(securityBuilder),
+                serviceBuilder == null? Collections.EMPTY_SET: Collections.singleton(serviceBuilder));
     }
 
     public AppClientModuleBuilder(AbstractNameQuery transactionContextManagerObjectName,
@@ -133,9 +142,10 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             Collection connectorModuleBuilder,
             Collection resourceReferenceBuilder,
             Collection serviceReferenceBuilder,
+            Collection securityBuilder,
+            Collection serviceBuilder,
             Environment defaultClientEnvironment,
-            Environment defaultServerEnvironment
-    ) {
+            Environment defaultServerEnvironment) {
         this(defaultClientEnvironment,
                 defaultServerEnvironment,
                 transactionContextManagerObjectName,
@@ -144,7 +154,9 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 new SingleElementCollection(ejbReferenceBuilder),
                 new SingleElementCollection(connectorModuleBuilder),
                 new SingleElementCollection(resourceReferenceBuilder),
-                new SingleElementCollection(serviceReferenceBuilder));
+                new SingleElementCollection(serviceReferenceBuilder),
+                new SingleElementCollection(securityBuilder),
+                serviceBuilder);
     }
 
     private AppClientModuleBuilder(Environment defaultClientEnvironment,
@@ -155,7 +167,9 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             SingleElementCollection ejbReferenceBuilder,
             SingleElementCollection connectorModuleBuilder,
             SingleElementCollection resourceReferenceBuilder,
-            SingleElementCollection serviceReferenceBuilder) {
+            SingleElementCollection serviceReferenceBuilder,
+            SingleElementCollection securityBuilder,
+            Collection serviceBuilder) {
         this.defaultClientEnvironment = defaultClientEnvironment;
         this.defaultServerEnvironment = defaultServerEnvironment;
         this.corbaGBeanObjectName = corbaGBeanObjectName;
@@ -165,6 +179,8 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         this.connectorModuleBuilder = connectorModuleBuilder;
         this.resourceReferenceBuilder = resourceReferenceBuilder;
         this.serviceReferenceBuilder = serviceReferenceBuilder;
+        this.securityBuilder = securityBuilder;
+        this.serviceBuilder = new NamespaceDrivenBuilderCollection(serviceBuilder);
     }
 
     private EJBReferenceBuilder getEjbReferenceBuilder() {
@@ -181,6 +197,10 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
     private ServiceReferenceBuilder getServiceReferenceBuilder() {
         return (ServiceReferenceBuilder) serviceReferenceBuilder.getElement();
+    }
+
+    private org.apache.geronimo.j2ee.deployment.SecurityBuilder getSecurityBuilder() {
+        return (SecurityBuilder) securityBuilder.getElement();
     }
 
     public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
@@ -271,7 +291,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                         rawPlan = XmlBeansUtil.parse((File) plan);
                     } else {
                         URL path = DeploymentUtil.createJarURL(moduleFile, "META-INF/geronimo-application-client.xml");
-                        rawPlan = XmlBeansUtil.parse(path);
+                        rawPlan = XmlBeansUtil.parse(path, getClass().getClassLoader());
                     }
                 }
             } catch (IOException e) {
@@ -462,8 +482,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
                 // pop in all the gbeans declared in the geronimo app client file
                 if (geronimoAppClient != null) {
-                    GbeanType[] gbeans = geronimoAppClient.getGbeanArray();
-                    ServiceConfigBuilder.addGBeans(gbeans, appClientClassLoader, appClientDeploymentContext.getModuleName(), appClientDeploymentContext);
+                    serviceBuilder.build(geronimoAppClient, appClientDeploymentContext, appClientDeploymentContext);
                     //deploy the resource adapters specified in the geronimo-application.xml
                     Collection resourceModules = new ArrayList();
                     try {
@@ -562,7 +581,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                         appClientContainerGBeanData.setAttribute("realmName", realmName);
                         appClientContainerGBeanData.setAttribute("callbackHandlerClassName", callbackHandlerClassName);
                     } else if (geronimoAppClient.isSetDefaultPrincipal()) {
-                        DefaultPrincipal defaultPrincipal = SecurityBuilder.buildDefaultPrincipal(geronimoAppClient.getDefaultPrincipal());
+                        DefaultPrincipal defaultPrincipal = getSecurityBuilder().buildDefaultPrincipal(geronimoAppClient.getDefaultPrincipal());
                         appClientContainerGBeanData.setAttribute("defaultPrincipal", defaultPrincipal);
                     }
                     appClientContainerGBeanData.setReferencePattern("JNDIContext", jndiContextName);
@@ -715,6 +734,8 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         infoBuilder.addReference("ConnectorModuleBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ResourceReferenceBuilder", ResourceReferenceBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ServiceReferenceBuilder", ServiceReferenceBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("SecurityBuilder", SecurityBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
 
         infoBuilder.addInterface(ModuleBuilder.class);
 
@@ -725,6 +746,8 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 "ConnectorModuleBuilder",
                 "ResourceReferenceBuilder",
                 "ServiceReferenceBuilder",
+                "SecurityBuilder",
+                "ServiceBuilders",
                 "defaultClientEnvironment",
                 "defaultServerEnvironment",
         });

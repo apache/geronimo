@@ -20,7 +20,7 @@ package org.apache.geronimo.kernel.repository;
 import java.io.Serializable;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class Artifact implements Comparable, Serializable {
     private static final long serialVersionUID = -3459638899709893444L;

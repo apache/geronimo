@@ -49,7 +49,7 @@ public class GenericToSpecificPlanConverterTest extends TestCase {
     public void testConvertPlan(String prePlanName, String postPlanName) throws Exception {
         URL srcXml = classLoader.getResource(prePlanName);
         URL expectedOutputXml = classLoader.getResource(postPlanName);
-        XmlObject rawPlan = XmlBeansUtil.parse(srcXml);
+        XmlObject rawPlan = XmlBeansUtil.parse(srcXml, getClass().getClassLoader());
         System.out.println("RAW PLAN " + rawPlan.toString());
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         XmlObject webPlan = new GenericToSpecificPlanConverter("http://geronimo.apache.org/xml/ns/web/tomcat/config-1.0",

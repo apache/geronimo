@@ -16,40 +16,41 @@
  */
 package org.apache.geronimo.deployment.service;
 
+import java.io.File;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.jar.JarFile;
+
+import javax.management.ObjectName;
+
 import junit.framework.TestCase;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.FooBarBean;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
+import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.xbeans.ModuleDocument;
 import org.apache.geronimo.deployment.xbeans.ModuleType;
-import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.SimpleConfigurationManager;
-import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.ListableRepository;
-import org.apache.geronimo.kernel.repository.ArtifactManager;
-import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
-import org.apache.geronimo.kernel.repository.ArtifactResolver;
-import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Naming;
-
-import javax.management.ObjectName;
-import java.io.File;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.LinkedHashSet;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.Collections;
-import java.util.jar.JarFile;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.SimpleConfigurationManager;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ArtifactManager;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.ListableRepository;
 
 /**
  * @version $Rev$ $Date$
@@ -74,7 +75,8 @@ public class ServiceConfigBuilderTest extends TestCase {
         //this is kind of cheating, we rely on the builder to iterate through existing members of the collection.
         referenceCollection.add(javaBeanXmlAttributeBuilder);
         Naming naming = new Jsr77Naming();
-        new ServiceConfigBuilder(parentEnvironment, null, referenceCollection, null, naming);
+        NamespaceDrivenBuilder gbeanBuilder = new GBeanBuilder(referenceCollection, null);
+//        ConfigurationBuilder serviceBuilder = new ServiceConfigBuilder(parentEnvironment, null, Collections.singleton(gbeanBuilder), naming);
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         final URL plan1 = cl.getResource("services/plan1.xml");
         ModuleDocument doc = ModuleDocument.Factory.parse(plan1);
@@ -91,11 +93,10 @@ public class ServiceConfigBuilderTest extends TestCase {
             ArtifactManager artifactManager = new DefaultArtifactManager();
             ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.singleton(mockRepository), null);
             ConfigurationManager configurationManager = new SimpleConfigurationManager(Collections.EMPTY_SET, artifactResolver, Collections.EMPTY_SET);
-            DeploymentContext context = new DeploymentContext(outFile, null, environment, ConfigurationModuleType.CAR, naming, configurationManager, Collections.singleton(mockRepository));
-            AbstractName j2eeContext = naming.createRootName(environment.getConfigId(), environment.getConfigId().toString(), "Configuration");
+            AbstractName moduleName = naming.createRootName(environment.getConfigId(), "foo", "bar");
+            DeploymentContext context = new DeploymentContext(outFile, null, environment, moduleName, ConfigurationModuleType.CAR, naming, configurationManager, Collections.singleton(mockRepository));
 
-            GbeanType[] gbeans = plan.getGbeanArray();
-            ServiceConfigBuilder.addGBeans(gbeans, cl, j2eeContext, context);
+            gbeanBuilder.build(plan, context, context);
             Set gbeanNames = context.getGBeanNames();
             assertEquals(1, gbeanNames.size());
             AbstractName beanName = (AbstractName) gbeanNames.iterator().next();

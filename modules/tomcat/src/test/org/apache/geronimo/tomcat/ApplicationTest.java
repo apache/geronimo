@@ -24,7 +24,7 @@ import java.net.URL;
 
 
 /**
- * @version $Rev: 387050 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class ApplicationTest extends AbstractWebModuleTest {
 

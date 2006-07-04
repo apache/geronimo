@@ -63,11 +63,11 @@
             <type>car</type>
         </dependency>
         <!-- To enforce build order -->
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>system-database</artifactId>
-            <type>car</type>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.configs</groupId>-->
+            <!--<artifactId>system-database</artifactId>-->
+            <!--<type>car</type>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>

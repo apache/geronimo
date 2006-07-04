@@ -28,6 +28,7 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlException;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 
 /**
  * ejb 1.1 dtd appears to be a subset of ejb 2.0 dtd so the same xsl should
@@ -64,7 +65,7 @@ public class SchemaConversionUtilsTest extends TestCase {
         URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/application-client-14.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
-        SchemaConversionUtils.validateDD(expected);
+        XmlBeansUtil.validateDD(expected);
         xmlObject = SchemaConversionUtils.convertToApplicationClientSchema(xmlObject);
 //        System.out.println(xmlObject.toString());
 //        System.out.println(expected.toString());
@@ -93,7 +94,7 @@ public class SchemaConversionUtilsTest extends TestCase {
         URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/application-14.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
-        SchemaConversionUtils.validateDD(expected);
+        XmlBeansUtil.validateDD(expected);
         xmlObject = SchemaConversionUtils.convertToApplicationSchema(xmlObject);
 //        System.out.println(xmlObject.toString());
 //        System.out.println(expected.toString());
@@ -122,7 +123,7 @@ public class SchemaConversionUtilsTest extends TestCase {
         URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/ra-15.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
-        SchemaConversionUtils.validateDD(expected);
+        XmlBeansUtil.validateDD(expected);
         xmlObject = SchemaConversionUtils.convertToConnectorSchema(xmlObject);
 //        System.out.println(xmlObject.toString());
 //        System.out.println(expected.toString());
@@ -151,7 +152,7 @@ public class SchemaConversionUtilsTest extends TestCase {
         URL expectedOutputXml = classLoader.getResource("j2ee_1_2dtd/ejb-1-21.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
-        SchemaConversionUtils.validateDD(expected);
+        XmlBeansUtil.validateDD(expected);
         xmlObject = SchemaConversionUtils.convertToEJBSchema(xmlObject);
 //        System.out.println(xmlObject.toString());
 //        System.out.println(expected.toString());
@@ -180,7 +181,7 @@ public class SchemaConversionUtilsTest extends TestCase {
         URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/ejb-jar-21.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
-        SchemaConversionUtils.validateDD(expected);
+        XmlBeansUtil.validateDD(expected);
         xmlObject = SchemaConversionUtils.convertToEJBSchema(xmlObject);
 //        System.out.println(xmlObject.toString());
 //        System.out.println(expected.toString());
@@ -209,7 +210,7 @@ public class SchemaConversionUtilsTest extends TestCase {
         URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/mdb-ejb-jar-21-GERONIMO-1649.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
-        SchemaConversionUtils.validateDD(expected);
+        XmlBeansUtil.validateDD(expected);
         xmlObject = SchemaConversionUtils.convertToEJBSchema(xmlObject);
 //        System.out.println(xmlObject.toString());
 //        System.out.println(expected.toString());
@@ -238,7 +239,7 @@ public class SchemaConversionUtilsTest extends TestCase {
         URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/mdb-ejb-jar-21.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
-        SchemaConversionUtils.validateDD(expected);
+        XmlBeansUtil.validateDD(expected);
         xmlObject = SchemaConversionUtils.convertToEJBSchema(xmlObject);
 //        System.out.println(xmlObject.toString());
 //        System.out.println(expected.toString());

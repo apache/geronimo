@@ -185,6 +185,7 @@ public class PlanProcessorMojo extends AbstractPackagingMojo {
     void mergeEnvironment(XmlCursor xmlCursor, org.apache.geronimo.kernel.repository.Artifact configId, LinkedHashSet dependencies) {
         xmlCursor.toFirstContentToken();
         xmlCursor.toFirstChild();
+        xmlCursor.insertComment("Processed by geronimo m2 packaging plugin");
         QName childName = xmlCursor.getName();
         Environment oldEnvironment;
         if (childName != null && childName.getLocalPart().equals(ENVIRONMENT_LOCAL_NAME)) {

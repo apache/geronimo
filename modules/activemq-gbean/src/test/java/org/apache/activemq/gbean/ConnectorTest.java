@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.gbean;
 
-import org.apache.activemq.gbean.TransportConnectorGBeanImpl;
-
 import junit.framework.TestCase;
 
 /**

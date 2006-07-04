@@ -18,7 +18,7 @@
 package org.apache.geronimo.management.geronimo;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public interface ResourceAdapter extends org.apache.geronimo.management.ResourceAdapter {
     JCAResource[] getJCAResourceImplementations();

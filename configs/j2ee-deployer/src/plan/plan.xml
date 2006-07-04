@@ -20,8 +20,6 @@
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
     <gbean name="EARBuilder" class="org.apache.geronimo.j2ee.deployment.EARConfigBuilder">
-        <!--domain set to wildcard so datasources may be deployed independently on client. -->
-        <!--a better solution is to get the domain and server from the parent module -->
         <attribute name="transactionManagerAbstractName">?name=TransactionManager</attribute>
         <attribute name="transactionContextManagerAbstractName">?name=TransactionContextManager</attribute>
         <attribute name="connectionTrackerAbstractName">?name=ConnectionTracker</attribute>
@@ -34,6 +32,12 @@
         </reference>
         <reference name="WebConfigBuilder">
             <name>WebBuilder</name>
+        </reference>
+        <reference name="SecurityBuilders">
+            <name>SecurityBuilder</name>
+        </reference>
+        <reference name="ServiceBuilders">
+            <name>GBeanBuilder</name>
         </reference>
         <references name="EJBConfigBuilder">
             <pattern>
@@ -107,6 +111,9 @@
         <attribute name="defaultIdleTimeoutMinutes">15</attribute>
         <attribute name="defaultXATransactionCaching">true</attribute>
         <attribute name="defaultXAThreadCaching">false</attribute>
+        <reference name="ServiceBuilders">
+            <name>GBeanBuilder</name>
+        </reference>
         <xml-attribute name="defaultEnvironment">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <dependencies>
@@ -121,11 +128,16 @@
         </xml-attribute>
     </gbean>
 
+    <gbean name="SecurityBuilder" class="org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl"/>
+
     <gbean name="LoginConfigurationBuilder" class="org.apache.geronimo.security.deployment.LoginConfigBuilder"/>
+
     <gbean name="SecurityService" class="org.apache.geronimo.security.SecurityServiceImpl">
         <attribute name="policyConfigurationFactory">
             org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>
         <attribute name="policyProvider">org.apache.geronimo.security.jacc.GeronimoPolicy</attribute>
     </gbean>
+
+
 
 </module>

@@ -23,7 +23,7 @@ import javax.management.ObjectName;
 
 
 /**
- * @version $Rev: 383682 $ $Date$
+ * @version $Rev$ $Date$
  */
 public interface ProxyFactory {
     Object createProxy(AbstractName target);

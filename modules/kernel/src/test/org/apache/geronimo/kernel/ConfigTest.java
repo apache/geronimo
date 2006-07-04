@@ -32,7 +32,7 @@ import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 
 /**
- * @version $Rev: 386505 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class ConfigTest extends TestCase {
     private Kernel kernel;

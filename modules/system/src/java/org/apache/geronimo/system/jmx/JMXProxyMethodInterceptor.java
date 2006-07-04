@@ -35,7 +35,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 /**
- * @version $Rev: 385487 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class JMXProxyMethodInterceptor implements MethodInterceptor {
     /**

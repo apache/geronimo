@@ -35,7 +35,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>xmlbeans-maven-plugin</artifactId>
-                <version>${xmlbeansMavenPluginVersion}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -86,10 +85,12 @@
             <artifactId>geronimo-deploy-config</artifactId>
         </dependency>
 
+<!--
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-j2ee</artifactId>
         </dependency>
+-->
     </dependencies>
 </project>
 

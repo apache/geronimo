@@ -22,7 +22,7 @@ import javax.management.j2ee.statistics.JVMStats;
 import org.apache.geronimo.management.JVM;
 
 /**
- * @version $Rev: 383682 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class JVMTest extends Abstract77Test {
     private JVM jvm;

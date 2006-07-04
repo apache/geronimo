@@ -35,7 +35,7 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 
 /**
- * @version $Rev: 386505 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class BasicRegistry implements InstanceRegistry {
     private final Map objectNameRegistry = new HashMap();

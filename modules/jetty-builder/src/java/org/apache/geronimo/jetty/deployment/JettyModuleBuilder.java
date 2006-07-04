@@ -46,13 +46,12 @@ import javax.transaction.UserTransaction;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.ModuleIDBuilder;
+import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
-import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
-import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
-import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
@@ -65,13 +64,13 @@ import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.jetty.Host;
 import org.apache.geronimo.jetty.JettyDefaultServletHolder;
 import org.apache.geronimo.jetty.JettyFilterHolder;
 import org.apache.geronimo.jetty.JettyFilterMapping;
 import org.apache.geronimo.jetty.JettyServletHolder;
 import org.apache.geronimo.jetty.JettyWebAppContext;
 import org.apache.geronimo.jetty.NonAuthenticator;
-import org.apache.geronimo.jetty.Host;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
@@ -82,7 +81,6 @@ import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.apache.geronimo.security.deployment.SecurityBuilder;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
@@ -147,8 +145,10 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             Collection defaultFilterMappings,
             Object pojoWebServiceTemplate,
             Collection webServiceBuilder,
+            Collection securityBuilders,
+            Collection serviceBuilders,
             Kernel kernel) throws GBeanNotFoundException {
-        super(kernel);
+        super(kernel, securityBuilders, serviceBuilders);
         this.defaultEnvironment = defaultEnvironment;
         this.defaultSessionTimeoutSeconds = (defaultSessionTimeoutSeconds == null) ? new Integer(30 * 60) : defaultSessionTimeoutSeconds;
         this.jettyContainerObjectName = jettyContainerName;
@@ -205,7 +205,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             // Output the target path in the error to make it clearer to the user which webapp
             // has the problem.  The targetPath is used, as moduleFile may have an unhelpful
             // value such as C:\geronimo-1.1\var\temp\geronimo-deploymentUtil22826.tmpdir
-            throw new DeploymentException("Error parsing web.xml for "+ targetPath, xmle);
+            throw new DeploymentException("Error parsing web.xml for " + targetPath, xmle);
         }
         check(webApp);
 
@@ -225,7 +225,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
         // Note: logic elsewhere depends on the default artifact ID being the file name less extension (ConfigIDExtractor)
         String warName = new File(moduleFile.getName()).getName();
-        if(warName.lastIndexOf('.') > -1) {
+        if (warName.lastIndexOf('.') > -1) {
             warName = warName.substring(0, warName.lastIndexOf('.'));
         }
         idBuilder.resolve(environment, warName, "war");
@@ -260,17 +260,17 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                     rawPlan = (XmlObject) plan;
                 } else {
                     if (plan != null) {
-                        rawPlan = XmlBeansUtil.parse(((File) plan).toURL());
+                        rawPlan = XmlBeansUtil.parse(((File) plan).toURL(), getClass().getClassLoader());
                     } else {
                         URL path = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/geronimo-web.xml");
                         try {
-                            rawPlan = XmlBeansUtil.parse(path);
+                            rawPlan = XmlBeansUtil.parse(path, getClass().getClassLoader());
                         } catch (FileNotFoundException e) {
                             path = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/geronimo-jetty.xml");
                             try {
-                                rawPlan = XmlBeansUtil.parse(path);
+                                rawPlan = XmlBeansUtil.parse(path, getClass().getClassLoader());
                             } catch (FileNotFoundException e1) {
-                                log.warn("Web application " +targetPath + " does not contain a WEB-INF/geronimo-web.xml deployment plan.  This may or may not be a problem, depending on whether you have things like resource references that need to be resolved.  You can also give the deployer a separate deployment plan file on the command line.");
+                                log.warn("Web application " + targetPath + " does not contain a WEB-INF/geronimo-web.xml deployment plan.  This may or may not be a problem, depending on whether you have things like resource references that need to be resolved.  You can also give the deployer a separate deployment plan file on the command line.");
                             }
                         }
                     }
@@ -284,14 +284,14 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 XmlObject webPlan = new GenericToSpecificPlanConverter(GerJettyDocument.type.getDocumentElementName().getNamespaceURI(),
                         JettyWebAppDocument.type.getDocumentElementName().getNamespaceURI(), "jetty").convertToSpecificPlan(rawPlan);
                 jettyWebApp = (JettyWebAppType) webPlan.changeType(JettyWebAppType.type);
-                SchemaConversionUtils.validateDD(jettyWebApp);
+                XmlBeansUtil.validateDD(jettyWebApp);
             } else {
                 String defaultContextRoot = determineDefaultContextRoot(webApp, standAlone, moduleFile, targetPath);
                 jettyWebApp = createDefaultPlan(defaultContextRoot);
             }
             return jettyWebApp;
         } catch (XmlException e) {
-            throw new DeploymentException("xml problem for web app "+targetPath, e);
+            throw new DeploymentException("xml problem for web app " + targetPath, e);
         }
     }
 
@@ -312,13 +312,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 !gerWebApp.isSetSecurityRealmName()) {
             throw new DeploymentException("web.xml for web app " + module.getName() + " includes security elements but Geronimo deployment plan is not provided or does not contain <security-realm-name> element necessary to configure security accordingly.");
         }
-        if (gerWebApp.isSetSecurity()) {
-            if (!gerWebApp.isSetSecurityRealmName()) {
-                throw new DeploymentException("You have supplied a security configuration for web app " + module.getName() + " but no security-realm-name to allow login");
-            }
-            SecurityConfiguration securityConfiguration = SecurityBuilder.buildSecurityConfiguration(gerWebApp.getSecurity(), cl);
-            earContext.setSecurityConfiguration(securityConfiguration);
-        }
+        boolean hasSecurityRealmName = gerWebApp.isSetSecurityRealmName();
+        buildSubstitutionGroups(gerWebApp, hasSecurityRealmName, module, earContext);
     }
 
     public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Collection repository) throws DeploymentException {
@@ -330,8 +325,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         WebAppType webApp = (WebAppType) webModule.getSpecDD();
         JettyWebAppType jettyWebApp = (JettyWebAppType) webModule.getVendorDD();
 
-        GbeanType[] gbeans = jettyWebApp.getGbeanArray();
-        ServiceConfigBuilder.addGBeans(gbeans, moduleClassLoader, moduleName, moduleContext);
+//        GbeanType[] gbeans = jettyWebApp.getGbeanArray();
+//        ServiceConfigBuilder.addGBeans(gbeans, moduleClassLoader, moduleName, moduleContext);
 
         UserTransaction userTransaction = new OnlineUserTransaction();
         //this may add to the web classpath with enhanced classes.
@@ -474,7 +469,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
             JspConfigType[] jspConfigArray = webApp.getJspConfigArray();
             if (jspConfigArray.length > 1) {
-                throw new DeploymentException("Web app "+ module.getName() +" cannot have more than one jsp-config element.  Currently has " + jspConfigArray.length +" jsp-config elements.");
+                throw new DeploymentException("Web app " + module.getName() + " cannot have more than one jsp-config element.  Currently has " + jspConfigArray.length + " jsp-config elements.");
             }
             Map tagLibMap = new HashMap();
             for (int i = 0; i < jspConfigArray.length; i++) {
@@ -488,7 +483,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
             LoginConfigType[] loginConfigArray = webApp.getLoginConfigArray();
             if (loginConfigArray.length > 1) {
-                throw new DeploymentException("Web app "+ module.getName() +" cannot have more than one login-config element.  Currently has " + loginConfigArray.length +" login-config elements.");
+                throw new DeploymentException("Web app " + module.getName() + " cannot have more than one login-config element.  Currently has " + loginConfigArray.length + " login-config elements.");
             }
             if (loginConfigArray.length == 1) {
                 LoginConfigType loginConfig = loginConfigArray[0];
@@ -537,7 +532,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 String servletName = servletMappingType.getServletName().getStringValue().trim();
                 if (!knownServlets.contains(servletName)) {
                     throw new DeploymentException("Web app " + module.getName() +
-                            " contains a servlet mapping that refers to servlet '" + servletName + 
+                            " contains a servlet mapping that refers to servlet '" + servletName +
                             "' but no such servlet was found!");
                 }
                 String urlPattern = servletMappingType.getUrlPattern().getStringValue().trim();
@@ -730,7 +725,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 webModuleData.setAttribute("checkedPermissions", checkedPermissions);
 
                 earContext.addSecurityContext(policyContextID, componentPermissions);
-                DefaultPrincipal defaultPrincipal = earContext.getSecurityConfiguration().getDefaultPrincipal();
+                DefaultPrincipal defaultPrincipal = ((SecurityConfiguration) earContext.getSecurityConfiguration()).getDefaultPrincipal();
                 webModuleData.setAttribute("defaultPrincipal", defaultPrincipal);
 
                 webModuleData.setReferencePattern("RoleDesignateSource", earContext.getJaccManagerName());
@@ -742,7 +737,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         } catch (DeploymentException de) {
             throw de;
         } catch (Exception e) {
-            throw new DeploymentException("Unable to initialize webapp GBean for "+module.getName(), e);
+            throw new DeploymentException("Unable to initialize webapp GBean for " + module.getName(), e);
         }
     }
 
@@ -860,7 +855,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             servletData.setAttribute("jspFile", servletType.getJspFile().getStringValue().trim());
             //TODO MAKE THIS CONFIGURABLE!!! Jetty uses the servlet mapping set up from the default-web.xml
             servletData.setAttribute("servletClass", "org.apache.jasper.servlet.JspServlet");
-	    initParams.put("development", "false");
+            initParams.put("development", "false");
         } else {
             throw new DeploymentException("Neither servlet class nor jsp file is set for " + servletName); // TODO identify web app in message
         }
@@ -933,6 +928,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         infoBuilder.addReference("DefaultFilterMappings", Object.class);
         infoBuilder.addReference("PojoWebServiceTemplate", Object.class, NameFactory.SERVLET_WEB_SERVICE_TEMPLATE);
         infoBuilder.addReference("WebServiceBuilder", WebServiceBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("SecurityBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
         infoBuilder.addInterface(ModuleBuilder.class);
 
@@ -946,6 +943,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 "DefaultFilterMappings",
                 "PojoWebServiceTemplate",
                 "WebServiceBuilder",
+                "SecurityBuilders",
+                "ServiceBuilders",
                 "kernel"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

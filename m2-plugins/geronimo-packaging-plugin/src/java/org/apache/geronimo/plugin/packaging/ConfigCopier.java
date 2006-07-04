@@ -34,7 +34,7 @@ import org.apache.geronimo.kernel.repository.WritableListableRepository;
 /**
  * Copies all the configurations out of source config store into target config store.
  *
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class ConfigCopier {
 

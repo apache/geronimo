@@ -27,7 +27,7 @@ import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
- * @version $Rev: 384351 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class GBeanDependencyTest extends TestCase {
     private Kernel kernel;

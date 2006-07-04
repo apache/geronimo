@@ -38,6 +38,7 @@ import junit.framework.TestSuite;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
+import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -82,6 +83,10 @@ public class EARConfigBuilderTest extends TestCase {
             return null;
         }
     };
+
+    private static final NamespaceDrivenBuilder securityBuilder = null;
+    private static final NamespaceDrivenBuilder serviceBuilder = null;
+
 
     private static final Naming naming = new Jsr77Naming();
 
@@ -276,6 +281,8 @@ public class EARConfigBuilderTest extends TestCase {
                     resourceReferenceBuilder,
                     appClientConfigBuilder,
                     serviceReferenceBuilder,
+                    securityBuilder,
+                    serviceBuilder,
                     naming);
 
             Object plan = configBuilder.getDeploymentPlan(null, earFile, idBuilder);
@@ -308,6 +315,8 @@ public class EARConfigBuilderTest extends TestCase {
                 resourceReferenceBuilder,
                 appClientConfigBuilder,
                 serviceReferenceBuilder,
+                securityBuilder,
+                serviceBuilder,
                 naming);
 
         ConfigurationData configurationData = null;
@@ -348,6 +357,8 @@ public class EARConfigBuilderTest extends TestCase {
                 resourceReferenceBuilder,
                 appClientConfigBuilder,
                 serviceReferenceBuilder,
+                securityBuilder,
+                serviceBuilder,
                 naming);
 
         ConfigurationData configurationData = null;
@@ -388,6 +399,8 @@ public class EARConfigBuilderTest extends TestCase {
                 resourceReferenceBuilder,
                 appClientConfigBuilder,
                 serviceReferenceBuilder,
+                securityBuilder,
+                serviceBuilder,
                 naming);
 
         ConfigurationData configurationData = null;
@@ -428,6 +441,8 @@ public class EARConfigBuilderTest extends TestCase {
                 resourceReferenceBuilder,
                 appClientConfigBuilder,
                 serviceReferenceBuilder,
+                securityBuilder,
+                serviceBuilder,
                 naming);
 
         ConfigurationData configurationData = null;
@@ -468,6 +483,8 @@ public class EARConfigBuilderTest extends TestCase {
                 resourceReferenceBuilder,
                 appClientConfigBuilder,
                 serviceReferenceBuilder,
+                securityBuilder,
+                serviceBuilder,
                 naming);
 
 
@@ -507,6 +524,8 @@ public class EARConfigBuilderTest extends TestCase {
                 resourceReferenceBuilder,
                 appClientConfigBuilder,
                 serviceReferenceBuilder,
+                securityBuilder,
+                serviceBuilder,
                 naming);
 
         ConfigurationData configurationData = null;
@@ -545,6 +564,8 @@ public class EARConfigBuilderTest extends TestCase {
                 resourceReferenceBuilder,
                 appClientConfigBuilder,
                 serviceReferenceBuilder,
+                securityBuilder,
+                serviceBuilder,
                 naming);
 
         ConfigurationData configurationData = null;

@@ -37,7 +37,7 @@
     <xs:complexType name="moduleType">
         <xs:sequence>
             <xs:element ref="sys:environment"/>
-            <xs:element ref="sys:gbean" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="sys:service" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 
@@ -154,6 +154,8 @@
         </xs:sequence>
     </xs:complexType>
 
+    <xs:element name="dependencies" type="sys:dependenciesType"/>
+
     <xs:complexType name="dependenciesType">
         <xs:sequence>
             <xs:element name="dependency" type="sys:dependencyType" minOccurs="0" maxOccurs="unbounded">
@@ -171,7 +173,14 @@
 
     <xs:complexType name="emptyType"/>
 
-     <xs:element name="gbean" type="sys:gbeanType">
+    <xs:element name="service" type="sys:abstract-serviceType"/>
+
+    <xs:complexType name="abstract-serviceType" abstract="true">
+        <xs:sequence>
+        </xs:sequence>
+    </xs:complexType>
+
+     <xs:element name="gbean" type="sys:gbeanType" substitutionGroup="sys:service">
         <xs:annotation>
             <xs:documentation>
                 Adds a new custom component to the server.  The component will be deployed
@@ -270,6 +279,10 @@
     </xs:simpleType>
 
     <xs:complexType name="gbeanType">
+        <xs:complexContent>
+            <xs:extension base="sys:abstract-serviceType">
+
+
         <xs:choice minOccurs="0" maxOccurs="unbounded">
             <xs:element name="attribute" type="sys:attributeType"/>
             <xs:element name="xml-attribute" type="sys:xml-attributeType"/>
@@ -280,6 +293,8 @@
         </xs:choice>
         <xs:attribute name="name" type="xs:string" use="required"/>
         <xs:attribute name="class" type="xs:string" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
 
     <xs:complexType name="attributeType">
@@ -329,12 +344,12 @@
         </xs:complexContent>
     </xs:complexType>
 
-    <xs:element name="service" type="sys:serviceType"/>
+    <!--<xs:element name="service" type="sys:serviceType"/>-->
 
-    <xs:complexType name="serviceType">
-        <xs:sequence>
-            <xs:element name="dependency" type="sys:artifactType" minOccurs="0" maxOccurs="unbounded"/>
-        </xs:sequence>
-    </xs:complexType>
+    <!--<xs:complexType name="serviceType">-->
+        <!--<xs:sequence>-->
+            <!--<xs:element name="dependency" type="sys:artifactType" minOccurs="0" maxOccurs="unbounded"/>-->
+        <!--</xs:sequence>-->
+    <!--</xs:complexType>-->
 
 </xs:schema>

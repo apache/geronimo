@@ -17,10 +17,9 @@
 
 package org.apache.geronimo.schema;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.xml.namespace.QName;
 
 import org.apache.geronimo.xbeans.j2ee.ApplicationClientDocument;
@@ -28,12 +27,12 @@ import org.apache.geronimo.xbeans.j2ee.ApplicationDocument;
 import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlDocumentProperties;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlOptions;
 
 /**
  * @version $Rev$ $Date$
@@ -83,7 +82,7 @@ public class SchemaConversionUtils {
 
     public static ApplicationDocument convertToApplicationSchema(XmlObject xmlObject) throws XmlException {
         if (ApplicationDocument.type.equals(xmlObject.schemaType())) {
-            validateDD(xmlObject);
+            XmlBeansUtil.validateDD(xmlObject);
             return (ApplicationDocument) xmlObject;
         }
         XmlCursor cursor = xmlObject.newCursor();
@@ -102,17 +101,17 @@ public class SchemaConversionUtils {
         }
         XmlObject result = xmlObject.changeType(ApplicationDocument.type);
         if (result != null) {
-            validateDD(result);
+            XmlBeansUtil.validateDD(result);
             return (ApplicationDocument) result;
         }
-        validateDD(xmlObject);
+        XmlBeansUtil.validateDD(xmlObject);
         return (ApplicationDocument) xmlObject;
 
     }
 
     public static ApplicationClientDocument convertToApplicationClientSchema(XmlObject xmlObject) throws XmlException {
         if (ApplicationClientDocument.type.equals(xmlObject.schemaType())) {
-            validateDD(xmlObject);
+            XmlBeansUtil.validateDD(xmlObject);
             return (ApplicationClientDocument) xmlObject;
         }
         XmlCursor cursor = xmlObject.newCursor();
@@ -131,17 +130,17 @@ public class SchemaConversionUtils {
         }
         XmlObject result = xmlObject.changeType(ApplicationClientDocument.type);
         if (result != null) {
-            validateDD(result);
+            XmlBeansUtil.validateDD(result);
             return (ApplicationClientDocument) result;
         }
-        validateDD(xmlObject);
+        XmlBeansUtil.validateDD(xmlObject);
         return (ApplicationClientDocument) xmlObject;
 
     }
 
     public static ConnectorDocument convertToConnectorSchema(XmlObject xmlObject) throws XmlException {
         if (ConnectorDocument.type.equals(xmlObject.schemaType())) {
-            validateDD(xmlObject);
+            XmlBeansUtil.validateDD(xmlObject);
             return (ConnectorDocument) xmlObject;
         }
         XmlCursor cursor = xmlObject.newCursor();
@@ -202,17 +201,17 @@ public class SchemaConversionUtils {
         }
         XmlObject result = xmlObject.changeType(ConnectorDocument.type);
         if (result != null) {
-            validateDD(result);
+            XmlBeansUtil.validateDD(result);
             return (ConnectorDocument) result;
         }
-        validateDD(xmlObject);
+        XmlBeansUtil.validateDD(xmlObject);
         return (ConnectorDocument) xmlObject;
 
     }
 
     public static EjbJarDocument convertToEJBSchema(XmlObject xmlObject) throws XmlException {
         if (EjbJarDocument.type.equals(xmlObject.schemaType())) {
-            validateDD(xmlObject);
+            XmlBeansUtil.validateDD(xmlObject);
             return (EjbJarDocument) xmlObject;
         }
         XmlCursor cursor = xmlObject.newCursor();
@@ -222,7 +221,7 @@ public class SchemaConversionUtils {
             cursor.toFirstChild();
             if ("http://java.sun.com/xml/ns/j2ee".equals(cursor.getName().getNamespaceURI())) {
                 XmlObject result = xmlObject.changeType(EjbJarDocument.type);
-                validateDD(result);
+                XmlBeansUtil.validateDD(result);
                 return (EjbJarDocument) result;
             }
             // deployment descriptor is probably in EJB 1.1 or 2.0 format
@@ -248,16 +247,16 @@ public class SchemaConversionUtils {
         }
         XmlObject result = xmlObject.changeType(EjbJarDocument.type);
         if (result != null) {
-            validateDD(result);
+            XmlBeansUtil.validateDD(result);
             return (EjbJarDocument) result;
         }
-        validateDD(xmlObject);
+        XmlBeansUtil.validateDD(xmlObject);
         return (EjbJarDocument) xmlObject;
     }
 
     public static WebAppDocument convertToServletSchema(XmlObject xmlObject) throws XmlException {
         if (WebAppDocument.type.equals(xmlObject.schemaType())) {
-            validateDD(xmlObject);
+            XmlBeansUtil.validateDD(xmlObject);
             return (WebAppDocument) xmlObject;
         }
         XmlCursor cursor = xmlObject.newCursor();
@@ -266,7 +265,7 @@ public class SchemaConversionUtils {
             cursor.toFirstChild();
             if ("http://java.sun.com/xml/ns/j2ee".equals(cursor.getName().getNamespaceURI())) {
                 XmlObject result = xmlObject.changeType(WebAppDocument.type);
-                validateDD(result);
+                XmlBeansUtil.validateDD(result);
                 return (WebAppDocument) result;
             }
 
@@ -320,10 +319,10 @@ public class SchemaConversionUtils {
         }
         XmlObject result = xmlObject.changeType(WebAppDocument.type);
         if (result != null) {
-            validateDD(result);
+            XmlBeansUtil.validateDD(result);
             return (WebAppDocument) result;
         }
-        validateDD(xmlObject);
+        XmlBeansUtil.validateDD(xmlObject);
         return (WebAppDocument) xmlObject;
     }
 
@@ -367,7 +366,7 @@ public class SchemaConversionUtils {
                 if (result == null || result.schemaType() != desiredType) {
                     result = temp.copy().changeType(desiredType);
                 }
-                validateDD(result);
+                XmlBeansUtil.validateDD(result);
                 return result;
             } else {
                 return null;
@@ -489,7 +488,6 @@ public class SchemaConversionUtils {
 
                     cursor.toNextSibling(J2EE_NAMESPACE, "abstract-schema-name");
                     while (cursor.toNextSibling(J2EE_NAMESPACE, "cmp-field")) {
-                        ;
                     }
                     cursor.toNextSibling(J2EE_NAMESPACE, "primkey-field");
                     cursor.toNextSibling();
@@ -505,14 +503,13 @@ public class SchemaConversionUtils {
                         //cursor still on transaction-type
                     }
                     if (!cursor.toNextSibling(J2EE_NAMESPACE, "activation-config")) {
-                        boolean hasProperties = false;
                         //skip transaction-type
                         cursor.toNextSibling();
                         //convert EJB 2.0 elements to activation-config-properties.
                         moveable.toCursor(cursor);
                         cursor.push();
                         cursor.beginElement("activation-config", J2EE_NAMESPACE);
-                        hasProperties |= addActivationConfigProperty(moveable, cursor, "message-selector", "messageSelector");
+                        boolean hasProperties = addActivationConfigProperty(moveable, cursor, "message-selector", "messageSelector");
                         hasProperties |= addActivationConfigProperty(moveable, cursor, "acknowledge-mode", "acknowledgeMode");
                         if (new QName(J2EE_NAMESPACE, "message-driven-destination").equals(moveable.getName()) ||
                                 moveable.toNextSibling(J2EE_NAMESPACE, "message-driven-destination")) {
@@ -594,17 +591,6 @@ public class SchemaConversionUtils {
         moveElements("env-entry-name", moveable, cursor);
         moveElements("env-entry-type", moveable, cursor);
         moveElements("env-entry-value", moveable, cursor);
-    }
-
-    public static void validateDD(XmlObject dd) throws XmlException {
-        XmlOptions xmlOptions = new XmlOptions();
-        xmlOptions.setLoadLineNumbers();
-        Collection errors = new ArrayList();
-        xmlOptions.setErrorListener(errors);
-        if (!dd.validate(xmlOptions)) {
-            throw new XmlException("Invalid deployment descriptor: " + errors + "\nDescriptor: " + dd.toString(), null, errors);
-        }
-//        System.out.println("descriptor: " + dd.toString());
     }
 
     private static void moveElements(String localName, XmlCursor moveable, XmlCursor toHere) {

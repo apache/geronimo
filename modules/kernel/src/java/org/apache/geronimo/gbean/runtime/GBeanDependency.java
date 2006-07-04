@@ -28,7 +28,7 @@ import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
 import org.apache.geronimo.kernel.management.State;
 
 /**
- * @version $Rev: 386907 $ $Date$
+ * @version $Rev$ $Date$
  */
 public final class GBeanDependency {
 

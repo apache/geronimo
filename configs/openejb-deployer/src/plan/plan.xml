@@ -28,6 +28,12 @@
         <reference name="WebServiceLinkTemplate">
             <name>WebServiceEJBLinkTemplate</name>
         </reference>
+        <reference name="SecurityBuilders">
+            <name>SecurityBuilder</name>
+        </reference>
+        <reference name="ServiceBuilders">
+            <name>GBeanBuilder</name>
+        </reference>
         <references name="WebServiceBuilder">
             <pattern>
                 <name>WebServiceBuilder</name>
