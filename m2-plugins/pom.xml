@@ -41,8 +41,6 @@
             </activation>
             <modules>
                 <module>geronimo-packaging-plugin</module>
-                <module>geronimo-deployment-plugin</module>
-                <module>geronimo-assembly-plugin</module>
             </modules>
         </profile>
 
