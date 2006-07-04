@@ -38,7 +38,7 @@ public class TransportConnectorGBeanImpl implements GBeanLifecycle, ActiveMQConn
     private Log log = LogFactory.getLog(getClass().getName());
 
     private TransportConnector transportConnector;
-    private BrokerServiceGBean brokerService;
+    private BrokerServiceGBean brokerServiceGBean;
     
     private String protocol;
     private String host;
@@ -46,9 +46,10 @@ public class TransportConnectorGBeanImpl implements GBeanLifecycle, ActiveMQConn
     private String path;
     private String query;
     private String urlAsStarted;
+    private ClassLoader classLoader;
 
-    public TransportConnectorGBeanImpl(BrokerServiceGBean brokerService, String protocol, String host, int port) {
-        this.brokerService = brokerService;
+    public TransportConnectorGBeanImpl(BrokerServiceGBean brokerServiceGBean, String protocol, String host, int port) {
+        this.brokerServiceGBean = brokerServiceGBean;
         this.protocol = protocol;
         this.host = host;
         this.port = port;
@@ -113,7 +114,7 @@ public class TransportConnectorGBeanImpl implements GBeanLifecycle, ActiveMQConn
 
     public synchronized void doStart() throws Exception {
     	ClassLoader old = Thread.currentThread().getContextClassLoader();
-    	Thread.currentThread().setContextClassLoader(BrokerServiceGBeanImpl.class.getClassLoader());
+    	Thread.currentThread().setContextClassLoader(getClassLoader());
     	try {
 	        if (transportConnector == null) {
                 urlAsStarted = getUrl();
@@ -147,19 +148,31 @@ public class TransportConnectorGBeanImpl implements GBeanLifecycle, ActiveMQConn
     }
 
     protected TransportConnector createBrokerConnector(String url) throws Exception {
-        return brokerService.getBrokerContainer().addConnector(url);
+        return brokerServiceGBean.getBrokerContainer().addConnector(url);
+    }
+
+    public ClassLoader getClassLoader() {
+        if( classLoader == null ) {
+            classLoader = this.getClass().getClassLoader();
+        }
+        return classLoader;
+    }
+
+    public void setClassLoader(ClassLoader classLoader) {
+        this.classLoader = classLoader;
     }
 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("ActiveMQ Transport Connector", TransportConnectorGBeanImpl.class, CONNECTOR_J2EE_TYPE);
-        infoFactory.addAttribute("url", String.class.getName(), false);
-        infoFactory.addReference("brokerService", BrokerServiceGBean.class);
-        infoFactory.addInterface(ActiveMQConnector.class, new String[]{"host","port","protocol","path","query"},
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder("ActiveMQ Transport Connector", TransportConnectorGBeanImpl.class, CONNECTOR_J2EE_TYPE);
+        infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
+        infoBuilder.addAttribute("url", String.class.getName(), false);
+        infoBuilder.addReference("brokerService", BrokerServiceGBean.class);
+        infoBuilder.addInterface(ActiveMQConnector.class, new String[]{"host","port","protocol","path","query"},
                 new String[]{"host","port"});
-        infoFactory.setConstructor(new GConstructorInfo(new String[]{"brokerService", "protocol", "host", "port"}));
-        GBEAN_INFO = infoFactory.getBeanInfo();
+        infoBuilder.setConstructor(new GConstructorInfo(new String[]{"brokerService", "protocol", "host", "port"}));
+        GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {

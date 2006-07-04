@@ -25,6 +25,7 @@ import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.store.DefaultPersistenceAdapterFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.connector.outbound.ConnectionFactorySource;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -47,8 +48,8 @@ public class BrokerServiceGBeanImpl implements GBeanLifecycle, BrokerServiceGBea
     private BrokerService brokerService;
     private ServerInfo serverInfo;
     private String dataDirectory;
-    private DataSourceReference dataSource;
-
+    private ConnectionFactorySource dataSource;
+    private ClassLoader classLoader;
     private String objectName;
     private JMSManager manager;
 
@@ -61,7 +62,7 @@ public class BrokerServiceGBeanImpl implements GBeanLifecycle, BrokerServiceGBea
 
     public synchronized void doStart() throws Exception {
         	ClassLoader old = Thread.currentThread().getContextClassLoader();
-        	Thread.currentThread().setContextClassLoader(BrokerServiceGBeanImpl.class.getClassLoader());
+        	Thread.currentThread().setContextClassLoader(getClassLoader());
         	try {
     	        if (brokerService == null) {
     	            brokerService = createContainer();
@@ -110,17 +111,18 @@ public class BrokerServiceGBeanImpl implements GBeanLifecycle, BrokerServiceGBea
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("ActiveMQ Message Broker", BrokerServiceGBeanImpl.class, "JMSServer");
-        infoFactory.addReference("serverInfo", ServerInfo.class);
-        infoFactory.addAttribute("brokerName", String.class, true);
-        infoFactory.addAttribute("brokerUri", String.class, true);
-        infoFactory.addAttribute("dataDirectory", String.class, true);
-        infoFactory.addReference("dataSource", DataSourceReference.class);
-        infoFactory.addAttribute("objectName", String.class, false);
-        infoFactory.addReference("manager", JMSManager.class);
-        infoFactory.addInterface(BrokerServiceGBean.class);
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder("ActiveMQ Message Broker", BrokerServiceGBeanImpl.class, "JMSServer");
+        infoBuilder.addReference("serverInfo", ServerInfo.class);
+        infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
+        infoBuilder.addAttribute("brokerName", String.class, true);
+        infoBuilder.addAttribute("brokerUri", String.class, true);
+        infoBuilder.addAttribute("dataDirectory", String.class, true);
+        infoBuilder.addReference("dataSource", ConnectionFactorySource.class);
+        infoBuilder.addAttribute("objectName", String.class, false);
+        infoBuilder.addReference("manager", JMSManager.class);
+        infoBuilder.addInterface(BrokerServiceGBean.class);
         // infoFactory.setConstructor(new String[]{"brokerName, brokerUri"});
-        GBEAN_INFO = infoFactory.getBeanInfo();
+        GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {
@@ -162,11 +164,11 @@ public class BrokerServiceGBeanImpl implements GBeanLifecycle, BrokerServiceGBea
         this.dataDirectory = dataDir;
     }
 
-    public DataSourceReference getDataSource() {
+    public ConnectionFactorySource getDataSource() {
         return dataSource;
     }
 
-    public void setDataSource(DataSourceReference dataSource) {
+    public void setDataSource(ConnectionFactorySource dataSource) {
         this.dataSource = dataSource;
     }
 
@@ -204,6 +206,17 @@ public class BrokerServiceGBeanImpl implements GBeanLifecycle, BrokerServiceGBea
 
     public void setObjectName(String objectName) {
         this.objectName = objectName;
+    }
+
+    public ClassLoader getClassLoader() {
+        if( classLoader == null ) {
+            classLoader = this.getClass().getClassLoader();
+        }
+        return classLoader;
+    }
+
+    public void setClassLoader(ClassLoader classLoader) {
+        this.classLoader = classLoader;
     }
 	
 }

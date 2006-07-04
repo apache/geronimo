@@ -27,8 +27,8 @@ public interface ActiveMQConnector extends JMSConnector {
     public final static String CONNECTOR_J2EE_TYPE = "JMSConnector";
 
     // Additional stuff you can add to an ActiveMQ connector URI
-    public String getPath();
-    public void setPath(String path);
-    public String getQuery();
-    public void setQuery(String query);
+    String getPath();
+    void setPath(String path);
+    String getQuery();
+    void setQuery(String query);
 }

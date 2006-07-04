@@ -186,7 +186,7 @@ public class ActiveMQManagerGBean implements ActiveMQManager {
     }
 
     /**
-     * Creates a new connector, and returns the ObjectName for it.  Note that
+     * Returns a new JMSConnector.  Note that
      * the connector may well require further customization before being fully
      * functional (e.g. SSL settings for a secure connector).
      */
