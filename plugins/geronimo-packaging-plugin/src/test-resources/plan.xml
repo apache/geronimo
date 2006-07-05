@@ -18,20 +18,20 @@
     <moduleId>
       <groupId>geronimo</groupId>
       <artifactId>system-database</artifactId>
-      <version>1.1</version>
+      <version>1.1.1-SNAPSHOT</version>
       <type>car</type>
     </moduleId>
     <dependencies>
       <dependency>
         <groupId>geronimo</groupId>
         <artifactId>j2ee-server</artifactId>
-        <version>1.1</version>
+        <version>1.1.1-SNAPSHOT</version>
         <type>car</type>
       </dependency>
       <dependency>
         <groupId>geronimo</groupId>
         <artifactId>geronimo-derby</artifactId>
-        <version>1.1</version>
+        <version>1.1.1-SNAPSHOT</version>
         <type>jar</type>
         <import>classes</import>
       </dependency>
