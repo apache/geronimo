@@ -128,7 +128,7 @@
         </dependency>
 
         <dependency>
-            <groupId>geronimo-spec</groupId>
+            <groupId>org.apache.geronimo.spec</groupId>
             <artifactId>geronimo-spec-corba</artifactId>
         </dependency>
         <dependency>
