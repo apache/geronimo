@@ -238,7 +238,7 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.geronimo.spec</groupId>
+                <groupId>geronimo-spec</groupId>
                 <artifactId>geronimo-spec-corba</artifactId>
                 <version>${geronimoSpecCorbaVersion}</version>
             </dependency>
