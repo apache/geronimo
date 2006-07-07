@@ -17,7 +17,11 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project>
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
@@ -29,32 +33,37 @@
 
     <groupId>org.apache.geronimo.plugins</groupId>
     <artifactId>plugins-parent</artifactId>
-    <packaging>pom</packaging>
     <name>Geronimo Plugins</name>
-    <description>Geronimo Plugins</description>
+    <description>Geronimo :: Plugins</description>
+    <packaging>pom</packaging>
+    
+    <properties>
+        <maven.version>2.0</maven.version>
+    </properties>
+    
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-plugin-api</artifactId>
+            <version>${maven.version}</version>
+        </dependency>
 
-    <profiles>
-        <profile>
-            <id>default</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>geronimo-packaging-plugin</module>
-            </modules>
-        </profile>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-project</artifactId>
+            <version>${maven.version}</version>
+        </dependency>
 
-        <profile>
-            <id>singleplugin</id>
-            <activation>
-                <property>
-                    <name>plugin</name>
-                </property>
-            </activation>
-            <modules>
-                <module>${plugin}</module>
-            </modules>
-        </profile>
-    </profiles>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-artifact</artifactId>
+            <version>${maven.version}</version>
+        </dependency>
+    </dependencies>
+    
+    <modules>
+        <module>geronimo-packaging-plugin</module>
+    </modules>
+    
 </project>
 
