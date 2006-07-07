@@ -1,0 +1,58 @@
+#!/bin/sh
+##
+## $Id$
+##
+
+clean() {
+    echo "Cleaning..."
+    
+    rm -rf ~/.m2/repository
+    
+    find . -name target -type d -exec rm -rf \{\} \;
+}
+
+stage() {
+    echo "Starting stage: $1"
+    
+    mvn -Dstage=$1
+}
+
+thirdparty() {
+    # Build thirdparty components
+    echo "Building thirdparty..."
+    
+    rm -rf thirdparty
+    mkdir -p thirdparty
+    (
+        cd thirdparty
+        
+        # Build TranQL
+        echo "Building TranQL..."
+        
+        svn co https://svn.codehaus.org/tranql/trunk tranql
+        (
+            cd tranql
+            mvn -Dmaven.test.skip=true install
+        )
+        
+        # Build OpenEJB
+        echo "Building OpenEJB..."
+        
+        svn co https://svn.codehaus.org/openejb/trunk/openejb2 openejb2
+        (
+            cd openejb2
+            mvn -Dmaven.test.skip=true install
+        )
+    )
+}
+
+clean
+
+stage bootstrap
+
+thirdparty
+
+stage assemble
+
+echo "Done"
+
