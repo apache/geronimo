@@ -28,38 +28,26 @@
     </parent>
 
     <artifactId>ldap-realm</artifactId>
+    <name>Geronimo Configs :: LDAP Security Realm</name>
     <packaging>car</packaging>
-    <name>LDAP Security Realm</name>
     
-    <build>
-        <plugins>
-            <plugin>
-                <!-- uses geronimo-gbean-deployer -->
-                <groupId>org.apache.geronimo.plugins</groupId>
-                <artifactId>geronimo-packaging-plugin</artifactId>
-                <extensions>true</extensions>
-            </plugin>
-        </plugins>
-    </build>
-
-    <!-- ============ -->
-    <!-- Dependencies -->
-    <!-- ============ -->
-
     <dependencies>
+        
         <!-- parent -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-security</artifactId>
-            <version>${geronimoVersion}</version>
+            <version>${pom.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>directory</artifactId>
-            <version>${geronimoVersion}</version>
+            <version>${pom.version}</version>
             <type>car</type>
         </dependency>
+        
     </dependencies>
+    
 </project>

@@ -18,43 +18,46 @@
 package org.apache.geronimo.plugin.packaging;
 
 import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import java.util.List;
 
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
 
+//
+// TODO: Remove... appears unused
+//
+
 /**
  * Copies all the configurations out of source config store into target config store.
  *
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class ConfigCopier {
 
-    private static final Class[] REPO_ARGS = new Class[] {File.class};
-    private static final Class[] STORE_ARGS = new Class[] {WritableListableRepository.class};
-
+    private static final Class[] REPO_ARGS = { File.class };
+    private static final Class[] STORE_ARGS = { WritableListableRepository.class };
 
     private String sourceRepositoryClass;
-    private String targetRepositoryClass;
-    private String sourceConfigurationStoreClass;
-    private String targetConfigurationStoreClass;
-    private File sourceRepositoryLocation;
-    private File targetRepositoryLocation;
 
+    private String targetRepositoryClass;
+
+    private String sourceConfigurationStoreClass;
+
+    private String targetConfigurationStoreClass;
+
+    private File sourceRepositoryLocation;
+
+    private File targetRepositoryLocation;
 
     public String getSourceRepositoryClass() {
         return sourceRepositoryClass;
     }
 
-    public void setSourceRepositoryClass(String sourceRepositoryClass) {
+    public void setSourceRepositoryClass(final String sourceRepositoryClass) {
         this.sourceRepositoryClass = sourceRepositoryClass;
     }
 
@@ -62,7 +65,7 @@ public class ConfigCopier {
         return targetRepositoryClass;
     }
 
-    public void setTargetRepositoryClass(String targetRepositoryClass) {
+    public void setTargetRepositoryClass(final String targetRepositoryClass) {
         this.targetRepositoryClass = targetRepositoryClass;
     }
 
@@ -70,7 +73,7 @@ public class ConfigCopier {
         return sourceConfigurationStoreClass;
     }
 
-    public void setSourceConfigurationStoreClass(String sourceConfigurationStoreClass) {
+    public void setSourceConfigurationStoreClass(final String sourceConfigurationStoreClass) {
         this.sourceConfigurationStoreClass = sourceConfigurationStoreClass;
     }
 
@@ -78,7 +81,7 @@ public class ConfigCopier {
         return targetConfigurationStoreClass;
     }
 
-    public void setTargetConfigurationStoreClass(String targetConfigurationStoreClass) {
+    public void setTargetConfigurationStoreClass(final String targetConfigurationStoreClass) {
         this.targetConfigurationStoreClass = targetConfigurationStoreClass;
     }
 
@@ -86,7 +89,7 @@ public class ConfigCopier {
         return sourceRepositoryLocation;
     }
 
-    public void setSourceRepositoryLocation(File sourceRepositoryLocation) {
+    public void setSourceRepositoryLocation(final File sourceRepositoryLocation) {
         this.sourceRepositoryLocation = sourceRepositoryLocation;
     }
 
@@ -94,7 +97,7 @@ public class ConfigCopier {
         return targetRepositoryLocation;
     }
 
-    public void setTargetRepositoryLocation(File targetRepositoryLocation) {
+    public void setTargetRepositoryLocation(final File targetRepositoryLocation) {
         this.targetRepositoryLocation = targetRepositoryLocation;
     }
 
@@ -103,14 +106,20 @@ public class ConfigCopier {
             ClassLoader cl = this.getClass().getClassLoader();
 
             Class sourceRepoClass = cl.loadClass(sourceRepositoryClass);
-            WritableListableRepository sourceRepository = (WritableListableRepository) sourceRepoClass.getDeclaredConstructor(REPO_ARGS).newInstance(new Object[] {sourceRepositoryLocation});
+            WritableListableRepository sourceRepository = (WritableListableRepository)
+                    sourceRepoClass.getDeclaredConstructor(REPO_ARGS).newInstance(new Object[]{sourceRepositoryLocation});
+
             Class sourceConfigStoreClass = cl.loadClass(sourceConfigurationStoreClass);
-            ConfigurationStore sourceConfigStore = (ConfigurationStore) sourceConfigStoreClass.getDeclaredConstructor(STORE_ARGS).newInstance(new Object[] {sourceRepository});
+            ConfigurationStore sourceConfigStore = (ConfigurationStore)
+                    sourceConfigStoreClass.getDeclaredConstructor(STORE_ARGS).newInstance(new Object[]{sourceRepository});
 
             Class targetRepoClass = cl.loadClass(targetRepositoryClass);
-            WritableListableRepository targetRepository = (WritableListableRepository) targetRepoClass.getDeclaredConstructor(REPO_ARGS).newInstance(new Object[] {targetRepositoryLocation});
+            WritableListableRepository targetRepository = (WritableListableRepository)
+                    targetRepoClass.getDeclaredConstructor(REPO_ARGS).newInstance(new Object[]{targetRepositoryLocation});
+
             Class targetConfigStoreClass = cl.loadClass(targetConfigurationStoreClass);
-            ConfigurationStore targetConfigStore = (ConfigurationStore) targetConfigStoreClass.getDeclaredConstructor(STORE_ARGS).newInstance(new Object[] {targetRepository});
+            ConfigurationStore targetConfigStore = (ConfigurationStore)
+                    targetConfigStoreClass.getDeclaredConstructor(STORE_ARGS).newInstance(new Object[]{targetRepository});
 
             List configs = sourceConfigStore.listConfigurations();
             for (Iterator iterator = configs.iterator(); iterator.hasNext();) {
@@ -122,7 +131,8 @@ public class ConfigCopier {
                 }
                 targetConfigStore.install(configData);
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
             throw e;
         }

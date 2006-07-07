@@ -14,6 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.apache.geronimo.plugin.packaging;
 
 import java.io.File;
@@ -38,7 +39,9 @@ import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
  *
  * @version $Rev$ $Date$
  */
-public class MavenConfigStore extends RepositoryConfigurationStore {
+public class MavenConfigStore
+    extends RepositoryConfigurationStore
+{
     public MavenConfigStore(Kernel kernel, String objectName, WritableListableRepository repository) {
         super(kernel, objectName, repository);
     }
@@ -59,7 +62,8 @@ public class MavenConfigStore extends RepositoryConfigurationStore {
             File metaInf = new File(tmpFile, "META-INF");
             metaInf.mkdirs();
             return tmpFile;
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             // doh why can't I throw this?
             return null;
         }

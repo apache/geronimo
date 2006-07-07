@@ -28,10 +28,10 @@
     </parent>
 
     <artifactId>ge-activemq-rar</artifactId>
-    <packaging>rar</packaging>
     <name>Geronimo :: ActiveMQ Embedded RAR</name>
     <description>Resource Adapter configuration for using ActiveMQ as a bundled JMS provider.</description>
-
+    <packaging>rar</packaging>
+    
     <build>
         <plugins>
             <plugin>
@@ -49,21 +49,11 @@
         <dependency>
             <groupId>activemq</groupId>
             <artifactId>activemq-core</artifactId>
-            <version>${activeMqVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>activemq</groupId>
             <artifactId>activemq-ra</artifactId>
-            <version>${activeMqVersion}</version>
-            
-            <!--  Can't be found anywhere -->
-            <exclusions>
-                <exclusion>
-                    <groupId>incubator-derby</groupId>
-                    <artifactId>derby</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
     </dependencies>
 </project>

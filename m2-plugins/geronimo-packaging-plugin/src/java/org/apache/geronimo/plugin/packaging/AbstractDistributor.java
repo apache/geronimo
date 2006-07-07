@@ -1,6 +1,5 @@
 /**
- *
- * Copyright 2005 The Apache Software Foundation
+ *  Copyright 2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,11 +25,16 @@ import javax.management.ObjectName;
  *
  * @version $Rev$ $Date$
  */
-public abstract class AbstractDistributor {
+public abstract class AbstractDistributor
+{
     private String user;
+
     private String password;
+
     private String url;
+
     private File artifact;
+
     protected ObjectName storeName;
 
     public String getUser() {
@@ -42,7 +46,7 @@ public abstract class AbstractDistributor {
      *
      * @param user the username
      */
-    public void setUser(String user) {
+    public void setUser(final String user) {
         this.user = user;
     }
 
@@ -55,7 +59,7 @@ public abstract class AbstractDistributor {
      *
      * @param password the password
      */
-    public void setPassword(String password) {
+    public void setPassword(final String password) {
         this.password = password;
     }
 
@@ -68,7 +72,7 @@ public abstract class AbstractDistributor {
      *
      * @param url the URL of the server
      */
-    public void setUrl(String url) {
+    public void setUrl(final String url) {
         this.url = url;
     }
 
@@ -81,7 +85,7 @@ public abstract class AbstractDistributor {
      *
      * @param artifact the artifact to distribute
      */
-    public void setArtifact(File artifact) {
+    public void setArtifact(final File artifact) {
         this.artifact = artifact;
     }
 
@@ -96,10 +100,11 @@ public abstract class AbstractDistributor {
      *
      * @param storeName the name of the ConfigurationStore to distribute to
      */
-    public void setStoreName(String storeName) {
+    public void setStoreName(final String storeName) {
         try {
             this.storeName = new ObjectName(storeName);
-        } catch (MalformedObjectNameException e) {
+        }
+        catch (MalformedObjectNameException e) {
             throw new IllegalArgumentException("Invalid storeName: " + storeName);
         }
     }

@@ -17,7 +17,11 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project>
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
@@ -28,35 +32,56 @@
     </parent>
 
     <artifactId>geronimo-console-framework</artifactId>
+    <name>Geronimo Applications, Console :: Portal Framework</name>
     <packaging>war</packaging>
-    <name>Geronimo :: Console :: Portal Framework</name>
-
+    
     <dependencies>
         <dependency>
             <groupId>castor</groupId>
             <artifactId>castor</artifactId>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-servlet_2.4_spec</artifactId>
             <scope>provided</scope>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.pluto</groupId>
             <artifactId>pluto</artifactId>
-            <version>${plutoVersion}</version>
             <scope>provided</scope>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.pluto</groupId>
             <artifactId>pluto-portal</artifactId>
-            <version>${plutoVersion}</version>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.pluto</groupId>
             <artifactId>pluto-descriptors</artifactId>
-            <version>${plutoVersion}</version>
+        </dependency>
+        
+        <!-- Required for JSPC compilation -->
+        <dependency>
+            <groupId>tomcat</groupId>
+            <artifactId>jasper-runtime</artifactId>
         </dependency>
     </dependencies>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jspc-maven-plugin</artifactId>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

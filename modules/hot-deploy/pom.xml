@@ -40,31 +40,31 @@
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-deploy-tool</artifactId>
-            <version>${geronimoVersion}</version>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-deploy-jsr88</artifactId>
-            <version>${geronimoVersion}</version>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-common</artifactId>
-            <version>${geronimoVersion}</version>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-kernel</artifactId>
-            <version>${geronimoVersion}</version>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-system</artifactId>
-            <version>${geronimoVersion}</version>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>

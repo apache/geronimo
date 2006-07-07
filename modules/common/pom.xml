@@ -35,6 +35,7 @@
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-kernel</artifactId>
+            <version>${pom.version}</version>
         </dependency>
     </dependencies>
 </project>

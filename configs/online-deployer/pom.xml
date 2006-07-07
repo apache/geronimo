@@ -28,29 +28,27 @@
     </parent>
 
     <artifactId>online-deployer</artifactId>
+    <name>Geronimo Configs :: Online Deployer</name>
     <packaging>car</packaging>
-    <name>Online Deployer Configuration</name>
-    <!-- This is deployer.jar -->
     
     <build>
         <plugins>
             <plugin>                
                 <groupId>org.apache.geronimo.plugins</groupId>
                 <artifactId>geronimo-packaging-plugin</artifactId>
-                <extensions>true</extensions>
                 <configuration>
                     <!-- uses default DeploymentConfig=geronimo-gbean-deployer -->
                     <!-- written to Manifest.mf -->
-                    <classPath>../lib/geronimo-deployment-${geronimoVersion}.jar \
+                    <classPath>../lib/geronimo-deployment-${pom.version}.jar \
                         ../lib/xpp3-${xpp3_version}.jar \
                         ../lib/xstream-${xstream_version}.jar \
-                        ../lib/geronimo-deploy-jsr88-${geronimoVersion}.jar \
-                        ../lib/geronimo-deploy-tool-${geronimoVersion}.jar \
+                        ../lib/geronimo-deploy-jsr88-${pom.version}.jar \
+                        ../lib/geronimo-deploy-tool-${pom.version}.jar \
                         ../lib/geronimo-j2ee-deployment_${geronimoSpecJ2eeDeploymentVersion}_spec.jar \
-                        ../lib/geronimo-common-${geronimoVersion}.jar \
-                        ../lib/geronimo-kernel-${geronimoVersion}.jar \
-                        ../lib/geronimo-system-${geronimoVersion}.jar \
-                        ../lib/geronimo-util-${geronimoVersion}.jar \
+                        ../lib/geronimo-common-${pom.version}.jar \
+                        ../lib/geronimo-kernel-${pom.version}.jar \
+                        ../lib/geronimo-system-${pom.version}.jar \
+                        ../lib/geronimo-util-${pom.version}.jar \
                         ../lib/cglib-nodep-${cglibVersion}.jar \
                         ../lib/commons-cli-${commonsCliVersion}.jar \
                         ../lib/commons-logging-${commonsLoggingVersion}.jar \
@@ -63,8 +61,4 @@
         </plugins>
     </build>
 
-    <!-- ============ -->
-    <!-- Dependencies -->
-    <!-- ============ -->
-    <!-- none -->
 </project>

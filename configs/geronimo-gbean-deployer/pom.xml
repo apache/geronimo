@@ -28,15 +28,36 @@
     </parent>
 
     <artifactId>geronimo-gbean-deployer</artifactId>
+    <name>Geronimo Configs :: GBean Deployer</name>
     <packaging>car</packaging>
-    <name>Geronimo Configuration for performing service deployments</name>
+    
+    <dependencies>
+        <!-- needed by the plan -->
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-deployment</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-service-builder</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+        
+        <!-- bootstrap -->
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-deploy-tool</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+    </dependencies>
     
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.geronimo.plugins</groupId>
                 <artifactId>geronimo-packaging-plugin</artifactId>
-                <extensions>true</extensions>
                 <configuration>
                     <boot>true</boot>
                 </configuration>
@@ -44,24 +65,4 @@
         </plugins>
     </build>
 
-    <!-- ============ -->
-    <!-- Dependencies -->
-    <!-- ============ -->
-
-    <dependencies>
-        <!-- needed by the plan -->
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-deployment</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-service-builder</artifactId>
-        </dependency>
-        <!-- bootstrap -->
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-deploy-tool</artifactId>
-        </dependency>
-    </dependencies>
 </project>

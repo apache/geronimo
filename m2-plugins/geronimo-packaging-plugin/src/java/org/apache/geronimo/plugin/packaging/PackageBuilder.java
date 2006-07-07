@@ -14,6 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.apache.geronimo.plugin.packaging;
 
 import java.io.File;
@@ -51,8 +52,8 @@ import org.apache.geronimo.system.resolver.ExplicitDefaultArtifactResolver;
  *
  * @version $Rev:385659 $ $Date$
  */
-public class PackageBuilder {
-
+public class PackageBuilder
+{
     private static Log log = LogFactory.getLog(PackageBuilder.class);
 
     private static final String KERNEL_NAME = "geronimo.maven";
@@ -66,19 +67,19 @@ public class PackageBuilder {
     private static AbstractName targetRepositoryAName;
 
     private static final String[] ARG_TYPES = {
-            boolean.class.getName(),
-            File.class.getName(),
-            File.class.getName(),
-            File.class.getName(),
-            Boolean.TYPE.getName(),
-            String.class.getName(),
-            String.class.getName(),
-            String.class.getName(),
-            String.class.getName(),
-            String.class.getName(),
-            String.class.getName(),
-            String.class.getName(),
-            String.class.getName(),
+        boolean.class.getName(),
+        File.class.getName(),
+        File.class.getName(),
+        File.class.getName(),
+        Boolean.TYPE.getName(),
+        String.class.getName(),
+        String.class.getName(),
+        String.class.getName(),
+        String.class.getName(),
+        String.class.getName(),
+        String.class.getName(),
+        String.class.getName(),
+        String.class.getName(),
     };
 
     private String repositoryClass;
@@ -89,7 +90,6 @@ public class PackageBuilder {
     private File repository;
     private File targetRepository;
     private Collection deploymentConfigs;
-//    private Artifact[] deploymentConfig;
     private AbstractName deployerName;
 
     private File planFile;
@@ -123,7 +123,6 @@ public class PackageBuilder {
     public void setConfigurationStoreClass(String configurationStoreClass) {
         this.configurationStoreClass = configurationStoreClass;
     }
-
 
     public File getRepository() {
         return repository;
@@ -236,7 +235,7 @@ public class PackageBuilder {
      *
      * @param mainClass
      */
-    public void setMainClass(String mainClass) {
+    public void setMainClass(final String mainClass) {
         this.mainClass = mainClass;
     }
 
@@ -244,7 +243,7 @@ public class PackageBuilder {
         return mainGBean;
     }
 
-    public void setMainGBean(String mainGBean) {
+    public void setMainGBean(final String mainGBean) {
         this.mainGBean = mainGBean;
     }
 
@@ -252,7 +251,7 @@ public class PackageBuilder {
         return mainMethod;
     }
 
-    public void setMainMethod(String mainMethod) {
+    public void setMainMethod(final String mainMethod) {
         this.mainMethod = mainMethod;
     }
 
@@ -260,7 +259,7 @@ public class PackageBuilder {
         return configurations;
     }
 
-    public void setConfigurations(String configurations) {
+    public void setConfigurations(final String configurations) {
         this.configurations = configurations;
     }
 
@@ -268,7 +267,7 @@ public class PackageBuilder {
         return classPath;
     }
 
-    public void setClassPath(String classPath) {
+    public void setClassPath(final String classPath) {
         this.classPath = classPath;
     }
 
@@ -276,7 +275,7 @@ public class PackageBuilder {
         return endorsedDirs;
     }
 
-    public void setEndorsedDirs(String endorsedDirs) {
+    public void setEndorsedDirs(final String endorsedDirs) {
         this.endorsedDirs = endorsedDirs;
     }
 
@@ -284,7 +283,7 @@ public class PackageBuilder {
         return extensionDirs;
     }
 
-    public void setExtensionDirs(String extensionDirs) {
+    public void setExtensionDirs(final String extensionDirs) {
         this.extensionDirs = extensionDirs;
     }
 
@@ -292,7 +291,7 @@ public class PackageBuilder {
         return explicitResolutionLocation;
     }
 
-    public void setExplicitResolutionLocation(String explicitResolutionLocation) {
+    public void setExplicitResolutionLocation(final String explicitResolutionLocation) {
         this.explicitResolutionLocation = explicitResolutionLocation;
     }
 
@@ -308,9 +307,10 @@ public class PackageBuilder {
         System.out.println();
         System.out.println("    Packaging configuration " + planFile);
         System.out.println();
+
         try {
             Kernel kernel = createKernel();
-            if(!targetSet) {
+            if (!targetSet) {
                 setTargetConfigStore();
             }
 
@@ -331,8 +331,10 @@ public class PackageBuilder {
 
             AbstractName deployer = locateDeployer(kernel);
             invokeDeployer(kernel, deployer, targetConfigStoreAName.toString());
+
             System.out.println("Generated package " + packageFile);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             log.error(e.getClass().getName() + ": " + e.getMessage(), e);
             throw e;
         }
@@ -343,11 +345,12 @@ public class PackageBuilder {
             kernel.stopGBean(targetRepositoryAName);
             kernel.setAttribute(targetRepositoryAName, "root", targetRepository.toURI());
             kernel.startGBean(targetRepositoryAName);
-            if(kernel.getGBeanState(targetConfigStoreAName) != State.RUNNING_INDEX) {
+            if (kernel.getGBeanState(targetConfigStoreAName) != State.RUNNING_INDEX) {
                 throw new IllegalStateException("After restarted repository then config store is not running");
             }
             targetSet = true;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
             throw e;
         }
@@ -384,6 +387,7 @@ public class PackageBuilder {
 
     /**
      * Boot the in-Maven deployment system.
+     *
      * This contains Repository and ConfigurationStore GBeans that map to
      * the local maven installation.
      */
@@ -445,7 +449,6 @@ public class PackageBuilder {
         configManagerGBean.setReferencePatterns("Repositories", repoPatterns);
 
         ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, cl);
-
     }
 
     /**
@@ -460,16 +463,34 @@ public class PackageBuilder {
         if (!i.hasNext()) {
             throw new IllegalStateException("No deployer found matching deployerName: " + deployerName);
         }
+
         AbstractName deployer = (AbstractName) i.next();
         if (i.hasNext()) {
             throw new IllegalStateException("Multiple deployers found matching deployerName: " + deployerName);
         }
+
         return deployer;
     }
 
     private List invokeDeployer(Kernel kernel, AbstractName deployer, String targetConfigStore) throws Exception {
         boolean isExecutable = mainClass != null;
-        Object[] args = {Boolean.FALSE, planFile, moduleFile, singleArtifact ? packageFile : null, Boolean.valueOf(!isExecutable), mainClass, mainGBean, mainMethod, configurations, classPath, endorsedDirs, extensionDirs, targetConfigStore};
+
+        Object[] args = {
+            Boolean.FALSE,
+            planFile,
+            moduleFile,
+            singleArtifact ? packageFile : null,
+            Boolean.valueOf(!isExecutable),
+            mainClass,
+            mainGBean,
+            mainMethod,
+            configurations,
+            classPath,
+            endorsedDirs,
+            extensionDirs,
+            targetConfigStore
+        };
+
         return (List) kernel.invoke(deployer, "deploy", args, ARG_TYPES);
     }
 }

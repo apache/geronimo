@@ -17,7 +17,11 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -28,111 +32,28 @@
     </parent>
 
     <artifactId>geronimo-packaging-plugin</artifactId>
+    <name>Geronimo Plugins :: Packaging</name>
     <packaging>maven-plugin</packaging>
-    <name>Geronimo :: Maven2 Packaging Plugin</name>
-    <url>http://geronimo.apache.org</url>
-
-    <issueManagement>
-        <system>jira</system>
-        <url>http://issues.apache.org/jira/secure/BrowseProject.jspa?id=10220</url>
-    </issueManagement>
-
-    <ciManagement>
-        <system>continuum</system>
-        <notifiers>
-            <notifier>
-                <type>mail</type>
-                <sendOnError />
-                <sendOnFailure />
-                <address>dev@geronimo.org</address>
-            </notifier>
-        </notifiers>
-    </ciManagement>
-
-    <mailingLists>
-        <mailingList>
-            <name>Geronimo User List</name>
-            <subscribe>users-subscribe@geronimo.apache.org</subscribe>
-            <unsubscribe>users-unsubscribe@geronimo.apache.org</unsubscribe>
-            <archive>http://mail-archives.apache.org/mod_mbox/geronimo-user/</archive>
-        </mailingList>
-
-        <mailingList>
-            <name>Geronimo Developer List</name>
-            <subscribe>dev-subscribe@geronimo.apache.org</subscribe>
-            <unsubscribe>dev-unsubscribe@geronimo.apache.org</unsubscribe>
-            <archive>http://mail-archives.apache.org/mod_mbox/geronimo-dev/</archive>
-        </mailingList>
-
-        <mailingList>
-            <name>Source Control List</name>
-            <subscribe>scm-subscribe@geronimo.apache.org</subscribe>
-            <unsubscribe>scm-unsubscribe@geronimo.apache.org</unsubscribe>
-            <archive>http://mail-archives.apache.org/mod_mbox/geronimo-scm/</archive>
-        </mailingList>
-    </mailingLists>
-
-    <developers>
-        <developer>
-        </developer>
-    </developers>
-
-    <contributors>
-        <contributor>
-        </contributor>
-    </contributors>
-
-    <licenses>
-        <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
-    <scm>
-        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/</connection>
-        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/</developerConnection>
-        <url>https://svn.apache.org/repos/asf/geronimo/</url>
-    </scm>
-
-    <organization>
-        <name>Geronimo</name>
-        <url>http://geronimo.apache.org/</url>
-    </organization>
-
+    
     <dependencies>
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-plugin-api</artifactId>
-            <version>2.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-project</artifactId>
-            <version>2.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-artifact</artifactId>
-            <version>2.0</version>
-        </dependency>
-
+    
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-kernel</artifactId>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-service-builder</artifactId>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-deploy-tool</artifactId>
+            <version>${pom.version}</version>
+            
             <!-- exclude transitive deps -->
             <exclusions>
                 <exclusion>
@@ -145,10 +66,12 @@
                 </exclusion>
             </exclusions>
         </dependency>
-<!--    <dependency>
+        
+        <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-        </dependency> -->
+        </dependency>
+
         <!-- for processing velocity -->
         <dependency>
             <groupId>xmlbeans</groupId>
@@ -170,49 +93,45 @@
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-system</artifactId>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>
             <groupId>commons-cli</groupId>
             <artifactId>commons-cli</artifactId>
-            <version>${commonsCliVersion}</version>
         </dependency>
-<!--
+        
+        <!--
         <dependency>
             <groupId>mx4j</groupId>
             <artifactId>mx4j-remote</artifactId>
-            <version>${mx4jVersion}</version>
-        </dependency> -->
+        </dependency>
+        -->
 
         <!-- test -->
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-qname_1.1_spec</artifactId>
-            <version>${geronimoSpecQnameVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>xerces</groupId>
             <artifactId>xercesImpl</artifactId>
-            <version>${xercesVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>xerces</groupId>
             <artifactId>xmlParserAPIs</artifactId>
-            <version>${xmlParserApisVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>xstream</groupId>
             <artifactId>xstream</artifactId>
-            <version>${xstreamVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>xpp3</groupId>
             <artifactId>xpp3</artifactId>
-            <version>${xpp3Version}</version>
         </dependency> 
     </dependencies>
 
@@ -228,20 +147,6 @@
             </plugin>
         </plugins>
     </build>
-
-    <!--
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-project-info-reports-plugin</artifactId>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-plugin-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </reporting> -->
+    
 </project>
 

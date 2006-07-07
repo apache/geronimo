@@ -125,36 +125,43 @@
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-connector</artifactId>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-naming</artifactId>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-security</artifactId>
+            <version>${pom.version}</version>
         </dependency>
-        <!-- cglib, commons-logging, log4j, mx4j coming from kernel --> 
+        
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-system</artifactId>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-transaction</artifactId>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-webservices</artifactId>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-security-builder</artifactId>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>
@@ -176,8 +183,8 @@
         </dependency>
 
         <!--
-      - Required until any realm is provided to Tomcat
-      - See StandardEngine::getRealm() 
+          - Required until any realm is provided to Tomcat
+          - See StandardEngine::getRealm() 
         -->
         <dependency>
             <groupId>tomcat</groupId>
@@ -242,55 +249,46 @@
         <dependency>
             <groupId>xerces</groupId>
             <artifactId>xercesImpl</artifactId>
-            <version>${xercesVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>xml-apis</groupId>
             <artifactId>xml-apis</artifactId>
-            <version>${xmlApisVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
-            <version>${commonsBeanutilsVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
-            <version>${commonsCollectionsVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>commons-digester</groupId>
             <artifactId>commons-digester</artifactId>
-            <version>${commonsDigesterVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>commons-el</groupId>
             <artifactId>commons-el</artifactId>
-            <version>${commonsElVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <version>${commonsLoggingVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>commons-modeler</groupId>
             <artifactId>commons-modeler</artifactId>
-            <version>${commonsModelerVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>regexp</groupId>
             <artifactId>regexp</artifactId>
-            <version>${regexpVersion}</version>
         </dependency>
 
         <dependency>
@@ -304,6 +302,8 @@
             <artifactId>wadi-tomcat55</artifactId>
             <version>${wadiVersion}</version>
         </dependency>
+        
     </dependencies>
+    
 </project>
 

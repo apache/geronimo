@@ -27,70 +27,60 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     
-    <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>client-security</artifactId>
+    <name>Geronimo Configs :: J2EE Client Security</name>
     <packaging>car</packaging>
-    <name>Security Configuration for the J2EE Client</name>
-
-    <properties>
-        <PlanHTTPPort>8080</PlanHTTPPort>
-        <PlanHTTPSPort>8443</PlanHTTPSPort>
-        <PlanOpenEJBPort>4201</PlanOpenEJBPort>
-        <PlanServerHostname>localhost</PlanServerHostname>
-        <PlanClientAddresses>127.0.0.1</PlanClientAddresses>
-        <PlanRemoteLoginPort>4242</PlanRemoteLoginPort>
-    </properties>
-
-    <build>
-        <plugins>
-            <plugin>
-                <!-- uses geronimo-gbean-deployer -->
-                <groupId>org.apache.geronimo.plugins</groupId>
-                <artifactId>geronimo-packaging-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <deploymentConfig>${gbeanDeployer},${j2eeDeployer}</deploymentConfig>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
-    <!-- ============ -->
-    <!-- Dependencies -->
-    <!-- ============ -->
-
+    
     <dependencies>
         <!-- parent -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>client</artifactId>
-            <version>${geronimoVersion}</version>
+            <version>${pom.version}</version>
             <type>car</type>
         </dependency>
+        
         <!-- This is needed to make sure j2ee-deployer was built before -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-deployer</artifactId>
-            <version>${geronimoVersion}</version>
+            <version>${pom.version}</version>
             <type>car</type>
             <scope>provided</scope>
         </dependency>
+        
         <!-- not needed in m1 -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-security</artifactId>
+            <version>${pom.version}</version>
         </dependency>
         
         <!--
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-jmx-remoting</artifactId>
+            <version>${pom.version}</version>
         </dependency>
         
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-util</artifactId>
+            <version>${pom.version}</version>
         </dependency>
         -->
     </dependencies>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>geronimo-packaging-plugin</artifactId>
+                <configuration>
+                    <deploymentConfig>${gbeanDeployer},${j2eeDeployer}</deploymentConfig>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    
 </project>

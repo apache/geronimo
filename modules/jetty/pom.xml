@@ -57,21 +57,25 @@
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-security-builder</artifactId>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-connector</artifactId>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-management</artifactId>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-webservices</artifactId>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>
@@ -79,6 +83,7 @@
             <artifactId>org.mortbay.jetty</artifactId>
             <version>${jettyVersion}</version>
         </dependency>
+        
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>jasper-compiler</artifactId>
@@ -100,19 +105,18 @@
         <dependency>
             <groupId>commons-el</groupId>
             <artifactId>commons-el</artifactId>
-            <version>${commonsElVersion}</version>
         </dependency>
- 
-       <dependency>
+
+        <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
-            <version>${commonsCollectionsVersion}</version>
         </dependency>
+        
         <dependency>
             <groupId>commons-primitives</groupId>
             <artifactId>commons-primitives</artifactId>
-            <version>${commonsPrimitivesVersion}</version>
         </dependency>
     </dependencies>
+
 </project>
 

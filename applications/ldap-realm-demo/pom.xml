@@ -17,7 +17,11 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project>
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
@@ -29,10 +33,32 @@
 
     <artifactId>geronimo-ldap-demo</artifactId>
     <packaging>war</packaging>
-    <name>Geronimo LDAP Demo Application</name>
+    <name>Geronimo Applications :: LDAP Demo</name>
     <description>
         This is a very simple application that is intended to demonstrate the ldap
         security mechanism.
     </description>
+    
+    <dependencies>
+        <!-- Required for JSPC compilation -->
+        <dependency>
+            <groupId>tomcat</groupId>
+            <artifactId>jasper-runtime</artifactId>
+        </dependency>
+    </dependencies>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jspc-maven-plugin</artifactId>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

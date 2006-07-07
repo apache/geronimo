@@ -27,48 +27,17 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     
-    <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>client-corba</artifactId>
+    <name>Geronimo Configs :: Corba J2EE Client</name>
     <packaging>car</packaging>
-    <name>Corba Configuration for the J2EE Client</name>
-
-    <properties>
-        <PlanCOSNamingHost>localhost</PlanCOSNamingHost>
-        <PlanCOSNamingPort>1050</PlanCOSNamingPort>
-        <PlanORBSSLHost>localhost</PlanORBSSLHost>
-        <PlanORBSSLPort>2001</PlanORBSSLPort>
-        <PlanHTTPPort>8080</PlanHTTPPort>
-        <PlanHTTPSPort>8443</PlanHTTPSPort>
-        <PlanOpenEJBPort>4201</PlanOpenEJBPort>
-        <PlanServerHostname>localhost</PlanServerHostname>
-        <PlanClientAddresses>127.0.0.1</PlanClientAddresses>
-        <PlanRemoteLoginPort>4242</PlanRemoteLoginPort>
-    </properties>
     
-    <build>
-        <plugins>
-            <!-- This plugin needed to support package type car -->
-            <plugin>
-                <groupId>org.apache.geronimo.plugins</groupId>
-                <artifactId>geronimo-packaging-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <deploymentConfig>${gbeanDeployer},${j2eeDeployer},${openejbDeployer},${axisDeployer}</deploymentConfig>            
-                 </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
-    <!-- ============ -->
-    <!-- Dependencies -->
-    <!-- ============ -->
-
     <dependencies>
+        
         <!-- parent config -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>client</artifactId>
-            <version>${geronimoVersion}</version>
+            <version>${pom.version}</version>
             <type>car</type>
         </dependency>
 
@@ -76,16 +45,29 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>openejb-deployer</artifactId>
-            <version>${geronimoVersion}</version>
+            <version>${pom.version}</version>
             <type>car</type>
             <scope>provided</scope>
         </dependency>
 
         <!-- needed by GBean, this was not a dep in M1-->
         <dependency>
-            <groupId>openejb</groupId>
+            <groupId>org.openejb</groupId>
             <artifactId>openejb-core</artifactId>
-            <version>${openejbVersion}</version>
-        </dependency> 
+        </dependency>
+        
     </dependencies>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>geronimo-packaging-plugin</artifactId>
+                <configuration>
+                    <deploymentConfig>${gbeanDeployer},${j2eeDeployer},${openejbDeployer},${axisDeployer}</deploymentConfig>            
+                 </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    
 </project>

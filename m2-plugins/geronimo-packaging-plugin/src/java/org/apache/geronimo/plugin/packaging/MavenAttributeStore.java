@@ -14,6 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.apache.geronimo.plugin.packaging;
 
 import org.apache.geronimo.gbean.GAttributeInfo;
@@ -34,7 +35,9 @@ import java.util.Set;
 /**
  * @version $Rev$ $Date$
  */
-public class MavenAttributeStore implements ManageableAttributeStore {
+public class MavenAttributeStore
+    implements ManageableAttributeStore
+{
     public MavenAttributeStore() {
     }
 

@@ -37,14 +37,15 @@
 
     <dependencies>
         <dependency>
-            <!-- this gets kernel, commons-logging -->
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-system</artifactId>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-management</artifactId>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>

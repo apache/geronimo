@@ -27,77 +27,39 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>openejb</artifactId>
+    <name>Geronimo Configs :: OpenEJB</name>
     <packaging>car</packaging>
-    <name>openejb Configuration for the J2EE Server</name>
-
-    <properties>
-        <PlanHTTPPort>8080</PlanHTTPPort>
-        <PlanHTTPSPort>8443</PlanHTTPSPort>
-        <PlanOpenEJBPort>4201</PlanOpenEJBPort>
-        <PlanServerHostname>localhost</PlanServerHostname>
-        <PlanClientAddresses>127.0.0.1</PlanClientAddresses>
-        <PlanRemoteLoginPort>4242</PlanRemoteLoginPort>
-    </properties>
     
-    <build>
-        <plugins>
-            <plugin>
-                <!-- uses geronimo-gbean-deployer -->
-                <groupId>org.apache.geronimo.plugins</groupId>
-                <artifactId>geronimo-packaging-plugin</artifactId>
-                <extensions>true</extensions>
-            </plugin>
-        </plugins>
-    </build>
-
-    <!-- ============ -->
-    <!-- Dependencies -->
-    <!-- ============ -->
-
     <dependencies>
+    
         <!-- parents -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-server</artifactId>
-            <version>${geronimoVersion}</version>
+            <version>${pom.version}</version>
             <type>car</type>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>axis</artifactId>
-            <version>${geronimoVersion}</version>
+            <version>${pom.version}</version>
             <type>car</type>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>system-database</artifactId>
-            <version>${geronimoVersion}</version>
+            <version>${pom.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
-            <groupId>openejb</groupId>
+            <groupId>org.openejb</groupId>
             <artifactId>openejb-core</artifactId>
-            <version>${openejbVersion}</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>tranql</groupId>-->
-            <!--<artifactId>tranql</artifactId>-->
-            <!--<version>${tranqlVersion}</version>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-            <!--<groupId>antlr</groupId>-->
-            <!--<artifactId>antlr</artifactId>-->
-            <!--<version>${antlrVersion}</version>-->
-        <!--</dependency>-->
-        <!-- for GBean in the plan -->
-        <!--<dependency>-->
-            <!--<groupId>activeio</groupId>-->
-            <!--<artifactId>activeio</artifactId>-->
-            <!--<version>${activeIoVersion}</version>-->
-        <!--</dependency>-->
+        
     </dependencies>
+    
 </project>

@@ -28,20 +28,57 @@
     </parent>
 
     <artifactId>j2ee-system</artifactId>
+    <name>Geronimo Configs :: J2EE System</name>
     <packaging>car</packaging>
-    <name>System Configuration for the J2EE Server</name>
-
+    
+    <dependencies>
+    
+        <!-- uses geronimo-gbean-deployer by default -->
+        <!-- this forces gbean-deployer to be built before j2ee-system -->
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>geronimo-gbean-deployer</artifactId>
+            <version>${pom.version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
+        
+        <!-- dependencies referenced in the plan g-k, g-common -->
+        <!-- g-common, g-kernel, cglib, commons-logging, log4j,
+             mx4j, mx4j-remote, g-qname_spec, xercesImpl, xmlParserAPIS,
+             xstream, xpp3 comming from this -->
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-system</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+        
+    </dependencies>
+    
     <build>
         <plugins>
             <plugin>
-
                 <groupId>org.apache.geronimo.plugins</groupId>
                 <artifactId>geronimo-packaging-plugin</artifactId>
-                <extensions>true</extensions>
                 <configuration>
                     <!-- uses default DeploymentConfig=geronimo-gbean-deployer -->
                     <!-- written to Manifest.mf -->
-                    <classPath>../lib/concurrent-${concurrentVersion}.jar ../lib/geronimo-qname_1.1_spec-${geronimoSpecQnameVersion}.jar ../lib/geronimo-common-${geronimoVersion}.jar ../lib/geronimo-kernel-${geronimoVersion}.jar ../lib/geronimo-system-${geronimoVersion}.jar ../lib/geronimo-util-${geronimoVersion}.jar ../lib/cglib-nodep-${cglibVersion}.jar ../lib/commons-cli-${commonsCliVersion}.jar ../lib/commons-logging-${commonsLoggingVersion}.jar ../lib/log4j-${log4jVersion}.jar ../lib/mx4j-${mx4jVersion}.jar ../lib/mx4j-remote-${mx4jVersion}.jar ../lib/endorsed/xercesImpl-${xercesVersion}.jar ../lib/endorsed/xmlParserAPIs-${xmlParserApisVersion}.jar ../lib/xpp3-${xpp3Version}.jar ../lib/xstream-${xstreamVersion}.jar</classPath>
+                    <classPath>\
+                        ../lib/geronimo-qname_1.1_spec-${geronimoSpecQnameVersion}.jar \
+                        ../lib/geronimo-common-${pom.version}.jar \
+                        ../lib/geronimo-kernel-${pom.version}.jar \
+                        ../lib/geronimo-system-${pom.version}.jar \
+                        ../lib/geronimo-util-${pom.version}.jar \
+                        ../lib/cglib-nodep-${cglibVersion}.jar \
+                        ../lib/commons-cli-${commonsCliVersion}.jar \
+                        ../lib/commons-logging-${commonsLoggingVersion}.jar \
+                        ../lib/log4j-${log4jVersion}.jar \
+                        ../lib/mx4j-${mx4jVersion}.jar \
+                        ../lib/mx4j-remote-${mx4jVersion}.jar \
+                        ../lib/endorsed/xercesImpl-${xercesVersion}.jar \
+                        ../lib/endorsed/xmlParserAPIs-${xmlParserApisVersion}.jar \
+                        ../lib/xpp3-${xpp3Version}.jar \
+                        ../lib/xstream-${xstreamVersion}.jar</classPath>
                      <mainClass>org.apache.geronimo.system.main.Daemon</mainClass>
                      <logLevel>DEBUG</logLevel>
                      <!-- default endorsedDirs and extensionDirs -->
@@ -50,28 +87,5 @@
             </plugin>
         </plugins>
     </build>
-
-    <!-- ============ -->
-    <!-- Dependencies -->
-    <!-- ============ -->
-
-    <dependencies>
-        <!-- uses geronimo-gbean-deployer by default -->
-        <!-- this forces gbean-deployer to be built before j2ee-system -->
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>geronimo-gbean-deployer</artifactId>
-            <!--<version>${geronimoVersion}</version>-->
-            <type>car</type>
-            <scope>provided</scope>
-        </dependency>
-        <!-- dependencies referenced in the plan g-k, g-common -->
-        <!-- g-common, g-kernel, cglib, commons-logging, log4j,
-             mx4j, mx4j-remote, g-qname_spec, xercesImpl, xmlParserAPIS,
-             xstream, xpp3 comming from this -->
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-system</artifactId>
-        </dependency>
-    </dependencies>
+    
 </project>

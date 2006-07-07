@@ -28,53 +28,42 @@
     </parent>
 
     <artifactId>j2ee-server</artifactId>
+    <name>Geronimo Configs :: J2EE Server</name>
     <packaging>car</packaging>
-    <name>Server Configuration for the J2EE Server</name>
-
-    <build>
-        <plugins>
-            <!-- This plugin needed to support package type car -->
-            <plugin>
-                <groupId>org.apache.geronimo.plugins</groupId>
-                <artifactId>geronimo-packaging-plugin</artifactId>
-                <extensions>true</extensions>
-            </plugin>
-        </plugins>
-    </build>
-
-    <!-- ============ -->
-    <!-- Dependencies -->
-    <!-- ============ -->
-
+    
     <dependencies>
         <!-- parent config -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>rmi-naming</artifactId>
-            <!--<version>${geronimoVersion}</version>-->
+            <version>${pom.version}</version>
             <type>car</type>
         </dependency>
-        <!-- June 7 2006 djencks.  Compared with project.xml. activeio removed, it's in rmi-naming -->
-
+        
         <!-- ThreadPool -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-core</artifactId>
+            <version>${pom.version}</version>
         </dependency>
+        
         <!-- ?????? -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-common</artifactId>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-connector</artifactId>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-webservices</artifactId>
+            <version>${pom.version}</version>
         </dependency>
 
         <!-- purpose unknown -->
@@ -84,4 +73,5 @@
         </dependency>
 
     </dependencies>
+    
 </project>

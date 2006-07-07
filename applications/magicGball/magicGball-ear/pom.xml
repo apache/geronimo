@@ -17,7 +17,11 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project>
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
@@ -29,23 +33,25 @@
 
     <artifactId>magicGball-ear</artifactId>
     <packaging>ear</packaging>
-    <name>Geronimo :: The Magic G Ball Sample Application</name>
+    <name>Geronimo Applications, The Magic G Ball :: EAR</name>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.applications.magicGball</groupId>
             <artifactId>magicGball-client</artifactId>
-            <version>1.2-SNAPSHOT</version>
+            <version>${pom.version}</version>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.applications.magicGball</groupId>
             <artifactId>magicGball-ejb</artifactId>
-            <version>1.2-SNAPSHOT</version>
+            <version>${pom.version}</version>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.applications.magicGball</groupId>
             <artifactId>magicGball-web</artifactId>
-            <version>1.2-SNAPSHOT</version>
+            <version>${pom.version}</version>
             <type>war</type>
         </dependency>
     </dependencies>

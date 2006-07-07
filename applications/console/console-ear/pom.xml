@@ -17,7 +17,11 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project>
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
@@ -29,60 +33,22 @@
 
     <artifactId>geronimo-console</artifactId>
     <packaging>ear</packaging>
-    <name>Geronimo :: Console :: Application EAR</name>
+    <name>Geronimo Applications, Console :: EAR</name>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.applications.console</groupId>
             <artifactId>geronimo-console-framework</artifactId>
-            <version>${geronimoVersion}</version>
+            <version>${pom.version}</version>
             <type>war</type>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.applications.console</groupId>
             <artifactId>geronimo-console-standard</artifactId>
-            <version>${geronimoVersion}</version>
+            <version>${pom.version}</version>
             <type>war</type>
         </dependency>
-    <!-- dependency>
-      <groupId>org.apache.geronimo.applications.console</groupId>
-      <artifactId>geronimo-console-core</artifactId>
-      <version>${geronimoVersion}</version>
-    </dependency>
-    <dependency>
-      <groupId>portlet-api</groupId>
-      <artifactId>portlet-api</artifactId>
-      <version>${portletApiVersion}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.pluto</groupId>
-      <artifactId>pluto</artifactId>
-      <version>${plutoVersion}</version>
-    </dependency>
-    <dependency>
-      <groupId>activeio</groupId>
-      <artifactId>activeio</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>concurrent</groupId>
-      <artifactId>concurrent</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.geronimo.modules</groupId>
-      <artifactId>geronimo-common</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.geronimo.modules</groupId>
-      <artifactId>geronimo-system</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.geronimo.modules</groupId>
-      <artifactId>geronimo-security</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.geronimo.modules</groupId>
-      <artifactId>geronimo-management</artifactId>
-    </dependency -->
     </dependencies>
 
     <build>

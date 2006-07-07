@@ -27,83 +27,54 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     
-    <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>openejb-deployer</artifactId>
+    <name>Geronimo Configs :: OpenEJB Deployer</name>
     <packaging>car</packaging>
-    <name>openejb Configuration for performing J2EE deployments</name>
     
-    <properties>
-        <!--<PlanHTTPPort>8080</PlanHTTPPort>-->
-        <!--<PlanHTTPSPort>8443</PlanHTTPSPort>-->
-        <PlanOpenEJBPort>4201</PlanOpenEJBPort>
-        <PlanServerHostname>localhost</PlanServerHostname>
-        <!--<PlanClientAddresses>127.0.0.1</PlanClientAddresses>-->
-        <!--<PlanRemoteLoginPort>4242</PlanRemoteLoginPort>-->
-    </properties>
-
-    <build>
-        <plugins>
-            <plugin>
-                <!-- uses geronimo-gbean-deployer -->
-                <groupId>org.apache.geronimo.plugins</groupId>
-                <artifactId>geronimo-packaging-plugin</artifactId>
-                <extensions>true</extensions>
-            </plugin>
-        </plugins>
-    </build>
-
-    <!-- ============ -->
-    <!-- Dependencies -->
-    <!-- ============ -->
-
     <dependencies>
+    
         <!-- parent -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-deployer</artifactId>
-            <version>${geronimoVersion}</version>
+            <version>${pom.version}</version>
             <type>car</type>
         </dependency>
-
-        <!-- import the classes ???? -->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.configs</groupId>-->
-            <!--<artifactId>j2ee-server</artifactId>-->
-            <!--<version>${geronimoVersion}</version>-->
-            <!--<type>car</type>-->
-            <!--<scope>compile</scope>-->
-        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-axis</artifactId>
+            <version>${pom.version}</version>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-axis-builder</artifactId>
+            <version>${pom.version}</version>
         </dependency>
-        <!-- this should get openejb -->
-        <dependency>
-            <groupId>openejb</groupId>
-            <artifactId>openejb-builder</artifactId>
-            <version>${openejbVersion}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>openejb</groupId>
-            <artifactId>openejb-pkgen-builder</artifactId>
-            <version>${openejbVersion}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>openejb</groupId>
-            <artifactId>openejb-core</artifactId>
-            <version>${openejbVersion}</version>
-        </dependency>
-
+        
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-web-builder</artifactId>
+            <version>${pom.version}</version>
         </dependency>
+        
+        <!-- this should get openejb -->
+        <dependency>
+            <groupId>org.openejb</groupId>
+            <artifactId>openejb-builder</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openejb</groupId>
+            <artifactId>openejb-pkgen-builder</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openejb</groupId>
+            <artifactId>openejb-core</artifactId>
+        </dependency>
+        
     </dependencies>
+    
 </project>

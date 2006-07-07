@@ -31,14 +31,68 @@
     <name>Geronimo :: Connector :: Builder</name>
 
     <properties>
+        <!-- FIXME: Should never need to default to skip!!! -->
         <maven.test.skip>true</maven.test.skip>
     </properties>
+    
+    <dependencies>
+        
+        <!-- Module Dependencies -->
+        
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>geronimo-connector</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>geronimo-deploy-config</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>geronimo-naming-builder</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>geronimo-test-ddbean</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+        
+        <!-- Thirdparty Dependencies -->
+        
+        <dependency>
+            <groupId>xmlbeans</groupId>
+            <artifactId>xbean</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>stax</groupId>
+            <artifactId>stax-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>tranql</groupId>
+            <artifactId>tranql</artifactId>
+        </dependency>
+
+        <!-- tranql uses 1.0.3, force 1.0.4  -->
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
+        
+    </dependencies>
     
     <build>
         <!-- move this to parent pom -->
         <resources>
             <resource>
-                <directory>src/schema</directory>
+                <directory>${pom.basedir}/src/schema</directory>
                 <targetPath>META-INF</targetPath>
                 <includes>
                     <include>geronimo-connector-1.1.xsd</include>
@@ -55,7 +109,7 @@
                         <phase>process-test-resources</phase>
                         <configuration>
                             <tasks>
-                                <ant antfile="${basedir}/src/test/test-setup.xml" />
+                                <ant antfile="${pom.basedir}/src/test/test-setup.xml"/>
                             </tasks>
                         </configuration>
                         <goals>
@@ -68,20 +122,8 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>xmlbeans-maven-plugin</artifactId>
-                <version>${xmlbeansMavenPluginVersion}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>xmlbeans</goal>
-                        </goals>
-                    </execution>
-                </executions>
                 <configuration>
                     <sourceSchemas>geronimo-connector-1.1.xsd</sourceSchemas>
-                    <schemaDirectory>src/schema</schemaDirectory>
-                    <xmlConfigs>
-                        <xmlConfig implementation="java.io.File">src/schema/xmlconfig.xml</xmlConfig>
-                    </xmlConfigs>
                 </configuration>
             </plugin>
 
@@ -98,51 +140,5 @@
         </plugins>
     </build>
 
-    <!-- ============ -->
-    <!-- Dependencies -->
-    <!-- ============ -->
-    
-    <dependencies>
-        <dependency>
-            <groupId>xmlbeans</groupId>
-            <artifactId>xbean</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>stax</groupId>
-            <artifactId>stax-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-connector</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-deploy-config</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-naming-builder</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-test-ddbean</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>tranql</groupId>
-            <artifactId>tranql</artifactId>
-        </dependency>
-
-        <!-- tranql uses 1.0.3, force 1.0.4  -->
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-        </dependency>
-    </dependencies>
 </project>
 

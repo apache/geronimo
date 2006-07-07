@@ -29,7 +29,31 @@
 
     <artifactId>geronimo-j2ee-builder</artifactId>
     <name>Geronimo :: J2EE :: Builder</name>
-
+    
+    <dependencies>
+        
+        <!-- Module Dependencies -->
+        
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>geronimo-security-builder</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+        
+        <!-- Thirdparty Dependencies -->
+        
+        <dependency>
+            <groupId>xmlbeans</groupId>
+            <artifactId>xbean</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>stax</groupId>
+            <artifactId>stax-api</artifactId>
+        </dependency>
+        
+    </dependencies>
+    
     <build>
         <plugins>
             <plugin>
@@ -58,41 +82,12 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>xmlbeans-maven-plugin</artifactId>
-                <version>${xmlbeansMavenPluginVersion}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>xmlbeans</goal>
-                        </goals>
-                    </execution>
-                </executions>
                 <configuration>
-                    <download>true</download>
                     <sourceSchemas>geronimo-application-1.1.xsd</sourceSchemas>
-                    <schemaDirectory>src/schema</schemaDirectory>
-                    <xmlConfigs>
-                        <xmlConfig implementation="java.io.File">src/schema/xmlconfig.xml</xmlConfig>
-                    </xmlConfigs>
                 </configuration>
             </plugin>
         </plugins>
     </build>
 
-    <dependencies>
-        <dependency>
-            <groupId>xmlbeans</groupId>
-            <artifactId>xbean</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>stax</groupId>
-            <artifactId>stax-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-security-builder</artifactId>
-        </dependency>
-    </dependencies>
 </project>
 

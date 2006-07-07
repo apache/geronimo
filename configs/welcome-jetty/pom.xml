@@ -27,35 +27,17 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>welcome-jetty</artifactId>
+    <name>Geronimo Configs :: Welcome app Jetty</name>
     <packaging>car</packaging>
-    <name>Welcome app Jetty</name>
-
-    <build>
-        <plugins>
-            <!-- This plugin needed to support package type car -->
-            <plugin>
-                <groupId>org.apache.geronimo.plugins</groupId>
-                <artifactId>geronimo-packaging-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <deploymentConfig>${j2eeJettyServer}</deploymentConfig>
-                    <moduleFile>${settings.localRepository}/org/apache/geronimo/applications/geronimo-welcome/${geronimoVersion}/geronimo-welcome-${geronimoVersion}.war</moduleFile>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
-    <!-- ============ -->
-    <!-- Dependencies -->
-    <!-- ============ -->
-
+    
     <dependencies>
-        <!-- to enforce build order --> 
+        
+        <!-- to enforce build order -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jetty</artifactId>
+            <version>${pom.version}</version>
             <type>car</type>
             <scope>provided</scope>
         </dependency>
@@ -63,8 +45,23 @@
         <dependency>
             <groupId>org.apache.geronimo.applications</groupId>
             <artifactId>geronimo-welcome</artifactId>
-            <version>${geronimoVersion}</version>
+            <version>${pom.version}</version>
             <type>war</type>
         </dependency>
+        
     </dependencies>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>geronimo-packaging-plugin</artifactId>
+                <configuration>
+                    <deploymentConfig>${j2eeJettyServer}</deploymentConfig>
+                    <moduleFile>${settings.localRepository}/org/apache/geronimo/applications/geronimo-welcome/${pom.version}/geronimo-welcome-${pom.version}.war</moduleFile>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    
 </project>

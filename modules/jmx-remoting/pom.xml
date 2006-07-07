@@ -32,10 +32,11 @@
     <description>Provides remote access to a Geronimo server using JSR 160 JMX Remoting</description>
 
     <dependencies>
-        <!-- gets mx4j transitively -->
+        
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-system</artifactId>
+            <version>${pom.version}</version>
         </dependency>
         
         <!-- all the specs should be added to the classpath transitively -->

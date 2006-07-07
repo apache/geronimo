@@ -27,57 +27,34 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     
-    <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>system-database</artifactId>
+    <name>Geronimo Configs :: System Database</name>
     <packaging>car</packaging>
-    <name>System Database Configuration for the J2EE Server</name>
-
-    <properties>
-        <PlanHTTPPort>8080</PlanHTTPPort>
-        <PlanHTTPSPort>8443</PlanHTTPSPort>
-        <PlanOpenEJBPort>4201</PlanOpenEJBPort>
-        <PlanServerHostname>localhost</PlanServerHostname>
-        <PlanClientAddresses>127.0.0.1</PlanClientAddresses>
-        <PlanRemoteLoginPort>4242</PlanRemoteLoginPort>
-    </properties>
     
-    <build>
-        <plugins>
-            <!-- This plugin needed to support package type car -->
-            <plugin>
-                <groupId>org.apache.geronimo.plugins</groupId>
-                <artifactId>geronimo-packaging-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <deploymentConfig>${j2eeNowebServer}</deploymentConfig>
-                    <moduleFile>${settings.localRepository}/tranql/tranql-connector-derby-embed-xa/${tranqlVendorsVersion}/tranql-connector-derby-embed-xa-${tranqlVendorsVersion}.rar</moduleFile>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
-    <!-- ============ -->
-    <!-- Dependencies -->
-    <!-- ============ -->
-
     <dependencies>
+        
         <!-- parent config -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-server</artifactId>
+            <version>${pom.version}</version>
             <type>car</type>
         </dependency>
+        
         <!-- make sure all the deployers are available -->
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>axis-deployer</artifactId>
+            <version>${pom.version}</version>
             <type>car</type>
             <scope>provided</scope>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>client-deployer</artifactId>
+            <version>${pom.version}</version>
             <type>car</type>
             <scope>provided</scope>
         </dependency>
@@ -85,6 +62,7 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>openejb-deployer</artifactId>
+            <version>${pom.version}</version>
             <type>car</type>
             <scope>provided</scope>
         </dependency>
@@ -92,11 +70,13 @@
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-derby</artifactId>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-timer</artifactId>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>
@@ -112,8 +92,22 @@
         <dependency>
             <groupId>tranql</groupId>
             <artifactId>tranql-connector-derby-embed-xa</artifactId>
-            <version>${tranqlVendorsVersion}</version>
             <type>rar</type>
         </dependency>
+        
     </dependencies>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>geronimo-packaging-plugin</artifactId>
+                <configuration>
+                    <deploymentConfig>${j2eeNowebServer}</deploymentConfig>
+                    <moduleFile>${settings.localRepository}/tranql/tranql-connector-derby-embed-xa/${tranqlVendorsVersion}/tranql-connector-derby-embed-xa-${tranqlVendorsVersion}.rar</moduleFile>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    
 </project>

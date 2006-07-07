@@ -17,7 +17,11 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project>
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
@@ -29,48 +33,9 @@
 
     <groupId>org.apache.geronimo.applications</groupId>
     <artifactId>applications-parent</artifactId>
+    <name>Geronimo :: Applications</name>
     <packaging>pom</packaging>
-    <name>Geronimo Applications</name>
-    <description>Geronimo Applications</description>
-
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-war-plugin</artifactId>
-                <configuration>
-                    <warSourceDirectory>${basedir}/src/webapp</warSourceDirectory>
-                    <archiveClasses>true</archiveClasses>
-                    <webXml>${basedir}/target/jspweb.xml</webXml>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>jspc-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>jspc</id>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                        <configuration>
-                            <warSourceDirectory>${basedir}/src/webapp</warSourceDirectory>
-                            <inputWebXml>${basedir}/src/webapp/WEB-INF/web.xml</inputWebXml>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-
-    <dependencies>
-        <dependency>
-            <groupId>tomcat</groupId>
-            <artifactId>jasper-runtime</artifactId>
-            <version>${jasperVersion}</version>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
-
+    
     <modules>
         <module>demo</module>
         <module>ldap-realm-demo</module>
@@ -81,4 +46,16 @@
         <module>console</module>
         <module>welcome</module>
     </modules>
+    
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>tomcat</groupId>
+                <artifactId>jasper-runtime</artifactId>
+                <version>${tomcatVersion}</version>
+                <scope>provided</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    
 </project>

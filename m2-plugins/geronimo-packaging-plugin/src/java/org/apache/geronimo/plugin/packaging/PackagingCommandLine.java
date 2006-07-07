@@ -14,6 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.apache.geronimo.plugin.packaging;
 
 import java.io.File;
@@ -28,7 +29,6 @@ import java.util.Arrays;
  */
 public class PackagingCommandLine {
 
-
     public static void Main(String[] args) throws Exception {
         File configFile = new File("packaging.properties");
         Properties config = new Properties();
@@ -41,20 +41,21 @@ public class PackagingCommandLine {
         mergeArgs(config, args);
 
         new PackagingCommandLine(config).execute();
-
     }
-
 
     private static void mergeArgs(Properties config, String[] args) throws Exception {
         if (args.length % 2 != 0) {
             throw new Exception("There must be an even number of args, --<name> followed by value");
         }
+
         for (int i = 0; i < args.length; i++) {
             String key = args[i++];
             String value = args[i];
+
             if (!key.startsWith("--")) {
                 throw new Exception("Keys must be preceded by '--'");
             }
+
             key = key.substring(2);
             config.put(key, value);
         }
@@ -91,6 +92,4 @@ public class PackagingCommandLine {
         }
         return new File(fileName);
     }
-
-
 }

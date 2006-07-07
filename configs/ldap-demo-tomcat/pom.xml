@@ -27,43 +27,41 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>ldap-demo-tomcat</artifactId>
+    <name>Geronimo Configs :: LDAP Demo for Tomcat</name>
     <packaging>car</packaging>
-    <name>LDAP Demo for Tomcat</name>
-
-    <build>
-        <plugins>
-            <!-- This plugin needed to support package type car -->
-            <plugin>
-                <groupId>org.apache.geronimo.plugins</groupId>
-                <artifactId>geronimo-packaging-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <deploymentConfig>${j2eeTomcatServer}</deploymentConfig>
-                    <moduleFile>${settings.localRepository}/org/apache/geronimo/applications/geronimo-ldap-demo/${geronimoVersion}/geronimo-ldap-demo-${geronimoVersion}.war</moduleFile>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
-    <!-- ============ -->
-    <!-- Dependencies -->
-    <!-- ============ -->
-
+    
     <dependencies>
+        
         <dependency>
             <!-- To enforce build order -->
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>tomcat-deployer</artifactId>
+            <version>${pom.version}</version>
             <type>car</type>
             <scope>provided</scope>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.applications</groupId>
             <artifactId>geronimo-ldap-demo</artifactId>
-            <version>${geronimoVersion}</version>
+            <version>${pom.version}</version>
             <type>war</type>
+            
         </dependency>
     </dependencies>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>geronimo-packaging-plugin</artifactId>
+                <configuration>
+                    <deploymentConfig>${j2eeTomcatServer}</deploymentConfig>
+                    <moduleFile>${settings.localRepository}/org/apache/geronimo/applications/geronimo-ldap-demo/${pom.version}/geronimo-ldap-demo-${pom.version}.war</moduleFile>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    
 </project>

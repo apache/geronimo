@@ -29,71 +29,22 @@
 
     <artifactId>geronimo-directory</artifactId>
     <name>Geronimo :: Directory</name>
-
-    <build>
-        <resources>
-            <resource>
-                <directory>src/resources2</directory>
-            </resource>
-        </resources>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>xmlbeans-maven-plugin</artifactId>
-                <version>${xmlbeansMavenPluginVersion}</version>
-                <executions>
-                    <execution>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>xmlbeans</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>target/classes/schemaorg_apache_xmlbeans</outputDirectory>
-                            <defaultXmlConfigDir>src/schema/xmlconfig.xml</defaultXmlConfigDir>
-                            <verbose>true</verbose>
-                            <sourceSchemas>directory.xsd</sourceSchemas>
-                            <!-- <classGenerationDirectory>target/xmlbeans-classes</classGenerationDirectory> -->
-                            <schemaDirectory>src/schema</schemaDirectory>
-                            <!-- <sourceGenerationDirectory>target/xmlbeans-classes/schemaorg_apache_xmlbeans</sourceGenerationDirectory> -->
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>process-test-resources</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <tasks>
-                                <tstamp />
-                                <copy todir="target/var/" file="src/test-resources/directory.xml" />
-                            </tasks>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-
+    
     <dependencies>
-        <!-- kernel, common, cglib, commons-logging, mx4j, concurrent -->
+        
+        <!-- Module Dependencies -->
+        
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-system</artifactId>
+            <version>${pom.version}</version>
         </dependency>
-
-        <!-- Third Party Jars -->
-
+        
+        <!-- Thirdparty Dependencies -->
+        
         <dependency>
             <groupId>regexp</groupId>
             <artifactId>regexp</artifactId>
-            <version>${regexpVersion}</version>
         </dependency>
 
         <dependency>
@@ -165,49 +116,42 @@
         <dependency>
             <groupId>jdbm</groupId>
             <artifactId>jdbm</artifactId>
-            <version>${jdbmVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>oro</groupId>
             <artifactId>oro</artifactId>
-            <version>${oroVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
-            <version>${commonsLangVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
-            <version>${commonsCollectionsVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>${commonsIoVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>commons-primitives</groupId>
             <artifactId>commons-primitives</artifactId>
-            <version>${commonsPrimitivesVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>antlr</groupId>
             <artifactId>antlr</artifactId>
-            <version>${antlrVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <version>${slf4jVersion}</version>
+            <version>1.0-beta7</version>
         </dependency>
 
         <dependency>
@@ -221,5 +165,45 @@
         </dependency>
 
     </dependencies>
+    
+    <build>
+        <resources>
+            <resource>
+                <directory>src/resources2</directory>
+            </resource>
+        </resources>
+        
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>xmlbeans-maven-plugin</artifactId>
+                <configuration>
+                    <sourceSchemas>directory.xsd</sourceSchemas>
+                    <outputDirectory>${pom.basedir}/target/classes/schemaorg_apache_xmlbeans</outputDirectory>
+                    <defaultXmlConfigDir>${pom.basedir}/src/schema/xmlconfig.xml</defaultXmlConfigDir>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <tstamp/>
+                                <copy todir="target/var/" file="src/test-resources/directory.xml"/>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
 

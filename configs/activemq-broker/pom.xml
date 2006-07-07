@@ -16,6 +16,7 @@
 -->
 
 <!-- $Rev$ $Date$ -->
+
 <project>
     <modelVersion>4.0.0</modelVersion>
 
@@ -26,53 +27,35 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>activemq-broker</artifactId>
+    <name>Geronimo Configs :: ActiveMQ Broker</name>
     <packaging>car</packaging>
-    <name>ActiveMQ Broker Configuration</name>
-
-    <build>
-        <plugins>
-            <!-- This plugin needed to support package type car -->
-            <plugin>
-                <groupId>org.apache.geronimo.plugins</groupId>
-                <artifactId>geronimo-packaging-plugin</artifactId>
-                <extensions>true</extensions>
-                <!-- uses default geronimo-gbean-deployer -->                  
-            </plugin>
-        </plugins>
-    </build>
-
-    <!-- ============ -->
-    <!-- Dependencies -->
-    <!-- ============ -->
-
+    
     <dependencies>
+        
         <!-- parent config -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>system-database</artifactId>
-            <version>${geronimoVersion}</version>
+            <version>${pom.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>activemq</groupId>
             <artifactId>activemq-core</artifactId>
-            <version>${activeMqVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>activemq</groupId>
             <artifactId>activemq-gbean-g1_1</artifactId>
-            <version>${activeMqVersion}</version>
         </dependency>
        
         <dependency>
             <groupId>activemq</groupId>
             <artifactId>activemq-gbean-management-g1_1</artifactId>
-            <version>${activeMqVersion}</version>
         </dependency>
-        <!-- removed activeio -->
+        
     </dependencies>
+    
 </project>

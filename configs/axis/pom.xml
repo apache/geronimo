@@ -16,6 +16,7 @@
 -->
 
 <!-- $Rev$ $Date$ -->
+
 <project>
     <modelVersion>4.0.0</modelVersion>
     
@@ -27,36 +28,23 @@
     </parent>
 
     <artifactId>axis</artifactId>
+    <name>Geronimo Configs :: Axis</name>
     <packaging>car</packaging>
-    <name>Axis Configuration for the J2EE Server</name>
     
-    <build>
-        <plugins>
-            <plugin>
-                <!-- uses geronimo-gbean-deployer -->
-                <groupId>org.apache.geronimo.plugins</groupId>
-                <artifactId>geronimo-packaging-plugin</artifactId>
-                <extensions>true</extensions>
-            </plugin>
-        </plugins>
-    </build>
-
-    <!-- ============ -->
-    <!-- Dependencies -->
-    <!-- ============ -->
-
     <dependencies>
         <!-- parent -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-server</artifactId>
-            <version>${geronimoVersion}</version>
+            <version>${pom.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-axis</artifactId>
+            <version>${pom.version}</version>
         </dependency>
     </dependencies>
+    
 </project>

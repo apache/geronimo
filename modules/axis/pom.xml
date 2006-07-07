@@ -17,7 +17,11 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project>
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -32,50 +36,29 @@
     <name>Geronimo :: Axis</name>
     <description>Geronimo Axis Integration</description>
     
-    <build>
-        <resources>
-            <resource>
-                <directory>src/resources2</directory>
-            </resource>
-        </resources>
-    </build>
-    
-    <!-- ============ -->
-    <!-- Dependencies -->
-    <!-- ============ -->
     <dependencies>
-<!--
-Need to check in a manual -service.xml file before removing this.
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-dependency-plugin</artifactId>
-            <type>plugin</type>
-        </dependency>
--->
-        <!-- cglib, mx4j, commons-logging -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-kernel</artifactId>
+            <version>${pom.version}</version>
         </dependency>
         
         <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-naming</artifactId>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-security</artifactId>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-webservices</artifactId>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>
@@ -102,30 +85,41 @@ Need to check in a manual -service.xml file before removing this.
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-servlet_2.4_spec</artifactId>
         </dependency>
-
+        
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
+        
         <dependency>
             <groupId>asm</groupId>
             <artifactId>asm</artifactId>
-            <version>${asmVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>axis</groupId>
             <artifactId>axis</artifactId>
-            <version>${axisVersion}</version>
         </dependency>
+        
         <!-- this uses commons-logging 1.0.3 -->
         <dependency>
             <groupId>commons-discovery</groupId>
             <artifactId>commons-discovery</artifactId>
-            <version>${commonsDiscoveryVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>wsdl4j</groupId>
             <artifactId>wsdl4j</artifactId>
-            <version>${wsdl4jVersion}</version>
         </dependency>
     </dependencies>
+    
+    <build>
+        <resources>
+            <resource>
+                <directory>src/resources2</directory>
+            </resource>
+        </resources>
+    </build>
+    
 </project>
 

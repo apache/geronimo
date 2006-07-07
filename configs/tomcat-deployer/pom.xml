@@ -28,38 +28,24 @@
     </parent>
 
     <artifactId>tomcat-deployer</artifactId>
+    <name>Geronimo Configs :: Tomcat Deployer</name>
     <packaging>car</packaging>
-    <name>Tomcat Deployer Configuration for performing J2EE deployments</name>
     
-    <build>
-        <plugins>
-            <plugin>
-                <!-- uses geronimo-gbean-deployer -->
-                <groupId>org.apache.geronimo.plugins</groupId>
-                <artifactId>geronimo-packaging-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <deploymentConfig>${gbeanDeployer},${j2eeDeployer}</deploymentConfig>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
-    <!-- ============ -->
-    <!-- Dependencies -->
-    <!-- ============ -->
-
     <dependencies>
+        
         <!-- parent -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-deployer</artifactId>
+            <version>${pom.version}</version>
             <type>car</type>
         </dependency>
+        
         <!-- import classes -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>tomcat</artifactId>
+            <version>${pom.version}</version>
             <type>car</type>
             <scope>compile</scope>
         </dependency>
@@ -67,6 +53,21 @@
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-tomcat-builder</artifactId>
+            <version>${pom.version}</version>
         </dependency>
+        
     </dependencies>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>geronimo-packaging-plugin</artifactId>
+                <configuration>
+                    <deploymentConfig>${gbeanDeployer},${j2eeDeployer}</deploymentConfig>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    
 </project>

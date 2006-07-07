@@ -33,7 +33,21 @@
     <properties>
         <izpack_version>3.8.0</izpack_version>
     </properties>
+    
+    <dependencies>
+        <dependency>
+            <groupId>izpack</groupId>
+            <artifactId>installer</artifactId>
+            <version>${izpack_version}</version>
+        </dependency>
 
+        <dependency>
+            <groupId>izpack</groupId>
+            <artifactId>standalone-compiler</artifactId>
+            <version>${izpack_version}</version>
+        </dependency>
+    </dependencies>
+    
     <build>
         <plugins>
             <plugin>
@@ -60,18 +74,5 @@
         </plugins>
     </build>
 
-    <dependencies>
-        <dependency>
-            <groupId>izpack</groupId>
-            <artifactId>installer</artifactId>
-            <version>${izpack_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>izpack</groupId>
-            <artifactId>standalone-compiler</artifactId>
-            <version>${izpack_version}</version>
-        </dependency>
-    </dependencies>
 </project>
 

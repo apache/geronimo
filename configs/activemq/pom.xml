@@ -16,6 +16,7 @@
 -->
 
 <!-- $Rev$ $Date$ -->
+
 <project>
     <modelVersion>4.0.0</modelVersion>
 
@@ -26,54 +27,48 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>activemq</artifactId>
+    <name>Geronimo Configs :: ActiveMQ</name>
     <packaging>car</packaging>
-    <name>Activemq Configuration</name>
-
-    <build>
-        <plugins>
-            <!-- This plugin needed to support package type car -->
-            <plugin>
-                <groupId>org.apache.geronimo.plugins</groupId>
-                <artifactId>geronimo-packaging-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <deploymentConfig>${j2eeNowebServer}</deploymentConfig>  <!-- no web deployer -->
-                   <moduleFile>${settings.localRepository}/org/apache/geronimo/modules/ge-activemq-rar/${geronimoVersion}/ge-activemq-rar-${geronimoVersion}.rar</moduleFile> 
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-  
-    <properties>
-        <PlanServerHostname>localhost</PlanServerHostname>
-        <PlanActiveMQPort>61616</PlanActiveMQPort>
-    </properties>
-
-    <!-- ============ -->
-    <!-- Dependencies -->
-    <!-- ============ -->
-
+    
     <dependencies>
+        
         <!-- parent config -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>activemq-broker</artifactId>
+            <version>${pom.version}</version>
             <type>car</type>
         </dependency>
+        
         <!-- To enforce build order -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>system-database</artifactId>
+            <version>${pom.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>ge-activemq-rar</artifactId>
+            <version>${pom.version}</version>
             <type>rar</type>
         </dependency>
 
     </dependencies>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>geronimo-packaging-plugin</artifactId>
+                <configuration>
+                    <deploymentConfig>${j2eeNowebServer}</deploymentConfig>  <!-- no web deployer -->
+                   <moduleFile>${settings.localRepository}/org/apache/geronimo/modules/ge-activemq-rar/${pom.version}/ge-activemq-rar-${pom.version}.rar</moduleFile> 
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+  
 </project>

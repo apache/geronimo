@@ -27,31 +27,39 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>j2ee-corba</artifactId>
+    <name>Geronimo Configs :: J2EE Corba</name>
     <packaging>car</packaging>
-    <name>Corba Configuration for the J2EE Server</name>
 
-    <properties>
-        <PlanCOSNamingHost>localhost</PlanCOSNamingHost>
-        <PlanCOSNamingPort>1050</PlanCOSNamingPort>
-        <PlanORBSSLHost>localhost</PlanORBSSLHost>
-        <PlanORBSSLPort>2001</PlanORBSSLPort>
-        <PlanHTTPPort>8080</PlanHTTPPort>
-        <PlanHTTPSPort>8443</PlanHTTPSPort>
-        <PlanOpenEJBPort>4201</PlanOpenEJBPort>
-        <PlanServerHostname>localhost</PlanServerHostname>
-        <PlanClientAddresses>127.0.0.1</PlanClientAddresses>
-        <PlanRemoteLoginPort>4242</PlanRemoteLoginPort>
-     </properties>
-     
+    <dependencies>
+        <!-- parent config -->
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>j2ee-server</artifactId>
+            <version>${pom.version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>j2ee-security</artifactId>
+            <version>${pom.version}</version>
+            <type>car</type>
+        </dependency>  
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>openejb</artifactId>
+            <version>${pom.version}</version>
+            <type>car</type>
+        </dependency>
+    </dependencies>
+    
     <build>
         <plugins>
-            <!-- This plugin needed to support package type car -->
             <plugin>
                 <groupId>org.apache.geronimo.plugins</groupId>
                 <artifactId>geronimo-packaging-plugin</artifactId>
-                <extensions>true</extensions>
                 <configuration>
                     <deploymentConfig>${gbeanDeployer},${j2eeDeployer},${openejbDeployer},${axisDeployer}</deploymentConfig>
                 </configuration>                  
@@ -59,32 +67,4 @@
         </plugins>
     </build>
 
-    <!-- ============ -->
-    <!-- Dependencies -->
-    <!-- ============ -->
-
-    <dependencies>
-        <!-- parent config -->
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>j2ee-server</artifactId>
-            <version>${geronimoVersion}</version>
-            <type>car</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>j2ee-security</artifactId>
-            <version>${geronimoVersion}</version>
-            <type>car</type>
-        </dependency>  
-
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>openejb</artifactId>
-            <version>${geronimoVersion}</version>
-            <type>car</type>
-        </dependency>
-    </dependencies>
-    
 </project>

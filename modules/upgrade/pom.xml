@@ -45,16 +45,19 @@
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-common</artifactId>
+            <version>${pom.version}</version>
         </dependency>
-        <!-- mx4j transitive -->
+        
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-kernel</artifactId>
+            <version>${pom.version}</version>
         </dependency>
-        <!-- j2ee-schema transitive -->
+        
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-service-builder</artifactId>
+            <version>${pom.version}</version>
         </dependency>
     </dependencies>
     

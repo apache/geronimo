@@ -17,7 +17,11 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project>
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
@@ -29,7 +33,7 @@
 
     <artifactId>geronimo-remote-deploy</artifactId>
     <packaging>war</packaging>
-    <name>Geronimo Remote Deploy Application</name>
+    <name>Geronimo Applications :: Remote Deploy</name>
     <description>
         This application is essentially a servlet that accepts file upload
         requests from remote clients, which is necessary for remote
@@ -46,8 +50,28 @@
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-kernel</artifactId>
-            <version>${geronimoVersion}</version>
+            <version>${pom.version}</version>
+        </dependency>
+        
+        <!-- Required for JSPC compilation -->
+        <dependency>
+            <groupId>tomcat</groupId>
+            <artifactId>jasper-runtime</artifactId>
         </dependency>
     </dependencies>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jspc-maven-plugin</artifactId>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
     
 </project>

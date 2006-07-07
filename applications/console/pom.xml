@@ -17,7 +17,11 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project>
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
@@ -30,16 +34,15 @@
     <groupId>org.apache.geronimo.applications.console</groupId>
     <artifactId>console-parent</artifactId>
     <packaging>pom</packaging>
-    <name>Geronimo Console Application</name>
-    <description>Geronimo Console Application</description>
+    <name>Geronimo Applications :: Console</name>
 
     <dependencies>
         <dependency>
             <groupId>portlet-api</groupId>
             <artifactId>portlet-api</artifactId>
-            <version>${portletApiVersion}</version>
             <scope>provided</scope>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jsp_2.0_spec</artifactId>

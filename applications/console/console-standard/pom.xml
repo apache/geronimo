@@ -17,7 +17,11 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project>
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
@@ -29,100 +33,127 @@
 
     <artifactId>geronimo-console-standard</artifactId>
     <packaging>war</packaging>
-    <name>Geronimo :: Console :: Standard Portlets</name>
+    <name>Geronimo Applications, Console :: Standard Portlets</name>
 
     <dependencies>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-upgrade</artifactId>
+            <version>${pom.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-converter</artifactId>
+            <version>${pom.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-derby</artifactId>
+            <version>${pom.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-deploy-jsr88</artifactId>
+            <version>${pom.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-servlet_2.4_spec</artifactId>
             <scope>provided</scope>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.applications.console</groupId>
             <artifactId>geronimo-console-core</artifactId>
-            <version>${geronimoVersion}</version>
+            <version>${pom.version}</version>
             <scope>provided</scope>
         </dependency>
+        
         <dependency>
             <groupId>castor</groupId>
             <artifactId>castor</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-converter</artifactId>
-            <version>${geronimoVersion}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-derby</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-deploy-jsr88</artifactId>
-            <scope>provided</scope>
-        </dependency>
+        
         <dependency>
             <groupId>commons-digester</groupId>
             <artifactId>commons-digester</artifactId>
-            <version>${commonsDigesterVersion}</version>
         </dependency>
+        
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
-            <version>${commonsFileuploadVersion}</version>
         </dependency>
+        
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>${commonsIoVersion}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-upgrade</artifactId>
-            <scope>provided</scope>
-        </dependency>
+        
         <dependency>
             <groupId>org.apache.pluto</groupId>
             <artifactId>pluto</artifactId>
-            <version>${plutoVersion}</version>
         </dependency>
         
         <!-- JMS dependencies -->
+        
         <dependency>
             <groupId>activemq</groupId>
             <artifactId>activemq-core</artifactId>
-            <version>${activeMqVersion}</version>
             <scope>provided</scope>
         </dependency>
         
         <!-- Used to pre compile JSPs -->
+        
         <dependency>
             <groupId>taglibs</groupId>
             <artifactId>standard</artifactId>
-            <version>${standardTaglibsVersion}</version>
         </dependency>
+        
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>jstl</artifactId>
-            <version>${jstlVersion}</version>
         </dependency>
+        
         <dependency>
             <groupId>dwr</groupId>
             <artifactId>dwr</artifactId>
-            <version>${dwrVersion}</version>
+        </dependency>
+        
+        <!-- Required for JSPC compilation -->
+        <dependency>
+            <groupId>tomcat</groupId>
+            <artifactId>jasper-runtime</artifactId>
         </dependency>
     </dependencies>
-
+    
     <build>
         <resources>
             <resource>
-                <directory>${basedir}/src/conf</directory>
+                <directory>${pom.basedir}/src/conf</directory>
                 <filtering>true</filtering>
             </resource>
         </resources>
-
+        
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jspc-maven-plugin</artifactId>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+            </plugin>
+        </plugins>
     </build>
 
 </project>

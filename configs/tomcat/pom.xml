@@ -28,48 +28,31 @@
     </parent>
 
     <artifactId>tomcat</artifactId>
+    <name>Geronimo Configs :: Tomcat</name>
     <packaging>car</packaging>
-    <name>Tomcat Configuration for the J2EE Server</name>
     
-    <properties>
-        <PlanHTTPPort2>8090</PlanHTTPPort2>
-        <PlanHTTPSPort2>8453</PlanHTTPSPort2>
-        <PlanAJPPort2>8019</PlanAJPPort2>
-        <PlanServerHostname>localhost</PlanServerHostname>
-    </properties>
-    
-    <build>
-        <plugins>
-            <plugin>
-                <!-- uses geronimo-gbean-deployer -->
-                <groupId>org.apache.geronimo.plugins</groupId>
-                <artifactId>geronimo-packaging-plugin</artifactId>
-                <extensions>true</extensions>
-            </plugin>
-        </plugins>
-    </build>
-
-    <!-- ============ -->
-    <!-- Dependencies -->
-    <!-- ============ -->
-
     <dependencies>
+        
         <!-- parent -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>rmi-naming</artifactId>
-            <version>${geronimoVersion}</version>
+            <version>${pom.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-tomcat</artifactId>
+            <version>${pom.version}</version>
         </dependency>
+        
         <!-- this should have come via g-tomcat
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-webservices</artifactId>
+            <version>${pom.version}</version>
         </dependency> -->
+        
     </dependencies>
 </project>

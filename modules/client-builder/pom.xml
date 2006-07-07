@@ -29,54 +29,25 @@
     
     <artifactId>geronimo-client-builder</artifactId>
     <name>Geronimo :: Client Builder</name>
-    <description>Geronimo :: Client Builder</description>
-
-    <build>
-        <resources>
-            <resource>
-                <directory>src/resources2</directory>
-            </resource>
-        </resources>
-        
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>xmlbeans-maven-plugin</artifactId>
-                <version>${xmlbeansMavenPluginVersion}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>xmlbeans</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <download>true</download>
-                    <sourceSchemas>geronimo-application-client-1.1.xsd</sourceSchemas>
-                    <schemaDirectory>src/schema</schemaDirectory>
-                    <xmlConfigs>
-                        <xmlConfig implementation="java.io.File">src/schema/xmlconfig.xml</xmlConfig>
-                    </xmlConfigs>
-                    <debug>true</debug>
-                    <verbose>true</verbose>
-                    <quiet>false</quiet>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
+    
     <dependencies>
-
+        
+        <!-- Module Dependencies -->
+        
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-client</artifactId>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-connector-builder</artifactId>
+            <version>${pom.version}</version>
         </dependency>
-
+        
+        <!-- Thirdparty Dependencies -->
+        
         <!-- tranql uses 1.0.3 -->
         <dependency>
             <groupId>commons-logging</groupId>
@@ -84,5 +55,24 @@
         </dependency>
         
     </dependencies>
+    
+    <build>
+        <resources>
+            <resource>
+                <directory>${pom.basedir}/src/resources2</directory>
+            </resource>
+        </resources>
+        
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>xmlbeans-maven-plugin</artifactId>
+                <configuration>
+                    <sourceSchemas>geronimo-application-client-1.1.xsd</sourceSchemas>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
 

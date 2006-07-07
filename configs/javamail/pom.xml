@@ -28,39 +28,29 @@
     </parent>
 
     <artifactId>javamail</artifactId>
+    <name>Geronimo Configs :: JavaMail</name>
     <packaging>car</packaging>
-    <name>Security Configuration for the J2EE server</name>
-
-    <build>
-        <plugins>
-            <plugin>
-                <!-- uses geronimo-gbean-deployer -->
-                <groupId>org.apache.geronimo.plugins</groupId>
-                <artifactId>geronimo-packaging-plugin</artifactId>
-                <extensions>true</extensions>
-            </plugin>
-        </plugins>
-    </build>
-
-    <!-- ============ -->
-    <!-- Dependencies -->
-    <!-- ============ -->
-
+    
     <dependencies>
         <!-- parent -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>rmi-naming</artifactId>
+            <version>${pom.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-javamail-transport</artifactId>
+            <version>${pom.version}</version>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-mail</artifactId>
+            <version>${pom.version}</version>
         </dependency>
     </dependencies>
+    
 </project>

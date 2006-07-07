@@ -18,143 +18,99 @@
 package org.apache.geronimo.plugin.packaging;
 
 import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import java.util.List;
 
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
+
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.logging.Log;
+
+//
+// TODO: Rename to InstallMojo
+//
 
 /**
  * Copies all the configurations out of source config store into target config store.
  *
  * @goal install
- * @version $Rev:$ $Date:$
+ *
+ * @version $Rev$ $Date$
  */
 public class ConfigCopierMojo extends AbstractPackagingMojo {
 
-    private static final Class[] REPO_ARGS = new Class[] {File.class};
-    private static final Class[] STORE_ARGS = new Class[] {WritableListableRepository.class};
+    private static final Class[] REPO_ARGS = { File.class };
+
+    private static final Class[] STORE_ARGS = { WritableListableRepository.class };
 
     /**
      * @parameter expression="org.apache.geronimo.system.repository.Maven2Repository"
      */
     private String sourceRepositoryClass;
+
     /**
      * @parameter expression="org.apache.geronimo.system.repository.Maven2Repository"
      */
     private String targetRepositoryClass;
+
     /**
      * @parameter expression="org.apache.geronimo.system.configuration.RepositoryConfigurationStore"
-     */    
+     */
     private String sourceConfigurationStoreClass;
+
     /**
      * @parameter expression="org.apache.geronimo.plugin.packaging.MavenConfigStore"
-     */    
+     */
     private String targetConfigurationStoreClass;
+
     /**
      * @parameter expression="${project.build.directory}/repository"
-     */    
+     */
     private File sourceRepositoryLocation;
+
     /**
      * @parameter expression="${settings.LocalRepository}"
-     */    
+     */
     private File targetRepositoryLocation;
 
+    protected void doExecute() throws Exception {
+        // copy artifact(s) to maven repository
 
-/*    public String getSourceRepositoryClass() {
-        return sourceRepositoryClass;
-    }
+        ClassLoader cl = this.getClass().getClassLoader();
 
-    public void setSourceRepositoryClass(String sourceRepositoryClass) {
-        this.sourceRepositoryClass = sourceRepositoryClass;
-    }
+        Class sourceRepoClass = cl.loadClass(sourceRepositoryClass);
+        WritableListableRepository sourceRepository = (WritableListableRepository)
+                sourceRepoClass.getDeclaredConstructor(REPO_ARGS).newInstance(new Object[]{ sourceRepositoryLocation });
 
-    public String getTargetRepositoryClass() {
-        return targetRepositoryClass;
-    }
+        Class sourceConfigStoreClass = cl.loadClass(sourceConfigurationStoreClass);
+        ConfigurationStore sourceConfigStore = (ConfigurationStore)
+                sourceConfigStoreClass.getDeclaredConstructor(STORE_ARGS).newInstance(new Object[]{ sourceRepository });
 
-    public void setTargetRepositoryClass(String targetRepositoryClass) {
-        this.targetRepositoryClass = targetRepositoryClass;
-    }
+        Class targetRepoClass = cl.loadClass(targetRepositoryClass);
+        WritableListableRepository targetRepository = (WritableListableRepository)
+                targetRepoClass.getDeclaredConstructor(REPO_ARGS).newInstance(new Object[]{ targetRepositoryLocation });
+        Class targetConfigStoreClass = cl.loadClass(targetConfigurationStoreClass);
 
-    public String getSourceConfigurationStoreClass() {
-        return sourceConfigurationStoreClass;
-    }
+        ConfigurationStore targetConfigStore = (ConfigurationStore)
+                targetConfigStoreClass.getDeclaredConstructor(STORE_ARGS).newInstance(new Object[]{ targetRepository });
 
-    public void setSourceConfigurationStoreClass(String sourceConfigurationStoreClass) {
-        this.sourceConfigurationStoreClass = sourceConfigurationStoreClass;
-    }
+        Iterator iterator = sourceConfigStore.listConfigurations().iterator();
+        while (iterator.hasNext()) {
+            ConfigurationInfo configInfo = (ConfigurationInfo) iterator.next();
+            Artifact configId = configInfo.getConfigID();
+            ConfigurationData configData = sourceConfigStore.loadConfiguration(configId);
 
-    public String getTargetConfigurationStoreClass() {
-        return targetConfigurationStoreClass;
-    }
+            log.info("Copying artifact: " + configId);
 
-    public void setTargetConfigurationStoreClass(String targetConfigurationStoreClass) {
-        this.targetConfigurationStoreClass = targetConfigurationStoreClass;
-    }
-
-    public File getSourceRepositoryLocation() {
-        return sourceRepositoryLocation;
-    }
-
-    public void setSourceRepositoryLocation(File sourceRepositoryLocation) {
-        this.sourceRepositoryLocation = sourceRepositoryLocation;
-    }
-
-    public File getTargetRepositoryLocation() {
-        return targetRepositoryLocation;
-    }
-
-    public void setTargetRepositoryLocation(File targetRepositoryLocation) {
-        this.targetRepositoryLocation = targetRepositoryLocation;
-    }*/
-    public void execute() throws MojoExecutionException {
-        try {
-            // copy artifact(s) to maven repository
-                System.out.println("----Begin installing config to local repository");
-                executeCopyConfig();
-                System.out.println("----Begin installing config to local repository");
-        } catch (Exception e) {
-            handleError(e);
-        }
-    }
-
-    private void executeCopyConfig() throws Exception {
-        try {
-            ClassLoader cl = this.getClass().getClassLoader();
-
-            Class sourceRepoClass = cl.loadClass(sourceRepositoryClass);
-            WritableListableRepository sourceRepository = (WritableListableRepository) sourceRepoClass.getDeclaredConstructor(REPO_ARGS).newInstance(new Object[] {sourceRepositoryLocation});
-            Class sourceConfigStoreClass = cl.loadClass(sourceConfigurationStoreClass);
-            ConfigurationStore sourceConfigStore = (ConfigurationStore) sourceConfigStoreClass.getDeclaredConstructor(STORE_ARGS).newInstance(new Object[] {sourceRepository});
-
-            Class targetRepoClass = cl.loadClass(targetRepositoryClass);
-            WritableListableRepository targetRepository = (WritableListableRepository) targetRepoClass.getDeclaredConstructor(REPO_ARGS).newInstance(new Object[] {targetRepositoryLocation});
-            Class targetConfigStoreClass = cl.loadClass(targetConfigurationStoreClass);
-            ConfigurationStore targetConfigStore = (ConfigurationStore) targetConfigStoreClass.getDeclaredConstructor(STORE_ARGS).newInstance(new Object[] {targetRepository});
-
-            List configs = sourceConfigStore.listConfigurations();
-            for (Iterator iterator = configs.iterator(); iterator.hasNext();) {
-                ConfigurationInfo configInfo = (ConfigurationInfo) iterator.next();
-                Artifact configId = configInfo.getConfigID();
-                System.out.println("*****[ConfigCopy] copying Artifact " + configId);
-                ConfigurationData configData = sourceConfigStore.loadConfiguration(configId);
-                if (targetConfigStore.containsConfiguration(configId)) {
-                    targetConfigStore.uninstall(configId);
-                }
-                targetConfigStore.install(configData);
+            if (targetConfigStore.containsConfiguration(configId)) {
+                targetConfigStore.uninstall(configId);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
+
+            targetConfigStore.install(configData);
         }
     }
 }

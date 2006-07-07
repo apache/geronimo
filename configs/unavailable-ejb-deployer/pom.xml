@@ -28,33 +28,31 @@
     </parent>
 
     <artifactId>unavailable-ejb-deployer</artifactId>
+    <name>Geronimo Configs :: Unavailable EJB Deployer</name>
     <packaging>car</packaging>
-    <name>Configuration for no EJBs</name>
+    
+    <dependencies>
+        
+        <!-- parent config -->
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>j2ee-deployer</artifactId>
+            <version>${pom.version}</version>
+            <type>car</type>
+        </dependency>
+        
+    </dependencies>
     
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.geronimo.plugins</groupId>
                 <artifactId>geronimo-packaging-plugin</artifactId>
-                <extensions>true</extensions>
                 <configuration>
                     <deploymentConfig>${gbeanDeployer},${j2eeDeployer}</deploymentConfig>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-
-    <!-- ============ -->
-    <!-- Dependencies -->
-    <!-- ============ -->
-
-    <dependencies>
-        <!-- parent config -->
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>j2ee-deployer</artifactId>
-            <version>${geronimoVersion}</version>
-            <type>car</type>
-        </dependency>        
-    </dependencies>
+    
 </project>

@@ -30,94 +30,72 @@
     <artifactId>geronimo-web-builder</artifactId>
     <name>Geronimo :: Web :: Builder</name>
 
-    <description>Geronimo Web Container Deployer</description>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>xmlbeans-maven-plugin</artifactId>
-                <version>${xmlbeansMavenPluginVersion}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>xmlbeans</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <download>true</download>
-                    <sourceSchemas>geronimo-web-1.1.xsd</sourceSchemas>
-                    <schemaDirectory>src/schema</schemaDirectory>
-                    <xmlConfigs>
-                        <xmlConfig implementation="java.io.File">src/schema/xmlconfig.xml</xmlConfig>
-                    </xmlConfigs>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
     <dependencies>
+        
+        <!-- Module Dependencies -->
+        
         <dependency>
-            <groupId>xmlbeans</groupId>
-            <artifactId>xbean</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>stax</groupId>
-            <artifactId>stax-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-common</artifactId>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-deploy-config</artifactId>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-j2ee-builder</artifactId>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-security-builder</artifactId>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-service-builder</artifactId>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-naming-builder</artifactId>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-j2ee-schema</artifactId>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-test-ddbean</artifactId>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-deployment</artifactId>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-j2ee</artifactId>
+            <version>${pom.version}</version>
         </dependency>
-
+        
+        <!-- Spec Dependencies -->
+        
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>
@@ -128,10 +106,36 @@
             <artifactId>geronimo-servlet_2.4_spec</artifactId>
         </dependency>
         
+        <!-- Thirdparty Dependencies -->
+        
+        <dependency>
+            <groupId>xmlbeans</groupId>
+            <artifactId>xbean</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>stax</groupId>
+            <artifactId>stax-api</artifactId>
+        </dependency>
+        
         <dependency>
             <groupId>mx4j</groupId>
             <artifactId>mx4j</artifactId>
         </dependency>
+        
     </dependencies>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>xmlbeans-maven-plugin</artifactId>
+                <configuration>
+                    <sourceSchemas>geronimo-web-1.1.xsd</sourceSchemas>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
 
