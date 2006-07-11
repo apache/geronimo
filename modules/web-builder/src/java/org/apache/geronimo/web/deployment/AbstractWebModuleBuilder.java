@@ -86,6 +86,13 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     protected static final AbstractNameQuery ENTITY_BEAN_PATTERN;
     protected final Kernel kernel;
 
+    /**
+     * Manifest classpath entries in a war configuration must be resolved relative to the war configuration, not the
+     * enclosing ear configuration.  Resolving relative to he war configuration using this offset produces the same
+     * effect as URI.create(module.targetPath()).resolve(mcpEntry) executed in the ear configuration.
+     */
+    private static final URI RELATIVE_MODULE_BASE_URI = URI.create("../");
+
     protected AbstractWebModuleBuilder(Kernel kernel) {
         this.kernel = kernel;
     }
@@ -226,7 +233,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             // add the manifest classpath entries declared in the war to the class loader
             // we have to explicitly add these since we are unpacking the web module
             // and the url class loader will not pick up a manifest from an unpacked dir
-            moduleContext.addManifestClassPath(warFile, URI.create(module.getTargetPath()));
+            moduleContext.addManifestClassPath(warFile, RELATIVE_MODULE_BASE_URI);
 
         } catch (IOException e) {
             throw new DeploymentException("Problem deploying war", e);
