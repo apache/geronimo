@@ -261,6 +261,9 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             // add the manifest classpath entries declared in the connector to the class loader
             // we have to explicitly add these since we are unpacking the connector module
             // and the url class loader will not pick up a manifiest from an unpacked dir
+            // N.B. If we ever introduce a separate configuration/module for a rar inside an ear
+            // this will need to be modified to use "../" instead of module.getTargetPath().
+            // See AbstractWebModuleBuilder.
             earContext.addManifestClassPath(moduleFile, URI.create(module.getTargetPath()));
 
             URI targetURI = URI.create(module.getTargetPath() + "/");
