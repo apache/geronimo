@@ -20,6 +20,7 @@ package org.apache.geronimo.connector.outbound;
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.LinkedHashSet;
 
 import javax.management.ObjectName;
 import javax.resource.ResourceException;
@@ -114,12 +115,13 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         this.connectionInterface = connectionInterface;
         this.connectionImplClass = connectionImplClass;
 
-        allImplementedInterfaces = new Class[1 + implementedInterfaces.length];
-        allImplementedInterfaces[0] = cl.loadClass(connectionFactoryInterface);
+        LinkedHashSet allInterfaceSet = new LinkedHashSet();
+        allInterfaceSet.add(cl.loadClass(connectionFactoryInterface));
         for (int i = 0; i < implementedInterfaces.length; i++) {
-            allImplementedInterfaces[i + 1] = cl.loadClass(implementedInterfaces[i]);
-
+            allInterfaceSet.add(cl.loadClass(implementedInterfaces[i]));
         }
+        allImplementedInterfaces = (Class[])allInterfaceSet.toArray(new Class[allInterfaceSet.size()]);
+        
         boolean mightBeProxyable = true;
         for (int i = 0; i < allImplementedInterfaces.length; i++) {
             Class implementedInterface = allImplementedInterfaces[i];
