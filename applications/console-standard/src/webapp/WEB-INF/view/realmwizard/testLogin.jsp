@@ -23,7 +23,7 @@ does not invoke advanced features such as auditing or lockout.</p>
     <input type="hidden" name="lockoutWindow" value="${realm.lockoutWindow}" />
     <input type="hidden" name="lockoutDuration" value="${realm.lockoutDuration}" />
     <input type="hidden" name="storePassword" value="${realm.storePassword}" />
-    <input type="hidden" name="objectName" value="${realm.objectName}" />
+    <input type="hidden" name="abstractName" value="${realm.abstractName}" />
     <input type="hidden" name="module-domain-0" value="${realm.modules[0].loginDomainName}" />
     <input type="hidden" name="module-class-0" value="${realm.modules[0].className}" />
     <input type="hidden" name="module-control-0" value="${realm.modules[0].controlFlag}" />
