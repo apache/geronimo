@@ -19,7 +19,7 @@
     <input type="hidden" name="lockoutWindow" value="${realm.lockoutWindow}" />
     <input type="hidden" name="lockoutDuration" value="${realm.lockoutDuration}" />
     <input type="hidden" name="storePassword" value="${realm.storePassword}" />
-    <input type="hidden" name="objectName" value="${realm.objectName}" />
+    <input type="hidden" name="abstractName" value="${realm.abstractName}" />
     <input type="hidden" name="module-domain-0" value="${realm.modules[0].loginDomainName}" />
     <input type="hidden" name="module-class-0" value="${realm.modules[0].className}" />
     <input type="hidden" name="module-control-0" value="${realm.modules[0].controlFlag}" />
@@ -76,7 +76,7 @@
           <input type="submit" value="Test Again" />
           <input type="button" value="Edit Realm" onclick="document.<portlet:namespace/>RealmForm.mode.value='configure';document.<portlet:namespace/>RealmForm.submit();return false;" />
           <input type="button" value="Show Plan" onclick="document.<portlet:namespace/>RealmForm.mode.value='plan';document.<portlet:namespace/>RealmForm.submit();return false;" />
-          <input type="button" value="<c:choose><c:when test="${empty realm.objectName}">Deploy Realm</c:when><c:otherwise>Save</c:otherwise></c:choose>"
+          <input type="button" value="<c:choose><c:when test="${empty realm.abstractName}">Deploy Realm</c:when><c:otherwise>Save</c:otherwise></c:choose>"
                  onclick="document.<portlet:namespace/>RealmForm.mode.value='save';document.<portlet:namespace/>RealmForm.submit();return false;" />
         </td>
       </tr>

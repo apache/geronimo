@@ -40,10 +40,10 @@
       <tr>
         <th><div align="right">Database Pool</div></th>
         <td>
-          <select name="option-databasePoolObjectName">
+          <select name="option-databasePoolAbstractName">
             <option />
         <c:forEach var="pool" items="${pools}">
-            <option value="${pool.objectName}"<c:if test="${realm.options['dataSourceName'] eq pool.name && realm.options['dataSourceApplication'] eq pool.applicationName}"> selected</c:if>>${pool.displayName}</option>
+            <option value="${pool.abstractName}"<c:if test="${realm.options['dataSourceName'] eq pool.name && realm.options['dataSourceApplication'] eq pool.applicationName}"> selected</c:if>>${pool.displayName}</option>
         </c:forEach>
           </select>
         </td>

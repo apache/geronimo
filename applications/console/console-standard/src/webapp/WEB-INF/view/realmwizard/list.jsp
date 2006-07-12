@@ -54,12 +54,12 @@ realms deployed as part of a single application cannot (change the deployment pl
              </c:choose>--%>
       <a href="<portlet:actionURL portletMode="view">
         <portlet:param name="mode" value="editExisting" />
-        <portlet:param name="objectName" value="${realm.objectName}" />
+        <portlet:param name="abstractName" value="${realm.abstractName}" />
       </portlet:actionURL>">edit</a>
       <a href="<portlet:actionURL portletMode="view">
         <portlet:param name="mode" value="usage" />
         <portlet:param name="name" value="${realm.name}" />
-        <portlet:param name="objectName" value="${realm.objectName}" />
+        <portlet:param name="abstractName" value="${realm.abstractName}" />
       </portlet:actionURL>">usage</a>
            <%--<a href="<portlet:actionURL portletMode="view">
                  <portlet:param name="mode" value="delete" />

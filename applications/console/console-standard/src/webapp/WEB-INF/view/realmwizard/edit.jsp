@@ -10,7 +10,7 @@ only one login module.  Additional login modules may be used to access more
 underlying security information stores, or to add functionality such as auditing
 to a realm without affecting the authentication process for the realm.</p>
 
-<c:if test="${empty realm.objectName}">
+<c:if test="${empty realm.abstractName}">
 <p>If you don't need to use as many login modules as there are entries below,
 just leave the extra ones blank.</p>
 </c:if>
@@ -29,15 +29,15 @@ just leave the extra ones blank.</p>
     <input type="hidden" name="lockoutWindow" value="${realm.lockoutWindow}" />
     <input type="hidden" name="lockoutDuration" value="${realm.lockoutDuration}" />
     <input type="hidden" name="storePassword" value="${realm.storePassword}" />
-    <input type="hidden" name="objectName" value="${realm.objectName}" />
+    <input type="hidden" name="abstractName" value="${realm.abstractName}" />
 
     <table border="0">
     <!-- ENTRY FIELD: NAME -->
       <tr>
         <th style="min-width: 140px"><div align="right">Realm Name:</div></th>
         <td>
-      <c:choose> <%-- Can't change the realm name after deployment because it's wired into all the ObjectNames --%>
-        <c:when test="${empty realm.objectName}">
+      <c:choose> <%-- Can't change the realm name after deployment because it's wired into all the abstractNames --%>
+        <c:when test="${empty realm.abstractName}">
           <input name="name" type="text" size="30" value="${realm.name}">
         </c:when>
         <c:otherwise>
@@ -61,7 +61,7 @@ just leave the extra ones blank.</p>
         <th><div align="right">Login Domain Name:</div></th>
         <td>
       <c:choose> <%-- Can't change the login domain name after deployment because it's how we know which GBean is which --%>
-        <c:when test="${empty realm.objectName}">
+        <c:when test="${empty realm.abstractName}">
           <input name="module-domain-${status.index}" type="text" size="20" value="${module.loginDomainName}" />
         </c:when>
         <c:otherwise>
@@ -151,7 +151,7 @@ just leave the extra ones blank.</p>
       <tr>
         <td></td>
         <td>
-          <input type="button" value="<c:choose><c:when test="${empty realm.objectName}">Deploy</c:when><c:otherwise>Save</c:otherwise></c:choose>"
+          <input type="button" value="<c:choose><c:when test="${empty realm.abstractName}">Deploy</c:when><c:otherwise>Save</c:otherwise></c:choose>"
                  onclick="document.<portlet:namespace/>RealmForm.mode.value='save';document.<portlet:namespace/>RealmForm.submit();return false;" />
           <input type="button" value="Show Plan" onclick="document.<portlet:namespace/>RealmForm.mode.value='plan';document.<portlet:namespace/>RealmForm.submit();return false;" />
         </td>

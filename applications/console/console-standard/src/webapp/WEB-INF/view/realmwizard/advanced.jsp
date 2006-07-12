@@ -16,7 +16,7 @@
   <c:forEach var="option" items="${realm.options}">
     <input type="hidden" name="option-${option.key}" value="${option.value}" />
   </c:forEach>
-    <input type="hidden" name="objectName" value="${realm.objectName}" />
+    <input type="hidden" name="abstractName" value="${realm.abstractName}" />
     <input type="hidden" name="module-domain-0" value="${realm.modules[0].loginDomainName}" />
     <input type="hidden" name="module-class-0" value="${realm.modules[0].className}" />
     <input type="hidden" name="module-control-0" value="${realm.modules[0].controlFlag}" />
