@@ -8,14 +8,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>jetty</groupId>
-            <artifactId>org.mortbay.jetty</artifactId>
-            <version>${jetty_version}</version>
-            <properties>
-                <repository>true</repository>
-            </properties>
-        </dependency>
-        <dependency>
              <groupId>geronimo</groupId>
              <artifactId>geronimo-core</artifactId>
              <version>${pom.currentVersion}</version>
@@ -130,11 +122,6 @@
             <artifactId>geronimo-security-builder</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
-<!--        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>-->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-security</artifactId>
@@ -186,14 +173,6 @@
             <artifactId>pluto</artifactId>
             <version>${pluto_version}</version>
         </dependency>
-        <dependency>
-            <groupId>castor</groupId>
-            <artifactId>castor</artifactId>
-            <version>${castor_version}</version>
-            <properties>
-                <war.bundle>true</war.bundle>
-            </properties>
-        </dependency>
 
         <!-- JMS dependencies -->
          <dependency>
@@ -237,26 +216,17 @@
             <groupId>ant</groupId>
             <artifactId>ant</artifactId>
             <version>${ant_version}</version>
-<!--            <properties>
-                <repository>true</repository>
-            </properties> -->
         </dependency>
         <dependency>
             <groupId>commons-el</groupId>
             <artifactId>commons-el</artifactId>
             <version>${commons_el_version}</version>
             <url>http://jakarta.apache.org/commons/el/</url>
-            <properties>
-                <repository>true</repository>
-            </properties>
         </dependency>                       
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-j2ee_1.4_spec</artifactId>
             <version>${geronimo_spec_j2ee_version}</version>
-            <properties>
-                <repository>true</repository>
-            </properties>
         </dependency>
         <dependency>
             <groupId>taglibs</groupId>

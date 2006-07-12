@@ -79,11 +79,6 @@
         </dependency>
         
         <dependency>
-            <groupId>castor</groupId>
-            <artifactId>castor</artifactId>
-        </dependency>
-        
-        <dependency>
             <groupId>commons-digester</groupId>
             <artifactId>commons-digester</artifactId>
         </dependency>
