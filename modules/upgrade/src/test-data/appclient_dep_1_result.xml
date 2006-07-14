@@ -67,7 +67,7 @@
           <dep:dependency>
             <dep:groupId>org.apache.geronimo.specs</dep:groupId>
             <dep:artifactId>geronimo-javamail_1.3.1_spec</dep:artifactId>
-            <dep:version>${geronimo_spec_javamail_version}</dep:version>
+            <dep:version>${geronimo_spec_javamail_13_version}</dep:version>
             <dep:type>jar</dep:type>
           </dep:dependency>
         </dep:dependencies>

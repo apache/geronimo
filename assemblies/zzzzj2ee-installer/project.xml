@@ -796,7 +796,7 @@
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-javamail_1.3.1_spec</artifactId>
-            <version>${geronimo_spec_javamail_version}</version>
+            <version>${geronimo_spec_javamail_13_version}</version>
             <properties>
                 <geronimo.assemble>repository</geronimo.assemble>
             </properties>
@@ -841,7 +841,7 @@
                 <geronimo.assemble>repository</geronimo.assemble>
             </properties>
         </dependency>
-        <!-- 
+        <!--
         #<dependency>
         #    <groupId>org.apache.geronimo.specs</groupId>
         #    <artifactId>geronimo-qname_1.1_spec</artifactId>

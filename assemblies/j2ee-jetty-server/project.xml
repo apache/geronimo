@@ -25,7 +25,7 @@
     <description>An assembly of Geronimo into a J2EE Server using Jetty as the web container</description>
 
     <dependencies>
-        <!-- plugin we use --> 
+        <!-- plugin we use -->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-assembly-plugin</artifactId>
@@ -292,7 +292,7 @@
                 <geronimo.assemble>install</geronimo.assemble>
             </properties>
         </dependency>
-        <!-- unpack --> 
+        <!-- unpack -->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-scripts</artifactId>
@@ -359,7 +359,7 @@
                 <geronimo.assemble>library</geronimo.assemble>
             </properties>
         </dependency>
- 
+
        <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
@@ -368,7 +368,7 @@
                 <geronimo.assemble>library</geronimo.assemble>
             </properties>
         </dependency>
- 
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
@@ -639,7 +639,7 @@
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-javamail_1.3.1_spec</artifactId>
-            <version>${geronimo_spec_javamail_version}</version>
+            <version>${geronimo_spec_javamail_13_version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
@@ -701,14 +701,14 @@
         <dependency>
             <groupId>antlr</groupId>
             <artifactId>antlr</artifactId>
-            <version>${antlr_version}</version>                                                         
+            <version>${antlr_version}</version>
         </dependency>
 
         <dependency>
             <!--what is using this? -->
             <groupId>asm</groupId>
             <artifactId>asm</artifactId>
-            <version>${asm_version}</version>                                                         
+            <version>${asm_version}</version>
         </dependency>
 
         <dependency>
@@ -1018,7 +1018,7 @@
         </dependency>
 
         <!-- Specification dependencies to preload into the repository -->
-        
+
         <!-- Geronimo modules to preload into the repository -->
         <dependency>
             <groupId>geronimo</groupId>
