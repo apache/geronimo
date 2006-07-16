@@ -48,7 +48,9 @@ public class SharedLib {
                 String classesDir = classesDirs[i];
                 File dir = serverInfo.resolve(classesDir);
                 if (!dir.exists()) {
-                    throw new IllegalArgumentException("Classes dir does not exist: " + dir);
+                    if (!dir.mkdirs()) {
+                        throw new IllegalArgumentException("Failed to create classes dir: " + dir);
+                    }
                 }
                 if (!dir.isDirectory()) {
                     throw new IllegalArgumentException("Classes dir is not a directory: " + dir);
@@ -65,7 +67,9 @@ public class SharedLib {
                 String libDir = libDirs[i];
                 File dir = serverInfo.resolve(libDir);
                 if (!dir.exists()) {
-                    throw new IllegalArgumentException("Lib dir does not exist: " + dir);
+                    if (!dir.mkdirs()) {
+                        throw new IllegalArgumentException("Failed to create lib dir: " + dir);
+                    }
                 }
                 if (!dir.isDirectory()) {
                     throw new IllegalArgumentException("Lib dir is not a directory: " + dir);
