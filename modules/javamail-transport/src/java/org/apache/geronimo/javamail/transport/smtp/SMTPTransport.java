@@ -67,7 +67,7 @@ import org.apache.geronimo.mail.util.XText;
  * to have a recipient address rejected). The sun impl throws exceptions even if
  * others successful), but maybe we do a different way... <p/> TODO : lots.
  * ESMTP, user/pass, indicate failure, etc...
- * 
+ *
  * @version $Rev$ $Date$
  */
 public class SMTPTransport extends Transport {
@@ -262,7 +262,7 @@ public class SMTPTransport extends Transport {
     /**
      * Normal constructor for an SMTPTransport() object. This constructor is
      * used to build a transport instance for the "smtp" protocol.
-     * 
+     *
      * @param session
      *            The attached session.
      * @param name
@@ -275,7 +275,7 @@ public class SMTPTransport extends Transport {
     /**
      * Common constructor used by the SMTPTransport and SMTPSTransport classes
      * to do common initialization of defaults.
-     * 
+     *
      * @param session
      *            The host session instance.
      * @param name
@@ -306,14 +306,12 @@ public class SMTPTransport extends Transport {
 
         // get our debug output.
         debugStream = session.getDebugOut();
-
-        System.out.println("Debug value in transport = " + debug);
     }
 
     /**
      * Connect to a server using an already created socket. This connection is
      * just like any other connection, except we will not create a new socket.
-     * 
+     *
      * @param socket
      *            The socket connection to use.
      */
@@ -326,7 +324,7 @@ public class SMTPTransport extends Transport {
      * Do the protocol connection for an SMTP transport. This handles server
      * authentication, if possible. Returns false if unable to connect to the
      * server.
-     * 
+     *
      * @param host
      *            The target host name.
      * @param port
@@ -336,7 +334,7 @@ public class SMTPTransport extends Transport {
      * @param password
      *            The server password. Might not be sent directly if more
      *            sophisticated authentication is used.
-     * 
+     *
      * @return true if we were able to connect to the server properly, false for
      *         any failures.
      * @exception MessagingException
@@ -407,12 +405,12 @@ public class SMTPTransport extends Transport {
 
     /**
      * Send a message to multiple addressees.
-     * 
+     *
      * @param message
      *            The message we're sending.
      * @param addresses
      *            An array of addresses to send to.
-     * 
+     *
      * @exception MessagingException
      */
     public void sendMessage(Message message, Address[] addresses) throws MessagingException {
@@ -714,7 +712,7 @@ public class SMTPTransport extends Transport {
     /**
      * Close the connection. On completion, we'll be disconnected from the
      * server and unable to send more data.
-     * 
+     *
      * @exception MessagingException
      */
     public void close() throws MessagingException {
@@ -736,12 +734,12 @@ public class SMTPTransport extends Transport {
     /**
      * Turn a series of send status items into a chain of exceptions indicating
      * the state of each send operation.
-     * 
+     *
      * @param stats
      *            The list of SendStatus items.
      * @param reportSuccess
      *            Indicates whether we should include the report success items.
-     * 
+     *
      * @return The head of a chained list of MessagingExceptions.
      */
     protected MessagingException generateExceptionChain(SendStatus[] stats, boolean reportSuccess) {
@@ -769,7 +767,7 @@ public class SMTPTransport extends Transport {
 
     /**
      * Reset the server connection after an error.
-     * 
+     *
      * @exception MessagingException
      */
     protected void resetConnection() throws MessagingException {
@@ -792,10 +790,10 @@ public class SMTPTransport extends Transport {
     /**
      * Expand the address list by converting any group addresses into single
      * address targets.
-     * 
+     *
      * @param addresses
      *            The input array of addresses.
-     * 
+     *
      * @return The expanded array of addresses.
      * @exception MessagingException
      */
@@ -825,12 +823,12 @@ public class SMTPTransport extends Transport {
 
     /**
      * Create a transport connection object and connect it to the target server.
-     * 
+     *
      * @param host
      *            The target server host.
      * @param port
      *            The connection port.
-     * 
+     *
      * @exception MessagingException
      */
     protected void getConnection(String host, int port, String username, String password) throws IOException {
@@ -867,10 +865,10 @@ public class SMTPTransport extends Transport {
 
     /**
      * Get a property associated with this mail protocol.
-     * 
+     *
      * @param name
      *            The name of the property.
-     * 
+     *
      * @return The property value (returns null if the property has not been
      *         set).
      */
@@ -884,10 +882,10 @@ public class SMTPTransport extends Transport {
 
     /**
      * Get a property associated with this mail session.
-     * 
+     *
      * @param name
      *            The name of the property.
-     * 
+     *
      * @return The property value (returns null if the property has not been
      *         set).
      */
@@ -898,12 +896,12 @@ public class SMTPTransport extends Transport {
     /**
      * Get a property associated with this mail session. Returns the provided
      * default if it doesn't exist.
-     * 
+     *
      * @param name
      *            The name of the property.
      * @param defaultValue
      *            The default value to return if the property doesn't exist.
-     * 
+     *
      * @return The property value (returns defaultValue if the property has not
      *         been set).
      */
@@ -918,12 +916,12 @@ public class SMTPTransport extends Transport {
     /**
      * Get a property associated with this mail session. Returns the provided
      * default if it doesn't exist.
-     * 
+     *
      * @param name
      *            The name of the property.
      * @param defaultValue
      *            The default value to return if the property doesn't exist.
-     * 
+     *
      * @return The property value (returns defaultValue if the property has not
      *         been set).
      */
@@ -939,12 +937,12 @@ public class SMTPTransport extends Transport {
      * Get a property associated with this mail session as an integer value.
      * Returns the default value if the property doesn't exist or it doesn't
      * have a valid int value.
-     * 
+     *
      * @param name
      *            The name of the property.
      * @param defaultValue
      *            The default value to return if the property doesn't exist.
-     * 
+     *
      * @return The property value converted to an int.
      */
     protected int getIntSessionProperty(String name, int defaultValue) {
@@ -964,12 +962,12 @@ public class SMTPTransport extends Transport {
      * Get a property associated with this mail session as an integer value.
      * Returns the default value if the property doesn't exist or it doesn't
      * have a valid int value.
-     * 
+     *
      * @param name
      *            The name of the property.
      * @param defaultValue
      *            The default value to return if the property doesn't exist.
-     * 
+     *
      * @return The property value converted to an int.
      */
     protected int getIntProtocolProperty(String name, int defaultValue) {
@@ -983,7 +981,7 @@ public class SMTPTransport extends Transport {
     /**
      * Process a session property as a boolean value, returning either true or
      * false.
-     * 
+     *
      * @return True if the property value is "true". Returns false for any other
      *         value (including null).
      */
@@ -998,7 +996,7 @@ public class SMTPTransport extends Transport {
     /**
      * Process a session property as a boolean value, returning either true or
      * false.
-     * 
+     *
      * @return True if the property value is "true". Returns false for any other
      *         value (including null).
      */
@@ -1013,7 +1011,7 @@ public class SMTPTransport extends Transport {
     /**
      * Process a session property as a boolean value, returning either true or
      * false.
-     * 
+     *
      * @return True if the property value is "false". Returns false for other
      *         value (including null).
      */
@@ -1028,7 +1026,7 @@ public class SMTPTransport extends Transport {
     /**
      * Process a session property as a boolean value, returning either true or
      * false.
-     * 
+     *
      * @return True if the property value is "false". Returns false for other
      *         value (including null).
      */
@@ -1056,7 +1054,7 @@ public class SMTPTransport extends Transport {
 
     /**
      * Creates a connected socket
-     * 
+     *
      * @exception MessagingException
      */
     protected void getConnectedSocket() throws IOException {
@@ -1168,7 +1166,7 @@ public class SMTPTransport extends Transport {
 
     /**
      * Creates a connected SSL socket for an initial SSL connection.
-     * 
+     *
      * @exception MessagingException
      */
     protected void getConnectedSSLSocket() throws IOException {
@@ -1454,12 +1452,12 @@ public class SMTPTransport extends Transport {
 
     /**
      * Sets a receiver address for the current message
-     * 
+     *
      * @param addr
      *            The target address.
      * @param dsn
      *            An optional notification address appended to the MAIL command.
-     * 
+     *
      * @return The status for this particular send operation.
      * @exception MessagingException
      */
@@ -1519,10 +1517,10 @@ public class SMTPTransport extends Transport {
 
     /**
      * Set the sender for this mail.
-     * 
+     *
      * @param message
      *            The message we're sending.
-     * 
+     *
      * @exception MessagingException
      */
     protected boolean sendMailFrom(Message message) throws MessagingException {
@@ -1662,10 +1660,10 @@ public class SMTPTransport extends Transport {
     /**
      * Send a command to the server, returning the first response line back as a
      * reply.
-     * 
+     *
      * @param data
      *            The data to send.
-     * 
+     *
      * @return A reply object with the reply line.
      * @exception MessagingException
      */
@@ -1694,7 +1692,7 @@ public class SMTPTransport extends Transport {
     /**
      * Receives one line from the server. A line is a sequence of bytes
      * terminated by a CRLF
-     * 
+     *
      * @return the line from the server as String
      */
     protected String receiveLine() throws MessagingException {
@@ -1703,7 +1701,7 @@ public class SMTPTransport extends Transport {
 
     /**
      * Get a reply line for an SMTP command.
-     * 
+     *
      * @return An SMTP reply object from the stream.
      */
     protected SMTPReply getReply() throws MessagingException {
@@ -1719,7 +1717,7 @@ public class SMTPTransport extends Transport {
 
     /**
      * Retrieve the last response received from the SMTP server.
-     * 
+     *
      * @return The raw response string (including the error code) returned from
      *         the SMTP server.
      */
@@ -1733,7 +1731,7 @@ public class SMTPTransport extends Transport {
     /**
      * Receives one line from the server. A line is a sequence of bytes
      * terminated by a CRLF
-     * 
+     *
      * @return the line from the server as String
      */
     protected String receiveLine(int delayMillis) throws MessagingException {
@@ -1788,10 +1786,10 @@ public class SMTPTransport extends Transport {
      * InternetAddress.getAddress() generally returns just the address portion
      * of the full address, minus route address markers. We need to ensure we
      * have an address with '<' and '>' delimiters.
-     * 
+     *
      * @param mail
      *            The mail address returned from InternetAddress.getAddress().
-     * 
+     *
      * @return A string formatted for sending.
      */
     protected String fixEmailAddress(String mail) {
@@ -1848,7 +1846,7 @@ public class SMTPTransport extends Transport {
 
     /**
      * Send the EHLO command to the SMTP server.
-     * 
+     *
      * @return True if the command was accepted ok, false for any errors.
      * @exception SMTPTransportException
      * @exception MalformedSMTPReplyException
@@ -1886,7 +1884,7 @@ public class SMTPTransport extends Transport {
 
     /**
      * Send the HELO command to the SMTP server.
-     * 
+     *
      * @exception MessagingException
      */
     protected void sendHelo() throws MessagingException {
@@ -1905,7 +1903,7 @@ public class SMTPTransport extends Transport {
 
     /**
      * Retrieve the local client host name.
-     * 
+     *
      * @return The string version of the local host name.
      * @exception SMTPTransportException
      */
@@ -1937,7 +1935,7 @@ public class SMTPTransport extends Transport {
 
     /**
      * Return the current reportSuccess property.
-     * 
+     *
      * @return The current reportSuccess property.
      */
     public boolean getReportSuccess() {
@@ -1946,7 +1944,7 @@ public class SMTPTransport extends Transport {
 
     /**
      * Set a new value for the reportSuccess property.
-     * 
+     *
      * @param report
      *            The new setting.
      */
@@ -1956,7 +1954,7 @@ public class SMTPTransport extends Transport {
 
     /**
      * Return the current startTLS property.
-     * 
+     *
      * @return The current startTLS property.
      */
     public boolean getStartTLS() {
@@ -1965,7 +1963,7 @@ public class SMTPTransport extends Transport {
 
     /**
      * Set a new value for the startTLS property.
-     * 
+     *
      * @param start
      *            The new setting.
      */
@@ -1977,7 +1975,7 @@ public class SMTPTransport extends Transport {
      * Retrieve the SASL realm used for DIGEST-MD5 authentication. This will
      * either be explicitly set, or retrieved using the mail.smtp.sasl.realm
      * session property.
-     * 
+     *
      * @return The current realm information (which can be null).
      */
     public String getSASLRealm() {
@@ -1990,7 +1988,7 @@ public class SMTPTransport extends Transport {
 
     /**
      * Explicitly set the SASL realm used for DIGEST-MD5 authenticaiton.
-     * 
+     *
      * @param name
      *            The new realm name.
      */
@@ -2000,7 +1998,7 @@ public class SMTPTransport extends Transport {
 
     /**
      * Explicitly set the local host information.
-     * 
+     *
      * @param localHost
      *            The new localHost name.
      */
@@ -2010,7 +2008,7 @@ public class SMTPTransport extends Transport {
 
     /**
      * Process an extension string passed back as the EHLP response.
-     * 
+     *
      * @param extension
      *            The string value of the extension (which will be of the form
      *            "NAME arguments").
@@ -2060,10 +2058,10 @@ public class SMTPTransport extends Transport {
     /**
      * Retrieve any argument information associated with a extension reported
      * back by the server on the EHLO command.
-     * 
+     *
      * @param name
      *            The name of the target server extension.
-     * 
+     *
      * @return Any argument passed on a server extension. Returns null if the
      *         extension did not include an argument or the extension was not
      *         supported.
@@ -2077,10 +2075,10 @@ public class SMTPTransport extends Transport {
 
     /**
      * Tests whether the target server supports a named extension.
-     * 
+     *
      * @param name
      *            The target extension name.
-     * 
+     *
      * @return true if the target server reported on the EHLO command that is
      *         supports the targer server, false if the extension was not
      *         supported.
@@ -2092,10 +2090,10 @@ public class SMTPTransport extends Transport {
 
     /**
      * Determine if the target server supports a given authentication mechanism.
-     * 
+     *
      * @param mechanism
      *            The mechanism name.
-     * 
+     *
      * @return true if the server EHLO response indicates it supports the
      *         mechanism, false otherwise.
      */
@@ -2105,7 +2103,7 @@ public class SMTPTransport extends Transport {
 
     /**
      * Authenticate with the server, if necessary (or possible).
-     * 
+     *
      * @return true if we are ok to proceed, false for an authentication
      *         failures.
      */
@@ -2247,7 +2245,7 @@ public class SMTPTransport extends Transport {
 
         /**
          * Constructor for a SendStatus item.
-         * 
+         *
          * @param s
          *            The status type.
          * @param a
@@ -2266,7 +2264,7 @@ public class SMTPTransport extends Transport {
 
         /**
          * Get the status information for this item.
-         * 
+         *
          * @return The current status code.
          */
         public int getStatus() {
@@ -2276,7 +2274,7 @@ public class SMTPTransport extends Transport {
         /**
          * Retrieve the InternetAddress object associated with this send
          * operation.
-         * 
+         *
          * @return The associated address object.
          */
         public InternetAddress getAddress() {
@@ -2285,7 +2283,7 @@ public class SMTPTransport extends Transport {
 
         /**
          * Retrieve the reply information associated with this send operati
-         * 
+         *
          * @return The SMTPReply object received for the operation.
          */
         public SMTPReply getReply() {
@@ -2294,7 +2292,7 @@ public class SMTPTransport extends Transport {
 
         /**
          * Get the command string sent for this send operation.
-         * 
+         *
          * @return The command string for the MAIL TO command sent to the
          *         server.
          */
@@ -2306,10 +2304,10 @@ public class SMTPTransport extends Transport {
          * Get an exception object associated with this send operation. There is
          * a mechanism for reporting send success via a send operation, so this
          * will be either a success or failure exception.
-         * 
+         *
          * @param reportSuccess
          *            Indicates if we want success operations too.
-         * 
+         *
          * @return A newly constructed exception object.
          */
         public MessagingException getException(boolean reportSuccess) {
@@ -2326,7 +2324,7 @@ public class SMTPTransport extends Transport {
 
     /**
      * Internal debug output routine.
-     * 
+     *
      * @param value
      *            The string value to output.
      */
@@ -2336,7 +2334,7 @@ public class SMTPTransport extends Transport {
 
     /**
      * Internal debugging routine for reporting exceptions.
-     * 
+     *
      * @param message
      *            A message associated with the exception context.
      * @param e

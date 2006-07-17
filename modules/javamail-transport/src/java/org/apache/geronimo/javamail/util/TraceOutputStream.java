@@ -35,7 +35,7 @@ public class TraceOutputStream extends FilterOutputStream {
 
     /**
      * Construct a debug trace stream.
-     * 
+     *
      * @param out
      *            The target out put stream.
      * @param traceStream
@@ -55,44 +55,12 @@ public class TraceOutputStream extends FilterOutputStream {
 
     /**
      * Set the current setting of the debug trace stream debug flag.
-     * 
+     *
      * @param d
      *            The new debug flag settings.
      */
     public void setDebug(boolean d) {
         debug = d;
-    }
-
-    /**
-     * Writes <code>len</code> bytes from the specified <code>byte</code>
-     * array starting at offset <code>off</code> to this output stream.
-     * <p>
-     * The <code>write</code> method of <code>FilterOutputStream</code>
-     * calls the <code>write</code> method of one argument on each
-     * <code>byte</code> to output.
-     * <p>
-     * Note that this method does not call the <code>write</code> method of
-     * its underlying input stream with the same arguments. Subclasses of
-     * <code>FilterOutputStream</code> should provide a more efficient
-     * implementation of this method.
-     * 
-     * @param b
-     *            the data.
-     * @param off
-     *            the start offset in the data.
-     * @param len
-     *            the number of bytes to write.
-     * @exception IOException
-     *                if an I/O error occurs.
-     * @see java.io.FilterOutputStream#write(int)
-     */
-    public void write(byte b[], int off, int len) throws IOException {
-        if (debug) {
-            for (int i = 0; i < len; i++) {
-                traceStream.write(b[off + i]);
-            }
-        }
-        super.write(b, off, len);
     }
 
     /**
@@ -103,7 +71,7 @@ public class TraceOutputStream extends FilterOutputStream {
      * that is, it performs <tt>out.write(b)</tt>.
      * <p>
      * Implements the abstract <tt>write</tt> method of <tt>OutputStream</tt>.
-     * 
+     *
      * @param b
      *            the <code>byte</code>.
      * @exception IOException
