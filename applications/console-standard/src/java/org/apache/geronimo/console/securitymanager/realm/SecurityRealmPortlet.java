@@ -762,7 +762,7 @@ public class SecurityRealmPortlet extends BasePortlet {
             if (lockoutWindow != null && lockoutWindow.equals("")) lockoutWindow = null;
             lockoutDuration = request.getParameter("lockoutDuration");
             if (lockoutDuration != null && lockoutDuration.equals("")) lockoutDuration = null;
-            abstractName = request.getParameter("objectName");
+            abstractName = request.getParameter("abstractName");
             if (abstractName != null && abstractName.equals("")) abstractName = null;
             String test = request.getParameter("storePassword");
             storePassword = test != null && !test.equals("") && !test.equals("false");
