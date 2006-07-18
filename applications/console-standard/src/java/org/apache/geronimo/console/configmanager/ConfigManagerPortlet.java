@@ -52,6 +52,8 @@ public class ConfigManagerPortlet extends BasePortlet {
 
     private static final String STOP_ACTION = "stop";
 
+    private static final String RESTART_ACTION = "restart";
+
     private static final String UNINSTALL_ACTION = "uninstall";
 
     private static final String CONFIG_INIT_PARAM = "config-type";
@@ -93,6 +95,9 @@ public class ConfigManagerPortlet extends BasePortlet {
             } else if (UNINSTALL_ACTION.equals(action)) {
                 configurationManager.uninstallConfiguration(configId);
                 messageStatus = "Uninstalled application<br /><br />";
+            } else if (RESTART_ACTION.equals(action)) {
+                configurationManager.restartConfiguration(configId);
+                messageStatus = "Restarted application<br /><br />";
             } else {
                 messageStatus = "Invalid value for changeState: " + action + "<br /><br />";
                 throw new PortletException("Invalid value for changeState: " + action);
