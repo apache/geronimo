@@ -53,6 +53,20 @@
             <table width="100%" border="1" cellspacing="0" cellpadding="3" bordercolor="#000000">
                 <tr>
                     <td bgcolor="#5FA3D6" bordercolor="#000000" align="left" nowrap>
+                        <font face="Verdana" size="+1">Administration&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font>
+                    </td>
+                </tr>
+                <tr>
+                    <td bgcolor="#FFFFFF" bordercolor="#000000" nowrap>
+                        <a href="/console">Console</a><br />
+                        &nbsp;
+                    </td>
+                </tr>
+            </table>
+            <br />
+            <table width="100%" border="1" cellspacing="0" cellpadding="3" bordercolor="#000000">
+                <tr>
+                    <td bgcolor="#5FA3D6" bordercolor="#000000" align="left" nowrap>
                         <font face="Verdana" size="+1">Documentation&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font>
                     </td>
                 </tr>
