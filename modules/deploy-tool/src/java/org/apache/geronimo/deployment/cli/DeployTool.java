@@ -73,6 +73,7 @@ public class DeployTool {
         registerCommand(new CommandRedeploy());
         registerCommand(new CommandStart());
         registerCommand(new CommandStop());
+        registerCommand(new CommandRestart());
         registerCommand(new CommandUndeploy());
         registerCommand(new CommandListConfigurations());
         registerCommand(new CommandInstallCAR());
