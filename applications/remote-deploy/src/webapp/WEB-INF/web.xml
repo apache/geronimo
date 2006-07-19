@@ -27,11 +27,6 @@
     <!-- [INSERT FRAGMENT HERE] --> 
 
     <servlet-mapping>
-        <servlet-name>404-error</servlet-name>
-        <url-pattern>/</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
         <servlet-name>file-upload</servlet-name>
         <url-pattern>/upload</url-pattern>
     </servlet-mapping>
