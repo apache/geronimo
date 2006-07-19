@@ -30,10 +30,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
+
 import javax.wsdl.Definition;
 import javax.wsdl.Operation;
 import javax.wsdl.Port;
-import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.xml.namespace.QName;
 import javax.xml.rpc.handler.HandlerInfo;
 import javax.xml.rpc.holders.BigDecimalHolder;
@@ -92,7 +93,11 @@ public class WSDescriptorParser {
         JavaWsdlMappingType mapping;
         InputStream jaxrpcInputStream = null;
         try {
-            jaxrpcInputStream = moduleFile.getInputStream(moduleFile.getEntry(jaxrpcMappingPath));
+            ZipEntry zipEntry = moduleFile.getEntry(jaxrpcMappingPath);
+            if(zipEntry == null){
+                throw new DeploymentException("The JAX-RPC mapping file "+jaxrpcMappingPath+" specified in webservices.xml for the ejb module could not be found.");
+            }
+            jaxrpcInputStream = moduleFile.getInputStream(zipEntry);
         } catch (IOException e) {
             throw new DeploymentException("Could not open stream to jaxrpc mapping document", e);
         }
