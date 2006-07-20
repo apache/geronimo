@@ -7,6 +7,12 @@
             <dep:artifactId>testclient</dep:artifactId>
             <dep:version>1</dep:version>
         </dep:moduleId>
+        <dep:dependencies>
+            <dep:dependency>
+                <dep:groupId>geronimo</dep:groupId>
+                <dep:artifactId>j2ee-system</dep:artifactId>
+            </dep:dependency>
+        </dep:dependencies>
     </dep:environment>
     <context-priority-classloader>false</context-priority-classloader>
     <container-config>
@@ -41,7 +47,6 @@
             </lc:login-config>
         </xml-reference>
         <reference name="ServerInfo">
-            <module>org/apache/geronimo/System</module>
             <name>ServerInfo</name>
         </reference>
         <reference name="LoginService">

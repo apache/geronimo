@@ -17,9 +17,20 @@
 -->
 
 <tomcat:web-app
-    xmlns:tomcat="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0"
-    configId="org/apache/geronimo/tomcat/Test"
+    xmlns:tomcat="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.1"
     >
+    <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+      <dep:moduleId>
+        <dep:groupId>geronimo</dep:groupId>
+        <dep:artifactId>tomcat-test</dep:artifactId>
+        <dep:version>1.0</dep:version>
+        <dep:type>war</dep:type>
+      </dep:moduleId>
+      <dep:dependencies/>
+      <dep:hidden-classes/>
+      <dep:non-overridable-classes/>
+    </dep:environment>
+
     <tomcat:context-root>/test</tomcat:context-root>
     <tomcat:context-priority-classloader>false</tomcat:context-priority-classloader>
     <!--

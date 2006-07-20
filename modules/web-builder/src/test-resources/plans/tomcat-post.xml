@@ -7,7 +7,12 @@
             <dep:artifactId>testclient</dep:artifactId>
             <dep:version>1</dep:version>
         </dep:moduleId>
-
+        <dep:dependencies>
+            <dep:dependency>
+                <dep:groupId>geronimo</dep:groupId>
+                <dep:artifactId>j2ee-system</dep:artifactId>
+            </dep:dependency>
+        </dep:dependencies>
     </dep:environment>
     <tom:context-priority-classloader>false</tom:context-priority-classloader>
     <tom:cross-context/>
@@ -38,7 +43,6 @@
             </lc:login-config>
         </dep:xml-reference>
         <dep:reference name="ServerInfo">
-            <dep:module>org/apache/geronimo/System</dep:module>
             <dep:name>ServerInfo</dep:name>
         </dep:reference>
         <dep:reference name="LoginService">

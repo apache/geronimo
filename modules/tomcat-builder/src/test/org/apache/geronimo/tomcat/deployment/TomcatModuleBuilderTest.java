@@ -159,7 +159,7 @@ public class TomcatModuleBuilderTest extends TestCase {
         PermissionCollection uncheckedPermissions= new Permissions();
         ComponentPermissions componentPermissions = new ComponentPermissions(excludedPermissions, uncheckedPermissions, new HashMap());
         Map contextIDToPermissionsMap = new HashMap();
-        contextIDToPermissionsMap.put("test_J2EEApplication=null_J2EEServer=bar_j2eeType=WebModule_name=org/apache/geronimo/test", componentPermissions);
+        contextIDToPermissionsMap.put("test_J2EEApplication=null_J2EEServer=bar_j2eeType=WebModule_name=geronimo/test/1.0/war", componentPermissions);
         jaccBeanData.setAttribute("contextIdToPermissionsMap", contextIDToPermissionsMap);
 //        jaccBeanData.setAttribute("principalRoleMap", new HashMap());
         jaccBeanData.setAttribute("roleDesignates", new HashMap());
