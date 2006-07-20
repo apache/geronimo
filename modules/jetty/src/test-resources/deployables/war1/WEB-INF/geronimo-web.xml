@@ -17,9 +17,20 @@
 -->
 
 <jetty:web-app
-    xmlns:jetty="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0"
-    configId="org/apache/geronimo/jetty/Test"
+    xmlns:jetty="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.1"
     >
+    <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+      <dep:moduleId>
+        <dep:groupId>geronimo</dep:groupId>
+        <dep:artifactId>jetty-test</dep:artifactId>
+        <dep:version>1.0</dep:version>
+        <dep:type>war</dep:type>
+      </dep:moduleId>
+      <dep:dependencies/>
+      <dep:hidden-classes/>
+      <dep:non-overridable-classes/>
+    </dep:environment>
+
     <jetty:context-root>/test</jetty:context-root>
     <jetty:context-priority-classloader>false</jetty:context-priority-classloader>
     <!--

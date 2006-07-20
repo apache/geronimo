@@ -17,9 +17,19 @@
 -->
 
 <web-app
-    xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0"
-    xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1"
-    configId="org/apache/geronimo/test">
+    xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.1"
+    xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1">
+    <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+      <dep:moduleId>
+        <dep:groupId>geronimo</dep:groupId>
+        <dep:artifactId>jetty-test</dep:artifactId>
+        <dep:version>1.0</dep:version>
+        <dep:type>war</dep:type>
+      </dep:moduleId>
+      <dep:dependencies/>
+      <dep:hidden-classes/>
+      <dep:non-overridable-classes/>
+    </dep:environment>
 
     <context-root>/test</context-root>
     <context-priority-classloader>false</context-priority-classloader>

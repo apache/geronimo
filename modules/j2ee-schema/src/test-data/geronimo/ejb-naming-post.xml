@@ -10,9 +10,10 @@
         </dep:moduleId>
     </dep:environment>
     <nam:cmp-connection-factory>
-        <nam:application>null</nam:application>
-        <nam:module>org/apache/geronimo/DefaultDatabase</nam:module>
-        <nam:name>DefaultDatasource</nam:name>
+        <nam:pattern>
+            <nam:groupId>geronimo</nam:groupId>
+            <nam:artifactId>system-database</nam:artifactId>
+        </nam:pattern>
     </nam:cmp-connection-factory>
     <enterprise-beans>
         <!--

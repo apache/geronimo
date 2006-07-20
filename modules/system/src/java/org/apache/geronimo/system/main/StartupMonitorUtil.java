@@ -218,7 +218,7 @@ public class StartupMonitorUtil {
         String app = abstractName.getNameProperty("J2EEApplication");
         String name = abstractName.getNameProperty("name");
         if (type != null && (app == null || app.equals("null"))) {
-            return (type.equals("WebModule") || type.equals("J2EEApplication") || type.equals("EJBModule") || type.equals("AppClientModule") || type.equals("ResourceAdapterModule")) && !name.startsWith("org/apache/geronimo/System");
+            return (type.equals("WebModule") || type.equals("J2EEApplication") || type.equals("EJBModule") || type.equals("AppClientModule") || type.equals("ResourceAdapterModule")) && !name.startsWith("geronimo/system");            
         }
         return false;
     }

@@ -31,12 +31,12 @@
             Should look like this:
 
             <attributes>
-              <configuration name="org/apache/geronimo/Server">
-                <gbean name="SomeJettyConnector">
+              <module name="mygroup/mycomponent/1.1/jar">
+                <gbean name="MyNetworkService">
                   <attribute name="host">0.0.0.0</attribute>
-                  <attribute name="port">8080</attribute>
+                  <attribute name="port">1234</attribute>
                 </gbean>
-              </configuration>
+              </module>
             </attributes>
             ]]>
         </xsd:documentation>
@@ -72,7 +72,7 @@
                   Note that the name attribute for a gbean element may hold
                   either the full GBeanName, or only the value for the
                   "name=" portion of the GBeanName.  If there are multiple
-                  GBeans in the configuration with manageable attributes and
+                  GBeans in the module with manageable attributes and
                   the same "name=" portion of the GBeanName, then all must be
                   listed and all must be listed with a full GBeanName.
                 ]]>

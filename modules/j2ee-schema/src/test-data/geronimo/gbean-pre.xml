@@ -29,8 +29,11 @@
             </css:compoundSecMechTypeList>
         </css:css>
     </xml-attribute>
+    <dependency>
+      <groupId>geronimo</groupId>
+      <artifactId>client</artifactId>
+    </dependency>
     <reference name="ServerInfo">
-        <module>org/apache/geronimo/ClientSystem</module>
         <name>ServerInfo</name>
     </reference>
     <reference name="LoginService">
