@@ -22,9 +22,9 @@ install the driver by hand (copy it to a directory under geronimo/repository/)</
     <input type="hidden" name="driverClass" value="${pool.driverClass}" />
     <input type="hidden" name="url" value="${pool.url}" />
     <input type="hidden" name="urlPrototype" value="${pool.urlPrototype}" />
-    <input type="hidden" name="jar1" value="${pool.jar1}" />
-    <input type="hidden" name="jar2" value="${pool.jar2}" />
-    <input type="hidden" name="jar3" value="${pool.jar3}" />
+    <c:forEach var="jar" items="${pool.jars}">
+     <input type="hidden" name="jars" value="${jar}" />
+    </c:forEach>    <input type="hidden" name="adapterDisplayName" value="${pool.adapterDisplayName}" />
     <input type="hidden" name="minSize" value="${pool.minSize}" />
     <input type="hidden" name="maxSize" value="${pool.maxSize}" />
     <input type="hidden" name="idleTimeout" value="${pool.idleTimeout}" />

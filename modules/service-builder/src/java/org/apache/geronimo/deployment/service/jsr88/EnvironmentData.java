@@ -103,7 +103,7 @@ public class EnvironmentData extends XmlBeanSupport {
                 if(!getEnvironmentType().isSetDependencies()) {
                     getEnvironmentType().addNewDependencies();
                 }
-                dep.configure(getEnvironmentType().addNewDependencies().addNewDependency());
+                dep.configure(getEnvironmentType().getDependencies().addNewDependency());
             } else {
                 before.remove(dep);
             }
