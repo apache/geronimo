@@ -59,8 +59,9 @@ function <portlet:namespace/>validate() {
 
     <input type="hidden" name="dbtype" value="${pool.dbtype}" />
     <input type="hidden" name="urlPrototype" value="${pool.urlPrototype}" />
-    <input type="hidden" name="jar2" value="${pool.jar2}" />
-    <input type="hidden" name="jar3" value="${pool.jar3}" />
+    <c:forEach var="jar" items="${pool.jars}">
+     <input type="hidden" name="jars" value="${jar}" />
+    </c:forEach>    <input type="hidden" name="adapterDisplayName" value="${pool.adapterDisplayName}" />
   <c:forEach var="prop" items="${pool.urlProperties}">
     <input type="hidden" name="${prop.key}" value="${prop.value}" />
   </c:forEach>
@@ -132,23 +133,25 @@ function <portlet:namespace/>validate() {
       <tr>
         <th><div align="right">Driver JAR:</div></th>
         <td>
-          <select name="jar1">
-            <option></option>
-        <c:forEach var="jar" items="${jars}">
-            <option <c:if test="${jar == pool.jar1}">selected</c:if>>${jar}</option>
-        </c:forEach>
+          <select multiple name="jars" size="10">
+              <c:forEach var="availableJar" items="${availableJars}">
+                  <option <c:forEach var="jar" items="${pool.jars}"><c:if test="${availableJar == jar}">selected</c:if></c:forEach>>
+                      ${availableJar}
+                  </option>
+              </c:forEach>
           </select>
         </td>
       </tr>
       <tr>
         <td></td>
-        <td>The JAR holding the selected JDBC driver.  Should be installed under GERONIMO/repository/ (or
+        <td>The JAR(s) required to make a connection to the database.  Use CTRL-click or SHIFT-click to select multiple jars.<br> 
+           The JAR(s) should already be installed under GERONIMO/repository/ (or
           <input type="button" value="Download a Driver" onclick="document.<portlet:namespace/>DatabaseForm.mode.value='download';document.<portlet:namespace/>DatabaseForm.submit();return false;" />)
         </td>
       </tr>
     </c:when>
     <c:otherwise>
-      <input type="hidden" name="jar1" value="${pool.jar1}" />
+      <input type="hidden" name="jars" value="${pool.jars}" />
     </c:otherwise>
   </c:choose>
     <!-- ENTRY FIELD: URL -->
@@ -192,23 +195,25 @@ function <portlet:namespace/>validate() {
       <tr>
         <th><div align="right">Driver JAR:</div></th>
         <td>
-          <select name="jar1">
-            <option></option>
-        <c:forEach var="jar" items="${jars}">
-            <option <c:if test="${jar == pool.jar1}">selected</c:if>>${jar}</option>
-        </c:forEach>
+          <select multiple name="jars" size="10">
+              <c:forEach var="availableJar" items="${availableJars}">
+                  <option <c:forEach var="jar" items="${pool.jars}"><c:if test="${availableJar == jar}">selected</c:if></c:forEach>>
+                      ${availableJar}
+                  </option>
+              </c:forEach>
           </select>
         </td>
       </tr>
       <tr>
         <td></td>
-        <td>The JAR holding the selected JDBC driver.  Should be installed under GERONIMO/repository/ (or
+        <td>The JAR(s) required to make a connection to the database.  Use CTRL-click or SHIFT-click to select multiple jars.<br> 
+           The JAR(s) should already be installed under GERONIMO/repository/ (or
           <input type="button" value="Download a Driver" onclick="document.<portlet:namespace/>DatabaseForm.mode.value='download';document.<portlet:namespace/>DatabaseForm.submit();return false;" />)
         </td>
       </tr>
     </c:when>
     <c:otherwise>
-      <input type="hidden" name="jar1" value="${pool.jar1}" />
+      <input type="hidden" name="jars" value="${pool.jars}" />
     </c:otherwise>
   </c:choose>
     <c:forEach var="prop" items="${pool.properties}">
@@ -227,7 +232,7 @@ function <portlet:namespace/>validate() {
         <input type="hidden" name="password" value="${pool.password}" />
         <input type="hidden" name="driverClass" value="${pool.driverClass}" />
         <input type="hidden" name="url" value="${pool.url}" />
-        <input type="hidden" name="jar1" value="${pool.jar1}" />
+        <input type="hidden" name="jars" value="${pool.jars}" />
       </td></tr>
   </c:otherwise>
 </c:choose>

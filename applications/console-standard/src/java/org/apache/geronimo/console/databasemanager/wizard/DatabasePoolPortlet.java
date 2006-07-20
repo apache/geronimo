@@ -283,7 +283,7 @@ public class DatabasePoolPortlet extends BasePortlet {
                 }
             }
             if(found != null) {
-                data.jar1 = found.getRepositoryURI();
+                data.jars = new String[] {found.getRepositoryURI()};
                 WriteableRepository repo = PortletManager.getCurrentServer(actionRequest).getWritableRepositories()[0];
                 final PortletSession session = actionRequest.getPortletSession();
                 ProgressInfo progressInfo = new ProgressInfo();
@@ -811,7 +811,7 @@ public class DatabasePoolPortlet extends BasePortlet {
             }
     }
         Collections.sort(list);
-        renderRequest.setAttribute("jars", list);
+        renderRequest.setAttribute("availableJars", list);
     }
 
     private void renderConfirmURL(RenderRequest renderRequest, RenderResponse renderResponse) throws IOException, PortletException {
@@ -1055,35 +1055,19 @@ public class DatabasePoolPortlet extends BasePortlet {
     private static Class attemptDriverLoad(PortletRequest request, PoolData data) {
         List list = new ArrayList();
         try {
-            org.apache.geronimo.kernel.repository.Artifact one = data.getJar1() == null ? null : org.apache.geronimo.kernel.repository.Artifact.create(data.getJar1());
-            org.apache.geronimo.kernel.repository.Artifact two = data.getJar2() == null ? null : org.apache.geronimo.kernel.repository.Artifact.create(data.getJar2());
-            org.apache.geronimo.kernel.repository.Artifact three = data.getJar3() == null ? null : org.apache.geronimo.kernel.repository.Artifact.create(data.getJar3());
-
+        	String[] jars = data.getJars();
             ListableRepository[] repos = PortletManager.getCurrentServer(request).getRepositories();
-            for (int i = 0; i < repos.length; i++) {
-                ListableRepository repo = repos[i];
-                if(one != null) {
-                    File url = repo.getLocation(one);
-                    if(url != null) {
-                        list.add(url.toURL());
-                        one = null;
+        	
+        	for (int i=0; i<jars.length; i++) {
+        		org.apache.geronimo.kernel.repository.Artifact artifact = org.apache.geronimo.kernel.repository.Artifact.create(jars[i]);
+        		for (int j=0; j<repos.length; j++) {
+                    ListableRepository repo = repos[j];
+                    File url = repo.getLocation(artifact);
+                    if (url != null) {
+                    	list.add(url.toURL());
                     }
-                }
-                if(two != null) {
-                    File url = repo.getLocation(two);
-                    if(url != null) {
-                        list.add(url.toURL());
-                        two = null;
-                    }
-                }
-                if(three != null) {
-                    File url = repo.getLocation(three);
-                    if(url != null) {
-                        list.add(url.toURL());
-                        three = null;
-                    }
-                }
-            }
+        		}
+        	}
             URLClassLoader loader = new URLClassLoader((URL[]) list.toArray(new URL[list.size()]), DatabasePoolPortlet.class.getClassLoader());
             try {
                 return loader.loadClass(data.driverClass);
@@ -1174,9 +1158,7 @@ public class DatabasePoolPortlet extends BasePortlet {
         private String driverClass;
         private String url;
         private String urlPrototype;
-        private String jar1;
-        private String jar2;
-        private String jar3;
+        private String[] jars;
         private String minSize;
         private String maxSize;
         private String blockingTimeout;
@@ -1213,12 +1195,7 @@ public class DatabasePoolPortlet extends BasePortlet {
             }
             urlPrototype = request.getParameter("urlPrototype");
             if(urlPrototype != null && urlPrototype.equals("")) urlPrototype = null;
-            jar1 = request.getParameter("jar1");
-            if(jar1 != null && jar1.equals("")) jar1 = null;
-            jar2 = request.getParameter("jar2");
-            if(jar2 != null && jar2.equals("")) jar2 = null;
-            jar3 = request.getParameter("jar3");
-            if(jar3 != null && jar3.equals("")) jar3 = null;
+            jars = request.getParameterValues("jars");
             minSize = request.getParameter("minSize");
             if(minSize != null && minSize.equals("")) minSize = null;
             maxSize = request.getParameter("maxSize");
@@ -1296,9 +1273,7 @@ public class DatabasePoolPortlet extends BasePortlet {
                 }
             }
             if(urlPrototype != null) response.setRenderParameter("urlPrototype", urlPrototype);
-            if(jar1 != null) response.setRenderParameter("jar1", jar1);
-            if(jar2 != null) response.setRenderParameter("jar2", jar2);
-            if(jar3 != null) response.setRenderParameter("jar3", jar3);
+            if(jars != null) response.setRenderParameter("jars", jars);
             if(minSize != null) response.setRenderParameter("minSize", minSize);
             if(maxSize != null) response.setRenderParameter("maxSize", maxSize);
             if(blockingTimeout != null) response.setRenderParameter("blockingTimeout", blockingTimeout);
@@ -1354,27 +1329,8 @@ public class DatabasePoolPortlet extends BasePortlet {
             return url;
         }
 
-        public String getJar1() {
-            return jar1;
-        }
-
-        public String getJar2() {
-            return jar2;
-        }
-
-        public String getJar3() {
-            return jar3;
-        }
-        
         public String[] getJars() {
-        	ArrayList jars = new ArrayList();
-        	if (jar1!=null && !jar1.equals(""))
-        		jars.add(jar1);
-        	if (jar2!=null && !jar2.equals(""))
-        		jars.add(jar2);
-        	if (jar3!=null && !jar3.equals(""))
-        		jars.add(jar3);
-        	return (String[])jars.toArray(new String[jars.size()]);
+        	return jars;
         }
 
         public String getMinSize() {

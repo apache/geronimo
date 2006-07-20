@@ -61,10 +61,9 @@ function <portlet:namespace/>validate() {
     <input type="hidden" name="password" value="${pool.password}" />
     <input type="hidden" name="urlPrototype" value="${pool.urlPrototype}" />
     <input type="hidden" name="driverClass" value="${pool.driverClass}" />
-    <input type="hidden" name="jar1" value="${pool.jar1}" />
-    <input type="hidden" name="jar2" value="${pool.jar2}" />
-    <input type="hidden" name="jar3" value="${pool.jar3}" />
-    <input type="hidden" name="adapterDisplayName" value="${pool.adapterDisplayName}" />
+    <c:forEach var="jar" items="${pool.jars}">
+     <input type="hidden" name="jars" value="${jar}" />
+    </c:forEach>    <input type="hidden" name="adapterDisplayName" value="${pool.adapterDisplayName}" />
     <input type="hidden" name="adapterDescription" value="${pool.adapterDescription}" />
     <input type="hidden" name="rarPath" value="${pool.rarPath}" />
   <c:forEach var="prop" items="${pool.properties}">
