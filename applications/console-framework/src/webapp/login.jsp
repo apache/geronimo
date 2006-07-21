@@ -78,7 +78,14 @@
               </tr>
               <tr>
                 <td class="MediumBackground">&nbsp;</td>
-                <td colspan="4" align="center" class="MediumBackground"><input name="submit" type="submit" value="Login"/></td>
+                <td colspan="4" align="center" class="MediumBackground">
+                   <script>
+                   if (document.cookie == "") {
+                     document.writeln('<font color="red"><strong>Note: Logging onto the Geronimo Console requires cookies to be enabled in your web browser.</strong></font><br>');
+                   }
+                   </script>
+                   <input name="submit" type="submit" value="Login"/>
+                </td>
                 <td class="MediumBackground">&nbsp;</td>
               </tr>
               <tr>
