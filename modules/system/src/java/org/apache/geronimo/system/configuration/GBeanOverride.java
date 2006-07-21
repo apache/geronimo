@@ -384,16 +384,21 @@ public class GBeanOverride implements Serializable {
             Map.Entry entry = (Map.Entry) iterator.next();
             String name = (String) entry.getKey();
             String value = (String) entry.getValue();
-            if(name.toLowerCase().indexOf("password") > -1) {
-                value = EncryptionManager.encrypt(value);
+            if (value==null) {
+            	setNullAttribute(name);
             }
-            Element attribute = doc.createElement("attribute");
-            gbean.appendChild(attribute);
-            attribute.setAttribute("name", name);
-            if (value.length() == 0)
-                attribute.setAttribute("value", "");
-            else
-                attribute.appendChild(doc.createTextNode(value));
+            else {
+                if(name.toLowerCase().indexOf("password") > -1) {
+                    value = EncryptionManager.encrypt(value);
+                }
+                Element attribute = doc.createElement("attribute");
+                attribute.setAttribute("name", name);
+                gbean.appendChild(attribute);
+                if (value.length() == 0)
+                    attribute.setAttribute("value", "");
+                else
+                    attribute.appendChild(doc.createTextNode(value));
+            }
         }
 
         // cleared attributes
