@@ -36,7 +36,7 @@
             <c:if test="${moduleDetails.state.running}">&nbsp;<a href="<portlet:actionURL><portlet:param name="configId" value="${moduleDetails.configId}"/><portlet:param name="action" value="restart"/></portlet:actionURL>">Restart</a></c:if>
         </td>
         <td width="75" class="${backgroundClass}">
-            <a href="<portlet:actionURL><portlet:param name="configId" value="${moduleDetails.configId}"/><portlet:param name="action" value="uninstall"/></portlet:actionURL>">Uninstall</a>
+            <a href="<portlet:actionURL><portlet:param name="configId" value="${moduleDetails.configId}"/><portlet:param name="action" value="uninstall"/></portlet:actionURL>" onClick="return confirm('Are you sure you want to uninstall ${moduleDetails.configId}?');">Uninstall</a>
         </td>
     </tr>
   </c:forEach>
