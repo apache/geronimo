@@ -30,7 +30,6 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
 import org.apache.geronimo.console.certmanager.actions.ChangeStorePassword;
-import org.apache.geronimo.console.certmanager.actions.DeleteEntry;
 import org.apache.geronimo.console.certmanager.actions.GenerateCSR;
 import org.apache.geronimo.console.certmanager.actions.GenerateKeyPair;
 import org.apache.geronimo.console.certmanager.actions.ImportCAReply;
@@ -90,8 +89,6 @@ public class CertManagerPortlet extends GenericPortlet {
             ImportCAReply.action(this, request, response);
         } else if (action.equals("generate-key-pair")) {
             GenerateKeyPair.action(this, request, response);
-        } else if (action.equals("delete-entry")) {
-            DeleteEntry.action(this, request, response);
         }
     }
 
@@ -130,8 +127,6 @@ public class CertManagerPortlet extends GenericPortlet {
             ImportCAReply.render(this, request, response);
         } else if (action.equals("generate-key-pair")) {
             GenerateKeyPair.render(this, request, response);
-        } else if (action.equals("delete-entry")) {
-            DeleteEntry.render(this, request, response);
         }
     }
 
