@@ -17,6 +17,7 @@
 package org.apache.geronimo.kernel.basic;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,6 +27,8 @@ import java.util.Set;
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
+import net.sf.cglib.proxy.NoOp;
+import net.sf.cglib.proxy.CallbackFilter;
 import net.sf.cglib.reflect.FastClass;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -197,7 +200,8 @@ public class BasicProxyManager implements ProxyManager {
                 }
             }
             enhancer.setClassLoader(classLoader);
-            enhancer.setCallbackType(MethodInterceptor.class);
+            enhancer.setCallbackFilter(new FinalizeCallbackFilter());
+            enhancer.setCallbackTypes(new Class[] {NoOp.class, MethodInterceptor.class});
             enhancer.setUseFactory(false);
             proxyType = enhancer.createClass();
             fastClass = FastClass.create(proxyType);
@@ -208,7 +212,7 @@ public class BasicProxyManager implements ProxyManager {
 
             Callback callback = getMethodInterceptor(proxyType, kernel, target);
 
-            Enhancer.registerCallbacks(proxyType, new Callback[]{callback});
+            Enhancer.registerCallbacks(proxyType, new Callback[]{NoOp.INSTANCE, callback});
             try {
                 Object proxy = fastClass.newInstance();
                 interceptors.put(proxy, callback);
@@ -225,6 +229,16 @@ public class BasicProxyManager implements ProxyManager {
                   throw new ProxyCreationException(e);
                 }
             }
+        }
+    }
+
+    private static class FinalizeCallbackFilter implements CallbackFilter {
+
+        public int accept(Method method) {
+            if (method.getName().equals("finalize") && method.getParameterTypes().length == 0) {
+                return 0;
+            }
+            return 1;
         }
     }
 
