@@ -82,7 +82,11 @@
 <!-- Submit Button -->
   <tr>
     <td><div align="right"></div></td>
-    <td><input name="submit" type="submit" value="Save"></td>
+    <td>
+      <input name="submit" type="submit" value="Save">
+      <input name="reset" type="reset" value="Reset">
+      <input name="submit" type="submit" value="Cancel">
+    </td>    
   </tr>
 </table>
 </form>

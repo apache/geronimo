@@ -57,7 +57,7 @@
                  <portlet:param name="connectorURI" value="${info.connectorURI}" />
                  <portlet:param name="managerURI" value="${container.managerURI}" />
                  <portlet:param name="containerURI" value="${container.containerURI}" />
-               </portlet:actionURL>">delete</a>
+               </portlet:actionURL>" onClick="return confirm('Are you sure you want to delete ${info.displayName}?');">delete</a>
             </td>
             <td>${info.description}</td>
           </tr>

@@ -69,6 +69,12 @@ public class ConnectorPortlet extends BasePortlet {
 
     public void processAction(ActionRequest actionRequest,
                               ActionResponse actionResponse) throws PortletException, IOException {
+        String submit = actionRequest.getParameter("submit");
+        if ("Cancel".equalsIgnoreCase(submit)) {
+            // User clicked on "Cancel" button in add/edit connector page
+            actionResponse.setRenderParameter("mode", "list");
+            return;
+        }
         String mode = actionRequest.getParameter("mode");
         String managerURI = actionRequest.getParameter("managerURI");
         String containerURI = actionRequest.getParameter("containerURI");
