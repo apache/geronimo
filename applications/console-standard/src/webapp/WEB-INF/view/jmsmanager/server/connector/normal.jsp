@@ -51,7 +51,7 @@
                  <portlet:param name="mode" value="delete" />
                  <portlet:param name="brokerURI" value="${info.brokerURI}" />
                  <portlet:param name="connectorURI" value="${info.connectorURI}" />
-               </portlet:actionURL>">delete</a>
+               </portlet:actionURL>" onClick="return confirm('Are you sure you want to delete ${info.connectorName}?');">delete</a>
              </td>
           </tr>
 </c:forEach>

@@ -43,7 +43,7 @@
                <a href="<portlet:actionURL portletMode="view">
                  <portlet:param name="mode" value="delete" />
                  <portlet:param name="objectName" value="${entry.brokerURI}" />
-               </portlet:actionURL>">delete</a>
+               </portlet:actionURL>" onClick="return confirm('Are you sure you want to delete ${entry.brokerName}?');">delete</a>
              </td>
 -->
           </tr>

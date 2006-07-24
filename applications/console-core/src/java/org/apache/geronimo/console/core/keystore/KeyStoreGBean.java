@@ -22,15 +22,18 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -456,6 +459,15 @@ public class KeyStoreGBean implements GBeanLifecycle {
         saveKeyStore();
     }
 
+    public void deleteEntry(String alias)
+            throws KeyStoreException,
+            CertificateException,
+            NoSuchAlgorithmException, IOException {
+
+        keystore.deleteEntry(alias);
+
+        saveKeyStore();
+    }
 
     public static final GBeanInfo GBEAN_INFO;
 
@@ -486,6 +498,8 @@ public class KeyStoreGBean implements GBeanLifecycle {
                 String.class, String.class });
         infoFactory.addOperation("importPKCS7Certificate", new Class[] {
                 String.class, String.class });
+
+        infoFactory.addOperation("deleteEntry", new Class[] {String.class });
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

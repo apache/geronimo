@@ -15,9 +15,9 @@
 </table>
 <br/>
 
-<c:if test="${info.privateKey}">
 <table cellspacing="5">
 <tr>
+<c:if test="${info.privateKey}">
 <td><a href="<portlet:renderURL>
 <portlet:param name='action' value='generate-csr'/>
 <portlet:param name='alias' value='${info.alias}'/>
@@ -28,13 +28,18 @@ generate CSR</a></td>
 <portlet:param name='alias' value='${info.alias}'/>
 </portlet:renderURL>">
 import CA reply</a></td>
+</c:if>
+<td><a href="<portlet:actionURL>
+<portlet:param name='action' value='delete-entry'/>
+<portlet:param name='alias' value='${info.alias}'/>
+</portlet:actionURL>" onClick="return confirm('Are you sure you want to delete entry ${info.alias}?');">
+Delete Entry</a></td>
 <td><a href="<portlet:renderURL>
 </portlet:renderURL>">
 keystore list</a></td>
 </tr>
 </table>
 <br/>
-</c:if>
 
 <c:set var="certs" value="${requestScope['org.apache.geronimo.console.certs']}"/>
 
