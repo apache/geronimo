@@ -459,17 +459,17 @@ public class GBeanOverride implements Serializable {
                         type.appendChild(doc.createTextNode(artifact.getType()));
                         pat.appendChild(type);
                     }
-                    Map nameMap = pattern.getName();
-                    if (nameMap.get("module") != null) {
-                        Element module = doc.createElement("module");
-                        module.appendChild(doc.createTextNode(nameMap.get("module").toString()));
-                        pat.appendChild(module);
-                    }
-                    if (nameMap.get("name") != null) {
-                        Element patName = doc.createElement("name");
-                        patName.appendChild(doc.createTextNode(nameMap.get("name").toString()));
-                        pat.appendChild(patName);
-                    }
+                }
+                Map nameMap = pattern.getName();
+                if (nameMap.get("module") != null) {
+                    Element module = doc.createElement("module");
+                    module.appendChild(doc.createTextNode(nameMap.get("module").toString()));
+                    pat.appendChild(module);
+                }
+                if (nameMap.get("name") != null) {
+                    Element patName = doc.createElement("name");
+                    patName.appendChild(doc.createTextNode(nameMap.get("name").toString()));
+                    pat.appendChild(patName);
                 }
 //                out.print(pattern.toString());
             }
