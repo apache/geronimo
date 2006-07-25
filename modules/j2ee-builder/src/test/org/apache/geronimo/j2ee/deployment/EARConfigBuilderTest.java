@@ -42,6 +42,7 @@ import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationData;
@@ -567,6 +568,7 @@ public class EARConfigBuilderTest extends TestCase {
 
         public ConfigurationData loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
             ConfigurationData configurationData = new ConfigurationData(configId, naming);
+            configurationData.addGBean("GeronimoServer", J2EEServerImpl.GBEAN_INFO);
             configurationData.setConfigurationStore(this);
             return configurationData;
         }

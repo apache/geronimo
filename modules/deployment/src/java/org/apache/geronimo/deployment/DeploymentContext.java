@@ -48,6 +48,8 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.ReferencePatterns;
+import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Naming;
@@ -57,7 +59,6 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 
 /**
@@ -363,7 +364,18 @@ public class DeploymentContext {
         childConfigurationDatas.put(moduleName, configurationData);
     }
 
-    public ConfigurationData getConfigurationData() {
+    public ConfigurationData getConfigurationData() throws DeploymentException {
+        List failures = verify();
+        if (!failures.isEmpty()) {
+            StringBuffer message = new StringBuffer();
+            for (Iterator iterator = failures.iterator(); iterator.hasNext();) {
+                String failure = (String) iterator.next();
+                if (message.length() > 0) message.append("\n");
+                message.append(failure);
+            }
+            throw new DeploymentException(message.toString());
+        }
+
         ConfigurationData configurationData = new ConfigurationData(configuration.getModuleType(),
                 new LinkedHashSet(configuration.getClassPath()),
                 new ArrayList(configuration.getGBeans().values()),
@@ -377,7 +389,7 @@ public class DeploymentContext {
             ConfigurationData ownedConfiguration = (ConfigurationData) iterator.next();
             configurationData.addOwnedConfigurations(ownedConfiguration.getId());
         }
-        
+
         return configurationData;
     }
 
@@ -387,5 +399,81 @@ public class DeploymentContext {
 
     public List getAdditionalDeployment() {
         return additionalDeployment;
+    }
+
+    public List verify() throws DeploymentException {
+        List failures = new ArrayList();
+        for (Iterator iterator = configuration.getGBeans().entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            AbstractName name = (AbstractName) entry.getKey();
+            GBeanData gbean = (GBeanData) entry.getValue();
+
+            for (Iterator iterator1 = gbean.getReferences().entrySet().iterator(); iterator1.hasNext();) {
+                Map.Entry referenceEntry = (Map.Entry) iterator1.next();
+                String referenceName = (String) referenceEntry.getKey();
+                ReferencePatterns referencePatterns = (ReferencePatterns) referenceEntry.getValue();
+
+                String failure = verifyReference(gbean, referenceName, referencePatterns);
+                if (failure != null) {
+                    failures.add(failure);
+                }
+            }
+
+            for (Iterator iterator1 = gbean.getDependencies().iterator(); iterator1.hasNext();) {
+                ReferencePatterns referencePatterns = (ReferencePatterns) iterator1.next();
+                String failure = verifyDependency(name, referencePatterns);
+                if (failure != null) {
+                    failures.add(failure);
+                }
+            }
+        }
+        return failures;
+    }
+
+    private String verifyReference(GBeanData gbean, String referenceName, ReferencePatterns referencePatterns) {
+        GReferenceInfo referenceInfo = gbean.getGBeanInfo().getReference(referenceName);
+
+        // if there is no reference info we can't verify
+        if (referenceInfo == null) return null;
+
+        // A collection valued reference doesn't need to be verified
+        if (referenceInfo.getProxyType().equals(Collection.class.getName())) return null;
+
+        if (!isVerifyReference(referencePatterns)) {
+            return "Unable to resolve reference \"" + referenceName + "\" in gbean " +
+                    gbean.getAbstractName() + " to a gbean matching the pattern " + referencePatterns.getPatterns();
+        }
+        return null;
+    }
+
+    private String verifyDependency(AbstractName name, ReferencePatterns referencePatterns) {
+        if (!isVerifyReference(referencePatterns)) {
+            return "Unable to resolve dependency in gbean " + name +
+                    " to a gbean matching the pattern " + referencePatterns.getPatterns();
+        }
+
+        return null;
+    }
+
+    private boolean isVerifyReference(ReferencePatterns referencePatterns) {
+        // we can't verify a resolved reference since it will have a specific artifact already set...
+        // hopefully the deployer won't generate bad resolved references
+        if (referencePatterns.isResolved()) return true;
+
+        // Do not verify the reference if it has an explicit depenency on another artifact, because it it likely
+        // that the other artifact is not in the "environment" (if it were you wouldn't use the long form)
+        Set patterns = referencePatterns.getPatterns();
+        for (Iterator iterator = patterns.iterator(); iterator.hasNext();) {
+            AbstractNameQuery query = (AbstractNameQuery) iterator.next();
+            if (query.getArtifact() != null) return true;
+        }
+
+        // attempt to find the bean
+        try {
+            findGBean(patterns);
+            return true;
+        } catch (GBeanNotFoundException e) {
+            return false;
+        }
     }
 }

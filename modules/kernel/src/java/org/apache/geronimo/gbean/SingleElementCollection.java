@@ -38,7 +38,7 @@ public class SingleElementCollection {
 
     public SingleElementCollection(Collection collection) {
         if (collection == null) {
-            throw new IllegalArgumentException("No collection parameter supplied");
+            collection = Collections.EMPTY_SET;            
         }
 
         this.collection = collection;

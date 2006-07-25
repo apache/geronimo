@@ -55,9 +55,9 @@ CSSBean examples for app client
         <attribute name="props">
             com.sun.CORBA.ORBServerHost=${PlanORBSSLHost}
         </attribute>
-        <dependency>
+        <!--dependency>
             <name>SecurityService</name>
-        </dependency>
+        </dependenc-->
         <dependency>
             <name>CORBASystemProperties</name>
         </dependency>

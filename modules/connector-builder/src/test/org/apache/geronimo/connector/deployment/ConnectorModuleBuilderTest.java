@@ -151,7 +151,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
     private Kernel kernel;
     private EditableConfigurationManager configurationManager;
     private static final Naming naming = new Jsr77Naming();
-    private static final Artifact bootId = new Artifact("test", "test", "", "car");
+    private static final Artifact bootId = new Artifact("test", "test", "42", "car");
 
     private static final AbstractNameQuery connectionTrackerName = new AbstractNameQuery(null, Collections.singletonMap("name", "ConnectionTracker"));
     private AbstractName serverName;
@@ -162,9 +162,22 @@ public class ConnectorModuleBuilderTest extends TestCase {
         JarFile rarFile = null;
         try {
             rarFile = DeploymentUtil.createJarFile(new File(basedir, "target/test-ear-noger.ear"));
-            EARConfigBuilder configBuilder = new EARConfigBuilder(defaultEnvironment, transactionContextManagerName, connectionTrackerName, null, null, null, new AbstractNameQuery(serverName, J2EEServerImpl.GBEAN_INFO.getInterfaces()), null, null, ejbReferenceBuilder, null,
-                    new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching),
-                    resourceReferenceBuilder, null, serviceReferenceBuilder, kernel.getNaming());
+            EARConfigBuilder configBuilder = new EARConfigBuilder(defaultEnvironment,
+                    transactionContextManagerName,
+                    connectionTrackerName,
+                    null,
+                    null,
+                    null,
+                    new AbstractNameQuery(serverName, J2EEServerImpl.GBEAN_INFO.getInterfaces()),
+                    null,
+                    null,
+                    Collections.singleton(ejbReferenceBuilder),
+                    null,
+                    Collections.singleton(new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching)),
+                    Collections.singleton(resourceReferenceBuilder),
+                    null,
+                    Collections.singleton(serviceReferenceBuilder),
+                    kernel);
             ConfigurationData configData = null;
             DeploymentContext context = null;
             ArtifactManager artifactManager = new DefaultArtifactManager();
