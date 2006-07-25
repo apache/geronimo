@@ -307,7 +307,7 @@
         <dependency>
             <groupId>commons-primitives</groupId>
             <artifactId>commons-primitives</artifactId>
-            <version>1.0</version>
+            <version>${commons_primitives_version}</version>
         </dependency>
 
     </dependencies>
