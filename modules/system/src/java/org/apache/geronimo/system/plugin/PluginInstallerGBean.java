@@ -670,6 +670,8 @@ public class PluginInstallerGBean implements PluginInstaller {
         boolean pluginWasInstalled = false;
         Artifact[] matches = configManager.getArtifactResolver().queryArtifacts(configID);
         if(matches.length == 0) { // not present, needs to be downloaded
+            monitor.getResults().setCurrentMessage("Downloading " + configID);
+            monitor.getResults().setCurrentFilePercent(-1);
             OpenResult result = openStream(configID, repos, username, password, monitor);
             try {
                 File tempFile = downloadFile(result, monitor);
@@ -693,6 +695,7 @@ public class PluginInstallerGBean implements PluginInstaller {
                 if(pluginData != null) { // it's a plugin, not a plain JAR
                     validatePlugin(pluginData);
                 }
+                monitor.getResults().setCurrentMessage("Copying " + result.getConfigID() + " to the repository");
                 writeableRepo.copyToRepository(tempFile, result.getConfigID(), monitor); //todo: download SNAPSHOTS if previously available?
                 if(!tempFile.delete()) {
                     log.warn("Unable to delete temporary download file "+tempFile.getAbsolutePath());
@@ -913,7 +916,7 @@ public class PluginInstallerGBean implements PluginInstaller {
     private static OpenResult openStream(Artifact artifact, URL[] repos, String username, String password, ResultsFileWriteMonitor monitor) throws IOException, FailedLoginException, MissingDependencyException {
         if(monitor != null) {
             monitor.getResults().setCurrentFilePercent(-1);
-            monitor.getResults().setCurrentMessage("Attempting to download "+artifact);
+            monitor.getResults().setCurrentMessage("Downloading "+artifact+"...");
             monitor.setTotalBytes(-1); // In case the server doesn't say
         }
         if(artifact != null && !artifact.isResolved()) {
@@ -1716,13 +1719,13 @@ public class PluginInstallerGBean implements PluginInstaller {
             totalBytes = fileSize;
             file = fileDescription;
             results.setCurrentFile(fileDescription);
-            results.setCurrentMessage("Downloading "+fileDescription+"...");
             results.setCurrentFilePercent(totalBytes > 0 ? 0 : -1);
         }
 
         public void writeProgress(int bytes) {
             if(totalBytes > 0) {
-                results.setCurrentFilePercent((bytes*100)/totalBytes);
+                double percent = (double)bytes/(double)totalBytes;
+                results.setCurrentFilePercent((int)(percent*100));
             } else {
                 results.setCurrentMessage((bytes/1024)+" kB of "+file);
             }
@@ -1730,7 +1733,7 @@ public class PluginInstallerGBean implements PluginInstaller {
 
         public void writeComplete(int bytes) {
             results.setCurrentFilePercent(100);
-            results.setCurrentMessage("Downloaded "+file+" ("+(bytes/1024)+" kB)");
+            results.setCurrentMessage("Finished installing "+file+" ("+(bytes/1024)+" kB)");
             results.addDownloadBytes(bytes);
         }
 

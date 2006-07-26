@@ -37,6 +37,9 @@ function <portlet:namespace/>updateProgress(progressInfo)
     if (progressPercent > -1) {
        document.getElementById('<portlet:namespace/>progressMeterShell').style.display = 'block';
        document.getElementById('<portlet:namespace/>progressMeterBar').style.width = parseInt(progressPercent * 3.5) + 'px';
+    } else {
+       document.getElementById('<portlet:namespace/>progressMeterShell').style.display = 'block';
+       document.getElementById('<portlet:namespace/>progressMeterBar').style.width = '0px';
     }
     if(finished) {
         document.forms['<portlet:namespace/>ContinueForm'].submit();
