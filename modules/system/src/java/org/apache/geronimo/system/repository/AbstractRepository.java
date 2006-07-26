@@ -25,9 +25,13 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -185,9 +189,19 @@ public abstract class AbstractRepository implements WriteableRepository {
         if (!source.exists() || !source.canRead() || source.isDirectory()) {
             throw new IllegalArgumentException("Cannot read source file at " + source.getAbsolutePath());
         }
+        int size = 0;
+        try {
+            ZipFile zip = new ZipFile(source);
+            for (Enumeration entries=zip.entries(); entries.hasMoreElements();) {
+            	ZipEntry entry = (ZipEntry)entries.nextElement();
+            	size += entry.getSize();
+            }
+        } catch (ZipException ze) {
+        	size = (int)source.length();
+        }
         FileInputStream is = new FileInputStream(source);
         try {
-            copyToRepository(is, (int)source.length(), destination, monitor);
+            copyToRepository(is, size, destination, monitor);
         } finally {
             try {
                 is.close();
