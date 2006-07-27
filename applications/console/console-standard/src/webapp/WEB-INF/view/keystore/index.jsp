@@ -76,7 +76,7 @@ been saved in order to make the keystore available to other components in the se
           <a href="<portlet:actionURL portletMode="view">
             <portlet:param name="mode" value="lockKeystore-before" />
             <portlet:param name="keystore" value="${keystore.instance.keystoreName}" />
-            </portlet:actionURL>"><img src="<%=consoleServletPath%>/../images/ico_unlock3_16x16.gif" alt="Unlocked" /></a>
+            </portlet:actionURL> "onClick="return confirm('This keystore is currently in use.  Locking it may prevent the server from starting.  Continue?');" ><img src="<%=consoleServletPath%>/../images/ico_unlock3_16x16.gif" alt="Unlocked" /></a>
             ${keys[keystore.instance.keystoreName]}
         </c:otherwise>
       </c:choose>
