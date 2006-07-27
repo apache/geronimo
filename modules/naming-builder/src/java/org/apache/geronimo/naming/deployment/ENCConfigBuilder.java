@@ -863,7 +863,7 @@ public class ENCConfigBuilder {
         String module = pattern.isSetModule() ? pattern.getModule().trim() : null;
         String name = pattern.getName().trim();
 
-        Artifact artifact = artifactid != null ? new Artifact(groupId, artifactid, version, "car") : null;
+        Artifact artifact = artifactid != null ? new Artifact(groupId, artifactid, version, null) : null;
         Map nameMap = new HashMap();
         nameMap.put("name", name);
         if (type != null) {
