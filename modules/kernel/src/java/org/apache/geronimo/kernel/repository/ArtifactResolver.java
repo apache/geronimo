@@ -52,6 +52,8 @@ public interface ArtifactResolver {
      * may be partially-populated).  Preference is given to artifacts that are already
      * loaded, or that exist in the parent configurations, to reduce duplication.  If
      * nothing can be found that's an error, because something depends on this.
+     *
+     * @param parentConfigurations A Collection with entries of type Configuration
      */
     Artifact resolveInClassLoader(Artifact source, Collection parentConfigurations) throws MissingDependencyException;
     /**
@@ -69,6 +71,8 @@ public interface ArtifactResolver {
      * may be partially-populated).  Preference is given to artifacts that are already
      * loaded, or that exist in the parent configurations, to reduce duplication.  If
      * nothing can be found that's an error, because something depends on this.
+     *
+     * @param parentConfigurations A Collection with entries of type Configuration
      *
      * @return A sorted set ordered in the same way the input was ordered, with
      *         entries of type Artifact
