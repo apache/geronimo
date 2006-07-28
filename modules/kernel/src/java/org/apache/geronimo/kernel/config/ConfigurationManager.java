@@ -26,6 +26,29 @@ import org.apache.geronimo.gbean.AbstractName;
 /**
  * Encapsulates logic for dealing with configurations.
  *
+ * Configurations have a lifecycle with three states: installed, loaded, and
+ * running.  Installed means that the configuration is present in the server's
+ * repository.  Loaded means that the Configuration GBean (including the
+ * configuration's ClassLoader) is running.  Running means that all the GBeans
+ * in the Configuration are running.
+ *
+ * From a user perspective, there's not much difference between installed and
+ * loaded if the configuration has not been started (it still shows up as not
+ * running).  However, certain operations will cause a configuration to be
+ * loaded but not started.  For example, if ModuleA depends on ModuleB, then
+ * when ModuleA is distributed ModuleB will normally be loaded (to fire up the
+ * ClassLoader and validate ModuleA).  But ModuleB will not be started at that
+ * point.  It can be started manually or it will be started automatically when
+ * ModuleA is started.
+ *
+ * When a Configuration is not loaded, only its ConfigurationData is available
+ * for inspection.  It's normally not possible to inspect the GBeans in the
+ * configuration because there's no ClassLoader that could be used to load the
+ * classes needed by the GBeanDatas in the configuration.  Once the
+ * configuration has been loaded, it's ClassLoader is available so the
+ * GBeanDatas can be loaded and inspected.  But the GBean instances are not
+ * instantiated and started until the configuration is started. 
+ *
  * @version $Rev$ $Date$
  */
 public interface ConfigurationManager {
