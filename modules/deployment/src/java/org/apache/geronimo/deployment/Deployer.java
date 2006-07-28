@@ -307,6 +307,15 @@ public class Deployer {
             if (configurations.isEmpty()) {
                 throw new DeploymentException("Deployer did not create any configurations");
             }
+
+            // Set TCCL to the classloader for the configuration being deployed
+            // so that any static blocks invoked during the loading of classes 
+            // during serialization of the configuration have the correct TCCL 
+            // ( a TCCL that is consistent with what is set when the same
+            // classes are loaded when the configuration is started.
+            Thread thread = Thread.currentThread();
+            ClassLoader oldCl = thread.getContextClassLoader();
+            thread.setContextClassLoader( context.getConfiguration().getConfigurationClassLoader());
             try {
                 if (targetFile != null) {
                     if (configurations.size() > 1) {
@@ -339,6 +348,7 @@ public class Deployer {
                 // unlikely as we just built this
                 throw new DeploymentException(e);
             } finally {
+                thread.setContextClassLoader(oldCl);
                 if (context != null) {
                     context.close();
                 }
