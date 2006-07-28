@@ -70,7 +70,7 @@ public abstract class BaseKeystoreHandler extends MultiPageAbstractHandler {
     }
 
     public final static class KeystoreData implements Serializable {
-        private KeystoreInstance instance;
+        private transient KeystoreInstance instance;
         private char[] password;
         private String[] certificates;
         private String[] keys;
