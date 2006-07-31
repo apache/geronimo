@@ -16,24 +16,28 @@
  */
 package org.apache.geronimo.console.keystores;
 
-import java.io.FileInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletSession;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.MultiPageAbstractHandler;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.management.geronimo.KeystoreInstance;
+import org.apache.geronimo.management.geronimo.KeystoreIsLocked;
 import org.apache.geronimo.util.CertificateUtil;
 
 /**
@@ -56,6 +60,11 @@ public abstract class BaseKeystoreHandler extends MultiPageAbstractHandler {
     protected static final String CONFIRM_CERTIFICATE = "confirmCertificate";
     protected static final String CONFIGURE_KEY = "configureKey";
     protected static final String CONFIRM_KEY = "confirmKey";
+    protected static final String CERTIFICATE_DETAILS = "certificateDetails";
+    protected static final String GENERATE_CSR = "generateCSR";
+    protected static final String IMPORT_CA_REPLY = "importCAReply";
+    protected static final String DELETE_ENTRY = "deleteEntry";
+    
 
     protected BaseKeystoreHandler(String mode, String viewName) {
         super(mode, viewName);
@@ -75,6 +84,7 @@ public abstract class BaseKeystoreHandler extends MultiPageAbstractHandler {
         private String[] certificates;
         private String[] keys;
         private Map fingerprints;
+        private Map keyPasswords;
 
         public KeystoreInstance getInstance() {
             return instance;
@@ -90,6 +100,7 @@ public abstract class BaseKeystoreHandler extends MultiPageAbstractHandler {
                 certificates = null;
                 keys = null;
                 fingerprints = null;
+                keyPasswords = null;
             }
         }
 
@@ -137,7 +148,9 @@ public abstract class BaseKeystoreHandler extends MultiPageAbstractHandler {
         }
 
         public boolean importTrustCert(String fileName, String alias) throws FileNotFoundException, CertificateException {
-            InputStream is = new FileInputStream(fileName);
+            // Uploading certificate using a disk file fails on Windows.  Certificate text is used instead.
+            //InputStream is = new FileInputStream(fileName);
+            InputStream is = new ByteArrayInputStream(fileName.getBytes());
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
             Collection certs = cf.generateCertificates(is);
             X509Certificate cert = (X509Certificate) certs.iterator().next();
@@ -180,5 +193,62 @@ public abstract class BaseKeystoreHandler extends MultiPageAbstractHandler {
             }
             return result;
         }
+
+        public Certificate getCertificate(String alias) {
+            return instance.getCertificate(alias, password);
+        }
+
+        public void unlockPrivateKey(String alias, char[] keyPassword) throws KeystoreIsLocked {
+            if(keyPasswords == null) {
+                keyPasswords = new HashMap();
+            }
+            
+            if(instance.unlockPrivateKey(alias, keyPassword)) {
+                keyPasswords.put(alias, keyPassword);
+            }
+        }
+
+        public void deleteEntry(String alias) {
+            for(int i = 0; i < keys.length; ++i) {
+                if(keys[i].equals(alias)) {
+                    String[] temp = new String[keys.length-1];
+                    for(int j = 0; j < i-1; ++j) {
+                        temp[j] = keys[j];
+                    }
+                    for(int j = i+1; j < keys.length; ++j) {
+                        temp[j-1] = keys[j];
+                    }
+                    keys = temp;
+                    break;
+                }
+            }
+
+            for(int i = 0; i < certificates.length; ++i) {
+                if(certificates[i].equals(alias)) {
+                    String[] temp = new String[certificates.length-1];
+                    for(int j = 0; j < i-1; ++j) {
+                        temp[j] = certificates[j];
+                    }
+                    for(int j = i+1; j < certificates.length; ++j) {
+                        temp[j-1] = certificates[j];
+                    }
+                    certificates = temp;
+                }
+            }
+            instance.deleteEntry(alias);
+            if(keyPasswords != null)
+                keyPasswords.remove(alias);
+            if(fingerprints != null)
+                fingerprints.remove(alias);
+        }
+
+		public void importPKCS7Certificate(String alias, String pkcs7cert) {
+			try {
+				instance.importPKCS7Certificate(alias, pkcs7cert);
+				fingerprints.put(alias, CertificateUtil.generateFingerprint(instance.getCertificate(alias, password), "MD5"));
+			} catch (Exception e) {
+				log.error("Error importing CA reply", e);
+			}
+		}
     }
 }

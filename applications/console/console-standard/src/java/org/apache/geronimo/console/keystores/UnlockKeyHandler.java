@@ -57,7 +57,8 @@ public class UnlockKeyHandler extends BaseKeystoreHandler {
         }
         KeystoreData data = ((KeystoreData) request.getPortletSession(true).getAttribute(KEYSTORE_DATA_PREFIX + keystore));
         try {
-            data.getInstance().unlockPrivateKey(alias, keyPassword.toCharArray());
+            //data.getInstance().unlockPrivateKey(alias, keyPassword.toCharArray());
+            data.unlockPrivateKey(alias, keyPassword.toCharArray());
         } catch (KeystoreIsLocked e) {
             throw new PortletException("Invalid password for keystore", e);
         }
