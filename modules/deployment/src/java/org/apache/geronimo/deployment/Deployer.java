@@ -301,6 +301,7 @@ public class Deployer {
             // It's our responsibility to close this context, once we're done with it...
             DeploymentContext context = builder.buildConfiguration(inPlace, configID, plan, module, stores, artifactResolver, store);
             List configurations = new ArrayList();
+            boolean configsCleanupRequired = false;
             configurations.add(context.getConfigurationData());
             configurations.addAll(context.getAdditionalDeployment());
 
@@ -334,23 +335,31 @@ public class Deployer {
                     notifyWatchers(deployedURIs);
                     return deployedURIs;
                 } else {
-                    cleanupConfigurations(configurations);
+                    configsCleanupRequired = true;
                     return Collections.EMPTY_LIST;
                 }
             } catch (DeploymentException e) {
-                cleanupConfigurations(configurations);
+                configsCleanupRequired = true;
                 throw e;
             } catch (IOException e) {
-                cleanupConfigurations(configurations);
+                configsCleanupRequired = true;
                 throw e;
             } catch (InvalidConfigException e) {
-                cleanupConfigurations(configurations);
+                configsCleanupRequired = true;
                 // unlikely as we just built this
                 throw new DeploymentException(e);
+            } catch (Throwable e) {
+                // Could get here if serialization of the configuration failed (GERONIMO-1996)
+                configsCleanupRequired = true;
+                throw e;
             } finally {
                 thread.setContextClassLoader(oldCl);
                 if (context != null) {
                     context.close();
+                }
+                if (configsCleanupRequired) {
+                    // We do this after context is closed so the module jar isn't open
+                    cleanupConfigurations(configurations);
                 }
             }
         } catch (Throwable e) {
