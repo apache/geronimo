@@ -388,6 +388,9 @@ public class GBeanOverride implements Serializable {
             	setNullAttribute(name);
             }
             else {
+                if (getNullAttribute(name)) {
+                    nullAttributes.remove(name);
+                }
                 if(name.toLowerCase().indexOf("password") > -1) {
                     value = EncryptionManager.encrypt(value);
                 }
