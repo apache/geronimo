@@ -203,7 +203,7 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
                 buf.append("]![");
             }
             Map.Entry entry = (Map.Entry) it.next();
-            buf.append(entry.getKey()).append("=").append(entry.getValue());
+            buf.append(entry.getKey()).append("=").append((char[])entry.getValue());
         }
         try {
             kernel.setAttribute(abstractName, "keyPasswords", buf.length() == 0 ? null : buf.toString());
