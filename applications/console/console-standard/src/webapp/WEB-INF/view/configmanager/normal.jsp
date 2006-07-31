@@ -32,7 +32,7 @@
             <c:if test="${moduleDetails.state.stopped && (moduleDetails.type.name ne 'CAR')}">&nbsp;<a href="<portlet:actionURL><portlet:param name="configId" value="${moduleDetails.configId}"/><portlet:param name="action" value="start"/></portlet:actionURL>">Start</a></c:if>
             <c:if test="${moduleDetails.state.failed}">&nbsp;<a href="<portlet:actionURL><portlet:param name="configId" value="${moduleDetails.configId}"/><portlet:param name="action" value="stop"/></portlet:actionURL>">Stop</a></c:if>
         </td>
-        <td width="75" class="${backgroudClass}">
+        <td width="75" class="${backgroundClass}">
             <c:if test="${moduleDetails.state.running}">&nbsp;<a href="<portlet:actionURL><portlet:param name="configId" value="${moduleDetails.configId}"/><portlet:param name="action" value="restart"/></portlet:actionURL>">Restart</a></c:if>
         </td>
         <td width="75" class="${backgroundClass}">
