@@ -58,6 +58,7 @@ public class UploadCertificateHandler extends BaseKeystoreHandler {
         if(alias == null) {
             return getMode()+BEFORE_ACTION; //todo: some kind of error message
         }
+        /*  // Uploading certificate using a disk file fails on Windows.  Certificate text is used instead.
         File certFile;
         FileItem item = (FileItem) getUploadFiles().get("certificate");
         if(item != null) {
@@ -72,8 +73,11 @@ public class UploadCertificateHandler extends BaseKeystoreHandler {
             response.setRenderParameter("id", id);
             return getMode()+BEFORE_ACTION;
         }
+        */
         response.setRenderParameter("id", id); // the Keystore
-        response.setRenderParameter("certificate", certFile.getAbsolutePath());
+        // Uploading certificate using a disk file fails on Windows.  Certificate text is used instead.
+        //response.setRenderParameter("certificate", certFile.getAbsolutePath());
+        response.setRenderParameter("certificate", getUploadFields().getProperty("certificate"));
         response.setRenderParameter("alias", alias);
 
         return CONFIRM_CERTIFICATE+BEFORE_ACTION;

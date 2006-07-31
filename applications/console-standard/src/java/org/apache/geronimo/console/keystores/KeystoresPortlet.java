@@ -43,6 +43,10 @@ public class KeystoresPortlet extends MultiPagePortlet {
         addHelper(new LockEditKeystoreHandler(), config);
         addHelper(new LockKeystoreHandler(), config);
         addHelper(new UnlockKeyHandler(), config);
+        addHelper(new CertificateDetailsHandler(), config);
+        addHelper(new GenerateCSRHandler(), config);
+        addHelper(new ImportCAReplyHandler(), config);
+        addHelper(new DeleteEntryHandler(), config);
     }
 
     protected String getModelJSPVariableName() {

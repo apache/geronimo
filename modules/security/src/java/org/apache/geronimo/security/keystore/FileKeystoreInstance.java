@@ -18,6 +18,8 @@ package org.apache.geronimo.security.keystore;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -31,14 +33,17 @@ import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SignatureException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -62,6 +67,11 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.management.geronimo.KeystoreInstance;
 import org.apache.geronimo.management.geronimo.KeystoreIsLocked;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.util.asn1.ASN1Set;
+import org.apache.geronimo.util.asn1.DEROutputStream;
+import org.apache.geronimo.util.asn1.x509.X509Name;
+import org.apache.geronimo.util.encoders.Base64;
+import org.apache.geronimo.util.jce.PKCS10CertificationRequest;
 import org.apache.geronimo.util.jce.X509Principal;
 import org.apache.geronimo.util.jce.X509V1CertificateGenerator;
 
@@ -285,6 +295,135 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
         return false;
     }
 
+
+    public String generateCSR(String alias) {
+        // find certificate by alias
+        X509Certificate cert = null;
+        try {
+            cert = (X509Certificate) keystore.getCertificate(alias);
+        } catch (KeyStoreException e) {
+            log.error("Unable to generate CSR", e);
+        }
+
+        // find private key by alias
+        PrivateKey key = null;
+        try {
+            key = (PrivateKey) keystore.getKey(alias, (char[])keyPasswords.get(alias));
+        } catch (KeyStoreException e) {
+            log.error("Unable to generate CSR", e);
+        } catch (NoSuchAlgorithmException e) {
+            log.error("Unable to generate CSR", e);
+        } catch (UnrecoverableKeyException e) {
+            log.error("Unable to generate CSR", e);
+        }
+
+        // generate csr
+        String csr = null;
+        try {
+            csr = generateCSR(cert, key);
+        } catch (Exception e) {
+            log.error("Unable to generate CSR", e);
+        }
+        return csr;
+    }
+
+    private String generateCSR(X509Certificate cert, PrivateKey signingKey) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchProviderException, SignatureException, KeyStoreException, IOException {
+        String sigalg = cert.getSigAlgName();
+        X509Name subject = new X509Name(cert.getSubjectDN().toString());
+        PublicKey publicKey = cert.getPublicKey();
+        ASN1Set attributes = null;
+
+        PKCS10CertificationRequest csr = new PKCS10CertificationRequest(sigalg,
+                subject, publicKey, attributes, signingKey);
+        
+        if (!csr.verify()) {
+            throw new KeyStoreException("CSR verification failed");
+        }
+
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        DEROutputStream deros = new DEROutputStream(os);
+        deros.writeObject(csr.getDERObject());
+        String b64 = new String(Base64.encode(os.toByteArray()));
+        
+        final String BEGIN_CERT_REQ = "-----BEGIN CERTIFICATE REQUEST-----";
+        final String END_CERT_REQ = "-----END CERTIFICATE REQUEST-----";
+        final int CERT_REQ_LINE_LENGTH = 70;
+        
+        StringBuffer sbuf = new StringBuffer(BEGIN_CERT_REQ).append('\n');
+        
+        int idx = 0;
+        while (idx < b64.length()) {
+        
+            int len = (idx + CERT_REQ_LINE_LENGTH > b64.length()) ? b64
+                    .length()
+                    - idx : CERT_REQ_LINE_LENGTH;
+        
+            String chunk = b64.substring(idx, idx + len);
+        
+            sbuf.append(chunk).append('\n');
+            idx += len;
+        }
+        
+        sbuf.append(END_CERT_REQ);
+        return sbuf.toString();
+    }
+
+    public void importPKCS7Certificate(String alias, String certbuf)
+    throws java.security.cert.CertificateException,
+    java.security.NoSuchProviderException,
+    java.security.KeyStoreException,
+    java.security.NoSuchAlgorithmException,
+    java.security.UnrecoverableKeyException, java.io.IOException {
+        InputStream is = null;
+        
+        try {
+            is = new ByteArrayInputStream(certbuf.getBytes());
+            importPKCS7Certificate(alias, is);
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (Exception e) {
+                }
+            }
+        }
+    }
+
+    private void importPKCS7Certificate(String alias, InputStream is)
+        throws java.security.cert.CertificateException,
+        java.security.NoSuchProviderException,
+        java.security.KeyStoreException,
+        java.security.NoSuchAlgorithmException,
+        java.security.UnrecoverableKeyException, java.io.IOException {
+        CertificateFactory cf = CertificateFactory.getInstance("X.509");
+        Collection certcoll = cf.generateCertificates(is);
+        
+        Certificate[] chain = new Certificate[certcoll.size()];
+        
+        Iterator iter = certcoll.iterator();
+        for (int i = 0; iter.hasNext(); i++) {
+            chain[i] = (Certificate) iter.next();
+        }
+        
+        char[] keyPassword = (char[])keyPasswords.get(alias);
+        keystore.setKeyEntry(alias, keystore.getKey(alias, keyPassword), keyPassword,
+                chain);
+        
+        saveKeystore(keystorePassword);
+    }
+
+    public void deleteEntry(String alias) {
+        try {
+            keystore.deleteEntry(alias);
+            privateKeys.remove(alias);
+            trustCerts.remove(alias);
+            keyPasswords.remove(alias);
+        } catch (KeyStoreException e) {
+            log.error("Unable to delete entry:"+alias, e);
+        }
+        saveKeystore(keystorePassword);
+    }
+    
     public KeyManager[] getKeyManager(String algorithm, String alias) throws NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException, KeystoreIsLocked {
         if(isKeystoreLocked()) {
             throw new KeystoreIsLocked("Keystore '"+keystoreName+"' is locked; please unlock it in the console.");

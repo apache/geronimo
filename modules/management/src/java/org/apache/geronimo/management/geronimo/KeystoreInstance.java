@@ -166,4 +166,15 @@ public interface KeystoreInstance {
      * @param algorithm The SSL algorithm to use for this trust manager
      */
     public TrustManager[] getTrustManager(String algorithm) throws KeyStoreException, NoSuchAlgorithmException, KeystoreIsLocked;
+    
+    public String generateCSR(String alias);
+    
+    public void importPKCS7Certificate(String alias, String certbuf)
+    throws java.security.cert.CertificateException,
+    java.security.NoSuchProviderException,
+    java.security.KeyStoreException,
+    java.security.NoSuchAlgorithmException,
+    java.security.UnrecoverableKeyException, java.io.IOException;
+    
+    public void deleteEntry(String alias);
 }

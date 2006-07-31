@@ -26,6 +26,8 @@ import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
+
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,9 +58,14 @@ public class ConfirmCertificateHandler extends BaseKeystoreHandler {
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
         request.setAttribute("id", request.getParameter("id"));
         request.setAttribute("alias", request.getParameter("alias"));
+        /*  // Uploading certificate using a disk file fails on Windows.  Certificate text is used instead.
         String certFile = request.getParameter("certificate");
         request.setAttribute("certificate", certFile);
         InputStream is = new FileInputStream(certFile);
+        */
+        String certificate = request.getParameter("certificate");
+        request.setAttribute("certificate", certificate);
+        InputStream is = new ByteArrayInputStream(certificate.getBytes());
         try {
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
             Collection certificates = cf.generateCertificates(is);

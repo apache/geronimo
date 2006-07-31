@@ -6,20 +6,47 @@
 
 <table width="100%">
   <tr>
+    <td class="DarkBackground">&nbsp;</td>
     <td class="DarkBackground">Alias</td>
     <td class="DarkBackground" align="center">Type</td>
     <td class="DarkBackground" align="center">Certificate Fingerprint</td>
   </tr>
 <c:forEach var="alias" items="${keystore.certificates}">
   <tr>
-    <td>${alias}</td>
+    <td><a href="<portlet:actionURL portletMode="view">
+                 <portlet:param name="mode" value="certificateDetails-before" />
+                 <portlet:param name="id" value="${keystore.instance.keystoreName}" />
+                 <portlet:param name="alias" value="${alias}" /></portlet:actionURL>">
+        view
+        </a>    
+    </td>
+    <td><a href="<portlet:actionURL portletMode="view">
+                 <portlet:param name="mode" value="certificateDetails-before" />
+                 <portlet:param name="id" value="${keystore.instance.keystoreName}" />
+                 <portlet:param name="alias" value="${alias}" /></portlet:actionURL>">
+        ${alias}
+        </a>    
+    </td>
     <td>Trusted Certificate</td>
     <td>${keystore.fingerprints[alias]}</td>
   </tr>
 </c:forEach>
 <c:forEach var="alias" items="${keystore.keys}">
   <tr>
-    <td>${alias}</td>
+    <td><a href="<portlet:actionURL portletMode="view">
+                 <portlet:param name="mode" value="certificateDetails-before" />
+                 <portlet:param name="id" value="${keystore.instance.keystoreName}" />
+                 <portlet:param name="alias" value="${alias}" /></portlet:actionURL>">
+        view
+        </a>    
+    </td>
+    <td><a href="<portlet:actionURL portletMode="view">
+                 <portlet:param name="mode" value="certificateDetails-before" />
+                 <portlet:param name="id" value="${keystore.instance.keystoreName}" />
+                 <portlet:param name="alias" value="${alias}" /></portlet:actionURL>">
+        ${alias}
+        </a>    
+    </td>
     <td>Private Key</td>
     <td>${keystore.fingerprints[alias]}</td>
   </tr>
