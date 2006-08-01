@@ -42,6 +42,7 @@ import org.apache.geronimo.kernel.repository.ArtifactTypeHandler;
 import org.apache.geronimo.kernel.repository.FileWriteMonitor;
 import org.apache.geronimo.kernel.repository.WriteableRepository;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.common.FileUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -190,18 +191,21 @@ public abstract class AbstractRepository implements WriteableRepository {
             throw new IllegalArgumentException("Cannot read source file at " + source.getAbsolutePath());
         }
         int size = 0;
-        try {
+        boolean forceConfiguration = false;
+        if(FileUtils.isZipFile(source)) {
             ZipFile zip = new ZipFile(source);
             for (Enumeration entries=zip.entries(); entries.hasMoreElements();) {
             	ZipEntry entry = (ZipEntry)entries.nextElement();
-            	size += entry.getSize();
+                if(entry.getName().equals("META-INF/config.ser")) {
+                    forceConfiguration = true;
+                }
+                size += entry.getSize();
             }
-        } catch (ZipException ze) {
-        	size = (int)source.length();
+            zip.close();
         }
         FileInputStream is = new FileInputStream(source);
         try {
-            copyToRepository(is, size, destination, monitor);
+            copyToRepository(is, size, destination, monitor, forceConfiguration);
         } finally {
             try {
                 is.close();
@@ -212,6 +216,10 @@ public abstract class AbstractRepository implements WriteableRepository {
     }
 
     public void copyToRepository(InputStream source, int size, Artifact destination, FileWriteMonitor monitor) throws IOException {
+        copyToRepository(source, size, destination, monitor, false);
+    }
+
+    private void copyToRepository(InputStream source, int size, Artifact destination, FileWriteMonitor monitor, boolean isConfiguration) throws IOException {
         if(!destination.isResolved()) {
             throw new IllegalArgumentException("Artifact "+destination+" is not fully resolved");
         }
@@ -228,11 +236,16 @@ public abstract class AbstractRepository implements WriteableRepository {
             throw new IllegalArgumentException("Destination " + location.getAbsolutePath() + " already exists!");
         }
 
-        ArtifactTypeHandler typeHandler = (ArtifactTypeHandler) typeHandlers.get(destination.getType());
+        ArtifactTypeHandler typeHandler;
+        if(isConfiguration) {
+            typeHandler = (ArtifactTypeHandler) typeHandlers.get("car");
+        } else {
+            typeHandler = (ArtifactTypeHandler) typeHandlers.get(destination.getType());
+        }
         if (typeHandler == null) typeHandler = DEFAULT_TYPE_HANDLER;
         typeHandler.install(source, size, destination, monitor, location);
 
-        if (destination.getType().equalsIgnoreCase("car")) {
+        if (isConfiguration || destination.getType().equalsIgnoreCase("car")) {
             System.out.println("############################################################");
             System.out.println("# Installed configuration");
             System.out.println("#   id = " + destination);
