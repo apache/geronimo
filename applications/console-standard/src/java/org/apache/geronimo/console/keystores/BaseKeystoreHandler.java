@@ -212,7 +212,7 @@ public abstract class BaseKeystoreHandler extends MultiPageAbstractHandler {
             for(int i = 0; i < keys.length; ++i) {
                 if(keys[i].equals(alias)) {
                     String[] temp = new String[keys.length-1];
-                    for(int j = 0; j < i-1; ++j) {
+                    for(int j = 0; j < i; ++j) {
                         temp[j] = keys[j];
                     }
                     for(int j = i+1; j < keys.length; ++j) {
@@ -226,13 +226,14 @@ public abstract class BaseKeystoreHandler extends MultiPageAbstractHandler {
             for(int i = 0; i < certificates.length; ++i) {
                 if(certificates[i].equals(alias)) {
                     String[] temp = new String[certificates.length-1];
-                    for(int j = 0; j < i-1; ++j) {
+                    for(int j = 0; j < i; ++j) {
                         temp[j] = certificates[j];
                     }
                     for(int j = i+1; j < certificates.length; ++j) {
                         temp[j-1] = certificates[j];
                     }
                     certificates = temp;
+                    break;
                 }
             }
             instance.deleteEntry(alias);
