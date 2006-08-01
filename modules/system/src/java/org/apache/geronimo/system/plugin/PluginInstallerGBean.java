@@ -1351,7 +1351,7 @@ public class PluginInstallerGBean implements PluginInstaller {
         if (moduleId != null) {
             artifact = Artifact.create(moduleId);
             // Tests, etc. don't need to have a ConfigurationManager
-            installed = configManager != null && configManager.isLoaded(artifact);
+            installed = configManager != null && configManager.isInstalled(artifact);
         }
         log.trace("Checking "+moduleId+": installed="+installed+", eligible="+eligible);
         PluginMetadata data = new PluginMetadata(getChildText(plugin, "name"),

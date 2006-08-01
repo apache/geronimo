@@ -22,6 +22,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,18 +30,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Arrays;
-
 import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.transaction.UserTransaction;
 import javax.xml.namespace.QName;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.UnresolvedReferenceException;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.RefContext;
@@ -855,7 +852,6 @@ public class ENCConfigBuilder {
         return refMap;
     }
 
-    //TODO consider including target interface
     public static AbstractNameQuery buildAbstractNameQuery(GerPatternType pattern, String type, String moduleType, Set interfaceTypes) {
         String groupId = pattern.isSetGroupId() ? pattern.getGroupId().trim() : null;
         String artifactid = pattern.isSetArtifactId() ? pattern.getArtifactId().trim() : null;
@@ -871,6 +867,14 @@ public class ENCConfigBuilder {
         }
         if (module != null && moduleType != null) {
             nameMap.put(moduleType, module);
+        }
+        if(interfaceTypes != null) {
+            Set trimmed = new HashSet();
+            for (Iterator it = interfaceTypes.iterator(); it.hasNext();) {
+                String intf = (String) it.next();
+                trimmed.add(intf == null ? null : intf.trim());
+            }
+            interfaceTypes = trimmed;
         }
         return new AbstractNameQuery(artifact, nameMap, interfaceTypes);
     }
