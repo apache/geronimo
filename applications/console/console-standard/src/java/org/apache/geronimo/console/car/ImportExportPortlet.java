@@ -39,6 +39,7 @@ public class ImportExportPortlet extends MultiPagePortlet {
         addHelper(new ExportHandler(), config);
         addHelper(new DownloadStatusHandler(), config);
         addHelper(new UpdateListHandler(), config);
+        addHelper(new AddRepositoryHandler(), config);
         addHelper(new ViewPluginDownloadHandler(), config);
     }
 
