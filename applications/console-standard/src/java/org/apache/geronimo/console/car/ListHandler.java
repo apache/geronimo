@@ -67,7 +67,9 @@ public class ListHandler extends BaseImportExportHandler {
         String repository = request.getParameter("repository");
         String user = request.getParameter("repo-user");
         String pass = request.getParameter("repo-pass");
-        loadFromRepository(request, repository, user, pass);
+        if(!loadFromRepository(request, repository, user, pass)) {
+            //todo: loading failed -- do something!
+        }
         request.setAttribute("repository", repository);
         request.setAttribute("repouser", user);
         request.setAttribute("repopass", pass);
@@ -77,7 +79,7 @@ public class ListHandler extends BaseImportExportHandler {
         return getMode()+BEFORE_ACTION;
     }
 
-    private void loadFromRepository(RenderRequest request, String repository, String username, String password) throws IOException, PortletException {
+    private boolean loadFromRepository(RenderRequest request, String repository, String username, String password) throws IOException, PortletException {
         PluginList data;
         try {
             data = PortletManager.getCurrentServer(request).getPluginInstaller().listPlugins(new URL(repository), username, password);
@@ -85,6 +87,9 @@ public class ListHandler extends BaseImportExportHandler {
             throw new PortletException("Invalid login for Maven repository '"+repository+"'", e);
         }
         Map results = new HashMap();
+        if(data == null || data.getPlugins() == null) {
+            return false;
+        }
         for (int i = 0; i < data.getPlugins().length; i++) {
             PluginMetadata metadata = data.getPlugins()[i];
             List values = (List) results.get(metadata.getCategory());
@@ -101,5 +106,6 @@ public class ListHandler extends BaseImportExportHandler {
         }
         request.setAttribute("categories", results);
         request.getPortletSession(true).setAttribute(CONFIG_LIST_SESSION_KEY, data);
+        return true;
     }
 }

@@ -16,12 +16,11 @@
  */
 package org.apache.geronimo.console.car;
 
-import org.apache.geronimo.console.MultiPageModel;
-import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.console.util.ConfigurationData;
-import org.apache.geronimo.system.plugin.PluginRepositoryList;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.console.MultiPageModel;
+import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.system.plugin.PluginRepositoryList;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -30,14 +29,14 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.FileNotFoundException;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.net.URL;
+import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Handler for the import export main screen.
@@ -116,7 +115,12 @@ public class AddRepositoryHandler extends BaseImportExportHandler {
             URLConnection urlConnection = test.openConnection();
             if(urlConnection instanceof HttpURLConnection) {
                 HttpURLConnection con = (HttpURLConnection) urlConnection;
-                con.connect();
+                try {
+                    con.connect();
+                } catch (ConnectException e) {
+                    response.setRenderParameter("repoError", "Unable to connect to "+url+" ("+e.getMessage()+")");
+                    return false;
+                }
                 int result = con.getResponseCode();
                 log.debug("Repository check response: "+result);
                 if(result == 404) {
