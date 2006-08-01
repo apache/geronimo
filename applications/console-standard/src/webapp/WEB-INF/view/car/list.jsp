@@ -1,4 +1,3 @@
-<%@ page import="org.apache.geronimo.console.util.PortletManager"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
@@ -21,19 +20,20 @@ already available in the local server.</p>
                       (already installed)
                   </c:when>
                   <c:otherwise>
-                      <c:if test="${!entry.eligible}">
+<%--                      <c:if test="${!entry.eligible}">
                           <c:forEach var="prereq" items="${entry.prerequisites}">
                               <c:if test="${!prereq.present}">
                                   (${prereq.moduleIdWithStars} is not installed)
                               </c:if>
                           </c:forEach>
-                      </c:if>
+                      </c:if>--%>
+                      (Not available; <a href="<portlet:actionURL><portlet:param name="configId" value="${entry.moduleId}"/><portlet:param name="repository" value="${repository}"/><portlet:param name="repo-user" value="${repouser}"/><portlet:param name="repo-pass" value="${repopass}"/><portlet:param name="mode" value="viewForDownload-before"/></portlet:actionURL>">View Details</a>)
                   </c:otherwise>
               </c:choose>
           </li>
         </c:when>
         <c:otherwise>
-          <li><a href="<portlet:actionURL><portlet:param name="configId" value="${entry.moduleId}"/><portlet:param name="repository" value="${repository}"/><portlet:param name="repo-user" value="${repouser}"/><portlet:param name="repo-pass" value="${repopass}"/><portlet:param name="mode" value="download-before"/></portlet:actionURL>">${entry.name}<c:if test="${entry.name ne entry.moduleId}"> (${entry.version})</c:if></a></li>
+          <li><a href="<portlet:actionURL><portlet:param name="configId" value="${entry.moduleId}"/><portlet:param name="repository" value="${repository}"/><portlet:param name="repo-user" value="${repouser}"/><portlet:param name="repo-pass" value="${repopass}"/><portlet:param name="mode" value="viewForDownload-before"/></portlet:actionURL>">${entry.name}<c:if test="${entry.name ne entry.moduleId}"> (${entry.version})</c:if></a></li>
         </c:otherwise>
       </c:choose>
     </c:forEach>
