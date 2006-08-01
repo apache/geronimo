@@ -22,9 +22,7 @@ limitations under the License.
         <tr>
           <td height="86" class="Logo" border="0"></td>
           <td height="86" class="Top" border="0">&nbsp; </TD>
-          <td height="86" class="Top" border="0" width="40">
-<a href="<%=request.getContextPath()%>/about.jsp"><img border="0" src="<%=request.getContextPath()%>/images/head_about_51x86.gif"></a>
-          </td>
+          <td height="86" class="Top" border="0" width="40"></td>
           <td height="86" class="Top" border="0" width="40">
 <a href="<%=request.getContextPath()%>/logout.jsp"><img border="0" src="<%=request.getContextPath()%>/images/head_logout_63x86.gif"></a>
           </td>
