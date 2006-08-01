@@ -231,15 +231,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         idBuilder.resolve(environment, warName, "war");
 
         Map servletNameToPathMap = buildServletNameToPathMap(webApp, contextRoot);
+        Map portMap = getWebServiceBuilder().findWebServices(moduleFile, false, servletNameToPathMap);
 
-        //look for a webservices dd
-        Map portMap = Collections.EMPTY_MAP;
-        try {
-            URL wsDDUrl = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/webservices.xml");
-            portMap = getWebServiceBuilder().parseWebServiceDescriptor(wsDDUrl, moduleFile, false, servletNameToPathMap);
-        } catch (MalformedURLException e) {
-            //no descriptor
-        }
         AbstractName moduleName;
         if (earName == null) {
             earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);

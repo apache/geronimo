@@ -16,9 +16,7 @@
     limitations under the License.
 -->
 
-<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
-
-        >
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
     <gbean name="WebServiceBuilder" class="org.apache.geronimo.axis.builder.AxisBuilder"/>
 

@@ -17,6 +17,7 @@
 package org.apache.geronimo.j2ee.deployment;
 
 import java.util.jar.JarFile;
+import java.util.Collections;
 import java.util.Map;
 import java.util.HashMap;
 import java.net.URL;
@@ -31,9 +32,9 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
  * @version $Rev$ $Date$
  */
 public class UnavailableWebServiceBuilder implements WebServiceBuilder {
-
-    public Map parseWebServiceDescriptor(URL wsDDUrl, JarFile moduleFile, boolean isEJB, Map correctedPortLocations) throws DeploymentException {
-        return new HashMap();
+    public Map findWebServices(JarFile moduleFile, boolean isEJB, Map correctedPortLocations) 
+        throws DeploymentException {
+        return Collections.EMPTY_MAP;
     }
 
     public void configurePOJO(GBeanData targetGBean, JarFile moduleFile, Object portInfo, String seiClassName, ClassLoader classLoader) throws DeploymentException {
