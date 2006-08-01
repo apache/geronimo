@@ -18,6 +18,8 @@ package org.apache.geronimo.system.plugin;
 
 import java.io.Serializable;
 import java.net.URL;
+import java.util.List;
+import java.util.ArrayList;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.configuration.GBeanOverride;
 
@@ -93,6 +95,20 @@ public class PluginMetadata implements Serializable, Comparable {
      */
     public String getDescription() {
         return description;
+    }
+
+    /**
+     * Gets a description of this module in HTML format (with paragraph
+     * markers).
+     */
+    public String getHTMLDescription() {
+        String[] paras = splitParas(description);
+        StringBuffer buf = new StringBuffer();
+        for (int i = 0; i < paras.length; i++) {
+            String para = paras[i];
+            buf.append("<p>").append(para).append("</p>\n");
+        }
+        return buf.toString();
     }
 
     /**
@@ -348,5 +364,53 @@ public class PluginMetadata implements Serializable, Comparable {
             }
             return buf.toString();
         }
+    }
+
+    private static String[] splitParas(String desc) {
+        int start = 0, last=0;
+        List list = new ArrayList();
+        boolean inSpace = false, multiple = false;
+        for(int i=0; i<desc.length(); i++) {
+            char c = desc.charAt(i);
+            if(inSpace) {
+                if(Character.isWhitespace(c)) {
+                    if(c == '\r' || c == '\n') {
+                        multiple = true;
+                        for(int j=i+1; j<desc.length(); j++) {
+                            char d = desc.charAt(j);
+                            if(d != c && (d == '\r' || d == '\n')) {
+                                i = j;
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+                } else {
+                    if(multiple) {
+                        list.add(desc.substring(last, start).trim());
+                        last = i;
+                    }
+                    inSpace = false;
+                }
+            } else {
+                if(c == '\r' || c == '\n') {
+                    inSpace = true;
+                    multiple = false;
+                    start = i;
+                    for(int j=i+1; j<desc.length(); j++) {
+                        char d = desc.charAt(j);
+                        if(d != c && (d == '\r' || d == '\n')) {
+                            i = j;
+                        } else {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        if(last < desc.length()) {
+            list.add(desc.substring(last).trim());
+        }
+        return (String[]) list.toArray(new String[list.size()]);
     }
 }
