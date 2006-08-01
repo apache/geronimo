@@ -27,6 +27,7 @@ public abstract class BaseImportExportHandler extends MultiPageAbstractHandler {
     protected static final String CONFIG_LIST_SESSION_KEY = "console.plugins.ConfigurationList";
     protected static final String DOWNLOAD_RESULTS_SESSION_KEY = "console.plugins.DownloadResults";
     protected static final String INDEX_MODE = "index";
+    protected static final String ADD_REPO_MODE = "addRepository";
     protected static final String LIST_MODE = "list";
     protected static final String DOWNLOAD_MODE = "download";
     protected static final String VIEW_FOR_DOWNLOAD_MODE = "viewForDownload";

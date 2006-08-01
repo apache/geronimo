@@ -40,6 +40,7 @@ public class ImportExportPortlet extends MultiPagePortlet {
         addHelper(new DownloadStatusHandler(), config);
         addHelper(new UpdateListHandler(), config);
         addHelper(new ViewPluginDownloadHandler(), config);
+        addHelper(new AddRepositoryHandler(), config);
     }
 
     protected String getModelJSPVariableName() {

@@ -27,7 +27,8 @@ the administrator username and password in the optional authentication fields.</
         </c:forEach>
     </select>
     <c:if test="${!empty repositories}"><br /></c:if>
-    <i>(<a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="updateList-before" /><portlet:param name="repository" value="${repository}" /></portlet:actionURL>">Update Repository List</a>)</i>
+    <i>(<a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="updateList-before" /><portlet:param name="repository" value="${repository}" /></portlet:actionURL>">Update Repository List</a>
+     or <a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="addRepository-before" /><portlet:param name="repository" value="${repository}" /></portlet:actionURL>">Add Repository</a>)</i>
     <%--<input type="text" name="repository" value="${repository}" size="30" maxlength="200" />--%>
     <c:if test="${!empty repositories}">
       <input type="submit" value="Search for Plugins" />
