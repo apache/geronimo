@@ -149,6 +149,12 @@ public class ExportConfigHandler extends BaseImportExportHandler {
         metadata.setPrerequisites((PluginMetadata.Prerequisite[]) prereqs.toArray(new PluginMetadata.Prerequisite[prereqs.size()]));
         URL[] backupURLs = splitURLs(repo);
         metadata.setRepositories(backupURLs);
+
+        // TODO: Fields not yet handled by the UI
+        metadata.setForceStart(data.getForceStart());
+        metadata.setFilesToCopy(data.getFilesToCopy());
+        metadata.setConfigXmls(data.getConfigXmls());
+        // Save updated metadata
         PortletManager.getCurrentServer(request).getPluginInstaller().updatePluginMetadata(metadata);
 
         response.setRenderParameter("configId", configId);
