@@ -96,13 +96,19 @@
        |    Same as m:clean m:clean-repo m:default and it includes geronimo spec modules
        |
        | m:checkout or m:co
-       |    Checks out ActiveMQ, OpenEJB, and TranQL
+       |    Checks out OpenEJB for non-OpenEJB Committers
+       |
+       | m:committer-checkout or m:cco
+       |    Checks out OpenEJB for OpenEJB Committers
        |
        | m:update
-       |    Updates ActiveMQ, Geronimo, OpenEJB, and TranQL
+       |    Updates Geronimo and OpenEJB
        |
        | m:fresh-checkout
-       |    BECAREFUL: Deletes checkout of ActiveMQ, OpenEJB, and TranQL and checks them out again
+       |    BECAREFUL: Deletes checkout of OpenEJB and checks it out again
+       |
+       | m:cfresh-checkout
+       |    BECAREFUL: Deletes checkout of OpenEJB and checks it out again
        |
        |
        | In addition to the above we support a -Dmodules command line option which is a comma
@@ -275,42 +281,46 @@
         </define:tag>
     </define:taglib>
 
+    <!--  =======================================  -->
+    <!--  Goals for use by non-OpenEJB committers  -->
+    <!--  =======================================  -->
     <goal name="m:co" prereqs="m:checkout"/>
     <goal name="m:checkout">
-        <!--gscm:checkout module="activemq" root="${geronimo.activemq.cvs.access}@cvs.activemq.codehaus.org:/home/projects/activemq/scm"/-->
-        <!--gscm:checkout module="howl/logger" root="${geronimo.howl.cvs.access}@cvs.forge.objectweb.org:/cvsroot/howl"/-->
-        <!-- http isn't working to svn.codehaus.org. so using https for now... -->
+        <ant:exec dir="${basedir}" executable="svn">
+            <ant:arg line="checkout http://svn.codehaus.org/openejb/branches/v2_1/openejb2 openejb"/>
+        </ant:exec>
+    </goal>
+
+    <!--  ===================================  -->
+    <!--  Goals for use by OpenEJB committers  -->
+    <!--  ===================================  -->
+    <goal name="m:cco" prereqs="m:committer-checkout"/>
+    <goal name="m:committer-checkout">
         <ant:exec dir="${basedir}" executable="svn">
             <ant:arg line="checkout https://svn.codehaus.org/openejb/branches/v2_1/openejb2 openejb"/>
         </ant:exec>
-<!--        <gscm:checkout-tag module="openejb" root="${geronimo.openejb.cvs.access}@cvs.openejb.org:/home/projects/openejb/scm" tag="v2_0"/> -->
-<!--
-        <mkdir dir="${basedir}/tranql"/>
-        <gscm:checkout module="tranql" dest="${basedir}/tranql" root="${geronimo.tranql.cvs.access}@cvs.tranql.codehaus.org:/home/projects/tranql/scm"/>
-        <gscm:checkout module="connector" dest="${basedir}/tranql" root="${geronimo.tranql.cvs.access}@cvs.tranql.codehaus.org:/home/projects/tranql/scm"/>-->
     </goal>
 
     <goal name="m:update">
         <ant:exec dir="${basedir}" executable="svn">
             <ant:arg line="update"/>
         </ant:exec>
-        <!--gscm:update dir="${basedir}/activemq"/-->
-        <!--gscm:update dir="${basedir}/howl/logger"/-->
         <ant:exec dir="${basedir}/openejb" executable="svn">
             <ant:arg line="update"/>
         </ant:exec>
-<!--
-        <gscm:update dir="${basedir}/tranql/tranql"/>
-        <gscm:update dir="${basedir}/tranql/connector"/>
--->
     </goal>
 
     <goal name="m:fresh-checkout">
-        <!--delete dir="${basedir}/activemq"/-->
-        <!--delete dir="${basedir}/howl"/-->
         <delete dir="${basedir}/openejb"/>
-        <!--<delete dir="${basedir}/tranql"/>-->
         <attainGoal name="m:checkout"/>
+        <ant:exec dir="${basedir}" executable="svn">
+            <ant:arg line="update"/>
+        </ant:exec>
+    </goal>
+
+    <goal name="m:cfresh-checkout">
+        <delete dir="${basedir}/openejb"/>
+        <attainGoal name="m:committer-checkout"/>
         <ant:exec dir="${basedir}" executable="svn">
             <ant:arg line="update"/>
         </ant:exec>
