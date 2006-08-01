@@ -36,6 +36,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.common.FileUtils;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Version;
 import org.xml.sax.InputSource;
@@ -231,24 +232,14 @@ public class ConfigIDExtractor {
 
     /**
      * Try to determine whether a file is a JAR File (or, at least, a ZIP file).
+     *
+     * @deprecated See org.apache.geronimo.common.FileUtils.isJarFile
      */
     public static boolean isJarFile(File file) throws DeploymentException {
-        if(file.isDirectory()) {
-            return false;
-        }
-        if(!file.canRead()) {
-            throw new DeploymentException("Cannot read file "+file.getAbsolutePath());
-        }
-        if(file.length() < 4) {
-            return false;
-        }
         try {
-            DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
-            int test = in.readInt();
-            in.close();
-            return test == 0x504b0304;
-        } catch(IOException e) {
-            throw new DeploymentException("Cannot read from file "+file.getAbsolutePath(), e);
+            return FileUtils.isZipFile(file);
+        } catch (IOException e) {
+            throw new DeploymentException("Unable to read file "+file.getAbsolutePath());
         }
     }
 

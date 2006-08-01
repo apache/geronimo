@@ -51,6 +51,7 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.Version;
@@ -116,54 +117,54 @@ public class GeronimoAsMavenServlet extends HttpServlet {
             if(path.startsWith("/")) {
                 path = path.substring(1);
             }
-            String[] parts = path.split("/");
-            if(parts.length != 3) {
-                response.sendError(404, "Unrecognized path form "+path);
+            String configId = parsePath(path, response);
+            if(configId == null) { // we already sent the 404
                 return;
             }
-            String groupId = parts[0];
-            String type = parts[1].substring(0, parts[1].length()-1);
-            if(!parts[2].endsWith("."+type)) {
-                response.sendError(404, "Unrecognized path structure "+path);
-            }
-            parts[2] = parts[2].substring(0, parts[2].length()-(type.length()+1));
-            int pos = parts[2].lastIndexOf("-");
-            String version = parts[2].substring(pos+1);
-            if(version.equalsIgnoreCase("SNAPSHOT")) {
-                pos = parts[2].lastIndexOf("-", pos-1);
-                version = parts[2].substring(pos+1);
-            }
-            String artifactId = parts[2].substring(0, pos);
-            String configId = groupId+"/"+artifactId+"/"+version+"/"+type;
             if(!produceDownloadFile(kernel, Artifact.create(configId), response, reply)) {
                 response.sendError(404, "Cannot locate download file "+path);
             }
         }
     }
 
+    private static String parsePath(String path, HttpServletResponse response) throws IOException {
+        String[] parts = path.split("/");
+        String groupId, artifactId, version, type;
+        if(parts.length < 4) {
+            response.sendError(404, "Unrecognized path form "+path);
+            return null;
+        } else {  // e.g.   console/MyDatabase/1.0-SNAPSHOT/MyDatabase-1.0-SNAPSHOT.rar
+            groupId = parts[0];
+            for(int i=4; i<parts.length; i++) {
+                groupId = groupId+"."+parts[i-3];
+            }
+            artifactId = parts[parts.length-3];
+            version = parts[parts.length-2];
+            if(!parts[parts.length-1].startsWith(artifactId+"-"+version)) {
+                response.sendError(404, "Unrecognized path structure "+path);
+                return null;
+            }
+            type = parts[parts.length-1].substring(artifactId.length()+version.length()+2);
+        }
+        return groupId+"/"+artifactId+"/"+version+"/"+type;
+    }
+
     private boolean produceDownloadFile(Kernel kernel, Artifact configId, HttpServletResponse response, boolean reply) throws IOException {
         //todo: replace kernel mumbo jumbo with JSR-77 navigation
         // Step 1: check if it's in a configuration store
         ConfigurationManager mgr = ConfigurationUtil.getConfigurationManager(kernel);
-        List stores = mgr.listStores();
-        for (int i = 0; i < stores.size(); i++) {
-            AbstractName name = (AbstractName) stores.get(i);
-            //todo: this is bad!!!
-            if(name.getName().get(NameFactory.J2EE_NAME).equals("Local")) {
-                ConfigurationStore store = (ConfigurationStore) kernel.getProxyManager().createProxy(name, ConfigurationStore.class);
-                if(store.containsConfiguration(configId)) {
-                    response.setContentType("application/zip");
-                    if(!reply) {
-                        return true;
-                    }
-                    try {
-                        kernel.invoke(name, "exportConfiguration", new Object[]{configId.toString(), response.getOutputStream()}, new String[]{String.class.getName(), OutputStream.class.getName()});
-                        return true;
-                    } catch (Exception e) {
-                        log.error("Unable to export configuration ZIP", e);
-                        throw new IOException("Unable to write ZIP file: "+e.getMessage());
-                    }
-                }
+        if(mgr.isConfiguration(configId)) {
+            ConfigurationStore store = mgr.getStoreForConfiguration(configId);
+            response.setContentType("application/zip");
+            if(!reply) {
+                return true;
+            }
+            try {
+                store.exportConfiguration(configId, response.getOutputStream());
+                return true;
+            } catch (NoSuchConfigException e) {
+                log.error("Inconsistent ConfigurationStore data; ConfigManager claims it has configuration "+configId+" but store claims it doesn't",e);
+                throw new IOException("Unable to write ZIP file; see server log for details");
             }
         }
         // Step 2: check if it's in a repository
@@ -173,7 +174,7 @@ public class GeronimoAsMavenServlet extends HttpServlet {
             Repository repo = (Repository) kernel.getProxyManager().createProxy(name, Repository.class);
             if(repo.contains(configId)) {
                 File path = repo.getLocation(configId);
-                if(!path.exists()) throw new IllegalStateException("Can't find file '"+path.getAbsolutePath()+"'");
+                if(!path.exists()) throw new IllegalStateException("Can't find file '"+path.getAbsolutePath()+"' though repository said there's an artifact there!");
                 response.setContentType("application/zip");
                 if(!reply) {
                     return true;
@@ -202,6 +203,7 @@ public class GeronimoAsMavenServlet extends HttpServlet {
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document doc = builder.newDocument();
         Element root = doc.createElementNS("http://geronimo.apache.org/xml/ns/plugins-1.1", "geronimo-plugin-list");
+        root.setAttribute("xmlns", "http://geronimo.apache.org/xml/ns/plugins-1.1");
         doc.appendChild(root);
         List stores = mgr.listStores();
         for (int i = 0; i < stores.size(); i++) {
@@ -255,7 +257,7 @@ public class GeronimoAsMavenServlet extends HttpServlet {
                 // Skip repositories since we want the download to come from here
             }
         }
-        String repo = request.getProtocol()+"://"+request.getServerName()+":"+request.getServerPort()+request.getContextPath()+request.getServletPath();
+        String repo = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+request.getContextPath()+request.getServletPath();
         if(!repo.endsWith("/")) repo += "/";
         createText(doc, root, "default-repository", repo);
         TransformerFactory xfactory = TransformerFactory.newInstance();
