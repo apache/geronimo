@@ -179,6 +179,8 @@ public class RedeployCommand extends AbstractDeployCommand {
             } else {
                 throw cause;
             }
+        } catch(NoSuchConfigException e) {
+            // The module isn't loaded -- that's OK
         }
         try {
             configurationManager.unloadConfiguration(configID);
