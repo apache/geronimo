@@ -190,7 +190,7 @@ public abstract class AbstractRepository implements WriteableRepository {
         if (!source.exists() || !source.canRead() || source.isDirectory()) {
             throw new IllegalArgumentException("Cannot read source file at " + source.getAbsolutePath());
         }
-        int size = 0;
+        int size = (int) source.length();
         boolean forceConfiguration = false;
         if(FileUtils.isZipFile(source)) {
             ZipFile zip = new ZipFile(source);
@@ -205,7 +205,7 @@ public abstract class AbstractRepository implements WriteableRepository {
         }
         FileInputStream is = new FileInputStream(source);
         try {
-            copyToRepository(is, size, destination, monitor, forceConfiguration);
+            copyToRepository(is, (int)source.length(), size, destination, monitor, forceConfiguration);
         } finally {
             try {
                 is.close();
@@ -216,10 +216,10 @@ public abstract class AbstractRepository implements WriteableRepository {
     }
 
     public void copyToRepository(InputStream source, int size, Artifact destination, FileWriteMonitor monitor) throws IOException {
-        copyToRepository(source, size, destination, monitor, false);
+        copyToRepository(source, size, size, destination, monitor, false);
     }
 
-    private void copyToRepository(InputStream source, int size, Artifact destination, FileWriteMonitor monitor, boolean isConfiguration) throws IOException {
+    private void copyToRepository(InputStream source, int packedSize, int unpackedSize, Artifact destination, FileWriteMonitor monitor, boolean isConfiguration) throws IOException {
         if(!destination.isResolved()) {
             throw new IllegalArgumentException("Artifact "+destination+" is not fully resolved");
         }
@@ -243,7 +243,8 @@ public abstract class AbstractRepository implements WriteableRepository {
             typeHandler = (ArtifactTypeHandler) typeHandlers.get(destination.getType());
         }
         if (typeHandler == null) typeHandler = DEFAULT_TYPE_HANDLER;
-        typeHandler.install(source, size, destination, monitor, location);
+        typeHandler.install(source, typeHandler instanceof UnpackArtifactTypeHandler ? unpackedSize : packedSize,
+                            destination, monitor, location);
 
         if (isConfiguration || destination.getType().equalsIgnoreCase("car")) {
             System.out.println("############################################################");
