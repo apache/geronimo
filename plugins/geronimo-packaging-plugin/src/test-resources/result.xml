@@ -17,20 +17,20 @@
     <dep:moduleId>
       <dep:groupId>geronimo</dep:groupId>
       <dep:artifactId>system-database</dep:artifactId>
-      <dep:version>1.1.1-SNAPSHOT</dep:version>
+      <dep:version>1.1.2-SNAPSHOT</dep:version>
       <dep:type>car</dep:type>
     </dep:moduleId>
     <dep:dependencies>
       <dep:dependency>
         <dep:groupId>geronimo</dep:groupId>
         <dep:artifactId>j2ee-server</dep:artifactId>
-        <dep:version>1.1.1-SNAPSHOT</dep:version>
+        <dep:version>1.1.2-SNAPSHOT</dep:version>
         <dep:type>car</dep:type>
       </dep:dependency>
       <dep:dependency>
         <dep:groupId>geronimo</dep:groupId>
         <dep:artifactId>geronimo-derby</dep:artifactId>
-        <dep:version>1.1.1-SNAPSHOT</dep:version>
+        <dep:version>1.1.2-SNAPSHOT</dep:version>
         <dep:type>jar</dep:type>
         <dep:import>classes</dep:import>
       </dep:dependency>
