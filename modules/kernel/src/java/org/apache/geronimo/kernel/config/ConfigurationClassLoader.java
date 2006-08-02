@@ -68,7 +68,7 @@ public class ConfigurationClassLoader extends URLClassLoader {
             synchronized (lock) {
                 if (!clearSoftCacheFailed) {
                     clearSoftCacheFailed = true;
-                    LogFactory.getLog(ConfigurationClassLoader.class).error("Unable to clear SoftCache field " + fieldName + " in class " + clazz);
+                    LogFactory.getLog(ConfigurationClassLoader.class).debug("Unable to clear SoftCache field " + fieldName + " in class " + clazz);
                 }
             }
         }

@@ -408,7 +408,7 @@ public class MultiParentClassLoader extends URLClassLoader {
             synchronized (lock) {
                 if (!clearSoftCacheFailed) {
                     clearSoftCacheFailed = true;
-                    LogFactory.getLog(ConfigurationClassLoader.class).error("Unable to clear SoftCache field " + fieldName + " in class " + clazz);
+                    LogFactory.getLog(MultiParentClassLoader.class).debug("Unable to clear SoftCache field " + fieldName + " in class " + clazz);
                 }
             }
         }
