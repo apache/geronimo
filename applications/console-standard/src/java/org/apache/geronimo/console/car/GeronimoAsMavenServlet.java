@@ -46,6 +46,7 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.kernel.util.XmlUtil;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
@@ -198,7 +199,7 @@ public class GeronimoAsMavenServlet extends HttpServlet {
     private void generateConfigFile(HttpServletRequest request, Kernel kernel, PrintWriter out) throws ParserConfigurationException, NoSuchStoreException, TransformerException {
         ConfigurationManager mgr = ConfigurationUtil.getConfigurationManager(kernel);
         PluginInstaller installer = getInstaller(kernel);
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilderFactory factory = XmlUtil.newDocumentBuilderFactory();
         factory.setNamespaceAware(true);
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document doc = builder.newDocument();
@@ -260,7 +261,7 @@ public class GeronimoAsMavenServlet extends HttpServlet {
         String repo = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+request.getContextPath()+request.getServletPath();
         if(!repo.endsWith("/")) repo += "/";
         createText(doc, root, "default-repository", repo);
-        TransformerFactory xfactory = TransformerFactory.newInstance();
+        TransformerFactory xfactory = XmlUtil.newTransformerFactory();
         Transformer xform = xfactory.newTransformer();
         xform.setOutputProperty(OutputKeys.INDENT, "yes");
         xform.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
@@ -282,7 +283,7 @@ public class GeronimoAsMavenServlet extends HttpServlet {
             return;
         }
 
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilderFactory factory = XmlUtil.newDocumentBuilderFactory();
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document doc = builder.newDocument();
         Element root = doc.createElement("metadata");
@@ -300,7 +301,7 @@ public class GeronimoAsMavenServlet extends HttpServlet {
             Artifact artifact = artifacts[i];
             createText(doc, versions, "version", artifact.getVersion().toString());
         }
-        TransformerFactory xfactory = TransformerFactory.newInstance();
+        TransformerFactory xfactory = XmlUtil.newTransformerFactory();
         Transformer xform = xfactory.newTransformer();
         xform.setOutputProperty(OutputKeys.INDENT, "yes");
         xform.transform(new DOMSource(doc), new StreamResult(writer));

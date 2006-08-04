@@ -41,6 +41,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactTypeHandler;
 import org.apache.geronimo.kernel.repository.FileWriteMonitor;
 import org.apache.geronimo.kernel.repository.WriteableRepository;
+import org.apache.geronimo.kernel.util.XmlUtil;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.common.FileUtils;
 import org.w3c.dom.Document;
@@ -126,7 +127,7 @@ public abstract class AbstractRepository implements WriteableRepository {
         try {
             if (is != null) {
                 InputSource in = new InputSource(is);
-                DocumentBuilderFactory dfactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilderFactory dfactory = XmlUtil.newDocumentBuilderFactory();
                 dfactory.setNamespaceAware(true);
                 try {
                     Document doc = dfactory.newDocumentBuilder().parse(in);

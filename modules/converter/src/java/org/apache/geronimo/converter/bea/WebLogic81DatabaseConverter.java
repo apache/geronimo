@@ -33,6 +33,7 @@ import org.apache.geronimo.converter.DatabaseConversionStatus;
 import org.apache.geronimo.converter.JDBCPool;
 import org.apache.geronimo.converter.XADatabasePool;
 import org.apache.geronimo.converter.AbstractDatabasePool;
+import org.apache.geronimo.kernel.util.XmlUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -58,7 +59,7 @@ public class WebLogic81DatabaseConverter extends DOMUtils {
         List local = new ArrayList();
         List xa = new ArrayList();
 
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilderFactory factory = XmlUtil.newDocumentBuilderFactory();
         factory.setValidating(false);
         try {
             DocumentBuilder builder = factory.newDocumentBuilder();

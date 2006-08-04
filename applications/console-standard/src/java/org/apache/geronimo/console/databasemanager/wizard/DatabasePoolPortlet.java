@@ -98,6 +98,7 @@ import org.apache.geronimo.kernel.repository.FileWriteMonitor;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.WriteableRepository;
+import org.apache.geronimo.kernel.util.XmlUtil;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 import org.w3c.dom.Document;
@@ -552,7 +553,7 @@ public class DatabasePoolPortlet extends BasePortlet {
     private ResourceAdapterParams loadConfigPropertiesByAbstractName(PortletRequest request, String abstractName) {
         ResourceAdapterModule module = (ResourceAdapterModule) PortletManager.getManagedBean(request, new AbstractName(URI.create(abstractName)));
         String dd = module.getDeploymentDescriptor();
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilderFactory factory = XmlUtil.newDocumentBuilderFactory();
         factory.setValidating(false);
         factory.setNamespaceAware(true);
         try {

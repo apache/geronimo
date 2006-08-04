@@ -36,6 +36,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.kernel.util.XmlUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -218,7 +219,7 @@ public class JMSProviderData implements Serializable {
         try {
             while((entry = in.getNextEntry()) != null) {
                 if(entry.getName().equals("META-INF/ra.xml")) {
-                    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                    DocumentBuilderFactory factory = XmlUtil.newDocumentBuilderFactory();
                     factory.setValidating(false);
                     DocumentBuilder builder = factory.newDocumentBuilder();
                     doc = builder.parse(in);

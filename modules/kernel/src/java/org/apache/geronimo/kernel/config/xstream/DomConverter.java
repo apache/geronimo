@@ -30,6 +30,7 @@ import com.thoughtworks.xstream.io.xml.DomReader;
 import com.thoughtworks.xstream.io.xml.DomWriter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.apache.geronimo.kernel.util.XmlUtil;
 
 /**
  * @version $Rev$ $Date$
@@ -53,7 +54,7 @@ public class DomConverter implements Converter {
     }
 
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext unmarshallingContext) {
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilderFactory documentBuilderFactory = XmlUtil.newDocumentBuilderFactory();
         DocumentBuilder documentBuilder = null;
         try {
             documentBuilder = documentBuilderFactory.newDocumentBuilder();

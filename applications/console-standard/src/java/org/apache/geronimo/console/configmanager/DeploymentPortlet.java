@@ -38,7 +38,6 @@ import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
@@ -49,6 +48,7 @@ import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
 import org.apache.geronimo.deployment.plugin.ConfigIDExtractor;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.util.XmlUtil;
 import org.apache.geronimo.upgrade.Upgrade1_0To1_1;
 import org.w3c.dom.Document;
 
@@ -164,7 +164,7 @@ public class DeploymentPortlet extends BasePortlet {
                             byte[] plan = new byte[(int) planFile.length()];
                             fis = new FileInputStream(planFile);
                             fis.read(plan);
-                            DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                            DocumentBuilder documentBuilder = XmlUtil.newDocumentBuilderFactory().newDocumentBuilder();
                             Document doc = documentBuilder.parse(new ByteArrayInputStream(plan));
                             // v1.1 switched from configId to moduleId
                             String configId = doc.getDocumentElement().getAttribute("configId");
