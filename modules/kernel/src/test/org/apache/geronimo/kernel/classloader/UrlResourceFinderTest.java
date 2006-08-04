@@ -31,9 +31,10 @@ import java.io.FileOutputStream;
 import junit.framework.TestCase;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class UrlResourceFinderTest extends TestCase {
+    private File basedir = new File(System.getProperty("basedir"));
     private File jarFile;
     private Manifest manifest;
     private Attributes resourceAttributes;
@@ -45,8 +46,8 @@ public class UrlResourceFinderTest extends TestCase {
      * @throws Exception
      */
     public void testResourceEnumeration() throws Exception {
-        URL jar1 = new File("src/test-data/resourceFinderTest/jar1/").toURL();
-        URL jar2 = new File("src/test-data/resourceFinderTest/jar2/").toURL();
+        URL jar1 = new File(basedir, "src/test-data/resourceFinderTest/jar1/").toURL();
+        URL jar2 = new File(basedir, "src/test-data/resourceFinderTest/jar2/").toURL();
         UrlResourceFinder resourceFinder = new UrlResourceFinder(new URL[] {jar1, jar2});
 
         Enumeration enumeration = resourceFinder.findResources("resource");
@@ -68,7 +69,7 @@ public class UrlResourceFinderTest extends TestCase {
     }
 
     public void testDirectoryResource() throws Exception {
-        URL jar = new File("src/test-data/resourceFinderTest/jar1/").toURL();
+        URL jar = new File(basedir, "src/test-data/resourceFinderTest/jar1/").toURL();
         UrlResourceFinder resourceFinder = new UrlResourceFinder(new URL[] {jar});
 
         ResourceHandle resource = resourceFinder.getResource("resource");
@@ -146,7 +147,7 @@ public class UrlResourceFinderTest extends TestCase {
     }
 
     public void testAddURL() throws Exception {
-        URL jar1 = new File("src/test-data/resourceFinderTest/jar1/").toURL();
+        URL jar1 = new File(basedir, "src/test-data/resourceFinderTest/jar1/").toURL();
         UrlResourceFinder resourceFinder = new UrlResourceFinder(new URL[] {jar1});
 
         Enumeration enumeration = resourceFinder.findResources("resource");
@@ -160,7 +161,7 @@ public class UrlResourceFinderTest extends TestCase {
         assertFalse(enumeration.hasMoreElements());
 
         // addUrl
-        URL jar2 = new File("src/test-data/resourceFinderTest/jar2/").toURL();
+        URL jar2 = new File(basedir, "src/test-data/resourceFinderTest/jar2/").toURL();
         resourceFinder.addUrl(jar2);
 
         // getResource should find the first jar only
@@ -193,8 +194,8 @@ public class UrlResourceFinderTest extends TestCase {
     }
 
     public void testConcurrentAddURL() throws Exception {
-        URL jar1 = new File("src/test-data/resourceFinderTest/jar1/").toURL();
-        URL jar2 = new File("src/test-data/resourceFinderTest/jar2/").toURL();
+        URL jar1 = new File(basedir, "src/test-data/resourceFinderTest/jar1/").toURL();
+        URL jar2 = new File(basedir, "src/test-data/resourceFinderTest/jar2/").toURL();
         UrlResourceFinder resourceFinder = new UrlResourceFinder(new URL[] {jar1, jar2});
 
         Enumeration enumeration = resourceFinder.findResources("resource");
@@ -237,7 +238,7 @@ public class UrlResourceFinderTest extends TestCase {
     }
 
     public void testDirectoryDestroy() throws Exception {
-        URL jar = new File("src/test-data/resourceFinderTest/jar1/").toURL();
+        URL jar = new File(basedir, "src/test-data/resourceFinderTest/jar1/").toURL();
         UrlResourceFinder resourceFinder = new UrlResourceFinder(new URL[] {jar});
         assertDestroyed(resourceFinder, "resource1", null);
     }
@@ -326,7 +327,10 @@ public class UrlResourceFinderTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-
+        
+        //
+        // Build a simple Jar file to test with
+        //
         manifest = new Manifest();
         Attributes mainAttributes = manifest.getMainAttributes();
         mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
@@ -334,9 +338,9 @@ public class UrlResourceFinderTest extends TestCase {
         resourceAttributes = new Attributes();
         resourceAttributes.putValue("drink", "margarita");
         manifest.getEntries().put("resource", resourceAttributes);
-
-        jarFile = new File("target/resourceFinderTest.jar");
-        System.out.println(jarFile.getAbsolutePath());
+        
+        File targetDir = new File(basedir, "target");
+        jarFile = new File(targetDir, "resourceFinderTest.jar");
         JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(jarFile), manifest);
         jarOutputStream.putNextEntry(new ZipEntry("resource"));
         jarOutputStream.write("resource3".getBytes());

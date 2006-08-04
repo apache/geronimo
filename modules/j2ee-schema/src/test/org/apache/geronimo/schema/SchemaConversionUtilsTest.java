@@ -29,6 +29,9 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlException;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * ejb 1.1 dtd appears to be a subset of ejb 2.0 dtd so the same xsl should
  * work for both.
@@ -36,6 +39,8 @@ import org.apache.geronimo.xbeans.j2ee.EjbJarType;
  * @version $Rev$ $Date$
  */
 public class SchemaConversionUtilsTest extends TestCase {
+    private static final Log log = LogFactory.getLog(SchemaConversionUtilsTest.class);
+    
     private ClassLoader classLoader = this.getClass().getClassLoader();
 
 //comment on validity of j2ee 1.4 schemas: validation doesn't work...
@@ -66,8 +71,8 @@ public class SchemaConversionUtilsTest extends TestCase {
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         SchemaConversionUtils.validateDD(expected);
         xmlObject = SchemaConversionUtils.convertToApplicationClientSchema(xmlObject);
-//        System.out.println(xmlObject.toString());
-//        System.out.println(expected.toString());
+//        log.debug(xmlObject.toString());
+//        log.debug(expected.toString());
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(xmlObject, expected, problems);
         assertTrue("Differences: " + problems, ok);
@@ -95,8 +100,8 @@ public class SchemaConversionUtilsTest extends TestCase {
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         SchemaConversionUtils.validateDD(expected);
         xmlObject = SchemaConversionUtils.convertToApplicationSchema(xmlObject);
-//        System.out.println(xmlObject.toString());
-//        System.out.println(expected.toString());
+//        log.debug(xmlObject.toString());
+//        log.debug(expected.toString());
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(xmlObject, expected, problems);
         assertTrue("Differences: " + problems, ok);
@@ -124,8 +129,8 @@ public class SchemaConversionUtilsTest extends TestCase {
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         SchemaConversionUtils.validateDD(expected);
         xmlObject = SchemaConversionUtils.convertToConnectorSchema(xmlObject);
-//        System.out.println(xmlObject.toString());
-//        System.out.println(expected.toString());
+//        log.debug(xmlObject.toString());
+//        log.debug(expected.toString());
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(xmlObject, expected, problems);
         assertTrue("Differences: " + problems, ok);
@@ -153,8 +158,8 @@ public class SchemaConversionUtilsTest extends TestCase {
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         SchemaConversionUtils.validateDD(expected);
         xmlObject = SchemaConversionUtils.convertToEJBSchema(xmlObject);
-//        System.out.println(xmlObject.toString());
-//        System.out.println(expected.toString());
+//        log.debug(xmlObject.toString());
+//        log.debug(expected.toString());
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(xmlObject, expected, problems);
         assertTrue("Differences: " + problems, ok);
@@ -182,8 +187,8 @@ public class SchemaConversionUtilsTest extends TestCase {
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         SchemaConversionUtils.validateDD(expected);
         xmlObject = SchemaConversionUtils.convertToEJBSchema(xmlObject);
-//        System.out.println(xmlObject.toString());
-//        System.out.println(expected.toString());
+//        log.debug(xmlObject.toString());
+//        log.debug(expected.toString());
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(xmlObject, expected, problems);
         assertTrue("Differences: " + problems, ok);
@@ -211,8 +216,8 @@ public class SchemaConversionUtilsTest extends TestCase {
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         SchemaConversionUtils.validateDD(expected);
         xmlObject = SchemaConversionUtils.convertToEJBSchema(xmlObject);
-//        System.out.println(xmlObject.toString());
-//        System.out.println(expected.toString());
+//        log.debug(xmlObject.toString());
+//        log.debug(expected.toString());
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(xmlObject, expected, problems);
         assertTrue("Differences: " + problems, ok);
@@ -240,8 +245,8 @@ public class SchemaConversionUtilsTest extends TestCase {
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         SchemaConversionUtils.validateDD(expected);
         xmlObject = SchemaConversionUtils.convertToEJBSchema(xmlObject);
-//        System.out.println(xmlObject.toString());
-//        System.out.println(expected.toString());
+//        log.debug(xmlObject.toString());
+//        log.debug(expected.toString());
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(xmlObject, expected, problems);
         assertTrue("Differences: " + problems, ok);
@@ -281,7 +286,7 @@ public class SchemaConversionUtilsTest extends TestCase {
         } finally {
             srcCursor.dispose();
         }
-//        System.out.println(srcObject.toString());
+//        log.debug(srcObject.toString());
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(srcObject, expected, problems);
@@ -310,7 +315,7 @@ public class SchemaConversionUtilsTest extends TestCase {
         } finally {
             srcCursor.dispose();
         }
-//        System.out.println(srcObject.toString());
+//        log.debug(srcObject.toString());
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(srcObject, expected, problems);
@@ -323,8 +328,8 @@ public class SchemaConversionUtilsTest extends TestCase {
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         xmlObject = SchemaConversionUtils.convertToServletSchema(xmlObject);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
-//        System.out.println(xmlObject.toString());
-//        System.out.println(expected.toString());
+//        log.debug(xmlObject.toString());
+//        log.debug(expected.toString());
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(xmlObject, expected, problems);
         assertTrue("Differences: " + problems, ok);
@@ -338,7 +343,7 @@ public class SchemaConversionUtilsTest extends TestCase {
         URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/web-1-24.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         xmlObject = SchemaConversionUtils.convertToServletSchema(xmlObject);
-//        System.out.println(xmlObject.toString());
+//        log.debug(xmlObject.toString());
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(xmlObject, expected, problems);
@@ -354,8 +359,8 @@ public class SchemaConversionUtilsTest extends TestCase {
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         xmlObject = SchemaConversionUtils.convertToServletSchema(xmlObject);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
-//        System.out.println(xmlObject.toString());
-//        System.out.println(expected.toString());
+//        log.debug(xmlObject.toString());
+//        log.debug(expected.toString());
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(xmlObject, expected, problems);
         assertTrue("Differences: " + problems, ok);
@@ -399,9 +404,11 @@ public class SchemaConversionUtilsTest extends TestCase {
         XmlCursor cursor = xmlObject.newCursor();
         try {
             SchemaConversionUtils.convertToGeronimoSubSchemas(cursor);
-                    System.out.println(xmlObject.toString());
+            log.debug(xmlObject.toString());
+            
             XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
-            System.out.println(expected.toString());
+            log.debug(expected.toString());
+            
             List problems = new ArrayList();
             boolean ok = compareXmlObjects(xmlObject, expected, problems);
             assertTrue("Differences: " + problems, ok);
@@ -419,7 +426,7 @@ public class SchemaConversionUtilsTest extends TestCase {
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         //this is not a usable type, we'll see what happens though
         xmlObject = SchemaConversionUtils.getNestedObjectAsType(xmlObject, new QName("http://www.openejb.org/xml/ns/openejb-jar-2.1", "openejb-jar"), EjbJarType.type);
-//	        System.out.println(xmlObject.toString());
+//	        log.debug(xmlObject.toString());
     }
 
     public void testSecurityElementConverter() throws Exception {
@@ -431,7 +438,7 @@ public class SchemaConversionUtilsTest extends TestCase {
         XmlCursor end = cursor.newCursor();
         try {
             elementConverter.convertElement(cursor, end);
-            //        System.out.println(xmlObject.toString());
+            //        log.debug(xmlObject.toString());
             XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
             List problems = new ArrayList();
             boolean ok = compareXmlObjects(xmlObject, expected, problems);
@@ -455,7 +462,7 @@ public class SchemaConversionUtilsTest extends TestCase {
         XmlCursor end = cursor.newCursor();
         try {
             elementConverter.convertElement(cursor, end);
-            //        System.out.println(xmlObject.toString());
+            //        log.debug(xmlObject.toString());
             XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
             List problems = new ArrayList();
             boolean ok = compareXmlObjects(xmlObject, expected, problems);
@@ -479,7 +486,7 @@ public class SchemaConversionUtilsTest extends TestCase {
         XmlCursor end = cursor.newCursor();
         try {
             elementConverter.convertElement(cursor, end);
-            //        System.out.println(xmlObject.toString());
+            //        log.debug(xmlObject.toString());
             XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
             List problems = new ArrayList();
             boolean ok = compareXmlObjects(xmlObject, expected, problems);
@@ -502,7 +509,7 @@ public class SchemaConversionUtilsTest extends TestCase {
         XmlCursor end = cursor.newCursor();
         try {
             elementConverter.convertElement(cursor, end);
-            //        System.out.println(xmlObject.toString());
+            //        log.debug(xmlObject.toString());
             XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
             List problems = new ArrayList();
             boolean ok = compareXmlObjects(xmlObject, expected, problems);
@@ -523,9 +530,11 @@ public class SchemaConversionUtilsTest extends TestCase {
         XmlCursor cursor = xmlObject.newCursor();
         try {
             SchemaConversionUtils.convertToGeronimoSubSchemas(cursor);
-                    System.out.println(xmlObject.toString());
+            log.debug(xmlObject.toString());
+            
             XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
-            System.out.println(expected.toString());
+            log.debug(expected.toString());
+            
             List problems = new ArrayList();
             boolean ok = compareXmlObjects(xmlObject, expected, problems);
             assertTrue("Differences: " + problems, ok);

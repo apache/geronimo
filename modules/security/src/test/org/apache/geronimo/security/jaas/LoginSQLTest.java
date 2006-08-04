@@ -33,14 +33,16 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
+import java.io.File;
 
 
 /**
  * @version $Rev$ $Date$
  */
 public class LoginSQLTest extends AbstractTest {
-
-    private static final String hsqldbURL = "jdbc:hsqldb:target/database/LoginSQLTest";
+    private File basedir = new File(System.getProperty("basedir"));
+    private String hsqldbURL = "jdbc:hsqldb:" + new File(basedir, "target/database/LoginSQLTest");
+    
     protected AbstractName sqlRealm;
     protected AbstractName sqlModule;
 

@@ -58,9 +58,11 @@ import java.util.Properties;
  * @version $Rev$ $Date$
  */
 public class SubjectCarryingProtocolTest extends AbstractTest implements RequestListener {
-
+    
     final static private Log log = LogFactory.getLog(SubjectCarryingProtocolTest.class);
-
+    
+    private File basedir = new File(System.getProperty("basedir"));
+    
     protected AbstractName testCE;
     protected AbstractName testRealm;
 
@@ -119,8 +121,8 @@ public class SubjectCarryingProtocolTest extends AbstractTest implements Request
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule");
         gbean.setAttribute("serverSide", new Boolean(true));
         Properties props = new Properties();
-        props.put("usersURI", new File(new File("."), "src/test-data/data/users.properties").toURI().toString());
-        props.put("groupsURI", new File(new File("."), "src/test-data/data/groups.properties").toURI().toString());
+        props.put("usersURI", new File(basedir, "src/test-data/data/users.properties").toURI().toString());
+        props.put("groupsURI", new File(basedir, "src/test-data/data/groups.properties").toURI().toString());
         gbean.setAttribute("options", props);
         gbean.setAttribute("loginDomainName", "PropertiesDomain");
         kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());

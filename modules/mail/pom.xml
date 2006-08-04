@@ -17,59 +17,61 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>modules-parent</artifactId>
+        <artifactId>modules</artifactId>
         <version>1.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>geronimo-mail</artifactId>
     <name>Geronimo :: Mail</name>
-    <description>Geronimo Mail</description>
 
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <inherited>true</inherited>
-                <configuration>
-                    <excludes>
-                        <exclude>**/TestStore.class</exclude>
-                        <exclude>**/TestTransport.class</exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
+    <!--
+    
+    HACK: Need to explicitly configure SCM for this module since its artifactId
+          does not match the directory it lives in.
+    
+    FIXME: Rename module directory or artifactId.
+    
+    -->
+    <scm>
+        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/mail</connection>
+        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/mail</developerConnection>
+        <url>http://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/mail</url>
+    </scm>
+    
     <dependencies>
+        
+        <!-- Module Dependencies -->
+        
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-j2ee</artifactId>
             <version>${pom.version}</version>
         </dependency>
-
+        
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-kernel</artifactId>
             <version>${pom.version}</version>
         </dependency>
-
+        
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-management</artifactId>
             <version>${pom.version}</version>
         </dependency>
-
+        
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-javamail_1.3.1_spec</artifactId>
         </dependency>
-
+        
         <dependency>
             <groupId>org.apache.geronimo.javamail</groupId>
             <artifactId>geronimo-javamail_1.3.1_provider</artifactId>
@@ -79,21 +81,25 @@
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-activation_1.0.2_spec</artifactId>
         </dependency>
-
+        
+        <!-- Thirdparty Dependencies -->
+        
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib-nodep</artifactId>
         </dependency>
-
+        
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
         </dependency>
-
+        
         <dependency>
             <groupId>mx4j</groupId>
             <artifactId>mx4j</artifactId>
         </dependency>
+        
     </dependencies>
+    
 </project>
 

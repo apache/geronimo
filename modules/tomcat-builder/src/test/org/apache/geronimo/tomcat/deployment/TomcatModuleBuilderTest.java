@@ -140,8 +140,7 @@ public class TomcatModuleBuilderTest extends TestCase {
     }
 
     private WebModuleInfo deployWar(String warName) throws Exception {
-        File outputPath = new File(basedir,
-                "target/test-resources/deployables/" + warName);
+        File outputPath = new File(basedir, "target/test-resources/deployables/" + warName);
         recursiveDelete(outputPath);
         outputPath.mkdirs();
         File path = new File(basedir, "src/test-resources/deployables/" + warName);
@@ -351,7 +350,7 @@ public class TomcatModuleBuilderTest extends TestCase {
         WebServiceBuilder webServiceBuilder = new UnavailableWebServiceBuilder();
 
         GBeanData containerData = bootstrap.addGBean("TomcatContainer", TomcatContainer.GBEAN_INFO);
-        containerData.setAttribute("catalinaHome", "target/var/catalina");
+        containerData.setAttribute("catalinaHome", new File(basedir, "target/var/catalina").toString());
         containerData.setReferencePattern("EngineGBean", engine.getAbstractName());
         containerData.setReferencePattern("ServerInfo", serverInfo.getAbstractName());
         AbstractName containerName = containerData.getAbstractName();

@@ -17,42 +17,34 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>modules-parent</artifactId>
+        <artifactId>modules</artifactId>
         <version>1.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>geronimo-jetty</artifactId>
     <name>Geronimo :: Jetty</name>
-    <description>Geronimo Jetty Integration</description>
-
-    <build>
-        <resources>
-            <resource>
-                <directory>src/resources2</directory>
-            </resource>
-        </resources>
-        <plugins>
-            <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <systemProperties>
-                        <property>
-                            <name>java.security.auth.login.config</name>
-                            <value>${basedir}/src/test-resources/data/login.config</value>
-                        </property>
-                    </systemProperties>
-                    <forkMode>once</forkMode>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
+    
+    <!--
+    
+    HACK: Need to explicitly configure SCM for this module since its artifactId
+          does not match the directory it lives in.
+    
+    FIXME: Rename module directory or artifactId.
+    
+    -->
+    <scm>
+        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/jetty</connection>
+        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/jetty</developerConnection>
+        <url>http://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/jetty</url>
+    </scm>
+    
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
@@ -77,7 +69,7 @@
             <artifactId>geronimo-webservices</artifactId>
             <version>${pom.version}</version>
         </dependency>
-
+        
         <dependency>
             <groupId>jetty</groupId>
             <artifactId>org.mortbay.jetty</artifactId>
@@ -101,12 +93,12 @@
             <artifactId>jasper-runtime</artifactId>
             <version>${tomcatVersion}</version>
         </dependency>
-
+        
         <dependency>
             <groupId>commons-el</groupId>
             <artifactId>commons-el</artifactId>
         </dependency>
-
+        
         <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
@@ -116,7 +108,39 @@
             <groupId>commons-primitives</groupId>
             <artifactId>commons-primitives</artifactId>
         </dependency>
+        
     </dependencies>
-
+    
+    <build>
+        <resources>
+            <resource>
+                <directory>${pom.basedir}</directory>
+                <targetPath>META-INF</targetPath>
+                <includes>
+                    <include>LICENSE.txt</include>
+                    <include>NOTICE.txt</include>
+                </includes>
+            </resource>
+            
+            <resource>
+                <directory>src/resources2</directory>
+            </resource>
+        </resources>
+        
+        <plugins>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <systemProperties>
+                        <property>
+                            <name>java.security.auth.login.config</name>
+                            <value>${basedir}/src/test-resources/data/login.config</value>
+                        </property>
+                    </systemProperties>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    
 </project>
 

@@ -63,7 +63,9 @@ public class SingleFileHotDeployerTest extends TestCase {
     private final Artifact NEW_ID = new Artifact("new", "new", "new", "new");
     private final Artifact OLD_VERSION_ID = new Artifact("new", "new", "old", "new");
     private final Artifact DIFFERENT_ID = new Artifact("different", "different", "different", "different");
-
+    
+    private File basedir = new File(System.getProperty("basedir"));
+    
     private File dir;
     private String[] watchPaths;
     private MockConfigurationBuilder builder;
@@ -86,7 +88,7 @@ public class SingleFileHotDeployerTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        dir = new File("target/deployTest");
+        dir = new File(basedir, "target/deployTest");
         dir.mkdirs();
 
         File someFile = new File(dir, "someFile");

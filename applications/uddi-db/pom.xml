@@ -17,16 +17,13 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project
-    xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
         <groupId>org.apache.geronimo.applications</groupId>
-        <artifactId>applications-parent</artifactId>
+        <artifactId>applications</artifactId>
         <version>1.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
@@ -34,80 +31,50 @@
     <artifactId>geronimo-uddi-db</artifactId>
     <name>Geronimo Applications :: UDDI Server Database</name>
     
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-j2ee_1.4_spec</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        
-        <dependency>
-            <groupId>juddi</groupId>
-            <artifactId>juddi</artifactId>
-            <version>${juddiVersion}</version>
-            <scope>provided</scope>
-        </dependency>
-        
-        <!-- Required for JSPC compilation -->
-        <dependency>
-            <groupId>tomcat</groupId>
-            <artifactId>jasper-runtime</artifactId>
-        </dependency>
-    </dependencies>
+    <!--
+    
+    HACK: Need to explicitly configure SCM for this module since its artifactId
+          does not match the directory it lives in.
+    
+    FIXME: Rename module directory or artifactId.
+    
+    -->
+    <scm>
+        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/applications/uddi-db</connection>
+        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/applications/uddi-db</developerConnection>
+        <url>http://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/applications/uddi-db</url>
+    </scm>
+    
+    <properties>
+        <derby.system.home>${project.build.directory}/classes/META-INF/${pom.artifactId}/var/derby</derby.system.home>
+    </properties>
     
     <build>
-        <resources>
-            <resource>
-                <directory>${pom.basedir}/target/resources</directory>
-            </resource>
-        </resources>
-
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
+                        <id>prepare-db</id>
                         <phase>generate-resources</phase>
-                        <configuration>
-                            <tasks>
-                                <property name="derby.system.home" value="${project.build.directory}/resources/META-INF/${pom.artifactId}/var/derby"/>
-                                <property name="derby.storage.fileSyncTransactionLog" value="true"/>
-                                
-                                <delete dir="${derby.system.home}"/>
-                                <mkdir dir="${derby.system.home}"/>
-                                
-                                <sql driver="org.apache.derby.jdbc.EmbeddedDriver"
-                                    url="jdbc:derby:${derby.system.home}/UddiDatabase;create=true"
-                                    userid=""
-                                    password=""
-                                    autocommit="true"
-                                    onerror="continue"
-                                    delimiter=";">
-                                    
-                                    <fileset dir="${pom.basedir}/src/sql"/>
-                                    
-                                    <!--
-                                    
-                                    NOTE: Due to a rather annonying bug with antrun which does not
-                                          pick up plugin dependencies properly when run from the reactor
-                                          we have to go around the broken dependency system and reference
-                                          the artifact directly.
-                                    
-                                    <classpath refid="maven.plugin.classpath"/>
-                                    -->
-                                    <classpath>
-                                        <fileset dir="${settings.localRepository}/org/apache/derby/derby/${derbyVersion}">
-                                            <include name="derby-${derbyVersion}.jar" />
-                                        </fileset>
-                                    </classpath>
-                                </sql>
-                            </tasks>
-                        </configuration>
                         <goals>
                             <goal>run</goal>
                         </goals>
+                        <configuration>
+                            <tasks>
+                                <delete dir="${derby.system.home}"/>
+                                <mkdir dir="${derby.system.home}"/>
+                            </tasks>
+                        </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>sql-maven-plugin</artifactId>
+                <version>1.0-beta-1-SNAPSHOT</version>
                 
                 <dependencies>
                     <dependency>
@@ -117,16 +84,26 @@
                         <version>${derbyVersion}</version>
                     </dependency>
                 </dependencies>
-            </plugin>
-            
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>jspc-maven-plugin</artifactId>
-            </plugin>
-            
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
+                
+                <executions>
+                    <execution>
+                        <id>create-db</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <driver>org.apache.derby.jdbc.EmbeddedDriver</driver>
+                            <url>jdbc:derby:${derby.system.home}/UddiDatabase;create=true</url>
+                            <autocommit>true</autocommit>
+                            <onError>continue</onError>
+                            <delimiter>;</delimiter>
+                            <srcFiles>
+                                <srcFile>${pom.basedir}/src/sql/juddi.sql</srcFile>
+                            </srcFiles>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

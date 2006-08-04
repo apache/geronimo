@@ -61,6 +61,8 @@ import org.apache.geronimo.system.serverinfo.BasicServerInfo;
  * @version $Rev$ $Date$
  */
 public class RemoteLoginTest extends TestCase {
+    private File basedir = new File(System.getProperty("basedir"));
+    
     Kernel kernel;
     AbstractName serverInfo;
     AbstractName loginService;
@@ -119,8 +121,8 @@ public class RemoteLoginTest extends TestCase {
         gbean.setAttribute("serverSide", Boolean.TRUE);
         gbean.setAttribute("loginDomainName", "secret");
         Properties props = new Properties();
-        props.put("usersURI", new File(new File("."), "src/test-data/data/users.properties").toURI().toString());
-        props.put("groupsURI", new File(new File("."), "src/test-data/data/groups.properties").toURI().toString());
+        props.put("usersURI", new File(basedir, "src/test-data/data/users.properties").toURI().toString());
+        props.put("groupsURI", new File(basedir, "src/test-data/data/groups.properties").toURI().toString());
         gbean.setAttribute("options", props);
         kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
 

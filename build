@@ -35,16 +35,20 @@ complete() {
     fi
 }
 
-startdate=`now`
+main() {
+    startdate=`now`
+    
+    trap abort STOP KILL INT ABRT
+    
+    (
+        begin && (
+            mvn -Dstage=bootstrap "$@" && \
+            mvn -Dstage=assemble "$@"
+        ) && complete $?
+    )
+    
+    exit 0
+}
 
-trap abort STOP KILL INT ABRT
-
-(
-    begin && (
-        mvn -Dstage=bootstrap "$@" && \
-        mvn -Dstage=assemble "$@"
-    ) && complete $?
-)
-
-exit 0
+main "$@" | 2>&1 tee build.log
 

@@ -56,7 +56,8 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  * @version $Rev$ $Date$
  */
 public class ConfigurationEntryTest extends TestCase {
-
+    private File basedir = new File(System.getProperty("basedir"));
+    
     protected Kernel kernel;
     protected AbstractName serverInfo;
     protected AbstractName loginConfiguration;
@@ -69,10 +70,11 @@ public class ConfigurationEntryTest extends TestCase {
     protected AbstractName serverStub;
 
     public void test() throws Exception {
-        File log = new File("target/login-audit.log");
+        File log = new File(basedir, "target/login-audit.log");
         if (log.exists()) {
             log.delete();
         }
+        
         assertEquals("Audit file wasn't cleared", 0, log.length());
 
         // First try with explicit configuration entry
@@ -172,8 +174,8 @@ public class ConfigurationEntryTest extends TestCase {
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule");
         gbean.setAttribute("serverSide", new Boolean(true));
         Properties props = new Properties();
-        props.put("usersURI", new File(new File("."), "src/test-data/data/users.properties").toURI().toString());
-        props.put("groupsURI", new File(new File("."), "src/test-data/data/groups.properties").toURI().toString());
+        props.put("usersURI", new File(basedir, "src/test-data/data/users.properties").toURI().toString());
+        props.put("groupsURI", new File(basedir, "src/test-data/data/groups.properties").toURI().toString());
         gbean.setAttribute("options", props);
         gbean.setAttribute("loginDomainName", "TestProperties");
         gbean.setAttribute("wrapPrincipals", Boolean.TRUE);

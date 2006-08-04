@@ -23,7 +23,7 @@
     <link rel="stylesheet" href="/main.css" type="text/css"/>
 </head>
 
-<body>
+<body marginwidth="0" marginheight="0" leftmargin="0" topmargin="0" rightmargin="0">
 
 <!-- Header -->
 <table width="100%">

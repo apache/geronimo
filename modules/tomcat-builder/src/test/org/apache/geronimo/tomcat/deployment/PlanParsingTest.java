@@ -58,7 +58,6 @@ public class PlanParsingTest extends TestCase {
         ref.setResourceLink("target");
 
         SchemaConversionUtils.validateDD(tomcatWebAppType);
-//        System.out.println(tomcatWebAppType.toString());
     }
 
 }

@@ -17,23 +17,34 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project
-    xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
         <groupId>org.apache.geronimo.applications.console</groupId>
-        <artifactId>console-parent</artifactId>
+        <artifactId>console</artifactId>
         <version>1.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>geronimo-console-core</artifactId>
     <name>Geronimo Applications, Console :: Core</name>
-
+    
+    <!--
+    
+    HACK: Need to explicitly configure SCM for this module since its artifactId
+          does not match the directory it lives in.
+    
+    FIXME: Rename module directory or artifactId.
+    
+    -->
+    <scm>
+        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/applications/console/console-core</connection>
+        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/applications/console/console-core</developerConnection>
+        <url>http://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/applications/console/console-core</url>
+    </scm>
+    
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
@@ -53,13 +64,6 @@
     </dependencies>
 
     <build>
-    <!-- resources>
-      <resource>
-        <directory>${basedir}/src/resources</directory>
-        <filtering>true</filtering>
-      </resource>
-    </resources -->
-    <!-- use the antrun plugin till we get timestamp plugin from Geronimo-1659 -->
         <plugins>
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>

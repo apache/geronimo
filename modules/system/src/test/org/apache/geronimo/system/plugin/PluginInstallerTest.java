@@ -75,6 +75,8 @@ public class PluginInstallerTest extends TestCase {
 
     public void testParsing() throws Exception {
         PluginList list = installer.listPlugins(testRepo, null, null);
+        assertNotNull(list);
+        
         assertEquals(1, list.getRepositories().length);
         assertEquals(fakeRepo, list.getRepositories()[0]);
         assertTrue(list.getPlugins().length > 0);

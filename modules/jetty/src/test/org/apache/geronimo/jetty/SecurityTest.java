@@ -46,7 +46,6 @@ import org.apache.geronimo.security.jacc.ComponentPermissions;
  * @version $Rev$ $Date$
  */
 public class SecurityTest extends AbstractWebModuleTest {
-
     /**
      * Test the explicit map feature.  Only Alan should be able to log in.
      *

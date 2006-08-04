@@ -22,8 +22,10 @@ import java.io.File;
  * @version $Rev$ $Date$
  */
 public class Maven2RepositoryTest extends AbstractRepositoryTest {
+    private File basedir = new File(System.getProperty("basedir"));
+    
     protected void setUp() throws Exception {
-        rootRepoDir = new File("target/m2");
+        rootRepoDir = new File(basedir, "target/m2");
         repository = new Maven2Repository(rootRepoDir);
         super.setUp();
     }

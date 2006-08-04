@@ -17,40 +17,36 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project
-    xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.apache.geronimo</groupId>
-        <artifactId>geronimo-parent</artifactId>
+        <artifactId>geronimo</artifactId>
         <version>1.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <groupId>org.apache.geronimo.configs</groupId>
-    <artifactId>configs-parent</artifactId>
+    <artifactId>configs</artifactId>
     <name>Geronimo :: Configs</name>
     <packaging>pom</packaging>
     
     <properties>
-        <!-- HACK: These properties are referenced internally by plans (or something) -->
+        <!-- This property is required by the car:package mojo -->
         <geronimoVersion>${pom.version}</geronimoVersion>
+        
+        <!-- This property is required to process geronimo-plugin.xml (for m2 & m2) -->
         <pom.currentVersion>${pom.version}</pom.currentVersion>
         
-        <!-- add from etc/explicit_version.properties here to use filter-->
         <gbeanDeployer>org.apache.geronimo.configs/geronimo-gbean-deployer/${pom.version}/car</gbeanDeployer>
         <j2eeDeployer>org.apache.geronimo.configs/j2ee-deployer/${pom.version}/car</j2eeDeployer>
         <clientDeployer>org.apache.geronimo.configs/client-deployer/${pom.version}/car</clientDeployer>
         <openejbDeployer>org.apache.geronimo.configs/openejb-deployer/${pom.version}/car</openejbDeployer>
         <axisDeployer>org.apache.geronimo.configs/axis-deployer/${pom.version}/car</axisDeployer>
         <tomcatDeployer>org.apache.geronimo.configs/tomcat-deployer/${pom.version}/car</tomcatDeployer>
-        <j2eeTomcatServer>org.apache.geronimo.configs/geronimo-gbean-deployer/${pom.version}/car,org.apache.geronimo.configs/j2ee-deployer/${pom.version}/car,org.apache.geronimo.configs/tomcat-deployer/${pom.version}/car,org.apache.geronimo.configs/client-deployer/${pom.version}/car,org.apache.geronimo.configs/openejb-deployer/${pom.version}/car,org.apache.geronimo.configs/axis-deployer/${pom.version}/car</j2eeTomcatServer>
-        <j2eeJettyServer>org.apache.geronimo.configs/geronimo-gbean-deployer/${pom.version}/car,org.apache.geronimo.configs/j2ee-deployer/${pom.version}/car,org.apache.geronimo.configs/jetty-deployer/${pom.version}/car,org.apache.geronimo.configs/client-deployer/${pom.version}/car,org.apache.geronimo.configs/openejb-deployer/${pom.version}/car,org.apache.geronimo.configs/axis-deployer/${pom.version}/car</j2eeJettyServer>
-        <j2eeNowebServer>org.apache.geronimo.configs/geronimo-gbean-deployer/${pom.version}/car,org.apache.geronimo.configs/j2ee-deployer/${pom.version}/car,org.apache.geronimo.configs/client-deployer/${pom.version}/car,org.apache.geronimo.configs/openejb-deployer/${pom.version}/car,org.apache.geronimo.configs/axis-deployer/${pom.version}/car</j2eeNowebServer>
+        <jettyDeployer>org.apache.geronimo.configs/jetty-deployer/${pom.version}/car</jettyDeployer>
         
         <!-- Common plan properties -->
         <PlanServerHostname>localhost</PlanServerHostname>
@@ -79,7 +75,7 @@
         <extensions>
             <extension>
                 <groupId>org.apache.geronimo.plugins</groupId>
-                <artifactId>geronimo-packaging-plugin</artifactId>
+                <artifactId>car-maven-plugin</artifactId>
                 <version>${pom.version}</version>
             </extension>
         </extensions>
@@ -89,7 +85,7 @@
             <plugins>
                 <plugin>
                     <groupId>org.apache.geronimo.plugins</groupId>
-                    <artifactId>geronimo-packaging-plugin</artifactId>
+                    <artifactId>car-maven-plugin</artifactId>
                     <version>${pom.version}</version>
                     <extensions>true</extensions>
                 </plugin>
@@ -97,34 +93,19 @@
         </pluginManagement>
         
         <plugins>
-            <!--
-               | NOTE: Currently to build CAR files, we need to ensure that the module has been cleaned first
-               |       otherwise the second time around the build will fail.
-             -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-clean-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>clean</goal>
-                        </goals>
-                        <phase>validate</phase>
-                    </execution>
-                </executions>
-            </plugin>
-            
             <plugin>
                 <groupId>org.apache.geronimo.plugins</groupId>
-                <artifactId>geronimo-packaging-plugin</artifactId>
+                <artifactId>car-maven-plugin</artifactId>
+                
+                <!-- Install as extention to allow 'car' packaging to be used. -->
                 <extensions>true</extensions>
             </plugin>
         </plugins>
     </build>
     
     <modules>
-        <!-- <module>activemq</module> -->
-        <!-- <module>activemq-broker</module> -->
+        <module>activemq</module>
+        <module>activemq-broker</module>
         <module>axis</module>
         <module>axis-deployer</module>
         <module>client</module>
@@ -132,8 +113,8 @@
         <module>client-deployer</module>
         <module>client-security</module>
         <module>client-system</module>
-        <!-- <module>console-jetty</module> -->
-        <!-- <module>console-tomcat</module> -->
+        <module>console-jetty</module>
+        <module>console-tomcat</module>
         <!-- <module>daytrader-jetty</module> -->
         <!-- <module>daytrader-tomcat</module> -->
         <module>directory</module>
@@ -155,18 +136,18 @@
         <module>online-deployer</module>
         <module>openejb</module>
         <module>openejb-deployer</module>
-        <!-- <module>remote-deploy-jetty</module> -->
-        <!-- <module>remote-deploy-tomcat</module> -->
+        <module>remote-deploy-jetty</module>
+        <module>remote-deploy-tomcat</module>
         <module>rmi-naming</module>
-        <module>servlets-examples-jetty</module>
+        <!-- module>servlets-examples-jetty</module  -->
         <module>servlets-examples-tomcat</module>
         <module>sharedlib</module>
         <module>shutdown</module>
         <module>system-database</module>
         <module>tomcat</module>
         <module>tomcat-deployer</module>
-        <!-- <module>uddi-jetty</module> -->
-        <!-- <module>uddi-tomcat</module> -->
+        <module>uddi-jetty</module>
+        <module>uddi-tomcat</module>
         <module>unavailable-client-deployer</module>
         <module>unavailable-ejb-deployer</module>
         <module>unavailable-webservices-deployer</module>

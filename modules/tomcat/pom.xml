@@ -17,80 +17,39 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>modules-parent</artifactId>
+        <artifactId>modules</artifactId>
         <version>1.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>geronimo-tomcat</artifactId>
     <name>Geronimo :: Tomcat</name>
-    <description>Geronimo Tomcat integration</description>
-
+    
+    <!--
+    
+    HACK: Need to explicitly configure SCM for this module since its artifactId
+          does not match the directory it lives in.
+    
+    FIXME: Rename module directory or artifactId.
+    
+    -->
+    <scm>
+        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/tomcat</connection>
+        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/tomcat</developerConnection>
+        <url>http://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/tomcat</url>
+    </scm>
+    
     <properties>
-        <buildDir>${project.build.directory}</buildDir>
-        <endorsedDir>${buildDir}/endorsed</endorsedDir>
+        <endorsedDir>${project.build.directory}/endorsed</endorsedDir>
         <localRepoDir>${settings.localRepository}</localRepoDir>
     </properties>
-
-    <build>
-        <resources>
-            <resource>
-                <directory>src/resources2</directory>
-            </resource>
-        </resources>
-
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <systemProperties>
-                        <property>
-                            <name>java.endorsed.dirs</name>
-                            <value>${endorsedDir}</value>
-                        </property>
-                    </systemProperties>
-                    <forkMode>pertest</forkMode>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>process-test-resources</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <tasks>
-                                <copy todir="target/var/catalina/conf" file="src/resources/META-INF/geronimo-tomcat/var/catalina/conf/web.xml" />
-                                <copy todir="target/var/catalina/webapps">
-                                    <fileset dir="src/test-resources/deployables">
-                                        <include name="war1/**" />
-                                        <include name="war3/**" />
-                                    </fileset>
-                                </copy>
-                                <copy todir="${endorsedDir}" flatten="true">
-                                    <fileset dir="${localRepoDir}">
-                                        <include name="xerces/xercesImpl/${xercesVersion}/*.jar" />
-                                        <include name="xml-apis/xml-apis/${xmlApisVersion}/*.jar" />
-                                    </fileset>
-                                </copy>
-                            </tasks>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-
+    
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
@@ -304,6 +263,55 @@
         </dependency>
         
     </dependencies>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <systemProperties>
+                        <property>
+                            <name>java.endorsed.dirs</name>
+                            <value>${endorsedDir}</value>
+                        </property>
+                    </systemProperties>
+                    
+                    <forkMode>pertest</forkMode>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <copy todir="target/var/catalina/conf" file="src/resources/META-INF/geronimo-tomcat/var/catalina/conf/web.xml" />
+                                <copy todir="target/var/catalina/webapps">
+                                    <fileset dir="src/test-resources/deployables">
+                                        <include name="war1/**" />
+                                        <include name="war3/**" />
+                                    </fileset>
+                                </copy>
+                                <copy todir="${endorsedDir}" flatten="true">
+                                    <fileset dir="${localRepoDir}">
+                                        <include name="xerces/xercesImpl/${xercesVersion}/*.jar" />
+                                        <include name="xml-apis/xml-apis/${xmlApisVersion}/*.jar" />
+                                    </fileset>
+                                </copy>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
     
 </project>
 

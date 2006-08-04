@@ -28,6 +28,7 @@ import junit.framework.TestCase;
  * @version $Rev$ $Date$
  */
 public class ConfigurationStoreUtilTest extends TestCase {
+    private File basedir = new File(System.getProperty("basedir"));
     private File testFile;
     private static final String BAD_SUM = "Stinky Cheese";
     private File sumFile;
@@ -123,7 +124,7 @@ public class ConfigurationStoreUtilTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        testFile = new File("target/checksumTest/test.data");
+        testFile = new File(basedir, "target/checksumTest/test.data");
         testFile.getParentFile().mkdirs();
         FileWriter writer = new FileWriter(testFile);
         writer.write("lflkfjkljkldfaskljsadflkjasdflweoiurhlmvniouwehnflikmnfubhgkajnbfgk;ausuhfoubhr\n");

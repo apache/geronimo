@@ -17,6 +17,7 @@
 package org.apache.geronimo.jetty;
 
 import junit.framework.TestCase;
+
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.jetty.connector.HTTPConnector;
 import org.apache.geronimo.security.SecurityServiceImpl;
@@ -40,6 +41,7 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.mortbay.http.Authenticator;
 import org.mortbay.jetty.servlet.FormAuthenticator;
 
+import java.io.File;
 import java.net.URL;
 import java.security.PermissionCollection;
 import java.util.Collections;
@@ -53,6 +55,8 @@ import java.util.Set;
  * @version $Rev$ $Date$
  */
 public class AbstractWebModuleTest extends TestCase {
+    private File basedir = new File(System.getProperty("basedir"));
+    
     protected ClassLoader cl;
     protected final static String securityRealmName = "demo-properties-realm";
     private HTTPConnector connector;
@@ -156,8 +160,8 @@ public class AbstractWebModuleTest extends TestCase {
         new SecurityServiceImpl(cl, serverInfo, "org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory", "org.apache.geronimo.security.jacc.GeronimoPolicy", null, null, null, null);
 
         Properties options = new Properties();
-        options.setProperty("usersURI", "src/test-resources/data/users.properties");
-        options.setProperty("groupsURI", "src/test-resources/data/groups.properties");
+        options.setProperty("usersURI", new File(basedir, "src/test-resources/data/users.properties").toURI().toString());
+        options.setProperty("groupsURI", new File(basedir, "src/test-resources/data/groups.properties").toURI().toString());
 
         LoginModuleGBean loginModule = new LoginModuleGBean("org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule", null, true, true, cl);
         loginModule.setLoginDomainName(domainName);

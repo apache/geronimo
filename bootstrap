@@ -3,56 +3,114 @@
 ## $Id$
 ##
 
+PROGNAME=`basename "$0"`
+DIRNAME=`dirname "$0"`
+
+warn() {
+    echo "${PROGNAME}: $*"
+}
+
+die() {
+    warn "$*"
+    exit 1
+}
+
+now() {
+    date +'%H:%M:%S %Z %Y'
+}
+
+begin() {
+    warn "Starting bootstrap build..."
+}
+
+abort() {
+    die "Aborted ($startdate to `now`)"
+}
+
+complete() {
+    if [ "$1" == "0" ]; then
+        warn "Completed ($startdate to `now`)"
+    else
+        die "Failed ($startdate to `now`)"
+    fi
+}
+
 clean() {
     echo "Cleaning..."
     
     rm -rf ~/.m2/repository
     
-    find . -name target -type d -exec rm -rf \{\} \;
+    rm -rf "$DIRNAME/thirdparty"
+    mkdir -p "$DIRNAME/thirdparty"
+    
+    for x in `find "$DIRNAME" -name target -type d`; do
+        rm -rf "$x"
+    done
 }
 
 stage() {
     echo "Starting stage: $1"
     
     mvn -Dstage=$1
+    
+    if [ "$?" != "0" ]; then
+        die "Bootstrap failed in stage $1"
+    fi
 }
 
-thirdparty() {
-    # Build thirdparty components
-    echo "Building thirdparty..."
+specs() {
+    echo "Building Specs..."
     
-    rm -rf thirdparty
-    mkdir -p thirdparty
     (
-        cd thirdparty
+        cd "$DIRNAME/thirdparty"
         
-        # Build TranQL
-        echo "Building TranQL..."
-        
-        svn co https://svn.codehaus.org/tranql/trunk tranql
+        svn co http://svn.apache.org/repos/asf/geronimo/specs/trunk specs
         (
-            cd tranql
-            mvn -Dmaven.test.skip=true install
-        )
-        
-        # Build OpenEJB
-        echo "Building OpenEJB..."
-        
-        svn co https://svn.codehaus.org/openejb/trunk/openejb2 openejb2
-        (
-            cd openejb2
-            mvn -Dmaven.test.skip=true install
+            cd specs
+            mvn install
+            
+            if [ "$?" != "0" ]; then
+                die "Bootstrap failed building Specs"
+            fi
         )
     )
 }
 
-clean
+openejb2() {
+    echo "Building OpenEJB2..."
+    
+    (
+        cd "$DIRNAME/thirdparty"
+        
+        svn co http://svn.codehaus.org/openejb/trunk/openejb2 openejb2
+        (
+            cd openejb2
+            mvn -Dmaven.test.skip=true install
+            
+            if [ "$?" != "0" ]; then
+                die "Bootstrap failed building OpenEJB"
+            fi
+        )
+    )
+}
 
-stage bootstrap
+main() {
+    startdate=`now`
+    
+    trap abort STOP KILL INT ABRT
+    
+    if [ "x$1" != "x" ]; then
+        $*
+    else
+        begin && (
+            clean
+			specs && \
+            stage "bootstrap" && \
+            openejb2 && \
+            stage "assemble"
+        ) && complete $?
+    fi
+}
 
-thirdparty
-
-stage assemble
-
-echo "Done"
+main "$@" | 2>&1 tee bootstrap.log
 

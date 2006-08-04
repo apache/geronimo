@@ -1,0 +1,118 @@
+ ------
+ Geronimo CAR Plugin for Maven 2
+ ------
+ ???
+ ------
+ ???
+
+Basic Usage
+
+* Setup Plugin Repository
+
++----------+
+<project>
+    ...
+    <pluginRepositories>
+        ...
+        <pluginRepository>
+            <id>apache</id>
+            <name>Apache Repository</name>
+            <url>http://people.apache.org/repo/m2-ibiblio-rsync-repository</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </pluginRepository>
+        
+        <pluginRepository>
+            <id>apache-snapshots</id>
+            <name>Apache Snapshots Repository</name>
+            <url>http://people.apache.org/repo/m2-snapshot-repository</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </pluginRepository>
+        ...
+    </pluginRepositories>
+    ...
+</project>
++----------+
+
+* Define Dependency as Extention
+
++----------+
+<project>
+    ...
+    <packaging>car</packaging>
+    ...
+    <build>
+        ...
+        <plugins>
+            ...
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <!-- Install as extention to allow 'car' packaging to be used. -->
+                <extensions>true</extensions>
+            </plugin>
+        </plugins>
+        ...
+    </build>
+    ...
+</project>
++----------+
+
+* CAR with ClassPath and MainClass
+
++----------+
+<project>
+    ...
+    <packaging>car</packaging>
+    ...
+    <build>
+        ...
+        <plugins>
+            ...
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <classPath>
+                        <element>../lib/geronimo-qname_1.1_spec-${geronimoSpecQnameVersion}.jar</element>
+                        <element>../lib/geronimo-common-${pom.version}.jar</element>
+                        <element>../lib/geronimo-kernel-${pom.version}.jar</element>
+                        <element>../lib/geronimo-system-${pom.version}.jar</element>
+                        <element>../lib/geronimo-util-${pom.version}.jar</element>
+                        <element>../lib/cglib-nodep-${cglibVersion}.jar</element>
+                        <element>../lib/concurrent-${concurrentVersion}.jar</element>
+                        <element>../lib/commons-cli-${commonsCliVersion}.jar</element>
+                        <element>../lib/commons-logging-${commonsLoggingVersion}.jar</element>
+                        <element>../lib/log4j-${log4jVersion}.jar</element>
+                        <element>../lib/mx4j-${mx4jVersion}.jar</element>
+                        <element>../lib/mx4j-remote-${mx4jVersion}.jar</element>
+                        <element>../lib/endorsed/xercesImpl-${xercesVersion}.jar</element>
+                        <element>../lib/endorsed/xmlParserAPIs-${xmlParserApisVersion}.jar</element>
+                        <element>../lib/xpp3-${xpp3Version}.jar</element>
+                        <element>../lib/xstream-${xstreamVersion}.jar</element>
+                    </classPath>
+                    <mainClass>org.apache.geronimo.system.main.Daemon</mainClass>
+                    <logLevel>DEBUG</logLevel>
+                </configuration>
+            </plugin>
+            ...
+        </plugins>
+        ...
+    </build>
+    ...
+<project>
++----------+

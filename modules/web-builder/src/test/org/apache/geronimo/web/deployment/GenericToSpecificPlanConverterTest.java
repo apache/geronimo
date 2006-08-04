@@ -27,10 +27,15 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * @version $Rev$ $Date$
  */
 public class GenericToSpecificPlanConverterTest extends TestCase {
+    private static final Log log = LogFactory.getLog(GenericToSpecificPlanConverterTest.class);
+    
     private ClassLoader classLoader = this.getClass().getClassLoader();
 
     public void testConvertPlan1() throws Exception {
@@ -50,13 +55,15 @@ public class GenericToSpecificPlanConverterTest extends TestCase {
         URL srcXml = classLoader.getResource(prePlanName);
         URL expectedOutputXml = classLoader.getResource(postPlanName);
         XmlObject rawPlan = XmlBeansUtil.parse(srcXml);
-        System.out.println("RAW PLAN " + rawPlan.toString());
+        log.debug("RAW PLAN " + rawPlan.toString());
+        
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         XmlObject webPlan = new GenericToSpecificPlanConverter("http://geronimo.apache.org/xml/ns/web/tomcat/config-1.0",
                 "http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.1", "tomcat").convertToSpecificPlan(rawPlan);
 
-        System.out.println("PROCESSED: " + webPlan.toString());
-        System.out.println("EXPECTED: " + expected.toString());
+        log.debug("PROCESSED: " + webPlan.toString());
+        log.debug("EXPECTED: " + expected.toString());
+        
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(webPlan, expected, problems);
         assertTrue("Differences: " + problems, ok);

@@ -17,344 +17,221 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project
-    xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     
     <modelVersion>4.0.0</modelVersion>
-
+    
+    <parent>
+        <groupId>org.apache.geronimo.genesis.config</groupId>
+        <artifactId>project-config</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+    
     <groupId>org.apache.geronimo</groupId>
-    <artifactId>geronimo-parent</artifactId>
+    <artifactId>geronimo</artifactId>
     <name>Geronimo</name>
     <packaging>pom</packaging>
     
     <version>1.2-SNAPSHOT</version>
     
-    <url>http://geronimo.apache.org</url>
-
-    <issueManagement>
-        <system>jira</system>
-        <url>http://issues.apache.org/jira/browse/GERONIMO</url>
-    </issueManagement>
-
-    <ciManagement>
-        <system>continuum</system>
-        <notifiers>
-            <notifier>
-                <type>mail</type>
-                <sendOnError/>
-                <sendOnFailure/>
-                <address>dev@geronimo.apache.org</address>
-            </notifier>
-        </notifiers>
-    </ciManagement>
+    <description>
+        Apache Geronimo, the J2EE server project of the Apache Software Foundation.
+    </description>
     
-    <mailingLists>
-        <!--
-           | TODO: Use the Nabble archive as the default... its easier to use
-         -->
-        
-        <mailingList>
-            <name>Geronimo User List</name>
-            <subscribe>user-subscribe@geronimo.apache.org</subscribe>
-            <unsubscribe>user-unsubscribe@geronimo.apache.org</unsubscribe>
-            <archive>http://mail-archives.apache.org/mod_mbox/geronimo-user/</archive>
-        </mailingList>
-        
-        <mailingList>
-            <name>Geronimo Developer List</name>
-            <subscribe>dev-subscribe@geronimo.apache.org</subscribe>
-            <unsubscribe>dev-unsubscribe@geronimo.apache.org</unsubscribe>
-            <archive>http://mail-archives.apache.org/mod_mbox/geronimo-dev/</archive>
-        </mailingList>
-        
-        <mailingList>
-            <name>Source Control List</name>
-            <subscribe>scm-subscribe@geronimo.apache.org</subscribe>
-            <unsubscribe>scm-unsubscribe@geronimo.apache.org</unsubscribe>
-            <archive>http://mail-archives.apache.org/mod_mbox/geronimo-scm/</archive>
-        </mailingList>
-    </mailingLists>
-
-    <licenses>
-        <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
+    <!--
+    FIXME: Replace when merged back to trunk
+    
     <scm>
-        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/</connection>
-        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/</developerConnection>
-        <url>https://svn.apache.org/repos/asf/geronimo/</url>
+        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/trunk</connection>
+        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk</developerConnection>
+        <url>http://svn.apache.org/repos/asf/geronimo/trunk</url>
     </scm>
-
-    <organization>
-        <name>Geronimo</name>
-        <url>http://geronimo.apache.org/</url>
-    </organization>
-
+    -->
+    <scm>
+        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration</connection>
+        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration</developerConnection>
+        <url>http://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration</url>
+    </scm>
+    
     <properties>
-        <!--
-           | HACK: Short-term disable all of the tests until the surefire configuration is updated
-         -->
-        <maven.test.skip>true</maven.test.skip>
+        <genesis.version>1.0.0-SNAPSHOT</genesis.version>
         
         <!--
-         |
-         | Geronimo specification versions
-         |
-         -->
-        <geronimoSpecActivationVersion>1.1</geronimoSpecActivationVersion>
-        <geronimoSpecCorbaVersion>1.0</geronimoSpecCorbaVersion>
-        <geronimoSpecEjbVersion>1.0.1</geronimoSpecEjbVersion>
-        <geronimoSpecJ2eeVersion>1.1</geronimoSpecJ2eeVersion>
-        <geronimoSpecJ2eeConnectorVersion>1.0.1</geronimoSpecJ2eeConnectorVersion>
-        <geronimoSpecJ2eeDeploymentVersion>1.0.1</geronimoSpecJ2eeDeploymentVersion>
-        <geronimoSpecJ2eeJaccVersion>1.0.1</geronimoSpecJ2eeJaccVersion>
-        <geronimoSpecJ2eeManagementVersion>1.0.1</geronimoSpecJ2eeManagementVersion>
-        <geronimoSpecJavamail13Version>1.2-SNAPSHOT</geronimoSpecJavamail13Version>
-        <geronimoSpecJaxrVersion>1.0.1</geronimoSpecJaxrVersion>
-        <geronimoSpecJaxrpcVersion>1.0.1</geronimoSpecJaxrpcVersion>
-        <geronimoSpecJmsVersion>1.0.1</geronimoSpecJmsVersion>
-        <geronimoSpecJspVersion>1.0.1</geronimoSpecJspVersion>
-        <geronimoSpecJtaVersion>1.0.1</geronimoSpecJtaVersion>
-        <geronimoSpecQnameVersion>1.0.1</geronimoSpecQnameVersion>
-        <geronimoSpecSaajVersion>1.0.1</geronimoSpecSaajVersion>
-        <geronimoSpecServletVersion>1.0.1</geronimoSpecServletVersion>
-
-        <!--
-         |
-         | External dependency versions
-         |
-         -->
-        <activeIoVersion>2.0-r118</activeIoVersion>
-        <activeMqVersion>3.2.4-SNAPSHOT</activeMqVersion>
-        <antlrVersion>2.7.2</antlrVersion>
-        <apachedsVersion>0.9.2</apachedsVersion>
-        <asmVersion>1.4.3</asmVersion>
+        HACK: These properties are currently needed in child poms, so we need to keep them around.
+              Usage of these properties should be removed whenever possible.
+        -->
+        
         <asn1Version>0.3.2</asn1Version>
-        <axisVersion>1.4</axisVersion>
-        <castorVersion>0.9.5.3</castorVersion>
-        <cglibVersion>2.1_3</cglibVersion>
-        <commonsBeanutilsVersion>1.6.1</commonsBeanutilsVersion>
+        <apachedsVersion>0.9.2</apachedsVersion>
+        <activeMqVersion>3.2.4-SNAPSHOT</activeMqVersion>
         <commonsCliVersion>1.0</commonsCliVersion>
-        <commonsCollectionsVersion>3.1</commonsCollectionsVersion>
-        <commonsDigesterVersion>1.6</commonsDigesterVersion>
-        <commonsDiscoveryVersion>0.2</commonsDiscoveryVersion>
-        <commonsElVersion>1.0</commonsElVersion>
-        <commonsFileuploadVersion>1.1-dev</commonsFileuploadVersion>
-        <commonsHttpclientVersion>2.0.1</commonsHttpclientVersion>
-        <commonsIoVersion>1.1</commonsIoVersion>
-        <commonsJxpathVersion>1.1</commonsJxpathVersion>
-        <commonsLangVersion>2.0</commonsLangVersion>
         <commonsLoggingVersion>1.0.4</commonsLoggingVersion>
-        <commonsModelerVersion>20060524</commonsModelerVersion>
-        <commonsPoolVersion>1.2</commonsPoolVersion>
-        <commonsPrimitivesVersion>20041207.202534</commonsPrimitivesVersion>
-        <concurrentVersion>1.3.4</concurrentVersion>
-        <derbyVersion>10.1.1.0</derbyVersion> <!-- NOTE: Must keep derbyVersion property -->
-        <dom4jVersion>1.4</dom4jVersion>
-        <dwrVersion>1.1.1</dwrVersion>
-        <eclipseCompilerVersion>3.0.1</eclipseCompilerVersion>
-        <howlVersion>1.0.1-1</howlVersion>
-        <hsqldbVersion>1.7.2.2</hsqldbVersion>
-        <jasperVersion>5.5.15</jasperVersion>
-        <javaccVersion>2.1</javaccVersion>
-        <jdbmVersion>0.20-dev</jdbmVersion>
-        <jdomVersion>1.0</jdomVersion>
+        <cglibVersion>2.1_3</cglibVersion>
+        <tomcatVersion>5.5.15</tomcatVersion>
+        <tomcatAjpVersion>5.5.15</tomcatAjpVersion>
+        <derbyVersion>10.1.1.0</derbyVersion>
+        <xpp3Version>1.1.3.3</xpp3Version>
+        <xstreamVersion>1.1.3</xstreamVersion>
+        <xercesVersion>2.6.2</xercesVersion>
+        <xmlApisVersion>1.0.b2</xmlApisVersion>
+        <xmlParserApisVersion>2.2.1</xmlParserApisVersion>
+        <log4jVersion>1.2.8</log4jVersion>
+        <mx4jVersion>3.0.1</mx4jVersion>
+        <plutoVersion>1.0.1</plutoVersion>
+        <tranqlVersion>1.4-SNAPSHOT</tranqlVersion>
+        <tranqlVendorsVersion>1.1</tranqlVendorsVersion>
+        <tranqlConnectorVersion>1.3-SNAPSHOT</tranqlConnectorVersion>
         <jettyVersion>5.1.10</jettyVersion>
-        <jstlVersion>1.1.1</jstlVersion>
-        <juddiVersion>0.9rc4</juddiVersion>
-        <junitVersion>3.8.1</junitVersion>
+        <wadiVersion>2.0M1</wadiVersion>
+        <openejbVersion>2.2-SNAPSHOT</openejbVersion>
         <kerberosCommonVersion>0.5</kerberosCommonVersion>
         <kerberosProtocolVersion>0.5</kerberosProtocolVersion>
         <ldapProtocolVersion>0.9.2</ldapProtocolVersion>
-        <log4jVersion>1.2.8</log4jVersion>
-        <mavenRarPluginVersion>2.1</mavenRarPluginVersion>
         <minaVersion>0.7.3</minaVersion>
-        <mockobjectsVersion>0.09</mockobjectsVersion>
-        <mx4jVersion>3.0.1</mx4jVersion>
-        <openejbVersion>2.2-SNAPSHOT</openejbVersion>
-        <oroVersion>2.0.8</oroVersion>
-        <p2psocketsVersion>1.1.2</p2psocketsVersion>
-        <plutoVersion>1.0.1</plutoVersion>
-        <portletApiVersion>1.0</portletApiVersion>
-        <regexpVersion>1.3</regexpVersion>
-        <scoutVersion>0.5</scoutVersion>
-        <!--
-        <slf4jVersion>1.0-beta7</slf4jVersion>
-        -->
-        <standardTaglibsVersion>1.1.1</standardTaglibsVersion>
-        <staxApiVersion>1.0</staxApiVersion>
-        <tomcatAjpVersion>5.5.15</tomcatAjpVersion>
-        <tomcatVersion>5.5.15</tomcatVersion>
-        <tranqlConnectorVersion>1.3-SNAPSHOT</tranqlConnectorVersion>
-        <tranqlVendorsVersion>1.1</tranqlVendorsVersion>
-        <tranqlVersion>1.4-SNAPSHOT</tranqlVersion>
-        <velocityVersion>1.4</velocityVersion>
-        <wadiActiveClusterVersion>1.2-20051115174934</wadiActiveClusterVersion>
-        <wadiSpringVersion>1.5.2</wadiSpringVersion>
-        <wadiVersion>2.0M1</wadiVersion>
-
-        <wsdl4jVersion>1.5.2</wsdl4jVersion>
-        <xercesVersion>2.6.2</xercesVersion>
-        <xfireVersion>20050202</xfireVersion>
-        <xmlApisVersion>1.0.b2</xmlApisVersion>
-        <xmlbeansVersion>2.0.0</xmlbeansVersion>
-        <xmlParserApisVersion>2.2.1</xmlParserApisVersion>
-        <xmlpullVersion>1.1.3.4d_b4_min</xmlpullVersion>
-        <xmlResolverVersion>1.1</xmlResolverVersion>
-        <xpp3Version>1.1.3.3</xpp3Version>
-        <xstreamVersion>1.1.3</xstreamVersion>
+        <geronimoSpecQnameVersion>1.0.1</geronimoSpecQnameVersion>
+        <geronimoSpecJ2eeDeploymentVersion>1.0.1</geronimoSpecJ2eeDeploymentVersion>
+        <geronimoSpecJmsVersion>1.0.1</geronimoSpecJmsVersion>
+        <concurrentVersion>1.3.4</concurrentVersion>
     </properties>
-
+    
     <dependencyManagement>
         <dependencies>
-            <!--
-             |
-             | Geronimo specification versions
-             |
-             -->
+            
+            <!-- Geronimo specification versions -->
+            
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-activation_1.0.2_spec</artifactId>
-                <version>${geronimoSpecActivationVersion}</version>
+                <version>1.1</version>
             </dependency>
             
             <!-- FIXME: Need to use the correct gid/aid for this dependency -->
             <dependency>
                 <groupId>geronimo-spec</groupId>
                 <artifactId>geronimo-spec-corba</artifactId>
-                <version>${geronimoSpecCorbaVersion}</version>
+                <version>1.0</version>
             </dependency>
-
+            
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-ejb_2.1_spec</artifactId>
-                <version>${geronimoSpecEjbVersion}</version>
+                <version>1.0.1</version>
             </dependency>
-
+            
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-j2ee_1.4_spec</artifactId>
-                <version>${geronimoSpecJ2eeVersion}</version>
+                <version>1.1</version>
             </dependency>
-
+            
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
-                <version>${geronimoSpecJ2eeConnectorVersion}</version>
+                <version>1.0.1</version>
             </dependency>
-
+            
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>
                 <version>${geronimoSpecJ2eeDeploymentVersion}</version>
             </dependency>
-
+            
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-j2ee-jacc_1.0_spec</artifactId>
-                <version>${geronimoSpecJ2eeJaccVersion}</version>
+                <version>1.0.1</version>
             </dependency>
-
+            
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-j2ee-management_1.0_spec</artifactId>
-                <version>${geronimoSpecJ2eeManagementVersion}</version>
+                <version>1.0.1</version>
             </dependency>
-
+            
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-javamail_1.3.1_spec</artifactId>
-                <version>${geronimoSpecJavamail13Version}</version>
+                <version>1.2-SNAPSHOT</version>
             </dependency>
-
+            
+            <dependency>
+                <groupId>org.apache.geronimo.javamail</groupId>
+                <artifactId>geronimo-javamail_1.3.1_provider</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+            
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-jaxr_1.0_spec</artifactId>
-                <version>${geronimoSpecJaxrVersion}</version>
+                <version>1.0.1</version>
             </dependency>
-
+            
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-jaxrpc_1.1_spec</artifactId>
-                <version>${geronimoSpecJaxrpcVersion}</version>
+                <version>1.0.1</version>
             </dependency>
-
+            
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-jsp_2.0_spec</artifactId>
-                <version>${geronimoSpecJspVersion}</version>
+                <version>1.0.1</version>
             </dependency>
-
+            
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-jms_1.1_spec</artifactId>
                 <version>${geronimoSpecJmsVersion}</version>
             </dependency>
-
+            
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-jta_1.0.1B_spec</artifactId>
-                <version>${geronimoSpecJtaVersion}</version>
+                <version>1.0.1</version>
             </dependency>
-
+            
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-qname_1.1_spec</artifactId>
                 <version>${geronimoSpecQnameVersion}</version>
             </dependency>
-
+            
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-saaj_1.1_spec</artifactId>
-                <version>${geronimoSpecSaajVersion}</version>
+                <version>1.0.1</version>
             </dependency>
-
+            
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-servlet_2.4_spec</artifactId>
-                <version>${geronimoSpecServletVersion}</version>
+                <version>1.0.1</version>
             </dependency>
-
-            <!--
-             |
-             | External dependency versions
-             |
-             -->
+            
+            <!-- External dependency versions -->
             
             <dependency>
                 <groupId>axis</groupId>
                 <artifactId>axis</artifactId>
-                <version>${axisVersion}</version>
+                <version>1.4</version>
             </dependency>
             
             <dependency>
                 <groupId>activeio</groupId>
                 <artifactId>activeio</artifactId>
-                <version>${activeIoVersion}</version>
+                <version>2.0-r118</version>
             </dependency>
             
             <dependency>
                 <groupId>asm</groupId>
                 <artifactId>asm</artifactId>
-                <version>${asmVersion}</version>
-            </dependency>
-            
-            <dependency>
-                <groupId>backport-util-concurrent</groupId>
-                <artifactId>backport-util-concurrent</artifactId>
-                <version>${backportUtilConcurrentVersion}</version>
+                <version>1.4.3</version>
             </dependency>
             
             <dependency>
                 <groupId>castor</groupId>
                 <artifactId>castor</artifactId>
-                <version>${castorVersion}</version>
+                <version>0.9.5.3</version>
             </dependency>
             
             <dependency>
@@ -366,7 +243,7 @@
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
-                <version>${commonsIoVersion}</version>
+                <version>1.1</version>
             </dependency>
             
             <dependency>
@@ -392,13 +269,13 @@
             <dependency>
                 <groupId>hsqldb</groupId>
                 <artifactId>hsqldb</artifactId>
-                <version>${hsqldbVersion}</version>
+                <version>1.7.2.2</version>
             </dependency>
             
             <dependency>
                 <groupId>jdom</groupId>
                 <artifactId>jdom</artifactId>
-                <version>${jdomVersion}</version>
+                <version>1.0</version>
             </dependency>
             
             <dependency>
@@ -422,13 +299,13 @@
             <dependency>
                 <groupId>mockobjects</groupId>
                 <artifactId>mockobjects-jdk1.4-j2ee1.3</artifactId>
-                <version>${mockobjectsVersion}</version>
+                <version>0.09</version>
             </dependency>
             
             <dependency>
                 <groupId>mockobjects</groupId>
                 <artifactId>mockobjects-core</artifactId>
-                <version>${mockobjectsVersion}</version>
+                <version>0.09</version>
             </dependency>
             
             <dependency>
@@ -446,19 +323,19 @@
             <dependency>
                 <groupId>regexp</groupId>
                 <artifactId>regexp</artifactId>
-                <version>${regexpVersion}</version>
+                <version>1.3</version>
             </dependency>
             
             <dependency>
                 <groupId>scout</groupId>
                 <artifactId>scout</artifactId>
-                <version>${scoutVersion}</version>
+                <version>0.5</version>
             </dependency>
             
             <dependency>
                 <groupId>stax</groupId>
                 <artifactId>stax-api</artifactId>
-                <version>${staxApiVersion}</version>
+                <version>1.0</version>
                 <exclusions>
                     <exclusion>
                         <groupId>xmlbeans</groupId>
@@ -476,7 +353,7 @@
             <dependency>
                 <groupId>wsdl4j</groupId>
                 <artifactId>wsdl4j</artifactId>
-                <version>${wsdl4jVersion}</version>
+                <version>1.5.2</version>
             </dependency>
             
             <dependency>
@@ -494,25 +371,25 @@
             <dependency>
                 <groupId>xfire</groupId>
                 <artifactId>xfire</artifactId>
-                <version>${xfireVersion}</version>
+                <version>20050202</version>
             </dependency>
             
             <dependency>
                 <groupId>xfire</groupId>
                 <artifactId>xfire-java</artifactId>
-                <version>${xfireVersion}</version>
+                <version>20050202</version>
             </dependency>
             
             <dependency>
                 <groupId>xmlbeans</groupId>
                 <artifactId>xbean</artifactId>
-                <version>${xmlbeansVersion}</version>
+                <version>2.0.0</version>
             </dependency>
             
             <dependency>
                 <groupId>xml-resolver</groupId>
                 <artifactId>xml-resolver</artifactId>
-                <version>${xmlResolverVersion}</version>
+                <version>1.1</version>
             </dependency>
             
             <dependency>
@@ -530,7 +407,7 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>${junitVersion}</version>
+                <version>3.8.1</version>
             </dependency>
             
             <dependency>
@@ -572,88 +449,108 @@
             </dependency>
             
             <dependency>
+                <groupId>activemq</groupId>
+                <artifactId>activemq-gbean-g1_1</artifactId>
+                <version>${activeMqVersion}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>activemq</groupId>
+                <artifactId>activemq-gbean-management-g1_1</artifactId>
+                <version>${activeMqVersion}</version>
+            </dependency>
+            
+            <dependency>
                 <groupId>jdbm</groupId>
                 <artifactId>jdbm</artifactId>
-                <version>${jdbmVersion}</version>
+                <version>0.20-dev</version>
             </dependency>
             
             <dependency>
                 <groupId>oro</groupId>
                 <artifactId>oro</artifactId>
-                <version>${oroVersion}</version>
+                <version>2.0.8</version>
             </dependency>
             
             <dependency>
                 <groupId>antlr</groupId>
                 <artifactId>antlr</artifactId>
-                <version>${antlrVersion}</version>
+                <version>2.7.2</version>
             </dependency>
             
             <dependency>
                 <groupId>commons-discovery</groupId>
                 <artifactId>commons-discovery</artifactId>
-                <version>${commonsDiscoveryVersion}</version>
+                <version>0.2</version>
             </dependency>
             
             <dependency>
                 <groupId>commons-collections</groupId>
                 <artifactId>commons-collections</artifactId>
-                <version>${commonsCollectionsVersion}</version>
+                <version>3.1</version>
             </dependency>
             
             <dependency>
                 <groupId>commons-primitives</groupId>
                 <artifactId>commons-primitives</artifactId>
-                <version>${commonsPrimitivesVersion}</version>
+                <version>20041207.202534</version>
             </dependency>
             
             <dependency>
                 <groupId>commons-lang</groupId>
                 <artifactId>commons-lang</artifactId>
-                <version>${commonsLangVersion}</version>
+                <version>2.0</version>
             </dependency>
             
             <dependency>
                 <groupId>commons-el</groupId>
                 <artifactId>commons-el</artifactId>
-                <version>${commonsElVersion}</version>
+                <version>1.0</version>
                 <exclusions>
                     <!-- Exclude commons-logging (uses 1.3) -->
+                    <!--
+                    HACK: For some crazy reason, if we exclude this here, then
+                          modules/jetty will fail to compile and there is no
+                          way to convince m2 to put the jar back on the classpath
+                          so, until that is resolved we have to disable this 
+                          exclusion
+                          
                     <exclusion>
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging</artifactId>
                     </exclusion>
+                    -->
                 </exclusions>
             </dependency>
             
             <dependency>
                 <groupId>commons-digester</groupId>
                 <artifactId>commons-digester</artifactId>
-                <version>${commonsDigesterVersion}</version>
+                <version>1.6</version>
             </dependency>
             
             <dependency>
                 <groupId>commons-modeler</groupId>
                 <artifactId>commons-modeler</artifactId>
-                <version>${commonsModelerVersion}</version>
+                <version>20060524</version>
             </dependency>
             
             <dependency>
                 <groupId>commons-beanutils</groupId>
                 <artifactId>commons-beanutils</artifactId>
-                <version>${commonsBeanutilsVersion}</version>
+                <version>1.6.1</version>
             </dependency>
             
             <dependency>
                 <groupId>commons-cli</groupId>
                 <artifactId>commons-cli</artifactId>
-                <version>${commonsCliVersion}</version>
+                <version>1.0</version>
             </dependency>
             
             <dependency>
                 <groupId>commons-fileupload</groupId>
                 <artifactId>commons-fileupload</artifactId>
-                <version>${commonsFileuploadVersion}</version>
+                <version>1.1-dev</version>
             </dependency>
             
             <dependency>
@@ -665,25 +562,25 @@
             <dependency>
                 <groupId>portlet-api</groupId>
                 <artifactId>portlet-api</artifactId>
-                <version>${portletApiVersion}</version>
+                <version>1.0</version>
             </dependency>
             
             <dependency>
                 <groupId>taglibs</groupId>
                 <artifactId>standard</artifactId>
-                <version>${standardTaglibsVersion}</version>
+                <version>1.1.1</version>
             </dependency>
             
             <dependency>
                 <groupId>javax.servlet</groupId>
                 <artifactId>jstl</artifactId>
-                <version>${jstlVersion}</version>
+                <version>1.1.1</version>
             </dependency>
             
             <dependency>
                 <groupId>dwr</groupId>
                 <artifactId>dwr</artifactId>
-                <version>${dwrVersion}</version>
+                <version>1.1.1</version>
             </dependency>
             
             <dependency>
@@ -711,161 +608,58 @@
                 <type>rar</type>
             </dependency>
             
+            <dependency>
+                <groupId>tranql</groupId>
+                <artifactId>tranql-connector-derby-embed-local</artifactId>
+                <version>${tranqlVendorsVersion}</version>
+                <type>rar</type>
+            </dependency>
+            
+            <dependency>
+                <groupId>juddi</groupId>
+                <artifactId>juddi</artifactId>
+                <version>0.9rc4</version>
+            </dependency>
+            
         </dependencies>
     </dependencyManagement>
-
-    <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-
+    
     <build>
-        <defaultGoal>install</defaultGoal>
+        <!--
         
-        <!-- FIXME: Need to reorganize modules to use the standard maven module layout -->
+        FIXME: Need to reorganize modules to use the standard maven module layout
         
+        -->
         <sourceDirectory>src/java</sourceDirectory>
         <testSourceDirectory>src/test</testSourceDirectory>
-
+        
         <resources>
+            <resource>
+                <directory>${pom.basedir}</directory>
+                <targetPath>META-INF</targetPath>
+                <includes>
+                    <include>LICENSE.txt</include>
+                    <include>NOTICE.txt</include>
+                </includes>
+            </resource>
+            
             <resource>
                 <directory>src/resources</directory>
             </resource>
         </resources>
-
+        
         <testResources>
             <testResource>
                 <directory>src/test-data</directory>
             </testResource>
+            
             <testResource>
                 <directory>src/test-resources</directory>
             </testResource>
         </testResources>
         
-        <extensions>
-            <extension>
-                <groupId>org.apache.maven.wagon</groupId>
-                <artifactId>wagon-ssh-external</artifactId>
-                <version>1.0-alpha-5</version>
-            </extension>
-            
-            <!--
-            
-            TODO: Investigate why ssh-external is used instead of...
-            
-            <extension>
-                <groupId>org.apache.maven.wagon</groupId>
-                <artifactId>wagon-ssh</artifactId>
-                <version>1.0-alpha-7</version>
-            </extension>
-            -->
-            
-            <!--
-               | NOTE: Include custom G modules to provide default resource-based configuration
-               |       for test log4j configuraton, clover, checkstyle, etc.
-             -->
-        </extensions>
-            
         <pluginManagement>
             <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.1.3</version>
-                    <configuration>
-                        <forkMode>once</forkMode>
-                        <!-- FIXME: Should really use ${pom.basedir}/target -->
-                        <workingDirectory>${pom.basedir}</workingDirectory>
-                    </configuration>
-                </plugin>
-                
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>build-helper-maven-plugin</artifactId>
-                    <version>1.0</version>
-                </plugin>
-                
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>dependency-maven-plugin</artifactId>
-                    <version>1.0</version>
-                </plugin>
-                
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-clean-plugin</artifactId>
-                    <version>2.1</version>
-                </plugin>
-                
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-clover-plugin</artifactId>
-                    <version>2.1</version>
-                </plugin>
-                
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-one-plugin</artifactId>
-                    <version>1.0</version>
-                </plugin>
-                
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-antrun-plugin</artifactId>
-                    <version>1.1</version>
-                </plugin>
-                
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-one-plugin</artifactId>
-                    <version>1.0</version>
-                    <executions>
-                        <execution>
-                            <configuration>
-                                <remoteRepositoryUrl>
-                                    scpexe://cvs.apache.org/www/cvs.apache.org/repository</remoteRepositoryUrl>
-                            </configuration>
-                            <goals>
-                                <goal>install-maven-one-repository</goal>
-                                <goal>deploy-maven-one-repository</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-                
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>jspc-maven-plugin</artifactId>
-                    <version>1.4.4</version>
-                    <executions>
-                        <execution>
-                            <id>jspc</id>
-                            <goals>
-                                <goal>compile</goal>
-                            </goals>
-                            <configuration>
-                                <warSourceDirectory>${pom.basedir}/src/webapp</warSourceDirectory>
-                                <inputWebXml>${pom.basedir}/src/webapp/WEB-INF/web.xml</inputWebXml>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
-                
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-war-plugin</artifactId>
-                    <version>2.0</version>
-                    <configuration>
-                        <warSourceDirectory>${pom.basedir}/src/webapp</warSourceDirectory>
-                        <webXml>${pom.basedir}/target/jspweb.xml</webXml>
-                        <archiveClasses>true</archiveClasses>
-                    </configuration>
-                </plugin>
-                
-                
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>xmlbeans-maven-plugin</artifactId>
@@ -888,6 +682,56 @@
                         <quiet>false</quiet>
                     </configuration>
                 </plugin>
+                
+                <!--
+                NOTE: WAR & JSPC are overridden here (from project-config) to specify non-standard paths.
+                      Remove once modules have been reorganized to use the m2 standard layout.
+                -->
+                
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-war-plugin</artifactId>
+                    <version>2.0.1</version>
+                    <configuration>
+                        <warSourceDirectory>${pom.basedir}/src/webapp</warSourceDirectory>
+                        <webXml>${pom.basedir}/target/jspweb.xml</webXml>
+                        <archiveClasses>true</archiveClasses>
+                        <archive>
+                            <!-- Do not include META-INF/maven to avoid long file problems on windows -->
+                            <addMavenDescriptor>false</addMavenDescriptor>
+                        </archive>
+                    </configuration>
+                </plugin>
+                
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-ear-plugin</artifactId>
+                    <version>2.2</version>
+                    <configuration>
+                        <archive>
+                            <!-- Do not include META-INF/maven to avoid long file problems on windows -->
+                            <addMavenDescriptor>false</addMavenDescriptor>
+                        </archive>
+                    </configuration>
+                </plugin>
+                
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>jspc-maven-plugin</artifactId>
+                    <version>1.4.4</version>
+                    <executions>
+                        <execution>
+                            <id>jspc</id>
+                            <goals>
+                                <goal>compile</goal>
+                            </goals>
+                            <configuration>
+                                <warSourceDirectory>${pom.basedir}/src/webapp</warSourceDirectory>
+                                <inputWebXml>${pom.basedir}/src/webapp/WEB-INF/web.xml</inputWebXml>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
             </plugins>
         </pluginManagement>
         
@@ -900,7 +744,7 @@
                     <target>1.4</target>
                 </configuration>
              </plugin>
-
+             
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-idea-plugin</artifactId>
@@ -909,33 +753,27 @@
                     <linkModules>true</linkModules>
                 </configuration>
             </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <configuration>
+                    <tagBase>https://svn.apache.org/repos/asf/geronimo/tags</tagBase>
+                </configuration>
+            </plugin>
          </plugins>
     </build>
     
     <repositories>
-        <repository>
-            <id>mergere</id>
-            <name>Mergere Repository</name>
-            <url>http://repo.mergere.com/maven2</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-        
         <!--
-        
-        FIXME: Do we need to enable this?
+        NOTE: The default repositories are picked up by Genesis, but need to 
+              specify where Genesis lives to pick it up + any additional repositories.
+        -->
         
         <repository>
             <id>apache</id>
             <name>Apache Repository</name>
-            <url>http://www.apache.org/dist/maven-repository</url>
+            <url>http://people.apache.org/repo/m2-ibiblio-rsync-repository</url>
             <layout>default</layout>
             <snapshots>
                 <enabled>false</enabled>
@@ -944,12 +782,30 @@
                 <enabled>true</enabled>
             </releases>
         </repository>
-        -->
         
+        <repository>
+            <id>apache-snapshots</id>
+            <name>Apache Snapshots Repository</name>
+            <url>http://people.apache.org/repo/m2-snapshot-repository</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+        
+        <!--
+        FIXME: Include the legacy Apache and Codehaus repositories... should eventually
+               ween ourselves off of them...
+        -->
         <repository>
             <id>apache-m1</id>
             <name>Apache Maven 1 Repository</name>
-            <url>http://people.apache.org/repository</url>
+            <url>http://people.apache.org/repo/m1-ibiblio-rsync-repository</url>
             <layout>legacy</layout>
             <snapshots>
                 <enabled>true</enabled>
@@ -962,45 +818,17 @@
         </repository>
         
         <repository>
-            <id>apache-snapshots</id>
-            <name>Apache Snapshots Repository</name>
-            <url>http://people.apache.org/maven-snapshot-repository</url>
-            <layout>default</layout>
+            <id>apache-snapshots-m1</id>
+            <name>Apache Maven 1 Snapshots Repository</name>
+            <url>http://people.apache.org/repo/m1-snapshot-repository</url>
+            <layout>legacy</layout>
             <snapshots>
                 <enabled>true</enabled>
                 <updatePolicy>daily</updatePolicy>
                 <checksumPolicy>ignore</checksumPolicy>
             </snapshots>
             <releases>
-                <enabled>false</enabled>
-            </releases>
-        </repository>
-        
-        <repository>
-            <id>codehaus</id>
-            <name>Codehaus Repository</name>
-            <url>http://repository.codehaus.org</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
                 <enabled>true</enabled>
-            </releases>
-        </repository>
-
-        <repository>
-            <id>codehaus-snapshots</id>
-            <name>Codehaus Snapshots Repository</name>
-            <url>http://snapshots.repository.codehaus.org</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
             </releases>
         </repository>
         
@@ -1018,81 +846,19 @@
                 <enabled>true</enabled>
             </releases>
         </repository>
+        
     </repositories>
     
-    <pluginRepositories>
-        <pluginRepository>
-            <id>mergere</id>
-            <name>Mergere Repository</name>
-            <url>http://repo.mergere.com/maven2</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </pluginRepository>
-
-        <pluginRepository>
-            <id>codehaus</id>
-            <name>Codehaus Repository</name>
-            <url>http://repository.codehaus.org</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </pluginRepository>
-
-        <pluginRepository>
-            <id>codehaus-snapshots</id>
-            <name>Codehaus Snapshots Repository</name>
-            <url>http://snapshots.repository.codehaus.org</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-        </pluginRepository>
-    </pluginRepositories>
-    
     <distributionManagement>
-        <repository>
-            <id>apache-repo</id>
-            <name>Apache CVS Repository</name>
-            <url>scpexe://cvs.apache.org/www/cvs.apache.org/maven-snapshot-repository</url>
-        </repository>
-
-        <snapshotRepository>
-            <id>apache-snapshots</id>
-            <name>Apache CVS Development Repository</name>
-            <url>scpexe://cvs.apache.org/www/cvs.apache.org/maven-snapshot-repository</url>
-        </snapshotRepository>
-
+        <!--
+        NOTE: The repository and snapshotRepository are picked up from Genesis.
+        -->
+        
         <site>
             <id>geronimo-website</id>
-            <url>scpexe://people.apache.org/www/geronimo.apache.org/maven/</url>
+            <url>scp://people.apache.org/www/geronimo.apache.org/maven</url>
         </site>
     </distributionManagement>
-    
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-report-plugin</artifactId>
-                <version>2.0</version>
-            </plugin>
-        </plugins>
-    </reporting>
     
     <profiles>
         <profile>
@@ -1101,28 +867,23 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-
+            
             <modules>
                 <module>modules</module>
                 <module>m2-plugins</module>
                 <module>applications</module>
                 <module>configs</module>
-                <!--
-                <module>assemblies</module>
-                -->
+                <module>m2-assemblies</module>
             </modules>
         </profile>
         
         <!--
-           | NOTE: The staged build is used to get around a problem with Maven
-           |       and extention plugins.
-           |
-           |           http://jira.codehaus.org/browse/MNG-1911
-           |
-           |       When this problem has been fixed, then we can remove the need
-           |       for these stages.
-         -->
-         
+        NOTE: The staged build is used to get around a problem with Maven
+              and extention plugins.
+              
+              See http://issues.apache.org/jira/browse/GERONIMO-2172 for more details.
+        -->
+        
         <profile>
             <id>stage-bootstrap</id>
             
@@ -1135,12 +896,11 @@
             
             <modules>
                 <!--
-                   | NOTE: This should really only include the bare minimum set of modules
-                   |       that are required to build the plugins.  But right now that set
-                   |       includes most modules, so for now just build everything.
-                   |       Fix this when the modules are reorganized.
-                 -->
-                
+                NOTE: This should really only include the bare minimum set of modules
+                      that are required to build the plugins.  But right now that set
+                      includes most modules, so for now just build everything.
+                      Fix this when the modules are reorganized.
+                -->
                 <module>modules</module>
                 <module>m2-plugins</module>
             </modules>
@@ -1159,9 +919,48 @@
             <modules>
                 <module>applications</module>
                 <module>configs</module>
+                <module>m2-assemblies</module>
+            </modules>
+        </profile>
+        
+        <profile>
+            <id>release-environment</id>
+            
+            <activation>
+                <property>
+                    <name>env</name>
+                    <value>release</value>
+                </property>
+            </activation>
+            
+            <modules>
+                <module>modules</module>
+                <module>m2-plugins</module>
+                
                 <!--
-                <module>assemblies</module>
+                NOTE: Probably do not want to publish these to the repo...  Or do we?
+                
+                <module>applications</module>
+                <module>configs</module>
+                <module>m2-assemblies</module>
                 -->
+            </modules>
+        </profile>
+        
+        <profile>
+            <id>site-environment</id>
+            
+            <activation>
+                <property>
+                    <name>env</name>
+                    <value>site</value>
+                </property>
+            </activation>
+            
+            <modules>
+                <module>modules</module>
+                <module>m2-plugins</module>
+                <module>applications</module>
             </modules>
         </profile>
     </profiles>

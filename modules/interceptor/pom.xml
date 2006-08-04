@@ -17,12 +17,13 @@
 
 <!-- $Rev: 411333 $ $Date: 2006-06-02 16:35:57 -0700 (Fri, 02 Jun 2006) $ -->
 
-<project>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
         <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>modules-parent</artifactId>
+        <artifactId>modules</artifactId>
         <version>1.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
@@ -31,7 +32,22 @@
     <name>Geronimo :: Interceptor</name>
     <packaging>jar</packaging>
     
+    <!--
+    
+    HACK: Need to explicitly configure SCM for this module since its artifactId
+          does not match the directory it lives in.
+    
+    FIXME: Rename module directory or artifactId.
+    
+    -->
+    <scm>
+        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/interceptor</connection>
+        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/interceptor</developerConnection>
+        <url>http://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/interceptor</url>
+    </scm>
+    
     <build>
+        <!-- FIXME: Remove when the default is to use the m2 standard layout -->
         <sourceDirectory>${pom.basedir}/src/main/java</sourceDirectory>
         <testSourceDirectory>${pom.basedir}/src/test/java</testSourceDirectory>
     </build>

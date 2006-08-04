@@ -139,6 +139,10 @@ public abstract class AbstractLogTest extends TestCase {
                         }
                         localDuration = System.currentTimeMillis() - localStartTime;
                     } catch (Exception e) {
+                        //
+                        // FIXME: Remove System.err usage
+                        //
+                        
                         System.err.println(Thread.currentThread().getName());
                         e.printStackTrace(System.err);
                         exception = true;

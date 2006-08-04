@@ -17,12 +17,13 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>configs-parent</artifactId>
+        <artifactId>configs</artifactId>
         <version>1.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
@@ -30,6 +31,20 @@
     <artifactId>servlet-examples-tomcat</artifactId>
     <name>Geronimo Configs :: Servlet Examples for Tomcat</name>
     <packaging>car</packaging>
+    
+    <!--
+    
+    HACK: Need to explicitly configure SCM for this module since its artifactId
+          does not match the directory it lives in.
+    
+    FIXME: Rename module directory or artifactId.
+    
+    -->
+    <scm>
+        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/configs/servlets-examples-tomcat</connection>
+        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/configs/servlets-examples-tomcat</developerConnection>
+        <url>http://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/configs/servlets-examples-tomcat</url>
+    </scm>
     
     <dependencies>
     
@@ -52,13 +67,32 @@
     </dependencies>
     
     <build>
+        <resources>
+            <resource>
+                <directory>${pom.basedir}/src/conf</directory>
+                <targetPath>META-INF</targetPath>
+                <includes>
+                    <include>geronimo-plugin.xml</include>
+                </includes>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        
         <plugins>
             <plugin>
                 <groupId>org.apache.geronimo.plugins</groupId>
-                <artifactId>geronimo-packaging-plugin</artifactId>
+                <artifactId>car-maven-plugin</artifactId>
                 <configuration>
-                    <deploymentConfig>${j2eeTomcatServer}</deploymentConfig>
+                    <deploymentConfigs>
+                        <deploymentConfig>${gbeanDeployer}</deploymentConfig>
+                        <deploymentConfig>${j2eeDeployer}</deploymentConfig>
+                        <deploymentConfig>${tomcatDeployer}</deploymentConfig>
+                        <deploymentConfig>${clientDeployer}</deploymentConfig>
+                        <deploymentConfig>${openejbDeployer}</deploymentConfig>
+                        <deploymentConfig>${axisDeployer}</deploymentConfig>
+                    </deploymentConfigs>
                     <moduleFile>${settings.localRepository}/geronimo-samples/geronimo-servlet-examples-tomcat/${tomcatVersion}/geronimo-servlet-examples-tomcat-${tomcatVersion}.war</moduleFile>
+                    <geronimoPlugin>true</geronimoPlugin>
                 </configuration>
             </plugin>
         </plugins>

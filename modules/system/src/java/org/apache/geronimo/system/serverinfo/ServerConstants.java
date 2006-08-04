@@ -68,28 +68,35 @@ public class ServerConstants {
     static {
         Properties versionInfo = new Properties();
         try {
-            versionInfo.load(ServerConstants.class.getClassLoader().getResourceAsStream("org/apache/geronimo/system/serverinfo/geronimo-version.properties"));
-        } catch (java.io.IOException e) {
-            throw new ExceptionInInitializerError(new Exception("Could not load geronimo-version.properties", e));
+            java.io.InputStream input = ServerConstants.class.getClassLoader().getResourceAsStream("org/apache/geronimo/system/serverinfo/geronimo-version.properties");
+            if (input == null) {
+                throw new Error("Missing geronimo-version.properties");
+            }
+            
+            versionInfo.load(input);
         }
+        catch (java.io.IOException e) {
+            throw new Error("Could not load geronimo-version.properties", e);
+        }
+        
         VERSION = versionInfo.getProperty("version");
         if (VERSION == null || VERSION.length() == 0) {
-            throw new ExceptionInInitializerError("geronimo-version.properties does not contain a 'version' property");
+            throw new Error("geronimo-version.properties does not contain a 'version' property");
         }
 
         BUILD_DATE = versionInfo.getProperty("build.date");
         if (BUILD_DATE == null || BUILD_DATE.length() == 0) {
-            throw new ExceptionInInitializerError("geronimo-version.properties does not contain a 'build.date' property");
+            throw new Error("geronimo-version.properties does not contain a 'build.date' property");
         }
 
         BUILD_TIME = versionInfo.getProperty("build.time");
         if (BUILD_TIME == null || BUILD_TIME.length() == 0) {
-            throw new ExceptionInInitializerError("geronimo-version.properties does not contain a 'build.time' property");
+            throw new Error("geronimo-version.properties does not contain a 'build.time' property");
         }
 
         COPYRIGHT = versionInfo.getProperty("copyright");
         if (COPYRIGHT == null || COPYRIGHT.length() == 0) {
-            throw new ExceptionInInitializerError("geronimo-version.properties does not contain a 'copyright' property");
+            throw new Error("geronimo-version.properties does not contain a 'copyright' property");
         }
     }
 }

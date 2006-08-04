@@ -17,28 +17,27 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project
-    xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
         <groupId>org.apache.geronimo</groupId>
-        <artifactId>geronimo-parent</artifactId>
+        <artifactId>geronimo</artifactId>
         <version>1.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <groupId>org.apache.geronimo.modules</groupId>
-    <artifactId>modules-parent</artifactId>
+    <artifactId>modules</artifactId>
     <name>Geronimo :: Modules</name>
     <packaging>pom</packaging>
     
     <modules>
         <module>activation</module>
         <module>activemq-embedded-rar</module>
+        <module>activemq-gbean</module>
+        <module>activemq-gbean-management</module>
         <module>axis</module>
         <module>axis-builder</module>
         <module>client</module>
@@ -46,6 +45,9 @@
         <module>common</module>
         <module>connector</module>
         <module>connector-builder</module>
+        <!--
+        <module>console-web</module>
+        -->
         <module>converter</module>
         <module>core</module>
         <module>deploy-config</module>
@@ -56,7 +58,9 @@
         <module>directory</module>
         <module>hot-deploy</module>
         <module>installer-processing</module>
-        <!-- <module>installer-support</module> -->
+        <!--
+        <module>installer-support</module>
+        -->
         <module>interceptor</module>
         <module>j2ee</module>
         <module>j2ee-builder</module>
@@ -65,16 +69,14 @@
         <module>jetty-builder</module>
         <module>jmx-remoting</module>
         <module>kernel</module>
-        <module>management</module>
         <module>mail</module>
+        <module>management</module>
         <module>naming</module>
         <module>naming-builder</module>
         <module>scripts</module>
         <module>security</module>
         <module>security-builder</module>
         <module>service-builder</module>
-        <!-- <module>session</module> -->
-        <!-- <module>spring</module> -->
         <module>system</module>
         <module>test-ddbean</module>
         <module>timer</module>

@@ -44,10 +44,15 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * @version $Rev$ $Date$
  */
 public class ServerOverrideTest extends TestCase {
+    private static final Log log = LogFactory.getLog(ServerOverrideTest.class);
+    
     public void testBasics() throws Exception {
         GBeanOverride pizza = new GBeanOverride("Pizza", true);
         assertTrue(pizza.isLoad());
@@ -304,9 +309,7 @@ public class ServerOverrideTest extends TestCase {
         xform.setOutputProperty(OutputKeys.INDENT, "yes");
         xform.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
         xform.transform(new DOMSource(e), new StreamResult(out));
-        System.out.println();
-        System.out.println();
-        System.out.println(new String(out.toByteArray()));
+        log.debug(new String(out.toByteArray()));
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
         return parseXml(in, name);
     }

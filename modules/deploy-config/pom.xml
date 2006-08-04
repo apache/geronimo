@@ -17,24 +17,40 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>modules-parent</artifactId>
+        <artifactId>modules</artifactId>
         <version>1.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>geronimo-deploy-config</artifactId>
-    <packaging>jar</packaging>
     <name>Geronimo :: Deploy :: Common Config</name>
-    <description>The deployment module contains basic infrastructure and base classes for module builders / deployers. This module contains infrastructure and base classes for JSR-88 DConfigBeans.</description>
-
-    <!-- ============ -->
-    <!-- Dependencies -->
-    <!-- ============ -->
+    <packaging>jar</packaging>
+    
+    <description>
+        The deployment module contains basic infrastructure and base classes for 
+        module builders / deployers. This module contains infrastructure and base 
+        classes for JSR-88 DConfigBeans.
+    </description>
+    
+    <!--
+    
+    HACK: Need to explicitly configure SCM for this module since its artifactId
+          does not match the directory it lives in.
+    
+    FIXME: Rename module directory or artifactId.
+    
+    -->
+    <scm>
+        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/deploy-config</connection>
+        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/deploy-config</developerConnection>
+        <url>http://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/deploy-config</url>
+    </scm>
     
     <dependencies>
         <dependency>
@@ -52,5 +68,6 @@
             <artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>
         </dependency>
     </dependencies>
+    
 </project>
 

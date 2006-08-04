@@ -17,12 +17,13 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>configs-parent</artifactId>
+        <artifactId>configs</artifactId>
         <version>1.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
@@ -59,30 +60,28 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.geronimo.plugins</groupId>
-                <artifactId>geronimo-packaging-plugin</artifactId>
+                <artifactId>car-maven-plugin</artifactId>
                 <configuration>
-                    <!-- uses default DeploymentConfig=geronimo-gbean-deployer -->
-                    <!-- written to Manifest.mf -->
-                    <classPath>\
-                        ../lib/geronimo-qname_1.1_spec-${geronimoSpecQnameVersion}.jar \
-                        ../lib/geronimo-common-${pom.version}.jar \
-                        ../lib/geronimo-kernel-${pom.version}.jar \
-                        ../lib/geronimo-system-${pom.version}.jar \
-                        ../lib/geronimo-util-${pom.version}.jar \
-                        ../lib/cglib-nodep-${cglibVersion}.jar \
-                        ../lib/commons-cli-${commonsCliVersion}.jar \
-                        ../lib/commons-logging-${commonsLoggingVersion}.jar \
-                        ../lib/log4j-${log4jVersion}.jar \
-                        ../lib/mx4j-${mx4jVersion}.jar \
-                        ../lib/mx4j-remote-${mx4jVersion}.jar \
-                        ../lib/endorsed/xercesImpl-${xercesVersion}.jar \
-                        ../lib/endorsed/xmlParserAPIs-${xmlParserApisVersion}.jar \
-                        ../lib/xpp3-${xpp3Version}.jar \
-                        ../lib/xstream-${xstreamVersion}.jar</classPath>
-                     <mainClass>org.apache.geronimo.system.main.Daemon</mainClass>
-                     <logLevel>DEBUG</logLevel>
-                     <!-- default endorsedDirs and extensionDirs -->
-                     <!-- default explicitResolutionLocation -->
+                    <classPath>
+                        <element>../lib/geronimo-qname_1.1_spec-${geronimoSpecQnameVersion}.jar</element>
+                        <element>../lib/geronimo-common-${pom.version}.jar</element>
+                        <element>../lib/geronimo-kernel-${pom.version}.jar</element>
+                        <element>../lib/geronimo-system-${pom.version}.jar</element>
+                        <element>../lib/geronimo-util-${pom.version}.jar</element>
+                        <element>../lib/cglib-nodep-${cglibVersion}.jar</element>
+                        <element>../lib/concurrent-${concurrentVersion}.jar</element>
+                        <element>../lib/commons-cli-${commonsCliVersion}.jar</element>
+                        <element>../lib/commons-logging-${commonsLoggingVersion}.jar</element>
+                        <element>../lib/log4j-${log4jVersion}.jar</element>
+                        <element>../lib/mx4j-${mx4jVersion}.jar</element>
+                        <element>../lib/mx4j-remote-${mx4jVersion}.jar</element>
+                        <element>../lib/endorsed/xercesImpl-${xercesVersion}.jar</element>
+                        <element>../lib/endorsed/xmlParserAPIs-${xmlParserApisVersion}.jar</element>
+                        <element>../lib/xpp3-${xpp3Version}.jar</element>
+                        <element>../lib/xstream-${xstreamVersion}.jar</element>
+                    </classPath>
+                    <mainClass>org.apache.geronimo.system.main.Daemon</mainClass>
+                    <logLevel>DEBUG</logLevel>
                 </configuration>
             </plugin>
         </plugins>

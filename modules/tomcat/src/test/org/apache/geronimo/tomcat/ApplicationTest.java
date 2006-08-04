@@ -24,20 +24,20 @@ import java.net.URL;
 
 
 /**
- * @version $Rev: 387050 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class ApplicationTest extends AbstractWebModuleTest {
-
+    private File basedir = new File(System.getProperty("basedir"));
+    
     public void testApplication() throws Exception {
-        setUpInsecureAppContext(new File("target/var/catalina/webapps/war1/").toURI(),
-                new File("target/var/catalina/webapps/war1/WEB-INF/web.xml").toURL(),
+        setUpInsecureAppContext(new File(basedir, "target/var/catalina/webapps/war1/").toURI(),
+                new File(basedir, "target/var/catalina/webapps/war1/WEB-INF/web.xml").toURL(),
                 null,
                 null,
                 null,
                 null);
 
-        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8181/test/hello.txt")
-                .openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8181/test/hello.txt").openConnection();
         BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
         assertEquals("Hello World", reader.readLine());

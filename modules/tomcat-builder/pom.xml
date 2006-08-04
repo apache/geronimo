@@ -17,12 +17,13 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>modules-parent</artifactId>
+        <artifactId>modules</artifactId>
         <version>1.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
@@ -30,11 +31,19 @@
     <artifactId>geronimo-tomcat-builder</artifactId>
     <name>Geronimo :: Tomcat :: Builder</name>
     
-    <properties>
-        <buildDir>${project.build.directory}</buildDir>
-        <endorsedDir>${buildDir}/endorsed</endorsedDir>
-        <localRepoDir>${settings.localRepository}</localRepoDir>
-    </properties>
+    <!--
+    
+    HACK: Need to explicitly configure SCM for this module since its artifactId
+          does not match the directory it lives in.
+    
+    FIXME: Rename module directory or artifactId.
+    
+    -->
+    <scm>
+        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/tomcat-builder</connection>
+        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/tomcat-builder</developerConnection>
+        <url>http://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/tomcat-builder</url>
+    </scm>
     
     <dependencies>
         
@@ -130,8 +139,16 @@
     </dependencies>
     
     <build>
-        <!-- move this to parent pom -->
         <resources>
+            <resource>
+                <directory>${pom.basedir}</directory>
+                <targetPath>META-INF</targetPath>
+                <includes>
+                    <include>LICENSE.txt</include>
+                    <include>NOTICE.txt</include>
+                </includes>
+            </resource>
+            
             <resource>
                 <directory>src/schema</directory>
                 <targetPath>META-INF</targetPath>
@@ -147,11 +164,15 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <systemProperties>
-                        <java.endorsed.dirs>${endorsedDir}</java.endorsed.dirs>
-                        <java.security.auth.login.config>src/test-resources/data/login.config</java.security.auth.login.config>
-                        <user.dir>${basedir}</user.dir>
+                        <property>
+                            <name>java.endorsed.dirs</name>
+                            <value>${project.build.directory}/endorsed</value>
+                        </property>
+                        <property>
+                            <name>java.security.auth.login.config</name>
+                            <value>src/test-resources/data/login.config</value>
+                        </property>
                     </systemProperties>
-                    <forkMode>once</forkMode>
                 </configuration>
             </plugin>
 
@@ -162,30 +183,53 @@
                     <sourceSchemas>geronimo-tomcat-1.1.xsd,geronimo-tomcat-config-1.0.xsd</sourceSchemas>
                 </configuration>
             </plugin>
-
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
+                
                 <executions>
+                    <!--
+                    HACK: Copy the generated XmlBeans bits for clover
+                    -->
                     <execution>
+                        <id>copy-xmlbeans-for-clover</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <mkdir dir="${pom.basedir}/target/clover/classes"/>
+                                <copy todir="${pom.basedir}/target/clover/classes">
+                                    <fileset dir="${pom.basedir}/target/classes">
+                                        <include name="schemaorg_apache_xmlbeans/**"/>
+                                    </fileset>
+                                </copy>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                    
+                    <execution>
+                        <id>setup-test-environment</id>
                         <phase>process-test-resources</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
                         <configuration>
                             <tasks>
-                                <copy todir="${buildDir}/var/catalina/conf" file="src/var/web.xml" />
-                                <copy todir="${buildDir}/var/catalina/webapps">
+                                <copy todir="${project.build.directory}/var/catalina/conf" file="src/var/web.xml"/>
+                                <copy todir="${project.build.directory}/var/catalina/webapps">
                                     <fileset dir="src/test-resources/deployables">
-                                        <include name="war1/**" />
-                                        <include name="war3/**" />
-                                        <include name="war4/**" />
+                                        <include name="war1/**"/>
+                                        <include name="war3/**"/>
+                                        <include name="war4/**"/>
                                     </fileset>
                                 </copy>
-                                <copy todir="${endorsedDir}" flatten="true">
-                                    <fileset dir="${localRepoDir}">
-                                        <include name="xerces/xercesImpl/${xercesVersion}/*.jar" />
-                                        <include name="xml-apis/xml-apis/${xmlApisVersion}/*.jar" />
+                                <copy todir="${project.build.directory}/endorsed" flatten="true">
+                                    <fileset dir="${settings.localRepository}">
+                                        <include name="xerces/xercesImpl/${xercesVersion}/*.jar"/>
+                                        <include name="xml-apis/xml-apis/${xmlApisVersion}/*.jar"/>
                                     </fileset>
                                 </copy>
                             </tasks>

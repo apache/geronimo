@@ -33,6 +33,8 @@ import org.apache.geronimo.kernel.repository.Artifact;
  * @version $Rev$ $Date$
  */
 public class ClassLoaderTest extends TestCase {
+    private File basedir = new File(System.getProperty("basedir"));
+    
     Artifact configId = new Artifact("foo", "bar", "1", "car");
     ClassLoader cl;
     URL[] urls;
@@ -41,9 +43,7 @@ public class ClassLoaderTest extends TestCase {
 
     public void setUp() throws Exception {
         super.setUp();
-        URL url = new File("src/test-resources/deployables/cltest/").toURL();
-//        URL url = getClass().getClassLoader().getResource("deployables/cltest/");
-        System.err.println("URL: " + url);
+        URL url = new File(basedir, "src/test-resources/deployables/cltest/").toURL();
         urls = new URL[]{url};
     }
 

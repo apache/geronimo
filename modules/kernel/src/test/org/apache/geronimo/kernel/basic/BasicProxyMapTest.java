@@ -98,7 +98,7 @@ public class BasicProxyMapTest extends TestCase {
         Object value1 = new Object();
         Object value2 = new Object();
 
-        class IdentityTest {
+        class IdentityTest1 {
             public int hashCode() { return 1; }
             public boolean equals(Object o) { return true; }
         }
@@ -107,8 +107,8 @@ public class BasicProxyMapTest extends TestCase {
             public boolean equals(Object o) { return false; }
         }
         
-        Object key1 = new IdentityTest();
-        Object key2 = new IdentityTest();
+        Object key1 = new IdentityTest1();
+        Object key2 = new IdentityTest1();
         
         assertNull(map.put(key1, value1));
         assertNull(map.get(key2));

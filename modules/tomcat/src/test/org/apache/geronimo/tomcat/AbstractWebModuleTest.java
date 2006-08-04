@@ -50,7 +50,8 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
  * @version $Rev$ $Date$
  */
 public abstract class AbstractWebModuleTest extends TestCase {
-
+    private File basedir = new File(System.getProperty("basedir"));
+    
     protected ClassLoader cl;
     protected final static String securityRealmName = "demo-properties-realm";
     private ConnectorGBean connector;
@@ -99,8 +100,8 @@ public abstract class AbstractWebModuleTest extends TestCase {
         ApplicationPolicyConfigurationManager jacc = new ApplicationPolicyConfigurationManager(contextIDToPermissionsMap, roleDesignates, cl, roleMapper);
         jacc.doStart();
 
-        URL configurationBaseURL = new File("target/var/catalina/webapps/war3/WEB-INF/web.xml").toURL();
-        return setUpInsecureAppContext(new File("target/var/catalina/webapps/war3/").toURI(),
+        URL configurationBaseURL = new File(basedir, "target/var/catalina/webapps/war3/WEB-INF/web.xml").toURL();
+        return setUpInsecureAppContext(new File(basedir, "target/var/catalina/webapps/war3/").toURI(),
                 configurationBaseURL,
                 securityHolder,
                 jacc,
@@ -116,8 +117,8 @@ public abstract class AbstractWebModuleTest extends TestCase {
         new SecurityServiceImpl(cl, serverInfo, "org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory", "org.apache.geronimo.security.jacc.GeronimoPolicy", null, null, null, null);
 
         Properties options = new Properties();
-        options.setProperty("usersURI", "src/test-resources/data/users.properties");
-        options.setProperty("groupsURI", "src/test-resources/data/groups.properties");
+        options.setProperty("usersURI", new File(basedir, "src/test-resources/data/users.properties").toURI().toString());
+        options.setProperty("groupsURI", new File(basedir, "src/test-resources/data/groups.properties").toURI().toString());
 
         LoginModuleGBean loginModule = new LoginModuleGBean("org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule", null, true, true, cl);
         loginModule.setLoginDomainName(domainName);
@@ -177,7 +178,7 @@ public abstract class AbstractWebModuleTest extends TestCase {
         engine.doStart();
 
         ServerInfo serverInfo = new BasicServerInfo(".");
-        container = new TomcatContainer(cl, "target/var/catalina", engine, serverInfo, null, null);
+        container = new TomcatContainer(cl, new File(basedir, "target/var/catalina").toString(), engine, serverInfo, null, null);
         container.doStart();
 
         connector = new ConnectorGBean("HTTP", null, "localhost", 8181, container);

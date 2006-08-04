@@ -37,7 +37,8 @@ import java.util.Properties;
  * @version $Rev$ $Date$
  */
 public class LoginPropertiesFileTest extends AbstractTest {
-
+    private File basedir = new File(System.getProperty("basedir"));
+    
     protected AbstractName clientLM;
     protected AbstractName clientCE;
     protected AbstractName testCE;
@@ -74,8 +75,8 @@ public class LoginPropertiesFileTest extends AbstractTest {
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule");
         gbean.setAttribute("serverSide", Boolean.TRUE);
         props = new Properties();
-        props.put("usersURI", new File(new File("."), "src/test-data/data/users.properties").toURI().toString());
-        props.put("groupsURI", new File(new File("."), "src/test-data/data/groups.properties").toURI().toString());
+        props.put("usersURI", new File(basedir, "src/test-data/data/users.properties").toURI().toString());
+        props.put("groupsURI", new File(basedir, "src/test-data/data/groups.properties").toURI().toString());
         gbean.setAttribute("options", props);
         gbean.setAttribute("loginDomainName", "TestProperties");
         gbean.setAttribute("wrapPrincipals", Boolean.TRUE);

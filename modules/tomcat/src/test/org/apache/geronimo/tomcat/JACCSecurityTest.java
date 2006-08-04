@@ -45,7 +45,7 @@ import org.apache.geronimo.tomcat.util.SecurityHolder;
 /**
  * Tests the JACC security for Tomcat
  *
- * @version $Revision: 387050 $ $Date$
+ * @version $Revision$ $Date$
  */
 public class JACCSecurityTest extends AbstractWebModuleTest {
 
@@ -183,8 +183,6 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
                 componentPermissions,
                 null,
                 securityHolder);
-
-
     }
 
     protected void stopWebApp() throws Exception {

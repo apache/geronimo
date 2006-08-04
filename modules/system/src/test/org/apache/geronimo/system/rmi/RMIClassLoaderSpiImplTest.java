@@ -27,13 +27,17 @@ import java.io.InputStream;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Unit tests for {@link RMIClassLoaderSpiImpl} class.
  *
  * @version $Rev$ $Date$
  */
-public class RMIClassLoaderSpiImplTest
-        extends TestCase {
+public class RMIClassLoaderSpiImplTest extends TestCase {
+    private static final Log log = LogFactory.getLog(RMIClassLoaderSpiImplTest.class);
+    
     private String baseURL;
     private String normalizedBaseURL;
 
@@ -50,8 +54,8 @@ public class RMIClassLoaderSpiImplTest
             normalizedBaseURL = normalizedBaseURL.substring(0, normalizedBaseURL.length() - 1);
         }
 
-        System.out.println("Using base URL: " + baseURL);
-        System.out.println("Using normalized base URL: " + normalizedBaseURL);
+        log.debug("Using base URL: " + baseURL);
+        log.debug("Using normalized base URL: " + normalizedBaseURL);
     }
 
     public void testNormalizeURL() throws MalformedURLException {
