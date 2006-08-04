@@ -75,6 +75,7 @@ import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.Version;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
 import org.apache.geronimo.kernel.InvalidGBeanException;
+import org.apache.geronimo.kernel.util.XmlUtil;
 import org.apache.geronimo.system.configuration.ConfigurationStoreUtil;
 import org.apache.geronimo.system.configuration.GBeanOverride;
 import org.apache.geronimo.system.configuration.PluginAttributeStore;
@@ -269,7 +270,7 @@ public class PluginInstallerGBean implements PluginInstaller {
                         entry = new JarEntry(entry.getName());
                         out.putNextEntry(entry);
                         Document doc = writePluginMetadata(metadata);
-                        TransformerFactory xfactory = TransformerFactory.newInstance();
+                        TransformerFactory xfactory = XmlUtil.newTransformerFactory();
                         Transformer xform = xfactory.newTransformer();
                         xform.setOutputProperty(OutputKeys.INDENT, "yes");
                         xform.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
@@ -313,7 +314,7 @@ public class PluginInstallerGBean implements PluginInstaller {
                     }
                 }
                 Document doc = writePluginMetadata(metadata);
-                TransformerFactory xfactory = TransformerFactory.newInstance();
+                TransformerFactory xfactory = XmlUtil.newTransformerFactory();
                 Transformer xform = xfactory.newTransformer();
                 xform.setOutputProperty(OutputKeys.INDENT, "yes");
                 xform.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
@@ -1055,7 +1056,7 @@ public class PluginInstallerGBean implements PluginInstaller {
             return null;
         }
         // Don't use the validating parser that we normally do
-        DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        DocumentBuilder builder = XmlUtil.newDocumentBuilderFactory().newDocumentBuilder();
         Document doc = builder.parse(in);
         Element root = doc.getDocumentElement();
         NodeList list = root.getElementsByTagName("versions");
@@ -1091,7 +1092,7 @@ public class PluginInstallerGBean implements PluginInstaller {
      */
     private void readNameAndID(File xml, Map plugins) {
         try {
-            SAXParserFactory factory = SAXParserFactory.newInstance();
+            SAXParserFactory factory = XmlUtil.newSAXParserFactory();
             SAXParser parser = factory.newSAXParser();
             PluginNameIDHandler handler = new PluginNameIDHandler();
             parser.parse(xml, handler);
@@ -1112,7 +1113,7 @@ public class PluginInstallerGBean implements PluginInstaller {
      */
     private void readNameAndID(InputStream xml, Map plugins) {
         try {
-            SAXParserFactory factory = SAXParserFactory.newInstance();
+            SAXParserFactory factory = XmlUtil.newSAXParserFactory();
             SAXParser parser = factory.newSAXParser();
             PluginNameIDHandler handler = new PluginNameIDHandler();
             parser.parse(xml, handler);
@@ -1243,7 +1244,7 @@ public class PluginInstallerGBean implements PluginInstaller {
      * @throws ParserConfigurationException
      */
     private static DocumentBuilder createDocumentBuilder() throws ParserConfigurationException {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilderFactory factory = XmlUtil.newDocumentBuilderFactory();
         factory.setValidating(true);
         factory.setNamespaceAware(true);
         factory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaLanguage",

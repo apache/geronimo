@@ -20,6 +20,7 @@ import junit.framework.TestCase;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.util.XmlUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -31,13 +32,11 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.OutputKeys;
-import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.dom.DOMSource;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
@@ -282,7 +281,7 @@ public class ServerOverrideTest extends TestCase {
     }
 
     private Element parseXml(InputStream in, String name) throws Exception {
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilderFactory documentBuilderFactory = XmlUtil.newDocumentBuilderFactory();
         Document doc = documentBuilderFactory.newDocumentBuilder().parse(in);
         Element elem = doc.getDocumentElement();
         if(elem.getNodeName().equals(name)) {
@@ -293,14 +292,14 @@ public class ServerOverrideTest extends TestCase {
     }
 
     private Document createDocument() throws ParserConfigurationException {
-        DocumentBuilderFactory dFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilderFactory dFactory = XmlUtil.newDocumentBuilderFactory();
         dFactory.setValidating(false);
         return dFactory.newDocumentBuilder().newDocument();
     }
 
     private Element readElement(Element e, String name) throws Exception {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        TransformerFactory xfactory = TransformerFactory.newInstance();
+        TransformerFactory xfactory = XmlUtil.newTransformerFactory();
         Transformer xform = xfactory.newTransformer();
         xform.setOutputProperty(OutputKeys.INDENT, "yes");
         xform.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");

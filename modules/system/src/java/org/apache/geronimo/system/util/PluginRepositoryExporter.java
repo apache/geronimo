@@ -40,6 +40,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.geronimo.kernel.config.IOUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Version;
+import org.apache.geronimo.kernel.util.XmlUtil;
 import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
 import org.apache.geronimo.system.configuration.ConfigurationStoreUtil;
 import org.apache.geronimo.system.configuration.GBeanOverride;
@@ -237,7 +238,7 @@ public class PluginRepositoryExporter {
             }
             Map plugins = installer.getInstalledPlugins();
             Document doc = generateConfigFile(installer, plugins.values());
-            TransformerFactory xfactory = TransformerFactory.newInstance();
+            TransformerFactory xfactory = XmlUtil.newTransformerFactory();
             Transformer xform = xfactory.newTransformer();
             xform.setOutputProperty(OutputKeys.INDENT, "yes");
             xform.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
@@ -291,7 +292,7 @@ public class PluginRepositoryExporter {
 
     private void updateMavenMetadata(File dir, Artifact artifact) throws TransformerException, IOException, SAXException, ParserConfigurationException {
         File mavenFile = new File(dir, "maven-metadata.xml");
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilderFactory factory = XmlUtil.newDocumentBuilderFactory();
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document doc;
         if(mavenFile.exists()) {
@@ -323,7 +324,7 @@ public class PluginRepositoryExporter {
             newVersion.appendChild(doc.createTextNode(artifact.getVersion().toString()));
             versionsElement.appendChild(newVersion);
         }
-        TransformerFactory xfactory = TransformerFactory.newInstance();
+        TransformerFactory xfactory = XmlUtil.newTransformerFactory();
         Transformer xform = xfactory.newTransformer();
         xform.setOutputProperty(OutputKeys.INDENT, "yes");
         xform.transform(new DOMSource(doc), new StreamResult(mavenFile));
@@ -344,7 +345,7 @@ public class PluginRepositoryExporter {
 
 
     private Document generateConfigFile(PluginInstaller installer, Collection plugins) throws ParserConfigurationException {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilderFactory factory = XmlUtil.newDocumentBuilderFactory();
         factory.setNamespaceAware(true);
         factory.setValidating(true);
         factory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaLanguage",

@@ -36,6 +36,7 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.FileUtils;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Version;
+import org.apache.geronimo.kernel.util.XmlUtil;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -207,7 +208,7 @@ public class ConfigIDExtractor {
     }
 
     private static String extractModuleIdFromPlan(Reader plan) throws IOException {
-        SAXParserFactory factory = SAXParserFactory.newInstance();
+        SAXParserFactory factory = XmlUtil.newSAXParserFactory();
         factory.setNamespaceAware(true);
         factory.setValidating(false);
         try {

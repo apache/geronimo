@@ -33,6 +33,7 @@ import org.apache.geronimo.kernel.config.PersistentConfigurationList;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.InvalidGBeanException;
+import org.apache.geronimo.kernel.util.XmlUtil;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -365,7 +366,7 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         FileInputStream fis = new FileInputStream(attributeFile);
         InputSource in = new InputSource(fis);
         in.setSystemId(attributeFile.toString());
-        DocumentBuilderFactory dFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilderFactory dFactory = XmlUtil.newDocumentBuilderFactory();
         try {
             dFactory.setValidating(true);
             dFactory.setNamespaceAware(true);
@@ -453,7 +454,7 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
     }
 
     private static void saveXmlToFile(File file, ServerOverride serverOverride) {
-        DocumentBuilderFactory dFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilderFactory dFactory = XmlUtil.newDocumentBuilderFactory();
         dFactory.setValidating(true);
         dFactory.setNamespaceAware(true);
         dFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaLanguage",
@@ -464,7 +465,7 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         try {
             Document doc = dFactory.newDocumentBuilder().newDocument();
             serverOverride.writeXml(doc);
-            TransformerFactory xfactory = TransformerFactory.newInstance();
+            TransformerFactory xfactory = XmlUtil.newTransformerFactory();
             Transformer xform = xfactory.newTransformer();
             xform.setOutputProperty(OutputKeys.INDENT, "yes");
             xform.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");

@@ -33,6 +33,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.util.XmlUtil;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.GBeanState;
 import org.apache.geronimo.kernel.repository.Environment;
@@ -125,7 +126,7 @@ public class XStreamGBeanState implements GBeanState {
     private static Element storeGBeans(List gbeans) throws IOException {
         GBeanData[] gbeanDatas = (GBeanData[]) gbeans.toArray(new GBeanData[gbeans.size()]);
 
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilderFactory documentBuilderFactory = XmlUtil.newDocumentBuilderFactory();
         DocumentBuilder documentBuilder = null;
         try {
             documentBuilder = documentBuilderFactory.newDocumentBuilder();

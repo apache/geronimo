@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.kernel.util.XmlUtil;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXParseException;
@@ -44,7 +45,7 @@ public class ParserFactoryImpl implements ParserFactory {
 
     public ParserFactoryImpl(EntityResolver entityResolver) {
         this.entityResolver = entityResolver;
-        factory = DocumentBuilderFactory.newInstance();
+        factory = XmlUtil.newDocumentBuilderFactory();
         //sets "http://xml.org/sax/features/namespaces"
         factory.setNamespaceAware(true);
         //sets "http://xml.org/sax/features/validation"
