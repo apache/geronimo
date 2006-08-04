@@ -42,9 +42,9 @@
     
     -->
     <scm>
-        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/derby</connection>
-        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/derby</developerConnection>
-        <url>http://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/derby</url>
+        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/trunk/modules/derby</connection>
+        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk/modules/derby</developerConnection>
+        <url>http://svn.apache.org/repos/asf/geronimo/trunk/modules/derby</url>
     </scm>
     
     <dependencies>

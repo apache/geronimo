@@ -41,9 +41,9 @@
     
     -->
     <scm>
-        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/applications/console/console-ear</connection>
-        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/applications/console/console-ear</developerConnection>
-        <url>http://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/applications/console/console-ear</url>
+        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/trunk/applications/console/console-ear</connection>
+        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk/applications/console/console-ear</developerConnection>
+        <url>http://svn.apache.org/repos/asf/geronimo/trunk/applications/console/console-ear</url>
     </scm>
     
     <dependencies>

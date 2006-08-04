@@ -39,9 +39,9 @@
     
     -->
     <scm>
-        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/service-builder</connection>
-        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/service-builder</developerConnection>
-        <url>http://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/service-builder</url>
+        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/trunk/modules/service-builder</connection>
+        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk/modules/service-builder</developerConnection>
+        <url>http://svn.apache.org/repos/asf/geronimo/trunk/modules/service-builder</url>
     </scm>
     
     <dependencies>

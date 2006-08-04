@@ -42,9 +42,9 @@
     
     -->
     <scm>
-        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/jmx-remoting</connection>
-        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/jmx-remoting</developerConnection>
-        <url>http://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/jmx-remoting</url>
+        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/trunk/modules/jmx-remoting</connection>
+        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk/modules/jmx-remoting</developerConnection>
+        <url>http://svn.apache.org/repos/asf/geronimo/trunk/modules/jmx-remoting</url>
     </scm>
     
     <dependencies>

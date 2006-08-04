@@ -40,9 +40,9 @@
     
     -->
     <scm>
-        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/installer-processing</connection>
-        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/installer-processing</developerConnection>
-        <url>http://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/installer-processing</url>
+        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/trunk/modules/installer-processing</connection>
+        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk/modules/installer-processing</developerConnection>
+        <url>http://svn.apache.org/repos/asf/geronimo/trunk/modules/installer-processing</url>
     </scm>
     
     <dependencies>

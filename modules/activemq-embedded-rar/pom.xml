@@ -42,9 +42,9 @@
     
     -->
     <scm>
-        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/activemq-embedded-rar</connection>
-        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/activemq-embedded-rar</developerConnection>
-        <url>http://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/activemq-embedded-rar</url>
+        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/trunk/modules/activemq-embedded-rar</connection>
+        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk/modules/activemq-embedded-rar</developerConnection>
+        <url>http://svn.apache.org/repos/asf/geronimo/trunk/modules/activemq-embedded-rar</url>
     </scm>
     
     <build>

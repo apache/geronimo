@@ -41,9 +41,9 @@
     
     -->
     <scm>
-        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/configs/servlets-examples-tomcat</connection>
-        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/configs/servlets-examples-tomcat</developerConnection>
-        <url>http://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/configs/servlets-examples-tomcat</url>
+        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/trunk/configs/servlets-examples-tomcat</connection>
+        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk/configs/servlets-examples-tomcat</developerConnection>
+        <url>http://svn.apache.org/repos/asf/geronimo/trunk/configs/servlets-examples-tomcat</url>
     </scm>
     
     <dependencies>

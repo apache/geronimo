@@ -44,9 +44,9 @@
     
     -->
     <scm>
-        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/activemq-gbean</connection>
-        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/activemq-gbean</developerConnection>
-        <url>http://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/activemq-gbean</url>
+        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/trunk/modules/activemq-gbean</connection>
+        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk/modules/activemq-gbean</developerConnection>
+        <url>http://svn.apache.org/repos/asf/geronimo/trunk/modules/activemq-gbean</url>
     </scm>
     
     <dependencies>

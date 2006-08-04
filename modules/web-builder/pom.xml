@@ -40,9 +40,9 @@
     
     -->
     <scm>
-        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/web-builder</connection>
-        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/web-builder</developerConnection>
-        <url>http://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/web-builder</url>
+        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/trunk/modules/web-builder</connection>
+        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk/modules/web-builder</developerConnection>
+        <url>http://svn.apache.org/repos/asf/geronimo/trunk/modules/web-builder</url>
     </scm>
     
     <dependencies>

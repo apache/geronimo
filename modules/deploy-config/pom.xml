@@ -47,9 +47,9 @@
     
     -->
     <scm>
-        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/deploy-config</connection>
-        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/deploy-config</developerConnection>
-        <url>http://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/deploy-config</url>
+        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/trunk/modules/deploy-config</connection>
+        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk/modules/deploy-config</developerConnection>
+        <url>http://svn.apache.org/repos/asf/geronimo/trunk/modules/deploy-config</url>
     </scm>
     
     <dependencies>

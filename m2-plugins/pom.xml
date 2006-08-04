@@ -42,9 +42,9 @@
     
     -->
     <scm>
-        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/m2-plugins</connection>
-        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/m2-plugins</developerConnection>
-        <url>http://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/m2-plugins</url>
+        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/trunk/m2-plugins</connection>
+        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk/m2-plugins</developerConnection>
+        <url>http://svn.apache.org/repos/asf/geronimo/trunk/m2-plugins</url>
     </scm>
     
     <dependencies>

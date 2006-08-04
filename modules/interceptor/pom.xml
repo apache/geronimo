@@ -41,9 +41,9 @@
     
     -->
     <scm>
-        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/interceptor</connection>
-        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/interceptor</developerConnection>
-        <url>http://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/interceptor</url>
+        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/trunk/modules/interceptor</connection>
+        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk/modules/interceptor</developerConnection>
+        <url>http://svn.apache.org/repos/asf/geronimo/trunk/modules/interceptor</url>
     </scm>
     
     <build>

@@ -38,19 +38,10 @@
         Apache Geronimo, the J2EE server project of the Apache Software Foundation.
     </description>
     
-    <!--
-    FIXME: Replace when merged back to trunk
-    
     <scm>
         <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/trunk</connection>
         <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk</developerConnection>
         <url>http://svn.apache.org/repos/asf/geronimo/trunk</url>
-    </scm>
-    -->
-    <scm>
-        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration</connection>
-        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration</developerConnection>
-        <url>http://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration</url>
     </scm>
     
     <properties>

@@ -41,9 +41,9 @@
     
     -->
     <scm>
-        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/applications/console/console-standard</connection>
-        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/applications/console/console-standard</developerConnection>
-        <url>http://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/applications/console/console-standard</url>
+        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/trunk/applications/console/console-standard</connection>
+        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk/applications/console/console-standard</developerConnection>
+        <url>http://svn.apache.org/repos/asf/geronimo/trunk/applications/console/console-standard</url>
     </scm>
     
     <dependencies>

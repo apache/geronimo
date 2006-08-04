@@ -47,9 +47,9 @@
     
     -->
     <scm>
-        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/applications/welcome</connection>
-        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/applications/welcome</developerConnection>
-        <url>http://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/applications/welcome</url>
+        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/trunk/applications/welcome</connection>
+        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk/applications/welcome</developerConnection>
+        <url>http://svn.apache.org/repos/asf/geronimo/trunk/applications/welcome</url>
     </scm>
     
     <dependencies>

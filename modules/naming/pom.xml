@@ -40,9 +40,9 @@
     
     -->
     <scm>
-        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/naming</connection>
-        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/naming</developerConnection>
-        <url>http://svn.apache.org/repos/asf/geronimo/sandbox/svkmerge/m2migration/modules/naming</url>
+        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/trunk/modules/naming</connection>
+        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk/modules/naming</developerConnection>
+        <url>http://svn.apache.org/repos/asf/geronimo/trunk/modules/naming</url>
     </scm>
     
     <dependencies>
