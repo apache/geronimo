@@ -86,8 +86,17 @@ java -jar bin/deployer.jar deploy security-realm.xml
           something like this:
 <pre>
 &lt;application
-   xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.0"
-   configId="MyApplication"&gt;
+   xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.1"&gt;
+  &lt;environment&gt;
+    &lt;moduleId&gt;
+      &lt;artifactId&gt;MyApplication&lt;/artifactId&gt;
+    &lt;/moduleId&gt;
+    &lt;dependencies&gt;
+       &lt;dependency&gt;
+         ...
+       &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+  &lt;/environment&gt;
 
   &lt;gbean name="${realm.name}"
     class="org.apache.geronimo.security.realm.GenericSecurityRealm"&gt;
