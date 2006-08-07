@@ -45,9 +45,6 @@
         <module>common</module>
         <module>connector</module>
         <module>connector-builder</module>
-        <!--
-        <module>console-web</module>
-        -->
         <module>converter</module>
         <module>core</module>
         <module>deploy-config</module>
@@ -57,10 +54,7 @@
         <module>derby</module>
         <module>directory</module>
         <module>hot-deploy</module>
-        <module>installer-processing</module>
-        <!--
-        <module>installer-support</module>
-        -->
+	<module>installer-processing</module>
         <module>interceptor</module>
         <module>j2ee</module>
         <module>j2ee-builder</module>
@@ -87,6 +81,16 @@
         <module>util</module>
         <module>web-builder</module>
         <module>webservices</module>
+	
+        <!--
+	FIXME: Remove, not supporting izpack installer at the momemnt
+        <module>installer-support</module>
+        -->
+	
+	<!--
+        FIXME: Remove this module, it is duplicated in applications
+	<module>console-web</module>
+        -->
     </modules>
     
 </project>
