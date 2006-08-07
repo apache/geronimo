@@ -233,16 +233,8 @@ public abstract class AbstractRepository implements WriteableRepository {
         if (typeHandler == null) typeHandler = DEFAULT_TYPE_HANDLER;
         typeHandler.install(source, size, destination, monitor, location);
         
-        //
-        // FIXME: This should not be here... if you need this intel then add logging
-        //
-        
         if (destination.getType().equalsIgnoreCase("car")) {
-            System.out.println("############################################################");
-            System.out.println("# Installed configuration");
-            System.out.println("#   id = " + destination);
-            System.out.println("#   location = " + location);
-            System.out.println("############################################################");
+            log.info("Installed module configuration; id=" + destination + "; location=" + location);
         }
     }
 }
