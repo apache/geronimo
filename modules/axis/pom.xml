@@ -42,9 +42,9 @@
     
     -->
     <scm>
-        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/trunk/modules/axis</connection>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/trunk/modules/axis</connection>
         <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk/modules/axis</developerConnection>
-        <url>http://svn.apache.org/repos/asf/geronimo/trunk/modules/axis</url>
+        <url>http://svn.apache.org/viewvc/geronimo/trunk/modules/axis</url>
     </scm>
     
     <dependencies>

@@ -40,9 +40,9 @@
     
     -->
     <scm>
-        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/trunk/modules/security-builder</connection>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/trunk/modules/security-builder</connection>
         <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk/modules/security-builder</developerConnection>
-        <url>http://svn.apache.org/repos/asf/geronimo/trunk/modules/security-builder</url>
+        <url>http://svn.apache.org/viewvc/geronimo/trunk/modules/security-builder</url>
     </scm>
     
     <dependencies>

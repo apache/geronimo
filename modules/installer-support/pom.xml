@@ -40,9 +40,9 @@
     
     -->
     <scm>
-        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/trunk/modules/installer-support</connection>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/trunk/modules/installer-support</connection>
         <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk/modules/installer-support</developerConnection>
-        <url>http://svn.apache.org/repos/asf/geronimo/trunk/modules/installer-support</url>
+        <url>http://svn.apache.org/viewvc/geronimo/trunk/modules/installer-support</url>
     </scm>
     
     <properties>

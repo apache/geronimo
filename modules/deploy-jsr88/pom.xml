@@ -41,9 +41,9 @@
     
     -->
     <scm>
-        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/trunk/modules/deploy-jsr88</connection>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/trunk/modules/deploy-jsr88</connection>
         <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk/modules/deploy-jsr88</developerConnection>
-        <url>http://svn.apache.org/repos/asf/geronimo/trunk/modules/deploy-jsr88</url>
+        <url>http://svn.apache.org/viewvc/geronimo/trunk/modules/deploy-jsr88</url>
     </scm>
     
     <dependencies>

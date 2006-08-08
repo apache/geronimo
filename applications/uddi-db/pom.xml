@@ -40,9 +40,9 @@
     
     -->
     <scm>
-        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/trunk/applications/uddi-db</connection>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/trunk/applications/uddi-db</connection>
         <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk/applications/uddi-db</developerConnection>
-        <url>http://svn.apache.org/repos/asf/geronimo/trunk/applications/uddi-db</url>
+        <url>http://svn.apache.org/viewvc/geronimo/trunk/applications/uddi-db</url>
     </scm>
     
     <properties>

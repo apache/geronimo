@@ -40,9 +40,9 @@
     
     -->
     <scm>
-        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/trunk/modules/timer</connection>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/trunk/modules/timer</connection>
         <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk/modules/timer</developerConnection>
-        <url>http://svn.apache.org/repos/asf/geronimo/trunk/modules/timer</url>
+        <url>http://svn.apache.org/viewvc/geronimo/trunk/modules/timer</url>
     </scm>
     
     <properties>

@@ -40,9 +40,9 @@
     
     -->
     <scm>
-        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/trunk/modules/axis-builder</connection>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/trunk/modules/axis-builder</connection>
         <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk/modules/axis-builder</developerConnection>
-        <url>http://svn.apache.org/repos/asf/geronimo/trunk/modules/axis-builder</url>
+        <url>http://svn.apache.org/viewvc/geronimo/trunk/modules/axis-builder</url>
     </scm>
     
     <dependencies>

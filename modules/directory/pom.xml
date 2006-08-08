@@ -40,9 +40,9 @@
     
     -->
     <scm>
-        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/trunk/modules/directory</connection>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/trunk/modules/directory</connection>
         <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk/modules/directory</developerConnection>
-        <url>http://svn.apache.org/repos/asf/geronimo/trunk/modules/directory</url>
+        <url>http://svn.apache.org/viewvc/geronimo/trunk/modules/directory</url>
     </scm>
     
     <dependencies>

@@ -40,9 +40,9 @@
     
     -->
     <scm>
-        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/trunk/modules/installer-processing</connection>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/trunk/modules/installer-processing</connection>
         <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk/modules/installer-processing</developerConnection>
-        <url>http://svn.apache.org/repos/asf/geronimo/trunk/modules/installer-processing</url>
+        <url>http://svn.apache.org/viewvc/geronimo/trunk/modules/installer-processing</url>
     </scm>
     
     <dependencies>

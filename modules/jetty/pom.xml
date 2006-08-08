@@ -40,9 +40,9 @@
     
     -->
     <scm>
-        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/trunk/modules/jetty</connection>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/trunk/modules/jetty</connection>
         <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk/modules/jetty</developerConnection>
-        <url>http://svn.apache.org/repos/asf/geronimo/trunk/modules/jetty</url>
+        <url>http://svn.apache.org/viewvc/geronimo/trunk/modules/jetty</url>
     </scm>
     
     <dependencies>
