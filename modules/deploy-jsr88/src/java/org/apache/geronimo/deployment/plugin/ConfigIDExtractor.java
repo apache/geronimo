@@ -16,32 +16,29 @@
  */
 package org.apache.geronimo.deployment.plugin;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Reader;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.DataInputStream;
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.util.jar.JarFile;
-import java.util.jar.JarEntry;
-import java.util.Stack;
+import java.io.Reader;
 import java.util.Collection;
-import java.util.List;
 import java.util.LinkedList;
-import javax.xml.parsers.SAXParserFactory;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.ParserConfigurationException;
+import java.util.List;
+import java.util.Stack;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import javax.enterprise.deploy.spi.TargetModuleID;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.FileUtils;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Version;
+import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
@@ -98,7 +95,7 @@ public class ConfigIDExtractor {
                 return name;
             }
         } else {
-            if(!isJarFile(module)) {
+            if(!FileUtils.isZipFile(module)) {
                 throw new DeploymentException(module.getAbsolutePath()+" is neither a JAR file nor a directory!");
             }
             JarFile input = new JarFile(module);
@@ -250,8 +247,12 @@ public class ConfigIDExtractor {
         private String inElement = null;
         private Stack parent = new Stack();
         private boolean formatIs10 = false;
+        private String defaultType;
 
         public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+            if(defaultType == null && uri != null && !uri.equals("")) {
+                setDefaultType(uri);
+            }
             if(inConfigId) {
                 if(localName.equals("groupId") || localName.equals("artifactId") || localName.equals("version") || localName.equals("type")) {
                     inElement = localName;
@@ -267,6 +268,22 @@ public class ConfigIDExtractor {
                 }
             }
             parent.push(localName);
+        }
+
+        private void setDefaultType(String namespace) {
+            if(namespace.indexOf("web") > -1) {
+                defaultType = "war";
+            } else if(namespace.indexOf("openejb") > -1) {
+                defaultType = "jar";
+            } else if(namespace.indexOf("connector") > -1) {
+                defaultType = "rar";
+            } else if(namespace.indexOf("application-client") > -1) {
+                defaultType = "jar";
+            } else if(namespace.indexOf("application") > -1) {
+                defaultType = "ear";
+            } else {
+                defaultType = "car";
+            }
         }
 
         public void characters(char ch[], int start, int length) throws SAXException {
@@ -293,6 +310,9 @@ public class ConfigIDExtractor {
 
         public void endDocument() throws SAXException {
             if(!formatIs10) {
+                if(type.equals("") && defaultType != null) {
+                    type = defaultType;
+                }
                 configId = groupId+"/"+artifactId+"/"+version+"/"+type;
             }
             if(configId.equals("///")) {

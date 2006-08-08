@@ -169,6 +169,9 @@ public class RedeployCommand extends AbstractDeployCommand {
     }
 
     private void redeploySameConfiguration(ConfigurationManager configurationManager, Artifact configID, Target target) throws Exception {
+        if(!configID.isResolved()) {
+            throw new IllegalStateException("Cannot redeploy same module when module ID is not fully resolved ("+configID+")");
+        }
         try {
             configurationManager.stopConfiguration(configID);
             updateStatus("Stopped "+configID);
