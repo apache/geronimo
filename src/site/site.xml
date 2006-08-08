@@ -48,13 +48,10 @@
             <item name="Home" href="http://geronimo.apache.org/"/>
         </menu>
         
+        <!--
+        NOTE: Do not include parent... that is Genesis and not relevant here
         <menu ref="parent"/>
-        
-        <menu name="${project.name}">
-            <item name="Overview" href="index.html"/>
-            <item name="Usage" href="usage.html"/>
-            <item name="Configuration" href="plugin-info.html"/>
-        </menu>
+        -->
         
         <menu ref="modules"/>
         
@@ -64,3 +61,5 @@
         
     </body>
 </project>
+
+

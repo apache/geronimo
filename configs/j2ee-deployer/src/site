@@ -15,7 +15,7 @@
     limitations under the License.
 -->
 
-<!-- $Id$ -->
+<!-- $Id: site.xml 428888 2006-08-04 21:21:54Z jdillon $ -->
 
 <project name="${project.name}">
     <skin>
@@ -50,12 +50,6 @@
         
         <menu ref="parent"/>
         
-        <menu name="${project.name}">
-            <item name="Overview" href="index.html"/>
-            <item name="Usage" href="usage.html"/>
-            <item name="Configuration" href="plugin-info.html"/>
-        </menu>
-        
         <menu ref="modules"/>
         
         <menu ref="reports"/>
@@ -64,3 +58,5 @@
         
     </body>
 </project>
+
+

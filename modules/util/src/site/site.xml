@@ -50,12 +50,6 @@
         
         <menu ref="parent"/>
         
-        <menu name="${project.name}">
-            <item name="Overview" href="index.html"/>
-            <item name="Usage" href="usage.html"/>
-            <item name="Configuration" href="plugin-info.html"/>
-        </menu>
-        
         <menu ref="modules"/>
         
         <menu ref="reports"/>
@@ -64,3 +58,5 @@
         
     </body>
 </project>
+
+

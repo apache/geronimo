@@ -954,6 +954,30 @@
                 <module>applications</module>
             </modules>
         </profile>
+        
+        <profile>
+            <id>site-stage-environment</id>
+            
+            <activation>
+                <property>
+                    <name>env</name>
+                    <value>site-stage</value>
+                </property>
+            </activation>
+            
+            <modules>
+                <module>modules</module>
+                <module>m2-plugins</module>
+                <module>applications</module>
+            </modules>
+            
+            <distributionManagement>
+                <site>
+                    <id>geronimo-website</id>
+                    <url>file:/tmp/www/geronimo.apache.org/maven</url>
+                </site>
+            </distributionManagement>
+        </profile>
     </profiles>
     
 </project>
