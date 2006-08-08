@@ -47,16 +47,7 @@
     </scm>
     
     <dependencies>
-        <dependency>
-            <groupId>xmlbeans</groupId>
-            <artifactId>xbean</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>stax</groupId>
-            <artifactId>stax-api</artifactId>
-        </dependency>
-
+        
         <dependency>
             <groupId>mx4j</groupId>
             <artifactId>mx4j</artifactId>
@@ -77,12 +68,6 @@
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-common</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-system</artifactId>
             <version>${pom.version}</version>
         </dependency>
@@ -92,31 +77,49 @@
             <artifactId>geronimo-deployment</artifactId>
             <version>${pom.version}</version>
         </dependency>
-
-        <!-- only until we move out various DConfigBean trees -->
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-deploy-config</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-
+        
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-connector-builder</artifactId>
             <version>${pom.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-web-builder</artifactId>
             <version>${pom.version}</version>
+            <scope>provided</scope>
         </dependency>
-
+        
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>
         </dependency>
+        
     </dependencies>
+
+    <build>
+        <plugins>
+            <!--
+            FIXME: Need to limit the enties in the manifest to match src/conf/manifest.mf
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                        </manifest>
+                        <manifestEntries>
+                            <J2EE-DeploymentFactory-Implementation-Class>org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl</J2EE-DeploymentFactory-Implementation-Class>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
     
 </project>
 
