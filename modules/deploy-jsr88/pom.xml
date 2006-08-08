@@ -101,9 +101,6 @@
 
     <build>
         <plugins>
-            <!--
-            FIXME: Need to limit the enties in the manifest to match src/conf/manifest.mf
-            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
