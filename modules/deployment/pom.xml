@@ -46,6 +46,9 @@
     </scm>
     
     <dependencies>
+        
+        <!-- Module Dependencies -->
+        
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-kernel</artifactId>
@@ -64,6 +67,8 @@
             <version>${pom.version}</version>
         </dependency>
 
+        <!-- Thirdparty Dependencies -->
+        
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
@@ -73,6 +78,7 @@
             <groupId>xml-resolver</groupId>
             <artifactId>xml-resolver</artifactId>
         </dependency>
+        
     </dependencies>
     
 </project>
