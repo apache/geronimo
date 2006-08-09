@@ -78,8 +78,6 @@
 
     <module name="org.apache.geronimo.configs/remote-deploy-jetty/${pom.version}/car"/>
     
-    <!--
     <module name="org.apache.geronimo.configs/hot-deployer/${pom.version}/car"/>
-    -->
     
 </attributes>

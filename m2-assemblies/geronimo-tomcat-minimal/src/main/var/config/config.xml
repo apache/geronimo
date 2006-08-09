@@ -80,8 +80,6 @@
 
     <module name="org.apache.geronimo.configs/remote-deploy-tomcat/${pom.version}/car"/>
     
-    <!--
     <module name="org.apache.geronimo.configs/hot-deployer/${pom.version}/car"/>
-    -->
     
 </attributes>
