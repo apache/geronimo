@@ -258,7 +258,7 @@ public class PlanProcessorMojo
             }
             return new org.apache.geronimo.kernel.repository.Dependency(artifact, ImportType.CLASSES);
         }
-        else if ("car".equalsIgnoreCase(type) && ("runtime").equalsIgnoreCase(type)) {
+        else if ("car".equalsIgnoreCase(type) && ("runtime").equalsIgnoreCase(scope)) {
             return new org.apache.geronimo.kernel.repository.Dependency(artifact, ImportType.SERVICES);
         }
         else if ("car".equalsIgnoreCase(type) && ("compile".equalsIgnoreCase(scope))) {
