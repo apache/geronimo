@@ -113,6 +113,13 @@
             <version>${pom.version}</version>
             <type>car</type>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>online-deployer</artifactId>
+            <version>${pom.version}</version>
+            <type>car</type>
+        </dependency>
         
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
