@@ -50,6 +50,7 @@
                         <element>../lib/log4j-${log4jVersion}.jar</element>
                         <element>../lib/mx4j-${mx4jVersion}.jar</element>
                         <element>../lib/mx4j-remote-${mx4jVersion}.jar</element>
+                        <element>../lib/jline-${jlineVersion}.jar</element>
                     </classPath>
                     <mainClass>org.apache.geronimo.deployment.cli.StopServer</mainClass>
                 </configuration>

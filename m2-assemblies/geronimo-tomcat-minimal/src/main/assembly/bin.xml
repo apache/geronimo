@@ -56,6 +56,7 @@
                 <include>mx4j:mx4j-remote</include>
                 <include>xpp3:xpp3</include>
                 <include>xstream:xstream</include>
+                <include>jline:jline</include>
             </includes>
         </dependencySet>
         

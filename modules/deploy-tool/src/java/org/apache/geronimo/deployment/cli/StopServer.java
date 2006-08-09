@@ -1,6 +1,5 @@
 /**
- *
- * Copyright 2005 The Apache Software Foundation
+ *  Copyright 2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,13 +13,10 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.apache.geronimo.deployment.cli;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +26,6 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
-import org.apache.geronimo.deployment.cli.ServerConnection.PasswordPrompt;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.system.jmx.KernelDelegate;
 
@@ -51,76 +46,69 @@ public class StopServer {
 
 	private String[] args;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		StopServer cmd = new StopServer();
 		cmd.execute(args);
 	}
 
-	public void execute(String args[]) {
+	public void execute(String args[]) throws IOException {
+        this.args = args;
 
-		this.args = args;
+        int i = 0;
+        while (i < args.length && args[i].startsWith("--")) {
+            if (setParam(i++)) {
+                i++;
+            }
+        }
 
-		int i = 0;
-		while (i < args.length && args[i].startsWith("--")) {
-			if (setParam(i++)) {
-				i++;
-			}
-		}
+        if (i < args.length) {
+            // There was an argument error somewhere.
+            printUsage();
+        }
 
-		if (i < args.length) {
-			// There was an argument error somewhere.
-			printUsage();
-		}
+        try {
+            if (port != null) {
+                Integer.parseInt(port);
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid port number specified.");
+            System.exit(1);
+        }
 
-		try {
-			if (port != null) {
-				Integer.parseInt(port);
-			}
-		} catch (NumberFormatException e) {
-			System.out.println("Invalid port number specified.");
-			System.exit(1);
-		}
+        InputPrompt prompt = new InputPrompt(System.in, System.out);
+        try {
+            if (user == null) {
+                user = prompt.getInput("Username: ");
+            }
+            if (password == null) {
+                password = prompt.getPassword("Password: ");
+            }
+        } catch (IOException e) {
+            System.out.println("Unable to prompt for login.");
+            System.exit(1);
+        }
 
-		PrintWriter out = new PrintWriter(new OutputStreamWriter(System.out),
-				true);
-		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-		try {
-			if (user == null) {
-				out.print("Username: ");
-				out.flush();
-				user = in.readLine();
-			}
-			if (password == null) {
-				password = new PasswordPrompt("Password: ", out)
-						.getPassword(in);
-			}
-		} catch (IOException e) {
-			System.out.println("Unable to prompt for login.");
-			System.exit(1);
-		}
-
-		try {
-			if (port == null) {
-				port = DEFAULT_PORT;
-			}
-			System.out.print("Locating server on port " + port + "... ");
-			Kernel kernel = null;
-			try {
-				kernel = getRunningKernel();
-			} catch (IOException e) {
-				System.out
-						.println("\nCould not communicate with the server.  The server may not be running or the port number may be incorrect.");
-			}
-			if (kernel != null) {
-				System.out.println("Server found.");
-				System.out.println("Server shutdown begun");
-				kernel.shutdown();
-				System.out.println("Server shutdown completed");
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+        try {
+            if (port == null) {
+                port = DEFAULT_PORT;
+            }
+            System.out.print("Locating server on port " + port + "... ");
+            Kernel kernel = null;
+            try {
+                kernel = getRunningKernel();
+            } catch (IOException e) {
+                System.out.println("\nCould not communicate with the server.  The server may not be running or the port number may be incorrect.");
+            }
+            if (kernel != null) {
+                System.out.println("Server found.");
+                System.out.println("Server shutdown begun");
+                kernel.shutdown();
+                System.out.println("Server shutdown completed");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 	private boolean argumentHasValue(int i) {
 		return i + 1 < args.length && !args[i + 1].startsWith("--");
@@ -150,14 +138,10 @@ public class StopServer {
 		Kernel kernel = null;
 		try {
 			JMXServiceURL address = new JMXServiceURL(
-					"service:jmx:rmi:///jndi/rmi://localhost" + ":" + port
-							+ "/JMXConnector");
-			JMXConnector jmxConnector = JMXConnectorFactory.connect(address,
-					map);
-			MBeanServerConnection mbServerConnection = jmxConnector
-					.getMBeanServerConnection();
+					"service:jmx:rmi:///jndi/rmi://localhost" + ":" + port + "/JMXConnector");
+			JMXConnector jmxConnector = JMXConnectorFactory.connect(address, map);
+			MBeanServerConnection mbServerConnection = jmxConnector.getMBeanServerConnection();
 			kernel = new KernelDelegate(mbServerConnection);
-
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}

@@ -46,6 +46,7 @@
     </scm>
     
     <dependencies>
+        
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>
@@ -86,6 +87,14 @@
             <artifactId>geronimo-deploy-jsr88</artifactId>
             <version>${pom.version}</version>
         </dependency>
+        
+        <!-- Thirdparty Dependencies -->
+        
+        <dependency>
+            <groupId>jline</groupId>
+            <artifactId>jline</artifactId>
+        </dependency>
+        
     </dependencies>
     
 </project>
