@@ -40,11 +40,11 @@
                 <configuration>
                     <classPath>
                         <element>../lib/geronimo-deployment-${pom.version}.jar</element>
-                        <element>../lib/xpp3-${xpp3_version}.jar</element>
-                        <element>../lib/xstream-${xstream_version}.jar</element>
+                        <element>../lib/xpp3-${xpp3Version}.jar</element>
+                        <element>../lib/xstream-${xstreamVersion}.jar</element>
                         <element>../lib/geronimo-deploy-jsr88-${pom.version}.jar</element>
                         <element>../lib/geronimo-deploy-tool-${pom.version}.jar</element>
-			<element>../lib/geronimo-j2ee-deployment_1.1_spec-${geronimoSpecJ2eeDeploymentVersion}.jar</element>
+                        <element>../lib/geronimo-j2ee-deployment_1.1_spec-${geronimoSpecJ2eeDeploymentVersion}.jar</element>
                         <element>../lib/geronimo-common-${pom.version}.jar</element>
                         <element>../lib/geronimo-kernel-${pom.version}.jar</element>
                         <element>../lib/geronimo-system-${pom.version}.jar</element>
