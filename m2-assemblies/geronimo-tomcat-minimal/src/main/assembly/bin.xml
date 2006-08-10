@@ -38,6 +38,7 @@
         <dependencySet>
             <outputDirectory>lib</outputDirectory>
             <includes>
+                <include>backport-util-concurrent:backport-util-concurrent</include>
                 <include>cglib:cglib-nodep</include>
                 <include>commons-cli:commons-cli</include>
                 <include>commons-logging:commons-logging</include>
