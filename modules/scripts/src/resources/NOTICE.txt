@@ -26,6 +26,17 @@ This product includes software developed by the ANTLR project.
 
 
 =========================================================================
+==  Bouncy Castle Notice                                               ==
+=========================================================================
+
+This product includes software (the ASN1 codec in the org.apache.geronimo.asn1
+package) which was developed by the Bouncy Castle project. 
+(http://www.bouncycastle.org/) 
+
+     Copyright (c) 2000-2005 The Legion Of The Bouncy Castle (http://www.bouncycastle.org)
+
+
+=========================================================================
 ==  Castor Notice                                                      ==
 =========================================================================
 
@@ -49,6 +60,22 @@ an agency of the United States Department of Commerce, and adapted by
 International Business Machines Corporation in accordance with the NIST
 Software Acknowledgment and Redistribution document at
 http://www.itl.nist.gov/div897/ctg/sql_form.htm
+
+
+=========================================================================
+==  DOM4J Notice                                                       ==
+=========================================================================
+
+This product includes software developed by the DOM4J Project 
+(http://www.dom4j.org).
+
+
+=========================================================================
+==  JDBM Notice                                                        ==
+=========================================================================
+
+This product includes software developed by the JDBM Project 
+(http://jdbm.sourceforge.net/).
 
 
 =========================================================================
