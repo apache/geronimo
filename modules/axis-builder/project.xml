@@ -265,6 +265,15 @@
                 <targetPath>META-INF/schema</targetPath>
             </resource>
         </resources>
+        <resources>
+            <resource>
+                <directory>${basedir}</directory>
+                <includes>
+                    <include>NOTICE.txt</include>
+                </includes>
+                <targetPath>META-INF</targetPath>
+            </resource>
+        </resources>
     </build>
 
 </project>

@@ -276,6 +276,17 @@
     </dependencies>
 
 
+    <build>
+        <resources>
+            <resource>
+                <directory>${basedir}</directory>
+                <includes>
+                    <include>NOTICE.txt</include>
+                </includes>
+                <targetPath>META-INF</targetPath>
+            </resource>
+        </resources>
+    </build>
     <!-- =================== -->
     <!-- Build Specification -->
     <!-- =================== -->
