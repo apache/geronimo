@@ -62,7 +62,13 @@ public final class GBeanInfo implements Serializable {
         try {
             method = clazz.getDeclaredMethod("getGBeanInfo", new Class[]{});
         } catch (NoSuchMethodException e) {
-            throw new InvalidConfigurationException("Class does not have a getGBeanInfo() method: " + className);
+            try {
+                // try to get the info from ${className}GBean
+                clazz = classLoader.loadClass(className + "GBean");
+                method = clazz.getDeclaredMethod("getGBeanInfo", new Class[]{});
+            } catch (Exception ignored) {
+                throw new InvalidConfigurationException("Class does not have a getGBeanInfo() method: " + className);
+            }
         } catch (NoClassDefFoundError e) {
             throw new InvalidConfigurationException("Could not find getGBeanInfo method on " + className, e);
         }

@@ -34,8 +34,6 @@ import java.util.Set;
 import java.util.Collection;
 import java.util.jar.JarFile;
 
-import javax.transaction.UserTransaction;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
@@ -75,7 +73,6 @@ import org.apache.geronimo.tomcat.TomcatWebAppContext;
 import org.apache.geronimo.tomcat.ValveGBean;
 import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
-import org.apache.geronimo.transaction.context.OnlineUserTransaction;
 import org.apache.geronimo.web.deployment.AbstractWebModuleBuilder;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
 import org.apache.geronimo.xbeans.geronimo.naming.GerMessageDestinationType;
@@ -282,10 +279,9 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         ServiceConfigBuilder.addGBeans(gbeans, moduleClassLoader, moduleName, moduleContext);
 
 
-        UserTransaction userTransaction = new OnlineUserTransaction();
         //this may add to the web classpath with enhanced classes.
         //N.B. we use the ear context which has all the gbeans we could possibly be looking up from this ear.
-        Map compContext = buildComponentContext(earContext, webModule, webApp, tomcatWebApp, userTransaction, moduleClassLoader);
+        Map compContext = buildComponentContext(earContext, webModule, webApp, tomcatWebApp, moduleClassLoader);
 
         GBeanData webModuleData = new GBeanData(moduleName, TomcatWebAppContext.GBEAN_INFO);
         try {
@@ -307,13 +303,12 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             webModuleData.addDependencies(dependencies);
 
             webModuleData.setAttribute("componentContext", compContext);
-            webModuleData.setAttribute("userTransaction", userTransaction);
             // unsharableResources, applicationManagedSecurityResources
             GBeanResourceEnvironmentBuilder rebuilder = new GBeanResourceEnvironmentBuilder(webModuleData);
             //N.B. use earContext not moduleContext
             ENCConfigBuilder.setResourceEnvironment(rebuilder, webApp.getResourceRefArray(), tomcatWebApp.getResourceRefArray());
 
-            webModuleData.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
+            webModuleData.setReferencePattern("TransactionManager", earContext.getTransactionManagerObjectName());
             webModuleData.setReferencePattern("TrackedConnectionAssociator", earContext.getConnectionTrackerObjectName());
 
             if (tomcatWebApp.isSetWebContainer()) {
@@ -454,11 +449,11 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
     }
 
 
-    private Map buildComponentContext(EARContext earContext, Module webModule, WebAppType webApp, TomcatWebAppType tomcatWebApp, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
+    private Map buildComponentContext(EARContext earContext, Module webModule, WebAppType webApp, TomcatWebAppType tomcatWebApp, ClassLoader cl) throws DeploymentException {
         return ENCConfigBuilder.buildComponentContext(earContext,
                 earContext.getConfiguration(),
                 webModule,
-                userTransaction,
+                null,
                 webApp.getEnvEntryArray(),
                 webApp.getEjbRefArray(), tomcatWebApp.getEjbRefArray(),
                 webApp.getEjbLocalRefArray(), tomcatWebApp.getEjbLocalRefArray(),

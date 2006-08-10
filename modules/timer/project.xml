@@ -42,6 +42,13 @@
 
     <dependencies>
         <dependency>
+            <groupId>backport-util-concurrent</groupId>
+            <artifactId>backport-util-concurrent</artifactId>
+            <version>${backport_util_concurrent_version}</version>
+            <type>test</type>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-j2ee-management_1.0_spec</artifactId>
             <version>${geronimo_spec_j2ee_management_version}</version>

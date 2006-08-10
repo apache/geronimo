@@ -24,7 +24,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class ReferencePatterns implements Serializable {
     private static final long serialVersionUID = 1888371271299507818L;

@@ -20,7 +20,6 @@ package org.apache.geronimo.transaction.manager;
 import java.io.File;
 
 import org.apache.geronimo.transaction.log.HOWLLog;
-import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import junit.extensions.TestSetup;
@@ -72,7 +71,7 @@ public class HOWLLogRecoveryTest extends AbstractRecoveryTest {
                 2, //                "minBuffers",
                 10,//                "threadsWaitingForceThreshold"});
                 xidFactory,
-                new BasicServerInfo(targetDir)
+                new File(targetDir)
         );
         howlLog.doStart();
         txLog = howlLog;

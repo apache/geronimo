@@ -26,7 +26,7 @@ import org.apache.geronimo.gbean.AbstractName;
  * Pretty much the same as the BasicProxyManager, but it has a different way
  * of handling the actual invocations.
  *
- * @version $Rev: 383682 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class JMXProxyManager extends BasicProxyManager {
     public JMXProxyManager(Kernel kernel) {

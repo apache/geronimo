@@ -301,8 +301,8 @@ Configuration for corba on a Geronimo server, including client and target securi
         <reference name="ThreadPool">
             <name>DefaultThreadPool</name>
         </reference>
-        <reference name="TransactionContextManager">
-            <name>TransactionContextManager</name>
+        <reference name="TransactionManager">
+            <name>TransactionManager</name>
         </reference>
         <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
         <attribute name="description">SSLClientCert</attribute>
@@ -342,8 +342,8 @@ Configuration for corba on a Geronimo server, including client and target securi
         <reference name="ThreadPool">
             <name>DefaultThreadPool</name>
         </reference>
-        <reference name="TransactionContextManager">
-            <name>TransactionContextManager</name>
+        <reference name="TransactionManager">
+            <name>TransactionManager</name>
         </reference>
         <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
         <attribute name="description">SSLClientPassword</attribute>
@@ -384,8 +384,8 @@ Configuration for corba on a Geronimo server, including client and target securi
         <reference name="ThreadPool">
             <name>DefaultThreadPool</name>
         </reference>
-        <reference name="TransactionContextManager">
-            <name>TransactionContextManager</name>
+        <reference name="TransactionManager">
+            <name>TransactionManager</name>
         </reference>
         <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
         <attribute name="description">SSLIdentityTokenPrincipal</attribute>
@@ -425,8 +425,8 @@ Configuration for corba on a Geronimo server, including client and target securi
         <reference name="ThreadPool">
             <name>DefaultThreadPool</name>
         </reference>
-        <reference name="TransactionContextManager">
-            <name>TransactionContextManager</name>
+        <reference name="TransactionManager">
+            <name>TransactionManager</name>
         </reference>
         <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
         <attribute name="description">SSLIdentityTokenCert</attribute>
@@ -466,8 +466,8 @@ Configuration for corba on a Geronimo server, including client and target securi
         <reference name="ThreadPool">
             <name>DefaultThreadPool</name>
         </reference>
-        <reference name="TransactionContextManager">
-            <name>TransactionContextManager</name>
+        <reference name="TransactionManager">
+            <name>TransactionManager</name>
         </reference>
         <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
         <attribute name="description">NoSecurityIdentityTokenPrincipal</attribute>
@@ -503,8 +503,8 @@ Configuration for corba on a Geronimo server, including client and target securi
         <reference name="ThreadPool">
             <name>DefaultThreadPool</name>
         </reference>
-        <reference name="TransactionContextManager">
-            <name>TransactionContextManager</name>
+        <reference name="TransactionManager">
+            <name>TransactionManager</name>
         </reference>
         <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
         <attribute name="description">NoSecurityIdentityTokenCert</attribute>
@@ -540,8 +540,8 @@ Configuration for corba on a Geronimo server, including client and target securi
         <reference name="ThreadPool">
             <name>DefaultThreadPool</name>
         </reference>
-        <reference name="TransactionContextManager">
-            <name>TransactionContextManager</name>
+        <reference name="TransactionManager">
+            <name>TransactionManager</name>
         </reference>
         <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
         <attribute name="description">NoSecurity</attribute>

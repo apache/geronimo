@@ -17,43 +17,93 @@
 
 package org.apache.geronimo.transaction.manager;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.transaction.ExtendedTransactionManager;
-import org.apache.geronimo.transaction.log.UnrecoverableLog;
-
-import javax.transaction.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import javax.transaction.HeuristicMixedException;
+import javax.transaction.HeuristicRollbackException;
+import javax.transaction.InvalidTransactionException;
+import javax.transaction.NotSupportedException;
+import javax.transaction.RollbackException;
+import javax.transaction.Status;
+import javax.transaction.SystemException;
+import javax.transaction.Transaction;
+import javax.transaction.TransactionManager;
+import javax.transaction.UserTransaction;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.Xid;
-import java.util.*;
+
+import edu.emory.mathcs.backport.java.util.concurrent.ConcurrentHashMap;
+import edu.emory.mathcs.backport.java.util.concurrent.CopyOnWriteArrayList;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.transaction.log.UnrecoverableLog;
 
 /**
  * Simple implementation of a transaction manager.
  *
  * @version $Rev$ $Date$
  */
-public class TransactionManagerImpl implements ExtendedTransactionManager, XidImporter {
+public class TransactionManagerImpl implements TransactionManager, UserTransaction, XidImporter, MonitorableTransactionManager {
+    private static final Log log = LogFactory.getLog(TransactionManagerImpl.class);
+    protected static final int DEFAULT_TIMEOUT = 600;
+    protected static final byte[] DEFAULT_TM_ID = new byte[] {71,84,77,73,68};
+
     final TransactionLog transactionLog;
     final XidFactory xidFactory;
     private final int defaultTransactionTimeoutMilliseconds;
     private final ThreadLocal transactionTimeoutMilliseconds = new ThreadLocal();
     private final ThreadLocal threadTx = new ThreadLocal();
+    private final ConcurrentHashMap associatedTransactions = new ConcurrentHashMap();
     private static final Log recoveryLog = LogFactory.getLog("RecoveryController");
     final Recovery recovery;
     final Collection resourceManagers;
+    private final CopyOnWriteArrayList transactionAssociationListeners = new CopyOnWriteArrayList();
     private List recoveryErrors = new ArrayList();
 
-    /**
-     * TODO NOTE!!! this should be called in an unspecified transaction context, but we cannot enforce this restriction!
-     */
+    public TransactionManagerImpl() throws XAException {
+        this(DEFAULT_TIMEOUT,
+                null,
+                null,
+                null);
+    }
+
+    public TransactionManagerImpl(int defaultTransactionTimeoutSeconds) throws XAException {
+        this(defaultTransactionTimeoutSeconds,
+                null,
+                null,
+                null);
+    }
+
+    public TransactionManagerImpl(int defaultTransactionTimeoutSeconds, TransactionLog transactionLog) throws XAException {
+        this(defaultTransactionTimeoutSeconds,
+                null,
+                transactionLog,
+                null);
+    }
+
     public TransactionManagerImpl(int defaultTransactionTimeoutSeconds, XidFactory xidFactory, TransactionLog transactionLog, Collection resourceManagers) throws XAException {
         if (defaultTransactionTimeoutSeconds <= 0) {
             throw new IllegalArgumentException("defaultTransactionTimeoutSeconds must be positive: attempted value: " + defaultTransactionTimeoutSeconds);
         }
 
         this.defaultTransactionTimeoutMilliseconds = defaultTransactionTimeoutSeconds * 1000;
-        this.transactionLog = transactionLog == null ? new UnrecoverableLog() : transactionLog;
-        this.xidFactory = xidFactory;
+
+        if (transactionLog == null) {
+            this.transactionLog = new UnrecoverableLog();
+        } else {
+            this.transactionLog = transactionLog;
+        }
+
+        if (xidFactory != null) {
+            this.xidFactory = xidFactory;
+        } else {
+            this.xidFactory = new XidFactoryImpl(DEFAULT_TM_ID);
+        }
+
         this.resourceManagers = resourceManagers;
         recovery = new RecoveryImpl(this.transactionLog, this.xidFactory);
 
@@ -71,9 +121,28 @@ public class TransactionManagerImpl implements ExtendedTransactionManager, XidIm
         return new ArrayList(resourceManagers);
     }
 
-
     public Transaction getTransaction() throws SystemException {
         return (Transaction) threadTx.get();
+    }
+
+    private void associate(TransactionImpl tx) throws InvalidTransactionException {
+        if (tx == null) throw new NullPointerException("tx is null");
+
+        Object existingAssociation = associatedTransactions.putIfAbsent(tx, Thread.currentThread());
+        if (existingAssociation != null) {
+            throw new InvalidTransactionException("Specified transaction is already associated with another thread");
+        }
+        threadTx.set(tx);
+        fireThreadAssociated(tx);
+    }
+
+    private void unassociate() throws SystemException {
+        Transaction tx = getTransaction();
+        if (tx != null) {
+            associatedTransactions.remove(tx);
+            threadTx.set(null);
+            fireThreadUnassociated(tx);
+        }
     }
 
     public void setTransactionTimeout(int seconds) throws SystemException {
@@ -102,8 +171,13 @@ public class TransactionManagerImpl implements ExtendedTransactionManager, XidIm
         }
         TransactionImpl tx = new TransactionImpl(xidFactory, transactionLog, getTransactionTimeoutMilliseconds(transactionTimeoutMilliseconds));
 //        timeoutTimer.schedule(tx, getTransactionTimeoutMilliseconds(transactionTimeoutMilliseconds));
-        threadTx.set(tx);
-                // Todo: Verify if this is correct thing to do. Use default timeout for next transaction.
+        try {
+            associate(tx);
+        } catch (InvalidTransactionException e) {
+            // should not be possible since we just created that transaction and no one has a reference yet
+            throw new SystemException("Internal error: associate threw an InvalidTransactionException for a newly created transaction");
+        }
+        // Todo: Verify if this is correct thing to do. Use default timeout for next transaction.
         this.transactionTimeoutMilliseconds.set(null);
         return tx;
     }
@@ -111,19 +185,19 @@ public class TransactionManagerImpl implements ExtendedTransactionManager, XidIm
     public Transaction suspend() throws SystemException {
         Transaction tx = getTransaction();
         if (tx != null) {
+            unassociate();
         }
-        threadTx.set(null);
         return tx;
     }
 
     public void resume(Transaction tx) throws IllegalStateException, InvalidTransactionException, SystemException {
-        if (threadTx.get() != null) {
-            throw new IllegalStateException("Transaction already associated with current thread");
+        if (getTransaction() != null) {
+            throw new IllegalStateException("Thread already associated with another transaction");
         }
-        if (tx instanceof TransactionImpl == false) {
+        if (!(tx instanceof TransactionImpl)) {
             throw new InvalidTransactionException("Cannot resume foreign transaction: " + tx);
         }
-        threadTx.set(tx);
+        associate((TransactionImpl) tx);
     }
 
     public void setRollbackOnly() throws IllegalStateException, SystemException {
@@ -142,7 +216,7 @@ public class TransactionManagerImpl implements ExtendedTransactionManager, XidIm
         try {
             tx.commit();
         } finally {
-            threadTx.set(null);
+            unassociate();
         }
     }
 
@@ -154,7 +228,7 @@ public class TransactionManagerImpl implements ExtendedTransactionManager, XidIm
         try {
             tx.rollback();
         } finally {
-            threadTx.set(null);
+            unassociate();
         }
     }
 
@@ -252,4 +326,33 @@ public class TransactionManagerImpl implements ExtendedTransactionManager, XidIm
         return new HashMap(recovery.getExternalXids());
     }
 
+    public void addTransactionAssociationListener(TransactionManagerMonitor listener) {
+        transactionAssociationListeners.addIfAbsent(listener);
+    }
+
+    public void removeTransactionAssociationListener(TransactionManagerMonitor listener) {
+        transactionAssociationListeners.remove(listener);
+    }
+
+    protected void fireThreadAssociated(Transaction tx) {
+        for (Iterator iterator = transactionAssociationListeners.iterator(); iterator.hasNext();) {
+            TransactionManagerMonitor listener = (TransactionManagerMonitor) iterator.next();
+            try {
+                listener.threadAssociated(tx);
+            } catch (Exception e) {
+                log.warn("Error calling transaction association listener", e);
+            }
+        }
+    }
+
+    protected void fireThreadUnassociated(Transaction tx) {
+        for (Iterator iterator = transactionAssociationListeners.iterator(); iterator.hasNext();) {
+            TransactionManagerMonitor listener = (TransactionManagerMonitor) iterator.next();
+            try {
+                listener.threadUnassociated(tx);
+            } catch (Exception e) {
+                log.warn("Error calling transaction association listener", e);
+            }
+        }
+    }
 }

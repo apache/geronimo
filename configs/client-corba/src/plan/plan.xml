@@ -68,9 +68,9 @@ CSSBean examples for app client
             <module>geronimo/client/${pom.currentVersion}/car</module>
             <name>DefaultThreadPool</name>
         </reference>
-        <reference name="TransactionContextManager">
+        <reference name="TransactionManager">
             <module>geronimo/client/${pom.currentVersion}/car</module>
-            <name>TransactionContextManager</name>
+            <name>TransactionManager</name>
         </reference>
         <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
         <attribute name="description">SSLClientCert</attribute>
@@ -110,9 +110,9 @@ CSSBean examples for app client
             <module>geronimo/client/${pom.currentVersion}/car</module>
             <name>DefaultThreadPool</name>
         </reference>
-        <reference name="TransactionContextManager">
+        <reference name="TransactionManager">
             <module>geronimo/client/${pom.currentVersion}/car</module>
-            <name>TransactionContextManager</name>
+            <name>TransactionManager</name>
         </reference>
         <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
         <attribute name="description">SSLClientPassword</attribute>
@@ -152,9 +152,9 @@ CSSBean examples for app client
             <module>geronimo/client/${pom.currentVersion}/car</module>
             <name>DefaultThreadPool</name>
         </reference>
-        <reference name="TransactionContextManager">
+        <reference name="TransactionManager">
             <module>geronimo/client/${pom.currentVersion}/car</module>
-            <name>TransactionContextManager</name>
+            <name>TransactionManager</name>
         </reference>
         <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
         <attribute name="description">NoSecurity</attribute>

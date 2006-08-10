@@ -48,7 +48,7 @@ import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
 import org.apache.geronimo.kernel.management.NotificationType;
 
 /**
- * @version $Rev: 383682 $ $Date$
+ * @version $Rev$ $Date$
  */
 public final class MBeanGBeanBridge implements MBeanRegistration, DynamicMBean, NotificationEmitter {
     private static final Log log = LogFactory.getLog(MBeanGBeanBridge.class);

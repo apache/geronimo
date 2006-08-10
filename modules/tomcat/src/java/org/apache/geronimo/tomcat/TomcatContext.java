@@ -20,14 +20,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.transaction.UserTransaction;
+
 import org.apache.catalina.Context;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Realm;
 import org.apache.catalina.cluster.CatalinaCluster;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
-import org.apache.geronimo.transaction.TrackedConnectionAssociator;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 
 /**
  * @version $Rev$ $Date$
@@ -41,36 +42,36 @@ public interface TomcatContext {
     public Context getContext();
 
     public String getDocBase();
-    
+
     public SecurityHolder getSecurityHolder();
-    
+
     public String getVirtualServer();
-    
+
     public ClassLoader getClassLoader();
-    
+
+    public UserTransaction getUserTransaction();
+
     public Map getComponentContext();
 
     public Kernel getKernel();
-    
-    public TransactionContextManager getTransactionContextManager();
-    
+
     public Set getApplicationManagedSecurityResources();
 
     public TrackedConnectionAssociator getTrackedConnectionAssociator();
 
     public Set getUnshareableResources();
-    
+
     public Realm getRealm();
-    
-    public List getValveChain();    
-    
+
+    public List getValveChain();
+
     public CatalinaCluster getCluster();
-    
+
     public Manager getManager();
-    
+
     public boolean isCrossContext();
 
     public boolean isDisableCookies();
-    
+
     public Map getWebServices();
 }

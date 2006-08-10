@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2006 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,15 +14,25 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
-package org.apache.geronimo.transaction;
+package org.apache.geronimo.connector.work.pool;
 
 /**
- *
- *
  * @version $Rev$ $Date$
- *
- * */
-public interface ConnectionReleaser {
-    void afterCompletion(Object managedConnectionInfo);
+ */
+public class NamedRunnable implements Runnable {
+    private final String name;
+    private final Runnable runnable;
+
+    public NamedRunnable(String name, Runnable runnable) {
+        this.name = name;
+        this.runnable = runnable;
+    }
+
+    public void run() {
+        runnable.run();
+    }
+
+    public String toString() {
+        return name;
+    }
 }

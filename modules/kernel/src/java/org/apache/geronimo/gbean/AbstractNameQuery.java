@@ -33,7 +33,7 @@ import java.util.TreeSet;
 import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class AbstractNameQuery implements Serializable {
     private static final long serialVersionUID = 7444620122607155678L;

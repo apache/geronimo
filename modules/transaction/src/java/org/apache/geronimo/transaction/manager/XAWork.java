@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,24 +15,22 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.transaction.context;
+package org.apache.geronimo.transaction.manager;
 
-import javax.transaction.NotSupportedException;
+import javax.transaction.xa.Xid;
+import javax.transaction.xa.XAException;
 import javax.transaction.SystemException;
-import javax.transaction.Transaction;
+import javax.transaction.InvalidTransactionException;
 
-import org.apache.geronimo.transaction.ExtendedTransactionManager;
+import org.apache.geronimo.transaction.manager.ImportedTransactionActiveException;
 
 /**
+ * primarily an interface between the WorkManager/ExecutionContext and the tm.
+ *
  * @version $Rev$ $Date$
- */
-class ContainerTransactionContext extends InheritableTransactionContext {
-    ContainerTransactionContext(ExtendedTransactionManager txnManager) throws SystemException, NotSupportedException {
-        super(txnManager);
-        begin(0);
-    }
-
-    ContainerTransactionContext(ExtendedTransactionManager txnManager, Transaction transaction) {
-        super(txnManager, transaction);
-    }
+ *
+ * */
+public interface XAWork {
+    void begin(Xid xid, long txTimeout) throws XAException, InvalidTransactionException, SystemException, ImportedTransactionActiveException;
+    void end(Xid xid) throws XAException, SystemException;
 }

@@ -17,11 +17,12 @@
 
 package org.apache.geronimo.connector.outbound;
 
+import javax.transaction.TransactionManager;
+
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PartitionedPool;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PoolingSupport;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
  * GenericConnectionManager sets up a connection manager stack according to the
@@ -40,10 +41,10 @@ public class GenericConnectionManager extends AbstractConnectionManager {
                                     PoolingSupport pooling,
                                     boolean containerManagedSecurity,
                                     ConnectionTracker connectionTracker,
-                                    TransactionContextManager transactionContextManager,
+                                    TransactionManager transactionManager,
                                     String objectName,
                                     ClassLoader classLoader) {
-        super(new InterceptorsImpl(transactionSupport, pooling, containerManagedSecurity, objectName, connectionTracker, transactionContextManager, classLoader));
+        super(new InterceptorsImpl(transactionSupport, pooling, containerManagedSecurity, objectName, connectionTracker, transactionManager, classLoader));
     }
 
     private static class InterceptorsImpl implements AbstractConnectionManager.Interceptors {
@@ -70,7 +71,7 @@ public class GenericConnectionManager extends AbstractConnectionManager {
                                 boolean containerManagedSecurity,
                                 String objectName,
                                 ConnectionTracker connectionTracker,
-                                TransactionContextManager transactionContextManager,
+                                TransactionManager transactionManager,
                                 ClassLoader classLoader) {
             //check for consistency between attributes
             if (!containerManagedSecurity && pooling instanceof PartitionedPool && ((PartitionedPool) pooling).isPartitionBySubject()) {
@@ -84,7 +85,7 @@ public class GenericConnectionManager extends AbstractConnectionManager {
             stack = transactionSupport.addXAResourceInsertionInterceptor(stack, objectName);
             stack = pooling.addPoolingInterceptors(stack);
             this.poolingSupport = pooling;
-            stack = transactionSupport.addTransactionInterceptors(stack, transactionContextManager);
+            stack = transactionSupport.addTransactionInterceptors(stack, transactionManager);
 
             if (containerManagedSecurity) {
                 stack = new SubjectInterceptor(stack);

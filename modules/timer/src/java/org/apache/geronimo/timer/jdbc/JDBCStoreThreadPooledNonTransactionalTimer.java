@@ -17,10 +17,9 @@
 
 package org.apache.geronimo.timer.jdbc;
 
-import java.io.Serializable;
 import java.sql.SQLException;
-
 import javax.sql.DataSource;
+import javax.transaction.TransactionManager;
 
 import EDU.oswego.cs.dl.util.concurrent.Executor;
 import org.apache.geronimo.connector.outbound.ConnectionFactorySource;
@@ -31,7 +30,6 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.timer.NontransactionalExecutorTaskFactory;
 import org.apache.geronimo.timer.PersistentTimer;
 import org.apache.geronimo.timer.ThreadPooledTimer;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
  * @version $Rev$ $Date$
@@ -39,11 +37,11 @@ import org.apache.geronimo.transaction.context.TransactionContextManager;
 public class JDBCStoreThreadPooledNonTransactionalTimer extends ThreadPooledTimer {
 
     public JDBCStoreThreadPooledNonTransactionalTimer(ConnectionFactorySource managedConnectionFactoryWrapper,
-                                                      TransactionContextManager transactionContextManager,
+                                                      TransactionManager transactionManager,
                                                       Executor threadPool,
                                                       Kernel kernel) throws SQLException {
-        super(new NontransactionalExecutorTaskFactory(transactionContextManager),
-                new JDBCWorkerPersistence(kernel.getKernelName(), (DataSource)managedConnectionFactoryWrapper.$getResource(), false), threadPool, transactionContextManager);
+        super(new NontransactionalExecutorTaskFactory(),
+                new JDBCWorkerPersistence(kernel.getKernelName(), (DataSource)managedConnectionFactoryWrapper.$getResource(), false), threadPool, transactionManager);
     }
 
 
@@ -55,11 +53,11 @@ public class JDBCStoreThreadPooledNonTransactionalTimer extends ThreadPooledTime
 
         infoFactory.addReference("ManagedConnectionFactoryWrapper", ConnectionFactorySource.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
         infoFactory.addReference("ThreadPool", Executor.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
+        infoFactory.addReference("TransactionManager", TransactionManager.class, NameFactory.TRANSACTION_MANAGER);
 
         infoFactory.addAttribute("kernel", Kernel.class, false);
 
-        infoFactory.setConstructor(new String[]{"ManagedConnectionFactoryWrapper", "TransactionContextManager", "ThreadPool", "kernel"});
+        infoFactory.setConstructor(new String[]{"ManagedConnectionFactoryWrapper", "TransactionManager", "ThreadPool", "kernel"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

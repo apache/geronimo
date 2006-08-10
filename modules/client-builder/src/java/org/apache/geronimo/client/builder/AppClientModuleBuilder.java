@@ -98,7 +98,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     private final Environment defaultServerEnvironment;
     private final AbstractNameQuery corbaGBeanObjectName;
 
-    private final AbstractNameQuery transactionContextManagerObjectName;
+    private final AbstractNameQuery transactionManagerObjectName;
     private final AbstractNameQuery connectionTrackerObjectName;
     private final SingleElementCollection ejbReferenceBuilder;
     private final SingleElementCollection connectorModuleBuilder;
@@ -108,7 +108,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
     public AppClientModuleBuilder(Environment defaultClientEnvironment,
             Environment defaultServerEnvironment,
-            AbstractNameQuery transactionContextManagerObjectName,
+            AbstractNameQuery transactionManagerObjectName,
             AbstractNameQuery connectionTrackerObjectName,
             AbstractNameQuery corbaGBeanObjectName,
             EJBReferenceBuilder ejbReferenceBuilder,
@@ -117,7 +117,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             ServiceReferenceBuilder serviceReferenceBuilder) {
         this(defaultClientEnvironment,
                 defaultServerEnvironment,
-                transactionContextManagerObjectName,
+                transactionManagerObjectName,
                 connectionTrackerObjectName,
                 corbaGBeanObjectName,
                 new SingleElementCollection(ejbReferenceBuilder),
@@ -126,7 +126,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 new SingleElementCollection(serviceReferenceBuilder));
     }
 
-    public AppClientModuleBuilder(AbstractNameQuery transactionContextManagerObjectName,
+    public AppClientModuleBuilder(AbstractNameQuery transactionManagerObjectName,
             AbstractNameQuery connectionTrackerObjectName,
             AbstractNameQuery corbaGBeanObjectName,
             Collection ejbReferenceBuilder,
@@ -138,7 +138,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     ) {
         this(defaultClientEnvironment,
                 defaultServerEnvironment,
-                transactionContextManagerObjectName,
+                transactionManagerObjectName,
                 connectionTrackerObjectName,
                 corbaGBeanObjectName,
                 new SingleElementCollection(ejbReferenceBuilder),
@@ -149,7 +149,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
     private AppClientModuleBuilder(Environment defaultClientEnvironment,
             Environment defaultServerEnvironment,
-            AbstractNameQuery transactionContextManagerObjectName,
+            AbstractNameQuery transactionManagerObjectName,
             AbstractNameQuery connectionTrackerObjectName,
             AbstractNameQuery corbaGBeanObjectName,
             SingleElementCollection ejbReferenceBuilder,
@@ -159,7 +159,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         this.defaultClientEnvironment = defaultClientEnvironment;
         this.defaultServerEnvironment = defaultServerEnvironment;
         this.corbaGBeanObjectName = corbaGBeanObjectName;
-        this.transactionContextManagerObjectName = transactionContextManagerObjectName;
+        this.transactionManagerObjectName = transactionManagerObjectName;
         this.connectionTrackerObjectName = connectionTrackerObjectName;
         this.ejbReferenceBuilder = ejbReferenceBuilder;
         this.connectorModuleBuilder = connectorModuleBuilder;
@@ -363,8 +363,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                     earContext.getConfigurationManager(),
                     null, //no server name needed on client
                     clientBaseName,
-                    null,
-                    transactionContextManagerObjectName,
+                    transactionManagerObjectName,
                     connectionTrackerObjectName,
                     null,
                     null,
@@ -566,7 +565,6 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                         appClientContainerGBeanData.setAttribute("defaultPrincipal", defaultPrincipal);
                     }
                     appClientContainerGBeanData.setReferencePattern("JNDIContext", jndiContextName);
-                    appClientContainerGBeanData.setReferencePattern("TransactionContextManager", transactionContextManagerObjectName);
                 } catch (Exception e) {
                     throw new DeploymentException("Unable to initialize AppClientModule GBean", e);
                 }
@@ -708,7 +706,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(AppClientModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("defaultClientEnvironment", Environment.class, true, true);
         infoBuilder.addAttribute("defaultServerEnvironment", Environment.class, true, true);
-        infoBuilder.addAttribute("transactionContextManagerObjectName", AbstractNameQuery.class, true);
+        infoBuilder.addAttribute("transactionManagerObjectName", AbstractNameQuery.class, true);
         infoBuilder.addAttribute("connectionTrackerObjectName", AbstractNameQuery.class, true);
         infoBuilder.addAttribute("corbaGBeanObjectName", AbstractNameQuery.class, true);
         infoBuilder.addReference("EJBReferenceBuilder", EJBReferenceBuilder.class, NameFactory.MODULE_BUILDER);
@@ -718,7 +716,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
         infoBuilder.addInterface(ModuleBuilder.class);
 
-        infoBuilder.setConstructor(new String[]{"transactionContextManagerObjectName",
+        infoBuilder.setConstructor(new String[]{"transactionManagerObjectName",
                 "connectionTrackerObjectName",
                 "corbaGBeanObjectName",
                 "EJBReferenceBuilder",

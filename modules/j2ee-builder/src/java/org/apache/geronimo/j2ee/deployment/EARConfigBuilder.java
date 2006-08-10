@@ -113,7 +113,6 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private final Environment defaultEnvironment;
     private final AbstractNameQuery serverName;
     private final AbstractNameQuery transactionManagerObjectName;
-    private final AbstractNameQuery transactionContextManagerObjectName;
     private final AbstractNameQuery connectionTrackerObjectName;
     private final AbstractNameQuery transactionalTimerObjectName;
     private final AbstractNameQuery nonTransactionalTimerObjectName;
@@ -122,7 +121,6 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
     public EARConfigBuilder(Environment defaultEnvironment,
             AbstractNameQuery transactionManagerAbstractName,
-            AbstractNameQuery transactionContextManagerAbstractName,
             AbstractNameQuery connectionTrackerAbstractName,
             AbstractNameQuery transactionalTimerAbstractName,
             AbstractNameQuery nonTransactionalTimerAbstractName,
@@ -139,7 +137,6 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             Kernel kernel) {
         this(defaultEnvironment,
                 transactionManagerAbstractName,
-                transactionContextManagerAbstractName,
                 connectionTrackerAbstractName,
                 transactionalTimerAbstractName,
                 nonTransactionalTimerAbstractName,
@@ -158,7 +155,6 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     }
     public EARConfigBuilder(Environment defaultEnvironment,
             AbstractNameQuery transactionManagerAbstractName,
-            AbstractNameQuery transactionContextManagerAbstractName,
             AbstractNameQuery connectionTrackerAbstractName,
             AbstractNameQuery transactionalTimerAbstractName,
             AbstractNameQuery nonTransactionalTimerAbstractName,
@@ -175,7 +171,6 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             Naming naming) {
         this(defaultEnvironment,
                 transactionManagerAbstractName,
-                transactionContextManagerAbstractName,
                 connectionTrackerAbstractName,
                 transactionalTimerAbstractName,
                 nonTransactionalTimerAbstractName,
@@ -195,7 +190,6 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
     private EARConfigBuilder(Environment defaultEnvironment,
             AbstractNameQuery transactionManagerAbstractName,
-            AbstractNameQuery transactionContextManagerAbstractName,
             AbstractNameQuery connectionTrackerAbstractName,
             AbstractNameQuery transactionalTimerAbstractName,
             AbstractNameQuery nonTransactionalTimerAbstractName,
@@ -223,7 +217,6 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         this.appClientConfigBuilder = appClientConfigBuilder;
         this.serviceReferenceBuilder = serviceReferenceBuilder;
         this.transactionManagerObjectName = transactionManagerAbstractName;
-        this.transactionContextManagerObjectName = transactionContextManagerAbstractName;
         this.connectionTrackerObjectName = connectionTrackerAbstractName;
         this.transactionalTimerObjectName = transactionalTimerAbstractName;
         this.nonTransactionalTimerObjectName = nonTransactionalTimerAbstractName;
@@ -460,7 +453,6 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                     serverName,
                     applicationInfo.getBaseName(),
                     transactionManagerObjectName,
-                    transactionContextManagerObjectName,
                     connectionTrackerObjectName,
                     transactionalTimerObjectName,
                     nonTransactionalTimerObjectName,
@@ -921,7 +913,6 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(EARConfigBuilder.class, NameFactory.CONFIG_BUILDER);
         infoFactory.addAttribute("defaultEnvironment", Environment.class, true, true);
         infoFactory.addAttribute("transactionManagerAbstractName", AbstractNameQuery.class, true);
-        infoFactory.addAttribute("transactionContextManagerAbstractName", AbstractNameQuery.class, true);
         infoFactory.addAttribute("connectionTrackerAbstractName", AbstractNameQuery.class, true);
         infoFactory.addAttribute("transactionalTimerAbstractName", AbstractNameQuery.class, true);
         infoFactory.addAttribute("nonTransactionalTimerAbstractName", AbstractNameQuery.class, true);
@@ -944,7 +935,6 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         infoFactory.setConstructor(new String[]{
                 "defaultEnvironment",
                 "transactionManagerAbstractName",
-                "transactionContextManagerAbstractName",
                 "connectionTrackerAbstractName",
                 "transactionalTimerAbstractName",
                 "nonTransactionalTimerAbstractName",

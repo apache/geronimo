@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2006 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,25 +14,15 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+package org.apache.geronimo.transaction.manager;
 
-package org.apache.geronimo.transaction;
-
-import javax.resource.ResourceException;
+import java.util.EventListener;
 
 /**
- *
- *
  * @version $Rev$ $Date$
- *
  */
-public interface TrackedConnectionAssociator {
-
-    InstanceContext enter(InstanceContext newInstanceContext)
-            throws ResourceException;
-
-    void newTransaction() throws ResourceException;
-
-    void exit(InstanceContext instanceContext)
-            throws ResourceException;
-
+public interface MonitorableTransactionManager extends EventListener {
+    // todo add notifications for begin, syspend, resume, commit, rollback and exceptions
+    void addTransactionAssociationListener(TransactionManagerMonitor listener);
+    void removeTransactionAssociationListener(TransactionManagerMonitor listener);
 }

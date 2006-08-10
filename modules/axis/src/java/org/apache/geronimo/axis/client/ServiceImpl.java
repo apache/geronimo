@@ -37,7 +37,7 @@ import org.apache.axis.transport.http.HTTPSender;
 
 
 /**
- * @version $Revision:$ $Date$
+ * @version $Revision$ $Date$
  */
 public class ServiceImpl implements javax.xml.rpc.Service, Serializable {
     private static final long serialVersionUID = 8657993237680414470L;

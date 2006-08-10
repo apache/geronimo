@@ -17,12 +17,6 @@
 
 package org.apache.geronimo.timer;
 
-import org.apache.geronimo.timer.ExecutorTask;
-import org.apache.geronimo.timer.ExecutorTaskFactory;
-import org.apache.geronimo.timer.NontransactionalExecutorTask;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
-
-
 /**
  *
  *
@@ -30,14 +24,11 @@ import org.apache.geronimo.transaction.context.TransactionContextManager;
  *
  * */
 public class NontransactionalExecutorTaskFactory implements ExecutorTaskFactory {
-    private final TransactionContextManager transactionContextManager;
-
-    public NontransactionalExecutorTaskFactory(TransactionContextManager transactionContextManager) {
-        this.transactionContextManager = transactionContextManager;
+    public NontransactionalExecutorTaskFactory() {
     }
 
     public ExecutorTask createExecutorTask(Runnable userTask, WorkInfo workInfo, ThreadPooledTimer threadPooledTimer) {
-        return new NontransactionalExecutorTask(userTask, workInfo, threadPooledTimer, transactionContextManager);
+        return new NontransactionalExecutorTask(userTask, workInfo, threadPooledTimer);
     }
 
 }

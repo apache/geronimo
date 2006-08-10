@@ -19,8 +19,6 @@ package org.apache.geronimo.timer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.transaction.context.TransactionContext;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
  * @version $Rev$ $Date$
@@ -32,40 +30,26 @@ public class NontransactionalExecutorTask implements ExecutorTask {
     private final Runnable userTask;
     private final WorkInfo workInfo;
     private final ThreadPooledTimer threadPooledTimer;
-    private final TransactionContextManager transactionContextManager;
 
-    public NontransactionalExecutorTask(Runnable userTask, WorkInfo workInfo, ThreadPooledTimer threadPooledTimer, TransactionContextManager transactionContextManager) {
+    public NontransactionalExecutorTask(Runnable userTask, WorkInfo workInfo, ThreadPooledTimer threadPooledTimer) {
         this.userTask = userTask;
         this.workInfo = workInfo;
         this.threadPooledTimer = threadPooledTimer;
-        this.transactionContextManager = transactionContextManager;
     }
 
     public void run() {
-        TransactionContext oldTransactionContext = transactionContextManager.getContext();
-        TransactionContext transactionContext = transactionContextManager.newUnspecifiedTransactionContext();
         try {
-            try {
-                userTask.run();
-            } catch (Exception e) {
-                log.warn("Exception running task", e);
-            }
-            try {
-                threadPooledTimer.workPerformed(workInfo);
-            } catch (PersistenceException e) {
-                log.warn("Exception completing task", e);
-            }
-            if (workInfo.isOneTime()) {
-                threadPooledTimer.removeWorkInfo(workInfo);
-            }
-        } finally {
-            try {
-                transactionContext.commit();
-            } catch (Exception e) {
-                log.error("Unable to commit transaction context", e);
-            }
-            transactionContextManager.setContext(oldTransactionContext);
+            userTask.run();
+        } catch (Exception e) {
+            log.warn("Exception running task", e);
+        }
+        try {
+            threadPooledTimer.workPerformed(workInfo);
+        } catch (PersistenceException e) {
+            log.warn("Exception completing task", e);
+        }
+        if (workInfo.isOneTime()) {
+            threadPooledTimer.removeWorkInfo(workInfo);
         }
     }
-
 }

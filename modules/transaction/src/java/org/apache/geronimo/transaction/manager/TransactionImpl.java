@@ -237,7 +237,7 @@ public class TransactionImpl implements Transaction {
                               }
                               else
                               {
-                                  throw new RollbackException("Unable to commit");
+                                  throw new RollbackException("Unable to commit: transaction marked for rollback");
                               }
             }
             synchronized (this) {

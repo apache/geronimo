@@ -28,8 +28,10 @@ by the server.
 -->
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
-    <gbean name="ConnectionTracker"
-           class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean">
+    <gbean name="ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean">
+        <reference name="TransactionManager">
+            <name>TransactionManager</name>
+        </reference>
     </gbean>
 
     <gbean name="ConnectorThreadPool" class="org.apache.geronimo.pool.ThreadPool">
@@ -48,12 +50,12 @@ by the server.
         <reference name="ScheduledPool">
             <name>ConnectorThreadPool</name>
         </reference>
-        <reference name="TransactionContextManager">
-            <name>TransactionContextManager</name>
+        <reference name="TransactionManager">
+            <name>TransactionManager</name>
         </reference>
     </gbean>
 
-    <gbean name="HOWLTransactionLog" class="org.apache.geronimo.transaction.log.HOWLLog">
+    <gbean name="HOWLTransactionLog" class="org.apache.geronimo.transaction.log.HOWLLogGBean">
         <attribute name="bufferClassName">org.objectweb.howl.log.BlockLogBuffer</attribute>
         <attribute name="bufferSizeKBytes">32</attribute>
         <attribute name="checksumEnabled">true</attribute>
@@ -78,7 +80,7 @@ by the server.
         <attribute name="tmId">71,84,77,73,68</attribute>
     </gbean>
 
-    <gbean name="TransactionManager" class="org.apache.geronimo.transaction.manager.TransactionManagerImplGBean">
+    <gbean name="TransactionManager" class="org.apache.geronimo.transaction.manager.GeronimoTransactionManagerGBean">
         <attribute name="defaultTransactionTimeoutSeconds">600</attribute>
         <reference name="XidFactory">
             <name>XidFactory</name>
@@ -94,16 +96,6 @@ by the server.
                 <type>ActivationSpec</type>
             </pattern>
         </references>
-    </gbean>
-
-    <gbean name="TransactionContextManager"
-           class="org.apache.geronimo.transaction.context.TransactionContextManagerGBean">
-        <reference name="TransactionManager">
-            <name>TransactionManager</name>
-        </reference>
-        <reference name="XidImporter">
-            <name>TransactionManager</name>
-        </reference>
     </gbean>
 
     <!-- JSR77 Management Objects -->

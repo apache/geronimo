@@ -36,7 +36,6 @@ import org.apache.geronimo.security.deployment.SecurityConfiguration;
  */
 public class EARContext extends DeploymentContext {
     private final AbstractNameQuery transactionManagerObjectName;
-    private final AbstractNameQuery transactionContextManagerObjectName;
     private final AbstractNameQuery connectionTrackerObjectName;
 
     private final AbstractNameQuery transactedTimerName;
@@ -61,7 +60,6 @@ public class EARContext extends DeploymentContext {
             AbstractNameQuery serverName,
             AbstractName baseName,
             AbstractNameQuery transactionManagerObjectName,
-            AbstractNameQuery transactionContextManagerObjectName,
             AbstractNameQuery connectionTrackerObjectName,
             AbstractNameQuery transactedTimerName,
             AbstractNameQuery nonTransactedTimerName,
@@ -72,7 +70,6 @@ public class EARContext extends DeploymentContext {
         moduleName = baseName;
         this.serverName = serverName;
         this.transactionManagerObjectName = transactionManagerObjectName;
-        this.transactionContextManagerObjectName = transactionContextManagerObjectName;
         this.connectionTrackerObjectName = connectionTrackerObjectName;
         this.transactedTimerName = transactedTimerName;
         this.nonTransactedTimerName = nonTransactedTimerName;
@@ -89,7 +86,6 @@ public class EARContext extends DeploymentContext {
             AbstractNameQuery serverName,
             AbstractName baseName,
             AbstractNameQuery transactionManagerObjectName,
-            AbstractNameQuery transactionContextManagerObjectName,
             AbstractNameQuery connectionTrackerObjectName,
             AbstractNameQuery transactedTimerName,
             AbstractNameQuery nonTransactedTimerName,
@@ -101,7 +97,6 @@ public class EARContext extends DeploymentContext {
         this.serverName = serverName;
 
         this.transactionManagerObjectName = transactionManagerObjectName;
-        this.transactionContextManagerObjectName = transactionContextManagerObjectName;
         this.connectionTrackerObjectName = connectionTrackerObjectName;
         this.transactedTimerName = transactedTimerName;
         this.nonTransactedTimerName = nonTransactedTimerName;
@@ -115,7 +110,6 @@ public class EARContext extends DeploymentContext {
         this.serverName = parent.getServerName();
 
         this.transactionManagerObjectName = parent.getTransactionManagerObjectName();
-        this.transactionContextManagerObjectName = parent.getTransactionContextManagerObjectName();
         this.connectionTrackerObjectName = parent.getConnectionTrackerObjectName();
         this.transactedTimerName = parent.getTransactedTimerName();
         this.nonTransactedTimerName = parent.getNonTransactedTimerName();
@@ -129,10 +123,6 @@ public class EARContext extends DeploymentContext {
 
     public AbstractNameQuery getTransactionManagerObjectName() {
         return transactionManagerObjectName;
-    }
-
-    public AbstractNameQuery getTransactionContextManagerObjectName() {
-        return transactionContextManagerObjectName;
     }
 
     public AbstractNameQuery getConnectionTrackerObjectName() {

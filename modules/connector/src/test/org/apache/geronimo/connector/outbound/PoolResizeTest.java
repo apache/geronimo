@@ -19,7 +19,7 @@ package org.apache.geronimo.connector.outbound;
 import junit.framework.TestCase;
 
 /**
- * @version $Rev:  $ $Date$
+ * @version $Rev$ $Date$
  */
 public class PoolResizeTest extends TestCase {
 

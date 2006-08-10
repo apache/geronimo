@@ -42,6 +42,12 @@
 
     <dependencies>
 
+        <dependency>
+            <groupId>backport-util-concurrent</groupId>
+            <artifactId>backport-util-concurrent</artifactId>
+            <version>${backport_util_concurrent_version}</version>
+        </dependency>
+
        <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-naming</artifactId>

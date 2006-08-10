@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.transaction;
+package org.apache.geronimo.connector.outbound.connectiontracking;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,42 +25,17 @@ import java.util.Set;
 /**
  * Simple implementation of ComponentContext satisfying invariant.
  *
- * @version $Rev$ $Date$
+ * @version $Rev: 355877 $ $Date: 2005-12-10 18:48:27 -0800 (Sat, 10 Dec 2005) $
  *
  * */
-public class DefaultInstanceContext implements InstanceContext {
+public class ConnectorInstanceContextImpl implements ConnectorInstanceContext {
     private final Map connectionManagerMap = new HashMap();
     private final Set unshareableResources;
     private final Set applicationManagedSecurityResources;
-    private int callDepth;
-    private boolean dead = false;
 
-    public DefaultInstanceContext(Set unshareableResources, Set applicationManagedSecurityResources) {
+    public ConnectorInstanceContextImpl(Set unshareableResources, Set applicationManagedSecurityResources) {
         this.unshareableResources = unshareableResources;
         this.applicationManagedSecurityResources = applicationManagedSecurityResources;
-    }
-
-    public Object getId() {
-        return null;
-    }
-
-    public Object getContainerId() {
-        return null;
-    }
-
-    public void associate() throws Exception {
-    }
-
-    public void flush() throws Exception {
-    }
-
-    public void beforeCommit() throws Exception {
-    }
-
-    public void afterCommit(boolean status) throws Exception {
-    }
-
-    public void unassociate() throws Throwable {
     }
 
     public Map getConnectionManagerMap() {
@@ -73,26 +48,5 @@ public class DefaultInstanceContext implements InstanceContext {
 
     public Set getApplicationManagedSecurityResources() {
         return applicationManagedSecurityResources;
-    }
-
-    public boolean isInCall() {
-        return callDepth > 0;
-    }
-
-    public void enter() {
-        callDepth++;
-    }
-
-    public void exit() {
-        assert isInCall();
-        callDepth--;
-    }
-
-    public boolean isDead() {
-        return dead;
-    }
-
-    public void die() {
-        dead = true;
     }
 }

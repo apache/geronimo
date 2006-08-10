@@ -33,6 +33,8 @@ import java.util.Set;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.Context;
+import javax.transaction.TransactionManager;
+import javax.transaction.UserTransaction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -47,7 +49,6 @@ import org.apache.geronimo.jetty.interceptor.InstanceContextBeforeAfter;
 import org.apache.geronimo.jetty.interceptor.RequestWrappingBeforeAfter;
 import org.apache.geronimo.jetty.interceptor.SecurityContextBeforeAfter;
 import org.apache.geronimo.jetty.interceptor.ThreadClassloaderBeforeAfter;
-import org.apache.geronimo.jetty.interceptor.TransactionContextBeforeAfter;
 import org.apache.geronimo.jetty.interceptor.WebApplicationContextBeforeAfter;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.ObjectNameUtil;
@@ -57,13 +58,10 @@ import org.apache.geronimo.management.geronimo.WebConnector;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
-import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
-import org.apache.geronimo.naming.reference.KernelAwareReference;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.jacc.RoleDesignateSource;
-import org.apache.geronimo.transaction.TrackedConnectionAssociator;
-import org.apache.geronimo.transaction.context.OnlineUserTransaction;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
+import org.apache.geronimo.transaction.GeronimoUserTransaction;
 import org.mortbay.http.Authenticator;
 import org.mortbay.http.HttpException;
 import org.mortbay.http.HttpRequest;
@@ -168,48 +166,46 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     }
 
     public JettyWebAppContext(String objectName,
-                              String originalSpecDD,
-                              String sessionManager,
-                              Map componentContext,
-                              OnlineUserTransaction userTransaction,
-                              ClassLoader classLoader,
-                              URL configurationBaseUrl,
-                              Set unshareableResources,
-                              Set applicationManagedSecurityResources,
+            String originalSpecDD,
+            String sessionManager,
+            Map componentContext,
+            ClassLoader classLoader,
+            URL configurationBaseUrl,
+            Set unshareableResources,
+            Set applicationManagedSecurityResources,
 
-                              String displayName,
-                              Map contextParamMap,
-                              Collection listenerClassNames,
-                              boolean distributable,
-                              Map mimeMap,
-                              String[] welcomeFiles,
-                              Map localeEncodingMapping,
-                              Map errorPages,
-                              Authenticator authenticator,
-                              String realmName,
-                              Map tagLibMap,
-                              int sessionTimeoutSeconds,
+            String displayName,
+            Map contextParamMap,
+            Collection listenerClassNames,
+            boolean distributable,
+            Map mimeMap,
+            String[] welcomeFiles,
+            Map localeEncodingMapping,
+            Map errorPages,
+            Authenticator authenticator,
+            String realmName,
+            Map tagLibMap,
+            int sessionTimeoutSeconds,
 
-                              String policyContextID,
-                              String securityRealmName,
-                              DefaultPrincipal defaultPrincipal,
-                              PermissionCollection checkedPermissions,
-                              PermissionCollection excludedPermissions,
+            String policyContextID,
+            String securityRealmName,
+            DefaultPrincipal defaultPrincipal,
+            PermissionCollection checkedPermissions,
+            PermissionCollection excludedPermissions,
 
-                              Host host,
-                              TransactionContextManager transactionContextManager,
-                              TrackedConnectionAssociator trackedConnectionAssociator,
-                              JettyContainer jettyContainer,
-                              RoleDesignateSource roleDesignateSource,
-                              J2EEServer server,
-                              J2EEApplication application,
-                              Kernel kernel) throws Exception, IllegalAccessException, InstantiationException, ClassNotFoundException {
+            Host host,
+            TransactionManager transactionManager,
+            TrackedConnectionAssociator trackedConnectionAssociator,
+            JettyContainer jettyContainer,
+            RoleDesignateSource roleDesignateSource,
+            J2EEServer server,
+            J2EEApplication application,
+            Kernel kernel) throws Exception, IllegalAccessException, InstantiationException, ClassNotFoundException {
 
         assert componentContext != null;
-        assert userTransaction != null;
         assert classLoader != null;
         assert configurationBaseUrl != null;
-        assert transactionContextManager != null;
+        assert transactionManager != null;
         assert trackedConnectionAssociator != null;
         assert jettyContainer != null;
 
@@ -241,8 +237,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         handler = new JettyWebApplicationHandler();
         addHandler(handler);
 
-        userTransaction.setUp(transactionContextManager, trackedConnectionAssociator);
-
         //stuff from spec dd
         setDisplayName(displayName);
         setContextParamMap(contextParamMap);
@@ -257,21 +251,11 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         setTagLibMap(tagLibMap);
         setSessionTimeoutSeconds(sessionTimeoutSeconds);
 
-        // create ReadOnlyContext
-        for (Iterator iterator = componentContext.values().iterator(); iterator.hasNext();) {
-            Object value = iterator.next();
-            if (value instanceof KernelAwareReference) {
-                ((KernelAwareReference) value).setKernel(kernel);
-            }
-            if (value instanceof ClassLoaderAwareReference) {
-                ((ClassLoaderAwareReference) value).setClassLoader(this.webClassLoader);
-            }
-        }
-        Context enc = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext);
+        GeronimoUserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
+        Context enc = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext, userTransaction, kernel, webClassLoader);
 
         int index = 0;
         BeforeAfter interceptor = new InstanceContextBeforeAfter(null, index++, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator);
-        interceptor = new TransactionContextBeforeAfter(interceptor, index++, index++, transactionContextManager);
         interceptor = new ComponentContextBeforeAfter(interceptor, index++, enc);
         interceptor = new ThreadClassloaderBeforeAfter(interceptor, index++, index++, this.webClassLoader);
         interceptor = new WebApplicationContextBeforeAfter(interceptor, index++, this);
@@ -634,7 +618,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
         infoBuilder.addAttribute("sessionManager", String.class, true);
         infoBuilder.addAttribute("componentContext", Map.class, true);
-        infoBuilder.addAttribute("userTransaction", OnlineUserTransaction.class, true);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
         infoBuilder.addAttribute("configurationBaseUrl", URL.class, true);
         infoBuilder.addAttribute("unshareableResources", Set.class, true);
@@ -643,7 +626,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         infoBuilder.addAttribute("contextPath", String.class, true);
 
         infoBuilder.addReference("Host", Host.class, "Host");
-        infoBuilder.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
+        infoBuilder.addReference("TransactionManager", TransactionManager.class, NameFactory.TRANSACTION_MANAGER);
         infoBuilder.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class, NameFactory.JCA_CONNECTION_TRACKER);
         infoBuilder.addReference("JettyContainer", JettyContainer.class, NameFactory.GERONIMO_SERVICE);
         infoBuilder.addReference("RoleDesignateSource", RoleDesignateSource.class, NameFactory.JACC_MANAGER);
@@ -674,7 +657,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
                 "deploymentDescriptor",
                 "sessionManager",
                 "componentContext",
-                "userTransaction",
                 "classLoader",
                 "configurationBaseUrl",
                 "unshareableResources",
@@ -701,7 +683,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
                 "excludedPermissions",
 
                 "Host",
-                "TransactionContextManager",
+                "TransactionManager",
                 "TrackedConnectionAssociator",
                 "JettyContainer",
                 "RoleDesignateSource",

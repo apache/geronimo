@@ -27,7 +27,7 @@ import sun.misc.BASE64Encoder;
 
 
 /**
- * @version $Rev: 387050 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class ContainerTest extends AbstractWebModuleTest {
 

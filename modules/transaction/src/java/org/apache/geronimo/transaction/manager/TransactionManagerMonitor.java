@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2006 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,23 +14,15 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+package org.apache.geronimo.transaction.manager;
 
-package org.apache.geronimo.transaction;
-
-import javax.transaction.xa.Xid;
+import java.util.EventListener;
+import javax.transaction.Transaction;
 
 /**
+ * @version $Rev$ $Date$
  */
-public class ImportedTransactionActiveException extends Exception {
-
-    private final Xid xid;
-
-    public ImportedTransactionActiveException(Xid xid) {
-        this.xid = xid;
-    }
-
-    public Xid getXid() {
-        return xid;
-    }
-
+public interface TransactionManagerMonitor extends EventListener {
+    void threadAssociated(Transaction transaction);
+    void threadUnassociated(Transaction transaction);
 }

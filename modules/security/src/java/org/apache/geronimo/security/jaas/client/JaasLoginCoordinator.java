@@ -48,7 +48,7 @@ import org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingClient;
  * case the client/server distinction is somewhat less important, and the
  * communication is optimized by avoiding network traffic.
  *
- * @version $Rev: 386763 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class JaasLoginCoordinator implements LoginModule {
     public final static String OPTION_HOST = "host";

@@ -17,7 +17,7 @@
 
 package org.apache.geronimo.connector.outbound.connectiontracking;
 
-import org.apache.geronimo.transaction.InstanceContext;
+import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContext;
 
 
 /**
@@ -28,5 +28,5 @@ import org.apache.geronimo.transaction.InstanceContext;
  * */
 public interface DefaultInterceptor {
 
-    Object invoke(InstanceContext newInstanceContext) throws Throwable;
+    Object invoke(ConnectorInstanceContext newConnectorInstanceContext) throws Throwable;
 }

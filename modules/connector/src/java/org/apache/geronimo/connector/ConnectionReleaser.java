@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2005 The Apache Software Foundation
+ * Copyright 2006 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,12 +14,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
-package org.apache.geronimo.transaction.context;
+package org.apache.geronimo.connector;
 
 /**
- * @version $Rev$ $Date$
- */
-public interface Flushable {
-    void flush() throws Exception;
+ *
+ *
+ * @version $Rev: 355877 $ $Date: 2005-12-10 18:48:27 -0800 (Sat, 10 Dec 2005) $
+ *
+ * */
+public interface ConnectionReleaser {
+    void afterCompletion(Object managedConnectionInfo);
 }

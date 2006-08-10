@@ -21,7 +21,7 @@
         >
 
     <gbean name="AppClientBuilder" class="org.apache.geronimo.client.builder.AppClientModuleBuilder">
-        <attribute name="transactionContextManagerObjectName">?name=TransactionContextManager</attribute>
+        <attribute name="transactionManagerObjectName">?name=TransactionManager</attribute>
         <attribute name="connectionTrackerObjectName">?name=ConnectionTracker</attribute>
         <attribute name="corbaGBeanObjectName">?name=Server</attribute>
         <references name="EJBReferenceBuilder">

@@ -68,6 +68,7 @@
                         <element>../lib/geronimo-kernel-${pom.version}.jar</element>
                         <element>../lib/geronimo-system-${pom.version}.jar</element>
                         <element>../lib/geronimo-util-${pom.version}.jar</element>
+                        <element>../lib/backport-util-concurrent-${backportUtilVersion}.jar</element>
                         <element>../lib/cglib-nodep-${cglibVersion}.jar</element>
                         <element>../lib/concurrent-${concurrentVersion}.jar</element>
                         <element>../lib/commons-cli-${commonsCliVersion}.jar</element>

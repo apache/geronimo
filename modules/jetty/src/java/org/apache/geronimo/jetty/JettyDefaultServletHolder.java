@@ -26,7 +26,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.mortbay.jetty.servlet.ServletHolder;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class JettyDefaultServletHolder extends JettyServletHolder {
 

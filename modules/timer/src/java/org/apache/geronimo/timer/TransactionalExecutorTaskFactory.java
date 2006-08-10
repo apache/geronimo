@@ -17,11 +17,7 @@
 
 package org.apache.geronimo.timer;
 
-import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.timer.ExecutorTask;
-import org.apache.geronimo.timer.ExecutorTaskFactory;
-import org.apache.geronimo.timer.ThreadPooledTimer;
-import org.apache.geronimo.timer.TransactionalExecutorTask;
+import javax.transaction.TransactionManager;
 
 /**
  *
@@ -31,16 +27,12 @@ import org.apache.geronimo.timer.TransactionalExecutorTask;
  * */
 public class TransactionalExecutorTaskFactory implements ExecutorTaskFactory {
 
-    private final TransactionContextManager transactionContextManager;
+    private final TransactionManager transactionManager;
     private int repeatCount;
 
-    public TransactionalExecutorTaskFactory(TransactionContextManager transactionContextManager, int repeatCount) {
-        this.transactionContextManager = transactionContextManager;
+    public TransactionalExecutorTaskFactory(TransactionManager transactionManager, int repeatCount) {
+        this.transactionManager = transactionManager;
         this.repeatCount = repeatCount;
-    }
-
-    public TransactionContextManager getTransactionContextManager() {
-        return transactionContextManager;
     }
 
     public int getRepeatCount() {
@@ -48,7 +40,7 @@ public class TransactionalExecutorTaskFactory implements ExecutorTaskFactory {
     }
 
     public ExecutorTask createExecutorTask(Runnable userTask, WorkInfo workInfo, ThreadPooledTimer threadPooledTimer) {
-        return new TransactionalExecutorTask(userTask, workInfo, threadPooledTimer, transactionContextManager, repeatCount);
+        return new TransactionalExecutorTask(userTask, workInfo, threadPooledTimer, transactionManager, repeatCount);
     }
 
 }

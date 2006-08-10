@@ -18,7 +18,7 @@
 package org.apache.geronimo.connector.outbound;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public interface ConnectionFactorySource {
 

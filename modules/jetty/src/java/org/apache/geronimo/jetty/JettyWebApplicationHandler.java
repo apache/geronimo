@@ -30,7 +30,7 @@ import org.mortbay.jetty.servlet.ServletHolder;
 import org.apache.geronimo.security.ContextManager;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class JettyWebApplicationHandler extends WebApplicationHandler {
 

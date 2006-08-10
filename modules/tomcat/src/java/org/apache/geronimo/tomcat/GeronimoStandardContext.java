@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import javax.naming.NamingException;
 import javax.security.auth.Subject;
 import javax.security.jacc.PolicyContext;
@@ -43,8 +42,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
-import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
-import org.apache.geronimo.naming.reference.KernelAwareReference;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.SubjectId;
@@ -54,11 +51,9 @@ import org.apache.geronimo.tomcat.interceptor.BeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.ComponentContextBeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.InstanceContextBeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.PolicyContextBeforeAfter;
-import org.apache.geronimo.tomcat.interceptor.TransactionContextBeforeAfter;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.tomcat.valve.DefaultSubjectValve;
 import org.apache.geronimo.tomcat.valve.GeronimoBeforeAfterValve;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.webservices.POJOWebServiceServlet;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerInvoker;
@@ -91,16 +86,7 @@ public class GeronimoStandardContext extends StandardContext {
         Map componentContext = ctx.getComponentContext();
         try {
             if (componentContext != null) {
-                for (Iterator iterator = componentContext.values().iterator(); iterator.hasNext();) {
-                    Object value = iterator.next();
-                    if (value instanceof KernelAwareReference) {
-                        ((KernelAwareReference) value).setKernel(ctx.getKernel());
-                    }
-                    if (value instanceof ClassLoaderAwareReference) {
-                        ((ClassLoaderAwareReference) value).setClassLoader(ctx.getClassLoader());
-                    }
-                }
-                enc = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext);
+                enc = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext, ctx.getUserTransaction(), ctx.getKernel(), ctx.getClassLoader());
             }
         } catch (NamingException ne) {
             log.error(ne);
@@ -115,12 +101,6 @@ public class GeronimoStandardContext extends StandardContext {
         // Set ComponentContext BeforeAfter
         if (enc != null) {
             interceptor = new ComponentContextBeforeAfter(interceptor, index++, enc);
-        }
-
-        // Set TransactionContext BeforeAfter
-        TransactionContextManager transactionContextManager = ctx.getTransactionContextManager();
-        if (transactionContextManager != null) {
-            interceptor = new TransactionContextBeforeAfter(interceptor, index++, transactionContextManager);
         }
 
         //Set a PolicyContext BeforeAfter

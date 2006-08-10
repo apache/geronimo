@@ -25,8 +25,9 @@ import javax.resource.spi.work.WorkException;
 import javax.resource.spi.work.WorkListener;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.pool.ThreadPool;
+import org.apache.geronimo.transaction.manager.GeronimoTransactionManager;
+import org.apache.geronimo.transaction.manager.XAWork;
 
 /**
  * Timing is crucial for this test case, which focuses on the synchronization
@@ -39,10 +40,11 @@ public class PooledWorkManagerTest extends TestCase {
     private GeronimoWorkManager workManager;
 
     protected void setUp() throws Exception {
-        TransactionContextManager transactionContextManager = new TransactionContextManager();
+        super.setUp();
+        XAWork xaWork = new GeronimoTransactionManager();
         ThreadPool pool = new ThreadPool(1, "Connector Test", 30000, ThreadPool.class.getClassLoader(), "foo:test=bar");
         pool.setWaitWhenBlocked(true);
-        workManager = new GeronimoWorkManager(pool, pool, pool, transactionContextManager);
+        workManager = new GeronimoWorkManager(pool, pool, pool, xaWork);
         workManager.doStart();
     }
 

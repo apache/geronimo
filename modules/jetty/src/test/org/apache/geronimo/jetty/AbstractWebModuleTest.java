@@ -19,6 +19,7 @@ package org.apache.geronimo.jetty;
 import junit.framework.TestCase;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
+import org.apache.geronimo.connector.outbound.connectiontracking.GeronimoTransactionListener;
 import org.apache.geronimo.jetty.connector.HTTPConnector;
 import org.apache.geronimo.security.SecurityServiceImpl;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
@@ -35,8 +36,6 @@ import org.apache.geronimo.security.jacc.PrincipalRoleMapper;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.transaction.context.OnlineUserTransaction;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.mortbay.http.Authenticator;
 import org.mortbay.jetty.servlet.FormAuthenticator;
@@ -49,6 +48,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import javax.transaction.TransactionManager;
 
 
 /**
@@ -61,7 +61,7 @@ public class AbstractWebModuleTest extends TestCase {
     protected final static String securityRealmName = "demo-properties-realm";
     private HTTPConnector connector;
     protected JettyContainerImpl container;
-    private TransactionContextManager transactionContextManager;
+    private TransactionManager transactionManager;
     private ConnectionTrackingCoordinator connectionTrackingCoordinator;
     private URL configurationBaseURL;
 
@@ -95,7 +95,6 @@ public class AbstractWebModuleTest extends TestCase {
                 null,
                 null,
                 Collections.EMPTY_MAP,
-                new OnlineUserTransaction(),
                 cl,
                 new URL(configurationBaseURL, uriString),
                 null,
@@ -118,7 +117,7 @@ public class AbstractWebModuleTest extends TestCase {
                 checkedPermissions,
                 excludedPermissions,
                 null,
-                transactionContextManager,
+                transactionManager,
                 connectionTrackingCoordinator,
                 container,
                 roleDesignateSource,
@@ -200,10 +199,10 @@ public class AbstractWebModuleTest extends TestCase {
         connector.setMinThreads(10);
         connector.doStart();
 
-        TransactionManagerImpl tm = new TransactionManagerImpl(10, null, null, Collections.EMPTY_LIST);
-        transactionContextManager = new TransactionContextManager(tm, tm);
+        TransactionManagerImpl transactionManager = new TransactionManagerImpl();
+        this.transactionManager = transactionManager;
         connectionTrackingCoordinator = new ConnectionTrackingCoordinator();
-
+        transactionManager.addTransactionAssociationListener(new GeronimoTransactionListener(connectionTrackingCoordinator));
     }
 
     protected void tearDown() throws Exception {

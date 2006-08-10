@@ -33,9 +33,8 @@ import javax.transaction.SystemException;
 import EDU.oswego.cs.dl.util.concurrent.Latch;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.transaction.context.TransactionContext;
-import org.apache.geronimo.transaction.ImportedTransactionActiveException;
+import org.apache.geronimo.transaction.manager.ImportedTransactionActiveException;
+import org.apache.geronimo.transaction.manager.XAWork;
 
 /**
  * Work wrapper providing an execution context to a Work instance.
@@ -97,7 +96,7 @@ public class WorkerContext implements Work {
      */
     private final ExecutionContext executionContext;
 
-    private final TransactionContextManager transactionContextManager;
+    private final XAWork xaWork;
 
     /**
      * Listener to be notified during the life-cycle of the work treatment.
@@ -123,12 +122,12 @@ public class WorkerContext implements Work {
      * Create a WorkWrapper.
      *
      * @param work                      Work to be wrapped.
-     * @param transactionContextManager
+     * @param xaWork
      */
-    public WorkerContext(Work work, TransactionContextManager transactionContextManager) {
+    public WorkerContext(Work work, XAWork xaWork) {
         adaptee = work;
         executionContext = null;
-        this.transactionContextManager = transactionContextManager;
+        this.xaWork = xaWork;
     }
 
     /**
@@ -142,14 +141,15 @@ public class WorkerContext implements Work {
      * @param workListener  an object which would be notified when the various
      *                      Work processing events (work accepted, work rejected, work started,
      */
-    public WorkerContext(Work aWork, long aStartTimeout,
-                         ExecutionContext execContext,
-                         TransactionContextManager transactionContextManager,
-                         WorkListener workListener) {
+    public WorkerContext(Work aWork,
+            long aStartTimeout,
+            ExecutionContext execContext,
+            XAWork xaWork,
+            WorkListener workListener) {
         adaptee = aWork;
         startTimeOut = aStartTimeout;
         executionContext = execContext;
-        this.transactionContextManager = transactionContextManager;
+        this.xaWork = xaWork;
         if (null != workListener) {
             this.workListener = workListener;
         }
@@ -286,22 +286,12 @@ public class WorkerContext implements Work {
         //and ignore/replace whatever is associated with the current thread.
         try {
             if (executionContext == null || executionContext.getXid() == null) {
-                TransactionContext context = transactionContextManager.newUnspecifiedTransactionContext();
-                try {
-                    adaptee.run();
-                } finally {
-                    TransactionContext returningContext = transactionContextManager.getContext();
-                    transactionContextManager.setContext(null);
-                    if (context != returningContext) {
-                        throw new WorkCompletedException("Wrong TransactionContext on return from work done");
-                    }
-                }
-                //TODO should we commit the txContext to flush any leftover state???
+                adaptee.run();
             } else {
                 try {
                     long transactionTimeout = executionContext.getTransactionTimeout();
                     //translate -1 value to 0 to indicate default transaction timeout.
-                    transactionContextManager.begin(executionContext.getXid(), transactionTimeout == -1 ? 0 : transactionTimeout);
+                    xaWork.begin(executionContext.getXid(), transactionTimeout < 0 ? 0 : transactionTimeout);
                 } catch (XAException e) {
                     throw new WorkCompletedException("Transaction import failed for xid " + executionContext.getXid(), WorkCompletedException.TX_RECREATE_FAILED).initCause(e);
                 } catch (InvalidTransactionException e) {
@@ -314,7 +304,7 @@ public class WorkerContext implements Work {
                 try {
                     adaptee.run();
                 } finally {
-                    transactionContextManager.end(executionContext.getXid());
+                    xaWork.end(executionContext.getXid());
                 }
 
             }

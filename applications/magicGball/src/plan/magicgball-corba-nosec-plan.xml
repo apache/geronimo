@@ -116,8 +116,8 @@
                 <reference name="ThreadPool">
                     <name>DefaultThreadPool</name>
                 </reference>
-                <reference name="TransactionContextManager">
-                    <name>TransactionContextManager</name>
+                <reference name="TransactionManager">
+                    <name>TransactionManager</name>
                 </reference>
                 <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
                 <attribute name="description">NoSecurity</attribute>

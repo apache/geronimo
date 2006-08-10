@@ -107,43 +107,20 @@
     </adminobject>
 
     <!--normally this is in the j2ee-server-plan.xml.  It is included here so the gbeans can start in unit tests-->
-    <gbean name="ConnectionTracker"
-           class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean">
+    <gbean name="ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean">
+        <reference name="TransactionManager">
+            <name>TransactionManager</name>
+        </reference>
     </gbean>
 
     <gbean name="DefaultWorkManager" class="org.apache.geronimo.connector.work.GeronimoWorkManagerGBean">
         <attribute name="syncMaximumPoolSize">10</attribute>
         <attribute name="startMaximumPoolSize">10</attribute>
         <attribute name="scheduledMaximumPoolSize">10</attribute>
-        <reference name="TransactionContextManager">
-            <name>TransactionContextManager</name>
-        </reference>
-    </gbean>
-
-<!--
-    <gbean name="TransactionManager" class="org.apache.geronimo.transaction.manager.TransactionManagerImplGBean">
-        <attribute name="defaultTransactionTimeoutSeconds">10</attribute>
-        <references name="ResourceManagers">
-            <pattern>
-                <name>JCAManagedConnectionFactory</name>
-            </pattern>
-            <pattern>
-                <name>MessageDrivenBean</name>
-            </pattern>
-        </references>
-    </gbean>
--->
-
-    <gbean name="TransactionContextManager"
-           class="org.apache.geronimo.transaction.context.TransactionContextManagerGBean">
-<!--
         <reference name="TransactionManager">
             <name>TransactionManager</name>
         </reference>
-        <reference name="XidImporter">
-            <name>TransactionManager</name>
-        </reference>
--->
     </gbean>
 
+    <gbean name="TransactionManager" class="org.apache.geronimo.transaction.manager.GeronimoTransactionManagerGBean"/>
 </connector>

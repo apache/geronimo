@@ -17,11 +17,12 @@
 
 package org.apache.geronimo.connector.outbound.connectionmanagerconfig;
 
+import javax.transaction.TransactionManager;
+
 import org.apache.geronimo.connector.outbound.ConnectionInterceptor;
 import org.apache.geronimo.connector.outbound.TransactionCachingInterceptor;
 import org.apache.geronimo.connector.outbound.TransactionEnlistingInterceptor;
 import org.apache.geronimo.connector.outbound.transactionlog.LogXAResourceInsertionInterceptor;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
  *
@@ -40,8 +41,8 @@ public class TransactionLog extends TransactionSupport
         return new LogXAResourceInsertionInterceptor(stack, name);
     }
 
-    public ConnectionInterceptor addTransactionInterceptors(ConnectionInterceptor stack, TransactionContextManager transactionContextManager) {
-        stack = new TransactionEnlistingInterceptor(stack, transactionContextManager);
-        return new TransactionCachingInterceptor(stack, transactionContextManager);
+    public ConnectionInterceptor addTransactionInterceptors(ConnectionInterceptor stack, TransactionManager transactionManager) {
+        stack = new TransactionEnlistingInterceptor(stack, transactionManager);
+        return new TransactionCachingInterceptor(stack, transactionManager);
     }
 }

@@ -41,7 +41,13 @@
     <!-- ============ -->
 
     <dependencies>
-
+        <dependency>
+            <groupId>backport-util-concurrent</groupId>
+            <artifactId>backport-util-concurrent</artifactId>
+            <version>${backport_util_concurrent_version}</version>
+            <type>test</type>
+        </dependency>
+        
         <dependency>
              <groupId>xmlbeans</groupId>
              <artifactId>xmlbeans-maven-plugin</artifactId>

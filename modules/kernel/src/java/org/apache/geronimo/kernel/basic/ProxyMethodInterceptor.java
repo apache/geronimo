@@ -42,7 +42,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @version $Rev: 385487 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class ProxyMethodInterceptor implements MethodInterceptor {
     /**

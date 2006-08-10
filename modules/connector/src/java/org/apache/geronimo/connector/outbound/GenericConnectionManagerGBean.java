@@ -17,6 +17,8 @@
 package org.apache.geronimo.connector.outbound;
 
 import javax.resource.spi.ConnectionManager;
+import javax.transaction.TransactionManager;
+
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PoolingSupport;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
@@ -24,7 +26,6 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 
@@ -43,11 +44,11 @@ public class GenericConnectionManagerGBean extends GenericConnectionManager impl
                                          PoolingSupport pooling,
                                          boolean containerManagedSecurity,
                                          ConnectionTracker connectionTracker,
-                                         TransactionContextManager transactionContextManager,
+                                         TransactionManager transactionManager,
                                          String objectName,
                                          ClassLoader classLoader,
                                          Kernel kernel) {
-        super(transactionSupport, pooling, containerManagedSecurity, connectionTracker, transactionContextManager, objectName, classLoader);
+        super(transactionSupport, pooling, containerManagedSecurity, connectionTracker, transactionManager, objectName, classLoader);
         this.kernel = kernel;
     }
 
@@ -75,7 +76,7 @@ public class GenericConnectionManagerGBean extends GenericConnectionManager impl
         infoBuilder.addAttribute("kernel", Kernel.class, false);
 
         infoBuilder.addReference("ConnectionTracker", ConnectionTracker.class, NameFactory.JCA_CONNECTION_TRACKER);
-        infoBuilder.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
+        infoBuilder.addReference("TransactionManager", TransactionManager.class, NameFactory.TRANSACTION_MANAGER);
 
 
         infoBuilder.setConstructor(new String[]{
@@ -83,7 +84,7 @@ public class GenericConnectionManagerGBean extends GenericConnectionManager impl
             "pooling",
             "containerManagedSecurity",
             "ConnectionTracker",
-            "TransactionContextManager",
+            "TransactionManager",
             "objectName",
             "classLoader",
             "kernel"

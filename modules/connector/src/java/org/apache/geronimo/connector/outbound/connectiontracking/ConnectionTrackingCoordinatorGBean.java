@@ -19,21 +19,46 @@ package org.apache.geronimo.connector.outbound.connectiontracking;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.transaction.TrackedConnectionAssociator;
+import org.apache.geronimo.transaction.manager.MonitorableTransactionManager;
 
 /**
  * 
  * @version $Revision$
  */
-public class ConnectionTrackingCoordinatorGBean {
-    
+public class ConnectionTrackingCoordinatorGBean extends ConnectionTrackingCoordinator implements GBeanLifecycle {
+    private final MonitorableTransactionManager monitorableTm;
+    private final GeronimoTransactionListener listener;
+
+    public ConnectionTrackingCoordinatorGBean(MonitorableTransactionManager monitorableTm) {
+        this.monitorableTm = monitorableTm;
+        listener = new GeronimoTransactionListener(this);
+    }
+
+    public void doStart() throws Exception {
+        monitorableTm.addTransactionAssociationListener(listener);
+    }
+
+    public void doStop() throws Exception {
+        monitorableTm.removeTransactionAssociationListener(listener);
+    }
+
+    public void doFail() {
+        monitorableTm.removeTransactionAssociationListener(listener);
+    }
+
     public final static GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(ConnectionTrackingCoordinatorGBean.class, ConnectionTrackingCoordinator.class, NameFactory.JCA_CONNECTION_TRACKER);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(ConnectionTrackingCoordinatorGBean.class, NameFactory.JCA_CONNECTION_TRACKER);
+
+        infoFactory.addReference("TransactionManager", MonitorableTransactionManager.class, NameFactory.TRANSACTION_MANAGER);
+
         infoFactory.addInterface(TrackedConnectionAssociator.class);
         infoFactory.addInterface(ConnectionTracker.class);
+
+        infoFactory.setConstructor(new String[] {"TransactionManager"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

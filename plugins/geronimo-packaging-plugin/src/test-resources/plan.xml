@@ -97,8 +97,8 @@
   </gbean>
   <gbean name="TransactionalThreadPooledTimer" class="org.apache.geronimo.timer.jdbc.JDBCStoreThreadPooledTransactionalTimer">
     <attribute name="repeatCount">5</attribute>
-    <reference name="TransactionContextManager">
-      <name>TransactionContextManager</name>
+    <reference name="TransactionManager">
+      <name>TransactionManager</name>
     </reference>
     <reference name="ManagedConnectionFactoryWrapper">
       <name>SystemDatasource</name>
@@ -111,8 +111,8 @@
     </dependency>
   </gbean>
   <gbean name="NonTransactionalThreadPooledTimer" class="org.apache.geronimo.timer.jdbc.JDBCStoreThreadPooledNonTransactionalTimer">
-    <reference name="TransactionContextManager">
-      <name>TransactionContextManager</name>
+    <reference name="TransactionManager">
+      <name>TransactionManager</name>
     </reference>
     <reference name="ManagedConnectionFactoryWrapper">
       <name>SystemDatasource</name>

@@ -30,7 +30,7 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class PlanProcessorTest extends TestCase {
 

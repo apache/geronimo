@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2006 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,32 +14,39 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.apache.geronimo.connector;
 
 import java.util.Timer;
-
-import javax.resource.spi.UnavailableException;
-import javax.resource.spi.XATerminator;
 import javax.resource.spi.work.WorkManager;
-
-import org.apache.geronimo.connector.work.GeronimoWorkManager;
+import javax.resource.spi.XATerminator;
+import javax.resource.spi.UnavailableException;
 
 /**
  * GBean BootstrapContext implementation that refers to externally configured WorkManager
  * and XATerminator gbeans.
  *
- * @version $Rev$ $Date$
+ * @version $Rev: 356022 $ $Date: 2005-12-11 12:58:34 -0800 (Sun, 11 Dec 2005) $
  */
-public class BootstrapContextImpl implements javax.resource.spi.BootstrapContext {
-    private final GeronimoWorkManager workManager;
+public class GeronimoBootstrapContext implements javax.resource.spi.BootstrapContext {
+    private final WorkManager workManager;
+    private final XATerminator xATerminator;
+
+    /**
+     * Default constructor for use as a GBean Endpoint.
+     */
+    public GeronimoBootstrapContext() {
+        workManager = null;
+        xATerminator = null;
+    }
 
     /**
      * Normal constructor for use as a GBean.
      * @param workManager
+     * @param xaTerminator
      */
-    public BootstrapContextImpl(final GeronimoWorkManager workManager) {
+    public GeronimoBootstrapContext(WorkManager workManager, XATerminator xaTerminator) {
         this.workManager = workManager;
+        this.xATerminator = xaTerminator;
     }
 
 
@@ -54,7 +61,7 @@ public class BootstrapContextImpl implements javax.resource.spi.BootstrapContext
      * @see javax.resource.spi.BootstrapContext#getXATerminator()
      */
     public XATerminator getXATerminator() {
-        return workManager.getXATerminator();
+        return xATerminator;
     }
 
     /**
@@ -63,28 +70,5 @@ public class BootstrapContextImpl implements javax.resource.spi.BootstrapContext
     public Timer createTimer() throws UnavailableException {
         return new Timer();
     }
-
-//    public static final GBeanInfo GBEAN_INFO;
-//
-//    static {
-//        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(BootstrapContext.class);
-//          //adding interface does not work, creates attributes for references???
-////        infoFactory.addInterface(javax.resource.spi.BootstrapContext.class);
-//
-//        infoFactory.addOperation("createTimer");
-//        infoFactory.addOperation("getWorkManager");
-//        infoFactory.addOperation("getXATerminator");
-//
-//        infoFactory.addReference("WorkManager", WorkManager.class);
-//        infoFactory.addReference("XATerminator", XATerminator.class);
-//
-//        infoFactory.setConstructor(new String[]{"WorkManager", "XATerminator"});
-//
-//        GBEAN_INFO = infoFactory.getBeanInfo();
-//    }
-//
-//    public static GBeanInfo getGBeanInfo() {
-//        return GBEAN_INFO;
-//    }
 
 }

@@ -25,7 +25,6 @@ import junit.framework.TestSuite;
 import org.apache.geronimo.transaction.manager.TransactionLog;
 import org.apache.geronimo.transaction.manager.XidFactory;
 import org.apache.geronimo.transaction.manager.XidFactoryImpl;
-import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 
 /**
  *
@@ -63,7 +62,7 @@ public class HOWLLogTest extends AbstractLogTest {
                 2, //                "minBuffers",
                 10,//                "threadsWaitingForceThreshold"});
                 xidFactory,
-                new BasicServerInfo(new File(basedir, "target").getAbsolutePath())
+                new File(basedir, "target")
         );
         howlLog.doStart();
         return howlLog;

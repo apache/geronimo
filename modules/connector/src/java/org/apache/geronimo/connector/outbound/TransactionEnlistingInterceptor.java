@@ -20,10 +20,9 @@ package org.apache.geronimo.connector.outbound;
 import javax.resource.ResourceException;
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
+import javax.transaction.Transaction;
+import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAResource;
-
-import org.apache.geronimo.transaction.context.TransactionContext;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
  * TransactionEnlistingInterceptor.java
@@ -36,21 +35,23 @@ import org.apache.geronimo.transaction.context.TransactionContextManager;
 public class TransactionEnlistingInterceptor implements ConnectionInterceptor {
 
     private final ConnectionInterceptor next;
-    private final TransactionContextManager transactionContextManager;
+    private final TransactionManager transactionManager;
 
-    public TransactionEnlistingInterceptor(ConnectionInterceptor next, TransactionContextManager transactionContextManager) {
+    public TransactionEnlistingInterceptor(ConnectionInterceptor next, TransactionManager transactionManager) {
         this.next = next;
-        this.transactionContextManager = transactionContextManager;
+        this.transactionManager = transactionManager;
     }
 
     public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
         next.getConnection(connectionInfo);
         try {
             ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
-            TransactionContext transactionContext = transactionContextManager.getContext();
-            if (transactionContext != null && transactionContext.isInheritable() && transactionContext.isActive()) {
+
+            // get the current transation and status... if there is a problem just assume there is no transaction present
+            Transaction transaction = TxUtil.getTransactionIfActive(transactionManager);
+            if (transaction != null) {
                 XAResource xares = mci.getXAResource();
-                transactionContext.enlistResource(xares);
+                transaction.enlistResource(xares);
             }
         } catch (SystemException e) {
             returnConnection(connectionInfo, ConnectionReturnAction.DESTROY);
@@ -78,10 +79,10 @@ public class TransactionEnlistingInterceptor implements ConnectionInterceptor {
                                  ConnectionReturnAction connectionReturnAction) {
         try {
             ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
-            TransactionContext transactionContext = transactionContextManager.getContext();
-            if (transactionContext != null && transactionContext.isInheritable() && transactionContext.isActive()) {
+            Transaction transaction = TxUtil.getTransactionIfActive(transactionManager);
+            if (transaction != null) {
                 XAResource xares = mci.getXAResource();
-                transactionContext.delistResource(xares, XAResource.TMSUSPEND);
+                transaction.delistResource(xares, XAResource.TMSUSPEND);
             }
 
         } catch (SystemException e) {
@@ -97,5 +98,5 @@ public class TransactionEnlistingInterceptor implements ConnectionInterceptor {
     public void destroy() {
         next.destroy();
     }
-    
+
 }

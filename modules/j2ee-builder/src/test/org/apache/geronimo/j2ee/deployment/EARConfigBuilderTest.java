@@ -101,7 +101,6 @@ public class EARConfigBuilderTest extends TestCase {
     private static String contextRoot = "test";
     private static final Map portMap = null;
     private final AbstractNameQuery transactionManagerAbstractNameQuery = new AbstractNameQuery(transactionManagerObjectName, null);
-    private final AbstractNameQuery transactionContextManagerAbstractNameQuery = new AbstractNameQuery(transactionManagerObjectName, null);
     private final AbstractNameQuery connectionTrackerAbstractNameQuery = new AbstractNameQuery(connectionTrackerObjectName, null);
     private final AbstractNameQuery transactionalTimerAbstractNameQuery = new AbstractNameQuery(transactionalTimerObjectName, null);
     private final AbstractNameQuery nonTransactionalTimerAbstractNameQuery = new AbstractNameQuery(nonTransactionalTimerObjectName, null);
@@ -262,7 +261,6 @@ public class EARConfigBuilderTest extends TestCase {
         try {
             EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
                     transactionManagerAbstractNameQuery,
-                    transactionContextManagerAbstractNameQuery,
                     connectionTrackerAbstractNameQuery,
                     transactionalTimerAbstractNameQuery,
                     nonTransactionalTimerAbstractNameQuery,
@@ -294,7 +292,6 @@ public class EARConfigBuilderTest extends TestCase {
     public void testBadEJBJARConfiguration() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
                 transactionManagerAbstractNameQuery,
-                transactionContextManagerAbstractNameQuery,
                 connectionTrackerAbstractNameQuery,
                 transactionalTimerAbstractNameQuery,
                 nonTransactionalTimerAbstractNameQuery,
@@ -334,7 +331,6 @@ public class EARConfigBuilderTest extends TestCase {
     public void testBadWARConfiguration() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
                 transactionManagerAbstractNameQuery,
-                transactionContextManagerAbstractNameQuery,
                 connectionTrackerAbstractNameQuery,
                 transactionalTimerAbstractNameQuery,
                 nonTransactionalTimerAbstractNameQuery,
@@ -374,7 +370,6 @@ public class EARConfigBuilderTest extends TestCase {
     public void testBadRARConfiguration() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
                 transactionManagerAbstractNameQuery,
-                transactionContextManagerAbstractNameQuery,
                 connectionTrackerAbstractNameQuery,
                 transactionalTimerAbstractNameQuery,
                 nonTransactionalTimerAbstractNameQuery,
@@ -414,7 +409,6 @@ public class EARConfigBuilderTest extends TestCase {
     public void testBadCARConfiguration() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
                 transactionManagerAbstractNameQuery,
-                transactionContextManagerAbstractNameQuery,
                 connectionTrackerAbstractNameQuery,
                 transactionalTimerAbstractNameQuery,
                 nonTransactionalTimerAbstractNameQuery,
@@ -454,7 +448,6 @@ public class EARConfigBuilderTest extends TestCase {
     public void testNoEJBDeployer() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
                 transactionManagerAbstractNameQuery,
-                transactionContextManagerAbstractNameQuery,
                 connectionTrackerAbstractNameQuery,
                 transactionalTimerAbstractNameQuery,
                 nonTransactionalTimerAbstractNameQuery,
@@ -493,7 +486,6 @@ public class EARConfigBuilderTest extends TestCase {
     public void testNoWARDeployer() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
                 transactionManagerAbstractNameQuery,
-                transactionContextManagerAbstractNameQuery,
                 connectionTrackerAbstractNameQuery,
                 transactionalTimerAbstractNameQuery,
                 nonTransactionalTimerAbstractNameQuery,
@@ -531,7 +523,6 @@ public class EARConfigBuilderTest extends TestCase {
     public void testNoConnectorDeployer() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
                 transactionManagerAbstractNameQuery,
-                transactionContextManagerAbstractNameQuery,
                 connectionTrackerAbstractNameQuery,
                 transactionalTimerAbstractNameQuery,
                 nonTransactionalTimerAbstractNameQuery,

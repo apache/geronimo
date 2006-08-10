@@ -24,8 +24,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.transaction.TransactionManager;
+
 import junit.framework.TestCase;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
+import org.apache.geronimo.connector.outbound.connectiontracking.GeronimoTransactionListener;
 import org.apache.geronimo.security.SecurityServiceImpl;
 import org.apache.geronimo.security.deploy.PrincipalInfo;
 import org.apache.geronimo.security.jaas.GeronimoLoginConfiguration;
@@ -41,8 +44,6 @@ import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
-import org.apache.geronimo.transaction.context.OnlineUserTransaction;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 
 
@@ -56,7 +57,7 @@ public abstract class AbstractWebModuleTest extends TestCase {
     protected final static String securityRealmName = "demo-properties-realm";
     private ConnectorGBean connector;
     protected TomcatContainer container;
-    private TransactionContextManager transactionContextManager;
+    private TransactionManager transactionManager;
     private ConnectionTrackingCoordinator connectionTrackingCoordinator;
 
     protected static final String POLICY_CONTEXT_ID = "securetest";
@@ -73,8 +74,7 @@ public abstract class AbstractWebModuleTest extends TestCase {
                 Collections.EMPTY_MAP,
                 null,
                 null,
-                new OnlineUserTransaction(),
-                transactionContextManager,
+                transactionManager,
                 connectionTrackingCoordinator,
                 container,
                 roleDesignateSource,
@@ -184,9 +184,10 @@ public abstract class AbstractWebModuleTest extends TestCase {
         connector = new ConnectorGBean("HTTP", null, "localhost", 8181, container);
         connector.doStart();
 
-        TransactionManagerImpl tm = new TransactionManagerImpl(10, null, null, Collections.EMPTY_LIST);
-        transactionContextManager = new TransactionContextManager(tm, tm);
+        TransactionManagerImpl transactionManager = new TransactionManagerImpl();
+        this.transactionManager = transactionManager;
         connectionTrackingCoordinator = new ConnectionTrackingCoordinator();
+        transactionManager.addTransactionAssociationListener(new GeronimoTransactionListener(connectionTrackingCoordinator));
     }
 
     protected void tearDown() throws Exception {

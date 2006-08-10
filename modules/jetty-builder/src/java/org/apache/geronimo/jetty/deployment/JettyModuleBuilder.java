@@ -41,7 +41,6 @@ import java.util.jar.JarFile;
 
 import javax.management.ObjectName;
 import javax.servlet.Servlet;
-import javax.transaction.UserTransaction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -85,7 +84,6 @@ import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
-import org.apache.geronimo.transaction.context.OnlineUserTransaction;
 import org.apache.geronimo.web.deployment.AbstractWebModuleBuilder;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
 import org.apache.geronimo.xbeans.geronimo.naming.GerMessageDestinationType;
@@ -333,10 +331,9 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         GbeanType[] gbeans = jettyWebApp.getGbeanArray();
         ServiceConfigBuilder.addGBeans(gbeans, moduleClassLoader, moduleName, moduleContext);
 
-        UserTransaction userTransaction = new OnlineUserTransaction();
         //this may add to the web classpath with enhanced classes.
         //N.B. we use the ear context which has all the gbeans we could possibly be looking up from this ear.
-        Map compContext = buildComponentContext(earContext, webModule, webApp, jettyWebApp, userTransaction, moduleClassLoader);
+        Map compContext = buildComponentContext(earContext, webModule, webApp, jettyWebApp, moduleClassLoader);
 
         GBeanData webModuleData = new GBeanData(moduleName, JettyWebAppContext.GBEAN_INFO);
         try {
@@ -379,7 +376,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             webModuleData.addDependencies(dependencies);
 
             webModuleData.setAttribute("componentContext", compContext);
-            webModuleData.setAttribute("userTransaction", userTransaction);
             //classpath may have been augmented with enhanced classes
 //            webModuleData.setAttribute("webClassPath", webModule.getWebClasspath());
             // unsharableResources, applicationManagedSecurityResources
@@ -389,7 +385,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
             webModuleData.setAttribute("contextPath", webModule.getContextRoot());
 
-            webModuleData.setReferencePattern("TransactionContextManager", moduleContext.getTransactionContextManagerObjectName());
+            webModuleData.setReferencePattern("TransactionManager", moduleContext.getTransactionManagerObjectName());
             webModuleData.setReferencePattern("TrackedConnectionAssociator", moduleContext.getConnectionTrackerObjectName());
             if (jettyWebApp.isSetWebContainer()) {
                 AbstractNameQuery webContainerName = ENCConfigBuilder.getGBeanQuery(NameFactory.GERONIMO_SERVICE, jettyWebApp.getWebContainer());
@@ -904,11 +900,11 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         return servletAbstractName;
     }
 
-    private Map buildComponentContext(EARContext earContext, Module webModule, WebAppType webApp, JettyWebAppType jettyWebApp, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
+    private Map buildComponentContext(EARContext earContext, Module webModule, WebAppType webApp, JettyWebAppType jettyWebApp, ClassLoader cl) throws DeploymentException {
         return ENCConfigBuilder.buildComponentContext(earContext,
                 earContext.getConfiguration(),
                 webModule,
-                userTransaction,
+                null,
                 webApp.getEnvEntryArray(),
                 webApp.getEjbRefArray(), jettyWebApp.getEjbRefArray(),
                 webApp.getEjbLocalRefArray(), jettyWebApp.getEjbLocalRefArray(),

@@ -17,10 +17,10 @@
 
 package org.apache.geronimo.timer;
 
+import javax.transaction.TransactionManager;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.transaction.context.TransactionContext;
 
 /**
  * @version $Rev$ $Date$
@@ -32,22 +32,21 @@ public class TransactionalExecutorTask implements ExecutorTask {
     private final WorkInfo workInfo;
     private final ThreadPooledTimer threadPooledTimer;
 
-    private final TransactionContextManager transactionContextManager;
+    private final TransactionManager transactionManager;
     private final int repeatCount;
 
-    public TransactionalExecutorTask(Runnable userTask, WorkInfo workInfo, ThreadPooledTimer threadPooledTimer, TransactionContextManager transactionContextManager, int repeatCount) {
+    public TransactionalExecutorTask(Runnable userTask, WorkInfo workInfo, ThreadPooledTimer threadPooledTimer, TransactionManager transactionManager, int repeatCount) {
         this.userTask = userTask;
         this.workInfo = workInfo;
         this.threadPooledTimer = threadPooledTimer;
-        this.transactionContextManager = transactionContextManager;
+        this.transactionManager = transactionManager;
         this.repeatCount = repeatCount;
     }
-    
+
     public void run() {
-        TransactionContext transactionContext = null;
         for (int tries = 0; tries < repeatCount; tries++) {
             try {
-                transactionContext = transactionContextManager.newContainerTransactionContext();
+                transactionManager.begin();
             } catch (Exception e) {
                 log.warn("Exception occured while starting container transaction", e);
                 break;
@@ -65,14 +64,12 @@ public class TransactionalExecutorTask implements ExecutorTask {
                 }
             } finally {
                 try {
-                    transactionContextManager.setContext(null);
-                    if (transactionContext.commit()) {
-                        if (workInfo.isOneTime()) {
-                            threadPooledTimer.removeWorkInfo(workInfo);
-                        }
-                        // todo this is a very weird code structure.... returning from a finally is very confusing
-                        return;
+                    transactionManager.commit();
+                    if (workInfo.isOneTime()) {
+                        threadPooledTimer.removeWorkInfo(workInfo);
                     }
+                    // todo this is a very weird code structure.... returning from a finally is very confusing
+                    return;
                 } catch (Exception e) {
                     log.warn("Exception occured while completing container transaction", e);
                 }

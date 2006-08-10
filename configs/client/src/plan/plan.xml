@@ -41,8 +41,10 @@ by the app client.
         <attribute name="poolName">DefaultThreadPool</attribute>
     </gbean>
 
-    <gbean name="ConnectionTracker"
-           class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean">
+    <gbean name="ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean">
+        <reference name="TransactionManager">
+            <name>TransactionManager</name>
+        </reference>
     </gbean>
 
     <gbean name="DefaultWorkManager" class="org.apache.geronimo.connector.work.GeronimoWorkManagerGBean">
@@ -55,8 +57,8 @@ by the app client.
         <reference name="ScheduledPool">
             <name>DefaultThreadPool</name>
         </reference>
-        <reference name="TransactionContextManager">
-            <name>TransactionContextManager</name>
+        <reference name="TransactionManager">
+            <name>TransactionManager</name>
         </reference>
     </gbean>
 
@@ -64,7 +66,7 @@ by the app client.
         <attribute name="tmId">71,84,77,73,68</attribute>
     </gbean>
 
-    <gbean name="TransactionManager" class="org.apache.geronimo.transaction.manager.TransactionManagerImplGBean">
+    <gbean name="TransactionManager" class="org.apache.geronimo.transaction.manager.GeronimoTransactionManagerGBean">
         <!--no transaction log on the client-->
         <attribute name="defaultTransactionTimeoutSeconds">600</attribute>
         <reference name="XidFactory">
@@ -78,16 +80,6 @@ by the app client.
                 <type>ActivationSpec</type>
             </pattern>
         </references>
-    </gbean>
-
-    <gbean name="TransactionContextManager"
-           class="org.apache.geronimo.transaction.context.TransactionContextManagerGBean">
-        <reference name="TransactionManager">
-            <name>TransactionManager</name>
-        </reference>
-        <reference name="XidImporter">
-            <name>TransactionManager</name>
-        </reference>
     </gbean>
 
     <gbean name="eis/JAXR" class="org.apache.geronimo.webservices.jaxr.JAXRGBean"/>

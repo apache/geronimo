@@ -22,12 +22,12 @@ import javax.resource.ResourceException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import org.apache.geronimo.transaction.DefaultInstanceContext;
-import org.apache.geronimo.transaction.InstanceContext;
-import org.apache.geronimo.transaction.TrackedConnectionAssociator;
+import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContextImpl;
+import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContext;
+import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 
 public class InstanceContextBeforeAfter implements BeforeAfter{
-    
+
     private final BeforeAfter next;
     private final int index;
     private final Set unshareableResources;
@@ -44,7 +44,7 @@ public class InstanceContextBeforeAfter implements BeforeAfter{
 
     public void before(Object[] context, ServletRequest httpRequest, ServletResponse httpResponse) {
         try {
-            context[index] = trackedConnectionAssociator.enter(new DefaultInstanceContext(unshareableResources, applicationManagedSecurityResources));
+            context[index] = trackedConnectionAssociator.enter(new ConnectorInstanceContextImpl(unshareableResources, applicationManagedSecurityResources));
         } catch (ResourceException e) {
             throw new RuntimeException(e);
         }
@@ -58,7 +58,7 @@ public class InstanceContextBeforeAfter implements BeforeAfter{
             next.after(context, httpRequest, httpResponse);
         }
         try {
-            trackedConnectionAssociator.exit((InstanceContext) context[index]);
+            trackedConnectionAssociator.exit((ConnectorInstanceContext) context[index]);
         } catch (ResourceException e) {
             throw new RuntimeException(e);
         }

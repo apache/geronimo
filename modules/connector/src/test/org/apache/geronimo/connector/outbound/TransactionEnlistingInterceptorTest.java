@@ -21,9 +21,8 @@ import javax.resource.ResourceException;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
+import javax.transaction.TransactionManager;
 
-import org.apache.geronimo.transaction.context.TransactionContext;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.manager.NamedXAResource;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.apache.geronimo.transaction.manager.XidFactoryImpl;
@@ -34,22 +33,18 @@ import org.apache.geronimo.transaction.manager.XidFactoryImpl;
  * @version $Rev$ $Date$
  *
  * */
-public class TransactionEnlistingInterceptorTest extends ConnectionInterceptorTestUtils
-        implements NamedXAResource {
-
+public class TransactionEnlistingInterceptorTest extends ConnectionInterceptorTestUtils implements NamedXAResource {
     private TransactionEnlistingInterceptor transactionEnlistingInterceptor;
     private boolean started;
     private boolean ended;
     private boolean returned;
     private boolean committed;
-    private TransactionContextManager transactionContextManager;
+    private TransactionManager transactionManager;
 
     protected void setUp() throws Exception {
         super.setUp();
-        TransactionManagerImpl transactionManager = new TransactionManagerImpl(10 * 1000, 
-                new XidFactoryImpl("WHAT DO WE CALL IT?".getBytes()), null, null);
-        transactionContextManager = new TransactionContextManager(transactionManager, transactionManager);
-        transactionEnlistingInterceptor = new TransactionEnlistingInterceptor(this, transactionContextManager);
+        transactionManager = new TransactionManagerImpl();
+        transactionEnlistingInterceptor = new TransactionEnlistingInterceptor(this, this.transactionManager);
     }
 
     protected void tearDown() throws Exception {
@@ -63,7 +58,6 @@ public class TransactionEnlistingInterceptorTest extends ConnectionInterceptorTe
 
     public void testNoTransaction() throws Exception {
         ConnectionInfo connectionInfo = makeConnectionInfo();
-        transactionContextManager.newUnspecifiedTransactionContext();
         transactionEnlistingInterceptor.getConnection(connectionInfo);
         assertTrue("Expected not started", !started);
         assertTrue("Expected not ended", !ended);
@@ -73,7 +67,7 @@ public class TransactionEnlistingInterceptorTest extends ConnectionInterceptorTe
     }
 
     public void testTransactionShareableConnection() throws Exception {
-        TransactionContext transactionContext = transactionContextManager.newContainerTransactionContext();
+        transactionManager.begin();
         ConnectionInfo connectionInfo = makeConnectionInfo();
         transactionEnlistingInterceptor.getConnection(connectionInfo);
         assertTrue("Expected started", started);
@@ -83,12 +77,12 @@ public class TransactionEnlistingInterceptorTest extends ConnectionInterceptorTe
         assertTrue("Expected not started", !started);
         assertTrue("Expected ended", ended);
         assertTrue("Expected returned", returned);
-        transactionContext.commit();
+        transactionManager.commit();
         assertTrue("Expected committed", committed);
     }
 
     public void testTransactionUnshareableConnection() throws Exception {
-        TransactionContext transactionContext = transactionContextManager.newContainerTransactionContext();
+        transactionManager.begin();
         ConnectionInfo connectionInfo = makeConnectionInfo();
         connectionInfo.setUnshareable(true);
         transactionEnlistingInterceptor.getConnection(connectionInfo);
@@ -99,7 +93,7 @@ public class TransactionEnlistingInterceptorTest extends ConnectionInterceptorTe
         assertTrue("Expected not started", !started);
         assertTrue("Expected ended", ended);
         assertTrue("Expected returned", returned);
-        transactionContext.commit();
+        transactionManager.commit();
         assertTrue("Expected committed", committed);
     }
 

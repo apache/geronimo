@@ -17,28 +17,26 @@
 
 package org.apache.geronimo.timer.vm;
 
+import javax.transaction.TransactionManager;
+
 import EDU.oswego.cs.dl.util.concurrent.Executor;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.timer.PersistentTimer;
 import org.apache.geronimo.timer.ThreadPooledTimer;
 import org.apache.geronimo.timer.TransactionalExecutorTaskFactory;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
- *
- *
  * @version $Rev$ $Date$
- *
- * */
+ */
 public class VMStoreThreadPooledTransactionalTimer extends ThreadPooledTimer {
 
     public VMStoreThreadPooledTransactionalTimer(int repeatCount,
-            TransactionContextManager transactionContextManager,
+            TransactionManager transactionManager,
             Executor threadPool) {
-        super(new TransactionalExecutorTaskFactory(transactionContextManager, repeatCount),
-                new VMWorkerPersistence(), threadPool, transactionContextManager);
+        super(new TransactionalExecutorTaskFactory(transactionManager, repeatCount),
+                new VMWorkerPersistence(), threadPool, transactionManager);
     }
 
 
@@ -49,10 +47,10 @@ public class VMStoreThreadPooledTransactionalTimer extends ThreadPooledTimer {
         infoFactory.addInterface(PersistentTimer.class);
 
         infoFactory.addAttribute("repeatCount", int.class, true);
-        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
+        infoFactory.addReference("TransactionManager", TransactionManager.class, NameFactory.TRANSACTION_MANAGER);
         infoFactory.addReference("ThreadPool", Executor.class, NameFactory.GERONIMO_SERVICE);
 
-        infoFactory.setConstructor(new String[] {"repeatCount", "TransactionContextManager", "ThreadPool"});
+        infoFactory.setConstructor(new String[] {"repeatCount", "TransactionManager", "ThreadPool"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

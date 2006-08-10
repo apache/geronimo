@@ -17,7 +17,6 @@
 
 package org.apache.geronimo.connector;
 
-import org.apache.geronimo.connector.work.GeronimoWorkManager;
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -28,6 +27,8 @@ import org.apache.geronimo.management.geronimo.JCAResourceAdapter;
 
 import javax.resource.spi.ResourceAdapter;
 import javax.resource.spi.ResourceAdapterAssociation;
+import javax.resource.spi.XATerminator;
+import javax.resource.spi.work.WorkManager;
 
 /**
  * 
@@ -43,8 +44,8 @@ public class ResourceAdapterWrapperGBean extends ResourceAdapterWrapper implemen
         objectName = null;
     }
 
-    public ResourceAdapterWrapperGBean(final String resourceAdapterClass, final GeronimoWorkManager workManager, ClassLoader cl, String objectName) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-        super(resourceAdapterClass, workManager, cl);
+    public ResourceAdapterWrapperGBean(String resourceAdapterClass, WorkManager workManager, XATerminator xaTerminator, ClassLoader cl, String objectName) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+        super(resourceAdapterClass, new GeronimoBootstrapContext (workManager, xaTerminator), cl);
         delegate = new DynamicGBeanDelegate();
         delegate.addAll(resourceAdapter);
         this.objectName = objectName;
@@ -87,14 +88,15 @@ public class ResourceAdapterWrapperGBean extends ResourceAdapterWrapper implemen
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
         infoBuilder.addAttribute("objectName", String.class, false);
 
-        infoBuilder.addReference("WorkManager", GeronimoWorkManager.class, NameFactory.JCA_WORK_MANAGER);
+        infoBuilder.addReference("WorkManager", WorkManager.class, NameFactory.JCA_WORK_MANAGER);
+        infoBuilder.addReference("XATerminator", XATerminator.class, NameFactory.JCA_WORK_MANAGER);
 
         infoBuilder.addOperation("registerResourceAdapterAssociation", new Class[]{ResourceAdapterAssociation.class});
 
         infoBuilder.addInterface(ResourceAdapter.class);
         infoBuilder.addInterface(JCAResourceAdapter.class);
 
-        infoBuilder.setConstructor(new String[]{"resourceAdapterClass", "WorkManager", "classLoader", "objectName"});
+        infoBuilder.setConstructor(new String[]{"resourceAdapterClass", "WorkManager", "XATerminator", "classLoader", "objectName"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

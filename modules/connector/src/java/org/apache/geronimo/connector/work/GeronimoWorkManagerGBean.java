@@ -21,8 +21,8 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.pool.GeronimoExecutor;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.transaction.manager.XAWork;
+import EDU.oswego.cs.dl.util.concurrent.Executor;
 
 /**
  * 
@@ -33,8 +33,8 @@ public class GeronimoWorkManagerGBean extends GeronimoWorkManager implements GBe
     public GeronimoWorkManagerGBean() {
     }
 
-    public GeronimoWorkManagerGBean(GeronimoExecutor sync, GeronimoExecutor start, GeronimoExecutor sched, TransactionContextManager transactionContextManager) {
-        super(sync, start, sched, transactionContextManager);
+    public GeronimoWorkManagerGBean(Executor sync, Executor start, Executor sched, XAWork xaWork) {
+        super(sync, start, sched, xaWork);
     }
 
     public static final GBeanInfo GBEAN_INFO;
@@ -43,19 +43,17 @@ public class GeronimoWorkManagerGBean extends GeronimoWorkManager implements GBe
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(GeronimoWorkManagerGBean.class, NameFactory.JCA_WORK_MANAGER);
         infoFactory.addInterface(GeronimoWorkManager.class);
 
-        infoFactory.addReference("SyncPool", GeronimoExecutor.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.addReference("StartPool", GeronimoExecutor.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.addReference("ScheduledPool", GeronimoExecutor.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("SyncPool", Executor.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("StartPool", Executor.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("ScheduledPool", Executor.class, NameFactory.GERONIMO_SERVICE);
 
-        infoFactory.addOperation("getXATerminator");
-
-        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
+        infoFactory.addReference("TransactionManager", XAWork.class, NameFactory.TRANSACTION_MANAGER);
 
         infoFactory.setConstructor(new String[]{
             "SyncPool",
             "StartPool",
             "ScheduledPool",
-            "TransactionContextManager"});
+            "TransactionManager"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

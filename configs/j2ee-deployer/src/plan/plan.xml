@@ -23,7 +23,6 @@
         <!--domain set to wildcard so datasources may be deployed independently on client. -->
         <!--a better solution is to get the domain and server from the parent module -->
         <attribute name="transactionManagerAbstractName">?name=TransactionManager</attribute>
-        <attribute name="transactionContextManagerAbstractName">?name=TransactionContextManager</attribute>
         <attribute name="connectionTrackerAbstractName">?name=ConnectionTracker</attribute>
         <attribute name="transactionalTimerAbstractName">?name=TransactionalThreadPooledTimer</attribute>
         <attribute name="nonTransactionalTimerAbstractName">?name=NonTransactionalThreadPooledTimer</attribute>

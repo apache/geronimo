@@ -15,20 +15,24 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.transaction;
+package org.apache.geronimo.connector.outbound.connectiontracking;
 
-import javax.transaction.xa.Xid;
-import javax.transaction.xa.XAException;
-import javax.transaction.SystemException;
-import javax.transaction.InvalidTransactionException;
+import javax.resource.ResourceException;
 
 /**
- * primarily an interface between the WorkManager/ExecutionContext and the tm.
  *
- * @version $Rev$ $Date$
  *
- * */
-public interface XAWork {
-    void begin(Xid xid, long txTimeout) throws XAException, InvalidTransactionException, SystemException, ImportedTransactionActiveException;
-    void end(Xid xid) throws XAException, SystemException;
+ * @version $Rev: 355877 $ $Date: 2005-12-10 18:48:27 -0800 (Sat, 10 Dec 2005) $
+ *
+ */
+public interface TrackedConnectionAssociator {
+
+    ConnectorInstanceContext enter(ConnectorInstanceContext newConnectorInstanceContext)
+            throws ResourceException;
+
+    void newTransaction() throws ResourceException;
+
+    void exit(ConnectorInstanceContext connectorInstanceContext)
+            throws ResourceException;
+
 }

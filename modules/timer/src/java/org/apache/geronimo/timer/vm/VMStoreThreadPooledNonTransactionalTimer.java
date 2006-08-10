@@ -17,14 +17,15 @@
 
 package org.apache.geronimo.timer.vm;
 
+import javax.transaction.TransactionManager;
+
 import EDU.oswego.cs.dl.util.concurrent.Executor;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.timer.NontransactionalExecutorTaskFactory;
 import org.apache.geronimo.timer.PersistentTimer;
 import org.apache.geronimo.timer.ThreadPooledTimer;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  *
@@ -34,9 +35,9 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
  * */
 public class VMStoreThreadPooledNonTransactionalTimer extends ThreadPooledTimer {
 
-    public VMStoreThreadPooledNonTransactionalTimer(TransactionContextManager transactionContextManager, Executor threadPool) {
-        super(new NontransactionalExecutorTaskFactory(transactionContextManager),
-                new VMWorkerPersistence(), threadPool, transactionContextManager);
+    public VMStoreThreadPooledNonTransactionalTimer(TransactionManager transactionManager, Executor threadPool) {
+        super(new NontransactionalExecutorTaskFactory(),
+                new VMWorkerPersistence(), threadPool, transactionManager);
     }
 
 
@@ -47,9 +48,9 @@ public class VMStoreThreadPooledNonTransactionalTimer extends ThreadPooledTimer 
         infoFactory.addInterface(PersistentTimer.class);
 
         infoFactory.addReference("ThreadPool", Executor.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
+        infoFactory.addReference("TransactionManager", TransactionManager.class, NameFactory.TRANSACTION_MANAGER);
 
-        infoFactory.setConstructor(new String[] {"TransactionContextManager", "ThreadPool"});
+        infoFactory.setConstructor(new String[] {"TransactionManager", "ThreadPool"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

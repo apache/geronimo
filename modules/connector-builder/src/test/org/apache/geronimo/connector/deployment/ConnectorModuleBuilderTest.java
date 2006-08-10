@@ -80,6 +80,7 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
+import org.apache.geronimo.transaction.manager.GeronimoTransactionManagerGBean;
 import org.tranql.sql.jdbc.JDBCUtil;
 
 /**
@@ -155,7 +156,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
 
     private static final AbstractNameQuery connectionTrackerName = new AbstractNameQuery(null, Collections.singletonMap("name", "ConnectionTracker"));
     private AbstractName serverName;
-    private static final AbstractNameQuery transactionContextManagerName = new AbstractNameQuery(null, Collections.singletonMap("name", "TransactionContextManager"));
+    private static final AbstractNameQuery transactionManagerName = new AbstractNameQuery(null, Collections.singletonMap("name", "TransactionManager"));
 
 
     public void testBuildEar() throws Exception {
@@ -163,9 +164,22 @@ public class ConnectorModuleBuilderTest extends TestCase {
         try {
             rarFile = DeploymentUtil.createJarFile(new File(basedir, "target/test-ear-noger.ear"));
 
-            EARConfigBuilder configBuilder = new EARConfigBuilder(defaultEnvironment, null, transactionContextManagerName, connectionTrackerName, null, null, null, new AbstractNameQuery(serverName, J2EEServerImpl.GBEAN_INFO.getInterfaces()), null, null, ejbReferenceBuilder, null,
+            EARConfigBuilder configBuilder = new EARConfigBuilder(defaultEnvironment,
+                    transactionManagerName,
+                    connectionTrackerName,
+                    null,
+                    null,
+                    null,
+                    new AbstractNameQuery(serverName, J2EEServerImpl.GBEAN_INFO.getInterfaces()),
+                    null,
+                    null,
+                    ejbReferenceBuilder,
+                    null,
                     new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching),
-                    resourceReferenceBuilder, null, serviceReferenceBuilder, kernel.getNaming());
+                    resourceReferenceBuilder,
+                    null,
+                    serviceReferenceBuilder,
+                    kernel.getNaming());
             ConfigurationData configData = null;
             DeploymentContext context = null;
             ArtifactManager artifactManager = new DefaultArtifactManager();
@@ -367,8 +381,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
                         Collections.EMPTY_SET,
                         new AbstractNameQuery(serverName, J2EEServerImpl.GBEAN_INFO.getInterfaces()),
                         module.getModuleName(), //hardcode standalone here.
-                        null,
-                        transactionContextManagerName,
+                        transactionManagerName,
                         connectionTrackerName,
                         null,
                         null,
@@ -564,6 +577,11 @@ public class ConnectorModuleBuilderTest extends TestCase {
         GBeanData serverData = bootstrap.addGBean("geronimo", J2EEServerImpl.GBEAN_INFO);
         serverName = serverData.getAbstractName();
         bootstrap.addGBean(serverData);
+
+
+        // add fake TransactionManager so refs will resolve
+        GBeanData tm = bootstrap.addGBean("TransactionManager", GeronimoTransactionManagerGBean.GBEAN_INFO);
+        tm.setAttribute("defaultTransactionTimeoutSeconds", new Integer(10));
 
         ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, getClass().getClassLoader());
 

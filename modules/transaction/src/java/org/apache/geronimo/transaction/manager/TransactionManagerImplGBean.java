@@ -17,14 +17,17 @@
 
 package org.apache.geronimo.transaction.manager;
 
-import org.apache.geronimo.gbean.*;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.transaction.ExtendedTransactionManager;
-
-import javax.transaction.xa.XAException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import javax.transaction.xa.XAException;
+
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.ReferenceCollection;
+import org.apache.geronimo.gbean.ReferenceCollectionEvent;
+import org.apache.geronimo.gbean.ReferenceCollectionListener;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * Simple implementation of a transaction manager.
@@ -40,7 +43,7 @@ public class TransactionManagerImplGBean extends TransactionManagerImpl {
         super(defaultTransactionTimeoutSeconds, xidFactory, transactionLog, resourceManagers);
     }
 
-    
+
     /**
      * We can track as resources are added into the geronimo kernel.
      *
@@ -78,9 +81,6 @@ public class TransactionManagerImplGBean extends TransactionManagerImpl {
         infoBuilder.addReference("XidFactory", XidFactory.class, NameFactory.XID_FACTORY);
         infoBuilder.addReference("TransactionLog", TransactionLog.class, NameFactory.TRANSACTION_LOG);
         infoBuilder.addReference("ResourceManagers", ResourceManager.class);//two kinds of things, so specify the type in each pattern.
-
-        infoBuilder.addInterface(ExtendedTransactionManager.class);
-        infoBuilder.addInterface(XidImporter.class);
 
         infoBuilder.setConstructor(new String[]{
                 "defaultTransactionTimeoutSeconds",

@@ -71,16 +71,17 @@ public class NameFactory {
     public static final String SERVICE_MODULE = "ServiceModule";
     // todo should these really be j2eeType or should we have a Geronimo-specific property?
     public static final String TRANSACTION_MANAGER = "TransactionManager";
-    public static final String TRANSACTION_CONTEXT_MANAGER = "TransactionContextManager";
     public static final String TRANSACTION_LOG = "TransactionLog";
     public static final String XID_FACTORY = "XIDFactory";
     public static final String XID_IMPORTER = "XIDImporter";
+    public static final String JCA_BOOTSTRAP_CONTEXT = "JCABootstrapContext";
     public static final String JCA_CONNECTION_TRACKER = "JCAConnectionTracker";
     public static final String JCA_ADMIN_OBJECT = "JCAAdminObject";
     public static final String JCA_ACTIVATION_SPEC = "JCAActivationSpec";
     public static final String JCA_RESOURCE_ADAPTER = "JCAResourceAdapter";
     public static final String JCA_WORK_MANAGER = "JCAWorkManager";
     public static final String JCA_CONNECTION_MANAGER = "JCAConnectionManager";
+    public static final String JCA_XA_TERMINATOR = "JCAXATerminator";
     public static final String WEB_FILTER = "WebFilter";
     public static final String URL_WEB_FILTER_MAPPING = "URLWebFilterMapping";
     public static final String SERVLET_WEB_FILTER_MAPPING = "ServletWebFilterMapping";

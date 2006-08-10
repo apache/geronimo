@@ -22,26 +22,21 @@ import javax.resource.spi.work.WorkManager;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * 
  * @version $Revision$
  */
-public class BootstrapContextGBean {
-    
+public class GeronimoBootstrapContextGBean {
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(BootstrapContextGBean.class, BootstrapContext.class);
-          //adding interface does not work, creates attributes for references???
-//        infoFactory.addInterface(javax.resource.spi.BootstrapContext.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(GeronimoBootstrapContextGBean.class, GeronimoBootstrapContext.class, NameFactory.JCA_BOOTSTRAP_CONTEXT);
 
-        infoFactory.addOperation("createTimer");
-        infoFactory.addOperation("getWorkManager");
-        infoFactory.addOperation("getXATerminator");
-
-        infoFactory.addReference("WorkManager", WorkManager.class);
-        infoFactory.addReference("XATerminator", XATerminator.class);
+        infoFactory.addReference("WorkManager", WorkManager.class, NameFactory.JCA_WORK_MANAGER);
+        infoFactory.addReference("XATerminator", XATerminator.class, NameFactory.JCA_XA_TERMINATOR);
 
         infoFactory.setConstructor(new String[]{"WorkManager", "XATerminator"});
 

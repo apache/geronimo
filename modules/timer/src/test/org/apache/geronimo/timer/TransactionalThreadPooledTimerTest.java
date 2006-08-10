@@ -17,23 +17,15 @@
 
 package org.apache.geronimo.timer;
 
-import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
-import org.apache.geronimo.transaction.manager.XidFactoryImpl;
+import org.apache.geronimo.transaction.manager.GeronimoTransactionManager;
 
 /**
- *
- *
  * @version $Rev$ $Date$
- *
- * */
+ */
 public class TransactionalThreadPooledTimerTest extends AbstractThreadPooledTimerTest {
-
     protected void setUp() throws Exception {
-        TransactionManagerImpl transactionManager = new TransactionManagerImpl(10 * 1000, 
-                new XidFactoryImpl("WHAT DO WE CALL IT?".getBytes()), null, null);
-        transactionContextManager = new TransactionContextManager(transactionManager, transactionManager);
-        executableWorkFactory = new TransactionalExecutorTaskFactory(transactionContextManager, 1);
+        this.transactionManager = new GeronimoTransactionManager();
+        executableWorkFactory = new TransactionalExecutorTaskFactory(this.transactionManager, 1);
         super.setUp();
     }
 }

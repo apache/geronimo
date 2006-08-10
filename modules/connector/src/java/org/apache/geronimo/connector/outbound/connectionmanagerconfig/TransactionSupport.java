@@ -19,8 +19,9 @@ package org.apache.geronimo.connector.outbound.connectionmanagerconfig;
 
 import java.io.Serializable;
 
+import javax.transaction.TransactionManager;
+
 import org.apache.geronimo.connector.outbound.ConnectionInterceptor;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
  *
@@ -30,6 +31,6 @@ import org.apache.geronimo.transaction.context.TransactionContextManager;
  * */
 public abstract class TransactionSupport implements Serializable {
     public abstract ConnectionInterceptor addXAResourceInsertionInterceptor(ConnectionInterceptor stack, String name);
-    public abstract ConnectionInterceptor addTransactionInterceptors(ConnectionInterceptor stack, TransactionContextManager transactionContextManager);
+    public abstract ConnectionInterceptor addTransactionInterceptors(ConnectionInterceptor stack, TransactionManager transactionManager);
 
 }

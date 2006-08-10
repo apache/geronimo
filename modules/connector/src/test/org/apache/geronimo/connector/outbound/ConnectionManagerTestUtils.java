@@ -20,6 +20,8 @@ package org.apache.geronimo.connector.outbound;
 import java.util.HashSet;
 import java.util.Set;
 import javax.security.auth.Subject;
+import javax.transaction.TransactionManager;
+import javax.transaction.UserTransaction;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.connector.mock.MockConnection;
@@ -34,12 +36,10 @@ import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrack
 import org.apache.geronimo.connector.outbound.connectiontracking.DefaultComponentInterceptor;
 import org.apache.geronimo.connector.outbound.connectiontracking.DefaultInterceptor;
 import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.transaction.DefaultInstanceContext;
-import org.apache.geronimo.transaction.InstanceContext;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.transaction.context.UserTransactionImpl;
+import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContextImpl;
+import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContext;
+import org.apache.geronimo.connector.outbound.connectiontracking.GeronimoTransactionListener;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
-import org.apache.geronimo.transaction.manager.XidFactoryImpl;
 
 /**
  *
@@ -64,23 +64,23 @@ public class ConnectionManagerTestUtils extends TestCase implements DefaultInter
     protected String name = "testCF";
     //dependencies
     protected ConnectionTrackingCoordinator connectionTrackingCoordinator;
-    protected TransactionContextManager transactionContextManager;
+    protected TransactionManager transactionManager;
     protected AbstractConnectionManager connectionManagerDeployment;
     protected MockConnectionFactory connectionFactory;
     protected MockManagedConnectionFactory mockManagedConnectionFactory;
-    protected DefaultInstanceContext defaultComponentContext;
+    protected ConnectorInstanceContextImpl connectorInstanceContext;
     protected DefaultComponentInterceptor defaultComponentInterceptor;
     protected Set unshareableResources = new HashSet();
     protected Set applicationManagedSecurityResources = new HashSet();
     protected MockManagedConnection mockManagedConnection;
     protected Subject subject;
-    protected UserTransactionImpl userTransaction;
+    protected UserTransaction userTransaction;
     protected TransactionSupport transactionSupport = new XATransactions(useTransactionCaching, useThreadCaching);
     protected PoolingSupport poolingSupport = new PartitionedPool(maxSize, minSize, blockingTimeout, idleTimeoutMinutes, matchOne, matchAll, selectOneNoMatch, useConnectionRequestInfo, useSubject);
     protected boolean containerManagedSecurity = true;
 
     protected DefaultInterceptor mockComponent = new DefaultInterceptor() {
-        public Object invoke(InstanceContext newInstanceContext) throws Throwable {
+        public Object invoke(ConnectorInstanceContext newConnectorInstanceContext) throws Throwable {
             MockConnection mockConnection = (MockConnection) connectionFactory.getConnection();
             mockManagedConnection = mockConnection.getManagedConnection();
             mockConnection.close();
@@ -90,10 +90,12 @@ public class ConnectionManagerTestUtils extends TestCase implements DefaultInter
     private ClassLoader classLoader = this.getClass().getClassLoader();
 
     protected void setUp() throws Exception {
+        TransactionManagerImpl transactionManager = new TransactionManagerImpl();
+        this.transactionManager = transactionManager;
+
         connectionTrackingCoordinator = new ConnectionTrackingCoordinator();
-        TransactionManagerImpl transactionManager = new TransactionManagerImpl(10 * 1000,
-                new XidFactoryImpl("WHAT DO WE CALL IT?".getBytes()), null, null);
-        transactionContextManager = new TransactionContextManager(transactionManager, transactionManager);
+        transactionManager.addTransactionAssociationListener(new GeronimoTransactionListener(connectionTrackingCoordinator));
+        
         mockManagedConnectionFactory = new MockManagedConnectionFactory();
         subject = new Subject();
         ContextManager.setCurrentCaller(subject);
@@ -102,24 +104,24 @@ public class ConnectionManagerTestUtils extends TestCase implements DefaultInter
                 poolingSupport,
                 containerManagedSecurity,
                 connectionTrackingCoordinator,
-                transactionContextManager,
+                this.transactionManager,
                 name,
                 classLoader);
         connectionFactory = (MockConnectionFactory) connectionManagerDeployment.createConnectionFactory(mockManagedConnectionFactory);
-        defaultComponentContext = new DefaultInstanceContext(unshareableResources, applicationManagedSecurityResources);
-        defaultComponentInterceptor = new DefaultComponentInterceptor(this, connectionTrackingCoordinator, transactionContextManager);
+        connectorInstanceContext = new ConnectorInstanceContextImpl(unshareableResources, applicationManagedSecurityResources);
+        defaultComponentInterceptor = new DefaultComponentInterceptor(this, connectionTrackingCoordinator);
     }
 
     protected void tearDown() throws Exception {
         connectionTrackingCoordinator = null;
-        transactionContextManager = null;
+        transactionManager = null;
         mockManagedConnectionFactory = null;
         connectionManagerDeployment = null;
         connectionFactory = null;
-        defaultComponentContext = null;
+        connectorInstanceContext = null;
     }
 
-    public Object invoke(InstanceContext newInstanceContext) throws Throwable {
-        return mockComponent.invoke(newInstanceContext);
+    public Object invoke(ConnectorInstanceContext newConnectorInstanceContext) throws Throwable {
+        return mockComponent.invoke(newConnectorInstanceContext);
     }
 }

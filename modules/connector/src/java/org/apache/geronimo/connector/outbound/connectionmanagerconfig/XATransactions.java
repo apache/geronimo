@@ -17,12 +17,13 @@
 
 package org.apache.geronimo.connector.outbound.connectionmanagerconfig;
 
+import javax.transaction.TransactionManager;
+
 import org.apache.geronimo.connector.outbound.ConnectionInterceptor;
 import org.apache.geronimo.connector.outbound.ThreadLocalCachingConnectionInterceptor;
 import org.apache.geronimo.connector.outbound.TransactionCachingInterceptor;
 import org.apache.geronimo.connector.outbound.TransactionEnlistingInterceptor;
 import org.apache.geronimo.connector.outbound.XAResourceInsertionInterceptor;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
  *
@@ -59,15 +60,15 @@ public class XATransactions extends TransactionSupport {
         return new XAResourceInsertionInterceptor(stack, name);
     }
 
-    public ConnectionInterceptor addTransactionInterceptors(ConnectionInterceptor stack, TransactionContextManager transactionContextManager) {
+    public ConnectionInterceptor addTransactionInterceptors(ConnectionInterceptor stack, TransactionManager transactionManager) {
         //experimental thread local caching
         if (isUseThreadCaching()) {
             //useMatching should be configurable
             stack = new ThreadLocalCachingConnectionInterceptor(stack, false);
         }
-        stack = new TransactionEnlistingInterceptor(stack, transactionContextManager);
+        stack = new TransactionEnlistingInterceptor(stack, transactionManager);
         if (isUseTransactionCaching()) {
-            stack = new TransactionCachingInterceptor(stack, transactionContextManager);
+            stack = new TransactionCachingInterceptor(stack, transactionManager);
         }
         return stack;
     }

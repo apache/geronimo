@@ -17,8 +17,6 @@
 
 package org.apache.geronimo.connector;
 
-import org.apache.geronimo.connector.work.GeronimoWorkManager;
-
 import javax.resource.ResourceException;
 import javax.resource.spi.ActivationSpec;
 import javax.resource.spi.BootstrapContext;
@@ -52,18 +50,18 @@ public class ResourceAdapterWrapper implements ResourceAdapter {
         this.resourceAdapter = null;
     }
 
-    public ResourceAdapterWrapper(final String resourceAdapterClass,
-                                  final GeronimoWorkManager workManager,
-                                  ClassLoader cl) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+    public ResourceAdapterWrapper(String resourceAdapterClass,
+            BootstrapContext bootstrapContext,
+            ClassLoader cl) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         this.resourceAdapterClass = resourceAdapterClass;
-        this.bootstrapContext = new BootstrapContextImpl(workManager);
+        this.bootstrapContext = bootstrapContext;
         Class clazz = cl.loadClass(resourceAdapterClass);
         resourceAdapter = (ResourceAdapter) clazz.newInstance();
     }
     
-    public ResourceAdapterWrapper(ResourceAdapter resourceAdapter, final GeronimoWorkManager workManager) {
+    public ResourceAdapterWrapper(ResourceAdapter resourceAdapter, BootstrapContext bootstrapContext) {
         this.resourceAdapterClass = resourceAdapter.getClass().getName();
-        this.bootstrapContext = new BootstrapContextImpl(workManager);
+        this.bootstrapContext = bootstrapContext;
         this.resourceAdapter = resourceAdapter;
     }
 

@@ -36,7 +36,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
- * @version $Rev: 383682 $ $Date$
+ * @version $Rev$ $Date$
  */
 class ProxyCollection implements ReferenceCollection {
     private static final Log log = LogFactory.getLog(ProxyCollection.class);

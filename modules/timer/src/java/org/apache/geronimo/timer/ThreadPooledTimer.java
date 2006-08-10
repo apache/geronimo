@@ -30,13 +30,13 @@ import javax.transaction.RollbackException;
 import javax.transaction.Status;
 import javax.transaction.Synchronization;
 import javax.transaction.SystemException;
+import javax.transaction.Transaction;
+import javax.transaction.TransactionManager;
 
 import EDU.oswego.cs.dl.util.concurrent.Executor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.transaction.context.TransactionContext;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
  *
@@ -51,7 +51,7 @@ public class ThreadPooledTimer implements PersistentTimer, GBeanLifecycle {
     private final ExecutorTaskFactory executorTaskFactory;
     private final WorkerPersistence workerPersistence;
     private final Executor executor;
-    private final TransactionContextManager transactionContextManager;
+    private final TransactionManager transactionManager;
 
     private Timer delegate;
 
@@ -62,11 +62,11 @@ public class ThreadPooledTimer implements PersistentTimer, GBeanLifecycle {
         this(null, null, null, null);
     }
 
-    public ThreadPooledTimer(ExecutorTaskFactory executorTaskFactory, WorkerPersistence workerPersistence, Executor executor, TransactionContextManager transactionContextManager) {
+    public ThreadPooledTimer(ExecutorTaskFactory executorTaskFactory, WorkerPersistence workerPersistence, Executor executor, TransactionManager transactionManager) {
         this.executorTaskFactory = executorTaskFactory;
         this.workerPersistence = workerPersistence;
         this.executor = executor;
-        this.transactionContextManager = transactionContextManager;
+        this.transactionManager = transactionManager;
     }
 
     public void doStart() throws Exception {
@@ -240,9 +240,11 @@ public class ThreadPooledTimer implements PersistentTimer, GBeanLifecycle {
     }
 
     void registerSynchronization(Synchronization sync) throws RollbackException, SystemException {
-        TransactionContext transactionContext = transactionContextManager.getContext();
-        if (transactionContext != null && transactionContext.isInheritable() && transactionContext.isActive()) {
-            transactionContext.registerSynchronization(sync);
+        Transaction transaction = transactionManager.getTransaction();
+        int status = transaction == null ? Status.STATUS_NO_TRANSACTION : transaction.getStatus();
+
+        if (transaction != null && status == Status.STATUS_ACTIVE || status == Status.STATUS_MARKED_ROLLBACK) {
+            transaction.registerSynchronization(sync);
         } else {
             sync.beforeCompletion();
             sync.afterCompletion(Status.STATUS_COMMITTED);

@@ -42,6 +42,13 @@
 
     <dependencies>
         <dependency>
+            <groupId>backport-util-concurrent</groupId>
+            <artifactId>backport-util-concurrent</artifactId>
+            <version>${backport_util_concurrent_version}</version>
+            <type>test</type>
+        </dependency>
+
+        <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-dependency-plugin</artifactId>
             <version>${geronimo_dependency_plugin_version}</version>

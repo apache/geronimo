@@ -28,7 +28,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * @version $Rev: 386907 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class GBeanInstanceState {
     private static final Log log = LogFactory.getLog(GBeanInstanceState.class);

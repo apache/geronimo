@@ -26,7 +26,7 @@ import org.apache.geronimo.kernel.MockGBean;
 import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
- * @version $Rev: 384141 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class Speed {
     private static final Object[] NO_ARGS = new Object[0];

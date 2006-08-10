@@ -23,11 +23,11 @@ import javax.resource.spi.work.WorkManager;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.connector.work.GeronimoWorkManager;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.pool.ThreadPool;
+import org.apache.geronimo.transaction.manager.GeronimoTransactionManager;
 
 /**
- * Unit tests for {@link BootstrapContextImpl}
+ * Unit tests for {@link GeronimoBootstrapContext}
  * @version $Rev$ $Date$
  */
 public class BootstrapContextTest extends TestCase {
@@ -40,10 +40,10 @@ public class BootstrapContextTest extends TestCase {
     /**
      * Tests get and set work manager
      */
-    public void testGetSetWorkManager() {
-        TransactionContextManager transactionContextManager = new TransactionContextManager();
-        GeronimoWorkManager manager = new GeronimoWorkManager(pool, pool, pool, transactionContextManager);
-        BootstrapContextImpl context = new BootstrapContextImpl(manager);
+    public void testGetSetWorkManager() throws Exception {
+        GeronimoTransactionManager transactionManager = new GeronimoTransactionManager();
+        GeronimoWorkManager manager = new GeronimoWorkManager(pool, pool, pool, transactionManager);
+        GeronimoBootstrapContext context = new GeronimoBootstrapContext(manager, transactionManager);
         WorkManager wm = context.getWorkManager();
 
         assertSame("Make sure it is the same object", manager, wm);
@@ -52,20 +52,20 @@ public class BootstrapContextTest extends TestCase {
     /**
      * Tests get and set XATerminator
      */
-    public void testGetSetXATerminator() {
-        TransactionContextManager transactionContextManager = new TransactionContextManager();
-        GeronimoWorkManager manager = new GeronimoWorkManager(pool, pool, pool, transactionContextManager);
-        BootstrapContextImpl context = new BootstrapContextImpl(manager);
+    public void testGetSetXATerminator() throws Exception {
+        GeronimoTransactionManager transactionManager = new GeronimoTransactionManager();
+        GeronimoWorkManager manager = new GeronimoWorkManager(pool, pool, pool, transactionManager);
+        GeronimoBootstrapContext context = new GeronimoBootstrapContext(manager, transactionManager);
         XATerminator xat = context.getXATerminator();
 
-        assertSame("Make sure it is the same object", transactionContextManager, xat);
+        assertSame("Make sure it is the same object", transactionManager, xat);
     }
 
     /**
      * Tests getTimer
      */
     public void testGetTimer() throws Exception {
-        BootstrapContextImpl context = new BootstrapContextImpl(null);
+        GeronimoBootstrapContext context = new GeronimoBootstrapContext(null, null);
         Timer t = context.createTimer();
         assertNotNull("Object is not null", t);
     }

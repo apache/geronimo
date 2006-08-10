@@ -411,6 +411,9 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                 AbstractNameQuery workManagerName = ENCConfigBuilder.getGBeanQuery(NameFactory.JCA_WORK_MANAGER, geronimoResourceAdapter.getResourceadapterInstance().getWorkmanager());
                 resourceAdapterInstanceGBeanData.setReferencePattern("WorkManager", workManagerName);
 
+                // set the xa terminator name which is the same as our transaction manager
+                resourceAdapterInstanceGBeanData.setReferencePattern("XATerminator", earContext.getTransactionManagerObjectName());
+
                 String resourceAdapterName = geronimoResourceAdapter.getResourceadapterInstance().getResourceadapterName();
                 resourceAdapterAbstractName = earContext.getNaming().createChildName(jcaResourceName, resourceAdapterName, NameFactory.JCA_RESOURCE_ADAPTER);
                 resourceAdapterInstanceGBeanData.setAbstractName(resourceAdapterAbstractName);
@@ -719,7 +722,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             connectionManagerGBean.setAttribute("pooling", pooling);
             connectionManagerGBean.setReferencePattern("ConnectionTracker", earContext.getConnectionTrackerObjectName());
             connectionManagerGBean.setAttribute("containerManagedSecurity", Boolean.valueOf(connectionManager.isSetContainerManagedSecurity()));
-            connectionManagerGBean.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
+            connectionManagerGBean.setReferencePattern("TransactionManager", earContext.getTransactionManagerObjectName());
         } catch (Exception e) {
             throw new DeploymentException("Problem setting up ConnectionManager named " + connectionfactoryInstance.getName().trim(), e);
         }

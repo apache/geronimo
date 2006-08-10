@@ -27,7 +27,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 
 /**
- * @version $Rev: 384141 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class GBeanSingleReference extends AbstractGBeanReference {
     private static final Log log = LogFactory.getLog(GBeanSingleReference.class);

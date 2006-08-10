@@ -31,7 +31,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 
 /**
- * @version $Rev: 385372 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class ContextBuilderTest extends TestCase {
     private ComponentContextBuilder builder;

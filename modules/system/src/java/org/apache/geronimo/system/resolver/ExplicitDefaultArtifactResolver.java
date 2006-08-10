@@ -37,7 +37,7 @@ import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class ExplicitDefaultArtifactResolver extends DefaultArtifactResolver {
 

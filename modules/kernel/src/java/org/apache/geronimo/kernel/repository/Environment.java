@@ -30,7 +30,7 @@ import java.util.Iterator;
 /**
  * holds the data from the EnvironmentType xml while it is being resolved, transitively closed, etc.
  *
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class Environment implements Serializable {
     private static final long serialVersionUID = 7075760873629376317L;

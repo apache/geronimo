@@ -36,7 +36,7 @@ import org.apache.geronimo.kernel.management.NotificationType;
 /**
  * Helper class for JMX Operations
  *
- * @version $Rev: 383682 $ $Date$
+ * @version $Rev$ $Date$
  */
 public final class JMXUtil {
     private JMXUtil() {

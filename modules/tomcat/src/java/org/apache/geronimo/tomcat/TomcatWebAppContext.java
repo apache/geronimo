@@ -40,14 +40,15 @@ import org.apache.geronimo.management.geronimo.WebConnector;
 import org.apache.geronimo.security.jacc.RoleDesignateSource;
 import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
-import org.apache.geronimo.transaction.TrackedConnectionAssociator;
-import org.apache.geronimo.transaction.context.OnlineUserTransaction;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
+import org.apache.geronimo.transaction.GeronimoUserTransaction;
 import org.apache.naming.resources.DirContextURLStreamHandler;
 
 import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
 import javax.naming.directory.DirContext;
+import javax.transaction.TransactionManager;
+import javax.transaction.UserTransaction;
 
 import java.net.URI;
 import java.net.URL;
@@ -92,6 +93,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
     private final boolean disableCookies;
 
+    private final UserTransaction userTransaction;
+
     private final Map componentContext;
 
     private final Kernel kernel;
@@ -101,8 +104,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private final Set applicationManagedSecurityResources;
 
     private final TrackedConnectionAssociator trackedConnectionAssociator;
-
-    private final TransactionContextManager transactionContextManager;
 
     private final RoleDesignateSource roleDesignateSource;
 
@@ -130,8 +131,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             Map componentContext,
             Set unshareableResources,
             Set applicationManagedSecurityResources,
-            OnlineUserTransaction userTransaction,
-            TransactionContextManager transactionContextManager,
+            TransactionManager transactionManager,
             TrackedConnectionAssociator trackedConnectionAssociator,
             TomcatContainer container,
             RoleDesignateSource roleDesignateSource,
@@ -149,7 +149,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
         assert classLoader != null;
         assert configurationBaseUrl != null;
-        assert transactionContextManager != null;
+        assert transactionManager != null;
         assert trackedConnectionAssociator != null;
         assert componentContext != null;
         assert container != null;
@@ -170,8 +170,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         this.virtualServer = virtualServer;
         this.securityHolder = securityHolder;
 
+        this.userTransaction = new GeronimoUserTransaction(transactionManager);
         this.componentContext = componentContext;
-        this.transactionContextManager = transactionContextManager;
         this.unshareableResources = unshareableResources;
         this.applicationManagedSecurityResources = applicationManagedSecurityResources;
         this.trackedConnectionAssociator = trackedConnectionAssociator;
@@ -205,16 +205,18 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         }
 
         //Add the cluster
-        if (cluster != null)
-           catalinaCluster = (CatalinaCluster)cluster.getInternalObject();
-        else
+        if (cluster != null) {
+            catalinaCluster = (CatalinaCluster) cluster.getInternalObject();
+        } else {
             catalinaCluster = null;
+        }
 
         //Add the manager
-        if (manager != null)
-           this.manager = (Manager)manager.getInternalObject();
-        else
+        if (manager != null) {
+            this.manager = (Manager) manager.getInternalObject();
+        } else {
             this.manager = null;
+        }
 
         this.crossContext = crossContext;
 
@@ -235,9 +237,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
                 throw new IllegalArgumentException("RoleDesignateSource must be supplied for a secure web app");
             }
         }
-        userTransaction.setUp(transactionContextManager,
-                trackedConnectionAssociator);
-
     }
 
     public String getObjectName() {
@@ -285,6 +284,10 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         this.docBase = docBase;
     }
 
+    public UserTransaction getUserTransaction() {
+        return userTransaction;
+    }
+
     public Map getComponentContext() {
         return componentContext;
     }
@@ -303,10 +306,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
     public boolean isDisableCookies() {
         return disableCookies;
-    }
-
-    public TransactionContextManager getTransactionContextManager() {
-        return transactionContextManager;
     }
 
     public Context getContext() {
@@ -392,8 +391,9 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
     public String[] getServlets(){
         String[] result = null;
-        if ((context != null) && (context instanceof StandardContext))
-            result = ((StandardContext)context).getServlets();
+        if ((context != null) && (context instanceof StandardContext)) {
+            result = ((StandardContext) context).getServlets();
+        }
 
         return result;
     }
@@ -491,8 +491,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         infoBuilder.addAttribute("componentContext", Map.class, true);
         infoBuilder.addAttribute("unshareableResources", Set.class, true);
         infoBuilder.addAttribute("applicationManagedSecurityResources", Set.class, true);
-        infoBuilder.addAttribute("userTransaction", OnlineUserTransaction.class, true);
-        infoBuilder.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
+        infoBuilder.addReference("TransactionManager", TransactionManager.class, NameFactory.TRANSACTION_MANAGER);
         infoBuilder.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class, NameFactory.JCA_CONNECTION_TRACKER);
 
         infoBuilder.addReference("Container", TomcatContainer.class, NameFactory.GERONIMO_SERVICE);
@@ -520,8 +519,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
                 "componentContext",
                 "unshareableResources",
                 "applicationManagedSecurityResources",
-                "userTransaction",
-                "TransactionContextManager",
+                "TransactionManager",
                 "TrackedConnectionAssociator",
                 "Container",
                 "RoleDesignateSource",

@@ -17,11 +17,11 @@
 
 package org.apache.geronimo.timer;
 
+import javax.transaction.TransactionManager;
+
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 import junit.framework.TestCase;
 import org.apache.geronimo.pool.ThreadPool;
-import org.apache.geronimo.transaction.context.TransactionContext;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.timer.vm.VMWorkerPersistence;
 
 /**
@@ -42,7 +42,7 @@ public abstract class AbstractThreadPooledTimerTest extends TestCase {
     private ThreadPooledTimer timer;
 
     private SynchronizedInt counter = new SynchronizedInt(0);
-    protected TransactionContextManager transactionContextManager;
+    protected TransactionManager transactionManager;
     protected ExecutorTaskFactory executableWorkFactory;
     protected UserTaskFactory userTaskFactory;
 
@@ -52,11 +52,10 @@ public abstract class AbstractThreadPooledTimerTest extends TestCase {
         userTaskFactory = new MockUserTaskFactory();
         threadPool = new ThreadPool(30, "TestPool", 10000, this.getClass().getClassLoader(), "foo:bar=baz");
         WorkerPersistence workerPersistence = new VMWorkerPersistence();
-        timer = new ThreadPooledTimer(executableWorkFactory, workerPersistence, threadPool, transactionContextManager);
+        timer = new ThreadPooledTimer(executableWorkFactory, workerPersistence, threadPool, transactionManager);
         timer.doStart();
 
         counter.set(0);
-        transactionContextManager.setContext(null);
     }
 
     protected void tearDown() throws Exception {
@@ -98,40 +97,25 @@ public abstract class AbstractThreadPooledTimerTest extends TestCase {
     }
 
     public void testTasksInUnspecifiedTxContext() throws Exception {
-        transactionContextManager.newUnspecifiedTransactionContext();
-        try {
-            testTasks();
-        } finally {
-            transactionContextManager.setContext(null);
-        }
+        testTasks();
     }
 
     public void testCancelInUnspecifiedTxContext() throws Exception {
-        transactionContextManager.newUnspecifiedTransactionContext();
-        try {
-            testCancel();
-        } finally {
-            transactionContextManager.setContext(null);
-        }
+        testCancel();
     }
 
     public void testPersistenceInUnspecifiedTxContext() throws Exception {
-        transactionContextManager.newUnspecifiedTransactionContext();
-        try {
-            testPersistence();
-        } finally {
-            transactionContextManager.setContext(null);
-        }
+        testPersistence();
     }
 
     public void testTasksInTransaction() throws Exception {
-        TransactionContext transactionContext = transactionContextManager.newContainerTransactionContext();
+        transactionManager.begin();
         for (long i = 0; i < COUNT; i++) {
             timer.schedule(userTaskFactory, key, userId, userKey, i);
         }
         Thread.sleep(COUNT + SLOP);
         assertEquals(0, counter.get());
-        transactionContext.commit();
+        transactionManager.commit();
         Thread.sleep(COUNT + SLOP);
         assertEquals(COUNT, counter.get());
     }
@@ -144,13 +128,13 @@ public abstract class AbstractThreadPooledTimerTest extends TestCase {
         }
         Thread.sleep(SLOP + DELAY);
         assertEquals(COUNT, counter.get());
-        TransactionContext transactionContext = transactionContextManager.newContainerTransactionContext();
+        transactionManager.begin();
         for (int i = 0; i < workInfos.length; i++) {
             workInfos[i].getExecutorFeedingTimerTask().cancel();
         }
         Thread.sleep(SLOP + DELAY);
         assertEquals(COUNT, counter.get());
-        transactionContext.commit();
+        transactionManager.commit();
         Thread.sleep(SLOP + DELAY);
         assertEquals(COUNT, counter.get());
     }
@@ -163,13 +147,13 @@ public abstract class AbstractThreadPooledTimerTest extends TestCase {
         }
         Thread.sleep(SLOP + DELAY);
         assertEquals(COUNT, counter.get());
-        TransactionContext transactionContext = transactionContextManager.newContainerTransactionContext();
+        transactionManager.begin();
         for (int i = 0; i < workInfos.length; i++) {
             workInfos[i].getExecutorFeedingTimerTask().cancel();
         }
         Thread.sleep(SLOP + DELAY);
         assertEquals(COUNT, counter.get());
-        transactionContext.rollback();
+        transactionManager.rollback();
         Thread.sleep(SLOP + DELAY);
         // Catches up with two periods.
         assertEquals(3 * COUNT, counter.get());

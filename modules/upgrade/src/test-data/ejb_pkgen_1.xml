@@ -29,8 +29,8 @@
       </enterprise-beans>
 
       <gbean gbeanName="geronimo.server:name=CMPPKGenerator" class="org.openejb.entity.cmp.pkgenerator.SequenceTablePrimaryKeyGeneratorWrapper">
-        <reference name="TransactionContextManager">
-            <gbean-name>*:name=TransactionContextManager,*</gbean-name>
+        <reference name="TransactionManager">
+            <gbean-name>*:name=TransactionManager,*</gbean-name>
         </reference>
         <reference name="ManagedConnectionFactoryWrapper"><gbean-name>geronimo.server:J2EEApplication=null,J2EEServer=geronimo,JCAResource=geronimo-cts/database/${pom.currentVersion}/car,j2eeType=JCAManagedConnectionFactory,name=jdbc/DB1</gbean-name></reference>
         <attribute name="tableName">CUSTOM_UNKNOWNPK_TABLE1</attribute>

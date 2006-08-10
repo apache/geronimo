@@ -41,7 +41,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
 
 /**
- * @version $Rev: 384351 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class MBeanServerKernelBridge implements GBeanLifecycle {
     private static final Log log = LogFactory.getLog(MBeanServerKernelBridge.class);

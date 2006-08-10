@@ -18,6 +18,7 @@
 package org.apache.geronimo.transaction.log;
 
 import java.io.IOException;
+import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -27,17 +28,12 @@ import javax.transaction.xa.Xid;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.transaction.manager.LogException;
 import org.apache.geronimo.transaction.manager.Recovery;
 import org.apache.geronimo.transaction.manager.TransactionBranchInfo;
 import org.apache.geronimo.transaction.manager.TransactionBranchInfoImpl;
 import org.apache.geronimo.transaction.manager.TransactionLog;
 import org.apache.geronimo.transaction.manager.XidFactory;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.objectweb.howl.log.Configuration;
 import org.objectweb.howl.log.LogClosedException;
 import org.objectweb.howl.log.LogConfigurationException;
@@ -53,7 +49,7 @@ import org.objectweb.howl.log.xa.XALogger;
 /**
  * @version $Rev$ $Date$
  */
-public class HOWLLog implements TransactionLog, GBeanLifecycle {
+public class HOWLLog implements TransactionLog {
 //    static final byte PREPARE = 1;
     //these are used as debugging aids only
     private static final byte COMMIT = 2;
@@ -63,7 +59,7 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
 
     private static final Log log = LogFactory.getLog(HOWLLog.class);
 
-    private final ServerInfo serverInfo;
+    private File serverBaseDir;
     private String logFileDir;
 
     private final XidFactory xidFactory;
@@ -86,8 +82,8 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
                    int minBuffers,
                    int threadsWaitingForceThreshold,
                    XidFactory xidFactory,
-                   ServerInfo serverInfo) throws IOException, LogConfigurationException {
-        this.serverInfo = serverInfo;
+                   File serverBaseDir) throws IOException, LogConfigurationException {
+        this.serverBaseDir = serverBaseDir;
         setBufferClassName(bufferClassName);
         setBufferSizeKBytes(bufferSize);
         setChecksumEnabled(checksumEnabled);
@@ -109,10 +105,15 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
         return logFileDir;
     }
 
-    public void setLogFileDir(String logDir) {
-        this.logFileDir = logDir;
+    public void setLogFileDir(String logDirName) {
+        File logDir = new File(logDirName);
+        if (!logDir.isAbsolute()) {
+            logDir = new File(serverBaseDir, logDirName);
+        }
+
+        this.logFileDir = logDirName;
         if (started) {
-            configuration.setLogFileDir(serverInfo.resolveServerPath(logDir));
+            configuration.setLogFileDir(logDir.getAbsolutePath());
         }
     }
 
@@ -202,10 +203,6 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
 
     public void setMaxLogFiles(int maxLogFiles) {
         configuration.setMaxLogFiles(maxLogFiles);
-    }
-
-    public ServerInfo getServerInfo() {
-        return serverInfo;
     }
 
     public void doStart() throws Exception {
@@ -395,49 +392,4 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
         }
 
     }
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(HOWLLog.class, NameFactory.TRANSACTION_LOG);
-        infoFactory.addAttribute("bufferClassName", String.class, true);
-        infoFactory.addAttribute("bufferSizeKBytes", Integer.TYPE, true);
-        infoFactory.addAttribute("checksumEnabled", Boolean.TYPE, true);
-        infoFactory.addAttribute("flushSleepTimeMilliseconds", Integer.TYPE, true);
-        infoFactory.addAttribute("logFileDir", String.class, true);
-        infoFactory.addAttribute("logFileExt", String.class, true);
-        infoFactory.addAttribute("logFileName", String.class, true);
-        infoFactory.addAttribute("maxBlocksPerFile", Integer.TYPE, true);
-        infoFactory.addAttribute("maxBuffers", Integer.TYPE, true);
-        infoFactory.addAttribute("maxLogFiles", Integer.TYPE, true);
-        infoFactory.addAttribute("minBuffers", Integer.TYPE, true);
-        infoFactory.addAttribute("threadsWaitingForceThreshold", Integer.TYPE, true);
-
-        infoFactory.addReference("XidFactory", XidFactory.class, NameFactory.XID_FACTORY);
-        infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
-
-        infoFactory.addInterface(TransactionLog.class);
-
-        infoFactory.setConstructor(new String[]{
-            "bufferClassName",
-            "bufferSizeKBytes",
-            "checksumEnabled",
-            "flushSleepTimeMilliseconds",
-            "logFileDir",
-            "logFileExt",
-            "logFileName",
-            "maxBlocksPerFile",
-            "maxBuffers",
-            "maxLogFiles",
-            "minBuffers",
-            "threadsWaitingForceThreshold",
-            "XidFactory",
-            "ServerInfo"});
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
 }

@@ -34,8 +34,6 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.util.ConfigurationUtil;
-import org.apache.geronimo.transaction.context.TransactionContext;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
  * @version $Rev$ $Date$
@@ -52,18 +50,16 @@ public final class AppClientContainer {
     private final Method mainMethod;
     private final ClassLoader classLoader;
     private final Kernel kernel;
-    private final TransactionContextManager transactionContextManager;
 
     public AppClientContainer(String mainClassName,
-                              AbstractName appClientModuleName,
-                              String realmName,
-                              String callbackHandlerClassName,
-                              DefaultPrincipal defaultPrincipal,
-                              AppClientPlugin jndiContext,
-                              TransactionContextManager transactionContextManager,
-                              ClassLoader classLoader,
-                              Kernel kernel
-                              ) throws Exception {
+            AbstractName appClientModuleName,
+            String realmName,
+            String callbackHandlerClassName,
+            DefaultPrincipal defaultPrincipal,
+            AppClientPlugin jndiContext,
+            ClassLoader classLoader,
+            Kernel kernel
+    ) throws Exception {
         this.mainClassName = mainClassName;
         this.appClientModuleName = appClientModuleName;
         if ((realmName == null) != (callbackHandlerClassName == null)) {
@@ -87,7 +83,6 @@ public final class AppClientContainer {
         this.classLoader = classLoader;
         this.kernel = kernel;
         this.jndiContext = jndiContext;
-        this.transactionContextManager = transactionContextManager;
 
         try {
             Class mainClass = classLoader.loadClass(mainClassName);
@@ -112,8 +107,6 @@ public final class AppClientContainer {
         Thread thread = Thread.currentThread();
 
         ClassLoader oldClassLoader = thread.getContextClassLoader();
-        TransactionContext oldTransactionContext = transactionContextManager.getContext();
-        TransactionContext currentTransactionContext = null;
         Subject oldCurrentCaller = ContextManager.getCurrentCaller();
         Subject clientSubject = defaultSubject;
         LoginContext loginContext = null;
@@ -139,7 +132,6 @@ public final class AppClientContainer {
             }
             ContextManager.setCurrentCaller(clientSubject);
             jndiContext.startClient(appClientModuleName, kernel, classLoader);
-            currentTransactionContext = transactionContextManager.newUnspecifiedTransactionContext();
             if (clientSubject == null) {
                 mainMethod.invoke(null, new Object[]{args});
             } else {
@@ -171,10 +163,6 @@ public final class AppClientContainer {
             jndiContext.stopClient(appClientModuleName);
 
             thread.setContextClassLoader(oldClassLoader);
-            transactionContextManager.setContext(oldTransactionContext);
-            if (currentTransactionContext != null) {
-                currentTransactionContext.commit();
-            }
             ContextManager.setCurrentCaller(oldCurrentCaller);
         }
     }
@@ -193,7 +181,6 @@ public final class AppClientContainer {
         infoFactory.addAttribute("defaultPrincipal", DefaultPrincipal.class, true);
 
         infoFactory.addReference("JNDIContext", AppClientPlugin.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addAttribute("kernel", Kernel.class, false);
@@ -205,7 +192,6 @@ public final class AppClientContainer {
                                                 "callbackHandlerClassName",
                                                 "defaultPrincipal",
                                                 "JNDIContext",
-                                                "TransactionContextManager",
                                                 "classLoader",
                                                 "kernel"
         });

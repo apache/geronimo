@@ -17,10 +17,8 @@
 
 package org.apache.geronimo.connector.outbound.connectiontracking;
 
-import org.apache.geronimo.transaction.InstanceContext;
-import org.apache.geronimo.transaction.TrackedConnectionAssociator;
-import org.apache.geronimo.transaction.context.TransactionContext;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContext;
+import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 
 /**
  * Sample functionality for an interceptor that enables connection caching and obtaining
@@ -32,34 +30,18 @@ public class DefaultComponentInterceptor implements DefaultInterceptor {
 
     private final DefaultInterceptor next;
     private final TrackedConnectionAssociator trackedConnectionAssociator;
-    private final TransactionContextManager transactionContextManager;
 
-    public DefaultComponentInterceptor(DefaultInterceptor next,
-                                       TrackedConnectionAssociator trackedConnectionAssociator,
-                                       TransactionContextManager transactionContextManager) {
+    public DefaultComponentInterceptor(DefaultInterceptor next, TrackedConnectionAssociator trackedConnectionAssociator) {
         this.next = next;
         this.trackedConnectionAssociator = trackedConnectionAssociator;
-        this.transactionContextManager = transactionContextManager;
     }
 
-    public Object invoke(InstanceContext newInstanceContext) throws Throwable {
-        TransactionContext transactionContext = transactionContextManager.getContext();
-        if (transactionContext == null) {
-            transactionContextManager.newUnspecifiedTransactionContext();
-        }
+    public Object invoke(ConnectorInstanceContext newConnectorInstanceContext) throws Throwable {
+        ConnectorInstanceContext oldConnectorInstanceContext = trackedConnectionAssociator.enter(newConnectorInstanceContext);
         try {
-            InstanceContext oldInstanceContext = trackedConnectionAssociator.enter(newInstanceContext);
-            try {
-                return next.invoke(newInstanceContext);
-            } finally {
-                trackedConnectionAssociator.exit(oldInstanceContext);
-            }
+            return next.invoke(newConnectorInstanceContext);
         } finally {
-            if (transactionContext == null) {
-                transactionContext = transactionContextManager.getContext();
-                transactionContext.commit();
-                transactionContextManager.setContext(null);
-            }
+            trackedConnectionAssociator.exit(oldConnectorInstanceContext);
         }
     }
 }

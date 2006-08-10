@@ -22,10 +22,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import javax.resource.ResourceException;
+import javax.transaction.Transaction;
+import javax.transaction.TransactionManager;
 
-import org.apache.geronimo.transaction.ConnectionReleaser;
-import org.apache.geronimo.transaction.context.TransactionContext;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.connector.ConnectorTransactionContext;
+import org.apache.geronimo.connector.ConnectionReleaser;
 
 /**
  * TransactionCachingInterceptor.java
@@ -50,22 +51,25 @@ import org.apache.geronimo.transaction.context.TransactionContextManager;
 public class TransactionCachingInterceptor implements ConnectionInterceptor, ConnectionReleaser {
 
     private final ConnectionInterceptor next;
-    private final TransactionContextManager transactionContextManager;
+    private final TransactionManager transactionManager;
 
-    public TransactionCachingInterceptor(ConnectionInterceptor next, TransactionContextManager transactionContextManager) {
+    public TransactionCachingInterceptor(ConnectionInterceptor next, TransactionManager transactionManager) {
         this.next = next;
-        this.transactionContextManager = transactionContextManager;
+        this.transactionManager = transactionManager;
     }
 
     public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
         //There can be an inactive transaction context when a connection is requested in
         //Synchronization.afterCompletion().
-        TransactionContext transactionContext = transactionContextManager.getContext();
-        if (transactionContext != null && transactionContext.isInheritable() && transactionContext.isActive()) {
-            ManagedConnectionInfos managedConnectionInfos = (ManagedConnectionInfos) transactionContext.getManagedConnectionInfo(this);
+
+        // get the current transation and status... if there is a problem just assume there is no transaction present
+        Transaction transaction = TxUtil.getTransactionIfActive(transactionManager);
+        if (transaction != null) {
+            ConnectorTransactionContext connectorTransactionContext = ConnectorTransactionContext.get(transaction);
+            ManagedConnectionInfos managedConnectionInfos = (ManagedConnectionInfos) connectorTransactionContext.getManagedConnectionInfo(this);
             if (managedConnectionInfos == null) {
                 managedConnectionInfos = new ManagedConnectionInfos();
-                transactionContext.setManagedConnectionInfo(this, managedConnectionInfos);
+                connectorTransactionContext.setManagedConnectionInfo(this, managedConnectionInfos);
             }
             if (connectionInfo.isUnshareable()) {
                 if (!managedConnectionInfos.containsUnshared(connectionInfo.getManagedConnectionInfo())) {
@@ -94,8 +98,7 @@ public class TransactionCachingInterceptor implements ConnectionInterceptor, Con
             return;
         }
 
-        TransactionContext transactionContext = transactionContextManager.getContext();
-        if (transactionContext != null && transactionContext.isInheritable() && transactionContext.isActive()) {
+        if (TxUtil.isTransactionActive(transactionManager)) {
             return;
         }
         internalReturn(connectionInfo, connectionReturnAction);
@@ -112,7 +115,7 @@ public class TransactionCachingInterceptor implements ConnectionInterceptor, Con
     public void destroy() {
         next.destroy();
     }
-    
+
     public void afterCompletion(Object stuff) {
         ManagedConnectionInfos managedConnectionInfos = (ManagedConnectionInfos) stuff;
         ManagedConnectionInfo sharedMCI = managedConnectionInfos.getShared();

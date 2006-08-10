@@ -19,7 +19,7 @@ package org.apache.geronimo.gbean.runtime;
 import org.apache.geronimo.gbean.GReferenceInfo;
 
 /**
- * @version $Rev: 384141 $ $Date$
+ * @version $Rev$ $Date$
  */
 public interface GBeanReference {
     String getName();

@@ -19,9 +19,9 @@ package org.apache.geronimo.jetty.interceptor;
 import java.util.Set;
 import javax.resource.ResourceException;
 
-import org.apache.geronimo.transaction.DefaultInstanceContext;
-import org.apache.geronimo.transaction.InstanceContext;
-import org.apache.geronimo.transaction.TrackedConnectionAssociator;
+import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContextImpl;
+import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContext;
+import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;
 
@@ -46,7 +46,7 @@ public class InstanceContextBeforeAfter implements BeforeAfter {
 
     public void before(Object[] context, HttpRequest httpRequest, HttpResponse httpResponse) {
         try {
-            context[index] = trackedConnectionAssociator.enter(new DefaultInstanceContext(unshareableResources, applicationManagedSecurityResources));
+            context[index] = trackedConnectionAssociator.enter(new ConnectorInstanceContextImpl(unshareableResources, applicationManagedSecurityResources));
         } catch (ResourceException e) {
             throw new RuntimeException(e);
         }
@@ -60,7 +60,7 @@ public class InstanceContextBeforeAfter implements BeforeAfter {
             next.after(context, httpRequest, httpResponse);
         }
         try {
-            trackedConnectionAssociator.exit((InstanceContext) context[index]);
+            trackedConnectionAssociator.exit((ConnectorInstanceContext) context[index]);
         } catch (ResourceException e) {
             throw new RuntimeException(e);
         }

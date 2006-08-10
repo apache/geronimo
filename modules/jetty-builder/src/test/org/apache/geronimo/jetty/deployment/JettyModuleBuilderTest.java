@@ -81,8 +81,7 @@ import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.ArtifactManager;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
-import org.apache.geronimo.transaction.context.TransactionContextManagerGBean;
-import org.apache.geronimo.transaction.manager.TransactionManagerImplGBean;
+import org.apache.geronimo.transaction.manager.GeronimoTransactionManagerGBean;
 
 /**
  * @version $Rev:385232 $ $Date$
@@ -93,8 +92,8 @@ public class JettyModuleBuilderTest extends TestCase {
     private final AbstractName serverName = naming.createRootName(baseId, "Server", "J2EEServer");
 
     protected Kernel kernel;
+    private AbstractName tmName;
     private AbstractName ctcName;
-    private AbstractName tcmName;
     private ClassLoader cl;
     private JettyModuleBuilder builder;
     private File basedir = new File(System.getProperty("basedir", "."));
@@ -186,8 +185,7 @@ public class JettyModuleBuilderTest extends TestCase {
                 repositories,
                 new AbstractNameQuery(serverName),
                 moduleName,
-                null,
-                new AbstractNameQuery(tcmName),
+                new AbstractNameQuery(tmName),
                 new AbstractNameQuery(ctcName),
                 null,
                 null,
@@ -301,13 +299,13 @@ public class JettyModuleBuilderTest extends TestCase {
         connector.setAttribute("minThreads", new Integer(10));
         connector.setReferencePattern("JettyContainer", containerName);
 
-        GBeanData tm = bootstrap.addGBean("TransactionManager", TransactionManagerImplGBean.GBEAN_INFO);
+        GBeanData tm = bootstrap.addGBean("TransactionManager", GeronimoTransactionManagerGBean.GBEAN_INFO);
+        tmName = tm.getAbstractName();
         tm.setAttribute("defaultTransactionTimeoutSeconds", new Integer(10));
 
-        GBeanData tcm = bootstrap.addGBean("TransactionContextManager", TransactionContextManagerGBean.GBEAN_INFO);
-        tcm.setReferencePattern("TransactionManager", tm.getAbstractName());
-        tcmName = tcm.getAbstractName();
-        ctcName = bootstrap.addGBean("ConnectionTrackingCoordinator", ConnectionTrackingCoordinatorGBean.GBEAN_INFO).getAbstractName();
+        GBeanData ctc = bootstrap.addGBean("ConnectionTrackingCoordinator", ConnectionTrackingCoordinatorGBean.GBEAN_INFO);
+        ctcName = ctc.getAbstractName();
+        ctc.setReferencePattern("TransactionManager", tmName);
 
         ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, getClass().getClassLoader());
 
