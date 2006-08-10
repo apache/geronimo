@@ -82,7 +82,7 @@ openejb2() {
     (
         cd "$DIRNAME/thirdparty"
         
-        svn co http://svn.codehaus.org/openejb/branches/dain-2.2-merge/notcm openejb2
+        svn co http://svn.codehaus.org/openejb/trunk/openejb2
         (
             cd openejb2
             mvn -Dmaven.test.skip=true install
