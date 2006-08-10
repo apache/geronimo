@@ -86,7 +86,8 @@ public class DeployTool {
 
     public boolean execute(String args[]) {
         PrintWriter out = new PrintWriter(new OutputStreamWriter(System.out), true);
-        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+        InputStream in = System.in;
+
         String command;
         String[] commandArgs = new String[0];
         if(args.length == 0) {
