@@ -191,7 +191,8 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
             } else {
                 transportType = "NONE";
             }
-            WebUserDataPermission wudp = new WebUserDataPermission(servletHttpRequest.getServletPath(), new String[]{servletHttpRequest.getMethod()}, transportType);
+            WebUserDataPermission wudp = new WebUserDataPermission(servletHttpRequest.getServletPath() + (servletHttpRequest.getPathInfo() == null ? "" : servletHttpRequest.getPathInfo()),
+                                                                   new String[]{servletHttpRequest.getMethod()}, transportType);
             WebResourcePermission webResourcePermission = new WebResourcePermission(servletHttpRequest);
             Principal user = obtainUser(pathInContext, request, response, webResourcePermission, wudp);
 

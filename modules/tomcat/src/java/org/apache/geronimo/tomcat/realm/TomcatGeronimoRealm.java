@@ -128,7 +128,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
             } else {
                 transportType = "NONE";
             }
-            WebUserDataPermission wudp = new WebUserDataPermission(request.getServletPath(), new String[]{request.getMethod()}, transportType);
+            WebUserDataPermission wudp = new WebUserDataPermission(request.getServletPath() + (request.getPathInfo() == null ? "" : request.getPathInfo()), new String[]{request.getMethod()}, transportType);
             acc.checkPermission(wudp);
 
         } catch (AccessControlException ace) {
