@@ -775,7 +775,7 @@
         NOTE: The default repositories are picked up by Genesis, but need to
               specify where Genesis lives to pick it up + any additional repositories.
         -->
-
+        
         <repository>
             <id>apache</id>
             <name>Apache Repository</name>
@@ -803,56 +803,6 @@
                 <enabled>false</enabled>
             </releases>
         </repository>
-
-        <!--
-        FIXME: Include the legacy Apache and Codehaus repositories... should eventually
-               ween ourselves off of them...
-        -->
-        <repository>
-            <id>apache-m1</id>
-            <name>Apache Maven 1 Repository</name>
-            <url>http://people.apache.org/repo/m1-ibiblio-rsync-repository</url>
-            <layout>legacy</layout>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-
-        <repository>
-            <id>apache-snapshots-m1</id>
-            <name>Apache Maven 1 Snapshots Repository</name>
-            <url>http://people.apache.org/repo/m1-snapshot-repository</url>
-            <layout>legacy</layout>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-
-        <repository>
-            <id>codehaus-m1</id>
-            <name>Codehaus Maven 1 Repository</name>
-            <url>http://dist.codehaus.org</url>
-            <layout>legacy</layout>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-
     </repositories>
 
     <distributionManagement>
@@ -885,7 +835,7 @@
 
         <!--
         NOTE: The staged build is used to get around a problem with Maven
-              and extention plugins.
+              and extension plugins.
 
               See http://issues.apache.org/jira/browse/GERONIMO-2172 for more details.
         -->

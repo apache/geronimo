@@ -84,6 +84,16 @@
             <groupId>directory-asn1</groupId>
             <artifactId>asn1-ber</artifactId>
             <version>${asn1Version}</version>
+            <exclusions>
+                <!--
+                NOTE: Exclude commons-test, no needed for compile, not deployed into any m2 repo.
+                      Where are the sources for this artifact?
+                -->
+                <exclusion>
+                    <groupId>commons-test</groupId>
+                    <artifactId>commons-test</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>

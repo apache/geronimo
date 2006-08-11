@@ -81,5 +81,25 @@
             </plugin>
         </plugins>
     </build>
-
+    
+    <!--
+    HACK: Need to include the Apache m1 snapshot repo to pick up juddi:juddi:jar:0.9rc4
+    -->
+    <repositories>
+        <repository>
+            <id>apache-snapshots-m1</id>
+            <name>Apache Maven 1 Snapshots Repository</name>
+            <url>http://people.apache.org/repo/m1-snapshot-repository</url>
+            <layout>legacy</layout>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
+    
 </project>
