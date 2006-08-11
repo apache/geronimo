@@ -31,6 +31,7 @@ public class MailcapTest extends TestCase {
 
     public void testTextPlainHandler() {
         CommandInfo info = map.getCommand("text/plain", "content-handler");
+        System.out.println("Command handler classname is " + info.getCommandClass());
         assertEquals(TextPlainHandler.class.getName(), info.getCommandClass());
     }
 
