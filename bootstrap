@@ -38,7 +38,11 @@ complete() {
 clean() {
     echo "Cleaning..."
     
-    rm -rf ~/.m2/repository
+    if [ "x$BOOTSTRAP_NOCLEAN_REPO" = "x" ]; then
+        rm -rf ~/.m2/repository
+    else
+        echo "Skipping repository cleaning"
+    fi
     
     rm -rf "$DIRNAME/thirdparty"
     mkdir -p "$DIRNAME/thirdparty"
