@@ -20,6 +20,7 @@
 
 <project
     xmlns:velocity="jelly:velocity"
+    xmlns:ant="jelly:ant"
     default="default"
     >
 
@@ -27,4 +28,10 @@
         <attainGoal name="war:install"/>
     </goal>
 
+    <postGoal name="war:webapp">
+      <!-- Copy LICENSE.txt and NOTICE.txt Files -->
+      <ant:copy file="LICENSE.txt" tofile="${maven.war.webapp.dir}/META-INF/LICENSE.txt" />
+      <ant:copy file="NOTICE.txt" tofile="${maven.war.webapp.dir}/META-INF/NOTICE.txt" />
+    </postGoal>
+    
 </project>

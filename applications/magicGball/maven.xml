@@ -43,6 +43,10 @@
 
     <goal name="ejb" prereqs="java:compile">
         <ant:jar destfile="target/${pom.artifactId}-ejb-${geronimo_version}.jar">
+            <metainf dir="${basedir}">
+                <include name="LICENSE.txt"/>
+                <include name="NOTICE.txt"/>
+            </metainf>
             <fileset dir="target/classes">
                 <exclude name="**/*Servlet.class"/>
                 <exclude name="**/*Client.class"/>
@@ -53,6 +57,10 @@
 
     <goal name="client" prereqs="java:compile">
         <ant:jar destfile="target/${pom.artifactId}-client-${geronimo_version}.jar">
+            <metainf dir="${basedir}">
+                <include name="LICENSE.txt"/>
+                <include name="NOTICE.txt"/>
+            </metainf>
             <fileset dir="target/classes">
                 <include name="**/*Client.class"/>
                 <include name="**/MagicGBall.class"/>
@@ -68,6 +76,10 @@
 
     <goal name="ear" prereqs="ejb,war:war,client,filter">
         <ant:jar destfile="target/${pom.artifactId}-${geronimo_version}.ear">
+            <metainf dir="${basedir}">
+                <include name="LICENSE.txt"/>
+                <include name="NOTICE.txt"/>
+            </metainf>
             <fileset dir="target">
                 <include name="${pom.artifactId}-ejb-${geronimo_version}.jar"/>
                 <include name="${pom.artifactId}-client-${geronimo_version}.jar"/>
@@ -196,5 +208,10 @@
         </java>
     </goal>
 
+    <postGoal name="war:webapp">
+      <!-- Copy LICENSE.txt and NOTICE.txt Files -->
+      <ant:copy file="LICENSE.txt" tofile="${maven.war.webapp.dir}/META-INF/LICENSE.txt" />
+      <ant:copy file="NOTICE.txt" tofile="${maven.war.webapp.dir}/META-INF/NOTICE.txt" />
+    </postGoal>
 
 </project>
