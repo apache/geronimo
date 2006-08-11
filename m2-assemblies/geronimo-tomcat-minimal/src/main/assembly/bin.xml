@@ -35,39 +35,13 @@
     <includeBaseDirectory>true</includeBaseDirectory>
 
     <dependencySets>
-        <dependencySet>
-            <outputDirectory>lib</outputDirectory>
-            <includes>
-                <include>backport-util-concurrent:backport-util-concurrent</include>
-                <include>cglib:cglib-nodep</include>
-                <include>commons-cli:commons-cli</include>
-                <include>commons-logging:commons-logging</include>
-                <include>concurrent:concurrent</include>
-                <include>org.apache.geronimo.modules:geronimo-common</include>
-                <include>org.apache.geronimo.modules:geronimo-deploy-jsr88</include>
-                <include>org.apache.geronimo.modules:geronimo-deploy-tool</include>
-                <include>org.apache.geronimo.modules:geronimo-deployment</include>
-                <include>org.apache.geronimo.modules:geronimo-kernel</include>
-                <include>org.apache.geronimo.modules:geronimo-system</include>
-                <include>org.apache.geronimo.modules:geronimo-util</include>
-                <include>org.apache.geronimo.specs:geronimo-qname_1.1_spec</include>
-                <include>org.apache.geronimo.specs:geronimo-j2ee-deployment_1.1_spec</include>
-                <include>log4j:log4j</include>
-                <include>mx4j:mx4j</include>
-                <include>mx4j:mx4j-remote</include>
-                <include>xpp3:xpp3</include>
-                <include>xstream:xstream</include>
-                <include>jline:jline</include>
-            </includes>
-        </dependencySet>
+        <!--
+        NOTE: lib/ is picked up from boilerplate.
+        -->
         
-        <dependencySet>
-            <outputDirectory>lib/endorsed</outputDirectory>
-            <includes>
-                <include>xerces:xercesImpl</include>
-                <include>xerces:xmlParserAPIs</include>
-            </includes>
-        </dependencySet>
+        <!--
+        NOTE: lib/endorsed/ is picked up from boilerplate.
+        -->
         
         <dependencySet>
             <outputDirectory>bin</outputDirectory>

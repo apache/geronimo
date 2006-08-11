@@ -36,10 +36,6 @@
         Provides boilerplate files for all Geronimo minimal server (Little-G) assemblies.
     </description>
     
-    <!--
-    TODO: Move schema inclusion here, since most of it is common
-    -->
-    
     <build>
         <resources>
             <resource>
@@ -55,6 +51,220 @@
                 <directory>${pom.basedir}/src/main/resources</directory>
             </resource>
         </resources>
+        
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>dependency-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>install-lib</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>backport-util-concurrent</groupId>
+                                    <artifactId>backport-util-concurrent</artifactId>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>concurrent</groupId>
+                                    <artifactId>concurrent</artifactId>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>cglib</groupId>
+                                    <artifactId>cglib-nodep</artifactId>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>commons-cli</groupId>
+                                    <artifactId>commons-cli</artifactId>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>commons-logging</groupId>
+                                    <artifactId>commons-logging</artifactId>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>log4j</groupId>
+                                    <artifactId>log4j</artifactId>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>mx4j</groupId>
+                                    <artifactId>mx4j</artifactId>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>mx4j</groupId>
+                                    <artifactId>mx4j-remote</artifactId>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>xpp3</groupId>
+                                    <artifactId>xpp3</artifactId>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>xstream</groupId>
+                                    <artifactId>xstream</artifactId>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>jline</groupId>
+                                    <artifactId>jline</artifactId>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.specs</groupId>
+                                    <artifactId>geronimo-qname_1.1_spec</artifactId>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.specs</groupId>
+                                    <artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.modules</groupId>
+                                    <artifactId>geronimo-common</artifactId>
+                                    <version>${pom.version}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.modules</groupId>
+                                    <artifactId>geronimo-deploy-jsr88</artifactId>
+                                    <version>${pom.version}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.modules</groupId>
+                                    <artifactId>geronimo-deploy-tool</artifactId>
+                                    <version>${pom.version}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.modules</groupId>
+                                    <artifactId>geronimo-deployment</artifactId>
+                                    <version>${pom.version}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.modules</groupId>
+                                    <artifactId>geronimo-kernel</artifactId>
+                                    <version>${pom.version}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.modules</groupId>
+                                    <artifactId>geronimo-util</artifactId>
+                                    <version>${pom.version}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.modules</groupId>
+                                    <artifactId>geronimo-system</artifactId>
+                                    <version>${pom.version}</version>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}/classes/lib</outputDirectory>
+                        </configuration>
+                    </execution>
+                    
+                    <execution>
+                        <id>install-lib-endorsed</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>xerces</groupId>
+                                    <artifactId>xercesImpl</artifactId>
+                                </artifactItem>
+                                
+                                <artifactItem>
+                                    <groupId>xerces</groupId>
+                                    <artifactId>xmlParserAPIs</artifactId>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}/classes/lib/endorsed</outputDirectory>
+                        </configuration>
+                    </execution>
+                    
+                    <execution>
+                        <id>unpack-schemas</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.modules</groupId>
+                                    <artifactId>geronimo-axis-builder</artifactId>
+                                    <version>${pom.version}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.modules</groupId>
+                                    <artifactId>geronimo-client-builder</artifactId>
+                                    <version>${pom.version}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.modules</groupId>
+                                    <artifactId>geronimo-connector-builder</artifactId>
+                                    <version>${pom.version}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.modules</groupId>
+                                    <artifactId>geronimo-j2ee-builder</artifactId>
+                                    <version>${pom.version}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.modules</groupId>
+                                    <artifactId>geronimo-naming-builder</artifactId>
+                                    <version>${pom.version}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.modules</groupId>
+                                    <artifactId>geronimo-security-builder</artifactId>
+                                    <version>${pom.version}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.modules</groupId>
+                                    <artifactId>geronimo-service-builder</artifactId>
+                                    <version>${pom.version}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.modules</groupId>
+                                    <artifactId>geronimo-web-builder</artifactId>
+                                    <version>${pom.version}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.modules</groupId>
+                                    <artifactId>geronimo-j2ee-builder</artifactId>
+                                    <version>${pom.version}</version>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}/scratch/schema</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>flatten-schemas</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <mkdir dir="${project.build.directory}/classes/schema"/>
+                                <copy todir="${project.build.directory}/classes/schema">
+                                    <fileset dir="${project.build.directory}/scratch/schema">
+                                        <include name="**/*.xsd"/>
+                                        <include name="**/*.dtd"/>
+                                    </fileset>
+                                    <mapper type="flatten"/>
+                                </copy>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
     
 </project>
