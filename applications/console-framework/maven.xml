@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project default="default">
+<project xmlns:ant="jelly:ant" default="default">
 
     <goal name="default">
         <attainGoal name="war:install"/>
@@ -7,6 +7,9 @@
 
     <postGoal name="war:webapp">
       <attainGoal name="preCompile"/>
+      <!-- Copy LICENSE.txt and NOTICE.txt Files -->
+      <ant:copy file="LICENSE.txt" tofile="${maven.war.webapp.dir}/META-INF/LICENSE.txt" />
+      <ant:copy file="NOTICE.txt" tofile="${maven.war.webapp.dir}/META-INF/NOTICE.txt" />
     </postGoal>
 
 </project>

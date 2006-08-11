@@ -7,6 +7,12 @@
     xmlns:u="jelly:util"
     xmlns:ant="jelly:ant">
 
+    <postGoal name="war:webapp">
+      <!-- Copy LICENSE.txt and NOTICE.txt Files -->
+      <ant:copy file="LICENSE.txt" tofile="${maven.war.webapp.dir}/META-INF/LICENSE.txt" />
+      <ant:copy file="NOTICE.txt" tofile="${maven.war.webapp.dir}/META-INF/NOTICE.txt" />
+    </postGoal>
+
     <goal name="default">
         <attainGoal name="war:install"/>
     </goal>
