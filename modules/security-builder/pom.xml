@@ -92,25 +92,6 @@
             <version>${pom.version}</version>
         </dependency>
         
-        <!-- Thirdparty Dependencies -->
-        
-        <dependency>
-            <groupId>xmlbeans</groupId>
-            <artifactId>xbean</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>stax</groupId>
-            <artifactId>stax-api</artifactId>
-        </dependency>
-        
-        <!-- provided by kernel -->
-        <dependency>
-            <groupId>mx4j</groupId>
-            <artifactId>mx4j</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        
     </dependencies>
     
     <build>

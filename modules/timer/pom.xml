@@ -56,6 +56,7 @@
     </properties>
     
     <dependencies>
+    
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-connector</artifactId>
@@ -97,24 +98,6 @@
         </dependency>
 
         <dependency>
-            <groupId>mx4j</groupId>
-            <artifactId>mx4j</artifactId>
-        </dependency>
-
-        <!-- jdbc timer WorkerPersistence -->
-        <dependency>
-            <groupId>xstream</groupId>
-            <artifactId>xstream</artifactId>
-        </dependency>
-
-        <dependency>
-            <!--License is at http://www.extreme.indiana.edu/viewcvs/~checkout~/XPP3/java/LICENSE.txt -->
-            <!-- it is modified BSD -->
-            <groupId>xpp3</groupId>
-            <artifactId>xpp3</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
         </dependency>
@@ -123,11 +106,7 @@
             <groupId>concurrent</groupId>
             <artifactId>concurrent</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-        </dependency>
+        
     </dependencies>
     
 </project>

@@ -87,11 +87,6 @@
         <!-- Thirdparty Dependencies -->
         
         <dependency>
-            <groupId>concurrent</groupId>
-            <artifactId>concurrent</artifactId>
-        </dependency>
-        
-        <dependency>
             <groupId>activeio</groupId>
             <artifactId>activeio</artifactId>
         </dependency>
@@ -101,9 +96,12 @@
             <artifactId>regexp</artifactId>
         </dependency>
         
+        <!-- Test Dependencies -->
+        
         <dependency>
             <groupId>hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
+            <scope>test</scope>
         </dependency>
     
     </dependencies>

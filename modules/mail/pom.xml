@@ -82,23 +82,6 @@
             <artifactId>geronimo-activation_1.0.2_spec</artifactId>
         </dependency>
         
-        <!-- Thirdparty Dependencies -->
-        
-        <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib-nodep</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>mx4j</groupId>
-            <artifactId>mx4j</artifactId>
-        </dependency>
-        
     </dependencies>
     
     <!--

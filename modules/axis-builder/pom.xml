@@ -105,16 +105,6 @@
         <!-- Thirdparty Dependencies -->
         
         <dependency>
-            <groupId>xmlbeans</groupId>
-            <artifactId>xbean</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>stax</groupId>
-            <artifactId>stax-api</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>asm</groupId>
             <artifactId>asm</artifactId>
         </dependency>

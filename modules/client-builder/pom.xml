@@ -61,14 +61,6 @@
             <version>${pom.version}</version>
         </dependency>
         
-        <!-- Thirdparty Dependencies -->
-        
-        <!-- tranql uses 1.0.3 -->
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-        </dependency>
-        
     </dependencies>
     
     <build>

@@ -54,11 +54,13 @@
             <version>${pom.version}</version>
         </dependency>
         
+        <!-- Thirdparty Dependencies -->
+        
         <dependency>
             <groupId>xmlbeans</groupId>
             <artifactId>xbean</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>stax</groupId>
             <artifactId>stax-api</artifactId>

@@ -121,23 +121,6 @@
             <artifactId>geronimo-servlet_2.4_spec</artifactId>
         </dependency>
         
-        <!-- Thirdparty Dependencies -->
-        
-        <dependency>
-            <groupId>xmlbeans</groupId>
-            <artifactId>xbean</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>stax</groupId>
-            <artifactId>stax-api</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>mx4j</groupId>
-            <artifactId>mx4j</artifactId>
-        </dependency>
-        
     </dependencies>
     
     <build>

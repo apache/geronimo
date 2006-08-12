@@ -48,24 +48,8 @@
     
     <dependencies>
         
-        <dependency>
-            <groupId>mx4j</groupId>
-            <artifactId>mx4j</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>mx4j</groupId>
-            <artifactId>mx4j-remote</artifactId>
-        </dependency>
-
         <!-- Module Dependencies -->
         
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-kernel</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-system</artifactId>
@@ -97,6 +81,13 @@
             <artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>
         </dependency>
         
+        <!-- Thirdparty Dependencies -->
+        
+        <dependency>
+            <groupId>mx4j</groupId>
+            <artifactId>mx4j-remote</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

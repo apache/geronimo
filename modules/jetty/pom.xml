@@ -46,6 +46,7 @@
     </scm>
     
     <dependencies>
+    
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-security-builder</artifactId>

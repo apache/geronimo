@@ -35,12 +35,6 @@
     
     <dependencies>
 
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-kernel</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-        
         <!-- To Do - are the deps of g-system needed in the plan.xml ? -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>

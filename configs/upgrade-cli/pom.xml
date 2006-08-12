@@ -98,16 +98,6 @@
             <artifactId>geronimo-service-builder</artifactId>
             <version>${pom.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>xmlbeans</groupId>
-            <artifactId>xbean</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>stax</groupId>
-            <artifactId>stax-api</artifactId>
-        </dependency>
         
     </dependencies>
     

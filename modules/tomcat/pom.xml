@@ -51,6 +51,7 @@
     </properties>
     
     <dependencies>
+    
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jsp_2.0_spec</artifactId>

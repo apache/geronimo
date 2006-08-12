@@ -55,11 +55,11 @@
             <version>${pom.version}</version>
         </dependency>
         
-        <!-- all the specs should be added to the classpath transitively -->
         <dependency>
             <groupId>mx4j</groupId>
             <artifactId>mx4j-remote</artifactId>
         </dependency>
+        
     </dependencies>
     
 </project>

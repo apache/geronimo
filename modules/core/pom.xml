@@ -46,22 +46,7 @@
     </scm>
     
     <dependencies>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>concurrent</groupId>
-            <artifactId>concurrent</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-kernel</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-
+    
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-system</artifactId>
@@ -73,6 +58,8 @@
             <artifactId>geronimo-management</artifactId>
             <version>${pom.version}</version>
         </dependency>
+        
     </dependencies>
+    
 </project>
 

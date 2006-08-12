@@ -53,12 +53,6 @@
     </scm>
     
     <dependencies>
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-kernel</artifactId>
-            <version>${pom.version}</version>
-            <scope>provided</scope>
-        </dependency>
         
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
@@ -78,6 +72,7 @@
             <groupId>tomcat</groupId>
             <artifactId>jasper-runtime</artifactId>
         </dependency>
+        
     </dependencies>
     
     <build>
