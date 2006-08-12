@@ -1,6 +1,5 @@
 /**
- *
- * Copyright 2005 The Apache Software Foundation
+ *  Copyright 2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,6 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.apache.geronimo.deployment;
 
 import java.io.File;
@@ -46,6 +46,7 @@ public class PluginBootstrap2 {
     private File plan;
     private File buildDir;
     private File carFile;
+    private boolean expanded;
 
     public void setLocalRepo(File localRepo) {
         this.localRepo = localRepo;
@@ -63,10 +64,12 @@ public class PluginBootstrap2 {
         this.carFile = carFile;
     }
 
+    public void setExpanded(final boolean expanded) {
+        this.expanded = expanded;
+    }
+
     public void bootstrap() throws Exception {
-        System.out.println();
-        System.out.println("    Packaging configuration " + plan);
-        System.out.println();
+        System.out.println("Packaging module configuration: " + plan);
 
         ModuleType config = ModuleDocument.Factory.parse(plan).getModule();
 
@@ -80,24 +83,46 @@ public class PluginBootstrap2 {
 
         ArtifactManager artifactManager = new DefaultArtifactManager();
         ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.singleton(repository), null);
-        DeploymentContext context = builder.buildConfiguration(false, builder.getConfigurationID(config, null, new ModuleIDBuilder()), config, null, Collections.singleton(targetConfigurationStore), artifactResolver, targetConfigurationStore);
-        JarOutputStream out = null;
+        DeploymentContext context = builder.buildConfiguration(
+                false,
+                builder.getConfigurationID(config, null, new ModuleIDBuilder()),
+                config,
+                null,
+                Collections.singleton(targetConfigurationStore),
+                artifactResolver,
+                targetConfigurationStore);
+
+        ConfigurationData configurationData = context.getConfigurationData();
+
         try {
-            ConfigurationData configurationData = context.getConfigurationData();
-            out = new JarOutputStream(new FileOutputStream(carFile));
-            ExecutableConfigurationUtil.writeConfiguration(configurationData, out);
-            out.flush();
-        } finally {
-            if (out != null)
-            {
-                try {
-                    out.close();
-                } catch (IOException ignored) {
-                    // ignored
+            writeConfiguration(configurationData);
+        }
+        finally {
+            context.close();
+        }
+    }
+
+    private void writeConfiguration(final ConfigurationData configurationData) throws IOException {
+        if (expanded) {
+            ExecutableConfigurationUtil.writeConfiguration(configurationData, carFile);
+        }
+        else {
+            JarOutputStream out = null;
+            try {
+                out = new JarOutputStream(new FileOutputStream(carFile));
+                ExecutableConfigurationUtil.writeConfiguration(configurationData, out);
+                out.flush();
+            }
+            finally {
+                if (out != null) {
+                    try {
+                        out.close();
+                    }
+                    catch (IOException ignored) {
+                        // ignored
+                    }
                 }
             }
-            if (context != null)
-                context.close();
         }
     }
 }
