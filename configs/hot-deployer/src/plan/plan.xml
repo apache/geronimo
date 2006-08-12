@@ -19,8 +19,8 @@ limitations under the License.
 <!-- $Rev$ $Date$ -->
 
 <!--
-Child of the geronimo/j2ee-server/${pom.currentVersion}/car module that includes deployment services
-    parentId="geronimo/runtime-deployer/${pom.currentVersion}/car"
+Child of the geronimo/j2ee-server/${pom.version}/car module that includes deployment services
+    parentId="geronimo/runtime-deployer/${pom.version}/car"
 -->
 <module
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"

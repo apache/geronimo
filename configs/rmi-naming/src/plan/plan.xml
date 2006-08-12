@@ -21,7 +21,7 @@
 <!--
 Holds the RMI naming server module.  This needs to be started
 after the system GBeans but before the server GBeans.
-    parentId="${pom.groupId}/j2ee-system/${pom.currentVersion}/car"
+    parentId="${pom.groupId}/j2ee-system/${pom.version}/car"
 
 -->
 <module

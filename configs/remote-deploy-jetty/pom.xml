@@ -63,7 +63,6 @@
                         <deploymentConfig>${axisDeployer}</deploymentConfig>
                     </deploymentConfigs>
                     <moduleFile>${settings.localRepository}/org/apache/geronimo/applications/geronimo-remote-deploy/${geronimoVersion}/geronimo-remote-deploy-${geronimoVersion}.war</moduleFile>
-                    <geronimoPlugin>true</geronimoPlugin>
                 </configuration>
             </plugin>
         </plugins>

@@ -21,7 +21,7 @@
 
     <ext-module>
         <web>uddi-tomcat</web>
-        <external-path>${geronimo_groupId}/geronimo-uddi-server/${pom.currentVersion}/war</external-path>
+        <external-path>${geronimo_groupId}/geronimo-uddi-server/${pom.version}/war</external-path>
         <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.1">
 
             <context-root>/juddi</context-root>

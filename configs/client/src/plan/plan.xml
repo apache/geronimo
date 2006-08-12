@@ -23,7 +23,7 @@ Configuration for the main ring of a Geronimo app client.
 
 This module should contain those services normally provided
 by the app client.
-               parentId="${pom.groupId}/client-system/${pom.currentVersion}/car"
+               parentId="${pom.groupId}/client-system/${pom.version}/car"
 -->
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 

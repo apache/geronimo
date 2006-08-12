@@ -155,4 +155,15 @@ public abstract class AbstractCarMojo
         output.flush();
         output.close();
     }
+
+    protected static File getArchiveFile(final File basedir, final String finalName, String classifier) {
+        if (classifier == null) {
+            classifier = "";
+        }
+        else if (classifier.trim().length() > 0 && !classifier.startsWith("-")) {
+            classifier = "-" + classifier;
+        }
+
+        return new File(basedir, finalName + classifier + ".car");
+    }
 }

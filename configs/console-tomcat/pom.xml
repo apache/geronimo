@@ -210,7 +210,6 @@
                         <deploymentConfig>${axisDeployer}</deploymentConfig>
                     </deploymentConfigs>
                     <moduleFile>${settings.localRepository}/org/apache/geronimo/applications/console/geronimo-console/${pom.version}/geronimo-console-${pom.version}.ear</moduleFile>
-                    <geronimoPlugin>true</geronimoPlugin>
                 </configuration>
             </plugin>
         </plugins>

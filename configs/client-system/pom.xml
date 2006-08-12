@@ -34,20 +34,37 @@
     <packaging>car</packaging>
     
     <dependencies>
-
-        <!-- To Do - are the deps of g-system needed in the plan.xml ? -->
+        
+        <!--
+        TODO: Check which of these dependencies we need listed here.
+        -->
+        
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-system</artifactId>
             <version>${pom.version}</version>
         </dependency>
         
-        <!-- need qname_spec ? -->
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-qname_1.1_spec</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>mx4j</groupId>
+            <artifactId>mx4j-remote</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>commons-cli</groupId>
+            <artifactId>commons-cli</artifactId>
+        </dependency>
+        
         <dependency>
             <groupId>xerces</groupId>
             <artifactId>xercesImpl</artifactId>
         </dependency>
-
+        
         <dependency>
             <groupId>xerces</groupId>
             <artifactId>xmlParserAPIs</artifactId>
@@ -56,29 +73,112 @@
     </dependencies>
     
     <build>
+        <resources>
+            <resource>
+                <directory>${pom.basedir}/src/main/resources</directory>
+            </resource>
+            
+            <resource>
+                <directory>${pom.basedir}</directory>
+                <targetPath>META-INF</targetPath>
+                <includes>
+                    <include>LICENSE.txt</include>
+                    <include>NOTICE.txt</include>
+                </includes>
+            </resource>
+        </resources>
+        
         <plugins>
             <plugin>
                 <groupId>org.apache.geronimo.plugins</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
-                    <classPath>
-                        <element>../lib/geronimo-qname_1.1_spec-${geronimoSpecQnameVersion}.jar</element>
-                        <element>../lib/geronimo-common-${pom.version}.jar</element>
-                        <element>../lib/geronimo-kernel-${pom.version}.jar</element>
-                        <element>../lib/geronimo-system-${pom.version}.jar</element>
-                        <element>../lib/geronimo-util-${pom.version}.jar</element>
-                        <element>../lib/cglib-nodep-${cglibVersion}.jar</element>
-                        <element>../lib/commons-cli-${commonsCliVersion}.jar</element>
-                        <element>../lib/commons-logging-${commonsLoggingVersion}.jar</element>
-                        <element>../lib/log4j-${log4jVersion}.jar</element>
-                        <element>../lib/mx4j-${mx4jVersion}.jar</element>
-                        <element>../lib/mx4j-remote-${mx4jVersion}.jar</element>
-                        <element>../lib/endorsed/xercesImpl-${xercesVersion}.jar</element>
-                        <element>../lib/endorsed/xmlParserAPIs-${xmlParserApisVersion}.jar</element>
-                        <element>../lib/xpp3-${xpp3Version}.jar</element>
-                        <element>../lib/xstream-${xstreamVersion}.jar</element>
-                    </classPath>
-                    <mainClass>org.apache.geronimo.system.main.ClientCommandLine</mainClass>
+                    <archive>
+                        <manifestEntries>
+                            <Endorsed-Dirs>lib/endorsed</Endorsed-Dirs>
+                            <Extension-Dirs>lib/ext</Extension-Dirs>
+                        </manifestEntries>
+                        <manifest>
+                            <mainClass>org.apache.geronimo.system.main.ClientCommandLine</mainClass>
+                        </manifest>
+                    </archive>
+                    
+                    <!--
+                    NOTE: This list of dependencies is non-transitive.
+                    -->
+                    <classpath>
+                        <classpathElement>
+                            <groupId>org.apache.geronimo.modules</groupId>
+                            <artifactId>geronimo-common</artifactId>
+                            <version>${pom.version}</version>
+                        </classpathElement>
+                        <classpathElement>
+                            <groupId>org.apache.geronimo.modules</groupId>
+                            <artifactId>geronimo-kernel</artifactId>
+                            <version>${pom.version}</version>
+                        </classpathElement>
+                        <classpathElement>
+                            <groupId>org.apache.geronimo.modules</groupId>
+                            <artifactId>geronimo-system</artifactId>
+                            <version>${pom.version}</version>
+                        </classpathElement>
+                        <classpathElement>
+                            <groupId>org.apache.geronimo.modules</groupId>
+                            <artifactId>geronimo-util</artifactId>
+                            <version>${pom.version}</version>
+                        </classpathElement>
+                        <classpathElement>
+                            <groupId>org.apache.geronimo.specs</groupId>
+                            <artifactId>geronimo-qname_1.1_spec</artifactId>
+                        </classpathElement>
+                        <classpathElement>
+                            <groupId>mx4j</groupId>
+                            <artifactId>mx4j</artifactId>
+                        </classpathElement>
+                        <classpathElement>
+                            <groupId>mx4j</groupId>
+                            <artifactId>mx4j-remote</artifactId>
+                        </classpathElement>
+                        <classpathElement>
+                            <groupId>commons-cli</groupId>
+                            <artifactId>commons-cli</artifactId>
+                        </classpathElement>
+                        <classpathElement>
+                            <groupId>commons-logging</groupId>
+                            <artifactId>commons-logging</artifactId>
+                        </classpathElement>
+                        <classpathElement>
+                            <groupId>cglib</groupId>
+                            <artifactId>cglib-nodep</artifactId>
+                        </classpathElement>
+                        <classpathElement>
+                            <groupId>log4j</groupId>
+                            <artifactId>log4j</artifactId>
+                        </classpathElement>
+                        <classpathElement>
+                            <groupId>jline</groupId>
+                            <artifactId>jline</artifactId>
+                        </classpathElement>
+                        <classpathElement>
+                            <groupId>xpp3</groupId>
+                            <artifactId>xpp3</artifactId>
+                        </classpathElement>
+                        <classpathElement>
+                            <groupId>xstream</groupId>
+                            <artifactId>xstream</artifactId>
+                        </classpathElement>
+                        <classpathElement>
+                            <groupId>xerces</groupId>
+                            <artifactId>xercesImpl</artifactId>
+                            <classpathPrefix>../lib/endorsed</classpathPrefix>
+                        </classpathElement>
+                        <classpathElement>
+                            <groupId>xerces</groupId>
+                            <artifactId>xmlParserAPIs</artifactId>
+                            <classpathPrefix>../lib/endorsed</classpathPrefix>
+                        </classpathElement>
+                    </classpath>
+                    <classpathPrefix>../lib</classpathPrefix>
                 </configuration>
             </plugin>
         </plugins>

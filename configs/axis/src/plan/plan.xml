@@ -23,7 +23,7 @@ Configuration for the main ring of a Geronimo server.
 
 This module should contain those services normally provided
 by the server.
-               parentId="${pom.groupId}/rmi-naming/${pom.currentVersion}/car"
+               parentId="${pom.groupId}/rmi-naming/${pom.version}/car"
 
 -->
 <module

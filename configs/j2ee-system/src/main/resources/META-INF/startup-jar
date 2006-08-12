@@ -1,0 +1,2 @@
+This file tells the Geronimo bootstrap where to look for its installation
+directory, which is ../ from wherever the jar containing this file lives.

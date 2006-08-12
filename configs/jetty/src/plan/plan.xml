@@ -20,7 +20,7 @@
 
 <!--
 Configuration for Jetty server.
-               parentId="${pom.groupId}/rmi-naming/${pom.currentVersion}/car"
+               parentId="${pom.groupId}/rmi-naming/${pom.version}/car"
 -->
 <module
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"

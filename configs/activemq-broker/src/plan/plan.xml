@@ -17,7 +17,7 @@
 -->
 
 <!-- $Rev$ $Date$ -->
-<!--               parentId="${pom.groupId}/system-database/${pom.currentVersion}/car"
+<!--               parentId="${pom.groupId}/system-database/${pom.version}/car"
 -->
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 

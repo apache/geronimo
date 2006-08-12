@@ -83,7 +83,6 @@
                         <deploymentConfig>${axisDeployer}</deploymentConfig>
                     </deploymentConfigs>
                     <moduleFile>${settings.localRepository}/geronimo-samples/geronimo-jsp-examples-tomcat/${tomcatVersion}/geronimo-jsp-examples-tomcat-${tomcatVersion}.war</moduleFile>
-                    <geronimoPlugin>true</geronimoPlugin>
                 </configuration>
             </plugin>
         </plugins>

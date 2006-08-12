@@ -71,14 +71,14 @@ public class PackagingCommandLine {
     public void execute() throws Exception {
         PackageBuilder builder = new PackageBuilder();
 
-        builder.setClassPath(config.getProperty("classPath"));
+        // builder.setClassPath(config.getProperty("classPath"));
         builder.setConfigurationStoreClass(config.getProperty("configurationStoreClass"));
         builder.setDeployerName(config.getProperty("deployerName"));
         String[] artifactNames = config.getProperty("deploymentConfig").split("/");
         builder.setDeploymentConfig(Arrays.asList(artifactNames));
-        builder.setEndorsedDirs(config.getProperty("endorsedDirs"));
-        builder.setExtensionDirs(config.getProperty("extensionDirs"));
-        builder.setMainClass(config.getProperty("mainClass"));
+        // builder.setEndorsedDirs(config.getProperty("endorsedDirs"));
+        // builder.setExtensionDirs(config.getProperty("extensionDirs"));
+        // builder.setMainClass(config.getProperty("mainClass"));
         builder.setModuleFile(getFile(config.getProperty("moduleFile")));
         builder.setPackageFile(getFile(config.getProperty("packageFile")));
         builder.setPlanFile(getFile(config.getProperty("planFile")));

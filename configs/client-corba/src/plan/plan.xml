@@ -65,11 +65,11 @@ CSSBean examples for app client
     <!--
     <gbean name="SSLClientCert" class="org.openejb.corba.CSSBeanGBean">
         <reference name="ThreadPool">
-            <module>geronimo/client/${pom.currentVersion}/car</module>
+            <module>geronimo/client/${pom.version}/car</module>
             <name>DefaultThreadPool</name>
         </reference>
         <reference name="TransactionManager">
-            <module>geronimo/client/${pom.currentVersion}/car</module>
+            <module>geronimo/client/${pom.version}/car</module>
             <name>TransactionManager</name>
         </reference>
         <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
@@ -107,11 +107,11 @@ CSSBean examples for app client
 
     <gbean name="SSLClientPassword" class="org.openejb.corba.CSSBeanGBean">
         <reference name="ThreadPool">
-            <module>geronimo/client/${pom.currentVersion}/car</module>
+            <module>geronimo/client/${pom.version}/car</module>
             <name>DefaultThreadPool</name>
         </reference>
         <reference name="TransactionManager">
-            <module>geronimo/client/${pom.currentVersion}/car</module>
+            <module>geronimo/client/${pom.version}/car</module>
             <name>TransactionManager</name>
         </reference>
         <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
@@ -149,11 +149,11 @@ CSSBean examples for app client
 
     <gbean name="NoSecurity" class="org.openejb.corba.CSSBeanGBean">
         <reference name="ThreadPool">
-            <module>geronimo/client/${pom.currentVersion}/car</module>
+            <module>geronimo/client/${pom.version}/car</module>
             <name>DefaultThreadPool</name>
         </reference>
         <reference name="TransactionManager">
-            <module>geronimo/client/${pom.currentVersion}/car</module>
+            <module>geronimo/client/${pom.version}/car</module>
             <name>TransactionManager</name>
         </reference>
         <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>

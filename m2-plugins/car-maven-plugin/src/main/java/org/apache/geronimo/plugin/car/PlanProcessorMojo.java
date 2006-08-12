@@ -87,20 +87,8 @@ public class PlanProcessorMojo
      */
     private File targetFile;
 
-    //
-    // FIXME: Resolve what to do about this comment...
-    //
-    // This is needed for ${pom.currentVersion} and will be removed when
-    // we move to a full m2 build
-    //
-
     private VelocityContext createContext() {
         VelocityContext context = new VelocityContext();
-        Map pom = new HashMap();
-        pom.put("groupId", project.getGroupId());
-        pom.put("artifactId", project.getArtifactId());
-        pom.put("currentVersion", project.getVersion());
-        context.put("pom", pom);
 
         // Load properties, It inherits them all!
         Properties props = project.getProperties();
@@ -111,6 +99,8 @@ public class PlanProcessorMojo
             log.debug("Setting " + key + "=" + value);
             context.put(key, value);
         }
+
+        context.put("pom", project);
 
         return context;
     }
@@ -226,15 +216,22 @@ public class PlanProcessorMojo
         List artifacts = project.getDependencies();
         LinkedHashSet dependencies = new LinkedHashSet();
 
-        Iterator iterator = artifacts.iterator();
-        while (iterator.hasNext()) {
-            //Artifact artifact = (Artifact) iterator.next();
-            Dependency dependency = (Dependency) iterator.next();
-            //Dependency dependency = artifact.getDependency();
-            org.apache.geronimo.kernel.repository.Dependency geronimoDependency = toGeronimoDependency(dependency);
+        Iterator iter = artifacts.iterator();
+        while (iter.hasNext()) {
+            Dependency dependency = (Dependency) iter.next();
 
-            if (geronimoDependency != null) {
-                dependencies.add(geronimoDependency);
+            //
+            // HACK: Does not appear that we can get the "extention" status of a dependency,
+            //       so specifically exclude the ones that we know about, like genesis
+            //
+
+            if (dependency.getGroupId().startsWith("org.apache.geronimo.genesis")) {
+                continue;
+            }
+
+            org.apache.geronimo.kernel.repository.Dependency gdep = toGeronimoDependency(dependency);
+            if (gdep != null) {
+                dependencies.add(gdep);
             }
         }
 
