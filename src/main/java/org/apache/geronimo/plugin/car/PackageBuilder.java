@@ -1,6 +1,5 @@
 /**
- *
- * Copyright 2005 The Apache Software Foundation
+ *  Copyright 2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -45,7 +44,6 @@ import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.system.resolver.ExplicitDefaultArtifactResolver;
-import org.apache.geronimo.plugin.car.MavenAttributeStore;
 
 /**
  * Builds a Geronimo Configuration using the local Maven infrastructure.
@@ -54,8 +52,6 @@ import org.apache.geronimo.plugin.car.MavenAttributeStore;
  */
 public class PackageBuilder
 {
-    private static Log log = LogFactory.getLog(PackageBuilder.class);
-
     private static final String KERNEL_NAME = "geronimo.maven";
 
     private static final String[] ARG_TYPES = {
@@ -73,6 +69,8 @@ public class PackageBuilder
         String.class.getName(),
         String.class.getName(),
     };
+
+    private static final Log log = LogFactory.getLog(PackageBuilder.class);
 
     /**
      * Reference to the kernel that will last the lifetime of this classloader.
@@ -106,27 +104,9 @@ public class PackageBuilder
 
     private File packageFile;
 
-    private String mainClass;
-
-    private String mainGBean;
-
-    private String mainMethod;
-
-    private String configurations;
-
-    private String classPath;
-
-    private String endorsedDirs;
-
-    private String extensionDirs;
-
     private String explicitResolutionLocation;
 
-    private String logLevel;
-
     private boolean targetSet;
-
-    private boolean singleArtifact = true;
 
     public String getRepositoryClass() {
         return repositoryClass;
@@ -241,67 +221,6 @@ public class PackageBuilder
         this.packageFile = packageFile;
     }
 
-    public String getMainClass() {
-        return mainClass;
-    }
-
-    /**
-     * Set the name of the class containing the main method for a executable configuration.
-     *
-     * @param mainClass
-     */
-    public void setMainClass(final String mainClass) {
-        this.mainClass = mainClass;
-    }
-
-    public String getMainGBean() {
-        return mainGBean;
-    }
-
-    public void setMainGBean(final String mainGBean) {
-        this.mainGBean = mainGBean;
-    }
-
-    public String getMainMethod() {
-        return mainMethod;
-    }
-
-    public void setMainMethod(final String mainMethod) {
-        this.mainMethod = mainMethod;
-    }
-
-    public String getConfigurations() {
-        return configurations;
-    }
-
-    public void setConfigurations(final String configurations) {
-        this.configurations = configurations;
-    }
-
-    public String getClassPath() {
-        return classPath;
-    }
-
-    public void setClassPath(final String classPath) {
-        this.classPath = classPath;
-    }
-
-    public String getEndorsedDirs() {
-        return endorsedDirs;
-    }
-
-    public void setEndorsedDirs(final String endorsedDirs) {
-        this.endorsedDirs = endorsedDirs;
-    }
-
-    public String getExtensionDirs() {
-        return extensionDirs;
-    }
-
-    public void setExtensionDirs(final String extensionDirs) {
-        this.extensionDirs = extensionDirs;
-    }
-
     public String getExplicitResolutionLocation() {
         return explicitResolutionLocation;
     }
@@ -310,16 +229,8 @@ public class PackageBuilder
         this.explicitResolutionLocation = explicitResolutionLocation;
     }
 
-    public String getLogLevel() {
-        return logLevel;
-    }
-
-    public void setLogLevel(String logLevel) {
-        this.logLevel = logLevel;
-    }
-
     public void execute() throws Exception {
-        System.out.println("Packaging configuration " + planFile);
+        System.out.println("Packaging module configuration: " + planFile);
 
         try {
             Kernel kernel = createKernel();
@@ -344,8 +255,6 @@ public class PackageBuilder
 
             AbstractName deployer = locateDeployer(kernel);
             invokeDeployer(kernel, deployer, targetConfigStoreAName.toString());
-
-            System.out.println("Generated package " + packageFile);
         }
         catch (Exception e) {
             log.error(e.getClass().getName() + ": " + e.getMessage(), e);
@@ -354,19 +263,15 @@ public class PackageBuilder
     }
 
     private void setTargetConfigStore() throws Exception {
-        try {
-            kernel.stopGBean(targetRepositoryAName);
-            kernel.setAttribute(targetRepositoryAName, "root", targetRepository.toURI());
-            kernel.startGBean(targetRepositoryAName);
-            if (kernel.getGBeanState(targetConfigStoreAName) != State.RUNNING_INDEX) {
-                throw new IllegalStateException("After restarted repository then config store is not running");
-            }
-            targetSet = true;
+        kernel.stopGBean(targetRepositoryAName);
+        kernel.setAttribute(targetRepositoryAName, "root", targetRepository.toURI());
+        kernel.startGBean(targetRepositoryAName);
+
+        if (kernel.getGBeanState(targetConfigStoreAName) != State.RUNNING_INDEX) {
+            throw new IllegalStateException("After restarted repository then config store is not running");
         }
-        catch (Exception e) {
-            log.error(e.toString(), e);
-            throw e;
-        }
+
+        targetSet = true;
     }
 
     /**
@@ -384,7 +289,7 @@ public class PackageBuilder
             return kernel;
         }
 
-        GeronimoLogging geronimoLogging = GeronimoLogging.getGeronimoLogging(logLevel);
+        GeronimoLogging geronimoLogging = GeronimoLogging.getGeronimoLogging("WARN");
         if (geronimoLogging == null) {
             geronimoLogging = GeronimoLogging.DEBUG;
         }
@@ -426,7 +331,6 @@ public class PackageBuilder
         targetRepositoryAName = targetRepoGBean.getAbstractName();
 
         GBeanData artifactManagerGBean = bootstrap.addGBean("ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
-
         GBeanData artifactResolverGBean = bootstrap.addGBean("ArtifactResolver", ExplicitDefaultArtifactResolver.GBEAN_INFO);
         artifactResolverGBean.setAttribute("versionMapLocation", explicitResolutionLocation);
         ReferencePatterns repoPatterns = new ReferencePatterns(repoNames);
@@ -455,7 +359,6 @@ public class PackageBuilder
         targetSet = true;
 
         GBeanData attrManagerGBean = bootstrap.addGBean("AttributeStore", MavenAttributeStore.GBEAN_INFO);
-
         GBeanData configManagerGBean = bootstrap.addGBean("ConfigManager", KernelConfigurationManager.GBEAN_INFO);
         configManagerGBean.setReferencePatterns("Stores", new ReferencePatterns(storeNames));
         configManagerGBean.setReferencePattern("AttributeStore", attrManagerGBean.getAbstractName());
@@ -474,7 +377,7 @@ public class PackageBuilder
      *
      * @throws IllegalStateException if there is not exactly one GBean matching the deployerName pattern
      */
-    private AbstractName locateDeployer(Kernel kernel) {
+    private AbstractName locateDeployer(final Kernel kernel) {
         Iterator i = kernel.listGBeans(new AbstractNameQuery(deployerName)).iterator();
         if (!i.hasNext()) {
             throw new IllegalStateException("No deployer found matching deployerName: " + deployerName);
@@ -488,22 +391,20 @@ public class PackageBuilder
         return deployer;
     }
 
-    private List invokeDeployer(Kernel kernel, AbstractName deployer, String targetConfigStore) throws Exception {
-        boolean isExecutable = mainClass != null;
-
+    private List invokeDeployer(final Kernel kernel, final AbstractName deployer, final String targetConfigStore) throws Exception {
         Object[] args = {
-            Boolean.FALSE,
+            Boolean.FALSE, // Not in-place
             planFile,
             moduleFile,
-            singleArtifact ? packageFile : null,
-            Boolean.valueOf(!isExecutable),
-            mainClass,
-            mainGBean,
-            mainMethod,
-            configurations,
-            classPath,
-            endorsedDirs,
-            extensionDirs,
+            null, // Target file
+            Boolean.TRUE, // Install
+            null, // main-class
+            null, // main-gbean
+            null, // main-method
+            null, // Manifest configurations
+            null, // class-path
+            null, // endorsed-dirs
+            null, // extension-dirs
             targetConfigStore
         };
 

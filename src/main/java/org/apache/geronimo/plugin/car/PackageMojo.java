@@ -18,20 +18,23 @@
 package org.apache.geronimo.plugin.car;
 
 import java.io.File;
-import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Iterator;
-import java.util.Properties;
 
 import org.apache.geronimo.deployment.PluginBootstrap2;
 import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
 import org.apache.geronimo.system.repository.Maven2Repository;
+
+import org.apache.maven.archiver.MavenArchiveConfiguration;
+import org.apache.maven.archiver.MavenArchiver;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.resolver.ArtifactResolutionException;
+import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
+import org.apache.maven.model.Dependency;
 
 import org.codehaus.plexus.util.FileUtils;
+import org.codehaus.plexus.archiver.jar.JarArchiver;
 
 /**
  * Build a Geronimo Configuration using the local Maven infrastructure.
@@ -48,118 +51,176 @@ import org.codehaus.plexus.util.FileUtils;
 public class PackageMojo
     extends AbstractCarMojo
 {
-    private List artifacts;
+    /**
+     * The maven archive configuration to use.
+     *
+     * See <a href="http://maven.apache.org/ref/current/maven-archiver/apidocs/org/apache/maven/archiver/MavenArchiveConfiguration.html">the Javadocs for MavenArchiveConfiguration</a>.
+     *
+     * @parameter
+     */
+    private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
 
     /**
+     * The Jar archiver.
+     *
+     * @parameter expression="${component.org.codehaus.plexus.archiver.Archiver#jar}"
+     * @required
+     * @readonly
+     */
+    private JarArchiver jarArchiver = null;
+
+    /**
+     * Used to look up Artifacts in the remote repository.
+     *
+     * @parameter expression="${component.org.apache.maven.artifact.factory.ArtifactFactory}"
+     * @required
+     * @readonly
+     */
+    protected org.apache.maven.artifact.factory.ArtifactFactory factory;
+
+    /**
+     * Used to look up Artifacts in the remote repository.
+     *
+     * @parameter expression="${component.org.apache.maven.artifact.resolver.ArtifactResolver}"
+     * @required
+     * @readonly
+     */
+    protected org.apache.maven.artifact.resolver.ArtifactResolver resolver;
+
+    /**
+     * Location of the local repository.
+     *
+     * @parameter expression="${localRepository}"
+     * @readonly
+     * @required
+     */
+    protected org.apache.maven.artifact.repository.ArtifactRepository local;
+
+    /**
+     * List of Remote Repositories used by the resolver.
+     *
+     * @parameter expression="${project.remoteArtifactRepositories}"
+     * @readonly
+     * @required
+     */
+    protected java.util.List remoteRepos;
+
+    /**
+     * Directory containing the generated archive.
+     *
+     * @parameter expression="${project.build.directory}"
+     * @required
+     */
+    private File outputDirectory = null;
+
+    /**
+     * Directory containing the classes/resources.
+     *
+     * @parameter expression="${project.build.outputDirectory}"
+     * @required
+     */
+    private File classesDirectory = null;
+
+    /**
+     * Name of the generated archive.
+     *
+     * @parameter expression="${project.build.finalName}"
+     * @required
+     */
+    private String finalName = null;
+
+    /**
+     * ???
+     *
      * @parameter expression="${settings.localRepository}"
      * @required
      * @readonly
      */
-    private File repository;
+    private File repository = null;
 
     /**
+     * ???
+     *
      * @parameter expression="${project.build.directory}/repository"
      * @required
      */
-    private File targetRepository;
+    private File targetRepository = null;
 
     /**
+     * ???
+     *
      * @parameter expression="org.apache.geronimo.configs/geronimo-gbean-deployer/${geronimoVersion}/car"
      * @required
      * @readonly
      */
-    private String deafultDeploymentConfig;
+    private String deafultDeploymentConfig = null;
 
     /**
+     * ???
+     *
      * @parameter
      */
     private ArrayList deploymentConfigs;
 
     /**
+     * ???
+     *
      * @parameter expression="org.apache.geronimo.configs/geronimo-gbean-deployer/${geronimoVersion}/car?j2eeType=Deployer,name=Deployer"
      * @required
      */
-    private String deployerName;
+    private String deployerName = null;
 
     /**
+     * ???
+     *
      * @parameter expression="${project.build.directory}/plan/plan.xml"
      * @required
      */
-    private File planFile;
+    private File planFile = null;
 
     /**
-     * @parameter
-     */
-    private File moduleFile;
-
-    /**
-     * @parameter expression="${project.build.directory}/${project.artifactId}-${project.version}.car"
-     * @required
-     */
-    private File packageFile;
-
-    /**
-     * @parameter expression="${project.build.directory}"
-     * @required
-     */
-    private File buildDir;
-
-    /**
-     * @parameter
-     */
-    private String mainClass;
-
-    /**
-     * @parameter
-     */
-    private String mainMethod;
-
-    /**
-     * @parameter
-     */
-    private String mainGBean;
-
-    /**
-     * @parameter
-     */
-    private String configurations;
-
-    /**
-     * The classpath to be added to the generated manifest.
+     * ???
      *
      * @parameter
      */
-    private ArrayList classPath;
-
-    /**
-     * @parameter default-value="lib/endorsed"
-     * @required
-     */
-    private String endorsedDirs;
-
-    /**
-     * @parameter default-value="lib/ext"
-     * @required
-     */
-    private String extensionDirs;
+    private File moduleFile = null;
 
     /**
      * The location where the properties mapping will be generated.
      *
      * @parameter expression="${project.build.directory}/explicit-versions.properties"
      */
-    private File explicitResolutionProperties;
+    private File explicitResolutionProperties = null;
 
     /**
-     * @parameter default-value="WARN"
-     * @required
-     */
-    private String logLevel;
-
-    /**
+     * A list of {@link ClasspathElement} objects which will be used to construct the
+     * Class-Path entry of the manifest.
+     *
+     * This is needed to allow per-element prefixes to be added, which the standard Maven archiver
+     * does not provide.
+     *
      * @parameter
      */
-    private boolean boot = false;
+    private List classpath = null;
+
+    /**
+     * The default prefix to be applied to all elements of the <tt>classpath</tt> which
+     * do not provide a prefix.
+     *
+     * @parameter
+     */
+    private String classpathPrefix = null;
+
+    /**
+     * True to enable the bootshell when packaging.
+     *
+     * @parameter
+     */
+    private boolean bootstrap = false;
+
+    //
+    // Mojo
+    //
 
     protected void doExecute() throws Exception {
         // We need to make sure to clean up any previous work first or this operation will fail
@@ -175,52 +236,53 @@ public class PackageMojo
 
         generateExplicitVersionProperties(explicitResolutionProperties);
 
-        if (boot) {
+        if (bootstrap) {
             executeBootShell();
         }
         else {
             executePackageBuilderShell();
         }
 
-        // copy configuration from target/repository to maven repo
-        project.getArtifact().setFile(packageFile);
+        // Build the archive
+        File archive = createArchive();
+
+        // Attach the generated archive for install/deploy
+        project.getArtifact().setFile(archive);
+    }
+
+    private File getArtifactInRepositoryDir() {
+        //
+        // HACK: Generate the filename in the repo... really should delegate this to the
+        //       repo impl, but need to condense PackageMojo and PackageBuilder first
+        //
+
+        File dir = new File(targetRepository, project.getGroupId().replace('.', '/'));
+            dir = new File(dir, project.getArtifactId());
+            dir = new File(dir, project.getVersion());
+            dir = new File(dir, project.getArtifactId() + "-" + project.getVersion() + ".car");
+
+        return dir;
     }
 
     public void executeBootShell() throws Exception {
+        log.debug("Starting bootstrap shell...");
+
         PluginBootstrap2 boot = new PluginBootstrap2();
 
-        boot.setBuildDir(buildDir);
-        boot.setCarFile(packageFile);
+        boot.setBuildDir(outputDirectory);
+        boot.setCarFile(getArtifactInRepositoryDir());
         boot.setLocalRepo(repository);
         boot.setPlan(planFile);
+
+        // Generate expanded so we can use Maven to generate the archive
+        boot.setExpanded(true);
 
         boot.bootstrap();
     }
 
-    private String getClassPath() {
-        if (classPath == null) {
-            return null;
-        }
-
-        log.debug("Creating classpath from: " + classPath);
-
-        StringBuffer buff = new StringBuffer();
-        Iterator iter = classPath.iterator();
-        while (iter.hasNext()) {
-            String element = (String)iter.next();
-            buff.append(element.trim());
-
-            if (iter.hasNext()) {
-                buff.append(" ");
-            }
-        }
-        
-        log.debug("Using classpath: " + buff);
-
-        return buff.toString();
-    }
-
     public void executePackageBuilderShell() throws Exception {
+        log.debug("Starting builder shell...");
+
         PackageBuilder builder = new PackageBuilder();
 
         //
@@ -229,17 +291,9 @@ public class PackageMojo
         //       http://www.nabble.com/PackageBuilderShellMojo-%28m2%29-and-classloaders-p5271991.html
         //
 
-        builder.setClassPath(getClassPath());
         builder.setDeployerName(deployerName);
         builder.setDeploymentConfig(deploymentConfigs);
-        builder.setEndorsedDirs(endorsedDirs);
-        builder.setExtensionDirs(extensionDirs);
-        builder.setMainClass(mainClass);
-        builder.setMainMethod(mainMethod);
-        builder.setMainGBean(mainGBean);
-        builder.setConfigurations(configurations);
         builder.setModuleFile(moduleFile);
-        builder.setPackageFile(packageFile);
         builder.setPlanFile(planFile);
         builder.setRepository(repository);
         builder.setRepositoryClass(Maven2Repository.class.getName());
@@ -248,8 +302,166 @@ public class PackageMojo
         builder.setTargetRepositoryClass(Maven2Repository.class.getName());
         builder.setTargetConfigurationStoreClass(RepositoryConfigurationStore.class.getName());
         builder.setExplicitResolutionLocation(explicitResolutionProperties.getAbsolutePath());
-        builder.setLogLevel(logLevel);
 
         builder.execute();
+    }
+
+    /**
+     * Generates the configuration archive.
+     */
+    private File createArchive() throws MojoExecutionException {
+        File archiveFile = getArchiveFile(outputDirectory, finalName, null);
+
+        MavenArchiver archiver = new MavenArchiver();
+        archiver.setArchiver(jarArchiver);
+        archiver.setOutputFile(archiveFile);
+
+        try {
+            // Incldue the generated artifact contents
+            archiver.getArchiver().addDirectory(getArtifactInRepositoryDir());
+
+            // Include the optional classes.resources
+            archiver.getArchiver().addDirectory(classesDirectory);
+
+            if (classpath != null) {
+                archive.addManifestEntry("Class-Path", getClassPath());
+            }
+
+            archiver.createArchive(project, archive);
+
+            return archiveFile;
+        }
+        catch (Exception e) {
+            throw new MojoExecutionException("Failed to create archive", e);
+        }
+    }
+
+    private String getClassPath() throws MojoExecutionException {
+        StringBuffer buff = new StringBuffer();
+
+        ClasspathElement[] elements = (ClasspathElement[]) classpath.toArray(new ClasspathElement[classpath.size()]);
+        for (int i=0; i < elements.length; i++) {
+            Artifact artifact = getArtifact(elements[i]);
+
+            //
+            // TODO: Need to optionally get all transitive dependencies... but dunno how to get that intel from m2
+            //
+
+            String prefix = elements[i].getClasspathPrefix();
+            if (prefix == null) {
+                prefix = classpathPrefix;
+            }
+
+            if (prefix != null) {
+                buff.append(prefix);
+
+                if (!prefix.endsWith("/")) {
+                    buff.append("/");
+                }
+            }
+
+            File file = artifact.getFile();
+            buff.append(file.getName());
+
+            if (i + 1< elements.length) {
+                buff.append(" ");
+            }
+        }
+
+        log.debug("Using classpath: " + buff);
+
+        return buff.toString();
+    }
+
+    //
+    // NOTE: Bits below lifed from the maven-depndency-plugin
+    //
+
+    /**
+     * Resolves the Artifact from the remote repository if nessessary. If no version is specified, it will
+     * be retrieved from the dependency list or from the DependencyManagement section of the pom.
+     */
+    private Artifact getArtifact(final ClasspathElement element) throws MojoExecutionException {
+        Artifact artifact;
+
+        if (element.getVersion() == null) {
+            fillMissingArtifactVersion(element);
+
+            if (element.getVersion() == null) {
+                throw new MojoExecutionException("Unable to find artifact version of " + element.getGroupId()
+                    + ":" + element.getArtifactId() + " in either dependency list or in project's dependency management.");
+            }
+
+        }
+
+        String classifier = element.getClassifier();
+        if (classifier == null || classifier.equals("")) {
+            artifact = factory.createArtifact(
+                    element.getGroupId(),
+                    element.getArtifactId(),
+                    element.getVersion(),
+                    Artifact.SCOPE_PROVIDED,
+                    element.getType());
+        }
+        else {
+            artifact = factory.createArtifactWithClassifier(
+                    element.getGroupId(),
+                    element.getArtifactId(),
+                    element.getVersion(),
+                    element.getType(),
+                    element.getClassifier());
+        }
+
+        try {
+            resolver.resolve(artifact, remoteRepos, local);
+        }
+        catch (ArtifactResolutionException e) {
+            throw new MojoExecutionException("Unable to resolve artifact.", e);
+        }
+        catch (ArtifactNotFoundException e) {
+            throw new MojoExecutionException("Unable to find artifact.", e);
+        }
+
+        return artifact;
+    }
+
+    /**
+     * Tries to find missing version from dependancy list and dependency management.
+     * If found, the artifact is updated with the correct version.
+     */
+    private void fillMissingArtifactVersion(final ClasspathElement element) {
+        log.debug("Attempting to find missing version in " + element.getGroupId() + ":" + element.getArtifactId());
+
+        List list = this.project.getDependencies();
+
+        for (int i = 0; i < list.size(); ++i) {
+            Dependency dependency = (Dependency) list.get(i);
+
+            if (dependency.getGroupId().equals(element.getGroupId())
+                && dependency.getArtifactId().equals(element.getArtifactId())
+                && dependency.getType().equals(element.getType()))
+            {
+                log.debug("Found missing version: " + dependency.getVersion() + " in dependency list.");
+
+                element.setVersion(dependency.getVersion());
+
+                return;
+            }
+        }
+
+        list = this.project.getDependencyManagement().getDependencies();
+
+        for (int i = 0; i < list.size(); i++) {
+            Dependency dependency = (Dependency) list.get(i);
+
+            if (dependency.getGroupId().equals(element.getGroupId())
+                && dependency.getArtifactId().equals(element.getArtifactId())
+                && dependency.getType().equals(element.getType()))
+            {
+                log.debug("Found missing version: " + dependency.getVersion() + " in dependency management list");
+
+                element.setVersion(dependency.getVersion());
+            }
+        }
     }
 }
