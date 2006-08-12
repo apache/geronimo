@@ -245,7 +245,7 @@ public class PlanProcessorMojo
         String groupId = dependency.getGroupId();
 
         //!"org.apache.geronimo.specs".equals(groupId) jacc spec needed in plan.xml
-        if ("jar".equalsIgnoreCase(type) && !"junit".equals(groupId)) {
+        if ("jar".equalsIgnoreCase(type) && !"junit".equals(groupId) && (scope == null || !scope.equals("provided"))) {
             if (dependency.getVersion() != null) {
                 artifact = new Artifact(
                     artifact.getGroupId(),
