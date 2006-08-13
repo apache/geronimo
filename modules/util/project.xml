@@ -72,6 +72,13 @@
                     <include>**/*.properties</include>
                 </includes>
             </resource>
+            <resource>
+                <directory>${basedir}</directory>
+                <includes>
+                    <include>NOTICE.txt</include>
+                </includes>
+                <targetPath>META-INF</targetPath>
+            </resource>
         </resources>
         <unitTest>
             <includes>
@@ -81,15 +88,6 @@
                 <exclude>**/Abstract*.java</exclude>
             </excludes>
         </unitTest>
-        <resources>
-            <resource>
-                <directory>${basedir}</directory>
-                <includes>
-                    <include>NOTICE.txt</include>
-                </includes>
-                <targetPath>META-INF</targetPath>
-            </resource>
-        </resources>
     </build>
 
 </project>

@@ -86,6 +86,13 @@
                     <include>*.properties</include>
                 </includes>
             </resource>
+            <resource>
+                <directory>${basedir}</directory>
+                <includes>
+                    <include>NOTICE.txt</include>
+                </includes>
+                <targetPath>META-INF</targetPath>
+            </resource>
         </resources>
 
         <unitTest>
@@ -106,15 +113,6 @@
                 </resource>
             </resources>
         </unitTest>
-        <resources>
-            <resource>
-                <directory>${basedir}</directory>
-                <includes>
-                    <include>NOTICE.txt</include>
-                </includes>
-                <targetPath>META-INF</targetPath>
-            </resource>
-        </resources>
     </build>
 
 </project>
