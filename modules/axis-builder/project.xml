@@ -263,8 +263,6 @@
                     <include>soap_encoding_1_1.xsd</include>
                 </includes>
                 <targetPath>META-INF/schema</targetPath>
-            </resource>
-            <resource>
                 <directory>${basedir}</directory>
                 <includes>
                     <include>NOTICE.txt</include>
