@@ -57,8 +57,6 @@
     </dependencies>
 
     <build>
-        <resources>
-        </resources>
         <unitTest>
             <includes>
                 <include>**/*Test.java</include>

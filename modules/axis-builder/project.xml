@@ -264,8 +264,6 @@
                 </includes>
                 <targetPath>META-INF/schema</targetPath>
             </resource>
-        </resources>
-        <resources>
             <resource>
                 <directory>${basedir}</directory>
                 <includes>
