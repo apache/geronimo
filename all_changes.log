@@ -50,7 +50,7 @@ Merged,  r368955 , djencks , 2006-01-13 18:03:41 -0800 (Fri, 13 Jan 2006) , 1 li
 Merged,  r369099 , djencks , 2006-01-14 13:31:11 -0800 (Sat, 14 Jan 2006) , 1 line  GERONIMO-1194 apply patch, installer now partly works 
 Merged,  r369125 , djencks , 2006-01-14 16:28:36 -0800 (Sat, 14 Jan 2006) , 1 line  GERONIMO-1447 fix config names in plans 
 Merged,  r369165 , djencks , 2006-01-14 18:29:39 -0800 (Sat, 14 Jan 2006) , 1 line  GERONIMO-1457 Another version change 
-Not Merged,  r369276 , dain , 2006-01-15 15:16:51 -0800 (Sun, 15 Jan 2006) , 2 lines  Add session module  
+Unnecessary,  r369276 , dain , 2006-01-15 15:16:51 -0800 (Sun, 15 Jan 2006) , 2 lines  Add session module  
 Not Merged,  r369280 , jstrachan , 2006-01-15 15:36:05 -0800 (Sun, 15 Jan 2006) , 1 line  A spike for a simple API for working with stateful session bean state from OpenEJB, ServiceMix or Tuscany; its very simple to use & has all thats required from the perspective of the client; we should be able to layer this on pretty much any implementation technology like WADI et al 
 Merged,  r369300 , djencks , 2006-01-15 17:27:18 -0800 (Sun, 15 Jan 2006) , 1 line  GERONIMO-1457, maybe.  Make sure a couple spec jars make it into lib 
 Not Merged,  r369309 , jstrachan , 2006-01-15 18:09:43 -0800 (Sun, 15 Jan 2006) , 1 line  a simple local implementation of the Session to allow single-JVM session management which can offer optional persistence but no remote sessions 
@@ -116,14 +116,14 @@ Not Merged,  r373817 , gdamour , 2006-01-31 05:30:10 -0800 (Tue, 31 Jan 2006) , 
 Not Merged,  r373920 , hogstrom , 2006-01-31 14:03:56 -0800 (Tue, 31 Jan 2006) , 1 line  Geronimo-1561 spelling correction of Exception Messages 
 Merged,  r373947 , djencks , 2006-01-31 16:05:53 -0800 (Tue, 31 Jan 2006) , 1 line  GERONIMO-1554 installer optional advanced features 
 Not Merged,  r374004 , jsisson , 2006-01-31 22:04:56 -0800 (Tue, 31 Jan 2006) , 1 line  GERONIMO-1441 - fix previous change to j2ee-installer that introduced two properties of the same name in a dependency. A dependency marked as a library implies it goes to the repository. 
-Not Merged,  r374054 , dain , 2006-02-01 03:50:54 -0800 (Wed, 01 Feb 2006) , 2 lines  Updated to reflect openejb refactor  
-Not Merged,  r374068 , dain , 2006-02-01 06:12:53 -0800 (Wed, 01 Feb 2006) , 2 lines  Reenable uniti tests  
-Not Merged,  r374156 , dain , 2006-02-01 12:11:08 -0800 (Wed, 01 Feb 2006) , 2 lines  set svn:ignore on new modules  
+Merged,  r374054 , dain , 2006-02-01 03:50:54 -0800 (Wed, 01 Feb 2006) , 2 lines  Updated to reflect openejb refactor  
+Unnecessary,  r374068 , dain , 2006-02-01 06:12:53 -0800 (Wed, 01 Feb 2006) , 2 lines  Reenable uniti tests  
+Unnecessary,  r374156 , dain , 2006-02-01 12:11:08 -0800 (Wed, 01 Feb 2006) , 2 lines  set svn:ignore on new modules  
 Merged,  r374191 , djencks , 2006-02-01 14:01:44 -0800 (Wed, 01 Feb 2006) , 1 line  GERONIMO-1569 Improve packaging plugin logging 
 Merged,  r374193 , djencks , 2006-02-01 14:08:48 -0800 (Wed, 01 Feb 2006) , 1 line  GERONIMO-1563 step 1.  Separate our proprietary JACC configuration info into a separate gbean 
 Merged,  r374211 , djencks , 2006-02-01 16:19:53 -0800 (Wed, 01 Feb 2006) , 1 line  GERONIMO-1563 step one missed file 
 Not Merged,  r374212 , djencks , 2006-02-01 16:26:18 -0800 (Wed, 01 Feb 2006) , 1 line  GERONIMO-1570, GERONIMO-1460 Provide jetty gbean for specifying bouth hosts and virtual hosts: actually use virtual hosts to set virtual hosts, not hosts.  This has a provisional schema change, and the schema version needs to be updated 
-Not Merged,  r374246 , dain , 2006-02-01 20:19:06 -0800 (Wed, 01 Feb 2006) , 2 lines  References need <module>*</module> since the beans are in the parent plan  
+Unnecessary,  r374246 , dain , 2006-02-01 20:19:06 -0800 (Wed, 01 Feb 2006) , 2 lines  References need <module>*</module> since the beans are in the parent plan  
 Not Merged,  r374253 , hogstrom , 2006-02-01 21:04:07 -0800 (Wed, 01 Feb 2006) , 1 line  Geronimo-1336 Corrected issue when specifying database pool sizes 
 Not Merged,  r374273 , hogstrom , 2006-02-01 21:51:22 -0800 (Wed, 01 Feb 2006) , 1 line  Geronimo 1571-Added text to explicitly call out the Sun 1.4 VM for builds 
 Not Merged,  r374281 , hogstrom , 2006-02-01 22:17:34 -0800 (Wed, 01 Feb 2006) , 1 line  Geronimo-1489 Minor fixes to JUDDI JSP application 
@@ -131,7 +131,7 @@ Not Merged,  r374335 , djencks , 2006-02-02 02:01:47 -0800 (Thu, 02 Feb 2006) , 
 Not Merged,  r374338 , djencks , 2006-02-02 02:05:36 -0800 (Thu, 02 Feb 2006) , 1 line  up spring version 
 Not Merged,  r374366 , jsisson , 2006-02-02 03:37:23 -0800 (Thu, 02 Feb 2006) , 1 line  GERONIMO-1278 - fix problem on windows where rename fails during fixcrlf processing in installer (merged from 1.0 branch). 
 Not Merged,  r374415 , adc , 2006-02-02 08:02:34 -0800 (Thu, 02 Feb 2006) , 1 line   
-Not Merged,  r374472 , dain , 2006-02-02 11:34:57 -0800 (Thu, 02 Feb 2006) , 2 lines  Added missing transaction manager object name attribute to ear deployer Added better error handling to openejb tranql intergration 
+Unnecessary,  r374472 , dain , 2006-02-02 11:34:57 -0800 (Thu, 02 Feb 2006) , 2 lines  Added missing transaction manager object name attribute to ear deployer Added better error handling to openejb tranql intergration 
 Not Merged,  r374535 , djencks , 2006-02-02 14:50:45 -0800 (Thu, 02 Feb 2006) , 1 line  GERONIMO-1578 remove wadi dependencies from jetty module 
 Not Merged,  r374536 , chirino , 2006-02-02 14:51:02 -0800 (Thu, 02 Feb 2006) , 4 lines  Adding a new rar build for the activemq rar since geronimo really should be building a custom rar so that it's configuration  can be tailored for geronimo.   
 Not Merged,  r374665 , kevan , 2006-02-03 05:22:56 -0800 (Fri, 03 Feb 2006) , 1 line  Fix for relative links in jmxdebug on Tomcat 
@@ -193,11 +193,11 @@ Not Merged,  r379954 , jgenender , 2006-02-22 14:54:40 -0800 (Wed, 22 Feb 2006) 
 Not Merged,  r380696 , jgenender , 2006-02-24 07:59:09 -0800 (Fri, 24 Feb 2006) , 1 line  Added empty attribute to the config.xml attribute and reference tags.  Updated to spit out the proper writeXml() too. 
 Not Merged,  r380975 , kevan , 2006-02-25 11:50:51 -0800 (Sat, 25 Feb 2006) , 1 line  Fix for corba NPE's when corba is configured. This places the corba-spec jar ahead of the j2ee spec jar in the classpath (i.e. it's a hack) 
 Not Merged,  r381002 , jlaskowski , 2006-02-25 14:01:07 -0800 (Sat, 25 Feb 2006) , 1 line  Specify the default goal - install - and upgrade plugins: wagon-ssh-external and maven-one-plugin (as it is in geronimo-specs) 
-Not Merged,  r381042 , dain , 2006-02-25 17:07:07 -0800 (Sat, 25 Feb 2006) , 2 lines  Changed version to 1.2-SNAPSHOT  
-Not Merged,  r381057 , dain , 2006-02-25 21:17:32 -0800 (Sat, 25 Feb 2006) , 2 lines  Changed openejb version to 2.2  
+Unnecessary,  r381042 , dain , 2006-02-25 17:07:07 -0800 (Sat, 25 Feb 2006) , 2 lines  Changed version to 1.2-SNAPSHOT  
+Unnecessary,  r381057 , dain , 2006-02-25 21:17:32 -0800 (Sat, 25 Feb 2006) , 2 lines  Changed openejb version to 2.2  
 Not Merged,  r381215 , jsisson , 2006-02-26 17:49:11 -0800 (Sun, 26 Feb 2006) , 1 line  GERONIMO-1649 - Test case for Invalid deployment descriptor error when deploying an EJB 2.0 MDB (merged from 1.0 branch) 
 Not Merged,  r381216 , jsisson , 2006-02-26 17:53:13 -0800 (Sun, 26 Feb 2006) , 3 lines  GERONIMO-1649 - Fix Invalid deployment descriptor error when deploying an EJB 2.0 MDB (see associated test case in rev 381215) merged from 1.0 branch   
-Not Merged,  r381270 , dain , 2006-02-26 22:31:41 -0800 (Sun, 26 Feb 2006) , 6 lines  Changed plugin version numbers to:     geronimo_packaging_plugin_version=1.2.0-3     geronimo_assembly_plugin_version=1.2.0-8     geronimo_deployment_plugin_version=1.2.0-1     geronimo_dependency_plugin_version=1.2.0-1  
+Unnecessary,  r381270 , dain , 2006-02-26 22:31:41 -0800 (Sun, 26 Feb 2006) , 6 lines  Changed plugin version numbers to:     geronimo_packaging_plugin_version=1.2.0-3     geronimo_assembly_plugin_version=1.2.0-8     geronimo_deployment_plugin_version=1.2.0-1     geronimo_dependency_plugin_version=1.2.0-1  
 Not Merged,  r381416 , jgenender , 2006-02-27 11:52:09 -0800 (Mon, 27 Feb 2006) , 1 line  Place a null check for the infos Set. 
 Not Merged,  r381438 , jlaskowski , 2006-02-27 12:56:24 -0800 (Mon, 27 Feb 2006) , 1 line  Upgrade Tomcat to the latest version used by Geronimo. Thanks Anita! 
 Not Merged,  r381823 , jlaskowski , 2006-02-28 15:28:40 -0800 (Tue, 28 Feb 2006) , 5 lines  GERONIMO-1317: Rename the "new" goals to more meaningful names with additional build properties  Thanks Donald!   
