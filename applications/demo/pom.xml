@@ -33,11 +33,14 @@
     <packaging>war</packaging>
     
     <dependencies>
+        
         <!-- Required for JSPC compilation -->
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>jasper-runtime</artifactId>
+            <scope>provided</scope>
         </dependency>
+        
     </dependencies>
     
     <build>

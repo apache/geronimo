@@ -44,15 +44,4 @@
         <module>welcome</module>
     </modules>
     
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>tomcat</groupId>
-                <artifactId>jasper-runtime</artifactId>
-                <version>${tomcatVersion}</version>
-                <scope>provided</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-    
 </project>

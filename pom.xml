@@ -45,46 +45,54 @@
     </scm>
 
     <properties>
+        
         <genesis.version>1.0.0-SNAPSHOT</genesis.version>
 
         <!--
-        HACK: These properties are currently needed in child poms, so we need to keep them around.
-              Usage of these properties should be removed whenever possible.
+        HACK: Used by console-core to generate geronimo-version.properties.
         -->
-
-        <asn1Version>0.3.2</asn1Version>
-        <apachedsVersion>0.9.2</apachedsVersion>
-        <activeMqVersion>3.2.4-SNAPSHOT</activeMqVersion>
-        <backportUtilVersion>2.0_01_pd</backportUtilVersion>
-        <commonsCliVersion>1.0</commonsCliVersion>
-        <commonsLoggingVersion>1.0.4</commonsLoggingVersion>
-        <cglibVersion>2.1_3</cglibVersion>
-        <tomcatVersion>5.5.15</tomcatVersion>
-        <tomcatAjpVersion>5.5.15</tomcatAjpVersion>
+        <plutoVersion>1.0.1</plutoVersion>
+        <geronimoSpecJmsVersion>1.0.1</geronimoSpecJmsVersion>
+        
+        <!--
+        HACK: Used by uddi-db to execute the sql plugin with the Derby driver.
+        -->
         <derbyVersion>10.1.1.0</derbyVersion>
-        <xpp3Version>1.1.3.3</xpp3Version>
-        <xstreamVersion>1.1.3</xstreamVersion>
+        
+        <!--
+        HACK: Used by jsp and servlet example configs to point to the tomcat deployer
+        -->
+        <tomcatVersion>5.5.15</tomcatVersion>
+        
+        <!--
+        HACK: Used by system-database, uddi-jetty and uddi-tomcat configs.
+        -->
+        <tranqlVendorsVersion>1.1</tranqlVendorsVersion>
+        
+        <!--
+        HACK: USed by system to build product-versions.properties
+        -->
+        <openejbVersion>2.2-SNAPSHOT</openejbVersion>
+        <activeMqVersion>3.2.4-SNAPSHOT</activeMqVersion>
+        <tranqlVersion>1.4-SNAPSHOT</tranqlVersion>
+        
+        <!--
+        HACK: Used by tomcate-builder tests, needs to replace with dependency plugin
+        -->
         <xercesVersion>2.6.2</xercesVersion>
         <xmlApisVersion>1.0.b2</xmlApisVersion>
-        <xmlParserApisVersion>2.2.1</xmlParserApisVersion>
-        <log4jVersion>1.2.8</log4jVersion>
-        <mx4jVersion>3.0.1</mx4jVersion>
-        <plutoVersion>1.0.1</plutoVersion>
-        <tranqlVersion>1.4-SNAPSHOT</tranqlVersion>
-        <tranqlVendorsVersion>1.1</tranqlVendorsVersion>
-        <tranqlConnectorVersion>1.3-SNAPSHOT</tranqlConnectorVersion>
-        <jettyVersion>5.1.10</jettyVersion>
-        <wadiVersion>2.0M1</wadiVersion>
-        <openejbVersion>2.2-SNAPSHOT</openejbVersion>
+        
+        <!--
+        HACK: Used by deps below... need to unwrap
+        -->
+        <asn1Version>0.3.2</asn1Version>
+        <apachedsVersion>0.9.2</apachedsVersion>
+        <tomcatAjpVersion>5.5.15</tomcatAjpVersion>
         <kerberosCommonVersion>0.5</kerberosCommonVersion>
         <kerberosProtocolVersion>0.5</kerberosProtocolVersion>
         <ldapProtocolVersion>0.9.2</ldapProtocolVersion>
         <minaVersion>0.7.3</minaVersion>
-        <geronimoSpecQnameVersion>1.0.1</geronimoSpecQnameVersion>
-        <geronimoSpecJ2eeDeploymentVersion>1.0.1</geronimoSpecJ2eeDeploymentVersion>
-        <geronimoSpecJmsVersion>1.0.1</geronimoSpecJmsVersion>
-        <concurrentVersion>1.3.4</concurrentVersion>
-        <jlineVersion>0.9.9</jlineVersion>
+        
     </properties>
 
     <dependencyManagement>
@@ -126,7 +134,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>
-                <version>${geronimoSpecJ2eeDeploymentVersion}</version>
+                <version>1.0.1</version>
             </dependency>
 
             <dependency>
@@ -186,7 +194,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-qname_1.1_spec</artifactId>
-                <version>${geronimoSpecQnameVersion}</version>
+                <version>1.0.1</version>
             </dependency>
 
             <dependency>
@@ -206,7 +214,7 @@
             <dependency>
                 <groupId>jline</groupId>
                 <artifactId>jline</artifactId>
-                <version>${jlineVersion}</version>
+                <version>0.9.9</version>
                 <type>jar</type>
             </dependency>
             
@@ -231,7 +239,7 @@
             <dependency>
                 <groupId>backport-util-concurrent</groupId>
                 <artifactId>backport-util-concurrent</artifactId>
-                <version>${backportUtilVersion}</version>
+                <version>2.0_01_pd</version>
             </dependency>
 
             <dependency>
@@ -243,7 +251,7 @@
             <dependency>
                 <groupId>cglib</groupId>
                 <artifactId>cglib-nodep</artifactId>
-                <version>${cglibVersion}</version>
+                <version>2.1_3</version>
             </dependency>
 
             <dependency>
@@ -255,13 +263,13 @@
             <dependency>
                 <groupId>commons-logging</groupId>
                 <artifactId>commons-logging</artifactId>
-                <version>${commonsLoggingVersion}</version>
+                <version>1.0.4</version>
             </dependency>
 
             <dependency>
                 <groupId>concurrent</groupId>
                 <artifactId>concurrent</artifactId>
-                <version>${concurrentVersion}</version>
+                <version>1.3.4</version>
             </dependency>
 
             <dependency>
@@ -287,19 +295,19 @@
             <dependency>
                 <groupId>log4j</groupId>
                 <artifactId>log4j</artifactId>
-                <version>${log4jVersion}</version>
+                <version>1.2.8</version>
             </dependency>
 
             <dependency>
                 <groupId>mx4j</groupId>
                 <artifactId>mx4j</artifactId>
-                <version>${mx4jVersion}</version>
+                <version>3.0.1</version>
             </dependency>
 
             <dependency>
                 <groupId>mx4j</groupId>
                 <artifactId>mx4j-remote</artifactId>
-                <version>${mx4jVersion}</version>
+                <version>3.0.1</version>
             </dependency>
 
             <dependency>
@@ -371,7 +379,7 @@
             <dependency>
                 <groupId>xerces</groupId>
                 <artifactId>xmlParserAPIs</artifactId>
-                <version>${xmlParserApisVersion}</version>
+                <version>2.2.1</version>
             </dependency>
 
             <dependency>
@@ -401,13 +409,13 @@
             <dependency>
                 <groupId>xpp3</groupId>
                 <artifactId>xpp3</artifactId>
-                <version>${xpp3Version}</version>
+                <version>1.1.3.3</version>
             </dependency>
 
             <dependency>
                 <groupId>xstream</groupId>
                 <artifactId>xstream</artifactId>
-                <version>${xstreamVersion}</version>
+                <version>1.1.3</version>
             </dependency>
 
             <dependency>
@@ -626,7 +634,220 @@
                 <artifactId>juddi</artifactId>
                 <version>0.9rc4</version>
             </dependency>
-
+            
+            <dependency>
+                <groupId>tomcat</groupId>
+                <artifactId>jasper-runtime</artifactId>
+                <version>${tomcatVersion}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>geronimo-samples</groupId>
+                <artifactId>geronimo-jsp-examples-tomcat</artifactId>
+                <version>${tomcatVersion}</version>
+                <type>war</type>
+            </dependency>
+            
+            <dependency>
+                <groupId>geronimo-samples</groupId>
+                <artifactId>geronimo-servlet-examples-tomcat</artifactId>
+                <version>${tomcatVersion}</version>
+                <type>war</type>
+            </dependency>
+            
+            <dependency>
+                <groupId>directory</groupId>
+                <artifactId>apacheds-core</artifactId>
+                <version>${apachedsVersion}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>directory</groupId>
+                <artifactId>apacheds-shared</artifactId>
+                <version>${apachedsVersion}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>directory-asn1</groupId>
+                <artifactId>asn1-codec</artifactId>
+                <version>${asn1Version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>directory-asn1</groupId>
+                <artifactId>asn1-ber</artifactId>
+                <version>${asn1Version}</version>
+                <exclusions>
+                    <!--
+                    NOTE: Exclude commons-test, no needed for compile, not deployed into any m2 repo.
+                          Where are the sources for this artifact?
+                    -->
+                    <exclusion>
+                        <groupId>commons-test</groupId>
+                        <artifactId>commons-test</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            
+            <dependency>
+                <groupId>directory-asn1</groupId>
+                <artifactId>asn1-der</artifactId>
+                <version>${asn1Version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>directory-shared</groupId>
+                <artifactId>apache-ldapber-provider</artifactId>
+                <version>${apachedsVersion}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>directory-shared</groupId>
+                <artifactId>ldap-common</artifactId>
+                <version>${apachedsVersion}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>directory-shared</groupId>
+                <artifactId>kerberos-common</artifactId>
+                <version>${kerberosCommonVersion}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>directory-network</groupId>
+                <artifactId>mina</artifactId>
+                <version>${minaVersion}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>directory-protocols</groupId>
+                <artifactId>kerberos-protocol</artifactId>
+                <version>${kerberosProtocolVersion}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>directory-protocols</groupId>
+                <artifactId>ldap-protocol</artifactId>
+                <version>${ldapProtocolVersion}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>jetty</groupId>
+                <artifactId>org.mortbay.jetty</artifactId>
+                <version>5.1.10</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>tomcat</groupId>
+                <artifactId>jasper-compiler</artifactId>
+                <version>${tomcatVersion}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>tomcat</groupId>
+                <artifactId>jasper-compiler-jdt</artifactId>
+                <version>${tomcatVersion}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>tomcat</groupId>
+                <artifactId>jasper-runtime</artifactId>
+                <version>${tomcatVersion}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>tomcat</groupId>
+                <artifactId>catalina</artifactId>
+                <version>${tomcatVersion}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>tomcat</groupId>
+                <artifactId>tomcat-ajp</artifactId>
+                <version>${tomcatAjpVersion}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>tomcat</groupId>
+                <artifactId>catalina-cluster</artifactId>
+                <version>${tomcatVersion}</version>
+            </dependency>
+            
+            <!--
+              - Required until any realm is provided to Tomcat
+              - See StandardEngine::getRealm() 
+            -->
+            <dependency>
+                <groupId>tomcat</groupId>
+                <artifactId>catalina-optional</artifactId>
+                <version>${tomcatVersion}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>tomcat</groupId>
+                <artifactId>tomcat-coyote</artifactId>
+                <version>${tomcatVersion}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>tomcat</groupId>
+                <artifactId>tomcat-http</artifactId>
+                <version>${tomcatVersion}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>tomcat</groupId>
+                <artifactId>jasper-compiler</artifactId>
+                <version>${tomcatVersion}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>tomcat</groupId>
+                <artifactId>jasper-compiler-jdt</artifactId>
+                <version>${tomcatVersion}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>tomcat</groupId>
+                <artifactId>jasper-runtime</artifactId>
+                <version>${tomcatVersion}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>tomcat</groupId>
+                <artifactId>tomcat-util</artifactId>
+                <version>${tomcatVersion}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>tomcat</groupId>
+                <artifactId>naming-resources</artifactId>
+                <version>${tomcatVersion}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>tomcat</groupId>
+                <artifactId>servlets-default</artifactId>
+                <version>${tomcatVersion}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>tomcat</groupId>
+                <artifactId>servlets-invoker</artifactId>
+                <version>${tomcatVersion}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>wadi</groupId>
+                <artifactId>wadi-core</artifactId>
+                <version>2.0M1</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>wadi</groupId>
+                <artifactId>wadi-tomcat55</artifactId>
+                <version>2.0M1</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

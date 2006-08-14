@@ -74,25 +74,21 @@
         <dependency>
             <groupId>jetty</groupId>
             <artifactId>org.mortbay.jetty</artifactId>
-            <version>${jettyVersion}</version>
         </dependency>
         
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>jasper-compiler</artifactId>
-            <version>${tomcatVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>jasper-compiler-jdt</artifactId>
-            <version>${tomcatVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>jasper-runtime</artifactId>
-            <version>${tomcatVersion}</version>
         </dependency>
         
         <dependency>

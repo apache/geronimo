@@ -62,7 +62,7 @@
                         <deploymentConfig>${openejbDeployer}</deploymentConfig>
                         <deploymentConfig>${axisDeployer}</deploymentConfig>
                     </deploymentConfigs>
-                    <moduleFile>${settings.localRepository}/org/apache/geronimo/applications/geronimo-remote-deploy/${geronimoVersion}/geronimo-remote-deploy-${geronimoVersion}.war</moduleFile>
+                    <moduleFile>${settings.localRepository}/org/apache/geronimo/applications/geronimo-remote-deploy/${pom.version}/geronimo-remote-deploy-${pom.version}.war</moduleFile>
                 </configuration>
             </plugin>
         </plugins>
