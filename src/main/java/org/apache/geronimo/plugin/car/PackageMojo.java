@@ -29,9 +29,6 @@ import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.resolver.ArtifactResolutionException;
-import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
-import org.apache.maven.model.Dependency;
 
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
@@ -68,42 +65,6 @@ public class PackageMojo
      * @readonly
      */
     private JarArchiver jarArchiver = null;
-
-    /**
-     * Used to look up Artifacts in the remote repository.
-     *
-     * @parameter expression="${component.org.apache.maven.artifact.factory.ArtifactFactory}"
-     * @required
-     * @readonly
-     */
-    protected org.apache.maven.artifact.factory.ArtifactFactory factory;
-
-    /**
-     * Used to look up Artifacts in the remote repository.
-     *
-     * @parameter expression="${component.org.apache.maven.artifact.resolver.ArtifactResolver}"
-     * @required
-     * @readonly
-     */
-    protected org.apache.maven.artifact.resolver.ArtifactResolver resolver;
-
-    /**
-     * Location of the local repository.
-     *
-     * @parameter expression="${localRepository}"
-     * @readonly
-     * @required
-     */
-    protected org.apache.maven.artifact.repository.ArtifactRepository local;
-
-    /**
-     * List of Remote Repositories used by the resolver.
-     *
-     * @parameter expression="${project.remoteArtifactRepositories}"
-     * @readonly
-     * @required
-     */
-    protected java.util.List remoteRepos;
 
     /**
      * Directory containing the generated archive.
@@ -186,6 +147,13 @@ public class PackageMojo
     private File moduleFile = null;
 
     /**
+     * ???
+     *
+     * @parameter
+     */
+    private ArtifactItem module = null;
+    
+    /**
      * The location where the properties mapping will be generated.
      *
      * @parameter expression="${project.build.directory}/explicit-versions.properties"
@@ -234,8 +202,15 @@ public class PackageMojo
         }
         log.debug("Deployment configs: " + deploymentConfigs);
 
-        generateExplicitVersionProperties(explicitResolutionProperties);
+        // If module is set, then resolve the artifact and set moduleFile
+        if (module != null) {
+            Artifact artifact = getArtifact(module);
+            moduleFile = artifact.getFile();
+            log.debug("Using module file: " + moduleFile);
+        }
 
+        generateExplicitVersionProperties(explicitResolutionProperties);
+        
         if (bootstrap) {
             executeBootShell();
         }
@@ -371,97 +346,5 @@ public class PackageMojo
         log.debug("Using classpath: " + buff);
 
         return buff.toString();
-    }
-
-    //
-    // NOTE: Bits below lifed from the maven-depndency-plugin
-    //
-
-    /**
-     * Resolves the Artifact from the remote repository if nessessary. If no version is specified, it will
-     * be retrieved from the dependency list or from the DependencyManagement section of the pom.
-     */
-    private Artifact getArtifact(final ClasspathElement element) throws MojoExecutionException {
-        Artifact artifact;
-
-        if (element.getVersion() == null) {
-            fillMissingArtifactVersion(element);
-
-            if (element.getVersion() == null) {
-                throw new MojoExecutionException("Unable to find artifact version of " + element.getGroupId()
-                    + ":" + element.getArtifactId() + " in either dependency list or in project's dependency management.");
-            }
-
-        }
-
-        String classifier = element.getClassifier();
-        if (classifier == null || classifier.equals("")) {
-            artifact = factory.createArtifact(
-                    element.getGroupId(),
-                    element.getArtifactId(),
-                    element.getVersion(),
-                    Artifact.SCOPE_PROVIDED,
-                    element.getType());
-        }
-        else {
-            artifact = factory.createArtifactWithClassifier(
-                    element.getGroupId(),
-                    element.getArtifactId(),
-                    element.getVersion(),
-                    element.getType(),
-                    element.getClassifier());
-        }
-
-        try {
-            resolver.resolve(artifact, remoteRepos, local);
-        }
-        catch (ArtifactResolutionException e) {
-            throw new MojoExecutionException("Unable to resolve artifact.", e);
-        }
-        catch (ArtifactNotFoundException e) {
-            throw new MojoExecutionException("Unable to find artifact.", e);
-        }
-
-        return artifact;
-    }
-
-    /**
-     * Tries to find missing version from dependancy list and dependency management.
-     * If found, the artifact is updated with the correct version.
-     */
-    private void fillMissingArtifactVersion(final ClasspathElement element) {
-        log.debug("Attempting to find missing version in " + element.getGroupId() + ":" + element.getArtifactId());
-
-        List list = this.project.getDependencies();
-
-        for (int i = 0; i < list.size(); ++i) {
-            Dependency dependency = (Dependency) list.get(i);
-
-            if (dependency.getGroupId().equals(element.getGroupId())
-                && dependency.getArtifactId().equals(element.getArtifactId())
-                && dependency.getType().equals(element.getType()))
-            {
-                log.debug("Found missing version: " + dependency.getVersion() + " in dependency list.");
-
-                element.setVersion(dependency.getVersion());
-
-                return;
-            }
-        }
-
-        list = this.project.getDependencyManagement().getDependencies();
-
-        for (int i = 0; i < list.size(); i++) {
-            Dependency dependency = (Dependency) list.get(i);
-
-            if (dependency.getGroupId().equals(element.getGroupId())
-                && dependency.getArtifactId().equals(element.getArtifactId())
-                && dependency.getType().equals(element.getType()))
-            {
-                log.debug("Found missing version: " + dependency.getVersion() + " in dependency management list");
-
-                element.setVersion(dependency.getVersion());
-            }
-        }
     }
 }
