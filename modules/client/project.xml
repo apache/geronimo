@@ -126,6 +126,10 @@
         </dependency>
     </dependencies>
 
+    <!-- 
+     | I don't think this <build> specification is needed (there are no .xml files and the .properties 
+     | files would be handled by etc/project.properties. ToDo: remove it
+     -->
     <build>
         <resources>
             <resource>

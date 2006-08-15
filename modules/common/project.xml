@@ -78,6 +78,10 @@
     <!-- Build Specification -->
     <!-- =================== -->
 
+    <!-- 
+     | I think this whold <build> specification can be removed. The <resources> and <unit-test> 
+     | already specified in etc/project.xml. ToDo: remove them
+     -->
     <build>
         <resources>
             <resource>
