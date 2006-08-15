@@ -68,20 +68,14 @@
         </dependency>
     </dependencies>
 
+    <!-- 
+     | The following can probably be removed. ToDo...
+      -->
     <build>
         <unitTest>
             <includes>
                 <include>**/*Test.java</include>
             </includes>
         </unitTest>
-        <resources>
-            <resource>
-                <directory>${basedir}</directory>
-                <includes>
-                    <include>NOTICE.txt</include>
-                </includes>
-                <targetPath>META-INF</targetPath>
-            </resource>
-        </resources>
     </build>
 </project>

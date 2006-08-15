@@ -381,6 +381,13 @@
                     <include>META-INF/geronimo-dependency.xml</include>
                 </includes>
             </resource>
+            <resource>
+                <directory>${basedir}</directory>
+                <includes>
+                    <include>NOTICE.txt</include>
+                </includes>
+                <targetPath>META-INF</targetPath>
+            </resource>
         </resources>
 
         <unitTest>

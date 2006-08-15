@@ -257,6 +257,7 @@
     <build>
         <resources>
             <!--n.b. this schema is NOT compiled to xmlobjects.  Do not remove!  Used by SchemaInfoBuilder -->
+            <!-- also, these resources will override those defined in etc/project.xml. -->
             <resource>
                 <directory>${basedir}/src/schema</directory>
                 <includes>
