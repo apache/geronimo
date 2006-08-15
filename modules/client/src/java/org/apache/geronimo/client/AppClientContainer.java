@@ -32,6 +32,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.Callers;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.apache.geronimo.transaction.context.TransactionContext;
@@ -114,7 +115,7 @@ public final class AppClientContainer {
         ClassLoader oldClassLoader = thread.getContextClassLoader();
         TransactionContext oldTransactionContext = transactionContextManager.getContext();
         TransactionContext currentTransactionContext = null;
-        Subject oldCurrentCaller = ContextManager.getCurrentCaller();
+        Callers oldCallers = ContextManager.getCallers();
         Subject clientSubject = defaultSubject;
         LoginContext loginContext = null;
         try {
@@ -137,7 +138,7 @@ public final class AppClientContainer {
                 }
                 clientSubject = loginContext.getSubject();
             }
-            ContextManager.setCurrentCaller(clientSubject);
+            ContextManager.setCallers(clientSubject, clientSubject);
             jndiContext.startClient(appClientModuleName, kernel, classLoader);
             currentTransactionContext = transactionContextManager.newUnspecifiedTransactionContext();
             if (clientSubject == null) {
@@ -175,7 +176,7 @@ public final class AppClientContainer {
             if (currentTransactionContext != null) {
                 currentTransactionContext.commit();
             }
-            ContextManager.setCurrentCaller(oldCurrentCaller);
+            ContextManager.popCallers(oldCallers);
         }
     }
 

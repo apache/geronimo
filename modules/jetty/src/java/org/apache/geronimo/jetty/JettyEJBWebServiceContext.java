@@ -24,8 +24,6 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.security.auth.Subject;
-
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.mortbay.http.Authenticator;
@@ -154,7 +152,7 @@ public class JettyEJBWebServiceContext extends HttpContext implements HttpHandle
             ClassLoader oldClassLoader = currentThread.getContextClassLoader();
             currentThread.setContextClassLoader(classLoader);
             //hard to imagine this could be anything but null, but....
-            Subject oldSubject = ContextManager.getCurrentCaller();
+//            Subject oldSubject = ContextManager.getCurrentCaller();
             try {
                 if (authenticator != null) {
                     String pathInContext = org.mortbay.util.URI.canonicalPath(req.getPath());
@@ -165,7 +163,7 @@ public class JettyEJBWebServiceContext extends HttpContext implements HttpHandle
                     //EJB will figure out correct defaultSubject shortly
                     //TODO consider replacing the GenericEJBContainer.DefaultSubjectInterceptor with this line
                     //setting the defaultSubject.
-                    ContextManager.setCurrentCaller(null);
+                    ContextManager.popCallers(null);
                 }
                 try {
                     webServiceContainer.invoke(request, response);
@@ -176,7 +174,7 @@ public class JettyEJBWebServiceContext extends HttpContext implements HttpHandle
                     throw (HttpException) new HttpException(500, "Could not process message!").initCause(e);
                 }
             } finally {
-                ContextManager.setCurrentCaller(oldSubject);
+//                ContextManager.setCurrentCaller(oldSubject);
                 currentThread.setContextClassLoader(oldClassLoader);
             }
         }

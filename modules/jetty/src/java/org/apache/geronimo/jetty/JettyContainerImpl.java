@@ -185,7 +185,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
         addContext(webServiceContext);
         webServiceContext.start();
         webServices.put(contextPath, webServiceContext);
-    }
+     }
 
     public void removeWebService(String contextPath) {
         JettyEJBWebServiceContext webServiceContext = (JettyEJBWebServiceContext) webServices.remove(contextPath);

@@ -19,15 +19,19 @@ package org.apache.geronimo.jetty;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
+
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.UnavailableException;
+import javax.security.auth.Subject;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.management.Servlet;
+import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.Callers;
 
 import org.mortbay.jetty.servlet.ServletHolder;
 
@@ -36,33 +40,34 @@ import org.mortbay.jetty.servlet.ServletHolder;
  * This ServletHolder's sole purpose is to provide the thread's current
  * ServletHolder for realms that are interested in the current servlet, e.g.
  * current servlet name.
- *
+ * <p/>
  * It is also being our servlet gbean for now.  We could gbean-ize the superclass to avoid the thread local access.
  *
  * @version $Rev$ $Date$
- * @see org.apache.geronimo.jetty.JAASJettyRealm#isUserInRole(java.security.Principal, java.lang.String)
+ * @see JAASJettyRealm#isUserInRole(java.security.Principal, String)
  */
 public class JettyServletHolder extends ServletHolder implements Servlet {
     private static final ThreadLocal currentServletName = new ThreadLocal();
+    private final Subject runAsSubject;
     private final String objectName;
 
     //todo consider interface instead of this constructor for endpoint use.
     public JettyServletHolder() {
         this.objectName = null;
+        this.runAsSubject = null;
     }
 
     public JettyServletHolder(String objectName,
-                              String servletName,
-                              String servletClassName,
-                              String jspFile,
-                              Map initParams,
-                              Integer loadOnStartup,
-                              Set servletMappings,
-                              Map webRoleRefPermissions,
-                              String runAsRole,
-                              ServletHolder previous,  //dependency for startup ordering
-                              JettyServletRegistration context) throws Exception {
-        super(context == null? null: context.getServletHandler(), servletName, servletClassName, jspFile);
+            String servletName,
+            String servletClassName,
+            String jspFile,
+            Map initParams,
+            Integer loadOnStartup,
+            Set servletMappings,
+            Subject runAsSubject,
+            ServletHolder previous,  //dependency for startup ordering
+            JettyServletRegistration context) throws Exception {
+        super(context == null ? null : context.getServletHandler(), servletName, servletClassName, jspFile);
         //context will be null only for use as "default servlet info holder" in deployer.
 
         if (context != null) {
@@ -74,7 +79,7 @@ public class JettyServletHolder extends ServletHolder implements Servlet {
             //this now starts the servlet in the appropriate context
             context.registerServletHolder(this, servletName, servletMappings, objectName);
         }
-        setRunAs(runAsRole);
+        this.runAsSubject = runAsSubject;
         this.objectName = objectName;
     }
 
@@ -85,6 +90,8 @@ public class JettyServletHolder extends ServletHolder implements Servlet {
         return getName();
     }
 
+    //TODO probably need to override init and destroy (?) to handle runAsSubject since we are not setting it in the superclass any more.
+
     /**
      * Service a request with this servlet.  Set the ThreadLocal to hold the
      * current JettyServletHolder.
@@ -93,8 +100,16 @@ public class JettyServletHolder extends ServletHolder implements Servlet {
             throws ServletException, UnavailableException, IOException {
 
         setCurrentServletName(getServletName());
-
-        super.handle(request, response);
+        if (runAsSubject == null) {
+            super.handle(request, response);
+        } else {
+            Callers oldCallers = ContextManager.pushNextCaller(runAsSubject);
+            try {
+                super.handle(request, response);
+            } finally {
+                ContextManager.popCallers(oldCallers);
+            }
+        }
     }
 
     /**
@@ -140,25 +155,23 @@ public class JettyServletHolder extends ServletHolder implements Servlet {
         infoBuilder.addAttribute("initParams", Map.class, true);
         infoBuilder.addAttribute("loadOnStartup", Integer.class, true);
         infoBuilder.addAttribute("servletMappings", Set.class, true);
-        infoBuilder.addAttribute("webRoleRefPermissions", Map.class, true);
-        infoBuilder.addAttribute("runAsRole", String.class, true);
+        infoBuilder.addAttribute("runAsSubject", Subject.class, true);
         infoBuilder.addAttribute("objectName", String.class, false);
         infoBuilder.addInterface(Servlet.class);
 
         infoBuilder.addReference("Previous", ServletHolder.class, NameFactory.SERVLET);
         infoBuilder.addReference("JettyServletRegistration", JettyServletRegistration.class, NameFactory.WEB_MODULE);
 
-        infoBuilder.setConstructor(new String[] {"objectName",
-                                                 "servletName",
-                                                 "servletClass",
-                                                 "jspFile",
-                                                 "initParams",
-                                                 "loadOnStartup",
-                                                 "servletMappings",
-                                                 "webRoleRefPermissions",
-                                                 "runAsRole",
-                                                 "Previous",
-                                                 "JettyServletRegistration"});
+        infoBuilder.setConstructor(new String[]{"objectName",
+                "servletName",
+                "servletClass",
+                "jspFile",
+                "initParams",
+                "loadOnStartup",
+                "servletMappings",
+                "runAsSubject",
+                "Previous",
+                "JettyServletRegistration"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

@@ -16,38 +16,38 @@
  */
 package org.apache.geronimo.tomcat.interceptor;
 
-import javax.security.auth.Subject;
 import javax.security.jacc.PolicyContext;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
+import org.apache.geronimo.security.Callers;
 import org.apache.geronimo.security.ContextManager;
 
 public class PolicyContextBeforeAfter implements BeforeAfter{
-    
+
     private final BeforeAfter next;
     private final String policyContextID;
     private final int policyContextIDIndex;
+    private final int callersIndex;
 
-    public PolicyContextBeforeAfter(BeforeAfter next, int policyContextIDIndex, String policyContextID) {
+    public PolicyContextBeforeAfter(BeforeAfter next, int policyContextIDIndex, int callersIndex, String policyContextID) {
         this.next = next;
         this.policyContextIDIndex = policyContextIDIndex;
+        this.callersIndex = callersIndex;
         this.policyContextID = policyContextID;
     }
 
     public void before(Object[] context, ServletRequest httpRequest, ServletResponse httpResponse) {
-        
+
         //Save the old
-        PolicyHolder policyHolder = new PolicyHolder();
-        policyHolder.setContextId(PolicyContext.getContextID());
-        policyHolder.setSubject(ContextManager.getCurrentCaller());
-        
-        context[policyContextIDIndex] = policyHolder;
-        
+
+        context[policyContextIDIndex] = PolicyContext.getContextID();
+        context[callersIndex] = ContextManager.getCallers();
+
         //Set the new
         PolicyContext.setContextID(policyContextID);
         PolicyContext.setHandlerData(httpRequest);
-        
+
         if (next != null) {
             next.before(context, httpRequest, httpResponse);
         }
@@ -57,30 +57,10 @@ public class PolicyContextBeforeAfter implements BeforeAfter{
         if (next != null) {
             next.after(context, httpRequest, httpResponse);
         }
-        
+
         //Replace the old
-        PolicyHolder policyHolder = (PolicyHolder)context[policyContextIDIndex];
-        PolicyContext.setContextID(policyHolder.getContextId());
-        ContextManager.setCurrentCaller(policyHolder.getSubject());
-    }
-    
-    class PolicyHolder{
-        
-        private Subject subject;
-        private String contextId;
-        
-        public String getContextId() {
-            return contextId;
-        }
-        public void setContextId(String contextId) {
-            this.contextId = contextId;
-        }
-        public Subject getSubject() {
-            return subject;
-        }
-        public void setSubject(Subject subject) {
-            this.subject = subject;
-        }
+        PolicyContext.setContextID((String)context[policyContextIDIndex]);
+        ContextManager.popCallers((Callers) context[callersIndex]);
     }
 
 }

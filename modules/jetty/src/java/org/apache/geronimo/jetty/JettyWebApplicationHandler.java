@@ -28,9 +28,10 @@ import javax.security.auth.Subject;
 import org.mortbay.jetty.servlet.WebApplicationHandler;
 import org.mortbay.jetty.servlet.ServletHolder;
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.Callers;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class JettyWebApplicationHandler extends WebApplicationHandler {
 
@@ -53,11 +54,11 @@ public class JettyWebApplicationHandler extends WebApplicationHandler {
                             int type)
         throws ServletException, UnavailableException, IOException
     {
-        Subject currentCaller = ContextManager.getCurrentCaller();
+        Callers oldCallers = ContextManager.getCallers();
         try {
             super.dispatch(pathInContext, request, response, servletHolder, type);
         } finally {
-            ContextManager.setCurrentCaller(currentCaller);
+            ContextManager.popCallers(oldCallers);
         }
 
     }

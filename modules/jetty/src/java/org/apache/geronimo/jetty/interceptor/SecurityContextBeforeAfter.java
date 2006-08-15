@@ -16,30 +16,34 @@
  */
 package org.apache.geronimo.jetty.interceptor;
 
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.common.GeronimoSecurityException;
-import org.apache.geronimo.jetty.JAASJettyPrincipal;
-import org.apache.geronimo.jetty.JettyContainer;
-import org.apache.geronimo.jetty.JAASJettyRealm;
-import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.security.IdentificationPrincipal;
-import org.apache.geronimo.security.SubjectId;
-import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.apache.geronimo.security.util.ConfigurationUtil;
-import org.mortbay.http.*;
-import org.mortbay.jetty.servlet.FormAuthenticator;
-import org.mortbay.jetty.servlet.ServletHttpRequest;
-
-import javax.security.auth.Subject;
-import javax.security.jacc.PolicyContext;
-import javax.security.jacc.WebResourcePermission;
-import javax.security.jacc.WebUserDataPermission;
 import java.io.IOException;
 import java.security.AccessControlContext;
 import java.security.AccessControlException;
 import java.security.PermissionCollection;
 import java.security.Principal;
-import java.util.Map;
+
+import javax.security.auth.Subject;
+import javax.security.jacc.PolicyContext;
+import javax.security.jacc.WebResourcePermission;
+import javax.security.jacc.WebUserDataPermission;
+
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.common.GeronimoSecurityException;
+import org.apache.geronimo.jetty.JAASJettyPrincipal;
+import org.apache.geronimo.jetty.JAASJettyRealm;
+import org.apache.geronimo.jetty.JettyContainer;
+import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.IdentificationPrincipal;
+import org.apache.geronimo.security.SubjectId;
+import org.apache.geronimo.security.deploy.DefaultPrincipal;
+import org.apache.geronimo.security.util.ConfigurationUtil;
+import org.mortbay.http.Authenticator;
+import org.mortbay.http.HttpException;
+import org.mortbay.http.HttpRequest;
+import org.mortbay.http.HttpResponse;
+import org.mortbay.http.SecurityConstraint;
+import org.mortbay.jetty.servlet.FormAuthenticator;
+import org.mortbay.jetty.servlet.ServletHttpRequest;
 
 
 /**
@@ -52,7 +56,6 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
     private final int webAppContextIndex;
     private final String policyContextID;
     private final static ThreadLocal currentWebAppContext = new ThreadLocal();
-    private final Map roleDesignates;
     private final JAASJettyPrincipal defaultPrincipal;
 
     private final String formLoginPath;
@@ -71,7 +74,6 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
                                       Authenticator authenticator,
                                       PermissionCollection checkedPermissions,
                                       PermissionCollection excludedPermissions,
-                                      Map roleDesignates,
                                       JAASJettyRealm realm,
                                       ClassLoader classLoader) {
         assert realm != null;
@@ -83,7 +85,6 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
         this.policyContextID = policyContextID;
 
         this.defaultPrincipal = generateDefaultPrincipal(defaultPrincipal, classLoader);
-        this.roleDesignates = roleDesignates;
         this.checked = checkedPermissions;
         this.excludedPermissions = excludedPermissions;
 
@@ -151,14 +152,6 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
         if (sm != null) sm.checkPermission(ContextManager.GET_CONTEXT);
 
         return (SecurityContextBeforeAfter) currentWebAppContext.get();
-    }
-
-    public static Subject getCurrentRoleDesignate(String role) {
-        return getCurrentSecurityInterceptor().getRoleDesignate(role);
-    }
-
-    private Subject getRoleDesignate(String roleName) {
-        return (Subject) roleDesignates.get(roleName);
     }
 
     //security check methods, delegated from WebAppContext
@@ -269,7 +262,8 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
         /**
          * No authentication is required.  Return the defaultPrincipal.
          */
-        ContextManager.setCurrentCaller(defaultPrincipal.getSubject());
+    //TODO use run-as as nextCaller if present
+        ContextManager.setCallers(defaultPrincipal.getSubject(), defaultPrincipal.getSubject());
         return defaultPrincipal;
     }
 

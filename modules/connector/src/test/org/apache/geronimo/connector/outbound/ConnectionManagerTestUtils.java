@@ -96,7 +96,7 @@ public class ConnectionManagerTestUtils extends TestCase implements DefaultInter
         transactionContextManager = new TransactionContextManager(transactionManager, transactionManager);
         mockManagedConnectionFactory = new MockManagedConnectionFactory();
         subject = new Subject();
-        ContextManager.setCurrentCaller(subject);
+        ContextManager.setCallers(subject, subject);
         connectionManagerDeployment = new GenericConnectionManager(
                 transactionSupport,
                 poolingSupport,

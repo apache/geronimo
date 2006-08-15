@@ -44,7 +44,7 @@ public class SubjectInterceptorTest extends ConnectionInterceptorTestUtils {
 
     public void testGetConnection() throws Exception {
         subject = new Subject();
-        ContextManager.setCurrentCaller(subject);
+        ContextManager.setCallers(subject, subject);
         ConnectionInfo connectionInfo = makeConnectionInfo();
         ManagedConnectionInfo managedConnectionInfo = connectionInfo.getManagedConnectionInfo();
         subjectInterceptor.getConnection(connectionInfo);
@@ -73,14 +73,14 @@ public class SubjectInterceptorTest extends ConnectionInterceptorTestUtils {
 
     public void testEnterWithChangedSubject() throws Exception {
         makeSubject("foo");
-        ContextManager.setCurrentCaller(subject);
+        ContextManager.setCallers(subject, subject);
         ConnectionInfo connectionInfo = makeConnectionInfo();
         managedConnection = new TestPlainManagedConnection();
         subjectInterceptor.getConnection(connectionInfo);
         //reset our test indicator
         obtainedConnectionInfo = null;
         makeSubject("bar");
-        ContextManager.setCurrentCaller(subject);
+        ContextManager.setCallers(subject, subject);
         subjectInterceptor.getConnection(connectionInfo);
         //expect re-association
         assertTrue("Expected connection asked for", obtainedConnectionInfo != null);
@@ -103,7 +103,7 @@ public class SubjectInterceptorTest extends ConnectionInterceptorTestUtils {
 
     public void testUnshareablePreventsReAssociation() throws Exception {
         makeSubject("foo");
-        ContextManager.setCurrentCaller(subject);
+        ContextManager.setCallers(subject, subject);
         ConnectionInfo connectionInfo = makeConnectionInfo();
         connectionInfo.setUnshareable(true);
         managedConnection = new TestPlainManagedConnection();
@@ -111,7 +111,7 @@ public class SubjectInterceptorTest extends ConnectionInterceptorTestUtils {
         //reset our test indicator
         obtainedConnectionInfo = null;
         makeSubject("bar");
-        ContextManager.setCurrentCaller(subject);
+        ContextManager.setCallers(subject, subject);
         try {
             subjectInterceptor.getConnection(connectionInfo);
             fail("Reassociating should fail on an unshareable connection");

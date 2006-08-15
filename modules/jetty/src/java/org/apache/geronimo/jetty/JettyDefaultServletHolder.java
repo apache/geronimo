@@ -20,21 +20,23 @@ package org.apache.geronimo.jetty;
 import java.util.Map;
 import java.util.Set;
 
+import javax.security.auth.Subject;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.mortbay.jetty.servlet.ServletHolder;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class JettyDefaultServletHolder extends JettyServletHolder {
 
     public JettyDefaultServletHolder() {
     }
 
-    public JettyDefaultServletHolder(String objectName, String servletName, String servletClassName, String jspFile, Map initParams, Integer loadOnStartup, Set servletMappings, Map webRoleRefPermissions, String runAsRole, ServletHolder previous, JettyServletRegistration context) throws Exception {
-        super(objectName, servletName, servletClassName, jspFile, initParams, loadOnStartup, servletMappings, webRoleRefPermissions, runAsRole, previous, context);
+    public JettyDefaultServletHolder(String objectName, String servletName, String servletClassName, String jspFile, Map initParams, Integer loadOnStartup, Set servletMappings, Subject runAsSubject, ServletHolder previous, JettyServletRegistration context) throws Exception {
+        super(objectName, servletName, servletClassName, jspFile, initParams, loadOnStartup, servletMappings, runAsSubject, previous, context);
     }
 
     public static final GBeanInfo GBEAN_INFO;

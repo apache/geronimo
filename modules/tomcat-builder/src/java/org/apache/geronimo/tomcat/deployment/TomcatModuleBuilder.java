@@ -416,7 +416,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                 }
 
                 webModuleData.setAttribute("securityHolder", securityHolder);
-                webModuleData.setReferencePattern("RoleDesignateSource", earContext.getJaccManagerName());
             }
 
             moduleContext.addGBean(webModuleData);

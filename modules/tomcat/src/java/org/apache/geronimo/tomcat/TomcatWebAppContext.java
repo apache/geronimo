@@ -17,6 +17,20 @@
 
 package org.apache.geronimo.tomcat;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.naming.directory.DirContext;
+
 import org.apache.catalina.Context;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Realm;
@@ -34,30 +48,15 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
-import org.apache.geronimo.management.geronimo.WebModule;
-import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebConnector;
-import org.apache.geronimo.security.jacc.RoleDesignateSource;
+import org.apache.geronimo.management.geronimo.WebContainer;
+import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.naming.resources.DirContextURLStreamHandler;
-
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
-import javax.naming.directory.DirContext;
-
-import java.net.URI;
-import java.net.URL;
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.HashMap;
 
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
@@ -104,8 +103,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
     private final TransactionContextManager transactionContextManager;
 
-    private final RoleDesignateSource roleDesignateSource;
-
     private final SecurityHolder securityHolder;
 
     private final J2EEServer server;
@@ -134,7 +131,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             TransactionContextManager transactionContextManager,
             TrackedConnectionAssociator trackedConnectionAssociator,
             TomcatContainer container,
-            RoleDesignateSource roleDesignateSource,
             ObjectRetriever tomcatRealm,
             ValveGBean tomcatValveChain,
             CatalinaClusterGBean cluster,
@@ -176,7 +172,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         this.applicationManagedSecurityResources = applicationManagedSecurityResources;
         this.trackedConnectionAssociator = trackedConnectionAssociator;
 
-        this.roleDesignateSource = roleDesignateSource;
         this.server = server;
         this.application = application;
 
@@ -230,11 +225,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             verifyObjectName(myObjectName);
         }
 
-        if (securityHolder != null){
-            if (roleDesignateSource == null) {
-                throw new IllegalArgumentException("RoleDesignateSource must be supplied for a secure web app");
-            }
-        }
         userTransaction.setUp(transactionContextManager,
                 trackedConnectionAssociator);
 
@@ -450,14 +440,14 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         // super.start();
         //register the classloader <> dir context association so that tomcat's jndi based getResources works.
         DirContext resources = context.getResources();
-        DirContextURLStreamHandler.bind((ClassLoader) classLoader, resources);
+        DirContextURLStreamHandler.bind(classLoader, resources);
 
         log.debug("TomcatWebAppContext started for " + path);
     }
 
     public void doStop() throws Exception {
         container.removeContext(this);
-        DirContextURLStreamHandler.unbind((ClassLoader) classLoader);
+        DirContextURLStreamHandler.unbind(classLoader);
  
         // No more logging will occur for this ClassLoader. Inform the LogFactory to avoid a memory leak.
 //        LogFactory.release(classLoader);
@@ -496,7 +486,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         infoBuilder.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class, NameFactory.JCA_CONNECTION_TRACKER);
 
         infoBuilder.addReference("Container", TomcatContainer.class, NameFactory.GERONIMO_SERVICE);
-        infoBuilder.addReference("RoleDesignateSource", RoleDesignateSource.class, NameFactory.JACC_MANAGER);
         infoBuilder.addReference("TomcatRealm", ObjectRetriever.class);
         infoBuilder.addReference("TomcatValveChain", ValveGBean.class);
         infoBuilder.addReference("Cluster", CatalinaClusterGBean.class, CatalinaClusterGBean.J2EE_TYPE);
@@ -524,7 +513,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
                 "TransactionContextManager",
                 "TrackedConnectionAssociator",
                 "Container",
-                "RoleDesignateSource",
                 "TomcatRealm",
                 "TomcatValveChain",
                 "Cluster",
