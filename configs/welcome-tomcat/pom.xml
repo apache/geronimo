@@ -77,7 +77,12 @@
                         <deploymentConfig>${openejbDeployer}</deploymentConfig>
                         <deploymentConfig>${axisDeployer}</deploymentConfig>
                     </deploymentConfigs>
-                    <moduleFile>${settings.localRepository}/org/apache/geronimo/applications/geronimo-welcome/${pom.version}/geronimo-welcome-${pom.version}.war</moduleFile>
+                    <module>
+                        <groupId>org.apache.geronimo.applications</groupId>
+                        <artifactId>geronimo-welcome</artifactId>
+                        <version>${pom.version}</version>
+                        <type>war</type>
+                    </module>
                 </configuration>
             </plugin>
         </plugins>

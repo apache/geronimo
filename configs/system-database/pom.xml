@@ -111,7 +111,11 @@
                         <deploymentConfig>${openejbDeployer}</deploymentConfig>
                         <deploymentConfig>${axisDeployer}</deploymentConfig>
                     </deploymentConfigs>
-                    <moduleFile>${settings.localRepository}/tranql/tranql-connector-derby-embed-xa/${tranqlVendorsVersion}/tranql-connector-derby-embed-xa-${tranqlVendorsVersion}.rar</moduleFile>
+                    <module>
+                        <groupId>tranql</groupId>
+                        <artifactId>tranql-connector-derby-embed-xa</artifactId>
+                        <type>rar</type>
+                    </module>
                 </configuration>
             </plugin>
         </plugins>

@@ -65,33 +65,22 @@
         <tomcatVersion>5.5.15</tomcatVersion>
         
         <!--
-        HACK: Used by system-database, uddi-jetty and uddi-tomcat configs.
-        -->
-        <tranqlVendorsVersion>1.1</tranqlVendorsVersion>
-        
-        <!--
-        HACK: USed by system to build product-versions.properties
+        HACK: Used by system to build product-versions.properties
         -->
         <openejbVersion>2.2-SNAPSHOT</openejbVersion>
         <activeMqVersion>3.2.4-SNAPSHOT</activeMqVersion>
         <tranqlVersion>1.4-SNAPSHOT</tranqlVersion>
         
         <!--
+        HACK: Used bu uddi-jetty and uddi-tomcat configs
+        -->
+        <tranqlVendorsVersion>1.1</tranqlVendorsVersion>
+        
+        <!--
         HACK: Used by tomcate-builder tests, needs to replace with dependency plugin
         -->
         <xercesVersion>2.6.2</xercesVersion>
         <xmlApisVersion>1.0.b2</xmlApisVersion>
-        
-        <!--
-        HACK: Used by deps below... need to unwrap
-        -->
-        <asn1Version>0.3.2</asn1Version>
-        <apachedsVersion>0.9.2</apachedsVersion>
-        <tomcatAjpVersion>5.5.15</tomcatAjpVersion>
-        <kerberosCommonVersion>0.5</kerberosCommonVersion>
-        <kerberosProtocolVersion>0.5</kerberosProtocolVersion>
-        <ldapProtocolVersion>0.9.2</ldapProtocolVersion>
-        <minaVersion>0.7.3</minaVersion>
         
     </properties>
 
@@ -618,14 +607,14 @@
             <dependency>
                 <groupId>tranql</groupId>
                 <artifactId>tranql-connector-derby-embed-xa</artifactId>
-                <version>${tranqlVendorsVersion}</version>
+                <version>1.1</version>
                 <type>rar</type>
             </dependency>
 
             <dependency>
                 <groupId>tranql</groupId>
                 <artifactId>tranql-connector-derby-embed-local</artifactId>
-                <version>${tranqlVendorsVersion}</version>
+                <version>1.1</version>
                 <type>rar</type>
             </dependency>
 
@@ -658,25 +647,25 @@
             <dependency>
                 <groupId>directory</groupId>
                 <artifactId>apacheds-core</artifactId>
-                <version>${apachedsVersion}</version>
+                <version>0.9.2</version>
             </dependency>
             
             <dependency>
                 <groupId>directory</groupId>
                 <artifactId>apacheds-shared</artifactId>
-                <version>${apachedsVersion}</version>
+                <version>0.9.2</version>
             </dependency>
             
             <dependency>
                 <groupId>directory-asn1</groupId>
                 <artifactId>asn1-codec</artifactId>
-                <version>${asn1Version}</version>
+                <version>0.3.2</version>
             </dependency>
             
             <dependency>
                 <groupId>directory-asn1</groupId>
                 <artifactId>asn1-ber</artifactId>
-                <version>${asn1Version}</version>
+                <version>0.3.2</version>
                 <exclusions>
                     <!--
                     NOTE: Exclude commons-test, no needed for compile, not deployed into any m2 repo.
@@ -692,43 +681,43 @@
             <dependency>
                 <groupId>directory-asn1</groupId>
                 <artifactId>asn1-der</artifactId>
-                <version>${asn1Version}</version>
+                <version>0.3.2</version>
             </dependency>
             
             <dependency>
                 <groupId>directory-shared</groupId>
                 <artifactId>apache-ldapber-provider</artifactId>
-                <version>${apachedsVersion}</version>
+                <version>0.9.2</version>
             </dependency>
             
             <dependency>
                 <groupId>directory-shared</groupId>
                 <artifactId>ldap-common</artifactId>
-                <version>${apachedsVersion}</version>
+                <version>0.9.2</version>
             </dependency>
             
             <dependency>
                 <groupId>directory-shared</groupId>
                 <artifactId>kerberos-common</artifactId>
-                <version>${kerberosCommonVersion}</version>
+                <version>0.5</version>
             </dependency>
             
             <dependency>
                 <groupId>directory-network</groupId>
                 <artifactId>mina</artifactId>
-                <version>${minaVersion}</version>
+                <version>0.7.3</version>
             </dependency>
             
             <dependency>
                 <groupId>directory-protocols</groupId>
                 <artifactId>kerberos-protocol</artifactId>
-                <version>${kerberosProtocolVersion}</version>
+                <version>0.5</version>
             </dependency>
             
             <dependency>
                 <groupId>directory-protocols</groupId>
                 <artifactId>ldap-protocol</artifactId>
-                <version>${ldapProtocolVersion}</version>
+                <version>0.9.2</version>
             </dependency>
             
             <dependency>
@@ -764,7 +753,7 @@
             <dependency>
                 <groupId>tomcat</groupId>
                 <artifactId>tomcat-ajp</artifactId>
-                <version>${tomcatAjpVersion}</version>
+                <version>5.5.15</version>
             </dependency>
             
             <dependency>

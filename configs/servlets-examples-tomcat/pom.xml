@@ -90,7 +90,11 @@
                         <deploymentConfig>${openejbDeployer}</deploymentConfig>
                         <deploymentConfig>${axisDeployer}</deploymentConfig>
                     </deploymentConfigs>
-                    <moduleFile>${settings.localRepository}/geronimo-samples/geronimo-servlet-examples-tomcat/${tomcatVersion}/geronimo-servlet-examples-tomcat-${tomcatVersion}.war</moduleFile>
+                    <module>
+                        <groupId>geronimo-samples</groupId>
+                        <artifactId>geronimo-servlet-examples-tomcat</artifactId>
+                        <type>war</type>
+                    </module>
                 </configuration>
             </plugin>
         </plugins>
