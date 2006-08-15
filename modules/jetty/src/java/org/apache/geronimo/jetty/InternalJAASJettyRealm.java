@@ -93,7 +93,8 @@ public class InternalJAASJettyRealm {
                 callbackHandler.clear();
 
                 Subject subject = ContextManager.getServerSideSubject(loginContext.getSubject());
-                ContextManager.setCurrentCaller(subject);
+                //TODO use the run-as subject as nextCaller
+                ContextManager.setCallers(subject, subject);
 
                 //login success
                 userPrincipal = new JAASJettyPrincipal(username);
@@ -124,7 +125,8 @@ public class InternalJAASJettyRealm {
     public boolean reauthenticate(Principal user) {
         // TODO This is not correct if auth can expire! We need to
 
-        ContextManager.setCurrentCaller(((JAASJettyPrincipal) user).getSubject());
+        Subject subject = ((JAASJettyPrincipal) user).getSubject();
+        ContextManager.setCallers(subject, subject);
 
         // get the user out of the cache
         return (userMap.get(user.getName()) != null);
@@ -154,13 +156,11 @@ public class InternalJAASJettyRealm {
     }
 
     public Principal pushRole(Principal user, String role) {
-        ((JAASJettyPrincipal) user).push(ContextManager.getCurrentCaller());
-        ContextManager.setCurrentCaller(SecurityContextBeforeAfter.getCurrentRoleDesignate(role));
+        //handled by JettyServletHolder and its runAsSubject
         return user;
     }
 
     public Principal popRole(Principal user) {
-        ContextManager.setCurrentCaller(((JAASJettyPrincipal) user).pop());
         return user;
     }
 

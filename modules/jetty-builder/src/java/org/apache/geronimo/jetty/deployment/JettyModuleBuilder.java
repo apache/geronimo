@@ -728,8 +728,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 earContext.addSecurityContext(policyContextID, componentPermissions);
                 DefaultPrincipal defaultPrincipal = earContext.getSecurityConfiguration().getDefaultPrincipal();
                 webModuleData.setAttribute("defaultPrincipal", defaultPrincipal);
-
-                webModuleData.setReferencePattern("RoleDesignateSource", earContext.getJaccManagerName());
             }
             if (!module.isStandAlone()) {
                 ConfigurationData moduleConfigurationData = moduleContext.getConfigurationData();

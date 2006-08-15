@@ -28,7 +28,7 @@ import java.net.URL;
 public class ApplicationTest extends AbstractWebModuleTest {
 
     public void testApplication() throws Exception {
-        JettyWebAppContext app = setUpAppContext(null, null, null, null, null, null, null, null, "war1/");
+        JettyWebAppContext app = setUpAppContext(null, null, null, null, null, null, null, "war1/");
 
         setUpStaticContentServlet(app);
 

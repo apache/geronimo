@@ -17,22 +17,12 @@
 
 package org.apache.geronimo.jetty;
 
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.HashSet;
-import java.util.Set;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import javax.management.ObjectName;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
-import junit.framework.TestCase;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.jetty.connector.HTTPConnector;
 import org.apache.geronimo.jetty.app.MockWebServiceContainer;
-import org.apache.geronimo.kernel.KernelFactory;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.webservices.WebServiceContainer;
 
 /**
  * @version $Rev$ $Date$

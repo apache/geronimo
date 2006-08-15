@@ -25,6 +25,7 @@ import org.apache.catalina.valves.ValveBase;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.Callers;
 
 /**
  * @version $Rev$ $Date$
@@ -38,15 +39,18 @@ public class DefaultSubjectValve extends ValveBase {
     }
 
     public void invoke(Request request, Response response) throws IOException, ServletException {
-        boolean setSubject = ContextManager.getCurrentCaller() == null;
+        Callers oldCallers = null;
+        boolean setSubject = false;
+        if (defaultSubject != null) {
+            oldCallers = ContextManager.getCallers();
+            setSubject = oldCallers == null || oldCallers.getCurrentCaller() == null;
+        }
         if (setSubject) {
-            ContextManager.setCurrentCaller(defaultSubject);
-            ContextManager.setNextCaller(defaultSubject);
+            ContextManager.setCallers(defaultSubject, defaultSubject);
             try {
                 getNext().invoke(request, response);
             } finally {
-                ContextManager.setCurrentCaller(null);
-                ContextManager.setNextCaller(null);
+                ContextManager.popCallers(oldCallers);
             }
         } else {
             getNext().invoke(request, response);

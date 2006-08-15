@@ -121,7 +121,7 @@ public class GeronimoStandardContext extends StandardContext {
                     defaultSubject.getPrincipals().add(new IdentificationPrincipal(id));
                 }
 
-                interceptor = new PolicyContextBeforeAfter(interceptor, index++, securityHolder.getPolicyContextID());
+                interceptor = new PolicyContextBeforeAfter(interceptor, index++, index++, securityHolder.getPolicyContextID());
             }
         }
         

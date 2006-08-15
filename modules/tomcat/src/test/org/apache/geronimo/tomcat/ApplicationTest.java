@@ -34,7 +34,6 @@ public class ApplicationTest extends AbstractWebModuleTest {
                 new File(basedir, "target/var/catalina/webapps/war1/WEB-INF/web.xml").toURL(),
                 null,
                 null,
-                null,
                 null);
 
         HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8181/test/hello.txt").openConnection();

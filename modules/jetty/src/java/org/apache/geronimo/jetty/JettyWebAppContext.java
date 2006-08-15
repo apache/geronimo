@@ -197,7 +197,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             TransactionManager transactionManager,
             TrackedConnectionAssociator trackedConnectionAssociator,
             JettyContainer jettyContainer,
-            RoleDesignateSource roleDesignateSource,
             J2EEServer server,
             J2EEApplication application,
             Kernel kernel) throws Exception, IllegalAccessException, InstantiationException, ClassNotFoundException {
@@ -262,15 +261,11 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 //JACC
 
         if (securityRealmName != null) {
-            if (roleDesignateSource == null) {
-                throw new IllegalArgumentException("RoleDesignateSource must be supplied for a secure web app");
-            }
-            Map roleDesignates = roleDesignateSource.getRoleDesignateMap();
             InternalJAASJettyRealm internalJAASJettyRealm = jettyContainer.addRealm(securityRealmName);
             //wrap jetty realm with something that knows the dumb realmName
             JAASJettyRealm realm = new JAASJettyRealm(realmName, internalJAASJettyRealm);
             setRealm(realm);
-            this.securityInterceptor = new SecurityContextBeforeAfter(interceptor, index++, index++, policyContextID, defaultPrincipal, authenticator, checkedPermissions, excludedPermissions, roleDesignates, realm, classLoader);
+            this.securityInterceptor = new SecurityContextBeforeAfter(interceptor, index++, index++, policyContextID, defaultPrincipal, authenticator, checkedPermissions, excludedPermissions, realm, classLoader);
             interceptor = this.securityInterceptor;
         } else {
             securityInterceptor = null;
@@ -629,7 +624,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         infoBuilder.addReference("TransactionManager", TransactionManager.class, NameFactory.TRANSACTION_MANAGER);
         infoBuilder.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class, NameFactory.JCA_CONNECTION_TRACKER);
         infoBuilder.addReference("JettyContainer", JettyContainer.class, NameFactory.GERONIMO_SERVICE);
-        infoBuilder.addReference("RoleDesignateSource", RoleDesignateSource.class, NameFactory.JACC_MANAGER);
 
         infoBuilder.addInterface(JettyServletRegistration.class);
 
@@ -686,7 +680,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
                 "TransactionManager",
                 "TrackedConnectionAssociator",
                 "JettyContainer",
-                "RoleDesignateSource",
 
                 "J2EEServer",
                 "J2EEApplication",

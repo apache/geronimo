@@ -16,8 +16,18 @@
  */
 package org.apache.geronimo.jetty;
 
-import junit.framework.TestCase;
+import java.io.File;
+import java.net.URL;
+import java.security.PermissionCollection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
+import javax.transaction.TransactionManager;
+
+import junit.framework.TestCase;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.connector.outbound.connectiontracking.GeronimoTransactionListener;
 import org.apache.geronimo.jetty.connector.HTTPConnector;
@@ -29,9 +39,8 @@ import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
 import org.apache.geronimo.security.jaas.server.JaasLoginService;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
-import org.apache.geronimo.security.jacc.ComponentPermissions;
-import org.apache.geronimo.security.jacc.RoleDesignateSource;
 import org.apache.geronimo.security.jacc.ApplicationPrincipalRoleConfigurationManager;
+import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.jacc.PrincipalRoleMapper;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
@@ -40,22 +49,12 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.mortbay.http.Authenticator;
 import org.mortbay.jetty.servlet.FormAuthenticator;
 
-import java.io.File;
-import java.net.URL;
-import java.security.PermissionCollection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import javax.transaction.TransactionManager;
-
 
 /**
  * @version $Rev$ $Date$
  */
 public class AbstractWebModuleTest extends TestCase {
-    private File basedir = new File(System.getProperty("basedir"));
+    private File basedir = new File(System.getProperty("basedir", "."));
     
     protected ClassLoader cl;
     protected final static String securityRealmName = "demo-properties-realm";
@@ -84,12 +83,11 @@ public class AbstractWebModuleTest extends TestCase {
                 Collections.singleton("/"),
                 null,
                 null,
-                null,
                 webModule);
 
     }
 
-    protected JettyWebAppContext setUpAppContext(String realmName, String securityRealmName, Authenticator authenticator, String policyContextId, RoleDesignateSource roleDesignateSource, PermissionCollection excludedPermissions, DefaultPrincipal defaultPrincipal, PermissionCollection checkedPermissions, String uriString) throws Exception {
+    protected JettyWebAppContext setUpAppContext(String realmName, String securityRealmName, Authenticator authenticator, String policyContextId, PermissionCollection excludedPermissions, DefaultPrincipal defaultPrincipal, PermissionCollection checkedPermissions, String uriString) throws Exception {
 
         JettyWebAppContext app = new JettyWebAppContext(null,
                 null,
@@ -120,7 +118,6 @@ public class AbstractWebModuleTest extends TestCase {
                 transactionManager,
                 connectionTrackingCoordinator,
                 container,
-                roleDesignateSource,
                 null,
                 null,
                 null);
@@ -144,7 +141,6 @@ public class AbstractWebModuleTest extends TestCase {
                 "demo-properties-realm",
                 formAuthenticator,
                 policyContextId,
-                jacc,
                 componentPermissions.getExcludedPermissions(),
                 defaultPrincipal,
                 checked, "war3/");

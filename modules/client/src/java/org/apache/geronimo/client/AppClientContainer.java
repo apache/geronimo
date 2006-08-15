@@ -32,6 +32,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.Callers;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 
@@ -107,7 +108,7 @@ public final class AppClientContainer {
         Thread thread = Thread.currentThread();
 
         ClassLoader oldClassLoader = thread.getContextClassLoader();
-        Subject oldCurrentCaller = ContextManager.getCurrentCaller();
+        Callers oldCallers = ContextManager.getCallers();
         Subject clientSubject = defaultSubject;
         LoginContext loginContext = null;
         try {
@@ -130,7 +131,7 @@ public final class AppClientContainer {
                 }
                 clientSubject = loginContext.getSubject();
             }
-            ContextManager.setCurrentCaller(clientSubject);
+            ContextManager.setCallers(clientSubject, clientSubject);
             jndiContext.startClient(appClientModuleName, kernel, classLoader);
             if (clientSubject == null) {
                 mainMethod.invoke(null, new Object[]{args});
@@ -163,7 +164,7 @@ public final class AppClientContainer {
             jndiContext.stopClient(appClientModuleName);
 
             thread.setContextClassLoader(oldClassLoader);
-            ContextManager.setCurrentCaller(oldCurrentCaller);
+            ContextManager.popCallers(oldCallers);
         }
     }
 
