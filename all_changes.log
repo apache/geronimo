@@ -122,17 +122,17 @@ Unnecessary,  r374156 , dain , 2006-02-01 12:11:08 -0800 (Wed, 01 Feb 2006) , 2 
 Merged,  r374191 , djencks , 2006-02-01 14:01:44 -0800 (Wed, 01 Feb 2006) , 1 line  GERONIMO-1569 Improve packaging plugin logging 
 Merged,  r374193 , djencks , 2006-02-01 14:08:48 -0800 (Wed, 01 Feb 2006) , 1 line  GERONIMO-1563 step 1.  Separate our proprietary JACC configuration info into a separate gbean 
 Merged,  r374211 , djencks , 2006-02-01 16:19:53 -0800 (Wed, 01 Feb 2006) , 1 line  GERONIMO-1563 step one missed file 
-Not Merged,  r374212 , djencks , 2006-02-01 16:26:18 -0800 (Wed, 01 Feb 2006) , 1 line  GERONIMO-1570, GERONIMO-1460 Provide jetty gbean for specifying bouth hosts and virtual hosts: actually use virtual hosts to set virtual hosts, not hosts.  This has a provisional schema change, and the schema version needs to be updated 
+Merged,  r374212 , djencks , 2006-02-01 16:26:18 -0800 (Wed, 01 Feb 2006) , 1 line  GERONIMO-1570, GERONIMO-1460 Provide jetty gbean for specifying bouth hosts and virtual hosts: actually use virtual hosts to set virtual hosts, not hosts.  This has a provisional schema change, and the schema version needs to be updated 
 Unnecessary,  r374246 , dain , 2006-02-01 20:19:06 -0800 (Wed, 01 Feb 2006) , 2 lines  References need <module>*</module> since the beans are in the parent plan  
 Not Merged,  r374253 , hogstrom , 2006-02-01 21:04:07 -0800 (Wed, 01 Feb 2006) , 1 line  Geronimo-1336 Corrected issue when specifying database pool sizes 
 Not Merged,  r374273 , hogstrom , 2006-02-01 21:51:22 -0800 (Wed, 01 Feb 2006) , 1 line  Geronimo 1571-Added text to explicitly call out the Sun 1.4 VM for builds 
 Not Merged,  r374281 , hogstrom , 2006-02-01 22:17:34 -0800 (Wed, 01 Feb 2006) , 1 line  Geronimo-1489 Minor fixes to JUDDI JSP application 
-Not Merged,  r374335 , djencks , 2006-02-02 02:01:47 -0800 (Thu, 02 Feb 2006) , 1 line  GERONIMO-1574 untested spring transaction manager wrapper around our TransactionContextManager 
-Not Merged,  r374338 , djencks , 2006-02-02 02:05:36 -0800 (Thu, 02 Feb 2006) , 1 line  up spring version 
+Unnecessary,  r374335 , djencks , 2006-02-02 02:01:47 -0800 (Thu, 02 Feb 2006) , 1 line  GERONIMO-1574 untested spring transaction manager wrapper around our TransactionContextManager 
+Unnecessary,  r374338 , djencks , 2006-02-02 02:05:36 -0800 (Thu, 02 Feb 2006) , 1 line  up spring version 
 Not Merged,  r374366 , jsisson , 2006-02-02 03:37:23 -0800 (Thu, 02 Feb 2006) , 1 line  GERONIMO-1278 - fix problem on windows where rename fails during fixcrlf processing in installer (merged from 1.0 branch). 
 Not Merged,  r374415 , adc , 2006-02-02 08:02:34 -0800 (Thu, 02 Feb 2006) , 1 line   
 Unnecessary,  r374472 , dain , 2006-02-02 11:34:57 -0800 (Thu, 02 Feb 2006) , 2 lines  Added missing transaction manager object name attribute to ear deployer Added better error handling to openejb tranql intergration 
-Not Merged,  r374535 , djencks , 2006-02-02 14:50:45 -0800 (Thu, 02 Feb 2006) , 1 line  GERONIMO-1578 remove wadi dependencies from jetty module 
+Merged,  r374535 , djencks , 2006-02-02 14:50:45 -0800 (Thu, 02 Feb 2006) , 1 line  GERONIMO-1578 remove wadi dependencies from jetty module 
 Not Merged,  r374536 , chirino , 2006-02-02 14:51:02 -0800 (Thu, 02 Feb 2006) , 4 lines  Adding a new rar build for the activemq rar since geronimo really should be building a custom rar so that it's configuration  can be tailored for geronimo.   
 Not Merged,  r374665 , kevan , 2006-02-03 05:22:56 -0800 (Fri, 03 Feb 2006) , 1 line  Fix for relative links in jmxdebug on Tomcat 
 Not Merged,  r374759 , jgenender , 2006-02-03 14:06:34 -0800 (Fri, 03 Feb 2006) , 1 line  Added BeforeAfters for cross context and a listener 
@@ -140,11 +140,11 @@ Not Merged,  r374781 , kevan , 2006-02-03 15:21:12 -0800 (Fri, 03 Feb 2006) , 1 
 Not Merged,  r374885 , jgenender , 2006-02-04 08:10:47 -0800 (Sat, 04 Feb 2006) , 1 line  Save the Request during x-context dispatch 
 Not Merged,  r374972 , adc , 2006-02-04 21:49:10 -0800 (Sat, 04 Feb 2006) , 1 line  Update specs versions   
 Not Merged,  r374973 , adc , 2006-02-04 21:50:46 -0800 (Sat, 04 Feb 2006) , 1 line  Ignore 
-Not Merged,  r375137 , djencks , 2006-02-05 15:48:05 -0800 (Sun, 05 Feb 2006) , 1 line  Move some openejb, tranql, and activemq dependencies to more appropriate modules. 
+Merged,  r375137 , djencks , 2006-02-05 15:48:05 -0800 (Sun, 05 Feb 2006) , 1 line  Move some openejb, tranql, and activemq dependencies to more appropriate modules. 
 Not Merged,  r375204 , jsisson , 2006-02-05 22:43:38 -0800 (Sun, 05 Feb 2006) , 1 line  GERONIMO-1566 - fix issue where binary distributions (both zip and tgz) contain a META-INF/manifest.mf file under the geronimo-1.0 directory. 
 Not Merged,  r375375 , bsnyder , 2006-02-06 13:16:28 -0800 (Mon, 06 Feb 2006) , 1 line  Added patch for GERONIMO-1593. 
 Not Merged,  r375548 , bsnyder , 2006-02-07 00:40:18 -0800 (Tue, 07 Feb 2006) , 1 line  Had to apply a few fixes to the SMTPTransport class. 
-Not Merged,  r375854 , djencks , 2006-02-07 21:13:03 -0800 (Tue, 07 Feb 2006) , 1 line  GERONIMO-1599 temporary fix for broken recovery.  Shows the danger of working too fast and insufficient testing. 
+Merged,  r375854 , djencks , 2006-02-07 21:13:03 -0800 (Tue, 07 Feb 2006) , 1 line  GERONIMO-1599 temporary fix for broken recovery.  Shows the danger of working too fast and insufficient testing. 
 Not Merged,  r376068 , jgenender , 2006-02-08 13:21:26 -0800 (Wed, 08 Feb 2006) , 1 line  GERONIMO-1480 - set and get servlet wrapper name during dispatch 
 Not Merged,  r376105 , jsisson , 2006-02-08 14:47:30 -0800 (Wed, 08 Feb 2006) , 2 lines  GERONIMO-1490 - setjavaenv.bat not called by deploy.bat GERONIMO-1610 - deploy.bat does not honour GERONIMO_BATCH_ECHO and GERONIMO_BATCH_PAUSE 
 Not Merged,  r376106 , jsisson , 2006-02-08 14:50:10 -0800 (Wed, 08 Feb 2006) , 1 line  GERONIMO-1490 - deploy.sh does not call setjavaenv.sh 
@@ -158,8 +158,8 @@ Not Merged,  r376119 , jsisson , 2006-02-08 15:35:02 -0800 (Wed, 08 Feb 2006) , 
 Not Merged,  r376121 , jsisson , 2006-02-08 15:42:20 -0800 (Wed, 08 Feb 2006) , 1 line  GERONIMO-1604 - Make scripts consistent in the output of environment variable information (previously deploy.bat and deploy.sh did not output this information).  Also allow environment variable information to be turned off using the new GERONIMO_ENV_INFO environment variable. 
 Not Merged,  r376123 , jsisson , 2006-02-08 15:45:45 -0800 (Wed, 08 Feb 2006) , 1 line  GERONIMO-1607 - Allow arguments to the Windows START command to be specified in an environment variable GERONIMO_WIN_START_ARGS. 
 Not Merged,  r376223 , jgenender , 2006-02-09 00:43:29 -0800 (Thu, 09 Feb 2006) , 1 line  Fix array issue 
-Not Merged,  r376284 , gdamour , 2006-02-09 05:21:02 -0800 (Thu, 09 Feb 2006) , 6 lines  GERONIMO-1599 HOWLLog throws NPE because XidFactory is missing  Extract XidFactory from TransactionManagerImpl.  Define an XidFactory GBean shared by HOWLTransactionLog and TransactionManager ~                                                                           
-Not Merged,  r376288 , gdamour , 2006-02-09 05:31:51 -0800 (Thu, 09 Feb 2006) , 3 lines  GERONIMO-1599 HOWLLog throws NPE because XidFactory is missing  Wrongly rolled-back the implementation of recover. 
+Merged,  r376284 , gdamour , 2006-02-09 05:21:02 -0800 (Thu, 09 Feb 2006) , 6 lines  GERONIMO-1599 HOWLLog throws NPE because XidFactory is missing  Extract XidFactory from TransactionManagerImpl.  Define an XidFactory GBean shared by HOWLTransactionLog and TransactionManager ~                                                                           
+Merged,  r376288 , gdamour , 2006-02-09 05:31:51 -0800 (Thu, 09 Feb 2006) , 3 lines  GERONIMO-1599 HOWLLog throws NPE because XidFactory is missing  Wrongly rolled-back the implementation of recover. 
 Not Merged,  r376866 , ammulder , 2006-02-10 13:40:09 -0800 (Fri, 10 Feb 2006) , 2 lines  Merge GERONIMO-1349 fix from branch  
 Not Merged,  r377239 , jdillon , 2006-02-12 12:43:22 -0800 (Sun, 12 Feb 2006) , 3 lines   Replace j2ee dependency with servlet and jsp dependency   
 Not Merged,  r377255 , jdillon , 2006-02-12 14:28:02 -0800 (Sun, 12 Feb 2006) , 3 lines   Unrolled j2ee spec dependencies   
@@ -168,7 +168,7 @@ Not Merged,  r377270 , jdillon , 2006-02-12 15:23:15 -0800 (Sun, 12 Feb 2006) , 
 Not Merged,  r377287 , jdillon , 2006-02-12 17:49:51 -0800 (Sun, 12 Feb 2006) , 2 lines  Minor indent update  
 Not Merged,  r377294 , jdillon , 2006-02-12 19:07:32 -0800 (Sun, 12 Feb 2006) , 3 lines   Remove these maven.xmls... they only were there to set the default goal, which is done in etc/project.xml now   
 Not Merged,  r377315 , bsnyder , 2006-02-12 23:05:38 -0800 (Sun, 12 Feb 2006) , 1 line  Removed Jeff's repo. 
-Not Merged,  r377628 , djencks , 2006-02-13 21:35:29 -0800 (Mon, 13 Feb 2006) , 1 line  GERONIMO-1613.  Remove/move excess dependencies, fix derby problems by import of system-database. 
+Merged,  r377628 , djencks , 2006-02-13 21:35:29 -0800 (Mon, 13 Feb 2006) , 1 line  GERONIMO-1613.  Remove/move excess dependencies, fix derby problems by import of system-database. 
 Not Merged,  r377850 , jlaskowski , 2006-02-14 13:58:03 -0800 (Tue, 14 Feb 2006) , 1 line  Make the name of the project fully qualified - Apache Geronimo 
 Not Merged,  r377853 , jlaskowski , 2006-02-14 13:59:33 -0800 (Tue, 14 Feb 2006) , 1 line  Ignore velocity.log 
 Not Merged,  r377882 , jlaskowski , 2006-02-14 15:24:37 -0800 (Tue, 14 Feb 2006) , 5 lines  GERONIMO-1624: POMs for some modules.   Thanks Anders!   
