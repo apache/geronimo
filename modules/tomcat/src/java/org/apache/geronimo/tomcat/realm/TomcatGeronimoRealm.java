@@ -112,7 +112,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
         if (subject == null)
             return super.hasUserDataPermission(request, response, constraints);
 
-        ContextManager.setCurrentCaller(subject);
+        ContextManager.setCallers(subject, subject);
 
         try {
 
@@ -121,14 +121,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
             /**
              * JACC v1.0 secion 4.1.1
              */
-            String transportType;
-            if (request.isSecure()) {
-                transportType = "CONFIDENTIAL";
-                //What about INTEGRAL?? Does Tomcat support it??
-            } else {
-                transportType = "NONE";
-            }
-            WebUserDataPermission wudp = new WebUserDataPermission(request.getServletPath() + (request.getPathInfo() == null ? "" : request.getPathInfo()), new String[]{request.getMethod()}, transportType);
+            WebUserDataPermission wudp = new WebUserDataPermission(request);
             acc.checkPermission(wudp);
 
         } catch (AccessControlException ace) {
@@ -192,7 +185,8 @@ public class TomcatGeronimoRealm extends JAASRealm {
             return request.isSecure();
 
         } else {
-            ContextManager.setCurrentCaller(((JAASTomcatPrincipal) principal).getSubject());
+            Subject currentCaller = ((JAASTomcatPrincipal) principal).getSubject();
+            ContextManager.setCallers(currentCaller, currentCaller);
         }
 
         try {
@@ -238,7 +232,8 @@ public class TomcatGeronimoRealm extends JAASRealm {
         }
 
         //Set the caller
-        ContextManager.setCurrentCaller(((JAASTomcatPrincipal) principal).getSubject());
+        Subject currentCaller = ((JAASTomcatPrincipal) principal).getSubject();
+        ContextManager.setCallers(currentCaller, currentCaller);
 
         AccessControlContext acc = ContextManager.getCurrentContext();
 
@@ -337,7 +332,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
                       return (null);
                   }
 
-                  ContextManager.setCurrentCaller(subject);
+                  ContextManager.setCallers(subject, subject);
 
               } catch (AccountExpiredException e) {
                   if (log.isDebugEnabled())

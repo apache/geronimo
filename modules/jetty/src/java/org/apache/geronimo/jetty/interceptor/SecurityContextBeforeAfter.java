@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2005 The Apache Software Foundation
+ * Copyright 2003-2006 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,30 +16,34 @@
  */
 package org.apache.geronimo.jetty.interceptor;
 
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.common.GeronimoSecurityException;
-import org.apache.geronimo.jetty.JAASJettyPrincipal;
-import org.apache.geronimo.jetty.JettyContainer;
-import org.apache.geronimo.jetty.JAASJettyRealm;
-import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.security.IdentificationPrincipal;
-import org.apache.geronimo.security.SubjectId;
-import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.apache.geronimo.security.util.ConfigurationUtil;
-import org.mortbay.http.*;
-import org.mortbay.jetty.servlet.FormAuthenticator;
-import org.mortbay.jetty.servlet.ServletHttpRequest;
-
-import javax.security.auth.Subject;
-import javax.security.jacc.PolicyContext;
-import javax.security.jacc.WebResourcePermission;
-import javax.security.jacc.WebUserDataPermission;
 import java.io.IOException;
 import java.security.AccessControlContext;
 import java.security.AccessControlException;
 import java.security.PermissionCollection;
 import java.security.Principal;
-import java.util.Map;
+import javax.security.auth.Subject;
+import javax.security.jacc.PolicyContext;
+import javax.security.jacc.WebResourcePermission;
+import javax.security.jacc.WebUserDataPermission;
+
+import org.mortbay.http.Authenticator;
+import org.mortbay.http.HttpException;
+import org.mortbay.http.HttpRequest;
+import org.mortbay.http.HttpResponse;
+import org.mortbay.http.SecurityConstraint;
+import org.mortbay.jetty.servlet.FormAuthenticator;
+import org.mortbay.jetty.servlet.ServletHttpRequest;
+
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.common.GeronimoSecurityException;
+import org.apache.geronimo.jetty.JAASJettyPrincipal;
+import org.apache.geronimo.jetty.JAASJettyRealm;
+import org.apache.geronimo.jetty.JettyContainer;
+import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.IdentificationPrincipal;
+import org.apache.geronimo.security.SubjectId;
+import org.apache.geronimo.security.deploy.DefaultPrincipal;
+import org.apache.geronimo.security.util.ConfigurationUtil;
 
 
 /**
@@ -52,7 +56,6 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
     private final int webAppContextIndex;
     private final String policyContextID;
     private final static ThreadLocal currentWebAppContext = new ThreadLocal();
-    private final Map roleDesignates;
     private final JAASJettyPrincipal defaultPrincipal;
 
     private final String formLoginPath;
@@ -71,9 +74,9 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
                                       Authenticator authenticator,
                                       PermissionCollection checkedPermissions,
                                       PermissionCollection excludedPermissions,
-                                      Map roleDesignates,
                                       JAASJettyRealm realm,
-                                      ClassLoader classLoader) {
+                                      ClassLoader classLoader)
+    {
         assert realm != null;
         assert authenticator != null;
 
@@ -83,7 +86,6 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
         this.policyContextID = policyContextID;
 
         this.defaultPrincipal = generateDefaultPrincipal(defaultPrincipal, classLoader);
-        this.roleDesignates = roleDesignates;
         this.checked = checkedPermissions;
         this.excludedPermissions = excludedPermissions;
 
@@ -153,14 +155,6 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
         return (SecurityContextBeforeAfter) currentWebAppContext.get();
     }
 
-    public static Subject getCurrentRoleDesignate(String role) {
-        return getCurrentSecurityInterceptor().getRoleDesignate(role);
-    }
-
-    private Subject getRoleDesignate(String roleName) {
-        return (Subject) roleDesignates.get(roleName);
-    }
-
     //security check methods, delegated from WebAppContext
 
     /**
@@ -183,16 +177,7 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
 
         try {
             ServletHttpRequest servletHttpRequest = (ServletHttpRequest) request.getWrapper();
-            String transportType;
-            if (request.isConfidential()) {
-                transportType = "CONFIDENTIAL";
-            } else if (request.isIntegral()) {
-                transportType = "INTEGRAL";
-            } else {
-                transportType = "NONE";
-            }
-            WebUserDataPermission wudp = new WebUserDataPermission(servletHttpRequest.getServletPath() + (servletHttpRequest.getPathInfo() == null ? "" : servletHttpRequest.getPathInfo()),
-                                                                   new String[]{servletHttpRequest.getMethod()}, transportType);
+            WebUserDataPermission wudp = new WebUserDataPermission(servletHttpRequest);
             WebResourcePermission webResourcePermission = new WebResourcePermission(servletHttpRequest);
             Principal user = obtainUser(pathInContext, request, response, webResourcePermission, wudp);
 
@@ -269,7 +254,8 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
         /**
          * No authentication is required.  Return the defaultPrincipal.
          */
-        ContextManager.setCurrentCaller(defaultPrincipal.getSubject());
+        //TODO use run-as as nextCaller if present
+        ContextManager.setCallers(defaultPrincipal.getSubject(), defaultPrincipal.getSubject());
         return defaultPrincipal;
     }
 
