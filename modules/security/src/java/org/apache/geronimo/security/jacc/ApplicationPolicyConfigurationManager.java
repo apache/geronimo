@@ -39,7 +39,7 @@ import org.apache.geronimo.security.SubjectId;
 /**
  * @version $Rev$ $Date$
  */
-public class ApplicationPolicyConfigurationManager implements GBeanLifecycle, RoleDesignateSource {
+public class ApplicationPolicyConfigurationManager implements GBeanLifecycle {
 
     private final Map contextIdToPolicyConfigurationMap = new HashMap();
     private final Map roleDesignates;
@@ -138,10 +138,6 @@ public class ApplicationPolicyConfigurationManager implements GBeanLifecycle, Ro
 
     }
 
-    public Map getRoleDesignateMap() {
-        return roleDesignates;
-    }
-
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -149,7 +145,6 @@ public class ApplicationPolicyConfigurationManager implements GBeanLifecycle, Ro
         infoBuilder.addAttribute("contextIdToPermissionsMap", Map.class, true);
         infoBuilder.addAttribute("roleDesignates", Map.class, true);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
-        infoBuilder.addInterface(RoleDesignateSource.class);
         infoBuilder.addReference("PrincipalRoleMapper", PrincipalRoleMapper.class, NameFactory.JACC_MANAGER);
         infoBuilder.setConstructor(new String[] {"contextIdToPermissionsMap", "roleDesignates", "classLoader", "PrincipalRoleMapper"});
         GBEAN_INFO = infoBuilder.getBeanInfo();

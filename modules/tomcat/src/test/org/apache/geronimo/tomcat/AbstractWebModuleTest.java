@@ -33,9 +33,8 @@ import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
 import org.apache.geronimo.security.jaas.server.JaasLoginService;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
-import org.apache.geronimo.security.jacc.ComponentPermissions;
-import org.apache.geronimo.security.jacc.RoleDesignateSource;
 import org.apache.geronimo.security.jacc.ApplicationPrincipalRoleConfigurationManager;
+import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.jacc.PrincipalRoleMapper;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
@@ -61,7 +60,7 @@ public abstract class AbstractWebModuleTest extends TestCase {
     protected static final String POLICY_CONTEXT_ID = "securetest";
     private GeronimoLoginConfiguration loginConfiguration;
 
-    protected TomcatWebAppContext setUpInsecureAppContext(URI relativeWebAppRoot, URL configurationBaseURL, SecurityHolder securityHolder, RoleDesignateSource roleDesignateSource, ObjectRetriever tomcatRealm, ValveGBean valveChain) throws Exception {
+    protected TomcatWebAppContext setUpInsecureAppContext(URI relativeWebAppRoot, URL configurationBaseURL, SecurityHolder securityHolder, ObjectRetriever tomcatRealm, ValveGBean valveChain) throws Exception {
 
         TomcatWebAppContext app = new TomcatWebAppContext(cl,
                 null,
@@ -76,7 +75,6 @@ public abstract class AbstractWebModuleTest extends TestCase {
                 transactionContextManager,
                 connectionTrackingCoordinator,
                 container,
-                roleDesignateSource,
                 tomcatRealm,
                 valveChain,
                 null,
@@ -103,7 +101,6 @@ public abstract class AbstractWebModuleTest extends TestCase {
         return setUpInsecureAppContext(new File("target/var/catalina/webapps/war3/").toURI(),
                 configurationBaseURL,
                 securityHolder,
-                jacc,
                 realm,
                 null);
     }

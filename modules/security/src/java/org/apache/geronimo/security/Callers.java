@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2006 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,34 +14,29 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.jetty;
 
-import java.security.Principal;
-import java.util.Stack;
+package org.apache.geronimo.security;
+
 import javax.security.auth.Subject;
 
-
 /**
- * @version $Rev$ $Date$
+ * @version $Rev:$ $Date:$
  */
-public class JAASJettyPrincipal implements Principal {
-    private final String name;
-    private Subject subject;
+public class Callers {
 
-    public JAASJettyPrincipal(String name) {
-        this.name = name;
+    private final Subject currentCaller;
+    private final Subject nextCaller;
+
+    public Callers(Subject currentCaller, Subject nextCaller) {
+        this.currentCaller = currentCaller;
+        this.nextCaller = nextCaller;
     }
 
-    public String getName() {
-        return name;
+    public Subject getCurrentCaller() {
+        return currentCaller;
     }
 
-    public Subject getSubject() {
-        return subject;
+    public Subject getNextCaller() {
+        return nextCaller;
     }
-
-    public void setSubject(Subject subject) {
-        this.subject = subject;
-    }
-    
 }

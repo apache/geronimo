@@ -60,7 +60,6 @@ import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
 import org.apache.geronimo.naming.reference.KernelAwareReference;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.apache.geronimo.security.jacc.RoleDesignateSource;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
@@ -168,42 +167,41 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     }
 
     public JettyWebAppContext(String objectName,
-                              String originalSpecDD,
-                              String sessionManager,
-                              Map componentContext,
-                              OnlineUserTransaction userTransaction,
-                              ClassLoader classLoader,
-                              URL configurationBaseUrl,
-                              Set unshareableResources,
-                              Set applicationManagedSecurityResources,
+            String originalSpecDD,
+            String sessionManager,
+            Map componentContext,
+            OnlineUserTransaction userTransaction,
+            ClassLoader classLoader,
+            URL configurationBaseUrl,
+            Set unshareableResources,
+            Set applicationManagedSecurityResources,
 
-                              String displayName,
-                              Map contextParamMap,
-                              Collection listenerClassNames,
-                              boolean distributable,
-                              Map mimeMap,
-                              String[] welcomeFiles,
-                              Map localeEncodingMapping,
-                              Map errorPages,
-                              Authenticator authenticator,
-                              String realmName,
-                              Map tagLibMap,
-                              int sessionTimeoutSeconds,
+            String displayName,
+            Map contextParamMap,
+            Collection listenerClassNames,
+            boolean distributable,
+            Map mimeMap,
+            String[] welcomeFiles,
+            Map localeEncodingMapping,
+            Map errorPages,
+            Authenticator authenticator,
+            String realmName,
+            Map tagLibMap,
+            int sessionTimeoutSeconds,
 
-                              String policyContextID,
-                              String securityRealmName,
-                              DefaultPrincipal defaultPrincipal,
-                              PermissionCollection checkedPermissions,
-                              PermissionCollection excludedPermissions,
+            String policyContextID,
+            String securityRealmName,
+            DefaultPrincipal defaultPrincipal,
+            PermissionCollection checkedPermissions,
+            PermissionCollection excludedPermissions,
 
-                              Host host,
-                              TransactionContextManager transactionContextManager,
-                              TrackedConnectionAssociator trackedConnectionAssociator,
-                              JettyContainer jettyContainer,
-                              RoleDesignateSource roleDesignateSource,
-                              J2EEServer server,
-                              J2EEApplication application,
-                              Kernel kernel) throws Exception, IllegalAccessException, InstantiationException, ClassNotFoundException {
+            Host host,
+            TransactionContextManager transactionContextManager,
+            TrackedConnectionAssociator trackedConnectionAssociator,
+            JettyContainer jettyContainer,
+            J2EEServer server,
+            J2EEApplication application,
+            Kernel kernel) throws Exception, IllegalAccessException, InstantiationException, ClassNotFoundException {
 
         assert componentContext != null;
         assert userTransaction != null;
@@ -278,15 +276,11 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 //JACC
 
         if (securityRealmName != null) {
-            if (roleDesignateSource == null) {
-                throw new IllegalArgumentException("RoleDesignateSource must be supplied for a secure web app");
-            }
-            Map roleDesignates = roleDesignateSource.getRoleDesignateMap();
             InternalJAASJettyRealm internalJAASJettyRealm = jettyContainer.addRealm(securityRealmName);
             //wrap jetty realm with something that knows the dumb realmName
             JAASJettyRealm realm = new JAASJettyRealm(realmName, internalJAASJettyRealm);
             setRealm(realm);
-            this.securityInterceptor = new SecurityContextBeforeAfter(interceptor, index++, index++, policyContextID, defaultPrincipal, authenticator, checkedPermissions, excludedPermissions, roleDesignates, realm, classLoader);
+            this.securityInterceptor = new SecurityContextBeforeAfter(interceptor, index++, index++, policyContextID, defaultPrincipal, authenticator, checkedPermissions, excludedPermissions, realm, classLoader);
             interceptor = this.securityInterceptor;
         } else {
             securityInterceptor = null;
@@ -348,12 +342,12 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             map.put(connector.getProtocol(), connector.getConnectUrl());
         }
         String urlPrefix;
-        if((urlPrefix = (String) map.get("HTTP")) == null) {
-            if((urlPrefix = (String) map.get("HTTPS")) == null) {
+        if ((urlPrefix = (String) map.get("HTTP")) == null) {
+            if ((urlPrefix = (String) map.get("HTTPS")) == null) {
                 urlPrefix = (String) map.get("AJP");
             }
         }
-        if(urlPrefix == null) {
+        if (urlPrefix == null) {
             return null;
         }
         try {
@@ -528,7 +522,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     }
 
     public String[] getServlets() {
-        synchronized(servletNames) {
+        synchronized (servletNames) {
             return (String[]) servletNames.toArray(new String[servletNames.size()]);
         }
     }
@@ -596,7 +590,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             leaveContextScope(null, null, context);
         }
         if (objectName != null) {
-            synchronized(servletNames) {
+            synchronized (servletNames) {
                 servletNames.add(objectName);
             }
         }
@@ -646,7 +640,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         infoBuilder.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
         infoBuilder.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class, NameFactory.JCA_CONNECTION_TRACKER);
         infoBuilder.addReference("JettyContainer", JettyContainer.class, NameFactory.GERONIMO_SERVICE);
-        infoBuilder.addReference("RoleDesignateSource", RoleDesignateSource.class, NameFactory.JACC_MANAGER);
 
         infoBuilder.addInterface(JettyServletRegistration.class);
 
@@ -704,7 +697,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
                 "TransactionContextManager",
                 "TrackedConnectionAssociator",
                 "JettyContainer",
-                "RoleDesignateSource",
 
                 "J2EEServer",
                 "J2EEApplication",

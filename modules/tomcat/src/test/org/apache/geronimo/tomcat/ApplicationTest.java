@@ -24,14 +24,13 @@ import java.net.URL;
 
 
 /**
- * @version $Rev: 387050 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class ApplicationTest extends AbstractWebModuleTest {
 
     public void testApplication() throws Exception {
         setUpInsecureAppContext(new File("target/var/catalina/webapps/war1/").toURI(),
                 new File("target/var/catalina/webapps/war1/WEB-INF/web.xml").toURL(),
-                null,
                 null,
                 null,
                 null);
