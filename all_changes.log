@@ -314,7 +314,7 @@ Unnecessary,  r393787 , jlaskowski , 2006-04-13 04:34:08 -0700 (Thu, 13 Apr 2006
 Unnecessary,  r394032 , jdillon , 2006-04-13 23:37:41 -0700 (Thu, 13 Apr 2006) , 4 lines   Use pluginManagement to specify the surefire plugin version  Don't use the -SNAPSHOT the format of params to the jvm keeps changing too much   
 Not Merged,  r395886 , hogstrom , 2006-04-21 06:54:11 -0700 (Fri, 21 Apr 2006) , 1 line  GERONIMO-1844 Precompile jsp pages in console - Added the MergeXML.java from the patch 
 Unnecessary,  r395903 , rickmcguire , 2006-04-21 07:42:25 -0700 (Fri, 21 Apr 2006) , 1 line  Jira GERONIMO-1881 removing obsolete interop module 
-Not Merged,  r396194 , gdamour , 2006-04-22 18:56:21 -0700 (Sat, 22 Apr 2006) , 3 lines  GERONIMO-1871 Unable to deploy Tapestry app due to classloading issue  The CL to be used is the Geronimo one and not the WebappClassLoader created by Tomcat. 
+Merged,  r396194 , gdamour , 2006-04-22 18:56:21 -0700 (Sat, 22 Apr 2006) , 3 lines  GERONIMO-1871 Unable to deploy Tapestry app due to classloading issue  The CL to be used is the Geronimo one and not the WebappClassLoader created by Tomcat. 
 Not Merged,  r398879 , rickmcguire , 2006-05-02 02:33:47 -0700 (Tue, 02 May 2006) , 4 lines  GERONIMO-1965 Fix GBean to configure proper protocol mail properties.     
 Unnecessary,  r409123 , hogstrom , 2006-05-24 03:35:20 -0700 (Wed, 24 May 2006) , 2 lines  Saving Trunk for later harvesting as part of GERONIMO-2053  
 Unnecessary,  r409138 , hogstrom , 2006-05-24 04:12:32 -0700 (Wed, 24 May 2006) , 1 line  Updated dead-1.2 to help people from accidentally building from here 
