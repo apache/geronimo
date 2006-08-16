@@ -121,14 +121,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
             /**
              * JACC v1.0 secion 4.1.1
              */
-            String transportType;
-            if (request.isSecure()) {
-                transportType = "CONFIDENTIAL";
-                //What about INTEGRAL?? Does Tomcat support it??
-            } else {
-                transportType = "NONE";
-            }
-            WebUserDataPermission wudp = new WebUserDataPermission(request.getServletPath() + (request.getPathInfo() == null ? "" : request.getPathInfo()), new String[]{request.getMethod()}, transportType);
+            WebUserDataPermission wudp = new WebUserDataPermission(request);
             acc.checkPermission(wudp);
 
         } catch (AccessControlException ace) {
