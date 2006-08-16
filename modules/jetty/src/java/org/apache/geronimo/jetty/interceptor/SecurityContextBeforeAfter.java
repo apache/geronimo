@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2005 The Apache Software Foundation
+ * Copyright 2003-2006 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,11 +21,18 @@ import java.security.AccessControlContext;
 import java.security.AccessControlException;
 import java.security.PermissionCollection;
 import java.security.Principal;
-
 import javax.security.auth.Subject;
 import javax.security.jacc.PolicyContext;
 import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebUserDataPermission;
+
+import org.mortbay.http.Authenticator;
+import org.mortbay.http.HttpException;
+import org.mortbay.http.HttpRequest;
+import org.mortbay.http.HttpResponse;
+import org.mortbay.http.SecurityConstraint;
+import org.mortbay.jetty.servlet.FormAuthenticator;
+import org.mortbay.jetty.servlet.ServletHttpRequest;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.GeronimoSecurityException;
@@ -37,13 +44,6 @@ import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.SubjectId;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.util.ConfigurationUtil;
-import org.mortbay.http.Authenticator;
-import org.mortbay.http.HttpException;
-import org.mortbay.http.HttpRequest;
-import org.mortbay.http.HttpResponse;
-import org.mortbay.http.SecurityConstraint;
-import org.mortbay.jetty.servlet.FormAuthenticator;
-import org.mortbay.jetty.servlet.ServletHttpRequest;
 
 
 /**
@@ -75,7 +75,8 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
                                       PermissionCollection checkedPermissions,
                                       PermissionCollection excludedPermissions,
                                       JAASJettyRealm realm,
-                                      ClassLoader classLoader) {
+                                      ClassLoader classLoader)
+    {
         assert realm != null;
         assert authenticator != null;
 
@@ -176,16 +177,7 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
 
         try {
             ServletHttpRequest servletHttpRequest = (ServletHttpRequest) request.getWrapper();
-            String transportType;
-            if (request.isConfidential()) {
-                transportType = "CONFIDENTIAL";
-            } else if (request.isIntegral()) {
-                transportType = "INTEGRAL";
-            } else {
-                transportType = "NONE";
-            }
-            WebUserDataPermission wudp = new WebUserDataPermission(servletHttpRequest.getServletPath() + (servletHttpRequest.getPathInfo() == null ? "" : servletHttpRequest.getPathInfo()),
-                                                                   new String[]{servletHttpRequest.getMethod()}, transportType);
+            WebUserDataPermission wudp = new WebUserDataPermission(servletHttpRequest);
             WebResourcePermission webResourcePermission = new WebResourcePermission(servletHttpRequest);
             Principal user = obtainUser(pathInContext, request, response, webResourcePermission, wudp);
 
@@ -262,7 +254,7 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
         /**
          * No authentication is required.  Return the defaultPrincipal.
          */
-    //TODO use run-as as nextCaller if present
+        //TODO use run-as as nextCaller if present
         ContextManager.setCallers(defaultPrincipal.getSubject(), defaultPrincipal.getSubject());
         return defaultPrincipal;
     }
