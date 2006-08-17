@@ -33,7 +33,7 @@
     <packaging>car</packaging>
 
     <dependencies>
-    
+
         <!-- parent config -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
@@ -41,7 +41,15 @@
             <version>${pom.version}</version>
             <type>car</type>
         </dependency>
-
+        
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>jetty-deployer</artifactId>
+            <version>${pom.version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>system-database</artifactId>
