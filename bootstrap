@@ -39,9 +39,17 @@ clean() {
     echo "Cleaning..."
     
     if [ "x$BOOTSTRAP_NOCLEAN_REPO" = "x" ]; then
+        echo "Deep cleaning ~/.m2/repository"
+        
         rm -rf ~/.m2/repository
     else
-        echo "Skipping repository cleaning"
+        echo "Shallow cleaning ~/.m2/repository/org/apache/geronimo"
+        
+        rm -rf ~/.m2/repository/org/apache/geronimo/modules
+        rm -rf ~/.m2/repository/org/apache/geronimo/configs
+        rm -rf ~/.m2/repository/org/apache/geronimo/applications
+        rm -rf ~/.m2/repository/org/apache/geronimo/assemblies
+        rm -rf ~/.m2/repository/org/apache/geronimo/plugins
     fi
     
     rm -rf "$DIRNAME/thirdparty"
@@ -96,6 +104,16 @@ openejb2() {
             fi
         )
     )
+}
+
+minimal() {
+    BOOTSTRAP_NOCLEAN_REPO=true
+    
+    begin && (
+        clean
+        stage "bootstrap" && \
+        stage "assemble"
+    ) && complete $?
 }
 
 main() {
