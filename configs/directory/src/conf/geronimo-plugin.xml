@@ -1,36 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2006 The Apache Software Foundation
+  
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+  http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<!-- $Rev$ $Date$ -->
+
 <geronimo-plugin xmlns="http://geronimo.apache.org/xml/ns/plugins-1.1">
-<name>Apache Directory 0.92 for Geronimo</name>
-<module-id>${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car</module-id>
-<category>Security</category>
-<description>
-This plugin integrates the Apache Directory Server (ApacheDS)
-LDAP server with Geronimo.  That means that Geronimo will run
-an embedded LDAP server when it starts.  This LDAP server may
-be used for LDAP security realms within Geronimo, as well as
-for other purposes by Geronimo applications or by remote
-applications.
-  
-This plugin does not presently include any tools for managing
-or inspecting the LDAP server, though Geronimo itself includes
-a security realm that works with LDAP.
-  
-For more information on the ApacheDS project, see
-http://directory.apache.org/subprojects/apacheds/index.html
-</description>
-<url>http://geronimo.apache.org/</url>
-<author>The Apache Geronimo development community</author>
-<license osi-approved="true">BSD -- Apache Software License (ASL) 2.0</license>
-<geronimo-version>${pom.currentVersion}</geronimo-version>
-<dependency>geronimo/j2ee-server//car</dependency>
-<dependency>geronimo/geronimo-directory//jar</dependency>
-<source-repository>http://www.geronimoplugins.com/repository/geronimo-1.1/</source-repository>
-<source-repository>http://www.ibiblio.org/maven2/</source-repository>
-<config-xml-content>
-  <gbean xmlns="http://geronimo.apache.org/xml/ns/attributes-1.1"
-         name="DirectoryService">
-    <attribute name="host">0.0.0.0</attribute>
-    <attribute name="port">1389</attribute>
-  </gbean>
-</config-xml-content>
+    <name>Apache Directory 0.92 for Geronimo</name>
+    <module-id>${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car</module-id>
+    <category>Security</category>
+    <description>
+        This plugin integrates the Apache Directory Server (ApacheDS)
+        LDAP server with Geronimo.  That means that Geronimo will run
+        an embedded LDAP server when it starts.  This LDAP server may
+        be used for LDAP security realms within Geronimo, as well as
+        for other purposes by Geronimo applications or by remote
+        applications.
+          
+        This plugin does not presently include any tools for managing
+        or inspecting the LDAP server, though Geronimo itself includes
+        a security realm that works with LDAP.
+          
+        For more information on the ApacheDS project, see
+        http://directory.apache.org/subprojects/apacheds/index.html
+    </description>
+    <url>http://geronimo.apache.org/</url>
+    <author>The Apache Geronimo development community</author>
+    <license osi-approved="true">BSD -- Apache Software License (ASL) 2.0</license>
+    <geronimo-version>${pom.currentVersion}</geronimo-version>
+    <dependency>geronimo/j2ee-server//car</dependency>
+    <dependency>geronimo/geronimo-directory//jar</dependency>
+    <source-repository>http://www.geronimoplugins.com/repository/geronimo-1.1/</source-repository>
+    <source-repository>http://www.ibiblio.org/maven2/</source-repository>
+    <config-xml-content>
+        <gbean xmlns="http://geronimo.apache.org/xml/ns/attributes-1.1"
+                name="DirectoryService">
+            <attribute name="host">0.0.0.0</attribute>
+            <attribute name="port">1389</attribute>
+        </gbean>
+    </config-xml-content>
 </geronimo-plugin>

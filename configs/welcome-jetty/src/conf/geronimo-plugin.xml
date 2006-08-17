@@ -1,23 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2006 The Apache Software Foundation
+  
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+  http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<!-- $Rev$ $Date$ -->
+
 <geronimo-plugin xmlns="http://geronimo.apache.org/xml/ns/plugins-1.1">
-<name>Geronimo Welcome Web App (Jetty)</name>
-<module-id>${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car</module-id>
-<category>Core Geronimo</category>
-<description>The welcome application for Geronimo.  This binds to / so it
-handles all requests that nothing else is bound to.  The main
-purpose is to greet users who are exploring Geronimo for the
-first time.  It should typically be removed or replaced for
-production applications.</description>
-<url>http://geronimo.apache.org/</url>
-<author>The Apache Geronimo development community</author>
-<license osi-approved="true">BSD -- Apache Software License (ASL) 2.0</license>
-<geronimo-version>${pom.currentVersion}</geronimo-version>
-<prerequisite>
-<id>geronimo/jetty//car</id>
-<resource-type>Web Container</resource-type>
-<description>This version of the Welcome application works with the Geronimo/Jetty distribution.  It is not intended to run in the Geronimo/Tomcat distribution.  There is a separate version of the Welcome application that works with Tomcat.  Please install the version appropriate to your Geronimo distribution.</description>
-</prerequisite>
-<dependency>geronimo/j2ee-server//car</dependency>
-<source-repository>http://www.geronimoplugins.com/repository/geronimo-1.1/</source-repository>
-<source-repository>http://www.ibiblio.org/maven2/</source-repository>
+    <name>Geronimo Welcome Web App (Jetty)</name>
+    <module-id>${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car</module-id>
+    <category>Core Geronimo</category>
+    <description>
+        The welcome application for Geronimo.  This binds to / so it
+        handles all requests that nothing else is bound to.  The main
+        purpose is to greet users who are exploring Geronimo for the
+        first time.  It should typically be removed or replaced for
+        production applications.
+    </description>
+    <url>http://geronimo.apache.org/</url>
+    <author>The Apache Geronimo development community</author>
+    <license osi-approved="true">BSD -- Apache Software License (ASL) 2.0</license>
+    <geronimo-version>${pom.currentVersion}</geronimo-version>
+    <prerequisite>
+        <id>geronimo/jetty//car</id>
+        <resource-type>Web Container</resource-type>
+        <description>
+            This version of the Welcome application works with the Geronimo/Jetty distribution.
+            It is not intended to run in the Geronimo/Tomcat distribution.
+            There is a separate version of the Welcome application that works with Tomcat.
+            Please install the version appropriate to your Geronimo distribution.
+        </description>
+    </prerequisite>
+    <dependency>geronimo/j2ee-server//car</dependency>
+    <source-repository>http://www.geronimoplugins.com/repository/geronimo-1.1/</source-repository>
+    <source-repository>http://www.ibiblio.org/maven2/</source-repository>
 </geronimo-plugin>
