@@ -75,7 +75,7 @@ public class ConnectionManagerStressTest extends ConnectionManagerTestUtils {
                                 long duration = System.currentTimeMillis() - start;
                                 if (duration > 100) {
                                     localSlowCount++;
-                                    System.out.println("got a cx: " + i + ", time: " + (duration));
+                                    log.debug("got a cx: " + i + ", time: " + (duration));
                                 }
                             } catch (Throwable throwable) {
                                 throwable.printStackTrace();
@@ -112,8 +112,7 @@ public class ConnectionManagerStressTest extends ConnectionManagerTestUtils {
             while (stoppedThreads < threadCount) stopBarrier.wait();
         }
         long duration = System.currentTimeMillis() - startTime;
-        log.info("no tx run, thread count: " + threadCount + ", connection count: " + repeatCount + ", duration: " + duration + ", total duration: " + totalDuration + ", ms per cx request: " + (totalDuration / (threadCount * repeatCount)));
-        System.out.println("no tx run, thread count: " + threadCount + ", connection count: " + repeatCount + ", duration: " + duration + ", total duration: " + totalDuration + ", ms per cx request: " + (totalDuration / (threadCount * repeatCount)) + ", slow cx request count: " + slowCount);
+        log.debug("no tx run, thread count: " + threadCount + ", connection count: " + repeatCount + ", duration: " + duration + ", total duration: " + totalDuration + ", ms per cx request: " + (totalDuration / (threadCount * repeatCount)) + ", slow cx request count: " + slowCount);
         //return startTime;
         if (e != null) {
             throw e;

@@ -28,6 +28,8 @@ import junit.framework.TestCase;
 import org.apache.geronimo.pool.ThreadPool;
 import org.apache.geronimo.transaction.manager.GeronimoTransactionManager;
 import org.apache.geronimo.transaction.manager.XAWork;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Timing is crucial for this test case, which focuses on the synchronization
@@ -36,6 +38,8 @@ import org.apache.geronimo.transaction.manager.XAWork;
  * @version $Rev$ $Date$
  */
 public class PooledWorkManagerTest extends TestCase {
+
+    private static final Log log = LogFactory.getLog(PooledWorkManagerTest.class);
 
     private GeronimoWorkManager workManager;
 
@@ -236,22 +240,22 @@ public class PooledWorkManagerTest extends TestCase {
 
         public void workAccepted(WorkEvent e) {
             acceptedEvent = e;
-            System.out.println("accepted" + e);
+            log.debug("accepted" + e);
         }
 
         public void workRejected(WorkEvent e) {
             rejectedEvent = e;
-            System.out.println("rejected" + e);
+            log.debug("rejected" + e);
         }
 
         public void workStarted(WorkEvent e) {
             startedEvent = e;
-            System.out.println("started" + e);
+            log.debug("started" + e);
         }
 
         public void workCompleted(WorkEvent e) {
             completedEvent = e;
-            System.out.println("completed" + e);
+            log.debug("completed" + e);
         }
     }
 }
