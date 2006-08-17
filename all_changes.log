@@ -213,7 +213,7 @@ Not Merged,  r382389 , jlaskowski , 2006-03-02 06:23:02 -0800 (Thu, 02 Mar 2006)
 Unnecessary,  r382793 , jlaskowski , 2006-03-03 04:58:26 -0800 (Fri, 03 Mar 2006) , 4 lines  GERONIMO-1678 - Interceptor module added to m2  Thanks Henri!  
 Not Merged,  r383090 , jlaskowski , 2006-03-04 03:24:20 -0800 (Sat, 04 Mar 2006) , 4 lines  GERONIMO-1673 SMTPTransport is not performing byte-stuffing and newline canonicalization on message data  Thanks Rick!  
 Not Merged,  r383095 , jlaskowski , 2006-03-04 03:55:42 -0800 (Sat, 04 Mar 2006) , 6 lines  GERONIMO-1675 Add NNTP transport to the javamail package  Thanks Rick!  NOTE: It requires the latest version of geronimo-javamail_1.3.1_spec-1.1-SNAPSHOT.jar. Will have to ask how ot publish it.  
-Not Merged,  r383111 , jlaskowski , 2006-03-04 05:26:30 -0800 (Sat, 04 Mar 2006) , 4 lines  GERONIMO-1667 Remove console-web module as it has now become obsolete  There's a brand new console in applications/console*  
+Merged,  r383111 , jlaskowski , 2006-03-04 05:26:30 -0800 (Sat, 04 Mar 2006) , 4 lines  GERONIMO-1667 Remove console-web module as it has now become obsolete  There's a brand new console in applications/console*  
 Unnecessary,  r383116 , jlaskowski , 2006-03-04 06:23:10 -0800 (Sat, 04 Mar 2006) , 4 lines  Generate geronimo-version.properties using Maven2 Antrun plugin  Note: I'm not sure if it's in a correct phase, but it works  
 Unnecessary,  r383123 , jlaskowski , 2006-03-04 06:47:45 -0800 (Sat, 04 Mar 2006) , 1 line  GERONIMO-1688 Fresh build fails because of unsatisfied dependency on activecluster in configs/openejb 
 Unnecessary,  r383128 , jlaskowski , 2006-03-04 07:03:33 -0800 (Sat, 04 Mar 2006) , 1 line  GERONIMO-1679 Typo in j2ee-builder's project.xml 

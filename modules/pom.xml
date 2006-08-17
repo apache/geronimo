@@ -86,11 +86,6 @@
         FIXME: Remove, not supporting izpack installer at the momemnt
         <module>installer-support</module>
         -->
-
-        <!--
-        FIXME: Remove this module, it is duplicated in applications
-        <module>console-web</module>
-        -->
     </modules>
     
 </project>
