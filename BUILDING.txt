@@ -1,67 +1,52 @@
-Welcome to Geronimo
-===================
- 
-To build me please install Maven from here - version 1.0.2 or later.
 
-	http://maven.apache.org/
+Welcome to Apache Geronimo
+==========================
 
-In addition you should have JDK 1.4.x installed with JAVA_HOME
-environment defined to point to this JDK.
+To build you will need:
 
-* NOTE * Currently Geronimo requires the Sun 1.4 JDK for building.  Newer JDK 
-         Versions may not work.  Use at your own risk.
+ * J2SE SDK 1.4.2+ (http://java.sun.com/j2se/1.4.2)
+ * Maven 2.0.4+ (http://maven.apache.org)
 
-In the following examples, '$>' is your prompt, so if you see 
-'$> maven', at your prompt, type in 'maven' (without the quotes) 
-and then press [enter].
+NOTE: If you use JDK 1.5 you may run into unexpected errors, so stick to 1.4.
 
-To build Geronimo running all of the unit test cases, compiling 
-all the Geronimo sources and installing them in your local maven
-repository, simply type "maven" in the root of the Geronimo
+For detail instructions please see:
+
+    http://cwiki.apache.org/GMOxDEV/building-apache-geronimo-with-maven-2.html
+
+
+Building for the first time
+===========================
+
+Currently to ensure that your build works you should bootstrap, which will
+clean your local Maven 2 repository, download some sources and build them
+and kick off the Geronimo build.
+
+To start the bootstrap build simply:
+
+    ./bootstrap
+
+NOTE: Windows users will need Cygwin to execute this script.
+
+The end result will be a set of functional distributions in m2-assemblies/*/target
+which you can unpack and startup, as in:
+
+    gunzip -c m2-assemblies/geronimo-jetty-j2ee/target/geronimo-jetty-j2ee*-bin.tar.gz | tar xf -
+    ./geronimo-jetty-j2ee*/bin/startup.sh
+    ...
+    ./geronimo-jetty-j2ee*/bin/shutdown.sh
+
+
+Subsequent builds
+=================
+
+After the initial bootstrap build, the `mvn` command can be used.
+
+To build all changes incrementally:
+
+    mvn install
+
+To perform clean builds, which are sometimes needed after some changes to the 
 source tree:
 
-        $> maven 
+    mvn clean install
 
-That command will run the default "new" target and compile 
-Geronimo, using recent binary builds of OpenEJB and TranQL.  In 
-some cases synchronized changes are made to several of the 
-projects at once, and you may have trouble building the HEAD code 
-of Geronimo against the older binaries of OpenEJB of TranQL.  
-In that case, you can run:
-
-	$> maven m:co
-	$> maven m:clean m:clean-repo new
-
-The first command checks out the latest OpenEJB and TranQL code,
-while the second cleans and previous build output and rebuilds
-Geronimo, OpenEJB, and TranQL from scratch.
-
-To run the server, change into one of the assemblies directory
-and start the server using a command like this:
-	
-        $> cd assemblies/j2ee-jetty-server
-        $> cd target/geronimo-1.0
-        $> java -jar bin/server.jar
-
-To stop the server use ctrl-C or use the shutdown JAR.
-(See http://wiki.apache.org/geronimo/Running for more information).
-
-To do a clean rebuild of Geronimo type
-
-        $> maven m:clean m:clean-repo new
-
-To only build select modules (assumes that depends are installed
-already):
-
-        $> maven -Dmodules=common,core
-
-To clean your workspace:
-	
-        $> maven clean
-
-NOTE: You need to build the server first for this to work due to 
-      a problem with dependencies & the reactor.
-
-To removal all build generated files:
-
-        $> maven clobber
