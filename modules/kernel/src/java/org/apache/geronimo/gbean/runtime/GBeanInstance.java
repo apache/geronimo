@@ -30,6 +30,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Arrays;
+
 import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
@@ -325,10 +327,11 @@ public final class GBeanInstance implements StateManageable {
             constructor = type.getConstructor(parameterTypes);
         } catch (NoSuchMethodException e) {
             StringBuffer buf = new StringBuffer("Could not find a valid constructor for GBean: ").append(gbeanInfo.getName()).append("\n");
+            buf.append("ParameterTypes: ").append(Arrays.asList(parameterTypes)).append("\n");
             Constructor[] constructors = type.getConstructors();
             for (int i = 0; i < constructors.length; i++) {
                 Constructor testConstructor = constructors[i];
-                buf.append("constructor types: ").append(testConstructor.getParameterTypes()).append("\n");
+                buf.append("constructor types: ").append(Arrays.asList(testConstructor.getParameterTypes())).append("\n");
                 if (testConstructor.getParameterTypes().length == parameterTypes.length) {
                     Class[] testParameterTypes = testConstructor.getParameterTypes();
                     for (int k = 0; k < testParameterTypes.length; k++) {
