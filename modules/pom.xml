@@ -55,7 +55,6 @@
         <module>derby</module>
         <module>directory</module>
         <module>hot-deploy</module>
-        <module>installer-processing</module>
         <module>interceptor</module>
         <module>j2ee</module>
         <module>j2ee-builder</module>
