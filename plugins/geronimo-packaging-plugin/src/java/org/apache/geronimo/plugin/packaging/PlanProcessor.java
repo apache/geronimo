@@ -54,7 +54,7 @@ public class PlanProcessor {
     private static final String KEEP_VERSION_PROPERTY = "geronimo.keep.version";
     private static final String REFERENCE_PROPERTY = "geronimo.reference";
     private static final String ENVIRONMENT_LOCAL_NAME = "environment";
-    private static final QName ENVIRONMENT_QNAME = new QName("http://geronimo.apache.org/xml/ns/deployment-1.1", "environment");
+    private static final QName ENVIRONMENT_QNAME = new QName("http://geronimo.apache.org/xml/ns/deployment-1.2", "environment");
 
     private List artifacts;
     private String sourceDir;

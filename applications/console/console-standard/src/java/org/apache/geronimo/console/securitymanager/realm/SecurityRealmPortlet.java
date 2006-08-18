@@ -29,6 +29,7 @@ import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.xbeans.ReferenceType;
 import org.apache.geronimo.deployment.xbeans.XmlAttributeType;
+import org.apache.geronimo.deployment.xbeans.AbstractServiceType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
@@ -349,7 +350,8 @@ public class SecurityRealmPortlet extends BasePortlet {
             artifactType.setType(artifact.getType());
         }
         // Build the realm GBean
-        GbeanType realm = root.addNewGbean();
+        GbeanType realm = GbeanType.Factory.newInstance();
+        root.setServiceArray(new AbstractServiceType[]{realm});
         realm.setName(data.getName());
         realm.setClass1("org.apache.geronimo.security.realm.GenericSecurityRealm");
         AttributeType realmName = realm.addNewAttribute();

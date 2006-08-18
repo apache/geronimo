@@ -28,6 +28,7 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlException;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -69,7 +70,7 @@ public class SchemaConversionUtilsTest extends TestCase {
         URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/application-client-14.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
-        SchemaConversionUtils.validateDD(expected);
+        XmlBeansUtil.validateDD(expected);
         xmlObject = SchemaConversionUtils.convertToApplicationClientSchema(xmlObject);
 //        log.debug(xmlObject.toString());
 //        log.debug(expected.toString());
@@ -98,7 +99,7 @@ public class SchemaConversionUtilsTest extends TestCase {
         URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/application-14.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
-        SchemaConversionUtils.validateDD(expected);
+        XmlBeansUtil.validateDD(expected);
         xmlObject = SchemaConversionUtils.convertToApplicationSchema(xmlObject);
 //        log.debug(xmlObject.toString());
 //        log.debug(expected.toString());
@@ -127,7 +128,7 @@ public class SchemaConversionUtilsTest extends TestCase {
         URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/ra-15.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
-        SchemaConversionUtils.validateDD(expected);
+        XmlBeansUtil.validateDD(expected);
         xmlObject = SchemaConversionUtils.convertToConnectorSchema(xmlObject);
 //        log.debug(xmlObject.toString());
 //        log.debug(expected.toString());
@@ -156,7 +157,7 @@ public class SchemaConversionUtilsTest extends TestCase {
         URL expectedOutputXml = classLoader.getResource("j2ee_1_2dtd/ejb-1-21.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
-        SchemaConversionUtils.validateDD(expected);
+        XmlBeansUtil.validateDD(expected);
         xmlObject = SchemaConversionUtils.convertToEJBSchema(xmlObject);
 //        log.debug(xmlObject.toString());
 //        log.debug(expected.toString());
@@ -185,7 +186,7 @@ public class SchemaConversionUtilsTest extends TestCase {
         URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/ejb-jar-21.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
-        SchemaConversionUtils.validateDD(expected);
+        XmlBeansUtil.validateDD(expected);
         xmlObject = SchemaConversionUtils.convertToEJBSchema(xmlObject);
 //        log.debug(xmlObject.toString());
 //        log.debug(expected.toString());
@@ -214,7 +215,7 @@ public class SchemaConversionUtilsTest extends TestCase {
         URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/mdb-ejb-jar-21-GERONIMO-1649.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
-        SchemaConversionUtils.validateDD(expected);
+        XmlBeansUtil.validateDD(expected);
         xmlObject = SchemaConversionUtils.convertToEJBSchema(xmlObject);
 //        log.debug(xmlObject.toString());
 //        log.debug(expected.toString());
@@ -243,7 +244,7 @@ public class SchemaConversionUtilsTest extends TestCase {
         URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/mdb-ejb-jar-21.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
-        SchemaConversionUtils.validateDD(expected);
+        XmlBeansUtil.validateDD(expected);
         xmlObject = SchemaConversionUtils.convertToEJBSchema(xmlObject);
 //        log.debug(xmlObject.toString());
 //        log.debug(expected.toString());
@@ -400,7 +401,7 @@ public class SchemaConversionUtilsTest extends TestCase {
     public void testGeronimoNamingNamespaceChange() throws Exception {
         URL srcXml = classLoader.getResource("geronimo/ejb-naming-pre.xml");
         URL expectedOutputXml = classLoader.getResource("geronimo/ejb-naming-post.xml");
-        XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
+        XmlObject xmlObject = XmlBeansUtil.parse(srcXml, this.getClass().getClassLoader());
         XmlCursor cursor = xmlObject.newCursor();
         try {
             SchemaConversionUtils.convertToGeronimoSubSchemas(cursor);
@@ -526,7 +527,7 @@ public class SchemaConversionUtilsTest extends TestCase {
     public void testWebMessageDestination1() throws Exception {
         URL srcXml = classLoader.getResource("geronimo/web-md-pre.xml");
         URL expectedOutputXml = classLoader.getResource("geronimo/web-md-post.xml");
-        XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
+        XmlObject xmlObject = XmlBeansUtil.parse(srcXml, this.getClass().getClassLoader());
         XmlCursor cursor = xmlObject.newCursor();
         try {
             SchemaConversionUtils.convertToGeronimoSubSchemas(cursor);

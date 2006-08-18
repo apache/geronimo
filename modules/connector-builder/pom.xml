@@ -92,14 +92,15 @@
                     <include>NOTICE.txt</include>
                 </includes>
             </resource>
-            
-            <resource>
-                <directory>${pom.basedir}/src/schema</directory>
-                <targetPath>META-INF</targetPath>
-                <includes>
-                    <include>geronimo-connector-1.1.xsd</include>
-                </includes>
-            </resource>
+
+            <!-- TODO this should not be needed -->
+            <!--<resource>-->
+                <!--<directory>${pom.basedir}/src/schema</directory>-->
+                <!--<targetPath>META-INF</targetPath>-->
+                <!--<includes>-->
+                    <!--<include>geronimo-connector-1.2.xsd</include>-->
+                <!--</includes>-->
+            <!--</resource>-->
         </resources>
 
         <plugins>
@@ -107,7 +108,7 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>xmlbeans-maven-plugin</artifactId>
                 <configuration>
-                    <sourceSchemas>geronimo-connector-1.1.xsd</sourceSchemas>
+                    <sourceSchemas>geronimo-connector-1.2.xsd</sourceSchemas>
                 </configuration>
             </plugin>
             

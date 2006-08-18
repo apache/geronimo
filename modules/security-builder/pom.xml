@@ -30,7 +30,7 @@
 
     <artifactId>geronimo-security-builder</artifactId>
     <name>Geronimo :: Security :: Builder</name>
-    
+
     <!--
     
     HACK: Need to explicitly configure SCM for this module since its artifactId
@@ -57,7 +57,7 @@
 
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-deployment</artifactId>
+            <artifactId>geronimo-j2ee-builder</artifactId>
             <version>${pom.version}</version>
         </dependency>
 
@@ -67,31 +67,6 @@
             <version>${pom.version}</version>
         </dependency>
 
-        <!-- needed only because security schema references j2ee 1.4 schema for description element -->
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-j2ee-schema</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-common</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-j2ee</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-kernel</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-        
     </dependencies>
     
     <build>
@@ -100,7 +75,7 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>xmlbeans-maven-plugin</artifactId>
                 <configuration>
-                    <sourceSchemas>geronimo-security-1.1.xsd,geronimo-login-config-1.1.xsd</sourceSchemas>
+                    <sourceSchemas>geronimo-security-1.2.xsd,geronimo-login-config-1.2.xsd</sourceSchemas>
                 </configuration>
             </plugin>
             

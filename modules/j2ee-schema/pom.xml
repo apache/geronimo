@@ -64,6 +64,13 @@
             <artifactId>stax-api</artifactId>
         </dependency>
         
+        <!-- might not be necessary -->
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-service-builder</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+
     </dependencies>
     
     <build>

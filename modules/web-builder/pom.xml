@@ -51,18 +51,6 @@
         
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-common</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-deploy-config</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-j2ee-builder</artifactId>
             <version>${pom.version}</version>
         </dependency>
@@ -85,11 +73,6 @@
             <version>${pom.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-j2ee-schema</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
 
         <dependency>
             <groupId>${pom.groupId}</groupId>
@@ -97,24 +80,14 @@
             <version>${pom.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-deployment</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-
+        <!-- might not be needed -->
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-j2ee</artifactId>
             <version>${pom.version}</version>
         </dependency>
-        
+
         <!-- Spec Dependencies -->
-        
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>
-        </dependency>
         
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
@@ -129,7 +102,7 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>xmlbeans-maven-plugin</artifactId>
                 <configuration>
-                    <sourceSchemas>geronimo-web-1.1.xsd</sourceSchemas>
+                    <sourceSchemas>geronimo-web-1.2.xsd</sourceSchemas>
                 </configuration>
             </plugin>
             

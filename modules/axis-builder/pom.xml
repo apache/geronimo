@@ -30,7 +30,7 @@
 
     <artifactId>geronimo-axis-builder</artifactId>
     <name>Geronimo :: Axis :: Builder</name>
-    
+
     <!--
     
     HACK: Need to explicitly configure SCM for this module since its artifactId

@@ -1,5 +1,5 @@
-<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.1" xmlns:j2ee="http://java.sun.com/xml/ns/j2ee">
-  <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.2" xmlns:j2ee="http://java.sun.com/xml/ns/j2ee">
+  <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
     <dep:moduleId>
       <dep:groupId>default</dep:groupId>
       <dep:artifactId>appclient_dep</dep:artifactId>
@@ -31,8 +31,8 @@
   </dep:environment>
   <module>
     <java>appclient_dep_resref_single_client.jar</java>
-    <application-client xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client-1.1">
-      <dep:client-environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+    <application-client xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client-1.2">
+      <dep:client-environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
         <dep:moduleId>
           <dep:groupId>default</dep:groupId>
           <dep:artifactId>appclient_dep_appclient_dep_client</dep:artifactId>
@@ -74,7 +74,7 @@
         <dep:hidden-classes/>
         <dep:non-overridable-classes/>
       </dep:client-environment>
-      <dep:server-environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+      <dep:server-environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
         <dep:moduleId>
           <dep:groupId>default</dep:groupId>
           <dep:artifactId>bar</dep:artifactId>
@@ -85,22 +85,22 @@
         <dep:hidden-classes/>
         <dep:non-overridable-classes/>
       </dep:server-environment>
-      <resource-ref xmlns="http://geronimo.apache.org/xml/ns/naming-1.1">
+      <resource-ref xmlns="http://geronimo.apache.org/xml/ns/naming-1.2">
         <ref-name>url/URL</ref-name>
         <url>http://${webserverHost}:${webserverPort}/appclient_dep/test.jsp</url>
       </resource-ref>
-      <resource-ref xmlns="http://geronimo.apache.org/xml/ns/naming-1.1">
+      <resource-ref xmlns="http://geronimo.apache.org/xml/ns/naming-1.2">
         <ref-name>jms/myQueueConnectionFactory</ref-name>
         <resource-link>DefaultActiveMQConnectionFactory</resource-link>
       </resource-ref>
-      <resource-ref xmlns="http://geronimo.apache.org/xml/ns/naming-1.1">
+      <resource-ref xmlns="http://geronimo.apache.org/xml/ns/naming-1.2">
         <ref-name>jms/myTopicConnectionFactory</ref-name>
         <resource-link>DefaultActiveMQConnectionFactory</resource-link>
       </resource-ref>
       <resource>
         <external-rar>activemq/activemq-ra/${activemq_version}/rar</external-rar>
-        <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1">
-          <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+        <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.2">
+          <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
             <dep:moduleId>
               <dep:groupId>default</dep:groupId>
               <dep:artifactId>org.codehaus.activemq.ra_default</dep:artifactId>

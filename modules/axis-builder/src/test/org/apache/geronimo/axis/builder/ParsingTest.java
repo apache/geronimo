@@ -32,7 +32,6 @@ import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 
@@ -65,7 +64,7 @@ public class ParsingTest extends TestCase {
     }
 
     private Map parse(File schema1) throws IOException, XmlException, DeploymentException, URISyntaxException {
-        XmlObject xmlObject = XmlBeansUtil.parse(schema1.toURL());
+        XmlObject xmlObject = XmlBeansUtil.parse(schema1.toURL(), getClass().getClassLoader());
         Collection errors = new ArrayList();
         XmlOptions xmlOptions = new XmlOptions();
         xmlOptions.setErrorListener(errors);

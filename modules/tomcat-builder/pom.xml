@@ -49,23 +49,23 @@
         
         <!-- Module Dependencies -->
         
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-deployment</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>${pom.groupId}</groupId>-->
+            <!--<artifactId>geronimo-deployment</artifactId>-->
+            <!--<version>${pom.version}</version>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-j2ee</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>${pom.groupId}</groupId>-->
+            <!--<artifactId>geronimo-j2ee</artifactId>-->
+            <!--<version>${pom.version}</version>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-j2ee-schema</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>${pom.groupId}</groupId>-->
+            <!--<artifactId>geronimo-j2ee-schema</artifactId>-->
+            <!--<version>${pom.version}</version>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>${pom.groupId}</groupId>
@@ -117,18 +117,18 @@
         
         <!-- Test Dependencies -->
         
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-axis</artifactId>
-            <version>${pom.version}</version>
-            <scope>test</scope>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>${pom.groupId}</groupId>-->
+            <!--<artifactId>geronimo-axis</artifactId>-->
+            <!--<version>${pom.version}</version>-->
+            <!--<scope>test</scope>-->
+        <!--</dependency>-->
         
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-servlet_2.4_spec</artifactId>
-            <scope>test</scope>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-servlet_2.4_spec</artifactId>-->
+            <!--<scope>test</scope>-->
+        <!--</dependency>-->
         <!--WFT??? why is this needed for tests all of a sudden? -->
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
@@ -155,14 +155,14 @@
                 </includes>
             </resource>
             
-            <resource>
-                <directory>src/schema</directory>
-                <targetPath>META-INF</targetPath>
-                <includes>
-                    <include>geronimo-tomcat-1.1.xsd</include>
-                    <include>geronimo-tomcat-config-1.0.xsd</include>
-                </includes>
-            </resource>
+            <!--<resource>-->
+                <!--<directory>src/schema</directory>-->
+                <!--<targetPath>META-INF</targetPath>-->
+                <!--<includes>-->
+                    <!--<include>geronimo-tomcat-1.1.xsd</include>-->
+                    <!--<include>geronimo-tomcat-config-1.0.xsd</include>-->
+                <!--</includes>-->
+            <!--</resource>-->
         </resources>
 
         <plugins>
@@ -186,7 +186,7 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>xmlbeans-maven-plugin</artifactId>
                 <configuration>
-                    <sourceSchemas>geronimo-tomcat-1.1.xsd,geronimo-tomcat-config-1.0.xsd</sourceSchemas>
+                    <sourceSchemas>geronimo-tomcat-1.2.xsd,geronimo-tomcat-config-1.0.xsd</sourceSchemas>
                 </configuration>
             </plugin>
             

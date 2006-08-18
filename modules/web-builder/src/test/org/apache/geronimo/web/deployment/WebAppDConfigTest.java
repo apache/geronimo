@@ -17,17 +17,15 @@
 
 package org.apache.geronimo.web.deployment;
 
-import java.util.Arrays;
 import java.net.URL;
+import java.util.Arrays;
+
 import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.model.DDBeanRoot;
 import javax.enterprise.deploy.spi.DeploymentConfiguration;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.deployment.tools.loader.WebDeployable;
-import org.apache.geronimo.web.deployment.WebAppDConfigRoot;
-import org.apache.geronimo.web.deployment.WebAppDConfigBean;
-import org.apache.geronimo.web.deployment.WARConfiguration;
 
 /**
  * @version $Rev$ $Date$

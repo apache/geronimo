@@ -1,5 +1,5 @@
-<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.1">
-  <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.2">
+  <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
     <dep:moduleId>
       <dep:groupId>default</dep:groupId>
       <dep:artifactId>appclient_ejb_1</dep:artifactId>
@@ -19,8 +19,8 @@
   </dep:environment>
   <module>
     <ejb>appclient_ejb_1_ejb.jar</ejb>
-    <openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.1">
-      <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+    <openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.2">
+      <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
         <dep:moduleId>
           <dep:groupId>default</dep:groupId>
           <dep:artifactId>ejb</dep:artifactId>
@@ -56,8 +56,8 @@
   </module>
   <module>
     <java>appclient_ejb_1_client.jar</java>
-    <application-client xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client-1.1">
-      <dep:client-environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+    <application-client xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client-1.2">
+      <dep:client-environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
         <dep:moduleId>
           <dep:groupId>default</dep:groupId>
           <dep:artifactId>appclient_ejb_1_appclient_ejb_1_client</dep:artifactId>
@@ -75,7 +75,7 @@
         <dep:hidden-classes/>
         <dep:non-overridable-classes/>
       </dep:client-environment>
-      <dep:server-environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+      <dep:server-environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
         <dep:moduleId>
           <dep:groupId>default</dep:groupId>
           <dep:artifactId>bar</dep:artifactId>

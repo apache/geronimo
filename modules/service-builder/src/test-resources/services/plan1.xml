@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright 2004 The Apache Software Foundation
+    Copyright 2004-6 The Apache Software Foundation
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -17,9 +17,7 @@
 -->
 
 
-<module
-        xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
-        >
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
 
     <environment>
         <moduleId>

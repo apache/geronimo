@@ -61,7 +61,7 @@ public class PlanProcessorMojo
 {
     private static final String ENVIRONMENT_LOCAL_NAME = "environment";
 
-    private static final QName ENVIRONMENT_QNAME = new QName("http://geronimo.apache.org/xml/ns/deployment-1.1", "environment");
+    private static final QName ENVIRONMENT_QNAME = new QName("http://geronimo.apache.org/xml/ns/deployment-1.2", "environment");
 
     /**
      * @parameter expression="${basedir}/src/plan"

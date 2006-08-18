@@ -61,7 +61,6 @@ import javax.xml.rpc.holders.StringHolder;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.kernel.ClassLoading;
-import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.j2ee.ExceptionMappingType;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingDocument;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
@@ -76,6 +75,7 @@ import org.apache.geronimo.xbeans.j2ee.WebserviceDescriptionType;
 import org.apache.geronimo.xbeans.j2ee.WebservicesDocument;
 import org.apache.geronimo.xbeans.j2ee.WebservicesType;
 import org.apache.geronimo.xbeans.j2ee.XsdQNameType;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.xmlbeans.XmlException;
 
 /**
@@ -379,7 +379,7 @@ public class WSDescriptorParser {
     public static Map parseWebServiceDescriptor(URL wsDDUrl, JarFile moduleFile, boolean isEJB, Map servletLocations) throws DeploymentException {
         try {
             WebservicesDocument webservicesDocument = WebservicesDocument.Factory.parse(wsDDUrl);
-            SchemaConversionUtils.validateDD(webservicesDocument);
+            XmlBeansUtil.validateDD(webservicesDocument);
             WebservicesType webservicesType = webservicesDocument.getWebservices();
             return parseWebServiceDescriptor(webservicesType, moduleFile, isEJB, servletLocations);
         } catch (XmlException e) {

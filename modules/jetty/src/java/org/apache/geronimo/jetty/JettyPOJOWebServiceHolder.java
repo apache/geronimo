@@ -48,7 +48,6 @@ import org.mortbay.jetty.servlet.ServletHttpRequest;
 public class JettyPOJOWebServiceHolder extends ServletHolder implements GBeanLifecycle {
     private WebServiceContainer webServiceContainer;
     private Set servletMappings;
-    private Map webRoleRefPermissions;
     private JettyServletRegistration context;
     private String pojoClassName;
 
@@ -62,7 +61,6 @@ public class JettyPOJOWebServiceHolder extends ServletHolder implements GBeanLif
                                      Map initParams,
                                      Integer loadOnStartup,
                                      Set servletMappings,
-                                     Map webRoleRefPermissions,
                                      WebServiceContainer webServiceContainer,
                                      ServletHolder previous,    //dependency for startup ordering
                                      JettyServletRegistration context) throws Exception {
@@ -78,7 +76,6 @@ public class JettyPOJOWebServiceHolder extends ServletHolder implements GBeanLif
                 setInitOrder(loadOnStartup.intValue());
             }
             this.servletMappings = servletMappings;
-            this.webRoleRefPermissions = webRoleRefPermissions == null ? Collections.EMPTY_MAP : webRoleRefPermissions;
         }
     }
 
@@ -151,7 +148,6 @@ public class JettyPOJOWebServiceHolder extends ServletHolder implements GBeanLif
         infoBuilder.addAttribute("initParams", Map.class, true);
         infoBuilder.addAttribute("loadOnStartup", Integer.class, true);
         infoBuilder.addAttribute("servletMappings", Set.class, true);
-        infoBuilder.addAttribute("webRoleRefPermissions", Map.class, true);
         infoBuilder.addAttribute("webServiceContainer", WebServiceContainer.class, true);
         infoBuilder.addReference("Previous", ServletHolder.class, NameFactory.SERVLET);
         infoBuilder.addReference("JettyServletRegistration", JettyServletRegistration.class);
@@ -161,7 +157,6 @@ public class JettyPOJOWebServiceHolder extends ServletHolder implements GBeanLif
                                                 "initParams",
                                                 "loadOnStartup",
                                                 "servletMappings",
-                                                "webRoleRefPermissions",
                                                 "webServiceContainer",
                                                 "Previous",
                                                 "JettyServletRegistration"});

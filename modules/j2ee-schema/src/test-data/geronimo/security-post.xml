@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<security xmlns="http://geronimo.apache.org/xml/ns/security-1.1">
+<security xmlns="http://geronimo.apache.org/xml/ns/security-1.2">
     <default-principal>
         <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="supplier"/>
     </default-principal>

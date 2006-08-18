@@ -42,14 +42,6 @@
             <type>car</type>
         </dependency>
         
-        <!-- To enforce build order -->
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>system-database</artifactId>
-            <version>${pom.version}</version>
-            <type>car</type>
-        </dependency>
-
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>ge-activemq-rar</artifactId>

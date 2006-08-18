@@ -24,6 +24,12 @@
         <attribute name="transactionManagerObjectName">?name=TransactionManager</attribute>
         <attribute name="connectionTrackerObjectName">?name=ConnectionTracker</attribute>
         <attribute name="corbaGBeanObjectName">?name=Server</attribute>
+        <reference name="SecurityBuilder">
+            <name>SecurityBuilder</name>
+        </reference>
+        <reference name="ServiceBuilders">
+            <name>GBeanBuilder</name>
+        </reference>
         <references name="EJBReferenceBuilder">
             <pattern>
                 <name>ClientEJBReferenceBuilder</name>

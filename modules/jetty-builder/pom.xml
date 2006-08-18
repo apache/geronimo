@@ -69,7 +69,7 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>xmlbeans-maven-plugin</artifactId>
                 <configuration>
-                    <sourceSchemas>geronimo-jetty-1.1.xsd,geronimo-jetty-config-1.0.xsd</sourceSchemas>
+                    <sourceSchemas>geronimo-jetty-1.2.xsd,geronimo-jetty-config-1.0.xsd</sourceSchemas>
                 </configuration>
             </plugin>
             

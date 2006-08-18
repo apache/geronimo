@@ -25,7 +25,7 @@ import org.apache.xmlbeans.XmlCursor;
  */
 public class SecurityElementConverter implements ElementConverter {
 
-    public static final String GERONIMO_SECURITY_NAMESPACE = "http://geronimo.apache.org/xml/ns/security-1.1";
+    public static final String GERONIMO_SECURITY_NAMESPACE = "http://geronimo.apache.org/xml/ns/security-1.2";
     private static final QName PRINCIPAL_QNAME = new QName(GERONIMO_SECURITY_NAMESPACE, "principal");
     private static final QName REALM_NAME_QNAME = new QName("realm-name");
 

@@ -59,7 +59,7 @@
     
     <module name="org.apache.geronimo.configs/j2ee-deployer/${pom.version}/car">
         <gbean name="WebBuilder">
-            <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.1</attribute>
+            <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.2</attribute>
         </gbean>
     </module>
 

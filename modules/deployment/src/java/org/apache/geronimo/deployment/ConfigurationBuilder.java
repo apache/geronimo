@@ -33,6 +33,8 @@ import org.apache.geronimo.kernel.repository.ArtifactResolver;
  * @version $Rev$ $Date$
  */
 public interface ConfigurationBuilder {
+    static final String CONFIG_BUILDER = "ConfigBuilder";
+
     /**
      * Builds a deployment plan specific to this builder from a planFile and/or
      * module if this builder can process it.

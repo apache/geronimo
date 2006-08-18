@@ -37,7 +37,7 @@ import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deploy.PrincipalInfo;
 import org.apache.geronimo.security.deploy.Role;
 import org.apache.geronimo.security.deploy.Security;
-import org.apache.geronimo.security.deployment.SecurityBuilder;
+import org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 
@@ -190,7 +190,7 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
 
     public void buildPrincipalRoleMap(Security security, Map roleDesignates, Map principalRoleMap) {
         Map roleToPrincipalMap = new HashMap();
-        SecurityBuilder.buildRolePrincipalMap(security, roleDesignates, roleToPrincipalMap, getClass().getClassLoader());
+        GeronimoSecurityBuilderImpl.buildRolePrincipalMap(security, roleDesignates, roleToPrincipalMap, getClass().getClassLoader());
         invertMap(roleToPrincipalMap, principalRoleMap);
     }
 

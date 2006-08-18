@@ -60,7 +60,13 @@
             <artifactId>geronimo-connector-builder</artifactId>
             <version>${pom.version}</version>
         </dependency>
-        
+
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>geronimo-security-builder</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+
     </dependencies>
     
     <build>
@@ -84,7 +90,7 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>xmlbeans-maven-plugin</artifactId>
                 <configuration>
-                    <sourceSchemas>geronimo-application-client-1.1.xsd</sourceSchemas>
+                    <sourceSchemas>geronimo-application-client-1.2.xsd</sourceSchemas>
                 </configuration>
             </plugin>
             

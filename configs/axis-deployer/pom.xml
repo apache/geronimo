@@ -42,9 +42,11 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-axis</artifactId>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>axis</artifactId>
             <version>${pom.version}</version>
+            <type>car</type>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
@@ -53,11 +55,6 @@
             <version>${pom.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-webservices</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
     </dependencies>
     
 </project>

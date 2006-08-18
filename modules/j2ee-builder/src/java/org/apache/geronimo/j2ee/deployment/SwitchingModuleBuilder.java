@@ -101,7 +101,7 @@ public class SwitchingModuleBuilder implements ModuleBuilder {
         XmlObject xmlObject;
         if (plan instanceof File) {
             try {
-                xmlObject = XmlBeansUtil.parse(((File) plan).toURL());
+                xmlObject = XmlBeansUtil.parse(((File) plan).toURL(), getClass().getClassLoader());
             } catch (IOException e) {
                 throw new DeploymentException("Could not read plan file", e);
             } catch (XmlException e) {

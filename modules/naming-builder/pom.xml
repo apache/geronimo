@@ -30,7 +30,6 @@
 
     <artifactId>geronimo-naming-builder</artifactId>
     <name>Geronimo :: Naming :: Builder</name>
-    
     <!--
     
     HACK: Need to explicitly configure SCM for this module since its artifactId
@@ -117,7 +116,7 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>xmlbeans-maven-plugin</artifactId>
                 <configuration>
-                    <sourceSchemas>geronimo-naming-1.1.xsd</sourceSchemas>
+                    <sourceSchemas>geronimo-naming-1.2.xsd</sourceSchemas>
                 </configuration>
             </plugin>
             

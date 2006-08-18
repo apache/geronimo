@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 
-<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.1">
-  <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.2">
+  <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
     <dep:moduleId>
       <dep:groupId>default</dep:groupId>
       <dep:artifactId>hello</dep:artifactId>
@@ -26,11 +26,11 @@
     </reference>
     <reference name="ServerInfo">
       <!--CHECK THAT THE TARGET GBEAN IS IN THE ANCESTOR SET OF THIS MODULE AND THAT THE NAME UNIQUELY IDENTIFIES IT-->
-      <dep:name xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">ServerInfo</dep:name>
+      <dep:name xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">ServerInfo</dep:name>
     </reference>
     <reference name="LoginService">
       <!--CHECK THAT THE TARGET GBEAN IS IN THE ANCESTOR SET OF THIS MODULE AND THAT THE NAME UNIQUELY IDENTIFIES IT-->
-      <dep:name xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">JaasLoginService</dep:name>
+      <dep:name xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">JaasLoginService</dep:name>
     </reference>
   </gbean>
   <gbean name="hello-login-chain" class="org.apache.geronimo.security.jaas.JaasLoginModuleUse">

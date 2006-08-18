@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<dep:service xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+<dep:service xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
   <dep:dependency>
     <dep:groupId>jetty</dep:groupId>
     <dep:artifactId>org.mortbay.jetty</dep:artifactId>

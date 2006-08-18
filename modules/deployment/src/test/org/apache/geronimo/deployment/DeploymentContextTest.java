@@ -56,7 +56,7 @@ public class DeploymentContextTest extends TestCase {
             ArtifactManager artifactManager = new DefaultArtifactManager();
             ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.EMPTY_SET, null);
             SimpleConfigurationManager configurationManager = new SimpleConfigurationManager(Collections.EMPTY_SET, artifactResolver, Collections.EMPTY_SET);
-            DeploymentContext context = new DeploymentContext(basedir, null, environment, ConfigurationModuleType.CAR, new Jsr77Naming(), configurationManager, Collections.EMPTY_SET);
+            DeploymentContext context = new DeploymentContext(basedir, null, environment, null, ConfigurationModuleType.CAR, new Jsr77Naming(), configurationManager, Collections.EMPTY_SET);
             Enhancer enhancer = new Enhancer();
             enhancer.setInterfaces(new Class[]{DataSource.class});
             enhancer.setCallbackType(MethodInterceptor.class);

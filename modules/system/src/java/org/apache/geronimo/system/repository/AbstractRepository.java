@@ -108,7 +108,7 @@ public abstract class AbstractRepository implements WriteableRepository {
         return location.canRead() && (location.isFile() || new File(location, "META-INF").isDirectory());
     }
 
-    private static final String NAMESPACE = "http://geronimo.apache.org/xml/ns/deployment-1.1";
+    private static final String NAMESPACE = "http://geronimo.apache.org/xml/ns/deployment-1.2";
     public LinkedHashSet getDependencies(Artifact artifact) {
         if(!artifact.isResolved()) {
             throw new IllegalArgumentException("Artifact "+artifact+" is not fully resolved");

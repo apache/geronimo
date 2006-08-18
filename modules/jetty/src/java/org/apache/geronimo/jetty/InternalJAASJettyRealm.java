@@ -95,6 +95,7 @@ public class InternalJAASJettyRealm {
                 Subject subject = ContextManager.getServerSideSubject(loginContext.getSubject());
                 //TODO use the run-as subject as nextCaller
                 ContextManager.setCallers(subject, subject);
+                ContextManager.setNextCaller(subject);
 
                 //login success
                 userPrincipal = new JAASJettyPrincipal(username);

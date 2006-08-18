@@ -112,11 +112,11 @@ public class ServiceReferenceTest extends TestCase {
         ArtifactManager artifactManager = new DefaultArtifactManager();
         ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.EMPTY_SET, null);
         ConfigurationManager configurationManager = new SimpleConfigurationManager(Collections.EMPTY_SET, artifactResolver, Collections.EMPTY_SET);        
-        context = new DeploymentContext(tmpbasedir, null, environment, ConfigurationModuleType.CAR, naming, configurationManager, Collections.EMPTY_SET);
+        AbstractName moduleName = naming.createRootName(configID, "testejb", NameFactory.EJB_MODULE);
+        context = new DeploymentContext(tmpbasedir, null, environment, moduleName, ConfigurationModuleType.CAR, naming, configurationManager, Collections.EMPTY_SET);
 
         File moduleLocation = new File(tmpbasedir, "ejb");
         moduleLocation.mkdirs();
-        AbstractName moduleName = naming.createRootName(configID, "testejb", NameFactory.EJB_MODULE);
         module = new EJBModule(true, moduleName, environment, new UnpackedJarFile(moduleLocation), "ejb", null, null, null);
 
         runExternalWSTest = System.getProperty("geronimo.run.external.webservicetest", "false").equals("true");

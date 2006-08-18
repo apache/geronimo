@@ -67,7 +67,7 @@ public class HasPattern extends XmlBeanSupport {
         if(group != null) {
             GerPatternType patternType;
             if(old == null) {
-                patternType = (GerPatternType) ((XmlObjectBase)getXmlObject()).get_store().add_element_user(new QName("http://geronimo.apache.org/xml/ns/naming-1.1", "pattern"));
+                patternType = (GerPatternType) ((XmlObjectBase)getXmlObject()).get_store().add_element_user(new QName("http://geronimo.apache.org/xml/ns/naming-1.2", "pattern"));
             } else {
                 patternType = findPattern();
             }
@@ -95,7 +95,7 @@ public class HasPattern extends XmlBeanSupport {
             clearNonPatternFromChoice();
         } else {
             if(old != null) {
-                ((XmlObjectBase)getXmlObject()).get_store().remove_element(new QName("http://geronimo.apache.org/xml/ns/naming-1.1", "pattern"), 0);
+                ((XmlObjectBase)getXmlObject()).get_store().remove_element(new QName("http://geronimo.apache.org/xml/ns/naming-1.2", "pattern"), 0);
             }
         }
         pcs.firePropertyChange("objectNameComponents", old, group);
@@ -118,7 +118,7 @@ public class HasPattern extends XmlBeanSupport {
     protected void clearPatternFromChoice() {
         Pattern pattern = getPattern();
         if(pattern != null) {
-            ((XmlObjectBase)getXmlObject()).get_store().remove_element(new QName("http://geronimo.apache.org/xml/ns/naming-1.1", "pattern"), 0);
+            ((XmlObjectBase)getXmlObject()).get_store().remove_element(new QName("http://geronimo.apache.org/xml/ns/naming-1.2", "pattern"), 0);
             pcs.firePropertyChange("pattern", pattern, null);
         }
     }

@@ -34,7 +34,6 @@
     
     <dependencies>
     
-        <!-- why is this a parent ? -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>geronimo-gbean-deployer</artifactId>
@@ -42,11 +41,11 @@
             <type>car</type>
         </dependency>
 
-        <!-- import the classes ???? -->
+        <!-- import the classes -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-server</artifactId>
-            <version>${pom.version}</version>
+            <version>${geronimoVersion}</version>
             <type>car</type>
             <scope>compile</scope>
         </dependency>
@@ -69,6 +68,11 @@
             <artifactId>geronimo-naming-builder</artifactId>
             <version>${pom.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-naming</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
@@ -81,13 +85,44 @@
             <artifactId>geronimo-web-builder</artifactId>
             <version>${pom.version}</version>
         </dependency>
-        
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.modules</groupId>-->
+            <!--<artifactId>geronimo-webservices</artifactId>-->
+            <!--<version>${pom.version}</version>-->
+        <!--</dependency>-->
+
         <!-- this should get connector -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-connector-builder</artifactId>
             <version>${pom.version}</version>
         </dependency>
+        <!-- should include as geronimo-dependency.xml in connector-builder jar -->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.modules</groupId>-->
+            <!--<artifactId>geronimo-connector</artifactId>-->
+            <!--<version>${pom.version}</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.modules</groupId>-->
+            <!--<artifactId>geronimo-management</artifactId>-->
+            <!--<version>${pom.version}</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.modules</groupId>-->
+            <!--<artifactId>geronimo-j2ee</artifactId>-->
+            <!--<version>${pom.version}</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.modules</groupId>-->
+            <!--<artifactId>geronimo-transaction</artifactId>-->
+            <!--<version>${pom.version}</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.modules</groupId>-->
+            <!--<artifactId>geronimo-interceptor</artifactId>-->
+            <!--<version>${pom.version}</version>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
@@ -101,7 +136,15 @@
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-j2ee-jacc_1.0_spec</artifactId>
         </dependency>
-        
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-jta_1.0.1B_spec</artifactId>-->
+        <!--</dependency>-->
+
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-security</artifactId>

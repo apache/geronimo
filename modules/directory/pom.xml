@@ -30,7 +30,7 @@
 
     <artifactId>geronimo-directory</artifactId>
     <name>Geronimo :: Directory</name>
-    
+
     <!--
     
     HACK: Need to explicitly configure SCM for this module since its artifactId

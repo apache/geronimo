@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2006 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,59 +14,108 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.apache.geronimo.security.deployment;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Set;
+import java.util.HashSet;
 
 import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
+import javax.xml.namespace.QName;
 
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.apache.geronimo.security.deploy.DistinguishedName;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.QNameSet;
+import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.security.deploy.Security;
+import org.apache.geronimo.security.deploy.Role;
+import org.apache.geronimo.security.deploy.RealmPrincipalInfo;
 import org.apache.geronimo.security.deploy.LoginDomainPrincipalInfo;
 import org.apache.geronimo.security.deploy.PrincipalInfo;
-import org.apache.geronimo.security.deploy.RealmPrincipalInfo;
-import org.apache.geronimo.security.deploy.Role;
-import org.apache.geronimo.security.deploy.Security;
-import org.apache.geronimo.security.jaas.NamedUsernamePasswordCredential;
-import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
-import org.apache.geronimo.security.jacc.ApplicationPrincipalRoleConfigurationManager;
+import org.apache.geronimo.security.deploy.DistinguishedName;
+import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.util.ConfigurationUtil;
-import org.apache.geronimo.xbeans.geronimo.security.GerDefaultPrincipalType;
-import org.apache.geronimo.xbeans.geronimo.security.GerDistinguishedNameType;
-import org.apache.geronimo.xbeans.geronimo.security.GerLoginDomainPrincipalType;
-import org.apache.geronimo.xbeans.geronimo.security.GerNamedUsernamePasswordCredentialType;
-import org.apache.geronimo.xbeans.geronimo.security.GerPrincipalType;
-import org.apache.geronimo.xbeans.geronimo.security.GerRealmPrincipalType;
+import org.apache.geronimo.security.jaas.NamedUsernamePasswordCredential;
+import org.apache.geronimo.security.jacc.ApplicationPrincipalRoleConfigurationManager;
+import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
+import org.apache.geronimo.xbeans.geronimo.security.GerSecurityType;
 import org.apache.geronimo.xbeans.geronimo.security.GerRoleMappingsType;
 import org.apache.geronimo.xbeans.geronimo.security.GerRoleType;
-import org.apache.geronimo.xbeans.geronimo.security.GerSecurityType;
-
+import org.apache.geronimo.xbeans.geronimo.security.GerDistinguishedNameType;
+import org.apache.geronimo.xbeans.geronimo.security.GerDefaultPrincipalType;
+import org.apache.geronimo.xbeans.geronimo.security.GerNamedUsernamePasswordCredentialType;
+import org.apache.geronimo.xbeans.geronimo.security.GerRealmPrincipalType;
+import org.apache.geronimo.xbeans.geronimo.security.GerLoginDomainPrincipalType;
+import org.apache.geronimo.xbeans.geronimo.security.GerPrincipalType;
+import org.apache.geronimo.xbeans.geronimo.security.GerSecurityDocument;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.deployment.SecurityBuilder;
+import org.apache.geronimo.j2ee.deployment.EARContext;
 
 /**
  * @version $Rev$ $Date$
  */
-public class SecurityBuilder {
+public class GeronimoSecurityBuilderImpl implements SecurityBuilder {
+    private static final QName SECURITY_QNAME = GerSecurityDocument.type.getDocumentElementName();
+    private static final QNameSet SECURITY_QNAME_SET = QNameSet.singleton(SECURITY_QNAME);
 
-    public static SecurityConfiguration buildSecurityConfiguration(GerSecurityType securityType, ClassLoader classLoader) {
-        Security security = buildSecurityConfig(securityType);
-        return buildSecurityConfiguration(security, classLoader);
+
+    public void build(XmlObject container, DeploymentContext applicationContext, DeploymentContext moduleContext) throws DeploymentException {
+        EARContext earContext = (EARContext) applicationContext;
+        XmlObject[] items = container.selectChildren(SECURITY_QNAME_SET);
+        if (items.length > 1) {
+            throw new DeploymentException("Unexpected count of security elements in geronimo plan " + items.length + " qnameset: " + SECURITY_QNAME_SET);
+        }
+        if (items.length == 1) {
+            GerSecurityType securityType = (GerSecurityType) items[0].copy().changeType(GerSecurityType.type);
+            Security security = buildSecurityConfig(securityType);
+            ClassLoader classLoader = applicationContext.getClassLoader();
+            SecurityConfiguration securityConfiguration = buildSecurityConfiguration(security, classLoader);
+            earContext.setSecurityConfiguration(securityConfiguration);
+        }
+        //add the JACC gbean if there is a principal-role mapping and we are on the corect module
+        if (earContext.getSecurityConfiguration() != null && applicationContext == moduleContext) {
+            Naming naming = earContext.getNaming();
+            GBeanData roleMapperData = configureRoleMapper(naming, earContext.getModuleName(), earContext.getSecurityConfiguration());
+            try {
+                earContext.addGBean(roleMapperData);
+            } catch (GBeanAlreadyExistsException e) {
+                throw new DeploymentException("Role mapper gbean already present", e);
+            }
+            GBeanData jaccBeanData = configureApplicationPolicyManager(naming, earContext.getModuleName(), earContext.getContextIDToPermissionsMap(), earContext.getSecurityConfiguration());
+            jaccBeanData.setReferencePattern("PrincipalRoleMapper", roleMapperData.getAbstractName());
+            try {
+                earContext.addGBean(jaccBeanData);
+            } catch (GBeanAlreadyExistsException e) {
+                throw new DeploymentException("JACC manager gbean already present", e);
+            }
+            earContext.setJaccManagerName(jaccBeanData.getAbstractName());
+        }
     }
 
-    public static SecurityConfiguration buildSecurityConfiguration(Security security, ClassLoader classLoader) {
+    public String getNamespace() {
+        XmlBeansUtil.registerSubstitutionGroupElements(org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument.type.getDocumentElementName(), SECURITY_QNAME_SET);
+
+        return GerSecurityDocument.type.getDocumentElementName().getLocalPart();
+    }
+
+    private static SecurityConfiguration buildSecurityConfiguration(Security security, ClassLoader classLoader) {
         Map roleDesignates = new HashMap();
         Map principalRoleMap = new HashMap();
         Map roleToPrincipalMap = new HashMap();
-        buildRolePrincipalMap(security, roleDesignates, roleToPrincipalMap, classLoader);
-        invertMap(roleToPrincipalMap, principalRoleMap);
+        GeronimoSecurityBuilderImpl.buildRolePrincipalMap(security, roleDesignates, roleToPrincipalMap, classLoader);
+        GeronimoSecurityBuilderImpl.invertMap(roleToPrincipalMap, principalRoleMap);
         return new SecurityConfiguration(principalRoleMap, roleDesignates, security.getDefaultPrincipal(), security.getDefaultRole(), security.isDoAsCurrentCaller(), security.isUseContextHandler());
     }
 
@@ -89,6 +138,14 @@ public class SecurityBuilder {
         return principalRoleMapping;
     }
 
+    /**
+     * non-interface, used in some jetty/tomcat tests
+     *
+     * @param security
+     * @param roleDesignates
+     * @param roleToPrincipalMap
+     * @param classLoader
+     */
     public static void buildRolePrincipalMap(Security security, Map roleDesignates, Map roleToPrincipalMap, ClassLoader classLoader) {
 
         Iterator roleMappings = security.getRoleMappings().values().iterator();
@@ -148,7 +205,7 @@ public class SecurityBuilder {
         }
     }
 
-    private static Security buildSecurityConfig(GerSecurityType securityType) {
+    private Security buildSecurityConfig(GerSecurityType securityType) {
         Security security;
 
         if (securityType == null) {
@@ -172,11 +229,11 @@ public class SecurityBuilder {
                 role.setRoleName(roleName);
 
                 for (int j = 0; j < roleType.sizeOfRealmPrincipalArray(); j++) {
-                    role.getRealmPrincipals().add(buildRealmPrincipal(roleType.getRealmPrincipalArray(j)));
+                    role.getRealmPrincipals().add(GeronimoSecurityBuilderImpl.buildRealmPrincipal(roleType.getRealmPrincipalArray(j)));
                 }
 
                 for (int j = 0; j < roleType.sizeOfLoginDomainPrincipalArray(); j++) {
-                    role.getLoginDomainPrincipals().add(buildDomainPrincipal(roleType.getLoginDomainPrincipalArray(j)));
+                    role.getLoginDomainPrincipals().add(GeronimoSecurityBuilderImpl.buildDomainPrincipal(roleType.getLoginDomainPrincipalArray(j)));
                 }
 
                 for (int j = 0; j < roleType.sizeOfPrincipalArray(); j++) {
@@ -199,7 +256,8 @@ public class SecurityBuilder {
     }
 
     //used from app client builder
-    public static DefaultPrincipal buildDefaultPrincipal(GerDefaultPrincipalType defaultPrincipalType) {
+    public DefaultPrincipal buildDefaultPrincipal(XmlObject xmlObject) {
+        GerDefaultPrincipalType defaultPrincipalType = (GerDefaultPrincipalType) xmlObject;
         DefaultPrincipal defaultPrincipal = new DefaultPrincipal();
 
         defaultPrincipal.setPrincipal(buildPrincipal(defaultPrincipalType.getPrincipal()));
@@ -216,34 +274,50 @@ public class SecurityBuilder {
         return defaultPrincipal;
     }
 
-    //used from TSSConfigEditor
-    public static RealmPrincipalInfo buildRealmPrincipal(GerRealmPrincipalType realmPrincipalType) {
+    private static RealmPrincipalInfo buildRealmPrincipal(GerRealmPrincipalType realmPrincipalType) {
         return new RealmPrincipalInfo(realmPrincipalType.getDomainName().trim(), realmPrincipalType.getRealmName().trim(), realmPrincipalType.getClass1().trim(), realmPrincipalType.getName().trim(), realmPrincipalType.isSetDesignatedRunAs());
     }
 
-    public static LoginDomainPrincipalInfo buildDomainPrincipal(GerLoginDomainPrincipalType domainPrincipalType) {
+    private static LoginDomainPrincipalInfo buildDomainPrincipal(GerLoginDomainPrincipalType domainPrincipalType) {
         return new LoginDomainPrincipalInfo(domainPrincipalType.getDomainName().trim(), domainPrincipalType.getClass1().trim(), domainPrincipalType.getName().trim(), domainPrincipalType.isSetDesignatedRunAs());
     }
 
-    public static PrincipalInfo buildPrincipal(GerPrincipalType principalType) {
+    //used from TSSConfigEditor
+    public PrincipalInfo buildPrincipal(XmlObject xmlObject) {
+        GerPrincipalType principalType = (GerPrincipalType) xmlObject;
         return new PrincipalInfo(principalType.getClass1().trim(), principalType.getName().trim(), principalType.isSetDesignatedRunAs());
     }
 
-    public static GBeanData configureRoleMapper(Naming naming, AbstractName moduleName, SecurityConfiguration securityConfiguration) {
+    public GBeanData configureRoleMapper(Naming naming, AbstractName moduleName, Object securityConfiguration) {
         AbstractName roleMapperName = naming.createChildName(moduleName, "RoleMapper", "RoleMapper");
         GBeanData roleMapperData = new GBeanData(roleMapperName, ApplicationPrincipalRoleConfigurationManager.GBEAN_INFO);
-        roleMapperData.setAttribute("principalRoleMap", securityConfiguration.getPrincipalRoleMap());
+        roleMapperData.setAttribute("principalRoleMap", ((SecurityConfiguration) securityConfiguration).getPrincipalRoleMap());
         return roleMapperData;
     }
 
-    public static GBeanData configureApplicationPolicyManager(Naming naming, AbstractName moduleName, Map contextIDToPermissionsMap, SecurityConfiguration securityConfiguration) {
+    public GBeanData configureApplicationPolicyManager(Naming naming, AbstractName moduleName, Map contextIDToPermissionsMap, Object securityConfiguration) {
         AbstractName jaccBeanName = naming.createChildName(moduleName, NameFactory.JACC_MANAGER, NameFactory.JACC_MANAGER);
         GBeanData jaccBeanData = new GBeanData(jaccBeanName, ApplicationPolicyConfigurationManager.GBEAN_INFO);
         jaccBeanData.setAttribute("contextIdToPermissionsMap", contextIDToPermissionsMap);
-        jaccBeanData.setAttribute("roleDesignates", securityConfiguration.getRoleDesignates());
-//        jaccBeanData.setReferencePattern("PrincipalRoleMapper", roleMapperName);
+        jaccBeanData.setAttribute("roleDesignates", ((SecurityConfiguration) securityConfiguration).getRoleDesignates());
         return jaccBeanData;
 
     }
+
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(GeronimoSecurityBuilderImpl.class, NameFactory.MODULE_BUILDER);
+
+        infoFactory.addInterface(SecurityBuilder.class);
+
+
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
+
 
 }

@@ -94,7 +94,7 @@
         </dependency>
         
     </dependencies>
-    
+
     <build>
         <!-- FIXME: Remove when the default is to use the m2 standard layout -->
         <sourceDirectory>${pom.basedir}/src/main/java</sourceDirectory>

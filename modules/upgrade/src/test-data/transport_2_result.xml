@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.1">
-  <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.2">
+  <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
     <dep:moduleId>
       <dep:groupId>default</dep:groupId>
       <dep:artifactId>transport_jsp_vehicle</dep:artifactId>

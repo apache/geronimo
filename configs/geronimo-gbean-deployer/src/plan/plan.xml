@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 
-<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
     <!-- Deployer used to process modules and plans -->
     <gbean name="Deployer" class="org.apache.geronimo.deployment.Deployer">
         <reference name="Store">
@@ -35,6 +35,13 @@
             <!--<pattern><gbean-name>geronimo.maven:name=Repository</gbean-name></pattern>-->
             <!--<pattern><gbean-name>geronimo.server:name=Repository,*</gbean-name></pattern>-->
         </reference>
+        <reference name="ServiceBuilders">
+            <name>GBeanBuilder</name>
+        </reference>
+    </gbean>
+
+    <!-- NamespaceDriveBuilder for handling gbeans -->
+    <gbean name="GBeanBuilder" class="org.apache.geronimo.deployment.service.GBeanBuilder">
         <reference name="XmlAttributeBuilders">
             <!--<module>*</module>-->
             <!--<name>*</name>-->

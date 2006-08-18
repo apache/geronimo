@@ -74,12 +74,13 @@ public class DeploymentContext {
     private final Configuration configuration;
     private final Naming naming;
     private final List additionalDeployment = new ArrayList();
+    protected final AbstractName moduleName;
 
-    public DeploymentContext(File baseDir, File inPlaceConfigurationDir, Environment environment, ConfigurationModuleType moduleType, Naming naming, ConfigurationManager configurationManager, Collection repositories) throws DeploymentException {
-        this(baseDir, inPlaceConfigurationDir, environment,  moduleType, naming, createConfigurationManager(configurationManager, repositories));
+    public DeploymentContext(File baseDir, File inPlaceConfigurationDir, Environment environment, AbstractName moduleName, ConfigurationModuleType moduleType, Naming naming, ConfigurationManager configurationManager, Collection repositories) throws DeploymentException {
+        this(baseDir, inPlaceConfigurationDir, environment, moduleName, moduleType, naming, createConfigurationManager(configurationManager, repositories));
     }
 
-    public DeploymentContext(File baseDir, File inPlaceConfigurationDir, Environment environment, ConfigurationModuleType moduleType, Naming naming, ConfigurationManager configurationManager) throws DeploymentException {
+    public DeploymentContext(File baseDir, File inPlaceConfigurationDir, Environment environment, AbstractName moduleName, ConfigurationModuleType moduleType, Naming naming, ConfigurationManager configurationManager) throws DeploymentException {
         if (baseDir == null) throw new NullPointerException("baseDir is null");
         if (environment == null) throw new NullPointerException("environment is null");
         if (moduleType == null) throw new NullPointerException("type is null");
@@ -91,6 +92,8 @@ public class DeploymentContext {
         this.baseDir = baseDir;
 
         this.inPlaceConfigurationDir = inPlaceConfigurationDir;
+
+        this.moduleName = moduleName;
 
         this.naming = naming;
 
@@ -404,6 +407,10 @@ public class DeploymentContext {
 
     public List getAdditionalDeployment() {
         return additionalDeployment;
+    }
+
+    public AbstractName getModuleName() {
+        return moduleName;
     }
 
     public List verify() throws DeploymentException {

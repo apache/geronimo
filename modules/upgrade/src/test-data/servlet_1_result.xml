@@ -1,5 +1,5 @@
-<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.1">
-  <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.2">
+  <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
     <dep:moduleId>
       <dep:groupId>default</dep:groupId>
       <dep:artifactId>servlet_1</dep:artifactId>
@@ -19,8 +19,8 @@
   </dep:environment>
   <module>
     <web>servlet_deploy_ejblink_single_web.war</web>
-    <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.1">
-      <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+    <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.2">
+      <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
         <dep:moduleId>
           <dep:groupId>default</dep:groupId>
           <dep:artifactId>servlet_1_web_1</dep:artifactId>
@@ -39,8 +39,8 @@
   </module>
   <module>
     <web>servlet_deploy_ejblink_single_web.war</web>
-    <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.1">
-      <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+    <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.2">
+      <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
         <dep:moduleId>
           <dep:groupId>default</dep:groupId>
           <dep:artifactId>servlet_1_web_2</dep:artifactId>
@@ -60,8 +60,8 @@
   </module>
     <module>
       <web>servlet_deploy_ejblink_single_web.war</web>
-      <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.1">
-        <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+      <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.2">
+        <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
           <dep:moduleId>
             <dep:groupId>default</dep:groupId>
             <dep:artifactId>servlet_1_web_3</dep:artifactId>
@@ -76,8 +76,8 @@
     </module>
     <module>
       <web>servlet_deploy_ejblink_single_web.war</web>
-      <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.1">
-        <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+      <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.2">
+        <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
           <dep:moduleId>
             <dep:groupId>default</dep:groupId>
             <dep:artifactId>servlet_1_web_4</dep:artifactId>

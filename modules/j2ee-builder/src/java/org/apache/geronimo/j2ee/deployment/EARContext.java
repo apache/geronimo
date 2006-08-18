@@ -26,10 +26,9 @@ import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.security.deployment.SecurityConfiguration;
 
 /**
  * @version $Rev:386276 $ $Date$
@@ -44,12 +43,11 @@ public class EARContext extends DeploymentContext {
     private final AbstractNameQuery corbaGBeanObjectName;
 
     private final RefContext refContext;
-    private final AbstractName moduleName;
     private final AbstractNameQuery serverName;
 
     private final Map contextIDToPermissionsMap = new HashMap();
     private AbstractName jaccManagerName;
-    private SecurityConfiguration securityConfiguration;
+    private Object securityConfiguration;
 
     public EARContext(File baseDir,
             File inPlaceConfigurationDir,
@@ -65,9 +63,8 @@ public class EARContext extends DeploymentContext {
             AbstractNameQuery nonTransactedTimerName,
             AbstractNameQuery corbaGBeanObjectName,
             RefContext refContext) throws DeploymentException {
-        super(baseDir, inPlaceConfigurationDir, environment, moduleType, naming, configurationManager, repositories);
+        super(baseDir, inPlaceConfigurationDir, environment, baseName, moduleType, naming, configurationManager, repositories);
 
-        moduleName = baseName;
         this.serverName = serverName;
         this.transactionManagerObjectName = transactionManagerObjectName;
         this.connectionTrackerObjectName = connectionTrackerObjectName;
@@ -91,9 +88,8 @@ public class EARContext extends DeploymentContext {
             AbstractNameQuery nonTransactedTimerName,
             AbstractNameQuery corbaGBeanObjectName,
             RefContext refContext) throws DeploymentException {
-        super(baseDir, inPlaceConfigurationDir, environment, moduleType, naming, configurationManager);
+        super(baseDir, inPlaceConfigurationDir, environment, baseName, moduleType, naming, configurationManager);
 
-        moduleName = baseName;
         this.serverName = serverName;
 
         this.transactionManagerObjectName = transactionManagerObjectName;
@@ -105,8 +101,7 @@ public class EARContext extends DeploymentContext {
     }
 
     public EARContext(File baseDir, File inPlaceConfigurationDir, Environment environment, ConfigurationModuleType moduleType, AbstractName baseName, EARContext parent) throws DeploymentException {
-        super(baseDir, inPlaceConfigurationDir, environment, moduleType, parent.getNaming(), parent.getConfigurationManager());
-        moduleName = baseName;
+        super(baseDir, inPlaceConfigurationDir, environment, baseName, moduleType, parent.getNaming(), parent.getConfigurationManager());
         this.serverName = parent.getServerName();
 
         this.transactionManagerObjectName = parent.getTransactionManagerObjectName();
@@ -145,10 +140,6 @@ public class EARContext extends DeploymentContext {
         return refContext;
     }
 
-    public AbstractName getModuleName() {
-        return moduleName;
-    }
-
     public Map getContextIDToPermissionsMap() {
         return contextIDToPermissionsMap;
     }
@@ -168,14 +159,14 @@ public class EARContext extends DeploymentContext {
         return jaccManagerName;
     }
 
-    public void setSecurityConfiguration(SecurityConfiguration securityConfiguration) throws DeploymentException {
+    public void setSecurityConfiguration(Object securityConfiguration) throws DeploymentException {
         if (this.securityConfiguration != null) {
             throw new DeploymentException("Only one security configuration allowed per application");
         }
         this.securityConfiguration = securityConfiguration;
     }
 
-    public SecurityConfiguration getSecurityConfiguration() {
+    public Object getSecurityConfiguration() {
         return securityConfiguration;
     }
 }

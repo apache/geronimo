@@ -32,7 +32,7 @@
     <artifactId>modules</artifactId>
     <name>Geronimo :: Modules</name>
     <packaging>pom</packaging>
-    
+
     <modules>
         <module>activation</module>
         <module>activemq-embedded-rar</module>

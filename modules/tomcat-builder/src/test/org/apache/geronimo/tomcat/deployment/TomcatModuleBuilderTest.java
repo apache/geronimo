@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.management.ObjectName;
 import javax.naming.Reference;
 import javax.xml.namespace.QName;
@@ -40,6 +41,7 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
+import org.apache.geronimo.deployment.service.GBeanBuilder;
 import org.apache.geronimo.deployment.util.UnpackedJarFile;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -72,14 +74,15 @@ import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.NullConfigurationStore;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ArtifactManager;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.kernel.repository.ArtifactManager;
-import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.security.SecurityServiceImpl;
+import org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
@@ -374,7 +377,7 @@ public class TomcatModuleBuilderTest extends TestCase {
 
         defaultEnvironment.addDependency(baseId, ImportType.ALL);
         defaultEnvironment.setConfigId(webModuleArtifact);
-        builder = new TomcatModuleBuilder(defaultEnvironment, new AbstractNameQuery(containerName), Collections.singleton(webServiceBuilder), null);
+        builder = new TomcatModuleBuilder(defaultEnvironment, new AbstractNameQuery(containerName), Collections.singleton(webServiceBuilder), Collections.singleton(new GeronimoSecurityBuilderImpl()), Collections.singleton(new GBeanBuilder(null, null)), null);
     }
 
     protected void tearDown() throws Exception {

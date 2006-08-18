@@ -19,16 +19,15 @@ package org.apache.geronimo.jetty;
 
 import java.io.IOException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.ServletException;
 import javax.servlet.UnavailableException;
-import javax.security.auth.Subject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-import org.mortbay.jetty.servlet.WebApplicationHandler;
-import org.mortbay.jetty.servlet.ServletHolder;
-import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.Callers;
+import org.apache.geronimo.security.ContextManager;
+import org.mortbay.jetty.servlet.ServletHolder;
+import org.mortbay.jetty.servlet.WebApplicationHandler;
 
 /**
  * @version $Rev$ $Date$

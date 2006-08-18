@@ -26,7 +26,7 @@ import java.util.Set;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.deployment.service.GBeanBuilder;
+import org.apache.geronimo.deployment.service.SingleGBeanBuilder;
 import org.apache.geronimo.deployment.service.XmlReferenceBuilder;
 import org.apache.geronimo.deployment.xbeans.PatternType;
 import org.apache.geronimo.gbean.AbstractName;
@@ -98,7 +98,7 @@ public class LoginConfigBuilder implements XmlReferenceBuilder {
                 if (abstractLoginModule instanceof GerLoginModuleRefType) {
                     GerLoginModuleRefType loginModuleRef = (GerLoginModuleRefType) abstractLoginModule;
                     PatternType patternType = loginModuleRef.getPattern();
-                    AbstractNameQuery loginModuleNameQuery = GBeanBuilder.buildAbstractNameQuery(patternType, USE_REFERENCE_INFO);
+                    AbstractNameQuery loginModuleNameQuery = SingleGBeanBuilder.buildAbstractNameQuery(patternType, USE_REFERENCE_INFO);
                     loginModuleReferencePatterns = new ReferencePatterns(loginModuleNameQuery);
                     name = (String) loginModuleNameQuery.getName().get("name");
                     if (name == null) {
