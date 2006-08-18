@@ -82,11 +82,6 @@
         <module>util</module>
         <module>web-builder</module>
         <module>webservices</module>
-
-        <!--
-        FIXME: Remove, not supporting izpack installer at the momemnt
-        <module>installer-support</module>
-        -->
     </modules>
     
 </project>
