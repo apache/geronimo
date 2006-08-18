@@ -30,7 +30,7 @@
 
     <groupId>org.apache.geronimo.applications</groupId>
     <artifactId>applications</artifactId>
-    <name>Geronimo :: Applications</name>
+    <name>Geronimo Applications</name>
     <packaging>pom</packaging>
     
     <modules>

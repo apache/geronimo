@@ -30,7 +30,7 @@
 
     <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>configs</artifactId>
-    <name>Geronimo :: Configs</name>
+    <name>Geronimo Configs</name>
     <packaging>pom</packaging>
     
     <properties>

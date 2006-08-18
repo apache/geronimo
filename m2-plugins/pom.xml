@@ -30,7 +30,7 @@
 
     <groupId>org.apache.geronimo.plugins</groupId>
     <artifactId>plugins</artifactId>
-    <name>Geronimo :: Maven2 Plugins</name>
+    <name>Geronimo Maven2 Plugins</name>
     <packaging>pom</packaging>
     
     <!--

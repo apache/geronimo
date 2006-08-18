@@ -30,7 +30,7 @@
 
     <groupId>org.apache.geronimo.assemblies</groupId>
     <artifactId>assemblies</artifactId>
-    <name>Geronimo :: Assemblies</name>
+    <name>Geronimo Assemblies</name>
     <packaging>pom</packaging>
     
     <!--
