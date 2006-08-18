@@ -53,11 +53,12 @@ clean() {
     fi
     
     rm -rf "$DIRNAME/thirdparty"
-    mkdir -p "$DIRNAME/thirdparty"
     
     for x in `find "$DIRNAME" -name target -type d`; do
         rm -rf "$x"
     done
+    
+    mvn clean
 }
 
 stage() {
@@ -74,6 +75,7 @@ specs() {
     echo "Building Specs..."
     
     (
+        mkdir -p "$DIRNAME/thirdparty"
         cd "$DIRNAME/thirdparty"
         
         svn co http://svn.apache.org/repos/asf/geronimo/specs/trunk specs
@@ -92,6 +94,7 @@ openejb2() {
     echo "Building OpenEJB2..."
     
     (
+        mkdir -p "$DIRNAME/thirdparty"
         cd "$DIRNAME/thirdparty"
         
         svn co http://svn.codehaus.org/openejb/trunk/openejb2
@@ -111,8 +114,7 @@ minimal() {
     
     begin && (
         clean
-        stage "bootstrap" && \
-        stage "assemble"
+        mvn
     ) && complete $?
 }
 
