@@ -37,6 +37,12 @@ public abstract class TestSupport
     private static final File BASEDIR;
     
     static {
+        //
+        // TODO: Add some special magic here to figure this out when we are running from
+        //       and IDE, like IDEA or Eclipse.  user.dir/target might work... but need
+        //       to validate what env each IDE has this set to.
+        //
+        
         String tmp = System.getProperty("basedir");
         if (tmp == null) {
             throw new Error("Missing 'basedir' property; tests need this property set to run correctly");
