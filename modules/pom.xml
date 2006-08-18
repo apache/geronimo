@@ -34,6 +34,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>geronimo-testsupport</module>
         <module>activation</module>
         <module>activemq-embedded-rar</module>
         <module>activemq-gbean</module>
