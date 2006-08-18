@@ -23,8 +23,8 @@ package org.apache.geronimo.connector;
 public interface AdminObjectSource {
 
     //
-    // This is implemented by "dynamic gbeans" that are swizzled to expose the 
-    // getters and setters on the javabean (ManagecConnectionFactory or AdminObject) that they wrap.
+    // This is implemented by "dynamic gbeans" that are swizzled to expose the
+    // getters and setters on the javabean that they wrap.
     //
     // The $ is here  so this method couldn't have a name conflict with a javabean property and so it would
     // not be likely to be called by the casual observer.
