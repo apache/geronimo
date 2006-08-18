@@ -42,7 +42,7 @@ public abstract class TestSupport
             throw new Error("Missing 'basedir' property; tests need this property set to run correctly");
         }
         
-        BASEDIR = new File(basedir);
+        BASEDIR = new File(tmp);
     }
     
     /**
