@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-
     Copyright 2004-2005 The Apache Software Foundation
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,13 +17,7 @@
 
 <!-- $Rev$ $Date$ -->
 
-<!--
-Configuration for Tomcat server.
--->
-<module
-    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
-
-    >
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
     <gbean name="TomcatResources" class="org.apache.geronimo.system.util.DirectoryInitializationGBean">
         <!-- copies tomcat initialization files into specified location -->
@@ -138,11 +131,11 @@ Configuration for Tomcat server.
         </dependency>
         <!-- n.b. is you have more hosts, you want them to start before the engine gbean -->
         <!-- ensure this by including dependencies like this -->
-<!--
+        <!--
         <dependency>
             <name>MyAdditionalHost</name>
         </dependency>
--->
+        -->
     </gbean>
 
     <gbean name="TomcatAccessLogManager" class="org.apache.geronimo.tomcat.TomcatLogManagerImpl">

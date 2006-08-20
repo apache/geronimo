@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-
     Copyright 2004-2005 The Apache Software Foundation
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,13 +17,6 @@
 
 <!-- $Rev$ $Date$ -->
 
-<!--
-Configuration for the main ring of a Geronimo app client.
-
-This module should contain those services normally provided
-by the app client.
-               parentId="${pom.groupId}/client-system/${pom.version}/car"
--->
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
     <!-- Naming properties -->

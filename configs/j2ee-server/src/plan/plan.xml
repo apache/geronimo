@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-
     Copyright 2004-2005 The Apache Software Foundation
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,14 +17,6 @@
 
 <!-- $Rev$ $Date$ -->
 
-<!--
-Configuration for the main ring of a Geronimo server.
-
-This module should contain those services normally provided
-by the server.
-               parentId="${pom.groupId}/rmi-naming/${pom.version}/car"
-
--->
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
     <gbean name="ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean">

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-
     Copyright 2004 The Apache Software Foundation
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,15 +16,11 @@
 -->
 
 <!-- $Rev$ $Date$ -->
-<!--               parentId="${pom.groupId}/system-database/${pom.version}/car"
--->
+
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
+    <gbean name="ActiveMQManager" class="org.activemq.gbean.management.ActiveMQManagerGBean"/>
 
-    <!-- management -->
-    <gbean name="ActiveMQManager" class="org.activemq.gbean.management.ActiveMQManagerGBean" />
-
-    <!-- message broker -->
     <gbean name="ActiveMQ" class="org.activemq.gbean.ActiveMQContainerGBean">
         <attribute name="brokerName">possibly-unique-broker</attribute>
         <reference name="persistenceAdapter">
@@ -47,7 +42,6 @@
     </gbean>
 
     <gbean name="ActiveMQ.journal" class="org.activemq.store.journal.JournalPersistenceAdapterGBean">
-        <!--TODO change to ServerInfo -->
         <reference name="serverInfo">
             <name>ServerInfo</name>
         </reference>

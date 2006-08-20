@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-
     Copyright 2004-2005 The Apache Software Foundation
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,11 +17,7 @@
 
 <!-- $Rev$ $Date$ -->
 
-<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.1"
-         xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1"
-         xmlns:cfg="http://geronimo.apache.org/xml/ns/deployment-1.1"
-
-    >
+<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.1" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1" xmlns:cfg="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
     <context-root>/remote-deploy</context-root>
     <security-realm-name>geronimo-properties-realm</security-realm-name>
@@ -38,5 +33,6 @@
             </sec:role>
         </sec:role-mappings>
     </sec:security>
-    <cfg:gbean name="LocatorToken" class="org.apache.geronimo.deployment.remote.RemoteDeployGBean" />
+    <cfg:gbean name="LocatorToken" class="org.apache.geronimo.deployment.remote.RemoteDeployGBean"/>
+
 </web-app>

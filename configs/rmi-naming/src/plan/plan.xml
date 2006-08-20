@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-
     Copyright 2004 The Apache Software Foundation
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,16 +17,7 @@
 
 <!-- $Rev$ $Date$ -->
 
-<!--
-Holds the RMI naming server module.  This needs to be started
-after the system GBeans but before the server GBeans.
-    parentId="${pom.groupId}/j2ee-system/${pom.version}/car"
-
--->
-<module
-        xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
-
-        >
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
     <gbean name="RMIRegistry" class="org.apache.geronimo.system.rmi.RMIRegistryService">
         <attribute name="port">${PlanNamingPort}</attribute>
@@ -42,7 +32,7 @@ after the system GBeans but before the server GBeans.
     <gbean name="SystemProperties" class="org.apache.geronimo.system.properties.SystemProperties">
         <attribute name="systemProperties" />
         <attribute name="systemPathProperties" />
-<!-- Can we get by without this?
+        <!-- Can we get by without this?
         <attribute name="systemProperties">
             javax.net.ssl.keyStorePassword=secret
             javax.net.ssl.trustStorePassword=secret
@@ -51,7 +41,7 @@ after the system GBeans but before the server GBeans.
             javax.net.ssl.keyStore=var/security/keystores/geronimo-default
             javax.net.ssl.trustStore=var/security/keystores/geronimo-default
         </attribute>
--->
+        -->
         <reference name="ServerInfo">
             <name>ServerInfo</name>
         </reference>
@@ -74,27 +64,28 @@ after the system GBeans but before the server GBeans.
 
     <!-- Configuration Installer -->
     <gbean name="PluginInstaller" class="org.apache.geronimo.system.plugin.PluginInstallerGBean">
-      <reference name="Repository">
-        <name>Repository</name>
-      </reference>
-      <reference name="ConfigStore">
-        <name>Local</name>
-      </reference>
-      <reference name="ConfigManager">
-        <name>ConfigurationManager</name>
-      </reference>
-      <reference name="ServerInfo">
-        <name>ServerInfo</name>
-      </reference>
-      <reference name="ThreadPool">
-        <name>DefaultThreadPool</name>
-      </reference>
-      <reference name="PluginAttributeStore">
-        <name>AttributeManager</name>
-      </reference>
+        <reference name="Repository">
+            <name>Repository</name>
+        </reference>
+        <reference name="ConfigStore">
+            <name>Local</name>
+        </reference>
+        <reference name="ConfigManager">
+            <name>ConfigurationManager</name>
+        </reference>
+        <reference name="ServerInfo">
+            <name>ServerInfo</name>
+        </reference>
+        <reference name="ThreadPool">
+            <name>DefaultThreadPool</name>
+        </reference>
+        <reference name="PluginAttributeStore">
+            <name>AttributeManager</name>
+        </reference>
     </gbean>
 
     <gbean name="DownloadedPluginRepos" class="org.apache.geronimo.system.plugin.PluginRepositoryDownloader">
         <attribute name="repositoryList">http://people.apache.org/~ammulder/plugin-repository-list.txt</attribute>
     </gbean>
+    
 </module>

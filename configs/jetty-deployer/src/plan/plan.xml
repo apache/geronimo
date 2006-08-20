@@ -1,5 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
-
     Copyright 2004-2005 The Apache Software Foundation
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +16,7 @@
 -->
 
 <!-- $Rev$ $Date$ -->
+
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
     <gbean name="JettyWebBuilder" class="org.apache.geronimo.jetty.deployment.JettyModuleBuilder">
@@ -53,13 +54,11 @@
                     <dependency>
                         <groupId>${pom.groupId}</groupId>
                         <artifactId>j2ee-server</artifactId>
-                        <!--<version>${pom.version}</version>-->
                         <type>car</type>
                     </dependency>
                     <dependency>
                         <groupId>${pom.groupId}</groupId>
                         <artifactId>jetty</artifactId>
-                        <!--<version>${pom.version}</version>-->
                         <type>car</type>
                     </dependency>
                 </dependencies>
@@ -84,12 +83,13 @@
         <attribute name="servletClass">org.mortbay.jetty.servlet.Default</attribute>
         <attribute name="loadOnStartup">0</attribute>
         <attribute name="initParams">
- acceptRanges=true
- dirAllowed=true
- putAllowed=false
- delAllowed=false
- redirectWelcome=false
- minGzipLength=8192</attribute>
+            acceptRanges=true
+            dirAllowed=true
+            putAllowed=false
+            delAllowed=false
+            redirectWelcome=false
+            minGzipLength=8192
+        </attribute>
         <attribute name="servletMappings">/</attribute>
     </gbean>
 
@@ -98,10 +98,11 @@
         <attribute name="servletClass">org.apache.jasper.servlet.JspServlet</attribute>
         <attribute name="loadOnStartup">0</attribute>
         <attribute name="initParams">
- development=false
- fork=false
- logVerbosityLevel=DEBUG
- xpoweredBy=false</attribute>
+            development=false
+            fork=false
+            logVerbosityLevel=DEBUG
+            xpoweredBy=false
+        </attribute>
         <attribute name="servletMappings">*.jsp,*.jspf,*.jspx,*.xsp</attribute>
     </gbean>
 

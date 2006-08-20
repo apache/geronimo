@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-
     Copyright 2004-2005 The Apache Software Foundation
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,9 +17,8 @@
 
 <!-- $Rev$ $Date$ -->
 
-<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1"
+<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1">
 
-          >
     <resourceadapter>
         <outbound-resourceadapter>
             <connection-definition>
@@ -50,11 +48,13 @@
         <reference name="ServerInfo"><name>ServerInfo</name></reference>
         <attribute name="derbySystemHome">var/derby</attribute>
     </gbean>
+    
     <gbean name="DerbyNetwork" class="org.apache.geronimo.derby.DerbyNetworkGBean">
         <reference name="derbySystem"><name>DerbySystem</name></reference>
         <attribute name="host">localhost</attribute>
         <attribute name="port">1527</attribute>
     </gbean>
+    
     <gbean name="DerbyLog" class="org.apache.geronimo.derby.DerbyLogGBean">
         <reference name="DerbySystem"><name>DerbySystem</name></reference>
     </gbean>

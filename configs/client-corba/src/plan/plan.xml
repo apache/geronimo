@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-
     Copyright 2004-2005 The Apache Software Foundation
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,10 +17,8 @@
 
 <!-- $Rev$ $Date$ -->
 
-<!--
-CSSBean examples for app client
--->
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+
     <gbean name="CORBASystemProperties" class="org.apache.geronimo.system.properties.SystemProperties">
         <attribute name="systemProperties">
             javax.rmi.CORBA.UtilClass=org.openejb.corba.util.UtilDelegateImpl
@@ -174,4 +171,5 @@ CSSBean examples for app client
         </xml-attribute>
     </gbean>
     -->
+    
 </module>

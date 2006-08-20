@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-
     Copyright 2004-2005 The Apache Software Foundation
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,9 +17,8 @@
 
 <!-- $Rev$ $Date$ -->
 
-<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1"
+<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1">
 
-    >
     <resourceadapter>
         <resourceadapter-instance>
             <resourceadapter-name>ActiveMQ RA</resourceadapter-name>

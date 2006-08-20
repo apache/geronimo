@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-
     Copyright 2005 The Apache Software Foundation
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,16 +17,7 @@
 
 <!-- $Rev$ $Date$ -->
 
-<!--
-Configuration for the main ring of a Geronimo server.
-
-This module should contain those services normally provided
-by the server.
--->
-<module
-    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
-
-    >
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
     <gbean name="DirectoryService" class="org.apache.geronimo.directory.DirectoryGBean">
         <attribute name="providerURL">ou=system</attribute>

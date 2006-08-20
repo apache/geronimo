@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-
     Copyright 2004-2005 The Apache Software Foundation
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,9 +17,6 @@
 
 <!-- $Rev$ $Date$ -->
 
-<!--
-Configuration for corba on a Geronimo server, including client and target security examples.
--->
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
     <gbean name="CORBASystemProperties" class="org.apache.geronimo.system.properties.SystemProperties">
@@ -42,7 +38,6 @@ Configuration for corba on a Geronimo server, including client and target securi
             <name>ServerInfo</name>
         </reference>
     </gbean>
-
 
     <!-- CORBA -->
     <gbean name="DynamicORBStubClassLoader" class="org.openejb.corba.util.DynamicStubClassLoaderGBean">

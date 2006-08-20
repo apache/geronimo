@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-
     Copyright 2004-2005 The Apache Software Foundation
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,14 +17,7 @@
 
 <!-- $Rev$ $Date$ -->
 
-<!--
-Configuration for Jetty server.
-               parentId="${pom.groupId}/rmi-naming/${pom.version}/car"
--->
-<module
-    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
-
-    >
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
     <!-- david jencks is not convinced that these 2 gbeans should be in this
          plan and thinks they might belong in the console plan.  Aaron thinks
