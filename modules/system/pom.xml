@@ -144,18 +144,6 @@
                                     <entry key="build.time" type="date" value="now" pattern="HH:mm:ss.SSSZ"/>
                                     <entry key="copyright" value="Copyright (C) 2003-${build.year}, The Apache Software Foundation"/>
                                 </propertyfile>
-                                
-                                <mkdir dir="${pom.basedir}/target/resources/META-INF"/>
-                                
-                                <propertyfile
-                                    file="${pom.basedir}/target/resources/META-INF/product-versions.properties"
-                                    comment="Product version information (generated, do not modify)">
-                                    
-                                    <entry key="geronimo" value="${pom.version}"/>
-                                    <entry key="activemq" value="${activeMqVersion}"/>
-                                    <entry key="openejb" value="${openejbVersion}"/>
-                                    <entry key="tranql" value="${tranqlVersion}"/>
-                                </propertyfile>
                             </tasks>
                         </configuration>
                     </execution>
