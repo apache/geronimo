@@ -65,7 +65,7 @@ public abstract class AbstractCarMojo
     /**
      * Used to look up Artifacts in the remote repository.
      *
-     * @parameter expression="${component.org.apache.maven.artifact.factory.ArtifactFactory}"
+     * @component
      * @required
      * @readonly
      */
@@ -74,7 +74,7 @@ public abstract class AbstractCarMojo
     /**
      * Used to look up Artifacts in the remote repository.
      *
-     * @parameter expression="${component.org.apache.maven.artifact.resolver.ArtifactResolver}"
+     * @component
      * @required
      * @readonly
      */
@@ -110,18 +110,11 @@ public abstract class AbstractCarMojo
     /**
      * The maven project's helper.
      *
-     * @parameter expression="${component.org.apache.maven.project.MavenProjectHelper}"
+     * @component
      * @required
      * @readonly
      */
     protected MavenProjectHelper projectHelper;
-
-    /**
-     * @parameter expression="${component.org.apache.maven.artifact.factory.ArtifactFactory}"
-     * @required
-     * @readonly
-     */
-    protected ArtifactFactory artifactFactory;
 
     protected Set getProjectArtifacts(final MavenProject project) {
         Set artifacts = new HashSet();
@@ -145,7 +138,7 @@ public abstract class AbstractCarMojo
                 scope = Artifact.SCOPE_COMPILE;
             }
 
-            Artifact artifact = artifactFactory.createDependencyArtifact(
+            Artifact artifact = factory.createDependencyArtifact(
                 groupId,
                 artifactId,
                 versionRange,
