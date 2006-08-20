@@ -1009,7 +1009,7 @@
 
         <site>
             <id>geronimo-website</id>
-            <url>scp://people.apache.org/www/geronimo.apache.org/maven</url>
+            <url>scp://people.apache.org/www/geronimo.apache.org/maven/server</url>
         </site>
     </distributionManagement>
 
@@ -1089,11 +1089,11 @@
             <modules>
                 <module>modules</module>
                 <module>m2-plugins</module>
-
+                <module>applications</module>
+                
                 <!--
                 NOTE: Probably do not want to publish these to the repo...  Or do we?
-
-                <module>applications</module>
+                
                 <module>configs</module>
                 <module>m2-assemblies</module>
                 -->
@@ -1136,7 +1136,7 @@
             <distributionManagement>
                 <site>
                     <id>geronimo-website</id>
-                    <url>file:/tmp/www/geronimo.apache.org/maven</url>
+                    <url>file:/tmp/www/geronimo.apache.org/maven/server</url>
                 </site>
             </distributionManagement>
         </profile>

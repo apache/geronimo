@@ -115,6 +115,16 @@
             <artifactId>commons-logging</artifactId>
         </dependency>
         
+        <!--
+        HACK: Explicity add maven-artifact here (which is picked up plugin-support)
+              because w/o it clover will freak out, as it picks up an older version
+        -->
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-artifact</artifactId>
+            <version>2.0.4</version>
+        </dependency>
+        
     </dependencies>
     
     <build>

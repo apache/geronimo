@@ -96,7 +96,7 @@
                             <driver>org.apache.derby.jdbc.EmbeddedDriver</driver>
                             <url>jdbc:derby:${derby.system.home}/UddiDatabase;create=true</url>
                             <autocommit>true</autocommit>
-                            <onError>continue</onError>
+                            <onError>abort</onError>
                             <delimiter>;</delimiter>
                             <srcFiles>
                                 <srcFile>${pom.basedir}/src/sql/juddi.sql</srcFile>
@@ -107,5 +107,5 @@
             </plugin>
         </plugins>
     </build>
-
+    
 </project>

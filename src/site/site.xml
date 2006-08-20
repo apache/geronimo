@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
     Copyright 2006 The Apache Software Foundation
 
@@ -18,48 +18,15 @@
 <!-- $Id$ -->
 
 <project name="${project.name}">
-    <skin>
-        <groupId>org.apache.geronimo.genesis.config</groupId>
-        <artifactId>geronimo-skin</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
-    </skin>
-    
-    <publishDate format="dd MMM yyyy"/>
-    
-    <bannerLeft>
-        <src>images/topleft_logo_437x64.gif</src>
-    </bannerLeft>
-    
-    <!--
-    <bannerRight>
-        <name>${project.name}</name>
-    </bannerRight>
-    -->
     
     <body>
-        <!--
-        <links>
-            <item name="Geronimo" href="http://geronimo.apache.org/"/>
-            <item name="Apache" href="http://apache.org/"/>
-        </links>
-        -->
         
-        <menu name="Geronimo">
-            <item name="Home" href="http://geronimo.apache.org/"/>
-        </menu>
-        
-        <!--
-        NOTE: Do not include parent... that is Genesis and not relevant here
-        <menu ref="parent"/>
-        -->
-        
-        <menu ref="modules"/>
-        
-        <menu ref="reports"/>
+        ${modules}
         
         ${reports}
         
     </body>
+
 </project>
 
 
