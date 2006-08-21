@@ -45,6 +45,76 @@
         
         <plugins>
             <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <executions>
+                    <!--
+                    NOTE: Need to install some extra bits into the repository which do not
+                          normally make it there with the default car config installation.
+                    -->
+                    <execution>
+                        <id>install-repository</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>install-artifacts</goal>
+                        </goals>
+                        <configuration>
+                            <repositoryDirectory>${project.build.outputDirectory}/repository</repositoryDirectory>
+                            
+                            <artifacts>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.modules</groupId>
+                                    <artifactId>ge-activemq-rar</artifactId>
+                                    <version>${pom.version}</version>
+                                    <type>rar</type>
+                                </artifactItem>
+                                
+                                <artifactItem>
+                                    <groupId>tranql</groupId>
+                                    <artifactId>tranql-connector</artifactId>
+                                    <type>rar</type>
+                                </artifactItem>
+                                
+                                <artifactItem>
+                                    <groupId>tranql</groupId>
+                                    <artifactId>tranql-connector-derby-embed-local</artifactId>
+                                    <type>rar</type>
+                                </artifactItem>
+                                
+                                <artifactItem>
+                                    <groupId>tranql</groupId>
+                                    <artifactId>tranql-connector-derby-embed-xa</artifactId>
+                                    <type>rar</type>
+                                </artifactItem>
+                                
+                                <artifactItem>
+                                    <groupId>tranql</groupId>
+                                    <artifactId>tranql-connector-derby-client-local</artifactId>
+                                    <type>rar</type>
+                                </artifactItem>
+                                
+                                <artifactItem>
+                                    <groupId>tranql</groupId>
+                                    <artifactId>tranql-connector-derby-client-xa</artifactId>
+                                    <type>rar</type>
+                                </artifactItem>
+                                
+                                <artifactItem>
+                                    <groupId>org.apache.derby</groupId>
+                                    <artifactId>derbyclient</artifactId>
+                                </artifactItem>
+                                
+                                <artifactItem>
+                                    <groupId>org.apache.derby</groupId>
+                                    <artifactId>derbytools</artifactId>
+                                </artifactItem>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>dependency-maven-plugin</artifactId>
                 <executions>
