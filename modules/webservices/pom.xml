@@ -48,15 +48,6 @@
     <build>
         <resources>
             <resource>
-                <directory>${pom.basedir}</directory>
-                <targetPath>META-INF</targetPath>
-                <includes>
-                    <include>LICENSE.txt</include>
-                    <include>NOTICE.txt</include>
-                </includes>
-            </resource>
-            
-            <resource>
                 <directory>src/resources2</directory>
             </resource>
         </resources>
