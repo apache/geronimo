@@ -1,6 +1,5 @@
 /**
- *
- * Copyright 2004 The Apache Software Foundation
+ *  Copyright 2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,7 +22,6 @@ import javax.security.auth.Subject;
 import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
 
-import junit.framework.TestCase;
 import org.apache.geronimo.connector.mock.MockConnection;
 import org.apache.geronimo.connector.mock.MockConnectionFactory;
 import org.apache.geronimo.connector.mock.MockManagedConnection;
@@ -40,14 +38,14 @@ import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstan
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContext;
 import org.apache.geronimo.connector.outbound.connectiontracking.GeronimoTransactionListener;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
+import org.apache.geronimo.testsupport.TestSupport;
 
 /**
- *
+ * ???
  *
  * @version $Rev$ $Date$
- *
- * */
-public class ConnectionManagerTestUtils extends TestCase implements DefaultInterceptor {
+ */
+public class ConnectionManagerTestUtils extends TestSupport implements DefaultInterceptor {
     protected boolean useTransactionCaching = true;
     protected boolean useLocalTransactions = false;
     protected boolean useThreadCaching = false;
@@ -95,7 +93,7 @@ public class ConnectionManagerTestUtils extends TestCase implements DefaultInter
 
         connectionTrackingCoordinator = new ConnectionTrackingCoordinator();
         transactionManager.addTransactionAssociationListener(new GeronimoTransactionListener(connectionTrackingCoordinator));
-        
+
         mockManagedConnectionFactory = new MockManagedConnectionFactory();
         subject = new Subject();
         ContextManager.setCallers(subject, subject);

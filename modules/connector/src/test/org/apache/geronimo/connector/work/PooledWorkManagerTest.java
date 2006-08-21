@@ -1,6 +1,5 @@
 /**
- *
- * Copyright 2003-2004 The Apache Software Foundation
+ *  Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,10 +23,10 @@ import javax.resource.spi.work.WorkEvent;
 import javax.resource.spi.work.WorkException;
 import javax.resource.spi.work.WorkListener;
 
-import junit.framework.TestCase;
 import org.apache.geronimo.pool.ThreadPool;
 import org.apache.geronimo.transaction.manager.GeronimoTransactionManager;
 import org.apache.geronimo.transaction.manager.XAWork;
+import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -37,9 +36,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @version $Rev$ $Date$
  */
-public class PooledWorkManagerTest extends TestCase {
-
-    private static final Log log = LogFactory.getLog(PooledWorkManagerTest.class);
+public class PooledWorkManagerTest extends TestSupport {
 
     private GeronimoWorkManager workManager;
 
@@ -54,8 +51,7 @@ public class PooledWorkManagerTest extends TestCase {
 
     public void testDoWork() throws Exception {
         int nbThreads = 2;
-        AbstractDummyWork threads[] =
-            helperTest(DummyDoWork.class, nbThreads, 500, 600);
+        AbstractDummyWork threads[] = helperTest(DummyDoWork.class, nbThreads, 500, 600);
         int nbStopped = 0;
         int nbTimeout = 0;
         for (int i = 0; i < threads.length; i++) {
@@ -70,15 +66,12 @@ public class PooledWorkManagerTest extends TestCase {
                 fail("WORK_COMPLETED or WORK_REJECTED expected");
             }
         }
-        assertEquals("Wrong number of works in the WORK_COMPLETED state",
-            1, nbStopped);
-        assertEquals("Wrong number of works in the START_TIMED_OUT state",
-            1, nbTimeout);
+        assertEquals("Wrong number of works in the WORK_COMPLETED state", 1, nbStopped);
+        assertEquals("Wrong number of works in the START_TIMED_OUT state", 1, nbTimeout);
     }
 
     public void testStartWork() throws Exception {
-        AbstractDummyWork threads[] =
-            helperTest(DummyStartWork.class, 2, 10000, 100);
+        AbstractDummyWork threads[] = helperTest(DummyStartWork.class, 2, 10000, 100);
         int nbStopped = 0;
         int nbStarted = 0;
         for (int i = 0; i < threads.length; i++) {
@@ -90,10 +83,8 @@ public class PooledWorkManagerTest extends TestCase {
                 fail("WORK_COMPLETED or WORK_STARTED expected");
             }
         }
-        assertEquals("At least one work should be in the WORK_COMPLETED state.",
-            1, nbStopped);
-        assertEquals("At least one work should be in the WORK_STARTED state.",
-            1, nbStarted);
+        assertEquals("At least one work should be in the WORK_COMPLETED state.", 1, nbStopped);
+        assertEquals("At least one work should be in the WORK_STARTED state.", 1, nbStarted);
     }
 
     public void testScheduleWork() throws Exception {
@@ -101,6 +92,7 @@ public class PooledWorkManagerTest extends TestCase {
             helperTest(DummyScheduleWork.class, 3, 10000, 100);
         int nbAccepted = 0;
         int nbStarted = 0;
+
         for (int i = 0; i < threads.length; i++) {
             if ( null != threads[i].listener.acceptedEvent ) {
                 nbAccepted++;
@@ -110,8 +102,8 @@ public class PooledWorkManagerTest extends TestCase {
                 fail("WORK_ACCEPTED or WORK_STARTED expected");
             }
         }
-        assertTrue("At least one work should be in the WORK_ACCEPTED state.",
-            nbAccepted > 0);
+
+        assertTrue("At least one work should be in the WORK_ACCEPTED state.", nbAccepted > 0);
     }
 
     public void testLifecycle() throws Exception {
@@ -158,7 +150,7 @@ public class PooledWorkManagerTest extends TestCase {
             try {
                 perform(new DummyWork(name, tempo), timeout, null, listener);
             } catch (Exception e) {
-                e.printStackTrace();
+                log.debug(e.getMessage(), e);
             }
         }
 
@@ -208,6 +200,8 @@ public class PooledWorkManagerTest extends TestCase {
     }
 
     public static class DummyWork implements Work {
+        private Log log = LogFactory.getLog(getClass());
+
         private final String name;
         private final int tempo;
 
@@ -223,7 +217,7 @@ public class PooledWorkManagerTest extends TestCase {
             try {
                 Thread.sleep(tempo);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                log.debug(e.getMessage(), e);
             }
         }
 
@@ -233,6 +227,8 @@ public class PooledWorkManagerTest extends TestCase {
     }
 
     public static class DummyWorkListener implements WorkListener {
+        private Log log = LogFactory.getLog(getClass());
+
         public WorkEvent acceptedEvent;
         public WorkEvent rejectedEvent;
         public WorkEvent startedEvent;

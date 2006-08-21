@@ -20,18 +20,13 @@ package org.apache.geronimo.connector.outbound;
 import java.util.HashSet;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContextImpl;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.Log;
 
 /**
- *
+ * ???
  *
  * @version $Rev$ $Date$
- *
- * */
+ */
 public class ConnectionManagerStressTest extends ConnectionManagerTestUtils {
-
-    private static final Log log = LogFactory.getLog(ConnectionManagerStressTest.class);
 
     protected int repeatCount = 200;
     protected int threadCount = 10;
@@ -78,11 +73,11 @@ public class ConnectionManagerStressTest extends ConnectionManagerTestUtils {
                                     log.debug("got a cx: " + i + ", time: " + (duration));
                                 }
                             } catch (Throwable throwable) {
-                                throwable.printStackTrace();
+                                log.debug(throwable.getMessage(), throwable);
                             }
                         }
                     } catch (Exception e) {
-                        log.info(e);
+                        log.info(e.getMessage(), e);
                         ConnectionManagerStressTest.this.e = e;
                     } finally {
                         synchronized (stopBarrier) {
