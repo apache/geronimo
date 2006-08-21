@@ -33,26 +33,54 @@ public abstract class TestSupport
 {
     /**
      * The base-directory which tests should be run from.
+     *
+     * @see #getBaseDir()   This field is initialized from the return of this method on instance construction.
      */
-    private static final File BASEDIR;
-    
-    static {
-        //
-        // TODO: Add some special magic here to figure this out when we are running from
-        //       and IDE, like IDEA or Eclipse.  user.dir/target might work... but need
-        //       to validate what env each IDE has this set to.
-        //
-        
-        String tmp = System.getProperty("basedir");
-        if (tmp == null) {
-            throw new Error("Missing 'basedir' property; tests need this property set to run correctly");
-        }
-        
-        BASEDIR = new File(tmp);
-    }
-    
+    protected final File BASEDIR = getBaseDir();
+
     /**
      * Instance logger which tests should use to produce tracing information.
+     *
+     * <p>
+     * Unless you have a really good reason to, do not change this field from your sub-class.
+     * And if you do, please document why you have done so.
      */
     protected Log log = LogFactory.getLog(getClass());
+
+    /**
+     * Determine the value of <tt>${basedir}</tt>, which should be the base directory of
+     * the module which the concreate test class is defined in.
+     *
+     * <p>
+     * If The system property <tt>basedir</tt> is already set, then that value is used,
+     * otherwise we determine the value from the codesource of the containing concrete class
+     * and set the <tt>basedir</tt> system property to that value.
+     *
+     * @see #BASEDIR    This field is always initialized to the value which this method returns.
+     *
+     * @return  The base directory of the module which contains the concreate test class.
+     */
+    protected final File getBaseDir() {
+        File dir;
+
+        // If ${basedir} is set, then honor it
+        String tmp = System.getProperty("basedir");
+        if (tmp != null) {
+            dir = new File(tmp);
+        }
+        else {
+            // Find the directory which this class (or really the sub-class of TestSupport) is defined in.
+            String path = getClass().getProtectionDomain().getCodeSource().getLocation().getFile();
+
+            // We expect the file to be in target/test-classes, so go up 2 dirs
+            dir = new File(path).getParentFile().getParentFile();
+
+            // Set ${basedir} which is needed by logging to initialize
+            System.setProperty("basedir", dir.getPath());
+        }
+
+        // System.err.println("Base Directory: " + dir);
+
+        return dir;
+    }
 }
