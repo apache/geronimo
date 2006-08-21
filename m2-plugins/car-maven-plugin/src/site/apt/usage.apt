@@ -174,3 +174,35 @@ Basic Usage
     ...
 <project>
 +----------+
+
+* Install artifacts into a Geronimo repository
+
+ Install arbitrary artifacts into a Geronimo repository.
+
++----------+
+<plugin>
+    <groupId>org.apache.geronimo.plugins</groupId>
+    <artifactId>car-maven-plugin</artifactId>
+    <executions>
+        <execution>
+            <id>install-repository</id>
+            <phase>compile</phase>
+            <goals>
+                <goal>install-artifacts</goal>
+            </goals>
+            <configuration>
+                <repositoryDirectory>${project.build.outputDirectory}/repository</repositoryDirectory>
+                
+                <artifacts>
+                    <artifactItem>
+                        <groupId>org.apache.geronimo.modules</groupId>
+                        <artifactId>ge-activemq-rar</artifactId>
+                        <type>rar</type>
+                    </artifactItem>
+                </artifacts>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
++----------+
+
