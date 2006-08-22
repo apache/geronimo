@@ -296,8 +296,10 @@ public class PackageMojo
             archiver.getArchiver().addDirectory(getArtifactInRepositoryDir());
 
             // Include the optional classes.resources
-            archiver.getArchiver().addDirectory(classesDirectory);
-
+            if (classesDirectory.isDirectory()) {
+                archiver.getArchiver().addDirectory(classesDirectory);
+            }
+            
             if (classpath != null) {
                 archive.addManifestEntry("Class-Path", getClassPath());
             }
