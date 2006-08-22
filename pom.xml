@@ -978,6 +978,23 @@
 
         <plugins>
             <plugin>
+                <groupId>org.apache.geronimo.genesis.plugins</groupId>
+                <artifactId>tools-maven-plugin</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>require-java-version</goal>
+                        </goals>
+                        <configuration>
+                            <version>1.4*</version>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
