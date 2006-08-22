@@ -65,7 +65,7 @@
         <tomcatVersion>5.5.15</tomcatVersion>
         
         <!--
-        HACK: Used bu uddi-jetty and uddi-tomcat configs
+        HACK: Used by uddi-jetty and uddi-tomcat configs
         -->
         <tranqlVendorsVersion>1.1</tranqlVendorsVersion>
         
