@@ -315,7 +315,19 @@
                 <artifactId>derbynet</artifactId>
                 <version>${derbyVersion}</version>
             </dependency>
-
+            
+            <dependency>
+                <groupId>org.apache.derby</groupId>
+                <artifactId>derbyclient</artifactId>
+                <version>${derbyVersion}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.apache.derby</groupId>
+                <artifactId>derbytools</artifactId>
+                <version>${derbyVersion}</version>
+            </dependency>
+            
             <dependency>
                 <groupId>regexp</groupId>
                 <artifactId>regexp</artifactId>
@@ -600,7 +612,14 @@
                 <artifactId>openejb-pkgen-builder</artifactId>
                 <version>2.2-SNAPSHOT</version>
             </dependency>
-
+            
+            <dependency>
+                <groupId>tranql</groupId>
+                <artifactId>tranql-connector</artifactId>
+                <version>1.2</version>
+                <type>rar</type>
+            </dependency>
+            
             <dependency>
                 <groupId>tranql</groupId>
                 <artifactId>tranql-connector-derby-embed-xa</artifactId>
@@ -614,7 +633,21 @@
                 <version>1.1</version>
                 <type>rar</type>
             </dependency>
-
+            
+            <dependency>
+                <groupId>tranql</groupId>
+                <artifactId>tranql-connector-derby-client-local</artifactId>
+                <version>1.1</version>
+                <type>rar</type>
+            </dependency>
+            
+            <dependency>
+                <groupId>tranql</groupId>
+                <artifactId>tranql-connector-derby-client-xa</artifactId>
+                <version>1.1</version>
+                <type>rar</type>
+            </dependency>
+            
             <dependency>
                 <groupId>juddi</groupId>
                 <artifactId>juddi</artifactId>
