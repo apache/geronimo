@@ -118,6 +118,10 @@ public abstract class AbstractCarMojo
         return artifactRepository;
     }
 
+    //
+    // Access to Project artifacts
+    //
+
     protected Set getProjectArtifacts(final MavenProject project) {
         Set artifacts = new HashSet();
 

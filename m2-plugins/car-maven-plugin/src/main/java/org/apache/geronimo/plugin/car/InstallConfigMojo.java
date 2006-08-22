@@ -96,12 +96,21 @@ public class InstallConfigMojo
      */
     private File explicitResolutionProperties = null;
 
-    private ArtifactResolver artifactResolver;
+    /**
+     * The Geronimo repository artifact resolver.
+     *
+     * <p>
+     * Using a custom name here to prevent problems that happen when Plexus
+     * injects the Maven resolver into the base-class.
+     */
+    private ArtifactResolver geronimoArtifactResolver;
 
     private WritableListableRepository targetRepo;
+
     private RepositoryConfigurationStore targetStore;
 
     private WritableListableRepository sourceRepo;
+
     private RepositoryConfigurationStore sourceStore;
 
     protected void doExecute() throws Exception {
@@ -120,7 +129,7 @@ public class InstallConfigMojo
 
         Artifact configId;
         ArtifactManager artifactManager = new DefaultArtifactManager();
-        artifactResolver = new ExplicitDefaultArtifactResolver(
+        geronimoArtifactResolver = new ExplicitDefaultArtifactResolver(
             explicitResolutionProperties.getPath(),
             artifactManager,
             Collections.singleton(sourceRepo),
@@ -151,7 +160,7 @@ public class InstallConfigMojo
         Set dependenciesSet = new HashSet();
 
         if (project.getArtifact() != null && project.getArtifact().getFile() != null) {
-            dependenciesSet.add( project.getArtifact() );
+            dependenciesSet.add(project.getArtifact());
         }
 
         Set projectArtifacts = project.getArtifacts();
@@ -233,7 +242,7 @@ public class InstallConfigMojo
             dependencies = sourceRepo.getDependencies(configArtifact);
         }
         
-        dependencies = artifactResolver.resolveInClassLoader(dependencies);
+        dependencies = geronimoArtifactResolver.resolveInClassLoader(dependencies);
         for (Iterator iterator = dependencies.iterator(); iterator.hasNext();) {
             Artifact a = (Artifact)iterator.next();
             execute(a);
