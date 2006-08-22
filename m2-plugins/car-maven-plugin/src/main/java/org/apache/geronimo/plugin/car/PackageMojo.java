@@ -20,10 +20,31 @@ package org.apache.geronimo.plugin.car;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.HashSet;
+import java.net.URI;
 
 import org.apache.geronimo.deployment.PluginBootstrap2;
 import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
 import org.apache.geronimo.system.repository.Maven2Repository;
+import org.apache.geronimo.system.resolver.ExplicitDefaultArtifactResolver;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
+import org.apache.geronimo.kernel.log.GeronimoLogging;
+import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.KernelConfigurationManager;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.ReferencePatterns;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 
 import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
@@ -124,7 +145,7 @@ public class PackageMojo
     private ArrayList deploymentConfigs;
 
     /**
-     * ???
+     * The name of the deployer which will be used to deploy the CAR.
      *
      * @parameter expression="org.apache.geronimo.configs/geronimo-gbean-deployer/${geronimoVersion}/car?j2eeType=Deployer,name=Deployer"
      * @required
@@ -132,7 +153,7 @@ public class PackageMojo
     private String deployerName = null;
 
     /**
-     * ???
+     * The plan file for the CAR.
      *
      * @parameter expression="${project.build.directory}/plan/plan.xml"
      * @required
@@ -140,21 +161,24 @@ public class PackageMojo
     private File planFile = null;
 
     /**
-     * ???
+     * The file to include as a module of the CAR.
      *
      * @parameter
      */
     private File moduleFile = null;
 
     /**
-     * ???
+     * An {@link ArtifactItem} to include as a module of the CAR.
      *
      * @parameter
      */
     private ArtifactItem module = null;
-    
+
     /**
      * The location where the properties mapping will be generated.
+     *
+     * <p>
+     * Probably don't wanto to change this.
      *
      * @parameter expression="${project.build.directory}/explicit-versions.properties"
      */
@@ -210,12 +234,12 @@ public class PackageMojo
         }
 
         generateExplicitVersionProperties(explicitResolutionProperties);
-        
+
         if (bootstrap) {
             executeBootShell();
         }
         else {
-            executePackageBuilderShell();
+            buildPackage();
         }
 
         // Build the archive
@@ -227,8 +251,7 @@ public class PackageMojo
 
     private File getArtifactInRepositoryDir() {
         //
-        // HACK: Generate the filename in the repo... really should delegate this to the
-        //       repo impl, but need to condense PackageMojo and PackageBuilder first
+        // HACK: Generate the filename in the repo... really should delegate this to the repo impl
         //
 
         File dir = new File(targetRepository, project.getGroupId().replace('.', '/'));
@@ -255,32 +278,6 @@ public class PackageMojo
         boot.bootstrap();
     }
 
-    public void executePackageBuilderShell() throws Exception {
-        log.debug("Starting builder shell...");
-
-        PackageBuilder builder = new PackageBuilder();
-
-        //
-        // NOTE: May need to run this in a controlled classloader (w/reflection or a proxy)
-        //
-        //       http://www.nabble.com/PackageBuilderShellMojo-%28m2%29-and-classloaders-p5271991.html
-        //
-
-        builder.setDeployerName(deployerName);
-        builder.setDeploymentConfig(deploymentConfigs);
-        builder.setModuleFile(moduleFile);
-        builder.setPlanFile(planFile);
-        builder.setRepository(repository);
-        builder.setRepositoryClass(Maven2Repository.class.getName());
-        builder.setConfigurationStoreClass(MavenConfigStore.class.getName());
-        builder.setTargetRepository(targetRepository);
-        builder.setTargetRepositoryClass(Maven2Repository.class.getName());
-        builder.setTargetConfigurationStoreClass(RepositoryConfigurationStore.class.getName());
-        builder.setExplicitResolutionLocation(explicitResolutionProperties.getAbsolutePath());
-
-        builder.execute();
-    }
-
     /**
      * Generates the configuration archive.
      */
@@ -299,7 +296,7 @@ public class PackageMojo
             if (classesDirectory.isDirectory()) {
                 archiver.getArchiver().addDirectory(classesDirectory);
             }
-            
+
             if (classpath != null) {
                 archive.addManifestEntry("Class-Path", getClassPath());
             }
@@ -348,5 +345,225 @@ public class PackageMojo
         log.debug("Using classpath: " + buff);
 
         return buff.toString();
+    }
+
+    //
+    // Deployment
+    //
+
+    private static final String KERNEL_NAME = "geronimo.maven";
+
+    /**
+     * Reference to the kernel that will last the lifetime of this classloader.
+     * The KernelRegistry keeps soft references that may be garbage collected.
+     */
+    private static Kernel kernel;
+
+    private static AbstractName targetConfigStoreAName;
+
+    private static AbstractName targetRepositoryAName;
+
+    private boolean targetSet;
+
+    public void buildPackage() throws Exception {
+        log.info("Packaging module configuration: " + planFile);
+
+
+        Kernel kernel = createKernel();
+        if (!targetSet) {
+            kernel.stopGBean(targetRepositoryAName);
+            kernel.setAttribute(targetRepositoryAName, "root", targetRepository.toURI());
+            kernel.startGBean(targetRepositoryAName);
+
+            if (kernel.getGBeanState(targetConfigStoreAName) != State.RUNNING_INDEX) {
+                throw new IllegalStateException("After restarted repository then config store is not running");
+            }
+
+            targetSet = true;
+        }
+
+        log.debug("Starting configuration...");
+
+        // start the Configuration we're going to use for this deployment
+        ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+        try {
+            for (Iterator iterator = deploymentConfigs.iterator(); iterator.hasNext();) {
+                String artifactName = (String) iterator.next();
+                org.apache.geronimo.kernel.repository.Artifact configName =
+                        org.apache.geronimo.kernel.repository.Artifact.create(artifactName);
+                if (!configurationManager.isLoaded(configName)) {
+                    configurationManager.loadConfiguration(configName);
+                    configurationManager.startConfiguration(configName);
+                }
+            }
+        } finally {
+            ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
+        }
+
+        log.debug("Deploying...");
+
+        AbstractName deployer = locateDeployer(kernel);
+        invokeDeployer(kernel, deployer, targetConfigStoreAName.toString());
+    }
+
+    /**
+     * Create a Geronimo Kernel to contain the deployment configurations.
+     */
+    private synchronized Kernel createKernel() throws Exception {
+        // first return our cached version
+        if (kernel != null) {
+            return kernel;
+        }
+
+        log.debug("Creating kernel...");
+
+        // check the registry in case someone else created one
+        kernel = KernelRegistry.getKernel(KERNEL_NAME);
+        if (kernel != null) {
+            return kernel;
+        }
+
+        GeronimoLogging geronimoLogging = GeronimoLogging.getGeronimoLogging("WARN");
+        if (geronimoLogging == null) {
+            geronimoLogging = GeronimoLogging.DEBUG;
+        }
+        GeronimoLogging.initialize(geronimoLogging);
+
+        // boot one ourselves
+        kernel = KernelFactory.newInstance().createKernel(KERNEL_NAME);
+        kernel.boot();
+
+        bootDeployerSystem();
+
+        return kernel;
+    }
+
+    /**
+     * Boot the in-Maven deployment system.
+     *
+     * <p>
+     * This contains Repository and ConfigurationStore GBeans that map to
+     * the local maven installation.
+     */
+    private void bootDeployerSystem() throws Exception {
+        log.debug("Booting deployer system...");
+
+        org.apache.geronimo.kernel.repository.Artifact baseId =
+                new org.apache.geronimo.kernel.repository.Artifact("geronimo", "packaging", "fixed", "car");
+        Naming naming = kernel.getNaming();
+        ConfigurationData bootstrap = new ConfigurationData(baseId, naming);
+        ClassLoader cl = getClass().getClassLoader();
+        Set repoNames = new HashSet();
+
+        // Source repo
+        GBeanData repoGBean = bootstrap.addGBean("SourceRepository", GBeanInfo.getGBeanInfo(Maven2Repository.class.getName(), cl));
+        URI repositoryURI = repository.toURI();
+        repoGBean.setAttribute("root", repositoryURI);
+        repoNames.add(repoGBean.getAbstractName());
+
+        // Target repo
+        GBeanData targetRepoGBean = bootstrap.addGBean("TargetRepository", GBeanInfo.getGBeanInfo(Maven2Repository.class.getName(), cl));
+        URI targetRepositoryURI = targetRepository.toURI();
+        targetRepoGBean.setAttribute("root", targetRepositoryURI);
+        repoNames.add(targetRepoGBean.getAbstractName());
+        targetRepositoryAName = targetRepoGBean.getAbstractName();
+
+        GBeanData artifactManagerGBean = bootstrap.addGBean("ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
+        GBeanData artifactResolverGBean = bootstrap.addGBean("ArtifactResolver", ExplicitDefaultArtifactResolver.GBEAN_INFO);
+        artifactResolverGBean.setAttribute("versionMapLocation", explicitResolutionProperties.getAbsolutePath());
+        ReferencePatterns repoPatterns = new ReferencePatterns(repoNames);
+        artifactResolverGBean.setReferencePatterns("Repositories", repoPatterns);
+        artifactResolverGBean.setReferencePattern("ArtifactManager", artifactManagerGBean.getAbstractName());
+
+        Set storeNames = new HashSet();
+
+        // Source config store
+        GBeanInfo configStoreInfo = GBeanInfo.getGBeanInfo(MavenConfigStore.class.getName(), cl);
+        GBeanData storeGBean = bootstrap.addGBean("ConfigStore", configStoreInfo);
+        if (configStoreInfo.getReference("Repository") != null) {
+            storeGBean.setReferencePattern("Repository", repoGBean.getAbstractName());
+        }
+        storeNames.add(storeGBean.getAbstractName());
+
+        // Target config store
+        GBeanInfo targetConfigStoreInfo = GBeanInfo.getGBeanInfo(RepositoryConfigurationStore.class.getName(), cl);
+        GBeanData targetStoreGBean = bootstrap.addGBean("TargetConfigStore", targetConfigStoreInfo);
+        if (targetConfigStoreInfo.getReference("Repository") != null) {
+            targetStoreGBean.setReferencePattern("Repository", targetRepoGBean.getAbstractName());
+        }
+        storeNames.add(targetStoreGBean.getAbstractName());
+
+        targetConfigStoreAName = targetStoreGBean.getAbstractName();
+        targetSet = true;
+
+        GBeanData attrManagerGBean = bootstrap.addGBean("AttributeStore", MavenAttributeStore.GBEAN_INFO);
+        GBeanData configManagerGBean = bootstrap.addGBean("ConfigManager", KernelConfigurationManager.GBEAN_INFO);
+        configManagerGBean.setReferencePatterns("Stores", new ReferencePatterns(storeNames));
+        configManagerGBean.setReferencePattern("AttributeStore", attrManagerGBean.getAbstractName());
+        configManagerGBean.setReferencePattern("ArtifactManager", artifactManagerGBean.getAbstractName());
+        configManagerGBean.setReferencePattern("ArtifactResolver", artifactResolverGBean.getAbstractName());
+        configManagerGBean.setReferencePatterns("Repositories", repoPatterns);
+
+        ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, cl);
+    }
+
+    /**
+     * Locate a Deployer GBean matching the deployerName pattern.
+     *
+     * @param kernel the kernel to search.
+     * @return the ObjectName of the Deployer GBean
+     *
+     * @throws IllegalStateException if there is not exactly one GBean matching the deployerName pattern
+     */
+    private AbstractName locateDeployer(final Kernel kernel) {
+        AbstractName name = new AbstractName(URI.create(deployerName));
+
+        Iterator i = kernel.listGBeans(new AbstractNameQuery(name)).iterator();
+        if (!i.hasNext()) {
+            throw new IllegalStateException("No deployer found matching deployerName: " + name);
+        }
+
+        AbstractName deployer = (AbstractName)i.next();
+        if (i.hasNext()) {
+            throw new IllegalStateException("Multiple deployers found matching deployerName: " + name);
+        }
+
+        return deployer;
+    }
+
+    private static final String[] DEPLOY_SIGNATURE = {
+        boolean.class.getName(),
+        File.class.getName(),
+        File.class.getName(),
+        File.class.getName(),
+        Boolean.TYPE.getName(),
+        String.class.getName(),
+        String.class.getName(),
+        String.class.getName(),
+        String.class.getName(),
+        String.class.getName(),
+        String.class.getName(),
+        String.class.getName(),
+        String.class.getName(),
+    };
+
+    private List invokeDeployer(final Kernel kernel, final AbstractName deployer, final String targetConfigStore) throws Exception {
+        Object[] args = {
+            Boolean.FALSE, // Not in-place
+            planFile,
+            moduleFile,
+            null, // Target file
+            Boolean.TRUE, // Install
+            null, // main-class
+            null, // main-gbean
+            null, // main-method
+            null, // Manifest configurations
+            null, // class-path
+            null, // endorsed-dirs
+            null, // extension-dirs
+            targetConfigStore
+        };
+
+        return (List) kernel.invoke(deployer, "deploy", args, DEPLOY_SIGNATURE);
     }
 }

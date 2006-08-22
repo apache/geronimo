@@ -25,23 +25,20 @@ import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.FileWriteMonitor;
-import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
 import org.apache.geronimo.system.repository.Maven2Repository;
 import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
 import org.apache.geronimo.system.resolver.ExplicitDefaultArtifactResolver;
 
-import org.apache.geronimo.plugin.MojoSupport;
-
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.project.MavenProject;
-import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.logging.Log;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.BufferedInputStream;
 
 import java.util.Iterator;
 import java.util.HashSet;
@@ -59,14 +56,12 @@ import java.util.Collections;
 public class InstallConfigMojo
     extends AbstractCarMojo
 {
-    public static final FileWriteMonitor LOG_COPY_START = new StartFileWriteMonitor();
-
     /**
      * Root file of the TargetRepository.
      *
      * @parameter expression="${project.build.directory}"
      */
-    private String targetRoot;
+    private String targetRoot = null;
 
     /**
      * The location of the target repository relative to targetRoot.
@@ -74,7 +69,7 @@ public class InstallConfigMojo
      * @parameter default-value="archive-tmp/repository"
      * @required
      */
-    private String targetRepository;
+    private String targetRepository = null;
 
     /**
      * Configuration to be installed specified as groupId/artifactId/version/type
@@ -83,7 +78,7 @@ public class InstallConfigMojo
      * @parameter
      * @optional
      */
-    private String artifact;
+    private String artifact = null;
 
     /**
      * Location of the source repository for the dependencies
@@ -91,7 +86,7 @@ public class InstallConfigMojo
      * @parameter expression="${localRepository}"
      * @required
      */
-    private ArtifactRepository sourceRepository;
+    private ArtifactRepository sourceRepository = null;
     
     /**
      * The location where the properties mapping will be generated.
@@ -99,7 +94,7 @@ public class InstallConfigMojo
      * @parameter expression="${project.build.directory}/explicit-versions.properties"
      * @required
      */
-    private File explicitResolutionProperties;
+    private File explicitResolutionProperties = null;
 
     private ArtifactResolver artifactResolver;
 
@@ -167,27 +162,31 @@ public class InstallConfigMojo
         return dependenciesSet;
     }
 
-    private void execute(Artifact configId) throws Exception {
+    private void execute(final Artifact configArtifact) throws Exception {
+        assert configArtifact != null;
+
         LinkedHashSet dependencies;
 
+        StartFileWriteMonitor monitor = new StartFileWriteMonitor(log);
+
         // does this configuration exist?
-        if (!sourceRepo.contains(configId)) {
-            throw new NoSuchConfigException(configId);
+        if (!sourceRepo.contains(configArtifact)) {
+            throw new NoSuchConfigException(configArtifact);
         }
 
         // is this config already installed?
-        if (targetStore.containsConfiguration(configId)) {
-            log.info("Configuration " + configId + " already present in configuration store");
+        if (targetStore.containsConfiguration(configArtifact)) {
+            log.info("Configuration already present in configuration store: " + configArtifact);
             return;
         }
 
-        if (sourceStore.containsConfiguration(configId)) {
+        if (sourceStore.containsConfiguration(configArtifact)) {
             // Copy the configuration into the target configuration store
-            if (!targetStore.containsConfiguration(configId)) {
-                File sourceFile = sourceRepo.getLocation(configId);
-                InputStream in = new FileInputStream(sourceFile);
+            if (!targetStore.containsConfiguration(configArtifact)) {
+                File sourceFile = sourceRepo.getLocation(configArtifact);
+                InputStream in = new BufferedInputStream(new FileInputStream(sourceFile));
                 try {
-                    targetStore.install(in, (int)sourceFile.length(), configId, LOG_COPY_START);
+                    targetStore.install(in, (int)sourceFile.length(), configArtifact, monitor);
                 }
                 finally {
                     in.close();
@@ -196,7 +195,7 @@ public class InstallConfigMojo
 
             // Determine the dependencies of this configuration
             try {
-                ConfigurationData configurationData = targetStore.loadConfiguration(configId);
+                ConfigurationData configurationData = targetStore.loadConfiguration(configArtifact);
                 Environment environment = configurationData.getEnvironment();
                 dependencies = new LinkedHashSet();
                 for (Iterator iterator = environment.getDependencies().iterator(); iterator.hasNext();) {
@@ -204,26 +203,26 @@ public class InstallConfigMojo
                     dependencies.add(dependency.getArtifact());
                 }
 
-                log.info("Installed configuration " + configId);
+                log.info("Installed configuration: " + configArtifact);
             }
             catch (IOException e) {
-                throw new InvalidConfigException("Unable to load configuration: " + configId, e);
+                throw new InvalidConfigException("Unable to load configuration: " + configArtifact, e);
             }
             catch (NoSuchConfigException e) {
-                throw new InvalidConfigException("Unable to load configuration: " + configId, e);
+                throw new InvalidConfigException("Unable to load configuration: " + configArtifact, e);
             }
         }
         else {
-            if (!sourceRepo.contains(configId)) {
-                throw new RuntimeException("Dependency: " + configId + " not found in local maven repo: for configuration: " + artifact);
+            if (!sourceRepo.contains(configArtifact)) {
+                throw new RuntimeException("Dependency: " + configArtifact + " not found in local maven repo: for configuration: " + this.artifact);
             }
 
             // Copy the artifact into the target repo
-            if (!targetRepo.contains(configId)) {
-                File sourceFile = sourceRepo.getLocation(configId);
-                InputStream in = new FileInputStream(sourceFile);
+            if (!targetRepo.contains(configArtifact)) {
+                File sourceFile = sourceRepo.getLocation(configArtifact);
+                InputStream in = new BufferedInputStream(new FileInputStream(sourceFile));
                 try {
-                    targetRepo.copyToRepository(in, (int)sourceFile.length(), configId, LOG_COPY_START);
+                    targetRepo.copyToRepository(in, (int)sourceFile.length(), configArtifact, monitor);
                 }
                 finally {
                     in.close();
@@ -231,23 +230,27 @@ public class InstallConfigMojo
             }
 
             // Determine the dependencies of this artifact
-            dependencies = sourceRepo.getDependencies(configId);
+            dependencies = sourceRepo.getDependencies(configArtifact);
         }
         
         dependencies = artifactResolver.resolveInClassLoader(dependencies);
         for (Iterator iterator = dependencies.iterator(); iterator.hasNext();) {
-            Artifact artifact = (Artifact) iterator.next();
-            execute(artifact);
+            Artifact a = (Artifact)iterator.next();
+            execute(a);
         }
     }
 
-    private static class StartFileWriteMonitor implements FileWriteMonitor {
+    private static class StartFileWriteMonitor
+        implements FileWriteMonitor
+    {
+        private Log log;
+
+        public StartFileWriteMonitor(final Log log) {
+            this.log = log;
+        }
+
         public void writeStarted(String fileDescription, int fileSize) {
-            //
-            // FIXME: Using logging?
-            //
-            
-            System.out.println("Copying " + fileDescription);
+            log.info("Copying: " + fileDescription);
         }
 
         public void writeProgress(int bytes) {

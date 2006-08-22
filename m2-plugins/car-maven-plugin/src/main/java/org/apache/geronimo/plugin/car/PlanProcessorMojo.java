@@ -19,11 +19,10 @@ package org.apache.geronimo.plugin.car;
 
 import java.io.File;
 import java.io.StringWriter;
-import java.util.HashMap;
+
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import javax.xml.namespace.QName;
@@ -67,25 +66,25 @@ public class PlanProcessorMojo
      * @parameter expression="${basedir}/src/plan"
      * @required
      */
-    private File sourceDir;
+    private File sourceDir = null;
 
     /**
      * @parameter expression="${project.build.directory}/plan"
      * @required
      */
-    private File targetDir;
+    private File targetDir = null;
 
     /**
      * @parameter default-value="plan.xml"
      * @required
      */
-    private String planFileName;
+    private String planFileName = null;
 
     /**
      * @parameter expression="${project.build.directory}/plan/plan.xml"
      * @required
      */
-    private File targetFile;
+    private File targetFile = null;
 
     private VelocityContext createContext() {
         VelocityContext context = new VelocityContext();
