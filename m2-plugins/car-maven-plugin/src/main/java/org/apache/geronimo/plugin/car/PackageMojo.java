@@ -18,12 +18,13 @@
 package org.apache.geronimo.plugin.car;
 
 import java.io.File;
+import java.net.URI;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.HashSet;
-import java.net.URI;
 
 import org.apache.geronimo.deployment.PluginBootstrap2;
 import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
@@ -45,6 +46,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.plugin.ArtifactItem;
 
 import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
@@ -142,7 +144,7 @@ public class PackageMojo
      *
      * @parameter
      */
-    private ArrayList deploymentConfigs;
+    private List deploymentConfigs;
 
     /**
      * The name of the deployer which will be used to deploy the CAR.
@@ -185,7 +187,7 @@ public class PackageMojo
     private File explicitResolutionProperties = null;
 
     /**
-     * A list of {@link ClasspathElement} objects which will be used to construct the
+     * An array of {@link ClasspathElement} objects which will be used to construct the
      * Class-Path entry of the manifest.
      *
      * This is needed to allow per-element prefixes to be added, which the standard Maven archiver
@@ -193,7 +195,7 @@ public class PackageMojo
      *
      * @parameter
      */
-    private List classpath = null;
+    private ClasspathElement[] classpath = null;
 
     /**
      * The default prefix to be applied to all elements of the <tt>classpath</tt> which
@@ -255,9 +257,9 @@ public class PackageMojo
         //
 
         File dir = new File(targetRepository, project.getGroupId().replace('.', '/'));
-            dir = new File(dir, project.getArtifactId());
-            dir = new File(dir, project.getVersion());
-            dir = new File(dir, project.getArtifactId() + "-" + project.getVersion() + ".car");
+        dir = new File(dir, project.getArtifactId());
+        dir = new File(dir, project.getVersion());
+        dir = new File(dir, project.getArtifactId() + "-" + project.getVersion() + ".car");
 
         return dir;
     }
@@ -313,15 +315,14 @@ public class PackageMojo
     private String getClassPath() throws MojoExecutionException {
         StringBuffer buff = new StringBuffer();
 
-        ClasspathElement[] elements = (ClasspathElement[]) classpath.toArray(new ClasspathElement[classpath.size()]);
-        for (int i=0; i < elements.length; i++) {
-            Artifact artifact = getArtifact(elements[i]);
+        for (int i=0; i < classpath.length; i++) {
+            Artifact artifact = getArtifact(classpath[i]);
 
             //
             // TODO: Need to optionally get all transitive dependencies... but dunno how to get that intel from m2
             //
 
-            String prefix = elements[i].getClasspathPrefix();
+            String prefix = classpath[i].getClasspathPrefix();
             if (prefix == null) {
                 prefix = classpathPrefix;
             }
@@ -337,7 +338,7 @@ public class PackageMojo
             File file = artifact.getFile();
             buff.append(file.getName());
 
-            if (i + 1< elements.length) {
+            if (i + 1< classpath.length) {
                 buff.append(" ");
             }
         }

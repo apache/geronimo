@@ -18,13 +18,12 @@ package org.apache.geronimo.plugin.car;
 
 import org.apache.geronimo.kernel.repository.WriteableRepository;
 import org.apache.geronimo.system.repository.Maven2Repository;
+import org.apache.geronimo.plugin.ArtifactItem;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.artifact.Artifact;
 
 import java.io.File;
-
-import java.util.List;
-import java.util.Iterator;
 
 /**
  * Installs one or more artifacts into a local Geronimo repository.
@@ -45,12 +44,12 @@ public class InstallArtifactsMojo
     private File repositoryDirectory = null;
 
     /**
-     * A list of {@link ArtifactItem} instances to be installed into the repository.
+     * A array {@link ArtifactItem} instances to be installed into the repository.
      *
      * @parameter
      * @required
      */
-    private List artifacts = null;
+    private ArtifactItem[] artifacts = null;
 
     /**
      * Flag to indicate that if an artifact exists already, that we should delete it and re-install.
@@ -71,12 +70,9 @@ public class InstallArtifactsMojo
         WriteableRepository repository = new Maven2Repository(repositoryDirectory);
 
         // Install all of the artifacts we were asked to...
-        Iterator iter = artifacts.iterator();
-        while (iter.hasNext()) {
-            ArtifactItem item = (ArtifactItem)iter.next();
-            log.info("Installing: " + item);
-
-            Artifact artifact = getArtifact(item);
+        for (int i=0; i<artifacts.length; i++) {
+            Artifact artifact = getArtifact(artifacts[i]);
+            log.info("Installing: " + artifact);
 
             org.apache.geronimo.kernel.repository.Artifact gartifact = mavenArtifactToGeronimo(artifact);
             if (repository.contains(gartifact)) {
@@ -85,11 +81,11 @@ public class InstallArtifactsMojo
                     log.debug("Force deletion of: " + file);
 
                     if (!file.delete()) {
-                        throw new MojoExecutionException("Failed to delete artifact from repository: " + item);
+                        throw new MojoExecutionException("Failed to delete artifact from repository: " + artifacts[i]);
                     }
                 }
                 else {
-                    throw new MojoExecutionException("Artifact already exists in repository: " + item);
+                    throw new MojoExecutionException("Artifact already exists in repository: " + artifacts[i]);
                 }
             }
 

@@ -60,54 +60,53 @@
                         </goals>
                         <configuration>
                             <repositoryDirectory>${project.build.outputDirectory}/repository</repositoryDirectory>
-                            
                             <artifacts>
-                                <artifactItem>
+                                <artifact>
                                     <groupId>org.apache.geronimo.modules</groupId>
                                     <artifactId>ge-activemq-rar</artifactId>
                                     <version>${pom.version}</version>
                                     <type>rar</type>
-                                </artifactItem>
+                                </artifact>
                                 
-                                <artifactItem>
+                                <artifact>
                                     <groupId>tranql</groupId>
                                     <artifactId>tranql-connector</artifactId>
                                     <type>rar</type>
-                                </artifactItem>
+                                </artifact>
                                 
-                                <artifactItem>
+                                <artifact>
                                     <groupId>tranql</groupId>
                                     <artifactId>tranql-connector-derby-embed-local</artifactId>
                                     <type>rar</type>
-                                </artifactItem>
+                                </artifact>
                                 
-                                <artifactItem>
+                                <artifact>
                                     <groupId>tranql</groupId>
                                     <artifactId>tranql-connector-derby-embed-xa</artifactId>
                                     <type>rar</type>
-                                </artifactItem>
+                                </artifact>
                                 
-                                <artifactItem>
+                                <artifact>
                                     <groupId>tranql</groupId>
                                     <artifactId>tranql-connector-derby-client-local</artifactId>
                                     <type>rar</type>
-                                </artifactItem>
+                                </artifact>
                                 
-                                <artifactItem>
+                                <artifact>
                                     <groupId>tranql</groupId>
                                     <artifactId>tranql-connector-derby-client-xa</artifactId>
                                     <type>rar</type>
-                                </artifactItem>
+                                </artifact>
                                 
-                                <artifactItem>
+                                <artifact>
                                     <groupId>org.apache.derby</groupId>
                                     <artifactId>derbyclient</artifactId>
-                                </artifactItem>
+                                </artifact>
                                 
-                                <artifactItem>
+                                <artifact>
                                     <groupId>org.apache.derby</groupId>
                                     <artifactId>derbytools</artifactId>
-                                </artifactItem>
+                                </artifact>
                             </artifacts>
                         </configuration>
                     </execution>
