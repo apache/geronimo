@@ -34,6 +34,7 @@
     <packaging>pom</packaging>
     
     <modules>
+        <module>geronimo-examples</module>
         <module>demo</module>
         <module>ldap-realm-demo</module>
         <module>magicGball</module>

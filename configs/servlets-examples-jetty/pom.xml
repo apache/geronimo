@@ -58,8 +58,9 @@
         </dependency>
 
         <dependency>
-            <groupId>geronimo-samples</groupId>
-            <artifactId>geronimo-servlet-examples-tomcat</artifactId>
+            <groupId>org.apache.geronimo.applications.examples</groupId>
+            <artifactId>geronimo-servlet-examples</artifactId>
+            <version>${pom.version}</version>
             <type>war</type>
         </dependency>
         

@@ -42,16 +42,12 @@
             <type>car</type>
             <scope>provided</scope>
         </dependency>
-
+        
         <dependency>
-            <groupId>geronimo-samples</groupId>
-            <artifactId>geronimo-jsp-examples-tomcat</artifactId>
+            <groupId>org.apache.geronimo.applications.examples</groupId>
+            <artifactId>geronimo-jsp-examples</artifactId>
+            <version>${pom.version}</version>
             <type>war</type>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
         </dependency>
         
     </dependencies>
