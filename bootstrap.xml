@@ -4,6 +4,16 @@
 
 <project default="bootstrap">
     
+    <macrodef name="mvn">
+        <attribute name="goal"/>
+        <attribute name="dir" default="${basedir}"/>
+        <sequential>
+            <exec executable="mvn${platform.script.ext}" dir="@{dir}">
+                <arg value="@{goal}"/>
+            </exec>
+        </sequential>
+    </macrodef>
+    
     <macrodef name="build-thirdparty">
         <attribute name="url"/>
         <attribute name="name"/>
@@ -16,25 +26,37 @@
                 <arg value="@{name}"/>
             </exec>
             
-            <exec executable="mvn" dir="${basedir}/thirdparty/@{name}">
-                <arg value="install"/>
-            </exec>
+            <mvn goal="install" dir="${basedir}/thirdparty/@{name}"/>
         </sequential>
     </macrodef>
     
     <macrodef name="build-stage">
         <attribute name="name"/>
         <sequential>
-            <exec executable="mvn" dir="${basedir}">
+            <exec executable="mvn${platform.script.ext}" dir="${basedir}">
                 <arg value="-Dstage=@{name}"/>
                 <arg value="install"/>
             </exec>
         </sequential>
     </macrodef>
     
-    <target name="init">
+    <target name="init" depends="init:discover, init:windows, init:defaults">
         <record name="${basedir}/bootstrap.log"/>
         <echo>Starting bootstrap build...</echo>
+    </target>
+    
+    <target name="init:discover">
+        <condition property="isWindows">
+            <os family="windows"/>
+        </condition>
+    </target>
+    
+    <target name="init:windows" if="isWindows">
+        <property name="platform.script.ext" value=".bat"/>
+    </target>
+    
+    <target name="init:defaults">
+        <property name="platform.script.ext" value=""/>
     </target>
     
     
@@ -57,9 +79,7 @@
             <param name="clean-minimal" value="true"/>
         </antcall>
         
-        <exec executable="mvn" dir="${basedir}">
-            <arg value="install"/>
-        </exec>
+        <mvn goal="install"/>
     </target>
     
     
@@ -70,9 +90,7 @@
     <target name="clean" depends="clean:init, clean:minimal, clean:full">
         <delete dir="${basedir}/thirdparty"/>
         
-        <exec executable="mvn">
-            <arg value="clean"/>
-        </exec>
+        <mvn goal="clean"/>
     </target>
     
     <target name="clean:init" depends="init">
