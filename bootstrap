@@ -1,140 +1,23 @@
 #!/bin/sh
 ##
-## $Id$
+## $Rev$ $Date$
 ##
 
 PROGNAME=`basename "$0"`
 DIRNAME=`dirname "$0"`
 
-warn() {
-    echo "${PROGNAME}: $*"
-}
+# OS specific support (must be 'true' or 'false').
+cygwin=false;
+case "`uname`" in
+    CYGWIN*)
+        cygwin=true
+        ;;
+esac
 
-die() {
-    warn "$*"
-    exit 1
-}
+# Translate PWD into a Windows path for better compatibility
+if $cygwin ; then
+    PWD=`cygpath --windows $PWD`
+fi
 
-now() {
-    date +'%H:%M:%S %Z %Y'
-}
-
-begin() {
-    warn "Starting bootstrap build..."
-}
-
-abort() {
-    die "Aborted ($startdate to `now`)"
-}
-
-complete() {
-    if [ "$1" == "0" ]; then
-        warn "Completed ($startdate to `now`)"
-    else
-        die "Failed ($startdate to `now`)"
-    fi
-}
-
-clean() {
-    echo "Cleaning..."
-    
-    if [ "x$BOOTSTRAP_NOCLEAN_REPO" = "x" ]; then
-        echo "Deep cleaning ~/.m2/repository"
-        
-        rm -rf ~/.m2/repository
-    else
-        echo "Shallow cleaning ~/.m2/repository/org/apache/geronimo"
-        
-        rm -rf ~/.m2/repository/org/apache/geronimo/modules
-        rm -rf ~/.m2/repository/org/apache/geronimo/configs
-        rm -rf ~/.m2/repository/org/apache/geronimo/applications
-        rm -rf ~/.m2/repository/org/apache/geronimo/assemblies
-        rm -rf ~/.m2/repository/org/apache/geronimo/plugins
-    fi
-    
-    rm -rf "$DIRNAME/thirdparty"
-    
-    for x in `find "$DIRNAME" -name target -type d`; do
-        rm -rf "$x"
-    done
-    
-    mvn clean
-}
-
-stage() {
-    echo "Starting stage: $1"
-    
-    mvn -Dstage=$1
-    
-    if [ "$?" != "0" ]; then
-        die "Bootstrap failed in stage $1"
-    fi
-}
-
-specs() {
-    echo "Building Specs..."
-    
-    (
-        mkdir -p "$DIRNAME/thirdparty"
-        cd "$DIRNAME/thirdparty"
-        
-        svn co http://svn.apache.org/repos/asf/geronimo/specs/trunk specs
-        (
-            cd specs
-            mvn install
-            
-            if [ "$?" != "0" ]; then
-                die "Bootstrap failed building Specs"
-            fi
-        )
-    )
-}
-
-openejb2() {
-    echo "Building OpenEJB2..."
-    
-    (
-        mkdir -p "$DIRNAME/thirdparty"
-        cd "$DIRNAME/thirdparty"
-        
-        svn co http://svn.codehaus.org/openejb/trunk/openejb2
-        (
-            cd openejb2
-            mvn -Dmaven.test.skip=true install
-            
-            if [ "$?" != "0" ]; then
-                die "Bootstrap failed building OpenEJB"
-            fi
-        )
-    )
-}
-
-minimal() {
-    BOOTSTRAP_NOCLEAN_REPO=true
-    
-    begin && (
-        clean
-        mvn
-    ) && complete $?
-}
-
-main() {
-    startdate=`now`
-    
-    trap abort STOP KILL INT ABRT
-    
-    if [ "x$1" != "x" ]; then
-        $*
-    else
-        begin && (
-            clean
-			specs && \
-            stage "bootstrap" && \
-            openejb2 && \
-            stage "assemble"
-        ) && complete $?
-    fi
-}
-
-main "$@" | 2>&1 tee bootstrap.log
+ant $BUILD_OPTIONS -f bootstrap.xml "$@"
 

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Rev$ $Date -->
+
+<project default="bootstrap">
+    
+    <macrodef name="build-thirdparty">
+        <attribute name="url"/>
+        <attribute name="name"/>
+        <sequential>
+            <mkdir dir="${basedir}/thirdparty"/>
+            
+            <exec executable="svn" dir="${basedir}/thirdparty">
+                <arg value="co"/>
+                <arg value="@{url}"/>
+                <arg value="@{name}"/>
+            </exec>
+            
+            <exec executable="mvn" dir="${basedir}/thirdparty/@{name}">
+                <arg value="install"/>
+            </exec>
+        </sequential>
+    </macrodef>
+    
+    <macrodef name="build-stage">
+        <attribute name="name"/>
+        <sequential>
+            <exec executable="mvn" dir="${basedir}">
+                <arg value="-Dstage=@{name}"/>
+                <arg value="install"/>
+            </exec>
+        </sequential>
+    </macrodef>
+    
+    <target name="init">
+        <record name="${basedir}/bootstrap.log"/>
+        <echo>Starting bootstrap build...</echo>
+    </target>
+    
+    
+    <!-- ===== -->
+    <!-- Steps -->
+    <!-- ===== -->
+    
+    <target name="bootstrap" depends="clean, specs, modules, openejb2, assemble"/>
+    
+    <target name="modules" depends="init">
+        <build-stage name="bootstrap"/>
+    </target>
+    
+    <target name="assemble" depends="init">
+        <build-stage name="assemble"/>
+    </target>
+    
+    <target name="minimal" depends="init">
+        <antcall target="clean">
+            <param name="clean-minimal" value="true"/>
+        </antcall>
+        
+        <exec executable="mvn" dir="${basedir}">
+            <arg value="install"/>
+        </exec>
+    </target>
+    
+    
+    <!-- ======== -->
+    <!-- Cleaning -->
+    <!-- ======== -->
+    
+    <target name="clean" depends="clean:init, clean:minimal, clean:full">
+        <delete dir="${basedir}/thirdparty"/>
+        
+        <exec executable="mvn">
+            <arg value="clean"/>
+        </exec>
+    </target>
+    
+    <target name="clean:init" depends="init">
+        <echo>Cleaning...</echo>
+        
+        <mkdir dir="${user.home}/.m2/repository"/>
+    </target>
+    
+    <target name="clean:minimal" depends="clean:init" if="clean-minimal">
+        <echo>Cleaning (minimal)...</echo>
+        
+        <delete>
+            <fileset dir="${user.home}/.m2/repository">
+                <include name="org/apache/geronimo/modules/**"/>
+                <include name="org/apache/geronimo/configs/**"/>
+                <include name="org/apache/geronimo/applications/**"/>
+                <include name="org/apache/geronimo/assemblies/**"/>
+                <include name="org/apache/geronimo/plugins/**"/>
+            </fileset>
+        </delete>
+    </target>
+    
+    <target name="clean:full" depends="clean:init" unless="clean-minimal">
+        <echo>Cleaning (full)...</echo>
+        
+        <delete dir="${user.home}/.m2/repository"/>
+    </target>
+    
+    
+    <!-- ========== -->
+    <!-- Thirdparty -->
+    <!-- ========== -->
+    
+    <target name="specs" depends="init">
+        <echo>Building Specs...</echo>
+        <build-thirdparty url="http://svn.apache.org/repos/asf/geronimo/specs/trunk" name="specs"/>
+    </target>
+    
+    <target name="openejb2" depends="init">
+        <echo>Building OpenEJB2...</echo>
+        <build-thirdparty url="http://svn.codehaus.org/openejb/trunk/openejb2" name="openejb2"/>
+    </target>
+
+</project>

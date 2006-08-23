@@ -6,6 +6,7 @@ To build you will need:
 
  * J2SE SDK 1.4.2+ (http://java.sun.com/j2se/1.4.2)
  * Maven 2.0.4+ (http://maven.apache.org)
+ * Ant 1.6.5+ (http://ant.apache.org) - Used only to bootstrap
 
 NOTE: If you use JDK 1.5 you may run into unexpected errors, so stick to 1.4.
 
@@ -21,11 +22,11 @@ Currently to ensure that your build works you should bootstrap, which will
 clean your local Maven 2 repository, download some sources and build them
 and kick off the Geronimo build.
 
+You will need Ant installed and available in the search path of your shell.
+
 To start the bootstrap build simply:
 
     ./bootstrap
-
-NOTE: Windows users will need Cygwin to execute this script.
 
 The end result will be a set of functional distributions in m2-assemblies/*/target
 which you can unpack and startup, as in:
