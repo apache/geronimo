@@ -93,16 +93,9 @@
             </excludes>
         </fileSet>
         
-        <!-- Include previously installed CAR files -->
         <fileSet>
             <directory>target/archive-tmp/repository</directory>
             <outputDirectory>repository</outputDirectory>
-            <excludes>
-                <exclude>**/META-INF/maven/**</exclude>
-                <exclude>**/*.pom</exclude>
-                <exclude>**/*.sha1</exclude>
-                <exclude>**/*.md5</exclude>
-            </excludes>
         </fileSet>
         
         <fileSet>
