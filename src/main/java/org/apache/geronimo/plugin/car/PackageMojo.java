@@ -21,7 +21,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.geronimo.deployment.PluginBootstrap2;
 import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
 import org.apache.geronimo.system.repository.Maven2Repository;
 
@@ -179,13 +178,6 @@ public class PackageMojo
      */
     private String classpathPrefix = null;
 
-    /**
-     * True to enable the bootshell when packaging.
-     *
-     * @parameter
-     */
-    private boolean bootstrap = false;
-
     //
     // Mojo
     //
@@ -211,12 +203,7 @@ public class PackageMojo
 
         generateExplicitVersionProperties(explicitResolutionProperties);
         
-        if (bootstrap) {
-            executeBootShell();
-        }
-        else {
-            executePackageBuilderShell();
-        }
+        executePackageBuilderShell();
 
         // Build the archive
         File archive = createArchive();
@@ -237,22 +224,6 @@ public class PackageMojo
             dir = new File(dir, project.getArtifactId() + "-" + project.getVersion() + ".car");
 
         return dir;
-    }
-
-    public void executeBootShell() throws Exception {
-        log.debug("Starting bootstrap shell...");
-
-        PluginBootstrap2 boot = new PluginBootstrap2();
-
-        boot.setBuildDir(outputDirectory);
-        boot.setCarFile(getArtifactInRepositoryDir());
-        boot.setLocalRepo(repository);
-        boot.setPlan(planFile);
-
-        // Generate expanded so we can use Maven to generate the archive
-        boot.setExpanded(true);
-
-        boot.bootstrap();
     }
 
     public void executePackageBuilderShell() throws Exception {

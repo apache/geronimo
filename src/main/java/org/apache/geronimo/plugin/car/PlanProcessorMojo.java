@@ -61,7 +61,7 @@ public class PlanProcessorMojo
 {
     private static final String ENVIRONMENT_LOCAL_NAME = "environment";
 
-    private static final QName ENVIRONMENT_QNAME = new QName("http://geronimo.apache.org/xml/ns/deployment-1.2", "environment");
+    private static final QName ENVIRONMENT_QNAME = new QName("http://geronimo.apache.org/xml/ns/deployment-1.1", ENVIRONMENT_LOCAL_NAME);
 
     /**
      * @parameter expression="${basedir}/src/plan"
@@ -86,7 +86,13 @@ public class PlanProcessorMojo
      * @required
      */
     private File targetFile;
-
+    
+    /**
+     * @parameter expression="1.2"
+     * @required     
+     */    
+    private String geronimoVersion;
+    
     private VelocityContext createContext() {
         VelocityContext context = new VelocityContext();
 
@@ -157,7 +163,7 @@ public class PlanProcessorMojo
         xmlCursor.toFirstChild();
         QName childName = xmlCursor.getName();
         Environment oldEnvironment;
-
+        
         if (childName != null && childName.getLocalPart().equals(ENVIRONMENT_LOCAL_NAME)) {
             convertElement(xmlCursor, ENVIRONMENT_QNAME.getNamespaceURI());
             XmlObject xmlObject = xmlCursor.getObject();
