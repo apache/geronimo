@@ -108,7 +108,7 @@
                 <include name="org/apache/geronimo/configs/**"/>
                 <include name="org/apache/geronimo/applications/**"/>
                 <include name="org/apache/geronimo/assemblies/**"/>
-                <include name="org/apache/geronimo/plugins/**"/>
+                <include name="org/apache/geronimo/maven-plugins/**"/>
             </fileset>
         </delete>
     </target>

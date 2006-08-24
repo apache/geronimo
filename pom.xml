@@ -1065,10 +1065,10 @@
 
             <modules>
                 <module>modules</module>
-                <module>m2-plugins</module>
+                <module>maven-plugins</module>
                 <module>applications</module>
                 <module>configs</module>
-                <module>m2-assemblies</module>
+                <module>assemblies</module>
             </modules>
         </profile>
 
@@ -1097,7 +1097,7 @@
                       Fix this when the modules are reorganized.
                 -->
                 <module>modules</module>
-                <module>m2-plugins</module>
+                <module>maven-plugins</module>
             </modules>
         </profile>
 
@@ -1114,7 +1114,7 @@
             <modules>
                 <module>applications</module>
                 <module>configs</module>
-                <module>m2-assemblies</module>
+                <module>assemblies</module>
             </modules>
         </profile>
 
@@ -1130,14 +1130,14 @@
 
             <modules>
                 <module>modules</module>
-                <module>m2-plugins</module>
+                <module>maven-plugins</module>
                 <module>applications</module>
                 
                 <!--
                 NOTE: Probably do not want to publish these to the repo...  Or do we?
                 
                 <module>configs</module>
-                <module>m2-assemblies</module>
+                <module>assemblies</module>
                 -->
             </modules>
         </profile>
@@ -1154,7 +1154,7 @@
 
             <modules>
                 <module>modules</module>
-                <module>m2-plugins</module>
+                <module>maven-plugins</module>
                 <module>applications</module>
             </modules>
         </profile>
@@ -1171,7 +1171,7 @@
 
             <modules>
                 <module>modules</module>
-                <module>m2-plugins</module>
+                <module>maven-plugins</module>
                 <module>applications</module>
             </modules>
 

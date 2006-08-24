@@ -28,10 +28,10 @@ To start the bootstrap build simply:
 
     ./bootstrap
 
-The end result will be a set of functional distributions in m2-assemblies/*/target
+The end result will be a set of functional distributions in assemblies/*/target
 which you can unpack and startup, as in:
 
-    gunzip -c m2-assemblies/geronimo-jetty-j2ee/target/geronimo-jetty-j2ee*-bin.tar.gz | tar xf -
+    gunzip -c assemblies/geronimo-jetty-j2ee/target/geronimo-jetty-j2ee*-bin.tar.gz | tar xf -
     ./geronimo-jetty-j2ee*/bin/startup.sh
     ...
     ./geronimo-jetty-j2ee*/bin/shutdown.sh
