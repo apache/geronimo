@@ -257,15 +257,15 @@ public class SingleFileHotDeployerTest extends TestCase {
     }
 
     private class MockConfigurationBuilder implements ConfigurationBuilder {
-        public Object getDeploymentPlan(File planFile, JarFile module, ModuleIDBuilder idBuilder) throws DeploymentException {
+        public Object getDeploymentPlan(File planFile, DeployableModule module, ModuleIDBuilder idBuilder) throws DeploymentException {
             return new Object();
         }
 
-        public Artifact getConfigurationID(Object plan, JarFile module, ModuleIDBuilder idBuilder) throws IOException, DeploymentException {
+        public Artifact getConfigurationID(Object plan, DeployableModule module, ModuleIDBuilder idBuilder) throws IOException, DeploymentException {
             return NEW_ID;
         }
 
-        public DeploymentContext buildConfiguration(boolean inPlaceDeployment, Artifact configId, Object plan, JarFile module, Collection configurationStores, ArtifactResolver artifactResolver, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException {
+        public DeploymentContext buildConfiguration(boolean inPlaceDeployment, Artifact configId, Object plan, DeployableModule module, Collection configurationStores, ArtifactResolver artifactResolver, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException {
             return new DeploymentContext(dir,
                     dir,
                     new Environment(configId),

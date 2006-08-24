@@ -38,16 +38,11 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.client.AppClientContainer;
 import org.apache.geronimo.client.StaticJndiContextPlugin;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.deployment.ModuleIDBuilder;
-import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
-import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
+import org.apache.geronimo.deployment.*;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
-import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.util.NestedJarFile;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
-import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -203,15 +198,15 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         return (SecurityBuilder) securityBuilder.getElement();
     }
 
-    public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+    public Module createModule(File plan, DeployableModule moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         return createModule(plan, moduleFile, "app-client", null, null, null, naming, idBuilder);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+    public Module createModule(Object plan, DeployableModule moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         return createModule(plan, moduleFile, targetPath, specDDUrl, environment, earName, naming, idBuilder);
     }
 
-    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+    private Module createModule(Object plan, DeployableModule moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         assert moduleFile != null: "moduleFile is null";
         assert targetPath != null: "targetPath is null";
         assert !targetPath.endsWith("/"): "targetPath must not end with a '/'";
@@ -221,7 +216,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         ApplicationClientType appClient;
         try {
             if (specDDUrl == null) {
-                specDDUrl = DeploymentUtil.createJarURL(moduleFile, "META-INF/application-client.xml");
+                specDDUrl = moduleFile.resolve("META-INF/application-client.xml");
             }
 
             // read in the entire specDD as a string, we need this for getDeploymentDescriptor
@@ -248,12 +243,12 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
         EnvironmentType clientEnvironmentType = gerAppClient.getClientEnvironment();
         Environment clientEnvironment = EnvironmentBuilder.buildEnvironment(clientEnvironmentType, defaultClientEnvironment);
+        String name = moduleFile.getRoot().getName();
         if(standAlone) {
-            String name = new File(moduleFile.getName()).getName();
             idBuilder.resolve(clientEnvironment, name+"_"+name, "jar");
         } else {
             Artifact earConfigId = earEnvironment.getConfigId();
-            idBuilder.resolve(clientEnvironment, earConfigId.getArtifactId() + "_" + new File(moduleFile.getName()).getName(), "jar");
+            idBuilder.resolve(clientEnvironment, earConfigId.getArtifactId() + "_" + name, "jar");
         }
         EnvironmentType serverEnvironmentType = gerAppClient.getServerEnvironment();
         Environment serverEnvironment = EnvironmentBuilder.buildEnvironment(serverEnvironmentType, defaultServerEnvironment);
@@ -264,7 +259,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 throw new IllegalStateException("Server environment module ID should be fully resolved (not "+serverEnvironment.getConfigId()+")");
             }
         } else {
-            idBuilder.resolve(serverEnvironment, new File(moduleFile.getName()).getName(), "jar");
+            idBuilder.resolve(serverEnvironment, name, "jar");
         }
 
         AbstractName moduleName;
@@ -278,7 +273,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         return new AppClientModule(standAlone, moduleName, serverEnvironment, clientEnvironment, moduleFile, targetPath, appClient, gerAppClient, specDD);
     }
 
-    GerApplicationClientType getGeronimoAppClient(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, ApplicationClientType appClient, Environment environment) throws DeploymentException {
+    GerApplicationClientType getGeronimoAppClient(Object plan, DeployableModule moduleFile, boolean standAlone, String targetPath, ApplicationClientType appClient, Environment environment) throws DeploymentException {
         GerApplicationClientType gerAppClient;
         XmlObject rawPlan = null;
         try {
@@ -290,7 +285,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                     if (plan != null) {
                         rawPlan = XmlBeansUtil.parse((File) plan);
                     } else {
-                        URL path = DeploymentUtil.createJarURL(moduleFile, "META-INF/geronimo-application-client.xml");
+                        URL path = moduleFile.resolve("META-INF/geronimo-application-client.xml");
                         rawPlan = XmlBeansUtil.parse(path, getClass().getClassLoader());
                     }
                 }
@@ -305,7 +300,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 String path;
                 if (standAlone) {
                     // default configId is based on the moduleFile name
-                    path = new File(moduleFile.getName()).getName();
+                    path = moduleFile.getRoot().getName();
                 } else {
                     // default configId is based on the module uri from the application.xml
                     path = targetPath;
@@ -346,7 +341,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         return geronimoAppClient;
     }
 
-    public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repositories) throws DeploymentException {
+    public void installModule(DeployableModule earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repositories) throws DeploymentException {
         // extract the app client jar file into a standalone packed jar file and add the contents to the output
         JarFile moduleFile = module.getModuleFile();
         try {
@@ -355,7 +350,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             throw new DeploymentException("Unable to copy app client module jar into configuration: " + moduleFile.getName());
         }
         AppClientModule appClientModule = (AppClientModule) module;
-        appClientModule.setEarFile(earFile);
+        appClientModule.setEar(earFile);
         //create the ear context for the app client.
         Environment clientEnvironment = appClientModule.getClientEnvironment();
         if (!appClientModule.isStandAlone() || clientEnvironment.getConfigId() == null) {
@@ -474,7 +469,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 }
 
                 // add manifest class path entries to the app client context
-                addManifestClassPath(appClientDeploymentContext, appClientModule.getEarFile(), moduleFile, moduleBase);
+                addManifestClassPath(appClientDeploymentContext, appClientModule.getEar(), moduleFile, moduleBase);
 
                 // get the classloader
                 ClassLoader appClientClassLoader = appClientDeploymentContext.getClassLoader();
@@ -512,7 +507,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                             } else {
                                 path = resource.getInternalRar();
                                 try {
-                                    connectorFile = new NestedJarFile(appClientModule.getEarFile(), path);
+                                    connectorFile = new NestedJarFile(appClientModule.getEar(), path);
                                 } catch (IOException e) {
                                     throw new DeploymentException("Could not locate connector inside ear", e);
                                 }
@@ -619,7 +614,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         return GERAPPCLIENT_NAMESPACE;
     }
 
-    public void addManifestClassPath(DeploymentContext deploymentContext, JarFile earFile, JarFile jarFile, URI jarFileLocation) throws DeploymentException {
+    public void addManifestClassPath(DeploymentContext deploymentContext, DeployableModule earFile, DeployableModule jarFile, URI jarFileLocation) throws DeploymentException {
         Manifest manifest;
         try {
             manifest = jarFile.getManifest();

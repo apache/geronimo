@@ -29,10 +29,7 @@ import java.util.jar.JarFile;
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.deployment.FooBarBean;
-import org.apache.geronimo.deployment.ModuleIDBuilder;
-import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
+import org.apache.geronimo.deployment.*;
 import org.apache.geronimo.deployment.xbeans.ModuleDocument;
 import org.apache.geronimo.deployment.xbeans.ModuleType;
 import org.apache.geronimo.gbean.AbstractName;
@@ -63,9 +60,10 @@ public class ServiceConfigBuilderTest extends TestCase {
         URL url = getClass().getResource("/empty.jar");
         File file = new File(url.getPath());
         JarFile jar = new JarFile(file);
+        DeployableModule module = DeployableModuleFactory.createDeployableModule(jar);
         assertTrue(file.exists());
         ServiceConfigBuilder builder = new ServiceConfigBuilder(parentEnvironment, null, new Jsr77Naming());
-        assertNull(builder.getDeploymentPlan(null, jar, new ModuleIDBuilder()));
+        assertNull(builder.getDeploymentPlan(null, module, new ModuleIDBuilder()));
         jar.close();
     }
 

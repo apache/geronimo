@@ -22,6 +22,7 @@ import java.net.URISyntaxException;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.DeployableModule;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
@@ -31,8 +32,8 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Rev$ $Date$
  */
 public class ConnectorModule extends Module {
-    public ConnectorModule(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
-        super(standAlone, moduleName, environment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null);
+    public ConnectorModule(boolean standAlone, AbstractName moduleName, Environment environment, DeployableModule deployableModule, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
+        super(standAlone, moduleName, environment, deployableModule, targetPath, specDD, vendorDD, originalSpecDD, null);
     }
 
     public ConfigurationModuleType getType() {

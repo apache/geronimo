@@ -39,6 +39,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
+import org.apache.geronimo.deployment.DeployableModule;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
@@ -116,8 +117,8 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         return (WebServiceBuilder) webServiceBuilder.getElement();
     }
 
-    protected Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, String contextRoot, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
-        assert moduleFile != null: "moduleFile is null";
+    protected Module createModule(Object plan, DeployableModule deployableModule, String targetPath, URL specDDUrl, boolean standAlone, String contextRoot, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+        assert deployableModule != null: "moduleFile is null";
         assert targetPath != null: "targetPath is null";
         assert !targetPath.endsWith("/"): "targetPath must not end with a '/'";
 
@@ -126,7 +127,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         WebAppType webApp;
         try {
             if (specDDUrl == null) {
-                specDDUrl = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/web.xml");
+                specDDUrl = deployableModule.resolve("WEB-INF/web.xml");
             }
 
             // read in the entire specDD as a string, we need this for getDeploymentDescriptor
@@ -151,13 +152,13 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         check(webApp);
 
         // parse vendor dd
-        TomcatWebAppType tomcatWebApp = getTomcatWebApp(plan, moduleFile, standAlone, targetPath, webApp);
+        TomcatWebAppType tomcatWebApp = getTomcatWebApp(plan, deployableModule, standAlone, targetPath, webApp);
 
         if (contextRoot == null || contextRoot.trim().equals("")) {
             if (tomcatWebApp.isSetContextRoot()) {
                 contextRoot = tomcatWebApp.getContextRoot();
             } else {
-                contextRoot = determineDefaultContextRoot(webApp, standAlone, moduleFile, targetPath);
+                contextRoot = determineDefaultContextRoot(webApp, standAlone, deployableModule, targetPath);
             }
         }
 
@@ -166,7 +167,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         EnvironmentType environmentType = tomcatWebApp.getEnvironment();
         Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
         // Note: logic elsewhere depends on the default artifact ID being the file name less extension (ConfigIDExtractor)
-        String warName = new File(moduleFile.getName()).getName();
+        String warName = deployableModule.getRoot().getName();
         if(warName.lastIndexOf('.') > -1) {
             warName = warName.substring(0, warName.lastIndexOf('.'));
         }
@@ -177,9 +178,9 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         //look for a webservices dd
         Map portMap = Collections.EMPTY_MAP;
         try {
-            URL wsDDUrl = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/webservices.xml");
-            portMap = getWebServiceBuilder().parseWebServiceDescriptor(wsDDUrl, moduleFile, false, servletNameToPathMap);
-        } catch (MalformedURLException e) {
+            URL wsDDUrl = deployableModule.resolve("WEB-INF/webservices.xml");
+            portMap = getWebServiceBuilder().parseWebServiceDescriptor(wsDDUrl, deployableModule, false, servletNameToPathMap);
+        } catch (IOException e) {
             //no descriptor
         }
         AbstractName moduleName;
@@ -190,11 +191,11 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             moduleName = naming.createChildName(earName, targetPath, NameFactory.WEB_MODULE);
         }
 
-        return new WebModule(standAlone, moduleName, environment, moduleFile, targetPath, webApp, tomcatWebApp, specDD, contextRoot, portMap, TOMCAT_NAMESPACE);
+        return new WebModule(standAlone, moduleName, environment, deployableModule, targetPath, webApp, tomcatWebApp, specDD, contextRoot, portMap, TOMCAT_NAMESPACE);
     }
 
 
-    TomcatWebAppType getTomcatWebApp(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, WebAppType webApp) throws DeploymentException {
+    TomcatWebAppType getTomcatWebApp(Object plan, DeployableModule deployableModule, boolean standAlone, String targetPath, WebAppType webApp) throws DeploymentException {
         XmlObject rawPlan = null;
         try {
             // load the geronimo-web.xml from either the supplied plan or from the earFile
@@ -205,11 +206,11 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                     if (plan != null) {
                         rawPlan = XmlBeansUtil.parse(((File) plan).toURL(), getClass().getClassLoader());
                     } else {
-                        URL path = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/geronimo-web.xml");
+                        URL path = deployableModule.resolve("WEB-INF/geronimo-web.xml");
                         try {
                             rawPlan = XmlBeansUtil.parse(path, getClass().getClassLoader());
                         } catch (FileNotFoundException e) {
-                            path = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/geronimo-tomcat.xml");
+                            path = deployableModule.resolve("WEB-INF/geronimo-tomcat.xml");
                             try {
                                 rawPlan = XmlBeansUtil.parse(path, getClass().getClassLoader());
                             } catch (FileNotFoundException e1) {
@@ -229,7 +230,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                 tomcatWebApp = (TomcatWebAppType) webPlan.changeType(TomcatWebAppType.type);
                 XmlBeansUtil.validateDD(tomcatWebApp);
             } else {
-                String defaultContextRoot = determineDefaultContextRoot(webApp, standAlone, moduleFile, targetPath);
+                String defaultContextRoot = determineDefaultContextRoot(webApp, standAlone, deployableModule, targetPath);
                 tomcatWebApp = createDefaultPlan(defaultContextRoot);
             }
             return tomcatWebApp;
@@ -431,13 +432,13 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         return TOMCAT_NAMESPACE;
     }
 
-    public WebServiceContainer configurePOJO(JarFile moduleFile, Object portInfoObject, String seiClassName, ClassLoader classLoader) throws DeploymentException, IOException {
+    public WebServiceContainer configurePOJO(DeployableModule deployableModule, Object portInfoObject, String seiClassName, ClassLoader classLoader) throws DeploymentException, IOException {
         //the reason to configure a gbeandata rather than just fetch the WebServiceContainer is that fetching the WSContainer ties us to that
         //ws implementation.  By configuring a servlet gbean, you can provide a different servlet for each combination of
         //web container and ws implementation while assuming almost nothing about their relationship.
 
         GBeanData fakeData = new GBeanData();
-        getWebServiceBuilder().configurePOJO(fakeData, moduleFile, portInfoObject, seiClassName, classLoader);
+        getWebServiceBuilder().configurePOJO(fakeData, deployableModule, portInfoObject, seiClassName, classLoader);
         return (WebServiceContainer) fakeData.getAttribute("webServiceContainer");
     }
 

@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.LinkedList;
-import java.util.jar.JarFile;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -120,13 +119,7 @@ public class SingleFileHotDeployer {
         }
 
         ModuleIDBuilder idBuilder = new ModuleIDBuilder();
-
-        JarFile module = null;
-        try {
-            module = DeploymentUtil.createJarFile(dir);
-        } catch (IOException e) {
-            throw new DeploymentException("Cound not open module file: " + dir.getAbsolutePath(), e);
-        }
+        DeployableModule module = DeployableModuleFactory.createDeployableModule(dir, null);
 
         try {
             // get the builder and plan
@@ -180,7 +173,7 @@ public class SingleFileHotDeployer {
         } catch (Exception e) {
             throw new DeploymentException("Unable to deploy " + dir, e);
         } finally {
-            DeploymentUtil.close(module);
+            module.cleanup();
         }
 
     }
@@ -220,7 +213,7 @@ public class SingleFileHotDeployer {
         return new Artifact(group, artifactId, version, type);
     }
 
-    private List deployConfiguration(ConfigurationBuilder builder, ConfigurationStore store, Artifact configurationId, Object plan, JarFile module, Collection stores, ArtifactResolver artifactResolver) throws DeploymentException {
+    private List deployConfiguration(ConfigurationBuilder builder, ConfigurationStore store, Artifact configurationId, Object plan, DeployableModule module, Collection stores, ArtifactResolver artifactResolver) throws DeploymentException {
         try {
             // It's our responsibility to close this context, once we're done with it...
             DeploymentContext context = builder.buildConfiguration(true, configurationId, plan, module, stores, artifactResolver, store);
@@ -265,7 +258,7 @@ public class SingleFileHotDeployer {
             }
             throw new Error(e);
         } finally {
-            DeploymentUtil.close(module);
+            module.cleanup();
         }
     }
 

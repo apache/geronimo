@@ -240,6 +240,14 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
         return command;
     }
 
+    public void setModuleConfigurationClass(String className) {
+        commandContext.setDeployableModuleImplClass(className);
+    }
+
+    public String getModuleConfigurationClass() {
+        return commandContext.getDeployableModuleImplClass();
+    }
+
     public Locale[] getSupportedLocales() {
         return new Locale[]{getDefaultLocale()};
     }

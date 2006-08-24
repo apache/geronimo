@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.deployment.util;
 
+import org.apache.geronimo.deployment.DeployableModule;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -97,8 +99,13 @@ public final class DeploymentUtil {
         }
         out.flush();
     }
+
     public static File toTempFile(JarFile jarFile, String path) throws IOException {
         return toTempFile(createJarURL(jarFile, path));
+    }
+
+    public static File toTempFile(DeployableModule module, String path) throws IOException {
+        return toTempFile(module.resolve(path));
     }
 
     public static File toTempFile(URL url) throws IOException {

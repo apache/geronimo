@@ -27,6 +27,8 @@ public class CommandContext {
     private String password;
     private boolean inPlace;
 
+    private String deployableModuleImplClass;
+
     public CommandContext(boolean logErrors,
             boolean verbose,
             String username,
@@ -85,5 +87,13 @@ public class CommandContext {
 
     public void setInPlace(boolean inPlace) {
         this.inPlace = inPlace;
+    }
+
+    public String getDeployableModuleImplClass() {
+        return deployableModuleImplClass;
+    }
+
+    public void setDeployableModuleImplClass(String deployableModuleImplClass) {
+        this.deployableModuleImplClass = deployableModuleImplClass;
     }
 }

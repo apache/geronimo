@@ -27,6 +27,7 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.DeployableModule;
 import org.apache.geronimo.gbean.AbstractName;
 
 /**
@@ -39,7 +40,7 @@ public abstract class Module {
     private final String name;
     private final Environment environment;
     private final URI moduleURI;
-    private final JarFile moduleFile;
+    private final DeployableModule deployableModule;
     private final String targetPath;
     private final URI targetPathURI;
     private final XmlObject specDD;
@@ -51,14 +52,14 @@ public abstract class Module {
 
     private URI uniqueModuleLocation;
 
-    protected Module(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String namespace) {
+    protected Module(boolean standAlone, AbstractName moduleName, Environment environment, DeployableModule deployableModule, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String namespace) {
         assert targetPath != null: "targetPath is null";
         assert moduleName != null: "moduleName is null";
 
         this.standAlone = standAlone;
         this.moduleName = moduleName;
         this.environment = environment;
-        this.moduleFile = moduleFile;
+        this.deployableModule = deployableModule;
         this.targetPath = targetPath;
         this.specDD = specDD;
         this.vendorDD = vendorDD;
@@ -98,8 +99,8 @@ public abstract class Module {
         return moduleURI;
     }
 
-    public JarFile getModuleFile() {
-        return moduleFile;
+    public DeployableModule getModuleFile() {
+        return deployableModule;
     }
 
     public String getTargetPath() {
@@ -142,7 +143,7 @@ public abstract class Module {
     }
 
     public void close() {
-        DeploymentUtil.close(moduleFile);
+        deployableModule.cleanup();
     }
 
     public void addClass(String fqcn, byte[] bytes, DeploymentContext context) throws IOException, URISyntaxException {

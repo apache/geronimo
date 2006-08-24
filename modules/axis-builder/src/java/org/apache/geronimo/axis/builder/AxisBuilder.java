@@ -58,6 +58,7 @@ import org.apache.geronimo.axis.server.POJOProvider;
 import org.apache.geronimo.axis.server.ServiceInfo;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.DeployableModule;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -84,11 +85,11 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
 
     //WebServiceBuilder
 
-    public Map parseWebServiceDescriptor(URL wsDDUrl, JarFile moduleFile, boolean isEJB, Map servletLocations) throws DeploymentException {
-        return WSDescriptorParser.parseWebServiceDescriptor(wsDDUrl, moduleFile, isEJB, servletLocations);
+    public Map parseWebServiceDescriptor(URL wsDDUrl, DeployableModule deployableModule, boolean isEJB, Map servletLocations) throws DeploymentException {
+        return WSDescriptorParser.parseWebServiceDescriptor(wsDDUrl, deployableModule, isEJB, servletLocations);
     }
 
-    public void configurePOJO(GBeanData targetGBean, JarFile moduleFile, Object portInfoObject, String seiClassName, ClassLoader classLoader) throws DeploymentException {
+    public void configurePOJO(GBeanData targetGBean, DeployableModule deployableModule, Object portInfoObject, String seiClassName, ClassLoader classLoader) throws DeploymentException {
         PortInfo portInfo = (PortInfo) portInfoObject;
         ServiceInfo serviceInfo = AxisServiceBuilder.createServiceInfo(portInfo, classLoader);
         JavaServiceDesc serviceDesc = serviceInfo.getServiceDesc();
@@ -127,7 +128,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
         targetGBean.setAttribute("webServiceContainer", axisWebServiceContainer);
     }
 
-    public void configureEJB(GBeanData targetGBean, JarFile moduleFile, Object portInfoObject, ClassLoader classLoader) throws DeploymentException {
+    public void configureEJB(GBeanData targetGBean, DeployableModule deployableModule, Object portInfoObject, ClassLoader classLoader) throws DeploymentException {
         PortInfo portInfo = (PortInfo) portInfoObject;
         ServiceInfo serviceInfo = AxisServiceBuilder.createServiceInfo(portInfo, classLoader);
         targetGBean.setAttribute("serviceInfo", serviceInfo);
@@ -147,13 +148,13 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
     //ServicereferenceBuilder
     public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, Object serviceRefType, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
         GerServiceRefType gerServiceRefType = (GerServiceRefType) serviceRefType;
-        JarFile moduleFile = module.getModuleFile();
+        DeployableModule deployableModule = module.getModuleFile();
         SchemaInfoBuilder schemaInfoBuilder = null;
         JavaWsdlMappingType mapping = null;
         if (wsdlURI != null) {
-            schemaInfoBuilder = new SchemaInfoBuilder(moduleFile, wsdlURI);
+            schemaInfoBuilder = new SchemaInfoBuilder(deployableModule, wsdlURI);
 
-            mapping = WSDescriptorParser.readJaxrpcMapping(moduleFile, jaxrpcMappingURI);
+            mapping = WSDescriptorParser.readJaxrpcMapping(deployableModule, jaxrpcMappingURI);
         }
 
         return createService(serviceInterface, schemaInfoBuilder, mapping, serviceQName, SOAP_VERSION, handlerInfos, gerServiceRefType, deploymentContext, module, classLoader);

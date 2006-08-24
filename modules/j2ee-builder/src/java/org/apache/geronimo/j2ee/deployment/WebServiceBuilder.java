@@ -18,6 +18,8 @@ package org.apache.geronimo.j2ee.deployment;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.deployment.DeployableModule;
+
 import java.util.jar.JarFile;
 import java.util.Map;
 import java.net.URL;
@@ -27,7 +29,7 @@ import java.net.URL;
  */
 public interface WebServiceBuilder {
 
-    Map parseWebServiceDescriptor(URL wsDDUrl, JarFile moduleFile, boolean isEJB, Map correctedPortLocations) throws DeploymentException;
+    Map parseWebServiceDescriptor(URL wsDDUrl, DeployableModule deployableModule, boolean isEJB, Map correctedPortLocations) throws DeploymentException;
 
     //obviously these need the deployment descriptors, but I'm not sure in what form yet.
     /**
@@ -35,21 +37,21 @@ public interface WebServiceBuilder {
      * The GBeanData will be for a ServletHolder like gbean that is adapted to holding a ws stack that talks to a
      * POJO web service.  The web deployer is responsible for filling in the standard servlet info such as init params.
      * @param targetGBean
-     * @param moduleFile
+     * @param deployableModule
      * @param portInfo
      * @param seiClassName
      * @throws DeploymentException
      */
-    void configurePOJO(GBeanData targetGBean, JarFile moduleFile, Object portInfo, String seiClassName, ClassLoader classLoader) throws DeploymentException;
+    void configurePOJO(GBeanData targetGBean, DeployableModule deployableModule, Object portInfo, String seiClassName, ClassLoader classLoader) throws DeploymentException;
 
     /**
      * configure the supplied EJBContainer gbeandata to implement the ejb web service described in the deployment descriptor
      * N.B. this method is a complete guess and should be replaced by something useable right away!
      * @param targetGBean
-     * @param moduleFile
+     * @param deployableModule
      * @param classLoader
      * @throws DeploymentException
      */
-    void configureEJB(GBeanData targetGBean, JarFile moduleFile, Object portInfo, ClassLoader classLoader) throws DeploymentException;
+    void configureEJB(GBeanData targetGBean, DeployableModule deployableModule, Object portInfo, ClassLoader classLoader) throws DeploymentException;
 
 }

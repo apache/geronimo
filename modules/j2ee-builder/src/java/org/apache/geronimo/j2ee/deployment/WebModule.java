@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.DeployableModule;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
@@ -35,8 +36,8 @@ public class WebModule extends Module {
     private final String contextRoot;
     private final Map portMap;
 
-    public WebModule(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String contextRoot, Map portMap, String namespace) {
-        super(standAlone, moduleName, environment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, namespace);
+    public WebModule(boolean standAlone, AbstractName moduleName, Environment environment, DeployableModule deployableModule, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String contextRoot, Map portMap, String namespace) {
+        super(standAlone, moduleName, environment, deployableModule, targetPath, specDD, vendorDD, originalSpecDD, namespace);
         this.contextRoot = contextRoot;
         this.portMap = portMap;
     }

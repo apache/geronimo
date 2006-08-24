@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.DeployableModule;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
@@ -33,12 +34,12 @@ import org.apache.xmlbeans.XmlObject;
  */
 public class AppClientModule extends Module {
     private final Environment clientEnvironment;
-    private JarFile earFile;
+    private DeployableModule ear;
     private Collection resourceModules;
 
 
-    public AppClientModule(boolean standAlone, AbstractName moduleName, Environment serverEnvironment, Environment clientEnvironment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
-        super(standAlone, moduleName, serverEnvironment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null);
+    public AppClientModule(boolean standAlone, AbstractName moduleName, Environment serverEnvironment, Environment clientEnvironment, DeployableModule deployableModule, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
+        super(standAlone, moduleName, serverEnvironment, deployableModule, targetPath, specDD, vendorDD, originalSpecDD, null);
         this.clientEnvironment = clientEnvironment;
     }
 
@@ -50,12 +51,12 @@ public class AppClientModule extends Module {
         return clientEnvironment;
     }
 
-    public JarFile getEarFile() {
-        return earFile;
+    public DeployableModule getEar() {
+        return ear;
     }
 
-    public void setEarFile(JarFile earFile) {
-        this.earFile = earFile;
+    public void setEar(DeployableModule ear) {
+        this.ear = ear;
     }
 
     public void addClass(URI location, String fqcn, byte[] bytes, DeploymentContext context) throws IOException, URISyntaxException {

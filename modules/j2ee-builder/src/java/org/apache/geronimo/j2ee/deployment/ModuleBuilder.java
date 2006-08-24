@@ -27,16 +27,17 @@ import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
+import org.apache.geronimo.deployment.DeployableModule;
 
 /**
  * @version $Rev:386276 $ $Date$
  */
 public interface ModuleBuilder {
-    Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException;
+    Module createModule(File plan, DeployableModule moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException;
 
-    Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException;
+    Module createModule(Object plan, DeployableModule moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException;
 
-    void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException;
+    void installModule(DeployableModule earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException;
 
     void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException;
 

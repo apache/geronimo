@@ -30,7 +30,7 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class NamespaceDrivenBuilderCollection {
 

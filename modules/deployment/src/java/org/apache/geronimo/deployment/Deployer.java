@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.jar.Attributes;
-import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 import javax.management.ObjectName;
@@ -97,10 +96,14 @@ public class Deployer {
     }
 
     public List deploy(boolean inPlace, File moduleFile, File planFile) throws DeploymentException {
-        return deploy(inPlace, moduleFile, planFile, null);
+        return deploy(inPlace, moduleFile, planFile, null, null);
     }
 
     public List deploy(boolean inPlace, File moduleFile, File planFile, String targetConfigStore) throws DeploymentException {
+        return deploy(inPlace, moduleFile, planFile, targetConfigStore, null);
+    }
+
+    public List deploy(boolean inPlace, File moduleFile, File planFile, String targetConfigStore, String deployableModuleImplClass) throws DeploymentException {
         File originalModuleFile = moduleFile;
         File tmpDir = null;
         if (moduleFile != null && !moduleFile.isDirectory()) {
@@ -121,7 +124,7 @@ public class Deployer {
         }
 
         try {
-            return deploy(inPlace, planFile, moduleFile, null, true, null, null, null, null, null, null, null, targetConfigStore);
+            return deploy(inPlace, planFile, moduleFile, null, true, null, null, null, null, null, null, null, targetConfigStore, deployableModuleImplClass);
         } catch (DeploymentException e) {
             log.debug("Deployment failed: plan=" + planFile + ", module=" + originalModuleFile, e);
             throw e.cleanse();
@@ -193,7 +196,8 @@ public class Deployer {
             String mainGBean, String mainMethod, String manifestConfigurations, String classPath,
             String endorsedDirs,
             String extensionDirs,
-            String targetConfigurationStore) throws DeploymentException {
+            String targetConfigurationStore,
+            String deployableModuleImplClass) throws DeploymentException {
         if (planFile == null && moduleFile == null) {
             throw new DeploymentException("No plan or module specified");
         }
@@ -207,7 +211,7 @@ public class Deployer {
             }
         }
 
-        JarFile module = null;
+        DeployableModule module = null;
         if (moduleFile != null) {
             if (inPlace && !moduleFile.isDirectory()) {
                 throw new DeploymentException("In place deployment is not allowed for packed module");
@@ -215,11 +219,7 @@ public class Deployer {
             if (!moduleFile.exists()) {
                 throw new DeploymentException("Module file does not exist: " + moduleFile.getAbsolutePath());
             }
-            try {
-                module = DeploymentUtil.createJarFile(moduleFile);
-            } catch (IOException e) {
-                throw new DeploymentException("Cound not open module file: " + moduleFile.getAbsolutePath(), e);
-            }
+            module = DeployableModuleFactory.createDeployableModule(moduleFile, deployableModuleImplClass);
         }
 
 //        File configurationDir = null;
@@ -384,7 +384,7 @@ public class Deployer {
             }
             throw new Error(e);
         } finally {
-            DeploymentUtil.close(module);
+            module.cleanup();
         }
     }
 

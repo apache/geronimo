@@ -18,6 +18,7 @@ package org.apache.geronimo.axis.builder;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.FileInputStream;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -76,6 +77,8 @@ import org.apache.geronimo.xbeans.j2ee.WebservicesDocument;
 import org.apache.geronimo.xbeans.j2ee.WebservicesType;
 import org.apache.geronimo.xbeans.j2ee.XsdQNameType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.deployment.DeployableModule;
+import org.apache.geronimo.deployment.DefaultDeployableModule;
 import org.apache.xmlbeans.XmlException;
 
 /**
@@ -84,20 +87,20 @@ import org.apache.xmlbeans.XmlException;
 public class WSDescriptorParser {
 
 
-    public static JavaWsdlMappingType readJaxrpcMapping(JarFile moduleFile, URI jaxrpcMappingURI) throws DeploymentException {
+    public static JavaWsdlMappingType readJaxrpcMapping(DeployableModule deployableModule, URI jaxrpcMappingURI) throws DeploymentException {
         String jaxrpcMappingPath = jaxrpcMappingURI.toString();
-        return readJaxrpcMapping(moduleFile, jaxrpcMappingPath);
+        return readJaxrpcMapping(deployableModule, jaxrpcMappingPath);
     }
 
-    public static JavaWsdlMappingType readJaxrpcMapping(JarFile moduleFile, String jaxrpcMappingPath) throws DeploymentException {
+    public static JavaWsdlMappingType readJaxrpcMapping(DeployableModule deployableModule, String jaxrpcMappingPath) throws DeploymentException {
         JavaWsdlMappingType mapping;
         InputStream jaxrpcInputStream = null;
         try {
-            ZipEntry zipEntry = moduleFile.getEntry(jaxrpcMappingPath);
-            if(zipEntry == null){
+            jaxrpcInputStream = getInputStream(jaxrpcMappingPath, deployableModule);
+            if(jaxrpcInputStream == null){
                 throw new DeploymentException("The JAX-RPC mapping file "+jaxrpcMappingPath+" specified in webservices.xml for the ejb module could not be found.");
             }
-            jaxrpcInputStream = moduleFile.getInputStream(zipEntry);
+            jaxrpcInputStream = getInputStream(jaxrpcMappingPath, deployableModule);
         } catch (IOException e) {
             throw new DeploymentException("Could not open stream to jaxrpc mapping document", e);
         }
@@ -111,6 +114,23 @@ public class WSDescriptorParser {
         }
         mapping = mappingDocument.getJavaWsdlMapping();
         return mapping;
+    }
+
+    private static InputStream getInputStream(String path, DeployableModule module) throws IOException {
+        InputStream inputStream = null;
+        if (module instanceof DefaultDeployableModule) {
+            JarFile jar = ((DefaultDeployableModule) module).getJarFile();
+            ZipEntry entry = jar.getEntry(path);
+            if(entry == null)
+                return null;
+            inputStream = jar.getInputStream(entry);
+        } else {
+            URL url = module.resolve(path);
+            if(url == null)
+                return null;
+            inputStream = new FileInputStream(url.getFile());
+        }
+        return inputStream;
     }
 
 
@@ -291,13 +311,13 @@ public class WSDescriptorParser {
      * corresponding ejb-link or servlet-link element .
      *
      * @param webservicesType
-     * @param moduleFile
+     * @param deployableModule
      * @param isEJB
      * @param servletLocations
      * @return
      * @throws org.apache.geronimo.common.DeploymentException
      */
-    public static Map parseWebServiceDescriptor(WebservicesType webservicesType, JarFile moduleFile, boolean isEJB, Map servletLocations) throws DeploymentException {
+    public static Map parseWebServiceDescriptor(WebservicesType webservicesType, DeployableModule deployableModule, boolean isEJB, Map servletLocations) throws DeploymentException {
         Map portMap = new HashMap();
         WebserviceDescriptionType[] webserviceDescriptions = webservicesType.getWebserviceDescriptionArray();
         for (int i = 0; i < webserviceDescriptions.length; i++) {
@@ -314,10 +334,10 @@ public class WSDescriptorParser {
             } catch (URISyntaxException e) {
                 throw new DeploymentException("Could not construct jaxrpc mapping uri from " + webserviceDescription.getJaxrpcMappingFile(), e);
             }
-            SchemaInfoBuilder schemaInfoBuilder =  new SchemaInfoBuilder(moduleFile, wsdlURI);
+            SchemaInfoBuilder schemaInfoBuilder =  new SchemaInfoBuilder(deployableModule, wsdlURI);
             Map wsdlPortMap = schemaInfoBuilder.getPortMap();
 
-            JavaWsdlMappingType javaWsdlMapping = readJaxrpcMapping(moduleFile, jaxrpcMappingURI);
+            JavaWsdlMappingType javaWsdlMapping = readJaxrpcMapping(deployableModule, jaxrpcMappingURI);
             HashMap seiMappings = new HashMap();
             ServiceEndpointInterfaceMappingType[] mappings = javaWsdlMapping.getServiceEndpointInterfaceMappingArray();
             for (int j = 0; j < mappings.length; j++) {
@@ -376,12 +396,12 @@ public class WSDescriptorParser {
         return portMap;
     }
 
-    public static Map parseWebServiceDescriptor(URL wsDDUrl, JarFile moduleFile, boolean isEJB, Map servletLocations) throws DeploymentException {
+    public static Map parseWebServiceDescriptor(URL wsDDUrl, DeployableModule deployableModule, boolean isEJB, Map servletLocations) throws DeploymentException {
         try {
             WebservicesDocument webservicesDocument = WebservicesDocument.Factory.parse(wsDDUrl);
             XmlBeansUtil.validateDD(webservicesDocument);
             WebservicesType webservicesType = webservicesDocument.getWebservices();
-            return parseWebServiceDescriptor(webservicesType, moduleFile, isEJB, servletLocations);
+            return parseWebServiceDescriptor(webservicesType, deployableModule, isEJB, servletLocations);
         } catch (XmlException e) {
             throw new DeploymentException("Could not read descriptor document", e);
         } catch (IOException e) {

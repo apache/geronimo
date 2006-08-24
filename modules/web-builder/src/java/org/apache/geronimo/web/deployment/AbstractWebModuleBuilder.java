@@ -47,6 +47,8 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
+import org.apache.geronimo.deployment.DeployableModule;
+import org.apache.geronimo.deployment.DefaultDeployableModule;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.deployment.xbeans.ServiceDocument;
 import org.apache.geronimo.gbean.AbstractName;
@@ -130,15 +132,15 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         return dependencies;
     }
 
-    public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
-        return createModule(plan, moduleFile, ".", null, true, null, null, naming, idBuilder);
+    public Module createModule(File plan, DeployableModule deployableModule, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+        return createModule(plan, deployableModule, ".", null, true, null, null, naming, idBuilder);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
-        return createModule(plan, moduleFile, targetPath, specDDUrl, false, (String) moduleContextInfo, earName, naming, idBuilder);
+    public Module createModule(Object plan, DeployableModule deployableModule, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+        return createModule(plan, deployableModule, targetPath, specDDUrl, false, (String) moduleContextInfo, earName, naming, idBuilder);
     }
 
-    protected abstract Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, String contextRoot, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException;
+    protected abstract Module createModule(Object plan, DeployableModule deployableModule, String targetPath, URL specDDUrl, boolean standAlone, String contextRoot, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException;
 
     /**
      * Some servlets will have multiple url patterns.  However, webservice servlets
@@ -160,7 +162,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         return map;
     }
 
-    protected String determineDefaultContextRoot(WebAppType webApp, boolean isStandAlone, JarFile moduleFile, String targetPath) {
+    protected String determineDefaultContextRoot(WebAppType webApp, boolean isStandAlone, DeployableModule deployableModule, String targetPath) {
 
         if (webApp != null && webApp.getId() != null) {
             return webApp.getId();
@@ -168,7 +170,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
 
         if (isStandAlone) {
             // default configId is based on the moduleFile name
-            return trimPath(new File(moduleFile.getName()).getName());
+            return trimPath(deployableModule.getRoot().getName());
         }
 
         // default configId is based on the module uri from the application.xml
@@ -191,7 +193,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         return path;
     }
 
-    public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repositories) throws DeploymentException {
+    public void installModule(DeployableModule ear, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repositories) throws DeploymentException {
         EARContext moduleContext;
         if (module.isStandAlone()) {
             moduleContext = earContext;
@@ -225,29 +227,38 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
 
         try {
             // add the warfile's content to the configuration
-            JarFile warFile = module.getModuleFile();
-            Enumeration entries = warFile.entries();
-            while (entries.hasMoreElements()) {
-                ZipEntry entry = (ZipEntry) entries.nextElement();
-                URI targetPath = new URI(null, entry.getName(), null);
-                if (entry.getName().equals("WEB-INF/web.xml")) {
-                    moduleContext.addFile(targetPath, module.getOriginalSpecDD());
-                } else if (entry.getName().startsWith("WEB-INF/lib") && entry.getName().endsWith(".jar")) {
-                    moduleContext.addInclude(targetPath, warFile, entry);
-                } else {
-                    moduleContext.addFile(targetPath, warFile, entry);
+            DeployableModule war = module.getModuleFile();
+            if (war instanceof DefaultDeployableModule) {
+                JarFile jar = ((DefaultDeployableModule) war).getJarFile();
+
+                Enumeration entries = jar.entries();
+                while (entries.hasMoreElements()) {
+                    ZipEntry entry = (ZipEntry) entries.nextElement();
+                    URI targetPath = new URI(null, entry.getName(), null);
+                    if (entry.getName().equals("WEB-INF/web.xml")) {
+                        moduleContext.addFile(targetPath, module.getOriginalSpecDD());
+                    } else if (entry.getName().startsWith("WEB-INF/lib") && entry.getName().endsWith(".jar")) {
+                        moduleContext.addInclude(targetPath, jar, entry);
+                    } else {
+                        moduleContext.addFile(targetPath, jar, entry);
+                    }
+                }
+
+                //always add WEB-INF/classes to the classpath regardless of whether
+                //any classes exist
+                moduleContext.getConfiguration().addToClassPath("WEB-INF/classes/");
+
+                // add the manifest classpath entries declared in the war to the class loader
+                // we have to explicitly add these since we are unpacking the web module
+                // and the url class loader will not pick up a manifest from an unpacked dir
+                moduleContext.addManifestClassPath(jar, RELATIVE_MODULE_BASE_URI);
+            } else {
+                //TODO GERONIMO-1526
+                File[] classes = war.getClassesFolders();
+                for(int i = 0; i < classes.length; i++) {
+                    moduleContext.getConfiguration().addToClassPath(classes[i].toURL());
                 }
             }
-
-            //always add WEB-INF/classes to the classpath regardless of whether
-            //any classes exist
-            moduleContext.getConfiguration().addToClassPath("WEB-INF/classes/");
-
-            // add the manifest classpath entries declared in the war to the class loader
-            // we have to explicitly add these since we are unpacking the web module
-            // and the url class loader will not pick up a manifest from an unpacked dir
-            moduleContext.addManifestClassPath(warFile, RELATIVE_MODULE_BASE_URI);
-
         } catch (IOException e) {
             throw new DeploymentException("Problem deploying war", e);
         } catch (URISyntaxException e) {

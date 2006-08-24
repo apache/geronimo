@@ -30,11 +30,7 @@ import java.util.jar.JarFile;
 import javax.xml.namespace.QName;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.ConfigurationBuilder;
-import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.deployment.ModuleIDBuilder;
-import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
-import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
+import org.apache.geronimo.deployment.*;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
@@ -96,7 +92,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders);
     }
 
-    public Object getDeploymentPlan(File planFile, JarFile jarFile, ModuleIDBuilder idBuilder) throws DeploymentException {
+    public Object getDeploymentPlan(File planFile, DeployableModule jarFile, ModuleIDBuilder idBuilder) throws DeploymentException {
         if (planFile == null && jarFile == null) {
             return null;
         }
@@ -106,7 +102,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
             if (planFile != null) {
                 xmlObject = XmlBeansUtil.parse(planFile.toURL(), getClass().getClassLoader());
             } else {
-                URL path = DeploymentUtil.createJarURL(jarFile, "META-INF/geronimo-service.xml");
+                URL path = jarFile.resolve("META-INF/geronimo-service.xml");;
                 try {
                     xmlObject = XmlBeansUtil.parse(path, getClass().getClassLoader());
                 } catch (FileNotFoundException e) {
@@ -160,24 +156,24 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         }
     }
 
-    public Artifact getConfigurationID(Object plan, JarFile module, ModuleIDBuilder idBuilder) throws IOException, DeploymentException {
+    public Artifact getConfigurationID(Object plan, DeployableModule module, ModuleIDBuilder idBuilder) throws IOException, DeploymentException {
         ModuleType configType = (ModuleType) plan;
         EnvironmentType environmentType = configType.getEnvironment();
         Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
-        idBuilder.resolve(environment, module == null ? "" : new File(module.getName()).getName(), "car");
+        idBuilder.resolve(environment, module == null ? "" : module.getRoot().getName(), "car");
         if(!environment.getConfigId().isResolved()) {
             throw new IllegalStateException("Service Module ID is not fully populated ("+environment.getConfigId()+")");
         }
         return environment.getConfigId();
     }
 
-    public DeploymentContext buildConfiguration(boolean inPlaceDeployment, Artifact configId, Object plan, JarFile jar, Collection configurationStores, ArtifactResolver artifactResolver, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException {
+    public DeploymentContext buildConfiguration(boolean inPlaceDeployment, Artifact configId, Object plan, DeployableModule jar, Collection configurationStores, ArtifactResolver artifactResolver, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException {
         ModuleType configType = (ModuleType) plan;
 
         return buildConfiguration(inPlaceDeployment, configId, configType, jar, configurationStores, artifactResolver, targetConfigurationStore);
     }
 
-    public DeploymentContext buildConfiguration(boolean inPlaceDeployment, Artifact configId, ModuleType moduleType, JarFile jar, Collection configurationStores, ArtifactResolver artifactResolver, ConfigurationStore targetConfigurationStore) throws DeploymentException, IOException {
+    public DeploymentContext buildConfiguration(boolean inPlaceDeployment, Artifact configId, ModuleType moduleType, DeployableModule jar, Collection configurationStores, ArtifactResolver artifactResolver, ConfigurationStore targetConfigurationStore) throws DeploymentException, IOException {
         ArtifactType type = moduleType.getEnvironment().isSetModuleId() ? moduleType.getEnvironment().getModuleId() : moduleType.getEnvironment().addNewModuleId();
         type.setArtifactId(configId.getArtifactId());
         type.setGroupId(configId.getGroupId());
@@ -203,7 +199,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
 
             AbstractName moduleName = naming.createRootName(configId, configId.toString(), SERVICE_MODULE);
             context = new DeploymentContext(outfile,
-                    inPlaceDeployment && null != jar ? DeploymentUtil.toFile(jar) : null,
+                    inPlaceDeployment && jar.getRoot().isDirectory() ? jar.getRoot() : null,
                     environment,
                     moduleName,
                     ConfigurationModuleType.SERVICE,
@@ -211,8 +207,12 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
                     configurationManager,
                     repositories);
             if(jar != null) {
-                File file = new File(jar.getName());
-                context.addIncludeAsPackedJar(URI.create(file.getName()), jar);
+                if(jar instanceof DefaultDeployableModule) {
+                    JarFile jarFile = ((DefaultDeployableModule) jar).getJarFile();
+                    context.addIncludeAsPackedJar(URI.create(jar.getRoot().getName()), jarFile);
+                } else {
+                    //TODO GERONIMO-1526
+                }
             }
 
             serviceBuilders.build(moduleType, context, context);

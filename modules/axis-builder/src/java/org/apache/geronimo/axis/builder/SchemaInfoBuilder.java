@@ -18,8 +18,10 @@ package org.apache.geronimo.axis.builder;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.FileInputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -54,6 +56,8 @@ import org.apache.geronimo.xbeans.wsdl.TDefinitions;
 import org.apache.geronimo.xbeans.wsdl.TPort;
 import org.apache.geronimo.xbeans.wsdl.TService;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.deployment.DeployableModule;
+import org.apache.geronimo.deployment.DefaultDeployableModule;
 import org.apache.xmlbeans.SchemaField;
 import org.apache.xmlbeans.SchemaGlobalElement;
 import org.apache.xmlbeans.SchemaParticle;
@@ -112,7 +116,7 @@ public class SchemaInfoBuilder {
         }
     }
 
-    private final JarFile moduleFile;
+    private final DeployableModule deployableModule;
     private final Definition definition;
     private final Stack uris = new Stack();
     private final Map wsdlMap = new HashMap();
@@ -123,24 +127,24 @@ public class SchemaInfoBuilder {
     private final Map portMap;
 
 
-    public SchemaInfoBuilder(JarFile moduleFile, URI wsdlUri) throws DeploymentException {
-        this(moduleFile, wsdlUri, null, null);
+    public SchemaInfoBuilder(DeployableModule deployableModule, URI wsdlUri) throws DeploymentException {
+        this(deployableModule, wsdlUri, null, null);
     }
 
-    public SchemaInfoBuilder(JarFile moduleFile, Definition definition) throws DeploymentException {
-        this(moduleFile, null, definition, null);
+    public SchemaInfoBuilder(DeployableModule deployableModule, Definition definition) throws DeploymentException {
+        this(deployableModule, null, definition, null);
     }
 
-    SchemaInfoBuilder(JarFile moduleFile, URI uri, SchemaTypeSystem schemaTypeSystem) throws DeploymentException {
-        this(moduleFile, uri, null, schemaTypeSystem);
+    SchemaInfoBuilder(DeployableModule deployableModule, URI uri, SchemaTypeSystem schemaTypeSystem) throws DeploymentException {
+        this(deployableModule, uri, null, schemaTypeSystem);
     }
 
-    SchemaInfoBuilder(JarFile moduleFile, URI uri, Definition definition, SchemaTypeSystem schemaTypeSystem) throws DeploymentException {
-        this.moduleFile = moduleFile;
+    SchemaInfoBuilder(DeployableModule deployableModle, URI uri, Definition definition, SchemaTypeSystem schemaTypeSystem) throws DeploymentException {
+        this.deployableModule = deployableModle;
         if (uri != null) {
             uris.push(uri);
             if (definition == null && schemaTypeSystem == null) {
-                definition = readWsdl(moduleFile, uri);
+                definition = readWsdl(deployableModle, uri);
             }
         } else if (definition != null) {
             try {
@@ -513,7 +517,7 @@ public class SchemaInfoBuilder {
     }
 
 
-    public Definition readWsdl(JarFile moduleFile, URI wsdlURI) throws DeploymentException {
+    public Definition readWsdl(DeployableModule deployableModule, URI wsdlURI) throws DeploymentException {
         Definition definition;
         WSDLFactory wsdlFactory = null;
         try {
@@ -607,6 +611,19 @@ public class SchemaInfoBuilder {
         throw new DeploymentException("No port found with name " + portComponentName + " expected at " + servletLocation);
     }
 
+    private InputStream getInputStream(URI location, DeployableModule module) throws IOException {
+        InputStream inputStream = null;
+        if (deployableModule instanceof DefaultDeployableModule) {
+            JarFile jar = ((DefaultDeployableModule) deployableModule).getJarFile();
+            ZipEntry entry = jar.getEntry(location.toString());
+            inputStream = jar.getInputStream(entry);
+        } else {
+            URL url = deployableModule.resolve(location.toString());
+            inputStream = new FileInputStream(url.getFile());
+        }
+        return inputStream;
+    }
+
     private class JarEntityResolver implements EntityResolver {
 
         private final static String PROJECT_URL_PREFIX = "project://local/";
@@ -616,17 +633,17 @@ public class SchemaInfoBuilder {
             if (systemId.indexOf(PROJECT_URL_PREFIX) > -1) {
                 systemId = systemId.substring(PROJECT_URL_PREFIX.length());
             }
-            URI location = ((URI) uris.peek()).resolve(systemId);
+            URI location = null;
             InputStream wsdlInputStream = null;
             try {
-                ZipEntry entry = moduleFile.getEntry(location.toString());
-                wsdlInputStream = moduleFile.getInputStream(entry);
+                location = ((URI) uris.peek()).resolve(systemId);
+                wsdlInputStream = getInputStream(location, deployableModule);
                 XmlObject xmlObject = SchemaDocument.Factory.parse(wsdlInputStream);
                 wsdlMap.put(location, xmlObject);
                 wsdlInputStream.close();
-                wsdlInputStream = moduleFile.getInputStream(entry);
+                wsdlInputStream = getInputStream(location, deployableModule);
             } catch (XmlException e) {
-                throw (IOException) new IOException("Could not parse schema document").initCause(e);
+                throw(IOException) new IOException("Could not parse schema document").initCause(e);
             }
             return new InputSource(wsdlInputStream);
         }
@@ -644,12 +661,11 @@ public class SchemaInfoBuilder {
         public InputSource getBaseInputSource() {
             InputStream wsdlInputStream = null;
             try {
-                ZipEntry entry = moduleFile.getEntry(wsdlURI.toString());
-                wsdlInputStream = moduleFile.getInputStream(entry);
+                wsdlInputStream = getInputStream(wsdlURI, deployableModule);
                 DefinitionsDocument definition = DefinitionsDocument.Factory.parse(wsdlInputStream);
                 wsdlMap.put(wsdlURI, definition);
                 wsdlInputStream.close();
-                wsdlInputStream = moduleFile.getInputStream(entry);
+                wsdlInputStream = getInputStream(wsdlURI, deployableModule);
             } catch (Exception e) {
                 throw new RuntimeException("Could not open stream to wsdl file", e);
             }
@@ -665,8 +681,7 @@ public class SchemaInfoBuilder {
             latestImportURI = parentURI.resolve(relativeLocation);
             InputStream importInputStream = null;
             try {
-                ZipEntry entry = moduleFile.getEntry(latestImportURI.toString());
-                importInputStream = moduleFile.getInputStream(entry);
+                importInputStream = getInputStream(latestImportURI, deployableModule);
                 try {
                     DefinitionsDocument definition = DefinitionsDocument.Factory.parse(importInputStream);
                     importInputStream.close();
@@ -675,7 +690,7 @@ public class SchemaInfoBuilder {
                 } catch (XmlException e) {
                     //probably was a schema rather than wsdl.  If there are real problems they will show up later.
                 }
-                importInputStream = moduleFile.getInputStream(entry);
+                importInputStream = getInputStream(latestImportURI, deployableModule);
             } catch (Exception e) {
                 throw new RuntimeException("Could not open stream to import file", e);
             }

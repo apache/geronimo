@@ -64,6 +64,7 @@ import org.apache.geronimo.connector.outbound.connectionmanagerconfig.XATransact
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
+import org.apache.geronimo.deployment.DeployableModule;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
@@ -153,15 +154,15 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders);
     }
 
-    public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+    public Module createModule(File plan, DeployableModule moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         return createModule(plan, moduleFile, "rar", null, null, null, naming, idBuilder);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+    public Module createModule(Object plan, DeployableModule moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         return createModule(plan, moduleFile, targetPath, specDDUrl, environment, earName, naming, idBuilder);
     }
 
-    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+    private Module createModule(Object plan, DeployableModule moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         assert moduleFile != null: "moduleFile is null";
         assert targetPath != null: "targetPath is null";
         assert !targetPath.endsWith("/"): "targetPath must not end with a '/'";
@@ -170,7 +171,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         XmlObject connector;
         try {
             if (specDDUrl == null) {
-                specDDUrl = DeploymentUtil.createJarURL(moduleFile, "META-INF/ra.xml");
+                specDDUrl = moduleFile.resolve("META-INF/ra.xml");
             }
 
             // read in the entire specDD as a string, we need this for getDeploymentDescriptor
@@ -203,7 +204,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                     if (plan != null) {
                         gerConnectorDoc = GerConnectorDocument.Factory.parse((File) plan, XmlBeansUtil.createXmlOptions(errors));
                     } else {
-                        URL path = DeploymentUtil.createJarURL(moduleFile, "META-INF/geronimo-ra.xml");
+                        URL path = moduleFile.resolve("META-INF/geronimo-ra.xml");
                         gerConnectorDoc = GerConnectorDocument.Factory.parse(path, XmlBeansUtil.createXmlOptions(errors));
                     }
                     if (errors.size() > 0) {
@@ -244,7 +245,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                 throw new IllegalStateException("Connector module ID should be fully resolved (not " + environment.getConfigId() + ")");
             }
         } else {
-            idBuilder.resolve(environment, new File(moduleFile.getName()).getName(), "rar");
+            idBuilder.resolve(environment, moduleFile.getRoot().getName(), "rar");
         }
 
         AbstractName moduleName;
@@ -259,7 +260,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         return new ConnectorModule(standAlone, moduleName, environment, moduleFile, targetPath, connector, gerConnector, specDD);
     }
 
-    public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException {
+    public void installModule(DeployableModule earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException {
         try {
             JarFile moduleFile = module.getModuleFile();
 

@@ -41,11 +41,7 @@ import javax.xml.namespace.QName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.ConfigurationBuilder;
-import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.deployment.ModuleIDBuilder;
-import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
-import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
+import org.apache.geronimo.deployment.*;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.util.NestedJarFile;
@@ -269,7 +265,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         return (ServiceReferenceBuilder) serviceReferenceBuilder.getElement();
     }
 
-    public Object getDeploymentPlan(File planFile, JarFile jarFile, ModuleIDBuilder idBuilder) throws DeploymentException {
+    public Object getDeploymentPlan(File planFile, DeployableModule jarFile, ModuleIDBuilder idBuilder) throws DeploymentException {
         if (planFile == null && jarFile == null) {
             return null;
         }
@@ -310,12 +306,12 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 null);
     }
 
-    private ApplicationInfo getEarPlan(File planFile, JarFile earFile, ModuleIDBuilder idBuilder) throws DeploymentException {
+    private ApplicationInfo getEarPlan(File planFile, DeployableModule earFile, ModuleIDBuilder idBuilder) throws DeploymentException {
         String specDD;
         ApplicationType application = null;
         if (earFile != null) {
             try {
-                URL applicationXmlUrl = DeploymentUtil.createJarURL(earFile, "META-INF/application.xml");
+                URL applicationXmlUrl = earFile.resolve("META-INF/application.xml");
                 specDD = DeploymentUtil.readAll(applicationXmlUrl);
             } catch (Exception e) {
                 //no application.xml, not for us
@@ -342,7 +338,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                         return null;
                     }
                 } else {
-                    URL path = DeploymentUtil.createJarURL(earFile, "META-INF/geronimo-application.xml");
+                    URL path = earFile.resolve("META-INF/geronimo-application.xml");
                     rawPlan = XmlBeansUtil.parse(path, getClass().getClassLoader());
                     gerApplication = (GerApplicationType) SchemaConversionUtils.fixGeronimoSchema(rawPlan, APPLICATION_QNAME, GerApplicationType.type);
                 }
@@ -360,7 +356,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
         EnvironmentType environmentType = gerApplication.getEnvironment();
         Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
-        idBuilder.resolve(environment, earFile == null ? planFile.getName() : new File(earFile.getName()).getName(), "ear");
+        idBuilder.resolve(environment, earFile == null ? planFile.getName() : earFile.getRoot().getName(), "ear");
         // Make this EAR's settings the default for child modules
         idBuilder.setDefaultGroup(environment.getConfigId().getGroupId());
         idBuilder.setDefaultVersion(environment.getConfigId().getVersion());
@@ -403,7 +399,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     }
 
 
-    private GerApplicationType createDefaultPlan(ApplicationType application, JarFile module) {
+    private GerApplicationType createDefaultPlan(ApplicationType application, DeployableModule module) {
         // construct the empty geronimo-application.xml
         GerApplicationType gerApplication = GerApplicationType.Factory.newInstance();
         EnvironmentType environmentType = gerApplication.addNewEnvironment();
@@ -414,8 +410,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         // set the configId
         String id = application.getId();
         if (id == null) {
-            File fileName = new File(module.getName());
-            id = fileName.getName();
+            id = module.getRoot().getName();
             if (id.endsWith(".ear")) {
                 id = id.substring(0, id.length() - 4);
             }
@@ -430,7 +425,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         return gerApplication;
     }
 
-    public Artifact getConfigurationID(Object plan, JarFile module, ModuleIDBuilder idBuilder) throws IOException, DeploymentException {
+    public Artifact getConfigurationID(Object plan, DeployableModule module, ModuleIDBuilder idBuilder) throws IOException, DeploymentException {
         ApplicationInfo applicationInfo = (ApplicationInfo) plan;
         Artifact test = applicationInfo.getEnvironment().getConfigId();
         if(!test.isResolved()) {
@@ -439,7 +434,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         return test;
     }
 
-    public DeploymentContext buildConfiguration(boolean inPlaceDeployment, Artifact configId, Object plan, JarFile earFile, Collection configurationStores, ArtifactResolver artifactResolver, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException {
+    public DeploymentContext buildConfiguration(boolean inPlaceDeployment, Artifact configId, Object plan, DeployableModule earFile, Collection configurationStores, ArtifactResolver artifactResolver, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException {
         assert plan != null;
         ApplicationInfo applicationInfo = (ApplicationInfo) plan;
 
@@ -460,7 +455,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         try {
             // Create the output ear context
             earContext = new EARContext(configurationDir,
-                    inPlaceDeployment ? DeploymentUtil.toFile(earFile) : null,
+                    inPlaceDeployment && earFile.getRoot().isDirectory() ? earFile.getRoot() : null,
                     applicationInfo.getEnvironment(),
                     applicationType,
                     naming,
@@ -475,24 +470,29 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                     corbaGBeanObjectName,
                     new RefContext(getEjbReferenceBuilder(), getResourceReferenceBuilder(), getServiceReferenceBuilder()));
 
-            // Copy over all files that are _NOT_ modules (e.g. META-INF and APP-INF files)
-            Set moduleLocations = applicationInfo.getModuleLocations();
-            if (ConfigurationModuleType.EAR == applicationType && earFile != null) {
-                for (Enumeration e = earFile.entries(); e.hasMoreElements();) {
-                    ZipEntry entry = (ZipEntry) e.nextElement();
-                    String entryName = entry.getName();
-                    boolean addEntry = true;
-                    for (Iterator iter = moduleLocations.iterator(); iter.hasNext();) {
-                        String location = (String) iter.next();
-                        if (entryName.startsWith(location)) {
-                            addEntry = false;
-                            break;
+            if (earFile instanceof DefaultDeployableModule) {
+                JarFile jar = ((DefaultDeployableModule) earFile).getJarFile();
+                // Copy over all files that are _NOT_ modules (e.g. META-INF and APP-INF files)
+                Set moduleLocations = applicationInfo.getModuleLocations();
+                if (ConfigurationModuleType.EAR == applicationType && earFile != null) {
+                    for (Enumeration e = jar.entries(); e.hasMoreElements();) {
+                        ZipEntry entry = (ZipEntry) e.nextElement();
+                        String entryName = entry.getName();
+                        boolean addEntry = true;
+                        for (Iterator iter = moduleLocations.iterator(); iter.hasNext();) {
+                            String location = (String) iter.next();
+                            if (entryName.startsWith(location)) {
+                                addEntry = false;
+                                break;
+                            }
+                        }
+                        if (addEntry) {
+                            earContext.addFile(URI.create(entry.getName()), jar, entry);
                         }
                     }
-                    if (addEntry) {
-                        earContext.addFile(URI.create(entry.getName()), earFile, entry);
-                    }
                 }
+            } else {
+                //TODO GERONIMO-1526
             }
 
             GerApplicationType geronimoApplication = (GerApplicationType) applicationInfo.getVendorDD();
@@ -630,7 +630,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         return filter;
     }
 
-    private void addModules(JarFile earFile, ApplicationType application, GerApplicationType gerApplication, Set moduleLocations, LinkedHashSet modules, Environment environment, AbstractName earName, ModuleIDBuilder idBuilder) throws DeploymentException {
+    private void addModules(DeployableModule earFile, ApplicationType application, GerApplicationType gerApplication, Set moduleLocations, LinkedHashSet modules, Environment environment, AbstractName earName, ModuleIDBuilder idBuilder) throws DeploymentException {
         Map altVendorDDs = new HashMap();
         try {
             if (earFile != null) {
@@ -732,21 +732,21 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                     URL altSpecDD = null;
                     if (moduleXml.isSetAltDd()) {
                         try {
-                            altSpecDD = DeploymentUtil.createJarURL(earFile, moduleXml.getAltDd().getStringValue());
-                        } catch (MalformedURLException e) {
+                            altSpecDD = earFile.resolve(moduleXml.getAltDd().getStringValue());
+                        } catch (IOException e) {
                             throw new DeploymentException("Invalid alt sped dd url: " + moduleXml.getAltDd().getStringValue(), e);
                         }
                     }
 
-                    NestedJarFile moduleFile;
+                    DeployableModule childModule;
                     try {
-                        moduleFile = new NestedJarFile(earFile, modulePath);
+                        childModule = earFile.resolveModule(modulePath);
                     } catch (IOException e) {
                         throw new DeploymentException("Invalid moduleFile: " + modulePath, e);
                     }
 
                     Module module = builder.createModule(altVendorDDs.get(modulePath),
-                            moduleFile,
+                            childModule,
                             modulePath,
                             altSpecDD,
                             environment,
@@ -811,12 +811,11 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 }
                 Object vendorDD = anys[0];
 
-                JarFile moduleFile;
+                DeployableModule deployable;
                 if (gerExtModule.isSetInternalPath()) {
                     String modulePath = gerExtModule.getInternalPath().trim();
-                    moduleLocations.add(modulePath);
                     try {
-                        moduleFile = new NestedJarFile(earFile, modulePath);
+                        deployable = earFile.resolveModule(modulePath);
                     } catch (IOException e) {
                         throw new DeploymentException("Invalid moduleFile: " + modulePath, e);
                     }
@@ -835,7 +834,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                         throw new DeploymentException(moduleTypeName + " is missing in repositories: " + path);
                     }
                     try {
-                        moduleFile = new JarFile(location);
+                        deployable = DeployableModuleFactory.createDeployableModule(location, null);
+                        new JarFile(location);
                     } catch (IOException e) {
                         throw new DeploymentException("Could not access contents of " + moduleTypeName, e);
                     }
@@ -855,7 +855,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
 
                 Module module = builder.createModule(vendorDD,
-                        moduleFile,
+                        deployable,
                         moduleName,
                         altSpecDD,
                         environment,
