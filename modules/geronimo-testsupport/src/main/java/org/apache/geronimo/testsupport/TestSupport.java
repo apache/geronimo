@@ -46,7 +46,15 @@ public abstract class TestSupport
      * And if you do, please document why you have done so.
      */
     protected Log log = LogFactory.getLog(getClass());
-
+    
+    protected TestSupport(final String name) {
+        super(name);
+    }
+    
+    protected TestSupport() {
+        super();
+    }
+    
     /**
      * Determine the value of <tt>${basedir}</tt>, which should be the base directory of
      * the module which the concreate test class is defined in.
