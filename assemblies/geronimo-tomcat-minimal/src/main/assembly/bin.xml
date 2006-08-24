@@ -109,20 +109,20 @@
         </fileSet>
         
         <fileSet>
-            <directory>target/scripts</directory>
-            <outputDirectory>/</outputDirectory>
+            <directory>target/boilerplate/bin</directory>
+            <outputDirectory>bin</outputDirectory>
             <includes>
-                <include>**/*.sh</include>
+                <include>*.sh</include>
             </includes>
             <lineEnding>unix</lineEnding>
             <fileMode>0755</fileMode>
         </fileSet>
         
         <fileSet>
-            <directory>target/scripts</directory>
-            <outputDirectory>/</outputDirectory>
+            <directory>target/boilerplate/bin</directory>
+            <outputDirectory>bin</outputDirectory>
             <includes>
-                <include>**/*.bat</include>
+                <include>*.bat</include>
                 <include>*.txt</include>
             </includes>
             <lineEnding>dos</lineEnding>

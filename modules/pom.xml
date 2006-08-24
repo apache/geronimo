@@ -67,7 +67,6 @@
         <module>management</module>
         <module>naming</module>
         <module>naming-builder</module>
-        <module>scripts</module>
         <module>security</module>
         <module>security-builder</module>
         <module>service-builder</module>

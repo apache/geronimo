@@ -192,29 +192,6 @@
                         </configuration>
                     </execution>
                     
-                    <!--
-                    
-                    TODO: Move scripts to boilerplate
-                    
-                    -->
-                    <execution>
-                        <id>unpack-scripts</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.apache.geronimo.modules</groupId>
-                                    <artifactId>geronimo-scripts</artifactId>
-                                    <version>${pom.version}</version>
-                                </artifactItem>
-                            </artifactItems>
-                            <outputDirectory>${project.build.directory}/scripts</outputDirectory>
-                        </configuration>
-                    </execution>
-                    
                     <execution>
                         <id>unpack-schemas</id>
                         <phase>package</phase>
