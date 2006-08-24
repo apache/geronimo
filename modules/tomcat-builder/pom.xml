@@ -40,8 +40,8 @@
     
     -->
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/trunk/modules/tomcat-builder</connection>
-        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk/modules/tomcat-builder</developerConnection>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/server/trunk/modules/tomcat-builder</connection>
+        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/server/trunk/modules/tomcat-builder</developerConnection>
         <url>http://svn.apache.org/viewvc/geronimo/trunk/modules/tomcat-builder</url>
     </scm>
     

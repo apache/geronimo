@@ -42,8 +42,8 @@
     
     -->
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/trunk/modules/jmx-remoting</connection>
-        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk/modules/jmx-remoting</developerConnection>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/server/trunk/modules/jmx-remoting</connection>
+        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/server/trunk/modules/jmx-remoting</developerConnection>
         <url>http://svn.apache.org/viewvc/geronimo/trunk/modules/jmx-remoting</url>
     </scm>
     

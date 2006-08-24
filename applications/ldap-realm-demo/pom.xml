@@ -46,8 +46,8 @@
     
     -->
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/trunk/applications/ldap-realm-demo</connection>
-        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk/applications/ldap-realm-demo</developerConnection>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/server/trunk/applications/ldap-realm-demo</connection>
+        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/server/trunk/applications/ldap-realm-demo</developerConnection>
         <url>http://svn.apache.org/viewvc/geronimo/trunk/applications/ldap-realm-demo</url>
     </scm>
     

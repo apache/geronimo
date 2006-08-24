@@ -44,8 +44,8 @@
     
     -->
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/trunk/modules/activemq-gbean</connection>
-        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk/modules/activemq-gbean</developerConnection>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/server/trunk/modules/activemq-gbean</connection>
+        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/server/trunk/modules/activemq-gbean</developerConnection>
         <url>http://svn.apache.org/viewvc/geronimo/trunk/modules/activemq-gbean</url>
     </scm>
     

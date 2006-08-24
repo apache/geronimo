@@ -40,8 +40,8 @@
     
     -->
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/trunk/modules/webservices</connection>
-        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk/modules/webservices</developerConnection>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/server/trunk/modules/webservices</connection>
+        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/server/trunk/modules/webservices</developerConnection>
         <url>http://svn.apache.org/viewvc/geronimo/trunk/modules/webservices</url>
     </scm>
     

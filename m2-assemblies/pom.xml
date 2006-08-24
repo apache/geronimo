@@ -42,8 +42,8 @@
     
     -->
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/trunk/m2-assemblies</connection>
-        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk/m2-assemblies</developerConnection>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/server/trunk/m2-assemblies</connection>
+        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/server/trunk/m2-assemblies</developerConnection>
         <url>http://svn.apache.org/viewvc/geronimo/trunk/m2-assemblies</url>
     </scm>
 

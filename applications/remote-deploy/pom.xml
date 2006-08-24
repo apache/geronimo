@@ -47,8 +47,8 @@
     
     -->
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/trunk/applications/remote-deploy</connection>
-        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk/applications/remote-deploy</developerConnection>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/server/trunk/applications/remote-deploy</connection>
+        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/server/trunk/applications/remote-deploy</developerConnection>
         <url>http://svn.apache.org/viewvc/geronimo/trunk/applications/remote-deploy</url>
     </scm>
     

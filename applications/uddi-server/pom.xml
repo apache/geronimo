@@ -41,8 +41,8 @@
     
     -->
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/trunk/applications/uddi-server</connection>
-        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk/applications/uddi-server</developerConnection>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/server/trunk/applications/uddi-server</connection>
+        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/server/trunk/applications/uddi-server</developerConnection>
         <url>http://svn.apache.org/viewvc/geronimo/trunk/applications/uddi-server</url>
     </scm>
     
