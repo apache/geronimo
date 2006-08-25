@@ -153,15 +153,21 @@
             <groupId>tomcat</groupId>
             <artifactId>jasper-runtime</artifactId>
         </dependency>
+        
     </dependencies>
     
     <build>
+        <!--
+        
+        FIXME:
+        
         <resources>
             <resource>
                 <directory>${pom.basedir}/src/conf</directory>
                 <filtering>true</filtering>
             </resource>
         </resources>
+        -->
         
         <plugins>
             <plugin>

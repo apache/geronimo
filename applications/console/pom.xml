@@ -30,10 +30,11 @@
 
     <groupId>org.apache.geronimo.applications.console</groupId>
     <artifactId>console</artifactId>
-    <packaging>pom</packaging>
     <name>Geronimo Applications :: Console</name>
-
+    <packaging>pom</packaging>
+    
     <dependencies>
+        
         <dependency>
             <groupId>portlet-api</groupId>
             <artifactId>portlet-api</artifactId>
@@ -45,6 +46,7 @@
             <artifactId>geronimo-jsp_2.0_spec</artifactId>
             <scope>provided</scope>
         </dependency>
+        
     </dependencies>
 
     <modules>

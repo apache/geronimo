@@ -106,15 +106,16 @@
             <artifactId>commons-primitives</artifactId>
         </dependency>
         
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-testsupport</artifactId>
+            <version>${pom.version}</version>
+            <scope>test</scope>
+        </dependency>
+        
     </dependencies>
     
     <build>
-        <resources>
-            <resource>
-                <directory>src/resources2</directory>
-            </resource>
-        </resources>
-        
         <plugins>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -122,7 +123,7 @@
                     <systemProperties>
                         <property>
                             <name>java.security.auth.login.config</name>
-                            <value>${basedir}/src/test-resources/data/login.config</value>
+                            <value>${basedir}/src/test/resources/data/login.config</value>
                         </property>
                     </systemProperties>
                 </configuration>

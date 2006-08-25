@@ -53,6 +53,7 @@
     </scm>
     
     <dependencies>
+        
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-servlet_2.4_spec</artifactId>
@@ -70,6 +71,7 @@
             <groupId>tomcat</groupId>
             <artifactId>jasper-runtime</artifactId>
         </dependency>
+        
     </dependencies>
     
     <build>

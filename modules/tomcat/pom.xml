@@ -248,6 +248,13 @@
             <artifactId>wadi-tomcat55</artifactId>
         </dependency>
         
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-testsupport</artifactId>
+            <version>${pom.version}</version>
+            <scope>test</scope>
+        </dependency>
+        
     </dependencies>
     
     <build>
@@ -278,9 +285,9 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <copy todir="target/var/catalina/conf" file="src/resources/META-INF/geronimo-tomcat/var/catalina/conf/web.xml" />
+                                <copy todir="target/var/catalina/conf" file="src/main/resources/META-INF/geronimo-tomcat/var/catalina/conf/web.xml" />
                                 <copy todir="target/var/catalina/webapps">
-                                    <fileset dir="src/test-resources/deployables">
+                                    <fileset dir="src/test/resources/deployables">
                                         <include name="war1/**" />
                                         <include name="war3/**" />
                                     </fileset>

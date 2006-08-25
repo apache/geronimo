@@ -47,6 +47,7 @@
     </scm>
     
     <dependencies>
+        
         <dependency>
             <groupId>org.apache.geronimo.applications.console</groupId>
             <artifactId>geronimo-console-framework</artifactId>
@@ -60,6 +61,7 @@
             <version>${pom.version}</version>
             <type>war</type>
         </dependency>
+        
     </dependencies>
 
     <build>

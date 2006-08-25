@@ -46,10 +46,4 @@
         <url>http://svn.apache.org/viewvc/geronimo/trunk/modules/interceptor</url>
     </scm>
     
-    <build>
-        <!-- FIXME: Remove when the default is to use the m2 standard layout -->
-        <sourceDirectory>${pom.basedir}/src/main/java</sourceDirectory>
-        <testSourceDirectory>${pom.basedir}/src/test/java</testSourceDirectory>
-    </build>
-    
 </project>

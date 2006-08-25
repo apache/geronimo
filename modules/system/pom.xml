@@ -95,19 +95,6 @@
     </dependencies>
     
     <build>
-        
-        <resources>
-            <resource>
-                <directory>${pom.basedir}/src/schema</directory>
-                <targetPath>META-INF/schema</targetPath>
-            </resource>
-            
-            <!-- Include the dynamically generated resources (see below) -->
-            <resource>
-                <directory>${pom.basedir}/target/resources</directory>
-            </resource>
-        </resources>
-        
         <plugins>
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -124,10 +111,10 @@
                                     <format property="build.year" pattern="yyyy"/>
                                 </tstamp>
                                 
-                                <mkdir dir="${pom.basedir}/target/resources/org/apache/geronimo/system/serverinfo"/>
+                                <mkdir dir="${pom.basedir}/target/classes/org/apache/geronimo/system/serverinfo"/>
                                 
                                 <propertyfile
-                                    file="${pom.basedir}/target/resources/org/apache/geronimo/system/serverinfo/geronimo-version.properties"
+                                    file="${pom.basedir}/target/classes/org/apache/geronimo/system/serverinfo/geronimo-version.properties"
                                     comment="Geronimo version information (generated, do not modify)">
                                     
                                     <entry key="version" value="${pom.version}"/>
@@ -149,13 +136,15 @@
                             <tasks>
                                 <delete dir="${project.build.directory}/tmp"/>
                                 <mkdir dir="${project.build.directory}/tmp"/>
+                                
                                 <mkdir dir="${project.build.directory}/m1"/>
-                                <mkdir dir="${project.build.directory}/m2"/>
                                 <copy todir="${project.build.directory}/m1">
-                                    <fileset dir="${basedir}/src/test-repo/m1"/>
+                                    <fileset dir="${basedir}/src/test/repo/m1"/>
                                 </copy>
+                                
+                                <mkdir dir="${project.build.directory}/m2"/>
                                 <copy todir="${project.build.directory}/m2">
-                                    <fileset dir="${basedir}/src/test-repo/m2"/>
+                                    <fileset dir="${basedir}/src/test/repo/m2"/>
                                 </copy>
                             </tasks>
                         </configuration>
