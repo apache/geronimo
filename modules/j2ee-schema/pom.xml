@@ -70,6 +70,22 @@
             <artifactId>geronimo-service-builder</artifactId>
             <version>${pom.version}</version>
         </dependency>
+        
+        <!--
+        NOTE: The full source for this artifact is private due to Sun licensing issues.
+              To view the generated XmlBeans source please see the -src artifact in the repository:
+              
+              http://people.apache.org/repo/m2-snapshot-repository/org/apache/geronimo/schema/geronimo-schema-j2ee1.4/
+              
+              The full source is here with restricted access:
+              
+              https://svn.apache.org/repos/tck/geronimo-tck/schema/j2ee14
+        -->
+        <dependency>
+             <groupId>org.apache.geronimo.schema</groupId>
+             <artifactId>geronimo-schema-j2ee1.4</artifactId>
+             <version>1.0-SNAPSHOT</version>
+         </dependency>
 
     </dependencies>
     
@@ -83,7 +99,7 @@
 
         <resources>
             <resource>
-                <directory>src/resources</directory>
+                <directory>src/resources2</directory>
             </resource>
         </resources>
 
@@ -96,47 +112,6 @@
                 <directory>src/test-resources</directory>
             </testResource>
         </testResources>
-        
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>xmlbeans-maven-plugin</artifactId>
-                <configuration>
-                    <schemaDirectory>${pom.basedir}/src</schemaDirectory>
-                    <sourceSchemas>j2ee_1_3schema/connector_1_0.xsd,j2ee_1_4schema/application_1_4.xsd,j2ee_1_4schema/j2ee_jaxrpc_mapping_1_1.xsd,j2ee_1_4schema/j2ee_1_4.xsd,j2ee_1_4schema/connector_1_5.xsd,j2ee_1_4schema/ejb-jar_2_1.xsd,j2ee_1_4schema/web-app_2_4.xsd,j2ee_1_4schema/application-client_1_4.xsd,j2ee_1_4schema/j2ee_web_services_1_1.xsd</sourceSchemas>
-                    <xmlConfigs>
-                        <xmlConfig implementation="java.io.File">${pom.basedir}/src/conf</xmlConfig>
-                    </xmlConfigs>
-                </configuration>
-            </plugin>
-            
-            
-            <!--
-            HACK: Copy the generated XmlBeans bits for clover
-            -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <tasks>
-                                <mkdir dir="${pom.basedir}/target/clover/classes"/>
-                                <copy todir="${pom.basedir}/target/clover/classes">
-                                    <fileset dir="${pom.basedir}/target/classes">
-                                        <include name="schemaorg_apache_xmlbeans/**"/>
-                                    </fileset>
-                                </copy>
-                            </tasks>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
     </build>
 
 </project>
