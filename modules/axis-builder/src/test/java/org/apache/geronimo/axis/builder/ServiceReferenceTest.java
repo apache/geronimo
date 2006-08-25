@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.jar.JarFile;
 import javax.wsdl.Binding;
 import javax.wsdl.BindingInput;
 import javax.wsdl.BindingOperation;
@@ -61,6 +62,8 @@ import org.apache.geronimo.axis.client.OperationInfo;
 import org.apache.geronimo.axis.client.AxisServiceReference;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.DeployableModule;
+import org.apache.geronimo.deployment.DeployableModuleFactory;
 import org.apache.geronimo.deployment.util.UnpackedJarFile;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
@@ -118,7 +121,9 @@ public class ServiceReferenceTest
 
         File moduleLocation = new File(tmpbasedir, "ejb");
         moduleLocation.mkdirs();
-        module = new EJBModule(true, moduleName, environment, new UnpackedJarFile(moduleLocation), "ejb", null, null, null);
+        JarFile unpackedJar = new UnpackedJarFile(moduleLocation);
+        DeployableModule dm = DeployableModuleFactory.createDeployableModule(unpackedJar);
+        module = new EJBModule(true, moduleName, environment, dm, "ejb", null, null, null);
 
         runExternalWSTest = System.getProperty("geronimo.run.external.webservicetest", "false").equals("true");
     }

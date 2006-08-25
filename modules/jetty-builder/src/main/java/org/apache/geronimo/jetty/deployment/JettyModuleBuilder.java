@@ -261,11 +261,11 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                     if (plan != null) {
                         rawPlan = XmlBeansUtil.parse(((File) plan).toURL(), getClass().getClassLoader());
                     } else {
-                        URL path = DeploymentUtil.createJarURL(deployableModule, "WEB-INF/geronimo-web.xml");
+                        URL path = deployableModule.resolve("WEB-INF/geronimo-web.xml");
                         try {
                             rawPlan = XmlBeansUtil.parse(path, getClass().getClassLoader());
                         } catch (FileNotFoundException e) {
-                            path = DeploymentUtil.createJarURL(deployableModule, "WEB-INF/geronimo-jetty.xml");
+                            path = deployableModule.resolve("WEB-INF/geronimo-jetty.xml");
                             try {
                                 rawPlan = XmlBeansUtil.parse(path, getClass().getClassLoader());
                             } catch (FileNotFoundException e1) {

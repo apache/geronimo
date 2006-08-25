@@ -48,6 +48,7 @@ import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
 import org.apache.geronimo.deployment.DeployableModule;
+import org.apache.geronimo.deployment.DefaultDeployableModule;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.deployment.xbeans.ServiceDocument;
 import org.apache.geronimo.gbean.AbstractName;
@@ -226,29 +227,38 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
 
         try {
             // add the warfile's content to the configuration
-            JarFile warFile = module.getModuleFile();
-            Enumeration entries = warFile.entries();
-            while (entries.hasMoreElements()) {
-                ZipEntry entry = (ZipEntry) entries.nextElement();
-                URI targetPath = new URI(null, entry.getName(), null);
-                if (entry.getName().equals("WEB-INF/web.xml")) {
-                    moduleContext.addFile(targetPath, module.getOriginalSpecDD());
-                } else if (entry.getName().startsWith("WEB-INF/lib") && entry.getName().endsWith(".jar")) {
-                    moduleContext.addInclude(targetPath, warFile, entry);
-                } else {
-                    moduleContext.addFile(targetPath, warFile, entry);
+            DeployableModule war = module.getModuleFile();
+            if (war instanceof DefaultDeployableModule) {
+                JarFile jar = ((DefaultDeployableModule) war).getJarFile();
+
+                Enumeration entries = jar.entries();
+                while (entries.hasMoreElements()) {
+                    ZipEntry entry = (ZipEntry) entries.nextElement();
+                    URI targetPath = new URI(null, entry.getName(), null);
+                    if (entry.getName().equals("WEB-INF/web.xml")) {
+                        moduleContext.addFile(targetPath, module.getOriginalSpecDD());
+                    } else if (entry.getName().startsWith("WEB-INF/lib") && entry.getName().endsWith(".jar")) {
+                        moduleContext.addInclude(targetPath, jar, entry);
+                    } else {
+                        moduleContext.addFile(targetPath, jar, entry);
+                    }
+                }
+
+                //always add WEB-INF/classes to the classpath regardless of whether
+                //any classes exist
+                moduleContext.getConfiguration().addToClassPath("WEB-INF/classes/");
+
+                // add the manifest classpath entries declared in the war to the class loader
+                // we have to explicitly add these since we are unpacking the web module
+                // and the url class loader will not pick up a manifest from an unpacked dir
+                moduleContext.addManifestClassPath(jar, RELATIVE_MODULE_BASE_URI);
+            } else {
+                //TODO GERONIMO-1526
+                File[] classes = war.getClassesFolders();
+                for (int i = 0; i < classes.length; i++) {
+                    moduleContext.getConfiguration().addToClassPath(classes[i].toURL());
                 }
             }
-
-            //always add WEB-INF/classes to the classpath regardless of whether
-            //any classes exist
-            moduleContext.getConfiguration().addToClassPath("WEB-INF/classes/");
-
-            // add the manifest classpath entries declared in the war to the class loader
-            // we have to explicitly add these since we are unpacking the web module
-            // and the url class loader will not pick up a manifest from an unpacked dir
-            moduleContext.addManifestClassPath(warFile, RELATIVE_MODULE_BASE_URI);
-
         } catch (IOException e) {
             throw new DeploymentException("Problem deploying war", e);
         } catch (URISyntaxException e) {

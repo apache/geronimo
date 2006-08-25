@@ -505,6 +505,10 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         }
     }
 
+    public void addToClassPath(URL url) throws IOException {
+        configurationClassLoader.addURL(url);
+    }
+
     /**
      * Gets the type of the configuration (WAR, RAR et cetera)
      * @return Type of the configuration.
