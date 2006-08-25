@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Rev$ $Date$ -->
+
+<component-set>
+    <components>
+        <component>
+            <role>org.apache.maven.lifecycle.mapping.LifecycleMapping</role>
+            <role-hint>car</role-hint>
+            <implementation>org.apache.maven.lifecycle.mapping.DefaultLifecycleMapping</implementation>
+            <configuration>
+                <phases>
+                    <process-resources>org.apache.maven.plugins:maven-resources-plugin:resources</process-resources>
+                    <compile>org.apache.geronimo.plugins:car-maven-plugin:prepare-plan</compile>
+                    <package>org.apache.geronimo.plugins:car-maven-plugin:package</package>
+                    <install>org.apache.maven.plugins:maven-install-plugin:install</install>
+                </phases>
+            </configuration>
+        </component>
+    </components>
+</component-set>
+
