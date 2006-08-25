@@ -69,30 +69,13 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>jspc-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>jspc</id>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                        <configuration>
-                            <warSourceDirectory>${pom.basedir}/src/main/webapp</warSourceDirectory>
-                            <inputWebXml>${pom.basedir}/src/main/webapp/WEB-INF/web.xml</inputWebXml>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
-                <configuration>
-                    <warSourceDirectory>${pom.basedir}/src/main/webapp</warSourceDirectory>
-                    <webXml>${pom.basedir}/target/jspweb.xml</webXml>
-                    <archiveClasses>true</archiveClasses>
-                </configuration>
             </plugin>
         </plugins>
     </build>
-
+    
 </project>
