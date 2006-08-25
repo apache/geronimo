@@ -61,10 +61,7 @@ import org.apache.geronimo.connector.outbound.connectionmanagerconfig.SinglePool
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionLog;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.XATransactions;
-import org.apache.geronimo.deployment.ModuleIDBuilder;
-import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
-import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
-import org.apache.geronimo.deployment.DeployableModule;
+import org.apache.geronimo.deployment.*;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
@@ -262,28 +259,30 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
 
     public void installModule(DeployableModule earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException {
         try {
-            JarFile moduleFile = module.getModuleFile();
-
-            // add the manifest classpath entries declared in the connector to the class loader
-            // we have to explicitly add these since we are unpacking the connector module
-            // and the url class loader will not pick up a manifiest from an unpacked dir
-            // N.B. If we ever introduce a separate configuration/module for a rar inside an ear
-            // this will need to be modified to use "../" instead of module.getTargetPath().
-            // See AbstractWebModuleBuilder.
-            earContext.addManifestClassPath(moduleFile, URI.create(module.getTargetPath()));
-
-            URI targetURI = URI.create(module.getTargetPath() + "/");
-            Enumeration entries = moduleFile.entries();
-            while (entries.hasMoreElements()) {
-                ZipEntry entry = (ZipEntry) entries.nextElement();
-                URI target = targetURI.resolve(entry.getName());
-                if (entry.getName().endsWith(".jar")) {
-                    earContext.addInclude(target, moduleFile, entry);
-                } else {
-                    earContext.addFile(target, moduleFile, entry);
+            DeployableModule moduleFile = module.getModuleFile();
+            if (moduleFile instanceof DefaultDeployableModule) {
+                JarFile jar = ((DefaultDeployableModule) moduleFile).getJarFile();
+                // add the manifest classpath entries declared in the connector to the class loader
+                // we have to explicitly add these since we are unpacking the connector module
+                // and the url class loader will not pick up a manifiest from an unpacked dir
+                // N.B. If we ever introduce a separate configuration/module for a rar inside an ear
+                // this will need to be modified to use "../" instead of module.getTargetPath().
+                // See AbstractWebModuleBuilder.
+                earContext.addManifestClassPath(jar, URI.create(module.getTargetPath()));
+                URI targetURI = URI.create(module.getTargetPath() + "/");
+                Enumeration entries = jar.entries();
+                while (entries.hasMoreElements()) {
+                    ZipEntry entry = (ZipEntry) entries.nextElement();
+                    URI target = targetURI.resolve(entry.getName());
+                    if (entry.getName().endsWith(".jar")) {
+                        earContext.addInclude(target, jar, entry);
+                    } else {
+                        earContext.addFile(target, jar, entry);
+                    }
                 }
+            } else {
+                //TODO GERONIMO-1526
             }
-
         } catch (IOException e) {
             throw new DeploymentException("Problem deploying connector", e);
         }
