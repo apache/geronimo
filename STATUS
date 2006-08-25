@@ -8,7 +8,7 @@ The current version of this file can be found at:
 Upcoming Releases:
 
   Geronimo 1.2 -- geronimo/trunk/
-    Release Manager:  Matt Hogstrom
+    Release Manager: not yet voted
     Estimated Date: September ??
     
   Geronimo 1.1.1 -- geronimo/branches/1.1
@@ -17,9 +17,31 @@ Upcoming Releases:
 
 RELEASE SHOWSTOPPERS:
 
+Currently the 1.1.1 release is addressing security issues that are related to CTS failures as well
+as reworking our build and release process to address potential violations of Sun's License for the
+specification related XSDs.  Our work around includes using XML beans to download and generate the
+code necessary to manipulate the XSDs without including Sun's content in SVN or our released code.
 
 Outstanding patches awaiting votes:
 
+On JIRA, the following patches are oustanding:
+
+XBEAN-45 Move classloaders to their own module - Patch Available - Alan Cabrera - Opened 19/Aug/06
+  Status: review needed. 1 +1 vote provided...need two more
+
+GERONIMO-2332 RTC Put the generated xmlbeans files for the j2ee 1.4 schemas in svn in a spec module
+so we don't need the schemas in svn at all - Patch Available - David Jencks - Opened: 18/Aug/06
+  Status: in progress
+
+GERONIMO-2248 Applications portlets: List Parent and Child components against each component
+Patch Available  Unassigned - Opened: 30/Jul/06
+  Status: Needs to complete voting and apply to 1.1.2 and trunk
+
+GERONIMO-2163 WADI Integration for Jetty - Patch Available - Gianny Damour - Opened: 02/Jul/06
+  Status: Not actually in a state for voting...this is in a discussion state.
+
+GERONIMO-2015 Let's replace JKS to PKCS12 key store type - Opened
+  Status: In discussion...although not totally active
 
 Release history:
   2006-06-26  Geronimo 1.1
