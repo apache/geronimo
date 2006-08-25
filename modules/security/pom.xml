@@ -103,6 +103,13 @@
             <artifactId>hsqldb</artifactId>
             <scope>test</scope>
         </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-testsupport</artifactId>
+            <version>${pom.version}</version>
+            <scope>test</scope>
+        </dependency>
     
     </dependencies>
     
@@ -114,7 +121,7 @@
                     <systemProperties>
                         <property>
                             <name>java.security.auth.login.config</name>
-                            <value>${pom.basedir}/src/test-data/data/login.config</value>
+                            <value>${pom.basedir}/src/test/data/data/login.config</value>
                         </property>
                     </systemProperties>
                     

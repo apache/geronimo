@@ -33,6 +33,7 @@
     <packaging>war</packaging>
     
     <dependencies>
+    
         <dependency>
             <groupId>org.apache.geronimo.applications.magicGball</groupId>
             <artifactId>magicGball-ejb</artifactId>
@@ -44,6 +45,7 @@
             <groupId>tomcat</groupId>
             <artifactId>jasper-runtime</artifactId>
         </dependency>
+        
     </dependencies>
     
     <build>

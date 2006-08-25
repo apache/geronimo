@@ -119,20 +119,16 @@
             <artifactId>wsdl4j</artifactId>
         </dependency>
         
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-testsupport</artifactId>
+            <version>${pom.version}</version>
+            <scope>test</scope>
+        </dependency>
+        
     </dependencies>
     
     <build>
-        <resources>
-            <!-- This schema is NOT compiled to xmlobjects.  Do not remove!  Used by SchemaInfoBuilder -->
-            <resource>
-                <directory>src/schema</directory>
-                <includes>
-                    <include>soap_encoding_1_1.xsd</include>
-                </includes>
-                <targetPath>META-INF/schema</targetPath>
-            </resource>
-        </resources>
-
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

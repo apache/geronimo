@@ -129,6 +129,7 @@
             <!--<artifactId>geronimo-servlet_2.4_spec</artifactId>-->
             <!--<scope>test</scope>-->
         <!--</dependency>-->
+        
         <!--WFT??? why is this needed for tests all of a sudden? -->
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
@@ -142,20 +143,16 @@
             <scope>test</scope>
         </dependency>
         
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-testsupport</artifactId>
+            <version>${pom.version}</version>
+            <scope>test</scope>
+        </dependency>
+        
     </dependencies>
     
     <build>
-        <resources>
-            <!--<resource>-->
-                <!--<directory>src/schema</directory>-->
-                <!--<targetPath>META-INF</targetPath>-->
-                <!--<includes>-->
-                    <!--<include>geronimo-tomcat-1.1.xsd</include>-->
-                    <!--<include>geronimo-tomcat-config-1.0.xsd</include>-->
-                <!--</includes>-->
-            <!--</resource>-->
-        </resources>
-
         <plugins>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -167,7 +164,7 @@
                         </property>
                         <property>
                             <name>java.security.auth.login.config</name>
-                            <value>src/test-resources/data/login.config</value>
+                            <value>src/test/resources/data/login.config</value>
                         </property>
                     </systemProperties>
                 </configuration>
@@ -215,14 +212,18 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <copy todir="${project.build.directory}/var/catalina/conf" file="src/var/web.xml"/>
+                                <copy todir="${project.build.directory}/var/catalina/conf" file="src/test/data/web.xml"/>
                                 <copy todir="${project.build.directory}/var/catalina/webapps">
-                                    <fileset dir="src/test-resources/deployables">
+                                    <fileset dir="src/test/resources/deployables">
                                         <include name="war1/**"/>
                                         <include name="war3/**"/>
                                         <include name="war4/**"/>
                                     </fileset>
                                 </copy>
+                                
+                                <!--
+                                FIXME: Use dependency plugin.
+                                -->
                                 <copy todir="${project.build.directory}/endorsed" flatten="true">
                                     <fileset dir="${settings.localRepository}">
                                         <include name="xerces/xercesImpl/${xercesVersion}/*.jar"/>

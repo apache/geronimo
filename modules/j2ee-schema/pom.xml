@@ -74,6 +74,29 @@
     </dependencies>
     
     <build>
+        <!--
+        FIXME: Convert module to m2 standard layout
+        -->
+        
+        <sourceDirectory>src/java</sourceDirectory>
+        <testSourceDirectory>src/test</testSourceDirectory>
+
+        <resources>
+            <resource>
+                <directory>src/resources</directory>
+            </resource>
+        </resources>
+
+        <testResources>
+            <testResource>
+                <directory>src/test-data</directory>
+            </testResource>
+
+            <testResource>
+                <directory>src/test-resources</directory>
+            </testResource>
+        </testResources>
+        
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

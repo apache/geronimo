@@ -99,7 +99,7 @@
                             <onError>abort</onError>
                             <delimiter>;</delimiter>
                             <srcFiles>
-                                <srcFile>${pom.basedir}/src/sql/juddi.sql</srcFile>
+                                <srcFile>${pom.basedir}/src/main/sql/juddi.sql</srcFile>
                             </srcFiles>
                         </configuration>
                     </execution>

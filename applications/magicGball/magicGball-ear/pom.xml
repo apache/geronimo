@@ -33,6 +33,7 @@
     <packaging>ear</packaging>
     
     <dependencies>
+        
         <dependency>
             <groupId>org.apache.geronimo.applications.magicGball</groupId>
             <artifactId>magicGball-client</artifactId>
@@ -51,6 +52,7 @@
             <version>${pom.version}</version>
             <type>war</type>
         </dependency>
+        
     </dependencies>
 
 </project>

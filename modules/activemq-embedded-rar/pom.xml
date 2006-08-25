@@ -47,19 +47,8 @@
         <url>http://svn.apache.org/viewvc/geronimo/trunk/modules/activemq-embedded-rar</url>
     </scm>
     
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-rar-plugin</artifactId>
-                <configuration>
-                    <raXmlFile>${basedir}/src/rar/META-INF/ra.xml</raXmlFile>
-                    <includeJar>false</includeJar>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-    
     <dependencies>
+        
         <dependency>
             <groupId>activemq</groupId>
             <artifactId>activemq-core</artifactId>
@@ -69,7 +58,19 @@
             <groupId>activemq</groupId>
             <artifactId>activemq-ra</artifactId>
         </dependency>
+        
     </dependencies>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-rar-plugin</artifactId>
+                <configuration>
+                    <includeJar>false</includeJar>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
     
     <!--
     HACK: Currently need to pickup the Codehaus m1 repo for activemq-*:3.2.4-SNAPSHOT

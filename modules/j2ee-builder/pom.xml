@@ -70,6 +70,29 @@
     </dependencies>
     
     <build>
+        <!--
+        FIXME: Convert module to m2 standard layout
+        -->
+        
+        <sourceDirectory>src/java</sourceDirectory>
+        <testSourceDirectory>src/test</testSourceDirectory>
+
+        <resources>
+            <resource>
+                <directory>src/resources</directory>
+            </resource>
+        </resources>
+
+        <testResources>
+            <testResource>
+                <directory>src/test-data</directory>
+            </testResource>
+
+            <testResource>
+                <directory>src/test-resources</directory>
+            </testResource>
+        </testResources>
+        
         <plugins>
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -123,6 +146,13 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>xmlbeans-maven-plugin</artifactId>
                 <configuration>
+                    <!--
+                    FIXME: Remove when using m2 layout
+                    -->
+                    <schemaDirectory>${pom.basedir}/src/schema</schemaDirectory>
+                    <xmlConfigs>
+                        <xmlConfig implementation="java.io.File">${pom.basedir}/src/schema/xmlconfig.xml</xmlConfig>
+                    </xmlConfigs>
                     <sourceSchemas>geronimo-application-1.2.xsd</sourceSchemas>
                 </configuration>
             </plugin>

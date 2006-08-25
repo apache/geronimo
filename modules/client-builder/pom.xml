@@ -66,16 +66,17 @@
             <artifactId>geronimo-security-builder</artifactId>
             <version>${pom.version}</version>
         </dependency>
-
+        
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-testsupport</artifactId>
+            <version>${pom.version}</version>
+            <scope>test</scope>
+        </dependency>
+        
     </dependencies>
     
     <build>
-        <resources>
-            <resource>
-                <directory>${pom.basedir}/src/resources2</directory>
-            </resource>
-        </resources>
-        
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

@@ -171,12 +171,6 @@
     </dependencies>
     
     <build>
-        <resources>
-            <resource>
-                <directory>src/resources2</directory>
-            </resource>
-        </resources>
-        
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -184,7 +178,7 @@
                 <configuration>
                     <sourceSchemas>directory.xsd</sourceSchemas>
                     <outputDirectory>${pom.basedir}/target/classes/schemaorg_apache_xmlbeans</outputDirectory>
-                    <defaultXmlConfigDir>${pom.basedir}/src/schema/xmlconfig.xml</defaultXmlConfigDir>
+                    <defaultXmlConfigDir>${pom.basedir}/src/main/schema/xmlconfig.xml</defaultXmlConfigDir>
                 </configuration>
             </plugin>
             
@@ -222,7 +216,9 @@
                         <configuration>
                             <tasks>
                                 <tstamp/>
-                                <copy todir="target/var/" file="src/test-resources/directory.xml"/>
+                                <mkdir dir="${pom.basedir}/target/var"/>
+                                <copy file="${pom.basedir}/src/test/resources/directory.xml"
+                                    todir="${pom.basedir}/target/var"/>
                             </tasks>
                         </configuration>
                     </execution>

@@ -45,14 +45,6 @@
         <url>http://svn.apache.org/viewvc/geronimo/trunk/modules/webservices</url>
     </scm>
     
-    <build>
-        <resources>
-            <resource>
-                <directory>src/resources2</directory>
-            </resource>
-        </resources>
-    </build>
-    
     <dependencies>
         
         <dependency>

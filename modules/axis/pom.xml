@@ -48,6 +48,7 @@
     </scm>
     
     <dependencies>
+        
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-kernel</artifactId>
@@ -122,15 +123,15 @@
             <groupId>wsdl4j</groupId>
             <artifactId>wsdl4j</artifactId>
         </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-testsupport</artifactId>
+            <version>${pom.version}</version>
+            <scope>test</scope>
+        </dependency>
+        
     </dependencies>
-    
-    <build>
-        <resources>
-            <resource>
-                <directory>src/resources2</directory>
-            </resource>
-        </resources>
-    </build>
     
 </project>
 
