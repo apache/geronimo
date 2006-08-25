@@ -28,6 +28,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
+import org.apache.geronimo.deployment.DeployableModule;
 
 import javax.management.ObjectName;
 import javax.naming.Reference;
@@ -44,18 +45,18 @@ public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder,
     private ClassLoader cl;
     public Module connectorModule;
 
-    public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+    public Module createModule(File plan, DeployableModule moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         AbstractName earName = naming.createRootName(new Artifact("test", "test-war", "", "rar"), NameFactory.NULL, NameFactory.J2EE_APPLICATION) ;
         AbstractName moduleName = naming.createChildName(earName, "rar", NameFactory.RESOURCE_ADAPTER_MODULE);
         return new ConnectorModule(true, moduleName, null, moduleFile, "connector", null, null, null);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+    public Module createModule(Object plan, DeployableModule moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         AbstractName moduleName = naming.createChildName(earName, "rar", NameFactory.RESOURCE_ADAPTER_MODULE);
         return new ConnectorModule(false, moduleName, null, moduleFile, targetPath, null, null, null);
     }
 
-    public void installModule(JarFile earFile, EARContext earContext, Module connectorModule, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) {
+    public void installModule(DeployableModule earFile, EARContext earContext, Module connectorModule, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) {
         assertNotNull(earFile);
         assertNotNull(earContext);
         this.earContext = earContext;

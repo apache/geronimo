@@ -36,9 +36,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.deployment.ModuleIDBuilder;
-import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
+import org.apache.geronimo.deployment.*;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -66,7 +64,7 @@ public class EARConfigBuilderTest extends TestCase {
     private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
 
     private static String WEB_NAMESPACE = "foo";
-    private static JarFile earFile;
+    private static DeployableModule earModule;
     private static MockConfigStore configStore = new MockConfigStore();
     private static ArtifactManager artifactManager = new DefaultArtifactManager();
     private static ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.EMPTY_SET, null);
@@ -121,7 +119,8 @@ public class EARConfigBuilderTest extends TestCase {
         TestSuite inner = new TestSuite(EARConfigBuilderTest.class);
         TestSetup setup14 = new TestSetup(inner) {
             protected void setUp() throws Exception {
-                earFile = DeploymentUtil.createJarFile(new File(basedir, "target/test-ear14/test-ear.ear"));
+                JarFile ear = DeploymentUtil.createJarFile(new File(basedir, "target/test-ear14/test-ear.ear"));
+                earModule = DeployableModuleFactory.createDeployableModule(ear);
                 ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, "test-ejb-jar.jar", null, null, null);
                 webConfigBuilder.contextRoot = contextRoot;
                 webConfigBuilder.webModule = new WebModule(false, webModuleName, null, null, "test-war.war", null, null, null, contextRoot, portMap, WEB_NAMESPACE);
@@ -129,7 +128,7 @@ public class EARConfigBuilderTest extends TestCase {
             }
 
             protected void tearDown() {
-                DeploymentUtil.close(earFile);
+                earModule.cleanup();
                 close(ejbConfigBuilder.ejbModule);
                 close(webConfigBuilder.webModule);
                 close(connectorConfigBuilder.connectorModule);
@@ -137,7 +136,8 @@ public class EARConfigBuilderTest extends TestCase {
         };
         TestSetup setupNaked14 = new TestSetup(inner) {
             protected void setUp() throws Exception {
-                earFile = DeploymentUtil.createJarFile(new File(basedir, "target/test-ear14/test-naked-ear.ear"));
+                JarFile ear = DeploymentUtil.createJarFile(new File(basedir, "target/test-ear14/test-naked-ear.ear"));
+                earModule = DeployableModuleFactory.createDeployableModule(ear);
                 ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, "test-ejb-jar.jar", null, null, null);
                 webConfigBuilder.contextRoot = contextRoot;
                 webConfigBuilder.webModule = new WebModule(false, webModuleName, null, null, "test-war.war", null, null, null, contextRoot, portMap, WEB_NAMESPACE);
@@ -145,7 +145,7 @@ public class EARConfigBuilderTest extends TestCase {
             }
 
             protected void tearDown() {
-                DeploymentUtil.close(earFile);
+                earModule.cleanup();
                 close(ejbConfigBuilder.ejbModule);
                 close(webConfigBuilder.webModule);
                 close(connectorConfigBuilder.connectorModule);
@@ -153,7 +153,8 @@ public class EARConfigBuilderTest extends TestCase {
         };
         TestSetup setup13 = new TestSetup(inner) {
             protected void setUp() throws Exception {
-                earFile = DeploymentUtil.createJarFile(new File(basedir, "target/test-ear13/test-ear.ear"));
+                JarFile ear = DeploymentUtil.createJarFile(new File(basedir, "target/test-ear13/test-ear.ear"));
+                earModule = DeployableModuleFactory.createDeployableModule(ear);
                 ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, "test-ejb-jar.jar", null, null, null);
                 webConfigBuilder.contextRoot = contextRoot;
                 webConfigBuilder.webModule = new WebModule(false, webModuleName, null, null, "test-war.war", null, null, null, contextRoot, portMap, WEB_NAMESPACE);
@@ -161,7 +162,7 @@ public class EARConfigBuilderTest extends TestCase {
             }
 
             protected void tearDown() {
-                DeploymentUtil.close(earFile);
+                earModule.cleanup();
                 close(ejbConfigBuilder.ejbModule);
                 close(webConfigBuilder.webModule);
                 close(connectorConfigBuilder.connectorModule);
@@ -169,7 +170,8 @@ public class EARConfigBuilderTest extends TestCase {
         };
         TestSetup setupNaked13 = new TestSetup(inner) {
             protected void setUp() throws Exception {
-                earFile = DeploymentUtil.createJarFile(new File(basedir, "target/test-ear13/test-naked-ear.ear"));
+                JarFile ear = DeploymentUtil.createJarFile(new File(basedir, "target/test-ear13/test-naked-ear.ear"));
+                earModule = DeployableModuleFactory.createDeployableModule(ear);
                 ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, "test-ejb-jar.jar", null, null, null);
                 webConfigBuilder.contextRoot = contextRoot;
                 webConfigBuilder.webModule = new WebModule(false, webModuleName, null, null, "test-war.war", null, null, null, contextRoot, portMap, WEB_NAMESPACE);
@@ -177,7 +179,7 @@ public class EARConfigBuilderTest extends TestCase {
             }
 
             protected void tearDown() {
-                DeploymentUtil.close(earFile);
+                earModule.cleanup();
                 close(ejbConfigBuilder.ejbModule);
                 close(webConfigBuilder.webModule);
                 close(connectorConfigBuilder.connectorModule);
@@ -185,7 +187,8 @@ public class EARConfigBuilderTest extends TestCase {
         };
         TestSetup setupUnpacked = new TestSetup(inner) {
             protected void setUp() throws Exception {
-                earFile = DeploymentUtil.createJarFile(new File(basedir, "target/test-unpacked-ear/full/"));
+                JarFile ear = DeploymentUtil.createJarFile(new File(basedir, "target/test-unpacked-ear/full/"));
+                earModule = DeployableModuleFactory.createDeployableModule(ear);
                 ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, "test-ejb-jar.jar/", null, null, null);
                 webConfigBuilder.contextRoot = contextRoot;
                 webConfigBuilder.webModule = new WebModule(false, webModuleName, null, null, "test-war.war/", null, null, null, contextRoot, portMap, WEB_NAMESPACE);
@@ -193,7 +196,7 @@ public class EARConfigBuilderTest extends TestCase {
             }
 
             protected void tearDown() {
-                DeploymentUtil.close(earFile);
+                earModule.cleanup();
                 close(ejbConfigBuilder.ejbModule);
                 close(webConfigBuilder.webModule);
                 close(connectorConfigBuilder.connectorModule);
@@ -201,7 +204,8 @@ public class EARConfigBuilderTest extends TestCase {
         };
         TestSetup setupUnpackedNaked = new TestSetup(inner) {
             protected void setUp() throws Exception {
-                earFile = DeploymentUtil.createJarFile(new File(basedir, "target/test-unpacked-ear/naked/"));
+                JarFile ear = DeploymentUtil.createJarFile(new File(basedir, "target/test-unpacked-ear/naked/"));
+                earModule = DeployableModuleFactory.createDeployableModule(ear);
                 ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, "test-ejb-jar.jar/", null, null, null);
                 webConfigBuilder.contextRoot = contextRoot;
                 webConfigBuilder.webModule = new WebModule(false, webModuleName, null, null, "test-war.war", null, null, null, contextRoot, portMap, WEB_NAMESPACE);
@@ -209,7 +213,7 @@ public class EARConfigBuilderTest extends TestCase {
             }
 
             protected void tearDown() {
-                DeploymentUtil.close(earFile);
+                earModule.cleanup();
                 close(ejbConfigBuilder.ejbModule);
                 close(webConfigBuilder.webModule);
                 close(connectorConfigBuilder.connectorModule);
@@ -217,7 +221,8 @@ public class EARConfigBuilderTest extends TestCase {
         };
         TestSetup setupUnpackedAltDD = new TestSetup(inner) {
             protected void setUp() throws Exception {
-                earFile = DeploymentUtil.createJarFile(new File(basedir, "target/test-unpacked-ear/alt-dd/"));
+                JarFile ear = DeploymentUtil.createJarFile(new File(basedir, "target/test-unpacked-ear/alt-dd/"));
+                earModule = DeployableModuleFactory.createDeployableModule(ear);
                 ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, "test-ejb-jar.jar/", null, null, null);
                 webConfigBuilder.contextRoot = contextRoot;
                 webConfigBuilder.webModule = new WebModule(false, webModuleName, null, null, "test-war.war/", null, null, null, contextRoot, portMap, WEB_NAMESPACE);
@@ -225,7 +230,7 @@ public class EARConfigBuilderTest extends TestCase {
             }
 
             protected void tearDown() {
-                DeploymentUtil.close(earFile);
+                earModule.cleanup();
                 close(ejbConfigBuilder.ejbModule);
                 close(webConfigBuilder.webModule);
                 close(connectorConfigBuilder.connectorModule);
@@ -233,7 +238,8 @@ public class EARConfigBuilderTest extends TestCase {
         };
         TestSetup setupPackedAltDD = new TestSetup(inner) {
             protected void setUp() throws Exception {
-                earFile = DeploymentUtil.createJarFile(new File(basedir, "target/test-unpacked-ear/alt-dd.ear"));
+                JarFile ear = DeploymentUtil.createJarFile(new File(basedir, "target/test-unpacked-ear/alt-dd.ear"));
+                earModule = DeployableModuleFactory.createDeployableModule(ear);
                 ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, "test-ejb-jar.jar/", null, null, null);
                 webConfigBuilder.contextRoot = contextRoot;
                 webConfigBuilder.webModule = new WebModule(false, webModuleName, null, null, "test-war.war/", null, null, null, contextRoot, portMap, WEB_NAMESPACE);
@@ -241,7 +247,7 @@ public class EARConfigBuilderTest extends TestCase {
             }
 
             protected void tearDown() {
-                DeploymentUtil.close(earFile);
+                earModule.cleanup();
                 close(ejbConfigBuilder.ejbModule);
                 close(webConfigBuilder.webModule);
                 close(connectorConfigBuilder.connectorModule);
@@ -283,8 +289,8 @@ public class EARConfigBuilderTest extends TestCase {
                     serviceBuilder,
                     naming);
 
-            Object plan = configBuilder.getDeploymentPlan(null, earFile, idBuilder);
-            context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earFile, idBuilder), plan, earFile, Collections.singleton(configStore), artifactResolver, configStore);
+            Object plan = configBuilder.getDeploymentPlan(null, earModule, idBuilder);
+            context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earModule, idBuilder), plan, earModule, Collections.singleton(configStore), artifactResolver, configStore);
             configurationData = getConfigurationData(context);
         } finally {
             if (context != null) {
@@ -319,8 +325,8 @@ public class EARConfigBuilderTest extends TestCase {
         ConfigurationData configurationData = null;
         DeploymentContext context = null;
         try {
-            Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-ejb-jar.xml"), earFile, idBuilder);
-            context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earFile, idBuilder), plan, earFile, Collections.singleton(configStore), artifactResolver, configStore);
+            Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-ejb-jar.xml"), earModule, idBuilder);
+            context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earModule, idBuilder), plan, earModule, Collections.singleton(configStore), artifactResolver, configStore);
             configurationData = getConfigurationData(context);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
@@ -360,8 +366,8 @@ public class EARConfigBuilderTest extends TestCase {
         ConfigurationData configurationData = null;
         DeploymentContext context = null;
         try {
-            Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-war.xml"), earFile, idBuilder);
-            context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earFile, idBuilder), plan, earFile, Collections.singleton(configStore), artifactResolver, configStore);
+            Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-war.xml"), earModule, idBuilder);
+            context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earModule, idBuilder), plan, earModule, Collections.singleton(configStore), artifactResolver, configStore);
             configurationData = getConfigurationData(context);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
@@ -401,8 +407,8 @@ public class EARConfigBuilderTest extends TestCase {
         ConfigurationData configurationData = null;
         DeploymentContext context = null;
         try {
-            Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-rar.xml"), earFile, idBuilder);
-            context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earFile, idBuilder), plan, earFile, Collections.singleton(configStore), artifactResolver, configStore);
+            Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-rar.xml"), earModule, idBuilder);
+            context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earModule, idBuilder), plan, earModule, Collections.singleton(configStore), artifactResolver, configStore);
             configurationData = getConfigurationData(context);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
@@ -442,8 +448,8 @@ public class EARConfigBuilderTest extends TestCase {
         ConfigurationData configurationData = null;
         DeploymentContext context = null;
         try {
-            Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-car.xml"), earFile, idBuilder);
-            context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earFile, idBuilder), plan, earFile, Collections.singleton(configStore), artifactResolver, configStore);
+            Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-car.xml"), earModule, idBuilder);
+            context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earModule, idBuilder), plan, earModule, Collections.singleton(configStore), artifactResolver, configStore);
             configurationData = getConfigurationData(context);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
@@ -484,8 +490,8 @@ public class EARConfigBuilderTest extends TestCase {
         ConfigurationData configurationData = null;
         DeploymentContext context = null;
         try {
-            Object plan = configBuilder.getDeploymentPlan(null, earFile, idBuilder);
-            context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earFile, idBuilder), plan, earFile, Collections.singleton(configStore), artifactResolver, configStore);
+            Object plan = configBuilder.getDeploymentPlan(null, earModule, idBuilder);
+            context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earModule, idBuilder), plan, earModule, Collections.singleton(configStore), artifactResolver, configStore);
             configurationData = getConfigurationData(context);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
@@ -523,8 +529,8 @@ public class EARConfigBuilderTest extends TestCase {
         ConfigurationData configurationData = null;
         DeploymentContext context = null;
         try {
-            Object plan = configBuilder.getDeploymentPlan(null, earFile, idBuilder);
-            context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earFile, idBuilder), plan, earFile, Collections.singleton(configStore), artifactResolver, configStore);
+            Object plan = configBuilder.getDeploymentPlan(null, earModule, idBuilder);
+            context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earModule, idBuilder), plan, earModule, Collections.singleton(configStore), artifactResolver, configStore);
             configurationData = getConfigurationData(context);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
@@ -562,8 +568,8 @@ public class EARConfigBuilderTest extends TestCase {
         ConfigurationData configurationData = null;
         DeploymentContext context = null;
         try {
-            Object plan = configBuilder.getDeploymentPlan(null, earFile, idBuilder);
-            context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earFile, idBuilder), plan, earFile, Collections.singleton(configStore), artifactResolver, configStore);
+            Object plan = configBuilder.getDeploymentPlan(null, earModule, idBuilder);
+            context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earModule, idBuilder), plan, earModule, Collections.singleton(configStore), artifactResolver, configStore);
             configurationData = getConfigurationData(context);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {

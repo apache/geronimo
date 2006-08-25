@@ -25,6 +25,7 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
+import org.apache.geronimo.deployment.DeployableModule;
 
 import java.io.File;
 import java.net.URL;
@@ -43,18 +44,18 @@ public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
     public WebModule webModule;
     public String contextRoot;
 
-    public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+    public Module createModule(File plan, DeployableModule moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         AbstractName earName = naming.createRootName(new Artifact("test", "test-war", "", "war"), NameFactory.NULL, NameFactory.J2EE_APPLICATION) ;
         AbstractName moduleName = naming.createChildName(earName, "war", NameFactory.WEB_MODULE);
         return new WebModule(true, moduleName, null, moduleFile, "war", null, null, null, contextRoot, portMap, namespace);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+    public Module createModule(Object plan, DeployableModule moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         AbstractName moduleName = naming.createChildName(earName, "war", NameFactory.WEB_MODULE);
         return new WebModule(false, moduleName, null, moduleFile, targetPath, null, null, null, contextRoot, portMap, namespace);
     }
 
-    public void installModule(JarFile earFile, EARContext earContext, Module webModule, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException {
+    public void installModule(DeployableModule earFile, EARContext earContext, Module webModule, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException {
         assertNotNull(earFile);
         assertNotNull(earContext);
         this.earContext = earContext;
