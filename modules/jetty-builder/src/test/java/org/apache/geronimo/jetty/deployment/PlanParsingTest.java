@@ -8,6 +8,8 @@ import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.service.GBeanBuilder;
+import org.apache.geronimo.deployment.DeployableModule;
+import org.apache.geronimo.deployment.DeployableModuleFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
@@ -100,7 +102,8 @@ public class PlanParsingTest extends TestSupport {
         URL war = classLoader.getResource("deployables/war5");
         assertTrue(war != null);
         UnpackedJarFile moduleFile = new UnpackedJarFile(new File(war.getFile()));
-        JettyWebAppType jettyWebApp = builder.getJettyWebApp(null, moduleFile, true, null, null);
+        DeployableModule dm = DeployableModuleFactory.createDeployableModule(moduleFile);
+        JettyWebAppType jettyWebApp = builder.getJettyWebApp(null, dm, true, null, null);
         moduleFile.close();
         assertEquals(1, jettyWebApp.getResourceRefArray().length);
     }
@@ -109,7 +112,8 @@ public class PlanParsingTest extends TestSupport {
         URL war = classLoader.getResource("deployables/war6.war");
         assertTrue(war != null);
         JarFile moduleFile = new JarFile(new File(war.getFile()));
-        JettyWebAppType jettyWebApp = builder.getJettyWebApp(null, moduleFile, true, null, null);
+        DeployableModule dm = DeployableModuleFactory.createDeployableModule(moduleFile);
+        JettyWebAppType jettyWebApp = builder.getJettyWebApp(null, dm, true, null, null);
         moduleFile.close();
         assertEquals(1, jettyWebApp.getResourceRefArray().length);
     }
@@ -151,8 +155,8 @@ public class PlanParsingTest extends TestSupport {
         URL war = classLoader.getResource("deployables/war2.war");
         assertTrue(war != null);
         JarFile dummyFile = new JarFile(new File(war.getFile()));
-
-        webApp = builder.getJettyWebApp(webApp, dummyFile, true, null, null);
+        DeployableModule dm = DeployableModuleFactory.createDeployableModule(dummyFile);
+        webApp = builder.getJettyWebApp(webApp, dm, true, null, null);
 
         assertEquals("myContextRoot", webApp.getContextRoot());
 
@@ -163,7 +167,8 @@ public class PlanParsingTest extends TestSupport {
         URL war = classLoader.getResource("deployables/war2.war");
         assertTrue(war != null);
         JarFile dummyFile = new JarFile(new File(war.getFile()));
-        JettyWebAppType GerWebAppType = builder.getJettyWebApp(null, dummyFile, true, null, null);
+        DeployableModule dm = DeployableModuleFactory.createDeployableModule(dummyFile);
+        JettyWebAppType GerWebAppType = builder.getJettyWebApp(null, dm, true, null, null);
 
         assertEquals("war2", GerWebAppType.getContextRoot());
 
@@ -174,7 +179,8 @@ public class PlanParsingTest extends TestSupport {
         URL war = classLoader.getResource("deployables/war2.war");
         assertTrue(war != null);
         JarFile dummyFile = new JarFile(new File(war.getFile()));
-        JettyWebAppType GerWebAppType = builder.getJettyWebApp(null, dummyFile, false, "myTargetPath", null);
+        DeployableModule dm = DeployableModuleFactory.createDeployableModule(dummyFile);
+        JettyWebAppType GerWebAppType = builder.getJettyWebApp(null, dm, false, "myTargetPath", null);
 
         assertEquals("myTargetPath", GerWebAppType.getContextRoot());
 
@@ -189,7 +195,8 @@ public class PlanParsingTest extends TestSupport {
         URL war = classLoader.getResource("deployables/war2.war");
         assertTrue(war != null);
         JarFile dummyFile = new JarFile(new File(war.getFile()));
-        JettyWebAppType GerWebAppType = builder.getJettyWebApp(null, dummyFile, false, "myTargetPath", webAppType);
+        DeployableModule dm = DeployableModuleFactory.createDeployableModule(dummyFile);
+        JettyWebAppType GerWebAppType = builder.getJettyWebApp(null, dm, false, "myTargetPath", webAppType);
 
         assertEquals("myId", GerWebAppType.getContextRoot());
 

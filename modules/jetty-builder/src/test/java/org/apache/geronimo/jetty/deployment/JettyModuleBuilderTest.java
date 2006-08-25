@@ -40,6 +40,8 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
+import org.apache.geronimo.deployment.DeployableModule;
+import org.apache.geronimo.deployment.DeployableModuleFactory;
 import org.apache.geronimo.deployment.service.GBeanBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.util.UnpackedJarFile;
@@ -115,7 +117,8 @@ public class JettyModuleBuilderTest extends TestSupport {
         new File(outputPath, "war").mkdir();
         File path = new File(BASEDIR, "src/test/resources/deployables/war4");
         UnpackedJarFile jarFile = new UnpackedJarFile(path);
-        Module module = builder.createModule(null, jarFile, kernel.getNaming(), new ModuleIDBuilder());
+        DeployableModule dm = DeployableModuleFactory.createDeployableModule(jarFile);
+        Module module = builder.createModule(null, dm, kernel.getNaming(), new ModuleIDBuilder());
         Repository repository = null;
 
         AbstractName moduleName = module.getModuleName();
@@ -152,7 +155,8 @@ public class JettyModuleBuilderTest extends TestSupport {
         new File(outputPath, "war").mkdir();
         File path = new File(BASEDIR, "src/test/resources/deployables/war-spaces-in-context");
         UnpackedJarFile jarFile = new UnpackedJarFile(path);
-        Module module = builder.createModule(null, jarFile, kernel.getNaming(), new ModuleIDBuilder());
+        DeployableModule dm = DeployableModuleFactory.createDeployableModule(jarFile);
+        Module module = builder.createModule(null, dm, kernel.getNaming(), new ModuleIDBuilder());
         Repository repository = null;
 
         AbstractName moduleName = module.getModuleName();
