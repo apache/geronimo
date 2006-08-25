@@ -18,6 +18,7 @@ package org.apache.geronimo.axis.builder;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.FileInputStream;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -77,6 +78,7 @@ import org.apache.geronimo.xbeans.j2ee.WebservicesType;
 import org.apache.geronimo.xbeans.j2ee.XsdQNameType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.deployment.DeployableModule;
+import org.apache.geronimo.deployment.DefaultDeployableModule;
 import org.apache.xmlbeans.XmlException;
 
 /**
@@ -90,15 +92,32 @@ public class WSDescriptorParser {
         return readJaxrpcMapping(deployableModule, jaxrpcMappingPath);
     }
 
+    private static InputStream getInputStream(String path, DeployableModule module) throws IOException {
+        InputStream inputStream = null;
+        if (module instanceof DefaultDeployableModule) {
+            JarFile jar = ((DefaultDeployableModule) module).getJarFile();
+            ZipEntry entry = jar.getEntry(path);
+            if (entry == null)
+                return null;
+            inputStream = jar.getInputStream(entry);
+        } else {
+            URL url = module.resolve(path);
+            if (url == null)
+                return null;
+            inputStream = new FileInputStream(url.getFile());
+        }
+        return inputStream;
+    }
+
     public static JavaWsdlMappingType readJaxrpcMapping(DeployableModule deployableModule, String jaxrpcMappingPath) throws DeploymentException {
         JavaWsdlMappingType mapping;
         InputStream jaxrpcInputStream = null;
         try {
-            ZipEntry zipEntry = deployableModule.getEntry(jaxrpcMappingPath);
-            if(zipEntry == null){
-                throw new DeploymentException("The JAX-RPC mapping file "+jaxrpcMappingPath+" specified in webservices.xml for the ejb module could not be found.");
+            jaxrpcInputStream = getInputStream(jaxrpcMappingPath, deployableModule);
+            if (jaxrpcInputStream == null) {
+                throw new DeploymentException("The JAX-RPC mapping file " + jaxrpcMappingPath + " specified in webservices.xml for the ejb module could not be found.");
             }
-            jaxrpcInputStream = deployableModule.getInputStream(zipEntry);
+            jaxrpcInputStream = getInputStream(jaxrpcMappingPath, deployableModule);
         } catch (IOException e) {
             throw new DeploymentException("Could not open stream to jaxrpc mapping document", e);
         }
