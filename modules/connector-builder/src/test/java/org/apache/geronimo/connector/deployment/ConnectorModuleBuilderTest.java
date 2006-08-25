@@ -43,6 +43,8 @@ import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
+import org.apache.geronimo.deployment.DeployableModule;
+import org.apache.geronimo.deployment.DeployableModuleFactory;
 import org.apache.geronimo.deployment.service.GBeanBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.AbstractName;
@@ -166,6 +168,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
         JarFile rarFile = null;
         try {
             rarFile = DeploymentUtil.createJarFile(new File(BASEDIR, "target/test-ear-noger.ear"));
+            DeployableModule rarModule = DeployableModuleFactory.createDeployableModule(rarFile);
             GBeanBuilder serviceBuilder = new GBeanBuilder(null, null);
 //            EARConfigBuilder configBuilder = new EARConfigBuilder(defaultEnvironment, transactionContextManagerName, connectionTrackerName, null, null, null, new AbstractNameQuery(serverName, J2EEServerImpl.GBEAN_INFO.getInterfaces()), null, null, ejbReferenceBuilder, null,
             EARConfigBuilder configBuilder = new EARConfigBuilder(defaultEnvironment,
@@ -194,8 +197,8 @@ public class ConnectorModuleBuilderTest extends TestSupport {
             try {
                 File planFile = new File(BASEDIR, "src/test/data/data/external-application-plan.xml");
                 ModuleIDBuilder idBuilder = new ModuleIDBuilder();
-                Object plan = configBuilder.getDeploymentPlan(planFile, rarFile, idBuilder);
-                context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, rarFile, idBuilder), plan, rarFile, Collections.singleton(configurationStore), artifactResolver, configurationStore);
+                Object plan = configBuilder.getDeploymentPlan(planFile, rarModule, idBuilder);
+                context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, rarModule, idBuilder), plan, rarModule, Collections.singleton(configurationStore), artifactResolver, configurationStore);
 
                 // add the a j2ee server so the application context reference can be resolved
                 context.addGBean("geronimo", J2EEServerImpl.GBEAN_INFO);
@@ -367,9 +370,10 @@ public class ConnectorModuleBuilderTest extends TestSupport {
             Thread.currentThread().setContextClassLoader(cl);
 
             JarFile rarJarFile = DeploymentUtil.createJarFile(rarFile);
+            DeployableModule rarModule = DeployableModuleFactory.createDeployableModule(rarJarFile);
             AbstractName earName = null;
             String moduleName = "geronimo/test-ear/1.0/car";
-            Module module = moduleBuilder.createModule(action.getVendorDD(), rarJarFile, moduleName, action.getSpecDD(), null, null, earName, naming, new ModuleIDBuilder());
+            Module module = moduleBuilder.createModule(action.getVendorDD(), rarModule, moduleName, action.getSpecDD(), null, null, earName, naming, new ModuleIDBuilder());
             if (module == null) {
                 throw new DeploymentException("Was not a connector module");
             }
