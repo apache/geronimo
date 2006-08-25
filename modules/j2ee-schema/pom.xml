@@ -47,7 +47,12 @@
     
     <dependencies>
         
-        <!-- Thirdparty Dependencies -->
+        <!-- might not be necessary -->
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-service-builder</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
         
         <dependency>
             <groupId>xmlbeans</groupId>
@@ -62,13 +67,6 @@
         <dependency>
             <groupId>stax</groupId>
             <artifactId>stax-api</artifactId>
-        </dependency>
-        
-        <!-- might not be necessary -->
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-service-builder</artifactId>
-            <version>${pom.version}</version>
         </dependency>
         
         <!--
@@ -88,31 +86,6 @@
          </dependency>
 
     </dependencies>
-    
-    <build>
-        <!--
-        FIXME: Convert module to m2 standard layout
-        -->
-        
-        <sourceDirectory>src/java</sourceDirectory>
-        <testSourceDirectory>src/test</testSourceDirectory>
-
-        <resources>
-            <resource>
-                <directory>src/resources2</directory>
-            </resource>
-        </resources>
-
-        <testResources>
-            <testResource>
-                <directory>src/test-data</directory>
-            </testResource>
-
-            <testResource>
-                <directory>src/test-resources</directory>
-            </testResource>
-        </testResources>
-    </build>
 
 </project>
 
