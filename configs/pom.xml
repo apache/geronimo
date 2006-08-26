@@ -120,8 +120,8 @@
         <module>client-deployer</module>
         <module>client-security</module>
         <module>client-system</module>
-        <module>console-jetty</module>
-        <module>console-tomcat</module>
+        <module>webconsole-jetty</module>
+        <module>webconsole-tomcat</module>
         <!-- <module>daytrader-jetty</module> -->
         <!-- <module>daytrader-tomcat</module> -->
         <module>directory</module>

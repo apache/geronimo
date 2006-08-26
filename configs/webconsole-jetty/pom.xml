@@ -28,12 +28,12 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>webconsole-tomcat</artifactId>
+    <artifactId>webconsole-jetty</artifactId>
+    <name>Geronimo Configs :: WebConsole Jetty</name>
     <packaging>car</packaging>
-    <name>Geronimo Configs :: Console Tomcat</name>
 
     <dependencies>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-server</artifactId>
@@ -43,7 +43,7 @@
         
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>tomcat-deployer</artifactId>
+            <artifactId>jetty-deployer</artifactId>
             <version>${pom.version}</version>
             <type>car</type>
             <scope>provided</scope>
@@ -55,7 +55,7 @@
             <version>${pom.version}</version>
             <type>car</type>
         </dependency>
-        
+
         <!-- we use it... and need its xmlbeans copy in our cl -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
@@ -152,7 +152,7 @@
             <groupId>portlet-api</groupId>
             <artifactId>portlet-api</artifactId>
         </dependency>
-        
+
     </dependencies>
     
     <build>
@@ -171,7 +171,7 @@
                     <deploymentConfigs>
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
                         <deploymentConfig>${j2eeDeployer}</deploymentConfig>
-                        <deploymentConfig>${tomcatDeployer}</deploymentConfig>
+                        <deploymentConfig>${jettyDeployer}</deploymentConfig>
                         <deploymentConfig>${clientDeployer}</deploymentConfig>
                         <deploymentConfig>${openejbDeployer}</deploymentConfig>
                         <deploymentConfig>${axisDeployer}</deploymentConfig>
