@@ -38,20 +38,6 @@
         deployment operations to work properly.
     </description>
     
-    <!--
-    
-    HACK: Need to explicitly configure SCM for this module since its artifactId
-          does not match the directory it lives in.
-    
-    FIXME: Rename module directory or artifactId.
-    
-    -->
-    <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/server/trunk/applications/remote-deploy</connection>
-        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/server/trunk/applications/remote-deploy</developerConnection>
-        <url>http://svn.apache.org/viewvc/geronimo/trunk/applications/remote-deploy</url>
-    </scm>
-    
     <dependencies>
         
         <dependency>

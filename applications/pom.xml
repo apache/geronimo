@@ -34,15 +34,15 @@
     <packaging>pom</packaging>
     
     <modules>
+        <module>geronimo-welcome</module>
         <module>geronimo-examples</module>
-        <module>demo</module>
-        <module>ldap-realm-demo</module>
-        <module>magicGball</module>
-        <module>remote-deploy</module>
-        <module>uddi-db</module>
-        <module>uddi-server</module>
         <module>console</module>
-        <module>welcome</module>
+        <module>geronimo-remote-deploy</module>
+        <module>geronimo-uddi-db</module>
+        <module>geronimo-uddi-server</module>
+        <module>geronimo-ldap-demo</module>
+        <module>magicGball</module>
+        <module>demo</module>
     </modules>
     
 </project>

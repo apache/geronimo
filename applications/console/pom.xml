@@ -50,10 +50,10 @@
     </dependencies>
 
     <modules>
-        <module>console-core</module>
-        <module>console-standard</module>
-        <module>console-framework</module>
-        <module>console-ear</module>
+        <module>geronimo-console-core</module>
+        <module>geronimo-console-standard</module>
+        <module>geronimo-console-framework</module>
+        <module>geronimo-console-ear</module>
     </modules>
 
 </project>

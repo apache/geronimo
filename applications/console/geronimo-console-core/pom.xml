@@ -31,21 +31,8 @@
     <artifactId>geronimo-console-core</artifactId>
     <name>Geronimo Applications, Console :: Core</name>
     
-    <!--
-    
-    HACK: Need to explicitly configure SCM for this module since its artifactId
-          does not match the directory it lives in.
-    
-    FIXME: Rename module directory or artifactId.
-    
-    -->
-    <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/server/trunk/applications/console/console-core</connection>
-        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/server/trunk/applications/console/console-core</developerConnection>
-        <url>http://svn.apache.org/viewvc/geronimo/trunk/applications/console/console-core</url>
-    </scm>
-    
     <dependencies>
+        
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-connector</artifactId>
@@ -61,6 +48,7 @@
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jms_1.1_spec</artifactId>
         </dependency>
+        
     </dependencies>
 
     <build>

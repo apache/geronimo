@@ -22,58 +22,22 @@
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
-        <groupId>org.apache.geronimo.applications.console</groupId>
-        <artifactId>console</artifactId>
+        <groupId>org.apache.geronimo.applications</groupId>
+        <artifactId>applications</artifactId>
         <version>1.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>geronimo-console-framework</artifactId>
-    <name>Geronimo Applications, Console :: Portal Framework</name>
+    <artifactId>geronimo-ldap-demo</artifactId>
+    <name>Geronimo Applications :: LDAP Demo</name>
     <packaging>war</packaging>
     
-    <!--
-    
-    HACK: Need to explicitly configure SCM for this module since its artifactId
-          does not match the directory it lives in.
-    
-    FIXME: Rename module directory or artifactId.
-    
-    -->
-    <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/server/trunk/applications/console/console-framework</connection>
-        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/server/trunk/applications/console/console-framework</developerConnection>
-        <url>http://svn.apache.org/viewvc/geronimo/trunk/applications/console/console-framework</url>
-    </scm>
+    <description>
+        This is a very simple application that is intended to demonstrate the ldap
+        security mechanism.
+    </description>
     
     <dependencies>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-servlet_2.4_spec</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.pluto</groupId>
-            <artifactId>pluto</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.pluto</groupId>
-            <artifactId>pluto-portal</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.pluto</groupId>
-            <artifactId>pluto-descriptors</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>castor</groupId>
-            <artifactId>castor</artifactId>
-        </dependency>
         
         <!-- Required for JSPC compilation -->
         <dependency>

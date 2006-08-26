@@ -28,42 +28,21 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>geronimo-welcome</artifactId>
-    <name>Geronimo Applications :: Welcome</name>
+    <artifactId>geronimo-uddi-server</artifactId>
+    <name>Geronimo Applications :: UDDI Server</name>
     <packaging>war</packaging>
-    
-    <description>
-        This is a very simple application that is intended to serve as the default page
-        that can be viewed when the server is first installed so that someone can see
-        that the installation is working.
-    </description>
-    
-    <!--
-    
-    HACK: Need to explicitly configure SCM for this module since its artifactId
-          does not match the directory it lives in.
-    
-    FIXME: Rename module directory or artifactId.
-    
-    -->
-    <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/server/trunk/applications/welcome</connection>
-        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/server/trunk/applications/welcome</developerConnection>
-        <url>http://svn.apache.org/viewvc/geronimo/trunk/applications/welcome</url>
-    </scm>
     
     <dependencies>
         
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-system</artifactId>
-            <version>${pom.version}</version>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-j2ee_1.4_spec</artifactId>
             <scope>provided</scope>
         </dependency>
         
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-j2ee_1.4_spec</artifactId>
+            <groupId>juddi</groupId>
+            <artifactId>juddi</artifactId>
             <scope>provided</scope>
         </dependency>
         
@@ -88,5 +67,25 @@
             </plugin>
         </plugins>
     </build>
-
+    
+    <!--
+    HACK: Need to include the Apache m1 snapshot repo to pick up juddi:juddi:jar:0.9rc4
+    -->
+    <repositories>
+        <repository>
+            <id>apache-snapshots-m1</id>
+            <name>Apache Maven 1 Snapshots Repository</name>
+            <url>http://people.apache.org/repo/m1-snapshot-repository</url>
+            <layout>legacy</layout>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
+    
 </project>
