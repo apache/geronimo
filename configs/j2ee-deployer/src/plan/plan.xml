@@ -91,7 +91,7 @@
 
     <!-- web switching builder -->
     <gbean name="WebBuilder" class="org.apache.geronimo.j2ee.deployment.SwitchingModuleBuilder">
-        <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.1</attribute>
+        <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.2</attribute>
         <references name="ModuleBuilders">
             <pattern>
                 <name>JettyWebBuilder</name>
