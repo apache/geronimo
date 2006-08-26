@@ -34,15 +34,11 @@
 
     <dependencies>
 
-        <!-- Module Dependencies -->
-
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-deploy-jsr88</artifactId>
             <version>${pom.version}</version>
         </dependency>
-
-        <!-- Thirdparty Dependencies -->
 
         <dependency>
             <groupId>commons-lang</groupId>
