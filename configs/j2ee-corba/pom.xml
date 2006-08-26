@@ -33,7 +33,7 @@
     <packaging>car</packaging>
 
     <dependencies>
-        <!-- parent config -->
+    
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-server</artifactId>
@@ -54,6 +54,7 @@
             <version>${pom.version}</version>
             <type>car</type>
         </dependency>
+        
     </dependencies>
     
     <build>

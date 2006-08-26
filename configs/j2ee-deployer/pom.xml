@@ -115,6 +115,7 @@
             <artifactId>geronimo-security</artifactId>
             <version>${pom.version}</version>
         </dependency>
+        
     </dependencies>
     
 </project>

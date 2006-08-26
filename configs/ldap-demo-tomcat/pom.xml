@@ -35,7 +35,6 @@
     <dependencies>
         
         <dependency>
-            <!-- To enforce build order -->
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>tomcat-deployer</artifactId>
             <version>${pom.version}</version>
@@ -48,18 +47,14 @@
             <artifactId>geronimo-ldap-demo</artifactId>
             <version>${pom.version}</version>
             <type>war</type>
-            
         </dependency>
+        
     </dependencies>
     
     <build>
         <resources>
             <resource>
-                <directory>${pom.basedir}/src/conf</directory>
-                <targetPath>META-INF</targetPath>
-                <includes>
-                    <include>geronimo-plugin.xml</include>
-                </includes>
+                <directory>${pom.basedir}/src/main/resources</directory>
                 <filtering>true</filtering>
             </resource>
         </resources>

@@ -34,7 +34,6 @@
     
     <dependencies>
         
-        <!-- to enforce build order -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jetty</artifactId>
@@ -55,11 +54,7 @@
     <build>
         <resources>
             <resource>
-                <directory>${pom.basedir}/src/conf</directory>
-                <targetPath>META-INF</targetPath>
-                <includes>
-                    <include>geronimo-plugin.xml</include>
-                </includes>
+                <directory>${pom.basedir}/src/main/resources</directory>
                 <filtering>true</filtering>
             </resource>
         </resources>

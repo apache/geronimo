@@ -81,6 +81,7 @@
             <artifactId>geronimo-util</artifactId>
             <version>${pom.version}</version>
         </dependency>
+        
     </dependencies>
     
     <build>

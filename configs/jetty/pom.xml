@@ -34,7 +34,6 @@
     
     <dependencies>
         
-        <!-- parent -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-security</artifactId>

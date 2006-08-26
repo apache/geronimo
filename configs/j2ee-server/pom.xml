@@ -33,7 +33,7 @@
     <packaging>car</packaging>
     
     <dependencies>
-        <!-- parent config -->
+        
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>rmi-naming</artifactId>

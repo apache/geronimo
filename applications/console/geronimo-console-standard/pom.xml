@@ -143,18 +143,6 @@
     </dependencies>
     
     <build>
-        <!--
-        
-        FIXME:
-        
-        <resources>
-            <resource>
-                <directory>${pom.basedir}/src/conf</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
-        -->
-        
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

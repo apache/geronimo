@@ -40,6 +40,7 @@
     </properties>
 
     <dependencies>
+        
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>system-database</artifactId>
@@ -80,6 +81,7 @@
             <groupId>scout</groupId>
             <artifactId>scout</artifactId>
         </dependency>
+        
     </dependencies>
     
     <build>
