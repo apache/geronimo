@@ -28,23 +28,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     
-    <artifactId>geronimo-testsupport</artifactId>
-    <name>Geronimo :: Test Support</name>
-    <packaging>jar</packaging>
-    
-    <dependencies>
-        
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        
-    </dependencies>
+    <artifactId>geronimo-interceptor</artifactId>
+    <name>Geronimo :: Interceptor</name>
     
 </project>

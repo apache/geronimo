@@ -1,13 +1,13 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
     Copyright 2006 The Apache Software Foundation
-
+    
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
-
+    
        http://www.apache.org/licenses/LICENSE-2.0
-
+    
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,11 +28,22 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     
-    <artifactId>geronimo-testsupport</artifactId>
-    <name>Geronimo :: Test Support</name>
-    <packaging>jar</packaging>
+    <artifactId>geronimo-j2ee-schema</artifactId>
+    <name>Geronimo :: J2EE Schema</name>
     
     <dependencies>
+        
+        <!-- might not be necessary -->
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-service-builder</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>xmlbeans</groupId>
+            <artifactId>xbean</artifactId>
+        </dependency>
         
         <dependency>
             <groupId>commons-logging</groupId>
@@ -40,11 +51,27 @@
         </dependency>
         
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>compile</scope>
+            <groupId>stax</groupId>
+            <artifactId>stax-api</artifactId>
         </dependency>
         
+        <!--
+        NOTE: The full source for this artifact is private due to Sun licensing issues.
+              To view the generated XmlBeans source please see the -src artifact in the repository:
+              
+              http://people.apache.org/repo/m2-snapshot-repository/org/apache/geronimo/schema/geronimo-schema-j2ee1.4/
+              
+              The full source is here with restricted access:
+              
+              https://svn.apache.org/repos/tck/geronimo-tck/schema/j2ee14
+        -->
+        <dependency>
+            <groupId>org.apache.geronimo.schema</groupId>
+            <artifactId>geronimo-schema-j2ee1.4</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
     </dependencies>
-    
+
 </project>
+

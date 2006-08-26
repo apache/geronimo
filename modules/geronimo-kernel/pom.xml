@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
     Copyright 2006 The Apache Software Foundation
 
@@ -20,31 +20,63 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>modules</artifactId>
         <version>1.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    
-    <artifactId>geronimo-testsupport</artifactId>
-    <name>Geronimo :: Test Support</name>
-    <packaging>jar</packaging>
+
+    <artifactId>geronimo-kernel</artifactId>
+    <name>Geronimo :: Kernel</name>
     
     <dependencies>
         
         <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib-nodep</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>mx4j</groupId>
+            <artifactId>mx4j</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>xstream</groupId>
+            <artifactId>xstream</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>xpp3</groupId>
+            <artifactId>xpp3</artifactId>
+        </dependency>
         
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>compile</scope>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-qname_1.1_spec</artifactId>
+            <scope>test</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-testsupport</artifactId>
+            <version>${pom.version}</version>
+            <scope>test</scope>
         </dependency>
         
     </dependencies>
     
 </project>
+

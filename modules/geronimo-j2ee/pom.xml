@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
     Copyright 2006 The Apache Software Foundation
 
@@ -27,24 +27,30 @@
         <version>1.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    
-    <artifactId>geronimo-testsupport</artifactId>
-    <name>Geronimo :: Test Support</name>
-    <packaging>jar</packaging>
+
+    <artifactId>geronimo-j2ee</artifactId>
+    <name>Geronimo :: J2EE</name>
     
     <dependencies>
         
         <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-system</artifactId>
+            <version>${pom.version}</version>
         </dependency>
         
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>compile</scope>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-management</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-ejb_2.1_spec</artifactId>
         </dependency>
         
     </dependencies>
     
 </project>
+

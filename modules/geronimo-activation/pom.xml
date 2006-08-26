@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
     Copyright 2006 The Apache Software Foundation
 
@@ -18,33 +18,37 @@
 <!-- $Rev$ $Date$ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
-    <modelVersion>4.0.0</modelVersion>
     
+    <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>modules</artifactId>
         <version>1.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
+
+    <artifactId>geronimo-activation</artifactId>
+    <name>Geronimo :: Activation</name>
     
-    <artifactId>geronimo-testsupport</artifactId>
-    <name>Geronimo :: Test Support</name>
-    <packaging>jar</packaging>
+    <description>
+        Geronimo Activation implements Content Handlers for use in
+        conjuction with the Java Activation Framework.
+    </description>
     
     <dependencies>
         
         <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-activation_1.0.2_spec</artifactId>
         </dependency>
         
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>compile</scope>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-javamail_1.3.1_spec</artifactId>
         </dependency>
         
     </dependencies>
     
 </project>
+
