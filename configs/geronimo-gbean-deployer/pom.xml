@@ -53,7 +53,17 @@
             <artifactId>geronimo-deploy-tool</artifactId>
             <version>${pom.version}</version>
         </dependency>
-        
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-deploy-config</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>
+            <version>1.0.1</version>
+        </dependency>
+
         <!-- Thirdparty Dependencies -->
         
         <dependency>

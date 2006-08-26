@@ -46,18 +46,11 @@
             <artifactId>j2ee-deployer</artifactId>
             <version>${pom.version}</version>
             <type>car</type>
-            <scope>runtime</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-hot-deploy</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-deploy-tool</artifactId>
             <version>${pom.version}</version>
         </dependency>
         
