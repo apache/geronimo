@@ -44,4 +44,40 @@ public class ContextManagerTest extends TestCase {
         Principal principal = ContextManager.getCurrentPrincipal(subject);
         assertSame("Expected GeronimoCallerPrincipal", userPrincipal, principal);
     }
+
+    private final Subject s1 = new Subject();
+    private final Subject s2 = new Subject();
+    private final Subject s3 = new Subject();
+
+    public void testPushNextCallerWithSubjectPresent() throws Exception {
+        try {
+            ContextManager.setCallers(s1, s1);
+            Callers c1 = ContextManager.pushNextCaller(s2);
+            assertSame("Callers should have s1 in current position", s1, c1.getCurrentCaller());
+            assertSame("Callers should have s1 in next position", s1, c1.getNextCaller());
+            assertSame("CurrentCaller should be s1", s1, ContextManager.getCurrentCaller());
+            Callers c2 = ContextManager.pushNextCaller(s3);
+            assertSame("Callers should have s1 in current position", s1, c2.getCurrentCaller());
+            assertSame("Callers should have s2 in next position", s2, c2.getNextCaller());
+            assertSame("CurrentCaller should be s2", s2, ContextManager.getCurrentCaller());
+            Callers c3 = ContextManager.pushNextCaller(null);
+            assertSame("Callers should have s2 in current position", s2, c3.getCurrentCaller());
+            assertSame("Callers should have s3 in next position", s3, c3.getNextCaller());
+            assertSame("CurrentCaller should be s3", s3, ContextManager.getCurrentCaller());
+            Callers c4 = ContextManager.pushNextCaller(null);
+            assertSame("Callers should have s3 in current position", s3, c4.getCurrentCaller());
+            assertSame("Callers should have s3 in next position", s3, c4.getNextCaller());
+            assertSame("CurrentCaller should be s3", s3, ContextManager.getCurrentCaller());
+            ContextManager.popCallers(c4);
+            assertSame("CurrentCaller should be s3", s3, ContextManager.getCurrentCaller());
+            ContextManager.popCallers(c3);
+            assertSame("CurrentCaller should be s2", s2, ContextManager.getCurrentCaller());
+            ContextManager.popCallers(c2);
+            assertSame("CurrentCaller should be s1", s1, ContextManager.getCurrentCaller());
+            ContextManager.popCallers(c1);
+            assertSame("CurrentCaller should be s1", s1, ContextManager.getCurrentCaller());
+        } finally {
+            ContextManager.clearCallers();
+        }
+    }
 }
