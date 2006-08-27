@@ -32,7 +32,7 @@ import org.apache.geronimo.gbean.GConstructorInfo;
 /**
  * Default implementation of the ActiveMQ connector
  *
- * @version $Revision: 1.1.1.1 $
+ * @version $Revision$
  */
 public class TransportConnectorGBeanImpl implements GBeanLifecycle, ActiveMQConnector {
     private Log log = LogFactory.getLog(getClass().getName());

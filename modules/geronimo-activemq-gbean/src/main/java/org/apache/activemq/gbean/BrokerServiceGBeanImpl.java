@@ -37,7 +37,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 /**
  * Default implementation of the ActiveMQ Message Server
  *
- * @version $Revision: 1.1.1.1 $
+ * @version $Revision$
  */
 public class BrokerServiceGBeanImpl implements GBeanLifecycle, BrokerServiceGBean {
 

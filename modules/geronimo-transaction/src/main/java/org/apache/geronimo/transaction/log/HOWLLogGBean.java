@@ -28,7 +28,7 @@ import org.apache.geronimo.transaction.manager.XidFactory;
 import org.objectweb.howl.log.LogConfigurationException;
 
 /**
- * @version $Rev: 406493 $ $Date: 2006-05-14 18:14:11 -0700 (Sun, 14 May 2006) $
+ * @version $Rev$ $Date$
  */
 public class HOWLLogGBean extends HOWLLog implements GBeanLifecycle {
     public HOWLLogGBean(String bufferClassName, int bufferSize, boolean checksumEnabled, int flushSleepTimeMilliseconds, String logFileDir, String logFileExt, String logFileName, int maxBlocksPerFile, int maxBuffers, int maxLogFiles, int minBuffers, int threadsWaitingForceThreshold, XidFactory xidFactory, ServerInfo serverInfo) throws IOException, LogConfigurationException {

@@ -26,7 +26,7 @@ import java.util.zip.ZipFile;
 /**
  * Utility functions related to Files.
  *
- * @version $Rev: 368994 $ $Date: 2006-01-14 02:07:18 -0500 (Sat, 14 Jan 2006) $
+ * @version $Rev$ $Date$
  */
 public class FileUtils {
     /**

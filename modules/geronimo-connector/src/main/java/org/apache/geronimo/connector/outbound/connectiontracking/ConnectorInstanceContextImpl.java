@@ -25,7 +25,7 @@ import java.util.Set;
 /**
  * Simple implementation of ComponentContext satisfying invariant.
  *
- * @version $Rev: 355877 $ $Date: 2005-12-10 18:48:27 -0800 (Sat, 10 Dec 2005) $
+ * @version $Rev$ $Date$
  *
  * */
 public class ConnectorInstanceContextImpl implements ConnectorInstanceContext {

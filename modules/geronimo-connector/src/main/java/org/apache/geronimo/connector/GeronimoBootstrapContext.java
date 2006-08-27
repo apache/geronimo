@@ -25,7 +25,7 @@ import javax.resource.spi.UnavailableException;
  * GBean BootstrapContext implementation that refers to externally configured WorkManager
  * and XATerminator gbeans.
  *
- * @version $Rev: 356022 $ $Date: 2005-12-11 12:58:34 -0800 (Sun, 11 Dec 2005) $
+ * @version $Rev$ $Date$
  */
 public class GeronimoBootstrapContext implements javax.resource.spi.BootstrapContext {
     private final WorkManager workManager;
