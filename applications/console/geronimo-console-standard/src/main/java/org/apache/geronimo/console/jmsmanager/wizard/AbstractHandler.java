@@ -625,7 +625,7 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
                         waitForProgress(po);
                         if(po.getDeploymentStatus().isCompleted()) {
                             ids = po.getResultTargetModuleIDs();
-                            System.out.println("Deployment completed successfully!");
+                            log.info("Deployment completed successfully!");
                         }
                     }
                 }

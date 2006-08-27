@@ -981,7 +981,8 @@ public class DatabasePoolPortlet extends BasePortlet {
                                 status.getCurrentPool().setFinished(true);
                                 response.setRenderParameter(MODE_KEY, IMPORT_STATUS_MODE);
                             }
-                            System.out.println("Deployment completed successfully!");
+                            
+                            log.info("Deployment completed successfully!");
                         }
                     }
                 }

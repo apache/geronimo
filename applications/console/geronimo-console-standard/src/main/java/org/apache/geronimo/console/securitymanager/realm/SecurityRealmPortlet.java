@@ -478,7 +478,7 @@ public class SecurityRealmPortlet extends BasePortlet {
                     po = mgr.start(ids);
                     waitForProgress(po);
                     if (po.getDeploymentStatus().isCompleted()) {
-                        System.out.println("Deployment completed successfully!");
+                        log.info("Deployment completed successfully!");
                     }
                 }
             } catch (IOException e) {
