@@ -32,7 +32,7 @@ The end result will be a set of functional distributions in assemblies/*/target
 which you can unpack and startup, as in:
 
     gunzip -c assemblies/geronimo-jetty-j2ee/target/geronimo-jetty-j2ee*-bin.tar.gz | tar xf -
-    ./geronimo-jetty-j2ee*/bin/startup.sh
+    ./geronimo-jetty-j2ee*/bin/startup.sh && tail -f ./geronimo-jetty-j2ee*/var/log/geronimo.out
     ...
     ./geronimo-jetty-j2ee*/bin/shutdown.sh
 
