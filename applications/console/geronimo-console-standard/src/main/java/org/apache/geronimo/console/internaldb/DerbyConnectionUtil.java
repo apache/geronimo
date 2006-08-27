@@ -39,6 +39,8 @@ import org.apache.geronimo.kernel.repository.Version;
  * requested for the SystemDatabase this class gets a DataSource from an admin
  * object registered in the geronimo kernel otherwise the DataSource is looked
  * up via JNDI.
+ *
+ * @version $Rev$ $Date$
  */
 public class DerbyConnectionUtil {
 
@@ -63,16 +65,34 @@ public class DerbyConnectionUtil {
     private static AbstractName SYSTEM_DATASOURCE_NAME = null;
     
     static {
-    	// look up the system data source name without using the version number
-    	HashMap props = new HashMap();
-    	props.put("name","SystemDatasource");
-    	props.put("j2eeType","JCAManagedConnectionFactory");
-    	Artifact systemDB = new Artifact("geronimo", "system-database", (Version)null, "car");
-    	AbstractNameQuery query = new AbstractNameQuery(systemDB,props);
-    	Iterator iter = KernelRegistry.getSingleKernel().listGBeans(query).iterator();
-    	if (iter.hasNext()) {
-    		SYSTEM_DATASOURCE_NAME = (AbstractName)iter.next();
-    	}
+        try {
+            log.debug("Looking up system datasource name...");
+            
+            // look up the system data source name without using the version number
+            HashMap props = new HashMap();
+            props.put("name","SystemDatasource");
+            props.put("j2eeType","JCAManagedConnectionFactory");
+            Artifact systemDB = new Artifact("org.apache.geronimo.configs", "system-database", (Version)null, "car");
+            AbstractNameQuery query = new AbstractNameQuery(systemDB,props);
+            Iterator iter = KernelRegistry.getSingleKernel().listGBeans(query).iterator();
+            
+            if (iter.hasNext()) {
+                SYSTEM_DATASOURCE_NAME = (AbstractName)iter.next();
+                log.debug("Using system datasource name: " + SYSTEM_DATASOURCE_NAME);
+            }
+            else {
+                log.warn("Failed to lookup system datasource name");
+            }
+        }
+        catch (Throwable t) {
+            //
+            // HACK: Log any errors which occur when this is loading...
+            //       the system is not logging the full detail, which it should
+            //       but for now lets show the details here
+            //
+            log.error("Failed to initialize", t);
+            throw new Error(t);
+        }
     }
 
     /**
