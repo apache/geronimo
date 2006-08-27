@@ -159,6 +159,33 @@
             </plugin>
             
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>dependency-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-endorsed-jars</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>xerces</groupId>
+                                    <artifactId>xercesImpl</artifactId>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>xml-apis</groupId>
+                                    <artifactId>xml-apis</artifactId>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}/endorsed</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 
@@ -198,16 +225,6 @@
                                         <include name="war1/**"/>
                                         <include name="war3/**"/>
                                         <include name="war4/**"/>
-                                    </fileset>
-                                </copy>
-                                
-                                <!--
-                                FIXME: Use dependency plugin.
-                                -->
-                                <copy todir="${project.build.directory}/endorsed" flatten="true">
-                                    <fileset dir="${settings.localRepository}">
-                                        <include name="xerces/xercesImpl/${xercesVersion}/*.jar"/>
-                                        <include name="xml-apis/xml-apis/${xmlApisVersion}/*.jar"/>
                                     </fileset>
                                 </copy>
                             </tasks>

@@ -129,8 +129,15 @@
             <artifactId>concurrent</artifactId>
         </dependency>
         
-        <!-- FIXME: Need to use the correct gid/aid for this dependency -->
+        <!--
+        NOTE: OpenEJB2 still references geronimo-spec:geronimo-spec-corba in
+              a geronimo-dependency.xml, and until that is changed we need
+              to keep using this old m1-based artifact
+        -->
         <dependency>
+            <!--
+            <groupId>org.apache.geronimo.specs</groupId>
+            -->
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-corba</artifactId>
         </dependency>

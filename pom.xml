@@ -45,7 +45,6 @@
     </scm>
 
     <properties>
-        
         <genesis.version>1.0.0-SNAPSHOT</genesis.version>
 
         <!--
@@ -68,13 +67,6 @@
         HACK: Used by uddi-jetty and uddi-tomcat configs
         -->
         <tranqlVendorsVersion>1.1</tranqlVendorsVersion>
-        
-        <!--
-        HACK: Used by tomcate-builder tests, needs to replace with dependency plugin
-        -->
-        <xercesVersion>2.6.2</xercesVersion>
-        <xmlApisVersion>1.0.b2</xmlApisVersion>
-        
     </properties>
 
     <dependencyManagement>
@@ -87,9 +79,16 @@
                 <artifactId>geronimo-activation_1.0.2_spec</artifactId>
                 <version>1.1</version>
             </dependency>
-
-            <!-- FIXME: Need to use the correct groupId/artifactId for this dependency -->
+            
+            <!--
+            NOTE: OpenEJB2 still references geronimo-spec:geronimo-spec-corba in
+                  a geronimo-dependency.xml, and until that is changed we need
+                  to keep using this old m1-based artifact
+            -->
             <dependency>
+                <!--
+                <groupId>org.apache.geronimo.specs</groupId>
+                -->
                 <groupId>geronimo-spec</groupId>
                 <artifactId>geronimo-spec-corba</artifactId>
                 <version>1.0</version>
@@ -367,7 +366,7 @@
             <dependency>
                 <groupId>xerces</groupId>
                 <artifactId>xercesImpl</artifactId>
-                <version>${xercesVersion}</version>
+                <version>2.6.2</version>
             </dependency>
 
             <dependency>
@@ -568,7 +567,7 @@
             <dependency>
                 <groupId>xml-apis</groupId>
                 <artifactId>xml-apis</artifactId>
-                <version>${xmlApisVersion}</version>
+                <version>1.0.b2</version>
             </dependency>
 
             <dependency>

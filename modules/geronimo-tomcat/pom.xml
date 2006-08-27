@@ -31,11 +31,6 @@
     <artifactId>geronimo-tomcat</artifactId>
     <name>Geronimo :: Tomcat</name>
     
-    <properties>
-        <endorsedDir>${project.build.directory}/endorsed</endorsedDir>
-        <localRepoDir>${settings.localRepository}</localRepoDir>
-    </properties>
-    
     <dependencies>
     
         <dependency>
@@ -252,14 +247,41 @@
                     <systemProperties>
                         <property>
                             <name>java.endorsed.dirs</name>
-                            <value>${endorsedDir}</value>
+                            <value>${project.build.directory}/endorsed</value>
                         </property>
                     </systemProperties>
                     
                     <forkMode>pertest</forkMode>
                 </configuration>
             </plugin>
-
+            
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>dependency-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-endorsed-jars</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>xerces</groupId>
+                                    <artifactId>xercesImpl</artifactId>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>xml-apis</groupId>
+                                    <artifactId>xml-apis</artifactId>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}/endorsed</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -276,12 +298,6 @@
                                     <fileset dir="src/test/resources/deployables">
                                         <include name="war1/**" />
                                         <include name="war3/**" />
-                                    </fileset>
-                                </copy>
-                                <copy todir="${endorsedDir}" flatten="true">
-                                    <fileset dir="${localRepoDir}">
-                                        <include name="xerces/xercesImpl/${xercesVersion}/*.jar" />
-                                        <include name="xml-apis/xml-apis/${xmlApisVersion}/*.jar" />
                                     </fileset>
                                 </copy>
                             </tasks>

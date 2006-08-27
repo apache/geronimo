@@ -35,9 +35,7 @@
     
     <properties>
         <!--
-        
         TODO: Move this where it can be shared with the configs/pom.xml values
-        
         -->
         <PlanServerHostname>0.0.0.0</PlanServerHostname>
         <PlanNamingPort>1099</PlanNamingPort>
