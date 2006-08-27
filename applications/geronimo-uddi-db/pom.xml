@@ -32,7 +32,7 @@
     <name>Geronimo Applications :: UDDI Server Database</name>
     
     <properties>
-        <derby.system.home>${project.build.directory}/classes/META-INF/${pom.artifactId}/var/derby</derby.system.home>
+        <derby.system.home>${project.build.outputDirectory}/META-INF/${pom.artifactId}/var/derby</derby.system.home>
     </properties>
     
     <build>
