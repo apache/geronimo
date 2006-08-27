@@ -31,14 +31,6 @@
     <name>Geronimo Configs :: UDDI Tomcat</name>
     <packaging>car</packaging>
     
-    <properties>
-        <!--
-        FIXME: Remove the need for these properties
-        -->
-        <geronimo_groupId>org.apache.geronimo.applications</geronimo_groupId>
-        <tranql_vendors_version>${tranqlVendorsVersion}</tranql_vendors_version>
-    </properties>
-
     <dependencies>
         
         <dependency>

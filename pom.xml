@@ -45,8 +45,6 @@
     </scm>
 
     <properties>
-        <genesis.version>1.0.0-SNAPSHOT</genesis.version>
-
         <!--
         HACK: Used by console-core to generate geronimo-version.properties.
         -->
@@ -64,7 +62,7 @@
         <tomcatVersion>5.5.15</tomcatVersion>
         
         <!--
-        HACK: Used by uddi-jetty and uddi-tomcat configs
+        HACK: Used by uddi-jetty and uddi-tomcat config plans
         -->
         <tranqlVendorsVersion>1.1</tranqlVendorsVersion>
     </properties>
