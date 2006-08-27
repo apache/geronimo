@@ -19,5 +19,5 @@ if $cygwin ; then
     PWD=`cygpath --windows $PWD`
 fi
 
-ant $BUILD_OPTIONS -f bootstrap.xml "$@"
+ant $BUILD_OPTIONS -emacs -logger org.apache.tools.ant.NoBannerLogger -f bootstrap.xml "$@"
 

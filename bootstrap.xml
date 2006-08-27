@@ -14,19 +14,19 @@
         </sequential>
     </macrodef>
     
-    <macrodef name="build-thirdparty">
+    <macrodef name="build-external">
         <attribute name="url"/>
         <attribute name="name"/>
         <sequential>
-            <mkdir dir="${basedir}/thirdparty"/>
+            <mkdir dir="${basedir}/target/external"/>
             
-            <exec executable="svn" dir="${basedir}/thirdparty">
+            <exec executable="svn" dir="${basedir}/target/external">
                 <arg value="co"/>
                 <arg value="@{url}"/>
                 <arg value="@{name}"/>
             </exec>
             
-            <mvn goal="install" dir="${basedir}/thirdparty/@{name}"/>
+            <mvn goal="install" dir="${basedir}/target/external/@{name}"/>
         </sequential>
     </macrodef>
     
@@ -42,6 +42,7 @@
     
     <target name="init" depends="init:discover, init:windows, init:defaults">
         <record name="${basedir}/bootstrap.log"/>
+        
         <echo>Starting bootstrap build...</echo>
     </target>
     
@@ -88,14 +89,12 @@
     <!-- ======== -->
     
     <target name="clean" depends="clean:init, clean:minimal, clean:full">
-        <delete dir="${basedir}/thirdparty"/>
+        <delete dir="${basedir}/target"/>
         
         <mvn goal="clean"/>
     </target>
     
     <target name="clean:init" depends="init">
-        <echo>Cleaning...</echo>
-        
         <mkdir dir="${user.home}/.m2/repository"/>
     </target>
     
@@ -120,18 +119,18 @@
     </target>
     
     
-    <!-- ========== -->
-    <!-- Thirdparty -->
-    <!-- ========== -->
+    <!-- ========= -->
+    <!-- Externals -->
+    <!-- ========= -->
     
     <target name="specs" depends="init">
         <echo>Building Specs...</echo>
-        <build-thirdparty url="http://svn.apache.org/repos/asf/geronimo/specs/trunk" name="specs"/>
+        <build-external url="http://svn.apache.org/repos/asf/geronimo/specs/trunk" name="specs"/>
     </target>
     
     <target name="openejb2" depends="init">
         <echo>Building OpenEJB2...</echo>
-        <build-thirdparty url="http://svn.codehaus.org/openejb/trunk/openejb2" name="openejb2"/>
+        <build-external url="http://svn.codehaus.org/openejb/trunk/openejb2" name="openejb2"/>
     </target>
 
 </project>
