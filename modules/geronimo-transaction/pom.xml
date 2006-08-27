@@ -33,14 +33,6 @@
     
     <dependencies>
     
-        <!-- temp, for ServerInfo. Remove when it is moved to Kernel-->
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-system</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-
-        <!-- thread pool, for timer -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-core</artifactId>
