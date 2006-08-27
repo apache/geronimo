@@ -43,7 +43,7 @@ public class SubjectInterceptor implements ConnectionInterceptor {
         Subject currentSubject = null;
         if (!connectionInfo.isApplicationManagedSecurity()) {
             try {
-                currentSubject = ContextManager.getCurrentCaller();
+                currentSubject = ContextManager.getNextCaller();
             } catch (SecurityException e) {
                 throw new ResourceException("Can not obtain Subject for login", e);
             }

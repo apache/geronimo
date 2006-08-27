@@ -113,6 +113,7 @@ public class ContextManager {
         if (sm != null) sm.checkPermission(SET_CONTEXT);
         assert nextCaller != null;
         Callers oldCallers = (Callers) callers.get();
+        assert oldCallers != null;
         Callers newCallers = new Callers(oldCallers.getNextCaller(), nextCaller);
         callers.set(newCallers);
         return oldCallers;
@@ -143,11 +144,21 @@ public class ContextManager {
         return callers == null? null: callers.getCurrentCaller();
     }
 
+    public static Subject getNextCaller() {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) sm.checkPermission(GET_CONTEXT);
+
+        Callers callers = (Callers) ContextManager.callers.get();
+        return callers == null? null: callers.getNextCaller();
+    }
+
     public static AccessControlContext getCurrentContext() {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(GET_CONTEXT);
 
-        Subject currentSubject = ((Callers) callers.get()).getCurrentCaller();
+        Callers threadLocalCallers = (Callers) callers.get();
+        assert threadLocalCallers != null : "No current callers";
+        Subject currentSubject = threadLocalCallers.getCurrentCaller();
         assert currentSubject != null : "No current caller";
         Context context = (Context) subjectContexts.get(currentSubject);
 
@@ -178,7 +189,10 @@ public class ContextManager {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(GET_CONTEXT);
 
-        Subject currentSubject = ((Callers) callers.get()).getCurrentCaller();
+        Callers threadLocalCallers = (Callers) callers.get();
+        assert threadLocalCallers != null : "No current callers";
+        Subject currentSubject = threadLocalCallers.getCurrentCaller();
+        assert currentSubject != null : "No current caller";
         Context context = (Context) subjectContexts.get(currentSubject);
 
         assert context != null : "No registered context";
@@ -200,8 +214,14 @@ public class ContextManager {
         if (role == null) throw new IllegalArgumentException("Role must not be null");
 
         try {
-            Subject currentSubject = ((Callers) callers.get()).getCurrentCaller();
-            if (currentSubject == null) return false;
+            Callers currentCallers = (Callers)callers.get();
+            if (currentCallers == null) {
+                return false;
+            }
+            Subject currentSubject = currentCallers.getCurrentCaller();
+            if (currentSubject == null) {
+                return false;
+            }
 
             Context context = (Context) subjectContexts.get(currentSubject);
 
