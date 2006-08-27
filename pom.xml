@@ -76,10 +76,7 @@
                   to keep using this old m1-based artifact
             -->
             <dependency>
-                <!--
                 <groupId>org.apache.geronimo.specs</groupId>
-                -->
-                <groupId>geronimo-spec</groupId>
                 <artifactId>geronimo-spec-corba</artifactId>
                 <version>1.0</version>
             </dependency>
@@ -869,11 +866,6 @@
                     </configuration>
                 </plugin>
 
-                <!--
-                NOTE: WAR & JSPC are overridden here (from project-config) to specify non-standard paths.
-                      Remove once modules have been reorganized to use the m2 standard layout.
-                -->
-                
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>jspc-maven-plugin</artifactId>
@@ -942,6 +934,7 @@
                 <version>1.0.0-SNAPSHOT</version>
                 <executions>
                     <execution>
+                        <id>validate-java-version</id>
                         <phase>validate</phase>
                         <goals>
                             <goal>require-java-version</goal>
@@ -949,6 +942,21 @@
                         <configuration>
                             <version>1.4*</version>
                         </configuration>
+                    </execution>
+                    
+                    <!--
+                    NOTE: This will copy LICENSE.txt and NOTICE.txt to classes/META-INF.
+                          
+                          Its a itty-bitty HACK to avoid adding resource definitions to
+                          the build, which causes the Eclipse plugin to generate invalid
+                          .classpath files. :-(
+                    -->
+                    <execution>
+                        <id>install-legal-files</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-legal-files</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
@@ -1116,30 +1124,6 @@
                 <module>maven-plugins</module>
                 <module>applications</module>
             </modules>
-        </profile>
-
-        <profile>
-            <id>site-stage-environment</id>
-
-            <activation>
-                <property>
-                    <name>env</name>
-                    <value>site-stage</value>
-                </property>
-            </activation>
-
-            <modules>
-                <module>modules</module>
-                <module>maven-plugins</module>
-                <module>applications</module>
-            </modules>
-
-            <distributionManagement>
-                <site>
-                    <id>geronimo-website</id>
-                    <url>file:/tmp/www/geronimo.apache.org/maven/server</url>
-                </site>
-            </distributionManagement>
         </profile>
     </profiles>
 
