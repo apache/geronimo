@@ -890,7 +890,8 @@ public class DatabasePoolPortlet extends BasePortlet {
                 configId.setType("rar");
 
                 String[] jars = data.getJars();
-                org.apache.geronimo.deployment.service.jsr88.Artifact[] dependencies = new org.apache.geronimo.deployment.service.jsr88.Artifact[jars.length];
+                int length = jars[jars.length - 1].length() ==0? jars.length -1: jars.length;
+                org.apache.geronimo.deployment.service.jsr88.Artifact[] dependencies = new org.apache.geronimo.deployment.service.jsr88.Artifact[length];
                 for (int i=0; i<dependencies.length; i++) {
                 	dependencies[i] = new org.apache.geronimo.deployment.service.jsr88.Artifact();
                 }
