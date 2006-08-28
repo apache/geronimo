@@ -32,7 +32,7 @@
     <artifactId>modules</artifactId>
     <name>Geronimo :: Modules</name>
     <packaging>pom</packaging>
-
+    
     <modules>
         <module>geronimo-testsupport</module>
         <module>geronimo-activation</module>
