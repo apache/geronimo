@@ -40,6 +40,8 @@ import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.management.geronimo.JCAResource;
 import org.apache.geronimo.management.geronimo.ResourceAdapter;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * A handles for the front page that lists available resources.
@@ -47,6 +49,8 @@ import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
  * @version $Rev$ $Date$
  */
 public class ListScreenHandler extends AbstractHandler {
+    private static final Log log = LogFactory.getLog(ListScreenHandler.class);
+
     public ListScreenHandler() {
         super(LIST_MODE, "/WEB-INF/view/jmswizard/list.jsp");
     }
@@ -158,7 +162,7 @@ public class ListScreenHandler extends AbstractHandler {
                 }
             }
         } catch (MalformedObjectNameException e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         }
 
         Collections.sort(resources);

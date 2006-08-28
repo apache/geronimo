@@ -21,6 +21,8 @@ import org.apache.geronimo.deployment.plugin.DisconnectedDeploymentManager;
 import org.apache.geronimo.deployment.plugin.jmx.LocalDeploymentManager;
 import org.apache.geronimo.deployment.plugin.jmx.RemoteDeploymentManager;
 import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import javax.enterprise.deploy.shared.factories.DeploymentFactoryManager;
 import javax.enterprise.deploy.spi.DeploymentManager;
@@ -43,6 +45,8 @@ import java.util.Map;
  * @version $Rev$ $Date$
  */
 public class DeploymentFactoryImpl implements DeploymentFactory {
+    private static final Log log = LogFactory.getLog(DeploymentFactoryImpl.class);
+
     public static final String URI_PREFIX = "deployer:geronimo:";
     private static final int DEFAULT_PORT = 1099;
 
@@ -140,11 +144,11 @@ public class DeploymentFactoryImpl implements DeploymentFactory {
             }
         } catch (RuntimeException e) {
             // some DeploymentManagerFactories suppress unchecked exceptions - log and rethrow
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
             throw e;
         } catch (Error e) {
             // some DeploymentManagerFactories suppress unchecked exceptions - log and rethrow
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
             throw e;
         }
     }

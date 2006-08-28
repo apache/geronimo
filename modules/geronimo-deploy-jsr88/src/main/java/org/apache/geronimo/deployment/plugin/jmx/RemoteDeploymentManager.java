@@ -53,6 +53,8 @@ import org.apache.geronimo.system.plugin.PluginMetadata;
 import org.apache.geronimo.system.plugin.PluginInstaller;
 import org.apache.geronimo.system.plugin.PluginRepositoryList;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Connects to a Kernel in a remote VM (may or many not be on the same machine).
@@ -60,6 +62,8 @@ import org.apache.geronimo.kernel.repository.Artifact;
  * @version $Rev$ $Date$
  */
 public class RemoteDeploymentManager extends JMXDeploymentManager implements GeronimoDeploymentManager {
+    private static final Log log = LogFactory.getLog(RemoteDeploymentManager.class);
+
     private JMXConnector jmxConnector;
     private boolean isSameMachine;
 
@@ -94,7 +98,7 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
                 }
             }
         } catch (Exception e) {
-            System.err.println("Unable to look up host name '"+hostname+"'; assuming it is a different machine, but this may not get very far.  ("+e.getMessage()+")");
+            log.error("Unable to look up host name '"+hostname+"'; assuming it is a different machine, but this may not get very far.", e);
         }
     }
 
@@ -196,7 +200,7 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
             };
             progress.addProgressListener(new ProgressListener() {
                 public void handleProgressEvent(ProgressEvent event) {
-                    System.out.println(event.getDeploymentStatus().getMessage());
+                    log.info(event.getDeploymentStatus().getMessage());
                 }
             });
             RemoteDeployUtil.uploadFilesToServer(args, progress);

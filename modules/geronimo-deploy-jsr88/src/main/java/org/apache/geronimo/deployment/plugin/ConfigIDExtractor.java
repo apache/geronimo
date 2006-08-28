@@ -37,6 +37,8 @@ import org.apache.geronimo.common.FileUtils;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Version;
 import org.apache.geronimo.kernel.util.XmlUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -48,6 +50,8 @@ import org.xml.sax.helpers.DefaultHandler;
  * @version $Rev$ $Date$
  */
 public class ConfigIDExtractor {
+
+    private static final Log log = LogFactory.getLog(ConfigIDExtractor.class);
 
     /**
      * Attempt to calculate the Geronimo ModuleID for a J2EE application
@@ -216,7 +220,7 @@ public class ConfigIDExtractor {
             ConfigIdHandler handler = new ConfigIdHandler();
             parser.parse(new InputSource(plan), handler);
             if(handler.formatIs10) {
-                System.out.println("WARNING: Geronimo deployment plan uses Geronimo 1.0 syntax.  Please update to Geronimo 1.1 syntax when possible.");
+                log.warn("Geronimo deployment plan uses Geronimo 1.0 syntax.  Please update to Geronimo 1.1 syntax when possible.");
             }
             return handler.configId;
         } catch (ParserConfigurationException e) {

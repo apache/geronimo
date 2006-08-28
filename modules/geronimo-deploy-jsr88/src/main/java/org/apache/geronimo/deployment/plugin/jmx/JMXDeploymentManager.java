@@ -50,12 +50,16 @@ import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.web.deployment.WARConfigurer;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**
  * @version $Rev$ $Date$
  */
 public abstract class JMXDeploymentManager implements DeploymentManager {
+    private static final Log log = LogFactory.getLog(JMXDeploymentManager.class);
+
     protected Kernel kernel;
     private ConfigurationManager configurationManager;
     private CommandContext commandContext;
@@ -284,8 +288,7 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
                 Class cls = Class.forName("org.openejb.deployment.EJBConfigurer");
                 return (DeploymentConfiguration)cls.getMethod("createConfiguration", new Class[]{DeployableObject.class}).invoke(cls.newInstance(), new Object[]{dObj});
             } catch (Exception e) {
-                System.err.println("Unable to invoke EJB deployer");
-                e.printStackTrace();
+                log.error("Unable to invoke EJB deployer", e);
             }
         } else if(dObj.getType().equals(ModuleType.RAR)) {
             return new RARConfigurer().createConfiguration(dObj);
@@ -315,7 +318,7 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
         commandContext.setLogErrors(shouldLog);
         commandContext.setVerbose(verboseStatus);
     }
-    
+
     public void setInPlace(boolean inPlace) {
         commandContext.setInPlace(inPlace);
     }

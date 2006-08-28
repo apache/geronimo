@@ -32,8 +32,12 @@ import org.apache.geronimo.tomcat.realm.TomcatGeronimoRealm;
 import org.apache.tomcat.util.buf.MessageBytes;
 import org.apache.tomcat.util.http.mapper.Mapper;
 import org.apache.tomcat.util.http.mapper.MappingData;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class DispatchListener implements InstanceListener {
+
+    private static final Log log = LogFactory.getLog(DispatchListener.class);
 
     private static ThreadLocal currentContext = new ThreadLocal() {
         protected Object initialValue() {
@@ -62,7 +66,7 @@ public class DispatchListener implements InstanceListener {
     }
 
     private void beforeDispatch(GeronimoStandardContext webContext,
-            ServletRequest request, ServletResponse response) {
+                                ServletRequest request, ServletResponse response) {
 
         BeforeAfter beforeAfter = webContext.getBeforeAfter();
         if (beforeAfter != null) {
@@ -78,7 +82,7 @@ public class DispatchListener implements InstanceListener {
     }
 
     private void afterDispatch(GeronimoStandardContext webContext,
-            ServletRequest request, ServletResponse response) {
+                               ServletRequest request, ServletResponse response) {
         BeforeAfter beforeAfter = webContext.getBeforeAfter();
         if (beforeAfter != null) {
             Stack stack = (Stack) currentContext.get();
@@ -92,23 +96,22 @@ public class DispatchListener implements InstanceListener {
     }
 
     private String getWrapperName(ServletRequest request,
-            GeronimoStandardContext webContext) {
-        
+                                  GeronimoStandardContext webContext) {
+
         MappingData mappingData = new MappingData();
         Mapper mapper = webContext.getMapper();
         MessageBytes mb = MessageBytes.newInstance();
-        
+
         String dispatchPath =
             (String) request.getAttribute(Globals.DISPATCHER_REQUEST_PATH_ATTR);
         mb.setString(webContext.getName() + dispatchPath);
-        
+
         try {
             mapper.map(mb, mappingData);
             StandardWrapper wrapper = (StandardWrapper) mappingData.wrapper;
             return wrapper.getName();
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         }
 
         return null;

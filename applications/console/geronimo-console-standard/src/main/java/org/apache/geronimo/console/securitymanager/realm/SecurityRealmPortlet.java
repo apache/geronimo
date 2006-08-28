@@ -675,7 +675,7 @@ public class SecurityRealmPortlet extends BasePortlet {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                log.error(e.getMessage(), e);
             }
         }
     }

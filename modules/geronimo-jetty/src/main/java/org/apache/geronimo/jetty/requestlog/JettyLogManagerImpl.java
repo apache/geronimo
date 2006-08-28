@@ -143,9 +143,8 @@ public class JettyLogManagerImpl implements JettyLogManager {
                 logFiles = parent.listFiles(new PatternFilenameFilter(fileNamePattern));
             }
         } catch (Exception e) {
-            log.error("Exception attempting to locate Jetty log files: "+e);
+            log.error("Exception attempting to locate Jetty log files", e);
             logFiles = new File[0];
-            e.printStackTrace();
         }
         return logFiles;
     }

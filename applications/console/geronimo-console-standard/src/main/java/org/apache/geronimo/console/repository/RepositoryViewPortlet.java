@@ -152,15 +152,14 @@ public class RepositoryViewPortlet extends BasePortlet {
 
                 repo.copyToRepository(file, new Artifact(group, artifact, version, fileType), new FileWriteMonitor() {
                     public void writeStarted(String fileDescription, int fileSize) {
-                        System.out.print("Copying into repository " + fileDescription + "...");
-                        System.out.flush();
+                        log.info("Copying into repository " + fileDescription + "...");
                     }
 
                     public void writeProgress(int bytes) {
                     }
 
                     public void writeComplete(int bytes) {
-                        System.out.println(" Finished.");
+                        log.info("Finished.");
                     }
                 });
             } catch (FileUploadException e) {

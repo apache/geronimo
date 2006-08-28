@@ -202,8 +202,7 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
         try {
             module.initialize(session.getSubject(), session.getHandler(), new HashMap(), session.getOptions(loginModuleIndex));
         } catch (Exception e) {
-            System.err.println("Failed to initialize module");
-            e.printStackTrace();
+            log.error("Failed to initialize module", e);
         }
         try {
             module.login();

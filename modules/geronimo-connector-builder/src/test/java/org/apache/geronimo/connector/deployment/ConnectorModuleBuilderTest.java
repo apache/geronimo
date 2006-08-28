@@ -427,7 +427,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
             for (Iterator iterator = gb.iterator(); iterator.hasNext();) {
                 AbstractName name = (AbstractName) iterator.next();
                 if (State.RUNNING_INDEX != kernel.getGBeanState(name)) {
-                    System.out.println("Not running: " + name);
+                    log.debug("Not running: " + name);
                 }
             }
 

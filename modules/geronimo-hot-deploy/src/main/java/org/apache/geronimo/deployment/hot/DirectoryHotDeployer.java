@@ -53,7 +53,8 @@ import java.util.Iterator;
  * @version $Rev$ $Date$
  */
 public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBeanLifecycle { //todo: write unit tests
-    private static final Log log = LogFactory.getLog("org.apache.geronimo.deployment.hot.Hot Deployer");
+    private static final Log log = LogFactory.getLog(DirectoryHotDeployer.class);
+
     // Try to make this stand out as the user is likely to get a ton of errors if this comes up
     private static final String BAD_LAYOUT_MESSAGE = "CANNOT DEPLOY: It looks like you unpacked an application or module " +
             "directly into the hot deployment directory.  THIS DOES NOT WORK.  You need to unpack into a " +
@@ -262,11 +263,11 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBe
                 modules = po.getResultTargetModuleIDs();
                 for (int i = 0; i < modules.length; i++) {
                     TargetModuleID result = modules[i];
-                    System.out.print(DeployUtils.reformat("Deployed " + result.getModuleID() + (targets.length > 1 ? " to " + result.getTarget().getName() : "") + (result.getWebURL() == null ? "" : " @ " + result.getWebURL()), 4, 72));
+                    log.info(DeployUtils.reformat("Deployed " + result.getModuleID() + (targets.length > 1 ? " to " + result.getTarget().getName() : "") + (result.getWebURL() == null ? "" : " @ " + result.getWebURL()), 4, 72));
                     if (result.getChildTargetModuleID() != null) {
                         for (int j = 0; j < result.getChildTargetModuleID().length; j++) {
                             TargetModuleID child = result.getChildTargetModuleID()[j];
-                            System.out.print(DeployUtils.reformat("  `-> " + child.getModuleID() + (child.getWebURL() == null ? "" : " @ " + child.getWebURL()), 4, 72));
+                            log.info(DeployUtils.reformat("  `-> " + child.getModuleID() + (child.getWebURL() == null ? "" : " @ " + child.getWebURL()), 4, 72));
                         }
                     }
                 }
@@ -317,7 +318,7 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBe
                 TargetModuleID[] modules = po.getResultTargetModuleIDs();
                 for (int i = 0; i < modules.length; i++) {
                     TargetModuleID result = modules[i];
-                    System.out.print(DeployUtils.reformat("Undeployed " + result.getModuleID() + (targets.length > 1 ? " to " + result.getTarget().getName() : ""), 4, 72));
+                    log.info(DeployUtils.reformat("Undeployed " + result.getModuleID() + (targets.length > 1 ? " to " + result.getTarget().getName() : ""), 4, 72));
                 }
             } else {
                 log.error("Unable to undeploy " + file.getAbsolutePath() + "(" + configId + ")" + po.getDeploymentStatus().getMessage());
@@ -354,11 +355,11 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBe
                 TargetModuleID[] modules = po.getResultTargetModuleIDs();
                 for (int i = 0; i < modules.length; i++) {
                     TargetModuleID result = modules[i];
-                    System.out.print(DeployUtils.reformat("Redeployed " + result.getModuleID() + (targets.length > 1 ? " to " + result.getTarget().getName() : "") + (result.getWebURL() == null ? "" : " @ " + result.getWebURL()), 4, 72));
+                    log.info(DeployUtils.reformat("Redeployed " + result.getModuleID() + (targets.length > 1 ? " to " + result.getTarget().getName() : "") + (result.getWebURL() == null ? "" : " @ " + result.getWebURL()), 4, 72));
                     if (result.getChildTargetModuleID() != null) {
                         for (int j = 0; j < result.getChildTargetModuleID().length; j++) {
                             TargetModuleID child = result.getChildTargetModuleID()[j];
-                            System.out.print(DeployUtils.reformat("  `-> " + child.getModuleID() + (child.getWebURL() == null ? "" : " @ " + child.getWebURL()), 4, 72));
+                            log.info(DeployUtils.reformat("  `-> " + child.getModuleID() + (child.getWebURL() == null ? "" : " @ " + child.getWebURL()), 4, 72));
                         }
                     }
                 }
@@ -379,7 +380,7 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBe
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                log.error(e.getMessage(), e);
             }
         }
     }

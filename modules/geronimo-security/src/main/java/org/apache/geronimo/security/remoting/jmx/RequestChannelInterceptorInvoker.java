@@ -27,11 +27,15 @@ import org.activeio.packet.EmptyPacket;
 import org.apache.geronimo.interceptor.Interceptor;
 import org.apache.geronimo.interceptor.Invocation;
 import org.apache.geronimo.interceptor.InvocationResult;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * @version $Rev$ $Date$
  */
 public class RequestChannelInterceptorInvoker implements RequestListener {
+
+    private static final Log log = LogFactory.getLog(RequestChannelInterceptorInvoker.class);
 
     private ClassLoader classloader;
     private Interceptor next;
@@ -69,7 +73,7 @@ public class RequestChannelInterceptorInvoker implements RequestListener {
                 marshalledInvocation = (Invocation) RequestChannelInterceptor.deserialize(request,classloader);
             } catch (Throwable e) {
                 // Could not deserialize the invocation...
-                e.printStackTrace();
+                log.error("Could not deserialize the invocation", e);
                 return RequestChannelInterceptor.serialize(new ThrowableWrapper(e));
             }
 
@@ -90,7 +94,7 @@ public class RequestChannelInterceptorInvoker implements RequestListener {
     }
 
     public void onRquestError(IOException error) {
-        System.out.println("Request Error:"+error);
+        log.error("Request Error", error);
     }
 
 }

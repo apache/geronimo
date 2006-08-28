@@ -17,6 +17,9 @@
 
 package org.apache.geronimo.console.internaldb;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -26,6 +29,7 @@ import java.util.Hashtable;
 import java.util.Map;
 
 public class InternalDBHelper {
+    private final static Log log = LogFactory.getLog(InternalDBHelper.class);
 
     private static final int RDBMS_DERBY = 1;
 
@@ -37,8 +41,6 @@ public class InternalDBHelper {
 
     /**
      * Returns the database metadata as a map.
-     *
-     * @return
      */
     public Map getDBInfo() {
         derbyDBInfo.clear();
@@ -169,10 +171,6 @@ public class InternalDBHelper {
 
     /**
      * Get a specific column data as a string separated by ','.
-     *
-     * @param rs
-     * @param colName
-     * @return
      */
     private String getColumnData(ResultSet rs, String colName) {
         StringBuffer result = new StringBuffer();
@@ -220,7 +218,7 @@ public class InternalDBHelper {
      */
     private void printSQLError(SQLException e) {
         while (e != null) {
-            System.out.println(e.toString());
+            log.error(e.toString(), e);
             e = e.getNextException();
         }
     }

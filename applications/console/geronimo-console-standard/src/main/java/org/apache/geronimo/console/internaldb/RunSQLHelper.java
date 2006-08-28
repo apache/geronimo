@@ -17,12 +17,17 @@
 
 package org.apache.geronimo.console.internaldb;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
 public class RunSQLHelper {
+
+    private final static Log log = LogFactory.getLog(RunSQLHelper.class);
 
     public static final String SQL_SUCCESS_MSG = "SQL command/s successful";
 
@@ -147,8 +152,7 @@ public class RunSQLHelper {
             for (int i = 0; i < sqlCmds.length; i++) {
                 if (sqlCmds[i].trim().length() > 0) {
                     // debug printout (remove later)
-                    System.out.println("SQL" + i + ": <" + sqlCmds[i].trim()
-                            + ">");
+                    log.debug("SQL" + i + ": <" + sqlCmds[i].trim() + ">");
                     s.execute(sqlCmds[i]);
                 }
             }

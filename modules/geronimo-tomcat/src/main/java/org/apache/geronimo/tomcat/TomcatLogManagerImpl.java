@@ -145,9 +145,8 @@ public class TomcatLogManagerImpl implements TomcatLogManager {
                 logFiles = parent.listFiles(new PatternFilenameFilter(fileNamePattern));
             }
         } catch (Exception e) {
-            log.error("Exception attempting to locate Tomcat log files: "+e);
+            log.error("Exception attempting to locate Tomcat log files", e);
             logFiles = new File[0];
-            e.printStackTrace();
         }
         return logFiles;
     }

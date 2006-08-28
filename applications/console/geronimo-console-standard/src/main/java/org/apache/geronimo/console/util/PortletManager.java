@@ -95,7 +95,7 @@ public class PortletManager {
         try {
             return factory.getDeploymentManager("deployer:geronimo:inVM", null, null);
         } catch (DeploymentManagerCreationException e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
             return null;
         }
     }

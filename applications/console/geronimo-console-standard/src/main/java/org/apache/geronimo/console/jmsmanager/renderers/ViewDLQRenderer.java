@@ -38,9 +38,12 @@ import org.activemq.service.DeadLetterPolicy;
 import org.apache.geronimo.console.jmsmanager.AbstractJMSManager;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
-public class ViewDLQRenderer extends AbstractJMSManager implements
-        PortletRenderer {
+public class ViewDLQRenderer extends AbstractJMSManager implements PortletRenderer {
+
+    private static final Log log = LogFactory.getLog(ViewDLQRenderer.class);
 
     private Destination dlq = null;
 
@@ -103,7 +106,7 @@ public class ViewDLQRenderer extends AbstractJMSManager implements
             connection.start();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         }
     }
 
@@ -123,7 +126,7 @@ public class ViewDLQRenderer extends AbstractJMSManager implements
             connection.close();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         }
 
         return list;

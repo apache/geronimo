@@ -123,8 +123,7 @@ public class ActiveMQConnectorHelper {
             osw.close();
             fos.close();
         } catch (Exception e) {
-            System.out.println("ERROR: Problem creating the plan file");
-            e.printStackTrace();
+            log.error("Problem creating the plan file", e);
         }
     }
 
@@ -165,17 +164,11 @@ public class ActiveMQConnectorHelper {
                 buf.append(LINE_SEP);
                 cause = cause.getCause();
             }
-            System.out
-                    .println("ERROR: Problem deploying the ActiveMQ connector: "
-                            + buf.toString());
-            e.printStackTrace();
+            log.error("Problem deploying the ActiveMQ connector: " + buf);
         } catch (URISyntaxException e) {
-            System.out
-                    .println("ERROR: Newly installed app has invalid config ID");
-            e.printStackTrace();
+            log.error("Newly installed app has invalid config ID", e);
         } catch (Exception e) {
-            System.out.println("ERROR: Problem creating the datasource");
-            e.printStackTrace();
+            log.error("Problem creating the datasource", e);
         }
     }
 

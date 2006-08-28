@@ -29,8 +29,12 @@ import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 
 import org.apache.geronimo.console.BasePortlet;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class DBViewerPortlet extends BasePortlet {
+
+    private final static Log log = LogFactory.getLog(DBViewerPortlet.class);
 
     private static final int RDBMS_DERBY = 1;
 
@@ -52,8 +56,7 @@ public class DBViewerPortlet extends BasePortlet {
 
     private static final String VIEWTBLCONTENTS_ACTION = "viewTableContents";
 
-    private static final String DERBY_HOME = System
-            .getProperty("derby.system.home");
+    private static final String DERBY_HOME = System.getProperty("derby.system.home");
 
     private static DBViewerHelper helper = new DBViewerHelper();
 
@@ -68,7 +71,7 @@ public class DBViewerPortlet extends BasePortlet {
     private PortletRequestDispatcher viewTableContentsView;
 
     public void processAction(ActionRequest actionRequest,
-            ActionResponse actionResponse) throws PortletException, IOException {
+                              ActionResponse actionResponse) throws PortletException, IOException {
         // getting parameters here because it fails on doView()
         String action = actionRequest.getParameter("action");
         String db = actionRequest.getParameter("db");
@@ -94,7 +97,7 @@ public class DBViewerPortlet extends BasePortlet {
     }
 
     protected void doView(RenderRequest renderRequest,
-            RenderResponse renderResponse) throws IOException, PortletException {
+                          RenderResponse renderResponse) throws IOException, PortletException {
         if (WindowState.MINIMIZED.equals(renderRequest.getWindowState())) {
             return;
         }
@@ -112,14 +115,14 @@ public class DBViewerPortlet extends BasePortlet {
                         || VIEWTBLCONTENTS_ACTION.equals(action)) {
                     if (!helper.isDBValid(DERBY_HOME, db)) {
                         // DB not valid
-                        System.out.println("ERROR: db not valid: " + db);
+                        log.error("Database is not valid: " + db);
                         action = "";
                     }
                 }
                 if (VIEWTBLCONTENTS_ACTION.equals(action)) {
                     if (!helper.isTblValid(db, tbl)) {
                         // Table not valid
-                        System.out.println("ERROR: table not valid: " + tbl);
+                        log.error("Table is not valid: " + tbl);
                         action = "";
                     }
                 }
@@ -150,7 +153,7 @@ public class DBViewerPortlet extends BasePortlet {
     }
 
     protected void doHelp(RenderRequest renderRequest,
-            RenderResponse renderResponse) throws PortletException, IOException {
+                          RenderResponse renderResponse) throws PortletException, IOException {
         helpView.include(renderRequest, renderResponse);
     }
 

@@ -14,6 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.apache.geronimo.deployment.plugin;
 
 import javax.enterprise.deploy.spi.DeploymentManager;
@@ -25,18 +26,15 @@ import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
 import javax.enterprise.deploy.spi.exceptions.DConfigBeanVersionUnsupportedException;
 import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.enterprise.deploy.model.DeployableObject;
-import javax.enterprise.deploy.model.DDBeanRoot;
-import javax.enterprise.deploy.model.DDBean;
-import javax.enterprise.deploy.model.exceptions.DDBeanCreateException;
 import javax.enterprise.deploy.shared.DConfigBeanVersionType;
 import javax.enterprise.deploy.shared.ModuleType;
 import java.util.Locale;
-import java.util.Enumeration;
 import java.io.File;
 import java.io.InputStream;
-import java.io.FileNotFoundException;
 import org.apache.geronimo.connector.deployment.RARConfigurer;
 import org.apache.geronimo.web.deployment.WARConfigurer;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Implementation of a disconnected JSR88 DeploymentManager.
@@ -45,6 +43,8 @@ import org.apache.geronimo.web.deployment.WARConfigurer;
  * @version $Rev$ $Date$
  */
 public class DisconnectedDeploymentManager implements DeploymentManager {
+    private static final Log log = LogFactory.getLog(DisconnectedDeploymentManager.class);
+
     public DeploymentConfiguration createConfiguration(DeployableObject dObj) throws InvalidModuleException {
         if(dObj.getType().equals(ModuleType.CAR)) {
             //todo: need a client configurer
@@ -55,8 +55,7 @@ public class DisconnectedDeploymentManager implements DeploymentManager {
                 Class cls = Class.forName("org.openejb.deployment.EJBConfigurer");
                 return (DeploymentConfiguration)cls.getMethod("createConfiguration", new Class[]{DeployableObject.class}).invoke(cls.newInstance(), new Object[]{dObj});
             } catch (Exception e) {
-                System.err.println("Unable to invoke EJB deployer");
-                e.printStackTrace();
+                log.error("Unable to invoke EJB deployer", e);
             }
         } else if(dObj.getType().equals(ModuleType.RAR)) {
             return new RARConfigurer().createConfiguration(dObj);
