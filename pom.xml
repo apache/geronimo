@@ -31,7 +31,7 @@
     <artifactId>car-maven-plugin</artifactId>
     <name>Geronimo Maven2 Plugins :: CAR</name>
     <packaging>maven-plugin</packaging>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.1</version>
     
     <properties>
         <geronimo-version>1.1</geronimo-version>
