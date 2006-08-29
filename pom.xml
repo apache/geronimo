@@ -22,9 +22,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache</groupId>
-        <artifactId>apache</artifactId>
-        <version>3</version>
+        <groupId>org.apache.geronimo.genesis.config</groupId>
+        <artifactId>project-config</artifactId>
+        <version>1.0</version>
     </parent>
 
     <groupId>org.apache.geronimo.plugins</groupId>
@@ -37,6 +37,11 @@
         <geronimo-version>1.1</geronimo-version>
         <geronimo-qname-spec-version>1.0.1</geronimo-qname-spec-version>
         <maven-version>2.0.4</maven-version>
+            <!--
+            FIXME: 2.1 is broken... won't allow custom manifestEntires, need to use
+                   this snap until 2.2 is released.
+            -->
+        <maven-archiver-version>2.1</maven-archiver-version>
     </properties>
     
     <dependencies>
@@ -86,11 +91,7 @@
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-archiver</artifactId>
-            <!--
-            FIXME: 2.1 is broken... won't allow custom manifestEntires, need to use
-                   this snap until 2.2 is released.
-            -->
-            <version>2.2-SNAPSHOT</version>
+            <version>${maven-archiver-version}</version>
         </dependency>
         
         <dependency>
@@ -181,12 +182,15 @@
             <version>2.1_3</version>
         </dependency>
         
+        <dependency>
+            <groupId>org.apache.geronimo.genesis.plugins</groupId>
+            <artifactId>plugin-support</artifactId>
+            <version>1.0</version>
+        </dependency>
+
     </dependencies>
     
     <build>
-        <!-- FIXME: Remove when the default is to use the m2 standard layout -->
-        <sourceDirectory>${pom.basedir}/src/main/java</sourceDirectory>
-        
         <resources>
             <resource>
                 <directory>${pom.basedir}</directory>
@@ -211,6 +215,15 @@
             </plugin>
         </plugins>
     </build>
-    
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-plugin-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </reporting>
+
 </project>
 

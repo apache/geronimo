@@ -71,7 +71,9 @@ Basic Usage
 </project>
 +----------+
 
-* CAR with ClassPath and MainClass
+* Geronimo Plugin
+
+** POM
 
 +----------+
 <project>
@@ -80,6 +82,17 @@ Basic Usage
     ...
     <build>
         ...
+        <resources>
+            ...
+            <resource>
+                <directory>${pom.basedir}/src/resources/META-INF</directory>
+                <includes>
+                    <include>geronimo-plugin.xml</include>
+                </includes>
+                <targetPath>META-INF</targetPath>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             ...
             <plugin>
@@ -87,26 +100,12 @@ Basic Usage
                 <artifactId>car-maven-plugin</artifactId>
                 <extensions>true</extensions>
                 <configuration>
-                    <classPath>
-                        <element>../lib/geronimo-qname_1.1_spec-${geronimoSpecQnameVersion}.jar</element>
-                        <element>../lib/geronimo-common-${pom.version}.jar</element>
-                        <element>../lib/geronimo-kernel-${pom.version}.jar</element>
-                        <element>../lib/geronimo-system-${pom.version}.jar</element>
-                        <element>../lib/geronimo-util-${pom.version}.jar</element>
-                        <element>../lib/cglib-nodep-${cglibVersion}.jar</element>
-                        <element>../lib/concurrent-${concurrentVersion}.jar</element>
-                        <element>../lib/commons-cli-${commonsCliVersion}.jar</element>
-                        <element>../lib/commons-logging-${commonsLoggingVersion}.jar</element>
-                        <element>../lib/log4j-${log4jVersion}.jar</element>
-                        <element>../lib/mx4j-${mx4jVersion}.jar</element>
-                        <element>../lib/mx4j-remote-${mx4jVersion}.jar</element>
-                        <element>../lib/endorsed/xercesImpl-${xercesVersion}.jar</element>
-                        <element>../lib/endorsed/xmlParserAPIs-${xmlParserApisVersion}.jar</element>
-                        <element>../lib/xpp3-${xpp3Version}.jar</element>
-                        <element>../lib/xstream-${xstreamVersion}.jar</element>
-                    </classPath>
-                    <mainClass>org.apache.geronimo.system.main.Daemon</mainClass>
-                    <logLevel>DEBUG</logLevel>
+                    <deploymentConfigs>
+                        <deploymentConfig>geronimo/geronimo-gbean-deployer/${geronimo-version}/car</deploymentConfig>
+                    </deploymentConfigs>
+                    <deployerName>geronimo/geronimo-gbean-deployer/${geronimo-version}/car?j2eeType=Deployer,name=Deployer</deployerName>
+                    <planFileName>geronimo-service.xml</planFileName>
+                    <moduleFile>${settings.localRepository}/org/apache/servicemix/geronimo/deployer-service/${pom.version}/deployer-service-${pom.version}.jar</moduleFile>
                 </configuration>
             </plugin>
             ...
@@ -115,4 +114,91 @@ Basic Usage
     </build>
     ...
 <project>
++----------+
+
+** src/main/resources/META-INF/geronimo-plugin.xml
+
++----------+
+<geronimo-plugin xmlns="http://geronimo.apache.org/xml/ns/plugins-1.1">
+  <name>ServiceMix deployer</name>
+  <module-id>org.apache.servicemix.geronimo/deployer/${servicemix-version}/car</module-id>
+  <category>Integration</category>
+  <description>This plugin Apache ServiceMix JBI container to Geronimo.</description>
+  <url>http://incubator.apache.org/servicemix</url>
+  <author>The ServiceMix development team</author>
+  <license osi-approved="true">BSD -- Apache Software License (ASL) 2.0</license>
+  <geronimo-version>1.1</geronimo-version>
+  <dependency>org.apache.servicemix.geronimo/servicemix//car</dependency>
+  <dependency>geronimo/geronimo-gbean-deployer//car</dependency>
+  <dependency>geronimo/j2ee-server//car</dependency>
+  <dependency>geronimo/j2ee-deployer//car</dependency>
+  <obsoletes>org.apache.servicemix.geronimo/deployer//car</obsoletes>
+  <source-repository>http://incubator.apache.org/servicemix/dist/servicemix-3.0-M2-incubating/m2/</source-repository>
+  <source-repository>http://people.apache.org/~chirino/incubator-activemq-4.0.2-RC3/maven2/</source-repository>
+  <source-repository>http://www.ibiblio.org/maven2/</source-repository>
+  <source-repository>http://people.apache.org/maven-snapshot-repository/</source-repository>
+  <config-xml-content>
+    <gbean name="ServiceMixConfigBuilder" xmlns="http://geronimo.apache.org/xml/ns/attributes-1.1">
+    </gbean>
+  </config-xml-content>
+</geronimo-plugin>
++----------+
+
+** src/plan/geronimo-service.xml
+
++----------+
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+
+    <environment>
+        <moduleId>
+            <groupId>org.apache.servicemix.geronimo</groupId>
+            <artifactId>deployer</artifactId>
+            <version>${servicemix-version}</version>
+            <type>car</type>
+        </moduleId>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.servicemix.geronimo</groupId>
+                <artifactId>servicemix</artifactId>
+                <version>${servicemix-version}</version>
+                <type>car</type>
+            </dependency>
+            <dependency>
+                <groupId>geronimo</groupId>
+                <artifactId>geronimo-gbean-deployer</artifactId>
+                <version>${geronimo-version}</version>
+                <type>car</type>
+            </dependency>
+            <dependency>
+                <groupId>geronimo</groupId>
+                <artifactId>j2ee-server</artifactId>
+                <version>${geronimo-version}</version>
+                <type>car</type>
+            </dependency>
+            <dependency>
+                <groupId>geronimo</groupId>
+                <artifactId>j2ee-deployer</artifactId>
+                <version>${geronimo-version}</version>
+                <type>car</type>
+            </dependency>
+        </dependencies>
+    </environment>
+
+    <gbean name="ServiceMixConfigBuilder" class="org.apache.servicemix.geronimo.ServiceMixConfigBuilder">
+        <reference name="Repositories" />
+        <xml-attribute name="defaultEnvironment">
+            <environment>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.servicemix.geronimo</groupId>
+                        <artifactId>servicemix</artifactId>
+                        <version>${servicemix-version}</version>
+                        <type>car</type>
+                    </dependency>
+                </dependencies>
+            </environment>
+        </xml-attribute>
+    </gbean>
+
+</module>
 +----------+
