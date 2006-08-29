@@ -17,10 +17,14 @@ package org.apache.geronimo.axis;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ByteArrayOutputStream;
+
 import java.net.URI;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.xml.namespace.QName;
 
 import org.apache.axis.constants.Style;
@@ -32,6 +36,7 @@ import org.apache.axis.encoding.TypeMapping;
 import org.apache.axis.encoding.TypeMappingRegistryImpl;
 import org.apache.axis.handlers.soap.SOAPService;
 import org.apache.axis.providers.java.RPCProvider;
+
 import org.apache.geronimo.axis.server.AxisWebServiceContainer;
 import org.apache.geronimo.axis.server.POJOProvider;
 import org.apache.geronimo.axis.server.ReadOnlyServiceDesc;
@@ -110,12 +115,11 @@ public class AxisWebServiceContainerTest extends AbstractTestCase {
                     new HashMap(),
                     location,
                     new HashMap());
-            AxisResponse res =
-                new AxisResponse("text/xml; charset=utf-8", "127.0.0.1", null, null, 8080, System.out);
-        
+            
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            AxisResponse res = new AxisResponse("text/xml; charset=utf-8", "127.0.0.1", null, null, 8080, out);
             req.setAttribute(WebServiceContainer.POJO_INSTANCE, pojoClass.newInstance());
             container.invoke(req, res);
-            System.out.flush();
         } finally {
             if (in != null) {
                 try {
