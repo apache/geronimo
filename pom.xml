@@ -44,6 +44,19 @@
         <maven-archiver-version>2.1</maven-archiver-version>
     </properties>
     
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/server/branches/1.1/car-maven-plugin</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/geronimo/server/branches/1.1/car-maven-plugin</developerConnection>
+        <url>http://svn.apache.org/viewvc/geronimo/server/branches/1.1/car-maven-plugin</url>
+    </scm>
+
+    <distributionManagement>
+        <site>
+            <id>geronimo-website</id>
+            <url>scp://people.apache.org/www/geronimo.apache.org/maven/car-maven-plugin-1.1</url>
+        </site>
+    </distributionManagement>
+    
     <dependencies>
 
         <dependency>
