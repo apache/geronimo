@@ -38,7 +38,8 @@ public class RARConfigurer implements ModuleConfigurer {
 
     public DeploymentConfiguration createConfiguration(DeployableObject deployable) {
         if (ModuleType.RAR.equals(deployable.getType())) {
-            if (deployable.getDDBeanRoot().getDDBeanRootVersion().equals("1.5")) {
+            String ddBeanRootVersion = deployable.getDDBeanRoot().getDDBeanRootVersion();
+            if (ddBeanRootVersion != null && ddBeanRootVersion.equals("1.5")) {
                 return new RARConfiguration(deployable, new Connector15DCBRoot(deployable.getDDBeanRoot()));
             }
             String[] specVersion = deployable.getDDBeanRoot().getText("connector/spec-version");

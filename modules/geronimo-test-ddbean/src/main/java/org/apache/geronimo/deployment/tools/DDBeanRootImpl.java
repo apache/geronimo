@@ -32,8 +32,6 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- *
- *
  * @version $Rev$ $Date$
  */
 public class DDBeanRootImpl implements DDBeanRoot {
@@ -45,21 +43,21 @@ public class DDBeanRootImpl implements DDBeanRoot {
         InputStream is = null;
         try {
             is = descriptor.openStream();
-        try {
-        XmlObject xmlObject = XmlBeansUtil.parse(is);
-            XmlCursor c = xmlObject.newCursor();
             try {
-                c.toStartDoc();
-                c.toFirstChild();
-                docBean = new DDBeanImpl(this, this, "/" + c.getName().getLocalPart(), c);
+                XmlObject xmlObject = XmlBeansUtil.parse(is);
+                XmlCursor c = xmlObject.newCursor();
+                try {
+                    c.toStartDoc();
+                    c.toFirstChild();
+                    docBean = new DDBeanImpl(this, this, "/" + c.getName().getLocalPart(), c);
+                } finally {
+                    c.dispose();
+                }
             } finally {
-                c.dispose();
+                is.close();
             }
-        } finally {
-            is.close();
-        }
         } catch (Exception e) {
-            throw (DDBeanCreateException)new DDBeanCreateException("problem").initCause(e);
+            throw (DDBeanCreateException) new DDBeanCreateException("problem").initCause(e);
         }
     }
 
@@ -115,11 +113,13 @@ public class DDBeanRootImpl implements DDBeanRoot {
         String childName = (index == -1) ? xpath : xpath.substring(0, index);
         if (("/" + childName).equals(docBean.getXpath())) {
             if (index == -1) {
-                return new DDBean[] {new DDBeanImpl((DDBeanImpl)docBean, xpath)};
+                return new DDBean[]{new DDBeanImpl((DDBeanImpl) docBean, xpath)};
             } else {
-                DDBean[] newDDBeans = docBean.getChildBean(xpath.substring(index+1));
-                for (int i = 0; i < newDDBeans.length; i++) {
-                    newDDBeans[i] = new DDBeanImpl((DDBeanImpl)newDDBeans[i], xpath);
+                DDBean[] newDDBeans = docBean.getChildBean(xpath.substring(index + 1));
+                if (newDDBeans != null) {
+                    for (int i = 0; i < newDDBeans.length; i++) {
+                        newDDBeans[i] = new DDBeanImpl((DDBeanImpl) newDDBeans[i], xpath);
+                    }
                 }
                 return newDDBeans;
             }
