@@ -120,6 +120,9 @@ public class AxisWebServiceContainerTest extends AbstractTestCase {
             AxisResponse res = new AxisResponse("text/xml; charset=utf-8", "127.0.0.1", null, null, 8080, out);
             req.setAttribute(WebServiceContainer.POJO_INSTANCE, pojoClass.newInstance());
             container.invoke(req, res);
+            
+            out.flush();
+            log.debug(new String(out.toByteArray()));
         } finally {
             if (in != null) {
                 try {
