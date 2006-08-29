@@ -103,11 +103,11 @@
             <version>${pom.currentVersion}</version>
         </dependency>
 
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-j2ee-schema</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>geronimo</groupId>-->
+            <!--<artifactId>geronimo-j2ee-schema</artifactId>-->
+            <!--<version>${pom.currentVersion}</version>-->
+        <!--</dependency>-->
 <!--
         <dependency>
             <groupId>cglib</groupId>

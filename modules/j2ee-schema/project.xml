@@ -42,10 +42,19 @@
 
     <dependencies>
         <dependency>
-            <groupId>xmlbeans</groupId>
-            <artifactId>xmlbeans-maven-plugin</artifactId>
-            <version>${xmlbeans_maven_plugin_version}</version>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-dependency-plugin</artifactId>
+            <version>${geronimo_dependency_plugin_version}</version>
             <type>plugin</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.schema</groupId>
+            <artifactId>geronimo-schema-j2ee1.4</artifactId>
+            <version>${geronimo_schema_j2ee1_4_version}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
         </dependency>
 
         <!-- needed for xmlbeans runtime-->

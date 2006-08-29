@@ -84,9 +84,9 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee-schema</artifactId>
             <version>${pom.currentVersion}</version>
-            <properties>
-                <xmlbeans>true</xmlbeans>
-            </properties>
+            <!--<properties>-->
+                <!--<xmlbeans>true</xmlbeans>-->
+            <!--</properties>-->
         </dependency>
 
         <!--pattern element in login config ref -->

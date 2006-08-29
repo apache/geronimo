@@ -172,14 +172,14 @@
             <artifactId>geronimo-management</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-j2ee-schema</artifactId>
-            <version>${pom.currentVersion}</version>
-            <properties>
-                <xmlbeans>true</xmlbeans>
-            </properties>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>geronimo</groupId>-->
+            <!--<artifactId>geronimo-j2ee-schema</artifactId>-->
+            <!--<version>${pom.currentVersion}</version>-->
+            <!--<properties>-->
+                <!--<xmlbeans>true</xmlbeans>-->
+            <!--</properties>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>catalina</artifactId>
