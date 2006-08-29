@@ -21,7 +21,7 @@
     <skin>
         <groupId>org.apache.geronimo.genesis.config</groupId>
         <artifactId>geronimo-skin</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0</version>
     </skin>
     
     <publishDate format="dd MMM yyyy"/>
@@ -47,8 +47,6 @@
         <menu name="Geronimo">
             <item name="Home" href="http://geronimo.apache.org/"/>
         </menu>
-        
-        <menu ref="parent"/>
         
         <menu name="${project.name}">
             <item name="Overview" href="index.html"/>
