@@ -45,12 +45,12 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
-            <version>1.1.1-SNAPSHOT</version>
+            <version>1.1.1-rc1</version>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
-            <version>1.1.1-SNAPSHOT</version>
+            <version>1.1.1-rc1</version>
         </dependency>
     </dependencies>
 

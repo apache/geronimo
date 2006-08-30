@@ -131,8 +131,8 @@
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.schema</groupId>
-            <artifactId>geronimo-schema-j2ee1.4</artifactId>
-            <version>${geronimo_schema_j2ee1_4_version}</version>
+            <artifactId>geronimo-schema-j2ee_1.4</artifactId>
+            <version>${geronimo_schema_j2ee_1_4_version}</version>
         </dependency>
 
         <dependency>
