@@ -32,6 +32,8 @@ public class TextXmlTest extends AbstractHandler {
     }
     
     protected void setUp() throws Exception {
+        super.setUp();
+        
         dch = new TextXmlHandler();
     }
 }

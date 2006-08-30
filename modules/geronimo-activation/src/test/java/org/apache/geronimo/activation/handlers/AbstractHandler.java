@@ -24,12 +24,12 @@ import java.util.Arrays;
 import javax.activation.DataContentHandler;
 import javax.activation.DataSource;
 
-import junit.framework.TestCase;
+import org.apache.geronimo.testsupport.TestSupport;
 
 /**
  * @version $Rev$ $Date$
  */
-public abstract class AbstractHandler extends TestCase {
+public abstract class AbstractHandler extends TestSupport {
     protected DataContentHandler dch;
     protected String mimeType;
 
