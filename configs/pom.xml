@@ -120,8 +120,8 @@
         <module>client-deployer</module>
         <module>client-security</module>
         <module>client-system</module>
-        <module>console-jetty</module>
-        <module>console-tomcat</module>
+        <module>webconsole-jetty</module>
+        <module>webconsole-tomcat</module>
         <!-- <module>daytrader-jetty</module> -->
         <!-- <module>daytrader-tomcat</module> -->
         <module>directory</module>
@@ -146,8 +146,8 @@
         <module>remote-deploy-jetty</module>
         <module>remote-deploy-tomcat</module>
         <module>rmi-naming</module>
-        <!-- module>servlets-examples-jetty</module  -->
-        <module>servlets-examples-tomcat</module>
+        <module>servlet-examples-jetty</module>
+        <module>servlet-examples-tomcat</module>
         <module>sharedlib</module>
         <module>shutdown</module>
         <module>system-database</module>

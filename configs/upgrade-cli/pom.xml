@@ -34,7 +34,6 @@
     
     <dependencies>
         
-        <!-- needed to enforce build order -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>geronimo-gbean-deployer</artifactId>

@@ -86,30 +86,6 @@ Basic Usage
                     </archive>
                     <classpath>
                         <classpathElement>
-                            <groupId>org.apache.geronimo.modules</groupId>
-                            <artifactId>geronimo-common</artifactId>
-                            <version>${pom.version}</version>
-                        </classpathElement>
-                        <classpathElement>
-                            <groupId>org.apache.geronimo.modules</groupId>
-                            <artifactId>geronimo-kernel</artifactId>
-                            <version>${pom.version}</version>
-                        </classpathElement>
-                        <classpathElement>
-                            <groupId>org.apache.geronimo.modules</groupId>
-                            <artifactId>geronimo-system</artifactId>
-                            <version>${pom.version}</version>
-                        </classpathElement>
-                        <classpathElement>
-                            <groupId>org.apache.geronimo.modules</groupId>
-                            <artifactId>geronimo-util</artifactId>
-                            <version>${pom.version}</version>
-                        </classpathElement>
-                        <classpathElement>
-                            <groupId>org.apache.geronimo.specs</groupId>
-                            <artifactId>geronimo-qname_1.1_spec</artifactId>
-                        </classpathElement>
-                        <classpathElement>
                             <groupId>mx4j</groupId>
                             <artifactId>mx4j</artifactId>
                         </classpathElement>
@@ -148,10 +124,6 @@ Basic Usage
                         <classpathElement>
                             <groupId>backport-util-concurrent</groupId>
                             <artifactId>backport-util-concurrent</artifactId>
-                        </classpathElement>
-                        <classpathElement>
-                            <groupId>concurrent</groupId>
-                            <artifactId>concurrent</artifactId>
                         </classpathElement>
                         <classpathElement>
                             <groupId>xerces</groupId>

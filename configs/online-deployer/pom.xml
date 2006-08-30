@@ -33,12 +33,6 @@
     <packaging>car</packaging>
     
     <build>
-        <resources>
-            <resource>
-                <directory>${pom.basedir}/src/main/resources</directory>
-            </resource>
-        </resources>
-        
         <plugins>
             <plugin>
                 <groupId>org.apache.geronimo.plugins</groupId>

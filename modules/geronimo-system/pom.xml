@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+  Copyright 2006 The Apache Software Foundation
+  
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+  http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<!-- $Rev$ $Date$ -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>modules</artifactId>
+        <version>1.2-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>geronimo-system</artifactId>
+    <name>Geronimo :: System</name>
+    
+    <dependencies>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-common</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-util</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-kernel</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>concurrent</groupId>
+            <artifactId>concurrent</artifactId>
+        </dependency>
+        
+        <!--
+        NOTE: Need to include Xerces for tests in case Crimson (or another parser)
+              gets picked up that does not support attributes
+        -->
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <scope>test</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xmlParserAPIs</artifactId>
+            <scope>test</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-testsupport</artifactId>
+            <version>${pom.version}</version>
+            <scope>test</scope>
+        </dependency>
+        
+    </dependencies>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>generate-dynamic-properties</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <tstamp>
+                                    <format property="build.year" pattern="yyyy"/>
+                                </tstamp>
+                                
+                                <mkdir dir="${pom.basedir}/target/classes/org/apache/geronimo/system/serverinfo"/>
+                                
+                                <propertyfile
+                                    file="${pom.basedir}/target/classes/org/apache/geronimo/system/serverinfo/geronimo-version.properties"
+                                    comment="Geronimo version information (generated, do not modify)">
+                                    
+                                    <entry key="version" value="${pom.version}"/>
+                                    <entry key="build.date" type="date" value="now" pattern="yyyy.MM.dd"/>
+                                    <entry key="build.time" type="date" value="now" pattern="HH:mm:ss.SSSZ"/>
+                                    <entry key="copyright" value="Copyright (C) 2003-${build.year}, The Apache Software Foundation"/>
+                                </propertyfile>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                    
+                    <execution>
+                        <id>test-resources</id>
+                        <phase>generate-test-resources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <delete dir="${project.build.directory}/tmp"/>
+                                <mkdir dir="${project.build.directory}/tmp"/>
+                                
+                                <mkdir dir="${project.build.directory}/m1"/>
+                                <copy todir="${project.build.directory}/m1">
+                                    <fileset dir="${basedir}/src/test/repo/m1"/>
+                                </copy>
+                                
+                                <mkdir dir="${project.build.directory}/m2"/>
+                                <copy todir="${project.build.directory}/m2">
+                                    <fileset dir="${basedir}/src/test/repo/m2"/>
+                                </copy>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+                
+                <dependencies>
+                    <dependency>
+                        <groupId>ant</groupId>
+                        <artifactId>ant-nodeps</artifactId>
+                        <version>1.6.5</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
+    
+</project>
+

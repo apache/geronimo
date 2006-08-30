@@ -32,54 +32,54 @@
     <artifactId>modules</artifactId>
     <name>Geronimo :: Modules</name>
     <packaging>pom</packaging>
-
+    
     <modules>
         <module>geronimo-testsupport</module>
-        <module>activation</module>
-        <module>activemq-embedded-rar</module>
-        <module>activemq-gbean</module>
-        <module>activemq-gbean-management</module>
-        <module>axis</module>
-        <module>axis-builder</module>
-        <module>client</module>
-        <module>client-builder</module>
-        <module>common</module>
-        <module>connector</module>
-        <module>connector-builder</module>
-        <module>converter</module>
-        <module>core</module>
-        <module>deploy-config</module>
-        <module>deploy-jsr88</module>
-        <module>deploy-tool</module>
-        <module>deployment</module>
-        <module>derby</module>
-        <module>directory</module>
-        <module>hot-deploy</module>
-        <module>interceptor</module>
-        <module>j2ee</module>
-        <module>j2ee-builder</module>
-        <module>j2ee-schema</module>
-        <module>jetty</module>
-        <module>jetty-builder</module>
-        <module>jmx-remoting</module>
-        <module>kernel</module>
-        <module>mail</module>
-        <module>management</module>
-        <module>naming</module>
-        <module>naming-builder</module>
-        <module>security</module>
-        <module>security-builder</module>
-        <module>service-builder</module>
-        <module>system</module>
-        <module>test-ddbean</module>
-        <module>timer</module>
-        <module>tomcat</module>
-        <module>tomcat-builder</module>
-        <module>transaction</module>
-        <module>upgrade</module>
-        <module>util</module>
-        <module>web-builder</module>
-        <module>webservices</module>
+        <module>geronimo-activation</module>
+        <module>ge-activemq-rar</module>
+        <module>geronimo-activemq-gbean</module>
+        <module>geronimo-activemq-gbean-management</module>
+        <module>geronimo-axis</module>
+        <module>geronimo-axis-builder</module>
+        <module>geronimo-client</module>
+        <module>geronimo-client-builder</module>
+        <module>geronimo-common</module>
+        <module>geronimo-connector</module>
+        <module>geronimo-connector-builder</module>
+        <module>geronimo-converter</module>
+        <module>geronimo-core</module>
+        <module>geronimo-deploy-config</module>
+        <module>geronimo-deploy-jsr88</module>
+        <module>geronimo-deploy-tool</module>
+        <module>geronimo-deployment</module>
+        <module>geronimo-derby</module>
+        <module>geronimo-directory</module>
+        <module>geronimo-hot-deploy</module>
+        <module>geronimo-interceptor</module>
+        <module>geronimo-j2ee</module>
+        <module>geronimo-j2ee-builder</module>
+        <module>geronimo-j2ee-schema</module>
+        <module>geronimo-jetty</module>
+        <module>geronimo-jetty-builder</module>
+        <module>geronimo-jmx-remoting</module>
+        <module>geronimo-kernel</module>
+        <module>geronimo-mail</module>
+        <module>geronimo-management</module>
+        <module>geronimo-naming</module>
+        <module>geronimo-naming-builder</module>
+        <module>geronimo-security</module>
+        <module>geronimo-security-builder</module>
+        <module>geronimo-service-builder</module>
+        <module>geronimo-system</module>
+        <module>geronimo-test-ddbean</module>
+        <module>geronimo-timer</module>
+        <module>geronimo-tomcat</module>
+        <module>geronimo-tomcat-builder</module>
+        <module>geronimo-transaction</module>
+        <module>geronimo-upgrade</module>
+        <module>geronimo-util</module>
+        <module>geronimo-web-builder</module>
+        <module>geronimo-webservices</module>
     </modules>
     
 </project>

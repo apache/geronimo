@@ -34,7 +34,6 @@
     
     <dependencies>
         
-        <!-- parent config -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-server</artifactId>

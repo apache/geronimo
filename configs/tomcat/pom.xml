@@ -34,7 +34,6 @@
     
     <dependencies>
         
-        <!-- parent -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>rmi-naming</artifactId>
@@ -53,7 +52,8 @@
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-webservices</artifactId>
             <version>${pom.version}</version>
-        </dependency> -->
+        </dependency>
+        -->
         
     </dependencies>
 

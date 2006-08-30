@@ -34,7 +34,6 @@
     
     <dependencies>
         
-        <!-- To enforce build order -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>tomcat-deployer</artifactId>
@@ -55,11 +54,7 @@
     <build>
         <resources>
             <resource>
-                <directory>${pom.basedir}/src/conf</directory>
-                <targetPath>META-INF</targetPath>
-                <includes>
-                    <include>geronimo-plugin.xml</include>
-                </includes>
+                <directory>${pom.basedir}/src/main/resources</directory>
                 <filtering>true</filtering>
             </resource>
         </resources>
@@ -78,33 +73,14 @@
                         <deploymentConfig>${axisDeployer}</deploymentConfig>
                     </deploymentConfigs>
                     <module>
-                        <groupId>geronimo-samples</groupId>
-                        <artifactId>geronimo-jsp-examples-tomcat</artifactId>
+                        <groupId>org.apache.geronimo.applications.examples</groupId>
+                        <artifactId>geronimo-jsp-examples</artifactId>
+                        <version>${pom.version}</version>
                         <type>war</type>
                     </module>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-    
-    <!--
-    HACK: Need to include the Apache m1 snapshot repo to pick up geronimo-samples:geronimo-jsp-examples-tomcat:war:5.5.15
-    -->
-    <repositories>
-        <repository>
-            <id>apache-snapshots-m1</id>
-            <name>Apache Maven 1 Snapshots Repository</name>
-            <url>http://people.apache.org/repo/m1-snapshot-repository</url>
-            <layout>legacy</layout>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-    </repositories>
     
 </project>

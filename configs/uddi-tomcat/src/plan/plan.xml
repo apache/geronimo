@@ -21,7 +21,7 @@
 
     <ext-module>
         <web>uddi-tomcat</web>
-        <external-path>${geronimo_groupId}/geronimo-uddi-server/${pom.version}/war</external-path>
+        <external-path>org.apache.geronimo.applications/geronimo-uddi-server/${pom.version}/war</external-path>
         <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.1">
 
             <context-root>/juddi</context-root>
@@ -38,7 +38,7 @@
 
     <ext-module>
         <connector>uddi-db</connector>
-        <external-path>tranql/tranql-connector-derby-embed-local/${tranql_vendors_version}/rar</external-path>
+        <external-path>tranql/tranql-connector-derby-embed-local/${tranqlVendorsVersion}/rar</external-path>
         <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1">
             <resourceadapter>
                 <outbound-resourceadapter>

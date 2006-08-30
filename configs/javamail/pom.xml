@@ -33,7 +33,7 @@
     <packaging>car</packaging>
     
     <dependencies>
-        <!-- parent -->
+        
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>rmi-naming</artifactId>
@@ -52,6 +52,7 @@
             <artifactId>geronimo-mail</artifactId>
             <version>${pom.version}</version>
         </dependency>
+        
     </dependencies>
     
 </project>
