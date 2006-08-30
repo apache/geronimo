@@ -25,6 +25,7 @@ import junit.extensions.TestSetup;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
@@ -34,10 +35,6 @@ import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.proxy.ProxyFactory;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
 
 /**
  * @version $Rev:386515 $ $Date$
@@ -527,8 +524,6 @@ public class GBeanTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        Logger.getRootLogger().addAppender(new ConsoleAppender(new PatternLayout("%p [%t] %m %n")));
-        Logger.getRootLogger().setLevel(Level.DEBUG);
         realKernel = KernelFactory.newInstance().createKernel("test");
         realKernel.boot();
         kernel = kernelWraper.wrap(realKernel);
