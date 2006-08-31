@@ -49,10 +49,6 @@ import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 import org.apache.geronimo.management.geronimo.J2EEApplication;
 import org.apache.geronimo.management.geronimo.J2EEServer;
 import org.apache.geronimo.management.geronimo.JVM;
-import org.apache.log4j.Logger;
-import org.apache.log4j.Level;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.PatternLayout;
 
 /**
  * @version $Rev$ $Date$
@@ -90,8 +86,6 @@ public abstract class Abstract77Test extends TestCase {
     }
 
     protected void setUp() throws Exception {
-        Logger.getRootLogger().setLevel(Level.WARN);
-        Logger.getRootLogger().addAppender(new ConsoleAppender(new PatternLayout("%p [%t] %m %n")));
         super.setUp();
         kernel = KernelFactory.newInstance().createKernel(DOMAIN);
         kernel.boot();
