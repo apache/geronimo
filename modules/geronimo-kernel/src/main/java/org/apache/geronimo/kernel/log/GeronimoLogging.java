@@ -42,7 +42,6 @@ public class GeronimoLogging {
     private static GeronimoLogging consoleLogLevel = ERROR;
     private static GeronimoLogging defaultLevel;
 
-
     /**
      * Initializes the logging system used by Geronimo.  This MUST be called in
      * in the main class used to start the geronimo server.  This method forces
@@ -84,7 +83,6 @@ public class GeronimoLogging {
         return defaultLevel;
     }
 
-
     public static GeronimoLogging getConsoleLogLevel() {
         return consoleLogLevel;
     }
@@ -106,5 +104,23 @@ public class GeronimoLogging {
 
     public String toString() {
         return level;
+    }
+
+    /**
+     * Check if the Geronimo bootstrap logging initialization is enabled.
+     *
+     * <p>Checks the system property <tt>geronimo.bootstrap.logging.enabled</tt>
+     * if not set, or set to "true" then bootstrap logging initialization is enabled.
+     *
+     * @return  True of bootstrap logging initialization is enabled.
+     */
+    public static boolean isBootstrapLoggingInitializationEnabled() {
+        String value = System.getProperty("geronimo.bootstrap.logging.enabled");
+        if (value == null) {
+            return true;
+        }
+        else {
+            return Boolean.valueOf(value).booleanValue();
+        }
     }
 }
