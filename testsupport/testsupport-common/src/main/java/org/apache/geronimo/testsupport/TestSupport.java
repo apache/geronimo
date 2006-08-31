@@ -106,4 +106,40 @@ public abstract class TestSupport
 
         return dir;
     }
+    
+    /**
+     * Resolve the given path to a file rooted to {@link #BASEDIR}.
+     *
+     * @param path  The path to resolve.
+     * @return      The resolved file for the given path.
+     */
+    protected final File resolveFile(final String path) {
+        assert path != null;
+        
+        File file = new File(path);
+        
+        // Complain if the file is already absolute... probably an error
+        if (file.isAbsolute()) {
+            log.warn("Given path is already absolute; nothing to resolve: " + file);
+        }
+        else {
+            file = new File(BASEDIR, path);
+        }
+        
+        return file;
+    }
+    
+    /**
+     * Resolve the given path to a path rooted to {@link #BASEDIR}.
+     *
+     * @param path  The path to resolve.
+     * @return      The resolved path for the given path.
+     *
+     * @see #resolveFile(String)
+     */
+    protected final String resolvePath(final String path) {
+        assert path != null;
+        
+        return resolveFile(path).getPath();
+    }
 }
