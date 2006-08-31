@@ -843,7 +843,7 @@
             
         </dependencies>
     </dependencyManagement>
-
+    
     <build>
         <pluginManagement>
             <plugins>
@@ -873,7 +873,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>jspc-maven-plugin</artifactId>
-                    <version>1.4.4</version>
+                    <version>1.4.5-SNAPSHOT</version>
                     <executions>
                         <execution>
                             <id>jspc</id>
