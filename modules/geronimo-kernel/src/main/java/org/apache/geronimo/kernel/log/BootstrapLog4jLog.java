@@ -24,30 +24,33 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 
 /**
+ * Bootstrap log implementation for use with Log4j.
+ *
  * @version $Rev$ $Date$
  */
 public class BootstrapLog4jLog implements Log {
     static {
-        Logger root = Logger.getRootLogger();
-        root.addAppender(new ConsoleAppender(new PatternLayout("%d{ABSOLUTE} %-5p [%c{1}] %m%n")));
+        if (GeronimoLogging.isBootstrapLoggingInitializationEnabled()) {
+            Logger root = Logger.getRootLogger();
+            root.addAppender(new ConsoleAppender(new PatternLayout("%d{ABSOLUTE} %-5p [%c{1}] %m%n")));
 
-        GeronimoLogging level = GeronimoLogging.getDefaultLevel();
-        if (level == null) {
-            root.setLevel(Level.ERROR);
-        } else if (level == GeronimoLogging.TRACE) {
-            root.setLevel(Level.DEBUG);
-        } else if (level == GeronimoLogging.DEBUG) {
-            root.setLevel(Level.DEBUG);
-        } else if (level == GeronimoLogging.INFO) {
-            root.setLevel(Level.INFO);
-        } else if (level == GeronimoLogging.WARN) {
-            root.setLevel(Level.WARN);
-        } else if (level == GeronimoLogging.ERROR) {
-            root.setLevel(Level.ERROR);
-        } else if (level == GeronimoLogging.FATAL) {
-            root.setLevel(Level.FATAL);
+            GeronimoLogging level = GeronimoLogging.getDefaultLevel();
+            if (level == null) {
+                root.setLevel(Level.ERROR);
+            } else if (level == GeronimoLogging.TRACE) {
+                root.setLevel(Level.DEBUG);
+            } else if (level == GeronimoLogging.DEBUG) {
+                root.setLevel(Level.DEBUG);
+            } else if (level == GeronimoLogging.INFO) {
+                root.setLevel(Level.INFO);
+            } else if (level == GeronimoLogging.WARN) {
+                root.setLevel(Level.WARN);
+            } else if (level == GeronimoLogging.ERROR) {
+                root.setLevel(Level.ERROR);
+            } else if (level == GeronimoLogging.FATAL) {
+                root.setLevel(Level.FATAL);
+            }
         }
-
     }
 
     private static final String FQCN = BootstrapLog4jLog.class.getName();

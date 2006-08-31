@@ -25,34 +25,38 @@ import java.util.logging.Logger;
 import org.apache.commons.logging.Log;
 
 /**
+ * Bootstrap log implementation for use with JDK 1.4 logging.
+ *
  * @version $Rev$ $Date$
  */
 public class BootstrapJdk14Log implements Log {
     static {
-        Logger root = Logger.getLogger("");
+        if (GeronimoLogging.isBootstrapLoggingInitializationEnabled()) {
+            Logger root = Logger.getLogger("");
 
-        GeronimoLogging geronimoLevel = GeronimoLogging.getDefaultLevel();
-        Level javaLevel;
-        if (geronimoLevel == GeronimoLogging.TRACE) {
-            javaLevel = Level.FINEST;
-        } else if (geronimoLevel == GeronimoLogging.DEBUG) {
-            javaLevel = Level.FINE;
-        } else if (geronimoLevel == GeronimoLogging.INFO) {
-            javaLevel = Level.INFO;
-        } else if (geronimoLevel == GeronimoLogging.WARN) {
-            javaLevel = Level.WARNING;
-        } else {
-            javaLevel = Level.SEVERE;
-        }
+            GeronimoLogging geronimoLevel = GeronimoLogging.getDefaultLevel();
+            Level javaLevel;
+            if (geronimoLevel == GeronimoLogging.TRACE) {
+                javaLevel = Level.FINEST;
+            } else if (geronimoLevel == GeronimoLogging.DEBUG) {
+                javaLevel = Level.FINE;
+            } else if (geronimoLevel == GeronimoLogging.INFO) {
+                javaLevel = Level.INFO;
+            } else if (geronimoLevel == GeronimoLogging.WARN) {
+                javaLevel = Level.WARNING;
+            } else {
+                javaLevel = Level.SEVERE;
+            }
 
-        // set the root level
-        root.setLevel(javaLevel);
+            // set the root level
+            root.setLevel(javaLevel);
 
-        // set the console handler level (if present)
-        Handler[] handlers = root.getHandlers();
-        for (int index = 0; index < handlers.length; index++) {
-            if (handlers[index] instanceof ConsoleHandler) {
-                handlers[index].setLevel(javaLevel);
+            // set the console handler level (if present)
+            Handler[] handlers = root.getHandlers();
+            for (int index = 0; index < handlers.length; index++) {
+                if (handlers[index] instanceof ConsoleHandler) {
+                    handlers[index].setLevel(javaLevel);
+                }
             }
         }
     }

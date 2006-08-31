@@ -29,11 +29,6 @@ import javax.security.auth.login.LoginContext;
 
 import org.apache.geronimo.testsupport.TestSupport;
 
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
-
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.AbstractName;
@@ -135,8 +130,6 @@ public class ConfigurationEntryTest extends TestSupport {
     }
 
     protected void setUp() throws Exception {
-        Logger.getRootLogger().addAppender(new ConsoleAppender(new PatternLayout("%p [%t] %m %n")));
-        Logger.getRootLogger().setLevel(Level.DEBUG);
         kernel = KernelFactory.newInstance().createKernel("test.kernel");
         kernel.boot();
 
@@ -194,7 +187,7 @@ public class ConfigurationEntryTest extends TestSupport {
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.FileAuditLoginModule");
         gbean.setAttribute("serverSide", new Boolean(true));
         props = new Properties();
-        props.put("file", "target/login-audit.log");
+        props.put("file", new File(BASEDIR, "target/login-audit.log").getPath());
         gbean.setAttribute("options", props);
         kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
 

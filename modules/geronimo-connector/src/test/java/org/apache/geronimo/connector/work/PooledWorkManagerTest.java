@@ -236,22 +236,22 @@ public class PooledWorkManagerTest extends TestSupport {
 
         public void workAccepted(WorkEvent e) {
             acceptedEvent = e;
-            log.debug("accepted" + e);
+            log.debug("accepted: " + e);
         }
 
         public void workRejected(WorkEvent e) {
             rejectedEvent = e;
-            log.debug("rejected" + e);
+            log.debug("rejected: " + e);
         }
 
         public void workStarted(WorkEvent e) {
             startedEvent = e;
-            log.debug("started" + e);
+            log.debug("started: " + e);
         }
 
         public void workCompleted(WorkEvent e) {
             completedEvent = e;
-            log.debug("completed" + e);
+            log.debug("completed: " + e);
         }
     }
 }

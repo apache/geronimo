@@ -104,19 +104,6 @@
                             <value>${pom.basedir}/src/test/data/data/login.config</value>
                         </property>
                     </systemProperties>
-                    
-                    <!-- FIXME: Some tests fail with fork=once -->
-                    <forkMode>pertest</forkMode>
-                    
-                    <excludes>
-                        <exclude>**/Abstract*.java</exclude>
-                        
-                        <!--
-                           | FIXME: This test was disabled because it is failing in non-obvious ways
-                           |        and requires someone with more insight to resolve
-                         -->
-                        <exclude>**/ConfigurationEntryTest.java</exclude>
-                    </excludes>
                 </configuration>
             </plugin>
         </plugins>
