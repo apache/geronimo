@@ -19,12 +19,14 @@ package org.apache.geronimo.kernel.config;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+
 import java.util.Collections;
 import java.util.List;
 
 import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
+
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
@@ -48,7 +50,8 @@ public class ConfigurationUtilTest extends TestCase {
         assertEquals(data, configurationData);
 
         configurationData = createConfigurationData(xstreamConfigurationMarshaler);
-        xstreamConfigurationMarshaler.writeConfigurationData(configurationData, System.out);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        xstreamConfigurationMarshaler.writeConfigurationData(configurationData, out);
         data = copy(configurationData, xstreamConfigurationMarshaler, xstreamConfigurationMarshaler);
         assertEquals(data, configurationData);
 

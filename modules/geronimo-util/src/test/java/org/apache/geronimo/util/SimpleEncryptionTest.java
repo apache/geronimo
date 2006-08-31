@@ -16,12 +16,12 @@
  */
 package org.apache.geronimo.util;
 
-import junit.framework.TestCase;
+import org.apache.geronimo.testsupport.TestSupport;
 
 /**
  * @version $Rev$ $Date$
  */
-public class SimpleEncryptionTest extends TestCase {
+public class SimpleEncryptionTest extends TestSupport {
     public void testSimpleEncryption() {
         Object[] source = new Object[]{"This is a test", new Integer(14)};
         String text = SimpleEncryption.encrypt(source);

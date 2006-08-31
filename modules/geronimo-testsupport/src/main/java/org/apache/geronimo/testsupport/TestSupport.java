@@ -47,12 +47,24 @@ public abstract class TestSupport
      */
     protected Log log = LogFactory.getLog(getClass());
     
+    /**
+     * Constructor for tests that specify a specific test name.
+     *
+     * @see #TestSupport()  This is the prefered constructor for sub-classes to use.
+     */
     protected TestSupport(final String name) {
         super(name);
+        
+        log.info("Initialized");
     }
     
+    /**
+     * Default constructor.
+     */
     protected TestSupport() {
         super();
+        
+        log.info("Initialized");
     }
     
     /**
