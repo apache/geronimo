@@ -40,7 +40,12 @@ public abstract class TestSupport
      * @see #getBaseDir()   This field is initialized from the return of this method on instance construction.
      */
     protected final File BASEDIR = getBaseDir();
-
+    
+    //
+    // NOTE: Logging must be initialized after BASEDIR has been discovered, as it is used
+    //       by the log4j logging-config properties to set the target/test.log file.
+    //
+    
     /**
      * Instance logger which tests should use to produce tracing information.
      *
