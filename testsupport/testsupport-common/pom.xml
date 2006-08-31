@@ -21,29 +21,38 @@
 <!-- $Rev$ $Date$ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    
+
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
-        <groupId>org.apache.geronimo</groupId>
-        <artifactId>geronimo</artifactId>
+        <groupId>org.apache.geronimo.testsupport</groupId>
+        <artifactId>testsupport</artifactId>
         <version>1.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     
-    <groupId>org.apache.geronimo.testsupport</groupId>
-    <artifactId>testsupport</artifactId>
-    <name>Geronimo Test Support</name>
-    <packaging>pom</packaging>
+    <artifactId>testsupport-common</artifactId>
+    <name>Geronimo Test Support :: Common</name>
+    <packaging>jar</packaging>
     
-    <description>
-        Provides support for Geronimo tests.
-    </description>
-
-    <modules>
-        <module>testsupport-common</module>
-        <module>test-deployment-j2ee_1.3</module>
-        <module>test-deployment-j2ee_1.4</module>
-    </modules>
-
+    <dependencies>
+        
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        
+    </dependencies>
+    
 </project>
