@@ -115,6 +115,10 @@
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
+                    <!--
+                    NOTE: Unpack some deployment to test unpacked deployemnts... may want
+                          to create full unpacked archives to unpack with the dependency plugin/
+                    -->
                     <execution>
                         <id>unpack-test-deployments</id>
                         <phase>generate-test-resources</phase>

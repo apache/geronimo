@@ -59,29 +59,25 @@ import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.testsupport.TestSupport;
 
 /**
- * EAR config builder tests for J2EE 1.4 unpacked.
+ * EAR config builder tests for J2EE 1.4 using alt-dd..
  *
  * @version $Rev:386276 $ $Date$
  */
-public class EARConfigBuilder14UnpackedTest
+public class EARConfigBuilder14AltDDTest
     extends EARConfigBuilderTestSupport
 {
     protected void setUp() throws Exception {
-        super.setUp();
-        
-        earFile = DeploymentUtil.createJarFile(resolveFile("target/test-ear-j2ee_1.4-unpacked.ear"));
+        earFile = DeploymentUtil.createJarFile(resolveFile("target/test-ear-j2ee_1.4.ear"));
         ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, "ejb.jar/", null, null, null);
         webConfigBuilder.contextRoot = contextRoot;
         webConfigBuilder.webModule = new WebModule(false, webModuleName, null, null, "war.war/", null, null, null, contextRoot, portMap, WEB_NAMESPACE);
-        connectorConfigBuilder.connectorModule = new ConnectorModule(false, raModuleName, null, null, "rar.rar/", null, null, null);
+        connectorConfigBuilder.connectorModule = new ConnectorModule(false, raModuleName, null, null, "rar.rar", null, null, null);
     }
 
-    protected void tearDown() throws Exception {
+    protected void tearDown() {
         DeploymentUtil.close(earFile);
         close(ejbConfigBuilder.ejbModule);
         close(webConfigBuilder.webModule);
         close(connectorConfigBuilder.connectorModule);
-        
-        super.tearDown();
     }
 }
