@@ -143,40 +143,6 @@ public abstract class EARConfigBuilderTestSupport
     
     TODO: Hook up these tests...
     
-    TestSetup setupUnpacked = new TestSetup(inner) {
-        protected void setUp() throws Exception {
-            earFile = DeploymentUtil.createJarFile(new File(basedir, "target/test-unpacked-ear/full/"));
-            ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, "test-ejb-jar.jar/", null, null, null);
-            webConfigBuilder.contextRoot = contextRoot;
-            webConfigBuilder.webModule = new WebModule(false, webModuleName, null, null, "test-war.war/", null, null, null, contextRoot, portMap, WEB_NAMESPACE);
-            connectorConfigBuilder.connectorModule = new ConnectorModule(false, raModuleName, null, null, "test-rar.rar", null, null, null);
-        }
-
-        protected void tearDown() {
-            DeploymentUtil.close(earFile);
-            close(ejbConfigBuilder.ejbModule);
-            close(webConfigBuilder.webModule);
-            close(connectorConfigBuilder.connectorModule);
-        }
-    };
-    
-    TestSetup setupUnpackedNaked = new TestSetup(inner) {
-        protected void setUp() throws Exception {
-            earFile = DeploymentUtil.createJarFile(new File(basedir, "target/test-unpacked-ear/naked/"));
-            ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, "test-ejb-jar.jar/", null, null, null);
-            webConfigBuilder.contextRoot = contextRoot;
-            webConfigBuilder.webModule = new WebModule(false, webModuleName, null, null, "test-war.war", null, null, null, contextRoot, portMap, WEB_NAMESPACE);
-            connectorConfigBuilder.connectorModule = new ConnectorModule(false, raModuleName, null, null, "test-rar.rar", null, null, null);
-        }
-
-        protected void tearDown() {
-            DeploymentUtil.close(earFile);
-            close(ejbConfigBuilder.ejbModule);
-            close(webConfigBuilder.webModule);
-            close(connectorConfigBuilder.connectorModule);
-        }
-    };
-    
     TestSetup setupUnpackedAltDD = new TestSetup(inner) {
         protected void setUp() throws Exception {
             earFile = DeploymentUtil.createJarFile(new File(basedir, "target/test-unpacked-ear/alt-dd/"));

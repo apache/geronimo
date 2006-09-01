@@ -60,6 +60,7 @@
                 <artifactId>dependency-maven-plugin</artifactId>
                 <executions>
                     <execution>
+                        <id>copy-test-deployments</id>
                         <phase>generate-test-resources</phase>
                         <goals>
                             <goal>copy</goal>
@@ -114,6 +115,25 @@
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
+                    <execution>
+                        <id>unpack-test-deployments</id>
+                        <phase>generate-test-resources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <mkdir dir="${project.build.directory}/test-ear-j2ee_1.4-unpacked.ear"/>
+                                <unzip src="${project.build.directory}/test-ear-j2ee_1.4.ear"
+                                    dest="${project.build.directory}/test-ear-j2ee_1.4-unpacked.ear"/>
+                                
+                                <mkdir dir="${project.build.directory}/test-ear-j2ee_1.4-naked-unpacked.ear"/>
+                                <unzip src="${project.build.directory}/test-ear-j2ee_1.4-naked.ear"
+                                    dest="${project.build.directory}/test-ear-j2ee_1.4-naked-unpacked.ear"/>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                    
                     <!--
                     HACK: Copy the generated XmlBeans bits for clover
                     -->
