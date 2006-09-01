@@ -19,21 +19,6 @@
 
 package org.apache.geronimo.j2ee.deployment;
 
-import java.io.File;
-import java.io.IOException;
-
-import java.net.MalformedURLException;
-import java.net.URI;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.jar.JarFile;
-
-import javax.xml.namespace.QName;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
@@ -46,19 +31,22 @@ import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.IOUtil;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.config.NullConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ArtifactManager;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
-import org.apache.geronimo.kernel.repository.ArtifactManager;
-import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
-import org.apache.geronimo.kernel.repository.ArtifactResolver;
-import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
-
 import org.apache.geronimo.testsupport.TestSupport;
+
+import javax.xml.namespace.QName;
+import java.io.IOException;
+import java.net.URI;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.jar.JarFile;
 
 /**
  * Provides support for EAR config builder tests.
