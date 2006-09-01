@@ -33,6 +33,7 @@
     <packaging>car</packaging>
     
     <dependencies>
+        
         <!-- parent -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
@@ -40,13 +41,6 @@
             <version>${pom.version}</version>
             <type>car</type>
         </dependency>
-        
-        <!--
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-j2ee_1.4_spec</artifactId>
-        </dependency>
-        -->
         
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
