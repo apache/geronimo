@@ -42,6 +42,28 @@ import org.apache.tools.ant.taskdefs.ExecTask;
 public class StartServerMojo
     extends AntMojoSupport
 {
+    /**
+     * The port number the server will use.
+     *
+     * @parameter default-value="4444"
+     */
+    private int port;
+    
+    /**
+     * Timeout for the server in seconds.
+     *
+     * @parameter default-value="-1"
+     */
+    private int timeout;
+    
+    
+    /**
+     * Enable the server's debug mode..
+     *
+     * @parameter default-value="false"
+     */
+    private boolean debug;
+    
     //
     // MojoSupport Hooks
     //
@@ -127,6 +149,16 @@ public class StartServerMojo
                     exec.setExecutable(executable);
                     exec.createArg().setValue("-jar");
                     exec.createArg().setFile(artifact.getFile());
+                    exec.createArg().setValue("-port");
+                    exec.createArg().setValue(String.valueOf(port));
+                    if (debug) {
+                        exec.createArg().setValue("-debug");
+                    }
+                    if (timeout > 0) {
+                        exec.createArg().setValue("-timeout");
+                        exec.createArg().setValue(String.valueOf(timeout));
+                    }
+                    
                     exec.setLogError(true);
                     exec.execute();
 
