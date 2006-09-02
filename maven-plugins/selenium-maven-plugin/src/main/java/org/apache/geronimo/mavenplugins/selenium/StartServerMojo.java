@@ -23,13 +23,11 @@ import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.net.ConnectException;
 
 import org.apache.geronimo.genesis.AntMojoSupport;
 import org.apache.geronimo.plugin.ArtifactItem;
 import org.apache.commons.lang.SystemUtils;
+
 import org.apache.tools.ant.taskdefs.ExecTask;
 
 /**
@@ -63,6 +61,13 @@ public class StartServerMojo
      * @parameter default-value="false"
      */
     private boolean debug;
+    
+    /**
+     * Location of the user-extentions.js to load into the server.
+     *
+     * @parameter
+     */
+    private File userExtensions;
     
     //
     // MojoSupport Hooks
@@ -151,12 +156,19 @@ public class StartServerMojo
                     exec.createArg().setFile(artifact.getFile());
                     exec.createArg().setValue("-port");
                     exec.createArg().setValue(String.valueOf(port));
+                    
                     if (debug) {
                         exec.createArg().setValue("-debug");
                     }
+                    
                     if (timeout > 0) {
                         exec.createArg().setValue("-timeout");
                         exec.createArg().setValue(String.valueOf(timeout));
+                    }
+                    
+                    if (userExtensions != null) {
+                        exec.createArg().setValue("-userExtensions");
+                        exec.createArg().setFile(userExtensions);
                     }
                     
                     exec.setLogError(true);
