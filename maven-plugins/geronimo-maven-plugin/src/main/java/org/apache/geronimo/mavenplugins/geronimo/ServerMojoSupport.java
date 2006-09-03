@@ -22,6 +22,7 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -82,6 +83,15 @@ public abstract class ServerMojoSupport
      * @parameter
      */
     protected String defaultAssemblyId = null;
+
+    /**
+     * A file which points to a specific assembly ZIP archive.
+     * If this parameter is set, then it will be used instead of from the
+     * assemblies configuration.
+     *
+     * @parameter expression="${assemblyArchive}"
+     */
+    protected File assemblyArchive = null;
 
     /**
      * Directory to extract the assembly into.
@@ -147,9 +157,42 @@ public abstract class ServerMojoSupport
         return artifactRepository;
     }
 
-    //
-    // Mojo
-    //
+    /**
+     * The assembly archive to use when installing.
+     */
+    protected File installArchive;
+
+    /**
+     * The directory where the assembly has been installed to.
+     */
+    protected File installDir;
+
+    protected void init() throws MojoExecutionException, MojoFailureException {
+        super.init();
+
+        // Determine which archive and directory to use... either manual or from artifacts
+        if (assemblyArchive != null) {
+            log.debug("Using non-artifact based assembly archive: " + installArchive);
+
+            installArchive = assemblyArchive;
+
+            //
+            // FIXME: This probably will not work...
+            //
+
+            installDir = new File(outputDirectory, "assembly-archive");
+        }
+        else {
+            Artifact artifact = getAssemblyArtifact();
+
+            if (!"zip".equals(artifact.getType())) {
+                throw new MojoExecutionException("Assembly file does not look like a ZIP archive");
+            }
+
+            installArchive = artifact.getFile();
+            installDir = new File(outputDirectory, artifact.getArtifactId() + "-" + artifact.getVersion());
+        }
+    }
 
     protected Artifact getAssemblyArtifact() throws MojoExecutionException {
         assert assemblies != null;

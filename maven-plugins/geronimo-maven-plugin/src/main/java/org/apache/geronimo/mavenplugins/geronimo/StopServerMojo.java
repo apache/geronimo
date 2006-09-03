@@ -16,7 +16,6 @@
 
 package org.apache.geronimo.mavenplugins.geronimo;
 
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 
 import java.io.File;
@@ -44,17 +43,19 @@ public class StopServerMojo
     protected void doExecute() throws Exception {
         log.info("Stopping Geronimo server...");
 
-        Artifact artifact = getAssemblyArtifact();
+        //
+        // TODO: Might want to add a marker to the build when start completes...
+        //       so stop can pick up the right dir w/o assembly configuration
+        //
 
-        File assemblyDir = new File(outputDirectory, artifact.getArtifactId() + "-" + artifact.getVersion());
-        if (!assemblyDir.exists()) {
+        if (!installDir.exists()) {
             // Complain if there is no assemblyDir, as that probably means that 'start' was not executed.
-            throw new MojoExecutionException("Missing assembly directory: " + assemblyDir);
+            throw new MojoExecutionException("Missing assembly directory: " + installDir);
         }
 
         Java java = (Java)createTask("java");
-        java.setJar(new File(assemblyDir, "bin/shutdown.jar"));
-        java.setDir(assemblyDir);
+        java.setJar(new File(installDir, "bin/shutdown.jar"));
+        java.setDir(installDir);
         java.setFailonerror(true);
         java.setFork(true);
         java.setLogError(true);
