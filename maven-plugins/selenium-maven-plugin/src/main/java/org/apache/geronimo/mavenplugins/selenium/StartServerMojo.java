@@ -111,12 +111,28 @@ public class StartServerMojo
     private File workingDirectory = null;
 
     /**
-     * The file that Selenium server output will be written to.
+     * The file that Selenium server logs will be written to.
+     *
+     * @parameter expression="${project.build.directory}/selenium/server.log"
+     * @required
+     */
+    private File logFile = null;
+
+    /**
+     * The file that Selenium server STDOUT will be written to.
      *
      * @parameter expression="${project.build.directory}/selenium/server.out"
      * @required
      */
     private File outputFile = null;
+
+    /**
+     * The file that Selenium server STDERR will be written to.
+     *
+     * @parameter expression="${project.build.directory}/selenium/server.err"
+     * @required
+     */
+    private File errorFile = null;
 
     //
     // MojoSupport Hooks
@@ -178,34 +194,50 @@ public class StartServerMojo
     // Mojo
     //
 
+    private File getPluginArchive() {
+        String path = getClass().getProtectionDomain().getCodeSource().getLocation().getFile();
+        return new File(path);
+    }
+
+    private Artifact getPluginArtifact(final String name) throws MojoExecutionException {
+        Artifact artifact = (Artifact)pluginArtifactMap.get(name);
+        if (artifact == null) {
+            throw new MojoExecutionException("Unable to locate '" + name + "' in the list of plugin artifacts");
+        }
+
+        return artifact;
+    }
+
     protected void doExecute() throws Exception {
         log.info("Starting Selenium server...");
-
-        Artifact seleniumArtifact = (Artifact)pluginArtifactMap.get("org.openqa.selenium.server:selenium-server");
-        if (seleniumArtifact == null) {
-            throw new MojoExecutionException("Unable to locate 'selenium-server' in the list of plugin artifacts");
-        }
 
         final Java java = (Java)createTask("java");
 
         java.setFork(true);
         mkdir(workingDirectory);
         java.setDir(workingDirectory);
-        java.setOutput(outputFile);
         java.setFailonerror(true);
+        java.setOutput(outputFile);
+        java.setError(errorFile);
         java.setLogError(true);
 
         java.setClassname("org.openqa.selenium.server.SeleniumServer");
 
         Path classpath = java.createClasspath();
-        classpath.createPathElement().setLocation(seleniumArtifact.getFile());
+        classpath.createPathElement().setLocation(getPluginArchive());
+        classpath.createPathElement().setLocation(getPluginArtifact("log4j:log4j").getFile());
+        classpath.createPathElement().setLocation(getPluginArtifact("org.openqa.selenium.server:selenium-server").getFile());
 
-        //
-        // HACK: Use Simple log instead of evil JDK 1.4 logging
-        //
-        Environment.Variable var = new Environment.Variable();
-        var.setKey("org.apache.commons.logging.Log");
-        var.setValue("org.apache.commons.logging.impl.SimpleLog");
+        Environment.Variable var;
+
+        var = new Environment.Variable();
+        var.setKey("selenium.log");
+        var.setFile(logFile);
+        java.addSysproperty(var);
+
+        var = new Environment.Variable();
+        var.setKey("log4j.configuration");
+        var.setValue("org/apache/geronimo/mavenplugins/selenium/log4j.properties");
         java.addSysproperty(var);
 
         // Server arguments
@@ -232,6 +264,7 @@ public class StartServerMojo
             java.createArg().setFile(userExtentionsFile);
         }
 
+        // Holds any exception that was thrown during startup (as the cause)
         final Throwable errorHolder = new Throwable();
 
         // Start the server int a seperate thread
@@ -243,7 +276,10 @@ public class StartServerMojo
                 catch (Exception e) {
                     errorHolder.initCause(e);
 
-                    log.error("Failed to start Selenium server", e);
+                    //
+                    // NOTE: Don't log here, as when the JVM exists an exception will get thrown by Ant
+                    //       but that should be fine.
+                    //
                 }
             }
         };
