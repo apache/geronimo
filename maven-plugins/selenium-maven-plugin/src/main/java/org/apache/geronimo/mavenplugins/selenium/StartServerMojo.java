@@ -228,7 +228,7 @@ public class StartServerMojo
 
         File userExtentionsFile = getUserExtentionsFile();
         if (userExtentionsFile != null) {
-            log.info("Using user extensions: " + userExtentionsFile);
+            log.info("User extensions: " + userExtentionsFile);
 
             java.createArg().setValue("-userExtensions");
             java.createArg().setFile(userExtentionsFile);
@@ -318,9 +318,11 @@ public class StartServerMojo
 
         // File needs to be named 'user-extensions.js' or Selenium server will puke
         File file = new File(workingDirectory, "user-extensions.js");
-        file.mkdirs();
-        file.delete();
-        file.deleteOnExit();
+        if (file.exists()) {
+            log.debug("Reusing previously generated file: " + file);
+
+            return file;
+        }
 
         PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(file)));
 
