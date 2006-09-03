@@ -19,7 +19,6 @@ package org.apache.geronimo.mavenplugins.geronimo;
 import org.apache.maven.plugin.MojoExecutionException;
 
 import java.io.File;
-import java.net.URL;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -219,14 +218,8 @@ public class StartServerMojo
             timer.schedule(timeoutTask, verifyTimeout * 1000);
         }
 
-        //
-        // TODO: Check the status via JMX:
-        //
-        //       "service:jmx:rmi://localhost/jndi/rmi://localhost:" + port + "/JMXConnector"
-        //
-
         // Verify server started
-        URL url = new URL("http://localhost:8080");
+        ServerProxy server = new ServerProxy(port, username, password);
         boolean started = false;
         while (!started) {
             if (verifyTimedOut.isSet()) {
@@ -237,28 +230,21 @@ public class StartServerMojo
                 throw new MojoExecutionException("Failed to start Geronimo server", errorHolder.getCause());
             }
 
-            log.debug("Trying connection to: " + url);
+            started = server.isFullyStarted();
 
-            try {
-                url.openConnection().getContent();
-                started = true;
-            }
-            catch (Exception e) {
-                // ignore
-            }
+            if (!started) {
+                Throwable error = server.getLastError();
+                if (error != null) {
+                    log.debug("Server query failed; ignoring", error);
+                }
 
-            Thread.sleep(1000);
+                Thread.sleep(1000);
+            }
         }
 
         // Stop the timer, server should be up now
         timeoutTask.cancel();
-
-        //
-        // HACK: Give it a few seconds... our detection method here is lossy
-        //
-
-        Thread.sleep(10000);
-
+        
         log.info("Geronimo server started");
 
         if (!background) {
