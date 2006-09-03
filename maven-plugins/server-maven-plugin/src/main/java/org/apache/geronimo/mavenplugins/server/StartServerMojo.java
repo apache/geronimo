@@ -21,11 +21,11 @@ import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.factory.ArtifactFactory;
+import org.apache.maven.plugin.MojoExecutionException;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
-import java.net.ConnectException;
+import java.net.URLConnection;
 
 import org.apache.geronimo.genesis.AntMojoSupport;
 import org.apache.geronimo.plugin.ArtifactItem;
@@ -58,6 +58,14 @@ public class StartServerMojo
      * @required
      */
     private File outputDirectory = null;
+
+    /**
+     * Flag to control if we background the server or block Maven execution.
+     *
+     * @parameter default-value="false"
+     * @required
+     */
+    private boolean background = false;
 
     //
     // MojoSupport Hooks
@@ -128,10 +136,7 @@ public class StartServerMojo
         // Unzip the assembly
         Artifact artifact = getArtifact(assembly);
 
-        // What are we running... where?
-        final File workDir = new File(outputDirectory, artifact.getArtifactId() + "-" + artifact.getVersion());
-        final String executable = "java" +  (SystemUtils.IS_OS_WINDOWS ? ".exe" : "");
-
+        File workDir = new File(outputDirectory, artifact.getArtifactId() + "-" + artifact.getVersion());
         if (!workDir.exists()) {
             log.info("Extracting assembly: " + artifact.getFile());
 
@@ -144,42 +149,58 @@ public class StartServerMojo
             log.debug("Assembly already unpacked... reusing");
         }
 
+        //
+        // TODO: Change to Java task
+        //
+
+        final ExecTask exec = (ExecTask)createTask("exec");
+        exec.setExecutable("java" +  (SystemUtils.IS_OS_WINDOWS ? ".exe" : ""));
+        exec.createArg().setValue("-jar");
+        exec.createArg().setFile(new File(workDir, "bin/server.jar"));
+        exec.createArg().setValue("--quiet");
+        exec.setDir(workDir);
+        exec.setLogError(true);
+
+        // Holds any exception that was thrown during startup (as the cause)
+        final Throwable errorHolder = new Throwable();
+
         // Start the server int a seperate thread
-        Thread t = new Thread("Server Runner") {
+        Thread t = new Thread("Geronimo Server Runner") {
             public void run() {
                 try {
-                    ExecTask exec = (ExecTask)createTask("exec");
-                    exec.setExecutable(executable);
-                    exec.createArg().setValue("-jar");
-                    exec.createArg().setFile(new File(workDir, "bin/server.jar"));
-                    exec.createArg().setValue("--quiet");
-                    exec.setDir(workDir);
-                    exec.setLogError(true);
                     exec.execute();
-
-                    synchronized(this) {
-                        wait();
-                    }
                 }
                 catch (Exception e) {
-                    // ignore
+                    errorHolder.initCause(e);
+
+                    //
+                    // NOTE: Don't log here, as when the JVM exists an exception will get thrown by Ant
+                    //       but that should be fine.
+                    //
                 }
             }
         };
         t.start();
-        
+
+        log.info("Waiting for Geronimo server...");
+
         //
         // TODO: Check the status via JMX
         //
-        
+
         // Verify server started
         URL url = new URL("http://localhost:8080");
         boolean started = false;
         while (!started) {
+            if (errorHolder.getCause() != null) {
+                throw new MojoExecutionException("Failed to start Geronimo server", errorHolder.getCause());
+            }
+
             log.debug("Trying connection to: " + url);
 
             try {
-                Object input = url.openConnection().getContent();
+                URLConnection c = url.openConnection();
+                Object input = c.getContent();
                 log.debug("Input: " + input);
                 started = true;
             }
@@ -191,5 +212,12 @@ public class StartServerMojo
         }
 
         log.info("Server started");
+
+        if (!background) {
+            log.info("Waiting for Geronimo to shutdown...");
+            synchronized (this) {
+                wait();
+            }
+        }
     }
 }
