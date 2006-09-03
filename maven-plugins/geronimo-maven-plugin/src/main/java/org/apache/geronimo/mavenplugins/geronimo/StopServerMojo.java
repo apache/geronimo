@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.mavenplugins.server;
+package org.apache.geronimo.mavenplugins.geronimo;
 
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
