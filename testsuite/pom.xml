@@ -47,6 +47,13 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>org.testng</groupId>
+                <artifactId>testng</artifactId>
+                <classifier>jdk14</classifier>
+                <version>5.1</version>
+            </dependency>
+            
+            <dependency>
                 <groupId>org.openqa.selenium.client-drivers</groupId>
                 <artifactId>selenium-java-client-driver</artifactId>
                 <version>0.8.1</version>
@@ -59,6 +66,38 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+    
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.testsupport</groupId>
+            <artifactId>testsupport-common</artifactId>
+            <version>${pom.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-invoker-plugin</artifactId>
+                    <version>1.0-SNAPSHOT</version>
+                </plugin>
+                
+                <!--
+                NOTE: Using custom maven-surefire-plugin that supports TestNG:
+                      
+                      http://testng.org/doc/maven.html
+                -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.8-SNAPSHOT</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
     
     <repositories>
         <repository>
@@ -76,5 +115,15 @@
             </releases>
         </repository>
     </repositories>
+    
+    <!--
+    NOTE: This is the repository where maven-surefire-plugin:2.8-SNAPSHOT comes from.
+    -->
+    <pluginRepositories>
+        <pluginRepository>
+            <id>tapestry.javaforge</id>
+            <url>http://howardlewisship.com/repository</url>
+        </pluginRepository>
+    </pluginRepositories>
 
 </project>

@@ -24,43 +24,24 @@ package org.apache.geronimo.testsuite.console;
  *
  * @version $Rev$ $Date$
  */
-public class SimpleLoginTest
+public class LinkCheckTest
     extends ConsoleTestSupport
 {
     /**
      * @testng.test
      */
-    public void testLogin() throws Exception {
-        login();
-        
-        selenium.removeCookie("JSESSIONID", "/");
-    }
-    
-    /**
-     * @testng.test
-     */
-    public void testLoginAndLogout() throws Exception {
-        login();
-        logout();
-    }
-    
-    /**
-     * @testng.test
-     */
-    public void testClickSomeLinks() throws Exception {
+    public void testServerInfoLink() throws Exception {
         login();
         
         selenium.click("link=Information");
         selenium.waitForPageToLoad("30000");
         assertEquals("Geronimo Console", selenium.getTitle());
         
-        selenium.click("link=JVM");
-        selenium.waitForPageToLoad("30000");
-        assertEquals("Geronimo Console", selenium.getTitle());
+        assertTrue(selenium.isTextPresent("Geronimo Version"));
+        assertTrue(selenium.isTextPresent("Geronimo Start Time"));
         
-        selenium.click("link=DB Info");
-        selenium.waitForPageToLoad("30000");
-        assertEquals("Geronimo Console", selenium.getTitle());
+        assertEquals("Server Info", selenium.getText(
+            "xpath=/html/body/table[@id='rootfragment']/tbody/tr[2]/td/table/tbody/tr[2]/td[4]/table/tbody/tr[1]/td/table/tbody/tr[1]/td/div/table/tbody/tr/td[2]/table/tbody/tr/td[1]/strong"));
         
         logout();
     }

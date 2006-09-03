@@ -24,45 +24,31 @@ package org.apache.geronimo.testsuite.console;
  *
  * @version $Rev$ $Date$
  */
-public class SimpleLoginTest
-    extends ConsoleTestSupport
+public abstract class ConsoleTestSupport
+    extends SeleniumTestSupport
 {
-    /**
-     * @testng.test
-     */
-    public void testLogin() throws Exception {
-        login();
+    protected void login() throws Exception {
+        selenium.open("/");
+        selenium.waitForPageToLoad("30000");
+        assertEquals("Apache Geronimo", selenium.getTitle());
+        
+        selenium.click("link=Console");
+        selenium.waitForPageToLoad("30000");
+        assertEquals("Geronimo Console Login", selenium.getTitle());
+        
+        selenium.type("j_username", "system");
+        selenium.type("j_password", "manager");
+        selenium.click("submit");
+        selenium.waitForPageToLoad("30000");
+        assertEquals("Geronimo Console", selenium.getTitle());
+    }
+    
+    protected void logout() throws Exception {
+        selenium.click("//a[contains(@href, '/console/logout.jsp')]");
+        selenium.waitForPageToLoad("30000");
+        assertEquals("Geronimo Console Login", selenium.getTitle());
         
         selenium.removeCookie("JSESSIONID", "/");
-    }
-    
-    /**
-     * @testng.test
-     */
-    public void testLoginAndLogout() throws Exception {
-        login();
-        logout();
-    }
-    
-    /**
-     * @testng.test
-     */
-    public void testClickSomeLinks() throws Exception {
-        login();
-        
-        selenium.click("link=Information");
-        selenium.waitForPageToLoad("30000");
-        assertEquals("Geronimo Console", selenium.getTitle());
-        
-        selenium.click("link=JVM");
-        selenium.waitForPageToLoad("30000");
-        assertEquals("Geronimo Console", selenium.getTitle());
-        
-        selenium.click("link=DB Info");
-        selenium.waitForPageToLoad("30000");
-        assertEquals("Geronimo Console", selenium.getTitle());
-        
-        logout();
     }
 }
 

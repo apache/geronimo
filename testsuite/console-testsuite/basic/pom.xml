@@ -45,6 +45,13 @@
     
     <dependencies>
         <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <classifier>jdk14</classifier>
+            <scope>test</scope>
+        </dependency>
+        
+        <dependency>
             <groupId>org.openqa.selenium.client-drivers</groupId>
             <artifactId>selenium-java-client-driver</artifactId>
             <scope>test</scope>
