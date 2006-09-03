@@ -116,7 +116,7 @@ public class StopServerMojo
     //
 
     protected void doExecute() throws Exception {
-        log.info("Stopping server...");
+        log.info("Stopping Geronimo server...");
 
         log.debug("Using assembly: " + assembly);
 
@@ -139,6 +139,6 @@ public class StopServerMojo
         exec.setLogError(true);
         exec.execute();
 
-        log.info("Server stopped");
+        log.info("Geronimo server stopped");
     }
 }
