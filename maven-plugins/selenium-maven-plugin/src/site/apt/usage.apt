@@ -7,10 +7,11 @@
 
 Basic Usage
 
-* Start Selenium Server
+* Start Selenium Server (Integrated)
 
  For integration tests that need a Selenium server, use the <<<pre-integration-test>>>
- phase to start it up.
+ phase to start it up in the <background> to allow the <<<integration-test>>> phase to
+ be executed with the server running.
  
  <<NOTE:>> Currently there is no <stop>, the forked JVM will exit when Maven does.
  
@@ -35,8 +36,27 @@ Basic Usage
             <goals>
                 <goal>start</goal>
             </goals>
+            <configuration>
+                <background>true</background>
+            </configuration>
         </execution>
     </executions>
 </plugin>
++----------+
+
+* Start Selenium Server (Standalone)
+
+ To start Selenium on the command line, which is very useful while developing tests,
+ simply execute the <<<start>>> goal.
+
+ This will start the server and block until the server has been stopped, either
+ from the process being killed, or more normally, until CTRL-C is used to exit
+ Maven.
+
+ This is the preferred mechanism to start the server standalone, as it will setup
+ <<<user-extensions.js>>>.
+
++----------+
+mvn selenium:start
 +----------+
 

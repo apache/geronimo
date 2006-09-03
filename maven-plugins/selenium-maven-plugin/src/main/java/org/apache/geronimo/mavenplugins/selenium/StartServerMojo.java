@@ -131,6 +131,14 @@ public class StartServerMojo
      */
     private File errorFile = null;
 
+    /**
+     * Flag to control if we background the server or block Maven execution.
+     *
+     * @parameter default-value="false"
+     * @required
+     */
+    private boolean background = false;
+
     //
     // MojoSupport Hooks
     //
@@ -268,6 +276,13 @@ public class StartServerMojo
         }
 
         log.info("Selenium server started");
+
+        if (!background) {
+            log.info("Waiting for Selenium to shutdown...");
+            synchronized (this) {
+                wait();
+            }
+        }
     }
 
     /**
