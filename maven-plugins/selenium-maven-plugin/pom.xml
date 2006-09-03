@@ -32,6 +32,10 @@
     <name>Geronimo Maven2 Plugins :: Selenium</name>
     <packaging>maven-plugin</packaging>
     
+    <description>
+        Provides support to start a Selenium server.
+    </description>
+    
     <dependencies>
         <dependency>
             <groupId>org.openqa.selenium.server</groupId>

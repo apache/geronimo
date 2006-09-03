@@ -87,8 +87,6 @@ public class StartServerMojo
 
     /**
      * Location of the user-extentions.js to load into the server.
-     *
-     * <p>
      * If defaultUserExtensionsEnabled is true, then this file will be appended to the defaults.
      *
      * @parameter
