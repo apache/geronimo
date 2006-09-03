@@ -152,8 +152,16 @@ public class StartServerMojo
                 try {
                     ExecTask exec = (ExecTask)createTask("exec");
                     exec.setExecutable(executable);
+                    
+                    //
+                    // HACK: Use Simple log instead of evil JDK 1.4 logging
+                    //       Should change to Java task and setup log4j.properties in the cp
+                    //
+                    exec.createArg().setValue("-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.SimpleLog");
+                    
                     exec.createArg().setValue("-jar");
                     exec.createArg().setFile(artifact.getFile());
+                    
                     exec.createArg().setValue("-port");
                     exec.createArg().setValue(String.valueOf(port));
                     
@@ -162,18 +170,27 @@ public class StartServerMojo
                     }
                     
                     if (timeout > 0) {
+                        log.info("Timeout after: " + timeout + " seconds");
+                        
                         exec.createArg().setValue("-timeout");
                         exec.createArg().setValue(String.valueOf(timeout));
                     }
                     
                     if (userExtensions != null) {
+                        log.info("Using user extensions: " + userExtensions);
+                        
                         exec.createArg().setValue("-userExtensions");
                         exec.createArg().setFile(userExtensions);
                     }
                     
                     exec.setLogError(true);
                     exec.execute();
-
+                }
+                catch (Exception e) {
+                    log.error("Failed to start server", e);
+                }
+                
+                try {
                     synchronized(this) {
                         wait();
                     }
