@@ -22,6 +22,7 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.MojoExecutionException;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -30,13 +31,14 @@ import java.io.FileWriter;
 
 import java.net.URL;
 import java.net.MalformedURLException;
+import java.util.Map;
 
 import org.apache.geronimo.genesis.AntMojoSupport;
-import org.apache.geronimo.plugin.ArtifactItem;
-import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.io.IOUtils;
 
-import org.apache.tools.ant.taskdefs.ExecTask;
+import org.apache.tools.ant.taskdefs.Java;
+import org.apache.tools.ant.types.Environment;
+import org.apache.tools.ant.types.Path;
 
 /**
  * Start the Selenium server.
@@ -54,7 +56,7 @@ public class StartServerMojo
      * @parameter default-value="4444"
      */
     private int port = -1;
-    
+
     /**
      * Timeout for the server in seconds.
      *
@@ -92,7 +94,32 @@ public class StartServerMojo
      * @parameter
      */
     private String userExtensions = null;
-    
+
+    /**
+     * Map of of plugin artifacts.
+     *
+     * @parameter expression="${plugin.artifactMap}"
+     * @required
+     * @readonly
+     */
+    private Map pluginArtifactMap = null;
+
+    /**
+     * Working directory where Selenium server will be started from.
+     *
+     * @parameter expression="${project.build.directory}/selenium"
+     * @required
+     */
+    private File workingDirectory = null;
+
+    /**
+     * The file that Selenium server output will be written to.
+     *
+     * @parameter expression="${project.build.directory}/selenium/server.out"
+     * @required
+     */
+    private File outputFile = null;
+
     //
     // MojoSupport Hooks
     //
@@ -154,71 +181,101 @@ public class StartServerMojo
     //
 
     protected void doExecute() throws Exception {
-        log.info("Starting server...");
-        
-        //
-        // HACK: Need a better way to find this jar
-        //
-        
-        ArtifactItem item = new ArtifactItem();
-        item.setGroupId("org.openqa.selenium.server");
-        item.setArtifactId("selenium-server");
-        item.setVersion("0.8.1");
-        
-        final Artifact artifact = getArtifact(item);
+        log.info("Starting Selenium server...");
 
-        final String executable = "java" +  (SystemUtils.IS_OS_WINDOWS ? ".exe" : "");
+        Artifact seleniumArtifact = (Artifact)pluginArtifactMap.get("org.openqa.selenium.server:selenium-server");
+        if (seleniumArtifact == null) {
+            throw new MojoExecutionException("Unable to locate 'selenium-server' in the list of plugin artifacts");
+        }
 
-        final ExecTask exec = (ExecTask)createTask("exec");
-        exec.setExecutable(executable);
+        final Java java = (Java)createTask("java");
+
+        java.setFork(true);
+        mkdir(workingDirectory);
+        java.setDir(workingDirectory);
+        java.setOutput(outputFile);
+        java.setFailonerror(true);
+        java.setLogError(true);
+
+        java.setClassname("org.openqa.selenium.server.SeleniumServer");
+
+        Path classpath = java.createClasspath();
+        classpath.createPathElement().setLocation(seleniumArtifact.getFile());
 
         //
         // HACK: Use Simple log instead of evil JDK 1.4 logging
-        //       Should change to Java task and setup log4j.properties in the cp
         //
-        exec.createArg().setValue("-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.SimpleLog");
+        Environment.Variable var = new Environment.Variable();
+        var.setKey("org.apache.commons.logging.Log");
+        var.setValue("org.apache.commons.logging.impl.SimpleLog");
+        java.addSysproperty(var);
 
-        exec.createArg().setValue("-jar");
-        exec.createArg().setFile(artifact.getFile());
+        // Server arguments
 
-        exec.createArg().setValue("-port");
-        exec.createArg().setValue(String.valueOf(port));
+        java.createArg().setValue("-port");
+        java.createArg().setValue(String.valueOf(port));
 
         if (debug) {
-            exec.createArg().setValue("-debug");
+            java.createArg().setValue("-debug");
         }
 
         if (timeout > 0) {
             log.info("Timeout after: " + timeout + " seconds");
 
-            exec.createArg().setValue("-timeout");
-            exec.createArg().setValue(String.valueOf(timeout));
+            java.createArg().setValue("-timeout");
+            java.createArg().setValue(String.valueOf(timeout));
         }
 
         File userExtentionsFile = getUserExtentionsFile();
         if (userExtentionsFile != null) {
             log.info("Using user extensions: " + userExtentionsFile);
 
-            exec.createArg().setValue("-userExtensions");
-            exec.createArg().setFile(userExtentionsFile);
+            java.createArg().setValue("-userExtensions");
+            java.createArg().setFile(userExtentionsFile);
         }
 
-        exec.setLogError(true);
+        final Throwable errorHolder = new Throwable();
 
         // Start the server int a seperate thread
-        Thread t = new Thread("Server Runner") {
+        Thread t = new Thread("Selenium Server Runner") {
             public void run() {
                 try {
-                    exec.execute();
+                    java.execute();
                 }
                 catch (Exception e) {
-                    log.error("Failed to start server", e);
+                    errorHolder.initCause(e);
+
+                    log.error("Failed to start Selenium server", e);
                 }
             }
         };
         t.start();
 
-        log.info("Server started");
+        log.info("Waiting for Selenium server...");
+
+        // Verify server started
+        URL url = new URL("http://localhost:" + port + "/selenium-server");
+        boolean started = false;
+        while (!started) {
+            if (errorHolder.getCause() != null) {
+                throw new MojoExecutionException("Failed to start Selenium server", errorHolder.getCause());
+            }
+
+            log.debug("Trying connection to: " + url);
+
+            try {
+                Object input = url.openConnection().getContent();
+                log.debug("Input: " + input);
+                started = true;
+            }
+            catch (Exception e) {
+                // ignore
+            }
+
+            Thread.sleep(1000);
+        }
+
+        log.info("Selenium server started");
     }
 
     /**
@@ -259,8 +316,12 @@ public class StartServerMojo
             return null;
         }
 
-        File file = File.createTempFile("user-extentions-", ".js");
+        // File needs to be named 'user-extensions.js' or Selenium server will puke
+        File file = new File(workingDirectory, "user-extensions.js");
+        file.mkdirs();
+        file.delete();
         file.deleteOnExit();
+
         PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(file)));
 
         if (defaultUserExtensionsEnabled) {

@@ -40,6 +40,11 @@
         </dependency>
 
         <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>1.2</version>
@@ -62,6 +67,17 @@
             </releases>
         </repository>
     </repositories>
-    
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-plugin-plugin</artifactId>
+                <configuration>
+                    <goalPrefix>selenium</goalPrefix>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
 
