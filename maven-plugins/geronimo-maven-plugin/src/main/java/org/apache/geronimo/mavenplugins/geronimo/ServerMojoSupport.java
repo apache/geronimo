@@ -42,7 +42,6 @@ public abstract class ServerMojoSupport
      * The port number to connect to the server..
      *
      * @parameter expression="${port}" default-value="1099"
-     * @required
      */
     protected int port = -1;
 
@@ -50,7 +49,6 @@ public abstract class ServerMojoSupport
      * The username to authenticate with.
      *
      * @parameter expression="${username}" default-value="system"
-     * @required
      */
     protected String username = null;
 
@@ -58,7 +56,6 @@ public abstract class ServerMojoSupport
      * The password to authenticate with.
      *
      * @parameter expression="${password}" default-value="manager"
-     * @required
      */
     protected String password = null;
 
