@@ -279,9 +279,8 @@ public class StartServerMojo
 
         if (!background) {
             log.info("Waiting for Selenium to shutdown...");
-            synchronized (this) {
-                wait();
-            }
+
+            t.join();
         }
     }
 
