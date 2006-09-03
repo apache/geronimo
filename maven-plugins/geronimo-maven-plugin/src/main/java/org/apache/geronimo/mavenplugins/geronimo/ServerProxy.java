@@ -102,6 +102,10 @@ public class ServerProxy
         return mbeanConnection;
     }
 
+    //
+    // TODO: Add shutdown related methods so we can shutdown via JMX and not require an assembly to be installed
+    //
+    
     public boolean isFullyStarted() {
         boolean fullyStarted = true;
 
