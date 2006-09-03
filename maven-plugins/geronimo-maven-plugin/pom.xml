@@ -32,6 +32,10 @@
     <name>Geronimo Maven2 Plugins :: Geronimo</name>
     <packaging>maven-plugin</packaging>
     
+    <description>
+        Geronimo plugin for Maven 2; used to install, start and stop the server.
+    </description>
+    
     <build>
         <plugins>
             <plugin>

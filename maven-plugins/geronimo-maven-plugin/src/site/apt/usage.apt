@@ -1,15 +1,168 @@
  ------
- TODO
+ Geronimo Plugin for Maven 2
  ------
  ???
  ------
  ???
 
-TODO
+Basic Usage
 
-* TODO
+* Assembly Artifact Configuration
+
+ Before the plugin can start or stop a server, it needs to know about the
+ assembly (or asemblies) which it will install.
+ 
+ This example shows one assembly, which will be used to install unless the
+ <<<assemblyArchive>>> parameter has been set.
 
 +----------+
-TODO
+<plugin>
+    <groupId>org.apache.geronimo.plugins</groupId>
+    <artifactId>geronimo-maven-plugin</artifactId>
+    
+    <configuration>
+        <assemblies>
+            <assembly>
+                <groupId>org.apache.geronimo.assemblies</groupId>
+                <artifactId>geronimo-jetty-j2ee</artifactId>
+                <version>${pom.version}</version>
+                <classifier>bin</classifier>
+                <type>zip</type>
+            </assembly>
+    </configuration>
+</plugin>
 +----------+
 
+ Multipule assemblies may be specified.  Each must have a unique id, and either
+ <<<defaultAssemblyId>>> or <<<assemblyId>>> must be configured to inform the
+ plugin which assembly to use.
+ 
++----------+
+<plugin>
+    <groupId>org.apache.geronimo.plugins</groupId>
+    <artifactId>geronimo-maven-plugin</artifactId>
+    
+    <configuration>
+        <assemblies>
+            <assembly>
+                <id>jetty</id>
+                <groupId>org.apache.geronimo.assemblies</groupId>
+                <artifactId>geronimo-jetty-j2ee</artifactId>
+                <version>${pom.version}</version>
+                <classifier>bin</classifier>
+                <type>zip</type>
+            </assembly>
+            
+            <assembly>
+                <id>jetty-minimal</id>
+                <groupId>org.apache.geronimo.assemblies</groupId>
+                <artifactId>geronimo-jetty-minimal</artifactId>
+                <version>${pom.version}</version>
+                <classifier>bin</classifier>
+                <type>zip</type>
+            </assembly>
+            
+            <assembly>
+                <id>tomcat</id>
+                <groupId>org.apache.geronimo.assemblies</groupId>
+                <artifactId>geronimo-tomcat-j2ee</artifactId>
+                <version>${pom.version}</version>
+                <classifier>bin</classifier>
+                <type>zip</type>
+            </assembly>
+            
+            <assembly>
+                <id>tomcat-minimal</id>
+                <groupId>org.apache.geronimo.assemblies</groupId>
+                <artifactId>geronimo-tomcat-minimal</artifactId>
+                <version>${pom.version}</version>
+                <classifier>bin</classifier>
+                <type>zip</type>
+            </assembly>
+        </assemblies>
+        
+        <defaultAssemblyId>jetty</defaultAssemblyId>
+    </configuration>
+</plugin>
++----------+
+
+* Starting Geronimo Server
+
+ If you have configured an assembly (or assemblies with a default), then
+ simply:
+
++----------+
+mvn geronimo:start
++----------+
+
+ The assembly archive will be installed if it does not already exist, or if
+ the plugin detects that the current archive is newer than the last installation.
+
+ Some additional flags may be passed in to alter the startup behavor.  For example
+ to enable verbose mode:
+
++----------+
+mvn geronimo:start -Dverbose=true
++----------+
+
+* Stopping Geronimo Server
+
+ To stop the server, simply:
+
++----------+
+mvn geronimo:stop
++----------+
+
+ Additonal parameters may be passed in on the command-line:
+
++----------+
+mvn geronimo:stop -Dusername=system -Dpassword=manager -Dport=1099
++----------+
+
+* Selecting an Assembly
+
+ Once you have a set of assemblies configured with unique ids, you can specify
+ the id of the assembly you wish to use on the command-line:
+
++----------+
+mvn geronimo:start -DassemblyId=tomcat
++----------+
+
+ Currently you need to specify the assemblyId for <<<geronimo:stop>>> too.
+
++----------+
+mvn geronimo:stop -DassemblyId=tomcat
++----------+
+
+* Start/Stop for Integration Testing
+
+ For inline integration testing, you can set the <<<background>>> parameter
+ on the <<<start>>> goal to start the server, wait for it to load and then
+ return control to Maven so that it can execute integration tests.
+
++----------+
+<plugin>
+    <groupId>org.apache.geronimo.plugins</groupId>
+    <artifactId>geronimo-maven-plugin</artifactId>
+    <executions>
+        <execution>
+            <id>start-server</id>
+            <phase>pre-integration-test</phase>
+            <goals>
+                <goal>start</goal>
+            </goals>
+            <configuration>
+                <background>true</background>
+            </configuration>
+        </execution>
+        
+        <execution>
+            <id>stop-server</id>
+            <phase>post-integration-test</phase>
+            <goals>
+                <goal>stop</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
++----------+
