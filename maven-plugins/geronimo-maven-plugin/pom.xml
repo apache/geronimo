@@ -28,12 +28,8 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     
-    <!--
-    TODO: Rename to geronimo-maven-plugin
-    -->
-    
-    <artifactId>server-maven-plugin</artifactId>
-    <name>Geronimo Maven2 Plugins :: Server</name>
+    <artifactId>geronimo-maven-plugin</artifactId>
+    <name>Geronimo Maven2 Plugins :: Geronimo</name>
     <packaging>maven-plugin</packaging>
     
     <build>
@@ -41,7 +37,7 @@
             <plugin>
                 <artifactId>maven-plugin-plugin</artifactId>
                 <configuration>
-                    <goalPrefix>server</goalPrefix>
+                    <goalPrefix>geronimo</goalPrefix>
                 </configuration>
             </plugin>
         </plugins>

@@ -40,7 +40,7 @@ public class StopServerMojo
     extends AntMojoSupport
 {
     /**
-     * The assembly to unpack which contains the serer to start.
+     * The assembly to unpack which contains the server to stop.
      *
      * @parameter
      * @required

@@ -44,7 +44,7 @@ public class StartServerMojo
     extends AntMojoSupport
 {
     /**
-     * The assembly to unpack which contains the serer to start.
+     * The assembly to unpack which contains the server to start.
      *
      * @parameter
      * @required
@@ -129,7 +129,7 @@ public class StartServerMojo
     //
 
     protected void doExecute() throws Exception {
-        log.info("Starting server...");
+        log.info("Starting Geronimo server...");
 
         log.debug("Using assembly: " + assembly);
 
@@ -211,10 +211,10 @@ public class StartServerMojo
             Thread.sleep(1000);
         }
 
-        log.info("Server started");
+        log.info("Geronimo server started");
 
         if (!background) {
-            log.info("Waiting for Geronimo to shutdown...");
+            log.info("Waiting for Geronimo server to shutdown...");
             synchronized (this) {
                 wait();
             }
