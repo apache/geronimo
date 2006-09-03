@@ -29,6 +29,7 @@ Basic Usage
                 <classifier>bin</classifier>
                 <type>zip</type>
             </assembly>
+        </assemblies>
     </configuration>
 </plugin>
 +----------+
