@@ -35,8 +35,8 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
     
-    <artifactId>basic</artifactId>
-    <name>Geronimo TestSuite, Console :: Basic</name>
+    <artifactId>basic-junit</artifactId>
+    <name>Geronimo TestSuite, Console :: Basic (JUnit)</name>
     <packaging>jar</packaging>
     
     <description>
