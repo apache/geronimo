@@ -14,7 +14,7 @@ Basic Usage
  
  <<NOTE:>> Currently there is no <stop>, the forked JVM will exit when Maven does.
  
- This will by default create files under <<<\${pom.basedir}/target/selenium>>>, including:
+ This will by default create files under <<<$\{pom.basedir\}/target/selenium>>>, including:
  
   * <<<server.out>>>
   
