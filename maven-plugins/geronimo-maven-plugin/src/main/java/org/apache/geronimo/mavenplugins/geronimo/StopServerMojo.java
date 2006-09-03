@@ -16,129 +16,73 @@
 
 package org.apache.geronimo.mavenplugins.geronimo;
 
-import org.apache.maven.project.MavenProject;
-import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.factory.ArtifactFactory;
+import org.apache.maven.plugin.MojoExecutionException;
 
 import java.io.File;
 
-import org.apache.geronimo.genesis.AntMojoSupport;
-import org.apache.geronimo.plugin.ArtifactItem;
-import org.apache.commons.lang.SystemUtils;
-import org.apache.tools.ant.taskdefs.ExecTask;
+import org.apache.tools.ant.taskdefs.Java;
 
 /**
  * Stop the Geronimo server.
  *
  * @goal stop
  *
- * @version $Id$
+ * @version $Rev$ $Date$
  */
 public class StopServerMojo
-    extends AntMojoSupport
+    extends ServerMojoSupport
 {
     /**
-     * The assembly to unpack which contains the server to stop.
+     * Time in seconds to wait before timing out the stop operation.
      *
-     * @parameter
+     * @parameter default-value="60"
      * @required
      */
-    private ArtifactItem assembly = null;
-
-    /**
-     * Directory to extract the assembly into.
-     *
-     * @parameter expression="${project.build.directory}"
-     * @required
-     */
-    private File outputDirectory = null;
-
-    //
-    // MojoSupport Hooks
-    //
-
-    /**
-     * The maven project.
-     *
-     * @parameter expression="${project}"
-     * @required
-     * @readonly
-     */
-    private MavenProject project = null;
-
-    protected MavenProject getProject() {
-        return project;
-    }
-
-    /**
-     * ???
-     *
-     * @component
-     * @required
-     * @readonly
-     */
-    private ArtifactFactory artifactFactory = null;
-
-    protected ArtifactFactory getArtifactFactory() {
-        return artifactFactory;
-    }
-
-    /**
-     * ???
-     *
-     * @component
-     * @required
-     * @readonly
-     */
-    private ArtifactResolver artifactResolver = null;
-
-    protected ArtifactResolver getArtifactResolver() {
-        return artifactResolver;
-    }
-
-    /**
-     * ???
-     *
-     * @parameter expression="${localRepository}"
-     * @readonly
-     * @required
-     */
-    private ArtifactRepository artifactRepository = null;
-
-    protected ArtifactRepository getArtifactRepository() {
-        return artifactRepository;
-    }
-
-    //
-    // Mojo
-    //
+    private int timeout = -1;
 
     protected void doExecute() throws Exception {
         log.info("Stopping Geronimo server...");
 
-        log.debug("Using assembly: " + assembly);
+        Artifact artifact = getAssemblyArtifact();
 
-        // Unzip the assembly
-        Artifact artifact = getArtifact(assembly);
+        File assemblyDir = new File(outputDirectory, artifact.getArtifactId() + "-" + artifact.getVersion());
+        if (!assemblyDir.exists()) {
+            // Complain if there is no assemblyDir, as that probably means that 'start' was not executed.
+            throw new MojoExecutionException("Missing assembly directory: " + assemblyDir);
+        }
 
-        // What are we running... where?
-        final File workDir = new File(outputDirectory, artifact.getArtifactId() + "-" + artifact.getVersion());
-        final String executable = "java" +  (SystemUtils.IS_OS_WINDOWS ? ".exe" : "");
+        Java java = (Java)createTask("java");
+        java.setJar(new File(assemblyDir, "bin/shutdown.jar"));
+        java.setDir(assemblyDir);
+        java.setFailonerror(true);
+        java.setFork(true);
+        java.setLogError(true);
 
-        ExecTask exec = (ExecTask)createTask("exec");
-        exec.setExecutable(executable);
-        exec.createArg().setValue("-jar");
-        exec.createArg().setFile(new File(workDir, "bin/shutdown.jar"));
-        exec.createArg().setValue("--user");
-        exec.createArg().setValue("system");
-        exec.createArg().setValue("--password");
-        exec.createArg().setValue("manager");
-        exec.setDir(workDir);
-        exec.setLogError(true);
-        exec.execute();
+        if (timeout > 0) {
+            // Convert to milliseconds
+            java.setTimeout(new Long(timeout * 1000));
+        }
 
-        log.info("Geronimo server stopped");
+        if (port > 0) {
+            java.createArg().setValue("--port");
+            java.createArg().setValue(String.valueOf(port));
+        }
+
+        if (username != null) {
+            java.createArg().setValue("--user");
+            java.createArg().setValue(username);
+        }
+
+        if (password != null) {
+            java.createArg().setValue("--password");
+            java.createArg().setValue(password);
+        }
+
+        java.execute();
+
+        //
+        // TODO: Verify that it actually stopped?
+        //
     }
 }

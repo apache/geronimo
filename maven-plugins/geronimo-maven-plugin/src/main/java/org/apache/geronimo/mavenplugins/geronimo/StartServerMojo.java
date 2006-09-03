@@ -16,128 +16,75 @@
 
 package org.apache.geronimo.mavenplugins.geronimo;
 
-import org.apache.maven.project.MavenProject;
-import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.plugin.MojoExecutionException;
 
 import java.io.File;
 import java.net.URL;
-import java.net.URLConnection;
 
-import org.apache.geronimo.genesis.AntMojoSupport;
-import org.apache.geronimo.plugin.ArtifactItem;
-import org.apache.commons.lang.SystemUtils;
-import org.apache.tools.ant.taskdefs.ExecTask;
 import org.apache.tools.ant.taskdefs.Expand;
+import org.apache.tools.ant.taskdefs.Java;
 
 /**
  * Start the Geronimo server.
  *
  * @goal start
  *
- * @version $Id$
+ * @version $Rev$ $Date$
  */
 public class StartServerMojo
-    extends AntMojoSupport
+    extends ServerMojoSupport
 {
-    /**
-     * The assembly to unpack which contains the server to start.
-     *
-     * @parameter
-     * @required
-     */
-    private ArtifactItem assembly = null;
-
-    /**
-     * Directory to extract the assembly into.
-     *
-     * @parameter expression="${project.build.directory}"
-     * @required
-     */
-    private File outputDirectory = null;
-
     /**
      * Flag to control if we background the server or block Maven execution.
      *
-     * @parameter default-value="false"
+     * @parameter expression="${background}" default-value="false"
      * @required
      */
     private boolean background = false;
 
-    //
-    // MojoSupport Hooks
-    //
+    /**
+     * Set the maximum memory for the forked JVM.
+     *
+     * @parameter expression="${maxMemory}"
+     */
+    private String maxMemory = null;
 
     /**
-     * The maven project.
+     * Enable quiet mode..
      *
-     * @parameter expression="${project}"
+     * @parameter expression="${quiet}" default-value="false"
      * @required
-     * @readonly
      */
-    private MavenProject project = null;
-
-
-    protected MavenProject getProject() {
-        return project;
-    }
+    private boolean quiet = false;
 
     /**
-     * ???
+     * Enable verbose mode..
      *
-     * @component
+     * @parameter expression="${verbose}" default-value="false"
      * @required
-     * @readonly
      */
-    private ArtifactFactory artifactFactory = null;
-
-    protected ArtifactFactory getArtifactFactory() {
-        return artifactFactory;
-    }
+    private boolean verbose = false;
 
     /**
-     * ???
+     * Enable veryverbose mode..
      *
-     * @component
-     * @required
-     * @readonly
-     */
-    private ArtifactResolver artifactResolver = null;
-
-    protected ArtifactResolver getArtifactResolver() {
-        return artifactResolver;
-    }
-
-    /**
-     * ???
-     *
-     * @parameter expression="${localRepository}"
-     * @readonly
+     * @parameter expression="${veryverbose}" default-value="false"
      * @required
      */
-    private ArtifactRepository artifactRepository = null;
-
-    protected ArtifactRepository getArtifactRepository() {
-        return artifactRepository;
-    }
-
-    //
-    // Mojo
-    //
+    private boolean veryverbose = false;
 
     protected void doExecute() throws Exception {
         log.info("Starting Geronimo server...");
 
-        log.debug("Using assembly: " + assembly);
+        Artifact artifact = getAssemblyArtifact();
 
-        // Unzip the assembly
-        Artifact artifact = getArtifact(assembly);
+        if (!"zip".equals(artifact.getType())) {
+            throw new MojoExecutionException("Assembly file does not look like a ZIP archive");
+        }
 
-        File workDir = new File(outputDirectory, artifact.getArtifactId() + "-" + artifact.getVersion());
-        if (!workDir.exists()) {
+        File assemblyDir = new File(outputDirectory, artifact.getArtifactId() + "-" + artifact.getVersion());
+        if (!assemblyDir.exists()) {
             log.info("Extracting assembly: " + artifact.getFile());
 
             Expand unzip = (Expand)createTask("unzip");
@@ -149,17 +96,43 @@ public class StartServerMojo
             log.debug("Assembly already unpacked... reusing");
         }
 
+        final Java java = (Java)createTask("java");
+        java.setJar(new File(assemblyDir, "bin/server.jar"));
+        java.setDir(assemblyDir);
+        java.setFailonerror(true);
+        java.setFork(true);
+        java.setLogError(true);
+
         //
-        // TODO: Change to Java task
+        // TODO: Capture output/error to files
         //
 
-        final ExecTask exec = (ExecTask)createTask("exec");
-        exec.setExecutable("java" +  (SystemUtils.IS_OS_WINDOWS ? ".exe" : ""));
-        exec.createArg().setValue("-jar");
-        exec.createArg().setFile(new File(workDir, "bin/server.jar"));
-        exec.createArg().setValue("--quiet");
-        exec.setDir(workDir);
-        exec.setLogError(true);
+        if (maxMemory != null) {
+            java.setMaxmemory(maxMemory);
+        }
+
+        if (quiet) {
+            java.createArg().setValue("--quiet");
+        }
+        else {
+            java.createArg().setValue("--long");
+        }
+
+        if (verbose) {
+            java.createArg().setValue("--verbose");
+        }
+
+        if (veryverbose) {
+            java.createArg().setValue("--veryverbose");
+        }
+
+        //
+        // TODO: Support --override
+        //
+
+        //
+        // TODO: Support JVM args for debug mode, add debug flag to enable or disable
+        //
 
         // Holds any exception that was thrown during startup (as the cause)
         final Throwable errorHolder = new Throwable();
@@ -168,7 +141,7 @@ public class StartServerMojo
         Thread t = new Thread("Geronimo Server Runner") {
             public void run() {
                 try {
-                    exec.execute();
+                    java.execute();
                 }
                 catch (Exception e) {
                     errorHolder.initCause(e);
@@ -185,7 +158,9 @@ public class StartServerMojo
         log.info("Waiting for Geronimo server...");
 
         //
-        // TODO: Check the status via JMX
+        // TODO: Check the status via JMX:
+        //
+        //       "service:jmx:rmi://localhost/jndi/rmi://localhost:" + port + "/JMXConnector"
         //
 
         // Verify server started
@@ -199,9 +174,7 @@ public class StartServerMojo
             log.debug("Trying connection to: " + url);
 
             try {
-                URLConnection c = url.openConnection();
-                Object input = c.getContent();
-                log.debug("Input: " + input);
+                url.openConnection().getContent();
                 started = true;
             }
             catch (Exception e) {
@@ -210,6 +183,12 @@ public class StartServerMojo
 
             Thread.sleep(1000);
         }
+
+        //
+        // HACK: Give it a few seconds... our detection method here is lossy
+        //
+
+        Thread.sleep(10000);
 
         log.info("Geronimo server started");
 
