@@ -1,15 +1,32 @@
  ------
- TODO
+ Geronimo Selenium Plugin for Maven 2
  ------
  ???
  ------
  ???
 
-TODO
+Basic Usage
 
-* TODO
+* Start Selenium Server
+
+ For integration tests that need a Selenium server, use the <<<pre-integration-test>>>
+ phase to start it up.
+ 
+ <<NOTE:>> Currently there is no <stop>, the forked JVM will exit when Maven does.
 
 +----------+
-TODO
+<plugin>
+    <groupId>org.apache.geronimo.plugins</groupId>
+    <artifactId>selenium-maven-plugin</artifactId>
+    <executions>
+        <execution>
+            <id>start-server</id>
+            <phase>pre-integration-test</phase>
+            <goals>
+                <goal>start</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
 +----------+
 
