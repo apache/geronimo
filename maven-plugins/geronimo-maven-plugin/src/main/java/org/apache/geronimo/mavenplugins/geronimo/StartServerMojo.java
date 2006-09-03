@@ -84,6 +84,11 @@ public class StartServerMojo
         }
 
         File assemblyDir = new File(outputDirectory, artifact.getArtifactId() + "-" + artifact.getVersion());
+
+        //
+        // TODO: Try a bit harder to determine when the assembly need to be reinstalled to pick up changes
+        //
+        
         if (!assemblyDir.exists()) {
             log.info("Extracting assembly: " + artifact.getFile());
 
