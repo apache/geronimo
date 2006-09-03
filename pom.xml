@@ -911,6 +911,54 @@
                         </archive>
                     </configuration>
                 </plugin>
+                
+                <plugin>
+                    <groupId>org.apache.geronimo.plugins</groupId>
+                    <artifactId>geronimo-maven-plugin</artifactId>
+                    <version>${pom.version}</version>
+                    
+                    <configuration>
+                        <assemblies>
+                            <assembly>
+                                <id>jetty</id>
+                                <groupId>org.apache.geronimo.assemblies</groupId>
+                                <artifactId>geronimo-jetty-j2ee</artifactId>
+                                <version>${pom.version}</version>
+                                <classifier>bin</classifier>
+                                <type>zip</type>
+                            </assembly>
+                            
+                            <assembly>
+                                <id>jetty-minimal</id>
+                                <groupId>org.apache.geronimo.assemblies</groupId>
+                                <artifactId>geronimo-jetty-minimal</artifactId>
+                                <version>${pom.version}</version>
+                                <classifier>bin</classifier>
+                                <type>zip</type>
+                            </assembly>
+                            
+                            <assembly>
+                                <id>tomcat</id>
+                                <groupId>org.apache.geronimo.assemblies</groupId>
+                                <artifactId>geronimo-tomcat-j2ee</artifactId>
+                                <version>${pom.version}</version>
+                                <classifier>bin</classifier>
+                                <type>zip</type>
+                            </assembly>
+                            
+                            <assembly>
+                                <id>tomcat-minimal</id>
+                                <groupId>org.apache.geronimo.assemblies</groupId>
+                                <artifactId>geronimo-tomcat-minimal</artifactId>
+                                <version>${pom.version}</version>
+                                <classifier>bin</classifier>
+                                <type>zip</type>
+                            </assembly>
+                        </assemblies>
+                        
+                        <defaultAssemblyId>jetty</defaultAssemblyId>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
 
