@@ -28,11 +28,11 @@ import junit.framework.TestSuite;
  * 
  * @version $Rev$ $Date$
  */
-public class SimpleLoginTest extends TestCase {
+public class SimpleLogin2Test extends TestCase {
     private static StartSeleniumDecorator decorator;
 
     public static Test suite() {
-        Test test = new TestSuite(SimpleLoginTest.class);
+        Test test = new TestSuite(SimpleLogin2Test.class);
         decorator = new StartSeleniumDecorator(test);
         return decorator;
     }
