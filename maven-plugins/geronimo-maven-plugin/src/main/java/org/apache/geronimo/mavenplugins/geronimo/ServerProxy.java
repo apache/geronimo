@@ -102,10 +102,6 @@ public class ServerProxy
         return mbeanConnection;
     }
 
-    //
-    // TODO: Add shutdown related methods so we can shutdown via JMX and not require an assembly to be installed
-    //
-    
     public boolean isFullyStarted() {
         boolean fullyStarted = true;
 
@@ -128,7 +124,7 @@ public class ServerProxy
             lastError = e;
         }
         catch (Exception e) {
-            log.warn("Unable to determine if the kernel is fully started", e);
+            log.warn("Unable to determine if the server is fully started", e);
             fullyStarted = false;
             lastError = e;
         }
@@ -138,6 +134,16 @@ public class ServerProxy
 
     public Throwable getLastError() {
         return lastError;
+    }
+
+    public void shutdown() {
+        try {
+            invoke("shutdown");
+        }
+        catch (Exception e) {
+            log.warn("Unable to shutdown the server", e);
+            lastError = e;
+        }
     }
 
     //
@@ -161,6 +167,10 @@ public class ServerProxy
         }
 
         return invoke(operation, args, signature);
+    }
+
+    private Object invoke(final String operation) throws Exception {
+        return invoke(operation, new Object[0]);
     }
 
     private Set listGBeans(final AbstractNameQuery query) throws Exception {

@@ -59,6 +59,10 @@ public abstract class ServerMojoSupport
      */
     protected String password = null;
 
+    //
+    // TODO: Move assembly bits to InstallerMojoSupport
+    //
+    
     /**
      * List of assembly artifact configurations.  Artifacts need to point to ZIP archives.
      *

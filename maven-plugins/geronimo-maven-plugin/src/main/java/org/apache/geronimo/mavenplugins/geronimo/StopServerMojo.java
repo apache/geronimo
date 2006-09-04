@@ -18,10 +18,6 @@ package org.apache.geronimo.mavenplugins.geronimo;
 
 import org.apache.maven.plugin.MojoExecutionException;
 
-import java.io.File;
-
-import org.apache.tools.ant.taskdefs.Java;
-
 /**
  * Stop the Geronimo server.
  *
@@ -32,58 +28,24 @@ import org.apache.tools.ant.taskdefs.Java;
 public class StopServerMojo
     extends ServerMojoSupport
 {
-    /**
-     * Time in seconds to wait before timing out the stop operation.
-     *
-     * @parameter default-value="60"
-     * @required
-     */
-    private int timeout = -1;
-
     protected void doExecute() throws Exception {
-        log.info("Stopping Geronimo server...");
+        ServerProxy server = new ServerProxy(port, username, password);
 
         //
-        // TODO: Might want to add a marker to the build when start completes...
-        //       so stop can pick up the right dir w/o assembly configuration
+        // TODO: Maybe we just need isStarted() not need to be fully started?
         //
-
-        if (!installDir.exists()) {
-            // Complain if there is no assemblyDir, as that probably means that 'start' was not executed.
-            throw new MojoExecutionException("Missing assembly directory: " + installDir);
+        
+        if (!server.isFullyStarted()) {
+            throw new MojoExecutionException("Server does not appear to be started");
         }
+        else {
+            log.info("Stopping Geronimo server...");
+            
+            server.shutdown();
 
-        Java java = (Java)createTask("java");
-        java.setJar(new File(installDir, "bin/shutdown.jar"));
-        java.setDir(installDir);
-        java.setFailonerror(true);
-        java.setFork(true);
-        java.setLogError(true);
-
-        if (timeout > 0) {
-            // Convert to milliseconds
-            java.setTimeout(new Long(timeout * 1000));
+            //
+            // TODO: Verify its down?
+            //
         }
-
-        if (port > 0) {
-            java.createArg().setValue("--port");
-            java.createArg().setValue(String.valueOf(port));
-        }
-
-        if (username != null) {
-            java.createArg().setValue("--user");
-            java.createArg().setValue(username);
-        }
-
-        if (password != null) {
-            java.createArg().setValue("--password");
-            java.createArg().setValue(password);
-        }
-
-        java.execute();
-
-        //
-        // TODO: Verify that it actually stopped?
-        //
     }
 }
