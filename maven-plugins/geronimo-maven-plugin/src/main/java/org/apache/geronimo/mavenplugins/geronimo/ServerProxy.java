@@ -83,12 +83,12 @@ public class ServerProxy
     private void init(final JMXServiceURL url, final Map environment) throws Exception {
         assert url != null;
         assert environment != null;
-
+        
         this.url = url;
         this.environment = new HashMap();
         this.environment.put("jmx.remote.credentials", new String[] {"system", "manager"});
 
-        log.info("Initialized with URL: " + url);
+        log.debug("Initialized with URL: " + url + ", environment: " + environment);
     }
 
     private MBeanServerConnection getConnection() throws IOException {
@@ -137,6 +137,8 @@ public class ServerProxy
     }
 
     public void shutdown() {
+        log.info("Attempting to shutdown the remote server");
+        
         try {
             invoke("shutdown");
         }

@@ -16,8 +16,11 @@
 
 package org.apache.geronimo.mavenplugins.geronimo;
 
-import org.apache.geronimo.genesis.AntMojoSupport;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+
+import org.apache.geronimo.genesis.AntMojoSupport;
 
 /**
  * Support for Geronimo server mojos.
@@ -27,6 +30,17 @@ import org.apache.maven.project.MavenProject;
 public abstract class ServerMojoSupport
     extends AntMojoSupport
 {
+    static {
+        //
+        // HACK: Since this module needs to pick up some classes from geronimo-kernel, and since
+        //       that module assumes that you want to use its logging, we have to forcefully
+        //       configure JCL to use its defaults, and tell the Geronomo logging not to bootstrap iniitalize.
+        //
+        
+        System.setProperty("org.apache.commons.logging.LogFactory", "org.apache.commons.logging.impl.LogFactoryImpl");
+        System.setProperty("geronimo.bootstrap.logging.enabled", "false");
+    }
+    
     /**
      * The port number to connect to the server..
      *
@@ -63,5 +77,12 @@ public abstract class ServerMojoSupport
 
     protected MavenProject getProject() {
         return project;
+    }
+
+    protected void init() throws MojoExecutionException, MojoFailureException {
+        super.init();
+
+        // Install the bridge from JCL to this plugins Log
+        MavenPluginLog.setLog(log);
     }
 }
