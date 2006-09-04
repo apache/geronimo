@@ -87,6 +87,27 @@ public class StartServerMojo
      */
     private int verifyTimeout = -1;
 
+    /**
+     * JVM arguments to be applied when debug is enabled.
+     *
+     * @parameter
+     */
+    private String[] debugArguments = null;
+
+    /**
+     * Enable debug mode.  When true, debugArguments are added to the JVM.
+     *
+     * @parameter expression="${debug}" default-value="false"
+     */
+    private boolean debug = false;
+
+    /**
+     * A list of module names to be started using --override.
+     *
+     * @parameter
+     */
+    private String[] startModules = null;
+
     private Timer timer = new Timer(true);
 
     protected void doExecute() throws Exception {
@@ -114,6 +135,21 @@ public class StartServerMojo
             java.setMaxmemory(maximumMemory);
         }
 
+        if (debug) {
+            if (debugArguments == null) {
+                throw new MojoExecutionException("To enable debug mode a set of debugArguments needs to be configured");
+            }
+            else if (debugArguments.length == 0) {
+                throw new MojoExecutionException("At least one argument must be configured with debugArguments");
+            }
+
+            log.info("Enabling debug JVM arguments");
+
+            for (int i=0; i < debugArguments.length; i++) {
+                java.createJvmarg().setValue(debugArguments[i]);
+            }
+        }
+
         if (quiet) {
             java.createArg().setValue("--quiet");
         }
@@ -129,16 +165,22 @@ public class StartServerMojo
             java.createArg().setValue("--veryverbose");
         }
 
-        //
-        // TODO: Support --override
-        //
+        if (startModules != null) {
+            if (startModules.length == 0) {
+                throw new MojoExecutionException("At least one module name must be configured with startModule");
+            }
 
-        //
-        // TODO: Support JVM args for debug mode, add debug flag to enable or disable
-        //
+            log.info("Overriding the set of modules to be started");
 
-        // Holds any exception that was thrown during startup (as the cause)
-        final Throwable errorHolder = new Throwable();
+            java.createArg().setValue("--override");
+
+            for (int i=0; i < startModules.length; i++) {
+                java.createArg().setValue(startModules[i]);
+            }
+        }
+        
+        // Holds any exception that was thrown during startup
+        final ObjectHolder errorHolder = new ObjectHolder();
 
         // Start the server int a seperate thread
         Thread t = new Thread("Geronimo Server Runner") {
@@ -147,7 +189,7 @@ public class StartServerMojo
                     java.execute();
                 }
                 catch (Exception e) {
-                    errorHolder.initCause(e);
+                    errorHolder.set(e);
 
                     //
                     // NOTE: Don't log here, as when the JVM exists an exception will get thrown by Ant
@@ -183,8 +225,8 @@ public class StartServerMojo
                 throw new MojoExecutionException("Unable to verify if the server was started in the given time");
             }
 
-            if (errorHolder.getCause() != null) {
-                throw new MojoExecutionException("Failed to start Geronimo server", errorHolder.getCause());
+            if (errorHolder.isSet()) {
+                throw new MojoExecutionException("Failed to start Geronimo server", (Throwable)errorHolder.get());
             }
 
             started = server.isFullyStarted();
