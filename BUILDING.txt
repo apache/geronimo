@@ -38,11 +38,9 @@ which you can unpack and startup, as in:
 
 Or, use the geronimo-maven-plugin to start the server:
 
-    mvn geronimo:start
+    mvn -Ptools geronimo:start
     ...
-    mvn geronimo:stop
-
-NOTE: See wiki documentation for required Maven settings to get the 'geronimo' prefix to work.
+    mvn -Ptools geronimo:stop
 
 
 Subsequent builds

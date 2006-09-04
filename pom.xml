@@ -1073,7 +1073,35 @@
                 <module>assemblies</module>
             </modules>
         </profile>
+        
+        <!--
+        NOTE: This profile is used to enable plugin prefixes for easy command-line usage, as in:
+        
+              mvn -Ptools geronimo:start
+        -->
+        <profile>
+            <id>tools</id>
 
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.geronimo.plugins</groupId>
+                        <artifactId>geronimo-maven-plugin</artifactId>
+                    </plugin>
+                    
+                    <plugin>
+                        <groupId>org.apache.geronimo.genesis.plugins</groupId>
+                        <artifactId>tools-maven-plugin</artifactId>
+                    </plugin>
+                    
+                    <plugin>
+                        <groupId>org.apache.geronimo.genesis.plugins</groupId>
+                        <artifactId>maven-maven-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        
         <!--
         NOTE: The staged build is used to get around a problem with Maven
               and extension plugins.
