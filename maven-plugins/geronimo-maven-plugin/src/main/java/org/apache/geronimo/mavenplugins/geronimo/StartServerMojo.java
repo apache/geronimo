@@ -22,10 +22,7 @@ import java.io.File;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.apache.tools.ant.taskdefs.Expand;
 import org.apache.tools.ant.taskdefs.Java;
-
-import org.codehaus.plexus.util.FileUtils;
 
 /**
  * Start the Geronimo server.
@@ -35,7 +32,7 @@ import org.codehaus.plexus.util.FileUtils;
  * @version $Rev$ $Date$
  */
 public class StartServerMojo
-    extends ServerMojoSupport
+    extends InstallerMojoSupport
 {
     /**
      * Flag to control if we background the server or block Maven execution.
@@ -73,13 +70,6 @@ public class StartServerMojo
     private boolean veryverbose = false;
 
     /**
-     * Enable forced install refresh.
-     *
-     * @parameter expression="${refresh}" default-value="false"
-     */
-    private boolean refresh = false;
-
-    /**
      * Time in seconds to wait before terminating the forked JVM.
      *
      * @parameter expression="${timeout}" default-value="-1"
@@ -98,44 +88,7 @@ public class StartServerMojo
     protected void doExecute() throws Exception {
         log.info("Starting Geronimo server...");
 
-        // Check if there is a newer archive or missing marker to trigger assembly install
-        File installMarker = new File(installDir, ".installed");
-        boolean refresh = this.refresh; // don't override config state with local state
-
-        if (!refresh) {
-            if (!installMarker.exists()) {
-                refresh = true;
-            }
-            else if (installArchive.lastModified() > installMarker.lastModified()) {
-                log.debug("Detected new assembly archive");
-                refresh = true;
-            }
-        }
-        else {
-            log.debug("User requested installation refresh");
-        }
-
-        if (refresh) {
-            if (installDir.exists()) {
-                log.debug("Removing: " + installDir);
-                FileUtils.forceDelete(installDir);
-            }
-        }
-
-        // Install the assembly
-        if (!installMarker.exists()) {
-            log.info("Installing assembly...");
-
-            Expand unzip = (Expand)createTask("unzip");
-            unzip.setSrc(installArchive);
-            unzip.setDest(outputDirectory);
-            unzip.execute();
-
-            installMarker.createNewFile();
-        }
-        else {
-            log.debug("Assembly already installed... reusing");
-        }
+        doInstall();
 
         // Setup the JVM to start the server with
         final Java java = (Java)createTask("java");

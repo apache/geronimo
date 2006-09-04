@@ -16,12 +16,6 @@
 
 package org.apache.geronimo.mavenplugins.geronimo;
 
-import java.io.File;
-
-import org.apache.tools.ant.taskdefs.Expand;
-
-import org.codehaus.plexus.util.FileUtils;
-
 /**
  * Install a Geronimo server assembly.
  *
@@ -30,57 +24,9 @@ import org.codehaus.plexus.util.FileUtils;
  * @version $Rev$ $Date$
  */
 public class InstallAssemblyMojo
-    extends ServerMojoSupport
+    extends InstallerMojoSupport
 {
-    /**
-     * Enable forced install refresh.
-     *
-     * @parameter expression="${refresh}" default-value="false"
-     */
-    private boolean refresh = false;
-
-    //
-    // TODO: Allow this code to be used by this goal + start
-    //
-    
     protected void doExecute() throws Exception {
-        // Check if there is a newer archive or missing marker to trigger assembly install
-        File installMarker = new File(installDir, ".installed");
-        boolean refresh = this.refresh; // don't override config state with local state
-
-        if (!refresh) {
-            if (!installMarker.exists()) {
-                refresh = true;
-            }
-            else if (installArchive.lastModified() > installMarker.lastModified()) {
-                log.debug("Detected new assembly archive");
-                refresh = true;
-            }
-        }
-        else {
-            log.debug("User requested installation refresh");
-        }
-
-        if (refresh) {
-            if (installDir.exists()) {
-                log.debug("Removing: " + installDir);
-                FileUtils.forceDelete(installDir);
-            }
-        }
-
-        // Install the assembly
-        if (!installMarker.exists()) {
-            log.info("Installing assembly...");
-
-            Expand unzip = (Expand)createTask("unzip");
-            unzip.setSrc(installArchive);
-            unzip.setDest(outputDirectory);
-            unzip.execute();
-
-            installMarker.createNewFile();
-        }
-        else {
-            log.debug("Assembly already installed");
-        }
+        doInstall();
     }
 }
