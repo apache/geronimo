@@ -34,6 +34,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.MojoExecutionException;
 
 import org.apache.geronimo.genesis.AntMojoSupport;
+import org.apache.geronimo.genesis.ObjectHolder;
 
 import org.apache.commons.io.IOUtils;
 
@@ -234,8 +235,8 @@ public class StartServerMojo
             java.createArg().setFile(userExtentionsFile);
         }
 
-        // Holds any exception that was thrown during startup (as the cause)
-        final Throwable errorHolder = new Throwable();
+        // Holds any exception that was thrown during startup
+        final ObjectHolder errorHolder = new ObjectHolder();
 
         // Start the server int a seperate thread
         Thread t = new Thread("Selenium Server Runner") {
@@ -244,7 +245,7 @@ public class StartServerMojo
                     java.execute();
                 }
                 catch (Exception e) {
-                    errorHolder.initCause(e);
+                    errorHolder.set(e);
 
                     //
                     // NOTE: Don't log here, as when the JVM exists an exception will get thrown by Ant
@@ -261,15 +262,14 @@ public class StartServerMojo
         URL url = new URL("http://localhost:" + port + "/selenium-server");
         boolean started = false;
         while (!started) {
-            if (errorHolder.getCause() != null) {
-                throw new MojoExecutionException("Failed to start Selenium server", errorHolder.getCause());
+            if (errorHolder.isSet()) {
+                throw new MojoExecutionException("Failed to start Selenium server", (Throwable)errorHolder.get());
             }
 
             log.debug("Trying connection to: " + url);
 
             try {
                 Object input = url.openConnection().getContent();
-                log.debug("Input: " + input);
                 started = true;
             }
             catch (Exception e) {
