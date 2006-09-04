@@ -93,7 +93,7 @@ public class ServerProxy
 
     private MBeanServerConnection getConnection() throws IOException {
         if (this.mbeanConnection == null) {
-            log.info("Connecting to: " + url);
+            log.debug("Connecting to: " + url);
             
             JMXConnector connector = JMXConnectorFactory.connect(url, environment);
             this.mbeanConnection = connector.getMBeanServerConnection();
