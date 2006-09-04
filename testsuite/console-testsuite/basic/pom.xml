@@ -24,15 +24,11 @@
     
     <modelVersion>4.0.0</modelVersion>
     
-    <!--
-    NOTE: Picking up configuration from top-level testsuite module, to avoid
-          inheriting the setup from our direct parent.
-    -->
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
-        <artifactId>testsuite</artifactId>
+        <artifactId>console-testsuite</artifactId>
         <version>1.2-SNAPSHOT</version>
-        <relativePath>../../pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     
     <artifactId>basic</artifactId>
@@ -48,18 +44,6 @@
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
             <classifier>jdk14</classifier>
-            <scope>test</scope>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.openqa.selenium.client-drivers</groupId>
-            <artifactId>selenium-java-client-driver</artifactId>
-            <scope>test</scope>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.openqa.selenium.server</groupId>
-            <artifactId>selenium-server</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
