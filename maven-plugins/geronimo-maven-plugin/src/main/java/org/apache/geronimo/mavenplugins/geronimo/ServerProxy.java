@@ -97,6 +97,8 @@ public class ServerProxy
             
             JMXConnector connector = JMXConnectorFactory.connect(url, environment);
             this.mbeanConnection = connector.getMBeanServerConnection();
+            
+            log.debug("Connected");
         }
 
         return mbeanConnection;
@@ -124,7 +126,7 @@ public class ServerProxy
             lastError = e;
         }
         catch (Exception e) {
-            log.warn("Unable to determine if the server is fully started", e);
+            log.debug("Unable to determine if the server is fully started", e);
             fullyStarted = false;
             lastError = e;
         }
