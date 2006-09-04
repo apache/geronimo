@@ -26,7 +26,8 @@ import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
 
 import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
-import org.apache.geronimo.plugin.MojoSupport;
+
+import org.apache.geronimo.genesis.MojoSupport;
 
 //
 // TODO: Rename to AbstractDeploymentMojo

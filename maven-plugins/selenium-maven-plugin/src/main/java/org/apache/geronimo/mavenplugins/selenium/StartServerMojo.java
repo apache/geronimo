@@ -16,11 +16,6 @@
 
 package org.apache.geronimo.mavenplugins.selenium;
 
-import org.apache.maven.project.MavenProject;
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.MojoExecutionException;
-
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.BufferedWriter;
@@ -30,7 +25,13 @@ import java.net.URL;
 import java.net.MalformedURLException;
 import java.util.Map;
 
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.MojoExecutionException;
+
 import org.apache.geronimo.genesis.AntMojoSupport;
+
 import org.apache.commons.io.IOUtils;
 
 import org.apache.tools.ant.taskdefs.Java;

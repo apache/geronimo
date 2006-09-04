@@ -23,6 +23,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import org.apache.tools.ant.taskdefs.Java;
+import org.apache.geronimo.genesis.ObjectHolder;
 
 /**
  * Start the Geronimo server.

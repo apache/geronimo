@@ -18,7 +18,8 @@ package org.apache.geronimo.plugin.car;
 
 import org.apache.geronimo.kernel.repository.WriteableRepository;
 import org.apache.geronimo.system.repository.Maven2Repository;
-import org.apache.geronimo.plugin.ArtifactItem;
+
+import org.apache.geronimo.genesis.ArtifactItem;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.artifact.Artifact;

@@ -16,7 +16,7 @@
 
 package org.apache.geronimo.mavenplugins.geronimo;
 
-import org.apache.geronimo.plugin.ArtifactItem;
+import org.apache.geronimo.genesis.ArtifactItem;
 
 /**
  * Assembly artifact configuration.
