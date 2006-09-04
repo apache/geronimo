@@ -125,9 +125,9 @@
                                             <include>*/pom.xml</include>
                                         </includes>
                                     </fileset>
-                                    <flags>
-                                        <flag>-Pchild</flag>
-                                    </flags>
+                                    <profiles>
+                                        <profile>child</profile>
+                                    </profiles>
                                 </configuration>
                             </execution>
                         </executions>
