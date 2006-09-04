@@ -113,29 +113,18 @@
                         
                         <executions>
                             <execution>
-                                <id>basic</id>
                                 <phase>integration-test</phase>
                                 <goals>
                                     <goal>invoke</goal>
                                 </goals>
                                 
                                 <configuration>
-                                    <pomFile>${pom.basedir}/basic/pom.xml</pomFile>
-                                    <flags>
-                                        <flag>-Pchild</flag>
-                                    </flags>
-                                </configuration>
-                            </execution>
-                            
-                            <execution>
-                                <id>basic-junit</id>
-                                <phase>integration-test</phase>
-                                <goals>
-                                    <goal>invoke</goal>
-                                </goals>
-                                
-                                <configuration>
-                                    <pomFile>${pom.basedir}/basic-junit/pom.xml</pomFile>
+                                    <fileset>
+                                        <basedir>${pom.basedir}</basedir>
+                                        <includes>
+                                            <include>*/pom.xml</include>
+                                        </includes>
+                                    </fileset>
                                     <flags>
                                         <flag>-Pchild</flag>
                                     </flags>
