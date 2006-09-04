@@ -129,12 +129,6 @@ mvn geronimo:stop -Dusername=system -Dpassword=manager -Dport=1099
 mvn geronimo:start -DassemblyId=tomcat
 +----------+
 
- Currently you need to specify the assemblyId for <<<geronimo:stop>>> too.
-
-+----------+
-mvn geronimo:stop -DassemblyId=tomcat
-+----------+
-
 * Start/Stop for Integration Testing
 
  For inline integration testing, you can set the <<<background>>> parameter
