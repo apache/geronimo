@@ -30,6 +30,10 @@ import org.apache.geronimo.genesis.AntMojoSupport;
 public abstract class ServerMojoSupport
     extends AntMojoSupport
 {
+    //
+    // TODO: Move this to MojoSupport
+    //
+    
     static {
         //
         // HACK: Since this module needs to pick up some classes from geronimo-kernel, and since
