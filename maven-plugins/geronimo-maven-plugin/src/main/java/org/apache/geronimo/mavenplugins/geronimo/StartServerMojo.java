@@ -121,8 +121,8 @@ public class StartServerMojo
 
         // Setup the JVM to start the server with
         final Java java = (Java)createTask("java");
-        java.setJar(new File(installDir, "bin/server.jar"));
-        java.setDir(installDir);
+        java.setJar(new File(geronimoHome, "bin/server.jar"));
+        java.setDir(geronimoHome);
         java.setFailonerror(true);
         java.setFork(true);
         java.setLogError(true);

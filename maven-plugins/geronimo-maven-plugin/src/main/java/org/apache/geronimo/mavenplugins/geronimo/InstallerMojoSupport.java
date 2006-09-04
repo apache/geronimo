@@ -20,8 +20,12 @@
 package org.apache.geronimo.mavenplugins.geronimo;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Enumeration;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipEntry;
 
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
@@ -34,6 +38,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.util.FileUtils;
 
 import org.apache.tools.ant.taskdefs.Expand;
+import org.apache.tools.ant.taskdefs.Chmod;
 
 /**
  * Common assembly install support.
@@ -81,17 +86,13 @@ public abstract class InstallerMojoSupport
      */
     protected File assemblyArchive = null;
 
-    //
-    // TODO: change this to installDir, add geronimoHome which is the dir under the installDir
-    //
-
     /**
-     * Directory to extract the assembly into.
+     * Directory to install the assembly into.
      *
-     * @parameter expression="${project.build.directory}"
+     * @parameter expression="${installDirectory}" default-value="${project.build.directory}"
      * @required
      */
-    protected File outputDirectory = null;
+    protected File installDirectory = null;
 
     //
     // MojoSupport Hooks
@@ -144,7 +145,7 @@ public abstract class InstallerMojoSupport
     /**
      * The directory where the assembly has been installed to.
      */
-    protected File installDir;
+    protected File geronimoHome;
 
     protected void init() throws MojoExecutionException, MojoFailureException {
         super.init();
@@ -156,10 +157,31 @@ public abstract class InstallerMojoSupport
             installArchive = assemblyArchive;
 
             //
-            // TODO: This probably will not work... might use a scanner to search for bin/server.jar
+            // NOTE: This is obviously only going to work with ZIP archives
             //
+            
+            log.debug("Attempting to discover geronimoHome...");
+            try {
+                ZipFile zipFile = new ZipFile(installArchive);
+                Enumeration enum = zipFile.entries();
+                while (enum.hasMoreElements()) {
+                    ZipEntry entry = (ZipEntry)enum.nextElement();
+                    if (entry.getName().endsWith("bin/server.jar")) {
+                        File file = new File(installDirectory, entry.getName());
+                        geronimoHome = file.getParentFile().getParentFile();
+                        log.info("Discovered geronimoHome: " + geronimoHome);
+                        break;
+                    }
+                }
+                zipFile.close();
+            }
+            catch (IOException e) {
+                log.debug("Failed to scan archive for 'bin/server.jar'", e);
+            }
 
-            installDir = new File(outputDirectory, "assembly-archive");
+            if (geronimoHome == null) {
+                throw new MojoExecutionException("Failed to determine geronimoHome from archive: " + installArchive);
+            }
         }
         else {
             Artifact artifact = getAssemblyArtifact();
@@ -169,7 +191,7 @@ public abstract class InstallerMojoSupport
             }
 
             installArchive = artifact.getFile();
-            installDir = new File(outputDirectory, artifact.getArtifactId() + "-" + artifact.getVersion());
+            geronimoHome = new File(installDirectory, artifact.getArtifactId() + "-" + artifact.getVersion());
         }
     }
 
@@ -229,7 +251,7 @@ public abstract class InstallerMojoSupport
 
     protected void doInstall() throws Exception {
         // Check if there is a newer archive or missing marker to trigger assembly install
-        File installMarker = new File(installDir, ".installed");
+        File installMarker = new File(geronimoHome, ".installed");
         boolean refresh = this.refresh; // don't override config state with local state
 
         if (!refresh) {
@@ -246,9 +268,9 @@ public abstract class InstallerMojoSupport
         }
 
         if (refresh) {
-            if (installDir.exists()) {
-                log.debug("Removing: " + installDir);
-                FileUtils.forceDelete(installDir);
+            if (geronimoHome.exists()) {
+                log.debug("Removing: " + geronimoHome);
+                FileUtils.forceDelete(geronimoHome);
             }
         }
 
@@ -256,10 +278,23 @@ public abstract class InstallerMojoSupport
         if (!installMarker.exists()) {
             log.info("Installing assembly...");
 
+            FileUtils.forceMkdir(geronimoHome);
+
+            //
+            // TODO: Maybe consider supporting untar + gz/bz ?
+            //
+            
             Expand unzip = (Expand)createTask("unzip");
             unzip.setSrc(installArchive);
-            unzip.setDest(outputDirectory);
+            unzip.setDest(installDirectory);
             unzip.execute();
+
+            // Make scripts executable, since Java unzip ignores perms
+            Chmod chmod = (Chmod)createTask("chmod");
+            chmod.setPerm("ugo+rx");
+            chmod.setDir(geronimoHome);
+            chmod.setIncludes("bin/*.sh");
+            chmod.execute();
 
             installMarker.createNewFile();
         }
