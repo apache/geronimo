@@ -42,6 +42,8 @@ Or, use the geronimo-maven-plugin to start the server:
     ...
     mvn geronimo:stop
 
+NOTE: See wiki documentation for required Maven settings to get the 'geronimo' prefix to work.
+
 
 Subsequent builds
 =================
