@@ -81,6 +81,10 @@ public abstract class InstallerMojoSupport
      */
     protected File assemblyArchive = null;
 
+    //
+    // TODO: change this to installDir, add geronimoHome which is the dir under the installDir
+    //
+
     /**
      * Directory to extract the assembly into.
      *
@@ -152,7 +156,7 @@ public abstract class InstallerMojoSupport
             installArchive = assemblyArchive;
 
             //
-            // FIXME: This probably will not work...
+            // TODO: This probably will not work... might use a scanner to search for bin/server.jar
             //
 
             installDir = new File(outputDirectory, "assembly-archive");

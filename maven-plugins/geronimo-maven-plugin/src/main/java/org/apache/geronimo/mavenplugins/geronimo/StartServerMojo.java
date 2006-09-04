@@ -113,6 +113,10 @@ public class StartServerMojo
     protected void doExecute() throws Exception {
         log.info("Starting Geronimo server...");
 
+        //
+        // TODO: Support existing install (no assembly install logic), which needs geronimoHome to be set and exist
+        //
+
         doInstall();
 
         // Setup the JVM to start the server with
