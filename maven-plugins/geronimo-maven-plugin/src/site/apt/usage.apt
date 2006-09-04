@@ -100,6 +100,13 @@ Basic Usage
 mvn geronimo:start
 +----------+
 
+ If you have a pre-existing assembly installed and you want to use that, you can set <<<geronimoHome>>>
+ this will bypass any installation logic completely.
+
++----------+
+mvn geronimo:start -DgeronimoHome=/path/to/assembly
++----------+
+
  Some additional flags may be passed in to alter the startup behavior.  For example
  to enable verbose mode:
 
