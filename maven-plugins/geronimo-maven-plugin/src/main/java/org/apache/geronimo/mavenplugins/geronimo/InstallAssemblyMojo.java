@@ -30,6 +30,6 @@ public class InstallAssemblyMojo
     extends InstallerMojoSupport
 {
     protected void doExecute() throws Exception {
-        doInstall();
+        installAssembly();
     }
 }

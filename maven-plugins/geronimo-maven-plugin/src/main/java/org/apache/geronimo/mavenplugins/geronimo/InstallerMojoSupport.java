@@ -59,7 +59,6 @@ public abstract class InstallerMojoSupport
      * List of assembly artifact configurations.  Artifacts need to point to ZIP archives.
      *
      * @parameter
-     * @required
      */
     protected AssemblyConfig[] assemblies = null;
 
@@ -93,6 +92,25 @@ public abstract class InstallerMojoSupport
      * @required
      */
     protected File installDirectory = null;
+
+    /**
+     * The directory where the assembly has been installed to.
+     *
+     * Normally this value is detected,
+     * but if it is set, then it is assumed to be the location where a pre-installed assembly exists
+     * and no installation will be done.
+     *
+     * @parameter expression="${geronimoHome}"
+     */
+    protected File geronimoHome;
+
+    protected static final int INSTALL_FROM_ARTIFACT = 0;
+
+    protected static final int INSTALL_FROM_FILE = 1;
+
+    protected static final int INSTALL_ALREADY_EXISTS = 2;
+
+    protected int installType;
 
     //
     // MojoSupport Hooks
@@ -137,70 +155,86 @@ public abstract class InstallerMojoSupport
         return artifactRepository;
     }
 
-    /**
-     * The assembly archive to use when installing.
-     */
-    protected File installArchive;
+    private File discoverGeronimoHome(final File archive) throws MojoExecutionException {
+        log.debug("Attempting to discover geronimoHome...");
 
-    /**
-     * The directory where the assembly has been installed to.
-     */
-    protected File geronimoHome;
+        File dir = null;
+
+        try {
+            ZipFile zipFile = new ZipFile(archive);
+
+            Enumeration enum = zipFile.entries();
+            while (enum.hasMoreElements()) {
+                ZipEntry entry = (ZipEntry)enum.nextElement();
+                if (entry.getName().endsWith("bin/server.jar")) {
+                    File file = new File(installDirectory, entry.getName());
+                    dir = file.getParentFile().getParentFile();
+                    break;
+                }
+            }
+
+            zipFile.close();
+        }
+        catch (IOException e) {
+            throw new MojoExecutionException("Failed to determine geronimoHome while scanning archive for 'bin/server.jar'", e);
+        }
+
+        if (dir == null) {
+            throw new MojoExecutionException("Archive does not contain a Geronimo assembly: " + archive);
+        }
+
+        return dir;
+    }
 
     protected void init() throws MojoExecutionException, MojoFailureException {
         super.init();
 
-        // Determine which archive and directory to use... either manual or from artifacts
-        if (assemblyArchive != null) {
-            log.debug("Using non-artifact based assembly archive: " + installArchive);
-
-            installArchive = assemblyArchive;
-
-            //
-            // NOTE: This is obviously only going to work with ZIP archives
-            //
-            
-            log.debug("Attempting to discover geronimoHome...");
-            try {
-                ZipFile zipFile = new ZipFile(installArchive);
-                Enumeration enum = zipFile.entries();
-                while (enum.hasMoreElements()) {
-                    ZipEntry entry = (ZipEntry)enum.nextElement();
-                    if (entry.getName().endsWith("bin/server.jar")) {
-                        File file = new File(installDirectory, entry.getName());
-                        geronimoHome = file.getParentFile().getParentFile();
-                        log.info("Discovered geronimoHome: " + geronimoHome);
-                        break;
-                    }
-                }
-                zipFile.close();
+        // First check if geronimoHome is set, if it is, then we can skip this
+        if (geronimoHome != null) {
+            // Quick sanity check
+            File file = new File(geronimoHome, "bin/server.jar");
+            if (!file.exists()) {
+                throw new MojoExecutionException("When geronimoHome is set, it must point to a directory that contains 'bin/server.jar'");
             }
-            catch (IOException e) {
-                log.debug("Failed to scan archive for 'bin/server.jar'", e);
-            }
+            log.info("Using pre-installed assembly: " + geronimoHome);
 
-            if (geronimoHome == null) {
-                throw new MojoExecutionException("Failed to determine geronimoHome from archive: " + installArchive);
-            }
+            installType = INSTALL_ALREADY_EXISTS;
         }
         else {
-            Artifact artifact = getAssemblyArtifact();
+            if (assemblyArchive != null) {
+                log.info("Using non-artifact based assembly archive: " + assemblyArchive);
 
-            if (!"zip".equals(artifact.getType())) {
-                throw new MojoExecutionException("Assembly file does not look like a ZIP archive");
+                installType = INSTALL_FROM_FILE;
+            }
+            else {
+                Artifact artifact = getAssemblyArtifact();
+
+                if (!"zip".equals(artifact.getType())) {
+                    throw new MojoExecutionException("Assembly file does not look like a ZIP archive");
+                }
+
+                log.info("Using assembly artifact: " + artifact);
+
+                assemblyArchive = artifact.getFile();
+
+                installType = INSTALL_FROM_ARTIFACT;
             }
 
-            installArchive = artifact.getFile();
-            geronimoHome = new File(installDirectory, artifact.getArtifactId() + "-" + artifact.getVersion());
+            geronimoHome = discoverGeronimoHome(assemblyArchive);
+            log.info("Using geronimoHome: " + geronimoHome);
         }
     }
 
+    /**
+     * Selects the assembly artifact tp be used for installation.
+     *
+     * @return
+     * @throws MojoExecutionException
+     */
     protected Artifact getAssemblyArtifact() throws MojoExecutionException {
-        assert assemblies != null;
-
         AssemblyConfig config;
 
-        if (assemblies.length == 0) {
+        if (assemblies == null || assemblies.length == 0) {
             throw new MojoExecutionException("At least one assembly configuration must be specified");
         }
         else if (assemblies.length > 1 && assemblyId == null && defaultAssemblyId == null) {
@@ -239,7 +273,7 @@ public abstract class InstallerMojoSupport
             }
         }
 
-        log.info("Using assembly configuration: " + config);
+        log.info("Using assembly configuration: " + config.getId());
         Artifact artifact = getArtifact(config);
 
         if (artifact.getFile() == null) {
@@ -249,16 +283,25 @@ public abstract class InstallerMojoSupport
         return artifact;
     }
 
-    protected void doInstall() throws Exception {
+    /**
+     * Performs assembly installation unless the install type is pre-existing.
+     *
+     * @throws Exception
+     */
+    protected void installAssembly() throws Exception {
+        if (installType == INSTALL_ALREADY_EXISTS) {
+            log.info("Installation type is pre-existing; skipping installation");
+            return;
+        }
+
         // Check if there is a newer archive or missing marker to trigger assembly install
         File installMarker = new File(geronimoHome, ".installed");
-        boolean refresh = this.refresh; // don't override config state with local state
 
         if (!refresh) {
             if (!installMarker.exists()) {
                 refresh = true;
             }
-            else if (installArchive.lastModified() > installMarker.lastModified()) {
+            else if (assemblyArchive.lastModified() > installMarker.lastModified()) {
                 log.debug("Detected new assembly archive");
                 refresh = true;
             }
@@ -269,7 +312,7 @@ public abstract class InstallerMojoSupport
 
         if (refresh) {
             if (geronimoHome.exists()) {
-                log.debug("Removing: " + geronimoHome);
+                log.info("Uninstalling: " + geronimoHome);
                 FileUtils.forceDelete(geronimoHome);
             }
         }
@@ -279,13 +322,9 @@ public abstract class InstallerMojoSupport
             log.info("Installing assembly...");
 
             FileUtils.forceMkdir(geronimoHome);
-
-            //
-            // TODO: Maybe consider supporting untar + gz/bz ?
-            //
             
             Expand unzip = (Expand)createTask("unzip");
-            unzip.setSrc(installArchive);
+            unzip.setSrc(assemblyArchive);
             unzip.setDest(installDirectory);
             unzip.execute();
 
@@ -299,7 +338,7 @@ public abstract class InstallerMojoSupport
             installMarker.createNewFile();
         }
         else {
-            log.debug("Assembly already installed");
+            log.info("Re-using previously installed assembly");
         }
     }
 }

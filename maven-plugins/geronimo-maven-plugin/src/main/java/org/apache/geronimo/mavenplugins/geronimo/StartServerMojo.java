@@ -111,14 +111,10 @@ public class StartServerMojo
     private Timer timer = new Timer(true);
 
     protected void doExecute() throws Exception {
+        installAssembly();
+
         log.info("Starting Geronimo server...");
-
-        //
-        // TODO: Support existing install (no assembly install logic), which needs geronimoHome to be set and exist
-        //
-
-        doInstall();
-
+        
         // Setup the JVM to start the server with
         final Java java = (Java)createTask("java");
         java.setJar(new File(geronimoHome, "bin/server.jar"));
