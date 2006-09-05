@@ -33,8 +33,18 @@
     <name>Geronimo :: Modules</name>
     <packaging>pom</packaging>
     
+    <dependencies>
+
+        <dependency>
+            <groupId>org.apache.geronimo.testsupport</groupId>
+            <artifactId>testsupport-common</artifactId>
+            <version>${pom.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+    
     <modules>
-        <module>geronimo-testsupport</module>
         <module>geronimo-activation</module>
         <module>ge-activemq-rar</module>
         <module>geronimo-activemq-gbean</module>

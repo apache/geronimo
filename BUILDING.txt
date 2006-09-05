@@ -36,6 +36,12 @@ which you can unpack and startup, as in:
     ...
     ./geronimo-jetty-j2ee*/bin/shutdown.sh
 
+Or, use the geronimo-maven-plugin to start the server:
+
+    mvn -Ptools geronimo:start
+    ...
+    mvn -Ptools geronimo:stop
+
 
 Subsequent builds
 =================

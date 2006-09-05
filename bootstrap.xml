@@ -121,6 +121,7 @@
         
         <delete>
             <fileset dir="${user.home}/.m2/repository">
+                <include name="org/apache/geronimo/testsupport/**"/>
                 <include name="org/apache/geronimo/modules/**"/>
                 <include name="org/apache/geronimo/configs/**"/>
                 <include name="org/apache/geronimo/applications/**"/>

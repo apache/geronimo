@@ -16,7 +16,7 @@
 
 package org.apache.geronimo.plugin.car;
 
-import org.apache.geronimo.plugin.ArtifactItem;
+import org.apache.geronimo.genesis.ArtifactItem;
 
 /**
  * Represents a Maven-artifact with additional classparh prefix details to build a jar's Manifest Class-Path.

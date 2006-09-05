@@ -40,7 +40,7 @@
             <artifactId>client-system</artifactId>
             <version>${pom.version}</version>
             <type>car</type>
-        </dependency> 
+        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
@@ -71,18 +71,19 @@
             <artifactId>geronimo-common</artifactId>
             <version>${pom.version}</version>
         </dependency> -->
-        
+
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-naming</artifactId>
             <version>${pom.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-j2ee</artifactId>
             <version>${pom.version}</version>
         </dependency>
+
         <!-- should be transitive dependency of geronimo-j2ee -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
@@ -95,19 +96,19 @@
             <artifactId>geronimo-transaction</artifactId>
             <version>${pom.version}</version>
         </dependency>
-        
+
         <!-- ??? 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-security</artifactId>
         </dependency> -->
-        
+
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-client</artifactId>
             <version>${pom.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-axis</artifactId>
@@ -119,12 +120,22 @@
             <artifactId>geronimo-webservices</artifactId>
             <version>${pom.version}</version>
         </dependency>
-        
+
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jta_1.0.1B_spec</artifactId>
+        </dependency>
+            
         <!-- geronimo-spec-corba, geronimo-j2ee_1.4_spec -->
         <!-- openejb-core, tranql, asm, activemq, activeio, scout, juddi, 
              concurrent, jdom -->
-        
-         <dependency>
+
+        <dependency>
             <groupId>concurrent</groupId>
             <artifactId>concurrent</artifactId>
         </dependency>
@@ -142,11 +153,7 @@
             <artifactId>geronimo-spec-corba</artifactId>
         </dependency>
         
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-j2ee_1.4_spec</artifactId>
-        </dependency>
-        
+
     </dependencies>
-    
+
 </project>

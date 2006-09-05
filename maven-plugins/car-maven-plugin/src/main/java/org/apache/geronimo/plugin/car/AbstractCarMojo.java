@@ -16,7 +16,19 @@
 
 package org.apache.geronimo.plugin.car;
 
-import org.apache.geronimo.plugin.MojoSupport;
+import java.io.File;
+import java.io.IOException;
+import java.io.FileOutputStream;
+import java.io.BufferedOutputStream;
+
+import java.util.Set;
+import java.util.List;
+import java.util.Iterator;
+import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.Properties;
+
+import org.apache.geronimo.genesis.MojoSupport;
 
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
@@ -29,18 +41,6 @@ import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Exclusion;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.FileOutputStream;
-import java.io.BufferedOutputStream;
-
-import java.util.Set;
-import java.util.List;
-import java.util.Iterator;
-import java.util.HashSet;
-import java.util.ArrayList;
-import java.util.Properties;
 
 /**
  * Support for <em>packaging</em> Mojos.

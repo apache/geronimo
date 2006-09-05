@@ -54,13 +54,6 @@
             <artifactId>xml-resolver</artifactId>
         </dependency>
         
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-testsupport</artifactId>
-            <version>${pom.version}</version>
-            <scope>test</scope>
-        </dependency>
-        
     </dependencies>
     
 </project>

@@ -18,9 +18,9 @@
 <!-- $Rev$ $Date$ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    
+
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>org.apache.geronimo.applications</groupId>
         <artifactId>applications</artifactId>
@@ -31,36 +31,35 @@
     <artifactId>geronimo-uddi-server</artifactId>
     <name>Geronimo Applications :: UDDI Server</name>
     <packaging>war</packaging>
-    
+
     <dependencies>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-j2ee_1.4_spec</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        
+
         <dependency>
             <groupId>juddi</groupId>
             <artifactId>juddi</artifactId>
             <scope>provided</scope>
         </dependency>
-        
+
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jsp_2.0_spec</artifactId>
+        </dependency>
+
         <!-- Required for JSPC compilation -->
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>jasper-runtime</artifactId>
         </dependency>
-        
+
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>jspc-maven-plugin</artifactId>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
@@ -87,5 +86,5 @@
             </releases>
         </repository>
     </repositories>
-    
+
 </project>

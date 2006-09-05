@@ -51,43 +51,93 @@
             <version>${pom.version}</version>
         </dependency>
         
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-testsupport</artifactId>
-            <version>${pom.version}</version>
-            <scope>test</scope>
-        </dependency>
-        
     </dependencies>
     
     <build>
-        <!--
-        FIXME: Convert module to m2 standard layout
-        -->
-        
-        <sourceDirectory>src/java</sourceDirectory>
-        <testSourceDirectory>src/test</testSourceDirectory>
-
-        <resources>
-            <resource>
-                <directory>src/resources</directory>
-            </resource>
-        </resources>
-
-        <testResources>
-            <testResource>
-                <directory>src/test-data</directory>
-            </testResource>
-
-            <testResource>
-                <directory>src/test-resources</directory>
-            </testResource>
-        </testResources>
-        
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>dependency-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-test-deployments</id>
+                        <phase>generate-test-resources</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                            
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.testsupport</groupId>
+                                    <artifactId>test-ear-j2ee_1.3</artifactId>
+                                    <version>${pom.version}</version>
+                                    <type>ear</type>
+                                    <destFileName>test-ear-j2ee_1.3.ear</destFileName>
+                                </artifactItem>
+                                
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.testsupport</groupId>
+                                    <artifactId>test-ear-j2ee_1.3</artifactId>
+                                    <version>${pom.version}</version>
+                                    <type>ear</type>
+                                    <!--
+                                    FIXME: need to remove the geronimo-application.xml file from this ear.
+                                    -->
+                                    <destFileName>test-ear-j2ee_1.3-naked.ear</destFileName>
+                                </artifactItem>
+                                
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.testsupport</groupId>
+                                    <artifactId>test-ear-j2ee_1.4</artifactId>
+                                    <version>${pom.version}</version>
+                                    <type>ear</type>
+                                    <destFileName>test-ear-j2ee_1.4.ear</destFileName>
+                                </artifactItem>
+                                
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.testsupport</groupId>
+                                    <artifactId>test-ear-j2ee_1.4</artifactId>
+                                    <version>${pom.version}</version>
+                                    <type>ear</type>
+                                    <!--
+                                    FIXME: need to remove the geronimo-application.xml file from this ear.
+                                    -->
+                                    <destFileName>test-ear-j2ee_1.4-naked.ear</destFileName>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
+                    <!--
+                    NOTE: Unpack some deployment to test unpacked deployemnts... may want
+                          to create full unpacked archives to unpack with the dependency plugin/
+                    -->
+                    <execution>
+                        <id>unpack-test-deployments</id>
+                        <phase>generate-test-resources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <mkdir dir="${project.build.directory}/test-ear-j2ee_1.4-unpacked.ear"/>
+                                <unzip src="${project.build.directory}/test-ear-j2ee_1.4.ear"
+                                    dest="${project.build.directory}/test-ear-j2ee_1.4-unpacked.ear"/>
+                                
+                                <mkdir dir="${project.build.directory}/test-ear-j2ee_1.4-naked-unpacked.ear"/>
+                                <unzip src="${project.build.directory}/test-ear-j2ee_1.4-naked.ear"
+                                    dest="${project.build.directory}/test-ear-j2ee_1.4-naked-unpacked.ear"/>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                    
                     <!--
                     HACK: Copy the generated XmlBeans bits for clover
                     -->
@@ -108,28 +158,6 @@
                             </tasks>
                         </configuration>
                     </execution>
-                    
-                    <!--
-                    FIXME: WTF is this for?  Document or remove
-                    -->
-                    <execution>
-                        <id>process-test-resources</id>
-                        <phase>process-test-resources</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <tasks>
-                                <echo message="classpath=${project.compileClasspathElements}"
-                                      file="classpath.properties"/>
-                                <ant antfile="${basedir}/src/test/test-setup.xml">
-                                    <property name="maven.compile.source" value="1.4"/>
-                                    <property name="maven.compile.target" value="1.4"/>
-                                </ant>
-                                <delete file="classpath.properties" failonerror="false"/>
-                            </tasks>
-                        </configuration>
-                    </execution>
                 </executions>
             </plugin>
             
@@ -137,13 +165,6 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>xmlbeans-maven-plugin</artifactId>
                 <configuration>
-                    <!--
-                    FIXME: Remove when using m2 layout
-                    -->
-                    <schemaDirectory>${pom.basedir}/src/schema</schemaDirectory>
-                    <xmlConfigs>
-                        <xmlConfig implementation="java.io.File">${pom.basedir}/src/schema/xmlconfig.xml</xmlConfig>
-                    </xmlConfigs>
                     <sourceSchemas>geronimo-application-1.2.xsd</sourceSchemas>
                 </configuration>
             </plugin>
