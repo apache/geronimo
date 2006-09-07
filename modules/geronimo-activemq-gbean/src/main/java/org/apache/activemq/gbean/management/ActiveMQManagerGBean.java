@@ -142,7 +142,7 @@ public class ActiveMQManagerGBean implements ActiveMQManager {
             for (Iterator it = set.iterator(); it.hasNext();) {
                 AbstractName name = (AbstractName) it.next(); // a single Jetty connector
                 GBeanData data = kernel.getGBeanData(name);
-                ReferencePatterns refs = data.getReferencePatterns("activeMQContainer");
+                ReferencePatterns refs = data.getReferencePatterns("brokerService");
                 if (containerName.equals(refs.getAbstractName())) {
                     results.add(mgr.createProxy(name, ActiveMQConnector.class.getClassLoader()));
                 }
@@ -166,7 +166,7 @@ public class ActiveMQManagerGBean implements ActiveMQManager {
             for (Iterator it = set.iterator(); it.hasNext();) {
                 AbstractName name = (AbstractName) it.next(); // a single Jetty connector
                 GBeanData data = kernel.getGBeanData(name);
-                ReferencePatterns refs = data.getReferencePatterns("activeMQContainer");
+                ReferencePatterns refs = data.getReferencePatterns("brokerService");
                 if(containerName.equals(refs.getAbstractName())) {
                     try {
                         String testProtocol = (String) kernel.getAttribute(name, "protocol");

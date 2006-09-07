@@ -36,12 +36,12 @@
     <dependencies>
         
         <dependency>
-            <groupId>activemq</groupId>
+            <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-core</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>activemq</groupId>
+            <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-ra</artifactId>
         </dependency>
         
@@ -57,25 +57,5 @@
             </plugin>
         </plugins>
     </build>
-    
-    <!--
-    HACK: Currently need to pickup the Codehaus m1 repo for activemq-*:3.2.4-SNAPSHOT
-    -->
-    <repositories>
-        <repository>
-            <id>codehaus-m1</id>
-            <name>Codehaus Maven 1 Repository</name>
-            <url>http://dist.codehaus.org</url>
-            <layout>legacy</layout>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-    </repositories>
     
 </project>

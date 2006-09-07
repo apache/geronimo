@@ -34,7 +34,7 @@ import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
-import org.activemq.service.DeadLetterPolicy;
+//import org.activemq.service.DeadLetterPolicy;
 import org.apache.geronimo.console.jmsmanager.AbstractJMSManager;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.gbean.AbstractName;
@@ -59,6 +59,7 @@ public class ViewDLQRenderer extends AbstractJMSManager implements PortletRender
     }
 
     public void setup(RenderRequest request, RenderResponse response) {
+    	/*
         String destinationApplicationName = request
                 .getParameter("destinationApplicationName");
         String destinationModuleName = request
@@ -108,6 +109,7 @@ public class ViewDLQRenderer extends AbstractJMSManager implements PortletRender
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
+        */
     }
 
     public List getDLQContents(QueueBrowser qb) {

@@ -68,7 +68,7 @@ public class BrokerServiceGBeanImpl implements GBeanLifecycle, BrokerServiceGBea
     	            brokerService = createContainer();
     	        }
                 DefaultPersistenceAdapterFactory persistenceFactory = (DefaultPersistenceAdapterFactory) brokerService.getPersistenceFactory();
-                persistenceFactory.setDataDirectory(serverInfo.resolve(dataDirectory));
+                persistenceFactory.setDataDirectory(serverInfo.resolvePath(dataDirectory));
                 persistenceFactory.setDataSource((DataSource) dataSource.$getResource());
                 brokerService.start();
         	} finally {

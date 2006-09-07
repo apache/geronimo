@@ -112,7 +112,7 @@
         <!-- JMS dependencies -->
         
         <dependency>
-            <groupId>activemq</groupId>
+            <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-core</artifactId>
             <scope>provided</scope>
         </dependency>
