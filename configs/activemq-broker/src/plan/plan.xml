@@ -19,59 +19,53 @@
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
-    <gbean name="ActiveMQManager" class="org.activemq.gbean.management.ActiveMQManagerGBean"/>
+    <gbean name="ActiveMQManager" class="org.apache.activemq.gbean.management.ActiveMQManagerGBean"/>
 
-    <gbean name="ActiveMQ" class="org.activemq.gbean.ActiveMQContainerGBean">
+    <gbean name="ActiveMQ" class="org.apache.activemq.gbean.BrokerServiceGBeanImpl">
+        <!-- Instead of using the limited configuration syntax in this file,
+             you can set the brokerURI property to externally specify the configuration for 
+             the broker.
+        <attribute name="brokerURI">xbean:file:/path/to/activemq.xml</attribute>
+        -->
         <attribute name="brokerName">possibly-unique-broker</attribute>
-        <reference name="persistenceAdapter">
-            <name>ActiveMQ.cache</name>
+        <attribute name="dataDirectory">activemq-data</attribute>
+        <reference name="dataSource">
+            <name>SystemDatasource</name>
         </reference>
-        <reference name="JMSManager">
+        <reference name="manager">
             <name>ActiveMQManager</name>
         </reference>
         <dependency>
             <name>SystemProperties</name>
         </dependency>
-    </gbean>
-
-    <gbean name="ActiveMQ.cache" class="org.activemq.store.cache.SimpleCachePersistenceAdapterGBean">
-        <attribute name="cacheSize">10000</attribute>
-        <reference name="longTermPersistence">
-            <name>ActiveMQ.journal</name>
-        </reference>
-    </gbean>
-
-    <gbean name="ActiveMQ.journal" class="org.activemq.store.journal.JournalPersistenceAdapterGBean">
         <reference name="serverInfo">
             <name>ServerInfo</name>
         </reference>
-        <attribute name="directory">var/activemq/journal</attribute>
-        <attribute name="journalType">default</attribute>
-        <reference name="longTermPersistence">
-            <name>ActiveMQ.jdbc</name>
-        </reference>
     </gbean>
 
-    <gbean name="ActiveMQ.jdbc" class="org.activemq.store.jdbc.JDBCPersistenceAdapterGBean">
-        <reference name="dataSource">
-            <name>SystemDatasource</name>
-        </reference>
-    </gbean>
-
-    <gbean name="ActiveMQ.tcp.default" class="org.activemq.gbean.ActiveMQConnectorGBean">
+    <gbean name="ActiveMQ.tcp.default" class="org.apache.activemq.gbean.TransportConnectorGBeanImpl">
         <attribute name="protocol">tcp</attribute>
         <attribute name="host">localhost</attribute>
         <attribute name="port">61616</attribute>
-        <reference name="activeMQContainer">
+        <reference name="brokerService">
             <name>ActiveMQ</name>
         </reference>
     </gbean>
 
-    <gbean name="ActiveMQ.vm.localhost" class="org.activemq.gbean.ActiveMQConnectorGBean">
+    <gbean name="ActiveMQ.stomp.default" class="org.apache.activemq.gbean.TransportConnectorGBeanImpl">
+        <attribute name="protocol">stomp</attribute>
+        <attribute name="host">localhost</attribute>
+        <attribute name="port">61613</attribute>
+        <reference name="brokerService">
+            <name>ActiveMQ</name>
+        </reference>
+    </gbean>
+
+    <gbean name="ActiveMQ.vm.default" class="org.apache.activemq.gbean.TransportConnectorGBeanImpl">
         <attribute name="protocol">vm</attribute>
         <attribute name="host">localhost</attribute>
         <attribute name="port">-1</attribute>
-        <reference name="activeMQContainer">
+        <reference name="brokerService">
             <name>ActiveMQ</name>
         </reference>
     </gbean>

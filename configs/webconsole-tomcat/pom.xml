@@ -128,14 +128,17 @@
             <!--<version>${pom.version}</version>-->
         <!--</dependency>-->
 
+
         <dependency>
-            <groupId>activemq</groupId>
-            <artifactId>activemq-gbean-g1_1</artifactId>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-activemq-gbean</artifactId>
+            <version>${pom.version}</version>
         </dependency>
-        
+
         <dependency>
-            <groupId>activemq</groupId>
-            <artifactId>activemq-gbean-management-g1_1</artifactId>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-activemq-gbean-management</artifactId>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>

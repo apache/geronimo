@@ -64,37 +64,15 @@
         </dependency>
         
         <dependency>
-            <groupId>incubator-activemq</groupId>
+            <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-core</artifactId>
-            <version>4.0.1</version>
         </dependency>
         
         <dependency>
-            <groupId>incubator-activemq</groupId>
+            <groupId>org.apache.activemq</groupId>
             <artifactId>activeio-core</artifactId>
-            <version>3.0-beta3</version>
         </dependency>
         
     </dependencies>
-    
-    <!--
-    HACK: Need the Apache m1 snapshot repo to pick up incubator-activemq:*
-    -->
-    <repositories>
-        <repository>
-            <id>apache-snapshots-m1</id>
-            <name>Apache Maven 1 Snapshots Repository</name>
-            <url>http://people.apache.org/repo/m1-snapshot-repository</url>
-            <layout>legacy</layout>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-    </repositories>
     
 </project>

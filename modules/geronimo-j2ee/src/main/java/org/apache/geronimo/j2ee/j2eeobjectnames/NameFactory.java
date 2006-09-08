@@ -88,6 +88,7 @@ public class NameFactory {
     public static final String URL_PATTERN = "URLPattern";
     public static final String GERONIMO_SERVICE = "GBean"; //copied in GBeanInfoBuilder to avoid dependencies in the wrong direction.
     public static final String CORBA_SERVICE = "CORBABean";
+    public static final String CORBA_NAME_SERVICE = "CORBANameService";
     public static final String JACC_MANAGER = "JACCManager";
     public static final String SYSTEM_LOG = "SystemLog";
     public static final String JAXR_CONNECTION_FACTORY = "JAXRConnectionFactory";
@@ -108,6 +109,8 @@ public class NameFactory {
     public static final String SERVLET_WEB_SERVICE_TEMPLATE = "ServletWebServiceTemplate";
     public static final String CORBA_CSS = "CORBACSS";
     public static final String CORBA_TSS = "CORBATSS";
+    public static final String CORBA_SSL = "CORBASSL";
+    public static final String ORB_CONFIG = "ORBConfig";
     public static final String WEB_SERVICE_LINK = "WSLink";
     public static final String KEY_GENERATOR = "KeyGenerator";
     public static final String KEYSTORE_INSTANCE = "Keystore";
