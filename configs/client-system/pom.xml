@@ -103,6 +103,10 @@
                             <artifactId>geronimo-qname_1.1_spec</artifactId>
                         </element>
                         <element>
+                            <groupId>backport-util-concurrent</groupId>
+                            <artifactId>backport-util-concurrent</artifactId>
+                        </element>
+                        <element>
                             <groupId>mx4j</groupId>
                             <artifactId>mx4j</artifactId>
                         </element>
