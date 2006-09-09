@@ -1,324 +1,324 @@
 All changes in dead-1.2 branch
 
 
-Not Merged,  r358649 , jlaskowski , 2005-12-22 14:39:35 -0800 (Thu, 22 Dec 2005) , 10 lines  Applied patch by Jakob Faerch (@see jrf-patch-partially-20051222.patch at http://issues.apache.org/jira/browse/GERONIMO-1164)  Some small changes:  + change portToConnectToWebservices to webServicePort  + web-service-address changed its content to reference webServicePort  + get default goal to work  WARNING: Web Services keep failing because of missing class - java.lang.ClassNotFoundException: org.apache.jasper.servlet.JspServlet   
-Unnecessary,  r358662 , jlaskowski , 2005-12-22 16:12:46 -0800 (Thu, 22 Dec 2005) , 3 lines  Configure MailGBean. It is the first time I could see Checkout Complete at the checkout procedure.   
-Unnecessary,  r360404 , jlaskowski , 2005-12-31 10:56:51 -0800 (Sat, 31 Dec 2005) , 2 lines  svn propset svn:ignore  
-Unnecessary,  r360411 , jlaskowski , 2005-12-31 11:04:50 -0800 (Sat, 31 Dec 2005) , 5 lines  Make j2ee-installer work  + change Geronimo IZPack Plugin to accept the latest release notes version  Thanks Sachin for the idea and patch!  
-Unnecessary,  r360413 , jlaskowski , 2005-12-31 11:07:09 -0800 (Sat, 31 Dec 2005) , 2 lines  Add the license  
-Unnecessary,  r360478 , gdamour , 2005-12-31 23:36:08 -0800 (Sat, 31 Dec 2005) , 3 lines  GERONIMO-1409 - A Filter is initialized with a wrong TCCL  Set the Web-app CL as the TCCL when starting a Filter. 
-Merged,  r365285 , djencks , 2006-01-01 20:19:48 -0800 (Sun, 01 Jan 2006) , 1 line  GERONIMO-1411 fix some servlet schema transformation problems 
-Not Merged,  r365364 , jlaskowski , 2006-01-02 07:46:13 -0800 (Mon, 02 Jan 2006) , 11 lines  Jakob's patch applied. @see http://issues.apache.org/jira/browse/GERONIMO-1164#action_12361517  The changes (copied from Jakob's comment):   + Moved the deployer-configurable properties from maven.xml to project.properties  + Changed the geronimo artifact id used in unpackServer from the tomcat distribution to the jetty distribution, as I experienced some problems with the Tomcat distro.  + Added dependencies for geronimo-javamail-transport-1.0.jar, and added them to the list of jars being copied manually in the unpackServer goal  + Moved around some of the properties in the configuration of the MailGBean and SMTPTransportGBean. It seems that the SMTPTransportGBean isn't necessary, so I have removed it.  Great job! Thanks Jakob!  
-Unnecessary,  r365370 , jlaskowski , 2006-01-02 08:11:15 -0800 (Mon, 02 Jan 2006) , 4 lines  #1401: Updates to BUILDING.txt about the last changes to the build process  Thanks Anita!  
-Unnecessary,  r365738 , jlaskowski , 2006-01-03 12:42:08 -0800 (Tue, 03 Jan 2006) , 2 lines  Remove the mail server  
-Unnecessary,  r365750 , jlaskowski , 2006-01-03 13:39:23 -0800 (Tue, 03 Jan 2006) , 3 lines  Exclude geronimo/daytrader-derby-jetty/1.0-SNAPSHOT/car from being run. It doesn't work well under Java 5   
-Unnecessary,  r365764 , jlaskowski , 2006-01-03 15:03:53 -0800 (Tue, 03 Jan 2006) , 2 lines  Deploy Adventure Builder without having to download the whole source tree (only /etc and /sandbox/adventurebuilder directories are required)  
-Merged,  r365799 , djencks , 2006-01-03 18:07:02 -0800 (Tue, 03 Jan 2006) , 1 line  fix missing dependencies noted by Henry Hwang 
-Merged,  r366121 , djencks , 2006-01-05 00:28:53 -0800 (Thu, 05 Jan 2006) , 1 line  GERONIMO-1012 finally completed.  jgenender pointed out how to add the DefaultSubjectValve after the default valves tomcat adds, so default subject is set only when there is no authenticated subject. 
-Unnecessary,  r366236 , janb , 2006-01-05 10:15:38 -0800 (Thu, 05 Jan 2006) , 2 lines  adding the dependencies for wadi to the jetty container. had to add an extra repository to get the activemq-WADI-3.2 version - it would be good if there was another repo to get that from  
-Merged,  r366603 , djencks , 2006-01-06 16:02:52 -0800 (Fri, 06 Jan 2006) , 1 line  remove a couple of unused files 
-Merged,  r366676 , djencks , 2006-01-06 21:37:04 -0800 (Fri, 06 Jan 2006) , 1 line  GERONIMO-1427  First step towards separating openejb and axis into separate configs 
-Not Merged,  r366693 , janb , 2006-01-07 00:19:14 -0800 (Sat, 07 Jan 2006) , 2 lines  removing axion and special activemq wadi versions and therefore jgenenders' codehaus repository from repo list  
-Not Merged,  r367046 , adc , 2006-01-08 08:31:23 -0800 (Sun, 08 Jan 2006) , 3 lines  PR: GERONIMO-1432 Removed wrapPrincipals attribute.  
-Unnecessary,  r367122 , jsisson , 2006-01-08 15:15:17 -0800 (Sun, 08 Jan 2006) , 1 line  GERONIMO-1395 - Fix accidental duplication of fixcrlf call in jelly code used whilst building the zip distribution.  assembly plugin version bumped up to 1.1.3. 
-Not Merged,  r367144 , ammulder , 2006-01-08 16:33:58 -0800 (Sun, 08 Jan 2006) , 2 lines  Merge JavaDoc URL change from branch  
-Not Merged,  r367145 , ammulder , 2006-01-08 16:34:55 -0800 (Sun, 08 Jan 2006) , 2 lines  Merge fix to GERONIMO-1435 from branch.  
-Unnecessary,  r367154 , jsisson , 2006-01-08 17:35:50 -0800 (Sun, 08 Jan 2006) , 1 line  fix svn properties 
-Not Merged,  r367166 , jsisson , 2006-01-08 18:40:52 -0800 (Sun, 08 Jan 2006) , 1 line  GERONIMO-1416 - fix broken links and typo. 
-Not Merged,  r367213 , jsisson , 2006-01-08 21:50:48 -0800 (Sun, 08 Jan 2006) , 1 line  GERONIMO-1437 : prevent INFO [Http11Protocol] messages (from tomcat) being logged during startup that show ports being used, as there is no need for them since we summarise the ports in use by Geronimo when startup has completed. 
-Merged,  r367263 , djencks , 2006-01-09 02:19:08 -0800 (Mon, 09 Jan 2006) , 1 line  GERONIMO-1425, GERONIMO-1440.  Remember subject for access to unsecured resources after login, fix a bunch of problems with JAASJettyRealm, simplify the SecurityBeforeAfter 
-Merged,  r367385 , djencks , 2006-01-09 12:24:56 -0800 (Mon, 09 Jan 2006) , 1 line  GERONIMO-1443 make hot deployer accept plan-only deployments 
-Merged,  r367399 , djencks , 2006-01-09 13:28:57 -0800 (Mon, 09 Jan 2006) , 1 line  GERONIMO-1443 Further fixes whose need was pointed out by ammulder 
-Not Merged,  r367423 , hogstrom , 2006-01-09 14:51:13 -0800 (Mon, 09 Jan 2006) , 1 line  Added code to warn users that JDKs other than 1.4 may not function correctly 
-Merged,  r367430 , djencks , 2006-01-09 16:02:19 -0800 (Mon, 09 Jan 2006) , 1 line  GERONIMO-1440 Restructure realm management so it is based on our security realm names and basically ignores the realm-name from web.xml 
-Merged,  r367590 , gdamour , 2006-01-10 04:50:02 -0800 (Tue, 10 Jan 2006) , 2 lines  We need to set the host and port of the RemoteEJBReferenceBuilder.  
-Unnecessary,  r368017 , jsisson , 2006-01-11 04:39:59 -0800 (Wed, 11 Jan 2006) , 1 line  GERONIMO-1441 - comment out, consolidate or remove duplicate dependencies that cause "Build path contains duplicate entry" errors in eclipse 3.1.1 projects. (merge of changes from 1.0 branch) 
-Not Merged,  r368104 , jgenender , 2006-01-11 11:21:54 -0800 (Wed, 11 Jan 2006) , 1 line  Fix unit tests 
-Merged,  r368305 , djencks , 2006-01-12 00:06:19 -0800 (Thu, 12 Jan 2006) , 1 line  GERONIMO-1440  Make the examples deploy since they have authenticators. 
-Merged,  r368307 , djencks , 2006-01-12 00:09:02 -0800 (Thu, 12 Jan 2006) , 1 line  GERONIMO-1457 to 1.1-SNAPSHOT 
-Merged,  r368331 , djencks , 2006-01-12 01:45:16 -0800 (Thu, 12 Jan 2006) , 1 line  reformat 
-Merged,  r368332 , djencks , 2006-01-12 01:45:48 -0800 (Thu, 12 Jan 2006) , 1 line  GERONIMO-1457 fix some plugin version problems 
-Not Merged,  r368344 , jules , 2006-01-12 03:47:38 -0800 (Thu, 12 Jan 2006) , 8 lines  Rationalise and unify Jetty and Tomcat approaches to installation of WADI behind a distributable webapp.  This is now done via two attributes on the top-level WebContainer component - LocalSessionManager and DistributableSessionManager, which may be set to the classnames of the required managers.   
-Not Merged,  r368393 , jgenender , 2006-01-12 07:49:16 -0800 (Thu, 12 Jan 2006) , 1 line  Backed out to 368343 to remove hard coded clustering configuration 
-Merged,  r368536 , djencks , 2006-01-12 16:52:16 -0800 (Thu, 12 Jan 2006) , 1 line  GERONIMO-1463 Fix isUserInRole 
-Not Merged,  r368569 , jsisson , 2006-01-12 19:16:50 -0800 (Thu, 12 Jan 2006) , 1 line  GERONIMO-1465 - ensure InputStreams are closed rather than leaving it up to garbage collection / finalization. 
-Not Merged,  r368592 , jsisson , 2006-01-12 21:00:51 -0800 (Thu, 12 Jan 2006) , 3 lines  Fix GERONIMO-1452 - Config.xml refers to the wrong JMX remote service gbean.   Fix GERONIMO-1352 - RMI port number is not specified in URL for JMXConnector in server config.xml files (merged from 1.0 branch) 
-Not Merged,  r368746 , jgenender , 2006-01-13 06:40:35 -0800 (Fri, 13 Jan 2006) , 1 line  Remove the WADI hard code and use the ManagerGBean interface instead (which is a parent of WADIGBean) 
-Unnecessary,  r368820 , adc , 2006-01-13 10:49:27 -0800 (Fri, 13 Jan 2006) , 3 lines  Needed to add a version to the plugin.  Too lazy to enumerate all the developers in this project. 
-Merged,  r368952 , djencks , 2006-01-13 17:57:20 -0800 (Fri, 13 Jan 2006) , 1 line  GERONIMO-1427 add some missing dependencies to encourage a better build order 
-Merged,  r368955 , djencks , 2006-01-13 18:03:41 -0800 (Fri, 13 Jan 2006) , 1 line  GERONIMO-1457 Update some more version numbers to 1.1-SNAPSHOT 
-Merged,  r369099 , djencks , 2006-01-14 13:31:11 -0800 (Sat, 14 Jan 2006) , 1 line  GERONIMO-1194 apply patch, installer now partly works 
-Merged,  r369125 , djencks , 2006-01-14 16:28:36 -0800 (Sat, 14 Jan 2006) , 1 line  GERONIMO-1447 fix config names in plans 
-Merged,  r369165 , djencks , 2006-01-14 18:29:39 -0800 (Sat, 14 Jan 2006) , 1 line  GERONIMO-1457 Another version change 
-Unnecessary,  r369276 , dain , 2006-01-15 15:16:51 -0800 (Sun, 15 Jan 2006) , 2 lines  Add session module  
-Not Merged,  r369280 , jstrachan , 2006-01-15 15:36:05 -0800 (Sun, 15 Jan 2006) , 1 line  A spike for a simple API for working with stateful session bean state from OpenEJB, ServiceMix or Tuscany; its very simple to use & has all thats required from the perspective of the client; we should be able to layer this on pretty much any implementation technology like WADI et al 
-Merged,  r369300 , djencks , 2006-01-15 17:27:18 -0800 (Sun, 15 Jan 2006) , 1 line  GERONIMO-1457, maybe.  Make sure a couple spec jars make it into lib 
-Not Merged,  r369309 , jstrachan , 2006-01-15 18:09:43 -0800 (Sun, 15 Jan 2006) , 1 line  a simple local implementation of the Session to allow single-JVM session management which can offer optional persistence but no remote sessions 
-Unnecessary,  r369310 , jstrachan , 2006-01-15 18:14:00 -0800 (Sun, 15 Jan 2006) , 1 line  Added missing dependencies to the pom 
-Not Merged,  r369313 , jstrachan , 2006-01-15 18:28:48 -0800 (Sun, 15 Jan 2006) , 1 line  added a simple version of a remote-capable Locator which supports local or remote session objects which can be moved and new servers added or existing ones removed 
-Not Merged,  r369319 , jstrachan , 2006-01-15 18:47:07 -0800 (Sun, 15 Jan 2006) , 1 line  added a little helper strategy for deciding whether to redirect, proxy or move when faced with a remote session 
-Unnecessary,  r369321 , adc , 2006-01-15 19:04:41 -0800 (Sun, 15 Jan 2006) , 1 line  Moved sandbox to a better place. 
-Merged,  r369381 , djencks , 2006-01-15 23:33:37 -0800 (Sun, 15 Jan 2006) , 1 line  GERONIMO-1477 turn off debug tool by default 
-Merged,  r369383 , djencks , 2006-01-15 23:44:25 -0800 (Sun, 15 Jan 2006) , 1 line  GERONIMO-1448 applied patch to web.xml and removed unused file geronimo-web.xml 
-Merged,  r369397 , djencks , 2006-01-16 00:32:51 -0800 (Mon, 16 Jan 2006) , 1 line  GERONIMO-1455  Decouple PersistentConfigurationList and ManageagleAttributeStore 
-Unnecessary,  r369596 , jsisson , 2006-01-16 14:41:28 -0800 (Mon, 16 Jan 2006) , 1 line  GERONIMO-1446 - Tomcat server assembly does not include geronimo javamail car (merged from 1.0 branch) 
-Merged,  r369915 , djencks , 2006-01-17 12:54:26 -0800 (Tue, 17 Jan 2006) , 1 line  GERONIMO-1455 clean up previous fix 
-Merged,  r369917 , djencks , 2006-01-17 12:59:12 -0800 (Tue, 17 Jan 2006) , 1 line  GERONIMO-1455 We can check that the 2 functionalities are not interfering with each other 
-Not Merged,  r370034 , hogstrom , 2006-01-17 19:53:51 -0800 (Tue, 17 Jan 2006) , 1 line  Updated Daytrader to not have hardcoded dependencies 
-Not Merged,  r370035 , hogstrom , 2006-01-17 19:55:21 -0800 (Tue, 17 Jan 2006) , 1 line  Updated configs to disassociate daytrader version from geronimo 
-Not Merged,  r370077 , jsisson , 2006-01-18 00:18:15 -0800 (Wed, 18 Jan 2006) , 1 line  GERONIMO-1344 - Fix issue where you get Java usage help when a trailing slash '/' is in GERONIMO_HOME environment variable (merged from 1.0 branch) 
-Not Merged,  r370204 , kevan , 2006-01-18 09:56:15 -0800 (Wed, 18 Jan 2006) , 1 line  More appropriate shutdown of ActiveMQ broker within the Geronimo server. Geronimo will control stopping of broker, not active mq's shutdown handler 
-Unnecessary,  r370662 , kevan , 2006-01-19 14:52:34 -0800 (Thu, 19 Jan 2006) , 1 line  Installer fixes to allow maven 1.0.2 builds to work 
-Not Merged,  r370682 , kevan , 2006-01-19 16:23:41 -0800 (Thu, 19 Jan 2006) , 1 line  Inhiibit coyote info messages during startup. Fix is needed for Installer and for consistency for jetty 
-Not Merged,  r370690 , kevan , 2006-01-19 17:32:01 -0800 (Thu, 19 Jan 2006) , 1 line  Inhibit catalina StandardContext info messages during shutdown. 
-Unnecessary,  r370778 , jsisson , 2006-01-20 02:38:45 -0800 (Fri, 20 Jan 2006) , 1 line  GERONIMO-1513 - change lib/extension to lib/ext to match the "Extension-Dirs: lib/ext" value in the manifest.mf file (merged from 1.0 branch) 
-Unnecessary,  r370780 , jsisson , 2006-01-20 02:41:57 -0800 (Fri, 20 Jan 2006) , 1 line  GERONIMO-1513 - bump up assembly plugin version 
-Not Merged,  r370912 , hogstrom , 2006-01-20 14:20:50 -0800 (Fri, 20 Jan 2006) , 1 line  GERONIMO-1506 Database portlet version issue 
-Merged,  r370955 , djencks , 2006-01-20 18:01:10 -0800 (Fri, 20 Jan 2006) , 1 line  Spec recommends using null as parameter for a static method 
-Merged,  r370956 , djencks , 2006-01-20 18:09:13 -0800 (Fri, 20 Jan 2006) , 1 line  GERONIMO-1505, GERONIMO-1514, GERONIMO-1517 Fix copyright statements of modified izpack files, fix tomcat activation, install derby with j2ee-features.  openejb and axis modules not installed yet 
-Merged,  r370997 , djencks , 2006-01-21 01:38:49 -0800 (Sat, 21 Jan 2006) , 1 line  forward port fix so synthetic ears appear to have a dd 
-Merged,  r371115 , jdillon , 2006-01-21 13:15:50 -0800 (Sat, 21 Jan 2006) , 2 lines  Removed margins from welcome page to be consistent with the console.  
-Merged,  r371127 , djencks , 2006-01-21 14:30:34 -0800 (Sat, 21 Jan 2006) , 1 line  GERONIMO-1473 Follow spec on clearing PolicyConfiguration before stuffing the permissions in 
-Merged,  r371145 , djencks , 2006-01-21 16:06:27 -0800 (Sat, 21 Jan 2006) , 1 line  GERONIMO-1523 Avoid serializing openejb class in all enc contexts 
-Unnecessary,  r371180 , hogstrom , 2006-01-21 20:38:14 -0800 (Sat, 21 Jan 2006) , 1 line  Merged fixes to hardcoded updates from branches 1.0 rev 371179 
-Merged,  r371341 , djencks , 2006-01-22 10:18:34 -0800 (Sun, 22 Jan 2006) , 1 line  GERONIMO-1440 Supply a 'Non'Authenticator if security realm name is supplied but no login method specified. This makes jetty install the defaultPrincipal/Subject for unsecured web apps 
-Not Merged,  r371391 , kevan , 2006-01-22 13:20:06 -0800 (Sun, 22 Jan 2006) , 1 line  Use latest Jetty version to avoid security exposure on Windows 
-Not Merged,  r371461 , ammulder , 2006-01-22 20:53:26 -0800 (Sun, 22 Jan 2006) , 3 lines  Apply changes from branch (Fixes GERONIMO-1510, contributes to GERONIMO-1137,   other minor fixes)  
-Unnecessary,  r371637 , ammulder , 2006-01-23 11:43:19 -0800 (Mon, 23 Jan 2006) , 2 lines  Merge change from branch  
-Merged,  r371641 , djencks , 2006-01-23 11:50:05 -0800 (Mon, 23 Jan 2006) , 1 line  add test of context-param 
-Not Merged,  r371779 , ammulder , 2006-01-23 18:38:42 -0800 (Mon, 23 Jan 2006) , 2 lines  Merge JCAResourceAdapter change from branch  
-Not Merged,  r371787 , ammulder , 2006-01-23 19:10:32 -0800 (Mon, 23 Jan 2006) , 2 lines  Merge new JMS portlet change from branch  
-Not Merged,  r371835 , hogstrom , 2006-01-23 22:12:21 -0800 (Mon, 23 Jan 2006) , 1 line  GERONIMO-1534 - Updated Daytrader plan to correct incorrect classname for DB2SyntaxFactory 
-Merged,  r371874 , djencks , 2006-01-24 01:40:34 -0800 (Tue, 24 Jan 2006) , 1 line  GERONIMO-1427 Port lightweight geronimo work to trunk 
-Not Merged,  r371964 , ammulder , 2006-01-24 09:47:26 -0800 (Tue, 24 Jan 2006) , 2 lines  Merge JMS portlet improvements from branch  
-Merged,  r371997 , djencks , 2006-01-24 11:47:02 -0800 (Tue, 24 Jan 2006) , 1 line  GERONIMO-1427 add missing config, not sure why it didn't merge 
-Merged,  r372025 , djencks , 2006-01-24 13:31:25 -0800 (Tue, 24 Jan 2006) , 1 line  remove some unneeded jetty dependencies, thanks to anita kulshreshtha 
-Unnecessary,  r372108 , jsisson , 2006-01-24 21:21:24 -0800 (Tue, 24 Jan 2006) , 1 line  GERONIMO-1287 - Erik's installer patch that does fixcrlf processing for text files at install time when using the izpack installer. 
-Unnecessary,  r372114 , jsisson , 2006-01-24 21:26:29 -0800 (Tue, 24 Jan 2006) , 1 line  be more specific regarding version of JDK required. 
-Not Merged,  r372115 , jsisson , 2006-01-24 21:33:42 -0800 (Tue, 24 Jan 2006) , 1 line  GERONIMO-615 - improve code where RMIClassLoaderSpiImpl.normalizeCodebase(..) unnecessarily caused MalformedURLExceptions to be generated and caught. 
-Not Merged,  r372286 , ammulder , 2006-01-25 10:47:53 -0800 (Wed, 25 Jan 2006) , 2 lines  Merge fix for GERONIMO-1387 from branch  
-Not Merged,  r372306 , ammulder , 2006-01-25 12:16:54 -0800 (Wed, 25 Jan 2006) , 2 lines  Mwerge fix for GERONIMO-1450 from branch  
-Not Merged,  r372312 , ammulder , 2006-01-25 12:52:46 -0800 (Wed, 25 Jan 2006) , 2 lines  Merge GERONIMO-1467 change from branch  
-Not Merged,  r372324 , ammulder , 2006-01-25 13:35:35 -0800 (Wed, 25 Jan 2006) , 2 lines  Merge fix for GERONIMO-1474 from branch  
-Not Merged,  r372334 , ammulder , 2006-01-25 14:08:47 -0800 (Wed, 25 Jan 2006) , 2 lines  Merge potential fix for GERONIMO-1426 from branch  
-Not Merged,  r372352 , ammulder , 2006-01-25 14:54:07 -0800 (Wed, 25 Jan 2006) , 2 lines  Merge workaround for GERONIMO-1421 from branch  
-Merged,  r372354 , djencks , 2006-01-25 15:03:46 -0800 (Wed, 25 Jan 2006) , 1 line  GERONIMO-1436, 1437 fix a couple small installer problems.  Bump assembly plugin version 
-Not Merged,  r372358 , ammulder , 2006-01-25 15:15:33 -0800 (Wed, 25 Jan 2006) , 2 lines  Merge fix for GERONIMO-1379 from branch  
-Not Merged,  r372367 , ammulder , 2006-01-25 15:40:20 -0800 (Wed, 25 Jan 2006) , 2 lines  Merge fix for GERONIMO-1468 from branch  
-Unnecessary,  r372731 , bsnyder , 2006-01-26 20:54:10 -0800 (Thu, 26 Jan 2006) , 1 line  Committing POP3 implementation work from GERONIMO-1341. 
-Not Merged,  r373180 , kevan , 2006-01-28 08:58:56 -0800 (Sat, 28 Jan 2006) , 1 line  Fix cross-site scripting problems in samples 
-Unnecessary,  r373281 , adc , 2006-01-28 19:33:52 -0800 (Sat, 28 Jan 2006) , 3 lines  PR: GERONIMO-1550 Submitted by: Anders Hessellund Jensen Current IDL files break the OpenEJB build 
-Merged,  r373571 , djencks , 2006-01-30 11:23:58 -0800 (Mon, 30 Jan 2006) , 1 line  GERONIMO-1541, fix glitches with what gets into lib.  Also remove some commented out dependencies 
-Not Merged,  r373669 , jgenender , 2006-01-30 18:12:06 -0800 (Mon, 30 Jan 2006) , 1 line  Fix Unit Tests 
-Not Merged,  r373707 , jsisson , 2006-01-30 21:04:06 -0800 (Mon, 30 Jan 2006) , 1 line  GERONIMO-1544 - Apply Erik's patch to resolve licensing issues with IzPack components.  Thanks Erik! (merged from 1.0 branch) 
-Unnecessary,  r373797 , jsisson , 2006-01-31 03:45:18 -0800 (Tue, 31 Jan 2006) , 1 line  GERONIMO-1441 - comment out, consolidate or remove duplicate dependencies that cause "Build path contains duplicate entry" errors in eclipse 3.1.1 projects (merged from 1.0 branch). 
-Unnecessary,  r373817 , gdamour , 2006-01-31 05:30:10 -0800 (Tue, 31 Jan 2006) , 2 lines  Use tranql-1.3-SNAPSHOT.  
-Not Merged,  r373920 , hogstrom , 2006-01-31 14:03:56 -0800 (Tue, 31 Jan 2006) , 1 line  Geronimo-1561 spelling correction of Exception Messages 
-Merged,  r373947 , djencks , 2006-01-31 16:05:53 -0800 (Tue, 31 Jan 2006) , 1 line  GERONIMO-1554 installer optional advanced features 
-Unnecessary,  r374004 , jsisson , 2006-01-31 22:04:56 -0800 (Tue, 31 Jan 2006) , 1 line  GERONIMO-1441 - fix previous change to j2ee-installer that introduced two properties of the same name in a dependency. A dependency marked as a library implies it goes to the repository. 
-Merged,  r374054 , dain , 2006-02-01 03:50:54 -0800 (Wed, 01 Feb 2006) , 2 lines  Updated to reflect openejb refactor  
-Unnecessary,  r374068 , dain , 2006-02-01 06:12:53 -0800 (Wed, 01 Feb 2006) , 2 lines  Reenable uniti tests  
-Unnecessary,  r374156 , dain , 2006-02-01 12:11:08 -0800 (Wed, 01 Feb 2006) , 2 lines  set svn:ignore on new modules  
-Merged,  r374191 , djencks , 2006-02-01 14:01:44 -0800 (Wed, 01 Feb 2006) , 1 line  GERONIMO-1569 Improve packaging plugin logging 
-Merged,  r374193 , djencks , 2006-02-01 14:08:48 -0800 (Wed, 01 Feb 2006) , 1 line  GERONIMO-1563 step 1.  Separate our proprietary JACC configuration info into a separate gbean 
-Merged,  r374211 , djencks , 2006-02-01 16:19:53 -0800 (Wed, 01 Feb 2006) , 1 line  GERONIMO-1563 step one missed file 
-Merged,  r374212 , djencks , 2006-02-01 16:26:18 -0800 (Wed, 01 Feb 2006) , 1 line  GERONIMO-1570, GERONIMO-1460 Provide jetty gbean for specifying bouth hosts and virtual hosts: actually use virtual hosts to set virtual hosts, not hosts.  This has a provisional schema change, and the schema version needs to be updated 
-Unnecessary,  r374246 , dain , 2006-02-01 20:19:06 -0800 (Wed, 01 Feb 2006) , 2 lines  References need <module>*</module> since the beans are in the parent plan  
-Not Merged,  r374253 , hogstrom , 2006-02-01 21:04:07 -0800 (Wed, 01 Feb 2006) , 1 line  Geronimo-1336 Corrected issue when specifying database pool sizes 
-Unnecessary,  r374273 , hogstrom , 2006-02-01 21:51:22 -0800 (Wed, 01 Feb 2006) , 1 line  Geronimo 1571-Added text to explicitly call out the Sun 1.4 VM for builds 
-Not Merged,  r374281 , hogstrom , 2006-02-01 22:17:34 -0800 (Wed, 01 Feb 2006) , 1 line  Geronimo-1489 Minor fixes to JUDDI JSP application 
-Unnecessary,  r374335 , djencks , 2006-02-02 02:01:47 -0800 (Thu, 02 Feb 2006) , 1 line  GERONIMO-1574 untested spring transaction manager wrapper around our TransactionContextManager 
-Unnecessary,  r374338 , djencks , 2006-02-02 02:05:36 -0800 (Thu, 02 Feb 2006) , 1 line  up spring version 
-Not Merged,  r374366 , jsisson , 2006-02-02 03:37:23 -0800 (Thu, 02 Feb 2006) , 1 line  GERONIMO-1278 - fix problem on windows where rename fails during fixcrlf processing in installer (merged from 1.0 branch). 
-Unnecessary,  r374415 , adc , 2006-02-02 08:02:34 -0800 (Thu, 02 Feb 2006) , 1 line   
-Unnecessary,  r374472 , dain , 2006-02-02 11:34:57 -0800 (Thu, 02 Feb 2006) , 2 lines  Added missing transaction manager object name attribute to ear deployer Added better error handling to openejb tranql intergration 
-Merged,  r374535 , djencks , 2006-02-02 14:50:45 -0800 (Thu, 02 Feb 2006) , 1 line  GERONIMO-1578 remove wadi dependencies from jetty module 
-Unnecessary,  r374536 , chirino , 2006-02-02 14:51:02 -0800 (Thu, 02 Feb 2006) , 4 lines  Adding a new rar build for the activemq rar since geronimo really should be building a custom rar so that it's configuration  can be tailored for geronimo.   
-Not Merged,  r374665 , kevan , 2006-02-03 05:22:56 -0800 (Fri, 03 Feb 2006) , 1 line  Fix for relative links in jmxdebug on Tomcat 
-Not Merged,  r374759 , jgenender , 2006-02-03 14:06:34 -0800 (Fri, 03 Feb 2006) , 1 line  Added BeforeAfters for cross context and a listener 
-Unnecessary,  r374781 , kevan , 2006-02-03 15:21:12 -0800 (Fri, 03 Feb 2006) , 1 line  Update m:co to use svn to retrieve openejb 
-Not Merged,  r374885 , jgenender , 2006-02-04 08:10:47 -0800 (Sat, 04 Feb 2006) , 1 line  Save the Request during x-context dispatch 
-Unnecessary,  r374972 , adc , 2006-02-04 21:49:10 -0800 (Sat, 04 Feb 2006) , 1 line  Update specs versions   
-Unnecessary,  r374973 , adc , 2006-02-04 21:50:46 -0800 (Sat, 04 Feb 2006) , 1 line  Ignore 
-Merged,  r375137 , djencks , 2006-02-05 15:48:05 -0800 (Sun, 05 Feb 2006) , 1 line  Move some openejb, tranql, and activemq dependencies to more appropriate modules. 
-Unnecessary,  r375204 , jsisson , 2006-02-05 22:43:38 -0800 (Sun, 05 Feb 2006) , 1 line  GERONIMO-1566 - fix issue where binary distributions (both zip and tgz) contain a META-INF/manifest.mf file under the geronimo-1.0 directory. 
-Unnecessary,  r375375 , bsnyder , 2006-02-06 13:16:28 -0800 (Mon, 06 Feb 2006) , 1 line  Added patch for GERONIMO-1593. 
-Unnecessary,  r375548 , bsnyder , 2006-02-07 00:40:18 -0800 (Tue, 07 Feb 2006) , 1 line  Had to apply a few fixes to the SMTPTransport class. 
-Merged,  r375854 , djencks , 2006-02-07 21:13:03 -0800 (Tue, 07 Feb 2006) , 1 line  GERONIMO-1599 temporary fix for broken recovery.  Shows the danger of working too fast and insufficient testing. 
-Not Merged,  r376068 , jgenender , 2006-02-08 13:21:26 -0800 (Wed, 08 Feb 2006) , 1 line  GERONIMO-1480 - set and get servlet wrapper name during dispatch 
-Not Merged,  r376105 , jsisson , 2006-02-08 14:47:30 -0800 (Wed, 08 Feb 2006) , 2 lines  GERONIMO-1490 - setjavaenv.bat not called by deploy.bat GERONIMO-1610 - deploy.bat does not honour GERONIMO_BATCH_ECHO and GERONIMO_BATCH_PAUSE 
-Not Merged,  r376106 , jsisson , 2006-02-08 14:50:10 -0800 (Wed, 08 Feb 2006) , 1 line  GERONIMO-1490 - deploy.sh does not call setjavaenv.sh 
-Not Merged,  r376109 , jgenender , 2006-02-08 15:09:02 -0800 (Wed, 08 Feb 2006) , 1 line  Tidy up code 
-Not Merged,  r376110 , jsisson , 2006-02-08 15:10:15 -0800 (Wed, 08 Feb 2006) , 1 line  GERONIMO-1608 - Improve script documentation 
-Not Merged,  r376111 , jsisson , 2006-02-08 15:19:50 -0800 (Wed, 08 Feb 2006) , 1 line  GERONIMO-1603 - shutdown.bat does not set ERRORLEVEL and does not honour GERONIMO_BATCH_ECHO and GERONIMO_BATCH_PAUSE environment variables 
-Not Merged,  r376114 , jsisson , 2006-02-08 15:25:09 -0800 (Wed, 08 Feb 2006) , 1 line  GERONIMO-1609 - Fix typo in error message 
-Not Merged,  r376116 , jsisson , 2006-02-08 15:28:03 -0800 (Wed, 08 Feb 2006) , 1 line  GERONIMO-1606 - Display message indicating Geronimo is being started in a separate window when started with geronimo.bat or startup.bat 
-Not Merged,  r376118 , jsisson , 2006-02-08 15:33:26 -0800 (Wed, 08 Feb 2006) , 1 line  GERONIMO-1612 - Remove -Djava.endorsed.dirs="$JAVA_ENDORSED_DIRS" from commands in geronimo.sh. Was accidentally carried over from the Tomcat code the script was based upon. 
-Unnecessary,  r376119 , jsisson , 2006-02-08 15:35:02 -0800 (Wed, 08 Feb 2006) , 1 line  GERONIMO-1605 - Display PID of started process when using geronimo.sh start or startup.sh 
-Not Merged,  r376121 , jsisson , 2006-02-08 15:42:20 -0800 (Wed, 08 Feb 2006) , 1 line  GERONIMO-1604 - Make scripts consistent in the output of environment variable information (previously deploy.bat and deploy.sh did not output this information).  Also allow environment variable information to be turned off using the new GERONIMO_ENV_INFO environment variable. 
-Not Merged,  r376123 , jsisson , 2006-02-08 15:45:45 -0800 (Wed, 08 Feb 2006) , 1 line  GERONIMO-1607 - Allow arguments to the Windows START command to be specified in an environment variable GERONIMO_WIN_START_ARGS. 
-Not Merged,  r376223 , jgenender , 2006-02-09 00:43:29 -0800 (Thu, 09 Feb 2006) , 1 line  Fix array issue 
-Merged,  r376284 , gdamour , 2006-02-09 05:21:02 -0800 (Thu, 09 Feb 2006) , 6 lines  GERONIMO-1599 HOWLLog throws NPE because XidFactory is missing  Extract XidFactory from TransactionManagerImpl.  Define an XidFactory GBean shared by HOWLTransactionLog and TransactionManager ~                                                                           
-Merged,  r376288 , gdamour , 2006-02-09 05:31:51 -0800 (Thu, 09 Feb 2006) , 3 lines  GERONIMO-1599 HOWLLog throws NPE because XidFactory is missing  Wrongly rolled-back the implementation of recover. 
-Not Merged,  r376866 , ammulder , 2006-02-10 13:40:09 -0800 (Fri, 10 Feb 2006) , 2 lines  Merge GERONIMO-1349 fix from branch  
-Unnecessary,  r377239 , jdillon , 2006-02-12 12:43:22 -0800 (Sun, 12 Feb 2006) , 3 lines   Replace j2ee dependency with servlet and jsp dependency   
-Unnecessary,  r377255 , jdillon , 2006-02-12 14:28:02 -0800 (Sun, 12 Feb 2006) , 3 lines   Unrolled j2ee spec dependencies   
-Unnecessary,  r377269 , jdillon , 2006-02-12 15:22:25 -0800 (Sun, 12 Feb 2006) , 3 lines   Set the defaultGoal to default   
-Unnecessary,  r377270 , jdillon , 2006-02-12 15:23:15 -0800 (Sun, 12 Feb 2006) , 3 lines   Unroll j2ee spec dependencies   
-Unnecessary,  r377287 , jdillon , 2006-02-12 17:49:51 -0800 (Sun, 12 Feb 2006) , 2 lines  Minor indent update  
-Unnecessary,  r377294 , jdillon , 2006-02-12 19:07:32 -0800 (Sun, 12 Feb 2006) , 3 lines   Remove these maven.xmls... they only were there to set the default goal, which is done in etc/project.xml now   
-Unnecessary,  r377315 , bsnyder , 2006-02-12 23:05:38 -0800 (Sun, 12 Feb 2006) , 1 line  Removed Jeff's repo. 
-Merged,  r377628 , djencks , 2006-02-13 21:35:29 -0800 (Mon, 13 Feb 2006) , 1 line  GERONIMO-1613.  Remove/move excess dependencies, fix derby problems by import of system-database. 
-Unnecessary,  r377850 , jlaskowski , 2006-02-14 13:58:03 -0800 (Tue, 14 Feb 2006) , 1 line  Make the name of the project fully qualified - Apache Geronimo 
-Unnecessary,  r377853 , jlaskowski , 2006-02-14 13:59:33 -0800 (Tue, 14 Feb 2006) , 1 line  Ignore velocity.log 
-Unnecessary,  r377882 , jlaskowski , 2006-02-14 15:24:37 -0800 (Tue, 14 Feb 2006) , 5 lines  GERONIMO-1624: POMs for some modules.   Thanks Anders!   
-Merged,  r378162 , dblevins , 2006-02-15 21:07:50 -0800 (Wed, 15 Feb 2006) , 2 lines  Cleaned tons of unused code.  Most of it existed around ProxyContainer, and only 5 lines of it was needed.  
-Merged,  r378183 , dblevins , 2006-02-15 22:29:45 -0800 (Wed, 15 Feb 2006) , 5 lines  Created a geronimo-interceptor package just for the interceptor API. Nothing left in org.apache.geronimo.core anymore, though there is code in that module still.     
-Merged,  r378347 , dblevins , 2006-02-16 11:34:56 -0800 (Thu, 16 Feb 2006) , 1 line  Added additional createStatic method signature 
-Merged,  r378359 , dblevins , 2006-02-16 12:37:41 -0800 (Thu, 16 Feb 2006) , 1 line  Added additional createStatic method signature 
-Merged,  r378404 , dblevins , 2006-02-16 16:17:27 -0800 (Thu, 16 Feb 2006) , 3 lines  Added dependencies on geronimo-interceptor Updated the OpenEJB gbean class names  
-Unnecessary,  r378637 , jlaskowski , 2006-02-17 13:44:45 -0800 (Fri, 17 Feb 2006) , 1 line  GERONIMO-1629: More maven 2 poms. Thanks, Anders! 
-Unnecessary,  r378746 , jgenender , 2006-02-18 10:02:03 -0800 (Sat, 18 Feb 2006) , 1 line  Update to Tomcat 5.5.15 
-Unnecessary,  r378827 , gdamour , 2006-02-18 17:46:30 -0800 (Sat, 18 Feb 2006) , 7 lines  GERONIMO-1638 - Multiple servers sharing the same repo and config store.  The second solution has been implemented.  When starting G, it is now possible to specify one of these two system properties: * org.apache.geronimo.server.name: name of the server to be started. If "server1" is specified, then G will use the directory <geronimo installation dir>/server1; or * org.apache.geronimo.server.dir: directory of the server to be started. This can be either a relative or an absolute path. For instance, if "./server1" is specified, then G will use the directory <geronimo installation dir>/server1. 
-Unnecessary,  r379071 , jlaskowski , 2006-02-20 01:56:20 -0800 (Mon, 20 Feb 2006) , 6 lines  M2 profiles introduced to allow execution of M2 commands upon a single module.  Run mvn -o -Dmodule=kernel test and the test phase will be initiated in the kernel module. Leaving the module property out executes a command over the entire module set.  NOTE: It's not yet possible to run test successfully over the kernel module. There's a caveat with M2 classloading. More on the dev mailing list...  
-Unnecessary,  r379102 , gdamour , 2006-02-20 03:43:10 -0800 (Mon, 20 Feb 2006) , 1 line  Clear the propery "java.rmi.server.codebase" prior to use MarshalledObject. When building with M2, the codebase property is set to the test classpath and if the M2 repo directory contains a space, the codebase cannot be successfully parsed. 
-Unnecessary,  r379113 , gdamour , 2006-02-20 04:10:57 -0800 (Mon, 20 Feb 2006) , 1 line  Oops. System.clearProperty is only available since 1.5. 
-Unnecessary,  r379128 , gdamour , 2006-02-20 05:47:05 -0800 (Mon, 20 Feb 2006) , 1 line  The CL used by M2 is a URLClassLoader, so it is pointless to set the RMI codebase property. Rewrite the test to perform a standard serialization without the RMI annotation mechanism, which causes problem. 
-Unnecessary,  r379242 , jlaskowski , 2006-02-20 13:26:45 -0800 (Mon, 20 Feb 2006) , 1 line  svn:ignore set 
-Unnecessary,  r379245 , jlaskowski , 2006-02-20 13:34:25 -0800 (Mon, 20 Feb 2006) , 11 lines  Introduce Maven2-based goals and a property to wire it into the build.   + The m2 property is to ignite the build of the kernel module using Maven2  + The goal: m2 is to create a template to execute Maven2 commands via goal property  + The execmvn goal is to execute Maven2 shell script either mvn.bat or mvn based on OS (it surely needs more appropriate OS names)  Run maven -Dm2=true new to build Geronimo with the new goal and execute mvn install on the kernel module Run maven m2 to execute mvn install on the kernel module only    
-Unnecessary,  r379430 , gdamour , 2006-02-21 03:36:04 -0800 (Tue, 21 Feb 2006) , 1 line  Fix a regression that I have introduced during my last commit: the setting of org.apache.geronimo.base.dir was not working as expected. 
-Not Merged,  r379525 , kevan , 2006-02-21 08:39:15 -0800 (Tue, 21 Feb 2006) , 1 line  Add simple protocolConnect implementation to NullTransport. See GERONIMO-1643 
-Unnecessary,  r379797 , adc , 2006-02-22 07:37:09 -0800 (Wed, 22 Feb 2006) , 2 lines  GERONIMO-1639 Setup old version of CORBA specs for temporary use until the new CORBA specs can pass the TCK. 
-Not Merged,  r379954 , jgenender , 2006-02-22 14:54:40 -0800 (Wed, 22 Feb 2006) , 1 line  Added emptySessionPath to ConnectorGBean 
-Not Merged,  r380696 , jgenender , 2006-02-24 07:59:09 -0800 (Fri, 24 Feb 2006) , 1 line  Added empty attribute to the config.xml attribute and reference tags.  Updated to spit out the proper writeXml() too. 
-Unnecessary,  r380975 , kevan , 2006-02-25 11:50:51 -0800 (Sat, 25 Feb 2006) , 1 line  Fix for corba NPE's when corba is configured. This places the corba-spec jar ahead of the j2ee spec jar in the classpath (i.e. it's a hack) 
-Unnecessary,  r381002 , jlaskowski , 2006-02-25 14:01:07 -0800 (Sat, 25 Feb 2006) , 1 line  Specify the default goal - install - and upgrade plugins: wagon-ssh-external and maven-one-plugin (as it is in geronimo-specs) 
-Unnecessary,  r381042 , dain , 2006-02-25 17:07:07 -0800 (Sat, 25 Feb 2006) , 2 lines  Changed version to 1.2-SNAPSHOT  
-Unnecessary,  r381057 , dain , 2006-02-25 21:17:32 -0800 (Sat, 25 Feb 2006) , 2 lines  Changed openejb version to 2.2  
-Not Merged,  r381215 , jsisson , 2006-02-26 17:49:11 -0800 (Sun, 26 Feb 2006) , 1 line  GERONIMO-1649 - Test case for Invalid deployment descriptor error when deploying an EJB 2.0 MDB (merged from 1.0 branch) 
-Not Merged,  r381216 , jsisson , 2006-02-26 17:53:13 -0800 (Sun, 26 Feb 2006) , 3 lines  GERONIMO-1649 - Fix Invalid deployment descriptor error when deploying an EJB 2.0 MDB (see associated test case in rev 381215) merged from 1.0 branch   
-Unnecessary,  r381270 , dain , 2006-02-26 22:31:41 -0800 (Sun, 26 Feb 2006) , 6 lines  Changed plugin version numbers to:     geronimo_packaging_plugin_version=1.2.0-3     geronimo_assembly_plugin_version=1.2.0-8     geronimo_deployment_plugin_version=1.2.0-1     geronimo_dependency_plugin_version=1.2.0-1  
-Not Merged,  r381416 , jgenender , 2006-02-27 11:52:09 -0800 (Mon, 27 Feb 2006) , 1 line  Place a null check for the infos Set. 
-Unnecessary,  r381438 , jlaskowski , 2006-02-27 12:56:24 -0800 (Mon, 27 Feb 2006) , 1 line  Upgrade Tomcat to the latest version used by Geronimo. Thanks Anita! 
-Unnecessary,  r381823 , jlaskowski , 2006-02-28 15:28:40 -0800 (Tue, 28 Feb 2006) , 5 lines  GERONIMO-1317: Rename the "new" goals to more meaningful names with additional build properties  Thanks Donald!   
-Unnecessary,  r381834 , jlaskowski , 2006-02-28 15:52:09 -0800 (Tue, 28 Feb 2006) , 2 lines  Ignore .settings  
-Not Merged,  r381897 , jgenender , 2006-02-28 20:06:01 -0800 (Tue, 28 Feb 2006) , 1 line  Fixed a bug I had put in on my last commit. 
-Not Merged,  r381929 , jgenender , 2006-02-28 22:40:04 -0800 (Tue, 28 Feb 2006) , 1 line  Added value and null attributes and empty attrs and refs are now clearing/removal of the set value. 
-Unnecessary,  r381942 , jlaskowski , 2006-03-01 00:22:22 -0800 (Wed, 01 Mar 2006) , 5 lines  GERONIMO-1659: system module migration to Maven 2  Thanks Anders!   
-Not Merged,  r382099 , jgenender , 2006-03-01 09:44:02 -0800 (Wed, 01 Mar 2006) , 1 line  Update schema to reflect the value and null attributes. 
-Unnecessary,  r382352 , gdamour , 2006-03-02 03:13:09 -0800 (Thu, 02 Mar 2006) , 7 lines  GERONIMO-1434 Allow GBeans to be bound into a component's java:comp/env namespace  This commit allows to bind a GBean reference into the ENC of a J2EE component.   Based on the XSD, it seems that we also need to support the case where a collection of GBeans is put in the ENC.  
-Unnecessary,  r382362 , jlaskowski , 2006-03-02 04:19:37 -0800 (Thu, 02 Mar 2006) , 6 lines  Correct Geronimo JavaMail specs version Add Apache repo  Maven2 build is yet broken, though :(   
-Unnecessary,  r382366 , gdamour , 2006-03-02 04:51:31 -0800 (Thu, 02 Mar 2006) , 3 lines  rename org.apache.geronimo.base.dir to org.apache.geronimo.home.dir as suggested by John.  
-Not Merged,  r382389 , jlaskowski , 2006-03-02 06:23:02 -0800 (Thu, 02 Mar 2006) , 1 line  GERONIMO-1670: SMTPTransport not throwing correct exception for message send failures 
-Unnecessary,  r382793 , jlaskowski , 2006-03-03 04:58:26 -0800 (Fri, 03 Mar 2006) , 4 lines  GERONIMO-1678 - Interceptor module added to m2  Thanks Henri!  
-Not Merged,  r383090 , jlaskowski , 2006-03-04 03:24:20 -0800 (Sat, 04 Mar 2006) , 4 lines  GERONIMO-1673 SMTPTransport is not performing byte-stuffing and newline canonicalization on message data  Thanks Rick!  
-Not Merged,  r383095 , jlaskowski , 2006-03-04 03:55:42 -0800 (Sat, 04 Mar 2006) , 6 lines  GERONIMO-1675 Add NNTP transport to the javamail package  Thanks Rick!  NOTE: It requires the latest version of geronimo-javamail_1.3.1_spec-1.1-SNAPSHOT.jar. Will have to ask how ot publish it.  
-Merged,  r383111 , jlaskowski , 2006-03-04 05:26:30 -0800 (Sat, 04 Mar 2006) , 4 lines  GERONIMO-1667 Remove console-web module as it has now become obsolete  There's a brand new console in applications/console*  
-Unnecessary,  r383116 , jlaskowski , 2006-03-04 06:23:10 -0800 (Sat, 04 Mar 2006) , 4 lines  Generate geronimo-version.properties using Maven2 Antrun plugin  Note: I'm not sure if it's in a correct phase, but it works  
-Unnecessary,  r383123 , jlaskowski , 2006-03-04 06:47:45 -0800 (Sat, 04 Mar 2006) , 1 line  GERONIMO-1688 Fresh build fails because of unsatisfied dependency on activecluster in configs/openejb 
-Unnecessary,  r383128 , jlaskowski , 2006-03-04 07:03:33 -0800 (Sat, 04 Mar 2006) , 1 line  GERONIMO-1679 Typo in j2ee-builder's project.xml 
-Unnecessary,  r383147 , jlaskowski , 2006-03-04 07:56:03 -0800 (Sat, 04 Mar 2006) , 1 line  GERONIMO-1681 directory module migration to Maven2 - not yet finished 
-Unnecessary,  r383166 , jlaskowski , 2006-03-04 10:31:41 -0800 (Sat, 04 Mar 2006) , 1 line  Set svn:keywords and correct the Copyright in the License header 
-Not Merged,  r383230 , ammulder , 2006-03-04 16:19:08 -0800 (Sat, 04 Mar 2006) , 5 lines  I like the way the JMS portlet is structured much more than the way the   JDBC and Security Realm portlets are.  Extracting the framework for   that so it can be used by future portlets. Will use this for GERONIMO-1691  
-Unnecessary,  r383234 , jlaskowski , 2006-03-04 16:52:31 -0800 (Sat, 04 Mar 2006) , 6 lines  More updates to pom.xml's  'mvn clean install' doesn't finish successfully yet, but it's very close.  Use M2 from http://maven.zones.apache.org/~maven/builds/trunk/m2-20060304.190000.tar.gz  
-Unnecessary,  r383614 , jlaskowski , 2006-03-06 10:50:14 -0800 (Mon, 06 Mar 2006) , 2 lines  Add Maven1 (legacy) repository. Thanks Ian!  
-Unnecessary,  r383631 , jlaskowski , 2006-03-06 11:30:41 -0800 (Mon, 06 Mar 2006) , 4 lines  GERONIMO-1645 tomcat module migration to Maven2  Thanks Anita!  
-Unnecessary,  r383826 , jlaskowski , 2006-03-07 01:17:42 -0800 (Tue, 07 Mar 2006) , 1 line  No releases from Maven2 Snapshot repo 
-Unnecessary,  r383827 , jlaskowski , 2006-03-07 01:22:25 -0800 (Tue, 07 Mar 2006) , 4 lines  GERONIMO-1665 axis module migration to Maven2  Thanks Henri!  
-Unnecessary,  r383848 , jlaskowski , 2006-03-07 03:35:36 -0800 (Tue, 07 Mar 2006) , 6 lines  GERONIMO-1681 directory module migration to Maven2  Thanks Reghu!  Note: The tests don't work when executed from within modules/directory dir  
-Unnecessary,  r383860 , jlaskowski , 2006-03-07 04:09:38 -0800 (Tue, 07 Mar 2006) , 2 lines  Not used  
-Unnecessary,  r383870 , jlaskowski , 2006-03-07 04:56:53 -0800 (Tue, 07 Mar 2006) , 4 lines  GERONIMO-1698 hot-deploy module migration to Maven2  Thanks Rakesh!  
-Unnecessary,  r383872 , jlaskowski , 2006-03-07 05:04:45 -0800 (Tue, 07 Mar 2006) , 3 lines  Add hot-deploy module to the M2 modules Change the name of the M2 repo so that it will add more value to the build logs  
-Unnecessary,  r383906 , jlaskowski , 2006-03-07 07:29:45 -0800 (Tue, 07 Mar 2006) , 1 line  Not used 
-Not Merged,  r383915 , jlaskowski , 2006-03-07 08:01:25 -0800 (Tue, 07 Mar 2006) , 1 line  Revert to the old directory setting until something better is implemented as it broke the m1-based build 
-Unnecessary,  r383941 , jlaskowski , 2006-03-07 09:53:44 -0800 (Tue, 07 Mar 2006) , 1 line  Specify additional (likely useful) repository properties 
-Unnecessary,  r384273 , jlaskowski , 2006-03-08 09:25:03 -0800 (Wed, 08 Mar 2006) , 1 line  Include tomcat module in the parent pom 
-Unnecessary,  r384276 , jlaskowski , 2006-03-08 09:39:30 -0800 (Wed, 08 Mar 2006) , 2 lines  GERONIMO-1715 derby module migration to Maven2  
-Unnecessary,  r384292 , jlaskowski , 2006-03-08 10:04:19 -0800 (Wed, 08 Mar 2006) , 4 lines  GERONIMO-1712 Add NNTP Store support to javamail  + propset svn:keywords 'Rev Date'  
-Unnecessary,  r384541 , jlaskowski , 2006-03-09 08:18:55 -0800 (Thu, 09 Mar 2006) , 4 lines  GERONIMO-1717 directory module migration to Maven2  Submitted by: Prasad Kashyap  
-Unnecessary,  r384560 , jlaskowski , 2006-03-09 09:19:41 -0800 (Thu, 09 Mar 2006) , 1 line  Finish M2 migration 
-Unnecessary,  r384585 , jlaskowski , 2006-03-09 11:21:14 -0800 (Thu, 09 Mar 2006) , 1 line  Cleanup and description additions 
-Unnecessary,  r384651 , jgenender , 2006-03-09 16:06:54 -0800 (Thu, 09 Mar 2006) , 1 line  GERONIMO-1613 - removal of unnecessary dependencies for smaller footprint 
-Unnecessary,  r384763 , jlaskowski , 2006-03-10 03:06:33 -0800 (Fri, 10 Mar 2006) , 3 lines  GERONIMO-1693 j2ee-schema module migration to Maven2 Submitted by: Anita Kulshreshtha  
-Unnecessary,  r385862 , jgenender , 2006-03-14 11:30:45 -0800 (Tue, 14 Mar 2006) , 1 line  GERONIMO-1676: log4j props referenced a non-existent property 
-Unnecessary,  r386190 , jlaskowski , 2006-03-15 14:31:28 -0800 (Wed, 15 Mar 2006) , 1 line  Fix Jules' lastname 
-Not Merged,  r386193 , jsisson , 2006-03-15 14:37:02 -0800 (Wed, 15 Mar 2006) , 1 line  GERONIMO-1743 - Fix bug with argument processing in deploy.bat that was recently introduced (merged from 1.1 branch). 
-Unnecessary,  r386195 , jlaskowski , 2006-03-15 14:39:22 -0800 (Wed, 15 Mar 2006) , 1 line  Add activecluster dependency so that the car can be built 
-Unnecessary,  r386203 , jlaskowski , 2006-03-15 14:59:55 -0800 (Wed, 15 Mar 2006) , 2 lines  GERONIMO-1729 Module migration to Maven 2: installer-support  
-Unnecessary,  r386204 , jlaskowski , 2006-03-15 15:02:03 -0800 (Wed, 15 Mar 2006) , 1 line  Add installer-support module to the top-level pom 
-Unnecessary,  r386212 , jlaskowski , 2006-03-15 15:23:11 -0800 (Wed, 15 Mar 2006) , 3 lines  GERONIMO-1728 - Module migration to Maven 2: installer-processing Submitted by: Prasad Kashyap  
-Unnecessary,  r386214 , jlaskowski , 2006-03-15 15:28:01 -0800 (Wed, 15 Mar 2006) , 3 lines  GERONIMO-1725 - Module migration to Maven 2: client-builder Submitted by: Prasad Kashyap  
-Unnecessary,  r386217 , jlaskowski , 2006-03-15 15:38:24 -0800 (Wed, 15 Mar 2006) , 1 line  Add geronimo-client dependency so that client-builder can reference it 
-Unnecessary,  r386222 , jlaskowski , 2006-03-15 15:55:29 -0800 (Wed, 15 Mar 2006) , 3 lines  GERONIMO-1714 - Module migration to Maven2: connector-builder Submitted by: Prasad Kashyap  
-Not Merged,  r386230 , jsisson , 2006-03-15 16:49:31 -0800 (Wed, 15 Mar 2006) , 1 line  GERONIMO-1696 - Display "JPDA run" command as part of usage help (merged from 1.1 branch) 
-Not Merged,  r386231 , jsisson , 2006-03-15 16:54:55 -0800 (Wed, 15 Mar 2006) , 1 line  GERONIMO-1744 - "dt_shmem" default in geronimo.bat for JPDA_TRANSPORT environment variable not compatible with Eclipse debugger (merged from 1.1 branch). 
-Not Merged,  r386232 , jsisson , 2006-03-15 16:59:04 -0800 (Wed, 15 Mar 2006) , 1 line  GERONIMO-1745 - * The JPDA_OPTS environment variable is not honoured by geronimo.bat and is inconsistent with geronimo.sh (merged from 1.1 branch). 
-Unnecessary,  r386453 , jgenender , 2006-03-16 12:32:45 -0800 (Thu, 16 Mar 2006) , 1 line  GERONIMO-1634: Patch applied 
-Unnecessary,  r386454 , jgenender , 2006-03-16 12:36:25 -0800 (Thu, 16 Mar 2006) , 1 line  GERONIMO-1699: Apply patch for JDOM dependency 
-Unnecessary,  r386770 , jlaskowski , 2006-03-17 16:15:51 -0800 (Fri, 17 Mar 2006) , 1 line  Snapshots should only be checked/downloaded daily 
-Unnecessary,  r386771 , jlaskowski , 2006-03-17 16:23:38 -0800 (Fri, 17 Mar 2006) , 3 lines  GERONIMO-1713 - Module migration to Maven2: j2ee-builder Submitted by: Prasad Kashyap  
-Unnecessary,  r386775 , jlaskowski , 2006-03-17 16:45:52 -0800 (Fri, 17 Mar 2006) , 3 lines  GERONIMO-1645 - Module migration to Maven2: tomcat Submitted by: Anita Kulshreshtha  
-Unnecessary,  r386778 , jlaskowski , 2006-03-17 17:03:13 -0800 (Fri, 17 Mar 2006) , 3 lines  GERONIMO-1731 - Module migration to Maven 2: jetty Submitted by: Prasad Kashyap  
-Unnecessary,  r386779 , jlaskowski , 2006-03-17 17:10:38 -0800 (Fri, 17 Mar 2006) , 3 lines  GERONIMO-1706 - Module migration to Maven2: j2ee Submitted by: Prasad Kashyap  
-Unnecessary,  r386783 , jlaskowski , 2006-03-17 17:30:43 -0800 (Fri, 17 Mar 2006) , 3 lines  GERONIMO-1723 - Module migration to Maven 2: axis-builder Submitted by: Anita Kulshreshtha  
-Unnecessary,  r386785 , jlaskowski , 2006-03-17 17:35:42 -0800 (Fri, 17 Mar 2006) , 1 line  Add axis-builder to modules 
-Unnecessary,  r386837 , jlaskowski , 2006-03-18 02:43:16 -0800 (Sat, 18 Mar 2006) , 3 lines  GERONIMO-1646 - Module migration to Maven2: tomcat-builder Submitted by: Anita Kulshreshtha  
-Unnecessary,  r386840 , jlaskowski , 2006-03-18 03:05:09 -0800 (Sat, 18 Mar 2006) , 1 line  Correct some XML-wise goodies 
+Not Merged,  r358649 , jlaskowski , 2005-12-22 14:39:35 -0800 (Thu, 22 Dec 2005) , 10 lines  Applied patch by Jakob Faerch (@see jrf-patch-partially-20051222.patch at http://issues.apache.org/jira/browse/GERONIMO-1164)  Some small changes:  + change portToConnectToWebservices to webServicePort  + web-service-address changed its content to reference webServicePort  + get default goal to work  WARNING: Web Services keep failing because of missing class - java.lang.ClassNotFoundException: org.apache.jasper.servlet.JspServlet
+Unnecessary,  r358662 , jlaskowski , 2005-12-22 16:12:46 -0800 (Thu, 22 Dec 2005) , 3 lines  Configure MailGBean. It is the first time I could see Checkout Complete at the checkout procedure.
+Unnecessary,  r360404 , jlaskowski , 2005-12-31 10:56:51 -0800 (Sat, 31 Dec 2005) , 2 lines  svn propset svn:ignore
+Unnecessary,  r360411 , jlaskowski , 2005-12-31 11:04:50 -0800 (Sat, 31 Dec 2005) , 5 lines  Make j2ee-installer work  + change Geronimo IZPack Plugin to accept the latest release notes version  Thanks Sachin for the idea and patch!
+Unnecessary,  r360413 , jlaskowski , 2005-12-31 11:07:09 -0800 (Sat, 31 Dec 2005) , 2 lines  Add the license
+Unnecessary,  r360478 , gdamour , 2005-12-31 23:36:08 -0800 (Sat, 31 Dec 2005) , 3 lines  GERONIMO-1409 - A Filter is initialized with a wrong TCCL  Set the Web-app CL as the TCCL when starting a Filter.
+Merged,  r365285 , djencks , 2006-01-01 20:19:48 -0800 (Sun, 01 Jan 2006) , 1 line  GERONIMO-1411 fix some servlet schema transformation problems
+Not Merged,  r365364 , jlaskowski , 2006-01-02 07:46:13 -0800 (Mon, 02 Jan 2006) , 11 lines  Jakob's patch applied. @see http://issues.apache.org/jira/browse/GERONIMO-1164#action_12361517  The changes (copied from Jakob's comment):   + Moved the deployer-configurable properties from maven.xml to project.properties  + Changed the geronimo artifact id used in unpackServer from the tomcat distribution to the jetty distribution, as I experienced some problems with the Tomcat distro.  + Added dependencies for geronimo-javamail-transport-1.0.jar, and added them to the list of jars being copied manually in the unpackServer goal  + Moved around some of the properties in the configuration of the MailGBean and SMTPTransportGBean. It seems that the SMTPTransportGBean isn't necessary, so I have removed it.  Great job! Thanks Jakob!
+Unnecessary,  r365370 , jlaskowski , 2006-01-02 08:11:15 -0800 (Mon, 02 Jan 2006) , 4 lines  #1401: Updates to BUILDING.txt about the last changes to the build process  Thanks Anita!
+Unnecessary,  r365738 , jlaskowski , 2006-01-03 12:42:08 -0800 (Tue, 03 Jan 2006) , 2 lines  Remove the mail server
+Unnecessary,  r365750 , jlaskowski , 2006-01-03 13:39:23 -0800 (Tue, 03 Jan 2006) , 3 lines  Exclude geronimo/daytrader-derby-jetty/1.0-SNAPSHOT/car from being run. It doesn't work well under Java 5
+Unnecessary,  r365764 , jlaskowski , 2006-01-03 15:03:53 -0800 (Tue, 03 Jan 2006) , 2 lines  Deploy Adventure Builder without having to download the whole source tree (only /etc and /sandbox/adventurebuilder directories are required)
+Merged,  r365799 , djencks , 2006-01-03 18:07:02 -0800 (Tue, 03 Jan 2006) , 1 line  fix missing dependencies noted by Henry Hwang
+Merged,  r366121 , djencks , 2006-01-05 00:28:53 -0800 (Thu, 05 Jan 2006) , 1 line  GERONIMO-1012 finally completed.  jgenender pointed out how to add the DefaultSubjectValve after the default valves tomcat adds, so default subject is set only when there is no authenticated subject.
+Unnecessary,  r366236 , janb , 2006-01-05 10:15:38 -0800 (Thu, 05 Jan 2006) , 2 lines  adding the dependencies for wadi to the jetty container. had to add an extra repository to get the activemq-WADI-3.2 version - it would be good if there was another repo to get that from
+Merged,  r366603 , djencks , 2006-01-06 16:02:52 -0800 (Fri, 06 Jan 2006) , 1 line  remove a couple of unused files
+Merged,  r366676 , djencks , 2006-01-06 21:37:04 -0800 (Fri, 06 Jan 2006) , 1 line  GERONIMO-1427  First step towards separating openejb and axis into separate configs
+Not Merged,  r366693 , janb , 2006-01-07 00:19:14 -0800 (Sat, 07 Jan 2006) , 2 lines  removing axion and special activemq wadi versions and therefore jgenenders' codehaus repository from repo list
+Not Merged,  r367046 , adc , 2006-01-08 08:31:23 -0800 (Sun, 08 Jan 2006) , 3 lines  PR: GERONIMO-1432 Removed wrapPrincipals attribute.
+Unnecessary,  r367122 , jsisson , 2006-01-08 15:15:17 -0800 (Sun, 08 Jan 2006) , 1 line  GERONIMO-1395 - Fix accidental duplication of fixcrlf call in jelly code used whilst building the zip distribution.  assembly plugin version bumped up to 1.1.3.
+Not Merged,  r367144 , ammulder , 2006-01-08 16:33:58 -0800 (Sun, 08 Jan 2006) , 2 lines  Merge JavaDoc URL change from branch
+Not Merged,  r367145 , ammulder , 2006-01-08 16:34:55 -0800 (Sun, 08 Jan 2006) , 2 lines  Merge fix to GERONIMO-1435 from branch.
+Unnecessary,  r367154 , jsisson , 2006-01-08 17:35:50 -0800 (Sun, 08 Jan 2006) , 1 line  fix svn properties
+Not Merged,  r367166 , jsisson , 2006-01-08 18:40:52 -0800 (Sun, 08 Jan 2006) , 1 line  GERONIMO-1416 - fix broken links and typo.
+Not Merged,  r367213 , jsisson , 2006-01-08 21:50:48 -0800 (Sun, 08 Jan 2006) , 1 line  GERONIMO-1437 : prevent INFO [Http11Protocol] messages (from tomcat) being logged during startup that show ports being used, as there is no need for them since we summarise the ports in use by Geronimo when startup has completed.
+Merged,  r367263 , djencks , 2006-01-09 02:19:08 -0800 (Mon, 09 Jan 2006) , 1 line  GERONIMO-1425, GERONIMO-1440.  Remember subject for access to unsecured resources after login, fix a bunch of problems with JAASJettyRealm, simplify the SecurityBeforeAfter
+Merged,  r367385 , djencks , 2006-01-09 12:24:56 -0800 (Mon, 09 Jan 2006) , 1 line  GERONIMO-1443 make hot deployer accept plan-only deployments
+Merged,  r367399 , djencks , 2006-01-09 13:28:57 -0800 (Mon, 09 Jan 2006) , 1 line  GERONIMO-1443 Further fixes whose need was pointed out by ammulder
+Not Merged,  r367423 , hogstrom , 2006-01-09 14:51:13 -0800 (Mon, 09 Jan 2006) , 1 line  Added code to warn users that JDKs other than 1.4 may not function correctly
+Merged,  r367430 , djencks , 2006-01-09 16:02:19 -0800 (Mon, 09 Jan 2006) , 1 line  GERONIMO-1440 Restructure realm management so it is based on our security realm names and basically ignores the realm-name from web.xml
+Merged,  r367590 , gdamour , 2006-01-10 04:50:02 -0800 (Tue, 10 Jan 2006) , 2 lines  We need to set the host and port of the RemoteEJBReferenceBuilder.
+Unnecessary,  r368017 , jsisson , 2006-01-11 04:39:59 -0800 (Wed, 11 Jan 2006) , 1 line  GERONIMO-1441 - comment out, consolidate or remove duplicate dependencies that cause "Build path contains duplicate entry" errors in eclipse 3.1.1 projects. (merge of changes from 1.0 branch)
+Not Merged,  r368104 , jgenender , 2006-01-11 11:21:54 -0800 (Wed, 11 Jan 2006) , 1 line  Fix unit tests
+Merged,  r368305 , djencks , 2006-01-12 00:06:19 -0800 (Thu, 12 Jan 2006) , 1 line  GERONIMO-1440  Make the examples deploy since they have authenticators.
+Merged,  r368307 , djencks , 2006-01-12 00:09:02 -0800 (Thu, 12 Jan 2006) , 1 line  GERONIMO-1457 to 1.1-SNAPSHOT
+Merged,  r368331 , djencks , 2006-01-12 01:45:16 -0800 (Thu, 12 Jan 2006) , 1 line  reformat
+Merged,  r368332 , djencks , 2006-01-12 01:45:48 -0800 (Thu, 12 Jan 2006) , 1 line  GERONIMO-1457 fix some plugin version problems
+Not Merged,  r368344 , jules , 2006-01-12 03:47:38 -0800 (Thu, 12 Jan 2006) , 8 lines  Rationalise and unify Jetty and Tomcat approaches to installation of WADI behind a distributable webapp.  This is now done via two attributes on the top-level WebContainer component - LocalSessionManager and DistributableSessionManager, which may be set to the classnames of the required managers.
+Not Merged,  r368393 , jgenender , 2006-01-12 07:49:16 -0800 (Thu, 12 Jan 2006) , 1 line  Backed out to 368343 to remove hard coded clustering configuration
+Merged,  r368536 , djencks , 2006-01-12 16:52:16 -0800 (Thu, 12 Jan 2006) , 1 line  GERONIMO-1463 Fix isUserInRole
+Not Merged,  r368569 , jsisson , 2006-01-12 19:16:50 -0800 (Thu, 12 Jan 2006) , 1 line  GERONIMO-1465 - ensure InputStreams are closed rather than leaving it up to garbage collection / finalization.
+Not Merged,  r368592 , jsisson , 2006-01-12 21:00:51 -0800 (Thu, 12 Jan 2006) , 3 lines  Fix GERONIMO-1452 - Config.xml refers to the wrong JMX remote service gbean.   Fix GERONIMO-1352 - RMI port number is not specified in URL for JMXConnector in server config.xml files (merged from 1.0 branch)
+Not Merged,  r368746 , jgenender , 2006-01-13 06:40:35 -0800 (Fri, 13 Jan 2006) , 1 line  Remove the WADI hard code and use the ManagerGBean interface instead (which is a parent of WADIGBean)
+Unnecessary,  r368820 , adc , 2006-01-13 10:49:27 -0800 (Fri, 13 Jan 2006) , 3 lines  Needed to add a version to the plugin.  Too lazy to enumerate all the developers in this project.
+Merged,  r368952 , djencks , 2006-01-13 17:57:20 -0800 (Fri, 13 Jan 2006) , 1 line  GERONIMO-1427 add some missing dependencies to encourage a better build order
+Merged,  r368955 , djencks , 2006-01-13 18:03:41 -0800 (Fri, 13 Jan 2006) , 1 line  GERONIMO-1457 Update some more version numbers to 1.1-SNAPSHOT
+Merged,  r369099 , djencks , 2006-01-14 13:31:11 -0800 (Sat, 14 Jan 2006) , 1 line  GERONIMO-1194 apply patch, installer now partly works
+Merged,  r369125 , djencks , 2006-01-14 16:28:36 -0800 (Sat, 14 Jan 2006) , 1 line  GERONIMO-1447 fix config names in plans
+Merged,  r369165 , djencks , 2006-01-14 18:29:39 -0800 (Sat, 14 Jan 2006) , 1 line  GERONIMO-1457 Another version change
+Unnecessary,  r369276 , dain , 2006-01-15 15:16:51 -0800 (Sun, 15 Jan 2006) , 2 lines  Add session module
+Not Merged,  r369280 , jstrachan , 2006-01-15 15:36:05 -0800 (Sun, 15 Jan 2006) , 1 line  A spike for a simple API for working with stateful session bean state from OpenEJB, ServiceMix or Tuscany; its very simple to use & has all thats required from the perspective of the client; we should be able to layer this on pretty much any implementation technology like WADI et al
+Merged,  r369300 , djencks , 2006-01-15 17:27:18 -0800 (Sun, 15 Jan 2006) , 1 line  GERONIMO-1457, maybe.  Make sure a couple spec jars make it into lib
+Not Merged,  r369309 , jstrachan , 2006-01-15 18:09:43 -0800 (Sun, 15 Jan 2006) , 1 line  a simple local implementation of the Session to allow single-JVM session management which can offer optional persistence but no remote sessions
+Unnecessary,  r369310 , jstrachan , 2006-01-15 18:14:00 -0800 (Sun, 15 Jan 2006) , 1 line  Added missing dependencies to the pom
+Not Merged,  r369313 , jstrachan , 2006-01-15 18:28:48 -0800 (Sun, 15 Jan 2006) , 1 line  added a simple version of a remote-capable Locator which supports local or remote session objects which can be moved and new servers added or existing ones removed
+Not Merged,  r369319 , jstrachan , 2006-01-15 18:47:07 -0800 (Sun, 15 Jan 2006) , 1 line  added a little helper strategy for deciding whether to redirect, proxy or move when faced with a remote session
+Unnecessary,  r369321 , adc , 2006-01-15 19:04:41 -0800 (Sun, 15 Jan 2006) , 1 line  Moved sandbox to a better place.
+Merged,  r369381 , djencks , 2006-01-15 23:33:37 -0800 (Sun, 15 Jan 2006) , 1 line  GERONIMO-1477 turn off debug tool by default
+Merged,  r369383 , djencks , 2006-01-15 23:44:25 -0800 (Sun, 15 Jan 2006) , 1 line  GERONIMO-1448 applied patch to web.xml and removed unused file geronimo-web.xml
+Merged,  r369397 , djencks , 2006-01-16 00:32:51 -0800 (Mon, 16 Jan 2006) , 1 line  GERONIMO-1455  Decouple PersistentConfigurationList and ManageagleAttributeStore
+Unnecessary,  r369596 , jsisson , 2006-01-16 14:41:28 -0800 (Mon, 16 Jan 2006) , 1 line  GERONIMO-1446 - Tomcat server assembly does not include geronimo javamail car (merged from 1.0 branch)
+Merged,  r369915 , djencks , 2006-01-17 12:54:26 -0800 (Tue, 17 Jan 2006) , 1 line  GERONIMO-1455 clean up previous fix
+Merged,  r369917 , djencks , 2006-01-17 12:59:12 -0800 (Tue, 17 Jan 2006) , 1 line  GERONIMO-1455 We can check that the 2 functionalities are not interfering with each other
+Not Merged,  r370034 , hogstrom , 2006-01-17 19:53:51 -0800 (Tue, 17 Jan 2006) , 1 line  Updated Daytrader to not have hardcoded dependencies
+Not Merged,  r370035 , hogstrom , 2006-01-17 19:55:21 -0800 (Tue, 17 Jan 2006) , 1 line  Updated configs to disassociate daytrader version from geronimo
+Not Merged,  r370077 , jsisson , 2006-01-18 00:18:15 -0800 (Wed, 18 Jan 2006) , 1 line  GERONIMO-1344 - Fix issue where you get Java usage help when a trailing slash '/' is in GERONIMO_HOME environment variable (merged from 1.0 branch)
+Not Merged,  r370204 , kevan , 2006-01-18 09:56:15 -0800 (Wed, 18 Jan 2006) , 1 line  More appropriate shutdown of ActiveMQ broker within the Geronimo server. Geronimo will control stopping of broker, not active mq's shutdown handler
+Unnecessary,  r370662 , kevan , 2006-01-19 14:52:34 -0800 (Thu, 19 Jan 2006) , 1 line  Installer fixes to allow maven 1.0.2 builds to work
+Not Merged,  r370682 , kevan , 2006-01-19 16:23:41 -0800 (Thu, 19 Jan 2006) , 1 line  Inhiibit coyote info messages during startup. Fix is needed for Installer and for consistency for jetty
+Not Merged,  r370690 , kevan , 2006-01-19 17:32:01 -0800 (Thu, 19 Jan 2006) , 1 line  Inhibit catalina StandardContext info messages during shutdown.
+Unnecessary,  r370778 , jsisson , 2006-01-20 02:38:45 -0800 (Fri, 20 Jan 2006) , 1 line  GERONIMO-1513 - change lib/extension to lib/ext to match the "Extension-Dirs: lib/ext" value in the manifest.mf file (merged from 1.0 branch)
+Unnecessary,  r370780 , jsisson , 2006-01-20 02:41:57 -0800 (Fri, 20 Jan 2006) , 1 line  GERONIMO-1513 - bump up assembly plugin version
+Not Merged,  r370912 , hogstrom , 2006-01-20 14:20:50 -0800 (Fri, 20 Jan 2006) , 1 line  GERONIMO-1506 Database portlet version issue
+Merged,  r370955 , djencks , 2006-01-20 18:01:10 -0800 (Fri, 20 Jan 2006) , 1 line  Spec recommends using null as parameter for a static method
+Merged,  r370956 , djencks , 2006-01-20 18:09:13 -0800 (Fri, 20 Jan 2006) , 1 line  GERONIMO-1505, GERONIMO-1514, GERONIMO-1517 Fix copyright statements of modified izpack files, fix tomcat activation, install derby with j2ee-features.  openejb and axis modules not installed yet
+Merged,  r370997 , djencks , 2006-01-21 01:38:49 -0800 (Sat, 21 Jan 2006) , 1 line  forward port fix so synthetic ears appear to have a dd
+Merged,  r371115 , jdillon , 2006-01-21 13:15:50 -0800 (Sat, 21 Jan 2006) , 2 lines  Removed margins from welcome page to be consistent with the console.
+Merged,  r371127 , djencks , 2006-01-21 14:30:34 -0800 (Sat, 21 Jan 2006) , 1 line  GERONIMO-1473 Follow spec on clearing PolicyConfiguration before stuffing the permissions in
+Merged,  r371145 , djencks , 2006-01-21 16:06:27 -0800 (Sat, 21 Jan 2006) , 1 line  GERONIMO-1523 Avoid serializing openejb class in all enc contexts
+Unnecessary,  r371180 , hogstrom , 2006-01-21 20:38:14 -0800 (Sat, 21 Jan 2006) , 1 line  Merged fixes to hardcoded updates from branches 1.0 rev 371179
+Merged,  r371341 , djencks , 2006-01-22 10:18:34 -0800 (Sun, 22 Jan 2006) , 1 line  GERONIMO-1440 Supply a 'Non'Authenticator if security realm name is supplied but no login method specified. This makes jetty install the defaultPrincipal/Subject for unsecured web apps
+Not Merged,  r371391 , kevan , 2006-01-22 13:20:06 -0800 (Sun, 22 Jan 2006) , 1 line  Use latest Jetty version to avoid security exposure on Windows
+Not Merged,  r371461 , ammulder , 2006-01-22 20:53:26 -0800 (Sun, 22 Jan 2006) , 3 lines  Apply changes from branch (Fixes GERONIMO-1510, contributes to GERONIMO-1137,   other minor fixes)
+Unnecessary,  r371637 , ammulder , 2006-01-23 11:43:19 -0800 (Mon, 23 Jan 2006) , 2 lines  Merge change from branch
+Merged,  r371641 , djencks , 2006-01-23 11:50:05 -0800 (Mon, 23 Jan 2006) , 1 line  add test of context-param
+Not Merged,  r371779 , ammulder , 2006-01-23 18:38:42 -0800 (Mon, 23 Jan 2006) , 2 lines  Merge JCAResourceAdapter change from branch
+Not Merged,  r371787 , ammulder , 2006-01-23 19:10:32 -0800 (Mon, 23 Jan 2006) , 2 lines  Merge new JMS portlet change from branch
+Not Merged,  r371835 , hogstrom , 2006-01-23 22:12:21 -0800 (Mon, 23 Jan 2006) , 1 line  GERONIMO-1534 - Updated Daytrader plan to correct incorrect classname for DB2SyntaxFactory
+Merged,  r371874 , djencks , 2006-01-24 01:40:34 -0800 (Tue, 24 Jan 2006) , 1 line  GERONIMO-1427 Port lightweight geronimo work to trunk
+Not Merged,  r371964 , ammulder , 2006-01-24 09:47:26 -0800 (Tue, 24 Jan 2006) , 2 lines  Merge JMS portlet improvements from branch
+Merged,  r371997 , djencks , 2006-01-24 11:47:02 -0800 (Tue, 24 Jan 2006) , 1 line  GERONIMO-1427 add missing config, not sure why it didn't merge
+Merged,  r372025 , djencks , 2006-01-24 13:31:25 -0800 (Tue, 24 Jan 2006) , 1 line  remove some unneeded jetty dependencies, thanks to anita kulshreshtha
+Unnecessary,  r372108 , jsisson , 2006-01-24 21:21:24 -0800 (Tue, 24 Jan 2006) , 1 line  GERONIMO-1287 - Erik's installer patch that does fixcrlf processing for text files at install time when using the izpack installer.
+Unnecessary,  r372114 , jsisson , 2006-01-24 21:26:29 -0800 (Tue, 24 Jan 2006) , 1 line  be more specific regarding version of JDK required.
+Not Merged,  r372115 , jsisson , 2006-01-24 21:33:42 -0800 (Tue, 24 Jan 2006) , 1 line  GERONIMO-615 - improve code where RMIClassLoaderSpiImpl.normalizeCodebase(..) unnecessarily caused MalformedURLExceptions to be generated and caught.
+Not Merged,  r372286 , ammulder , 2006-01-25 10:47:53 -0800 (Wed, 25 Jan 2006) , 2 lines  Merge fix for GERONIMO-1387 from branch
+Not Merged,  r372306 , ammulder , 2006-01-25 12:16:54 -0800 (Wed, 25 Jan 2006) , 2 lines  Mwerge fix for GERONIMO-1450 from branch
+Not Merged,  r372312 , ammulder , 2006-01-25 12:52:46 -0800 (Wed, 25 Jan 2006) , 2 lines  Merge GERONIMO-1467 change from branch
+Not Merged,  r372324 , ammulder , 2006-01-25 13:35:35 -0800 (Wed, 25 Jan 2006) , 2 lines  Merge fix for GERONIMO-1474 from branch
+Not Merged,  r372334 , ammulder , 2006-01-25 14:08:47 -0800 (Wed, 25 Jan 2006) , 2 lines  Merge potential fix for GERONIMO-1426 from branch
+Not Merged,  r372352 , ammulder , 2006-01-25 14:54:07 -0800 (Wed, 25 Jan 2006) , 2 lines  Merge workaround for GERONIMO-1421 from branch
+Merged,  r372354 , djencks , 2006-01-25 15:03:46 -0800 (Wed, 25 Jan 2006) , 1 line  GERONIMO-1436, 1437 fix a couple small installer problems.  Bump assembly plugin version
+Not Merged,  r372358 , ammulder , 2006-01-25 15:15:33 -0800 (Wed, 25 Jan 2006) , 2 lines  Merge fix for GERONIMO-1379 from branch
+Not Merged,  r372367 , ammulder , 2006-01-25 15:40:20 -0800 (Wed, 25 Jan 2006) , 2 lines  Merge fix for GERONIMO-1468 from branch
+Unnecessary,  r372731 , bsnyder , 2006-01-26 20:54:10 -0800 (Thu, 26 Jan 2006) , 1 line  Committing POP3 implementation work from GERONIMO-1341.
+Not Merged,  r373180 , kevan , 2006-01-28 08:58:56 -0800 (Sat, 28 Jan 2006) , 1 line  Fix cross-site scripting problems in samples
+Unnecessary,  r373281 , adc , 2006-01-28 19:33:52 -0800 (Sat, 28 Jan 2006) , 3 lines  PR: GERONIMO-1550 Submitted by: Anders Hessellund Jensen Current IDL files break the OpenEJB build
+Merged,  r373571 , djencks , 2006-01-30 11:23:58 -0800 (Mon, 30 Jan 2006) , 1 line  GERONIMO-1541, fix glitches with what gets into lib.  Also remove some commented out dependencies
+Not Merged,  r373669 , jgenender , 2006-01-30 18:12:06 -0800 (Mon, 30 Jan 2006) , 1 line  Fix Unit Tests
+Not Merged,  r373707 , jsisson , 2006-01-30 21:04:06 -0800 (Mon, 30 Jan 2006) , 1 line  GERONIMO-1544 - Apply Erik's patch to resolve licensing issues with IzPack components.  Thanks Erik! (merged from 1.0 branch)
+Unnecessary,  r373797 , jsisson , 2006-01-31 03:45:18 -0800 (Tue, 31 Jan 2006) , 1 line  GERONIMO-1441 - comment out, consolidate or remove duplicate dependencies that cause "Build path contains duplicate entry" errors in eclipse 3.1.1 projects (merged from 1.0 branch).
+Unnecessary,  r373817 , gdamour , 2006-01-31 05:30:10 -0800 (Tue, 31 Jan 2006) , 2 lines  Use tranql-1.3-SNAPSHOT.
+Not Merged,  r373920 , hogstrom , 2006-01-31 14:03:56 -0800 (Tue, 31 Jan 2006) , 1 line  Geronimo-1561 spelling correction of Exception Messages
+Merged,  r373947 , djencks , 2006-01-31 16:05:53 -0800 (Tue, 31 Jan 2006) , 1 line  GERONIMO-1554 installer optional advanced features
+Unnecessary,  r374004 , jsisson , 2006-01-31 22:04:56 -0800 (Tue, 31 Jan 2006) , 1 line  GERONIMO-1441 - fix previous change to j2ee-installer that introduced two properties of the same name in a dependency. A dependency marked as a library implies it goes to the repository.
+Merged,  r374054 , dain , 2006-02-01 03:50:54 -0800 (Wed, 01 Feb 2006) , 2 lines  Updated to reflect openejb refactor
+Unnecessary,  r374068 , dain , 2006-02-01 06:12:53 -0800 (Wed, 01 Feb 2006) , 2 lines  Reenable uniti tests
+Unnecessary,  r374156 , dain , 2006-02-01 12:11:08 -0800 (Wed, 01 Feb 2006) , 2 lines  set svn:ignore on new modules
+Merged,  r374191 , djencks , 2006-02-01 14:01:44 -0800 (Wed, 01 Feb 2006) , 1 line  GERONIMO-1569 Improve packaging plugin logging
+Merged,  r374193 , djencks , 2006-02-01 14:08:48 -0800 (Wed, 01 Feb 2006) , 1 line  GERONIMO-1563 step 1.  Separate our proprietary JACC configuration info into a separate gbean
+Merged,  r374211 , djencks , 2006-02-01 16:19:53 -0800 (Wed, 01 Feb 2006) , 1 line  GERONIMO-1563 step one missed file
+Merged,  r374212 , djencks , 2006-02-01 16:26:18 -0800 (Wed, 01 Feb 2006) , 1 line  GERONIMO-1570, GERONIMO-1460 Provide jetty gbean for specifying bouth hosts and virtual hosts: actually use virtual hosts to set virtual hosts, not hosts.  This has a provisional schema change, and the schema version needs to be updated
+Unnecessary,  r374246 , dain , 2006-02-01 20:19:06 -0800 (Wed, 01 Feb 2006) , 2 lines  References need <module>*</module> since the beans are in the parent plan
+Not Merged,  r374253 , hogstrom , 2006-02-01 21:04:07 -0800 (Wed, 01 Feb 2006) , 1 line  Geronimo-1336 Corrected issue when specifying database pool sizes
+Unnecessary,  r374273 , hogstrom , 2006-02-01 21:51:22 -0800 (Wed, 01 Feb 2006) , 1 line  Geronimo 1571-Added text to explicitly call out the Sun 1.4 VM for builds
+Not Merged,  r374281 , hogstrom , 2006-02-01 22:17:34 -0800 (Wed, 01 Feb 2006) , 1 line  Geronimo-1489 Minor fixes to JUDDI JSP application
+Unnecessary,  r374335 , djencks , 2006-02-02 02:01:47 -0800 (Thu, 02 Feb 2006) , 1 line  GERONIMO-1574 untested spring transaction manager wrapper around our TransactionContextManager
+Unnecessary,  r374338 , djencks , 2006-02-02 02:05:36 -0800 (Thu, 02 Feb 2006) , 1 line  up spring version
+Not Merged,  r374366 , jsisson , 2006-02-02 03:37:23 -0800 (Thu, 02 Feb 2006) , 1 line  GERONIMO-1278 - fix problem on windows where rename fails during fixcrlf processing in installer (merged from 1.0 branch).
+Unnecessary,  r374415 , adc , 2006-02-02 08:02:34 -0800 (Thu, 02 Feb 2006) , 1 line
+Unnecessary,  r374472 , dain , 2006-02-02 11:34:57 -0800 (Thu, 02 Feb 2006) , 2 lines  Added missing transaction manager object name attribute to ear deployer Added better error handling to openejb tranql intergration
+Merged,  r374535 , djencks , 2006-02-02 14:50:45 -0800 (Thu, 02 Feb 2006) , 1 line  GERONIMO-1578 remove wadi dependencies from jetty module
+Unnecessary,  r374536 , chirino , 2006-02-02 14:51:02 -0800 (Thu, 02 Feb 2006) , 4 lines  Adding a new rar build for the activemq rar since geronimo really should be building a custom rar so that it's configuration  can be tailored for geronimo.
+Not Merged,  r374665 , kevan , 2006-02-03 05:22:56 -0800 (Fri, 03 Feb 2006) , 1 line  Fix for relative links in jmxdebug on Tomcat
+Not Merged,  r374759 , jgenender , 2006-02-03 14:06:34 -0800 (Fri, 03 Feb 2006) , 1 line  Added BeforeAfters for cross context and a listener
+Unnecessary,  r374781 , kevan , 2006-02-03 15:21:12 -0800 (Fri, 03 Feb 2006) , 1 line  Update m:co to use svn to retrieve openejb
+Not Merged,  r374885 , jgenender , 2006-02-04 08:10:47 -0800 (Sat, 04 Feb 2006) , 1 line  Save the Request during x-context dispatch
+Unnecessary,  r374972 , adc , 2006-02-04 21:49:10 -0800 (Sat, 04 Feb 2006) , 1 line  Update specs versions
+Unnecessary,  r374973 , adc , 2006-02-04 21:50:46 -0800 (Sat, 04 Feb 2006) , 1 line  Ignore
+Merged,  r375137 , djencks , 2006-02-05 15:48:05 -0800 (Sun, 05 Feb 2006) , 1 line  Move some openejb, tranql, and activemq dependencies to more appropriate modules.
+Unnecessary,  r375204 , jsisson , 2006-02-05 22:43:38 -0800 (Sun, 05 Feb 2006) , 1 line  GERONIMO-1566 - fix issue where binary distributions (both zip and tgz) contain a META-INF/manifest.mf file under the geronimo-1.0 directory.
+Unnecessary,  r375375 , bsnyder , 2006-02-06 13:16:28 -0800 (Mon, 06 Feb 2006) , 1 line  Added patch for GERONIMO-1593.
+Unnecessary,  r375548 , bsnyder , 2006-02-07 00:40:18 -0800 (Tue, 07 Feb 2006) , 1 line  Had to apply a few fixes to the SMTPTransport class.
+Merged,  r375854 , djencks , 2006-02-07 21:13:03 -0800 (Tue, 07 Feb 2006) , 1 line  GERONIMO-1599 temporary fix for broken recovery.  Shows the danger of working too fast and insufficient testing.
+Not Merged,  r376068 , jgenender , 2006-02-08 13:21:26 -0800 (Wed, 08 Feb 2006) , 1 line  GERONIMO-1480 - set and get servlet wrapper name during dispatch
+Not Merged,  r376105 , jsisson , 2006-02-08 14:47:30 -0800 (Wed, 08 Feb 2006) , 2 lines  GERONIMO-1490 - setjavaenv.bat not called by deploy.bat GERONIMO-1610 - deploy.bat does not honour GERONIMO_BATCH_ECHO and GERONIMO_BATCH_PAUSE
+Not Merged,  r376106 , jsisson , 2006-02-08 14:50:10 -0800 (Wed, 08 Feb 2006) , 1 line  GERONIMO-1490 - deploy.sh does not call setjavaenv.sh
+Not Merged,  r376109 , jgenender , 2006-02-08 15:09:02 -0800 (Wed, 08 Feb 2006) , 1 line  Tidy up code
+Not Merged,  r376110 , jsisson , 2006-02-08 15:10:15 -0800 (Wed, 08 Feb 2006) , 1 line  GERONIMO-1608 - Improve script documentation
+Not Merged,  r376111 , jsisson , 2006-02-08 15:19:50 -0800 (Wed, 08 Feb 2006) , 1 line  GERONIMO-1603 - shutdown.bat does not set ERRORLEVEL and does not honour GERONIMO_BATCH_ECHO and GERONIMO_BATCH_PAUSE environment variables
+Not Merged,  r376114 , jsisson , 2006-02-08 15:25:09 -0800 (Wed, 08 Feb 2006) , 1 line  GERONIMO-1609 - Fix typo in error message
+Not Merged,  r376116 , jsisson , 2006-02-08 15:28:03 -0800 (Wed, 08 Feb 2006) , 1 line  GERONIMO-1606 - Display message indicating Geronimo is being started in a separate window when started with geronimo.bat or startup.bat
+Not Merged,  r376118 , jsisson , 2006-02-08 15:33:26 -0800 (Wed, 08 Feb 2006) , 1 line  GERONIMO-1612 - Remove -Djava.endorsed.dirs="$JAVA_ENDORSED_DIRS" from commands in geronimo.sh. Was accidentally carried over from the Tomcat code the script was based upon.
+Unnecessary,  r376119 , jsisson , 2006-02-08 15:35:02 -0800 (Wed, 08 Feb 2006) , 1 line  GERONIMO-1605 - Display PID of started process when using geronimo.sh start or startup.sh
+Not Merged,  r376121 , jsisson , 2006-02-08 15:42:20 -0800 (Wed, 08 Feb 2006) , 1 line  GERONIMO-1604 - Make scripts consistent in the output of environment variable information (previously deploy.bat and deploy.sh did not output this information).  Also allow environment variable information to be turned off using the new GERONIMO_ENV_INFO environment variable.
+Not Merged,  r376123 , jsisson , 2006-02-08 15:45:45 -0800 (Wed, 08 Feb 2006) , 1 line  GERONIMO-1607 - Allow arguments to the Windows START command to be specified in an environment variable GERONIMO_WIN_START_ARGS.
+Not Merged,  r376223 , jgenender , 2006-02-09 00:43:29 -0800 (Thu, 09 Feb 2006) , 1 line  Fix array issue
+Merged,  r376284 , gdamour , 2006-02-09 05:21:02 -0800 (Thu, 09 Feb 2006) , 6 lines  GERONIMO-1599 HOWLLog throws NPE because XidFactory is missing  Extract XidFactory from TransactionManagerImpl.  Define an XidFactory GBean shared by HOWLTransactionLog and TransactionManager ~
+Merged,  r376288 , gdamour , 2006-02-09 05:31:51 -0800 (Thu, 09 Feb 2006) , 3 lines  GERONIMO-1599 HOWLLog throws NPE because XidFactory is missing  Wrongly rolled-back the implementation of recover.
+Not Merged,  r376866 , ammulder , 2006-02-10 13:40:09 -0800 (Fri, 10 Feb 2006) , 2 lines  Merge GERONIMO-1349 fix from branch
+Unnecessary,  r377239 , jdillon , 2006-02-12 12:43:22 -0800 (Sun, 12 Feb 2006) , 3 lines   Replace j2ee dependency with servlet and jsp dependency
+Unnecessary,  r377255 , jdillon , 2006-02-12 14:28:02 -0800 (Sun, 12 Feb 2006) , 3 lines   Unrolled j2ee spec dependencies
+Unnecessary,  r377269 , jdillon , 2006-02-12 15:22:25 -0800 (Sun, 12 Feb 2006) , 3 lines   Set the defaultGoal to default
+Unnecessary,  r377270 , jdillon , 2006-02-12 15:23:15 -0800 (Sun, 12 Feb 2006) , 3 lines   Unroll j2ee spec dependencies
+Unnecessary,  r377287 , jdillon , 2006-02-12 17:49:51 -0800 (Sun, 12 Feb 2006) , 2 lines  Minor indent update
+Unnecessary,  r377294 , jdillon , 2006-02-12 19:07:32 -0800 (Sun, 12 Feb 2006) , 3 lines   Remove these maven.xmls... they only were there to set the default goal, which is done in etc/project.xml now
+Unnecessary,  r377315 , bsnyder , 2006-02-12 23:05:38 -0800 (Sun, 12 Feb 2006) , 1 line  Removed Jeff's repo.
+Merged,  r377628 , djencks , 2006-02-13 21:35:29 -0800 (Mon, 13 Feb 2006) , 1 line  GERONIMO-1613.  Remove/move excess dependencies, fix derby problems by import of system-database.
+Unnecessary,  r377850 , jlaskowski , 2006-02-14 13:58:03 -0800 (Tue, 14 Feb 2006) , 1 line  Make the name of the project fully qualified - Apache Geronimo
+Unnecessary,  r377853 , jlaskowski , 2006-02-14 13:59:33 -0800 (Tue, 14 Feb 2006) , 1 line  Ignore velocity.log
+Unnecessary,  r377882 , jlaskowski , 2006-02-14 15:24:37 -0800 (Tue, 14 Feb 2006) , 5 lines  GERONIMO-1624: POMs for some modules.   Thanks Anders!
+Merged,  r378162 , dblevins , 2006-02-15 21:07:50 -0800 (Wed, 15 Feb 2006) , 2 lines  Cleaned tons of unused code.  Most of it existed around ProxyContainer, and only 5 lines of it was needed.
+Merged,  r378183 , dblevins , 2006-02-15 22:29:45 -0800 (Wed, 15 Feb 2006) , 5 lines  Created a geronimo-interceptor package just for the interceptor API. Nothing left in org.apache.geronimo.core anymore, though there is code in that module still.
+Merged,  r378347 , dblevins , 2006-02-16 11:34:56 -0800 (Thu, 16 Feb 2006) , 1 line  Added additional createStatic method signature
+Merged,  r378359 , dblevins , 2006-02-16 12:37:41 -0800 (Thu, 16 Feb 2006) , 1 line  Added additional createStatic method signature
+Merged,  r378404 , dblevins , 2006-02-16 16:17:27 -0800 (Thu, 16 Feb 2006) , 3 lines  Added dependencies on geronimo-interceptor Updated the OpenEJB gbean class names
+Unnecessary,  r378637 , jlaskowski , 2006-02-17 13:44:45 -0800 (Fri, 17 Feb 2006) , 1 line  GERONIMO-1629: More maven 2 poms. Thanks, Anders!
+Unnecessary,  r378746 , jgenender , 2006-02-18 10:02:03 -0800 (Sat, 18 Feb 2006) , 1 line  Update to Tomcat 5.5.15
+Unnecessary,  r378827 , gdamour , 2006-02-18 17:46:30 -0800 (Sat, 18 Feb 2006) , 7 lines  GERONIMO-1638 - Multiple servers sharing the same repo and config store.  The second solution has been implemented.  When starting G, it is now possible to specify one of these two system properties: * org.apache.geronimo.server.name: name of the server to be started. If "server1" is specified, then G will use the directory <geronimo installation dir>/server1; or * org.apache.geronimo.server.dir: directory of the server to be started. This can be either a relative or an absolute path. For instance, if "./server1" is specified, then G will use the directory <geronimo installation dir>/server1.
+Unnecessary,  r379071 , jlaskowski , 2006-02-20 01:56:20 -0800 (Mon, 20 Feb 2006) , 6 lines  M2 profiles introduced to allow execution of M2 commands upon a single module.  Run mvn -o -Dmodule=kernel test and the test phase will be initiated in the kernel module. Leaving the module property out executes a command over the entire module set.  NOTE: It's not yet possible to run test successfully over the kernel module. There's a caveat with M2 classloading. More on the dev mailing list...
+Unnecessary,  r379102 , gdamour , 2006-02-20 03:43:10 -0800 (Mon, 20 Feb 2006) , 1 line  Clear the propery "java.rmi.server.codebase" prior to use MarshalledObject. When building with M2, the codebase property is set to the test classpath and if the M2 repo directory contains a space, the codebase cannot be successfully parsed.
+Unnecessary,  r379113 , gdamour , 2006-02-20 04:10:57 -0800 (Mon, 20 Feb 2006) , 1 line  Oops. System.clearProperty is only available since 1.5.
+Unnecessary,  r379128 , gdamour , 2006-02-20 05:47:05 -0800 (Mon, 20 Feb 2006) , 1 line  The CL used by M2 is a URLClassLoader, so it is pointless to set the RMI codebase property. Rewrite the test to perform a standard serialization without the RMI annotation mechanism, which causes problem.
+Unnecessary,  r379242 , jlaskowski , 2006-02-20 13:26:45 -0800 (Mon, 20 Feb 2006) , 1 line  svn:ignore set
+Unnecessary,  r379245 , jlaskowski , 2006-02-20 13:34:25 -0800 (Mon, 20 Feb 2006) , 11 lines  Introduce Maven2-based goals and a property to wire it into the build.   + The m2 property is to ignite the build of the kernel module using Maven2  + The goal: m2 is to create a template to execute Maven2 commands via goal property  + The execmvn goal is to execute Maven2 shell script either mvn.bat or mvn based on OS (it surely needs more appropriate OS names)  Run maven -Dm2=true new to build Geronimo with the new goal and execute mvn install on the kernel module Run maven m2 to execute mvn install on the kernel module only
+Unnecessary,  r379430 , gdamour , 2006-02-21 03:36:04 -0800 (Tue, 21 Feb 2006) , 1 line  Fix a regression that I have introduced during my last commit: the setting of org.apache.geronimo.base.dir was not working as expected.
+Not Merged,  r379525 , kevan , 2006-02-21 08:39:15 -0800 (Tue, 21 Feb 2006) , 1 line  Add simple protocolConnect implementation to NullTransport. See GERONIMO-1643
+Unnecessary,  r379797 , adc , 2006-02-22 07:37:09 -0800 (Wed, 22 Feb 2006) , 2 lines  GERONIMO-1639 Setup old version of CORBA specs for temporary use until the new CORBA specs can pass the TCK.
+Not Merged,  r379954 , jgenender , 2006-02-22 14:54:40 -0800 (Wed, 22 Feb 2006) , 1 line  Added emptySessionPath to ConnectorGBean
+Not Merged,  r380696 , jgenender , 2006-02-24 07:59:09 -0800 (Fri, 24 Feb 2006) , 1 line  Added empty attribute to the config.xml attribute and reference tags.  Updated to spit out the proper writeXml() too.
+Unnecessary,  r380975 , kevan , 2006-02-25 11:50:51 -0800 (Sat, 25 Feb 2006) , 1 line  Fix for corba NPE's when corba is configured. This places the corba-spec jar ahead of the j2ee spec jar in the classpath (i.e. it's a hack)
+Unnecessary,  r381002 , jlaskowski , 2006-02-25 14:01:07 -0800 (Sat, 25 Feb 2006) , 1 line  Specify the default goal - install - and upgrade plugins: wagon-ssh-external and maven-one-plugin (as it is in geronimo-specs)
+Unnecessary,  r381042 , dain , 2006-02-25 17:07:07 -0800 (Sat, 25 Feb 2006) , 2 lines  Changed version to 1.2-SNAPSHOT
+Unnecessary,  r381057 , dain , 2006-02-25 21:17:32 -0800 (Sat, 25 Feb 2006) , 2 lines  Changed openejb version to 2.2
+Not Merged,  r381215 , jsisson , 2006-02-26 17:49:11 -0800 (Sun, 26 Feb 2006) , 1 line  GERONIMO-1649 - Test case for Invalid deployment descriptor error when deploying an EJB 2.0 MDB (merged from 1.0 branch)
+Not Merged,  r381216 , jsisson , 2006-02-26 17:53:13 -0800 (Sun, 26 Feb 2006) , 3 lines  GERONIMO-1649 - Fix Invalid deployment descriptor error when deploying an EJB 2.0 MDB (see associated test case in rev 381215) merged from 1.0 branch
+Unnecessary,  r381270 , dain , 2006-02-26 22:31:41 -0800 (Sun, 26 Feb 2006) , 6 lines  Changed plugin version numbers to:     geronimo_packaging_plugin_version=1.2.0-3     geronimo_assembly_plugin_version=1.2.0-8     geronimo_deployment_plugin_version=1.2.0-1     geronimo_dependency_plugin_version=1.2.0-1
+Not Merged,  r381416 , jgenender , 2006-02-27 11:52:09 -0800 (Mon, 27 Feb 2006) , 1 line  Place a null check for the infos Set.
+Unnecessary,  r381438 , jlaskowski , 2006-02-27 12:56:24 -0800 (Mon, 27 Feb 2006) , 1 line  Upgrade Tomcat to the latest version used by Geronimo. Thanks Anita!
+Unnecessary,  r381823 , jlaskowski , 2006-02-28 15:28:40 -0800 (Tue, 28 Feb 2006) , 5 lines  GERONIMO-1317: Rename the "new" goals to more meaningful names with additional build properties  Thanks Donald!
+Unnecessary,  r381834 , jlaskowski , 2006-02-28 15:52:09 -0800 (Tue, 28 Feb 2006) , 2 lines  Ignore .settings
+Not Merged,  r381897 , jgenender , 2006-02-28 20:06:01 -0800 (Tue, 28 Feb 2006) , 1 line  Fixed a bug I had put in on my last commit.
+Not Merged,  r381929 , jgenender , 2006-02-28 22:40:04 -0800 (Tue, 28 Feb 2006) , 1 line  Added value and null attributes and empty attrs and refs are now clearing/removal of the set value.
+Unnecessary,  r381942 , jlaskowski , 2006-03-01 00:22:22 -0800 (Wed, 01 Mar 2006) , 5 lines  GERONIMO-1659: system module migration to Maven 2  Thanks Anders!
+Not Merged,  r382099 , jgenender , 2006-03-01 09:44:02 -0800 (Wed, 01 Mar 2006) , 1 line  Update schema to reflect the value and null attributes.
+Unnecessary,  r382352 , gdamour , 2006-03-02 03:13:09 -0800 (Thu, 02 Mar 2006) , 7 lines  GERONIMO-1434 Allow GBeans to be bound into a component's java:comp/env namespace  This commit allows to bind a GBean reference into the ENC of a J2EE component.   Based on the XSD, it seems that we also need to support the case where a collection of GBeans is put in the ENC.
+Unnecessary,  r382362 , jlaskowski , 2006-03-02 04:19:37 -0800 (Thu, 02 Mar 2006) , 6 lines  Correct Geronimo JavaMail specs version Add Apache repo  Maven2 build is yet broken, though :(
+Unnecessary,  r382366 , gdamour , 2006-03-02 04:51:31 -0800 (Thu, 02 Mar 2006) , 3 lines  rename org.apache.geronimo.base.dir to org.apache.geronimo.home.dir as suggested by John.
+Not Merged,  r382389 , jlaskowski , 2006-03-02 06:23:02 -0800 (Thu, 02 Mar 2006) , 1 line  GERONIMO-1670: SMTPTransport not throwing correct exception for message send failures
+Unnecessary,  r382793 , jlaskowski , 2006-03-03 04:58:26 -0800 (Fri, 03 Mar 2006) , 4 lines  GERONIMO-1678 - Interceptor module added to m2  Thanks Henri!
+Not Merged,  r383090 , jlaskowski , 2006-03-04 03:24:20 -0800 (Sat, 04 Mar 2006) , 4 lines  GERONIMO-1673 SMTPTransport is not performing byte-stuffing and newline canonicalization on message data  Thanks Rick!
+Unnecessary,  r383095 , jlaskowski , 2006-03-04 03:55:42 -0800 (Sat, 04 Mar 2006) , 6 lines  GERONIMO-1675 Add NNTP transport to the javamail package  Thanks Rick!  NOTE: It requires the latest version of geronimo-javamail_1.3.1_spec-1.1-SNAPSHOT.jar. Will have to ask how ot publish it.
+Merged,  r383111 , jlaskowski , 2006-03-04 05:26:30 -0800 (Sat, 04 Mar 2006) , 4 lines  GERONIMO-1667 Remove console-web module as it has now become obsolete  There's a brand new console in applications/console*
+Unnecessary,  r383116 , jlaskowski , 2006-03-04 06:23:10 -0800 (Sat, 04 Mar 2006) , 4 lines  Generate geronimo-version.properties using Maven2 Antrun plugin  Note: I'm not sure if it's in a correct phase, but it works
+Unnecessary,  r383123 , jlaskowski , 2006-03-04 06:47:45 -0800 (Sat, 04 Mar 2006) , 1 line  GERONIMO-1688 Fresh build fails because of unsatisfied dependency on activecluster in configs/openejb
+Unnecessary,  r383128 , jlaskowski , 2006-03-04 07:03:33 -0800 (Sat, 04 Mar 2006) , 1 line  GERONIMO-1679 Typo in j2ee-builder's project.xml
+Unnecessary,  r383147 , jlaskowski , 2006-03-04 07:56:03 -0800 (Sat, 04 Mar 2006) , 1 line  GERONIMO-1681 directory module migration to Maven2 - not yet finished
+Unnecessary,  r383166 , jlaskowski , 2006-03-04 10:31:41 -0800 (Sat, 04 Mar 2006) , 1 line  Set svn:keywords and correct the Copyright in the License header
+Not Merged,  r383230 , ammulder , 2006-03-04 16:19:08 -0800 (Sat, 04 Mar 2006) , 5 lines  I like the way the JMS portlet is structured much more than the way the   JDBC and Security Realm portlets are.  Extracting the framework for   that so it can be used by future portlets. Will use this for GERONIMO-1691
+Unnecessary,  r383234 , jlaskowski , 2006-03-04 16:52:31 -0800 (Sat, 04 Mar 2006) , 6 lines  More updates to pom.xml's  'mvn clean install' doesn't finish successfully yet, but it's very close.  Use M2 from http://maven.zones.apache.org/~maven/builds/trunk/m2-20060304.190000.tar.gz
+Unnecessary,  r383614 , jlaskowski , 2006-03-06 10:50:14 -0800 (Mon, 06 Mar 2006) , 2 lines  Add Maven1 (legacy) repository. Thanks Ian!
+Unnecessary,  r383631 , jlaskowski , 2006-03-06 11:30:41 -0800 (Mon, 06 Mar 2006) , 4 lines  GERONIMO-1645 tomcat module migration to Maven2  Thanks Anita!
+Unnecessary,  r383826 , jlaskowski , 2006-03-07 01:17:42 -0800 (Tue, 07 Mar 2006) , 1 line  No releases from Maven2 Snapshot repo
+Unnecessary,  r383827 , jlaskowski , 2006-03-07 01:22:25 -0800 (Tue, 07 Mar 2006) , 4 lines  GERONIMO-1665 axis module migration to Maven2  Thanks Henri!
+Unnecessary,  r383848 , jlaskowski , 2006-03-07 03:35:36 -0800 (Tue, 07 Mar 2006) , 6 lines  GERONIMO-1681 directory module migration to Maven2  Thanks Reghu!  Note: The tests don't work when executed from within modules/directory dir
+Unnecessary,  r383860 , jlaskowski , 2006-03-07 04:09:38 -0800 (Tue, 07 Mar 2006) , 2 lines  Not used
+Unnecessary,  r383870 , jlaskowski , 2006-03-07 04:56:53 -0800 (Tue, 07 Mar 2006) , 4 lines  GERONIMO-1698 hot-deploy module migration to Maven2  Thanks Rakesh!
+Unnecessary,  r383872 , jlaskowski , 2006-03-07 05:04:45 -0800 (Tue, 07 Mar 2006) , 3 lines  Add hot-deploy module to the M2 modules Change the name of the M2 repo so that it will add more value to the build logs
+Unnecessary,  r383906 , jlaskowski , 2006-03-07 07:29:45 -0800 (Tue, 07 Mar 2006) , 1 line  Not used
+Not Merged,  r383915 , jlaskowski , 2006-03-07 08:01:25 -0800 (Tue, 07 Mar 2006) , 1 line  Revert to the old directory setting until something better is implemented as it broke the m1-based build
+Unnecessary,  r383941 , jlaskowski , 2006-03-07 09:53:44 -0800 (Tue, 07 Mar 2006) , 1 line  Specify additional (likely useful) repository properties
+Unnecessary,  r384273 , jlaskowski , 2006-03-08 09:25:03 -0800 (Wed, 08 Mar 2006) , 1 line  Include tomcat module in the parent pom
+Unnecessary,  r384276 , jlaskowski , 2006-03-08 09:39:30 -0800 (Wed, 08 Mar 2006) , 2 lines  GERONIMO-1715 derby module migration to Maven2
+Unnecessary,  r384292 , jlaskowski , 2006-03-08 10:04:19 -0800 (Wed, 08 Mar 2006) , 4 lines  GERONIMO-1712 Add NNTP Store support to javamail  + propset svn:keywords 'Rev Date'
+Unnecessary,  r384541 , jlaskowski , 2006-03-09 08:18:55 -0800 (Thu, 09 Mar 2006) , 4 lines  GERONIMO-1717 directory module migration to Maven2  Submitted by: Prasad Kashyap
+Unnecessary,  r384560 , jlaskowski , 2006-03-09 09:19:41 -0800 (Thu, 09 Mar 2006) , 1 line  Finish M2 migration
+Unnecessary,  r384585 , jlaskowski , 2006-03-09 11:21:14 -0800 (Thu, 09 Mar 2006) , 1 line  Cleanup and description additions
+Unnecessary,  r384651 , jgenender , 2006-03-09 16:06:54 -0800 (Thu, 09 Mar 2006) , 1 line  GERONIMO-1613 - removal of unnecessary dependencies for smaller footprint
+Unnecessary,  r384763 , jlaskowski , 2006-03-10 03:06:33 -0800 (Fri, 10 Mar 2006) , 3 lines  GERONIMO-1693 j2ee-schema module migration to Maven2 Submitted by: Anita Kulshreshtha
+Unnecessary,  r385862 , jgenender , 2006-03-14 11:30:45 -0800 (Tue, 14 Mar 2006) , 1 line  GERONIMO-1676: log4j props referenced a non-existent property
+Unnecessary,  r386190 , jlaskowski , 2006-03-15 14:31:28 -0800 (Wed, 15 Mar 2006) , 1 line  Fix Jules' lastname
+Not Merged,  r386193 , jsisson , 2006-03-15 14:37:02 -0800 (Wed, 15 Mar 2006) , 1 line  GERONIMO-1743 - Fix bug with argument processing in deploy.bat that was recently introduced (merged from 1.1 branch).
+Unnecessary,  r386195 , jlaskowski , 2006-03-15 14:39:22 -0800 (Wed, 15 Mar 2006) , 1 line  Add activecluster dependency so that the car can be built
+Unnecessary,  r386203 , jlaskowski , 2006-03-15 14:59:55 -0800 (Wed, 15 Mar 2006) , 2 lines  GERONIMO-1729 Module migration to Maven 2: installer-support
+Unnecessary,  r386204 , jlaskowski , 2006-03-15 15:02:03 -0800 (Wed, 15 Mar 2006) , 1 line  Add installer-support module to the top-level pom
+Unnecessary,  r386212 , jlaskowski , 2006-03-15 15:23:11 -0800 (Wed, 15 Mar 2006) , 3 lines  GERONIMO-1728 - Module migration to Maven 2: installer-processing Submitted by: Prasad Kashyap
+Unnecessary,  r386214 , jlaskowski , 2006-03-15 15:28:01 -0800 (Wed, 15 Mar 2006) , 3 lines  GERONIMO-1725 - Module migration to Maven 2: client-builder Submitted by: Prasad Kashyap
+Unnecessary,  r386217 , jlaskowski , 2006-03-15 15:38:24 -0800 (Wed, 15 Mar 2006) , 1 line  Add geronimo-client dependency so that client-builder can reference it
+Unnecessary,  r386222 , jlaskowski , 2006-03-15 15:55:29 -0800 (Wed, 15 Mar 2006) , 3 lines  GERONIMO-1714 - Module migration to Maven2: connector-builder Submitted by: Prasad Kashyap
+Not Merged,  r386230 , jsisson , 2006-03-15 16:49:31 -0800 (Wed, 15 Mar 2006) , 1 line  GERONIMO-1696 - Display "JPDA run" command as part of usage help (merged from 1.1 branch)
+Not Merged,  r386231 , jsisson , 2006-03-15 16:54:55 -0800 (Wed, 15 Mar 2006) , 1 line  GERONIMO-1744 - "dt_shmem" default in geronimo.bat for JPDA_TRANSPORT environment variable not compatible with Eclipse debugger (merged from 1.1 branch).
+Not Merged,  r386232 , jsisson , 2006-03-15 16:59:04 -0800 (Wed, 15 Mar 2006) , 1 line  GERONIMO-1745 - * The JPDA_OPTS environment variable is not honoured by geronimo.bat and is inconsistent with geronimo.sh (merged from 1.1 branch).
+Unnecessary,  r386453 , jgenender , 2006-03-16 12:32:45 -0800 (Thu, 16 Mar 2006) , 1 line  GERONIMO-1634: Patch applied
+Unnecessary,  r386454 , jgenender , 2006-03-16 12:36:25 -0800 (Thu, 16 Mar 2006) , 1 line  GERONIMO-1699: Apply patch for JDOM dependency
+Unnecessary,  r386770 , jlaskowski , 2006-03-17 16:15:51 -0800 (Fri, 17 Mar 2006) , 1 line  Snapshots should only be checked/downloaded daily
+Unnecessary,  r386771 , jlaskowski , 2006-03-17 16:23:38 -0800 (Fri, 17 Mar 2006) , 3 lines  GERONIMO-1713 - Module migration to Maven2: j2ee-builder Submitted by: Prasad Kashyap
+Unnecessary,  r386775 , jlaskowski , 2006-03-17 16:45:52 -0800 (Fri, 17 Mar 2006) , 3 lines  GERONIMO-1645 - Module migration to Maven2: tomcat Submitted by: Anita Kulshreshtha
+Unnecessary,  r386778 , jlaskowski , 2006-03-17 17:03:13 -0800 (Fri, 17 Mar 2006) , 3 lines  GERONIMO-1731 - Module migration to Maven 2: jetty Submitted by: Prasad Kashyap
+Unnecessary,  r386779 , jlaskowski , 2006-03-17 17:10:38 -0800 (Fri, 17 Mar 2006) , 3 lines  GERONIMO-1706 - Module migration to Maven2: j2ee Submitted by: Prasad Kashyap
+Unnecessary,  r386783 , jlaskowski , 2006-03-17 17:30:43 -0800 (Fri, 17 Mar 2006) , 3 lines  GERONIMO-1723 - Module migration to Maven 2: axis-builder Submitted by: Anita Kulshreshtha
+Unnecessary,  r386785 , jlaskowski , 2006-03-17 17:35:42 -0800 (Fri, 17 Mar 2006) , 1 line  Add axis-builder to modules
+Unnecessary,  r386837 , jlaskowski , 2006-03-18 02:43:16 -0800 (Sat, 18 Mar 2006) , 3 lines  GERONIMO-1646 - Module migration to Maven2: tomcat-builder Submitted by: Anita Kulshreshtha
+Unnecessary,  r386840 , jlaskowski , 2006-03-18 03:05:09 -0800 (Sat, 18 Mar 2006) , 1 line  Correct some XML-wise goodies
 Unnecessary,  r386910 , jlaskowski , 2006-03-18 18:13:26 -0800 (Sat, 18 Mar 2006) , 31 lines  All migrated to M2 modules build properly from the top-level
-Not Merged,  r387174 , jlaskowski , 2006-03-20 01:47:23 -0800 (Mon, 20 Mar 2006) , 1 line  Fix the failing SecurityTest and add resources to svn:ignore 
-Not Merged,  r387197 , jlaskowski , 2006-03-20 04:20:28 -0800 (Mon, 20 Mar 2006) , 1 line  Fix the remaining inappropriately-migrated tests 
-Not Merged,  r387216 , jlaskowski , 2006-03-20 07:00:28 -0800 (Mon, 20 Mar 2006) , 3 lines  GERONIMO-1753 - Add support for a mail.nntp.from property to configure the default From: address for NNTP posts Submitted by: Rick McGuire  
-Not Merged,  r387218 , jlaskowski , 2006-03-20 07:12:37 -0800 (Mon, 20 Mar 2006) , 3 lines  GERONIMO-1754 - Add GBeans for configuring NNTPTransport and NNTPStore access Submitted by: Rick McGuire  
-Unnecessary,  r387275 , jlaskowski , 2006-03-20 10:56:44 -0800 (Mon, 20 Mar 2006) , 3 lines  GERONIMO-1732 - Module migration to Maven 2: jetty-builder Submitted by: Prasad Kashyap  
-Not Merged,  r387533 , jlaskowski , 2006-03-21 06:14:15 -0800 (Tue, 21 Mar 2006) , 3 lines  GERONIMO-1754 - Add GBeans for configuring NNTPTransport and NNTPStore access Submitted by: Rick McGuire  
-Not Merged,  r388236 , ammulder , 2006-03-23 11:20:22 -0800 (Thu, 23 Mar 2006) , 8 lines  Console enhancements  - a new portlet to help configure Apache HTTP via mod_jk  - start of a new keystore management portlet that can handle multiple    keystores Geronimo improvements as necesary to support those  - new Keystore GBeans  - more logic around parent/child module relationships  
-Not Merged,  r388257 , ammulder , 2006-03-23 12:12:17 -0800 (Thu, 23 Mar 2006) , 2 lines  Move the default keystore into the new keystores/ directory  
-Unnecessary,  r388258 , ammulder , 2006-03-23 12:14:36 -0800 (Thu, 23 Mar 2006) , 2 lines  Add keystores/ directory to non-J2EE assemblies  
-Unnecessary,  r388259 , ammulder , 2006-03-23 12:16:18 -0800 (Thu, 23 Mar 2006) , 2 lines  Move the default keystores in to the new directory for non-J2EE assemblies  
-Not Merged,  r388275 , hogstrom , 2006-03-23 13:27:42 -0800 (Thu, 23 Mar 2006) , 1 line  Updated derby.txt to point to correct ddl 
-Not Merged,  r388671 , ammulder , 2006-03-24 15:01:45 -0800 (Fri, 24 Mar 2006) , 2 lines  Console can export and download configuration CARs  
-Not Merged,  r388832 , ammulder , 2006-03-25 13:11:55 -0800 (Sat, 25 Mar 2006) , 3 lines  Move the configuration download and install logic from the console   into a GBean  
-Not Merged,  r388868 , ammulder , 2006-03-25 17:09:54 -0800 (Sat, 25 Mar 2006) , 4 lines  Configuration installer works from the command line  - use deploy tool argument install-configs and pass the Maven repo URL    as an argument  
-Not Merged,  r389206 , ammulder , 2006-03-27 09:43:21 -0800 (Mon, 27 Mar 2006) , 8 lines  Use the new keystore manager to manage the default keystore distributed   with Geronimo. Update the Jetty HTTPS connector to be configured by the keystore manager   instead of by hardcoding files, passwords, etc. Update the console to allow unlocking a keystore and private key for use,   and to make the create Jetty HTTPS connector configuration select from   the available keystores (still need edit support)  
-Not Merged,  r389296 , jgenender , 2006-03-27 13:50:11 -0800 (Mon, 27 Mar 2006) , 1 line  GERONIMO-1705 and GERONIMO-973 
-Unnecessary,  r389311 , chirino , 2006-03-27 14:19:34 -0800 (Mon, 27 Mar 2006) , 2 lines  The build was not working without the corba dependency.  
-Not Merged,  r389341 , chirino , 2006-03-27 17:08:39 -0800 (Mon, 27 Mar 2006) , 5 lines  - Upgrading ActiveMQ from 3.2.1 to 4.0-SNAPSHOT.   On the next versioned release (RC2), we should switch to using that. - One of DLQ console portlet will not work anymore :( - A 3.2.1 copy of activemq-core is being brought in because OpenEJB is using WADI which still depends on 3.2.1   
-Not Merged,  r389577 , jgenender , 2006-03-28 11:01:53 -0800 (Tue, 28 Mar 2006) , 1 line  Add patch for IE browser 
-Not Merged,  r389606 , jgenender , 2006-03-28 13:24:04 -0800 (Tue, 28 Mar 2006) , 2 lines  Change rounding to make download value zero based.  
-Not Merged,  r389626 , kevan , 2006-03-28 15:22:33 -0800 (Tue, 28 Mar 2006) , 1 line  Initial import. 
-Not Merged,  r389627 , kevan , 2006-03-28 15:22:37 -0800 (Tue, 28 Mar 2006) , 1 line  Initial import. 
-Not Merged,  r389629 , kevan , 2006-03-28 15:42:06 -0800 (Tue, 28 Mar 2006) , 1 line  Remove geronimo-commonj -- was trying out the Eclipse svn plug-in and the plugin got a bit too ambitious... 
-Not Merged,  r389653 , kevan , 2006-03-28 17:59:49 -0800 (Tue, 28 Mar 2006) , 1 line  Commit initial implementation of Commonj Timer API from GERONIMO-1553 
-Unnecessary,  r389655 , kevan , 2006-03-28 18:12:06 -0800 (Tue, 28 Mar 2006) , 1 line  Add dependency version for commonj spec jar 
-Not Merged,  r389664 , jgenender , 2006-03-28 19:49:33 -0800 (Tue, 28 Mar 2006) , 1 line  GERONIMO-1788 - allow to disable cookies in web application 
-Unnecessary,  r390515 , jlaskowski , 2006-03-31 13:58:42 -0800 (Fri, 31 Mar 2006) , 3 lines  GERONIMO-1796 - Improve SMTP transport debug trace output Submitted by: Rick McGuire  
-Unnecessary,  r390520 , jlaskowski , 2006-03-31 14:07:07 -0800 (Fri, 31 Mar 2006) , 3 lines  GERONIMO-1798 - Bring NNTPStore and NNTPTransport to same level of debugging tracing added to SMTP Submitted by Rick McGuire  
-Unnecessary,  r390523 , jlaskowski , 2006-03-31 14:20:22 -0800 (Fri, 31 Mar 2006) , 3 lines  GERONIMO-1765 - POP3 and NNTP messages should throw an exception if headers are modified Submitted by: Rick McGuire  
-Unnecessary,  r390524 , jlaskowski , 2006-03-31 14:24:52 -0800 (Fri, 31 Mar 2006) , 2 lines  Formatting + import organizing  
-Unnecessary,  r390546 , jlaskowski , 2006-03-31 16:03:23 -0800 (Fri, 31 Mar 2006) , 3 lines  GERONIMO-1755 - Restructure top-level pom Submitted by: Prasad Kashyap  
-Unnecessary,  r390629 , jlaskowski , 2006-04-01 01:52:02 -0800 (Sat, 01 Apr 2006) , 6 lines  GERONIMO-1660 - Application migration to Maven 2: Console Submitted by: Prasad Kashyap  It contains only a part of the original patch since the remaining part (console.zip) made too much 'noise' with no discussion before. svn:ignore .settings  
-Unnecessary,  r390631 , jlaskowski , 2006-04-01 01:56:37 -0800 (Sat, 01 Apr 2006) , 3 lines  GERONIMO-1776 - Application migration to Maven 2: Demo Submitted by: Prasad Kashyap  
-Unnecessary,  r390634 , jlaskowski , 2006-04-01 01:59:07 -0800 (Sat, 01 Apr 2006) , 3 lines  GERONIMO-1777 - Application migration to Maven 2: JMXDebug Submitted by: Prasad Kashyap  
-Unnecessary,  r390636 , jlaskowski , 2006-04-01 02:03:32 -0800 (Sat, 01 Apr 2006) , 3 lines  GERONIMO-1780 - Application migration to Maven 2: ldap-realm, remote-deploy, uddi, welcome Submitted by: Prasad Kashyap  
-Unnecessary,  r390638 , jlaskowski , 2006-04-01 02:07:59 -0800 (Sat, 01 Apr 2006) , 3 lines  GERONIMO-1785 - Application migration to Maven 2: magicGball Submitted by: Prasad Kashyap  
-Not Merged,  r390662 , jlaskowski , 2006-04-01 04:46:02 -0800 (Sat, 01 Apr 2006) , 2 lines  Enable M2 to be able to run in applications. Previously, there were some bizzare changes that duplicated content of several files.  
-Not Merged,  r390687 , ammulder , 2006-04-01 07:54:02 -0800 (Sat, 01 Apr 2006) , 6 lines  Now one Geronimo server can pull configurations from another  - Expose the contents of the Geronimo config-store & repository as a Maven    repository.  - Add an authentication option to the import configuration process.  - Switch the configuration descriptor file to XML and add more detail  
-Not Merged,  r390688 , ammulder , 2006-04-01 08:08:34 -0800 (Sat, 01 Apr 2006) , 3 lines  Don't show configurations where the current server doesn't meet the   prerequisites  
-Not Merged,  r390690 , ammulder , 2006-04-01 08:11:22 -0800 (Sat, 01 Apr 2006) , 2 lines  Only prompt for eligible configurations at the command line  
-Not Merged,  r390692 , ammulder , 2006-04-01 08:23:13 -0800 (Sat, 01 Apr 2006) , 3 lines  Only count configurations as eligible for installation if there's a match   on the Geronimo version  
-Unnecessary,  r391214 , chirino , 2006-04-03 19:42:50 -0700 (Mon, 03 Apr 2006) , 2 lines  added missing dependencies (would only notice if you were doing a build with a clean repo)  
-Not Merged,  r391699 , jgenender , 2006-04-05 11:39:33 -0700 (Wed, 05 Apr 2006) , 1 line  Reset the current caller in the before afters 
-Unnecessary,  r393628 , jlaskowski , 2006-04-12 15:15:04 -0700 (Wed, 12 Apr 2006) , 2 lines  Ignore .settings  
-Unnecessary,  r393629 , jlaskowski , 2006-04-12 15:18:47 -0700 (Wed, 12 Apr 2006) , 4 lines  GERONIMO-1730 - Module migration to Maven 2: interop  Work in progress: there's Ant's build.xml file to migrate yet  
-Unnecessary,  r393787 , jlaskowski , 2006-04-13 04:34:08 -0700 (Thu, 13 Apr 2006) , 5 lines  GERONIMO-1660 - Application migration to Maven 2: Console Submitted by: Prasad Kashyap  Now, we need to ensure the changes for the previous console dirs are applied to the directory, too. We will also have to ask the console developers to start using the directory rather than the previous ones (applications/console-*)  
-Unnecessary,  r394032 , jdillon , 2006-04-13 23:37:41 -0700 (Thu, 13 Apr 2006) , 4 lines   Use pluginManagement to specify the surefire plugin version  Don't use the -SNAPSHOT the format of params to the jvm keeps changing too much   
-Not Merged,  r395886 , hogstrom , 2006-04-21 06:54:11 -0700 (Fri, 21 Apr 2006) , 1 line  GERONIMO-1844 Precompile jsp pages in console - Added the MergeXML.java from the patch 
-Unnecessary,  r395903 , rickmcguire , 2006-04-21 07:42:25 -0700 (Fri, 21 Apr 2006) , 1 line  Jira GERONIMO-1881 removing obsolete interop module 
-Merged,  r396194 , gdamour , 2006-04-22 18:56:21 -0700 (Sat, 22 Apr 2006) , 3 lines  GERONIMO-1871 Unable to deploy Tapestry app due to classloading issue  The CL to be used is the Geronimo one and not the WebappClassLoader created by Tomcat. 
-Not Merged,  r398879 , rickmcguire , 2006-05-02 02:33:47 -0700 (Tue, 02 May 2006) , 4 lines  GERONIMO-1965 Fix GBean to configure proper protocol mail properties.     
-Unnecessary,  r409123 , hogstrom , 2006-05-24 03:35:20 -0700 (Wed, 24 May 2006) , 2 lines  Saving Trunk for later harvesting as part of GERONIMO-2053  
-Unnecessary,  r409138 , hogstrom , 2006-05-24 04:12:32 -0700 (Wed, 24 May 2006) , 1 line  Updated dead-1.2 to help people from accidentally building from here 
-Merged,  r409800 , jsisson , 2006-05-26 19:36:06 -0700 (Fri, 26 May 2006) , 1 line  fix svn eol-style 
-Merged,  r409801 , jsisson , 2006-05-26 19:40:54 -0700 (Fri, 26 May 2006) , 1 line  fix svn eol-style 
-Merged,  r409802 , jsisson , 2006-05-26 19:48:00 -0700 (Fri, 26 May 2006) , 1 line  fix svn eol-style 
- 
+Not Merged,  r387174 , jlaskowski , 2006-03-20 01:47:23 -0800 (Mon, 20 Mar 2006) , 1 line  Fix the failing SecurityTest and add resources to svn:ignore
+Not Merged,  r387197 , jlaskowski , 2006-03-20 04:20:28 -0800 (Mon, 20 Mar 2006) , 1 line  Fix the remaining inappropriately-migrated tests
+Unnecessary,  r387216 , jlaskowski , 2006-03-20 07:00:28 -0800 (Mon, 20 Mar 2006) , 3 lines  GERONIMO-1753 - Add support for a mail.nntp.from property to configure the default From: address for NNTP posts Submitted by: Rick McGuire
+Merged,  r387218 , jlaskowski , 2006-03-20 07:12:37 -0800 (Mon, 20 Mar 2006) , 3 lines  GERONIMO-1754 - Add GBeans for configuring NNTPTransport and NNTPStore access Submitted by: Rick McGuire
+Unnecessary,  r387275 , jlaskowski , 2006-03-20 10:56:44 -0800 (Mon, 20 Mar 2006) , 3 lines  GERONIMO-1732 - Module migration to Maven 2: jetty-builder Submitted by: Prasad Kashyap
+Merged,  r387533 , jlaskowski , 2006-03-21 06:14:15 -0800 (Tue, 21 Mar 2006) , 3 lines  GERONIMO-1754 - Add GBeans for configuring NNTPTransport and NNTPStore access Submitted by: Rick McGuire
+Not Merged,  r388236 , ammulder , 2006-03-23 11:20:22 -0800 (Thu, 23 Mar 2006) , 8 lines  Console enhancements  - a new portlet to help configure Apache HTTP via mod_jk  - start of a new keystore management portlet that can handle multiple    keystores Geronimo improvements as necesary to support those  - new Keystore GBeans  - more logic around parent/child module relationships
+Not Merged,  r388257 , ammulder , 2006-03-23 12:12:17 -0800 (Thu, 23 Mar 2006) , 2 lines  Move the default keystore into the new keystores/ directory
+Unnecessary,  r388258 , ammulder , 2006-03-23 12:14:36 -0800 (Thu, 23 Mar 2006) , 2 lines  Add keystores/ directory to non-J2EE assemblies
+Unnecessary,  r388259 , ammulder , 2006-03-23 12:16:18 -0800 (Thu, 23 Mar 2006) , 2 lines  Move the default keystores in to the new directory for non-J2EE assemblies
+Not Merged,  r388275 , hogstrom , 2006-03-23 13:27:42 -0800 (Thu, 23 Mar 2006) , 1 line  Updated derby.txt to point to correct ddl
+Not Merged,  r388671 , ammulder , 2006-03-24 15:01:45 -0800 (Fri, 24 Mar 2006) , 2 lines  Console can export and download configuration CARs
+Not Merged,  r388832 , ammulder , 2006-03-25 13:11:55 -0800 (Sat, 25 Mar 2006) , 3 lines  Move the configuration download and install logic from the console   into a GBean
+Not Merged,  r388868 , ammulder , 2006-03-25 17:09:54 -0800 (Sat, 25 Mar 2006) , 4 lines  Configuration installer works from the command line  - use deploy tool argument install-configs and pass the Maven repo URL    as an argument
+Not Merged,  r389206 , ammulder , 2006-03-27 09:43:21 -0800 (Mon, 27 Mar 2006) , 8 lines  Use the new keystore manager to manage the default keystore distributed   with Geronimo. Update the Jetty HTTPS connector to be configured by the keystore manager   instead of by hardcoding files, passwords, etc. Update the console to allow unlocking a keystore and private key for use,   and to make the create Jetty HTTPS connector configuration select from   the available keystores (still need edit support)
+Not Merged,  r389296 , jgenender , 2006-03-27 13:50:11 -0800 (Mon, 27 Mar 2006) , 1 line  GERONIMO-1705 and GERONIMO-973
+Unnecessary,  r389311 , chirino , 2006-03-27 14:19:34 -0800 (Mon, 27 Mar 2006) , 2 lines  The build was not working without the corba dependency.
+Not Merged,  r389341 , chirino , 2006-03-27 17:08:39 -0800 (Mon, 27 Mar 2006) , 5 lines  - Upgrading ActiveMQ from 3.2.1 to 4.0-SNAPSHOT.   On the next versioned release (RC2), we should switch to using that. - One of DLQ console portlet will not work anymore :( - A 3.2.1 copy of activemq-core is being brought in because OpenEJB is using WADI which still depends on 3.2.1
+Not Merged,  r389577 , jgenender , 2006-03-28 11:01:53 -0800 (Tue, 28 Mar 2006) , 1 line  Add patch for IE browser
+Not Merged,  r389606 , jgenender , 2006-03-28 13:24:04 -0800 (Tue, 28 Mar 2006) , 2 lines  Change rounding to make download value zero based.
+Not Merged,  r389626 , kevan , 2006-03-28 15:22:33 -0800 (Tue, 28 Mar 2006) , 1 line  Initial import.
+Not Merged,  r389627 , kevan , 2006-03-28 15:22:37 -0800 (Tue, 28 Mar 2006) , 1 line  Initial import.
+Not Merged,  r389629 , kevan , 2006-03-28 15:42:06 -0800 (Tue, 28 Mar 2006) , 1 line  Remove geronimo-commonj -- was trying out the Eclipse svn plug-in and the plugin got a bit too ambitious...
+Not Merged,  r389653 , kevan , 2006-03-28 17:59:49 -0800 (Tue, 28 Mar 2006) , 1 line  Commit initial implementation of Commonj Timer API from GERONIMO-1553
+Unnecessary,  r389655 , kevan , 2006-03-28 18:12:06 -0800 (Tue, 28 Mar 2006) , 1 line  Add dependency version for commonj spec jar
+Not Merged,  r389664 , jgenender , 2006-03-28 19:49:33 -0800 (Tue, 28 Mar 2006) , 1 line  GERONIMO-1788 - allow to disable cookies in web application
+Unnecessary,  r390515 , jlaskowski , 2006-03-31 13:58:42 -0800 (Fri, 31 Mar 2006) , 3 lines  GERONIMO-1796 - Improve SMTP transport debug trace output Submitted by: Rick McGuire
+Unnecessary,  r390520 , jlaskowski , 2006-03-31 14:07:07 -0800 (Fri, 31 Mar 2006) , 3 lines  GERONIMO-1798 - Bring NNTPStore and NNTPTransport to same level of debugging tracing added to SMTP Submitted by Rick McGuire
+Unnecessary,  r390523 , jlaskowski , 2006-03-31 14:20:22 -0800 (Fri, 31 Mar 2006) , 3 lines  GERONIMO-1765 - POP3 and NNTP messages should throw an exception if headers are modified Submitted by: Rick McGuire
+Unnecessary,  r390524 , jlaskowski , 2006-03-31 14:24:52 -0800 (Fri, 31 Mar 2006) , 2 lines  Formatting + import organizing
+Unnecessary,  r390546 , jlaskowski , 2006-03-31 16:03:23 -0800 (Fri, 31 Mar 2006) , 3 lines  GERONIMO-1755 - Restructure top-level pom Submitted by: Prasad Kashyap
+Unnecessary,  r390629 , jlaskowski , 2006-04-01 01:52:02 -0800 (Sat, 01 Apr 2006) , 6 lines  GERONIMO-1660 - Application migration to Maven 2: Console Submitted by: Prasad Kashyap  It contains only a part of the original patch since the remaining part (console.zip) made too much 'noise' with no discussion before. svn:ignore .settings
+Unnecessary,  r390631 , jlaskowski , 2006-04-01 01:56:37 -0800 (Sat, 01 Apr 2006) , 3 lines  GERONIMO-1776 - Application migration to Maven 2: Demo Submitted by: Prasad Kashyap
+Unnecessary,  r390634 , jlaskowski , 2006-04-01 01:59:07 -0800 (Sat, 01 Apr 2006) , 3 lines  GERONIMO-1777 - Application migration to Maven 2: JMXDebug Submitted by: Prasad Kashyap
+Unnecessary,  r390636 , jlaskowski , 2006-04-01 02:03:32 -0800 (Sat, 01 Apr 2006) , 3 lines  GERONIMO-1780 - Application migration to Maven 2: ldap-realm, remote-deploy, uddi, welcome Submitted by: Prasad Kashyap
+Unnecessary,  r390638 , jlaskowski , 2006-04-01 02:07:59 -0800 (Sat, 01 Apr 2006) , 3 lines  GERONIMO-1785 - Application migration to Maven 2: magicGball Submitted by: Prasad Kashyap
+Not Merged,  r390662 , jlaskowski , 2006-04-01 04:46:02 -0800 (Sat, 01 Apr 2006) , 2 lines  Enable M2 to be able to run in applications. Previously, there were some bizzare changes that duplicated content of several files.
+Not Merged,  r390687 , ammulder , 2006-04-01 07:54:02 -0800 (Sat, 01 Apr 2006) , 6 lines  Now one Geronimo server can pull configurations from another  - Expose the contents of the Geronimo config-store & repository as a Maven    repository.  - Add an authentication option to the import configuration process.  - Switch the configuration descriptor file to XML and add more detail
+Not Merged,  r390688 , ammulder , 2006-04-01 08:08:34 -0800 (Sat, 01 Apr 2006) , 3 lines  Don't show configurations where the current server doesn't meet the   prerequisites
+Not Merged,  r390690 , ammulder , 2006-04-01 08:11:22 -0800 (Sat, 01 Apr 2006) , 2 lines  Only prompt for eligible configurations at the command line
+Not Merged,  r390692 , ammulder , 2006-04-01 08:23:13 -0800 (Sat, 01 Apr 2006) , 3 lines  Only count configurations as eligible for installation if there's a match   on the Geronimo version
+Unnecessary,  r391214 , chirino , 2006-04-03 19:42:50 -0700 (Mon, 03 Apr 2006) , 2 lines  added missing dependencies (would only notice if you were doing a build with a clean repo)
+Not Merged,  r391699 , jgenender , 2006-04-05 11:39:33 -0700 (Wed, 05 Apr 2006) , 1 line  Reset the current caller in the before afters
+Unnecessary,  r393628 , jlaskowski , 2006-04-12 15:15:04 -0700 (Wed, 12 Apr 2006) , 2 lines  Ignore .settings
+Unnecessary,  r393629 , jlaskowski , 2006-04-12 15:18:47 -0700 (Wed, 12 Apr 2006) , 4 lines  GERONIMO-1730 - Module migration to Maven 2: interop  Work in progress: there's Ant's build.xml file to migrate yet
+Unnecessary,  r393787 , jlaskowski , 2006-04-13 04:34:08 -0700 (Thu, 13 Apr 2006) , 5 lines  GERONIMO-1660 - Application migration to Maven 2: Console Submitted by: Prasad Kashyap  Now, we need to ensure the changes for the previous console dirs are applied to the directory, too. We will also have to ask the console developers to start using the directory rather than the previous ones (applications/console-*)
+Unnecessary,  r394032 , jdillon , 2006-04-13 23:37:41 -0700 (Thu, 13 Apr 2006) , 4 lines   Use pluginManagement to specify the surefire plugin version  Don't use the -SNAPSHOT the format of params to the jvm keeps changing too much
+Not Merged,  r395886 , hogstrom , 2006-04-21 06:54:11 -0700 (Fri, 21 Apr 2006) , 1 line  GERONIMO-1844 Precompile jsp pages in console - Added the MergeXML.java from the patch
+Unnecessary,  r395903 , rickmcguire , 2006-04-21 07:42:25 -0700 (Fri, 21 Apr 2006) , 1 line  Jira GERONIMO-1881 removing obsolete interop module
+Merged,  r396194 , gdamour , 2006-04-22 18:56:21 -0700 (Sat, 22 Apr 2006) , 3 lines  GERONIMO-1871 Unable to deploy Tapestry app due to classloading issue  The CL to be used is the Geronimo one and not the WebappClassLoader created by Tomcat.
+Merged,  r398879 , rickmcguire , 2006-05-02 02:33:47 -0700 (Tue, 02 May 2006) , 4 lines  GERONIMO-1965 Fix GBean to configure proper protocol mail properties.
+Unnecessary,  r409123 , hogstrom , 2006-05-24 03:35:20 -0700 (Wed, 24 May 2006) , 2 lines  Saving Trunk for later harvesting as part of GERONIMO-2053
+Unnecessary,  r409138 , hogstrom , 2006-05-24 04:12:32 -0700 (Wed, 24 May 2006) , 1 line  Updated dead-1.2 to help people from accidentally building from here
+Merged,  r409800 , jsisson , 2006-05-26 19:36:06 -0700 (Fri, 26 May 2006) , 1 line  fix svn eol-style
+Merged,  r409801 , jsisson , 2006-05-26 19:40:54 -0700 (Fri, 26 May 2006) , 1 line  fix svn eol-style
+Merged,  r409802 , jsisson , 2006-05-26 19:48:00 -0700 (Fri, 26 May 2006) , 1 line  fix svn eol-style
+
