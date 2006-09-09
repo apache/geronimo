@@ -191,6 +191,22 @@ public class HttpsConnectorGBean extends ConnectorGBean implements TomcatSecureC
         connector.setAttribute("clientAuth", new Boolean(clientCert));
     }
 
+    /**
+     * Gets a comma seperated list of the encryption ciphers that may be used. If not
+     * specified, then any available cipher may be used.
+     */
+     public String getCiphers() {
+        return (String)connector.getAttribute("ciphers");
+    }
+
+    /**
+     * Sets a comma seperated list of the encryption ciphers that may be used. If not
+     * specified, then any available cipher may be used.
+     */
+     public void setCiphers(String ciphers) {
+        connector.setAttribute("ciphers", ciphers);
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -206,6 +222,7 @@ public class HttpsConnectorGBean extends ConnectorGBean implements TomcatSecureC
         infoFactory.addAttribute("keystoreType", String.class, true, true);
         infoFactory.addAttribute("truststoreType", String.class, true, true);
         infoFactory.addAttribute("clientAuthRequired", boolean.class, true, true);
+        infoFactory.addAttribute("ciphers", String.class, true, true);
         infoFactory.addInterface(TomcatSecureConnector.class);
 
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");

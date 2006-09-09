@@ -50,4 +50,16 @@ public interface TomcatSecureConnector extends SecureConnector {
      * PCKS12 (and possibly other formats).
      */
     public void setTruststoreType(String type);
+
+    /**
+     * Gets a comma seperated list of the encryption ciphers that may be used. If not
+     * specified, then any available cipher may be used.
+     */
+    public String getCiphers();
+
+    /**
+     * Sets a comma seperated list of the encryption ciphers that may be used. If not
+     * specified, then any available cipher may be used.
+     */
+    public void setCiphers(String ciphers);
 }
