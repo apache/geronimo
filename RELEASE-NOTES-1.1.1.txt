@@ -52,6 +52,11 @@ If you prefer to start the server without a script file you can simply type:
 
 java -jar <geronimo_home>/bin/server.jar
 
+For server distributions that are J2EE certified a management console is 
+available.  Minimal Geronimo distributions do not have the console pre-installed.
+The following instructions regarding the console are for J2EE certified
+distributions.
+
 Once the server has started, you can access the Geronimo Administration Console
 at http://localhost:8080/console/ . The default user name is "system" and the 
 default password is "manager".
