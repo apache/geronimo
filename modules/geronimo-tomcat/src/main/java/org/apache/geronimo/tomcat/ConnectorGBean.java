@@ -553,6 +553,22 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
         return Integer.parseInt(value.toString());
     }
 
+    public void setServer(String server) {
+        connector.setAttribute("server", server);
+    }
+
+    public String getServer() {
+        return (String) connector.getAttribute("server");
+    }
+
+    public void setStrategy(String strategy) {
+        connector.setAttribute("strategy", strategy);
+    }
+
+    public String getStrategy() {
+        return (String) connector.getAttribute("strategy");
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -596,7 +612,9 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
                         "compression",
                         "noCompressionUserAgents",
                         "restrictedUserAgents",
-                        "threadPriority"
+                        "threadPriority",
+                        "server",
+                        "strategy"
                 },
 
                 new String[]{

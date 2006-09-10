@@ -58,4 +58,8 @@ public interface TomcatWebConnector extends WebConnector {
     public String getRestrictedUserAgents();
     public void setThreadPriority(int threadPriority);
     public int getThreadPriority();
+    public void setServer(String server);
+    public String getServer();
+    public void setStrategy(String strategy);
+    public String getStrategy();
 }
