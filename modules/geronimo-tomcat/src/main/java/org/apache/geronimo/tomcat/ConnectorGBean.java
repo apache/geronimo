@@ -456,6 +456,118 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
         connector.setAttribute("useBodyEncodingForURI", new Boolean(enabled));
     }
 
+    public void setAllowTrace(boolean allow) {
+        connector.setAllowTrace(allow);
+    }
+
+    public boolean getAllowTrace() {
+        return connector.getAllowTrace();
+    }
+
+    public void setProxyName(String proxyName) {
+        connector.setProxyName(proxyName);
+    }
+
+    public String getProxyName() {
+        return connector.getProxyName();
+    }
+
+    public void setProxyPort(int port) {
+        connector.setProxyPort(port);
+    }
+
+    public int getProxyPort() {
+        return connector.getProxyPort();
+    }
+
+    public void setScheme(String scheme) {
+        connector.setScheme(scheme);
+    }
+
+    public String getSceme() {
+        return connector.getScheme();
+    }
+
+    public void setUriEncoding(String encoding) {
+        connector.setURIEncoding(encoding);
+    }
+
+    public String getUriEncoding() {
+        return connector.getURIEncoding();
+    }
+
+    public void setUseIPVHosts(boolean useIPVHosts) {
+        connector.setUseIPVHosts(useIPVHosts);
+    }
+
+    public boolean getUseIPVHosts() {
+        return connector.getUseIPVHosts();
+    }
+
+    public void setXpoweredBy(boolean xpoweredBy) {
+        connector.setXpoweredBy(xpoweredBy);
+    }
+
+    public boolean getXpoweredBy() {
+        return connector.getXpoweredBy();
+    }
+
+    public void setCompressableMimeType(String compressableMimeType) {
+        connector.setAttribute("compressableMimeType", compressableMimeType);
+    }
+
+    public String getCompressableMimeType() {
+        return (String) connector.getAttribute("compressableMimeType");
+    }
+
+    public void setCompression(String compression) {
+        connector.setAttribute("compression", compression);
+    }
+
+    public String getCompression() {
+        return (String) connector.getAttribute("compression");
+    }
+
+    public void setNoCompressionUserAgents(String noCompressionUserAgents) {
+        connector.setAttribute("noCompressionUserAgents", noCompressionUserAgents);
+    }
+
+    public String getNoCompressionUserAgents() {
+        return (String) connector.getAttribute("noCompressionUserAgents");
+    }
+
+    public void setRestrictedUserAgents(String restrictedUserAgents) {
+        connector.setAttribute("restrictedUserAgents", restrictedUserAgents);
+    }
+
+    public String getRestrictedUserAgents() {
+        return (String) connector.getAttribute("restrictedUserAgents");
+    }
+
+    public void setThreadPriority(int threadPriority) {
+        connector.setAttribute("threadPriority", new Integer(threadPriority));
+    }
+
+    public int getThreadPriority() {
+        Object value = connector.getAttribute("threadPriority");
+        return Integer.parseInt(value.toString());
+    }
+
+    public void setServer(String server) {
+        connector.setAttribute("server", server);
+    }
+
+    public String getServer() {
+        return (String) connector.getAttribute("server");
+    }
+
+    public void setStrategy(String strategy) {
+        connector.setAttribute("strategy", strategy);
+    }
+
+    public String getStrategy() {
+        return (String) connector.getAttribute("strategy");
+    }
 
     public static final GBeanInfo GBEAN_INFO;
 
@@ -465,8 +577,51 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
         infoFactory.addAttribute("protocol", String.class, true);
         infoFactory.addReference(CONNECTOR_CONTAINER_REFERENCE, TomcatContainer.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addOperation("getInternalObject");
-        infoFactory.addInterface(TomcatWebConnector.class, new String[]{"host","port","bufferSizeBytes","maxThreads","acceptQueueSize","lingerMillis","tcpNoDelay","redirectPort","minSpareThreads","maxSpareThreads","maxHttpHeaderSizeBytes","hostLookupEnabled","connectionTimeoutMillis","uploadTimeoutEnabled","connectUrl","maxPostSize","maxSavePostSize","emptySessionPath", "maxKeepAliveRequests", "socketBuffer", "useBodyEncodingForURI"},
-                                                           new String[]{"host","port","redirectPort","maxThreads"});
+        infoFactory.addInterface(TomcatWebConnector.class,
+                new String[]{
+                        "host",
+                        "port",
+                        "bufferSizeBytes",
+                        "maxThreads",
+                        "acceptQueueSize",
+                        "lingerMillis",
+                        "tcpNoDelay",
+                        "redirectPort",
+                        "minSpareThreads",
+                        "maxSpareThreads",
+                        "maxHttpHeaderSizeBytes",
+                        "hostLookupEnabled",
+                        "connectionTimeoutMillis",
+                        "uploadTimeoutEnabled",
+                        "connectUrl",
+                        "maxPostSize",
+                        "maxSavePostSize",
+                        "emptySessionPath",
+                        "maxKeepAliveRequests",
+                        "socketBuffer",
+                        "useBodyEncodingForURI",
+                        "allowTrace",
+                        "proxyName",
+                        "proxyPort",
+                        "scheme",
+                        "secure",
+                        "uriEncoding",
+                        "useIPVHosts",
+                        "xpoweredBy",
+                        "compressableMimeType",
+                        "compression",
+                        "noCompressionUserAgents",
+                        "restrictedUserAgents",
+                        "threadPriority",
+                        "server",
+                        "strategy"
+                },
+
+                new String[]{
+                        "host",
+                        "port",
+                        "redirectPort",
+                        "maxThreads"});
         infoFactory.setConstructor(new String[] { "name", "protocol", "host", "port", "TomcatContainer"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

@@ -81,7 +81,7 @@ public class MailGBeanTest extends TestCase {
         properties.put("mail.transport.protocol", "BEAR");
         properties.put("mail.smtp.ehlo", "true");
 
-        SMTPTransportGBean protocol = new SMTPTransportGBean("test:name=smtp", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+        SMTPTransportGBean protocol = new SMTPTransportGBean("test:name=smtp", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
         protocol.doStart();
 
         MailGBean mail = new MailGBean("test:name=mail", Collections.singleton(protocol), Boolean.TRUE, properties, null, "test", "test", null, null, null);

@@ -35,6 +35,29 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
  */
 public class ProtocolGBean implements GBeanLifecycle {
 
+    // common attributes exported by all ProtocolBeans
+    static public final String GBEAN_OBJECTNAME = "objectName";
+    static public final String GBEAN_PROTOCOL = "protocol";
+    static public final String GBEAN_PROPERTIES = "properties";
+    static public final String GBEAN_HOST = "host";
+    static public final String GBEAN_USER = "user";
+    static public final String GBEAN_ADD_OVERRIDES = "addOverrides";
+
+    // common constants for GBEAN properties that are used by a number of transports.
+    static public final String GBEAN_PORT = "port";
+    static public final String GBEAN_CONNECTION_TIMEOUT = "connectionTimeout";
+    static public final String GBEAN_TIMEOUT = "timeout";
+    static public final String GBEAN_FROM = "from";
+    static public final String GBEAN_AUTH = "auth";
+    static public final String GBEAN_REALM = "saslRealm";
+    static public final String GBEAN_QUITWAIT = "quitWait";
+    static public final String GBEAN_FACTORY_CLASS = "socketFactoryClass";
+    static public final String GBEAN_FACTORY_FALLBACK = "socketFactoryFallback";
+    static public final String GBEAN_FACTORY_PORT = "socketFactoryPort";
+    static public final String GBEAN_LOCALHOST = "localhost";
+    static public final String GBEAN_LOCALADDRESS = "localaddress";
+    static public final String GBEAN_LOCALPORT = "localport";
+
     private final Log log = LogFactory.getLog(ProtocolGBean.class);
 
     private final String objectName;
@@ -167,14 +190,14 @@ public class ProtocolGBean implements GBeanLifecycle {
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(ProtocolGBean.class); //TODO just a gbean?
 
-        infoFactory.addAttribute("objectName", String.class, false);
-        infoFactory.addAttribute("protocol", String.class, true);
-        infoFactory.addAttribute("properties", Properties.class, true);
-        infoFactory.addAttribute("host", String.class, true);
-        infoFactory.addAttribute("user", String.class, true);
-        infoFactory.addOperation("addOverrides", new Class[]{Properties.class});
+        infoFactory.addAttribute(GBEAN_OBJECTNAME, String.class, false);
+        infoFactory.addAttribute(GBEAN_PROTOCOL, String.class, true);
+        infoFactory.addAttribute(GBEAN_PROPERTIES, Properties.class, true);
+        infoFactory.addAttribute(GBEAN_HOST, String.class, true);
+        infoFactory.addAttribute(GBEAN_USER, String.class, true);
+        infoFactory.addOperation(GBEAN_ADD_OVERRIDES, new Class[]{Properties.class});
 
-        infoFactory.setConstructor(new String[]{"objectName", "protocol", "properties", "host", "user"});
+        infoFactory.setConstructor(new String[]{GBEAN_OBJECTNAME, GBEAN_PROTOCOL, GBEAN_PROPERTIES, GBEAN_HOST, GBEAN_USER});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

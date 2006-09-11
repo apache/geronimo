@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2006 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -36,31 +36,31 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
  * @version $Rev$ $Date$
  * @see MailGBean
  */
-public class SMTPTransportGBean extends ProtocolGBean {
+public class SMTPSTransportGBean extends ProtocolGBean {
 
-    // the SMTP configuration property names
-    static public final String SMTP_PORT = "mail.smtp.port";
-    static public final String SMTP_CONNECTION_TIMEOUT = "mail.smtp.connectiontimeout";
-    static public final String SMTP_TIMEOUT = "mail.smtp.timeout";
-    static public final String SMTP_FROM = "mail.smtp.from";
-    static public final String SMTP_AUTH = "mail.smtp.auth";
-    static public final String SMTP_REALM = "mail.smtp.sasl.realm";
-    static public final String SMTP_QUITWAIT = "mail.smtp.quitwait";
-    static public final String SMTP_FACTORY_CLASS = "mail.smtp.socketFactory.class";
-    static public final String SMTP_FACTORY_FALLBACK = "mail.smtp.socketFactory.fallback";
-    static public final String SMTP_FACTORY_PORT = "mail.smtp.socketFactory.port";
-    static public final String SMTP_LOCALHOST = "mail.smtp.localhost";
-    static public final String SMTP_LOCALADDRESS = "mail.smtp.localaddress";
-    static public final String SMTP_LOCALPORT = "mail.smtp.localport";
-    static public final String SMTP_EHLO = "mail.smtp.ehlo";
-    static public final String SMTP_SUBMITTER = "mail.smtp.submitter";
-    static public final String SMTP_DSN_NOTIFY = "mail.smtp.dsn.notify";
-    static public final String SMTP_DSN_RET = "mail.smtp.dsn.ret";
-    static public final String SMTP_8BITMIME = "mail.smtp.allow8bitmime";
-    static public final String SMTP_SEND_PARTIAL = "mail.smtp.sendpartial";
-    static public final String SMTP_REPORT_SUCCESS = "mail.smtp.reportsuccess";
-    static public final String SMTP_MAIL_EXTENSION = "mail.smtp.mailextension";
-    static public final String SMTP_STARTTLS_ENABLE = "mail.smtp.starttls.enable";
+    // the SMTPS configuration property names
+    static public final String SMTPS_PORT = "mail.smtp.port";
+    static public final String SMTPS_CONNECTION_TIMEOUT = "mail.smtp.connectiontimeout";
+    static public final String SMTPS_TIMEOUT = "mail.smtp.timeout";
+    static public final String SMTPS_FROM = "mail.smtp.from";
+    static public final String SMTPS_AUTH = "mail.smtp.auth";
+    static public final String SMTPS_REALM = "mail.smtp.sasl.realm";
+    static public final String SMTPS_QUITWAIT = "mail.smtp.quitwait";
+    static public final String SMTPS_FACTORY_CLASS = "mail.smtp.socketFactory.class";
+    static public final String SMTPS_FACTORY_FALLBACK = "mail.smtp.socketFactory.fallback";
+    static public final String SMTPS_FACTORY_PORT = "mail.smtp.socketFactory.port";
+    static public final String SMTPS_LOCALHOST = "mail.smtp.localhost";
+    static public final String SMTPS_LOCALADDRESS = "mail.smtp.localaddress";
+    static public final String SMTPS_LOCALPORT = "mail.smtp.localport";
+    static public final String SMTPS_EHLO = "mail.smtp.ehlo";
+    static public final String SMTPS_SUBMITTER = "mail.smtp.submitter";
+    static public final String SMTPS_DSN_NOTIFY = "mail.smtp.dsn.notify";
+    static public final String SMTPS_DSN_RET = "mail.smtp.dsn.ret";
+    static public final String SMTPS_8BITMIME = "mail.smtp.allow8bitmime";
+    static public final String SMTPS_SEND_PARTIAL = "mail.smtp.sendpartial";
+    static public final String SMTPS_REPORT_SUCCESS = "mail.smtp.reportsuccess";
+    static public final String SMTPS_MAIL_EXTENSION = "mail.smtp.mailextension";
+    static public final String SMTPS_STARTTLS_ENABLE = "mail.smtp.starttls.enable";
 
     static public final String GBEAN_EHLO = "ehlo";
     static public final String GBEAN_SUBMITTER = "submitter";
@@ -70,10 +70,9 @@ public class SMTPTransportGBean extends ProtocolGBean {
     static public final String GBEAN_SEND_PARTIAL = "sendPartical";
     static public final String GBEAN_REPORT_SUCCESS = "reportSuccess";
     static public final String GBEAN_MAIL_EXTENSION = "mailExtension";
-static public final String GBEAN_STARTTLS_ENABLE = "startTLSEnable";
+    static public final String GBEAN_STARTTLS_ENABLE = "startTLSEnable";
 
-
-    private final Log log = LogFactory.getLog(SMTPTransportGBean.class);
+    private final Log log = LogFactory.getLog(SMTPSTransportGBean.class);
 
     private Integer port;
     private Integer connectionTimeout;
@@ -100,7 +99,7 @@ static public final String GBEAN_STARTTLS_ENABLE = "startTLSEnable";
 
 
     /**
-     * Construct an instance of SMTPTransportGBean
+     * Construct an instance of SMTPSTransportGBean
      * <p/>
      * Values that are set in the individual member variables will override any of
      * the corresponding values that have been set in the properties set.
@@ -109,13 +108,13 @@ static public final String GBEAN_STARTTLS_ENABLE = "startTLSEnable";
      * @param properties            the set of default properties for the protocol
      * @param host                  the host the protocol connects to
      * @param user                  the default name for the protocol
-     * @param port                  the SMTP server port
+     * @param port                  the SMTPS server port
      * @param connectionTimeout     the socket connection timeout value in milliseconds
      * @param timeout               the socket I/O timeout value in milliseconds
-     * @param from                  the email address to use for SMTP MAIL command
-     * @param localhost             the local host name used in the SMTP HELO or EHLO command
-     * @param localaddress          the local address (host name) to bind to when creating the SMTP socket
-     * @param localport             the local port number to bind to when creating the SMTP socket
+     * @param from                  the email address to use for SMTPS MAIL command
+     * @param localhost             the local host name used in the SMTPS HELO or EHLO command
+     * @param localaddress          the local address (host name) to bind to when creating the SMTPS socket
+     * @param localport             the local port number to bind to when creating the SMTPS socket
      * @param ehlo                  whether an attempt will be made to sign on with the EHLO command
      * @param auth                  whether an attempt will be made to authenticate the user using
      *                              the AUTH command
@@ -130,14 +129,14 @@ static public final String GBEAN_STARTTLS_ENABLE = "startTLSEnable";
      * @param quitWait              whether the transport will wait for the response to the QUIT command
      * @param reportSuccess         whether the transport will include an SMTPAddressSucceededException
      *                              for each address that is successful
-     * @param socketFactoryClass    the class that will be used to create SMTP sockets
+     * @param socketFactoryClass    the class that will be used to create SMTPS sockets
      * @param socketFactoryFallback whether java.net.Socket class will be created if the specified
      *                              socket factory class cannot be created
      * @param socketFactoryPort     whether java.net.Socket class will be created if the specified
      *                              socket factory class cannot be created
      * @param mailExtension         the extension string to append to the MAIL command
      */
-    public SMTPTransportGBean(String objectName, Properties properties, String host, String user,
+    public SMTPSTransportGBean(String objectName, Properties properties, String host, String user,
                               Integer port,
                               Integer connectionTimeout,
                               Integer timeout,
@@ -160,7 +159,7 @@ static public final String GBEAN_STARTTLS_ENABLE = "startTLSEnable";
                               Boolean socketFactoryFallback,
                               Integer socketFactoryPort,
                               String mailExtension) {
-        super(objectName, "smtp", properties, host, user);
+        super(objectName, "smtps", properties, host, user);
 
         setPort(port);
         setConnectionTimeout(connectionTimeout);
@@ -768,28 +767,28 @@ static public final String GBEAN_STARTTLS_ENABLE = "startTLSEnable";
     public void addOverrides(Properties props) {
         super.addOverrides(props);
 
-        if (port != null) props.put(SMTP_PORT, port);
-        if (connectionTimeout != null) props.put(SMTP_CONNECTION_TIMEOUT, connectionTimeout);
-        if (timeout != null) props.put(SMTP_TIMEOUT, timeout);
-        if (from != null) props.put(SMTP_FROM, from);
-        if (localhost != null) props.put(SMTP_LOCALHOST, localhost);
-        if (localaddress != null) props.put(SMTP_LOCALADDRESS, localaddress);
-        if (localport != null) props.put(SMTP_LOCALPORT, localport);
-        if (ehlo != null) props.put(SMTP_EHLO, ehlo);
-        if (auth != null) props.put(SMTP_AUTH, auth);
-        if (startTLSEnable != null) props.put(SMTP_STARTTLS_ENABLE, startTLSEnable);
-        if (submitter != null) props.put(SMTP_SUBMITTER, submitter);
-        if (dsnNotify != null) props.put(SMTP_DSN_NOTIFY, dsnNotify);
-        if (dsnRet != null) props.put(SMTP_DSN_RET, dsnRet);
-        if (allow8bitmime != null) props.put(SMTP_8BITMIME, allow8bitmime);
-        if (sendPartial != null) props.put(SMTP_SEND_PARTIAL, sendPartial);
-        if (saslRealm != null) props.put(SMTP_REALM, saslRealm);
-        if (quitWait != null) props.put(SMTP_QUITWAIT, quitWait);
-        if (reportSuccess != null) props.put(SMTP_REPORT_SUCCESS, reportSuccess);
-        if (socketFactoryClass != null) props.put(SMTP_FACTORY_CLASS, socketFactoryClass);
-        if (socketFactoryFallback != null) props.put(SMTP_FACTORY_FALLBACK, socketFactoryFallback);
-        if (socketFactoryPort != null) props.put(SMTP_FACTORY_PORT, socketFactoryPort);
-        if (mailExtension != null) props.put(SMTP_MAIL_EXTENSION, mailExtension);
+        if (port != null) props.put(SMTPS_PORT, port);
+        if (connectionTimeout != null) props.put(SMTPS_CONNECTION_TIMEOUT, connectionTimeout);
+        if (timeout != null) props.put(SMTPS_TIMEOUT, timeout);
+        if (from != null) props.put(SMTPS_FROM, from);
+        if (localhost != null) props.put(SMTPS_LOCALHOST, localhost);
+        if (localaddress != null) props.put(SMTPS_LOCALADDRESS, localaddress);
+        if (localport != null) props.put(SMTPS_LOCALPORT, localport);
+        if (ehlo != null) props.put(SMTPS_EHLO, ehlo);
+        if (auth != null) props.put(SMTPS_AUTH, auth);
+        if (startTLSEnable != null) props.put(SMTPS_STARTTLS_ENABLE, startTLSEnable);
+        if (submitter != null) props.put(SMTPS_SUBMITTER, submitter);
+        if (dsnNotify != null) props.put(SMTPS_DSN_NOTIFY, dsnNotify);
+        if (dsnRet != null) props.put(SMTPS_DSN_RET, dsnRet);
+        if (allow8bitmime != null) props.put(SMTPS_8BITMIME, allow8bitmime);
+        if (sendPartial != null) props.put(SMTPS_SEND_PARTIAL, sendPartial);
+        if (saslRealm != null) props.put(SMTPS_REALM, saslRealm);
+        if (quitWait != null) props.put(SMTPS_QUITWAIT, quitWait);
+        if (reportSuccess != null) props.put(SMTPS_REPORT_SUCCESS, reportSuccess);
+        if (socketFactoryClass != null) props.put(SMTPS_FACTORY_CLASS, socketFactoryClass);
+        if (socketFactoryFallback != null) props.put(SMTPS_FACTORY_FALLBACK, socketFactoryFallback);
+        if (socketFactoryPort != null) props.put(SMTPS_FACTORY_PORT, socketFactoryPort);
+        if (mailExtension != null) props.put(SMTPS_MAIL_EXTENSION, mailExtension);
     }
 
     public void doStart() throws Exception {
@@ -807,7 +806,7 @@ static public final String GBEAN_STARTTLS_ENABLE = "startTLSEnable";
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(SMTPTransportGBean.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(SMTPSTransportGBean.class);
 
         infoFactory.addAttribute(GBEAN_PORT, Integer.class, true);
         infoFactory.addAttribute(GBEAN_CONNECTION_TIMEOUT, Integer.class, true);
@@ -871,3 +870,4 @@ static public final String GBEAN_STARTTLS_ENABLE = "startTLSEnable";
         return GBEAN_INFO;
     }
 }
+
