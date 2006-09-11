@@ -19,26 +19,19 @@ package org.apache.geronimo.jetty.deployment;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javax.management.ObjectName;
-import javax.naming.Reference;
-import javax.xml.namespace.QName;
 
 import org.apache.geronimo.testsupport.TestSupport;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean;
-import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.service.GBeanBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
@@ -49,13 +42,10 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
-import org.apache.geronimo.j2ee.deployment.EJBReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.deployment.RefContext;
-import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
-import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.UnavailableWebServiceBuilder;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
+import org.apache.geronimo.j2ee.deployment.NamingBuilderCollection;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.jetty.JettyContainerImpl;
@@ -121,6 +111,7 @@ public class JettyModuleBuilderTest extends TestSupport {
         AbstractName moduleName = module.getModuleName();
         EARContext earContext = createEARContext(outputPath, defaultEnvironment, repository, configStore, moduleName);
         module.setEarContext(earContext);
+        module.setRootEarContext(earContext);
         builder.initContext(earContext, module, cl);
         builder.addGBeans(earContext, module, cl, Collections.EMPTY_SET);
         ConfigurationData configurationData = earContext.getConfigurationData();
@@ -158,6 +149,7 @@ public class JettyModuleBuilderTest extends TestSupport {
         AbstractName moduleName = module.getModuleName();
         EARContext earContext = createEARContext(outputPath, defaultEnvironment, repository, configStore, moduleName);
         module.setEarContext(earContext);
+        module.setRootEarContext(earContext);
         builder.initContext(earContext, module, cl);
         builder.addGBeans(earContext, module, cl, Collections.EMPTY_SET);
         ConfigurationData configurationData = earContext.getConfigurationData();
@@ -195,59 +187,8 @@ public class JettyModuleBuilderTest extends TestSupport {
                 new AbstractNameQuery(ctcName),
                 null,
                 null,
-                null,
-                new RefContext(new EJBReferenceBuilder() {
-
-
-                    public Reference createCORBAReference(Configuration configuration, AbstractNameQuery containerNameQuery, URI nsCorbaloc, String objectName, String home) {
-                        return null;
-                    }
-
-                    public Reference createEJBRemoteRef(String refName, Configuration configuration, String name, String requiredModule, String optionalModule, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String home, String remote) {
-                        return null;
-                    }
-
-                    public Reference createEJBLocalRef(String refName, Configuration configuration, String name, String requiredModule, String optionalModule, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String localHome, String local) {
-                        return null;
-                    }
-
-                },
-                        new ResourceReferenceBuilder() {
-
-                            public Reference createResourceRef(AbstractNameQuery containerId, Class iface, Configuration configuration) {
-                                return null;
-                            }
-
-                            public Reference createAdminObjectRef(AbstractNameQuery containerId, Class iface, Configuration configuration) {
-                                return null;
-                            }
-
-                            public ObjectName locateResourceName(ObjectName query) {
-                                return null;
-                            }
-
-                            public GBeanData locateActivationSpecInfo(AbstractNameQuery nameQuery, String messageListenerInterface, Configuration configuration) {
-                                return null;
-                            }
-
-                            public GBeanData locateResourceAdapterGBeanData(GBeanData resourceAdapterModuleData) {
-                                return null;
-                            }
-
-                            public GBeanData locateAdminObjectInfo(GBeanData resourceAdapterModuleData, String adminObjectInterfaceName) {
-                                return null;
-                            }
-
-                            public GBeanData locateConnectionFactoryInfo(GBeanData resourceAdapterModuleData, String connectionFactoryInterfaceName) {
-                                return null;
-                            }
-                        },
-                        new ServiceReferenceBuilder() {
-                            //it could return a Service or a Reference, we don't care
-                            public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, Object serviceRefType, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) {
-                                return null;
-                            }
-                        }));
+                null
+        );
     }
 
     private void recursiveDelete(File path) {
@@ -324,7 +265,7 @@ public class JettyModuleBuilderTest extends TestSupport {
 
         defaultEnvironment.addDependency(baseId, ImportType.ALL);
         defaultEnvironment.setConfigId(webModuleArtifact);
-        builder = new JettyModuleBuilder(defaultEnvironment, new Integer(1800), Collections.EMPTY_LIST, new AbstractNameQuery(containerName), defaultServlets, defaultFilters, defaultFilterMappings, pojoWebServiceTemplate, Collections.singleton(webServiceBuilder), Collections.singleton(new GeronimoSecurityBuilderImpl()), Collections.singleton(new GBeanBuilder(null, null)), kernel);
+        builder = new JettyModuleBuilder(defaultEnvironment, new Integer(1800), Collections.EMPTY_LIST, new AbstractNameQuery(containerName), defaultServlets, defaultFilters, defaultFilterMappings, pojoWebServiceTemplate, Collections.singleton(webServiceBuilder), Collections.singleton(new GeronimoSecurityBuilderImpl()), Collections.singleton(new GBeanBuilder(null, null)), new NamingBuilderCollection(null, null), kernel);
     }
 
     protected void tearDown() throws Exception {

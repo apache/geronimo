@@ -36,9 +36,8 @@
     </xsd:annotation>
 
 
-    <xsd:element name="gbean-ref" type="gernaming:gbean-refType"/>
     <xsd:element name="ejb-ref" type="gernaming:ejb-refType"/>
-    <!--    <xsd:element name="ejb-local-ref" type="gernaming:ejb-local-refType"/>-->
+    <xsd:element name="ejb-local-ref" type="gernaming:ejb-local-refType"/>
     <xsd:element name="service-ref" type="gernaming:service-refType"/>
     <xsd:element name="resource-ref" type="gernaming:resource-refType"/>
     <xsd:element name="resource-env-ref" type="gernaming:resource-env-refType"/>
@@ -55,7 +54,7 @@
             </xsd:documentation>
         </xsd:annotation>
         <xsd:sequence>
-            <xsd:element name="gbean-ref" type="gernaming:gbean-refType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element ref="gernaming:abstract-naming-entry" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="ejb-ref" type="gernaming:ejb-refType" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="ejb-local-ref" type="gernaming:ejb-local-refType" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="service-ref" type="gernaming:service-refType" minOccurs="0" maxOccurs="unbounded"/>
@@ -64,6 +63,13 @@
                          maxOccurs="unbounded"/>
         </xsd:sequence>
     </xsd:group>
+
+    <xsd:element name="abstract-naming-entry" abstract="true" type="gernaming:abstract-naming-entryType"/>
+
+    <xsd:complexType name="abstract-naming-entryType" abstract="true">
+        <xsd:sequence>
+        </xsd:sequence>
+    </xsd:complexType>
 
     <!--ejb-link acts like ejb-link in spec descriptors-->
     <!--resource-link contains the name of the outbound-connectionfactory-instance -->
@@ -106,13 +112,53 @@
         </xsd:sequence>
     </xsd:complexType>
 
+    <xsd:element name="gbean-ref" type="gernaming:gbean-refType" substitutionGroup="gernaming:abstract-naming-entry"/>
+
     <xsd:complexType name="gbean-refType">
+        <xsd:complexContent>
+            <xsd:extension base="gernaming:abstract-naming-entryType">
+                <xsd:sequence>
+                    <xsd:element name="ref-name" type="xsd:string"/>
+                    <xsd:element name="ref-type" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+                    <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                        <xsd:element name="pattern" type="gernaming:patternType"/>
+                    </xsd:choice>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="persistence-context-ref" type="gernaming:persistence-context-refType"
+                 substitutionGroup="gernaming:abstract-naming-entry"/>
+
+    <xsd:complexType name="persistence-context-refType">
+        <xsd:complexContent>
+            <xsd:extension base="gernaming:abstract-naming-entryType">
+                <xsd:sequence>
+                    <xsd:element name="persistence-context-ref-name" type="xsd:string"/>
+                    <xsd:choice>
+                        <xsd:element name="persistence-unit-name" type="xsd:string"/>
+                        <xsd:element name="pattern" type="gernaming:patternType"/>
+                    </xsd:choice>
+                    <xsd:element name="persistence-context-type" type="gernaming:persistence-context-typeType"
+                                 minOccurs="0"/>
+                    <xsd:element name="property" type="gernaming:propertyType" minOccurs="0" maxOccurs="unbounded"/>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:simpleType name="persistence-context-typeType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="transaction-scoped"/>
+            <xsd:enumeration value="extended"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:complexType name="propertyType">
         <xsd:sequence>
-            <xsd:element name="ref-name" type="xsd:string"/>
-            <xsd:element name="ref-type" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
-            <xsd:choice minOccurs="0" maxOccurs="unbounded">
-                <xsd:element name="pattern" type="gernaming:patternType"/>
-            </xsd:choice>
+            <xsd:element name="key" type="xsd:string"/>
+            <xsd:element name="value" type="xsd:string"/>
         </xsd:sequence>
     </xsd:complexType>
 

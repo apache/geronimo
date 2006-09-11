@@ -42,7 +42,7 @@ import java.util.Collection;
 /**
  * @version $Rev:385692 $ $Date$
  */
-public class MockEJBConfigBuilder extends Assert implements ModuleBuilder, EJBReferenceBuilder {
+public class MockEJBConfigBuilder extends Assert implements ModuleBuilder {
     private EARContext earContext;
     private ClassLoader cl;
     public EJBModule ejbModule;
@@ -85,18 +85,6 @@ public class MockEJBConfigBuilder extends Assert implements ModuleBuilder, EJBRe
     }
 
     public String getSchemaNamespace() {
-        return null;
-    }
-
-    public Reference createCORBAReference(Configuration configuration, AbstractNameQuery containerNameQuery, URI nsCorbaloc, String objectName, String home) throws DeploymentException {
-        return null;
-    }
-
-    public Reference createEJBRemoteRef(String refName, Configuration configuration, String name, String requiredModule, String optionalModule, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String home, String remote) throws DeploymentException {
-        return null;
-    }
-
-    public Reference createEJBLocalRef(String refName, Configuration configuration, String name, String requiredModule, String optionalModule, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String localHome, String local) throws DeploymentException {
         return null;
     }
 

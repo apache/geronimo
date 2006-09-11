@@ -57,13 +57,12 @@ import org.apache.geronimo.axis.server.AxisWebServiceContainer;
 import org.apache.geronimo.axis.server.POJOProvider;
 import org.apache.geronimo.axis.server.ServiceInfo;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
+import org.apache.geronimo.j2ee.deployment.HandlerInfoInfo;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPortCompletionType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPortType;
@@ -77,7 +76,7 @@ import org.apache.geronimo.xbeans.j2ee.ServiceEndpointMethodMappingType;
 /**
  * @version $Rev$ $Date$
  */
-public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
+public class AxisBuilder implements WebServiceBuilder {
 //    private static final Class[] SERVICE_CONSTRUCTOR_TYPES = new Class[]{Map.class, Map.class};
 
     private static final SOAPConstants SOAP_VERSION = SOAPConstants.SOAP11_CONSTANTS;
@@ -145,7 +144,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
 
 
     //ServicereferenceBuilder
-    public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, Object serviceRefType, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
+    public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, Object serviceRefType, Module module, ClassLoader classLoader) throws DeploymentException {
         GerServiceRefType gerServiceRefType = (GerServiceRefType) serviceRefType;
         JarFile moduleFile = module.getModuleFile();
         SchemaInfoBuilder schemaInfoBuilder = null;
@@ -156,10 +155,10 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
             mapping = WSDescriptorParser.readJaxrpcMapping(moduleFile, jaxrpcMappingURI);
         }
 
-        return createService(serviceInterface, schemaInfoBuilder, mapping, serviceQName, SOAP_VERSION, handlerInfos, gerServiceRefType, deploymentContext, module, classLoader);
+        return createService(serviceInterface, schemaInfoBuilder, mapping, serviceQName, SOAP_VERSION, handlerInfos, gerServiceRefType, module, classLoader);
     }
 
-    public Object createService(Class serviceInterface, SchemaInfoBuilder schemaInfoBuilder, JavaWsdlMappingType mapping, QName serviceQName, SOAPConstants soapVersion, List handlerInfos, GerServiceRefType serviceRefType, DeploymentContext context, Module module, ClassLoader classloader) throws DeploymentException {
+    public Object createService(Class serviceInterface, SchemaInfoBuilder schemaInfoBuilder, JavaWsdlMappingType mapping, QName serviceQName, SOAPConstants soapVersion, List handlerInfos, GerServiceRefType serviceRefType, Module module, ClassLoader classloader) throws DeploymentException {
         Map seiPortNameToFactoryMap = new HashMap();
         Map seiClassNameToFactoryMap = new HashMap();
         if (schemaInfoBuilder != null) {
@@ -520,7 +519,6 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(AxisBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addInterface(ServiceReferenceBuilder.class);
         infoBuilder.addInterface(WebServiceBuilder.class);
 
         GBEAN_INFO = infoBuilder.getBeanInfo();

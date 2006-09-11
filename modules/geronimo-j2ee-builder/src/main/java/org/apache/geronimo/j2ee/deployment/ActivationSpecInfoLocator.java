@@ -15,22 +15,15 @@
  *  limitations under the License.
  */package org.apache.geronimo.j2ee.deployment;
 
-import javax.naming.Reference;
-import javax.management.ObjectName;
-
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.config.Configuration;
 
 /**
  * @version $Rev$ $Date$
  */
-public interface ResourceReferenceBuilder {
-
-    Reference createResourceRef(AbstractNameQuery containerId, Class iface, Configuration configuration) throws DeploymentException;
-
-    Reference createAdminObjectRef(AbstractNameQuery containerId, Class iface, Configuration configuration) throws DeploymentException;
+public interface ActivationSpecInfoLocator {
 
     GBeanData locateActivationSpecInfo(AbstractNameQuery nameQuery, String messageListenerInterface, Configuration configuration) throws DeploymentException;
 

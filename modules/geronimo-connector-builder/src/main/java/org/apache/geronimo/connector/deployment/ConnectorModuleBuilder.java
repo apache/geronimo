@@ -80,7 +80,7 @@ import org.apache.geronimo.j2ee.deployment.ConnectorModule;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
-import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
+import org.apache.geronimo.j2ee.deployment.ActivationSpecInfoLocator;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
@@ -121,7 +121,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  * @version $Rev:385659 $ $Date$
  */
-public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceBuilder {
+public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfoLocator {
     private static QName CONNECTOR_QNAME = GerConnectorDocument.type.getDocumentElementName();
     static final String GERCONNECTOR_NAMESPACE = CONNECTOR_QNAME.getNamespaceURI();
 
@@ -416,7 +416,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                 resourceAdapterInstanceGBeanData.setReferencePattern("WorkManager", workManagerName);
 
                 // set the xa terminator name which is the same as our transaction manager
-                resourceAdapterInstanceGBeanData.setReferencePattern("XATerminator", earContext.getTransactionManagerObjectName());
+                resourceAdapterInstanceGBeanData.setReferencePattern("XATerminator", earContext.getTransactionManagerName());
 
                 String resourceAdapterName = geronimoResourceAdapter.getResourceadapterInstance().getResourceadapterName();
                 resourceAdapterAbstractName = earContext.getNaming().createChildName(jcaResourceName, resourceAdapterName, NameFactory.JCA_RESOURCE_ADAPTER);
@@ -724,9 +724,9 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         try {
             connectionManagerGBean.setAttribute("transactionSupport", transactionSupport);
             connectionManagerGBean.setAttribute("pooling", pooling);
-            connectionManagerGBean.setReferencePattern("ConnectionTracker", earContext.getConnectionTrackerObjectName());
+            connectionManagerGBean.setReferencePattern("ConnectionTracker", earContext.getConnectionTrackerName());
             connectionManagerGBean.setAttribute("containerManagedSecurity", Boolean.valueOf(connectionManager.isSetContainerManagedSecurity()));
-            connectionManagerGBean.setReferencePattern("TransactionManager", earContext.getTransactionManagerObjectName());
+            connectionManagerGBean.setReferencePattern("TransactionManager", earContext.getTransactionManagerName());
         } catch (Exception e) {
             throw new DeploymentException("Problem setting up ConnectionManager named " + connectionfactoryInstance.getName().trim(), e);
         }
@@ -786,7 +786,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         }
     }
 
-    //ResourceReferenceBuilder implementation
+    //ResourceRefBuilder implementation
     public Reference createResourceRef(AbstractNameQuery containerId, Class iface, Configuration configuration) throws DeploymentException {
         try {
             configuration.findGBean(containerId);
@@ -875,7 +875,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
 
         infoBuilder.addInterface(ModuleBuilder.class);
-        infoBuilder.addInterface(ResourceReferenceBuilder.class);
+        infoBuilder.addInterface(ActivationSpecInfoLocator.class);
 
         infoBuilder.setConstructor(new String[]{"defaultEnvironment",
                 "defaultMaxSize",

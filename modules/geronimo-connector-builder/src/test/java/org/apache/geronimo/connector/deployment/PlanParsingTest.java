@@ -1,17 +1,15 @@
 package org.apache.geronimo.connector.deployment;
 
-import java.io.File;
 import java.net.URL;
 
 import javax.xml.namespace.QName;
 
-import org.apache.geronimo.testsupport.TestSupport;
-
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.schema.SchemaConversionUtils;
+import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorType;
 import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 

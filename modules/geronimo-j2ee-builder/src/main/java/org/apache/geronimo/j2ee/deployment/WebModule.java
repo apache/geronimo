@@ -53,14 +53,5 @@ public class WebModule extends Module {
         return portMap;
     }
 
-    //TODO configid check all modules can use this form.    Remove if!
-    public void addClass(URI location, String fqcn, byte[] bytes, DeploymentContext context) throws IOException, URISyntaxException {
-        if (getEarContext() != null) {
-            getEarContext().addClass(location, fqcn, bytes);
-        } else {
-            context.addClass(location, fqcn, bytes);
-        }
-    }
-
 }
 

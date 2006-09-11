@@ -154,8 +154,10 @@ public class XmlBeansUtil {
 
     public static void unregisterSubstitutionGroupElements(QName substitutionGroup, QNameSet substitutions) {
         QNameSet oldSubstitutions = (QNameSet) substitutionGroups.get(substitutionGroup);
-        QNameSet difference = oldSubstitutions.intersect(substitutions.inverse());
-        substitutionGroups.put(substitutionGroup, difference);
+        if (oldSubstitutions != null && substitutions != null) {
+            QNameSet difference = oldSubstitutions.intersect(substitutions.inverse());
+            substitutionGroups.put(substitutionGroup, difference);
+        }
     }
 
     public static QNameSet getQNameSetForSubstitutionGroup(QName substitutionGroup) {

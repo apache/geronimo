@@ -19,7 +19,7 @@ public class PlanParsingTest extends TestSupport {
     private AppClientModuleBuilder builder;
 
     protected void setUp() throws Exception {
-        builder = new AppClientModuleBuilder(new Environment(), null, null, null, null, null, null, null, null, null, null);
+        builder = new AppClientModuleBuilder(new Environment(), null, null, null, null, null, null, null, null);
     }
 
     public void testResourceRef() throws Exception {

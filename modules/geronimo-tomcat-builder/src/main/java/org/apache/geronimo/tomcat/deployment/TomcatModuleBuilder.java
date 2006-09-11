@@ -54,10 +54,12 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
+import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
@@ -74,11 +76,9 @@ import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.web.deployment.AbstractWebModuleBuilder;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
 import org.apache.geronimo.webservices.WebServiceContainer;
-import org.apache.geronimo.xbeans.geronimo.naming.GerMessageDestinationType;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppType;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.config.GerTomcatDocument;
-import org.apache.geronimo.xbeans.j2ee.MessageDestinationType;
 import org.apache.geronimo.xbeans.j2ee.ServletType;
 import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
@@ -104,8 +104,8 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             AbstractNameQuery tomcatContainerName,
             Collection webServiceBuilder,
             Collection securityBuilders,
-            Collection serviceBuilders, Kernel kernel) {
-        super(kernel, securityBuilders, serviceBuilders);
+            Collection serviceBuilders, NamingBuilder namingBuilders, Kernel kernel) {
+        super(kernel, securityBuilders, serviceBuilders, namingBuilders);
         this.defaultEnvironment = defaultEnvironment;
 
         this.tomcatContainerName = tomcatContainerName;
@@ -146,7 +146,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             // Output the target path in the error to make it clearer to the user which webapp
             // has the problem.  The targetPath is used, as moduleFile may have an unhelpful
             // value such as C:\geronimo-1.1\var\temp\geronimo-deploymentUtil22826.tmpdir
-            throw new DeploymentException("Error parsing web.xml for "+targetPath, xmle);
+            throw new DeploymentException("Error parsing web.xml for " + targetPath, xmle);
         }
         check(webApp);
 
@@ -165,9 +165,12 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
         EnvironmentType environmentType = tomcatWebApp.getEnvironment();
         Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
+
+        getNamingBuilders().buildEnvironment(webApp, tomcatWebApp, environment);
+
         // Note: logic elsewhere depends on the default artifact ID being the file name less extension (ConfigIDExtractor)
         String warName = new File(moduleFile.getName()).getName();
-        if(warName.lastIndexOf('.') > -1) {
+        if (warName.lastIndexOf('.') > -1) {
             warName = warName.substring(0, warName.lastIndexOf('.'));
         }
         idBuilder.resolve(environment, warName, "war");
@@ -213,7 +216,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                             try {
                                 rawPlan = XmlBeansUtil.parse(path, getClass().getClassLoader());
                             } catch (FileNotFoundException e1) {
-                                log.warn("Web application "+ targetPath + " does not contain a WEB-INF/geronimo-web.xml deployment plan.  This may or may not be a problem, depending on whether you have things like resource references that need to be resolved.  You can also give the deployer a separate deployment plan file on the command line.");
+                                log.warn("Web application " + targetPath + " does not contain a WEB-INF/geronimo-web.xml deployment plan.  This may or may not be a problem, depending on whether you have things like resource references that need to be resolved.  You can also give the deployer a separate deployment plan file on the command line.");
                             }
                         }
                     }
@@ -234,7 +237,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             }
             return tomcatWebApp;
         } catch (XmlException e) {
-            throw new DeploymentException("xml problem for web app "+targetPath, e);
+            throw new DeploymentException("xml problem for web app " + targetPath, e);
         }
     }
 
@@ -247,12 +250,13 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
     public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
         WebAppType webApp = (WebAppType) module.getSpecDD();
-        MessageDestinationType[] messageDestinations = webApp.getMessageDestinationArray();
+//        MessageDestinationType[] messageDestinations = webApp.getMessageDestinationArray();
         TomcatWebAppType gerWebApp = (TomcatWebAppType) module.getVendorDD();
-        GerMessageDestinationType[] gerMessageDestinations = gerWebApp.getMessageDestinationArray();
+//        GerMessageDestinationType[] gerMessageDestinations = gerWebApp.getMessageDestinationArray();
 
-        ENCConfigBuilder.registerMessageDestinations(earContext.getRefContext(), module.getName(), messageDestinations, gerMessageDestinations);
-        if((webApp.getSecurityConstraintArray().length > 0 || webApp.getSecurityRoleArray().length > 0) &&
+//        ENCConfigBuilder.registerMessageDestinations(earContext, module.getName(), messageDestinations, gerMessageDestinations);
+        getNamingBuilders().initContext(webApp, gerWebApp, module.getEarContext().getConfiguration(), earContext.getConfiguration(), module);
+        if ((webApp.getSecurityConstraintArray().length > 0 || webApp.getSecurityRoleArray().length > 0) &&
                 !gerWebApp.isSetSecurityRealmName()) {
             throw new DeploymentException("web.xml for web app " + module.getName() + " includes security elements but Geronimo deployment plan is not provided or does not contain <security-realm-name> element necessary to configure security accordingly.");
         }
@@ -271,7 +275,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
 //        GbeanType[] gbeans = tomcatWebApp.getGbeanArray();
 //        ServiceConfigBuilder.addGBeans(gbeans, moduleClassLoader, moduleName, moduleContext);
-
 
         //this may add to the web classpath with enhanced classes.
         //N.B. we use the ear context which has all the gbeans we could possibly be looking up from this ear.
@@ -302,8 +305,8 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             //N.B. use earContext not moduleContext
             ENCConfigBuilder.setResourceEnvironment(rebuilder, webApp.getResourceRefArray(), tomcatWebApp.getResourceRefArray());
 
-            webModuleData.setReferencePattern("TransactionManager", earContext.getTransactionManagerObjectName());
-            webModuleData.setReferencePattern("TrackedConnectionAssociator", earContext.getConnectionTrackerObjectName());
+            webModuleData.setReferencePattern("TransactionManager", earContext.getTransactionManagerName());
+            webModuleData.setReferencePattern("TrackedConnectionAssociator", earContext.getConnectionTrackerName());
 
             if (tomcatWebApp.isSetWebContainer()) {
                 AbstractNameQuery webContainerName = ENCConfigBuilder.getGBeanQuery(NameFactory.GERONIMO_SERVICE, tomcatWebApp.getWebContainer());
@@ -335,7 +338,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
             if (tomcatWebApp.isSetCluster()) {
                 String cluster = tomcatWebApp.getCluster().trim();
-                AbstractName clusterName =earContext.getNaming().createChildName(moduleName, cluster, CatalinaClusterGBean.J2EE_TYPE);
+                AbstractName clusterName = earContext.getNaming().createChildName(moduleName, cluster, CatalinaClusterGBean.J2EE_TYPE);
                 webModuleData.setReferencePattern("Cluster", clusterName);
             }
 
@@ -365,7 +368,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                         String servletClassName = servletType.getServletClass().getStringValue().trim();
                         Object portInfo = portMap.get(servletName);
                         if (portInfo == null) {
-                            throw new DeploymentException("No web service deployment info for servlet name " + servletName +" in web app "+module.getName());
+                            throw new DeploymentException("No web service deployment info for servlet name " + servletName + " in web app " + module.getName());
                         }
 
                         WebServiceContainer wsContainer = configurePOJO(webModule.getModuleFile(), portInfo, servletClassName, moduleClassLoader);
@@ -381,7 +384,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
             if (tomcatWebApp.isSetSecurityRealmName()) {
                 if (earContext.getSecurityConfiguration() == null) {
-                     throw new DeploymentException("You have specified a <security-realm-name> for the webapp " + moduleName + " but no <security> configuration (role mapping) is supplied in the Geronimo plan for the web application (or the Geronimo plan for the EAR if the web app is in an EAR)");
+                    throw new DeploymentException("You have specified a <security-realm-name> for the webapp " + moduleName + " but no <security> configuration (role mapping) is supplied in the Geronimo plan for the web application (or the Geronimo plan for the EAR if the web app is in an EAR)");
                 }
 
                 SecurityHolder securityHolder = new SecurityHolder();
@@ -405,7 +408,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                 }
                 securityHolder.setChecked(checkedPermissions);
                 earContext.addSecurityContext(policyContextID, componentPermissions);
-                DefaultPrincipal defaultPrincipal = ((SecurityConfiguration)earContext.getSecurityConfiguration()).getDefaultPrincipal();
+                DefaultPrincipal defaultPrincipal = ((SecurityConfiguration) earContext.getSecurityConfiguration()).getDefaultPrincipal();
                 securityHolder.setDefaultPrincipal(defaultPrincipal);
                 if (defaultPrincipal != null) {
                     securityHolder.setSecurity(true);
@@ -423,7 +426,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         } catch (DeploymentException de) {
             throw de;
         } catch (Exception e) {
-            throw new DeploymentException("Unable to initialize GBean for web app "+module.getName(), e);
+            throw new DeploymentException("Unable to initialize GBean for web app " + module.getName(), e);
         }
     }
 
@@ -443,20 +446,12 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
 
     private Map buildComponentContext(EARContext earContext, Module webModule, WebAppType webApp, TomcatWebAppType tomcatWebApp, ClassLoader cl) throws DeploymentException {
-        return ENCConfigBuilder.buildComponentContext(earContext,
-                earContext.getConfiguration(),
-                webModule,
-                null,
-                webApp.getEnvEntryArray(),
-                webApp.getEjbRefArray(), tomcatWebApp.getEjbRefArray(),
-                webApp.getEjbLocalRefArray(), tomcatWebApp.getEjbLocalRefArray(),
-                webApp.getResourceRefArray(), tomcatWebApp.getResourceRefArray(),
-                webApp.getResourceEnvRefArray(), tomcatWebApp.getResourceEnvRefArray(),
-                webApp.getMessageDestinationRefArray(),
-                webApp.getServiceRefArray(), tomcatWebApp.getServiceRefArray(),
-                tomcatWebApp.getGbeanRefArray(),
-                cl);
+        Map componentContext = new HashMap();
+        Configuration earConfiguration = earContext.getConfiguration();
+        getNamingBuilders().buildNaming(webApp, tomcatWebApp, earConfiguration, earConfiguration, webModule, componentContext);
+        return componentContext;
     }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -466,16 +461,18 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         infoBuilder.addReference("WebServiceBuilder", WebServiceBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("SecurityBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("NamingBuilders", NamingBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
         infoBuilder.addInterface(ModuleBuilder.class);
 
         infoBuilder.setConstructor(new String[]{
-            "defaultEnvironment",
-            "tomcatContainerName",
-            "WebServiceBuilder",
-            "SecurityBuilders",
-            "ServiceBuilders",
-            "kernel"});
+                "defaultEnvironment",
+                "tomcatContainerName",
+                "WebServiceBuilder",
+                "SecurityBuilders",
+                "ServiceBuilders",
+                "NamingBuilders",
+                "kernel"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
+
 import javax.xml.namespace.QName;
 
 import org.apache.commons.logging.Log;
@@ -51,7 +52,6 @@ import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.util.NestedJarFile;
 import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
-import org.apache.geronimo.deployment.xbeans.ServiceDocument;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -84,7 +84,6 @@ import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationDocument;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerExtModuleType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerModuleType;
-import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
 import org.apache.geronimo.xbeans.j2ee.ApplicationType;
 import org.apache.geronimo.xbeans.j2ee.ModuleType;
 import org.apache.xmlbeans.XmlException;
@@ -93,14 +92,12 @@ import org.apache.xmlbeans.XmlObject;
 /**
  * @version $Rev$ $Date$
  */
-public class EARConfigBuilder implements ConfigurationBuilder {
+public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSource {
 
     private static final Log log = LogFactory.getLog(EARConfigBuilder.class);
     private static final String LINE_SEP = System.getProperty("line.separator");
 
     private final static QName APPLICATION_QNAME = GerApplicationDocument.type.getDocumentElementName();
-    private static final QName SECURITY_QNAME = GerSecurityDocument.type.getDocumentElementName();
-    private static final QName SERVICE_QNAME = ServiceDocument.type.getDocumentElementName();
 
     private final ConfigurationManager configurationManager;
     private final Collection repositories;
@@ -108,9 +105,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private final SingleElementCollection webConfigBuilder;
     private final SingleElementCollection connectorConfigBuilder;
     private final SingleElementCollection appClientConfigBuilder;
-    private final SingleElementCollection ejbReferenceBuilder;
     private final SingleElementCollection resourceReferenceBuilder;
-    private final SingleElementCollection serviceReferenceBuilder;
     private final NamespaceDrivenBuilderCollection securityBuilders;
     private final NamespaceDrivenBuilderCollection serviceBuilders;
 
@@ -132,12 +127,10 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             AbstractNameQuery serverName,
             Collection repositories,
             Collection ejbConfigBuilder,
-            Collection ejbReferenceBuilder,
             Collection webConfigBuilder,
             Collection connectorConfigBuilder,
             Collection resourceReferenceBuilder,
             Collection appClientConfigBuilder,
-            Collection serviceReferenceBuilder,
             Collection securityBuilders,
             Collection serviceBuilders,
             Kernel kernel) {
@@ -151,12 +144,10 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 ConfigurationUtil.getConfigurationManager(kernel),
                 repositories,
                 new SingleElementCollection(ejbConfigBuilder),
-                new SingleElementCollection(ejbReferenceBuilder),
                 new SingleElementCollection(webConfigBuilder),
                 new SingleElementCollection(connectorConfigBuilder),
                 new SingleElementCollection(resourceReferenceBuilder),
                 new SingleElementCollection(appClientConfigBuilder),
-                new SingleElementCollection(serviceReferenceBuilder),
                 securityBuilders,
                 serviceBuilders,
                 kernel.getNaming());
@@ -170,12 +161,10 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             AbstractNameQuery serverName,
             Collection repositories,
             ModuleBuilder ejbConfigBuilder,
-            EJBReferenceBuilder ejbReferenceBuilder,
             ModuleBuilder webConfigBuilder,
             ModuleBuilder connectorConfigBuilder,
-            ResourceReferenceBuilder resourceReferenceBuilder,
+            ActivationSpecInfoLocator activationSpecInfoLocator,
             ModuleBuilder appClientConfigBuilder,
-            ServiceReferenceBuilder serviceReferenceBuilder,
             NamespaceDrivenBuilder securityBuilder,
             NamespaceDrivenBuilder serviceBuilder,
             Naming naming) {
@@ -189,12 +178,10 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 null,
                 repositories,
                 new SingleElementCollection(ejbConfigBuilder),
-                new SingleElementCollection(ejbReferenceBuilder),
                 new SingleElementCollection(webConfigBuilder),
                 new SingleElementCollection(connectorConfigBuilder),
-                new SingleElementCollection(resourceReferenceBuilder),
+                new SingleElementCollection(activationSpecInfoLocator),
                 new SingleElementCollection(appClientConfigBuilder),
-                new SingleElementCollection(serviceReferenceBuilder),
                 securityBuilder == null? Collections.EMPTY_SET: Collections.singleton(securityBuilder),
                 serviceBuilder == null? Collections.EMPTY_SET: Collections.singleton(serviceBuilder),
                 naming);
@@ -210,25 +197,22 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             ConfigurationManager configurationManager,
             Collection repositories,
             SingleElementCollection ejbConfigBuilder,
-            SingleElementCollection ejbReferenceBuilder,
             SingleElementCollection webConfigBuilder,
             SingleElementCollection connectorConfigBuilder,
             SingleElementCollection resourceReferenceBuilder,
             SingleElementCollection appClientConfigBuilder,
-            SingleElementCollection serviceReferenceBuilder,
             Collection securityBuilders,
-            Collection serviceBuilders, Naming naming) {
+            Collection serviceBuilders,
+            Naming naming) {
         this.configurationManager = configurationManager;
         this.repositories = repositories;
         this.defaultEnvironment = defaultEnvironment;
 
         this.ejbConfigBuilder = ejbConfigBuilder;
-        this.ejbReferenceBuilder = ejbReferenceBuilder;
         this.resourceReferenceBuilder = resourceReferenceBuilder;
         this.webConfigBuilder = webConfigBuilder;
         this.connectorConfigBuilder = connectorConfigBuilder;
         this.appClientConfigBuilder = appClientConfigBuilder;
-        this.serviceReferenceBuilder = serviceReferenceBuilder;
         this.securityBuilders = new NamespaceDrivenBuilderCollection(securityBuilders);
         this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders);
 
@@ -239,6 +223,11 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         this.corbaGBeanObjectName = corbaGBeanAbstractName;
         this.serverName = serverName;
         this.naming = naming;
+    }
+
+
+    public AbstractNameQuery getCorbaGBeanName() {
+        return corbaGBeanObjectName;
     }
 
     private ModuleBuilder getEjbConfigBuilder() {
@@ -257,16 +246,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         return (ModuleBuilder) appClientConfigBuilder.getElement();
     }
 
-    private EJBReferenceBuilder getEjbReferenceBuilder() {
-        return (EJBReferenceBuilder) ejbReferenceBuilder.getElement();
-    }
-
-    private ResourceReferenceBuilder getResourceReferenceBuilder() {
-        return (ResourceReferenceBuilder) resourceReferenceBuilder.getElement();
-    }
-
-    private ServiceReferenceBuilder getServiceReferenceBuilder() {
-        return (ServiceReferenceBuilder) serviceReferenceBuilder.getElement();
+    private ActivationSpecInfoLocator getResourceReferenceBuilder() {
+        return (ActivationSpecInfoLocator) resourceReferenceBuilder.getElement();
     }
 
     public Object getDeploymentPlan(File planFile, JarFile jarFile, ModuleIDBuilder idBuilder) throws DeploymentException {
@@ -472,8 +453,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                     connectionTrackerObjectName,
                     transactionalTimerObjectName,
                     nonTransactionalTimerObjectName,
-                    corbaGBeanObjectName,
-                    new RefContext(getEjbReferenceBuilder(), getResourceReferenceBuilder(), getServiceReferenceBuilder()));
+                    corbaGBeanObjectName
+            );
 
             // Copy over all files that are _NOT_ modules (e.g. META-INF and APP-INF files)
             Set moduleLocations = applicationInfo.getModuleLocations();
@@ -921,12 +902,10 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
         infoBuilder.addReference("Repositories", Repository.class, "Repository");
         infoBuilder.addReference("EJBConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addReference("EJBReferenceBuilder", EJBReferenceBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("WebConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ConnectorConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addReference("ResourceReferenceBuilder", ResourceReferenceBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("ActivationSpecInfoLocator", ActivationSpecInfoLocator.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("AppClientConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addReference("ServiceReferenceBuilder", ServiceReferenceBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("SecurityBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
 
@@ -944,12 +923,10 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 "serverName",
                 "Repositories",
                 "EJBConfigBuilder",
-                "EJBReferenceBuilder",
                 "WebConfigBuilder",
                 "ConnectorConfigBuilder",
-                "ResourceReferenceBuilder",
+                "ActivationSpecInfoLocator",
                 "AppClientConfigBuilder",
-                "ServiceReferenceBuilder",
                 "SecurityBuilders",
                 "ServiceBuilders",
                 "kernel"
