@@ -23,12 +23,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.InvalidTransactionException;
 import javax.transaction.NotSupportedException;
 import javax.transaction.RollbackException;
 import javax.transaction.Status;
+import javax.transaction.Synchronization;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
@@ -121,7 +123,7 @@ public class TransactionManagerImpl implements TransactionManager, UserTransacti
         return new ArrayList(resourceManagers);
     }
 
-    public Transaction getTransaction() throws SystemException {
+    public Transaction getTransaction() {
         return (Transaction) threadTx.get();
     }
 
@@ -136,7 +138,7 @@ public class TransactionManagerImpl implements TransactionManager, UserTransacti
         fireThreadAssociated(tx);
     }
 
-    private void unassociate() throws SystemException {
+    private void unassociate() {
         Transaction tx = getTransaction();
         if (tx != null) {
             associatedTransactions.remove(tx);
@@ -200,8 +202,53 @@ public class TransactionManagerImpl implements TransactionManager, UserTransacti
         associate((TransactionImpl) tx);
     }
 
-    public void setRollbackOnly() throws IllegalStateException, SystemException {
-        Transaction tx = getTransaction();
+    public Object getResource(Object key) {
+        TransactionImpl tx = getActiveTransactionImpl();
+        return tx.getResource(key);
+    }
+
+    private TransactionImpl getActiveTransactionImpl() {
+        TransactionImpl tx = (TransactionImpl)threadTx.get();
+        if (tx == null) {
+            throw new IllegalStateException("No tx on thread");
+        }
+        if (tx.getStatus() != Status.STATUS_ACTIVE) {
+            throw new IllegalStateException("Transaction " + tx + " is not active");
+        }
+        return tx;
+    }
+
+    public boolean getRollbackOnly() {
+        TransactionImpl tx = getActiveTransactionImpl();
+        return tx.getRollbackOnly();
+    }
+
+    public Object getTransactionKey() {
+        TransactionImpl tx = getActiveTransactionImpl();
+        return tx.getTransactionKey();
+    }
+
+    public int getTransactionStatus() {
+        TransactionImpl tx = getActiveTransactionImpl();
+        return tx.getTransactionStatus();
+    }
+
+    public void putResource(Object key, Object value) {
+        TransactionImpl tx = getActiveTransactionImpl();
+        tx.putResource(key, value);
+    }
+
+    /**
+     * jta 1.1 method so the jpa implementations can be told to flush their caches.
+     * @param synchronization
+     */
+    public void registerInterposedSynchronization(Synchronization synchronization) {
+        TransactionImpl tx = getActiveTransactionImpl();
+        tx.registerInterposedSynchronization(synchronization);
+    }
+
+    public void setRollbackOnly() throws IllegalStateException {
+        TransactionImpl tx = (TransactionImpl) threadTx.get();
         if (tx == null) {
             throw new IllegalStateException("No transaction associated with current thread");
         }
@@ -301,7 +348,7 @@ public class TransactionManagerImpl implements TransactionManager, UserTransacti
     }
 
     protected void recoverResourceManager(ResourceManager resourceManager) {
-        NamedXAResource namedXAResource = null;
+        NamedXAResource namedXAResource;
         try {
             namedXAResource = resourceManager.getRecoveryXAResources();
         } catch (SystemException e) {
