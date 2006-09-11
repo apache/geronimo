@@ -30,11 +30,12 @@ import javax.transaction.xa.XAException;
 import javax.transaction.InvalidTransactionException;
 import javax.transaction.SystemException;
 
-import EDU.oswego.cs.dl.util.concurrent.Latch;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.apache.geronimo.transaction.manager.ImportedTransactionActiveException;
 import org.apache.geronimo.transaction.manager.XAWork;
+import edu.emory.mathcs.backport.java.util.concurrent.CountDownLatch;
 
 /**
  * Work wrapper providing an execution context to a Work instance.
@@ -111,12 +112,12 @@ public class WorkerContext implements Work {
     /**
      * A latch, which is released when the work is started.
      */
-    private Latch startLatch = new Latch();
+    private CountDownLatch startLatch = new CountDownLatch(1);
 
     /**
      * A latch, which is released when the work is completed.
      */
-    private Latch endLatch = new Latch();
+    private CountDownLatch endLatch = new CountDownLatch(1);
 
     /**
      * Create a WorkWrapper.
@@ -142,10 +143,10 @@ public class WorkerContext implements Work {
      *                      Work processing events (work accepted, work rejected, work started,
      */
     public WorkerContext(Work aWork,
-            long aStartTimeout,
-            ExecutionContext execContext,
-            XAWork xaWork,
-            WorkListener workListener) {
+                         long aStartTimeout,
+                         ExecutionContext execContext,
+                         XAWork xaWork,
+                         WorkListener workListener) {
         adaptee = aWork;
         startTimeOut = aStartTimeout;
         executionContext = execContext;
@@ -273,15 +274,15 @@ public class WorkerContext implements Work {
         if (isTimedOut()) {
             // In case of a time out, one releases the start and end latches
             // to prevent a dead-lock.
-            startLatch.release();
-            endLatch.release();
+            startLatch.countDown();
+            endLatch.countDown();
             return;
         }
         // Implementation note: the work listener is notified prior to release
         // the start lock. This behavior is intentional and seems to be the
         // more conservative.
         workListener.workStarted(new WorkEvent(this, WorkEvent.WORK_STARTED, adaptee, null));
-        startLatch.release();
+        startLatch.countDown();
         //Implementation note: we assume this is being called without an interesting TransactionContext,
         //and ignore/replace whatever is associated with the current thread.
         try {
@@ -314,7 +315,7 @@ public class WorkerContext implements Work {
             workListener.workCompleted(new WorkEvent(this, WorkEvent.WORK_REJECTED, adaptee,
                     workException));
         } finally {
-            endLatch.release();
+            endLatch.countDown();
         }
     }
 
@@ -325,7 +326,7 @@ public class WorkerContext implements Work {
      * @return Latch that a caller can acquire to wait for the start of a
      *         work execution.
      */
-    public synchronized Latch provideStartLatch() {
+    public synchronized CountDownLatch provideStartLatch() {
         return startLatch;
     }
 
@@ -336,7 +337,7 @@ public class WorkerContext implements Work {
      * @return Latch that a caller can acquire to wait for the end of a
      *         work execution.
      */
-    public synchronized Latch provideEndLatch() {
+    public synchronized CountDownLatch provideEndLatch() {
         return endLatch;
     }
 

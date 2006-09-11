@@ -21,16 +21,24 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.j2ee.statistics.BoundedRangeStatistic;
 import javax.management.j2ee.statistics.CountStatistic;
 import javax.management.j2ee.statistics.Stats;
-import EDU.oswego.cs.dl.util.concurrent.PooledExecutor;
-import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
+
+import edu.emory.mathcs.backport.java.util.concurrent.ThreadPoolExecutor;
+import edu.emory.mathcs.backport.java.util.concurrent.RejectedExecutionHandler;
+import edu.emory.mathcs.backport.java.util.concurrent.RejectedExecutionException;
+import edu.emory.mathcs.backport.java.util.concurrent.ThreadFactory;
+import edu.emory.mathcs.backport.java.util.concurrent.SynchronousQueue;
+import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+
 import org.apache.geronimo.management.J2EEManagedObject;
 import org.apache.geronimo.management.StatisticsProvider;
 import org.apache.geronimo.management.geronimo.stats.ThreadPoolStats;
@@ -42,23 +50,26 @@ import org.apache.geronimo.management.stats.StatsImpl;
  * @version $Rev$ $Date$
  */
 public class ThreadPool implements GeronimoExecutor, GBeanLifecycle, J2EEManagedObject, StatisticsProvider {
-    private PooledExecutor executor;
+    private ThreadPoolExecutor executor;
     private ClassLoader classLoader;
     private ObjectName objectName;
     private boolean waitWhenBlocked;
-
+    
     // Statistics-related fields follow
     private boolean statsActive = true;
     private PoolStatsImpl stats = new PoolStatsImpl();
     private Map clients = new HashMap();
 
-
     public ThreadPool(int poolSize, String poolName, long keepAliveTime, ClassLoader classLoader, String objectName) {
-        PooledExecutor p = new PooledExecutor(poolSize);
-        p.abortWhenBlocked();
-        p.setKeepAliveTime(keepAliveTime);
-        p.setMinimumPoolSize(poolSize);
+        ThreadPoolExecutor p = new ThreadPoolExecutor(
+            poolSize, // core size
+            poolSize, // max size
+            keepAliveTime, TimeUnit.MILLISECONDS,
+            new SynchronousQueue());
+
+        p.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
         p.setThreadFactory(new ThreadPoolThreadFactory(poolName, classLoader));
+        
         try {
             this.objectName = ObjectName.getInstance(objectName);
         } catch (MalformedObjectNameException e) {
@@ -158,11 +169,11 @@ public class ThreadPool implements GeronimoExecutor, GBeanLifecycle, J2EEManaged
         return executor.getMaximumPoolSize();
     }
 
-    public void execute(Runnable command) throws InterruptedException {
+    public void execute(Runnable command) {
         execute("Unknown", command);
     }
 
-    public void execute(final String consumerName, final Runnable runnable) throws InterruptedException {
+    public void execute(final String consumerName, final Runnable runnable) {
         Runnable command;
         if (statsActive) {
             command = new Runnable() {
@@ -179,7 +190,7 @@ public class ThreadPool implements GeronimoExecutor, GBeanLifecycle, J2EEManaged
             command = runnable;
         }
 
-        PooledExecutor p;
+        ThreadPoolExecutor p;
         synchronized (this) {
             p = executor;
         }
@@ -207,13 +218,26 @@ public class ThreadPool implements GeronimoExecutor, GBeanLifecycle, J2EEManaged
             clients.put(consumerName, new Integer(test.intValue() - 1));
         }
     }
-
+    
+    private static class WaitWhenBlockedPolicy
+        implements RejectedExecutionHandler
+    {
+        public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) throws RejectedExecutionException {
+            try {
+                executor.getQueue().put(r);
+            }
+            catch (InterruptedException e) {
+                throw new RejectedExecutionException(e);
+            }
+        }
+    }
+    
     public void setWaitWhenBlocked(boolean wait) {
         waitWhenBlocked = wait;
         if(wait) {
-            executor.waitWhenBlocked();
+            executor.setRejectedExecutionHandler(new WaitWhenBlockedPolicy());
         } else {
-            executor.abortWhenBlocked();
+            executor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
         }
     }
 
@@ -225,7 +249,7 @@ public class ThreadPool implements GeronimoExecutor, GBeanLifecycle, J2EEManaged
     }
 
     public void doStop() throws Exception {
-        PooledExecutor p;
+        ThreadPoolExecutor p;
         synchronized (this) {
             p = executor;
             executor = null;

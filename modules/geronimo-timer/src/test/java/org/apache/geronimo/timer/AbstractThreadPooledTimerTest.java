@@ -19,8 +19,10 @@ package org.apache.geronimo.timer;
 
 import javax.transaction.TransactionManager;
 
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicInteger;
+
 import junit.framework.TestCase;
+
 import org.apache.geronimo.pool.ThreadPool;
 import org.apache.geronimo.timer.vm.VMWorkerPersistence;
 
@@ -41,7 +43,7 @@ public abstract class AbstractThreadPooledTimerTest extends TestCase {
     private ThreadPool threadPool;
     private ThreadPooledTimer timer;
 
-    private SynchronizedInt counter = new SynchronizedInt(0);
+    private AtomicInteger counter = new AtomicInteger(0);
     protected TransactionManager transactionManager;
     protected ExecutorTaskFactory executableWorkFactory;
     protected UserTaskFactory userTaskFactory;
@@ -177,7 +179,7 @@ public abstract class AbstractThreadPooledTimerTest extends TestCase {
         public Runnable newTask(long id) {
             return new Runnable() {
                 public void run() {
-                    counter.increment();
+                    counter.incrementAndGet();
                 }
 
             };

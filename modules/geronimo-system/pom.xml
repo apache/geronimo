@@ -52,8 +52,8 @@
         </dependency>
         
         <dependency>
-            <groupId>concurrent</groupId>
-            <artifactId>concurrent</artifactId>
+            <groupId>backport-util-concurrent</groupId>
+            <artifactId>backport-util-concurrent</artifactId>
         </dependency>
         
         <!--

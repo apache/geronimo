@@ -17,8 +17,6 @@
 
 package org.apache.geronimo.connector.outbound;
 
-//import EDU.oswego.cs.dl.util.concurrent.ConcurrentHashMap;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Iterator;

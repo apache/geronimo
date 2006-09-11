@@ -135,10 +135,6 @@
                             <artifactId>backport-util-concurrent</artifactId>
                         </element>
                         <element>
-                            <groupId>concurrent</groupId>
-                            <artifactId>concurrent</artifactId>
-                        </element>
-                        <element>
                             <groupId>xerces</groupId>
                             <artifactId>xercesImpl</artifactId>
                             <classpathPrefix>../lib/endorsed</classpathPrefix>

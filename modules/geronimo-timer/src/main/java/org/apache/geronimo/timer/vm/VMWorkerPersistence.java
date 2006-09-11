@@ -24,7 +24,8 @@ import java.util.Map;
 import java.util.Collection;
 import java.util.ArrayList;
 
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedLong;
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicLong;
+
 import org.apache.geronimo.timer.PersistenceException;
 import org.apache.geronimo.timer.Playback;
 import org.apache.geronimo.timer.WorkInfo;
@@ -40,10 +41,10 @@ public class VMWorkerPersistence implements WorkerPersistence {
 
     private final Map tasks = Collections.synchronizedMap(new LinkedHashMap());
 
-    private final SynchronizedLong counter = new SynchronizedLong(0);
+    private final AtomicLong counter = new AtomicLong(0);
 
     public void save(WorkInfo workInfo) throws PersistenceException {
-        long id = counter.increment();
+        long id = counter.incrementAndGet();
         workInfo.setId(id);
         tasks.put(new Long(id), workInfo);
     }

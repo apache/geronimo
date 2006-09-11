@@ -17,13 +17,9 @@
 
 package org.apache.geronimo.connector.work.pool;
 
-import javax.resource.spi.work.WorkCompletedException;
-import javax.resource.spi.work.WorkException;
-
-import EDU.oswego.cs.dl.util.concurrent.Channel;
-import EDU.oswego.cs.dl.util.concurrent.PooledExecutor;
-import EDU.oswego.cs.dl.util.concurrent.LinkedQueue;
-import org.apache.geronimo.connector.work.WorkerContext;
+import edu.emory.mathcs.backport.java.util.concurrent.ThreadPoolExecutor;
+import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
+import edu.emory.mathcs.backport.java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Based class for WorkExecutorPool. Sub-classes define the synchronization
@@ -37,7 +33,7 @@ public class WorkExecutorPoolImpl implements WorkExecutorPool {
     /**
      * A timed out pooled executor.
      */
-    private PooledExecutor pooledExecutor;
+    private ThreadPoolExecutor pooledExecutor;
 
     /**
      * Creates a pool with the specified minimum and maximum sizes. The Channel
@@ -47,35 +43,20 @@ public class WorkExecutorPoolImpl implements WorkExecutorPool {
      * @param maxSize Maximum size of the work executor pool.
      */
     public WorkExecutorPoolImpl(int maxSize) {
-        pooledExecutor = new PooledExecutor(new LinkedQueue(), maxSize);
-        pooledExecutor.setMinimumPoolSize(maxSize);
-        pooledExecutor.waitWhenBlocked();
-    }
+        pooledExecutor = new ThreadPoolExecutor(1, maxSize, 1, TimeUnit.MINUTES, new LinkedBlockingQueue());
+        /*
 
-    /**
-     * Creates a pool with the specified minimum and maximum sizes and using the
-     * specified Channel to enqueue the submitted Work instances.
-     *
-     * @param channel Queue to be used as the queueing facility of this pool.
-     * @param maxSize Maximum size of the work executor pool.
-     */
-    public WorkExecutorPoolImpl(
-            Channel channel,
-            int maxSize) {
-        pooledExecutor = new PooledExecutor(channel, maxSize);
-        pooledExecutor.setMinimumPoolSize(maxSize);
+        FIXME: How to do this with concurrent.util ?
         pooledExecutor.waitWhenBlocked();
+        */
     }
-
+    
     /**
      * Execute the specified Work.
      *
      * @param work Work to be executed.
-     *
-     * @exception InterruptedException Indicates that the Work execution has been
-     * unsuccessful.
      */
-    public void execute(Runnable work) throws InterruptedException {
+    public void execute(Runnable work) {
         pooledExecutor.execute(work);
     }
 
@@ -111,7 +92,7 @@ public class WorkExecutorPoolImpl implements WorkExecutorPool {
      */
     public WorkExecutorPool stop() {
         int maxSize = getMaximumPoolSize();
-        pooledExecutor.shutdownAfterProcessingCurrentlyQueuedTasks();
+        pooledExecutor.shutdown();
         return new NullWorkExecutorPool(maxSize);
     }
 

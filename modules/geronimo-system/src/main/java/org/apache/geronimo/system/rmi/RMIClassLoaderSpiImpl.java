@@ -26,7 +26,8 @@ import java.util.StringTokenizer;
 
 import java.rmi.server.RMIClassLoader;
 import java.rmi.server.RMIClassLoaderSpi;
-import EDU.oswego.cs.dl.util.concurrent.ConcurrentReaderHashMap;
+
+import edu.emory.mathcs.backport.java.util.concurrent.ConcurrentHashMap;
 
 /**
  * An implementation of {@link RMIClassLoaderSpi} which provides normilzation
@@ -40,7 +41,7 @@ public class RMIClassLoaderSpiImpl
     private RMIClassLoaderSpi delegate = RMIClassLoader.getDefaultProviderInstance();
 
     //TODO: Not sure of the best initial size.  Starting with 100 which should be reasonable.
-    private ConcurrentReaderHashMap cachedCodebases = new ConcurrentReaderHashMap(100, 0.75F);
+    private ConcurrentHashMap cachedCodebases = new ConcurrentHashMap(100, 0.75F);
 
 
     public Class loadClass(String codebase, String name, ClassLoader defaultLoader)
