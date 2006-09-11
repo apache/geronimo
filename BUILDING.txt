@@ -40,7 +40,7 @@ Or, use the geronimo-maven-plugin to start the server:
 
     mvn -Ptools geronimo:start
     ...
-    mvn -Ptools geronimo:stop
+    CTRL-C or from another terminal: mvn -Ptools geronimo:stop
 
 
 Subsequent builds
