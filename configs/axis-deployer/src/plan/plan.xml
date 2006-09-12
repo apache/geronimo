@@ -19,4 +19,21 @@
 
     <gbean name="WebServiceBuilder" class="org.apache.geronimo.axis.builder.AxisBuilder"/>
 
+    <gbean name="AxisServiceRefBuilder" class="org.apache.geronimo.axis.builder.AxisServiceRefBuilder">
+        <xml-attribute name="defaultEnvironment">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.geronimo.modules</groupId>
+                        <artifactId>geronimo-axis</artifactId>
+                        <type>jar</type>
+                    </dependency>
+                </dependencies>
+            </environment>
+        </xml-attribute>
+        <reference name="AxisBuilder">
+            <name>WebServiceBuilder</name>
+        </reference>
+    </gbean>
+
 </module>

@@ -181,7 +181,7 @@ public class ServiceReferenceTest
         JavaWsdlMappingType mapping = buildLightweightMappingType();
         QName serviceQName = new QName(NAMESPACE, "MockService");
         AxisBuilder builder = new AxisBuilder();
-        Object reference = builder.createService(MockService.class, schemaInfoBuilder, mapping, serviceQName, SOAPConstants.SOAP11_CONSTANTS, handlerInfos, gerServiceRefType, context, module, isolatedCl);
+        Object reference = builder.createService(MockService.class, schemaInfoBuilder, mapping, serviceQName, SOAPConstants.SOAP11_CONSTANTS, handlerInfos, gerServiceRefType, module, isolatedCl);
         assertNotNull(reference);
         assertTrue(reference instanceof AxisServiceReference);
         AxisServiceReference claReference = (AxisServiceReference) reference;
@@ -203,7 +203,7 @@ public class ServiceReferenceTest
         JavaWsdlMappingType mapping = mappingDocument.getJavaWsdlMapping();
         QName serviceQName = new QName("http://www.Monson-Haefel.com/jwsbook/BookQuote", "BookQuoteService");
         AxisBuilder builder = new AxisBuilder();
-        Object reference = builder.createService(BookQuoteService.class, schemaInfoBuilder, mapping, serviceQName, SOAPConstants.SOAP11_CONSTANTS, handlerInfos, gerServiceRefType, context, module, isolatedCl);
+        Object reference = builder.createService(BookQuoteService.class, schemaInfoBuilder, mapping, serviceQName, SOAPConstants.SOAP11_CONSTANTS, handlerInfos, gerServiceRefType, module, isolatedCl);
         assertNotNull(reference);
         assertTrue(reference instanceof AxisServiceReference);
         AxisServiceReference claReference = (AxisServiceReference) reference;
@@ -225,7 +225,7 @@ public class ServiceReferenceTest
         JavaWsdlMappingType mapping = mappingDocument.getJavaWsdlMapping();
         QName serviceQName = new QName("http://tempuri.org/4s4c/1/3/wsdl/def/interopLab", "interopLab");
         AxisBuilder builder = new AxisBuilder();
-        Object proxy = builder.createService(InteropLab.class, schemaInfoBuilder, mapping, serviceQName, SOAPConstants.SOAP11_CONSTANTS, handlerInfos, gerServiceRefType, context, module, isolatedCl);
+        Object proxy = builder.createService(InteropLab.class, schemaInfoBuilder, mapping, serviceQName, SOAPConstants.SOAP11_CONSTANTS, handlerInfos, gerServiceRefType, module, isolatedCl);
         assertNotNull(proxy);
         assertTrue(proxy instanceof InteropLab);
         InteropTestPortType interopTestPort = ((InteropLab) proxy).getinteropTestPort();

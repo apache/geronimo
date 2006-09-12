@@ -24,7 +24,8 @@ import javax.resource.spi.work.WorkException;
 import javax.resource.spi.work.WorkListener;
 import javax.resource.spi.work.WorkManager;
 
-import EDU.oswego.cs.dl.util.concurrent.Executor;
+import edu.emory.mathcs.backport.java.util.concurrent.Executor;
+
 import org.apache.geronimo.connector.work.pool.ScheduleWorkExecutor;
 import org.apache.geronimo.connector.work.pool.StartWorkExecutor;
 import org.apache.geronimo.connector.work.pool.SyncWorkExecutor;

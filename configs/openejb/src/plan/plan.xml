@@ -100,7 +100,13 @@
         </reference>
         <attribute name="doAsCurrentCaller">true</attribute>
     </gbean>
-
+    
+    <gbean name="DefaultThreadPoolExecutorAdapter" class="org.openejb.util.BackportExecutorAdapter">
+        <reference name="TargetExecutor">
+            <name>DefaultThreadPool</name>
+        </reference>
+    </gbean>
+    
     <gbean name="EJBNetworkService" class="org.activeio.xnet.StandardServiceStackGBean">
         <attribute name="name">EJB</attribute>
         <attribute name="port">${PlanOpenEJBPort}</attribute>
@@ -109,7 +115,7 @@
         <attribute name="logOnSuccess">HOST,NAME,THREADID,USERID</attribute>
         <attribute name="logOnFailure">HOST,NAME</attribute>
         <reference name="Executor">
-            <name>DefaultThreadPool</name>
+            <name>DefaultThreadPoolExecutorAdapter</name>
         </reference>
         <reference name="Server">
             <name>EJBServer</name>

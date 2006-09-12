@@ -63,6 +63,7 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
+import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jetty.Host;
 import org.apache.geronimo.jetty.JettyDefaultServletHolder;
@@ -76,6 +77,7 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
@@ -85,7 +87,6 @@ import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.web.deployment.AbstractWebModuleBuilder;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
-import org.apache.geronimo.xbeans.geronimo.naming.GerMessageDestinationType;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyWebAppType;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.config.GerJettyDocument;
@@ -99,7 +100,6 @@ import org.apache.geronimo.xbeans.j2ee.ListenerType;
 import org.apache.geronimo.xbeans.j2ee.LocaleEncodingMappingListType;
 import org.apache.geronimo.xbeans.j2ee.LocaleEncodingMappingType;
 import org.apache.geronimo.xbeans.j2ee.LoginConfigType;
-import org.apache.geronimo.xbeans.j2ee.MessageDestinationType;
 import org.apache.geronimo.xbeans.j2ee.MimeMappingType;
 import org.apache.geronimo.xbeans.j2ee.ParamValueType;
 import org.apache.geronimo.xbeans.j2ee.ServletMappingType;
@@ -146,8 +146,9 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             Collection webServiceBuilder,
             Collection securityBuilders,
             Collection serviceBuilders,
+            NamingBuilder namingBuilders,
             Kernel kernel) throws GBeanNotFoundException {
-        super(kernel, securityBuilders, serviceBuilders);
+        super(kernel, securityBuilders, serviceBuilders, namingBuilders);
         this.defaultEnvironment = defaultEnvironment;
         this.defaultSessionTimeoutSeconds = (defaultSessionTimeoutSeconds == null) ? new Integer(30 * 60) : defaultSessionTimeoutSeconds;
         this.jettyContainerObjectName = jettyContainerName;
@@ -222,6 +223,9 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
         EnvironmentType environmentType = jettyWebApp.getEnvironment();
         Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
+
+        getNamingBuilders().buildEnvironment(webApp, jettyWebApp, environment);
+        
         // Note: logic elsewhere depends on the default artifact ID being the file name less extension (ConfigIDExtractor)
         String warName = deployableModule.getRoot().getName();
         if (warName.lastIndexOf('.') > -1) {
@@ -302,11 +306,12 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
     public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
         WebAppType webApp = (WebAppType) module.getSpecDD();
-        MessageDestinationType[] messageDestinations = webApp.getMessageDestinationArray();
+//        MessageDestinationType[] messageDestinations = webApp.getMessageDestinationArray();
         JettyWebAppType gerWebApp = (JettyWebAppType) module.getVendorDD();
-        GerMessageDestinationType[] gerMessageDestinations = gerWebApp.getMessageDestinationArray();
+//        GerMessageDestinationType[] gerMessageDestinations = gerWebApp.getMessageDestinationArray();
 
-        ENCConfigBuilder.registerMessageDestinations(earContext.getRefContext(), module.getName(), messageDestinations, gerMessageDestinations);
+//        ENCConfigBuilder.registerMessageDestinations(earContext, module.getName(), messageDestinations, gerMessageDestinations);
+        getNamingBuilders().initContext(webApp, gerWebApp, module.getEarContext().getConfiguration(), earContext.getConfiguration(), module);
         if ((webApp.getSecurityConstraintArray().length > 0 || webApp.getSecurityRoleArray().length > 0) &&
                 !gerWebApp.isSetSecurityRealmName()) {
             throw new DeploymentException("web.xml for web app " + module.getName() + " includes security elements but Geronimo deployment plan is not provided or does not contain <security-realm-name> element necessary to configure security accordingly.");
@@ -381,8 +386,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
             webModuleData.setAttribute("contextPath", webModule.getContextRoot());
 
-            webModuleData.setReferencePattern("TransactionManager", moduleContext.getTransactionManagerObjectName());
-            webModuleData.setReferencePattern("TrackedConnectionAssociator", moduleContext.getConnectionTrackerObjectName());
+            webModuleData.setReferencePattern("TransactionManager", moduleContext.getTransactionManagerName());
+            webModuleData.setReferencePattern("TrackedConnectionAssociator", moduleContext.getConnectionTrackerName());
             if (jettyWebApp.isSetWebContainer()) {
                 AbstractNameQuery webContainerName = ENCConfigBuilder.getGBeanQuery(NameFactory.GERONIMO_SERVICE, jettyWebApp.getWebContainer());
                 webModuleData.setReferencePattern("JettyContainer", webContainerName);
@@ -895,19 +900,10 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
     }
 
     private Map buildComponentContext(EARContext earContext, Module webModule, WebAppType webApp, JettyWebAppType jettyWebApp, ClassLoader cl) throws DeploymentException {
-        return ENCConfigBuilder.buildComponentContext(earContext,
-                earContext.getConfiguration(),
-                webModule,
-                null,
-                webApp.getEnvEntryArray(),
-                webApp.getEjbRefArray(), jettyWebApp.getEjbRefArray(),
-                webApp.getEjbLocalRefArray(), jettyWebApp.getEjbLocalRefArray(),
-                webApp.getResourceRefArray(), jettyWebApp.getResourceRefArray(),
-                webApp.getResourceEnvRefArray(), jettyWebApp.getResourceEnvRefArray(),
-                webApp.getMessageDestinationRefArray(),
-                webApp.getServiceRefArray(), jettyWebApp.getServiceRefArray(),
-                jettyWebApp.getGbeanRefArray(),
-                cl);
+        Map componentContext = new HashMap();
+        Configuration earConfiguration = earContext.getConfiguration();
+        getNamingBuilders().buildNaming(webApp, jettyWebApp, earConfiguration, earConfiguration, webModule, componentContext);
+        return componentContext;
     }
 
     public static final GBeanInfo GBEAN_INFO;
@@ -925,6 +921,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         infoBuilder.addReference("WebServiceBuilder", WebServiceBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("SecurityBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("NamingBuilders", NamingBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
         infoBuilder.addInterface(ModuleBuilder.class);
 
@@ -940,6 +937,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 "WebServiceBuilder",
                 "SecurityBuilders",
                 "ServiceBuilders",
+                "NamingBuilders",
                 "kernel"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

@@ -33,21 +33,21 @@
     <packaging>car</packaging>
     
     <dependencies>
-    
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-server</artifactId>
             <version>${pom.version}</version>
             <type>car</type>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>axis</artifactId>
             <version>${pom.version}</version>
             <type>car</type>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>system-database</artifactId>
@@ -60,6 +60,11 @@
             <artifactId>openejb-core</artifactId>
         </dependency>
         
+        <dependency>
+            <groupId>concurrent</groupId>
+            <artifactId>concurrent</artifactId>
+        </dependency>
+
     </dependencies>
     
 </project>

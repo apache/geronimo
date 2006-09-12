@@ -20,7 +20,6 @@ package org.apache.geronimo.connector.deployment;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.Connection;
@@ -36,9 +35,6 @@ import java.util.jar.JarFile;
 
 import javax.naming.Reference;
 import javax.sql.DataSource;
-import javax.xml.namespace.QName;
-
-import org.apache.geronimo.testsupport.TestSupport;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -52,14 +48,11 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.deployment.ActivationSpecInfoLocator;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
-import org.apache.geronimo.j2ee.deployment.EJBReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
-import org.apache.geronimo.j2ee.deployment.RefContext;
-import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
-import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.Jsr77Naming;
@@ -85,6 +78,7 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
+import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.geronimo.transaction.manager.GeronimoTransactionManagerGBean;
 import org.tranql.sql.jdbc.JDBCUtil;
 
@@ -115,24 +109,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
         }
     };
 
-    private EJBReferenceBuilder ejbReferenceBuilder = new EJBReferenceBuilder() {
-
-
-        public Reference createCORBAReference(Configuration configuration, AbstractNameQuery containerNameQuery, URI nsCorbaloc, String objectName, String home) {
-            return null;
-        }
-
-        public Reference createEJBRemoteRef(String refName, Configuration configuration, String name, String requiredModule, String optionalModule, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String home, String remote) {
-            return null;
-        }
-
-        public Reference createEJBLocalRef(String refName, Configuration configuration, String name, String requiredModule, String optionalModule, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String localHome, String local) {
-            return null;
-        }
-
-    };
-
-    private ResourceReferenceBuilder resourceReferenceBuilder = new ResourceReferenceBuilder() {
+    private ActivationSpecInfoLocator activationSpecInfoLocator = new ActivationSpecInfoLocator() {
 
         public Reference createResourceRef(AbstractNameQuery containerId, Class iface, Configuration configuration) {
             return null;
@@ -143,13 +120,6 @@ public class ConnectorModuleBuilderTest extends TestSupport {
         }
 
         public GBeanData locateActivationSpecInfo(AbstractNameQuery nameQuery, String messageListenerInterface, Configuration configuration) {
-            return null;
-        }
-    };
-
-    private ServiceReferenceBuilder serviceReferenceBuilder = new ServiceReferenceBuilder() {
-        //it could return a Service or a Reference, we don't care
-        public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, Object serviceRefType, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) {
             return null;
         }
     };
@@ -180,12 +150,10 @@ public class ConnectorModuleBuilderTest extends TestSupport {
                     new AbstractNameQuery(serverName, J2EEServerImpl.GBEAN_INFO.getInterfaces()),
                     null,
                     null,
-                    ejbReferenceBuilder,
                     null,
                     new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, Collections.singleton(serviceBuilder)),
-                    resourceReferenceBuilder,
+                    activationSpecInfoLocator,
                     null,
-                    serviceReferenceBuilder,
                     null,
                     serviceBuilder,
                     kernel.getNaming());
@@ -395,8 +363,8 @@ public class ConnectorModuleBuilderTest extends TestSupport {
                         connectionTrackerName,
                         null,
                         null,
-                        null,
-                        new RefContext(ejbReferenceBuilder, moduleBuilder, serviceReferenceBuilder));
+                        null
+                );
 
                 action.install(moduleBuilder, earContext, module, configurationStore);
                 earContext.getClassLoader();

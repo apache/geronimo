@@ -56,6 +56,7 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
+import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
@@ -95,6 +96,9 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     protected final Kernel kernel;
     protected final NamespaceDrivenBuilderCollection securityBuilders;
     protected final NamespaceDrivenBuilderCollection serviceBuilders;
+
+    protected final NamingBuilder namingBuilders;
+
     private static final QName SECURITY_QNAME = GerSecurityDocument.type.getDocumentElementName();
     private static final QName SERVICE_QNAME = ServiceDocument.type.getDocumentElementName();
 
@@ -105,10 +109,11 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
      */
     private static final URI RELATIVE_MODULE_BASE_URI = URI.create("../");
 
-    protected AbstractWebModuleBuilder(Kernel kernel, Collection securityBuilders, Collection serviceBuilders) {
+    protected AbstractWebModuleBuilder(Kernel kernel, Collection securityBuilders, Collection serviceBuilders, NamingBuilder namingBuilders) {
         this.kernel = kernel;
         this.securityBuilders = new NamespaceDrivenBuilderCollection(securityBuilders);
         this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders);
+        this.namingBuilders = namingBuilders;
 
     }
 
@@ -119,6 +124,10 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         STATEFUL_SESSION_BEAN_PATTERN = new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.STATEFUL_SESSION_BEAN));
         ENTITY_BEAN_PATTERN = new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.ENTITY_BEAN));
 
+    }
+
+    public NamingBuilder getNamingBuilders() {
+        return namingBuilders;
     }
 
     //TODO configid these need to be converted to ReferencePatterns
@@ -224,6 +233,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             }
         }
         module.setEarContext(moduleContext);
+        module.setRootEarContext(earContext);
 
         try {
             // add the warfile's content to the configuration

@@ -17,10 +17,7 @@
 
 package org.apache.geronimo.connector.work.pool;
 
-import javax.resource.spi.work.WorkException;
-
-import org.apache.geronimo.connector.work.WorkerContext;
-import EDU.oswego.cs.dl.util.concurrent.Executor;
+import edu.emory.mathcs.backport.java.util.concurrent.Executor;
 
 /**
  * Defines the operations that a pool in charge of the execution of Work

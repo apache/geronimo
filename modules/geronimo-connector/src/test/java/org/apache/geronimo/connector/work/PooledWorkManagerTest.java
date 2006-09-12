@@ -42,9 +42,11 @@ public class PooledWorkManagerTest extends TestSupport {
 
     protected void setUp() throws Exception {
         super.setUp();
+        
         XAWork xaWork = new GeronimoTransactionManager();
         ThreadPool pool = new ThreadPool(1, "Connector Test", 30000, ThreadPool.class.getClassLoader(), "foo:test=bar");
         pool.setWaitWhenBlocked(true);
+        
         workManager = new GeronimoWorkManager(pool, pool, pool, xaWork);
         workManager.doStart();
     }

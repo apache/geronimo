@@ -33,7 +33,8 @@ import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 
-import EDU.oswego.cs.dl.util.concurrent.Executor;
+import edu.emory.mathcs.backport.java.util.concurrent.Executor;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;

@@ -57,25 +57,6 @@
                 <name>UnavailableAppClientBuilder</name>
             </pattern>
         </references>
-        <reference name="ResourceReferenceBuilder">
-            <name>ConnectorBuilder</name>
-        </reference>
-        <references name="ServiceReferenceBuilder">
-            <pattern>
-                <name>WebServiceBuilder</name>
-            </pattern>
-            <pattern>
-                <name>UnavailableWebServiceBuilder</name>
-            </pattern>
-        </references>
-        <references name="EJBReferenceBuilder">
-            <pattern>
-                <name>ServerEJBReferenceBuilder</name>
-            </pattern>
-            <pattern>
-                <name>UnavailableServerEJBReferenceBuilder</name>
-            </pattern>
-        </references>
         <xml-attribute name="defaultEnvironment">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <dependencies>
@@ -135,6 +116,44 @@
         <attribute name="policyProvider">org.apache.geronimo.security.jacc.GeronimoPolicy</attribute>
     </gbean>
 
+    <gbean name="NamingBuilders" class="org.apache.geronimo.j2ee.deployment.NamingBuilderCollectionGBean">
+        <attribute name="baseElementQNameNamespaceURI">http://geronimo.apache.org/xml/ns/naming-1.2</attribute>
+        <attribute name="baseElementQNameLocalPart">abstract-naming-entry</attribute>
+        <references name="NamingBuilders">
+            <pattern>
+                <name>GBeanRefBuilder</name>
+            </pattern>
+            <pattern>
+                <name>PersistenceContextRefBuilder</name>
+            </pattern>
+            <pattern>
+                <name>ResourceRefBuilder</name>
+            </pattern>
+            <pattern>
+                <name>AdminObjectRefBuilder</name>
+            </pattern>
+            <pattern>
+                <name>EnvironmentEntryBuilder</name>
+            </pattern>
+            <pattern>
+                <name>AxisServiceRefBuilder</name>
+            </pattern>
+            <pattern>
+                <name>OpenEjbRemoteRefBuilder</name>
+            </pattern>
+            <pattern>
+                <name>OpenEjbLocalRefBuilder</name>
+            </pattern>
+            <pattern>
+                <name>CorbaRefBuilder</name>
+            </pattern>
+        </references>
+    </gbean>
 
+    <gbean name="GBeanRefBuilder" class="org.apache.geronimo.naming.deployment.GBeanRefBuilder"/>
+    <gbean name="PersistenceContextRefBuilder" class="org.apache.geronimo.naming.deployment.PersistenceContextRefBuilder"/>
+    <gbean name="ResourceRefBuilder" class="org.apache.geronimo.connector.deployment.ResourceRefBuilder"/>
+    <gbean name="AdminObjectRefBuilder" class="org.apache.geronimo.connector.deployment.AdminObjectRefBuilder"/>
+    <gbean name="EnvironmentEntryBuilder" class="org.apache.geronimo.naming.deployment.EnvironmentEntryBuilder"/>
 
 </module>

@@ -196,6 +196,14 @@
              concurrent, jdom -->
 
         <dependency>
+            <groupId>backport-util-concurrent</groupId>
+            <artifactId>backport-util-concurrent</artifactId>
+        </dependency>
+
+        <!--
+        NOTE: Used by dependencies... :-(
+        -->
+        <dependency>
             <groupId>concurrent</groupId>
             <artifactId>concurrent</artifactId>
         </dependency>

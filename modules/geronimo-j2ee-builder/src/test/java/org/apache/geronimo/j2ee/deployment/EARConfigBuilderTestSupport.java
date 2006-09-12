@@ -19,6 +19,11 @@
 
 package org.apache.geronimo.j2ee.deployment;
 
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
+import java.util.jar.JarFile;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
@@ -39,14 +44,6 @@ import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.testsupport.TestSupport;
-
-import javax.xml.namespace.QName;
-import java.io.IOException;
-import java.net.URI;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.jar.JarFile;
 
 /**
  * Provides support for EAR config builder tests.
@@ -72,19 +69,12 @@ public abstract class EARConfigBuilderTestSupport
     
     protected static MockConnectorConfigBuilder connectorConfigBuilder = new MockConnectorConfigBuilder();
     
-    protected static ResourceReferenceBuilder resourceReferenceBuilder = connectorConfigBuilder;
+    protected static ActivationSpecInfoLocator activationSpecInfoLocator = connectorConfigBuilder;
     
     protected static ModuleBuilder appClientConfigBuilder = null;
     
     protected final static ModuleIDBuilder idBuilder = new ModuleIDBuilder();
     
-    protected static ServiceReferenceBuilder serviceReferenceBuilder = new ServiceReferenceBuilder() {
-        //it could return a Service or a Reference, we don't care
-        public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, Object serviceRefType, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) {
-            return null;
-        }
-    };
-
     protected static final NamespaceDrivenBuilder securityBuilder = null;
     
     protected static final NamespaceDrivenBuilder serviceBuilder = null;
@@ -147,12 +137,10 @@ public abstract class EARConfigBuilderTestSupport
                     null,
                     null,
                     ejbConfigBuilder,
-                    ejbConfigBuilder,
                     webConfigBuilder,
                     connectorConfigBuilder,
-                    resourceReferenceBuilder,
+                    activationSpecInfoLocator,
                     appClientConfigBuilder,
-                    serviceReferenceBuilder,
                     securityBuilder,
                     serviceBuilder,
                     naming);
@@ -180,12 +168,10 @@ public abstract class EARConfigBuilderTestSupport
                 null,
                 null,
                 ejbConfigBuilder,
-                ejbConfigBuilder,
                 webConfigBuilder,
                 connectorConfigBuilder,
-                resourceReferenceBuilder,
+                activationSpecInfoLocator,
                 appClientConfigBuilder,
-                serviceReferenceBuilder,
                 securityBuilder,
                 serviceBuilder,
                 naming);
@@ -221,12 +207,10 @@ public abstract class EARConfigBuilderTestSupport
                 null,
                 null,
                 ejbConfigBuilder,
-                ejbConfigBuilder,
                 webConfigBuilder,
                 connectorConfigBuilder,
-                resourceReferenceBuilder,
+                activationSpecInfoLocator,
                 appClientConfigBuilder,
-                serviceReferenceBuilder,
                 securityBuilder,
                 serviceBuilder,
                 naming);
@@ -262,12 +246,10 @@ public abstract class EARConfigBuilderTestSupport
                 null,
                 null,
                 ejbConfigBuilder,
-                ejbConfigBuilder,
                 webConfigBuilder,
                 connectorConfigBuilder,
-                resourceReferenceBuilder,
+                activationSpecInfoLocator,
                 appClientConfigBuilder,
-                serviceReferenceBuilder,
                 securityBuilder,
                 serviceBuilder,
                 naming);
@@ -303,12 +285,10 @@ public abstract class EARConfigBuilderTestSupport
                 null,
                 null,
                 ejbConfigBuilder,
-                ejbConfigBuilder,
                 webConfigBuilder,
                 connectorConfigBuilder,
-                resourceReferenceBuilder,
+                activationSpecInfoLocator,
                 appClientConfigBuilder,
-                serviceReferenceBuilder,
                 securityBuilder,
                 serviceBuilder,
                 naming);
@@ -344,12 +324,10 @@ public abstract class EARConfigBuilderTestSupport
                 null,
                 null,
                 null,
-                null,
                 webConfigBuilder,
                 connectorConfigBuilder,
-                resourceReferenceBuilder,
+                activationSpecInfoLocator,
                 appClientConfigBuilder,
-                serviceReferenceBuilder,
                 securityBuilder,
                 serviceBuilder,
                 naming);
@@ -384,12 +362,10 @@ public abstract class EARConfigBuilderTestSupport
                 null,
                 null,
                 ejbConfigBuilder,
-                ejbConfigBuilder,
                 null,
                 connectorConfigBuilder,
-                resourceReferenceBuilder,
+                activationSpecInfoLocator,
                 appClientConfigBuilder,
-                serviceReferenceBuilder,
                 securityBuilder,
                 serviceBuilder,
                 naming);
@@ -423,12 +399,10 @@ public abstract class EARConfigBuilderTestSupport
                 null,
                 null,
                 ejbConfigBuilder,
-                null,
                 webConfigBuilder,
                 null,
-                resourceReferenceBuilder,
+                activationSpecInfoLocator,
                 appClientConfigBuilder,
-                serviceReferenceBuilder,
                 securityBuilder,
                 serviceBuilder,
                 naming);

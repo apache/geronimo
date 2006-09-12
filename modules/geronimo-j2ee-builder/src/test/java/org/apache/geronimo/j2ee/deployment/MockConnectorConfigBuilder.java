@@ -40,7 +40,7 @@ import java.util.Collection;
 /**
  * @version $Rev:385692 $ $Date$
  */
-public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder, ResourceReferenceBuilder{
+public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder, ActivationSpecInfoLocator {
     private EARContext earContext;
     private ClassLoader cl;
     public Module connectorModule;

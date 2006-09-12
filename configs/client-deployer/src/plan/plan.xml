@@ -27,28 +27,35 @@
         <reference name="ServiceBuilders">
             <name>GBeanBuilder</name>
         </reference>
-        <references name="EJBReferenceBuilder">
+        <references name="NamingBuilders">
             <pattern>
-                <name>ClientEJBReferenceBuilder</name>
+                <name>GBeanRefBuilder</name>
             </pattern>
             <pattern>
-                <name>UnavailableClientEJBReferenceBuilder</name>
+                <name>PersistenceContextRefBuilder</name>
+            </pattern>
+            <pattern>
+                <name>ResourceRefBuilder</name>
+            </pattern>
+            <pattern>
+                <name>AdminObjectRefBuilder</name>
+            </pattern>
+            <pattern>
+                <name>EnvironmentEntryBuilder</name>
+            </pattern>
+            <pattern>
+                <name>AxisServiceRefBuilder</name>
+            </pattern>
+            <pattern>
+                <name>OpenEjbClientRemoteRefBuilder</name>
+            </pattern>
+            <pattern>
+                <name>CorbaRefBuilder</name>
             </pattern>
         </references>
         <reference name="ConnectorModuleBuilder">
             <name>ClientConnectorBuilder</name>
         </reference>
-        <reference name="ResourceReferenceBuilder">
-            <name>ClientConnectorBuilder</name>
-        </reference>
-        <references name="ServiceReferenceBuilder">
-            <pattern>
-                <name>WebServiceBuilder</name>
-            </pattern>
-            <pattern>
-                <name>UnavailableWebServiceBuilder</name>
-            </pattern>
-        </references>
         <xml-attribute name="defaultServerEnvironment">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <dependencies>

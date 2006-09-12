@@ -14,10 +14,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.apache.geronimo.security.jaas.server;
 
-import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
-import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.GeronimoSecurityException;
@@ -34,6 +33,7 @@ import org.apache.geronimo.security.realm.SecurityRealm;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.login.LoginException;
@@ -41,6 +41,7 @@ import javax.security.auth.spi.LoginModule;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -49,7 +50,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * The single point of contact for Geronimo JAAS realms.  Instead of attempting
@@ -63,10 +65,9 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
     public static final Log log = LogFactory.getLog(JaasLoginService.class);
     private final static int DEFAULT_EXPIRED_LOGIN_SCAN_INTERVAL = 300000; // 5 mins
     private final static int DEFAULT_MAX_LOGIN_DURATION = 1000 * 3600 * 24; // 1 day
-    private final static ClockDaemon clockDaemon;
+    private final static Timer clockDaemon = new Timer(/* Name requires JDK 1.5 "LoginService login modules monitor", */ true);
     private static long nextLoginModuleId = System.currentTimeMillis();
     private Collection realms;
-    private Object expiredLoginScanIdentifier;
     private final String objectName;
     private final SecretKey key;
     private final String algorithm;
@@ -74,7 +75,7 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
     private final Map activeLogins = new Hashtable();
     private int expiredLoginScanIntervalMillis = DEFAULT_EXPIRED_LOGIN_SCAN_INTERVAL;
     private int maxLoginDurationMillis = DEFAULT_MAX_LOGIN_DURATION;
-
+    private ExpirationMonitor expirationMonitor;
 
     public JaasLoginService(String algorithm, String password, ClassLoader classLoader, String objectName) {
         this.classLoader = classLoader;
@@ -137,11 +138,18 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
     }
 
     public void doStart() throws Exception {
-        expiredLoginScanIdentifier = clockDaemon.executePeriodically(expiredLoginScanIntervalMillis, new ExpirationMonitor(), true);
+        expirationMonitor = new ExpirationMonitor();
+
+        clockDaemon.scheduleAtFixedRate(
+                expirationMonitor, expiredLoginScanIntervalMillis, expiredLoginScanIntervalMillis);
     }
 
     public void doStop() throws Exception {
-        ClockDaemon.cancel(expiredLoginScanIdentifier);
+        if (expirationMonitor != null) {
+            expirationMonitor.cancel();
+            expirationMonitor = null;
+        }
+
         //todo: shut down all logins
     }
 
@@ -389,20 +397,7 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
         return null;
     }
 
-
-    // This stuff takes care of whacking old logins
-    static {
-        clockDaemon = new ClockDaemon();
-        clockDaemon.setThreadFactory(new ThreadFactory() {
-            public Thread newThread(Runnable r) {
-                Thread t = new Thread(r, "LoginService login modules monitor");
-                t.setDaemon(true);
-                return t;
-            }
-        });
-    }
-
-    private class ExpirationMonitor implements Runnable { //todo: different timeouts per realm?
+    private class ExpirationMonitor extends TimerTask { //todo: different timeouts per realm?
 
         public void run() {
             long now = System.currentTimeMillis();

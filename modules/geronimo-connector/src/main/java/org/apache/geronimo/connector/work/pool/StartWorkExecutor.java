@@ -18,10 +18,11 @@
 package org.apache.geronimo.connector.work.pool;
 
 import javax.resource.spi.work.WorkException;
-import EDU.oswego.cs.dl.util.concurrent.Latch;
-import EDU.oswego.cs.dl.util.concurrent.Executor;
+
 import org.apache.geronimo.connector.work.WorkerContext;
-import org.apache.geronimo.pool.GeronimoExecutor;
+
+import edu.emory.mathcs.backport.java.util.concurrent.Executor;
+import edu.emory.mathcs.backport.java.util.concurrent.CountDownLatch;
 
 /**
  *
@@ -33,8 +34,8 @@ public class StartWorkExecutor implements WorkExecutor {
 
     public void doExecute(WorkerContext work, Executor executor)
             throws WorkException, InterruptedException {
-        Latch latch = work.provideStartLatch();
+        CountDownLatch latch = work.provideStartLatch();
         executor.execute(new NamedRunnable("A J2EE Connector", work));
-        latch.acquire();
+        latch.await();
     }
 }

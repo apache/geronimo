@@ -34,20 +34,19 @@ import org.apache.geronimo.kernel.repository.Environment;
  * @version $Rev:386276 $ $Date$
  */
 public class EARContext extends DeploymentContext {
+
+    private final AbstractNameQuery serverName;
     private final AbstractNameQuery transactionManagerObjectName;
     private final AbstractNameQuery connectionTrackerObjectName;
-
     private final AbstractNameQuery transactedTimerName;
     private final AbstractNameQuery nonTransactedTimerName;
-
     private final AbstractNameQuery corbaGBeanObjectName;
-
-    private final RefContext refContext;
-    private final AbstractNameQuery serverName;
 
     private final Map contextIDToPermissionsMap = new HashMap();
     private AbstractName jaccManagerName;
     private Object securityConfiguration;
+
+    private final Map  messageDestinations = new HashMap();
 
     public EARContext(File baseDir,
             File inPlaceConfigurationDir,
@@ -61,8 +60,8 @@ public class EARContext extends DeploymentContext {
             AbstractNameQuery connectionTrackerObjectName,
             AbstractNameQuery transactedTimerName,
             AbstractNameQuery nonTransactedTimerName,
-            AbstractNameQuery corbaGBeanObjectName,
-            RefContext refContext) throws DeploymentException {
+            AbstractNameQuery corbaGBeanObjectName
+    ) throws DeploymentException {
         super(baseDir, inPlaceConfigurationDir, environment, baseName, moduleType, naming, configurationManager, repositories);
 
         this.serverName = serverName;
@@ -71,7 +70,6 @@ public class EARContext extends DeploymentContext {
         this.transactedTimerName = transactedTimerName;
         this.nonTransactedTimerName = nonTransactedTimerName;
         this.corbaGBeanObjectName = corbaGBeanObjectName;
-        this.refContext = refContext;
     }
 
     public EARContext(File baseDir,
@@ -86,8 +84,8 @@ public class EARContext extends DeploymentContext {
             AbstractNameQuery connectionTrackerObjectName,
             AbstractNameQuery transactedTimerName,
             AbstractNameQuery nonTransactedTimerName,
-            AbstractNameQuery corbaGBeanObjectName,
-            RefContext refContext) throws DeploymentException {
+            AbstractNameQuery corbaGBeanObjectName
+    ) throws DeploymentException {
         super(baseDir, inPlaceConfigurationDir, environment, baseName, moduleType, naming, configurationManager);
 
         this.serverName = serverName;
@@ -97,30 +95,28 @@ public class EARContext extends DeploymentContext {
         this.transactedTimerName = transactedTimerName;
         this.nonTransactedTimerName = nonTransactedTimerName;
         this.corbaGBeanObjectName = corbaGBeanObjectName;
-        this.refContext = refContext;
     }
 
     public EARContext(File baseDir, File inPlaceConfigurationDir, Environment environment, ConfigurationModuleType moduleType, AbstractName baseName, EARContext parent) throws DeploymentException {
         super(baseDir, inPlaceConfigurationDir, environment, baseName, moduleType, parent.getNaming(), parent.getConfigurationManager());
         this.serverName = parent.getServerName();
 
-        this.transactionManagerObjectName = parent.getTransactionManagerObjectName();
-        this.connectionTrackerObjectName = parent.getConnectionTrackerObjectName();
+        this.transactionManagerObjectName = parent.getTransactionManagerName();
+        this.connectionTrackerObjectName = parent.getConnectionTrackerName();
         this.transactedTimerName = parent.getTransactedTimerName();
         this.nonTransactedTimerName = parent.getNonTransactedTimerName();
-        this.corbaGBeanObjectName = parent.getCORBAGBeanObjectName();
-        this.refContext = parent.getRefContext();
+        this.corbaGBeanObjectName = parent.getCORBAGBeanName();
     }
 
     public AbstractNameQuery getServerName() {
         return serverName;
     }
 
-    public AbstractNameQuery getTransactionManagerObjectName() {
+    public AbstractNameQuery getTransactionManagerName() {
         return transactionManagerObjectName;
     }
 
-    public AbstractNameQuery getConnectionTrackerObjectName() {
+    public AbstractNameQuery getConnectionTrackerName() {
         return connectionTrackerObjectName;
     }
 
@@ -132,12 +128,8 @@ public class EARContext extends DeploymentContext {
         return nonTransactedTimerName;
     }
 
-    public AbstractNameQuery getCORBAGBeanObjectName() {
+    public AbstractNameQuery getCORBAGBeanName() {
         return corbaGBeanObjectName;
-    }
-
-    public RefContext getRefContext() {
-        return refContext;
     }
 
     public Map getContextIDToPermissionsMap() {
@@ -169,4 +161,13 @@ public class EARContext extends DeploymentContext {
     public Object getSecurityConfiguration() {
         return securityConfiguration;
     }
+
+    public void registerMessageDestionations(String moduleName, Map nameMap) throws DeploymentException {
+        messageDestinations.put(moduleName, nameMap);
+    }
+
+    public Map getMessageDestinations() {
+        return messageDestinations;
+    }
+
 }

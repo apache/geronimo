@@ -124,10 +124,6 @@
                                     <artifactId>backport-util-concurrent</artifactId>
                                 </artifactItem>
                                 <artifactItem>
-                                    <groupId>concurrent</groupId>
-                                    <artifactId>concurrent</artifactId>
-                                </artifactItem>
-                                <artifactItem>
                                     <groupId>cglib</groupId>
                                     <artifactId>cglib-nodep</artifactId>
                                 </artifactItem>

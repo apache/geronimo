@@ -22,7 +22,8 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.transaction.manager.XAWork;
-import EDU.oswego.cs.dl.util.concurrent.Executor;
+
+import edu.emory.mathcs.backport.java.util.concurrent.Executor;
 
 /**
  * 

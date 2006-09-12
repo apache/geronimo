@@ -248,7 +248,10 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         setAuthenticator(authenticator);
         setRealmName(realmName);
         setTagLibMap(tagLibMap);
-        setSessionTimeoutSeconds(sessionTimeoutSeconds);
+
+        if (false == distributable) {
+            setSessionTimeoutSeconds(sessionTimeoutSeconds);
+        }
 
         GeronimoUserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
         Context enc = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext, userTransaction, kernel, webClassLoader);

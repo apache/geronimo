@@ -184,6 +184,11 @@
             <artifactId>activeio</artifactId>
         </dependency>
         
+        <dependency>
+            <groupId>concurrent</groupId>
+            <artifactId>concurrent</artifactId>
+        </dependency>
+        
     </dependencies>
     
 </project>

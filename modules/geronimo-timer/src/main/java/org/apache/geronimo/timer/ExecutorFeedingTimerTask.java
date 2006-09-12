@@ -47,11 +47,7 @@ public class ExecutorFeedingTimerTask extends TimerTask {
     }
 
     public void run() {
-        try {
-            threadPooledTimer.getExecutor().execute(workInfo.getExecutorTask());
-        } catch (InterruptedException e) {
-            log.warn("Exception running task", e);
-        }
+        threadPooledTimer.getExecutor().execute(workInfo.getExecutorTask());
     }
 
     public boolean cancel() {

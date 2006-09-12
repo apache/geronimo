@@ -20,16 +20,18 @@ import java.util.TimerTask;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Timer;
+
 import javax.resource.spi.ManagedConnectionFactory;
 import javax.resource.spi.ConnectionRequestInfo;
 import javax.resource.ResourceException;
 import javax.security.auth.Subject;
 
-import EDU.oswego.cs.dl.util.concurrent.FIFOSemaphore;
-import EDU.oswego.cs.dl.util.concurrent.ReadWriteLock;
-import EDU.oswego.cs.dl.util.concurrent.WriterPreferenceReadWriteLock;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import edu.emory.mathcs.backport.java.util.concurrent.locks.ReadWriteLock;
+import edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantReadWriteLock;
+import edu.emory.mathcs.backport.java.util.concurrent.Semaphore;
+import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 
 /**
  * @version $Rev$ $Date$
@@ -37,8 +39,8 @@ import org.apache.commons.logging.LogFactory;
 public abstract class AbstractSinglePoolConnectionInterceptor implements ConnectionInterceptor, PoolingAttributes {
     protected static Log log = LogFactory.getLog(SinglePoolConnectionInterceptor.class.getName());
     protected final ConnectionInterceptor next;
-    private final ReadWriteLock resizeLock = new WriterPreferenceReadWriteLock();
-    protected FIFOSemaphore permits;
+    private final ReadWriteLock resizeLock = new ReentrantReadWriteLock();
+    protected Semaphore permits;
     protected int blockingTimeoutMilliseconds;
     protected int connectionCount = 0;
     private long idleTimeoutMilliseconds;
@@ -59,7 +61,7 @@ public abstract class AbstractSinglePoolConnectionInterceptor implements Connect
         this.minSize = minSize;
         this.blockingTimeoutMilliseconds = blockingTimeoutMilliseconds;
         setIdleTimeoutMinutes(idleTimeoutMinutes);
-        permits = new FIFOSemaphore(maxSize);
+        permits = new Semaphore(maxSize, true);
     }
 
     public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
@@ -67,9 +69,9 @@ public abstract class AbstractSinglePoolConnectionInterceptor implements Connect
             return;
         }
         try {
-            resizeLock.readLock().acquire();
+            resizeLock.readLock().lock();
             try {
-                if (permits.attempt(blockingTimeoutMilliseconds)) {
+                if (permits.tryAcquire(blockingTimeoutMilliseconds, TimeUnit.MILLISECONDS)) {
                     internalGetConnection(connectionInfo);
                 } else {
                     throw new ResourceException("No ManagedConnections available "
@@ -79,7 +81,7 @@ public abstract class AbstractSinglePoolConnectionInterceptor implements Connect
 
                 }
             } finally {
-                resizeLock.readLock().release();
+                resizeLock.readLock().unlock();
             }
 
         } catch (InterruptedException ie) {
@@ -100,16 +102,12 @@ public abstract class AbstractSinglePoolConnectionInterceptor implements Connect
             try {
                 connectionInfo.getManagedConnectionInfo().getManagedConnection().destroy();
             } catch (ResourceException re) {
+                // empty
             }
             return;
         }
 
-        try {
-            resizeLock.readLock().acquire();
-        } catch (InterruptedException e) {
-            //TODO figure out something better to do here!!!
-            throw new RuntimeException("Interrupted before returning connection! Pool is now in an invalid state!");
-        }
+        resizeLock.readLock().lock();
         try {
             ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
             if (connectionReturnAction == ConnectionReturnAction.RETURN_HANDLE && mci.hasConnectionHandles()) {
@@ -122,7 +120,7 @@ public abstract class AbstractSinglePoolConnectionInterceptor implements Connect
                 permits.release();
             }
         } finally {
-            resizeLock.readLock().release();
+            resizeLock.readLock().unlock();
         }
     }
 
@@ -150,12 +148,12 @@ public abstract class AbstractSinglePoolConnectionInterceptor implements Connect
             throw new IllegalArgumentException("Max size must be positive, not " + newMaxSize);
         }
         if (newMaxSize != getPartitionMaxSize()) {
-            resizeLock.writeLock().acquire();
+            resizeLock.writeLock().lock();
             try {
-                ResizeInfo resizeInfo = new ResizeInfo(this.minSize, (int)permits.permits(), connectionCount, newMaxSize);
+                ResizeInfo resizeInfo = new ResizeInfo(this.minSize, permits.availablePermits(), connectionCount, newMaxSize);
                 this.shrinkLater = resizeInfo.getShrinkLater();
 
-                permits = new FIFOSemaphore(newMaxSize);
+                permits = new Semaphore(newMaxSize, true);
                 //pre-acquire permits for the existing checked out connections that will not be closed when they are returned.
                 for (int i = 0; i < resizeInfo.getTransferCheckedOut(); i++) {
                     permits.acquire();
@@ -164,7 +162,7 @@ public abstract class AbstractSinglePoolConnectionInterceptor implements Connect
                 transferConnections(newMaxSize, resizeInfo.getShrinkNow());
                 this.minSize = resizeInfo.getNewMinSize();
             } finally {
-                resizeLock.writeLock().release();
+                resizeLock.writeLock().unlock();
             }
         }
     }
@@ -288,11 +286,8 @@ public abstract class AbstractSinglePoolConnectionInterceptor implements Connect
             AbstractSinglePoolConnectionInterceptor interceptor = parent;
             if (interceptor == null)
                 return;
-            try {
-                interceptor.resizeLock.readLock().acquire();
-            } catch (InterruptedException e) {
-                return;
-            }
+
+            interceptor.resizeLock.readLock().lock();
             try {
                 long threshold = System.currentTimeMillis() - interceptor.idleTimeoutMilliseconds;
                 ArrayList killList = new ArrayList(interceptor.getPartitionMaxSize());
@@ -304,7 +299,7 @@ public abstract class AbstractSinglePoolConnectionInterceptor implements Connect
                 }
                 interceptor.permits.release(killList.size());
             } finally {
-                interceptor.resizeLock.readLock().release();
+                interceptor.resizeLock.readLock().unlock();
             }
         }
 
@@ -324,11 +319,7 @@ public abstract class AbstractSinglePoolConnectionInterceptor implements Connect
         }
 
         public void run() {
-            try {
-                resizeLock.readLock().acquire();
-            } catch (InterruptedException e) {
-                return;
-            }
+            resizeLock.readLock().lock();
             try {
                 while (connectionCount < minSize) {
                     ManagedConnectionInfo mci = new ManagedConnectionInfo(managedConnectionFactory, cri);
@@ -339,15 +330,14 @@ public abstract class AbstractSinglePoolConnectionInterceptor implements Connect
                     } catch (ResourceException e) {
                         return;
                     }
-                    boolean added = false;
-                    added = addToPool(mci);
+                    boolean added = addToPool(mci);
                     if (!added) {
                         internalReturn(ci, ConnectionReturnAction.DESTROY);
                         return;
                     }
                 }
             } finally {
-                resizeLock.readLock().release();
+                resizeLock.readLock().unlock();
             }
         }
 

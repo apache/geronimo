@@ -18,15 +18,11 @@ package org.apache.geronimo.j2ee.deployment;
 
 import java.util.jar.JarFile;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.io.IOException;
-import java.io.File;
 
 import org.apache.xmlbeans.XmlObject;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.DeployableModule;
 import org.apache.geronimo.gbean.AbstractName;
 
@@ -49,8 +45,7 @@ public abstract class Module {
     private final String namespace;
 
     private EARContext earContext;
-
-    private URI uniqueModuleLocation;
+    private EARContext rootEarContext;
 
     protected Module(boolean standAlone, AbstractName moduleName, Environment environment, DeployableModule deployableModule, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String namespace) {
         assert targetPath != null: "targetPath is null";
@@ -146,54 +141,6 @@ public abstract class Module {
         deployableModule.cleanup();
     }
 
-    public void addClass(String fqcn, byte[] bytes, DeploymentContext context) throws IOException, URISyntaxException {
-        URI location = getUniqueModuleLocation(context);
-        addClass(location, fqcn, bytes, context);
-    }
-
-    private URI getUniqueModuleLocation(DeploymentContext context) throws IOException {
-        if (uniqueModuleLocation == null) {
-            URI metainfUri = URI.create("META-INF/");
-            File metainfDir = context.getTargetFile(metainfUri);
-            if (!metainfDir.exists()) {
-                metainfDir.mkdirs();
-            }
-            if (!metainfDir.isDirectory()) {
-                throw new IOException("META-INF directory exists but is not a directory: " + metainfDir.getAbsolutePath());
-            }
-            if (!metainfDir.canRead()) {
-                throw new IOException("META-INF directory is not readable: " + metainfDir.getAbsolutePath());
-            }
-            if (!metainfDir.canWrite()) {
-                throw new IOException("META-INF directory is not writable: " + metainfDir.getAbsolutePath());
-            }
-
-            String suffix = "";
-            URI generatedUri;
-            File generatedDir;
-            int i = 0;
-            do {
-                generatedUri = metainfUri.resolve("geronimo-generated" + suffix + "/");
-                generatedDir = context.getTargetFile(generatedUri);
-                suffix = "" + i++;
-            } while (generatedDir.exists());
-            generatedDir.mkdirs();
-
-            // these shouldn't ever happen, but let's check anyway
-            if (!generatedDir.isDirectory()) {
-                throw new IOException("Geronimo generated classes directory exists but is not a directory: " + generatedDir.getAbsolutePath());
-            }
-            if (!generatedDir.canRead()) {
-                throw new IOException("Geronimo generated classes directory is not readable: " + generatedDir.getAbsolutePath());
-            }
-            if (!generatedDir.canWrite()) {
-                throw new IOException("Geronimo generated classes directory is not writable: " + generatedDir.getAbsolutePath());
-            }
-
-            uniqueModuleLocation = generatedUri;
-        }
-        return uniqueModuleLocation;
-    }
 
     public EARContext getEarContext() {
         return earContext;
@@ -203,5 +150,11 @@ public abstract class Module {
         this.earContext = earContext;
     }
 
-    public abstract void addClass(URI location, String fqcn, byte[] bytes, DeploymentContext context) throws IOException, URISyntaxException;
+    public EARContext getRootEarContext() {
+        return rootEarContext;
+    }
+
+    public void setRootEarContext(EARContext rootEarContext) {
+        this.rootEarContext = rootEarContext;
+    }
 }

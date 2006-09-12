@@ -21,6 +21,5 @@
 
     <gbean name="UnavailableWebServiceBuilder" class="org.apache.geronimo.j2ee.deployment.UnavailableWebServiceBuilder" />
 
-    <gbean name="UnavailableServiceReferenceBuilder" class="org.apache.geronimo.j2ee.deployment.UnavailableServiceReferenceBuilder" />
-
+    <!--TODO need an unavailable naming builder -->
 </module>

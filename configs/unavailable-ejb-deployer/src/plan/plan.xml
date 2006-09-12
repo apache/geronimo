@@ -21,8 +21,9 @@
 
     <gbean name="UnavailableEJBBuilder" class="org.apache.geronimo.j2ee.deployment.UnavailableModuleBuilder" />
 
-    <gbean name="UnavailableClientEJBReferenceBuilder" class="org.apache.geronimo.j2ee.deployment.UnavailableEJBReferenceBuilder" />
+    <!-- TODO include new-style unavaliable naming builders -->
+    <!--<gbean name="UnavailableClientEJBReferenceBuilder" class="org.apache.geronimo.j2ee.deployment.UnavailableEJBReferenceBuilder" />-->
 
-    <gbean name="UnavailableServerEJBReferenceBuilder" class="org.apache.geronimo.j2ee.deployment.UnavailableEJBReferenceBuilder" />
+    <!--<gbean name="UnavailableServerEJBReferenceBuilder" class="org.apache.geronimo.j2ee.deployment.UnavailableEJBReferenceBuilder" />-->
 
 </module>

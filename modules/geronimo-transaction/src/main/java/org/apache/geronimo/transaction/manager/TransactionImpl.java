@@ -18,12 +18,14 @@
 package org.apache.geronimo.transaction.manager;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.RollbackException;
@@ -34,6 +36,7 @@ import javax.transaction.Transaction;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
+import javax.ejb.EJBException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -56,6 +59,10 @@ public class TransactionImpl implements Transaction {
     private final IdentityHashMap suspendedXaResources = new IdentityHashMap(3);
     private int status = Status.STATUS_NO_TRANSACTION;
     private Object logMark;
+
+    private final Map resources = new HashMap();
+    private Synchronization interposedSynchronization;
+    private final Map entityManagers = new HashMap();
 
     TransactionImpl(XidFactory xidFactory, TransactionLog txnLog, long transactionTimeoutMilliseconds) throws SystemException {
         this(xidFactory.createXid(), xidFactory, txnLog, transactionTimeoutMilliseconds);
@@ -87,11 +94,38 @@ public class TransactionImpl implements Transaction {
         this.timeout = Long.MAX_VALUE;
     }
 
-    public synchronized int getStatus() throws SystemException {
+    public synchronized int getStatus() {
         return status;
     }
 
-    public synchronized void setRollbackOnly() throws IllegalStateException, SystemException {
+    public Object getResource(Object key) {
+        return resources.get(key);
+    }
+
+    public boolean getRollbackOnly() {
+        return status == Status.STATUS_MARKED_ROLLBACK;
+    }
+
+    public Object getTransactionKey() {
+        return xid;
+    }
+
+    public int getTransactionStatus() {
+        return status;
+    }
+
+    public void putResource(Object key, Object value) {
+        if (key == null) {
+            throw new NullPointerException("You must supply a non-null key for putResource");
+        }
+        resources.put(key, value);
+    }
+
+    public void registerInterposedSynchronization(Synchronization synchronization) {
+        interposedSynchronization = synchronization;
+    }
+
+    public synchronized void setRollbackOnly() throws IllegalStateException {
         switch (status) {
             case Status.STATUS_ACTIVE:
             case Status.STATUS_PREPARING:
@@ -171,7 +205,7 @@ public class TransactionImpl implements Transaction {
             //we know nothing about this XAResource or resource manager
             Xid branchId = xidFactory.createBranch(xid, resourceManagers.size() + 1);
             xaRes.start(branchId, XAResource.TMNOFLAGS);
-            activeXaResources.put(xaRes, addBranchXid(xaRes,  branchId));
+            activeXaResources.put(xaRes, addBranchXid(xaRes, branchId));
             return true;
         } catch (XAException e) {
             log.warn("Unable to enlist XAResource " + xaRes + ", errorCode: " + e.errorCode, e);
@@ -222,23 +256,19 @@ public class TransactionImpl implements Transaction {
         beforePrepare();
 
         try {
-                      boolean timedout = false;
-                      if (TransactionTimer.getCurrentTime() > timeout)
-                      {
-                          status = Status.STATUS_MARKED_ROLLBACK;
-                          timedout = true;
-                      }
+            boolean timedout = false;
+            if (TransactionTimer.getCurrentTime() > timeout) {
+                status = Status.STATUS_MARKED_ROLLBACK;
+                timedout = true;
+            }
 
             if (status == Status.STATUS_MARKED_ROLLBACK) {
                 rollbackResources(resourceManagers);
-                              if(timedout)
-                              {
-                                  throw new RollbackException("Transaction timout");
-                              }
-                              else
-                              {
-                                  throw new RollbackException("Unable to commit: transaction marked for rollback");
-                              }
+                if (timedout) {
+                    throw new RollbackException("Transaction timout");
+                } else {
+                    throw new RollbackException("Unable to commit: transaction marked for rollback");
+                }
             }
             synchronized (this) {
                 if (status == Status.STATUS_ACTIVE) {
@@ -255,7 +285,6 @@ public class TransactionImpl implements Transaction {
                 }
                 // resourceManagers is now immutable
             }
-
 
             // no-phase
             if (resourceManagers.size() == 0) {
@@ -400,7 +429,6 @@ public class TransactionImpl implements Transaction {
             }
         }
 
-
         // decision time...
         boolean willCommit;
         synchronized (this) {
@@ -471,9 +499,17 @@ public class TransactionImpl implements Transaction {
             Synchronization synch;
             synchronized (this) {
                 if (i == syncList.size()) {
+                    if (interposedSynchronization != null) {
+                        synch = interposedSynchronization;
+                        i++;
+                    } else {
+                        return;
+                    }
+                } else if (i == syncList.size() + 1) {
                     return;
+                } else {
+                    synch = (Synchronization) syncList.get(i++);
                 }
-                synch = (Synchronization) syncList.get(i++);
             }
             try {
                 synch.beforeCompletion();
@@ -488,6 +524,13 @@ public class TransactionImpl implements Transaction {
 
     private void afterCompletion() {
         // this does not synchronize because nothing can modify our state at this time
+        if (interposedSynchronization != null) {
+            try {
+                interposedSynchronization.afterCompletion(status);
+            } catch (Exception e) {
+                log.warn("Unexpected exception from afterCompletion; continuing", e);
+            }
+        }
         for (Iterator i = syncList.iterator(); i.hasNext();) {
             Synchronization synch = (Synchronization) i.next();
             try {
@@ -496,6 +539,10 @@ public class TransactionImpl implements Transaction {
                 log.warn("Unexpected exception from afterCompletion; continuing", e);
                 continue;
             }
+        }
+        for (Iterator i = entityManagers.values().iterator(); i.hasNext();) {
+            Closeable entityManager = (Closeable) i.next();
+            entityManager.close();
         }
     }
 
@@ -579,7 +626,7 @@ public class TransactionImpl implements Transaction {
                 txnLog.commit(xid, logMark);
             } catch (LogException e) {
                 log.error("Unexpected exception logging commit completion for xid " + xid, e);
-                throw (SystemException)new SystemException("Unexpected error logging commit completion for xid " + xid).initCause(e);
+                throw (SystemException) new SystemException("Unexpected error logging commit completion for xid " + xid).initCause(e);
             }
         }
         synchronized (this) {
@@ -634,6 +681,17 @@ public class TransactionImpl implements Transaction {
         return manager;
     }
 
+    public Object getEntityManager(String persistenceUnit) {
+        return entityManagers.get(persistenceUnit);
+    }
+
+    public void setEntityManager(String persistenceUnit, Object entityManager) {
+        Object oldEntityManager = entityManagers.put(persistenceUnit, entityManager);
+        if (oldEntityManager != null) {
+            throw new EJBException("EntityManager " + oldEntityManager + " for persistenceUnit " + persistenceUnit + " already associated with this transaction " + xid);
+        }
+    }
+
     private static class TransactionBranch implements TransactionBranchInfo {
         private final XAResource committer;
         private final Xid branchId;
@@ -653,7 +711,7 @@ public class TransactionImpl implements Transaction {
 
         public String getResourceName() {
             if (committer instanceof NamedXAResource) {
-            return ((NamedXAResource)committer).getName();
+                return ((NamedXAResource) committer).getName();
             } else {
                 throw new IllegalStateException("Cannot log transactions unles XAResources are named! " + committer);
             }
