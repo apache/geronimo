@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application
+    xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.1">
+    <!--configId="org/apache/geronimo/MagicGBallCorbaNoSec"-->
+    <!--parentId="geronimo/j2ee-server-corba/1.0/car">-->
+<!---->
+    <!--<import>-->
+        <!--<uri>org/apache/geronimo/Security</uri>-->
+    <!--</import>-->
+    <environment>
+      <moduleId>
+        <groupId>geronimo</groupId>
+        <artifactId>magicGBall-corba-nosec</artifactId>
+        <version>${pom.currentVersion}</version>
+        <type>car</type>
+      </moduleId>
+      <dependencies>
+        <dependency>
+          <groupId>geronimo</groupId>
+          <artifactId>j2ee-corba</artifactId>
+          <type>car</type>
+        </dependency>
+      </dependencies>
+      <hidden-classes/>
+      <non-overridable-classes/>
+    </environment>
+
+    <module>
+        <ejb>magicGball-ejb-${geronimo_version}.jar</ejb>
+        <openejb-jar
+            xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.1">
+            <!--configId="MagicGBallEJB"-->
+            <!--parentId="org/apache/geronimo/ServerCORBA">-->
+
+            <enterprise-beans>
+                <session>
+                    <ejb-name>MagicGBall</ejb-name>
+                    <jndi-name>MagicGBall</jndi-name>
+                    <tss-link>IdentityTokenNoSecurity </tss-link>
+                </session>
+            </enterprise-beans>
+            <gbean name="IdentityTokenNoSecurity" class="org.openejb.corba.TSSBean">
+                <attribute name="POAName">IdentityTokenNoSecurity</attribute>
+                <reference name="Server">
+                    <name>UnprotectedServer</name>
+                </reference>
+                <xml-attribute name="tssConfig">
+                    <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1">
+                        <tss:default-principal>
+                            <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
+                        </tss:default-principal>
+                        <tss:compoundSecMechTypeList>
+                            <tss:compoundSecMech>
+                                <tss:sasMech>
+                                    <tss:identityTokenTypes>
+                                        <tss:ITTAnonymous/>
+                                        <tss:ITTPrincipalNameGSSUP principal-class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal"/>
+                                        <tss:ITTDistinguishedName/>
+                                        <tss:ITTX509CertChain/>
+                                    </tss:identityTokenTypes>
+                                </tss:sasMech>
+                            </tss:compoundSecMech>
+                        </tss:compoundSecMechTypeList>
+                    </tss:tss>
+                </xml-attribute>
+            </gbean>
+
+        </openejb-jar>
+    </module>
+
+    <module>
+        <web>magicGball-${geronimo_version}.war</web>
+        <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.1">
+            <!--configId="MagicGBallWAR">-->
+        </web-app>
+    </module>
+
+    <module>
+        <java>magicGball-client-${geronimo_version}.jar</java>
+        <application-client xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client-1.1">
+            <!--configId="client"-->
+            <!--clientConfigId="org/apache/geronimo/MagicGBallClientNoSec"-->
+            <!--clientParentId="org/apache/geronimo/ClientCORBA">-->
+            <!--<import>-->
+                <!--<uri>org/apache/geronimo/ClientSecurity</uri>-->
+            <!--</import>-->
+            <client-environment>
+              <moduleId>
+                <groupId>geronimo</groupId>
+                <artifactId>magicGBall-corba-nosec-client</artifactId>
+                <version>${pom.currentVersion}</version>
+                <type>car</type>
+              </moduleId>
+              <dependencies>
+                <dependency>
+                  <groupId>geronimo</groupId>
+                  <artifactId>client-corba</artifactId>
+                  <type>car</type>
+                </dependency>
+              </dependencies>
+              <hidden-classes/>
+              <non-overridable-classes/>
+            </client-environment>
+            <server-environment>
+            </server-environment>
+
+            <ejb-ref>
+                <ref-name>mGball</ref-name>
+                <ns-corbaloc>corbaloc::localhost:1050/NameService</ns-corbaloc>
+                <name>MagicGBall</name>
+                <css-link>NoSecurity</css-link>
+            </ejb-ref>
+            <realm-name>client-properties-realm</realm-name>
+            <callback-handler>org.acme.MagicGBallCallbackHandler</callback-handler>
+            <gbean name="NoSecurity" class="org.openejb.corba.CSSBean">
+                <reference name="ThreadPool">
+                    <name>DefaultThreadPool</name>
+                </reference>
+                <reference name="TransactionContextManager">
+                    <name>TransactionContextManager</name>
+                </reference>
+                <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
+                <attribute name="description">NoSecurity</attribute>
+                <attribute name="cssArgs"></attribute>
+                <xml-attribute name="cssConfig">
+                    <css:css xmlns:css="http://www.openejb.org/xml/ns/corba-css-config-2.0">
+                        <css:compoundSecMechTypeList>
+                            <css:compoundSecMech>
+                                <css:SSL>
+                                    <css:supports>Integrity Confidentiality EstablishTrustInTarget EstablishTrustInClient</css:supports>
+                                    <css:requires></css:requires>
+                                </css:SSL>
+                            </css:compoundSecMech>
+                        </css:compoundSecMechTypeList>
+                    </css:css>
+                </xml-attribute>
+            </gbean>
+
+        </application-client>
+    </module>
+
+    <security>
+        <default-principal>
+            <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="system"/>
+        </default-principal>
+        <role-mappings>
+            <role role-name="admin">
+                <principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" name="admin" designated-run-as="true"/>
+            </role>
+        </role-mappings>
+    </security>
+
+</application>
