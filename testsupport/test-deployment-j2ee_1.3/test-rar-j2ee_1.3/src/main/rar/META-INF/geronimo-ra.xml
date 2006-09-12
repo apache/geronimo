@@ -33,7 +33,6 @@
             <sys:dependency>
                 <sys:groupId>org.apache.derby</sys:groupId>
                 <sys:artifactId>derby</sys:artifactId>
-                <sys:version>10.1.1.0</sys:version>
                 <sys:type>jar</sys:type>
             </sys:dependency>
         </sys:dependencies>
