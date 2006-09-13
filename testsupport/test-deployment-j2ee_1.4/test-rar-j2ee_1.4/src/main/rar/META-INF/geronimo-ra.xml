@@ -23,17 +23,10 @@
 <rar:connector xmlns:rar="http://geronimo.apache.org/xml/ns/j2ee/connector-1.2" xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.2">
 
     <sys:environment>
-        <sys:moduleId>
-            <sys:groupId>org.apache.geronimo.test-ear-j2ee-1_4</sys:groupId>
-            <sys:artifactId>test-rar-j2ee-1.4</sys:artifactId>
-            <sys:version>1.0</sys:version>
-            <sys:type>rar</sys:type>
-        </sys:moduleId>
         <sys:dependencies>
             <sys:dependency>
                 <sys:groupId>org.apache.derby</sys:groupId>
                 <sys:artifactId>derby</sys:artifactId>
-                <sys:version>10.1.1.0</sys:version>
                 <sys:type>jar</sys:type>
             </sys:dependency>
         </sys:dependencies>

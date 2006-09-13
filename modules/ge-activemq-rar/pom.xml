@@ -30,19 +30,142 @@
 
     <artifactId>ge-activemq-rar</artifactId>
     <name>Geronimo :: ActiveMQ Embedded RAR</name>
-    <description>Resource Adapter configuration for using ActiveMQ as a bundled JMS provider.</description>
     <packaging>rar</packaging>
+    
+    <description>
+        Resource Adapter configuration for using ActiveMQ as a bundled JMS provider.
+    </description>
+    
+    <!--
+    NOTE: Excluding depenedencies which are already included in the server's repository
+          or are uneeded by the runtime.
+    -->
     
     <dependencies>
         
         <dependency>
             <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-core</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>mx4j</groupId>
+                    <artifactId>mx4j</artifactId>
+                </exclusion>
+                
+                <exclusion>
+                    <groupId>mx4j</groupId>
+                    <artifactId>mx4j-impl</artifactId>
+                </exclusion>
+                
+                <exclusion>
+                    <groupId>mx4j</groupId>
+                    <artifactId>mx4j-remote</artifactId>
+                </exclusion>
+                
+                <exclusion>
+                    <groupId>mx4j</groupId>
+                    <artifactId>mx4j-tools</artifactId>
+                </exclusion>
+                
+                <exclusion>
+                    <groupId>mx4j</groupId>
+                    <artifactId>mx4j-jmx</artifactId>
+                </exclusion>
+                
+                <exclusion>
+                    <groupId>checkstyle</groupId>
+                    <artifactId>checkstyle</artifactId>
+                </exclusion>
+                
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+                
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+                
+                <exclusion>
+                    <groupId>logkit</groupId>
+                    <artifactId>logkit</artifactId>
+                </exclusion>
+                
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>nlog4j</artifactId>
+                </exclusion>
+                
+                <exclusion>
+                    <groupId>backport-util-concurrent</groupId>
+                    <artifactId>backport-util-concurrent</artifactId>
+                </exclusion>
+                
+                <exclusion>
+                    <groupId>avalon-framework</groupId>
+                    <artifactId>avalon-framework</artifactId>
+                </exclusion>
+                
+                <exclusion>
+                    <groupId>xerces</groupId>
+                    <artifactId>xercesImpl</artifactId>
+                </exclusion>
+                
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+                
+                <exclusion>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-j2ee-management_1.0_spec</artifactId>
+                </exclusion>
+                
+                <exclusion>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-jms_1.1_spec</artifactId>
+                </exclusion>
+                
+                <!--
+                FIXME: Do we need to exclude these?
+                -->
+                
+                <exclusion>
+                    <groupId>org.apache.activemq</groupId>
+                    <artifactId>activeio-core</artifactId>
+                </exclusion>
+                
+                <exclusion>
+                    <groupId>activesoap</groupId>
+                    <artifactId>jaxp-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
-
+        
         <dependency>
             <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-ra</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
+                </exclusion>
+                
+                <!--
+                FIXME: Do we need to exclude these?
+                -->
+                
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring</artifactId>
+                </exclusion>
+                
+                <exclusion>
+                    <groupId>activemq</groupId>
+                    <artifactId>jmdns</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         
     </dependencies>

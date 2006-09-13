@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.geronimo.mavenplugins.geronimo;
+package org.apache.geronimo.mavenplugins.geronimo.server;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,9 +27,6 @@ import java.util.Enumeration;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipEntry;
 
-import org.apache.maven.artifact.factory.ArtifactFactory;
-import org.apache.maven.artifact.resolver.ArtifactResolver;
-import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.Artifact;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -39,6 +36,8 @@ import org.codehaus.plexus.util.FileUtils;
 
 import org.apache.tools.ant.taskdefs.Expand;
 import org.apache.tools.ant.taskdefs.Chmod;
+import org.apache.geronimo.mavenplugins.geronimo.GeronimoMojoSupport;
+import org.apache.geronimo.mavenplugins.geronimo.AssemblyConfig;
 
 /**
  * Common assembly install support.
@@ -46,7 +45,7 @@ import org.apache.tools.ant.taskdefs.Chmod;
  * @version $Rev$ $Date$
  */
 public abstract class InstallerMojoSupport
-    extends ServerMojoSupport
+    extends GeronimoMojoSupport
 {
     /**
      * Enable forced install refresh.
@@ -112,48 +111,6 @@ public abstract class InstallerMojoSupport
 
     protected int installType;
 
-    //
-    // MojoSupport Hooks
-    //
-
-    /**
-     * ???
-     *
-     * @component
-     * @required
-     * @readonly
-     */
-    protected ArtifactFactory artifactFactory = null;
-
-    protected ArtifactFactory getArtifactFactory() {
-        return artifactFactory;
-    }
-
-    /**
-     * ???
-     *
-     * @component
-     * @required
-     * @readonly
-     */
-    protected ArtifactResolver artifactResolver = null;
-
-    protected ArtifactResolver getArtifactResolver() {
-        return artifactResolver;
-    }
-
-    /**
-     * ???
-     *
-     * @parameter expression="${localRepository}"
-     * @readonly
-     * @required
-     */
-    protected ArtifactRepository artifactRepository = null;
-
-    protected ArtifactRepository getArtifactRepository() {
-        return artifactRepository;
-    }
 
     private File discoverGeronimoHome(final File archive) throws MojoExecutionException {
         log.debug("Attempting to discover geronimoHome...");
@@ -228,8 +185,9 @@ public abstract class InstallerMojoSupport
     /**
      * Selects the assembly artifact tp be used for installation.
      *
-     * @return
-     * @throws MojoExecutionException
+     * @return The assembly artifact selected to be installed.
+     *
+     * @throws MojoExecutionException   Failed to select assembly artifact
      */
     protected Artifact getAssemblyArtifact() throws MojoExecutionException {
         AssemblyConfig config;

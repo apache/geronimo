@@ -64,7 +64,7 @@ public class ServiceEndpointMethodInterceptor implements MethodInterceptor {
 
         stub.setUpCall(call);
         if (credentialsName != null) {
-            Subject subject = ContextManager.getCurrentCaller();
+            Subject subject = ContextManager.getNextCaller();
             if (subject == null) {
                 throw new IllegalStateException("Subject missing but authentication turned on");
             } else {

@@ -41,6 +41,7 @@
     </description>
     
     <modules>
+        <module>deployment-testsuite</module>
         <module>console-testsuite</module>
     </modules>
     

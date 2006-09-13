@@ -64,12 +64,12 @@ public class ServerProxy
         init(url, environment);
     }
 
-    public ServerProxy(final int port, final String username, final String password) throws Exception {
+    public ServerProxy(final String hostname, final int port, final String username, final String password) throws Exception {
         //
-        // FIXME: Should be able to pass in hostname too
+        // TODO: Check if this is the right way to build up the URI
         //
         
-        this("service:jmx:rmi://localhost/jndi/rmi://localhost:" + port + "/JMXConnector", username, password);
+        this("service:jmx:rmi://" + hostname + "/jndi/rmi://" + hostname + ":" + port + "/JMXConnector", username, password);
     }
 
     public ServerProxy(final String url, final String username, final String password) throws Exception {
@@ -142,8 +142,6 @@ public class ServerProxy
     }
 
     public void shutdown() {
-        log.info("Attempting to shutdown the remote server");
-        
         try {
             invoke("shutdown");
         }

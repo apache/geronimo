@@ -31,12 +31,12 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     
-    <artifactId>console-testsuite</artifactId>
-    <name>Geronimo TestSuite, Console</name>
+    <artifactId>deployment-testsuite</artifactId>
+    <name>Geronimo TestSuite, Deployment</name>
     <packaging>pom</packaging>
     
     <description>
-        Geronimo console testsuite.
+        Geronimo deployment testsuite.
     </description>
     
     <dependencies>
@@ -94,8 +94,42 @@
                                 </goals>
                                 <configuration>
                                     <background>true</background>
+                                    <!--
+                                    HACK: For now need to refresh the install since we
+                                          do not have an easy way to automate undeploy.
+                                    -->
+                                    <refresh>true</refresh>
                                 </configuration>
                             </execution>
+                            
+                            <execution>
+                                <id>deploy-ears</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>deploy-module</goal>
+                                </goals>
+                                <configuration>
+                                    <modules>
+                                        <module>
+                                            <groupId>org.apache.geronimo.testsupport</groupId>
+                                            <artifactId>test-ear-j2ee_1.3</artifactId>
+                                            <version>${pom.version}</version>
+                                            <type>ear</type>
+                                        </module>
+                                        
+                                        <module>
+                                            <groupId>org.apache.geronimo.testsupport</groupId>
+                                            <artifactId>test-ear-j2ee_1.4</artifactId>
+                                            <version>${pom.version}</version>
+                                            <type>ear</type>
+                                        </module>
+                                    </modules>
+                                </configuration>
+                            </execution>
+                            
+                            <!--
+                            TODO: Undeploy
+                            -->
                             
                             <execution>
                                 <id>stop-server</id>
@@ -132,31 +166,6 @@
                             </execution>
                         </executions>
                     </plugin>
-                    
-                    <!--
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-invoker-plugin</artifactId>
-                        
-                        <configuration>
-                            <debug>true</debug>
-                            <projectsDirectory>${pom.basedir}</projectsDirectory>
-                            <pomIncludes>
-                                <pomInclude>*/pom.xml</pomInclude>
-                            </pomIncludes>
-                        </configuration>
-                        
-                        <executions>
-                            <execution>
-                                <id>integration-test</id>
-                                <phase>integration-test</phase>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    -->
                 </plugins>
             </build>
         </profile>

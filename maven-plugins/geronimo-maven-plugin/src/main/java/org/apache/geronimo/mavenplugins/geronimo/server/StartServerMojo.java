@@ -17,21 +17,23 @@
  * under the License.
  */
 
-package org.apache.geronimo.mavenplugins.geronimo;
-
-import org.apache.maven.plugin.MojoExecutionException;
+package org.apache.geronimo.mavenplugins.geronimo.server;
 
 import java.io.File;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.apache.maven.plugin.MojoExecutionException;
+
 import org.apache.tools.ant.taskdefs.Java;
+
 import org.apache.geronimo.genesis.ObjectHolder;
+import org.apache.geronimo.mavenplugins.geronimo.ServerProxy;
 
 /**
  * Start the Geronimo server.
  *
- * @goal start
+ * @goal start-server
  *
  * @version $Rev$ $Date$
  */
@@ -218,7 +220,7 @@ public class StartServerMojo
         }
 
         // Verify server started
-        ServerProxy server = new ServerProxy(port, username, password);
+        ServerProxy server = new ServerProxy(hostname, port, username, password);
         boolean started = false;
         while (!started) {
             if (verifyTimedOut.isSet()) {

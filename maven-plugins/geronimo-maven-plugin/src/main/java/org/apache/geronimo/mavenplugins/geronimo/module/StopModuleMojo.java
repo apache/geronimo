@@ -17,19 +17,23 @@
  * under the License.
  */
 
-package org.apache.geronimo.mavenplugins.geronimo;
+package org.apache.geronimo.mavenplugins.geronimo.module;
 
 /**
- * Install a Geronimo server assembly.
- *
- * @goal install
- *
+ * Stop a module running on Geronimo server.
+ * 
+ * @goal stop-module
+ * 
  * @version $Rev$ $Date$
  */
-public class InstallAssemblyMojo
-    extends InstallerMojoSupport
+public class StopModuleMojo
+    extends StartStopUndeployMojoSupport
 {
-    protected void doExecute() throws Exception {
-        installAssembly();
+    //
+    // TODO: Add ignore not running flag ?
+    //
+    
+    public void doExecute() throws Exception {
+        stopModule(moduleId);
     }
 }

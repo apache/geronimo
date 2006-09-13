@@ -20,7 +20,7 @@
 <dep:service xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
     <dep:dependency>
         <dep:groupId>org.apache.geronimo.schema</dep:groupId>
-        <dep:artifactId>geronimo-schema-j2ee1.4</dep:artifactId>
+        <dep:artifactId>geronimo-schema-j2ee_1.4</dep:artifactId>
         <dep:version>1.0-SNAPSHOT</dep:version>
     </dep:dependency>
 </dep:service>
