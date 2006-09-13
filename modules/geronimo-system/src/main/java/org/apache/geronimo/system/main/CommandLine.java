@@ -89,6 +89,16 @@ public class CommandLine {
 
     public void invokeMainGBean(List configurations, AbstractNameQuery mainGBeanQuery, String mainMethod, String[] args) throws Exception {
         startKernel();
+        Runtime.getRuntime().addShutdownHook(new Thread("Geronimo shutdown thread") {
+            public void run() {
+                log.info("Server shutdown begun");
+                try {
+                    stopKernel();
+                } catch (GBeanNotFoundException e) {
+
+                }
+            }
+        });
         loadConfigurations(configurations);
 
         log.info("Server startup completed");
@@ -108,9 +118,6 @@ public class CommandLine {
                 new Object[]{args},
                 new String[]{String[].class.getName()});
 
-        log.info("Server shutdown begun");
-
-        stopKernel();
     }
 
     protected void startKernel() throws Exception {
