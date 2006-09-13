@@ -17,38 +17,19 @@
  * under the License.
  */
 
-package org.apache.geronimo.mavenplugins.geronimo;
-
-import org.apache.maven.plugin.MojoExecutionException;
+package org.apache.geronimo.mavenplugins.geronimo.server;
 
 /**
- * Stop the Geronimo server.
+ * Install a Geronimo server assembly.
  *
- * @goal stop
+ * @goal install-assembly
  *
  * @version $Rev$ $Date$
  */
-public class StopServerMojo
-    extends ServerMojoSupport
+public class InstallAssemblyMojo
+    extends InstallerMojoSupport
 {
     protected void doExecute() throws Exception {
-        ServerProxy server = new ServerProxy(port, username, password);
-
-        //
-        // TODO: Maybe we just need isStarted() not need to be fully started?
-        //
-        
-        if (!server.isFullyStarted()) {
-            throw new MojoExecutionException("Server does not appear to be started");
-        }
-        else {
-            log.info("Stopping Geronimo server...");
-            
-            server.shutdown();
-
-            //
-            // TODO: Verify its down?
-            //
-        }
+        installAssembly();
     }
 }
