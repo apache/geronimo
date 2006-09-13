@@ -90,7 +90,7 @@
                                 <id>start-server</id>
                                 <phase>pre-integration-test</phase>
                                 <goals>
-                                    <goal>start</goal>
+                                    <goal>start-server</goal>
                                 </goals>
                                 <configuration>
                                     <background>true</background>
@@ -101,7 +101,7 @@
                                 <id>stop-server</id>
                                 <phase>post-integration-test</phase>
                                 <goals>
-                                    <goal>stop</goal>
+                                    <goal>stop-server</goal>
                                 </goals>
                             </execution>
                         </executions>
