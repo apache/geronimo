@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.geronimo.testsuite.console;
+package org.apache.geronimo.testsuite.deployment;
 
 import org.apache.geronimo.testsupport.TestSupport;
 

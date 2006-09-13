@@ -17,33 +17,20 @@
  * under the License.
  */
 
-package org.apache.geronimo.testsuite.console;
+package org.apache.geronimo.testsuite.deployment;
 
 /**
  * ???
  *
  * @version $Rev$ $Date$
  */
-public class LinkCheckTest
-    extends ConsoleTestSupport
+public class TestEar13Test
+    extends SeleniumTestSupport
 {
     /**
      * @testng.test
      */
-    public void testServerInfoLink() throws Exception {
-        login();
-        
-        selenium.click("link=Information");
-        selenium.waitForPageToLoad("30000");
-        assertEquals("Geronimo Console", selenium.getTitle());
-        
-        assertTrue(selenium.isTextPresent("Geronimo Version"));
-        assertTrue(selenium.isTextPresent("Geronimo Start Time"));
-        
-        assertEquals("Server Info", selenium.getText(
-            "xpath=/html/body/table[@id='rootfragment']/tbody/tr[2]/td/table/tbody/tr[2]/td[4]/table/tbody/tr[1]/td/table/tbody/tr[1]/td/div/table/tbody/tr/td[2]/table/tbody/tr/td[1]/strong"));
-        
-        logout();
+    public void testXXX() throws Exception {
     }
 }
 

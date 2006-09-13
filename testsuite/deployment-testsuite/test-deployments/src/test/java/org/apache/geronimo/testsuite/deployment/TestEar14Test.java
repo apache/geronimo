@@ -19,32 +19,18 @@
 
 package org.apache.geronimo.testsuite.deployment;
 
-import com.thoughtworks.selenium.Selenium;
-import com.thoughtworks.selenium.DefaultSelenium;
-
-import org.openqa.selenium.server.SeleniumServer;
-
 /**
- * Provides custom extentions to Selenium.
+ * ???
  *
  * @version $Rev$ $Date$
  */
-public class ExtendedSelenium
-    extends DefaultSelenium
+public class TestEar14Test
+    extends SeleniumTestSupport
 {
-    public ExtendedSelenium(final String serverHost, final int serverPort, final String browserStartCommand, final String browserURL) {
-        super(serverHost, serverPort, browserStartCommand, browserURL);
-    }
-    
     /**
-     * Remove a cookie from the browser.
-     *
-     * <p>
-     * This requires some custom hooks in <tt>user-extensions.js</tt>.  
-     * When using the <tt>selenium-maven-plugin</tt> the defaults should be merged
-     * into the <tt>user-extensions.js</tt> which is loaded by the server.
+     * @testng.test
      */
-    public void removeCookie(final String name, final String path) {
-        this.getEval("selenium.removeCookie('" + name + "', '" + path + "')");
+    public void testXXX() throws Exception {
     }
 }
+
