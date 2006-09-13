@@ -30,7 +30,11 @@ public class TestEar13Test
     /**
      * @testng.test
      */
-    public void testXXX() throws Exception {
+    public void testIndexContent() throws Exception {
+        selenium.open("/test-1_3/");
+        selenium.waitForPageToLoad("30000");
+        assertEquals("Hello J2EE 1.3", selenium.getTitle());
+        assertEquals("Hello J2EE 1.3", selenium.getText("xpath=/html/body"));
     }
 }
 
