@@ -202,7 +202,7 @@ public class StartServerMojo
         };
         t.start();
 
-        log.info("Waiting for Geronimo server...");
+        log.debug("Waiting for Geronimo server...");
 
         // Setup a callback to time out verification
         final ObjectHolder verifyTimedOut = new ObjectHolder();
