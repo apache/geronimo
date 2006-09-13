@@ -22,23 +22,8 @@
 
 <openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.1">
 
-    <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
-        <moduleId>
-            <groupId>org.apache.geronimo.test</groupId>
-            <artifactId>test-ejb-j2ee-1.4</artifactId>
-            <version>1.0</version>
-            <type>ejb</type>
-        </moduleId>
-        <dependencies>
-            <dependency>
-                <groupId>console.dbpool</groupId>
-                <artifactId>DefaultDatasource</artifactId>
-            </dependency>
-        </dependencies>
-    </environment>
-
     <cmp-connection-factory>
-        <resource-link>DefaultDatasource</resource-link>
+        <resource-link>SystemDatasource</resource-link>
     </cmp-connection-factory>
 
     <enterprise-beans>
