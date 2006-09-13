@@ -24,17 +24,17 @@ package org.apache.geronimo.testsuite.deployment;
  *
  * @version $Rev$ $Date$
  */
-public class TestEar14Test
+public class Ear13Test
     extends SeleniumTestSupport
 {
     /**
      * @testng.test
      */
     public void testIndexContent() throws Exception {
-        selenium.open("/test-1_4/");
+        selenium.open("/test-1_3/");
         selenium.waitForPageToLoad("30000");
-        assertEquals("Hello J2EE 1.4", selenium.getTitle());
-        assertEquals("Hello J2EE 1.4", selenium.getText("xpath=/html/body"));
+        assertEquals("Hello J2EE 1.3", selenium.getTitle());
+        assertEquals("Hello J2EE 1.3", selenium.getText("xpath=/html/body"));
     }
 }
 

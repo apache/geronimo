@@ -31,7 +31,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     
-    <artifactId>basic</artifactId>
+    <artifactId>test-deployments</artifactId>
     <name>Geronimo TestSuite, Deployment :: Test Deployments</name>
     <packaging>jar</packaging>
     
