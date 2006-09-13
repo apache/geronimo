@@ -26,17 +26,17 @@
     
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
-        <artifactId>console-testsuite</artifactId>
+        <artifactId>deployment-testsuite</artifactId>
         <version>1.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     
     <artifactId>basic</artifactId>
-    <name>Geronimo TestSuite, Console :: Basic</name>
+    <name>Geronimo TestSuite, Deployment :: Test Deployments</name>
     <packaging>jar</packaging>
     
     <description>
-        Basic test for the Geronimo console.
+        Tests for the test-deployables.
     </description>
     
     <dependencies>
