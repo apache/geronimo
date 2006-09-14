@@ -47,8 +47,6 @@ public class ClientCommandLine extends CommandLine {
             String[] clientArgs = new String[args.length -1];
             System.arraycopy(args, 1, clientArgs, 0, clientArgs.length);
             new ClientCommandLine(configuration, clientArgs);
-
-            log.info("Client shutdown completed");
         } catch (Exception e) {
             ExceptionUtil.trimStackTrace(e);
             e.printStackTrace();

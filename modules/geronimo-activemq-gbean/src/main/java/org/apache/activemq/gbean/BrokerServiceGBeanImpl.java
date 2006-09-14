@@ -14,6 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.apache.activemq.gbean;
 
 import java.net.URI;
@@ -33,7 +34,6 @@ import org.apache.geronimo.management.geronimo.JMSManager;
 import org.apache.geronimo.management.geronimo.NetworkConnector;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
-
 /**
  * Default implementation of the ActiveMQ Message Server
  *
@@ -41,7 +41,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  */
 public class BrokerServiceGBeanImpl implements GBeanLifecycle, BrokerServiceGBean {
 
-    private Log log = LogFactory.getLog(getClass().getName());
+    private Log log = LogFactory.getLog(getClass());
 
     private String brokerName;
     private String brokerUri;
@@ -52,6 +52,7 @@ public class BrokerServiceGBeanImpl implements GBeanLifecycle, BrokerServiceGBea
     private ClassLoader classLoader;
     private String objectName;
     private JMSManager manager;
+    private boolean useShutdownHook;
 
     public BrokerServiceGBeanImpl() {
     }
@@ -61,23 +62,24 @@ public class BrokerServiceGBeanImpl implements GBeanLifecycle, BrokerServiceGBea
     }
 
     public synchronized void doStart() throws Exception {
-        	ClassLoader old = Thread.currentThread().getContextClassLoader();
-        	Thread.currentThread().setContextClassLoader(getClassLoader());
-        	try {
-    	        if (brokerService == null) {
-    	            brokerService = createContainer();
-    	        }
-                DefaultPersistenceAdapterFactory persistenceFactory = (DefaultPersistenceAdapterFactory) brokerService.getPersistenceFactory();
-                persistenceFactory.setDataDirectory(serverInfo.resolvePath(dataDirectory));
-                persistenceFactory.setDataSource((DataSource) dataSource.$getResource());
-                brokerService.start();
-        	} finally {
-            	Thread.currentThread().setContextClassLoader(old);
-        	}
+        ClassLoader old = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(getClassLoader());
+        try {
+            if (brokerService == null) {
+                brokerService = createContainer();
+            }
+            brokerService.setUseShutdownHook(isUseShutdownHook());
+            DefaultPersistenceAdapterFactory persistenceFactory = (DefaultPersistenceAdapterFactory) brokerService.getPersistenceFactory();
+            persistenceFactory.setDataDirectory(serverInfo.resolvePath(dataDirectory));
+            persistenceFactory.setDataSource((DataSource) dataSource.$getResource());
+            brokerService.start();
+        } finally {
+            Thread.currentThread().setContextClassLoader(old);
+        }
     }
 
     protected BrokerService createContainer() throws Exception {
-        if( brokerUri!=null ) {
+        if (brokerUri != null) {
             BrokerService answer = BrokerFactory.createBroker(new URI(brokerUri));
             brokerName = answer.getBrokerName();
             return answer;
@@ -103,7 +105,7 @@ public class BrokerServiceGBeanImpl implements GBeanLifecycle, BrokerServiceGBea
             try {
                 temp.stop();
             } catch (Exception e) {
-                log.info("Caught while closing due to failure: " + e, e);
+                log.warn("Caught while closing due to failure: " + e, e);
             }
         }
     }
@@ -116,6 +118,7 @@ public class BrokerServiceGBeanImpl implements GBeanLifecycle, BrokerServiceGBea
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
         infoBuilder.addAttribute("brokerName", String.class, true);
         infoBuilder.addAttribute("brokerUri", String.class, true);
+        infoBuilder.addAttribute("useShutdownHook", Boolean.TYPE, true);
         infoBuilder.addAttribute("dataDirectory", String.class, true);
         infoBuilder.addReference("dataSource", ConnectionFactorySource.class);
         infoBuilder.addAttribute("objectName", String.class, false);
@@ -218,5 +221,12 @@ public class BrokerServiceGBeanImpl implements GBeanLifecycle, BrokerServiceGBea
     public void setClassLoader(ClassLoader classLoader) {
         this.classLoader = classLoader;
     }
-	
+
+    public boolean isUseShutdownHook() {
+        return useShutdownHook;
+    }
+
+    public void setUseShutdownHook(final boolean useShutdownHook) {
+        this.useShutdownHook = useShutdownHook;
+    }
 }

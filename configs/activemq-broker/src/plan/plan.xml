@@ -28,6 +28,7 @@
         <attribute name="brokerURI">xbean:file:/path/to/activemq.xml</attribute>
         -->
         <attribute name="brokerName">possibly-unique-broker</attribute>
+        <attribute name="useShutdownHook">false</attribute>
         <attribute name="dataDirectory">activemq-data</attribute>
         <reference name="dataSource">
             <name>SystemDatasource</name>
@@ -35,9 +36,6 @@
         <reference name="manager">
             <name>ActiveMQManager</name>
         </reference>
-        <dependency>
-            <name>SystemProperties</name>
-        </dependency>
         <reference name="serverInfo">
             <name>ServerInfo</name>
         </reference>
@@ -68,12 +66,6 @@
         <reference name="brokerService">
             <name>ActiveMQ</name>
         </reference>
-    </gbean>
-
-    <gbean name="SystemProperties" class="org.apache.geronimo.system.properties.SystemProperties">
-        <attribute name="systemProperties">
-            activemq.broker.disable-clean-shutdown=true
-        </attribute>
     </gbean>
 
 </module>
