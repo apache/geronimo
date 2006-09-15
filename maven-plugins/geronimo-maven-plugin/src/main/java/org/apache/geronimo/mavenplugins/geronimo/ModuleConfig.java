@@ -38,26 +38,13 @@ public class ModuleConfig
      */
     private File plan;
 
-    //
-    // FIXME: This is bad, as someone can configure an module's archive here which will cause unexpected
-    //        problems.
-
-    private File archive;
-
+    
     public void setPlan(final File plan) {
         this.plan = plan;
     }
 
     public File getPlan() {
         return plan;
-    }
-
-    public void setArchive(final File archive) {
-        this.archive = archive;
-    }
-
-    public File getArchive() {
-        return archive;
     }
 
 }

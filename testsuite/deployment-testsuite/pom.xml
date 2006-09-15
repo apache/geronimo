@@ -94,14 +94,10 @@
                                 </goals>
                                 <configuration>
                                     <background>true</background>
-                                    <!--
-                                    HACK: For now need to refresh the install since we
-                                          do not have an easy way to automate undeploy.
-                                    -->
-                                    <refresh>true</refresh>
                                 </configuration>
                             </execution>
-                            
+
+
                             <execution>
                                 <id>deploy-ears</id>
                                 <phase>pre-integration-test</phase>
@@ -127,9 +123,34 @@
                                 </configuration>
                             </execution>
                             
-                            <!--
-                            TODO: Undeploy
-                            -->
+                            <execution>
+                                <id>undeploy-ear-as-module</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>undeploy-module</goal>
+                                </goals>
+                                <configuration>
+                                  <modules>
+                                        <module>
+                                            <groupId>org.apache.geronimo.testsupport</groupId>
+                                            <artifactId>test-ear-j2ee_1.3</artifactId>
+                                            <version>${pom.version}</version>
+                                            <type>ear</type>
+                                        </module>
+                                  </modules>
+                                </configuration>
+                            </execution>
+
+                            <execution>
+                                <id>undeploy-ear-as-moduleId</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>undeploy-module</goal>
+                                </goals>
+                                <configuration>
+                                    <moduleId>org.apache.geronimo.testsupport/test-ear-j2ee_1.4/${pom.version}/ear</moduleId>
+                                </configuration>
+                            </execution>
                             
                             <execution>
                                 <id>stop-server</id>

@@ -19,6 +19,10 @@
 
 package org.apache.geronimo.mavenplugins.geronimo.module;
 
+import org.apache.geronimo.mavenplugins.geronimo.ModuleConfig;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+
 /**
  * Support for start/stop/undeploy mojos.
  *
@@ -35,7 +39,40 @@ public abstract class StartStopUndeployMojoSupport
      * The id of the module to be started in the format of <tt>groupId/artifactId/version/type</tt>.
      *
      * @parameter expression="${moduleId}
-     * @required
      */
     protected String moduleId = null;
+
+    protected void init() throws MojoExecutionException, MojoFailureException {
+        super.init();
+
+        if (moduleId != null) {
+            log.info("Using non-artifact based module id: " + moduleId);
+
+            // Add the single module to the list
+            ModuleConfig moduleConfig = createModuleConfigFromId(moduleId);
+            modules = new ModuleConfig[] {
+                moduleConfig
+            };
+        }
+        else if (modules == null || modules.length == 0) {
+            throw new MojoExecutionException("At least one module configuration (or moduleId) must be specified");
+        }
+    }
+
+    private ModuleConfig createModuleConfigFromId(String moduleId) throws MojoExecutionException {
+        assert moduleId != null;
+
+        ModuleConfig moduleConfig = new ModuleConfig();
+        moduleId = moduleId.replace('\\', '/');
+        String[] splitStr = moduleId.split("/");
+        if (splitStr.length != 4) {
+            throw new MojoExecutionException("Invalid moduleId: " + moduleId);
+        }
+        moduleConfig.setGroupId(splitStr[0]);
+        moduleConfig.setArtifactId(splitStr[1]);
+        moduleConfig.setVersion(splitStr[2]);
+        moduleConfig.setType(splitStr[3]);
+         
+        return moduleConfig;
+    }
 }

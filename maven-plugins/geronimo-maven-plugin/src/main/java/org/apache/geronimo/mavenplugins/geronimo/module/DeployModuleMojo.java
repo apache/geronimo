@@ -46,13 +46,6 @@ public class DeployModuleMojo
     extends ModuleMojoSupport
 {
     /**
-     * List of module artifact configurations.  Artifacts need to point to jar | war | ear | rar archive.
-     *
-     * @parameter
-     */
-    protected ModuleConfig[] modules = null;
-
-    /**
      * A file which points to a specific module's jar | war | ear | rar archive.
      * If this parameter is set, then it will be used instead of from the
      * modules configuration.
@@ -81,38 +74,23 @@ public class DeployModuleMojo
     private boolean startModules = false;
 
     public void doExecute() throws Exception {
+        List completed = new ArrayList();
+
         if (moduleArchive != null) {
             log.info("Using non-artifact based module archive: " + moduleArchive);
 
-            // Add the single module to the list
-            ModuleConfig moduleConfig = new ModuleConfig();
-            moduleConfig.setArchive(moduleArchive);
-            moduleConfig.setPlan(modulePlan);
-
-            modules = new ModuleConfig[] {
-                moduleConfig
-            };
+            TargetModuleID[] ids = distribute(moduleArchive, modulePlan);
+            completed.add(ids);
         }
         else if (modules == null || modules.length == 0) {
             throw new MojoExecutionException("At least one module configuration (or moduleArchive) must be specified");
         }
+        else {
+            log.info("Using artifact based module archive(s)...");
 
-        List completed = new ArrayList();
-        DeploymentManager manager = getDeploymentManager();
-        Target[] targets = manager.getTargets();
-
-        for (int i=0; i<modules.length; i++) {
-            File file = getModuleArchive(modules[i]);
-            log.info("Distributing module artifact: " + file);
-
-            ProgressObject progress = manager.distribute(targets, file, modules[i].getPlan());
-            DeploymentStatus status = waitFor(progress);
-
-            if (status.isFailed()) {
-                throw new MojoExecutionException("Distribution failed: " + status.getMessage());
-            }
-            else {
-                completed.add(progress.getResultTargetModuleIDs());
+            for (int i=0; i<modules.length; i++) {
+                TargetModuleID[] ids = distribute(getModuleArchive(modules[i]), modules[i].getPlan());
+                completed.add(ids);
             }
         }
 
@@ -127,7 +105,7 @@ public class DeployModuleMojo
                     log.info("Starting module: " + moduleIds[i].getModuleID() + (url == null ? "" : ("; URL: " + url)));
                 }
 
-                ProgressObject progress = manager.start(moduleIds);
+                ProgressObject progress = getDeploymentManager().start(moduleIds);
                 DeploymentStatus status = waitFor(progress);
 
                 if (status.isFailed()) {
@@ -141,13 +119,6 @@ public class DeployModuleMojo
     }
 
     private File getModuleArchive(final ModuleConfig module) throws MojoExecutionException {
-        //
-        // HACK: For single non-artifact module archive
-        //
-        if (module.getArchive() != null) {
-            return module.getArchive();
-        }
-
         Artifact artifact = getArtifact(module);
 
         File file = artifact.getFile();
@@ -167,5 +138,22 @@ public class DeployModuleMojo
         }
 
         return file;
+    }
+
+    private TargetModuleID[] distribute(final File file, final File plan) throws Exception {
+        assert file != null;
+        
+        log.info("Distributing module artifact: " + file);
+
+        DeploymentManager manager = getDeploymentManager();
+        Target[] targets = manager.getTargets();
+        ProgressObject progress = manager.distribute(targets, file, plan);
+        DeploymentStatus status = waitFor(progress);
+
+        if (status.isFailed()) {
+            throw new MojoExecutionException("Distribution failed: " + status.getMessage());
+        }
+
+        return progress.getResultTargetModuleIDs();
     }
 }

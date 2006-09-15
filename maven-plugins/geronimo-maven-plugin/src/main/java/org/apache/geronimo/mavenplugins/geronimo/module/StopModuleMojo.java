@@ -34,6 +34,6 @@ public class StopModuleMojo
     //
     
     public void doExecute() throws Exception {
-        stopModule(moduleId);
+        stopModule();
     }
 }

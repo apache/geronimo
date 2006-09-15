@@ -34,6 +34,6 @@ public class UndeployModuleMojo
     //
     
     public void doExecute() throws Exception {
-        undeployModule(moduleId);
+        undeployModule();
     }
 }

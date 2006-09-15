@@ -34,6 +34,6 @@ public class StartModuleMojo
     //
 
     public void doExecute() throws Exception {
-        startModule(moduleId);
+        startModule();
     }
 }
