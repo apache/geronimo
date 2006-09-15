@@ -46,13 +46,6 @@
     </scm>
     
     <dependencies>
-        <!-- not part of the patch
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-clustering-builder</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-	-->
 
         <dependency>
             <groupId>${pom.groupId}</groupId>
