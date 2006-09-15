@@ -46,7 +46,6 @@ import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.jetty.interceptor.BeforeAfter;
 import org.apache.geronimo.jetty.interceptor.ComponentContextBeforeAfter;
 import org.apache.geronimo.jetty.interceptor.InstanceContextBeforeAfter;
-import org.apache.geronimo.jetty.interceptor.RequestWrappingBeforeAfter;
 import org.apache.geronimo.jetty.interceptor.SecurityContextBeforeAfter;
 import org.apache.geronimo.jetty.interceptor.ThreadClassloaderBeforeAfter;
 import org.apache.geronimo.jetty.interceptor.WebApplicationContextBeforeAfter;
@@ -71,7 +70,8 @@ import org.mortbay.jetty.servlet.Dispatcher;
 import org.mortbay.jetty.servlet.FilterHolder;
 import org.mortbay.jetty.servlet.JSR154Filter;
 import org.mortbay.jetty.servlet.ServletHolder;
-import org.mortbay.jetty.servlet.SessionManager;
+import org.mortbay.jetty.servlet.ServletHttpRequest;
+import org.mortbay.jetty.servlet.ServletHttpResponse;
 import org.mortbay.jetty.servlet.WebApplicationContext;
 import org.mortbay.jetty.servlet.WebApplicationHandler;
 
@@ -93,6 +93,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     private final String webAppRoot;
     private final URL configurationBaseURL;
     private final WebApplicationHandler handler;
+    private final HandleInterceptor handleInterceptor;
     private String displayName;
     private final String[] welcomeFiles;
 
@@ -103,47 +104,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     private final String objectName;
 
     private final Set servletNames = new HashSet();
-
-    private String sessionManager;
-
-
-    public static class SessionManagerConfiguration implements WebApplicationContext.Configuration {
-
-        private WebApplicationContext webAppContext;
-
-
-        public SessionManagerConfiguration() {
-        }
-
-
-        public void setWebApplicationContext(WebApplicationContext webAppContext) {
-            this.webAppContext = webAppContext;
-        }
-
-        public WebApplicationContext getWebApplicationContext() {
-            return this.webAppContext;
-        }
-
-        public void configureClassPath() throws Exception {
-        }
-
-        public void configureDefaults() throws Exception {
-        }
-
-
-        public void configureWebApp() throws Exception {
-            //setup a SessionManager
-            log.debug("About to configure a SessionManager");
-            String sessionManagerClassName = ((JettyWebAppContext) webAppContext).getSessionManager();
-            if (sessionManagerClassName != null) {
-                Class clazz = Thread.currentThread().getContextClassLoader().loadClass(sessionManagerClassName);
-                Object o = clazz.newInstance();
-                log.debug("Setting SessionManager type=" + clazz.getName() + " instance=" + o);
-                this.webAppContext.getServletHandler().setSessionManager((SessionManager) o);
-            }
-        }
-
-    }
 
     /**
      * @deprecated never use this... this is only here because Jetty WebApplicationContext is externalizable
@@ -156,24 +116,22 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         jettyContainer = null;
         webAppRoot = null;
         handler = null;
+        handleInterceptor = null; 
         chain = null;
         contextLength = 0;
         securityInterceptor = null;
         welcomeFiles = null;
         objectName = null;
-        sessionManager = null;
         configurationBaseURL = null;
     }
 
     public JettyWebAppContext(String objectName,
-            String originalSpecDD,
-            String sessionManager,
-            Map componentContext,
-            ClassLoader classLoader,
-            URL configurationBaseUrl,
-            Set unshareableResources,
-            Set applicationManagedSecurityResources,
-
+                              String originalSpecDD,
+                              Map componentContext,
+                              ClassLoader classLoader,
+                              URL configurationBaseUrl,
+                              Set unshareableResources,
+                              Set applicationManagedSecurityResources,
             String displayName,
             Map contextParamMap,
             Collection listenerClassNames,
@@ -186,6 +144,8 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             String realmName,
             Map tagLibMap,
             int sessionTimeoutSeconds,
+                              WebApplicationHandlerFactory handlerFactory,
+                              HandleInterceptor handleInterceptor,
 
             String policyContextID,
             String securityRealmName,
@@ -216,11 +176,10 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             verifyObjectName(myObjectName);
         }
         this.configurationBaseURL = configurationBaseUrl;
-
         this.jettyContainer = jettyContainer;
-
         this.originalSpecDD = originalSpecDD;
-
+        this.handleInterceptor = handleInterceptor;
+        
         setConfigurationClassNames(new String[]{});
 
         webAppRoot = configurationBaseUrl.toString();
@@ -232,8 +191,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             setVirtualHosts(host.getVirtualHosts());
         }
 
-        //use our wrapper to avoid leaking subject back to the caller
-        handler = new JettyWebApplicationHandler();
+        handler = handlerFactory.createHandler();
         addHandler(handler);
 
         //stuff from spec dd
@@ -274,7 +232,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             securityInterceptor = null;
         }
 //      end JACC
-        interceptor = new RequestWrappingBeforeAfter(interceptor, handler);
         chain = interceptor;
         contextLength = index;
 
@@ -283,9 +240,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         handler.addFilterHolder(jsr154FilterHolder);
         jsr154FilterHolder.setInitParameter("unwrappedDispatch", "true");
         handler.addFilterPathMapping("/*", "jsr154", Dispatcher.__REQUEST | Dispatcher.__FORWARD | Dispatcher.__INCLUDE | Dispatcher.__ERROR);
-
-        configureSessionManager(sessionManager);
-
     }
 
 
@@ -357,7 +311,28 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         chain.after(context, httpRequest, httpResponse);
     }
 
+    public void handle(HttpRequest httpRequest, HttpResponse httpResponse) throws HttpException, IOException {
+        super.handle(httpRequest, httpResponse);
+    }
+    
+    public void handle(String pathInContext, String pathParams, HttpRequest httpRequest, HttpResponse httpResponse)
+            throws HttpException, IOException {
+        ServletHttpRequest request = (ServletHttpRequest) httpRequest.getWrapper();
+        if (null == request) {
+            request = new GeronimoServletHttpRequest(handler, null, httpRequest);
+            ((GeronimoServletHttpRequest) request).setRequestedSessionId(pathParams);
+            ServletHttpResponse response = new ServletHttpResponse(request, httpResponse);
+            httpRequest.setWrapper(request);
+            httpResponse.setWrapper(response);
+        }
 
+        if (null != handleInterceptor) {
+            handleInterceptor.handle(pathInContext, pathParams, httpRequest, httpResponse, new EndHandleInterceptor());   
+        } else {
+            super.handle(pathInContext, pathParams, httpRequest, httpResponse);
+        }
+    }
+    
     public ClassLoader getWebClassLoader() {
         return webClassLoader;
     }
@@ -515,26 +490,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         }
     }
 
-    public String getSessionManager() {
-        return this.sessionManager;
-    }
-
-
-    private void configureSessionManager(String sessionManagerClassName) {
-        this.sessionManager = sessionManagerClassName;
-        if (this.sessionManager != null) {
-            addConfiguration(SessionManagerConfiguration.class.getName());
-        }
-    }
-
-    private void addConfiguration(String configClassName) {
-        String[] configClassNames = getConfigurationClassNames();
-        String[] newConfigClassNames = new String[configClassNames == null ? 1 : configClassNames.length + 1];
-        System.arraycopy(configClassNames, 0, newConfigClassNames, 0, configClassNames.length);
-
-        newConfigClassNames[newConfigClassNames.length - 1] = configClassName;
-    }
-
     /**
      * ObjectName must match this pattern:
      * <p/>
@@ -591,8 +546,22 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         return super.checkSecurityConstraints(pathInContext, request, response);
     }
 
+    private void doHandle(String pathInContext, String pathParams, HttpRequest httpRequest, HttpResponse httpResponse)
+            throws HttpException, IOException {
+        super.handle(pathInContext, pathParams, httpRequest, httpResponse);
+    }
+    
+    private class EndHandleInterceptor implements HandleInterceptor {
 
+        public void handle(String pathInContext, String pathParams, HttpRequest httpRequest, HttpResponse httpResponse,
+                HandleInterceptor end) throws HttpException, IOException {
+            doHandle(pathInContext, pathParams, httpRequest, httpResponse);
+        }
+    }
+    
     public static final GBeanInfo GBEAN_INFO;
+    public static final String GBEAN_REF_WEB_APPLICATION_HANDLER_FACTORY = "WebApplicationHandlerFactory";
+    public static final String GBEAN_REF_HANDLE_INTERCEPTOR = "HandleInterceptor";
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("Jetty WebApplication Context", JettyWebAppContext.class, NameFactory.WEB_MODULE);
@@ -612,9 +581,10 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         infoBuilder.addAttribute("realmName", String.class, true);
         infoBuilder.addAttribute("tagLibMap", Map.class, true);
         infoBuilder.addAttribute("sessionTimeoutSeconds", int.class, true);
-
-
-        infoBuilder.addAttribute("sessionManager", String.class, true);
+        infoBuilder.addReference(GBEAN_REF_WEB_APPLICATION_HANDLER_FACTORY, WebApplicationHandlerFactory.class,
+                NameFactory.GERONIMO_SERVICE);
+        infoBuilder.addReference(GBEAN_REF_HANDLE_INTERCEPTOR, HandleInterceptor.class, NameFactory.GERONIMO_SERVICE);
+        
         infoBuilder.addAttribute("componentContext", Map.class, true);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
         infoBuilder.addAttribute("configurationBaseUrl", URL.class, true);
@@ -652,7 +622,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         infoBuilder.setConstructor(new String[]{
                 "objectName",
                 "deploymentDescriptor",
-                "sessionManager",
                 "componentContext",
                 "classLoader",
                 "configurationBaseUrl",
@@ -671,6 +640,8 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
                 "realmName",
                 "tagLibMap",
                 "sessionTimeoutSeconds",
+                GBEAN_REF_WEB_APPLICATION_HANDLER_FACTORY,
+                GBEAN_REF_HANDLE_INTERCEPTOR,
 
                 "policyContextID",
                 "securityRealmName",

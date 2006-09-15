@@ -90,7 +90,6 @@ public class AbstractWebModuleTest extends TestSupport {
 
         JettyWebAppContext app = new JettyWebAppContext(null,
                 null,
-                null,
                 Collections.EMPTY_MAP,
                 cl,
                 new URL(configurationBaseURL, uriString),
@@ -108,6 +107,8 @@ public class AbstractWebModuleTest extends TestSupport {
                 realmName,
                 null,
                 0,
+                new DefaultWebApplicationHandlerFactory(),
+                null,
                 policyContextId,
                 securityRealmName,
                 defaultPrincipal,

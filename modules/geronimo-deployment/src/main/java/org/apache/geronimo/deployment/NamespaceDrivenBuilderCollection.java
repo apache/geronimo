@@ -22,11 +22,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Collection;
 import java.util.List;
+import java.util.Collections;
 
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.xmlbeans.XmlObject;
 
 /**
@@ -38,7 +40,7 @@ public class NamespaceDrivenBuilderCollection {
     private final Set namespaces = new HashSet();
 
     public NamespaceDrivenBuilderCollection(Collection builders) {
-        this.builders = builders;
+        this.builders = builders == null? Collections.EMPTY_SET: builders;
         if (builders instanceof ReferenceCollection) {
             ((ReferenceCollection)builders).addReferenceCollectionListener(new ReferenceCollectionListener() {
 
@@ -53,7 +55,7 @@ public class NamespaceDrivenBuilderCollection {
                 }
             });
         }
-        for (Iterator iterator = builders.iterator(); iterator.hasNext();) {
+        for (Iterator iterator = this.builders.iterator(); iterator.hasNext();) {
             Object builder = iterator.next();
             addBuilder(builder);
         }
@@ -64,7 +66,14 @@ public class NamespaceDrivenBuilderCollection {
         if (namespaces.contains(namespace)) {
             throw new IllegalArgumentException("Duplicate namespace in builder set: " + namespace);
         }
-        namespaces.add(namespace);
+        namespaces.add(namespace);                                                                   
+    }
+
+    public void buildEnvironment(XmlObject container, Environment environment) throws DeploymentException {
+        for (Iterator iterator = builders.iterator(); iterator.hasNext();) {
+            NamespaceDrivenBuilder builder = (NamespaceDrivenBuilder) iterator.next();
+            builder.buildEnvironment(container, environment);
+        }
     }
 
     public void build(XmlObject container, DeploymentContext applicationContext, DeploymentContext moduleContext) throws DeploymentException {

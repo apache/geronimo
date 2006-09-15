@@ -85,6 +85,9 @@ public class GBeanBuilder implements NamespaceDrivenBuilder {
         attrRefMap.put(environmentBuilder.getNamespace(), environmentBuilder);
     }
 
+    public void buildEnvironment(XmlObject container, Environment environment) throws DeploymentException {
+    }
+
     public void build(XmlObject container, DeploymentContext applicationContext, DeploymentContext moduleContext) throws DeploymentException {
         XmlObject[] items = container.selectChildren(GBEAN_QNAME_SET);
         GbeanType[] gbeans = new GbeanType[items.length];

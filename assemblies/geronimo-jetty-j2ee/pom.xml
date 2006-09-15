@@ -219,6 +219,19 @@
         
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>jetty-clustering-builder-wadi</artifactId>
+            <version>${pom.version}</version>
+            <type>car</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>jetty-clustering-wadi</artifactId>
+            <version>${pom.version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>welcome-jetty</artifactId>
             <version>${pom.version}</version>
             <type>car</type>

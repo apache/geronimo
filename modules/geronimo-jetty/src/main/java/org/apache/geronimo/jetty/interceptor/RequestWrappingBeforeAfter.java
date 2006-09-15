@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.jetty.interceptor;
 
+import org.apache.geronimo.jetty.GeronimoServletHttpRequest;
 import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;
 import org.mortbay.jetty.servlet.ServletHandler;
@@ -40,7 +41,7 @@ public class RequestWrappingBeforeAfter implements BeforeAfter {
             if (request == null)
             {
                 // Build the request and response.
-                request = new ServletHttpRequest(handler, null, httpRequest);
+                request = new GeronimoServletHttpRequest(handler, null, httpRequest);
                 ServletHttpResponse response = new ServletHttpResponse(request, httpResponse);
                 httpRequest.setWrapper(request);
                 httpResponse.setWrapper(response);

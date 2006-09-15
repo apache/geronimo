@@ -47,6 +47,13 @@
             <version>${pom.version}</version>
         </dependency>
 
+        <!-- This dependency should be retrieved by transitivity -->
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-clustering</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-webservices</artifactId>
