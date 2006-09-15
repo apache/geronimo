@@ -73,7 +73,7 @@ public class DeployModuleMojo
      */
     private boolean startModules = false;
 
-    public void doExecute() throws Exception {
+    protected void doExecute() throws Exception {
         List completed = new ArrayList();
 
         if (moduleArchive != null) {

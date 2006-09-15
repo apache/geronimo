@@ -33,7 +33,7 @@ public class UndeployModuleMojo
     // TODO: Re-add support to skip undeploy if module is not yet stopped
     //
     
-    public void doExecute() throws Exception {
+    protected void doExecute() throws Exception {
         undeployModule();
     }
 }
