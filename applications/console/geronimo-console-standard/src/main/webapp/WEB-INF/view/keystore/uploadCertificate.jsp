@@ -5,7 +5,7 @@
 
 <script language="JavaScript">
 var <portlet:namespace/>formName = "<portlet:namespace/>KeystoreForm";
-var <portlet:namespace/>requiredFields = new Array("alias");
+var <portlet:namespace/>requiredFields = new Array("certificate", "alias");
 function <portlet:namespace/>validateForm(){
     return textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields);
 }

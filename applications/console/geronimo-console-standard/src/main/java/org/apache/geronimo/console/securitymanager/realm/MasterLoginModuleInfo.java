@@ -155,6 +155,10 @@ public class MasterLoginModuleInfo implements Serializable {
                         if(test != null) {
                             option.setDisplayOrder(Integer.parseInt(test.trim()));
                         }
+                        test = props.getProperty(prefix+fieldName+".blankAllowed");
+                        if(test != null) {
+                            option.setBlankAllowed("true".equalsIgnoreCase(test.trim()));
+                        }
                         fields.add(option);
                     }
                 }
@@ -191,6 +195,7 @@ public class MasterLoginModuleInfo implements Serializable {
         private boolean password = false;
         private int length = 30;
         private int displayOrder = 1;
+        private boolean blankAllowed = false;
 
         public OptionInfo(String name, String displayName, String description) {
             this.name = name;
@@ -236,6 +241,14 @@ public class MasterLoginModuleInfo implements Serializable {
 
         public int compareTo(Object o) {
             return displayOrder - ((OptionInfo)o).displayOrder;
+        }
+        
+        public boolean isBlankAllowed() {
+            return this.blankAllowed;
+        }
+        
+        public void setBlankAllowed(boolean blankAllowed) {
+            this.blankAllowed = blankAllowed;
         }
     }
 }

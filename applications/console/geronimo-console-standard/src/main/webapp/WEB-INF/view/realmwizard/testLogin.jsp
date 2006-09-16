@@ -2,6 +2,14 @@
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <portlet:defineObjects/>
 
+<script language="JavaScript">
+var <portlet:namespace/>formName = "<portlet:namespace/>RealmForm";
+var <portlet:namespace/>requiredFields = new Array('username');
+function <portlet:namespace/>validateForm(){
+    return textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields);
+}
+</script>
+
 <p><b>Create Security Realm</b> -- Step 4: Test Login</p>
 
 <p>From here you can enter a username and password for the main login module in the realm, and
@@ -75,7 +83,7 @@ does not invoke advanced features such as auditing or lockout.</p>
       </tr>
       <tr>
         <td></td>
-        <td><input type="submit" value="Next" /></td>
+        <td><input type="submit" value="Next" onClick="return <portlet:namespace/>validateForm()"/></td>
       </tr>
     </table>
 </form>

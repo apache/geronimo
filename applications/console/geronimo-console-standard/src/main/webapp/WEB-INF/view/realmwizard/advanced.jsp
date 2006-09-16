@@ -2,12 +2,32 @@
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <portlet:defineObjects/>
 
+<script language="JavaScript">
+var <portlet:namespace/>formName = "<portlet:namespace/>RealmForm";
+function <portlet:namespace/>validateForm(){
+    var valid = true;
+    var realmForm = document.forms[<portlet:namespace/>formName];
+    if(realmForm.elements['enableAuditing'].checked)
+        valid = textElementsNotEmpty(<portlet:namespace/>formName, new Array('auditPath'));
+    if(!valid) return false;
+    
+    if(realmForm.elements['enableLockout'].checked) {
+        var fields = new Array('lockoutCount', 'lockoutWindow', 'lockoutDuration');
+        for(i in fields) {
+            valid = checkIntegral(<portlet:namespace/>formName, fields[i]);
+            if(!valid) return false;
+        }
+    }
+    return true;
+}
+</script>
+
 <p><b>Create Security Realm</b> -- Step 3: Advanced Configuration</p>
 
 <c:if test="${!(empty AdvancedError)}"><p><font color="red"><b>Error: ${AdvancedError}</b></font></p></c:if>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
-<form name="<portlet:namespace/>RealmForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>RealmForm" action="<portlet:actionURL/>" onSubmit="return <portlet:namespace/>validateForm()">
     <input type="hidden" name="mode" value="process-advanced" />
     <input type="hidden" name="test" value="true" />
     <input type="hidden" name="name" value="${realm.name}" />
@@ -69,7 +89,7 @@
       <tr>
         <th valign="top"><div align="right">Enable Lockout:</div></th>
         <td valign="top">
-          <input type="checkbox" id="<portlet:namespace/>lockoutCheckbox" name="enableAuditing"<c:if test="${realm.lockoutEnabled}"> checked="checked"</c:if>
+          <input type="checkbox" id="<portlet:namespace/>lockoutCheckbox" name="enableLockout"<c:if test="${realm.lockoutEnabled}"> checked="checked"</c:if>
                  onclick="document.getElementById('<portlet:namespace/>lockoutDiv').style.display=this.checked ? 'block' : 'none';document.getElementById('<portlet:namespace/>lockoutCount').value='';document.getElementById('<portlet:namespace/>lockoutWindow').value='';document.getElementById('<portlet:namespace/>lockoutDuration').value='';"/>
           <div id="<portlet:namespace/>lockoutDiv" style="display: <c:choose><c:when test="${realm.lockoutEnabled}">block</c:when><c:otherwise>none</c:otherwise></c:choose>;">
           Lock a user after <input type="text" id="<portlet:namespace/>lockoutCount" name="lockoutCount" size="2" maxlength="3" value="${realm.lockoutCount}" />

@@ -1,6 +1,17 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 
+      <script language="JavaScript">
+        var <portlet:namespace/>requiredFieldsCommon = new Array('option-userSelect', 'option-groupSelect');
+        var <portlet:namespace/>requiredFieldsJDBC = new Array('option-jdbcDriver', 'jar', 'option-jdbcURL', 'option-jdbcUser', 'option-jdbcPassword');
+        function <portlet:namespace/>changeRequiredFields(par) {
+          if(par.value != '') // Database pool is selected
+            <portlet:namespace/>requiredFields = <portlet:namespace/>requiredFieldsCommon;
+          else
+            <portlet:namespace/>requiredFields = <portlet:namespace/>requiredFieldsCommon.concat(<portlet:namespace/>requiredFieldsJDBC);
+        }
+      </script>
       <tr>
         <th style="min-width: 140px"><div align="right">User SELECT SQL:</div></th>
         <td><input name="option-userSelect" type="text"
@@ -40,12 +51,15 @@
       <tr>
         <th><div align="right">Database Pool</div></th>
         <td>
-          <select name="option-databasePoolAbstractName">
+          <select name="option-databasePoolAbstractName" onChange="<portlet:namespace/>changeRequiredFields(this)">
             <option />
         <c:forEach var="pool" items="${pools}">
             <option value="${pool.abstractName}"<c:if test="${realm.options['dataSourceName'] eq pool.name && realm.options['dataSourceApplication'] eq pool.applicationName}"> selected</c:if>>${pool.displayName}</option>
         </c:forEach>
           </select>
+          <script language="JavaScript">
+            <portlet:namespace/>changeRequiredFields(document.forms[<portlet:namespace/>formName].elements['option-databasePoolAbstractName']);
+          </script>
         </td>
       </tr>
       <tr>

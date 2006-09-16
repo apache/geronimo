@@ -2,7 +2,22 @@
 <%@ taglib prefix="portlet" uri="http://java.sun.com/portlet" %>
 <portlet:defineObjects/>
 
-<form name="<portlet:namespace/>" action="<portlet:actionURL/>">
+<script language="JavaScript">
+var <portlet:namespace/>formName = "<portlet:namespace/>JmsConnectorForm";
+var <portlet:namespace/>requiredFields = new Array("host");
+var <portlet:namespace/>numericFields = new Array("port");
+function <portlet:namespace/>validateForm(){
+    if(!textElementsNotEmpty(<portlet:namespace/>formName, <portlet:namespace/>requiredFields))
+        return false;
+    for(i in <portlet:namespace/>numericFields) {
+        if(!checkIntegral(<portlet:namespace/>formName, <portlet:namespace/>numericFields[i]))
+            return false;
+    }
+    return true;
+}
+</script>
+
+<form name="<portlet:namespace/>JmsConnectorForm" action="<portlet:actionURL/>">
 <input type="hidden" name="mode" value="${mode}">
 <input type="hidden" name="protocol" value="${protocol}">
 <c:choose>
@@ -15,6 +30,16 @@
 </c:choose>
 <table width="100%%"  border="0">
 
+<!-- Current Task -->
+<c:choose>
+  <c:when test="${mode eq 'add'}">
+    <tr><th colspan="2" align="left">Add new ${protocol} connector for ${brokerName}</th></tr>
+  </c:when>
+  <c:otherwise>
+    <tr><th colspan="2" align="left">Edit ${protocol} connector ${connectorName} for ${brokerName}.</th></tr>
+  </c:otherwise>
+</c:choose>
+
 <!-- Name Field -->
 <c:if test="${mode eq 'add'}">
   <tr>
@@ -25,6 +50,9 @@
     <td><div align="right"></div></td>
     <td>A name that is different than the name for any other JMS connectors in the server</td>
   </tr>
+  <script language="JavaScript">
+    <portlet:namespace/>requiredFields = new Array("name").concat(<portlet:namespace/>requiredFields);
+  </script>
 </c:if>
 <!-- Host Field -->
   <tr>
@@ -48,10 +76,13 @@
     <td><div align="right"></div></td>
     <td>The network port to bind to.</td>
   </tr>
-<!-- Submit Button -->
+<!-- Form buttons -->
   <tr>
     <td><div align="right"></div></td>
-    <td><input name="submit" type="submit" value="Save"></td>
+    <td>
+      <input name="submit" type="submit" value="Save" onClick="return <portlet:namespace/>validateForm();">
+      <input name="reset" type="reset" value="Reset">
+    </td>
   </tr>
 </table>
 </form>

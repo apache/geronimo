@@ -2,6 +2,14 @@
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <portlet:defineObjects/>
 
+<script language="JavaScript">
+var <portlet:namespace/>formName = "<portlet:namespace/>RealmForm";
+var <portlet:namespace/>requiredFields = new Array("name");
+function <portlet:namespace/>validateForm(){
+    return textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields);
+}
+</script>
+
 <p><b>Create Security Realm</b> -- Step 1: Select Name and Type</p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
@@ -77,7 +85,7 @@
       </tr>
       <tr>
         <td></td>
-        <td><input type="submit" value="Next" /></td>
+        <td><input type="submit" value="Next" onclick="return <portlet:namespace/>validateForm()"/></td>
       </tr>
     </table>
 </form>

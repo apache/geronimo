@@ -116,6 +116,7 @@ public class JMSConnectorPortlet extends BaseJMSPortlet {
                 actionResponse.setRenderParameter("mode", "list");
             } else if(mode.equals("edit")) {
                 actionResponse.setRenderParameter("connectorURI", connectorURI);
+                actionResponse.setRenderParameter("brokerURI", brokerURI);
                 actionResponse.setRenderParameter("mode", "edit");
             } else if(mode.equals("delete")) {
                 AbstractName connectorAbstractName = new AbstractName(URI.create(connectorURI));
@@ -148,15 +149,20 @@ public class JMSConnectorPortlet extends BaseJMSPortlet {
                 String protocol = renderRequest.getParameter("protocol");
                 renderRequest.setAttribute("protocol", protocol);
                 renderRequest.setAttribute("brokerURI", brokerURI);
+                renderRequest.setAttribute("brokerName", new AbstractName(URI.create(brokerURI)).getName().get("name").toString());
                 renderRequest.setAttribute("mode", "add");
                 editView.include(renderRequest, renderResponse);
             } else if(mode.equals("edit")) {
+                String brokerURI = renderRequest.getParameter("brokerURI");
                 String connectorURI = renderRequest.getParameter("connectorURI");
                 JMSConnector connector = (JMSConnector)PortletManager.getManagedBean(renderRequest, new AbstractName(URI.create(connectorURI)));
                 if(connector == null) {
                     doList(renderRequest, manager, renderResponse);
                 } else {
                     renderRequest.setAttribute("connectorURI", connectorURI);
+                    renderRequest.setAttribute("brokerName", new AbstractName(URI.create(brokerURI)).getName().get("name").toString());
+                    renderRequest.setAttribute("connectorName", new AbstractName(URI.create(connectorURI)).getName().get("name").toString());
+                    renderRequest.setAttribute("protocol", connector.getProtocol());
                     renderRequest.setAttribute("port", new Integer(connector.getPort()));
                     renderRequest.setAttribute("host", connector.getHost());
                     renderRequest.setAttribute("mode", "save");
