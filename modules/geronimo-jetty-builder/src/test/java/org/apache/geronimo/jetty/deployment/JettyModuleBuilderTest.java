@@ -85,7 +85,7 @@ import org.apache.xmlbeans.impl.schema.SchemaTypeImpl;
  * @version $Rev:385232 $ $Date$
  */
 public class JettyModuleBuilderTest extends TestSupport {
-    
+
     private static Naming naming = new Jsr77Naming();
     private Artifact baseId = new Artifact("test", "base", "1", "car");
     private final AbstractName serverName = naming.createRootName(baseId, "Server", "J2EEServer");
@@ -269,7 +269,20 @@ public class JettyModuleBuilderTest extends TestSupport {
 
         defaultEnvironment.addDependency(baseId, ImportType.ALL);
         defaultEnvironment.setConfigId(webModuleArtifact);
-        builder = new JettyModuleBuilder(defaultEnvironment, new Integer(1800), Collections.EMPTY_LIST, new AbstractNameQuery(containerName), defaultServlets, defaultFilters, defaultFilterMappings, pojoWebServiceTemplate, Collections.singleton(webServiceBuilder), Collections.singleton(new GeronimoSecurityBuilderImpl()), Collections.singleton(new GBeanBuilder(null, null)), new NamingBuilderCollection(null, null), kernel);
+        builder = new JettyModuleBuilder(defaultEnvironment,
+                         new Integer(1800),
+                         Collections.EMPTY_LIST,
+                         new AbstractNameQuery(containerName),
+                         defaultServlets,
+                         defaultFilters,
+                         defaultFilterMappings,
+                         pojoWebServiceTemplate,
+                         Collections.singleton(webServiceBuilder),
+                         null,
+                         Collections.singleton(new GeronimoSecurityBuilderImpl()),
+                         Collections.singleton(new GBeanBuilder(null, null)),
+                         new NamingBuilderCollection(null, null), 
+                         kernel);
     }
 
     protected void tearDown() throws Exception {

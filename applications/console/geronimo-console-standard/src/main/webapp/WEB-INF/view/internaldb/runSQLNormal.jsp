@@ -4,13 +4,25 @@
 <%@ taglib prefix="portlet" uri="http://java.sun.com/portlet" %>
 <portlet:defineObjects/>
 
-<form action="<portlet:actionURL portletMode='view'/>" method="post">
+<script language="JavaScript">
+var <portlet:namespace/>formName = "<portlet:namespace/>DBForm";
+var <portlet:namespace/>requiredFields = new Array("createDB");
+var <portlet:namespace/>requiredFields2 = new Array("sqlStmts");
+function <portlet:namespace/>validateForm(){
+    return textElementsNotEmpty(<portlet:namespace/>formName, <portlet:namespace/>requiredFields);
+}
+function <portlet:namespace/>validateForm2(){
+    return textElementsNotEmpty(<portlet:namespace/>formName, <portlet:namespace/>requiredFields2);
+}
+</script>
+
+<form name="<portlet:namespace/>DBForm" action="<portlet:actionURL portletMode='view'/>" method="post">
 
 <table width="100%"  border="0">
   <tr>
     <td><div align="right">Create DB:</div></td>
     <td><input name="createDB" type="text" size="30">&nbsp;
-      <input type="submit" name="action" value="Create"></td>
+      <input type="submit" name="action" value="Create" onClick="return <portlet:namespace/>validateForm();"></td>
     </tr>
   <tr>
     <td><div align="right">Delete DB:</div></td>
@@ -31,7 +43,7 @@
         <option value="${db}">${db}</option>
       </c:forEach>
       </select>&nbsp;
-      <input type="submit" name="action" value="Run SQL"></td>
+      <input type="submit" name="action" value="Run SQL" onClick="return <portlet:namespace/>validateForm2();"></td>
   </tr>
   <tr>
     <td></td>

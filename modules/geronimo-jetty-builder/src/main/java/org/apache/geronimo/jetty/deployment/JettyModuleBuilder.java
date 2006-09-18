@@ -47,7 +47,11 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
+<<<<<<< .working
 import org.apache.geronimo.deployment.DeployableModule;
+=======
+import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
+>>>>>>> .merge-right.r447390
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
@@ -65,6 +69,7 @@ import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.jetty.DefaultWebApplicationHandlerFactory;
 import org.apache.geronimo.jetty.Host;
 import org.apache.geronimo.jetty.JettyDefaultServletHolder;
 import org.apache.geronimo.jetty.JettyFilterHolder;
@@ -129,6 +134,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
     private final GBeanData pojoWebServiceTemplate;
 
     private final SingleElementCollection webServiceBuilder;
+    protected final NamespaceDrivenBuilderCollection clusteringBuilders;
 
     private final List defaultWelcomeFiles;
     private final Integer defaultSessionTimeoutSeconds;
@@ -144,6 +150,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             Collection defaultFilterMappings,
             Object pojoWebServiceTemplate,
             Collection webServiceBuilder,
+            Collection clusteringBuilders,
             Collection securityBuilders,
             Collection serviceBuilders,
             NamingBuilder namingBuilders,
@@ -157,6 +164,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         this.defaultFilterMappings = defaultFilterMappings;
         this.pojoWebServiceTemplate = getGBeanData(kernel, pojoWebServiceTemplate);
         this.webServiceBuilder = new SingleElementCollection(webServiceBuilder);
+        this.clusteringBuilders = new NamespaceDrivenBuilderCollection(clusteringBuilders);
 
         //todo locale mappings
 
@@ -166,7 +174,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
     private WebServiceBuilder getWebServiceBuilder() {
         return (WebServiceBuilder) webServiceBuilder.getElement();
     }
-
+    
     private static GBeanData getGBeanData(Kernel kernel, Object template) throws GBeanNotFoundException {
         if (template == null) {
             return null;
@@ -223,6 +231,11 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
         EnvironmentType environmentType = jettyWebApp.getEnvironment();
         Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
+        
+        Boolean distributable = webApp.getDistributableArray().length == 1 ? Boolean.TRUE : Boolean.FALSE;
+        if (Boolean.TRUE == distributable) {
+            clusteringBuilders.buildEnvironment(jettyWebApp, environment);
+        }
 
         getNamingBuilders().buildEnvironment(webApp, jettyWebApp, environment);
         
@@ -338,6 +351,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
         GBeanData webModuleData = new GBeanData(moduleName, JettyWebAppContext.GBEAN_INFO);
         try {
+            moduleContext.addGBean(webModuleData);
             if (moduleContext.getServerName() != null) {
                 webModuleData.setReferencePattern("J2EEServer", moduleContext.getServerName());
             }
@@ -349,26 +363,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             Set securityRoles = collectRoleNames(webApp);
             Map rolePermissions = new HashMap();
 
-            String[] hosts = jettyWebApp.getHostArray();
-            for (int i = 0; i < hosts.length; i++) {
-                hosts[i] = hosts[i].trim();
-            }
-            String[] virtualHosts = jettyWebApp.getVirtualHostArray();
-            for (int i = 0; i < virtualHosts.length; i++) {
-                virtualHosts[i] = virtualHosts[i].trim();
-            }
-            if (hosts.length > 0 || virtualHosts.length > 0) {
-                //use name same as module
-                AbstractName hostName = earContext.getNaming().createChildName(moduleName, "Host", "Host");
-                GBeanData hostData = new GBeanData(hostName, Host.GBEAN_INFO);
-                hostData.setAttribute("hosts", hosts);
-                hostData.setAttribute("virtualHosts", virtualHosts);
-                earContext.addGBean(hostData);
-                webModuleData.setReferencePattern("Host", hostName);
-            }
-
-            //session manager
-            webModuleData.setAttribute("sessionManager", jettyWebApp.getSessionManager());
+            // configure hosts and virtual-hosts
+            configureHosts(earContext, jettyWebApp, webModuleData);
 
             //Add dependencies on managed connection factories and ejbs in this app
             //This is overkill, but allows for people not using java:comp context (even though we don't support it)
@@ -399,191 +395,59 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 webModuleData.setAttribute("displayName", webApp.getDisplayNameArray()[0].getStringValue());
             }
 
-            ParamValueType[] contextParamArray = webApp.getContextParamArray();
-            Map contextParams = new HashMap();
-            for (int i = 0; i < contextParamArray.length; i++) {
-                ParamValueType contextParam = contextParamArray[i];
-                contextParams.put(contextParam.getParamName().getStringValue().trim(), contextParam.getParamValue().getStringValue().trim());
+            // configure context parameters.
+            configureContextParams(webApp, webModuleData);
+
+            // configure listeners.
+            configureListeners(webApp, webModuleData);
+
+            Boolean distributable = webApp.getDistributableArray().length == 1 ? Boolean.TRUE : Boolean.FALSE;
+            webModuleData.setAttribute("distributable", distributable);
+            if (Boolean.TRUE == distributable) {
+                clusteringBuilders.build(jettyWebApp, earContext, moduleContext);
+                if (webModuleData.getReferencePatterns(JettyWebAppContext.GBEAN_REF_WEB_APPLICATION_HANDLER_FACTORY) == null) {
+                    log.warn("No clustering builders configured: app will not be clustered");
+                    configureNoClustering(moduleContext, webModuleData);
+                }
+            } else {
+                configureNoClustering(moduleContext, webModuleData);
             }
-            webModuleData.setAttribute("contextParamMap", contextParams);
-
-            ListenerType[] listenerArray = webApp.getListenerArray();
-            Collection listeners = new ArrayList();
-            for (int i = 0; i < listenerArray.length; i++) {
-                ListenerType listenerType = listenerArray[i];
-                listeners.add(listenerType.getListenerClass().getStringValue());
-            }
-            webModuleData.setAttribute("listenerClassNames", listeners);
-
-            webModuleData.setAttribute("distributable", webApp.getDistributableArray().length == 1 ? Boolean.TRUE : Boolean.FALSE);
-
+            
             webModuleData.setAttribute("sessionTimeoutSeconds",
                     (webApp.getSessionConfigArray().length == 1 && webApp.getSessionConfigArray(0).getSessionTimeout() != null) ?
                             new Integer(webApp.getSessionConfigArray(0).getSessionTimeout().getBigIntegerValue().intValue() * 60) :
                             defaultSessionTimeoutSeconds);
 
-            MimeMappingType[] mimeMappingArray = webApp.getMimeMappingArray();
-            Map mimeMappingMap = new HashMap();
-            for (int i = 0; i < mimeMappingArray.length; i++) {
-                MimeMappingType mimeMappingType = mimeMappingArray[i];
-                mimeMappingMap.put(mimeMappingType.getExtension().getStringValue(), mimeMappingType.getMimeType().getStringValue());
-            }
-            webModuleData.setAttribute("mimeMap", mimeMappingMap);
+            // configure mime mappings.
+            configureMimeMappings(webApp, webModuleData);
 
-            WelcomeFileListType[] welcomeFileArray = webApp.getWelcomeFileListArray();
-            List welcomeFiles;
-            if (welcomeFileArray.length > 0) {
-                welcomeFiles = new ArrayList();
-                for (int i = 0; i < welcomeFileArray.length; i++) {
-                    String[] welcomeFileListType = welcomeFileArray[i].getWelcomeFileArray();
-                    for (int j = 0; j < welcomeFileListType.length; j++) {
-                        String welcomeFile = welcomeFileListType[j].trim();
-                        welcomeFiles.add(welcomeFile);
-                    }
-                }
-            } else {
-                welcomeFiles = new ArrayList(defaultWelcomeFiles);
-            }
-            webModuleData.setAttribute("welcomeFiles", welcomeFiles.toArray(new String[welcomeFiles.size()]));
+            // configure welcome file lists.
+            configureWelcomeFileLists(webApp, webModuleData);
 
-            LocaleEncodingMappingListType[] localeEncodingMappingListArray = webApp.getLocaleEncodingMappingListArray();
-            Map localeEncodingMappingMap = new HashMap();
-            for (int i = 0; i < localeEncodingMappingListArray.length; i++) {
-                LocaleEncodingMappingType[] localeEncodingMappingArray = localeEncodingMappingListArray[i].getLocaleEncodingMappingArray();
-                for (int j = 0; j < localeEncodingMappingArray.length; j++) {
-                    LocaleEncodingMappingType localeEncodingMapping = localeEncodingMappingArray[j];
-                    localeEncodingMappingMap.put(localeEncodingMapping.getLocale(), localeEncodingMapping.getEncoding());
-                }
-            }
-            webModuleData.setAttribute("localeEncodingMapping", localeEncodingMappingMap);
+            // configure local encoding mapping lists.
+            configureLocalEncodingMappingLists(webApp, webModuleData);
 
-            ErrorPageType[] errorPageArray = webApp.getErrorPageArray();
-            Map errorPageMap = new HashMap();
-            for (int i = 0; i < errorPageArray.length; i++) {
-                ErrorPageType errorPageType = errorPageArray[i];
-                if (errorPageType.isSetErrorCode()) {
-                    errorPageMap.put(errorPageType.getErrorCode().getStringValue(), errorPageType.getLocation().getStringValue());
-                } else {
-                    errorPageMap.put(errorPageType.getExceptionType().getStringValue(), errorPageType.getLocation().getStringValue());
-                }
-            }
-            webModuleData.setAttribute("errorPages", errorPageMap);
+            // configure error pages.
+            configureErrorPages(webApp, webModuleData);
 
-            JspConfigType[] jspConfigArray = webApp.getJspConfigArray();
-            if (jspConfigArray.length > 1) {
-                throw new DeploymentException("Web app " + module.getName() + " cannot have more than one jsp-config element.  Currently has " + jspConfigArray.length + " jsp-config elements.");
-            }
-            Map tagLibMap = new HashMap();
-            for (int i = 0; i < jspConfigArray.length; i++) {
-                TaglibType[] tagLibArray = jspConfigArray[i].getTaglibArray();
-                for (int j = 0; j < tagLibArray.length; j++) {
-                    TaglibType taglib = tagLibArray[j];
-                    tagLibMap.put(taglib.getTaglibUri().getStringValue().trim(), taglib.getTaglibLocation().getStringValue().trim());
-                }
-            }
-            webModuleData.setAttribute("tagLibMap", tagLibMap);
+            // configure tag libs.
+            configureTagLibs(module, webApp, webModuleData);
 
-            LoginConfigType[] loginConfigArray = webApp.getLoginConfigArray();
-            if (loginConfigArray.length > 1) {
-                throw new DeploymentException("Web app " + module.getName() + " cannot have more than one login-config element.  Currently has " + loginConfigArray.length + " login-config elements.");
-            }
-            if (loginConfigArray.length == 1) {
-                LoginConfigType loginConfig = loginConfigArray[0];
-                if (loginConfig.isSetAuthMethod()) {
-                    String authMethod = loginConfig.getAuthMethod().getStringValue();
-                    if ("BASIC".equals(authMethod)) {
-                        webModuleData.setAttribute("authenticator", new BasicAuthenticator());
-                    } else if ("DIGEST".equals(authMethod)) {
-                        webModuleData.setAttribute("authenticator", new DigestAuthenticator());
-                    } else if ("FORM".equals(authMethod)) {
-
-                        FormAuthenticator formAuthenticator = new FormAuthenticator();
-                        webModuleData.setAttribute("authenticator", formAuthenticator);
-                        if (loginConfig.isSetFormLoginConfig()) {
-                            FormLoginConfigType formLoginConfig = loginConfig.getFormLoginConfig();
-                            formAuthenticator.setLoginPage(formLoginConfig.getFormLoginPage().getStringValue());
-                            formAuthenticator.setErrorPage(formLoginConfig.getFormErrorPage().getStringValue());
-                        }
-                    } else if ("CLIENT-CERT".equals(authMethod)) {
-                        webModuleData.setAttribute("authenticator", new ClientCertAuthenticator());
-                    }
-                }
-                if (loginConfig.isSetRealmName()) {
-                    webModuleData.setAttribute("realmName", loginConfig.getRealmName().getStringValue());
-                }
-
-            } else if (jettyWebApp.isSetSecurityRealmName()) {
-                webModuleData.setAttribute("authenticator", new NonAuthenticator());
-            }
-            moduleContext.addGBean(webModuleData);
-
-            // Make sure that servlet mappings point to available servlets
-            ServletType[] servletTypes = webApp.getServletArray();
-            Set knownServlets = new HashSet();
-            for (int i = 0; i < servletTypes.length; i++) {
-                ServletType type = servletTypes[i];
-                knownServlets.add(type.getServletName().getStringValue().trim());
-            }
-            //never add a duplicate pattern.
+            // configure login configs.
+            configureLoginConfigs(module, webApp, jettyWebApp, webModuleData);
+            
+            // Make sure that servlet mappings point to available servlets and never add a duplicate pattern.
             Set knownServletMappings = new HashSet();
-
-            ServletMappingType[] servletMappingArray = webApp.getServletMappingArray();
             Map servletMappings = new HashMap();
-            for (int i = 0; i < servletMappingArray.length; i++) {
-                ServletMappingType servletMappingType = servletMappingArray[i];
-                String servletName = servletMappingType.getServletName().getStringValue().trim();
-                if (!knownServlets.contains(servletName)) {
-                    throw new DeploymentException("Web app " + module.getName() +
-                            " contains a servlet mapping that refers to servlet '" + servletName +
-                            "' but no such servlet was found!");
-                }
-                String urlPattern = servletMappingType.getUrlPattern().getStringValue().trim();
-                if (!knownServletMappings.contains(urlPattern)) {
-                    knownServletMappings.add(urlPattern);
-                    checkString(urlPattern);
-                    Set urlsForServlet = (Set) servletMappings.get(servletName);
-                    if (urlsForServlet == null) {
-                        urlsForServlet = new HashSet();
-                        servletMappings.put(servletName, urlsForServlet);
-                    }
-                    urlsForServlet.add(urlPattern);
-                }
-            }
+
+            buildServletMappings(module, webApp, servletMappings, knownServletMappings);
 
             //"previous" filter mapping for linked list to keep dd's ordering.
             AbstractName previous = null;
 
             //add default filters
             if (defaultFilters != null) {
-                for (Iterator iterator = defaultFilters.iterator(); iterator.hasNext();) {
-                    Object defaultFilter = iterator.next();
-                    GBeanData filterGBeanData = getGBeanData(kernel, defaultFilter);
-                    String filterName = (String) filterGBeanData.getAttribute("filterName");
-                    AbstractName defaultFilterAbstractName = earContext.getNaming().createChildName(moduleName, filterName, NameFactory.WEB_FILTER);
-                    filterGBeanData.setAbstractName(defaultFilterAbstractName);
-                    filterGBeanData.setReferencePattern("JettyServletRegistration", moduleName);
-                    moduleContext.addGBean(filterGBeanData);
-                    //add a mapping to /*
-
-                    GBeanData filterMappingGBeanData = new GBeanData(JettyFilterMapping.GBEAN_INFO);
-                    if (previous != null) {
-                        filterMappingGBeanData.setReferencePattern("Previous", previous);
-                    }
-                    filterMappingGBeanData.setReferencePattern("JettyServletRegistration", moduleName);
-                    String urlPattern = "/*";
-                    filterMappingGBeanData.setAttribute("urlPattern", urlPattern);
-                    AbstractName filterMappingName = earContext.getNaming().createChildName(defaultFilterAbstractName, urlPattern, NameFactory.URL_WEB_FILTER_MAPPING);
-                    filterMappingGBeanData.setAbstractName(filterMappingName);
-                    previous = filterMappingName;
-
-
-                    filterMappingGBeanData.setAttribute("requestDispatch", Boolean.TRUE);
-                    filterMappingGBeanData.setAttribute("forwardDispatch", Boolean.TRUE);
-                    filterMappingGBeanData.setAttribute("includeDispatch", Boolean.TRUE);
-                    filterMappingGBeanData.setAttribute("errorDispatch", Boolean.FALSE);
-                    filterMappingGBeanData.setReferencePattern("Filter", defaultFilterAbstractName);
-                    moduleContext.addGBean(filterMappingGBeanData);
-                }
+                previous = addDefaultFiltersGBeans(earContext, moduleContext, moduleName, previous);
             }
 
             //add default filtermappings
@@ -611,124 +475,25 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 //                }
 //            }
 
-            FilterMappingType[] filterMappingArray = webApp.getFilterMappingArray();
-            for (int i = 0; i < filterMappingArray.length; i++) {
-                FilterMappingType filterMappingType = filterMappingArray[i];
-                String filterName = filterMappingType.getFilterName().getStringValue().trim();
-                GBeanData filterMappingData = new GBeanData(JettyFilterMapping.GBEAN_INFO);
-                if (previous != null) {
-                    filterMappingData.setReferencePattern("Previous", previous);
-                }
-                filterMappingData.setReferencePattern("JettyServletRegistration", moduleName);
-                AbstractName filterAbstractName = earContext.getNaming().createChildName(moduleName, filterName, NameFactory.WEB_FILTER);
+            // add filter mapping GBeans.
+            addFilterMappingsGBeans(earContext, moduleContext, moduleName, webApp, previous);
 
-                AbstractName filterMappingName = null;
-                if (filterMappingType.isSetUrlPattern()) {
-                    String urlPattern = filterMappingType.getUrlPattern().getStringValue().trim();
-                    filterMappingData.setAttribute("urlPattern", urlPattern);
-                    filterMappingName = earContext.getNaming().createChildName(filterAbstractName, ObjectName.quote(urlPattern), NameFactory.URL_WEB_FILTER_MAPPING);
-                }
-                if (filterMappingType.isSetServletName()) {
-                    String servletName = filterMappingType.getServletName().getStringValue().trim();
-                    AbstractName servletAbstractName = earContext.getNaming().createChildName(moduleName, servletName, NameFactory.SERVLET);
-                    filterMappingData.setReferencePattern("Servlet", servletAbstractName);
-                    filterMappingName = earContext.getNaming().createChildName(filterAbstractName, servletName, NameFactory.SERVLET_WEB_FILTER_MAPPING);
-                }
-                filterMappingData.setAbstractName(filterMappingName);
-                previous = filterMappingName;
-
-                boolean request = filterMappingType.getDispatcherArray().length == 0;
-                boolean forward = false;
-                boolean include = false;
-                boolean error = false;
-                for (int j = 0; j < filterMappingType.getDispatcherArray().length; j++) {
-                    DispatcherType dispatcherType = filterMappingType.getDispatcherArray()[j];
-                    if (dispatcherType.getStringValue().equals("REQUEST")) {
-                        request = true;
-                    } else if (dispatcherType.getStringValue().equals("FORWARD")) {
-                        forward = true;
-                    } else if (dispatcherType.getStringValue().equals("INCLUDE")) {
-                        include = true;
-                    } else if (dispatcherType.getStringValue().equals("ERROR")) {
-                        error = true;
-                    }
-                }
-                filterMappingData.setAttribute("requestDispatch", Boolean.valueOf(request));
-                filterMappingData.setAttribute("forwardDispatch", Boolean.valueOf(forward));
-                filterMappingData.setAttribute("includeDispatch", Boolean.valueOf(include));
-                filterMappingData.setAttribute("errorDispatch", Boolean.valueOf(error));
-                filterMappingData.setReferencePattern("Filter", filterAbstractName);
-                moduleContext.addGBean(filterMappingData);
-            }
-
-            FilterType[] filterArray = webApp.getFilterArray();
-            for (int i = 0; i < filterArray.length; i++) {
-                FilterType filterType = filterArray[i];
-                String filterName = filterType.getFilterName().getStringValue().trim();
-                AbstractName filterAbstractName = earContext.getNaming().createChildName(moduleName, filterName, NameFactory.WEB_FILTER);
-                GBeanData filterData = new GBeanData(filterAbstractName, JettyFilterHolder.GBEAN_INFO);
-                filterData.setAttribute("filterName", filterName);
-                filterData.setAttribute("filterClass", filterType.getFilterClass().getStringValue().trim());
-                Map initParams = new HashMap();
-                ParamValueType[] initParamArray = filterType.getInitParamArray();
-                for (int j = 0; j < initParamArray.length; j++) {
-                    ParamValueType paramValueType = initParamArray[j];
-                    initParams.put(paramValueType.getParamName().getStringValue().trim(), paramValueType.getParamValue().getStringValue().trim());
-                }
-                filterData.setAttribute("initParams", initParams);
-                filterData.setReferencePattern("JettyServletRegistration", moduleName);
-                moduleContext.addGBean(filterData);
-            }
+            // add filter GBeans.
+            addFiltersGBeans(earContext, moduleContext, moduleName, webApp);
 
             //add default servlets
             if (defaultServlets != null) {
-                for (Iterator iterator = defaultServlets.iterator(); iterator.hasNext();) {
-                    Object defaultServlet = iterator.next();
-                    GBeanData servletGBeanData = getGBeanData(kernel, defaultServlet);
-                    AbstractName defaultServletObjectName = earContext.getNaming().createChildName(moduleName, (String) servletGBeanData.getAttribute("servletName"), NameFactory.SERVLET);
-                    servletGBeanData.setAbstractName(defaultServletObjectName);
-                    servletGBeanData.setReferencePattern("JettyServletRegistration", moduleName);
-                    Set defaultServletMappings = new HashSet((Collection) servletGBeanData.getAttribute("servletMappings"));
-                    defaultServletMappings.removeAll(knownServletMappings);
-                    servletGBeanData.setAttribute("servletMappings", defaultServletMappings);
-                    moduleContext.addGBean(servletGBeanData);
-                }
+                addDefaultServletsGBeans(earContext, moduleContext, moduleName, knownServletMappings);
             }
 
             //set up servlet gbeans.
             Map portMap = webModule.getPortMap();
 
+            ServletType[] servletTypes = webApp.getServletArray();
             addServlets(moduleName, webModule.getModuleFile(), servletTypes, servletMappings, securityRoles, rolePermissions, portMap, moduleClassLoader, moduleContext);
 
             if (jettyWebApp.isSetSecurityRealmName()) {
-                if (earContext.getSecurityConfiguration() == null) {
-                    throw new DeploymentException("You have specified a <security-realm-name> for the webapp " + moduleName + " but no <security> configuration (role mapping) is supplied in the Geronimo plan for the web application (or the Geronimo plan for the EAR if the web app is in an EAR)");
-                }
-                String securityRealmName = jettyWebApp.getSecurityRealmName().trim();
-                webModuleData.setAttribute("securityRealmName", securityRealmName);
-
-                /**
-                 * TODO - go back to commented version when possible.
-                 */
-                String policyContextID = moduleName.toString().replaceAll("[, :]", "_");
-                //String policyContextID = webModuleName.getCanonicalName();
-                webModuleData.setAttribute("policyContextID", policyContextID);
-
-                ComponentPermissions componentPermissions = buildSpecSecurityConfig(webApp, securityRoles, rolePermissions);
-                webModuleData.setAttribute("excludedPermissions", componentPermissions.getExcludedPermissions());
-                PermissionCollection checkedPermissions = new Permissions();
-                for (Iterator iterator = rolePermissions.values().iterator(); iterator.hasNext();) {
-                    PermissionCollection permissionsForRole = (PermissionCollection) iterator.next();
-                    for (Enumeration iterator2 = permissionsForRole.elements(); iterator2.hasMoreElements();) {
-                        Permission permission = (Permission) iterator2.nextElement();
-                        checkedPermissions.add(permission);
-                    }
-                }
-                webModuleData.setAttribute("checkedPermissions", checkedPermissions);
-
-                earContext.addSecurityContext(policyContextID, componentPermissions);
-                DefaultPrincipal defaultPrincipal = ((SecurityConfiguration) earContext.getSecurityConfiguration()).getDefaultPrincipal();
-                webModuleData.setAttribute("defaultPrincipal", defaultPrincipal);
+                configureSecurityRealm(earContext, webApp, jettyWebApp, webModuleData, securityRoles, rolePermissions);
             }
             if (!module.isStandAlone()) {
                 ConfigurationData moduleConfigurationData = moduleContext.getConfigurationData();
@@ -738,6 +503,346 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             throw de;
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize webapp GBean for " + module.getName(), e);
+        }
+    }
+
+    private void configureNoClustering(EARContext moduleContext, GBeanData webModuleData) throws GBeanAlreadyExistsException {
+        AbstractName name = moduleContext.getNaming().createChildName(moduleContext.getModuleName(), 
+                "DefaultWebApplicationHandlerFactory", 
+                NameFactory.GERONIMO_SERVICE);
+        GBeanData beanData = new GBeanData(name, DefaultWebApplicationHandlerFactory.GBEAN_INFO);
+        webModuleData.setReferencePattern(JettyWebAppContext.GBEAN_REF_WEB_APPLICATION_HANDLER_FACTORY, name);
+        moduleContext.addGBean(beanData);
+    }
+
+    private void configureSecurityRealm(EARContext earContext, WebAppType webApp, JettyWebAppType jettyWebApp, GBeanData webModuleData, Set securityRoles, Map rolePermissions) throws DeploymentException {
+        AbstractName moduleName = webModuleData.getAbstractName();
+        if (earContext.getSecurityConfiguration() == null) {
+            throw new DeploymentException("You have specified a <security-realm-name> for the webapp " + moduleName + " but no <security> configuration (role mapping) is supplied in the Geronimo plan for the web application (or the Geronimo plan for the EAR if the web app is in an EAR)");
+        }
+        String securityRealmName = jettyWebApp.getSecurityRealmName().trim();
+        webModuleData.setAttribute("securityRealmName", securityRealmName);
+
+        /**
+         * TODO - go back to commented version when possible.
+         */
+        String policyContextID = moduleName.toString().replaceAll("[, :]", "_");
+        //String policyContextID = webModuleName.getCanonicalName();
+        webModuleData.setAttribute("policyContextID", policyContextID);
+
+        ComponentPermissions componentPermissions = buildSpecSecurityConfig(webApp, securityRoles, rolePermissions);
+        webModuleData.setAttribute("excludedPermissions", componentPermissions.getExcludedPermissions());
+        PermissionCollection checkedPermissions = new Permissions();
+        for (Iterator iterator = rolePermissions.values().iterator(); iterator.hasNext();) {
+            PermissionCollection permissionsForRole = (PermissionCollection) iterator.next();
+            for (Enumeration iterator2 = permissionsForRole.elements(); iterator2.hasMoreElements();) {
+                Permission permission = (Permission) iterator2.nextElement();
+                checkedPermissions.add(permission);
+            }
+        }
+        webModuleData.setAttribute("checkedPermissions", checkedPermissions);
+
+        earContext.addSecurityContext(policyContextID, componentPermissions);
+        DefaultPrincipal defaultPrincipal = ((SecurityConfiguration) earContext.getSecurityConfiguration()).getDefaultPrincipal();
+        webModuleData.setAttribute("defaultPrincipal", defaultPrincipal);
+    }
+
+    private void addDefaultServletsGBeans(EARContext earContext, EARContext moduleContext, AbstractName moduleName, Set knownServletMappings) throws GBeanNotFoundException, GBeanAlreadyExistsException {
+        for (Iterator iterator = defaultServlets.iterator(); iterator.hasNext();) {
+            Object defaultServlet = iterator.next();
+            GBeanData servletGBeanData = getGBeanData(kernel, defaultServlet);
+            AbstractName defaultServletObjectName = earContext.getNaming().createChildName(moduleName, (String) servletGBeanData.getAttribute("servletName"), NameFactory.SERVLET);
+            servletGBeanData.setAbstractName(defaultServletObjectName);
+            servletGBeanData.setReferencePattern("JettyServletRegistration", moduleName);
+            Set defaultServletMappings = new HashSet((Collection) servletGBeanData.getAttribute("servletMappings"));
+            defaultServletMappings.removeAll(knownServletMappings);
+            servletGBeanData.setAttribute("servletMappings", defaultServletMappings);
+            moduleContext.addGBean(servletGBeanData);
+        }
+    }
+
+    private void addFiltersGBeans(EARContext earContext, EARContext moduleContext, AbstractName moduleName, WebAppType webApp) throws GBeanAlreadyExistsException {
+        FilterType[] filterArray = webApp.getFilterArray();
+        for (int i = 0; i < filterArray.length; i++) {
+            FilterType filterType = filterArray[i];
+            String filterName = filterType.getFilterName().getStringValue().trim();
+            AbstractName filterAbstractName = earContext.getNaming().createChildName(moduleName, filterName, NameFactory.WEB_FILTER);
+            GBeanData filterData = new GBeanData(filterAbstractName, JettyFilterHolder.GBEAN_INFO);
+            filterData.setAttribute("filterName", filterName);
+            filterData.setAttribute("filterClass", filterType.getFilterClass().getStringValue().trim());
+            Map initParams = new HashMap();
+            ParamValueType[] initParamArray = filterType.getInitParamArray();
+            for (int j = 0; j < initParamArray.length; j++) {
+                ParamValueType paramValueType = initParamArray[j];
+                initParams.put(paramValueType.getParamName().getStringValue().trim(), paramValueType.getParamValue().getStringValue().trim());
+            }
+            filterData.setAttribute("initParams", initParams);
+            filterData.setReferencePattern("JettyServletRegistration", moduleName);
+            moduleContext.addGBean(filterData);
+        }
+    }
+
+    private void addFilterMappingsGBeans(EARContext earContext, EARContext moduleContext, AbstractName moduleName, WebAppType webApp, AbstractName previous) throws GBeanAlreadyExistsException {
+        FilterMappingType[] filterMappingArray = webApp.getFilterMappingArray();
+        for (int i = 0; i < filterMappingArray.length; i++) {
+            FilterMappingType filterMappingType = filterMappingArray[i];
+            String filterName = filterMappingType.getFilterName().getStringValue().trim();
+            GBeanData filterMappingData = new GBeanData(JettyFilterMapping.GBEAN_INFO);
+            if (previous != null) {
+                filterMappingData.setReferencePattern("Previous", previous);
+            }
+            filterMappingData.setReferencePattern("JettyServletRegistration", moduleName);
+            AbstractName filterAbstractName = earContext.getNaming().createChildName(moduleName, filterName, NameFactory.WEB_FILTER);
+
+            AbstractName filterMappingName = null;
+            if (filterMappingType.isSetUrlPattern()) {
+                String urlPattern = filterMappingType.getUrlPattern().getStringValue().trim();
+                filterMappingData.setAttribute("urlPattern", urlPattern);
+                filterMappingName = earContext.getNaming().createChildName(filterAbstractName, ObjectName.quote(urlPattern), NameFactory.URL_WEB_FILTER_MAPPING);
+            }
+            if (filterMappingType.isSetServletName()) {
+                String servletName = filterMappingType.getServletName().getStringValue().trim();
+                AbstractName servletAbstractName = earContext.getNaming().createChildName(moduleName, servletName, NameFactory.SERVLET);
+                filterMappingData.setReferencePattern("Servlet", servletAbstractName);
+                filterMappingName = earContext.getNaming().createChildName(filterAbstractName, servletName, NameFactory.SERVLET_WEB_FILTER_MAPPING);
+            }
+            filterMappingData.setAbstractName(filterMappingName);
+            previous = filterMappingName;
+
+            boolean request = filterMappingType.getDispatcherArray().length == 0;
+            boolean forward = false;
+            boolean include = false;
+            boolean error = false;
+            for (int j = 0; j < filterMappingType.getDispatcherArray().length; j++) {
+                DispatcherType dispatcherType = filterMappingType.getDispatcherArray()[j];
+                if (dispatcherType.getStringValue().equals("REQUEST")) {
+                    request = true;
+                } else if (dispatcherType.getStringValue().equals("FORWARD")) {
+                    forward = true;
+                } else if (dispatcherType.getStringValue().equals("INCLUDE")) {
+                    include = true;
+                } else if (dispatcherType.getStringValue().equals("ERROR")) {
+                    error = true;
+                }
+            }
+            filterMappingData.setAttribute("requestDispatch", Boolean.valueOf(request));
+            filterMappingData.setAttribute("forwardDispatch", Boolean.valueOf(forward));
+            filterMappingData.setAttribute("includeDispatch", Boolean.valueOf(include));
+            filterMappingData.setAttribute("errorDispatch", Boolean.valueOf(error));
+            filterMappingData.setReferencePattern("Filter", filterAbstractName);
+            moduleContext.addGBean(filterMappingData);
+        }
+    }
+
+    private AbstractName addDefaultFiltersGBeans(EARContext earContext, EARContext moduleContext, AbstractName moduleName, AbstractName previous) throws GBeanNotFoundException, GBeanAlreadyExistsException {
+        for (Iterator iterator = defaultFilters.iterator(); iterator.hasNext();) {
+            Object defaultFilter = iterator.next();
+            GBeanData filterGBeanData = getGBeanData(kernel, defaultFilter);
+            String filterName = (String) filterGBeanData.getAttribute("filterName");
+            AbstractName defaultFilterAbstractName = earContext.getNaming().createChildName(moduleName, filterName, NameFactory.WEB_FILTER);
+            filterGBeanData.setAbstractName(defaultFilterAbstractName);
+            filterGBeanData.setReferencePattern("JettyServletRegistration", moduleName);
+            moduleContext.addGBean(filterGBeanData);
+            //add a mapping to /*
+
+            GBeanData filterMappingGBeanData = new GBeanData(JettyFilterMapping.GBEAN_INFO);
+            if (previous != null) {
+                filterMappingGBeanData.setReferencePattern("Previous", previous);
+            }
+            filterMappingGBeanData.setReferencePattern("JettyServletRegistration", moduleName);
+            String urlPattern = "/*";
+            filterMappingGBeanData.setAttribute("urlPattern", urlPattern);
+            AbstractName filterMappingName = earContext.getNaming().createChildName(defaultFilterAbstractName, urlPattern, NameFactory.URL_WEB_FILTER_MAPPING);
+            filterMappingGBeanData.setAbstractName(filterMappingName);
+            previous = filterMappingName;
+
+
+            filterMappingGBeanData.setAttribute("requestDispatch", Boolean.TRUE);
+            filterMappingGBeanData.setAttribute("forwardDispatch", Boolean.TRUE);
+            filterMappingGBeanData.setAttribute("includeDispatch", Boolean.TRUE);
+            filterMappingGBeanData.setAttribute("errorDispatch", Boolean.FALSE);
+            filterMappingGBeanData.setReferencePattern("Filter", defaultFilterAbstractName);
+            moduleContext.addGBean(filterMappingGBeanData);
+        }
+        return previous;
+    }
+
+    private Map buildServletMappings(Module module, WebAppType webApp, Map servletMappings, Set knownServletMappings) throws DeploymentException {
+        ServletType[] servletTypes = webApp.getServletArray();
+        Set knownServlets = new HashSet();
+        for (int i = 0; i < servletTypes.length; i++) {
+            ServletType type = servletTypes[i];
+            knownServlets.add(type.getServletName().getStringValue().trim());
+        }
+
+        ServletMappingType[] servletMappingArray = webApp.getServletMappingArray();
+        for (int i = 0; i < servletMappingArray.length; i++) {
+            ServletMappingType servletMappingType = servletMappingArray[i];
+            String servletName = servletMappingType.getServletName().getStringValue().trim();
+            if (!knownServlets.contains(servletName)) {
+                throw new DeploymentException("Web app " + module.getName() +
+                        " contains a servlet mapping that refers to servlet '" + servletName +
+                        "' but no such servlet was found!");
+            }
+            String urlPattern = servletMappingType.getUrlPattern().getStringValue().trim();
+            if (!knownServletMappings.contains(urlPattern)) {
+                knownServletMappings.add(urlPattern);
+                checkString(urlPattern);
+                Set urlsForServlet = (Set) servletMappings.get(servletName);
+                if (urlsForServlet == null) {
+                    urlsForServlet = new HashSet();
+                    servletMappings.put(servletName, urlsForServlet);
+                }
+                urlsForServlet.add(urlPattern);
+            }
+        }
+        
+        return servletMappings;
+    }
+
+    private void configureLoginConfigs(Module module, WebAppType webApp, JettyWebAppType jettyWebApp, GBeanData webModuleData) throws DeploymentException {
+        LoginConfigType[] loginConfigArray = webApp.getLoginConfigArray();
+        if (loginConfigArray.length > 1) {
+            throw new DeploymentException("Web app " + module.getName() + " cannot have more than one login-config element.  Currently has " + loginConfigArray.length + " login-config elements.");
+        }
+        if (loginConfigArray.length == 1) {
+            LoginConfigType loginConfig = loginConfigArray[0];
+            if (loginConfig.isSetAuthMethod()) {
+                String authMethod = loginConfig.getAuthMethod().getStringValue();
+                if ("BASIC".equals(authMethod)) {
+                    webModuleData.setAttribute("authenticator", new BasicAuthenticator());
+                } else if ("DIGEST".equals(authMethod)) {
+                    webModuleData.setAttribute("authenticator", new DigestAuthenticator());
+                } else if ("FORM".equals(authMethod)) {
+
+                    FormAuthenticator formAuthenticator = new FormAuthenticator();
+                    webModuleData.setAttribute("authenticator", formAuthenticator);
+                    if (loginConfig.isSetFormLoginConfig()) {
+                        FormLoginConfigType formLoginConfig = loginConfig.getFormLoginConfig();
+                        formAuthenticator.setLoginPage(formLoginConfig.getFormLoginPage().getStringValue());
+                        formAuthenticator.setErrorPage(formLoginConfig.getFormErrorPage().getStringValue());
+                    }
+                } else if ("CLIENT-CERT".equals(authMethod)) {
+                    webModuleData.setAttribute("authenticator", new ClientCertAuthenticator());
+                }
+            }
+            if (loginConfig.isSetRealmName()) {
+                webModuleData.setAttribute("realmName", loginConfig.getRealmName().getStringValue());
+            }
+
+        } else if (jettyWebApp.isSetSecurityRealmName()) {
+            webModuleData.setAttribute("authenticator", new NonAuthenticator());
+        }
+    }
+
+    private void configureTagLibs(Module module, WebAppType webApp, GBeanData webModuleData) throws DeploymentException {
+        JspConfigType[] jspConfigArray = webApp.getJspConfigArray();
+        if (jspConfigArray.length > 1) {
+            throw new DeploymentException("Web app "+ module.getName() +" cannot have more than one jsp-config element.  Currently has " + jspConfigArray.length +" jsp-config elements.");
+        }
+        Map tagLibMap = new HashMap();
+        for (int i = 0; i < jspConfigArray.length; i++) {
+            TaglibType[] tagLibArray = jspConfigArray[i].getTaglibArray();
+            for (int j = 0; j < tagLibArray.length; j++) {
+                TaglibType taglib = tagLibArray[j];
+                tagLibMap.put(taglib.getTaglibUri().getStringValue().trim(), taglib.getTaglibLocation().getStringValue().trim());
+            }
+        }
+        webModuleData.setAttribute("tagLibMap", tagLibMap);
+    }
+
+    private void configureErrorPages(WebAppType webApp, GBeanData webModuleData) {
+        ErrorPageType[] errorPageArray = webApp.getErrorPageArray();
+        Map errorPageMap = new HashMap();
+        for (int i = 0; i < errorPageArray.length; i++) {
+            ErrorPageType errorPageType = errorPageArray[i];
+            if (errorPageType.isSetErrorCode()) {
+                errorPageMap.put(errorPageType.getErrorCode().getStringValue(), errorPageType.getLocation().getStringValue());
+            } else {
+                errorPageMap.put(errorPageType.getExceptionType().getStringValue(), errorPageType.getLocation().getStringValue());
+            }
+        }
+        webModuleData.setAttribute("errorPages", errorPageMap);
+    }
+
+    private void configureLocalEncodingMappingLists(WebAppType webApp, GBeanData webModuleData) {
+        LocaleEncodingMappingListType[] localeEncodingMappingListArray = webApp.getLocaleEncodingMappingListArray();
+        Map localeEncodingMappingMap = new HashMap();
+        for (int i = 0; i < localeEncodingMappingListArray.length; i++) {
+            LocaleEncodingMappingType[] localeEncodingMappingArray = localeEncodingMappingListArray[i].getLocaleEncodingMappingArray();
+            for (int j = 0; j < localeEncodingMappingArray.length; j++) {
+                LocaleEncodingMappingType localeEncodingMapping = localeEncodingMappingArray[j];
+                localeEncodingMappingMap.put(localeEncodingMapping.getLocale(), localeEncodingMapping.getEncoding());
+            }
+        }
+        webModuleData.setAttribute("localeEncodingMapping", localeEncodingMappingMap);
+    }
+
+    private void configureWelcomeFileLists(WebAppType webApp, GBeanData webModuleData) {
+        WelcomeFileListType[] welcomeFileArray = webApp.getWelcomeFileListArray();
+        List welcomeFiles;
+        if (welcomeFileArray.length > 0) {
+            welcomeFiles = new ArrayList();
+            for (int i = 0; i < welcomeFileArray.length; i++) {
+                String[] welcomeFileListType = welcomeFileArray[i].getWelcomeFileArray();
+                for (int j = 0; j < welcomeFileListType.length; j++) {
+                    String welcomeFile = welcomeFileListType[j].trim();
+                    welcomeFiles.add(welcomeFile);
+                }
+            }
+        } else {
+            welcomeFiles = new ArrayList(defaultWelcomeFiles);
+        }
+        webModuleData.setAttribute("welcomeFiles", welcomeFiles.toArray(new String[welcomeFiles.size()]));
+    }
+
+    private void configureMimeMappings(WebAppType webApp, GBeanData webModuleData) {
+        MimeMappingType[] mimeMappingArray = webApp.getMimeMappingArray();
+        Map mimeMappingMap = new HashMap();
+        for (int i = 0; i < mimeMappingArray.length; i++) {
+            MimeMappingType mimeMappingType = mimeMappingArray[i];
+            mimeMappingMap.put(mimeMappingType.getExtension().getStringValue(), mimeMappingType.getMimeType().getStringValue());
+        }
+        webModuleData.setAttribute("mimeMap", mimeMappingMap);
+    }
+
+    private void configureListeners(WebAppType webApp, GBeanData webModuleData) {
+        ListenerType[] listenerArray = webApp.getListenerArray();
+        Collection listeners = new ArrayList();
+        for (int i = 0; i < listenerArray.length; i++) {
+            ListenerType listenerType = listenerArray[i];
+            listeners.add(listenerType.getListenerClass().getStringValue());
+        }
+        webModuleData.setAttribute("listenerClassNames", listeners);
+    }
+
+    private void configureContextParams(WebAppType webApp, GBeanData webModuleData) {
+        ParamValueType[] contextParamArray = webApp.getContextParamArray();
+        Map contextParams = new HashMap();
+        for (int i = 0; i < contextParamArray.length; i++) {
+            ParamValueType contextParam = contextParamArray[i];
+            contextParams.put(contextParam.getParamName().getStringValue().trim(), contextParam.getParamValue().getStringValue().trim());
+        }
+        webModuleData.setAttribute("contextParamMap", contextParams);
+    }
+
+    private void configureHosts(EARContext earContext, JettyWebAppType jettyWebApp, GBeanData webModuleData) throws GBeanAlreadyExistsException {
+        String[] hosts = jettyWebApp.getHostArray();
+        for (int i = 0; i < hosts.length; i++) {
+            hosts[i] = hosts[i].trim();
+        }
+        String[] virtualHosts = jettyWebApp.getVirtualHostArray();
+        for (int i = 0; i < virtualHosts.length; i++) {
+            virtualHosts[i] = virtualHosts[i].trim();
+        }
+        if (hosts.length > 0 || virtualHosts.length > 0) {
+            //use name same as module
+            AbstractName hostName = earContext.getNaming().createChildName(webModuleData.getAbstractName(), "Host", "Host");
+            GBeanData hostData = new GBeanData(hostName, Host.GBEAN_INFO);
+            hostData.setAttribute("hosts", hosts);
+            hostData.setAttribute("virtualHosts", virtualHosts);
+            earContext.addGBean(hostData);
+            webModuleData.setReferencePattern("Host", hostName);
         }
     }
 
@@ -919,6 +1024,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         infoBuilder.addReference("DefaultFilterMappings", Object.class);
         infoBuilder.addReference("PojoWebServiceTemplate", Object.class, NameFactory.SERVLET_WEB_SERVICE_TEMPLATE);
         infoBuilder.addReference("WebServiceBuilder", WebServiceBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("ClusteringBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("SecurityBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("NamingBuilders", NamingBuilder.class, NameFactory.MODULE_BUILDER);
@@ -935,6 +1041,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 "DefaultFilterMappings",
                 "PojoWebServiceTemplate",
                 "WebServiceBuilder",
+                "ClusteringBuilders",
                 "SecurityBuilders",
                 "ServiceBuilders",
                 "NamingBuilders",

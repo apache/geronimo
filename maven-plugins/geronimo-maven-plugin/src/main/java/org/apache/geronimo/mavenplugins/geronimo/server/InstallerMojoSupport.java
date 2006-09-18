@@ -111,7 +111,6 @@ public abstract class InstallerMojoSupport
 
     protected int installType;
 
-
     private File discoverGeronimoHome(final File archive) throws MojoExecutionException {
         log.debug("Attempting to discover geronimoHome...");
 

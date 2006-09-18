@@ -33,7 +33,7 @@ import javax.enterprise.deploy.spi.TargetModuleID;
 public class ListModulesMojo
     extends ModuleMojoSupport
 {
-    public void doExecute() throws Exception {
+    protected void doExecute() throws Exception {
         DeploymentManager manager = getDeploymentManager();
         Target[] targets = manager.getTargets();
         

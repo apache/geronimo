@@ -1,8 +1,17 @@
 package org.apache.geronimo.jetty.deployment;
 
-import org.apache.geronimo.testsupport.TestSupport;
+import java.io.File;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.jar.JarFile;
+  
+import javax.xml.namespace.QName;
 
 import org.apache.geronimo.deployment.util.UnpackedJarFile;
+import org.apache.geronimo.deployment.service.GBeanBuilder;
 import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
@@ -19,6 +28,8 @@ import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.schema.SchemaConversionUtils;
+import org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl;
+import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyWebAppDocument;
@@ -26,18 +37,8 @@ import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyWebAppType;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.config.GerJettyDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
-import org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
-
-import javax.xml.namespace.QName;
-import java.io.File;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Collections;
-import java.util.jar.JarFile;
 
 /**
  */
@@ -55,7 +56,20 @@ public class PlanParsingTest extends TestSupport {
     private JettyModuleBuilder builder;
 
     public PlanParsingTest() throws Exception {
-        builder = new JettyModuleBuilder(defaultEnvironment, new Integer(1800), null, jettyContainerObjectName, new HashSet(), new HashSet(), new HashSet(), pojoWebServiceTemplate, Collections.singleton(webServiceBuilder), Collections.singleton(new GeronimoSecurityBuilderImpl()), Collections.singleton(new GBeanBuilder(null, null)), new NamingBuilderCollection(null, null), null);
+        builder = new JettyModuleBuilder(defaultEnvironment,
+            new Integer(1800),
+            null,
+            jettyContainerObjectName,
+            new HashSet(),
+            new HashSet(),
+            new HashSet(),
+            pojoWebServiceTemplate,
+            Collections.singleton(webServiceBuilder),
+            null,
+            Collections.singleton(new GeronimoSecurityBuilderImpl()),
+            Collections.singleton(new GBeanBuilder(null, null)),
+            new NamingBuilderCollection(null, null), 
+            null);
     }
 
     public void testContents() throws Exception {

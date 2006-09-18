@@ -33,7 +33,7 @@ public class StopModuleMojo
     // TODO: Add ignore not running flag ?
     //
     
-    public void doExecute() throws Exception {
-        stopModule(moduleId);
+    protected void doExecute() throws Exception {
+        stopModule();
     }
 }

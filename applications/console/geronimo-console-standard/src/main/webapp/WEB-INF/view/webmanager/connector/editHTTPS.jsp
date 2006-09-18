@@ -2,7 +2,24 @@
 <%@ taglib prefix="portlet" uri="http://java.sun.com/portlet" %>
 <portlet:defineObjects/>
 
-<form name="<portlet:namespace/>" action="<portlet:actionURL/>">
+<script language="JavaScript">
+var <portlet:namespace/>formName = "<portlet:namespace/>HttpsForm";
+var <portlet:namespace/>requiredFields = new Array("host");
+var <portlet:namespace/>numericFields = new Array("port", "maxThreads");
+function <portlet:namespace/>validateForm(){
+    if(!textElementsNotEmpty(<portlet:namespace/>formName, <portlet:namespace/>requiredFields)) {
+        return false;
+    }    
+    for(i in <portlet:namespace/>numericFields) {
+        if(!checkIntegral(<portlet:namespace/>formName, <portlet:namespace/>numericFields[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+</script>
+
+<form name="<portlet:namespace/>HttpsForm" action="<portlet:actionURL/>">
 <input type="hidden" name="mode" value="${mode}">
 <input type="hidden" name="protocol" value="${protocol}">
 <input type="hidden" name="containerURI" value="${containerURI}">
@@ -34,6 +51,9 @@
     <td><div align="right"></div></td>
     <td>A name that is different than the name for any other web connectors in the server (no spaces in the name please)</td>
   </tr>
+  <script language="JavaScript">
+    <portlet:namespace/>requiredFields = new Array("displayName").concat(<portlet:namespace/>requiredFields);
+  </script>
 </c:if>
 <!-- Host Field -->
   <tr>
@@ -69,6 +89,9 @@
     <td><div align="right"></div></td>
     <td>The minimum number of threads this connector should use to handle incoming requests</td>
   </tr>
+  <script language="JavaScript">
+    <portlet:namespace/>numericFields = <portlet:namespace/>numericFields.concat(new Array("minThreads"));
+  </script>
 </c:if>
 <!-- Max Threads Field -->
   <tr>
@@ -140,6 +163,9 @@
     <td><div align="right"></div></td>
     <td>The file that holds the keystore (relative to the Geronimo install dir)</td>
   </tr>
+  <script language="JavaScript">
+    <portlet:namespace/>requiredFields = <portlet:namespace/>requiredFields.concat(new Array("keystoreFile"));
+  </script>
 
 <!-- Keystore Password Field -->
   <tr>
@@ -156,6 +182,11 @@
       set to be the same on the keystore).</c:if><c:if test="${mode eq 'save'}">  Leave
       this empty if you don't want to change the current password.</c:if></td>
   </tr>
+  <c:if test="${mode eq 'add'}">
+    <script language="JavaScript">
+      <portlet:namespace/>requiredFields = <portlet:namespace/>requiredFields.concat(new Array("keystorePassword"));
+    </script>
+  </c:if>
 
     <!-- Keystore Type Field -->
       <tr>
@@ -278,7 +309,7 @@
   <tr>
     <td><div align="right"></div></td>
     <td>
-      <input name="submit" type="submit" value="Save">
+      <input name="submit" type="submit" value="Save" onClick="return <portlet:namespace/>validateForm();">
       <input name="reset" type="reset" value="Reset">
       <input name="submit" type="submit" value="Cancel">
     </td>    

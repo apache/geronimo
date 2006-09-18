@@ -3,6 +3,14 @@
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <portlet:defineObjects/>
 
+<script language="JavaScript">
+var <portlet:namespace/>formName = "<portlet:namespace/>RealmForm";
+var <portlet:namespace/>requiredFields;
+function <portlet:namespace/>validateForm(){
+    return textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields);
+}
+</script>
+
 <p><b>Create Security Realm</b> -- Step 2: Configure Login Module</p>
 
 <c:if test="${!(empty LoginModuleError)}"><p><font color="red"><b>Error: ${LoginModuleError}</b></font></p></c:if>
@@ -57,6 +65,9 @@
 <jsp:include page="_sql.jsp" />
   </c:when>
   <c:otherwise>
+    <script language="JavaScript">
+      <portlet:namespace/>requiredFields = new Array();
+    </script>
     <c:forEach var="option" items="${realm.optionNames}">
       <tr>
         <th style="min-width: 140px"><div align="right">${optionMap[option].displayName}:</div></th>
@@ -68,13 +79,18 @@
         <td></td>
         <td>${optionMap[option].description}</td>
       </tr>
+      <c:if test="${!optionMap[option].blankAllowed}">
+        <script language="JavaScript">
+          <portlet:namespace/>requiredFields = <portlet:namespace/>requiredFields.concat(new Array('option-${option}'))
+        </script>
+      </c:if>
     </c:forEach>
   </c:otherwise>
 </c:choose>
     <!-- SUBMIT BUTTON -->
       <tr>
         <td></td>
-        <td><input type="submit" value="Next" /></td>
+        <td><input type="submit" value="Next" onClick="return <portlet:namespace/>validateForm()"/></td>
       </tr>
     </table>
 </form>

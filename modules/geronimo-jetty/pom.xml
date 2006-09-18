@@ -56,6 +56,12 @@
             <artifactId>geronimo-webservices</artifactId>
             <version>${pom.version}</version>
         </dependency>
+         
+         <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-clustering</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
         
         <dependency>
             <groupId>jetty</groupId>

@@ -53,6 +53,9 @@
         <module>geronimo-axis-builder</module>
         <module>geronimo-client</module>
         <module>geronimo-client-builder</module>
+        <module>geronimo-clustering</module>
+        <module>geronimo-clustering-builder-wadi</module>
+        <module>geronimo-clustering-wadi</module>
         <module>geronimo-common</module>
         <module>geronimo-connector</module>
         <module>geronimo-connector-builder</module>
@@ -90,6 +93,7 @@
         <module>geronimo-util</module>
         <module>geronimo-web-builder</module>
         <module>geronimo-webservices</module>
+
     </modules>
     
 </project>

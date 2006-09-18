@@ -3,6 +3,21 @@
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <portlet:defineObjects/>
 
+<script language="JavaScript">
+var <portlet:namespace/>formName = "<portlet:namespace/>KeystoreForm";
+var <portlet:namespace/>requiredFields = new Array("alias", "password", "certCN", "certO", "certOU", "certL", "certST", "certC");
+var <portlet:namespace/>numericFields = new Array("valid");
+function <portlet:namespace/>validateForm(){
+    if(!textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields))
+        return false;
+    for(i in <portlet:namespace/>numericFields) {
+        if(!checkIntegral(<portlet:namespace/>formName, <portlet:namespace/>numericFields[i]))
+            return false;
+    }
+    return true;
+}
+</script>
+
 <p>On this screen you can configure the settings to generate a new private key.
 The next screen will let you review this information before generating the
 private key and accompanying certificate.</p>
@@ -89,7 +104,7 @@ private key and accompanying certificate.</p>
             </td>
         </tr>
     </table>
-    <input type="submit" value="Review Key Data" />
+    <input type="submit" value="Review Key Data" onClick="return <portlet:namespace/>validateForm();"/>
 </form>
 
 

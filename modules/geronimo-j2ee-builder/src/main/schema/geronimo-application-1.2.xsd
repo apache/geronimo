@@ -84,6 +84,13 @@
         </xs:sequence>
     </xs:complexType>
 
+    <xs:element name="clustering" type="geronimo:abstract-clusteringType"/>
+    
+    <xs:complexType name="abstract-clusteringType" abstract="true">
+        <xs:sequence>
+        </xs:sequence>
+    </xs:complexType>
+
     <xs:complexType name="ext-moduleType">
         <xs:annotation>
             <xs:documentation>

@@ -35,6 +35,7 @@ import javax.enterprise.deploy.shared.factories.DeploymentFactoryManager;
 
 import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
 import org.apache.geronimo.mavenplugins.geronimo.GeronimoMojoSupport;
+import org.apache.geronimo.mavenplugins.geronimo.ModuleConfig;
 
 import org.apache.geronimo.genesis.ArtifactItem;
 
@@ -50,8 +51,26 @@ public abstract class ModuleMojoSupport
 {
     private static final String URI_PREFIX = "deployer:geronimo:jmx";
 
+    /**
+     * List of module artifact configurations.  Artifacts need to point to jar | war | ear | rar archive.
+     *
+     * @parameter
+     */
+    protected ModuleConfig[] modules = null;
+
+    /**
+     * Cached deployment manager.
+     */
     private DeploymentManager deploymentManager;
 
+    /**
+     * Get a deployment manager; if the manager was previosuly initialized then that cached instance is used.
+     *
+     * @return  Deployment manager instance; never null
+     *
+     * @throws IOException
+     * @throws DeploymentManagerCreationException
+     */
     protected DeploymentManager getDeploymentManager() throws IOException, DeploymentManagerCreationException {
         if (deploymentManager == null) {
             // Register the Geronimo factory
@@ -67,6 +86,14 @@ public abstract class ModuleMojoSupport
         return deploymentManager;
     }
 
+    /**
+     * Waits for the given progress to stop running.
+     *
+     * @param progress  The progress object to wait for.
+     * @return          The status of the deployment; never null
+     *
+     * @throws InterruptedException
+     */
     protected DeploymentStatus waitFor(final ProgressObject progress) throws InterruptedException {
         assert progress != null;
 
@@ -110,6 +137,14 @@ public abstract class ModuleMojoSupport
         return item.getGroupId() + "/" + item.getArtifactId() + "/" + item.getVersion() + "/" + item.getType();
     }
 
+    /**
+     * Check of the given module is started.
+     *
+     * @param moduleId  The module ID to check
+     * @return          True if the module for this ID is started.
+     *
+     * @throws Exception
+     */
     protected boolean isModuleStarted(final String moduleId) throws Exception {
         assert moduleId != null;
 
@@ -151,86 +186,104 @@ public abstract class ModuleMojoSupport
     // TODO: Can probably wrap up some of this into findModules with a flag for running or non-running
     //
     
-    protected void startModule(final String moduleId) throws Exception {
-        assert moduleId != null;
-        
-        if (isModuleStarted(moduleId)) {
-            throw new MojoExecutionException("Module is already started: " + moduleId);
-        }
+    protected void startModule() throws Exception {
+        assert modules != null;
 
         DeploymentManager manager = getDeploymentManager();
         Target[] targets = manager.getTargets();
         TargetModuleID[] targetIds = manager.getNonRunningModules(null, targets);
-        TargetModuleID[] found = findModules(moduleId, targetIds);
 
-        if (found.length == 0) {
-            throw new MojoExecutionException("Module is not deployed: " + moduleId);
+        for (int i=0; i<modules.length; i++) {
+           String moduleId = getModuleId(modules[i]);
+        
+           if (isModuleStarted(moduleId)) {
+               log.warn("Module is already started: " + moduleId);
+               continue;
+               //throw new MojoExecutionException("Module is already started: " + moduleId);
+           }
+
+           TargetModuleID[] found = findModules(moduleId, targetIds);
+
+           if (found.length == 0) {
+               throw new MojoExecutionException("Module is not deployed: " + moduleId);
+           }
+
+           log.info("Starting module: " + moduleId);
+           ProgressObject progress = manager.start(found);
+
+           DeploymentStatus status = waitFor(progress);
+           if (status.isFailed()) {
+               throw new MojoExecutionException("Failed to start module: " + moduleId);
+           }
+
+           log.info("Started module(s):");
+           logModules(found, "    ");
         }
-
-        log.info("Starting module: " + moduleId);
-        ProgressObject progress = manager.start(found);
-
-        DeploymentStatus status = waitFor(progress);
-        if (status.isFailed()) {
-            throw new MojoExecutionException("Failed to start module: " + moduleId);
-        }
-
-        log.info("Started module(s):");
-        logModules(found, "    ");
     }
 
-    protected void stopModule(final String moduleId) throws Exception {
-        assert moduleId != null;
-        
-        if (!isModuleStarted(moduleId)) {
-            throw new MojoExecutionException("Module is not started: " + moduleId);
-        }
+    protected void stopModule() throws Exception {
+        assert modules != null;
 
         DeploymentManager manager = getDeploymentManager();
         Target[] targets = manager.getTargets();
         TargetModuleID[] targetIds = manager.getRunningModules(null, targets);
-        TargetModuleID[] found = findModules(moduleId, targetIds);
 
-        if (found.length == 0) {
-            throw new MojoExecutionException("Module not deployed: " + moduleId);
-        }
+         for (int i=0; i<modules.length; i++) {
+           String moduleId = getModuleId(modules[i]);
+           if (!isModuleStarted(moduleId)) {
+               log.warn("Module is already stopped: " + moduleId);
+               continue;
+               //throw new MojoExecutionException("Module is not started: " + moduleId);
+           }
 
-        log.info("Stopping module: " + moduleId);
-        ProgressObject progress = manager.stop(found);
+           TargetModuleID[] found = findModules(moduleId, targetIds);
 
-        DeploymentStatus status = waitFor(progress);
-        if (status.isFailed()) {
-            throw new MojoExecutionException("Failed to stop module: " + moduleId);
-        }
+           if (found.length == 0) {
+               throw new MojoExecutionException("Module not deployed: " + moduleId);
+           }
 
-        log.info("Stopped module(s):");
-        logModules(found, "    ");
+           log.info("Stopping module: " + moduleId);
+           ProgressObject progress = manager.stop(found);
+
+           DeploymentStatus status = waitFor(progress);
+           if (status.isFailed()) {
+               throw new MojoExecutionException("Failed to stop module: " + moduleId);
+           }
+
+           log.info("Stopped module(s):");
+           logModules(found, "    ");
+         }
     }
 
-    protected void undeployModule(final String moduleId) throws Exception {
-        assert moduleId != null;
+    protected void undeployModule() throws Exception {
+        assert modules != null;
 
-        stopModule(moduleId);
-        
+        stopModule();
+
         DeploymentManager manager = getDeploymentManager();
         Target[] targets = manager.getTargets();
         TargetModuleID[] targetIds = manager.getNonRunningModules(null, targets);
-        TargetModuleID[] found = findModules(moduleId, targetIds);
 
-        if (found.length == 0) {
-            throw new Exception("Module is not deployed: " + moduleId);
+        for (int i=0; i<modules.length; i++) {
+          String moduleId = getModuleId(modules[i]);
+
+          TargetModuleID[] found = findModules(moduleId, targetIds);
+
+          if (found.length == 0) {
+              throw new Exception("Module is not deployed: " + moduleId);
+          }
+
+          log.info("Undeploying module: " + moduleId);
+          ProgressObject progress = manager.undeploy(found);
+
+          DeploymentStatus status = waitFor(progress);
+          if (status.isFailed()) {
+              throw new MojoExecutionException("Failed to undeploy module: " + moduleId);
+          }
+
+          log.info("Undeployed module(s):");
+          logModules(found, "    ");
         }
-
-        log.info("Undeploying module: " + moduleId);
-        ProgressObject progress = manager.undeploy(found);
-
-        DeploymentStatus status = waitFor(progress);
-        if (status.isFailed()) {
-            throw new MojoExecutionException("Failed to undeploy module: " + moduleId);
-        }
-
-        log.info("Undeployed module(s):");
-        logModules(found, "    ");
     }
 
     protected void logModules(final TargetModuleID[] targetIds) {

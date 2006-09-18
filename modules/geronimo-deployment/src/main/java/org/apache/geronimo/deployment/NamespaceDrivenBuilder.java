@@ -22,11 +22,15 @@ import java.util.List;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.kernel.repository.Environment;
 
 /**
  * @version $Rev$ $Date$
  */
 public interface NamespaceDrivenBuilder {
+
+    void buildEnvironment(XmlObject container, Environment environment) throws DeploymentException;
+ 
     void build(XmlObject container, DeploymentContext applicationContext, DeploymentContext moduleContext) throws DeploymentException;
 
     String getNamespace();

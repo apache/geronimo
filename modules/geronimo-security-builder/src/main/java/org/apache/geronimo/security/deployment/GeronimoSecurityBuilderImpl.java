@@ -59,6 +59,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.deployment.SecurityBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
@@ -70,6 +71,9 @@ public class GeronimoSecurityBuilderImpl implements SecurityBuilder {
     private static final QName SECURITY_QNAME = GerSecurityDocument.type.getDocumentElementName();
     private static final QNameSet SECURITY_QNAME_SET = QNameSet.singleton(SECURITY_QNAME);
 
+
+    public void buildEnvironment(XmlObject container, Environment environment) throws DeploymentException {
+    }
 
     public void build(XmlObject container, DeploymentContext applicationContext, DeploymentContext moduleContext) throws DeploymentException {
         EARContext earContext = (EARContext) applicationContext;

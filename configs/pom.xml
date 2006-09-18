@@ -134,6 +134,8 @@
         <module>j2ee-system</module>
         <module>javamail</module>
         <module>jetty</module>
+        <module>jetty-clustering-builder-wadi</module>
+        <module>jetty-clustering-wadi</module>
         <module>jetty-deployer</module>
         <module>jsp-examples-jetty</module>
         <module>jsp-examples-tomcat</module>

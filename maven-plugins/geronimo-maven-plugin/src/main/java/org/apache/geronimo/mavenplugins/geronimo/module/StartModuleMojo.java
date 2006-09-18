@@ -33,7 +33,7 @@ public class StartModuleMojo
     // TODO: Add forced restart if already started
     //
 
-    public void doExecute() throws Exception {
-        startModule(moduleId);
+    protected void doExecute() throws Exception {
+        startModule();
     }
 }
