@@ -47,11 +47,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
-<<<<<<< .working
-import org.apache.geronimo.deployment.DeployableModule;
-=======
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
->>>>>>> .merge-right.r447390
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
@@ -119,6 +115,7 @@ import org.mortbay.http.BasicAuthenticator;
 import org.mortbay.http.ClientCertAuthenticator;
 import org.mortbay.http.DigestAuthenticator;
 import org.mortbay.jetty.servlet.FormAuthenticator;
+import org.apache.geronimo.deployment.DeployableModule;
 
 
 /**
@@ -183,8 +180,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         return kernel.getGBeanData(templateName);
     }
 
-    protected Module createModule(Object plan, DeployableModule deployableModule, String targetPath, URL specDDUrl, boolean standAlone, String contextRoot, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
-        assert deployableModule != null: "moduleFile is null";
+    protected Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, String contextRoot, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+        assert moduleFile != null: "moduleFile is null";
         assert targetPath != null: "targetPath is null";
         assert !targetPath.endsWith("/"): "targetPath must not end with a '/'";
 
@@ -193,7 +190,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         WebAppType webApp;
         try {
             if (specDDUrl == null) {
-                specDDUrl = deployableModule.resolve("WEB-INF/web.xml");
+                specDDUrl = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/web.xml");
             }
 
             // read in the entire specDD as a string, we need this for getDeploymentDescriptor
@@ -218,12 +215,12 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         check(webApp);
 
         // parse vendor dd
-        JettyWebAppType jettyWebApp = getJettyWebApp(plan, deployableModule, standAlone, targetPath, webApp);
+        JettyWebAppType jettyWebApp = getJettyWebApp(plan, moduleFile, standAlone, targetPath, webApp);
         if (contextRoot == null || contextRoot.trim().equals("")) {
             if (jettyWebApp.isSetContextRoot()) {
                 contextRoot = jettyWebApp.getContextRoot();
             } else {
-                contextRoot = determineDefaultContextRoot(webApp, standAlone, deployableModule, targetPath);
+                contextRoot = determineDefaultContextRoot(webApp, standAlone, moduleFile, targetPath);
             }
         }
 
@@ -240,7 +237,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         getNamingBuilders().buildEnvironment(webApp, jettyWebApp, environment);
         
         // Note: logic elsewhere depends on the default artifact ID being the file name less extension (ConfigIDExtractor)
-        String warName = deployableModule.getRoot().getName();
+        String warName = new File(moduleFile.getName()).getName();
         if (warName.lastIndexOf('.') > -1) {
             warName = warName.substring(0, warName.lastIndexOf('.'));
         }
@@ -251,9 +248,9 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         //look for a webservices dd
         Map portMap = Collections.EMPTY_MAP;
         try {
-            URL wsDDUrl = deployableModule.resolve("WEB-INF/webservices.xml");
-            portMap = getWebServiceBuilder().parseWebServiceDescriptor(wsDDUrl, deployableModule, false, servletNameToPathMap);
-        } catch (IOException e) {
+            URL wsDDUrl = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/webservices.xml");
+            portMap = getWebServiceBuilder().parseWebServiceDescriptor(wsDDUrl, moduleFile, false, servletNameToPathMap);
+        } catch (MalformedURLException e) {
             //no descriptor
         }
         AbstractName moduleName;
@@ -264,10 +261,10 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             moduleName = naming.createChildName(earName, targetPath, NameFactory.WEB_MODULE);
         }
 
-        return new WebModule(standAlone, moduleName, environment, deployableModule, targetPath, webApp, jettyWebApp, specDD, contextRoot, portMap, JETTY_NAMESPACE);
+        return new WebModule(standAlone, moduleName, environment, moduleFile, targetPath, webApp, jettyWebApp, specDD, contextRoot, portMap, JETTY_NAMESPACE);
     }
 
-    JettyWebAppType getJettyWebApp(Object plan, DeployableModule deployableModule, boolean standAlone, String targetPath, WebAppType webApp) throws DeploymentException {
+    JettyWebAppType getJettyWebApp(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, WebAppType webApp) throws DeploymentException {
         XmlObject rawPlan = null;
         try {
             // load the geronimo-web.xml from either the supplied plan or from the earFile
@@ -278,11 +275,11 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                     if (plan != null) {
                         rawPlan = XmlBeansUtil.parse(((File) plan).toURL(), getClass().getClassLoader());
                     } else {
-                        URL path = deployableModule.resolve("WEB-INF/geronimo-web.xml");
+                        URL path = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/geronimo-web.xml");
                         try {
                             rawPlan = XmlBeansUtil.parse(path, getClass().getClassLoader());
                         } catch (FileNotFoundException e) {
-                            path = deployableModule.resolve("WEB-INF/geronimo-jetty.xml");
+                            path = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/geronimo-jetty.xml");
                             try {
                                 rawPlan = XmlBeansUtil.parse(path, getClass().getClassLoader());
                             } catch (FileNotFoundException e1) {
@@ -302,7 +299,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 jettyWebApp = (JettyWebAppType) webPlan.changeType(JettyWebAppType.type);
                 XmlBeansUtil.validateDD(jettyWebApp);
             } else {
-                String defaultContextRoot = determineDefaultContextRoot(webApp, standAlone, deployableModule, targetPath);
+                String defaultContextRoot = determineDefaultContextRoot(webApp, standAlone, moduleFile, targetPath);
                 jettyWebApp = createDefaultPlan(defaultContextRoot);
             }
             return jettyWebApp;
@@ -854,7 +851,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
      * Adds the provided servlets, taking into account the load-on-startup ordering.
      *
      * @param webModuleName   an <code>ObjectName</code> value
-     * @param deployableModule a <code>DeployableModule</code> value
+     * @param moduleFile      a <code>JarFile</code> value
      * @param servletTypes    a <code>ServletType[]</code> value, contains the <code>servlet</code> entries from <code>web.xml</code>.
      * @param servletMappings a <code>Map</code> value
      * @param securityRoles   a <code>Set</code> value
@@ -865,7 +862,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
      * @throws DeploymentException if an error occurs
      */
     private void addServlets(AbstractName webModuleName,
-            DeployableModule deployableModule,
+            JarFile moduleFile,
             ServletType[] servletTypes,
             Map servletMappings,
             Set securityRoles,
@@ -894,7 +891,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         AbstractName previousServlet = null;
         for (Iterator servlets = loadOrder.iterator(); servlets.hasNext();) {
             ServletType servletType = (ServletType) servlets.next();
-            previousServlet = addServlet(webModuleName, deployableModule, previousServlet, servletType, servletMappings, securityRoles, rolePermissions, portMap, webClassLoader, earContext);
+            previousServlet = addServlet(webModuleName, moduleFile, previousServlet, servletType, servletMappings, securityRoles, rolePermissions, portMap, webClassLoader, earContext);
         }
 
         // JACC v1.0 secion B.19
@@ -903,7 +900,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
     /**
      * @param webModuleName
-     * @param deployableModule
+     * @param moduleFile
      * @param previousServlet
      * @param servletType
      * @param servletMappings
@@ -916,7 +913,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
      * @throws DeploymentException
      */
     private AbstractName addServlet(AbstractName webModuleName,
-            DeployableModule deployableModule,
+            JarFile moduleFile,
             AbstractName previousServlet,
             ServletType servletType,
             Map servletMappings,
@@ -953,7 +950,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 if (portInfo == null) {
                     throw new DeploymentException("No web service deployment info for servlet name " + servletName); // TODO identify web app in message
                 }
-                getWebServiceBuilder().configurePOJO(servletData, deployableModule, portInfo, servletClassName, webClassLoader);
+                getWebServiceBuilder().configurePOJO(servletData, moduleFile, portInfo, servletClassName, webClassLoader);
             }
         } else if (servletType.isSetJspFile()) {
             servletData = new GBeanData(servletAbstractName, JettyServletHolder.GBEAN_INFO);
