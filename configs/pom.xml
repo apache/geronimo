@@ -164,6 +164,8 @@
         <module>upgrade-cli</module>
         <module>welcome-jetty</module>
         <module>welcome-tomcat</module>
+        <module>dojo-jetty</module>
+        <module>dojo-tomcat</module>
     </modules>
     
 </project>

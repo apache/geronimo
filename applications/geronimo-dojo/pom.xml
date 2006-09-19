@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright 2006 The Apache Software Foundation
+    
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    
+       http://www.apache.org/licenses/LICENSE-2.0
+    
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<!-- $Rev$ $Date$ -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.apache.geronimo.applications</groupId>
+        <artifactId>applications</artifactId>
+        <version>1.2-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>geronimo-dojo</artifactId>
+    <name>Geronimo Applications :: Dojo</name>
+    <packaging>war</packaging>
+
+    <description>
+        A web application containing the Dojo library files. This web
+        application makes a shared copy of the files available to
+        all web applications in the server.
+    </description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-system</artifactId>
+            <version>${pom.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <!-- the dojo.zip file is not available in a maven repo yet
+         so its kept here in a local repo for the time being -->
+    <repositories>
+        <repository>
+            <id>private-repo</id>
+            <name>repo in this module</name>
+            <url>file://${pom.basedir}/repository</url>
+        </repository>
+    </repositories>
+
+    <!-- this build process extracts certain files from dojo.zip
+         into a webapp. -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>dependency-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack</id>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.dojotoolkit</groupId>
+                                    <artifactId>dojo</artifactId>
+                                    <version>0.3.1</version>
+                                    <type>zip</type>
+                                    <outputDirectory>${project.build.directory}/</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <webResources>
+                        <resource>
+                            <directory>${project.build.directory}/dojo-0.3.1-ajax/</directory>
+                            <includes>
+                                <include>src/**</include>
+                                <include>*.js</include>
+                                <include>*.html</include>
+                                <include>*.swf</include>
+                                <include>LICENSE</include>
+                            </includes>   
+                        </resource>
+                    </webResources>
+                    <webXml>${pom.basedir}/src/main/webapp/WEB-INF/web.xml</webXml>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

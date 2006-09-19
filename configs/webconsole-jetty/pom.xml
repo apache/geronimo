@@ -56,6 +56,13 @@
             <type>car</type>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>dojo-jetty</artifactId>
+            <version>${pom.version}</version>
+            <type>car</type>
+        </dependency>
+
         <!-- we use it... and need its xmlbeans copy in our cl -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>

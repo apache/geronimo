@@ -35,6 +35,7 @@
     
     <modules>
         <module>geronimo-welcome</module>
+        <module>geronimo-dojo</module>
         <module>geronimo-examples</module>
         <module>console</module>
         <module>geronimo-remote-deploy</module>
