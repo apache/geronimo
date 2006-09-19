@@ -52,7 +52,21 @@
             <artifactId>junit</artifactId>
             <scope>compile</scope>
         </dependency>
-        
+
+        <!--xmlbeans -->
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-qname_1.1_spec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xmlbeans</groupId>
+            <artifactId>xbean</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>stax</groupId>
+            <artifactId>stax-api</artifactId>
+        </dependency>
+
     </dependencies>
     
 </project>
