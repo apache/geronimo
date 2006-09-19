@@ -51,6 +51,10 @@ public class DefaultArtifactResolver implements ArtifactResolver {
 
     public Artifact generateArtifact(Artifact source, String defaultType) {
         if(source.isResolved()) {
+            Artifact deAliased = (Artifact) explicitResolution.get(source);
+            if (deAliased !=  null) {
+                return deAliased;
+            }
             return source;
         }
         String groupId = source.getGroupId() == null ? Artifact.DEFAULT_GROUP_ID : source.getGroupId();
@@ -123,6 +127,11 @@ public class DefaultArtifactResolver implements ArtifactResolver {
     }
 
     private Artifact resolveVersion(Collection parentConfigurations, Artifact working) {
+        //see if there is an explicit resolution for this artifact.
+        Artifact deAliased = (Artifact) explicitResolution.get(working);
+        if (deAliased != null) {
+            working = deAliased;
+        }
         SortedSet existingArtifacts;
         if (artifactManager != null) {
             existingArtifacts = artifactManager.getLoadedArtifacts(working);
@@ -133,18 +142,6 @@ public class DefaultArtifactResolver implements ArtifactResolver {
         // if we have exactly one artifact loaded use its' version
         if (existingArtifacts.size() == 1) {
             return (Artifact) existingArtifacts.first();
-        }
-
-        //see if there is an explicit resolution for this artifact.
-        Artifact resolved = (Artifact) explicitResolution.get(working);
-        if (resolved != null) {
-            return resolved;
-        }
-        //see if there is an entry for the whole groupId.
-        Artifact groupId = new Artifact(working.getGroupId(), "", (Version)null, "");
-        resolved = (Artifact) explicitResolution.get(groupId);
-        if (resolved != null) {
-            return new Artifact(working.getGroupId(), working.getArtifactId(), resolved.getVersion(), working.getType());
         }
 
 

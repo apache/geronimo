@@ -32,7 +32,6 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactManager;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
-import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
@@ -68,14 +67,14 @@ public class ExplicitDefaultArtifactResolver extends DefaultArtifactResolver {
         for (Iterator iterator = properties.entrySet().iterator(); iterator.hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();
             String key = (String) entry.getKey();
-            String version = (String) entry.getValue();
+            String resolvedString = (String) entry.getValue();
             //split the string ourselves since we wish to allow blank artifactIds.
             String[] parts = key.split("/", -1);
             if (parts.length != 4) {
                 throw new IllegalArgumentException("Invalid id: " + key);
             }
             Artifact source = new Artifact(parts[0], parts[1], (String)null, parts[3]);
-            Artifact resolved = new Artifact(source.getGroupId(), source.getArtifactId(), version, source.getType());
+            Artifact resolved = Artifact.create(resolvedString);
             explicitResolution.put(source,resolved);
         }
         return explicitResolution;
@@ -88,7 +87,7 @@ public class ExplicitDefaultArtifactResolver extends DefaultArtifactResolver {
         infoFactory.addAttribute("versionMapLocation", String.class, true, true);
         infoFactory.addReference("ArtifactManager", ArtifactManager.class, "ArtifactManager");
         infoFactory.addReference("Repositories", ListableRepository.class, "Repository");
-        infoFactory.addReference("ServerInfo", ServerInfo.class, "ServerInfo");
+        infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
         infoFactory.addInterface(ArtifactResolver.class);
 
         infoFactory.setConstructor(new String[]{

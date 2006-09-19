@@ -184,7 +184,7 @@ public abstract class AbstractCarMojo
         while (iter.hasNext()) {
             Artifact artifact = (Artifact)iter.next();
             String name = artifact.getGroupId() + "/" + artifact.getArtifactId() + "//" + artifact.getType();
-            String value = artifact.getVersion();
+            String value = artifact.getGroupId() + "/" + artifact.getArtifactId() + "/" + artifact.getVersion() + "/" + artifact.getType();
 
             log.debug("Setting " + name + "=" + value);
             props.setProperty(name, value);
