@@ -281,7 +281,7 @@ public class SchemaConversionUtilsTest extends TestCase {
             do {
                 srcCursor.push();
                 srcCursor.toFirstChild();
-                SchemaConversionUtils.convertToDescriptionGroup(srcCursor, moveable);
+                SchemaConversionUtils.convertToDescriptionGroup(SchemaConversionUtils.J2EE_NAMESPACE, srcCursor, moveable);
                 srcCursor.pop();
             } while (srcCursor.toNextSibling());
         } finally {
@@ -310,7 +310,7 @@ public class SchemaConversionUtilsTest extends TestCase {
                 srcCursor.toNextSibling();
                 srcCursor.toNextSibling();
                 moveable.toCursor(srcCursor);
-                SchemaConversionUtils.convertToJNDIEnvironmentRefsGroup(srcCursor, moveable);
+                SchemaConversionUtils.convertToJNDIEnvironmentRefsGroup(SchemaConversionUtils.J2EE_NAMESPACE, srcCursor, moveable);
                 srcCursor.pop();
             } while (srcCursor.toNextSibling());
         } finally {
