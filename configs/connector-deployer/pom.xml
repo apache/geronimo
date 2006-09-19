@@ -28,61 +28,31 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>j2ee-server</artifactId>
-    <name>Geronimo Configs :: J2EE Server</name>
+    <artifactId>connector-deployer</artifactId>
+    <name>Geronimo Configs :: Connector Deployer</name>
     <packaging>car</packaging>
     
     <dependencies>
-        
+    
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>rmi-naming</artifactId>
+            <artifactId>j2ee-deployer</artifactId>
             <version>${pom.version}</version>
             <type>car</type>
         </dependency>
-        
-        <!-- ThreadPool -->
+
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-core</artifactId>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>transaction</artifactId>
             <version>${pom.version}</version>
-        </dependency>
-        
-        <!-- ?????? -->
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-common</artifactId>
-            <version>${pom.version}</version>
+            <type>car</type>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-management</artifactId>
+            <artifactId>geronimo-connector-builder</artifactId>
             <version>${pom.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-j2ee</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-naming</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-webservices</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-
-        <!-- purpose unknown -->
-        <dependency>
-            <groupId>asm</groupId>
-            <artifactId>asm</artifactId>
         </dependency>
 
     </dependencies>

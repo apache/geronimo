@@ -88,11 +88,18 @@
         
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>tomcat-deployer</artifactId>
+            <artifactId>connector-deployer</artifactId>
             <version>${pom.version}</version>
             <type>car</type>
         </dependency>
         
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>tomcat-deployer</artifactId>
+            <version>${pom.version}</version>
+            <type>car</type>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>remote-deploy-tomcat</artifactId>

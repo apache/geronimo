@@ -40,26 +40,20 @@
             <version>${pom.version}</version>
             <type>car</type>
         </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>connector-deployer</artifactId>
+            <version>${pom.version}</version>
+            <type>car</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>openejb</artifactId>
+            <version>${pom.version}</version>
+            <type>car</type>
+            <scope>compile</scope>
+        </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-axis</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-axis-builder</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-web-builder</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-        
-        <!-- this should get openejb -->
         <dependency>
             <groupId>org.openejb</groupId>
             <artifactId>openejb-builder</artifactId>
@@ -70,23 +64,18 @@
             <artifactId>openejb-pkgen-builder</artifactId>
         </dependency>
         
-        <dependency>
-            <groupId>org.openejb</groupId>
-            <artifactId>openejb-core</artifactId>
-        </dependency>
-        
         <!--
         NOTE: OpenEJB2 still references geronimo-spec:geronimo-spec-corba in
               a geronimo-dependency.xml, and until that is changed we need
               to keep using this old m1-based artifact
         -->
-        <dependency>
+        <!--<dependency>-->
             <!--
             <groupId>org.apache.geronimo.specs</groupId>
             -->
-            <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-corba</artifactId>
-        </dependency>
+            <!--<groupId>geronimo-spec</groupId>-->
+            <!--<artifactId>geronimo-spec-corba</artifactId>-->
+        <!--</dependency>-->
         
     </dependencies>
     

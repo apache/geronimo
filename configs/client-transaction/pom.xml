@@ -20,7 +20,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>configs</artifactId>
@@ -28,63 +28,33 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>j2ee-server</artifactId>
-    <name>Geronimo Configs :: J2EE Server</name>
+    <artifactId>client-transaction</artifactId>
+    <name>Geronimo Configs :: J2EE Client transaction</name>
     <packaging>car</packaging>
-    
+
     <dependencies>
         
+        <!-- parent config -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>rmi-naming</artifactId>
+            <artifactId>client</artifactId>
             <version>${pom.version}</version>
             <type>car</type>
         </dependency>
+
+        <!-- connector deploys jsr77 beans hence needs j2ee, mgmt -->
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-connector</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
         
-        <!-- ThreadPool -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-core</artifactId>
+            <artifactId>geronimo-transaction</artifactId>
             <version>${pom.version}</version>
-        </dependency>
-        
-        <!-- ?????? -->
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-common</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-management</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-j2ee</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-naming</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-webservices</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-
-        <!-- purpose unknown -->
-        <dependency>
-            <groupId>asm</groupId>
-            <artifactId>asm</artifactId>
         </dependency>
 
     </dependencies>
-    
+
 </project>

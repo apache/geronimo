@@ -1,6 +1,7 @@
 package org.apache.geronimo.client.builder;
 
 import java.io.File;
+import java.util.Collections;
 
 import org.apache.geronimo.testsupport.TestSupport;
 
@@ -19,7 +20,7 @@ public class PlanParsingTest extends TestSupport {
     private AppClientModuleBuilder builder;
 
     protected void setUp() throws Exception {
-        builder = new AppClientModuleBuilder(new Environment(), null, null, null, null, null, null, null, null);
+        builder = new AppClientModuleBuilder(new Environment(), null, null, null, null, Collections.EMPTY_LIST, null, null, null, null);
     }
 
     public void testResourceRef() throws Exception {

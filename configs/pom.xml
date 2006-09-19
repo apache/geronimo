@@ -43,6 +43,7 @@
         <gbeanDeployer>org.apache.geronimo.configs/geronimo-gbean-deployer/${pom.version}/car</gbeanDeployer>
         <j2eeDeployer>org.apache.geronimo.configs/j2ee-deployer/${pom.version}/car</j2eeDeployer>
         <clientDeployer>org.apache.geronimo.configs/client-deployer/${pom.version}/car</clientDeployer>
+        <connectorDeployer>org.apache.geronimo.configs/connector-deployer/${pom.version}/car</connectorDeployer>
         <openejbDeployer>org.apache.geronimo.configs/openejb-deployer/${pom.version}/car</openejbDeployer>
         <axisDeployer>org.apache.geronimo.configs/axis-deployer/${pom.version}/car</axisDeployer>
         <tomcatDeployer>org.apache.geronimo.configs/tomcat-deployer/${pom.version}/car</tomcatDeployer>
@@ -120,6 +121,8 @@
         <module>client-deployer</module>
         <module>client-security</module>
         <module>client-system</module>
+        <module>client-transaction</module>
+        <module>connector-deployer</module>
         <module>webconsole-jetty</module>
         <module>webconsole-tomcat</module>
         <!-- <module>daytrader-jetty</module> -->
@@ -155,6 +158,7 @@
         <module>system-database</module>
         <module>tomcat</module>
         <module>tomcat-deployer</module>
+        <module>transaction</module>
         <module>uddi-jetty</module>
         <module>uddi-tomcat</module>
         <module>unavailable-client-deployer</module>

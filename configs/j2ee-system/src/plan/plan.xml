@@ -57,12 +57,15 @@ specific services - those should be provided by children.
     <gbean name="ArtifactManager" class="org.apache.geronimo.kernel.repository.DefaultArtifactManager"/>
 
     <!-- ArtifactResolver -->
-    <gbean name="ArtifactResolver" class="org.apache.geronimo.kernel.repository.DefaultArtifactResolver">
+    <gbean name="ArtifactResolver" class="org.apache.geronimo.system.resolver.ExplicitDefaultArtifactResolver">
         <reference name="ArtifactManager">
             <name>ArtifactManager</name>
         </reference>
-        <reference name="Repositories">
-        <!--<gbean-name>*:name=Repository,*</gbean-name>--></reference>
+        <reference name="Repositories"></reference>
+        <attribute name="versionMapLocation">var/config/artifact_aliases.properties</attribute>
+        <reference name="ServerInfo">
+            <name>ServerInfo</name>
+        </reference>
     </gbean>
 
     <!--Configuration Manager service-->

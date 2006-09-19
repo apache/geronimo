@@ -43,13 +43,6 @@
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>j2ee-security</artifactId>
-            <version>${pom.version}</version>
-            <type>car</type>
-        </dependency>  
-
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>openejb</artifactId>
             <version>${pom.version}</version>
             <type>car</type>
@@ -65,9 +58,7 @@
                 <configuration>
                     <deploymentConfigs>
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
-                        <deploymentConfig>${j2eeDeployer}</deploymentConfig>
                         <deploymentConfig>${openejbDeployer}</deploymentConfig>
-                        <deploymentConfig>${axisDeployer}</deploymentConfig>
                     </deploymentConfigs>
                 </configuration>
             </plugin>

@@ -41,32 +41,14 @@
             <type>car</type>
         </dependency>
         
-        <!-- make sure all the deployers are available -->
-
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>axis-deployer</artifactId>
+            <artifactId>connector-deployer</artifactId>
             <version>${pom.version}</version>
             <type>car</type>
-            <scope>provided</scope>
+            <scope>test</scope>
         </dependency>
         
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>client-deployer</artifactId>
-            <version>${pom.version}</version>
-            <type>car</type>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>openejb-deployer</artifactId>
-            <version>${pom.version}</version>
-            <type>car</type>
-            <scope>provided</scope>
-        </dependency>
-
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-derby</artifactId>
@@ -106,9 +88,7 @@
                     <deploymentConfigs>
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
                         <deploymentConfig>${j2eeDeployer}</deploymentConfig>
-                        <deploymentConfig>${clientDeployer}</deploymentConfig>
-                        <deploymentConfig>${openejbDeployer}</deploymentConfig>
-                        <deploymentConfig>${axisDeployer}</deploymentConfig>
+                        <deploymentConfig>${connectorDeployer}</deploymentConfig>
                     </deploymentConfigs>
                     <module>
                         <groupId>tranql</groupId>

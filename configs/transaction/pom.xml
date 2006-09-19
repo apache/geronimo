@@ -28,15 +28,15 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>j2ee-server</artifactId>
-    <name>Geronimo Configs :: J2EE Server</name>
+    <artifactId>transaction</artifactId>
+    <name>Geronimo Configs :: Transaction Manager</name>
     <packaging>car</packaging>
     
     <dependencies>
         
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>rmi-naming</artifactId>
+            <artifactId>j2ee-server</artifactId>
             <version>${pom.version}</version>
             <type>car</type>
         </dependency>
@@ -48,41 +48,21 @@
             <version>${pom.version}</version>
         </dependency>
         
-        <!-- ?????? -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-common</artifactId>
+            <artifactId>geronimo-connector</artifactId>
             <version>${pom.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-management</artifactId>
+            <artifactId>geronimo-transaction</artifactId>
             <version>${pom.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-j2ee</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-naming</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-webservices</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-
-        <!-- purpose unknown -->
-        <dependency>
-            <groupId>asm</groupId>
-            <artifactId>asm</artifactId>
+            <groupId>org.objectweb.howl</groupId>
+            <artifactId>howl</artifactId>
         </dependency>
 
     </dependencies>
