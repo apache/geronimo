@@ -17,6 +17,7 @@
 package org.apache.geronimo.axis.server;
 
 import java.io.InputStream;
+import java.io.IOException;
 import java.net.URI;
 import java.util.Iterator;
 import java.util.Map;
@@ -120,7 +121,15 @@ public class AxisWebServiceContainer implements WebServiceContainer {
 
                 responseMessage = messageContext.getResponseMessage();
             } catch (AxisFault fault) {
-                responseMessage = handleFault(fault, res, messageContext);
+                
+               	if(req.getMethod() == req.GET && req.getParameters().isEmpty()){
+               		String serviceName = req.getURI().getRawPath();
+                    serviceName = serviceName.substring(serviceName.lastIndexOf("/")+1);
+               		printServiceInfo(res,serviceName);
+               		return;
+               	}else{
+               		responseMessage = handleFault(fault, res, messageContext);
+               	}
 
             } catch (Exception e) {
                 responseMessage = handleException(messageContext, res, e);
@@ -265,4 +274,49 @@ public class AxisWebServiceContainer implements WebServiceContainer {
         }
         return new AxisWebServiceContainer(location, wsdlLocation, service, wsdlMap, classLoader);
     }
+
+    /**
+     * print a snippet of service info.
+     * @param response response
+     * @param serviceName Name of the service
+     */
+
+    private void printServiceInfo(Response response,String serviceName) throws IOException{
+        response.setContentType("text/html; charset=utf-8");
+        StringBuffer output = new StringBuffer("<h1>")
+                .append(serviceName).append("</h1>\n");
+
+        output.append("<p>").append(Messages.getMessage("axisService00"))
+                .append("</p>\n");
+        output.append(
+                "<i>").append(
+                Messages.getMessage("perhaps00") ).append(
+                "</i>\n");
+        response.getOutputStream().write(output.toString().getBytes());
+    }
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
