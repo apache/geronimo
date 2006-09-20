@@ -95,7 +95,7 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
                     host = "unknown-host";
                 }
                 if(address != null) {
-                    host = address.getHostName();
+                    host = address.getCanonicalHostName();
                     if(host == null || host.equals("")) {
                         host = address.getHostAddress();
                     }
