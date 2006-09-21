@@ -200,39 +200,6 @@
             <artifactId>openejb-core</artifactId>
         </dependency>
         
-        <!--
-        NOTE: OpenEJB2 still references geronimo-spec:geronimo-spec-corba in
-              a geronimo-dependency.xml, and until that is changed we need
-              to keep using this old m1-based artifact
-        -->
-        <dependency>
-            <!--
-            <groupId>org.apache.geronimo.specs</groupId>
-            -->
-            <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-corba</artifactId>
-        </dependency>
-
     </dependencies>
     
-    <!--
-    HACK: Need to include the Apache m1 snapshot repo to pick up geronimo-spec:geronimo-spec-corba
-    -->
-    <repositories>
-        <repository>
-            <id>apache-snapshots-m1</id>
-            <name>Apache Maven 1 Snapshots Repository</name>
-            <url>http://people.apache.org/repo/m1-snapshot-repository</url>
-            <layout>legacy</layout>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-    </repositories>
-
 </project>
