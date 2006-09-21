@@ -71,14 +71,6 @@
             <type>car</type>
         </dependency>
         
-        <!-- we use it... and need its xmlbeans copy in our cl -->
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>j2ee-deployer</artifactId>
-            <version>${pom.version}</version>
-            <type>car</type>
-        </dependency>
-
         <dependency>
             <groupId>org.apache.geronimo.applications.console</groupId>
             <artifactId>geronimo-console-core</artifactId>
