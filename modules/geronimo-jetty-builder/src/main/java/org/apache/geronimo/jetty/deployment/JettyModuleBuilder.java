@@ -20,7 +20,6 @@ package org.apache.geronimo.jetty.deployment;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.Permission;
 import java.security.PermissionCollection;
@@ -61,9 +60,9 @@ import org.apache.geronimo.gbean.SingleElementCollection;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
+import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
-import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jetty.DefaultWebApplicationHandlerFactory;
 import org.apache.geronimo.jetty.Host;
@@ -77,8 +76,8 @@ import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
@@ -244,15 +243,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
         Map servletNameToPathMap = buildServletNameToPathMap(webApp, contextRoot);
 
-        //look for a webservices dd
-        Map portMap = Collections.EMPTY_MAP;
-        try {
-            URL wsDDUrl = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/webservices.xml");
-            portMap = getWebServiceBuilder().parseWebServiceDescriptor(wsDDUrl, moduleFile, false, servletNameToPathMap);
-        } catch (MalformedURLException e) {
-            //no descriptor
-        }
-        AbstractName moduleName;
+        Map portMap = getWebServiceBuilder().findWebServices(moduleFile, false, servletNameToPathMap);        AbstractName moduleName;
         if (earName == null) {
             earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
             moduleName = naming.createChildName(earName, environment.getConfigId().toString(), NameFactory.WEB_MODULE);
@@ -343,7 +334,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
         //this may add to the web classpath with enhanced classes.
         //N.B. we use the ear context which has all the gbeans we could possibly be looking up from this ear.
-        Map compContext = buildComponentContext(earContext, webModule, webApp, jettyWebApp, moduleClassLoader);
+        Map compContext = buildComponentContext(earContext, webModule, webApp, jettyWebApp);
 
         GBeanData webModuleData = new GBeanData(moduleName, JettyWebAppContext.GBEAN_INFO);
         try {
@@ -1000,7 +991,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         return servletAbstractName;
     }
 
-    private Map buildComponentContext(EARContext earContext, Module webModule, WebAppType webApp, JettyWebAppType jettyWebApp, ClassLoader cl) throws DeploymentException {
+    private Map buildComponentContext(EARContext earContext, Module webModule, WebAppType webApp, JettyWebAppType jettyWebApp) throws DeploymentException {
         Map componentContext = new HashMap();
         Configuration earConfiguration = earContext.getConfiguration();
         getNamingBuilders().buildNaming(webApp, jettyWebApp, earConfiguration, earConfiguration, webModule, componentContext);

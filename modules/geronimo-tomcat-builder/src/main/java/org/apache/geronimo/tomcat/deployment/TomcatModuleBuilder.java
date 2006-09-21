@@ -20,13 +20,11 @@ package org.apache.geronimo.tomcat.deployment;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.Permission;
 import java.security.PermissionCollection;
 import java.security.Permissions;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -52,14 +50,14 @@ import org.apache.geronimo.gbean.SingleElementCollection;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
+import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
-import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
@@ -177,14 +175,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
         Map servletNameToPathMap = buildServletNameToPathMap(webApp, contextRoot);
 
-        //look for a webservices dd
-        Map portMap = Collections.EMPTY_MAP;
-        try {
-            URL wsDDUrl = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/webservices.xml");
-            portMap = getWebServiceBuilder().parseWebServiceDescriptor(wsDDUrl, moduleFile, false, servletNameToPathMap);
-        } catch (MalformedURLException e) {
-            //no descriptor
-        }
+        Map portMap = getWebServiceBuilder().findWebServices(moduleFile, false, servletNameToPathMap);
         AbstractName moduleName;
         if (earName == null) {
             earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
@@ -278,7 +269,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
         //this may add to the web classpath with enhanced classes.
         //N.B. we use the ear context which has all the gbeans we could possibly be looking up from this ear.
-        Map compContext = buildComponentContext(earContext, webModule, webApp, tomcatWebApp, moduleClassLoader);
+        Map compContext = buildComponentContext(earContext, webModule, webApp, tomcatWebApp);
 
         GBeanData webModuleData = new GBeanData(moduleName, TomcatWebAppContext.GBEAN_INFO);
         try {
@@ -445,7 +436,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
     }
 
 
-    private Map buildComponentContext(EARContext earContext, Module webModule, WebAppType webApp, TomcatWebAppType tomcatWebApp, ClassLoader cl) throws DeploymentException {
+    private Map buildComponentContext(EARContext earContext, Module webModule, WebAppType webApp, TomcatWebAppType tomcatWebApp) throws DeploymentException {
         Map componentContext = new HashMap();
         Configuration earConfiguration = earContext.getConfiguration();
         getNamingBuilders().buildNaming(webApp, tomcatWebApp, earConfiguration, earConfiguration, webModule, componentContext);

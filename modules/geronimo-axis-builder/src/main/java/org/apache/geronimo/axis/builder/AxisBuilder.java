@@ -72,19 +72,28 @@ import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
 import org.apache.geronimo.xbeans.j2ee.JavaXmlTypeMappingType;
 import org.apache.geronimo.xbeans.j2ee.ServiceEndpointInterfaceMappingType;
 import org.apache.geronimo.xbeans.j2ee.ServiceEndpointMethodMappingType;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
 
 /**
  * @version $Rev$ $Date$
  */
 public class AxisBuilder implements WebServiceBuilder {
-//    private static final Class[] SERVICE_CONSTRUCTOR_TYPES = new Class[]{Map.class, Map.class};
 
     private static final SOAPConstants SOAP_VERSION = SOAPConstants.SOAP11_CONSTANTS;
 
-    //WebServiceBuilder
 
-    public Map parseWebServiceDescriptor(URL wsDDUrl, JarFile moduleFile, boolean isEJB, Map servletLocations) throws DeploymentException {
-        return WSDescriptorParser.parseWebServiceDescriptor(wsDDUrl, moduleFile, isEJB, servletLocations);
+    public Map findWebServices(JarFile moduleFile, boolean isEJB, Map servletLocations) throws DeploymentException {
+        final String path = isEJB ? "META-INF/webservices.xml" : "WEB-INF/webservices.xml";
+        try {
+            URL wsDDUrl = DeploymentUtil.createJarURL(moduleFile, path);
+            Map result = WSDescriptorParser.parseWebServiceDescriptor(wsDDUrl, moduleFile, isEJB, servletLocations);
+            if (result != null) {
+                return result;
+            }
+        } catch (MalformedURLException e) {
+            // The webservices.xml file doesn't exist.
+        }
+        return Collections.EMPTY_MAP;
     }
 
     public void configurePOJO(GBeanData targetGBean, JarFile moduleFile, Object portInfoObject, String seiClassName, ClassLoader classLoader) throws DeploymentException {

@@ -16,15 +16,14 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
-import java.util.jar.JarFile;
+import java.util.Collections;
 import java.util.Map;
-import java.util.HashMap;
-import java.net.URL;
+import java.util.jar.JarFile;
 
+import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
@@ -32,8 +31,8 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
  */
 public class UnavailableWebServiceBuilder implements WebServiceBuilder {
 
-    public Map parseWebServiceDescriptor(URL wsDDUrl, JarFile moduleFile, boolean isEJB, Map correctedPortLocations) throws DeploymentException {
-        return new HashMap();
+    public Map findWebServices(JarFile moduleFile, boolean isEJB, Map correctedPortLocations) throws DeploymentException {
+        return  Collections.EMPTY_MAP;
     }
 
     public void configurePOJO(GBeanData targetGBean, JarFile moduleFile, Object portInfo, String seiClassName, ClassLoader classLoader) throws DeploymentException {
