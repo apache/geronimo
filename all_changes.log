@@ -51,12 +51,12 @@ Merged,  r369099 , djencks , 2006-01-14 13:31:11 -0800 (Sat, 14 Jan 2006) , 1 li
 Merged,  r369125 , djencks , 2006-01-14 16:28:36 -0800 (Sat, 14 Jan 2006) , 1 line  GERONIMO-1447 fix config names in plans
 Merged,  r369165 , djencks , 2006-01-14 18:29:39 -0800 (Sat, 14 Jan 2006) , 1 line  GERONIMO-1457 Another version change
 Unnecessary,  r369276 , dain , 2006-01-15 15:16:51 -0800 (Sun, 15 Jan 2006) , 2 lines  Add session module
-Not Merged,  r369280 , jstrachan , 2006-01-15 15:36:05 -0800 (Sun, 15 Jan 2006) , 1 line  A spike for a simple API for working with stateful session bean state from OpenEJB, ServiceMix or Tuscany; its very simple to use & has all thats required from the perspective of the client; we should be able to layer this on pretty much any implementation technology like WADI et al
+Unnecessary,  r369280 , jstrachan , 2006-01-15 15:36:05 -0800 (Sun, 15 Jan 2006) , 1 line  A spike for a simple API for working with stateful session bean state from OpenEJB, ServiceMix or Tuscany; its very simple to use & has all thats required from the perspective of the client; we should be able to layer this on pretty much any implementation technology like WADI et al
 Merged,  r369300 , djencks , 2006-01-15 17:27:18 -0800 (Sun, 15 Jan 2006) , 1 line  GERONIMO-1457, maybe.  Make sure a couple spec jars make it into lib
-Not Merged,  r369309 , jstrachan , 2006-01-15 18:09:43 -0800 (Sun, 15 Jan 2006) , 1 line  a simple local implementation of the Session to allow single-JVM session management which can offer optional persistence but no remote sessions
+Unnecessary,  r369309 , jstrachan , 2006-01-15 18:09:43 -0800 (Sun, 15 Jan 2006) , 1 line  a simple local implementation of the Session to allow single-JVM session management which can offer optional persistence but no remote sessions
 Unnecessary,  r369310 , jstrachan , 2006-01-15 18:14:00 -0800 (Sun, 15 Jan 2006) , 1 line  Added missing dependencies to the pom
-Not Merged,  r369313 , jstrachan , 2006-01-15 18:28:48 -0800 (Sun, 15 Jan 2006) , 1 line  added a simple version of a remote-capable Locator which supports local or remote session objects which can be moved and new servers added or existing ones removed
-Not Merged,  r369319 , jstrachan , 2006-01-15 18:47:07 -0800 (Sun, 15 Jan 2006) , 1 line  added a little helper strategy for deciding whether to redirect, proxy or move when faced with a remote session
+Unnecessary,  r369313 , jstrachan , 2006-01-15 18:28:48 -0800 (Sun, 15 Jan 2006) , 1 line  added a simple version of a remote-capable Locator which supports local or remote session objects which can be moved and new servers added or existing ones removed
+Unnecessary,  r369319 , jstrachan , 2006-01-15 18:47:07 -0800 (Sun, 15 Jan 2006) , 1 line  added a little helper strategy for deciding whether to redirect, proxy or move when faced with a remote session
 Unnecessary,  r369321 , adc , 2006-01-15 19:04:41 -0800 (Sun, 15 Jan 2006) , 1 line  Moved sandbox to a better place.
 Merged,  r369381 , djencks , 2006-01-15 23:33:37 -0800 (Sun, 15 Jan 2006) , 1 line  GERONIMO-1477 turn off debug tool by default
 Merged,  r369383 , djencks , 2006-01-15 23:44:25 -0800 (Sun, 15 Jan 2006) , 1 line  GERONIMO-1448 applied patch to web.xml and removed unused file geronimo-web.xml
