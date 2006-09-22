@@ -146,7 +146,7 @@
     
     <target name="openejb2" depends="init">
         <echo>Building OpenEJB2...</echo>
-        <build-external url="http://svn.codehaus.org/openejb/trunk/openejb2" name="openejb2"/>
+        <build-external url="https://svn.apache.org/repos/asf/incubator/openejb/trunk/openejb2" name="openejb2"/>
     </target>
 
 </project>
