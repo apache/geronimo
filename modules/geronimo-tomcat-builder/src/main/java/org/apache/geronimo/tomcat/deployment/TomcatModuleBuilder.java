@@ -61,6 +61,7 @@ import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
+import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
@@ -102,8 +103,11 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             AbstractNameQuery tomcatContainerName,
             Collection webServiceBuilder,
             Collection securityBuilders,
-            Collection serviceBuilders, NamingBuilder namingBuilders, Kernel kernel) {
-        super(kernel, securityBuilders, serviceBuilders, namingBuilders);
+            Collection serviceBuilders,
+            NamingBuilder namingBuilders,
+            ResourceEnvironmentSetter resourceEnvironmentSetter,
+            Kernel kernel) {
+        super(kernel, securityBuilders, serviceBuilders, namingBuilders, resourceEnvironmentSetter);
         this.defaultEnvironment = defaultEnvironment;
 
         this.tomcatContainerName = tomcatContainerName;
@@ -294,7 +298,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             // unsharableResources, applicationManagedSecurityResources
             GBeanResourceEnvironmentBuilder rebuilder = new GBeanResourceEnvironmentBuilder(webModuleData);
             //N.B. use earContext not moduleContext
-            ENCConfigBuilder.setResourceEnvironment(rebuilder, webApp.getResourceRefArray(), tomcatWebApp.getResourceRefArray());
+            resourceEnvironmentSetter.setResourceEnvironment(rebuilder, webApp.getResourceRefArray(), tomcatWebApp.getResourceRefArray());
 
             webModuleData.setReferencePattern("TransactionManager", earContext.getTransactionManagerName());
             webModuleData.setReferencePattern("TrackedConnectionAssociator", earContext.getConnectionTrackerName());
@@ -453,6 +457,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         infoBuilder.addReference("SecurityBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("NamingBuilders", NamingBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("ResourceEnvironmentSetter", ResourceEnvironmentSetter.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
         infoBuilder.addInterface(ModuleBuilder.class);
 
@@ -463,6 +468,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                 "SecurityBuilders",
                 "ServiceBuilders",
                 "NamingBuilders",
+                "ResourceEnvironmentSetter",
                 "kernel"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

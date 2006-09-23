@@ -17,28 +17,37 @@
 
 package org.apache.geronimo.naming.deployment;
 
-import java.util.Set;
-import java.util.Map;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.Collections;
 
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.QNameSet;
-import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
+import javax.xml.namespace.QName;
+
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.service.EnvironmentBuilder;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
-import org.apache.geronimo.deployment.service.EnvironmentBuilder;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
+import org.apache.geronimo.schema.NamespaceElementConverter;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.QNameSet;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractNamingBuilder implements NamingBuilder {
+    protected static final String J2EE_NAMESPACE = "http://java.sun.com/xml/ns/j2ee";
+    protected static final String JEE_NAMESPACE = "http://java.sun.com/xml/ns/javaee";
+    protected static final NamespaceElementConverter J2EE_CONVERTER = new NamespaceElementConverter(J2EE_NAMESPACE);
 
     private final Environment defaultEnvironment;
 
@@ -63,6 +72,40 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
     public void initContext(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module) throws DeploymentException {
     }
 
+    protected static QNameSet buildQNameSet(String[] eeNamespaces, String localPart) {
+        Set qnames = new HashSet(eeNamespaces.length);
+        for (int i = 0; i < eeNamespaces.length; i++) {
+            String namespace = eeNamespaces[i];
+            qnames.add(new QName(namespace, localPart));
+        }
+        //xmlbeans 2.0 has a bug so forArray doesn't work.  Don't know if it's fixed in later xmlbeans versions
+        //return QNameSet.forArray(qnames);
+        return QNameSet.forSets(null, Collections.EMPTY_SET, Collections.EMPTY_SET, qnames);
+    }
+
+    protected XmlObject[] convert(XmlObject[] xmlObjects, NamespaceElementConverter converter, SchemaType type) {
+        //bizarre ArrayStoreException if xmlObjects is loaded by the wrong classloader
+        XmlObject[] converted = new XmlObject[xmlObjects.length];
+        for (int i = 0; i < xmlObjects.length; i++) {
+            XmlObject xmlObject = xmlObjects[i];
+            if (xmlObject.schemaType() != type) {
+                xmlObject = xmlObject.copy();
+                XmlCursor start =xmlObject.newCursor();
+                XmlCursor end = xmlObject.newCursor();
+
+                try {
+                    converter.convertElement(start, end);
+                } finally {
+                    start.dispose();
+                    end.dispose();
+                }
+                converted[i] = xmlObject.changeType(type);
+            } else {
+                converted[i] = xmlObject;
+            }
+        }
+        return converted;
+    }
     protected static String getStringValue(org.apache.geronimo.xbeans.j2ee.String string) {
         if (string == null) {
             return null;

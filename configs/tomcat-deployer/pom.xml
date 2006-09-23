@@ -41,6 +41,14 @@
             <type>car</type>
         </dependency>
         
+        <!--ResourceEnvironmentSetter-->
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>connector-deployer</artifactId>
+            <version>${pom.version}</version>
+            <type>car</type>
+        </dependency>
+
         <!-- import classes -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>

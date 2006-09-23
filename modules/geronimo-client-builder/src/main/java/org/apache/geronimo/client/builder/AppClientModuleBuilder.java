@@ -519,6 +519,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 }
 
                 // add the app client static jndi provider
+                //TODO track resource ref shared and app managed security
                 AbstractName jndiContextName = earContext.getNaming().createChildName(appClientDeploymentContext.getModuleName(), "StaticJndiContext", "StaticJndiContext");
                 GBeanData jndiContextGBeanData = new GBeanData(jndiContextName, StaticJndiContextPlugin.GBEAN_INFO);
                 try {

@@ -256,7 +256,8 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
          */
         //TODO use run-as as nextCaller if present
         ContextManager.setCallers(defaultPrincipal.getSubject(), defaultPrincipal.getSubject());
-        ContextManager.setNextCaller(defaultPrincipal.getSubject());
+        //??????? next line does nothing!
+//        ContextManager.setNextCaller(defaultPrincipal.getSubject());
         return defaultPrincipal;
     }
 

@@ -49,6 +49,8 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Version;
+import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
+import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -61,7 +63,7 @@ public class MessageDestinationTest extends TestCase {
     private static final Naming naming = new Jsr77Naming();
     Configuration configuration;
     AbstractName baseName;
-    AdminObjectRefBuilder adminObjectRefBuilder = new AdminObjectRefBuilder();
+    AdminObjectRefBuilder adminObjectRefBuilder = new AdminObjectRefBuilder(null, new String[] {SchemaConversionUtils.J2EE_NAMESPACE});
     Module module;
 
     Map componentContext = new HashMap();

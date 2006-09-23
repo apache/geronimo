@@ -42,7 +42,11 @@
         </xml-attribute>
     </gbean>
 
-    <gbean name="ResourceRefBuilder" class="org.apache.geronimo.connector.deployment.ResourceRefBuilder"/>
-    <gbean name="AdminObjectRefBuilder" class="org.apache.geronimo.connector.deployment.AdminObjectRefBuilder"/>
+    <gbean name="ResourceRefBuilder" class="org.apache.geronimo.connector.deployment.ResourceRefBuilder">
+        <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee</attribute>
+    </gbean>
+    <gbean name="AdminObjectRefBuilder" class="org.apache.geronimo.connector.deployment.AdminObjectRefBuilder">
+        <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee</attribute>
+    </gbean>
 
 </module>

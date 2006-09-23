@@ -121,7 +121,7 @@ public class ProxyMethodInterceptor implements MethodInterceptor {
             }
         } catch (Exception e) {
             // this can not happen... all classes must implement equals, hashCode and toString
-            throw new AssertionError(e);
+            throw new AssertionError(new Exception("Could not install invoker for proxyType " + proxyType + " for target " + abstractName, e));
         }
 
         return invokers;

@@ -81,6 +81,7 @@ import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
+import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
@@ -149,8 +150,9 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             Collection securityBuilders,
             Collection serviceBuilders,
             NamingBuilder namingBuilders,
+            ResourceEnvironmentSetter resourceEnvironmentSetter,
             Kernel kernel) throws GBeanNotFoundException {
-        super(kernel, securityBuilders, serviceBuilders, namingBuilders);
+        super(kernel, securityBuilders, serviceBuilders, namingBuilders, resourceEnvironmentSetter);
         this.defaultEnvironment = defaultEnvironment;
         this.defaultSessionTimeoutSeconds = (defaultSessionTimeoutSeconds == null) ? new Integer(30 * 60) : defaultSessionTimeoutSeconds;
         this.jettyContainerObjectName = jettyContainerName;
@@ -365,7 +367,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             // unsharableResources, applicationManagedSecurityResources
             GBeanResourceEnvironmentBuilder rebuilder = new GBeanResourceEnvironmentBuilder(webModuleData);
             //N.B. use earContext not moduleContext
-            ENCConfigBuilder.setResourceEnvironment(rebuilder, webApp.getResourceRefArray(), jettyWebApp.getResourceRefArray());
+            resourceEnvironmentSetter.setResourceEnvironment(rebuilder, webApp.getResourceRefArray(), jettyWebApp.getResourceRefArray());
 
             webModuleData.setAttribute("contextPath", webModule.getContextRoot());
 
@@ -1015,6 +1017,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         infoBuilder.addReference("SecurityBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("NamingBuilders", NamingBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("ResourceEnvironmentSetter", ResourceEnvironmentSetter.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
         infoBuilder.addInterface(ModuleBuilder.class);
 
@@ -1032,6 +1035,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 "SecurityBuilders",
                 "ServiceBuilders",
                 "NamingBuilders",
+                "ResourceEnvironmentSetter",
                 "kernel"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

@@ -23,6 +23,9 @@ import org.apache.geronimo.xbeans.geronimo.web.GerWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.GerWebAppType;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppType;
 import org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl;
+import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
+import org.apache.geronimo.naming.deployment.ResourceEnvironmentBuilder;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  */
@@ -38,7 +41,7 @@ public class PlanParsingTest extends TestCase {
     private TomcatModuleBuilder builder;
 
     protected void setUp() throws Exception {
-        builder = new TomcatModuleBuilder(defaultEnvironment, tomcatContainerObjectName, Collections.singleton(webServiceBuilder), Collections.singleton(new GeronimoSecurityBuilderImpl()), Collections.singleton(new GBeanBuilder(null, null)), new NamingBuilderCollection(null, null), null);
+        builder = new TomcatModuleBuilder(defaultEnvironment, tomcatContainerObjectName, Collections.singleton(webServiceBuilder), Collections.singleton(new GeronimoSecurityBuilderImpl()), Collections.singleton(new GBeanBuilder(null, null)), new NamingBuilderCollection(null, null), new MockResourceEnvironmentSetter(), null);
     }
 
     public void testResourceRef() throws Exception {

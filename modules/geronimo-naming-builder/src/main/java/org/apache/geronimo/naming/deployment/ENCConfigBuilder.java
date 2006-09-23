@@ -39,9 +39,6 @@ import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
  */
 public class ENCConfigBuilder {
 
-    private static final String JAXR_CONNECTION_FACTORY_CLASS = "javax.xml.registry.ConnectionFactory";
-
-
     public static AbstractNameQuery getGBeanQuery(String j2eeType, GerGbeanLocatorType gerGbeanLocator) {
         AbstractNameQuery abstractNameQuery;
         if (gerGbeanLocator.isSetGbeanLink()) {
@@ -56,70 +53,6 @@ public class ENCConfigBuilder {
         }
         //TODO check that the query is satisfied.
         return abstractNameQuery;
-    }
-
-    private static AbstractNameQuery getResourceContainerId(String name, String type, URI moduleURI, GerResourceRefType gerResourceRef) {
-        AbstractNameQuery containerId;
-        String module = moduleURI == null ? null : moduleURI.toString();
-        if (gerResourceRef == null) {
-            containerId = buildAbstractNameQuery(null, module, name, type, NameFactory.RESOURCE_ADAPTER_MODULE);
-        } else if (gerResourceRef.isSetResourceLink()) {
-            containerId = buildAbstractNameQuery(null, module, gerResourceRef.getResourceLink().trim(), type, NameFactory.RESOURCE_ADAPTER_MODULE);
-        } else {
-            //construct name from components
-            GerPatternType patternType = gerResourceRef.getPattern();
-            containerId = buildAbstractNameQuery(patternType, type, NameFactory.RESOURCE_ADAPTER_MODULE, null);
-        }
-        return containerId;
-    }
-
-    private static String getStringValue(org.apache.geronimo.xbeans.j2ee.String string) {
-        if (string == null) {
-            return null;
-        }
-        String s = string.getStringValue();
-        return s == null ? null : s.trim();
-    }
-
-    public static void setResourceEnvironment(ResourceEnvironmentBuilder builder, ResourceRefType[] resourceRefs, GerResourceRefType[] gerResourceRefs) {
-        Map refMap = mapResourceRefs(gerResourceRefs);
-        Set unshareableResources = new HashSet();
-        Set applicationManagedSecurityResources = new HashSet();
-        for (int i = 0; i < resourceRefs.length; i++) {
-            ResourceRefType resourceRefType = resourceRefs[i];
-
-            String type = resourceRefType.getResType().getStringValue().trim();
-
-            if (!URL.class.getName().equals(type)
-                    && !"javax.mail.Session".equals(type)
-                    && !JAXR_CONNECTION_FACTORY_CLASS.equals(type)) {
-
-                GerResourceRefType gerResourceRef = (GerResourceRefType) refMap.get(resourceRefType.getResRefName().getStringValue());
-                AbstractNameQuery containerId = getResourceContainerId(getStringValue(resourceRefType.getResRefName()), NameFactory.JCA_MANAGED_CONNECTION_FACTORY, null, gerResourceRef);
-
-                if ("Unshareable".equals(getStringValue(resourceRefType.getResSharingScope()))) {
-                    unshareableResources.add(containerId);
-                }
-                if ("Application".equals(getStringValue(resourceRefType.getResAuth()))) {
-                    applicationManagedSecurityResources.add(containerId);
-                }
-            }
-        }
-        builder.setUnshareableResources(unshareableResources);
-        builder.setApplicationManagedSecurityResources(applicationManagedSecurityResources);
-    }
-
-
-
-    private static Map mapResourceRefs(GerResourceRefType[] refs) {
-        Map refMap = new HashMap();
-        if (refs != null) {
-            for (int i = 0; i < refs.length; i++) {
-                GerResourceRefType ref = refs[i];
-                refMap.put(ref.getRefName().trim(), ref);
-            }
-        }
-        return refMap;
     }
 
     public static AbstractNameQuery buildAbstractNameQuery(GerPatternType pattern, String type, String moduleType, Set interfaceTypes) {

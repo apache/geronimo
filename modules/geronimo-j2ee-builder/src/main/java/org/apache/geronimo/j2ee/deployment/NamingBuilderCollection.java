@@ -35,7 +35,7 @@ import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class NamingBuilderCollection implements NamingBuilder {
 
@@ -72,15 +72,26 @@ public class NamingBuilderCollection implements NamingBuilder {
 
     private void addBuilder(Object builder) {
         QNameSet builderSpecQNames = ((NamingBuilder)builder).getSpecQNameSet();
+        QNameSet builderPlanQNames = ((NamingBuilder)builder).getPlanQNameSet();
+        if (builderSpecQNames == null) {
+            throw new IllegalStateException("Builder " + builder + " is missing spec qnames");
+        }
+        if (builderPlanQNames == null) {
+            throw new IllegalStateException("Builder " + builder + " is missing plan qnames");
+        }
         if (!specQNames.isDisjoint(builderSpecQNames)) {
             throw new IllegalArgumentException("Duplicate builderSpecQNames in builder set: " + builderSpecQNames);
         }
-        specQNames = specQNames.union(builderSpecQNames);
-        QNameSet builderPlanQNames = ((NamingBuilder)builder).getPlanQNameSet();
         if (!planQNames.isDisjoint(builderPlanQNames)) {
             throw new IllegalArgumentException("Duplicate builderPlanQNames in builder set: " + builderPlanQNames);
         }
-        planQNames = planQNames.union(builderPlanQNames);
+        try {
+            specQNames = specQNames.union(builderSpecQNames);
+            planQNames = planQNames.union(builderPlanQNames);
+        } catch (NullPointerException e) {
+            throw (IllegalArgumentException)new IllegalArgumentException("could not merge qnamesets for builder " + builder).initCause(e);
+
+        }
         //really?
         XmlBeansUtil.registerSubstitutionGroupElements(basePlanElementName, builderPlanQNames);
     }

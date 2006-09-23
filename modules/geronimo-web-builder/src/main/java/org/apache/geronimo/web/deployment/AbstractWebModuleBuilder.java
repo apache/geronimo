@@ -77,6 +77,7 @@ import org.apache.geronimo.xbeans.j2ee.UrlPatternType;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
 import org.apache.geronimo.xbeans.j2ee.WebResourceCollectionType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
+import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.xmlbeans.XmlObject;
 
 /**
@@ -94,6 +95,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     protected final Kernel kernel;
     protected final NamespaceDrivenBuilderCollection securityBuilders;
     protected final NamespaceDrivenBuilderCollection serviceBuilders;
+    protected final ResourceEnvironmentSetter resourceEnvironmentSetter;
 
     protected final NamingBuilder namingBuilders;
 
@@ -107,12 +109,12 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
      */
     private static final URI RELATIVE_MODULE_BASE_URI = URI.create("../");
 
-    protected AbstractWebModuleBuilder(Kernel kernel, Collection securityBuilders, Collection serviceBuilders, NamingBuilder namingBuilders) {
+    protected AbstractWebModuleBuilder(Kernel kernel, Collection securityBuilders, Collection serviceBuilders, NamingBuilder namingBuilders, ResourceEnvironmentSetter resourceEnvironmentSetter) {
         this.kernel = kernel;
         this.securityBuilders = new NamespaceDrivenBuilderCollection(securityBuilders);
         this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders);
         this.namingBuilders = namingBuilders;
-
+        this.resourceEnvironmentSetter = resourceEnvironmentSetter;
     }
 
     static {
