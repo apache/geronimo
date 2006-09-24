@@ -855,12 +855,6 @@
 
         <dependency>
             <groupId>scout</groupId>
-            <artifactId>jaxr-api</artifactId>
-            <version>${scout_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>scout</groupId>
             <artifactId>scout</artifactId>
             <version>${scout_version}</version>
         </dependency>

@@ -48,8 +48,8 @@
             <version>${geronimo_version}</version>
             <type>car</type>
             <properties>
-                 <geronimo.import>true</geronimo.import>
-             </properties>
+                <geronimo.import>true</geronimo.import>
+            </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
@@ -270,13 +270,11 @@
             <artifactId>org.mortbay.jetty</artifactId>
             <version>${jetty_version}</version>
         </dependency>
-       <dependency>
-            <groupId>scout</groupId>
-            <artifactId>jaxr-api</artifactId>
-            <version>${scout_version}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-            </properties>
+
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jaxr_1.0_spec</artifactId>
+            <version>${geronimo_spec_jaxr_version}</version>
         </dependency>
 
         <dependency>

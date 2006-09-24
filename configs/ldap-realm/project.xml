@@ -120,10 +120,10 @@
             <artifactId>activeio</artifactId>
             <version>${activeio_version}</version>
         </dependency>
-       <dependency>
-            <groupId>scout</groupId>
-            <artifactId>jaxr-api</artifactId>
-            <version>${scout_version}</version>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jaxr_1.0_spec</artifactId>
+            <version>${geronimo_spec_jaxr_version}</version>
         </dependency>
 
         <dependency>
