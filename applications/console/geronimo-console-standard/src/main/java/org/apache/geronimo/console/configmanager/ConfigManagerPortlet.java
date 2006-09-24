@@ -34,12 +34,16 @@ import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.kernel.DependencyManager;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.LifecycleException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.management.State;
@@ -144,6 +148,7 @@ public class ConfigManagerPortlet extends BasePortlet {
 
         List moduleDetails = new ArrayList();
         ConfigurationManager configManager = ConfigurationUtil.getConfigurationManager(kernel);
+        DependencyManager depMgr = kernel.getDependencyManager();
         List infos = configManager.listConfigurations();
         for (Iterator j = infos.iterator(); j.hasNext();) {
             ConfigurationInfo info = (ConfigurationInfo) j.next();
@@ -156,6 +161,52 @@ public class ConfigManagerPortlet extends BasePortlet {
                         details.setContextPath(webModule.getContextPath());
                         details.setUrlFor(webModule.getURLFor());
                     }
+                }
+                try {
+                    AbstractName configObjName = Configuration.getConfigurationAbstractName(info.getConfigID());
+                    boolean flag = false;
+                    // Check if the configuration is loaded.  If not, load it to get information.
+                    if(!kernel.isLoaded(configObjName)) {
+                        flag = true;
+                        try {
+                            configManager.loadConfiguration(configObjName.getArtifact());
+                        } catch (NoSuchConfigException e) {
+                            // Should not occur
+                            e.printStackTrace();
+                        } catch (LifecycleException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    }
+
+                    java.util.Set parents = depMgr.getParents(configObjName);
+                    for(Iterator itr = parents.iterator(); itr.hasNext(); ) {
+                        AbstractName parent = (AbstractName)itr.next();
+                        details.getParents().add(parent.getArtifact());
+                    }
+                    java.util.Set children = depMgr.getChildren(configObjName);
+                    for(Iterator itr = children.iterator(); itr.hasNext(); ) {
+                        AbstractName child = (AbstractName)itr.next();
+                        //if(configManager.isConfiguration(child.getArtifact()))
+                        if(child.getNameProperty("configurationName") != null) {
+                            details.getChildren().add(child.getArtifact());
+                        }
+                    }
+                    Collections.sort(details.getParents());
+                    Collections.sort(details.getChildren());
+
+                    // Unload the configuration if it has been loaded earlier for the sake of getting information
+                    if(flag) {
+                        try {
+                            configManager.unloadConfiguration(configObjName.getArtifact());
+                        } catch (NoSuchConfigException e) {
+                            // Should not occur
+                            e.printStackTrace();
+                        }
+                    }
+                } catch(InvalidConfigException ice) {
+                    // Should not occur
+                    ice.printStackTrace();
                 }
                 moduleDetails.add(details);
             }
@@ -206,11 +257,21 @@ public class ConfigManagerPortlet extends BasePortlet {
         private final State state;
         private URL urlFor;             // only relevant for webapps
         private String contextPath;     // only relevant for webapps
+        private List parents = new ArrayList();
+        private List children = new ArrayList();
 
         public ModuleDetails(Artifact configId, ConfigurationModuleType type, State state) {
             this.configId = configId;
             this.type = type;
             this.state = state;
+        }
+
+        public ModuleDetails(Artifact configId, ConfigurationModuleType type, State state, List parents, List children) {
+            this.configId = configId;
+            this.type = type;
+            this.state = state;
+            this.parents = parents;
+            this.children = children;
         }
 
         public int compareTo(Object o) {
@@ -247,6 +308,14 @@ public class ConfigManagerPortlet extends BasePortlet {
 
         public ConfigurationModuleType getType() {
             return type;
+        }
+
+        public List getParents() {
+            return parents;
+        }
+
+        public List getChildren() {
+            return children;
         }
     }
 }
