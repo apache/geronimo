@@ -320,12 +320,11 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         ServletHttpRequest request = (ServletHttpRequest) httpRequest.getWrapper();
         if (null == request) {
             request = new GeronimoServletHttpRequest(handler, null, httpRequest);
-            ((GeronimoServletHttpRequest) request).setRequestedSessionId(pathParams);
             ServletHttpResponse response = new ServletHttpResponse(request, httpResponse);
             httpRequest.setWrapper(request);
             httpResponse.setWrapper(response);
         }
-
+        ((GeronimoServletHttpRequest) request).setRequestedSessionId(pathParams);
         if (null != handleInterceptor) {
             handleInterceptor.handle(pathInContext, pathParams, httpRequest, httpResponse, new EndHandleInterceptor());   
         } else {
