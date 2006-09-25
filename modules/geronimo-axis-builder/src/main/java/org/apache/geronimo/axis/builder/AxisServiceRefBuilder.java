@@ -49,20 +49,19 @@ import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class AxisServiceRefBuilder extends AbstractNamingBuilder {
-    private static final String J2EE_NAMESPACE = "http://java.sun.com/xml/ns/j2ee";
-    private static final QName SERVICE_REF_QNAME = new QName(J2EE_NAMESPACE, "service-ref");
-    private static final QNameSet SERVICE_REF_QNAME_SET = QNameSet.singleton(SERVICE_REF_QNAME);
+    private final QNameSet serviceRefQNameSet;
     private static final QName GER_SERVICE_REF_QNAME = GerServiceRefDocument.type.getDocumentElementName();
     private static final QNameSet GER_SERVICE_REF_QNAME_SET = QNameSet.singleton(GER_SERVICE_REF_QNAME);
 
     private final AxisBuilder axisBuilder;
 
-    public AxisServiceRefBuilder(Environment defaultEnvironment, AxisBuilder axisBuilder) {
+    public AxisServiceRefBuilder(Environment defaultEnvironment, String[] eeNamespaces, AxisBuilder axisBuilder) {
         super(defaultEnvironment);
         this.axisBuilder = axisBuilder;
+        serviceRefQNameSet = buildQNameSet(eeNamespaces, "service-ref");
     }
 
     protected boolean willMergeEnvironment(XmlObject specDD, XmlObject plan) {
@@ -136,12 +135,11 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder {
     }
 
     private XmlObject[] getServiceRefs(XmlObject specDD) {
-        XmlObject[] serviceRefsUntyped = specDD.selectChildren(SERVICE_REF_QNAME_SET);
-        return serviceRefsUntyped;
+        return convert(specDD.selectChildren(serviceRefQNameSet), J2EE_CONVERTER, ServiceRefType.type);
     }
 
     public QNameSet getSpecQNameSet() {
-        return SERVICE_REF_QNAME_SET;
+        return serviceRefQNameSet;
     }
 
     public QNameSet getPlanQNameSet() {
@@ -210,9 +208,10 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder {
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(AxisServiceRefBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
+        infoBuilder.addAttribute("eeNamespaces", String[].class, true, true);
         infoBuilder.addReference("AxisBuilder", AxisBuilder.class, NameFactory.MODULE_BUILDER);
 
-        infoBuilder.setConstructor(new String[] {"defaultEnvironment", "AxisBuilder"});
+        infoBuilder.setConstructor(new String[] {"defaultEnvironment", "eeNamespaces", "AxisBuilder"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
