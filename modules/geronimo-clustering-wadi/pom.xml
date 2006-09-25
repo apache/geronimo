@@ -67,11 +67,11 @@
             <version>${pom.version}</version>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>${pom.groupId}</groupId>-->
-            <!--<artifactId>geronimo-jetty</artifactId>-->
-            <!--<version>${pom.version}</version>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>geronimo-jetty</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
         
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
