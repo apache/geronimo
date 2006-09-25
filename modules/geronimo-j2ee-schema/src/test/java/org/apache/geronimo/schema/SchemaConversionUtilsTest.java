@@ -64,64 +64,6 @@ public class SchemaConversionUtilsTest extends XmlBeansTestSupport {
 
     //The schemas have been fixed by sun, we can use the official schemas.
 
-    public void testApplicationClient13ToApplicationClient14Transform() throws Exception {
-        URL srcXml = classLoader.getResource("j2ee_1_3dtd/application-client-13.xml");
-        URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/application-client-14.xml");
-        XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
-        XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
-        XmlBeansUtil.validateDD(expected);
-        xmlObject = SchemaConversionUtils.convertToApplicationClientSchema(xmlObject);
-//        log.debug(xmlObject.toString());
-//        log.debug(expected.toString());
-        List problems = new ArrayList();
-        boolean ok = compareXmlObjects(xmlObject, expected, problems);
-        assertTrue("Differences: " + problems, ok);
-        //make sure trying to convert twice has no bad effects
-        XmlCursor cursor2 = xmlObject.newCursor();
-        try {
-            String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/application_1_4.xsd";
-            String version = "1.4";
-            assertFalse(SchemaConversionUtils.convertToSchema(cursor2, SchemaConversionUtils.J2EE_NAMESPACE, schemaLocationURL, version));
-        } finally {
-            cursor2.dispose();
-        }
-        boolean ok2 = compareXmlObjects(xmlObject, expected, problems);
-        assertTrue("Differences after reconverting to schema: " + problems, ok2);
-        //do the whole transform twice...
-        xmlObject = SchemaConversionUtils.convertToApplicationClientSchema(xmlObject);
-        boolean ok3 = compareXmlObjects(xmlObject, expected, problems);
-        assertTrue("Differences after reconverting to application client schema: " + problems, ok3);
-    }
-
-    public void testConnector10ToConnector15Transform() throws Exception {
-        URL srcXml = classLoader.getResource("j2ee_1_3dtd/ra-10.xml");
-        URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/ra-15.xml");
-        XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
-        XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
-        XmlBeansUtil.validateDD(expected);
-        xmlObject = SchemaConversionUtils.convertToConnectorSchema(xmlObject);
-//        log.debug(xmlObject.toString());
-//        log.debug(expected.toString());
-        List problems = new ArrayList();
-        boolean ok = compareXmlObjects(xmlObject, expected, problems);
-        assertTrue("Differences: " + problems, ok);
-        //make sure trying to convert twice has no bad effects
-        XmlCursor cursor2 = xmlObject.newCursor();
-        try {
-            String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/connector_1_5.xsd";
-            String version = "1.4";
-            assertFalse(SchemaConversionUtils.convertToSchema(cursor2, SchemaConversionUtils.J2EE_NAMESPACE, schemaLocationURL, version));
-        } finally {
-            cursor2.dispose();
-        }
-        boolean ok2 = compareXmlObjects(xmlObject, expected, problems);
-        assertTrue("Differences after reconverting to schema: " + problems, ok2);
-        //do the whole transform twice...
-        xmlObject = SchemaConversionUtils.convertToConnectorSchema(xmlObject);
-        boolean ok3 = compareXmlObjects(xmlObject, expected, problems);
-        assertTrue("Differences after reconverting to application schema: " + problems, ok3);
-    }
-
     public void testEJB11ToEJB21Transform() throws Exception {
         URL srcXml = classLoader.getResource("j2ee_1_2dtd/ejb-1-11.xml");
         URL expectedOutputXml = classLoader.getResource("j2ee_1_2dtd/ejb-1-21.xml");

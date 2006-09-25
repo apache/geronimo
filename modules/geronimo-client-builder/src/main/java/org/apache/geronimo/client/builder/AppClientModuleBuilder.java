@@ -84,6 +84,7 @@ import org.apache.geronimo.xbeans.j2ee.ApplicationClientDocument;
 import org.apache.geronimo.xbeans.j2ee.ApplicationClientType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlCursor;
 
 
 /**
@@ -216,7 +217,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         try {
             // parse it
             XmlObject xmlObject = XmlBeansUtil.parse(specDD);
-            ApplicationClientDocument appClientDoc = SchemaConversionUtils.convertToApplicationClientSchema(xmlObject);
+            ApplicationClientDocument appClientDoc = convertToApplicationClientSchema(xmlObject);
             appClient = appClientDoc.getApplicationClient();
         } catch (XmlException e) {
             throw new DeploymentException("Unable to parse application-client.xml", e);
@@ -367,6 +368,35 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
 //            geronimoAppClient.setConfigId(id);
 //        }
         return geronimoAppClient;
+    }
+
+    static ApplicationClientDocument convertToApplicationClientSchema(XmlObject xmlObject) throws XmlException {
+        if (ApplicationClientDocument.type.equals(xmlObject.schemaType())) {
+            XmlBeansUtil.validateDD(xmlObject);
+            return (ApplicationClientDocument) xmlObject;
+        }
+        XmlCursor cursor = xmlObject.newCursor();
+        XmlCursor moveable = xmlObject.newCursor();
+        String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/application-client_1_4.xsd";
+        String version = "1.4";
+        try {
+            SchemaConversionUtils.convertToSchema(cursor, SchemaConversionUtils.J2EE_NAMESPACE, schemaLocationURL, version);
+            cursor.toStartDoc();
+            cursor.toChild(SchemaConversionUtils.J2EE_NAMESPACE, "application-client");
+            cursor.toFirstChild();
+            SchemaConversionUtils.convertToDescriptionGroup(SchemaConversionUtils.J2EE_NAMESPACE, cursor, moveable);
+        } finally {
+            cursor.dispose();
+            moveable.dispose();
+        }
+        XmlObject result = xmlObject.changeType(ApplicationClientDocument.type);
+        if (result != null) {
+            XmlBeansUtil.validateDD(result);
+            return (ApplicationClientDocument) result;
+        }
+        XmlBeansUtil.validateDD(xmlObject);
+        return (ApplicationClientDocument) xmlObject;
+
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repositories) throws DeploymentException {

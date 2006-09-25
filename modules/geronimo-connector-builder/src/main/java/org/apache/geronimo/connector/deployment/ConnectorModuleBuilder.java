@@ -62,8 +62,8 @@ import org.apache.geronimo.connector.outbound.connectionmanagerconfig.Transactio
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.XATransactions;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
-import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
+import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
@@ -76,11 +76,11 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
+import org.apache.geronimo.j2ee.deployment.ActivationSpecInfoLocator;
 import org.apache.geronimo.j2ee.deployment.ConnectorModule;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
-import org.apache.geronimo.j2ee.deployment.ActivationSpecInfoLocator;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
@@ -115,6 +115,7 @@ import org.apache.geronimo.xbeans.j2ee.ConnectorType;
 import org.apache.geronimo.xbeans.j2ee.MessagelistenerType;
 import org.apache.geronimo.xbeans.j2ee.ResourceadapterType;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlDocumentProperties;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
@@ -133,6 +134,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
     private final boolean defaultXAThreadCaching;
     private final Environment defaultEnvironment;
     private final NamespaceDrivenBuilderCollection serviceBuilders;
+    private static final QName RESOURCE_ADAPTER_VERSION = new QName(SchemaConversionUtils.J2EE_NAMESPACE, "resourceadapter-version");
 
     public ConnectorModuleBuilder(Environment defaultEnvironment,
             int defaultMaxSize,
@@ -184,7 +186,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         try {
             // parse it
             XmlObject xmlObject = XmlBeansUtil.parse(specDD);
-            ConnectorDocument connectorDoc = SchemaConversionUtils.convertToConnectorSchema(xmlObject);
+            ConnectorDocument connectorDoc = convertToConnectorSchema(xmlObject);
             connector = connectorDoc.getConnector();
         } catch (XmlException e) {
             throw new DeploymentException("Could not parse ra.xml descriptor", e);
@@ -257,6 +259,77 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
 
         boolean standAlone = earEnvironment == null;
         return new ConnectorModule(standAlone, moduleName, environment, moduleFile, targetPath, connector, gerConnector, specDD);
+    }
+
+    static ConnectorDocument convertToConnectorSchema(XmlObject xmlObject) throws XmlException {
+        if (ConnectorDocument.type.equals(xmlObject.schemaType())) {
+            XmlBeansUtil.validateDD(xmlObject);
+            return (ConnectorDocument) xmlObject;
+        }
+        XmlCursor cursor = xmlObject.newCursor();
+        XmlDocumentProperties xmlDocumentProperties = cursor.documentProperties();
+        String publicId = xmlDocumentProperties.getDoctypePublicId();
+        try {
+            if ("-//Sun Microsystems, Inc.//DTD Connector 1.0//EN".equals(publicId)) {
+                XmlCursor moveable = xmlObject.newCursor();
+                try {
+                    String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/connector_1_5.xsd";
+                    String version = "1.5";
+                    SchemaConversionUtils.convertToSchema(cursor, SchemaConversionUtils.J2EE_NAMESPACE, schemaLocationURL, version);
+                    cursor.toStartDoc();
+                    cursor.toChild(SchemaConversionUtils.J2EE_NAMESPACE, "connector");
+                    cursor.toFirstChild();
+                    SchemaConversionUtils.convertToDescriptionGroup(SchemaConversionUtils.J2EE_NAMESPACE, cursor, moveable);
+                    cursor.toNextSibling(SchemaConversionUtils.J2EE_NAMESPACE, "spec-version");
+                    cursor.removeXml();
+                    cursor.toNextSibling(SchemaConversionUtils.J2EE_NAMESPACE, "version");
+                    cursor.setName(RESOURCE_ADAPTER_VERSION);
+                    cursor.toNextSibling(SchemaConversionUtils.J2EE_NAMESPACE, "resourceadapter");
+                    moveable.toCursor(cursor);
+                    cursor.toFirstChild();
+                    cursor.beginElement("outbound-resourceadapter", SchemaConversionUtils.J2EE_NAMESPACE);
+                    cursor.beginElement("connection-definition", SchemaConversionUtils.J2EE_NAMESPACE);
+                    moveable.toChild(SchemaConversionUtils.J2EE_NAMESPACE, "managedconnectionfactory-class");
+                    moveable.push();
+                    //from moveable to cursor
+                    moveable.moveXml(cursor);
+                    while (moveable.toNextSibling(SchemaConversionUtils.J2EE_NAMESPACE, "config-property")) {
+                        moveable.moveXml(cursor);
+                    }
+                    moveable.pop();
+                    moveable.toNextSibling(SchemaConversionUtils.J2EE_NAMESPACE, "connectionfactory-interface");
+                    moveable.moveXml(cursor);
+                    moveable.toNextSibling(SchemaConversionUtils.J2EE_NAMESPACE, "connectionfactory-impl-class");
+                    moveable.moveXml(cursor);
+                    moveable.toNextSibling(SchemaConversionUtils.J2EE_NAMESPACE, "connection-interface");
+                    moveable.moveXml(cursor);
+                    moveable.toNextSibling(SchemaConversionUtils.J2EE_NAMESPACE, "connection-impl-class");
+                    moveable.moveXml(cursor);
+                    //get out of connection-definition element
+                    cursor.toNextToken();
+                    moveable.toNextSibling(SchemaConversionUtils.J2EE_NAMESPACE, "transaction-support");
+                    moveable.moveXml(cursor);
+                    while (moveable.toNextSibling(SchemaConversionUtils.J2EE_NAMESPACE, "authentication-mechanism")) {
+                        moveable.moveXml(cursor);
+                    }
+                    moveable.toNextSibling(SchemaConversionUtils.J2EE_NAMESPACE, "reauthentication-support");
+                    moveable.moveXml(cursor);
+                } finally {
+                    moveable.dispose();
+                }
+
+            }
+        } finally {
+            cursor.dispose();
+        }
+        XmlObject result = xmlObject.changeType(ConnectorDocument.type);
+        if (result != null) {
+            XmlBeansUtil.validateDD(result);
+            return (ConnectorDocument) result;
+        }
+        XmlBeansUtil.validateDD(xmlObject);
+        return (ConnectorDocument) xmlObject;
+
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException {
@@ -891,4 +964,5 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
+
 }

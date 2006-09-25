@@ -45,7 +45,6 @@ public class SchemaConversionUtils {
     private static final String GERONIMO_SECURITY_NAMESPACE = "http://geronimo.apache.org/xml/ns/security-1.2";
     private static final String GERONIMO_SERVICE_NAMESPACE = "http://geronimo.apache.org/xml/ns/deployment-1.2";
 
-    private static final QName RESOURCE_ADAPTER_VERSION = new QName(J2EE_NAMESPACE, "resourceadapter-version");
     private static final QName CMP_VERSION = new QName(J2EE_NAMESPACE, "cmp-version");
 
     private static final Map GERONIMO_SCHEMA_CONVERSIONS = new HashMap();
@@ -78,106 +77,6 @@ public class SchemaConversionUtils {
 
     public static void registerNamespaceConversions(Map conversions) {
         GERONIMO_SCHEMA_CONVERSIONS.putAll(conversions);
-    }
-
-    public static ApplicationClientDocument convertToApplicationClientSchema(XmlObject xmlObject) throws XmlException {
-        if (ApplicationClientDocument.type.equals(xmlObject.schemaType())) {
-            XmlBeansUtil.validateDD(xmlObject);
-            return (ApplicationClientDocument) xmlObject;
-        }
-        XmlCursor cursor = xmlObject.newCursor();
-        XmlCursor moveable = xmlObject.newCursor();
-        String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/application-client_1_4.xsd";
-        String version = "1.4";
-        try {
-            convertToSchema(cursor, J2EE_NAMESPACE, schemaLocationURL, version);
-            cursor.toStartDoc();
-            cursor.toChild(J2EE_NAMESPACE, "application-client");
-            cursor.toFirstChild();
-            convertToDescriptionGroup(J2EE_NAMESPACE, cursor, moveable);
-        } finally {
-            cursor.dispose();
-            moveable.dispose();
-        }
-        XmlObject result = xmlObject.changeType(ApplicationClientDocument.type);
-        if (result != null) {
-            XmlBeansUtil.validateDD(result);
-            return (ApplicationClientDocument) result;
-        }
-        XmlBeansUtil.validateDD(xmlObject);
-        return (ApplicationClientDocument) xmlObject;
-
-    }
-
-    public static ConnectorDocument convertToConnectorSchema(XmlObject xmlObject) throws XmlException {
-        if (ConnectorDocument.type.equals(xmlObject.schemaType())) {
-            XmlBeansUtil.validateDD(xmlObject);
-            return (ConnectorDocument) xmlObject;
-        }
-        XmlCursor cursor = xmlObject.newCursor();
-        XmlDocumentProperties xmlDocumentProperties = cursor.documentProperties();
-        String publicId = xmlDocumentProperties.getDoctypePublicId();
-        try {
-            if ("-//Sun Microsystems, Inc.//DTD Connector 1.0//EN".equals(publicId)) {
-                XmlCursor moveable = xmlObject.newCursor();
-                try {
-                    String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/connector_1_5.xsd";
-                    String version = "1.5";
-                    convertToSchema(cursor, J2EE_NAMESPACE, schemaLocationURL, version);
-                    cursor.toStartDoc();
-                    cursor.toChild(J2EE_NAMESPACE, "connector");
-                    cursor.toFirstChild();
-                    convertToDescriptionGroup(J2EE_NAMESPACE, cursor, moveable);
-                    cursor.toNextSibling(J2EE_NAMESPACE, "spec-version");
-                    cursor.removeXml();
-                    cursor.toNextSibling(J2EE_NAMESPACE, "version");
-                    cursor.setName(RESOURCE_ADAPTER_VERSION);
-                    cursor.toNextSibling(J2EE_NAMESPACE, "resourceadapter");
-                    moveable.toCursor(cursor);
-                    cursor.toFirstChild();
-                    cursor.beginElement("outbound-resourceadapter", J2EE_NAMESPACE);
-                    cursor.beginElement("connection-definition", J2EE_NAMESPACE);
-                    moveable.toChild(J2EE_NAMESPACE, "managedconnectionfactory-class");
-                    moveable.push();
-                    //from moveable to cursor
-                    moveable.moveXml(cursor);
-                    while (moveable.toNextSibling(J2EE_NAMESPACE, "config-property")) {
-                        moveable.moveXml(cursor);
-                    }
-                    moveable.pop();
-                    moveable.toNextSibling(J2EE_NAMESPACE, "connectionfactory-interface");
-                    moveable.moveXml(cursor);
-                    moveable.toNextSibling(J2EE_NAMESPACE, "connectionfactory-impl-class");
-                    moveable.moveXml(cursor);
-                    moveable.toNextSibling(J2EE_NAMESPACE, "connection-interface");
-                    moveable.moveXml(cursor);
-                    moveable.toNextSibling(J2EE_NAMESPACE, "connection-impl-class");
-                    moveable.moveXml(cursor);
-                    //get out of connection-definition element
-                    cursor.toNextToken();
-                    moveable.toNextSibling(J2EE_NAMESPACE, "transaction-support");
-                    moveable.moveXml(cursor);
-                    while (moveable.toNextSibling(J2EE_NAMESPACE, "authentication-mechanism")) {
-                        moveable.moveXml(cursor);
-                    }
-                    moveable.toNextSibling(J2EE_NAMESPACE, "reauthentication-support");
-                    moveable.moveXml(cursor);
-                } finally {
-                    moveable.dispose();
-                }
-
-            }
-        } finally {
-            cursor.dispose();
-        }
-        XmlObject result = xmlObject.changeType(ConnectorDocument.type);
-        if (result != null) {
-            XmlBeansUtil.validateDD(result);
-            return (ConnectorDocument) result;
-        }
-        XmlBeansUtil.validateDD(xmlObject);
-        return (ConnectorDocument) xmlObject;
-
     }
 
     public static EjbJarDocument convertToEJBSchema(XmlObject xmlObject) throws XmlException {
