@@ -86,8 +86,10 @@ import org.apache.geronimo.xbeans.geronimo.j2ee.GerExtModuleType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerModuleType;
 import org.apache.geronimo.xbeans.j2ee.ApplicationType;
 import org.apache.geronimo.xbeans.j2ee.ModuleType;
+import org.apache.geronimo.xbeans.j2ee.ApplicationDocument;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlCursor;
 
 /**
  * @version $Rev$ $Date$
@@ -305,7 +307,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             //we found something called application.xml in the right place, if we can't parse it it's an error
             try {
                 XmlObject xmlObject = XmlBeansUtil.parse(specDD);
-                application = SchemaConversionUtils.convertToApplicationSchema(xmlObject).getApplication();
+                application = convertToApplicationSchema(xmlObject).getApplication();
             } catch (XmlException e) {
                 throw new DeploymentException("Could not parse application.xml", e);
             }
@@ -409,6 +411,34 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         artifactType.setVersion("" + System.currentTimeMillis());
         artifactType.setType("car");
         return gerApplication;
+    }
+
+    static ApplicationDocument convertToApplicationSchema(XmlObject xmlObject) throws XmlException {
+        if (ApplicationDocument.type.equals(xmlObject.schemaType())) {
+            XmlBeansUtil.validateDD(xmlObject);
+            return (ApplicationDocument) xmlObject;
+        }
+        XmlCursor cursor = xmlObject.newCursor();
+        XmlCursor moveable = xmlObject.newCursor();
+        String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/application_1_4.xsd";
+        String version = "1.4";
+        try {
+            SchemaConversionUtils.convertToSchema(cursor, SchemaConversionUtils.J2EE_NAMESPACE, schemaLocationURL, version);
+            cursor.toStartDoc();
+            cursor.toChild(SchemaConversionUtils.J2EE_NAMESPACE, "application");
+            cursor.toFirstChild();
+            SchemaConversionUtils.convertToDescriptionGroup(SchemaConversionUtils.J2EE_NAMESPACE, cursor, moveable);
+        } finally {
+            cursor.dispose();
+            moveable.dispose();
+        }
+        XmlObject result = xmlObject.changeType(ApplicationDocument.type);
+        if (result != null) {
+            XmlBeansUtil.validateDD(result);
+            return (ApplicationDocument) result;
+        }
+        XmlBeansUtil.validateDD(xmlObject);
+        return (ApplicationDocument) xmlObject;
     }
 
     public Artifact getConfigurationID(Object plan, JarFile module, ModuleIDBuilder idBuilder) throws IOException, DeploymentException {
@@ -938,4 +968,5 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
+
 }

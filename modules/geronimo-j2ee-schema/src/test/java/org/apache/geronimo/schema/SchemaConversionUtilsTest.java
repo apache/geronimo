@@ -25,7 +25,6 @@ import javax.xml.namespace.QName;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlException;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.testsupport.XmlBeansTestSupport;
@@ -92,35 +91,6 @@ public class SchemaConversionUtilsTest extends XmlBeansTestSupport {
         xmlObject = SchemaConversionUtils.convertToApplicationClientSchema(xmlObject);
         boolean ok3 = compareXmlObjects(xmlObject, expected, problems);
         assertTrue("Differences after reconverting to application client schema: " + problems, ok3);
-    }
-
-    public void testApplication13ToApplication14Transform() throws Exception {
-        URL srcXml = classLoader.getResource("j2ee_1_3dtd/application-13.xml");
-        URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/application-14.xml");
-        XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
-        XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
-        XmlBeansUtil.validateDD(expected);
-        xmlObject = SchemaConversionUtils.convertToApplicationSchema(xmlObject);
-//        log.debug(xmlObject.toString());
-//        log.debug(expected.toString());
-        List problems = new ArrayList();
-        boolean ok = compareXmlObjects(xmlObject, expected, problems);
-        assertTrue("Differences: " + problems, ok);
-        //make sure trying to convert twice has no bad effects
-        XmlCursor cursor2 = xmlObject.newCursor();
-        try {
-            String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/application_1_4.xsd";
-            String version = "1.4";
-            assertFalse(SchemaConversionUtils.convertToSchema(cursor2, SchemaConversionUtils.J2EE_NAMESPACE, schemaLocationURL, version));
-        } finally {
-            cursor2.dispose();
-        }
-        boolean ok2 = compareXmlObjects(xmlObject, expected, problems);
-        assertTrue("Differences after reconverting to schema: " + problems, ok2);
-        //do the whole transform twice...
-        xmlObject = SchemaConversionUtils.convertToApplicationSchema(xmlObject);
-        boolean ok3 = compareXmlObjects(xmlObject, expected, problems);
-        assertTrue("Differences after reconverting to application schema: " + problems, ok3);
     }
 
     public void testConnector10ToConnector15Transform() throws Exception {

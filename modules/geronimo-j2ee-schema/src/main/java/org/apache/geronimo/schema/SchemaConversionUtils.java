@@ -80,35 +80,6 @@ public class SchemaConversionUtils {
         GERONIMO_SCHEMA_CONVERSIONS.putAll(conversions);
     }
 
-    public static ApplicationDocument convertToApplicationSchema(XmlObject xmlObject) throws XmlException {
-        if (ApplicationDocument.type.equals(xmlObject.schemaType())) {
-            XmlBeansUtil.validateDD(xmlObject);
-            return (ApplicationDocument) xmlObject;
-        }
-        XmlCursor cursor = xmlObject.newCursor();
-        XmlCursor moveable = xmlObject.newCursor();
-        String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/application_1_4.xsd";
-        String version = "1.4";
-        try {
-            convertToSchema(cursor, J2EE_NAMESPACE, schemaLocationURL, version);
-            cursor.toStartDoc();
-            cursor.toChild(J2EE_NAMESPACE, "application");
-            cursor.toFirstChild();
-            convertToDescriptionGroup(J2EE_NAMESPACE, cursor, moveable);
-        } finally {
-            cursor.dispose();
-            moveable.dispose();
-        }
-        XmlObject result = xmlObject.changeType(ApplicationDocument.type);
-        if (result != null) {
-            XmlBeansUtil.validateDD(result);
-            return (ApplicationDocument) result;
-        }
-        XmlBeansUtil.validateDD(xmlObject);
-        return (ApplicationDocument) xmlObject;
-
-    }
-
     public static ApplicationClientDocument convertToApplicationClientSchema(XmlObject xmlObject) throws XmlException {
         if (ApplicationClientDocument.type.equals(xmlObject.schemaType())) {
             XmlBeansUtil.validateDD(xmlObject);
