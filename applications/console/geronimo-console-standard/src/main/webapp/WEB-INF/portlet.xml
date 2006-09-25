@@ -1102,15 +1102,38 @@ limitations under the License.
         <supports>
             <mime-type>text/html</mime-type>
             <portlet-mode>VIEW</portlet-mode>
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>Create and Install Plugins</title>
+            <short-title>Create/Install Plugins</short-title>
+            <keywords>Import Export Create Install Plugins Modules</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
+        <description>Portlet for viewing JMX server</description>
+        <portlet-name>JMXViewer</portlet-name>
+        <display-name>JMX Viewer Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.jmxmanager.JMXManagerPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
             <portlet-mode>HELP</portlet-mode>
         </supports>
 
         <supported-locale>en</supported-locale>
 
         <portlet-info>
-            <title>Import/Export Configurations</title>
-            <short-title>Import/Export</short-title>
-            <keywords>Import Export CAR Configuration</keywords>
+            <title>JMX Viewer</title>
+            <short-title>JMX Viewer</short-title>
+            <keywords>JMX Viewer</keywords>
         </portlet-info>
     </portlet>
 

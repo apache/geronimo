@@ -592,4 +592,20 @@ limitations under the License.
                 </fragment>
             </fragment>
     </fragment>
+    
+    <fragment name="JMXViewer" type="page">
+        <navigation>
+            <title>JMX Viewer</title>
+            <description>ico_filetree_16x16.gif Manage the internal LDAP server</description> 
+        </navigation>
+    
+        <fragment name="row1" type="row">
+            <fragment name="col1" type="column">
+                <fragment name="p1" type="portlet">
+                    <property name="portlet" value="5.72"/>
+                </fragment>
+            </fragment>
+        </fragment>
+    </fragment>
+
 </portal>
