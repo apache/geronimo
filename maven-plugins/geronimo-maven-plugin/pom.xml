@@ -36,7 +36,8 @@
     <packaging>maven-plugin</packaging>
     
     <description>
-        Geronimo plugin for Maven 2; used to install, start and stop the server.
+        Geronimo plugin for Maven 2; used to install, start, stop the server
+        and operate on modules.
     </description>
 
     <dependencies>
