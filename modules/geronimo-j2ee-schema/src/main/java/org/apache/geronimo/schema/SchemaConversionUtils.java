@@ -38,14 +38,14 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Rev$ $Date$
  */
 public class SchemaConversionUtils {
-    static final String J2EE_NAMESPACE = "http://java.sun.com/xml/ns/j2ee";
+    public static final String J2EE_NAMESPACE = "http://java.sun.com/xml/ns/j2ee";
+    public static final String JAVAEE_NAMESPACE = "http://java.sun.com/xml/ns/javaee";
 
     static final String GERONIMO_NAMING_NAMESPACE = "http://geronimo.apache.org/xml/ns/naming-1.2";
     private static final String GERONIMO_SECURITY_NAMESPACE = "http://geronimo.apache.org/xml/ns/security-1.2";
     private static final String GERONIMO_SERVICE_NAMESPACE = "http://geronimo.apache.org/xml/ns/deployment-1.2";
 
     private static final QName RESOURCE_ADAPTER_VERSION = new QName(J2EE_NAMESPACE, "resourceadapter-version");
-    private static final QName TAGLIB = new QName(J2EE_NAMESPACE, "taglib");
     private static final QName CMP_VERSION = new QName(J2EE_NAMESPACE, "cmp-version");
 
     private static final Map GERONIMO_SCHEMA_CONVERSIONS = new HashMap();
@@ -80,35 +80,6 @@ public class SchemaConversionUtils {
         GERONIMO_SCHEMA_CONVERSIONS.putAll(conversions);
     }
 
-    public static ApplicationDocument convertToApplicationSchema(XmlObject xmlObject) throws XmlException {
-        if (ApplicationDocument.type.equals(xmlObject.schemaType())) {
-            XmlBeansUtil.validateDD(xmlObject);
-            return (ApplicationDocument) xmlObject;
-        }
-        XmlCursor cursor = xmlObject.newCursor();
-        XmlCursor moveable = xmlObject.newCursor();
-        String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/application_1_4.xsd";
-        String version = "1.4";
-        try {
-            convertToSchema(cursor, J2EE_NAMESPACE, schemaLocationURL, version);
-            cursor.toStartDoc();
-            cursor.toChild(J2EE_NAMESPACE, "application");
-            cursor.toFirstChild();
-            convertToDescriptionGroup(cursor, moveable);
-        } finally {
-            cursor.dispose();
-            moveable.dispose();
-        }
-        XmlObject result = xmlObject.changeType(ApplicationDocument.type);
-        if (result != null) {
-            XmlBeansUtil.validateDD(result);
-            return (ApplicationDocument) result;
-        }
-        XmlBeansUtil.validateDD(xmlObject);
-        return (ApplicationDocument) xmlObject;
-
-    }
-
     public static ApplicationClientDocument convertToApplicationClientSchema(XmlObject xmlObject) throws XmlException {
         if (ApplicationClientDocument.type.equals(xmlObject.schemaType())) {
             XmlBeansUtil.validateDD(xmlObject);
@@ -123,7 +94,7 @@ public class SchemaConversionUtils {
             cursor.toStartDoc();
             cursor.toChild(J2EE_NAMESPACE, "application-client");
             cursor.toFirstChild();
-            convertToDescriptionGroup(cursor, moveable);
+            convertToDescriptionGroup(J2EE_NAMESPACE, cursor, moveable);
         } finally {
             cursor.dispose();
             moveable.dispose();
@@ -156,7 +127,7 @@ public class SchemaConversionUtils {
                     cursor.toStartDoc();
                     cursor.toChild(J2EE_NAMESPACE, "connector");
                     cursor.toFirstChild();
-                    convertToDescriptionGroup(cursor, moveable);
+                    convertToDescriptionGroup(J2EE_NAMESPACE, cursor, moveable);
                     cursor.toNextSibling(J2EE_NAMESPACE, "spec-version");
                     cursor.removeXml();
                     cursor.toNextSibling(J2EE_NAMESPACE, "version");
@@ -252,78 +223,6 @@ public class SchemaConversionUtils {
         }
         XmlBeansUtil.validateDD(xmlObject);
         return (EjbJarDocument) xmlObject;
-    }
-
-    public static WebAppDocument convertToServletSchema(XmlObject xmlObject) throws XmlException {
-        if (WebAppDocument.type.equals(xmlObject.schemaType())) {
-            XmlBeansUtil.validateDD(xmlObject);
-            return (WebAppDocument) xmlObject;
-        }
-        XmlCursor cursor = xmlObject.newCursor();
-        try {
-            cursor.toStartDoc();
-            cursor.toFirstChild();
-            if ("http://java.sun.com/xml/ns/j2ee".equals(cursor.getName().getNamespaceURI())) {
-                XmlObject result = xmlObject.changeType(WebAppDocument.type);
-                XmlBeansUtil.validateDD(result);
-                return (WebAppDocument) result;
-            }
-
-            XmlDocumentProperties xmlDocumentProperties = cursor.documentProperties();
-            String publicId = xmlDocumentProperties.getDoctypePublicId();
-            if ("-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN".equals(publicId) ||
-                    "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN".equals(publicId)) {
-                XmlCursor moveable = xmlObject.newCursor();
-                try {
-                    moveable.toStartDoc();
-                    moveable.toFirstChild();
-                    String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd";
-                    String version = "2.4";
-                    convertToSchema(cursor, J2EE_NAMESPACE, schemaLocationURL, version);
-                    cursor.toStartDoc();
-                    cursor.toChild(J2EE_NAMESPACE, "web-app");
-                    cursor.toFirstChild();
-                    convertToDescriptionGroup(cursor, moveable);
-                    convertToJNDIEnvironmentRefsGroup(cursor, moveable);
-                    cursor.push();
-                    if (cursor.toNextSibling(TAGLIB)) {
-                        cursor.toPrevSibling();
-                        moveable.toCursor(cursor);
-                        cursor.beginElement("jsp-config", J2EE_NAMESPACE);
-                        while (moveable.toNextSibling(TAGLIB)) {
-                            moveable.moveXml(cursor);
-                        }
-                    }
-                    cursor.pop();
-                    do {
-                        String name = cursor.getName().getLocalPart();
-                        if ("filter".equals(name) || "servlet".equals(name) || "context-param".equals(name)) {
-                            cursor.push();
-                            cursor.toFirstChild();
-                            convertToDescriptionGroup(cursor, moveable);
-                            while (cursor.toNextSibling(J2EE_NAMESPACE, "init-param")) {
-                                cursor.push();
-                                cursor.toFirstChild();
-                                convertToDescriptionGroup(cursor, moveable);
-                                cursor.pop();
-                            }
-                            cursor.pop();
-                        }
-                    } while (cursor.toNextSibling());
-                } finally {
-                    moveable.dispose();
-                }
-            }
-        } finally {
-            cursor.dispose();
-        }
-        XmlObject result = xmlObject.changeType(WebAppDocument.type);
-        if (result != null) {
-            XmlBeansUtil.validateDD(result);
-            return (WebAppDocument) result;
-        }
-        XmlBeansUtil.validateDD(xmlObject);
-        return (WebAppDocument) xmlObject;
     }
 
     public static void convertToGeronimoSubSchemas(XmlCursor cursor) {
@@ -462,6 +361,32 @@ public class SchemaConversionUtils {
         return true;
     }
 
+    public static boolean convertSchemaVersion (XmlCursor cursor, String namespace, String schemaLocationURL, String version) {
+        boolean isFirstStart = true;
+
+
+        while (cursor.hasNextToken()) {
+            if (cursor.isStart()) {
+                //convert namespace of each starting element
+                cursor.setName(new QName(namespace, cursor.getName().getLocalPart()));
+                if (isFirstStart) {
+                    //if we are at the first element in the document, reset the version number ...
+                    cursor.setAttributeText(new QName("version"), version);
+                    //... and also set the xsi:schemaLocation
+                    cursor.setAttributeText(new QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation", "xsi"), namespace + "  "+schemaLocationURL);
+                    isFirstStart = false;
+                }
+                cursor.toNextToken();
+
+            } else {
+                cursor.toNextToken();
+            }
+        }
+
+
+        return true;
+    }
+
     public static void convertBeans(XmlCursor cursor, XmlCursor moveable, String cmpVersion) {
         cursor.toChild(J2EE_NAMESPACE, "ejb-jar");
         cursor.toChild(J2EE_NAMESPACE, "enterprise-beans");
@@ -473,7 +398,7 @@ public class SchemaConversionUtils {
                 if ("session".equals(type)) {
                     cursor.toChild(J2EE_NAMESPACE, "transaction-type");
                     cursor.toNextSibling();
-                    convertToJNDIEnvironmentRefsGroup(cursor, moveable);
+                    convertToJNDIEnvironmentRefsGroup(J2EE_NAMESPACE, cursor, moveable);
                 } else if ("entity".equals(type)) {
                     cursor.toChild(J2EE_NAMESPACE, "persistence-type");
                     String persistenceType = cursor.getTextValue();
@@ -491,7 +416,7 @@ public class SchemaConversionUtils {
                     }
                     cursor.toNextSibling(J2EE_NAMESPACE, "primkey-field");
                     cursor.toNextSibling();
-                    convertToJNDIEnvironmentRefsGroup(cursor, moveable);
+                    convertToJNDIEnvironmentRefsGroup(J2EE_NAMESPACE, cursor, moveable);
                 } else if ("message-driven".equals(type)) {
                     cursor.toFirstChild();
                     if (cursor.toNextSibling(J2EE_NAMESPACE, "messaging-type")) {
@@ -532,7 +457,7 @@ public class SchemaConversionUtils {
                         cursor.toNextSibling();
                         //cursor should now be at first element in JNDIEnvironmentRefsGroup
                     }
-                    convertToJNDIEnvironmentRefsGroup(cursor, moveable);
+                    convertToJNDIEnvironmentRefsGroup(J2EE_NAMESPACE, cursor, moveable);
                 }
                 cursor.pop();
             } while (cursor.toNextSibling());
@@ -557,44 +482,45 @@ public class SchemaConversionUtils {
     /**
      * Reorders elements to match descriptionGroup
      *
+     * @param namespace
      * @param cursor XmlCursor positioned at first element of "group" to be reordered
      */
-    public static void convertToDescriptionGroup(XmlCursor cursor, XmlCursor moveable) {
+    public static void convertToDescriptionGroup(String namespace, XmlCursor cursor, XmlCursor moveable) {
         moveable.toCursor(cursor);
-        moveElements("description", moveable, cursor);
-        moveElements("display-name", moveable, cursor);
-        moveElements("icon", moveable, cursor);
+        moveElements("description", namespace, moveable, cursor);
+        moveElements("display-name", namespace, moveable, cursor);
+        moveElements("icon", namespace, moveable, cursor);
     }
 
-    public static void convertToJNDIEnvironmentRefsGroup(XmlCursor cursor, XmlCursor moveable) {
-        moveElements("env-entry", moveable, cursor);
-        moveElements("ejb-ref", moveable, cursor);
-        moveElements("ejb-local-ref", moveable, cursor);
-        moveElements("resource-ref", moveable, cursor);
-        moveElements("resource-env-ref", moveable, cursor);
-        moveElements("message-destination-ref", moveable, cursor);
+    public static void convertToJNDIEnvironmentRefsGroup(String namespace, XmlCursor cursor, XmlCursor moveable) {
+        moveElements("env-entry", namespace, moveable, cursor);
+        moveElements("ejb-ref", namespace, moveable, cursor);
+        moveElements("ejb-local-ref", namespace, moveable, cursor);
+        moveElements("resource-ref", namespace, moveable, cursor);
+        moveElements("resource-env-ref", namespace, moveable, cursor);
+        moveElements("message-destination-ref", namespace, moveable, cursor);
         if (cursor.toPrevSibling()) {
             do {
                 String name = cursor.getName().getLocalPart();
                 if ("env-entry".equals(name)) {
                     cursor.push();
                     cursor.toFirstChild();
-                    convertToDescriptionGroup(cursor, moveable);
-                    convertToEnvEntryGroup(cursor, moveable);
+                    convertToDescriptionGroup(namespace, cursor, moveable);
+                    convertToEnvEntryGroup(namespace, cursor, moveable);
                     cursor.pop();
                 }
             } while (cursor.toPrevSibling());
         }
     }
 
-    public static void convertToEnvEntryGroup(XmlCursor cursor, XmlCursor moveable) {
-        moveElements("env-entry-name", moveable, cursor);
-        moveElements("env-entry-type", moveable, cursor);
-        moveElements("env-entry-value", moveable, cursor);
+    public static void convertToEnvEntryGroup(String namespace, XmlCursor cursor, XmlCursor moveable) {
+        moveElements("env-entry-name", namespace, moveable, cursor);
+        moveElements("env-entry-type", namespace, moveable, cursor);
+        moveElements("env-entry-value", namespace, moveable, cursor);
     }
 
-    private static void moveElements(String localName, XmlCursor moveable, XmlCursor toHere) {
-        QName name = new QName(J2EE_NAMESPACE, localName);
+    private static void moveElements(String localName, String namespace, XmlCursor moveable, XmlCursor toHere) {
+        QName name = new QName(namespace, localName);
         //skip elements already in the correct order.
         while (name.equals(toHere.getName()) && toHere.toNextSibling()) {
         }

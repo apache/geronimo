@@ -33,8 +33,8 @@ import org.apache.geronimo.deployment.DeployableModule;
  */
 public class UnavailableWebServiceBuilder implements WebServiceBuilder {
 
-    public Map parseWebServiceDescriptor(URL wsDDUrl, DeployableModule moduleFile, boolean isEJB, Map correctedPortLocations) throws DeploymentException {
-        return new HashMap();
+    public Map findWebServices(DeployableModule moduleFile, boolean isEJB, Map correctedPortLocations) throws DeploymentException {
+        return  Collections.EMPTY_MAP;
     }
 
     public void configurePOJO(GBeanData targetGBean, DeployableModule moduleFile, Object portInfo, String seiClassName, ClassLoader classLoader) throws DeploymentException {

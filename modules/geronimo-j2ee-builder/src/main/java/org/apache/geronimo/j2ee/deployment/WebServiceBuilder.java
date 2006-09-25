@@ -29,8 +29,19 @@ import java.net.URL;
  */
 public interface WebServiceBuilder {
 
-    Map parseWebServiceDescriptor(URL wsDDUrl, DeployableModule deployableModule, boolean isEJB, Map correctedPortLocations) throws DeploymentException;
-
+   /**
+    * Introspects on the module file to locate web service for deployment.
+    *
+    * @param moduleFile J2EE module
+    * @param isEJB is this an EJB archive?
+    * @param correctedPortLocations mapping between port locations and paths.
+    * @return Mapping of servlet names to port information, or an
+    * empty map if no web services found.  Port information is opaque
+    * to all except the WebServiceBuilder itself.
+    * @throws DeploymentException if error encountered while introspecting the module.
+    */
+   Map findWebServices(DeployableModule deployableModule, boolean isEJB, Map correctedPortLocations) throws DeploymentException;
+    
     //obviously these need the deployment descriptors, but I'm not sure in what form yet.
     /**
      * configure the supplied GBeanData to implement the POJO web service described in the deployment descriptor.

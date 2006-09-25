@@ -23,7 +23,9 @@
     </module>
     
     <module name="org.apache.geronimo.configs/j2ee-server/${pom.version}/car"/>
-    
+
+    <module name="org.apache.geronimo.configs/transaction/${pom.version}/car"/>
+
     <module name="org.apache.geronimo.configs/j2ee-security/${pom.version}/car">
         <gbean name="JaasLoginServiceRemotingServer">
             <attribute name="host">${PlanServerHostname}</attribute>
@@ -62,6 +64,8 @@
             <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.2</attribute>
         </gbean>
     </module>
+
+    <module name="org.apache.geronimo.configs/connector-deployer/${pom.version}/car"/>
 
     <module name="org.apache.geronimo.configs/tomcat-deployer/${pom.version}/car"/>
 

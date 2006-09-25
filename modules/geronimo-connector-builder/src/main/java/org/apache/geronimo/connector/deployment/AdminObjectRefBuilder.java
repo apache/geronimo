@@ -41,7 +41,6 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerMessageDestinationType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceEnvRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceEnvRefType;
-import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
 import org.apache.geronimo.xbeans.j2ee.MessageDestinationRefType;
 import org.apache.geronimo.xbeans.j2ee.MessageDestinationType;
 import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
@@ -49,27 +48,28 @@ import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class AdminObjectRefBuilder extends AbstractNamingBuilder {
-    private static final String J2EE_NAMESPACE = ConnectorDocument.type.getDocumentElementName().getNamespaceURI();
-    private static final QName ADMIN_OBJECT_REF_QNAME = new QName(J2EE_NAMESPACE, "resource-env-ref");
-    private static final QNameSet ADMIN_OBJECT_REF_QNAME_SET = QNameSet.singleton(ADMIN_OBJECT_REF_QNAME);
-    private static final QName MESSAGE_DESTINATION_REF_QNAME = new QName(J2EE_NAMESPACE, "message-destination-ref");
-//    private static final QNameSet ADMIN_OBJECT_REF_QNAME_SET = QNameSet.singleton(ADMIN_OBJECT_REF_QNAME);
+    private  final QNameSet adminOjbectRefQNameSet;
+    private final QNameSet messageDestinationQNameSet;
+    private final QNameSet messageDestinationRefQNameSet;
+
     private static final QName GER_ADMIN_OBJECT_REF_QNAME = GerResourceEnvRefDocument.type.getDocumentElementName();
     private static final QNameSet GER_ADMIN_OBJECT_REF_QNAME_SET = QNameSet.singleton(GER_ADMIN_OBJECT_REF_QNAME);
-    private static final QName MESSAGE_DESTINATION_REF = new QName(J2EE_NAMESPACE, "message-destination");
-    private static final QNameSet MESSAGE_DESTINATION_QNAME_SET = QNameSet.singleton(MESSAGE_DESTINATION_REF);
     private static final QName GER_MESSAGE_DESTINATION_QNAME = GerMessageDestinationDocument.type.getDocumentElementName();
     private static final QNameSet GER_MESSAGE_DESTINATION_QNAME_SET = QNameSet.singleton(GER_MESSAGE_DESTINATION_QNAME);
 
-
-    public void buildEnvironment(XmlObject specDD, XmlObject plan, Environment environment) {
+    public AdminObjectRefBuilder(Environment defaultEnvironment, String[] eeNamespaces) {
+        super(defaultEnvironment);
+        adminOjbectRefQNameSet = buildQNameSet(eeNamespaces, "resource-env-ref");
+        messageDestinationQNameSet = buildQNameSet(eeNamespaces, "message-destination");
+        messageDestinationRefQNameSet = buildQNameSet(eeNamespaces, "message-destination-ref");
     }
 
+
     public void initContext(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module) throws DeploymentException {
-        XmlObject[] specDestinations = specDD.selectChildren(MESSAGE_DESTINATION_QNAME_SET);
+        XmlObject[] specDestinations = convert(specDD.selectChildren(messageDestinationQNameSet), J2EE_CONVERTER, MessageDestinationType.type);
         XmlObject[] gerDestinations = plan.selectChildren(GER_MESSAGE_DESTINATION_QNAME_SET);
             Map nameMap = new HashMap();
             for (int i = 0; i < gerDestinations.length; i++) {
@@ -78,7 +78,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
                 nameMap.put(name, destination);
                 boolean found = false;
                 for (int j = 0; j < specDestinations.length; j++) {
-                    MessageDestinationType specDestination = (MessageDestinationType) specDestinations[j].copy().changeType(MessageDestinationType.type);
+                    MessageDestinationType specDestination = (MessageDestinationType) specDestinations[j];
                     if (specDestination.getMessageDestinationName().getStringValue().trim().equals(name)) {
                         found = true;
                         break;
@@ -93,7 +93,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
 
 
     public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
-        XmlObject[] resourceEnvRefsUntyped = specDD.selectChildren(ADMIN_OBJECT_REF_QNAME_SET);
+        XmlObject[] resourceEnvRefsUntyped = convert(specDD.selectChildren(adminOjbectRefQNameSet), J2EE_CONVERTER, ResourceEnvRefType.type);
         ClassLoader cl = localConfiguration.getConfigurationClassLoader();
         XmlObject[] gerResourceEnvRefsUntyped = plan == null? NO_REFS: plan.selectChildren(GER_ADMIN_OBJECT_REF_QNAME_SET);
         Map refMap = mapResourceEnvRefs(gerResourceEnvRefsUntyped);
@@ -118,10 +118,10 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
         }
 
         //message-destination-refs
-        XmlObject[] messageDestinationRefsUntyped = specDD.selectChildren(MESSAGE_DESTINATION_REF_QNAME);
+        XmlObject[] messageDestinationRefsUntyped = convert(specDD.selectChildren(messageDestinationRefQNameSet), J2EE_CONVERTER, MessageDestinationRefType.type);
 
         for (int i = 0; i < messageDestinationRefsUntyped.length; i++) {
-            MessageDestinationRefType messageDestinationRef = (MessageDestinationRefType) messageDestinationRefsUntyped[i].copy().changeType(MessageDestinationRefType.type);
+            MessageDestinationRefType messageDestinationRef = (MessageDestinationRefType) messageDestinationRefsUntyped[i];
             String name = getStringValue(messageDestinationRef.getMessageDestinationRefName());
             String linkName = getStringValue(messageDestinationRef.getMessageDestinationLink());
             String type = getStringValue(messageDestinationRef.getMessageDestinationType());
@@ -235,7 +235,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
     }
 
     public QNameSet getSpecQNameSet() {
-        return ADMIN_OBJECT_REF_QNAME_SET;
+        return adminOjbectRefQNameSet;
     }
 
     public QNameSet getPlanQNameSet() {
@@ -246,6 +246,10 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(AdminObjectRefBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addAttribute("eeNamespaces", String[].class, true, true);
+        infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
+
+        infoBuilder.setConstructor(new String[] {"defaultEnvironment", "eeNamespaces"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

@@ -10,6 +10,8 @@
         <c:if test="${showWebInfo}"><th>URL</th></c:if>
         <th>&nbsp;State</th>
         <th align="center" colspan="3">Commands</th>
+        <th align="left">Parent Components</th>
+        <th align="left">Child Components</th>
     </tr>
   <c:set var="backgroundClass" value='MediumBackground'/>
   <c:forEach var="moduleDetails" items="${configurations}">
@@ -37,6 +39,16 @@
         </td>
         <td width="75" class="${backgroundClass}">
             <a href="<portlet:actionURL><portlet:param name="configId" value="${moduleDetails.configId}"/><portlet:param name="action" value="uninstall"/></portlet:actionURL>" onClick="return confirm('Are you sure you want to uninstall ${moduleDetails.configId}?');">Uninstall</a>
+        </td>
+        <td class="${backgroundClass}">
+            <c:forEach var="parent" items="${moduleDetails.parents}">
+                ${parent} <br>
+            </c:forEach>
+        </td>
+        <td class="${backgroundClass}">
+        <c:forEach var="child" items="${moduleDetails.children}">
+            ${child} <br>
+        </c:forEach>
         </td>
     </tr>
   </c:forEach>

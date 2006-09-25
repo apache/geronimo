@@ -83,29 +83,6 @@
         </references>
     </gbean>
 
-    <gbean name="ConnectorBuilder" class="org.apache.geronimo.connector.deployment.ConnectorModuleBuilder">
-        <attribute name="defaultMaxSize">10</attribute>
-        <attribute name="defaultMinSize">0</attribute>
-        <attribute name="defaultBlockingTimeoutMilliseconds">5000</attribute>
-        <attribute name="defaultIdleTimeoutMinutes">15</attribute>
-        <attribute name="defaultXATransactionCaching">true</attribute>
-        <attribute name="defaultXAThreadCaching">false</attribute>
-        <reference name="ServiceBuilders">
-            <name>GBeanBuilder</name>
-        </reference>
-        <xml-attribute name="defaultEnvironment">
-            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
-                <dependencies>
-                    <dependency>
-                        <groupId>${pom.groupId}</groupId>
-                        <artifactId>j2ee-server</artifactId>
-                        <type>car</type>
-                    </dependency>
-                </dependencies>
-            </environment>
-        </xml-attribute>
-    </gbean>
-
     <gbean name="SecurityBuilder" class="org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl"/>
 
     <gbean name="LoginConfigurationBuilder" class="org.apache.geronimo.security.deployment.LoginConfigBuilder"/>
@@ -152,8 +129,6 @@
 
     <gbean name="GBeanRefBuilder" class="org.apache.geronimo.naming.deployment.GBeanRefBuilder"/>
     <gbean name="PersistenceContextRefBuilder" class="org.apache.geronimo.naming.deployment.PersistenceContextRefBuilder"/>
-    <gbean name="ResourceRefBuilder" class="org.apache.geronimo.connector.deployment.ResourceRefBuilder"/>
-    <gbean name="AdminObjectRefBuilder" class="org.apache.geronimo.connector.deployment.AdminObjectRefBuilder"/>
     <gbean name="EnvironmentEntryBuilder" class="org.apache.geronimo.naming.deployment.EnvironmentEntryBuilder"/>
 
 </module>

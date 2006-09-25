@@ -42,6 +42,7 @@ public class GeronimoServletHttpRequest extends ServletHttpRequest {
     }
     
     public void setRequestedSessionId(String pathParams) {
+        requestedSessionId = null;
         if (servletHandler.isUsingCookies()) {
             Cookie[] cookies= request.getCookies();
             if (cookies!=null && cookies.length>0) {

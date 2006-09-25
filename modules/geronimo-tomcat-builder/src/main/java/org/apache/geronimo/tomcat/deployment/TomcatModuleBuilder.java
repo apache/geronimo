@@ -20,13 +20,11 @@ package org.apache.geronimo.tomcat.deployment;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.Permission;
 import java.security.PermissionCollection;
 import java.security.Permissions;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -52,18 +50,18 @@ import org.apache.geronimo.gbean.SingleElementCollection;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
+import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
-import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
-import org.apache.geronimo.schema.SchemaConversionUtils;
+import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
@@ -104,8 +102,11 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             AbstractNameQuery tomcatContainerName,
             Collection webServiceBuilder,
             Collection securityBuilders,
-            Collection serviceBuilders, NamingBuilder namingBuilders, Kernel kernel) {
-        super(kernel, securityBuilders, serviceBuilders, namingBuilders);
+            Collection serviceBuilders,
+            NamingBuilder namingBuilders,
+            ResourceEnvironmentSetter resourceEnvironmentSetter,
+            Kernel kernel) {
+        super(kernel, securityBuilders, serviceBuilders, namingBuilders, resourceEnvironmentSetter);
         this.defaultEnvironment = defaultEnvironment;
 
         this.tomcatContainerName = tomcatContainerName;
@@ -140,7 +141,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         try {
             // parse it
             XmlObject parsed = XmlBeansUtil.parse(specDD);
-            WebAppDocument webAppDoc = SchemaConversionUtils.convertToServletSchema(parsed);
+            WebAppDocument webAppDoc = convertToServletSchema(parsed);
             webApp = webAppDoc.getWebApp();
         } catch (XmlException xmle) {
             // Output the target path in the error to make it clearer to the user which webapp
@@ -177,14 +178,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
         Map servletNameToPathMap = buildServletNameToPathMap(webApp, contextRoot);
 
-        //look for a webservices dd
-        Map portMap = Collections.EMPTY_MAP;
-        try {
-            URL wsDDUrl = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/webservices.xml");
-            portMap = getWebServiceBuilder().parseWebServiceDescriptor(wsDDUrl, moduleFile, false, servletNameToPathMap);
-        } catch (MalformedURLException e) {
-            //no descriptor
-        }
+        Map portMap = getWebServiceBuilder().findWebServices(moduleFile, false, servletNameToPathMap);
         AbstractName moduleName;
         if (earName == null) {
             earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
@@ -278,7 +272,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
         //this may add to the web classpath with enhanced classes.
         //N.B. we use the ear context which has all the gbeans we could possibly be looking up from this ear.
-        Map compContext = buildComponentContext(earContext, webModule, webApp, tomcatWebApp, moduleClassLoader);
+        Map compContext = buildComponentContext(earContext, webModule, webApp, tomcatWebApp);
 
         GBeanData webModuleData = new GBeanData(moduleName, TomcatWebAppContext.GBEAN_INFO);
         try {
@@ -303,7 +297,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             // unsharableResources, applicationManagedSecurityResources
             GBeanResourceEnvironmentBuilder rebuilder = new GBeanResourceEnvironmentBuilder(webModuleData);
             //N.B. use earContext not moduleContext
-            ENCConfigBuilder.setResourceEnvironment(rebuilder, webApp.getResourceRefArray(), tomcatWebApp.getResourceRefArray());
+            resourceEnvironmentSetter.setResourceEnvironment(rebuilder, webApp.getResourceRefArray(), tomcatWebApp.getResourceRefArray());
 
             webModuleData.setReferencePattern("TransactionManager", earContext.getTransactionManagerName());
             webModuleData.setReferencePattern("TrackedConnectionAssociator", earContext.getConnectionTrackerName());
@@ -445,7 +439,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
     }
 
 
-    private Map buildComponentContext(EARContext earContext, Module webModule, WebAppType webApp, TomcatWebAppType tomcatWebApp, ClassLoader cl) throws DeploymentException {
+    private Map buildComponentContext(EARContext earContext, Module webModule, WebAppType webApp, TomcatWebAppType tomcatWebApp) throws DeploymentException {
         Map componentContext = new HashMap();
         Configuration earConfiguration = earContext.getConfiguration();
         getNamingBuilders().buildNaming(webApp, tomcatWebApp, earConfiguration, earConfiguration, webModule, componentContext);
@@ -462,6 +456,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         infoBuilder.addReference("SecurityBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("NamingBuilders", NamingBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("ResourceEnvironmentSetter", ResourceEnvironmentSetter.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
         infoBuilder.addInterface(ModuleBuilder.class);
 
@@ -472,6 +467,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                 "SecurityBuilders",
                 "ServiceBuilders",
                 "NamingBuilders",
+                "ResourceEnvironmentSetter",
                 "kernel"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

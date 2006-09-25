@@ -1,14 +1,14 @@
 package org.apache.geronimo.jetty;
 
+import javax.management.j2ee.statistics.CountStatistic;
+import javax.management.j2ee.statistics.RangeStatistic;
+import javax.management.j2ee.statistics.TimeStatistic;
+
 import org.apache.geronimo.management.stats.CountStatisticImpl;
 import org.apache.geronimo.management.stats.RangeStatisticImpl;
 import org.apache.geronimo.management.stats.StatisticImpl;
 import org.apache.geronimo.management.stats.StatsImpl;
 import org.apache.geronimo.management.stats.TimeStatisticImpl;
-
-import javax.management.j2ee.statistics.CountStatistic;
-import javax.management.j2ee.statistics.RangeStatistic;
-import javax.management.j2ee.statistics.TimeStatistic;
 
 /**
  * Jetty implementation of the Geronimo stats interface WebContainerStats

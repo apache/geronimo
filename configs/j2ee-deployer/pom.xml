@@ -41,7 +41,6 @@
             <type>car</type>
         </dependency>
 
-        <!-- import the classes -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-server</artifactId>
@@ -49,7 +48,15 @@
             <type>car</type>
             <scope>compile</scope>
         </dependency>
-        
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>j2ee-security</artifactId>
+            <version>${geronimoVersion}</version>
+            <type>car</type>
+            <scope>compile</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-j2ee-schema</artifactId>
@@ -62,15 +69,9 @@
             <version>${pom.version}</version>
         </dependency>
         
-        <!-- need transaction, core, j2ee-schema, management -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-naming-builder</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-naming</artifactId>
             <version>${pom.version}</version>
         </dependency>
 
@@ -85,34 +86,16 @@
             <artifactId>geronimo-web-builder</artifactId>
             <version>${pom.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-test-ddbean</artifactId>
             <version>${pom.version}</version>
         </dependency>
 
-        <!-- this should get connector -->
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-connector-builder</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-security-builder</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-        
-        <!-- why is this spec not in the classpath ?? -->
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-j2ee-jacc_1.0_spec</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-security</artifactId>
             <version>${pom.version}</version>
         </dependency>
         

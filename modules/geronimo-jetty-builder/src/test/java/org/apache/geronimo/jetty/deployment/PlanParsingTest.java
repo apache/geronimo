@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.jar.JarFile;
-  
+
 import javax.xml.namespace.QName;
 
 import org.apache.geronimo.deployment.util.UnpackedJarFile;
@@ -43,7 +43,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  */
 public class PlanParsingTest extends TestSupport {
-    
+
     private ClassLoader classLoader = this.getClass().getClassLoader();
 
     private Naming naming = new Jsr77Naming();
@@ -57,19 +57,20 @@ public class PlanParsingTest extends TestSupport {
 
     public PlanParsingTest() throws Exception {
         builder = new JettyModuleBuilder(defaultEnvironment,
-            new Integer(1800),
-            null,
-            jettyContainerObjectName,
-            new HashSet(),
-            new HashSet(),
-            new HashSet(),
-            pojoWebServiceTemplate,
-            Collections.singleton(webServiceBuilder),
-            null,
-            Collections.singleton(new GeronimoSecurityBuilderImpl()),
-            Collections.singleton(new GBeanBuilder(null, null)),
-            new NamingBuilderCollection(null, null), 
-            null);
+                new Integer(1800),
+                null,
+                jettyContainerObjectName,
+                new HashSet(),
+                new HashSet(),
+                new HashSet(),
+                pojoWebServiceTemplate,
+                Collections.singleton(webServiceBuilder),
+                null,
+                Collections.singleton(new GeronimoSecurityBuilderImpl()),
+                Collections.singleton(new GBeanBuilder(null, null)),
+                new NamingBuilderCollection(null, null),
+                new MockResourceEnvironmentSetter(),
+                null);
     }
 
     public void testContents() throws Exception {
@@ -106,7 +107,7 @@ public class PlanParsingTest extends TestSupport {
 
     public void testOldFormat() throws Exception {
         URL resourcePlan = classLoader.getResource("plans/plan2.xml");
-        assertTrue(resourcePlan!= null);
+        assertTrue(resourcePlan != null);
         JettyWebAppType jettyWebApp = builder.getJettyWebApp(new File(resourcePlan.getFile()), null, true, null, null);
         assertEquals(1, jettyWebApp.getResourceRefArray().length);
 //        assertEquals(4, jettyWebApp.getSecurity().getRoleMappings().getRoleArray().length);
@@ -153,7 +154,8 @@ public class PlanParsingTest extends TestSupport {
         configId.setType("car");
     }
 
-    /** This test has 2 purposes: one the obvious one explicitly tested,
+    /**
+     * This test has 2 purposes: one the obvious one explicitly tested,
      * the other that passing a JettyWebAppType XmlObject in works.  This latter
      * models a web-app element inside an ear plan.
      *

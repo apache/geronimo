@@ -78,14 +78,21 @@ import org.apache.geronimo.xbeans.j2ee.ServletType;
 import org.apache.geronimo.xbeans.j2ee.UrlPatternType;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
 import org.apache.geronimo.xbeans.j2ee.WebResourceCollectionType;
+import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
+import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
+import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlDocumentProperties;
 
 /**
  * @version $Rev$ $Date$
  */
 public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     private static final Log log = LogFactory.getLog(AbstractWebModuleBuilder.class);
+    private static final QName TAGLIB = new QName(SchemaConversionUtils.J2EE_NAMESPACE, "taglib");
     private static final String LINE_SEP = System.getProperty("line.separator");
 
     protected static final AbstractNameQuery MANAGED_CONNECTION_FACTORY_PATTERN;
@@ -96,6 +103,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     protected final Kernel kernel;
     protected final NamespaceDrivenBuilderCollection securityBuilders;
     protected final NamespaceDrivenBuilderCollection serviceBuilders;
+    protected final ResourceEnvironmentSetter resourceEnvironmentSetter;
 
     protected final NamingBuilder namingBuilders;
 
@@ -109,12 +117,12 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
      */
     private static final URI RELATIVE_MODULE_BASE_URI = URI.create("../");
 
-    protected AbstractWebModuleBuilder(Kernel kernel, Collection securityBuilders, Collection serviceBuilders, NamingBuilder namingBuilders) {
+    protected AbstractWebModuleBuilder(Kernel kernel, Collection securityBuilders, Collection serviceBuilders, NamingBuilder namingBuilders, ResourceEnvironmentSetter resourceEnvironmentSetter) {
         this.kernel = kernel;
         this.securityBuilders = new NamespaceDrivenBuilderCollection(securityBuilders);
         this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders);
         this.namingBuilders = namingBuilders;
-
+        this.resourceEnvironmentSetter = resourceEnvironmentSetter;
     }
 
     static {
@@ -600,6 +608,78 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         }
         securityBuilders.build(gerWebApp, earContext, module.getEarContext());
         serviceBuilders.build(gerWebApp, earContext, module.getEarContext());
+    }
+
+    protected static WebAppDocument convertToServletSchema(XmlObject xmlObject) throws XmlException {
+        if (WebAppDocument.type.equals(xmlObject.schemaType())) {
+            XmlBeansUtil.validateDD(xmlObject);
+            return (WebAppDocument) xmlObject;
+        }
+        XmlCursor cursor = xmlObject.newCursor();
+        try {
+            cursor.toStartDoc();
+            cursor.toFirstChild();
+            if (SchemaConversionUtils.J2EE_NAMESPACE.equals(cursor.getName().getNamespaceURI())) {
+                XmlObject result = xmlObject.changeType(WebAppDocument.type);
+                XmlBeansUtil.validateDD(result);
+                return (WebAppDocument) result;
+            }
+
+            XmlDocumentProperties xmlDocumentProperties = cursor.documentProperties();
+            String publicId = xmlDocumentProperties.getDoctypePublicId();
+            if ("-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN".equals(publicId) ||
+                    "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN".equals(publicId)) {
+                XmlCursor moveable = xmlObject.newCursor();
+                try {
+                    moveable.toStartDoc();
+                    moveable.toFirstChild();
+                    String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd";
+                    String version = "2.4";
+                    SchemaConversionUtils.convertToSchema(cursor, SchemaConversionUtils.J2EE_NAMESPACE, schemaLocationURL, version);
+                    cursor.toStartDoc();
+                    cursor.toChild(SchemaConversionUtils.J2EE_NAMESPACE, "web-app");
+                    cursor.toFirstChild();
+                    SchemaConversionUtils.convertToDescriptionGroup(SchemaConversionUtils.J2EE_NAMESPACE, cursor, moveable);
+                    SchemaConversionUtils.convertToJNDIEnvironmentRefsGroup(SchemaConversionUtils.J2EE_NAMESPACE, cursor, moveable);
+                    cursor.push();
+                    if (cursor.toNextSibling(TAGLIB)) {
+                        cursor.toPrevSibling();
+                        moveable.toCursor(cursor);
+                        cursor.beginElement("jsp-config", SchemaConversionUtils.J2EE_NAMESPACE);
+                        while (moveable.toNextSibling(TAGLIB)) {
+                            moveable.moveXml(cursor);
+                        }
+                    }
+                    cursor.pop();
+                    do {
+                        String name = cursor.getName().getLocalPart();
+                        if ("filter".equals(name) || "servlet".equals(name) || "context-param".equals(name)) {
+                            cursor.push();
+                            cursor.toFirstChild();
+                            SchemaConversionUtils.convertToDescriptionGroup(SchemaConversionUtils.J2EE_NAMESPACE, cursor, moveable);
+                            while (cursor.toNextSibling(SchemaConversionUtils.J2EE_NAMESPACE, "init-param")) {
+                                cursor.push();
+                                cursor.toFirstChild();
+                                SchemaConversionUtils.convertToDescriptionGroup(SchemaConversionUtils.J2EE_NAMESPACE, cursor, moveable);
+                                cursor.pop();
+                            }
+                            cursor.pop();
+                        }
+                    } while (cursor.toNextSibling());
+                } finally {
+                    moveable.dispose();
+                }
+            }
+        } finally {
+            cursor.dispose();
+        }
+        XmlObject result = xmlObject.changeType(WebAppDocument.type);
+        if (result != null) {
+            XmlBeansUtil.validateDD(result);
+            return (WebAppDocument) result;
+        }
+        XmlBeansUtil.validateDD(xmlObject);
+        return (WebAppDocument) xmlObject;
     }
 
     class UncheckedItem {

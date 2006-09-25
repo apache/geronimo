@@ -16,9 +16,7 @@
  */
 package org.apache.geronimo.jetty;
 
-import java.util.Map;
 import java.util.Set;
-import javax.security.jacc.PolicyContextException;
 
 import org.mortbay.jetty.servlet.ServletHandler;
 import org.mortbay.jetty.servlet.ServletHolder;

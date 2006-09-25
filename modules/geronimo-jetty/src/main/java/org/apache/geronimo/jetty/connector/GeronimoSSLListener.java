@@ -16,10 +16,10 @@
  */
 package org.apache.geronimo.jetty.connector;
 
-import org.mortbay.http.SslListener;
-import org.apache.geronimo.management.geronimo.KeystoreManager;
-
 import javax.net.ssl.SSLServerSocketFactory;
+
+import org.apache.geronimo.management.geronimo.KeystoreManager;
+import org.mortbay.http.SslListener;
 
 /**
  * SSL listener that hooks into the Geronimo keystore infrastructure.

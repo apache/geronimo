@@ -94,10 +94,7 @@
     </target>
     
     <target name="minimal" depends="init">
-        <antcall target="clean">
-            <param name="clean-minimal" value="true"/>
-        </antcall>
-        
+        <antcall target="clean"/>
         <mvn goal="install"/>
     </target>
     
@@ -116,7 +113,7 @@
         <mkdir dir="${user.home}/.m2/repository"/>
     </target>
     
-    <target name="clean:minimal" depends="clean:init" if="clean-minimal">
+    <target name="clean:minimal" depends="clean:init" unless="clean-full">
         <echo>Cleaning (minimal)...</echo>
         
         <delete>
@@ -131,7 +128,7 @@
         </delete>
     </target>
     
-    <target name="clean:full" depends="clean:init" unless="clean-minimal">
+    <target name="clean:full" depends="clean:init" if="clean-full">
         <echo>Cleaning (full)...</echo>
         
         <delete dir="${user.home}/.m2/repository"/>
@@ -149,7 +146,7 @@
     
     <target name="openejb2" depends="init">
         <echo>Building OpenEJB2...</echo>
-        <build-external url="http://svn.codehaus.org/openejb/trunk/openejb2" name="openejb2"/>
+        <build-external url="https://svn.apache.org/repos/asf/incubator/openejb/trunk/openejb2" name="openejb2"/>
     </target>
 
 </project>

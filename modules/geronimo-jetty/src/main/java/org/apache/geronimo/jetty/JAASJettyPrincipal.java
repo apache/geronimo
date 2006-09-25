@@ -17,7 +17,7 @@
 package org.apache.geronimo.jetty;
 
 import java.security.Principal;
-import java.util.Stack;
+
 import javax.security.auth.Subject;
 
 

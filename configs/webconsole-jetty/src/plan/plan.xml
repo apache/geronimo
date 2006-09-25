@@ -32,6 +32,14 @@
         <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.1">
             <context-root>/console-standard</context-root>
             <security-realm-name>geronimo-properties-realm</security-realm-name>
+            <gbean name="PropertiesLoginManager" class="org.apache.geronimo.console.core.security.PropertiesLoginModuleManager">
+                <reference name="ServerInfo">
+                    <name>ServerInfo</name>
+                </reference>
+                <reference name="LoginModule">
+                    <name>properties-login</name>
+                </reference>
+            </gbean>
         </web-app>
     </module>
 
@@ -49,20 +57,19 @@
     </security>
 
     <!-- Console specific server info -->
-    <gbean name="PropertiesLoginManager" class="org.apache.geronimo.console.core.security.PropertiesLoginModuleManager">
-        <reference name="ServerInfo">
-            <name>ServerInfo</name>
-        </reference>
-        <reference name="LoginModule">
-            <name>properties-login</name>
-        </reference>
-    </gbean>
+    <!--<gbean name="PropertiesLoginManager" class="org.apache.geronimo.console.core.security.PropertiesLoginModuleManager">-->
+        <!--<reference name="ServerInfo">-->
+            <!--<name>ServerInfo</name>-->
+        <!--</reference>-->
+        <!--<reference name="LoginModule">-->
+            <!--<name>properties-login</name>-->
+        <!--</reference>-->
+    <!--</gbean>-->
 
     <!-- Keystore configuration -->
     <gbean name="KeyStore" class="org.apache.geronimo.console.core.keystore.KeyStoreGBean">
         <attribute name="keyStoreLocation">var/security/ssl-keystore-1</attribute>
-        <attribute name="keyStoreType">jks</attribute>
-        <attribute name="keyStoreProvider">SUN</attribute>
+        <attribute name="keyStoreType">PKCS12</attribute>
         <attribute name="keyStorePassword">password</attribute>
         <reference name="serverInfo">
             <name>ServerInfo</name>

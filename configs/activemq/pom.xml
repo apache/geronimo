@@ -41,7 +41,15 @@
             <version>${pom.version}</version>
             <type>car</type>
         </dependency>
-        
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>connector-deployer</artifactId>
+            <version>${pom.version}</version>
+            <type>car</type>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>ge-activemq-rar</artifactId>
@@ -60,9 +68,7 @@
                     <deploymentConfigs>
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
                         <deploymentConfig>${j2eeDeployer}</deploymentConfig>
-                        <deploymentConfig>${clientDeployer}</deploymentConfig>
-                        <deploymentConfig>${openejbDeployer}</deploymentConfig>
-                        <deploymentConfig>${axisDeployer}</deploymentConfig>
+                        <deploymentConfig>${connectorDeployer}</deploymentConfig>
                     </deploymentConfigs>
                     <module>
                         <groupId>org.apache.geronimo.modules</groupId>

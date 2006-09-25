@@ -42,27 +42,19 @@
             <type>car</type>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-activation</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-        
-        <!-- connector deploys jsr77 beans hence needs j2ee, mgmt -->
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-connector</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-        
         <!-- ThreadPool -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-core</artifactId>
             <version>${pom.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-activation</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
         
-        <!-- ?????? -->
         <!--
             for property editor support for some login modules/principals 
         
@@ -88,12 +80,6 @@
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-management</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-transaction</artifactId>
             <version>${pom.version}</version>
         </dependency>
 
@@ -214,20 +200,6 @@
             <artifactId>openejb-core</artifactId>
         </dependency>
         
-        <!--
-        NOTE: OpenEJB2 still references geronimo-spec:geronimo-spec-corba in
-              a geronimo-dependency.xml, and until that is changed we need
-              to keep using this old m1-based artifact
-        -->
-        <dependency>
-            <!--
-            <groupId>org.apache.geronimo.specs</groupId>
-            -->
-            <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-corba</artifactId>
-        </dependency>
-        
-
     </dependencies>
-
+    
 </project>

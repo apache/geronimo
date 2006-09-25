@@ -21,6 +21,9 @@
         <attribute name="transactionManagerObjectName">?name=TransactionManager</attribute>
         <attribute name="connectionTrackerObjectName">?name=ConnectionTracker</attribute>
         <attribute name="corbaGBeanObjectName">?name=Server</attribute>
+        <reference name="Repositories">
+            <!--<gbean-name>*:name=Repository,*</gbean-name>-->
+        </reference>
         <reference name="SecurityBuilder">
             <name>SecurityBuilder</name>
         </reference>
@@ -93,6 +96,13 @@
         </reference>
         <xml-attribute name="defaultEnvironment">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+                <dependencies>
+                    <dependency>
+                        <groupId>${pom.groupId}</groupId>
+                        <artifactId>client-transaction</artifactId>
+                        <type>car</type>
+                    </dependency>
+                </dependencies>
             </environment>
         </xml-attribute>
     </gbean>

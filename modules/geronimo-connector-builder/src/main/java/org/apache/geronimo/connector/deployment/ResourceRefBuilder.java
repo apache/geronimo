@@ -22,6 +22,8 @@ import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 
 import javax.naming.Reference;
 import javax.xml.namespace.QName;
@@ -31,40 +33,42 @@ import org.apache.geronimo.common.UnresolvedReferenceException;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
+import org.apache.geronimo.naming.deployment.ResourceEnvironmentBuilder;
+import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.naming.reference.ResourceReference;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
-import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
-public class ResourceRefBuilder extends AbstractNamingBuilder {
-    private static final String J2EE_NAMESPACE = ConnectorDocument.type.getDocumentElementName().getNamespaceURI();
-    private static final QName RESOURCE_REF_QNAME = new QName(J2EE_NAMESPACE, "resource-ref");
-    private static final QNameSet RESOURCE_REF_QNAME_SET = QNameSet.singleton(RESOURCE_REF_QNAME);
+public class ResourceRefBuilder extends AbstractNamingBuilder implements ResourceEnvironmentSetter {
     private static final QName GER_RESOURCE_REF_QNAME = GerResourceRefDocument.type.getDocumentElementName();
     private static final QNameSet GER_RESOURCE_REF_QNAME_SET = QNameSet.singleton(GER_RESOURCE_REF_QNAME);
+
+    private  final QNameSet resourceRefQNameSet;
 
     private static final String JAXR_CONNECTION_FACTORY_CLASS = "javax.xml.registry.ConnectionFactory";
     private static final String JAVAX_MAIL_SESSION_CLASS = "javax.mail.Session";
 
+    public ResourceRefBuilder(Environment defaultEnvironment, String[] eeNamespaces) {
+        super(defaultEnvironment);
 
-    public void buildEnvironment(XmlObject specDD, XmlObject plan, Environment environment) {
+        resourceRefQNameSet = buildQNameSet(eeNamespaces, "resource-ref");
     }
 
     public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
-        XmlObject[] resourceRefsUntyped = specDD.selectChildren(RESOURCE_REF_QNAME_SET);
+        XmlObject[] resourceRefsUntyped = convert(specDD.selectChildren(resourceRefQNameSet), J2EE_CONVERTER, ResourceRefType.type);
         XmlObject[] gerResourceRefsUntyped = plan == null? NO_REFS: plan.selectChildren(GER_RESOURCE_REF_QNAME_SET);
         Map refMap = mapResourceRefs(gerResourceRefsUntyped);
         ClassLoader cl = localConfiguration.getConfigurationClassLoader();
@@ -139,6 +143,35 @@ public class ResourceRefBuilder extends AbstractNamingBuilder {
 
     }
 
+    public void setResourceEnvironment(ResourceEnvironmentBuilder builder, XmlObject[] resourceRefs, GerResourceRefType[] gerResourceRefs) {
+        resourceRefs = convert(resourceRefs, J2EE_CONVERTER, ResourceRefType.type);
+        Map refMap = mapResourceRefs(gerResourceRefs);
+        Set unshareableResources = new HashSet();
+        Set applicationManagedSecurityResources = new HashSet();
+        for (int i = 0; i < resourceRefs.length; i++) {
+            ResourceRefType resourceRefType = (ResourceRefType) resourceRefs[i];
+
+            String type = resourceRefType.getResType().getStringValue().trim();
+
+            if (!URL.class.getName().equals(type)
+                    && !"javax.mail.Session".equals(type)
+                    && !JAXR_CONNECTION_FACTORY_CLASS.equals(type)) {
+
+                GerResourceRefType gerResourceRef = (GerResourceRefType) refMap.get(resourceRefType.getResRefName().getStringValue());
+                AbstractNameQuery containerId = getResourceContainerId(getStringValue(resourceRefType.getResRefName()), NameFactory.JCA_MANAGED_CONNECTION_FACTORY, null, gerResourceRef);
+
+                if ("Unshareable".equals(getStringValue(resourceRefType.getResSharingScope()))) {
+                    unshareableResources.add(containerId);
+                }
+                if ("Application".equals(getStringValue(resourceRefType.getResAuth()))) {
+                    applicationManagedSecurityResources.add(containerId);
+                }
+            }
+        }
+        builder.setUnshareableResources(unshareableResources);
+        builder.setApplicationManagedSecurityResources(applicationManagedSecurityResources);
+    }
+
     private Map mapResourceRefs(XmlObject[] refs) {
         Map refMap = new HashMap();
         if (refs != null) {
@@ -166,7 +199,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder {
     }
 
     public QNameSet getSpecQNameSet() {
-        return RESOURCE_REF_QNAME_SET;
+        return resourceRefQNameSet;
     }
 
     public QNameSet getPlanQNameSet() {
@@ -177,6 +210,10 @@ public class ResourceRefBuilder extends AbstractNamingBuilder {
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(ResourceRefBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addAttribute("eeNamespaces", String[].class, true, true);
+        infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
+
+        infoBuilder.setConstructor(new String[] {"defaultEnvironment", "eeNamespaces"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

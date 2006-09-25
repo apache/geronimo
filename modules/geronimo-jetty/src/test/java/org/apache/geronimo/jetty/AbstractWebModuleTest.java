@@ -27,8 +27,6 @@ import java.util.Set;
 
 import javax.transaction.TransactionManager;
 
-import org.apache.geronimo.testsupport.TestSupport;
-
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.connector.outbound.connectiontracking.GeronimoTransactionListener;
 import org.apache.geronimo.jetty.connector.HTTPConnector;
@@ -46,6 +44,7 @@ import org.apache.geronimo.security.jacc.PrincipalRoleMapper;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.mortbay.http.Authenticator;
 import org.mortbay.jetty.servlet.FormAuthenticator;

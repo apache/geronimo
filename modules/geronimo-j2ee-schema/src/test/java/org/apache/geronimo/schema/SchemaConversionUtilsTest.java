@@ -23,12 +23,11 @@ import java.net.URL;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlException;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.testsupport.XmlBeansTestSupport;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,7 +38,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @version $Rev$ $Date$
  */
-public class SchemaConversionUtilsTest extends TestCase {
+public class SchemaConversionUtilsTest extends XmlBeansTestSupport {
     private static final Log log = LogFactory.getLog(SchemaConversionUtilsTest.class);
     
     private ClassLoader classLoader = this.getClass().getClassLoader();
@@ -92,35 +91,6 @@ public class SchemaConversionUtilsTest extends TestCase {
         xmlObject = SchemaConversionUtils.convertToApplicationClientSchema(xmlObject);
         boolean ok3 = compareXmlObjects(xmlObject, expected, problems);
         assertTrue("Differences after reconverting to application client schema: " + problems, ok3);
-    }
-
-    public void testApplication13ToApplication14Transform() throws Exception {
-        URL srcXml = classLoader.getResource("j2ee_1_3dtd/application-13.xml");
-        URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/application-14.xml");
-        XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
-        XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
-        XmlBeansUtil.validateDD(expected);
-        xmlObject = SchemaConversionUtils.convertToApplicationSchema(xmlObject);
-//        log.debug(xmlObject.toString());
-//        log.debug(expected.toString());
-        List problems = new ArrayList();
-        boolean ok = compareXmlObjects(xmlObject, expected, problems);
-        assertTrue("Differences: " + problems, ok);
-        //make sure trying to convert twice has no bad effects
-        XmlCursor cursor2 = xmlObject.newCursor();
-        try {
-            String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/application_1_4.xsd";
-            String version = "1.4";
-            assertFalse(SchemaConversionUtils.convertToSchema(cursor2, SchemaConversionUtils.J2EE_NAMESPACE, schemaLocationURL, version));
-        } finally {
-            cursor2.dispose();
-        }
-        boolean ok2 = compareXmlObjects(xmlObject, expected, problems);
-        assertTrue("Differences after reconverting to schema: " + problems, ok2);
-        //do the whole transform twice...
-        xmlObject = SchemaConversionUtils.convertToApplicationSchema(xmlObject);
-        boolean ok3 = compareXmlObjects(xmlObject, expected, problems);
-        assertTrue("Differences after reconverting to application schema: " + problems, ok3);
     }
 
     public void testConnector10ToConnector15Transform() throws Exception {
@@ -323,70 +293,6 @@ public class SchemaConversionUtilsTest extends TestCase {
         assertTrue("Differences: " + problems, ok);
     }
 
-    public void testWeb23To24Transform() throws Exception {
-        URL srcXml = classLoader.getResource("j2ee_1_3dtd/web-23.xml");
-        URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/web-24.xml");
-        XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
-        xmlObject = SchemaConversionUtils.convertToServletSchema(xmlObject);
-        XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
-//        log.debug(xmlObject.toString());
-//        log.debug(expected.toString());
-        List problems = new ArrayList();
-        boolean ok = compareXmlObjects(xmlObject, expected, problems);
-        assertTrue("Differences: " + problems, ok);
-        xmlObject = SchemaConversionUtils.convertToServletSchema(xmlObject);
-        boolean ok2 = compareXmlObjects(xmlObject, expected, problems);
-        assertTrue("Differences: " + problems, ok2);
-    }
-
-    public void testWeb23To24OtherTransform() throws Exception {
-        URL srcXml = classLoader.getResource("j2ee_1_3dtd/web-1-23.xml");
-        URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/web-1-24.xml");
-        XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
-        xmlObject = SchemaConversionUtils.convertToServletSchema(xmlObject);
-//        log.debug(xmlObject.toString());
-        XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
-        List problems = new ArrayList();
-        boolean ok = compareXmlObjects(xmlObject, expected, problems);
-        assertTrue("Differences: " + problems, ok);
-        xmlObject = SchemaConversionUtils.convertToServletSchema(xmlObject);
-        boolean ok2 = compareXmlObjects(xmlObject, expected, problems);
-        assertTrue("Differences: " + problems, ok2);
-    }
-
-    public void testWeb22To24Transform1() throws Exception {
-        URL srcXml = classLoader.getResource("j2ee_1_2dtd/web-1-22.xml");
-        URL expectedOutputXml = classLoader.getResource("j2ee_1_2dtd/web-1-24.xml");
-        XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
-        xmlObject = SchemaConversionUtils.convertToServletSchema(xmlObject);
-        XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
-//        log.debug(xmlObject.toString());
-//        log.debug(expected.toString());
-        List problems = new ArrayList();
-        boolean ok = compareXmlObjects(xmlObject, expected, problems);
-        assertTrue("Differences: " + problems, ok);
-        xmlObject = SchemaConversionUtils.convertToServletSchema(xmlObject);
-        boolean ok2 = compareXmlObjects(xmlObject, expected, problems);
-        assertTrue("Differences: " + problems, ok2);
-    }
-
-    public void testWebRejectBad24() throws Exception {
-        URL srcXml = classLoader.getResource("j2ee_1_4schema/web-1-24.xml");
-        XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
-        try {
-            xmlObject = SchemaConversionUtils.convertToServletSchema(xmlObject);
-            fail("doc src/test-data/j2ee_1_4schema/web-1-24.xml is invalid, should not have validated");
-        } catch (XmlException e) {
-            //expected
-        }
-    }
-
-    public void testParseWeb24() throws Exception {
-        URL srcXml = classLoader.getResource("j2ee_1_4schema/web-2-24.xml");
-        XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
-        xmlObject = SchemaConversionUtils.convertToServletSchema(xmlObject);
-    }
-
     public void testEJB21To21DoesNothing() throws Exception {
         URL srcXml = classLoader.getResource("j2ee_1_4schema/ejb-jar.xml");
         URL expectedOutputXml = classLoader.getResource("j2ee_1_4schema/ejb-jar.xml");
@@ -546,43 +452,6 @@ public class SchemaConversionUtilsTest extends TestCase {
             cursor.dispose();
         }
 
-    }
-
-    private boolean compareXmlObjects(XmlObject xmlObject, XmlObject expectedObject, List problems) {
-        XmlCursor test = xmlObject.newCursor();
-        XmlCursor expected = expectedObject.newCursor();
-        boolean similar = true;
-        int elementCount = 0;
-        while (toNextStartToken(test)) {
-            elementCount++;
-            if (!toNextStartToken(expected)) {
-                problems.add("test longer than expected at element: " + elementCount);
-                return false;
-            }
-            QName actualQName = test.getName();
-            QName expectedQName = expected.getName();
-            if (!actualQName.equals(expectedQName)) {
-                problems.add("Different elements at elementCount: " + elementCount + ", test: " + actualQName + ", expected: " + expectedQName);
-                similar = false;
-            }
-            test.toNextToken();
-            expected.toNextToken();
-        }
-        if (toNextStartToken(expected)) {
-            problems.add("test shorter that expected at element: " + elementCount);
-            similar = false;
-        }
-        return similar;
-    }
-
-    private boolean toNextStartToken(XmlCursor cursor) {
-        while (!cursor.isStart()) {
-            if (!cursor.hasNextToken()) {
-                return false;
-            }
-            cursor.toNextToken();
-        }
-        return true;
     }
 
 }

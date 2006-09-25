@@ -54,14 +54,17 @@
         <reference name="ClusteringBuilders">
             <name>JettyClusteringBuilder</name>
         </reference>
+        <reference name="ResourceEnvironmentSetter">
+            <name>ResourceRefBuilder</name>
+        </reference>
         <xml-attribute name="defaultEnvironment">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <dependencies>
-                    <dependency>
-                        <groupId>${pom.groupId}</groupId>
-                        <artifactId>j2ee-server</artifactId>
-                        <type>car</type>
-                    </dependency>
+                    <!--<dependency>-->
+                        <!--<groupId>${pom.groupId}</groupId>-->
+                        <!--<artifactId>j2ee-server</artifactId>-->
+                        <!--<type>car</type>-->
+                    <!--</dependency>-->
                     <dependency>
                         <groupId>${pom.groupId}</groupId>
                         <artifactId>jetty</artifactId>

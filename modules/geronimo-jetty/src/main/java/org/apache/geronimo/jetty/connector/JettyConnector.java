@@ -17,16 +17,16 @@
 
 package org.apache.geronimo.jetty.connector;
 
-import java.net.UnknownHostException;
-import java.net.InetSocketAddress;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jetty.JettyContainer;
 import org.apache.geronimo.jetty.JettyWebConnector;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.mortbay.http.HttpListener;
 import org.mortbay.http.SocketListener;
 import org.mortbay.http.ajp.AJP13Listener;
@@ -95,7 +95,7 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
                     host = "unknown-host";
                 }
                 if(address != null) {
-                    host = address.getHostName();
+                    host = address.getCanonicalHostName();
                     if(host == null || host.equals("")) {
                         host = address.getHostAddress();
                     }

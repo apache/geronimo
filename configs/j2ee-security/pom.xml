@@ -43,42 +43,15 @@
             <type>car</type>
         </dependency>
         
-        <!--
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>j2ee-deployer</artifactId>
-            <version>${pom.version}</version>
-            <type>car</type>
-            <scope>provided</scope>
-        </dependency>
-        -->
-        
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-security</artifactId>
             <version>${pom.version}</version>
         </dependency>
 
-        <!-- These 2 need to be in plan.xml ????? -->
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-j2ee-jacc_1.0_spec</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>activeio</groupId>
-            <artifactId>activeio</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-jmx-remoting</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-util</artifactId>
             <version>${pom.version}</version>
         </dependency>
         
@@ -92,7 +65,6 @@
                 <configuration>
                     <deploymentConfigs>
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
-                        <deploymentConfig>${j2eeDeployer}</deploymentConfig>
                     </deploymentConfigs>
                 </configuration>
             </plugin>

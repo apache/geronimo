@@ -17,10 +17,11 @@
 package org.apache.geronimo.jetty.interceptor;
 
 import java.util.Set;
+
 import javax.resource.ResourceException;
 
-import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContextImpl;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContext;
+import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContextImpl;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;

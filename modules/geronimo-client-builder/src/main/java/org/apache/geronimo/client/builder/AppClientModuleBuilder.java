@@ -62,6 +62,7 @@ import org.apache.geronimo.j2ee.deployment.SecurityBuilder;
 import org.apache.geronimo.j2ee.deployment.CorbaGBeanNameSource;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.NamingBuilderCollection;
+import org.apache.geronimo.j2ee.deployment.ConnectorModule;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEAppClientModuleImpl;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
@@ -103,6 +104,8 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
     private final NamespaceDrivenBuilderCollection serviceBuilder;
     private final NamingBuilderCollection namingBuilders;
 
+    private final Collection repositories;
+
     private static final String GERAPPCLIENT_NAMESPACE = GerApplicationClientDocument.type.getDocumentElementName().getNamespaceURI();
 
     public AppClientModuleBuilder(Environment defaultClientEnvironment,
@@ -110,6 +113,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             AbstractNameQuery transactionManagerObjectName,
             AbstractNameQuery connectionTrackerObjectName,
             AbstractNameQuery corbaGBeanObjectName,
+            Collection repositories,
             ModuleBuilder connectorModuleBuilder,
             NamespaceDrivenBuilder securityBuilder,
             NamespaceDrivenBuilder serviceBuilder,
@@ -119,7 +123,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 transactionManagerObjectName,
                 connectionTrackerObjectName,
                 corbaGBeanObjectName,
-                new SingleElementCollection(connectorModuleBuilder),
+                repositories, new SingleElementCollection(connectorModuleBuilder),
                 new SingleElementCollection(securityBuilder),
                 serviceBuilder == null ? Collections.EMPTY_SET : Collections.singleton(serviceBuilder),
                 namingBuilders == null ? Collections.EMPTY_SET : namingBuilders);
@@ -128,6 +132,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
     public AppClientModuleBuilder(AbstractNameQuery transactionManagerObjectName,
             AbstractNameQuery connectionTrackerObjectName,
             AbstractNameQuery corbaGBeanObjectName,
+            Collection repositories,
             Collection connectorModuleBuilder,
             Collection securityBuilder,
             Collection serviceBuilder,
@@ -139,7 +144,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 transactionManagerObjectName,
                 connectionTrackerObjectName,
                 corbaGBeanObjectName,
-                new SingleElementCollection(connectorModuleBuilder),
+                repositories, new SingleElementCollection(connectorModuleBuilder),
                 new SingleElementCollection(securityBuilder),
                 serviceBuilder,
                 namingBuilders);
@@ -150,6 +155,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             AbstractNameQuery transactionManagerObjectName,
             AbstractNameQuery connectionTrackerObjectName,
             AbstractNameQuery corbaGBeanObjectName,
+            Collection repositories,
             SingleElementCollection connectorModuleBuilder,
             SingleElementCollection securityBuilder,
             Collection serviceBuilder, Collection namingBuilders) {
@@ -158,6 +164,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         this.corbaGBeanObjectName = corbaGBeanObjectName;
         this.transactionManagerObjectName = transactionManagerObjectName;
         this.connectionTrackerObjectName = connectionTrackerObjectName;
+        this.repositories = repositories;
         this.connectorModuleBuilder = connectorModuleBuilder;
         this.securityBuilder = securityBuilder;
         this.serviceBuilder = new NamespaceDrivenBuilderCollection(serviceBuilder);
@@ -250,8 +257,48 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         } else {
             moduleName = naming.createChildName(earName, targetPath, NameFactory.APP_CLIENT_MODULE);
         }
+        AbstractName clientBaseName = naming.createRootName(clientEnvironment.getConfigId(), clientEnvironment.getConfigId().toString(), NameFactory.J2EE_APPLICATION);
 
-        return new AppClientModule(standAlone, moduleName, serverEnvironment, clientEnvironment, moduleFile, targetPath, appClient, gerAppClient, specDD);
+        //start installing the resource adapters in the client.
+        Collection resourceModules = new ArrayList();
+        GerResourceType[] resources = gerAppClient.getResourceArray();
+        for (int i = 0; i < resources.length; i++) {
+            GerResourceType resource = resources[i];
+            String path;
+            JarFile connectorFile;
+            if (resource.isSetExternalRar()) {
+                path = resource.getExternalRar().trim();
+                Artifact artifact = Artifact.create(path);
+                File file = null;
+                for (Iterator iterator = repositories.iterator(); iterator.hasNext();) {
+                    Repository repository = (Repository) iterator.next();
+                    if (repository.contains(artifact)) {
+                        file = repository.getLocation(artifact);
+                        break;
+                    }
+                }
+                if (file == null) {
+                    throw new DeploymentException("Missing rar in repositories: " + path);
+                }
+                try {
+                    connectorFile = new JarFile(file);
+                } catch (IOException e) {
+                    throw new DeploymentException("Could not access rar contents", e);
+                }
+            } else {
+                path = resource.getInternalRar();
+                try {
+                    connectorFile = new NestedJarFile(moduleFile, path);
+                } catch (IOException e) {
+                    throw new DeploymentException("Could not locate connector inside ear", e);
+                }
+            }
+            XmlObject connectorPlan = resource.getConnector();
+            Module connectorModule = getConnectorModuleBuilder().createModule(connectorPlan, connectorFile, path, null, clientEnvironment, null, clientBaseName, naming, idBuilder);
+            resourceModules.add(connectorModule);
+        }
+
+        return new AppClientModule(standAlone, moduleName, clientBaseName, serverEnvironment, clientEnvironment, moduleFile, targetPath, appClient, gerAppClient, specDD, resourceModules);
     }
 
     GerApplicationClientType getGeronimoAppClient(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, ApplicationClientType appClient, Environment environment) throws DeploymentException {
@@ -334,13 +381,12 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         appClientModule.setEarFile(earFile);
         //create the ear context for the app client.
         Environment clientEnvironment = appClientModule.getClientEnvironment();
-        if (!appClientModule.isStandAlone() || clientEnvironment.getConfigId() == null) {
-            Artifact earConfigId = earContext.getConfigID();
-            Artifact configId = new Artifact(earConfigId.getGroupId(), earConfigId.getArtifactId() + "_" + module.getTargetPath(), earConfigId.getVersion(), "car");
-            clientEnvironment.setConfigId(configId);
-        }
+//        if (!appClientModule.isStandAlone() || clientEnvironment.getConfigId() == null) {
+//            Artifact earConfigId = earContext.getConfigID();
+//            Artifact configId = new Artifact(earConfigId.getGroupId(), earConfigId.getArtifactId() + "_" + module.getTargetPath(), earConfigId.getVersion(), "car");
+//            clientEnvironment.setConfigId(configId);
+//        }
 
-        AbstractName clientBaseName = earContext.getNaming().createRootName(clientEnvironment.getConfigId(), clientEnvironment.getConfigId().toString(), NameFactory.J2EE_APPLICATION);
         File appClientDir;
         try {
             appClientDir = targetConfigurationStore.createNewConfigurationDir(clientEnvironment.getConfigId());
@@ -349,16 +395,17 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         }
 
         // construct the app client deployment context... this is the same class used by the ear context
+        EARContext appClientDeploymentContext;
         try {
 
-            EARContext appClientDeploymentContext = new EARContext(appClientDir,
+            appClientDeploymentContext = new EARContext(appClientDir,
                     null,
                     clientEnvironment,
                     ConfigurationModuleType.CAR,
                     earContext.getNaming(),
                     earContext.getConfigurationManager(),
                     null, //no server name needed on client
-                    clientBaseName,
+                    appClientModule.getAppClientName(),
                     transactionManagerObjectName,
                     connectionTrackerObjectName,
                     null,
@@ -371,10 +418,19 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             cleanupAppClientDir(appClientDir);
             throw e;
         }
+        for (Iterator resources = appClientModule.getResourceModules().iterator(); resources.hasNext();) {
+            ConnectorModule connectorModule = (ConnectorModule) resources.next();
+            getConnectorModuleBuilder().installModule(connectorModule.getModuleFile(), appClientDeploymentContext, connectorModule, configurationStores, targetConfigurationStore, repositories);
+        }
 
     }
 
-    public void initContext(EARContext earContext, Module clientModule, ClassLoader cl) {
+    public void initContext(EARContext earContext, Module clientModule, ClassLoader cl) throws DeploymentException {
+        AppClientModule appClientModule = ((AppClientModule) clientModule);
+        for (Iterator resources = appClientModule.getResourceModules().iterator(); resources.hasNext();) {
+            ConnectorModule connectorModule = (ConnectorModule) resources.next();
+            getConnectorModuleBuilder().initContext(appClientModule.getEarContext(), connectorModule, cl);
+        }
     }
 
     public void addGBeans(EARContext earContext, Module module, ClassLoader earClassLoader, Collection repositories) throws DeploymentException {
@@ -387,7 +443,6 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         // get the app client main class
         JarFile moduleFile = module.getModuleFile();
         String mainClasss;
-//        String classPath = null;
         try {
             Manifest manifest = moduleFile.getManifest();
             if (manifest == null) {
@@ -428,7 +483,6 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         }
 
         EARContext appClientDeploymentContext = appClientModule.getEarContext();
-//        ConfigurationData appClientConfigurationData = null;
 
         // Create a Module ID Builder defaulting to similar settings to use for any children we create
         ModuleIDBuilder idBuilder = new ModuleIDBuilder();
@@ -457,66 +511,15 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 if (geronimoAppClient != null) {
                     serviceBuilder.build(geronimoAppClient, appClientDeploymentContext, appClientDeploymentContext);
                     //deploy the resource adapters specified in the geronimo-application.xml
-                    Collection resourceModules = new ArrayList();
-                    try {
-                        GerResourceType[] resources = geronimoAppClient.getResourceArray();
-                        for (int i = 0; i < resources.length; i++) {
-                            GerResourceType resource = resources[i];
-                            String path;
-                            JarFile connectorFile;
-                            if (resource.isSetExternalRar()) {
-                                path = resource.getExternalRar().trim();
-                                Artifact artifact = Artifact.create(path);
-                                File file = null;
-                                for (Iterator iterator = repositories.iterator(); iterator.hasNext();) {
-                                    Repository repository = (Repository) iterator.next();
-                                    if (repository.contains(artifact)) {
-                                        file = repository.getLocation(artifact);
-                                        break;
-                                    }
-                                }
-                                if (file == null) {
-                                    throw new DeploymentException("Missing rar in repositories: " + path);
-                                }
-                                try {
-                                    connectorFile = new JarFile(file);
-                                } catch (IOException e) {
-                                    throw new DeploymentException("Could not access rar contents", e);
-                                }
-                            } else {
-                                path = resource.getInternalRar();
-                                try {
-                                    connectorFile = new NestedJarFile(appClientModule.getEarFile(), path);
-                                } catch (IOException e) {
-                                    throw new DeploymentException("Could not locate connector inside ear", e);
-                                }
-                            }
-                            XmlObject connectorPlan = resource.getConnector();
-                            Module connectorModule = getConnectorModuleBuilder().createModule(connectorPlan, connectorFile, path, null, appClientModule.getClientEnvironment(), null, appClientDeploymentContext.getModuleName(), earContext.getNaming(), idBuilder);
-                            resourceModules.add(connectorModule);
-                            //TODO configStore == null is fishy, consider moving these stages for connectors into the corresponding stages for this module.
-                            getConnectorModuleBuilder().installModule(connectorFile, appClientDeploymentContext, connectorModule, null, null, repositories);
-                        }
-                        //the install step could have added more dependencies... we need a new cl.
-                        appClientClassLoader = appClientDeploymentContext.getClassLoader();
-                        for (Iterator iterator = resourceModules.iterator(); iterator.hasNext();) {
-                            Module connectorModule = (Module) iterator.next();
-                            getConnectorModuleBuilder().initContext(appClientDeploymentContext, connectorModule, appClientClassLoader);
-                        }
 
-                        for (Iterator iterator = resourceModules.iterator(); iterator.hasNext();) {
-                            Module connectorModule = (Module) iterator.next();
-                            getConnectorModuleBuilder().addGBeans(appClientDeploymentContext, connectorModule, appClientClassLoader, repositories);
-                        }
-                    } finally {
-                        for (Iterator iterator = resourceModules.iterator(); iterator.hasNext();) {
-                            Module connectorModule = (Module) iterator.next();
-                            connectorModule.close();
-                        }
+                    for (Iterator resources = appClientModule.getResourceModules().iterator(); resources.hasNext();) {
+                        ConnectorModule connectorModule = (ConnectorModule) resources.next();
+                        getConnectorModuleBuilder().addGBeans(appClientDeploymentContext, connectorModule, appClientClassLoader, repositories);
                     }
                 }
 
                 // add the app client static jndi provider
+                //TODO track resource ref shared and app managed security
                 AbstractName jndiContextName = earContext.getNaming().createChildName(appClientDeploymentContext.getModuleName(), "StaticJndiContext", "StaticJndiContext");
                 GBeanData jndiContextGBeanData = new GBeanData(jndiContextName, StaticJndiContextPlugin.GBEAN_INFO);
                 try {
@@ -530,7 +533,6 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 appClientDeploymentContext.addGBean(jndiContextGBeanData);
 
                 // finally add the app client container
-//                AbstractName appClientContainerName = earContext.getNaming().createChildName(appClientDeploymentContext.getModuleName(), "ClientContainer", "ClientContainer");
                 AbstractName appClientContainerName = appClientDeploymentContext.getModuleName();
                 GBeanData appClientContainerGBeanData = new GBeanData(appClientContainerName, AppClientContainer.GBEAN_INFO);
                 try {
@@ -691,6 +693,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         infoBuilder.addAttribute("transactionManagerObjectName", AbstractNameQuery.class, true);
         infoBuilder.addAttribute("connectionTrackerObjectName", AbstractNameQuery.class, true);
         infoBuilder.addAttribute("corbaGBeanObjectName", AbstractNameQuery.class, true);
+        infoBuilder.addReference("Repositories", Repository.class, "Repository");
         infoBuilder.addReference("ConnectorModuleBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("SecurityBuilder", SecurityBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
@@ -701,6 +704,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         infoBuilder.setConstructor(new String[]{"transactionManagerObjectName",
                 "connectionTrackerObjectName",
                 "corbaGBeanObjectName",
+                "Repositories",
                 "ConnectorModuleBuilder",
                 "SecurityBuilder",
                 "ServiceBuilders",

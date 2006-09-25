@@ -20,7 +20,6 @@ package org.apache.geronimo.jetty.deployment;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.Permission;
 import java.security.PermissionCollection;
@@ -61,9 +60,9 @@ import org.apache.geronimo.gbean.SingleElementCollection;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
+import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
-import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jetty.DefaultWebApplicationHandlerFactory;
 import org.apache.geronimo.jetty.Host;
@@ -77,12 +76,12 @@ import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
-import org.apache.geronimo.schema.SchemaConversionUtils;
+import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
@@ -151,8 +150,9 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             Collection securityBuilders,
             Collection serviceBuilders,
             NamingBuilder namingBuilders,
+            ResourceEnvironmentSetter resourceEnvironmentSetter,
             Kernel kernel) throws GBeanNotFoundException {
-        super(kernel, securityBuilders, serviceBuilders, namingBuilders);
+        super(kernel, securityBuilders, serviceBuilders, namingBuilders, resourceEnvironmentSetter);
         this.defaultEnvironment = defaultEnvironment;
         this.defaultSessionTimeoutSeconds = (defaultSessionTimeoutSeconds == null) ? new Integer(30 * 60) : defaultSessionTimeoutSeconds;
         this.jettyContainerObjectName = jettyContainerName;
@@ -204,7 +204,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         try {
             // parse it
             XmlObject parsed = XmlBeansUtil.parse(specDD);
-            WebAppDocument webAppDoc = SchemaConversionUtils.convertToServletSchema(parsed);
+            WebAppDocument webAppDoc = convertToServletSchema(parsed);
             webApp = webAppDoc.getWebApp();
         } catch (XmlException xmle) {
             // Output the target path in the error to make it clearer to the user which webapp
@@ -245,15 +245,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
         Map servletNameToPathMap = buildServletNameToPathMap(webApp, contextRoot);
 
-        //look for a webservices dd
-        Map portMap = Collections.EMPTY_MAP;
-        try {
-            URL wsDDUrl = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/webservices.xml");
-            portMap = getWebServiceBuilder().parseWebServiceDescriptor(wsDDUrl, moduleFile, false, servletNameToPathMap);
-        } catch (MalformedURLException e) {
-            //no descriptor
-        }
-        AbstractName moduleName;
+        Map portMap = getWebServiceBuilder().findWebServices(moduleFile, false, servletNameToPathMap);        AbstractName moduleName;
         if (earName == null) {
             earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
             moduleName = naming.createChildName(earName, environment.getConfigId().toString(), NameFactory.WEB_MODULE);
@@ -344,7 +336,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
         //this may add to the web classpath with enhanced classes.
         //N.B. we use the ear context which has all the gbeans we could possibly be looking up from this ear.
-        Map compContext = buildComponentContext(earContext, webModule, webApp, jettyWebApp, moduleClassLoader);
+        Map compContext = buildComponentContext(earContext, webModule, webApp, jettyWebApp);
 
         GBeanData webModuleData = new GBeanData(moduleName, JettyWebAppContext.GBEAN_INFO);
         try {
@@ -375,7 +367,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             // unsharableResources, applicationManagedSecurityResources
             GBeanResourceEnvironmentBuilder rebuilder = new GBeanResourceEnvironmentBuilder(webModuleData);
             //N.B. use earContext not moduleContext
-            ENCConfigBuilder.setResourceEnvironment(rebuilder, webApp.getResourceRefArray(), jettyWebApp.getResourceRefArray());
+            resourceEnvironmentSetter.setResourceEnvironment(rebuilder, webApp.getResourceRefArray(), jettyWebApp.getResourceRefArray());
 
             webModuleData.setAttribute("contextPath", webModule.getContextRoot());
 
@@ -1001,7 +993,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         return servletAbstractName;
     }
 
-    private Map buildComponentContext(EARContext earContext, Module webModule, WebAppType webApp, JettyWebAppType jettyWebApp, ClassLoader cl) throws DeploymentException {
+    private Map buildComponentContext(EARContext earContext, Module webModule, WebAppType webApp, JettyWebAppType jettyWebApp) throws DeploymentException {
         Map componentContext = new HashMap();
         Configuration earConfiguration = earContext.getConfiguration();
         getNamingBuilders().buildNaming(webApp, jettyWebApp, earConfiguration, earConfiguration, webModule, componentContext);
@@ -1025,6 +1017,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         infoBuilder.addReference("SecurityBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("NamingBuilders", NamingBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("ResourceEnvironmentSetter", ResourceEnvironmentSetter.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
         infoBuilder.addInterface(ModuleBuilder.class);
 
@@ -1042,6 +1035,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 "SecurityBuilders",
                 "ServiceBuilders",
                 "NamingBuilders",
+                "ResourceEnvironmentSetter",
                 "kernel"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

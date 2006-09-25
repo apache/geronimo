@@ -55,19 +55,18 @@
             <version>${pom.version}</version>
             <type>car</type>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>dojo-tomcat</artifactId>
+            <version>${pom.version}</version>
+            <type>car</type>
+        </dependency>
         
         <!-- we use it... and need its xmlbeans copy in our cl -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-deployer</artifactId>
-            <version>${pom.version}</version>
-            <type>car</type>
-        </dependency>
-
-        <!-- for login module manager -->
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>j2ee-security</artifactId>
             <version>${pom.version}</version>
             <type>car</type>
         </dependency>
@@ -98,36 +97,17 @@
             <version>${pom.version}</version>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.modules</groupId>-->
-            <!--<artifactId>geronimo-deploy-config</artifactId>-->
-            <!--<version>${pom.version}</version>-->
-        <!--</dependency>-->
-
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-management</artifactId>
             <version>${pom.version}</version>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.modules</groupId>-->
-            <!--<artifactId>geronimo-test-ddbean</artifactId>-->
-            <!--<version>${pom.version}</version>-->
-        <!--</dependency>-->
-
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-upgrade</artifactId>
             <version>${pom.version}</version>
         </dependency>
-
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.modules</groupId>-->
-            <!--<artifactId>geronimo-util</artifactId>-->
-            <!--<version>${pom.version}</version>-->
-        <!--</dependency>-->
-
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
@@ -175,9 +155,9 @@
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
                         <deploymentConfig>${j2eeDeployer}</deploymentConfig>
                         <deploymentConfig>${tomcatDeployer}</deploymentConfig>
-                        <deploymentConfig>${clientDeployer}</deploymentConfig>
-                        <deploymentConfig>${openejbDeployer}</deploymentConfig>
-                        <deploymentConfig>${axisDeployer}</deploymentConfig>
+                        <!--<deploymentConfig>${clientDeployer}</deploymentConfig>-->
+                        <!--<deploymentConfig>${openejbDeployer}</deploymentConfig>-->
+                        <!--<deploymentConfig>${axisDeployer}</deploymentConfig>-->
                     </deploymentConfigs>
                     <module>
                         <groupId>org.apache.geronimo.applications.console</groupId>

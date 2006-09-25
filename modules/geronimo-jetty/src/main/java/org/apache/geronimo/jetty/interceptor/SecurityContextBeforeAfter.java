@@ -21,18 +21,11 @@ import java.security.AccessControlContext;
 import java.security.AccessControlException;
 import java.security.PermissionCollection;
 import java.security.Principal;
+
 import javax.security.auth.Subject;
 import javax.security.jacc.PolicyContext;
 import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebUserDataPermission;
-
-import org.mortbay.http.Authenticator;
-import org.mortbay.http.HttpException;
-import org.mortbay.http.HttpRequest;
-import org.mortbay.http.HttpResponse;
-import org.mortbay.http.SecurityConstraint;
-import org.mortbay.jetty.servlet.FormAuthenticator;
-import org.mortbay.jetty.servlet.ServletHttpRequest;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.GeronimoSecurityException;
@@ -44,6 +37,13 @@ import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.SubjectId;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.util.ConfigurationUtil;
+import org.mortbay.http.Authenticator;
+import org.mortbay.http.HttpException;
+import org.mortbay.http.HttpRequest;
+import org.mortbay.http.HttpResponse;
+import org.mortbay.http.SecurityConstraint;
+import org.mortbay.jetty.servlet.FormAuthenticator;
+import org.mortbay.jetty.servlet.ServletHttpRequest;
 
 
 /**
@@ -256,7 +256,8 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
          */
         //TODO use run-as as nextCaller if present
         ContextManager.setCallers(defaultPrincipal.getSubject(), defaultPrincipal.getSubject());
-        ContextManager.setNextCaller(defaultPrincipal.getSubject());
+        //??????? next line does nothing!
+//        ContextManager.setNextCaller(defaultPrincipal.getSubject());
         return defaultPrincipal;
     }
 

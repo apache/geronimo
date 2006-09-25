@@ -16,10 +16,10 @@
  */
 package org.apache.geronimo.jetty.interceptor;
 
+import org.apache.geronimo.jetty.JettyWebAppContext;
+import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;
-import org.mortbay.http.HttpContext;
-import org.apache.geronimo.jetty.JettyWebAppContext;
 
 /**
  * @version $Rev$ $Date$

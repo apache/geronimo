@@ -163,7 +163,7 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
                     host = "unknown-host";
                 }
                 if(address != null) {
-                    host = address.getHostName();
+                    host = address.getCanonicalHostName();
                     if(host == null || host.equals("")) {
                         host = address.getHostAddress();
                     }

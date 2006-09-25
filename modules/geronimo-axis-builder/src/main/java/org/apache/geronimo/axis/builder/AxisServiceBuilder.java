@@ -94,8 +94,9 @@ public class AxisServiceBuilder {
         Map schemaTypeKeyToSchemaTypeMap = schemaInfoBuilder.getSchemaTypeKeyToSchemaTypeMap();
 
         JavaServiceDesc serviceDesc = new JavaServiceDesc();
-
+        String serviceName =  portInfo.getPortQName().toString();
         String location = getAddressLocation(port);
+        serviceDesc.setName(serviceName);
         serviceDesc.setEndpointURL(location);
         serviceDesc.setWSDLFile(portInfo.getWsdlLocation());
         Binding binding = port.getBinding();

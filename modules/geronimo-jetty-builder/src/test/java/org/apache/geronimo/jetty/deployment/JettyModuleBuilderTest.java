@@ -212,7 +212,7 @@ public class JettyModuleBuilderTest extends TestSupport {
     protected void setUp() throws Exception {
         super.setUp();
 
-        ((SchemaTypeImpl)GerSecurityDocument.type).addSubstitutionGroupMember(org.apache.geronimo.xbeans.geronimo.security.GerSecurityDocument.type.getDocumentElementName());
+        ((SchemaTypeImpl) GerSecurityDocument.type).addSubstitutionGroupMember(org.apache.geronimo.xbeans.geronimo.security.GerSecurityDocument.type.getDocumentElementName());
 
         cl = this.getClass().getClassLoader();
         kernel = KernelFactory.newInstance().createKernel("test");
@@ -270,19 +270,20 @@ public class JettyModuleBuilderTest extends TestSupport {
         defaultEnvironment.addDependency(baseId, ImportType.ALL);
         defaultEnvironment.setConfigId(webModuleArtifact);
         builder = new JettyModuleBuilder(defaultEnvironment,
-                         new Integer(1800),
-                         Collections.EMPTY_LIST,
-                         new AbstractNameQuery(containerName),
-                         defaultServlets,
-                         defaultFilters,
-                         defaultFilterMappings,
-                         pojoWebServiceTemplate,
-                         Collections.singleton(webServiceBuilder),
-                         null,
-                         Collections.singleton(new GeronimoSecurityBuilderImpl()),
-                         Collections.singleton(new GBeanBuilder(null, null)),
-                         new NamingBuilderCollection(null, null), 
-                         kernel);
+                new Integer(1800),
+                Collections.EMPTY_LIST,
+                new AbstractNameQuery(containerName),
+                defaultServlets,
+                defaultFilters,
+                defaultFilterMappings,
+                pojoWebServiceTemplate,
+                Collections.singleton(webServiceBuilder),
+                null,
+                Collections.singleton(new GeronimoSecurityBuilderImpl()),
+                Collections.singleton(new GBeanBuilder(null, null)),
+                new NamingBuilderCollection(null, null),
+                new MockResourceEnvironmentSetter(),
+                kernel);
     }
 
     protected void tearDown() throws Exception {
