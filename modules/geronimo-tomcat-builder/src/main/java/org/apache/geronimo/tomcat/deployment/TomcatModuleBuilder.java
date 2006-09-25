@@ -62,7 +62,6 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
-import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
@@ -142,7 +141,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         try {
             // parse it
             XmlObject parsed = XmlBeansUtil.parse(specDD);
-            WebAppDocument webAppDoc = SchemaConversionUtils.convertToServletSchema(parsed);
+            WebAppDocument webAppDoc = convertToServletSchema(parsed);
             webApp = webAppDoc.getWebApp();
         } catch (XmlException xmle) {
             // Output the target path in the error to make it clearer to the user which webapp

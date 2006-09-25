@@ -46,7 +46,6 @@ public class SchemaConversionUtils {
     private static final String GERONIMO_SERVICE_NAMESPACE = "http://geronimo.apache.org/xml/ns/deployment-1.2";
 
     private static final QName RESOURCE_ADAPTER_VERSION = new QName(J2EE_NAMESPACE, "resourceadapter-version");
-    private static final QName TAGLIB = new QName(J2EE_NAMESPACE, "taglib");
     private static final QName CMP_VERSION = new QName(J2EE_NAMESPACE, "cmp-version");
 
     private static final Map GERONIMO_SCHEMA_CONVERSIONS = new HashMap();
@@ -253,78 +252,6 @@ public class SchemaConversionUtils {
         }
         XmlBeansUtil.validateDD(xmlObject);
         return (EjbJarDocument) xmlObject;
-    }
-
-    public static WebAppDocument convertToServletSchema(XmlObject xmlObject) throws XmlException {
-        if (WebAppDocument.type.equals(xmlObject.schemaType())) {
-            XmlBeansUtil.validateDD(xmlObject);
-            return (WebAppDocument) xmlObject;
-        }
-        XmlCursor cursor = xmlObject.newCursor();
-        try {
-            cursor.toStartDoc();
-            cursor.toFirstChild();
-            if ("http://java.sun.com/xml/ns/j2ee".equals(cursor.getName().getNamespaceURI())) {
-                XmlObject result = xmlObject.changeType(WebAppDocument.type);
-                XmlBeansUtil.validateDD(result);
-                return (WebAppDocument) result;
-            }
-
-            XmlDocumentProperties xmlDocumentProperties = cursor.documentProperties();
-            String publicId = xmlDocumentProperties.getDoctypePublicId();
-            if ("-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN".equals(publicId) ||
-                    "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN".equals(publicId)) {
-                XmlCursor moveable = xmlObject.newCursor();
-                try {
-                    moveable.toStartDoc();
-                    moveable.toFirstChild();
-                    String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd";
-                    String version = "2.4";
-                    convertToSchema(cursor, J2EE_NAMESPACE, schemaLocationURL, version);
-                    cursor.toStartDoc();
-                    cursor.toChild(J2EE_NAMESPACE, "web-app");
-                    cursor.toFirstChild();
-                    convertToDescriptionGroup(J2EE_NAMESPACE, cursor, moveable);
-                    convertToJNDIEnvironmentRefsGroup(J2EE_NAMESPACE, cursor, moveable);
-                    cursor.push();
-                    if (cursor.toNextSibling(TAGLIB)) {
-                        cursor.toPrevSibling();
-                        moveable.toCursor(cursor);
-                        cursor.beginElement("jsp-config", J2EE_NAMESPACE);
-                        while (moveable.toNextSibling(TAGLIB)) {
-                            moveable.moveXml(cursor);
-                        }
-                    }
-                    cursor.pop();
-                    do {
-                        String name = cursor.getName().getLocalPart();
-                        if ("filter".equals(name) || "servlet".equals(name) || "context-param".equals(name)) {
-                            cursor.push();
-                            cursor.toFirstChild();
-                            convertToDescriptionGroup(J2EE_NAMESPACE, cursor, moveable);
-                            while (cursor.toNextSibling(J2EE_NAMESPACE, "init-param")) {
-                                cursor.push();
-                                cursor.toFirstChild();
-                                convertToDescriptionGroup(J2EE_NAMESPACE, cursor, moveable);
-                                cursor.pop();
-                            }
-                            cursor.pop();
-                        }
-                    } while (cursor.toNextSibling());
-                } finally {
-                    moveable.dispose();
-                }
-            }
-        } finally {
-            cursor.dispose();
-        }
-        XmlObject result = xmlObject.changeType(WebAppDocument.type);
-        if (result != null) {
-            XmlBeansUtil.validateDD(result);
-            return (WebAppDocument) result;
-        }
-        XmlBeansUtil.validateDD(xmlObject);
-        return (WebAppDocument) xmlObject;
     }
 
     public static void convertToGeronimoSubSchemas(XmlCursor cursor) {

@@ -67,11 +67,11 @@
             <version>${pom.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-jetty</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>${pom.groupId}</groupId>-->
+            <!--<artifactId>geronimo-jetty</artifactId>-->
+            <!--<version>${pom.version}</version>-->
+        <!--</dependency>-->
         
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
@@ -99,10 +99,6 @@
             <artifactId>wadi-tribes</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.codehaus.wadi</groupId>
-            <artifactId>wadi-tribes</artifactId>
-        </dependency>
     </dependencies>
     
 </project>
