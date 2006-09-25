@@ -12,5 +12,8 @@
     <create creator="new" javascript="ProgressMonitor">
       <param name="class" value="org.apache.geronimo.console.ajax.ProgressMonitor"/>
     </create>
+    <create creator="new" javascript="JMXHelper">
+      <param name="class" value="org.apache.geronimo.console.jmxmanager.JMXManagerHelper"/>
+    </create>
   </allow>
 </dwr>

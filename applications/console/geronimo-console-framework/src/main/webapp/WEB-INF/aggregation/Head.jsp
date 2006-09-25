@@ -19,4 +19,32 @@ limitations under the License.
     <link rel="stylesheet" href="<%=request.getContextPath()%>/main.css" type="text/css">
     <link rel="SHORTCUT ICON" href="<%=request.getContextPath()%>/favicon.ico" type="image/x-icon"/>
     <script language="Javascript" src="<%=request.getContextPath()%>/js/forms.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+    	// var djConfig = { isDebug: true, debugAtAllCosts: true };
+    </script>
+    
+    <script type="text/javascript" src="/dojo/dojo.js"></script>
+    
+    <script type="text/javascript">
+    	dojo.require("dojo.lang.*");
+    	dojo.require("dojo.widget.*");
+    	// Pane includes
+    	dojo.require("dojo.widget.ContentPane");
+    	dojo.require("dojo.widget.LayoutContainer"); // Before: LayoutPane
+    	dojo.require("dojo.widget.SplitContainer"); // Before: SplitPane
+        // Tree includes
+    	dojo.require("dojo.widget.Tree");
+    	dojo.require("dojo.widget.TreeBasicController");
+    	dojo.require("dojo.widget.TreeContextMenu");
+    	dojo.require("dojo.widget.TreeSelector");
+        // Tab includes
+        dojo.require("dojo.widget.TabContainer");
+        // Etc includes
+        dojo.require("dojo.widget.SortableTable");
+        dojo.require("dojo.widget.ComboBox");
+        dojo.require("dojo.widget.Tooltip");
+    	// Includes Dojo source for debugging
+    	// dojo.hostenv.writeIncludes();
+    </script>
 </HEAD>
