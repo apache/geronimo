@@ -17,11 +17,10 @@
 
 package org.apache.geronimo.jetty;
 
+import org.apache.geronimo.management.geronimo.WebContainer;
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpListener;
 import org.mortbay.http.RequestLog;
-import org.mortbay.http.UserRealm;
-import org.apache.geronimo.management.geronimo.WebContainer;
 
 /**
  * @version $Rev$ $Date$

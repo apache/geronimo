@@ -17,7 +17,6 @@
 package org.apache.geronimo.jetty;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 

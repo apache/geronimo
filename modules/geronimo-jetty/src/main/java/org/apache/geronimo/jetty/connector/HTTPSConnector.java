@@ -18,6 +18,7 @@
 package org.apache.geronimo.jetty.connector;
 
 import javax.net.ssl.KeyManagerFactory;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;

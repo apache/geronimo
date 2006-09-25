@@ -16,8 +16,8 @@
  */
 package org.apache.geronimo.jetty.connector;
 
-import java.net.UnknownHostException;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 
 import junit.framework.TestCase;
 

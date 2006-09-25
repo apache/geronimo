@@ -18,13 +18,11 @@
 package org.apache.geronimo.jetty;
 
 import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URL;
-
-import org.apache.geronimo.testsupport.TestSupport;
 
 import org.apache.geronimo.kernel.config.MultiParentClassLoader;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.testsupport.TestSupport;
 
 /**
  * Tests loading various classes (as classes and URL resources) with different

@@ -21,6 +21,7 @@ import java.security.AccessControlException;
 import java.security.Principal;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
+
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
@@ -28,7 +29,6 @@ import javax.security.jacc.WebRoleRefPermission;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.jetty.interceptor.SecurityContextBeforeAfter;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.realm.providers.CertificateCallbackHandler;
 import org.apache.geronimo.security.realm.providers.ClearableCallbackHandler;
