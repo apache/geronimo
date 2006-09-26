@@ -335,7 +335,7 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
 
         PKCS10CertificationRequest csr = new PKCS10CertificationRequest(sigalg,
                 subject, publicKey, attributes, signingKey);
-        
+
         if (!csr.verify()) {
             throw new KeyStoreException("CSR verification failed");
         }
@@ -344,26 +344,26 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
         DEROutputStream deros = new DEROutputStream(os);
         deros.writeObject(csr.getDERObject());
         String b64 = new String(Base64.encode(os.toByteArray()));
-        
+
         final String BEGIN_CERT_REQ = "-----BEGIN CERTIFICATE REQUEST-----";
         final String END_CERT_REQ = "-----END CERTIFICATE REQUEST-----";
         final int CERT_REQ_LINE_LENGTH = 70;
-        
+
         StringBuffer sbuf = new StringBuffer(BEGIN_CERT_REQ).append('\n');
-        
+
         int idx = 0;
         while (idx < b64.length()) {
-        
+
             int len = (idx + CERT_REQ_LINE_LENGTH > b64.length()) ? b64
                     .length()
                     - idx : CERT_REQ_LINE_LENGTH;
-        
+
             String chunk = b64.substring(idx, idx + len);
-        
+
             sbuf.append(chunk).append('\n');
             idx += len;
         }
-        
+
         sbuf.append(END_CERT_REQ);
         return sbuf.toString();
     }
@@ -375,7 +375,7 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
     java.security.NoSuchAlgorithmException,
     java.security.UnrecoverableKeyException, java.io.IOException {
         InputStream is = null;
-        
+
         try {
             is = new ByteArrayInputStream(certbuf.getBytes());
             importPKCS7Certificate(alias, is);
@@ -397,18 +397,18 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
         java.security.UnrecoverableKeyException, java.io.IOException {
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
         Collection certcoll = cf.generateCertificates(is);
-        
+
         Certificate[] chain = new Certificate[certcoll.size()];
-        
+
         Iterator iter = certcoll.iterator();
         for (int i = 0; iter.hasNext(); i++) {
             chain[i] = (Certificate) iter.next();
         }
-        
+
         char[] keyPassword = (char[])keyPasswords.get(alias);
         keystore.setKeyEntry(alias, keystore.getKey(alias, keyPassword), keyPassword,
                 chain);
-        
+
         saveKeystore(keystorePassword);
     }
 
@@ -417,13 +417,16 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
             keystore.deleteEntry(alias);
             privateKeys.remove(alias);
             trustCerts.remove(alias);
-            keyPasswords.remove(alias);
+            if (keyPasswords.containsKey(alias)) {
+                keyPasswords.remove(alias);
+                storePasswords();
+            }
         } catch (KeyStoreException e) {
-            log.error("Unable to delete entry:"+alias, e);
+            log.error("Unable to delete entry:" + alias, e);
         }
         saveKeystore(keystorePassword);
     }
-    
+
     public KeyManager[] getKeyManager(String algorithm, String alias) throws NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException, KeystoreIsLocked {
         if(isKeystoreLocked()) {
             throw new KeystoreIsLocked("Keystore '"+keystoreName+"' is locked; please unlock it in the console.");
