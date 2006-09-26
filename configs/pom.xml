@@ -50,13 +50,11 @@
         <jettyDeployer>org.apache.geronimo.configs/jetty-deployer/${pom.version}/car</jettyDeployer>
         
         <!-- Common plan properties -->
-        <PlanServerHostname>localhost</PlanServerHostname>
+        <PlanServerHostname>0.0.0.0</PlanServerHostname>
         <PlanClientAddresses>127.0.0.1</PlanClientAddresses>
         <PlanHTTPPort>8080</PlanHTTPPort>
         <PlanHTTPSPort>8443</PlanHTTPSPort>
-        <PlanHTTPPort2>8090</PlanHTTPPort2>
-        <PlanHTTPSPort2>8453</PlanHTTPSPort2>
-        <PlanAJPPort2>8019</PlanAJPPort2>
+        <PlanAJPPort>8019</PlanAJPPort>
         <PlanOpenEJBPort>4201</PlanOpenEJBPort>
         <PlanRemoteLoginPort>4242</PlanRemoteLoginPort>
         <PlanNamingPort>1099</PlanNamingPort>

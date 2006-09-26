@@ -72,7 +72,7 @@
 
     <gbean name="JettyAJP13Connector" class="org.apache.geronimo.jetty.connector.AJP13Connector">
         <attribute name="host">${PlanServerHostname}</attribute>
-        <attribute name="port">${PlanAJPPort2}</attribute>
+        <attribute name="port">${PlanAJPPort}</attribute>
         <reference name="JettyContainer">
             <name>JettyWebContainer</name>
         </reference>

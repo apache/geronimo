@@ -64,6 +64,7 @@
     <modules>
         <module>geronimo-boilerplate-minimal</module>
         <module>geronimo-boilerplate-j2ee</module>
+        <module>geronimo-framework</module>
         <module>geronimo-jetty-j2ee</module>
         <module>geronimo-jetty-minimal</module>
         <module>geronimo-tomcat-j2ee</module>
