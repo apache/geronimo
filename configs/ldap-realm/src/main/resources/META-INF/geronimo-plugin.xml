@@ -32,8 +32,8 @@
     <author>The Apache Geronimo development community</author>
     <license osi-approved="true">BSD -- Apache Software License (ASL) 2.0</license>
     <geronimo-version>${pom.currentVersion}</geronimo-version>
-    <dependency>geronimo/j2ee-server//car</dependency>
-    <dependency>geronimo/directory//car</dependency>
+    <dependency>org.apache.geronimo.configs/j2ee-server//car</dependency>
+    <dependency>org.apache.geronimo.configs/directory//car</dependency>
     <source-repository>http://www.geronimoplugins.com/repository/geronimo-1.1/</source-repository>
     <source-repository>http://www.ibiblio.org/maven2/</source-repository>
 </geronimo-plugin>
