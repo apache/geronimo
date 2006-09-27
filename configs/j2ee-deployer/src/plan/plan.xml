@@ -129,6 +129,8 @@
 
     <gbean name="GBeanRefBuilder" class="org.apache.geronimo.naming.deployment.GBeanRefBuilder"/>
     <gbean name="PersistenceContextRefBuilder" class="org.apache.geronimo.naming.deployment.PersistenceContextRefBuilder"/>
-    <gbean name="EnvironmentEntryBuilder" class="org.apache.geronimo.naming.deployment.EnvironmentEntryBuilder"/>
+    <gbean name="EnvironmentEntryBuilder" class="org.apache.geronimo.naming.deployment.EnvironmentEntryBuilder">
+        <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee</attribute>
+    </gbean>
 
 </module>

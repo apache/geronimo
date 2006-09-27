@@ -64,7 +64,6 @@ public class LoginPropertiesFileTest extends AbstractTest {
         clientCE = gbean.getAbstractName();
         gbean.setAttribute("applicationConfigName", "properties-client");
         gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
-        gbean.setAttribute("wrapPrincipals", Boolean.TRUE);
         gbean.setReferencePattern("Module", clientLM);
         kernel.loadGBean(gbean, DirectConfigurationEntry.class.getClassLoader());
 

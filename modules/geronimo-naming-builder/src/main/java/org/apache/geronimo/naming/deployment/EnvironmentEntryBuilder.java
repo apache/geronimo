@@ -35,14 +35,15 @@ import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
-public class EnvironmentEntryBuilder implements NamingBuilder {
-    private static final String J2EE_NAMESPACE = "http://java.sun.com/xml/ns/j2ee";
+public class EnvironmentEntryBuilder extends AbstractNamingBuilder {
 
-    private static final QName ENV_ENTRY_QNAME = new QName(J2EE_NAMESPACE, "env-entry");
-    private static final QNameSet ENV_ENTRY_QNAME_SET = QNameSet.singleton(ENV_ENTRY_QNAME);
+    private final QNameSet envEntryQNameSet;
 
+    public EnvironmentEntryBuilder(String[] eeNamespaces) {
+        envEntryQNameSet = buildQNameSet(eeNamespaces, "env-entry");
+    }
     public void buildEnvironment(XmlObject specDD, XmlObject plan, Environment environment) {
     }
 
@@ -50,7 +51,7 @@ public class EnvironmentEntryBuilder implements NamingBuilder {
     }
 
     public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
-        XmlObject[] envEntriesUntyped = specDD.selectChildren(ENV_ENTRY_QNAME_SET);
+        XmlObject[] envEntriesUntyped = specDD.selectChildren(envEntryQNameSet);
         for (int i = 0; i < envEntriesUntyped.length; i++) {
             EnvEntryType envEntry = (EnvEntryType) envEntriesUntyped[i].copy().changeType(EnvEntryType.type);
             String name = envEntry.getEnvEntryName().getStringValue().trim();
@@ -94,7 +95,7 @@ public class EnvironmentEntryBuilder implements NamingBuilder {
     }
 
     public QNameSet getSpecQNameSet() {
-        return ENV_ENTRY_QNAME_SET;
+        return envEntryQNameSet;
     }
 
     public QNameSet getPlanQNameSet() {
@@ -105,6 +106,8 @@ public class EnvironmentEntryBuilder implements NamingBuilder {
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(EnvironmentEntryBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addAttribute("eeNamespaces", String[].class, true, true);
+        infoBuilder.setConstructor(new String[] {"eeNamespaces"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

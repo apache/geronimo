@@ -52,13 +52,13 @@
     <gbean name="TomcatWebConnector" class="org.apache.geronimo.tomcat.ConnectorGBean">
         <attribute name="name">HTTP</attribute>
         <attribute name="host">${PlanServerHostname}</attribute>
-        <attribute name="port">${PlanHTTPPort2}</attribute>
+        <attribute name="port">${PlanHTTPPort}</attribute>
         <attribute name="maxHttpHeaderSizeBytes">8192</attribute>
         <attribute name="maxThreads">150</attribute>
         <attribute name="minSpareThreads">25</attribute>
         <attribute name="maxSpareThreads">75</attribute>
         <attribute name="hostLookupEnabled">false</attribute>
-        <attribute name="redirectPort">${PlanHTTPSPort2}</attribute>
+        <attribute name="redirectPort">${PlanHTTPSPort}</attribute>
         <attribute name="acceptQueueSize">100</attribute>
         <attribute name="connectionTimeoutMillis">20000</attribute>
         <attribute name="uploadTimeoutEnabled">false</attribute>
@@ -71,9 +71,9 @@
         <attribute name="protocol">AJP</attribute>
         <attribute name="name">AJP</attribute>
         <attribute name="host">${PlanServerHostname}</attribute>
-        <attribute name="port">${PlanAJPPort2}</attribute>
+        <attribute name="port">${PlanAJPPort}</attribute>
         <attribute name="hostLookupEnabled">false</attribute>
-        <attribute name="redirectPort">${PlanHTTPSPort2}</attribute>
+        <attribute name="redirectPort">${PlanHTTPSPort}</attribute>
         <reference name="TomcatContainer">
             <name>TomcatWebContainer</name>
         </reference>
@@ -85,7 +85,7 @@
     <gbean name="TomcatWebSSLConnector" class="org.apache.geronimo.tomcat.HttpsConnectorGBean">
         <attribute name="name">HTTPS</attribute>
         <attribute name="host">${PlanServerHostname}</attribute>
-        <attribute name="port">${PlanHTTPSPort2}</attribute>
+        <attribute name="port">${PlanHTTPSPort}</attribute>
         <attribute name="maxHttpHeaderSizeBytes">8192</attribute>
         <attribute name="maxThreads">150</attribute>
         <attribute name="minSpareThreads">25</attribute>

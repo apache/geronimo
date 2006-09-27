@@ -20,6 +20,7 @@
     <gbean name="WebServiceBuilder" class="org.apache.geronimo.axis.builder.AxisBuilder"/>
 
     <gbean name="AxisServiceRefBuilder" class="org.apache.geronimo.axis.builder.AxisServiceRefBuilder">
+        <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee</attribute>
         <xml-attribute name="defaultEnvironment">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <dependencies>

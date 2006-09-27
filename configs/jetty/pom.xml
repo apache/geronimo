@@ -70,4 +70,26 @@
 
     </dependencies>
     
+    <build>
+        <resources>
+            <resource>
+                <directory>${pom.basedir}/src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <configuration>
+                    <deploymentConfigs>
+                        <deploymentConfig>${gbeanDeployer}</deploymentConfig>
+                        <deploymentConfig>${j2eeDeployer}</deploymentConfig>
+                    </deploymentConfigs>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
