@@ -34,8 +34,8 @@ import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException
 import javax.enterprise.deploy.shared.factories.DeploymentFactoryManager;
 
 import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
-import org.apache.geronimo.mavenplugins.geronimo.GeronimoMojoSupport;
 import org.apache.geronimo.mavenplugins.geronimo.ModuleConfig;
+import org.apache.geronimo.mavenplugins.geronimo.reporting.ReportingMojoSupport;
 
 import org.apache.geronimo.genesis.ArtifactItem;
 
@@ -47,7 +47,7 @@ import org.apache.maven.plugin.MojoExecutionException;
  * @version $Rev$ $Date$
  */
 public abstract class ModuleMojoSupport
-    extends GeronimoMojoSupport
+    extends ReportingMojoSupport
 {
     private static final String URI_PREFIX = "deployer:geronimo:jmx";
 
@@ -304,4 +304,5 @@ public abstract class ModuleMojoSupport
             }
         }
     }
+
 }

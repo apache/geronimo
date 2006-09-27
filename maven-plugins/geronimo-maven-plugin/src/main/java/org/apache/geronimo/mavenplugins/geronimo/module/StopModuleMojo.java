@@ -36,4 +36,11 @@ public class StopModuleMojo
     protected void doExecute() throws Exception {
         stopModule();
     }
+
+    protected String getGoalName() {
+        //
+        // FIXME: There has to be way this can be computed instead of hardcoded absolutely.
+        //
+        return "stop-module";
+    } 
 }

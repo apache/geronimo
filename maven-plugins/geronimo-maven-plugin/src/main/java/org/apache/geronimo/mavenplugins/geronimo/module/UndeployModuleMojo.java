@@ -36,4 +36,11 @@ public class UndeployModuleMojo
     protected void doExecute() throws Exception {
         undeployModule();
     }
+
+    protected String getGoalName() {
+        //
+        // FIXME: There has to be way this can be computed instead of hardcoded absolutely.
+        //
+        return "undeploy-module";
+    }
 }

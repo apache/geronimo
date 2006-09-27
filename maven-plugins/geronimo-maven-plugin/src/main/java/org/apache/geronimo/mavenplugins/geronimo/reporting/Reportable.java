@@ -17,30 +17,36 @@
  * under the License.
  */
 
-package org.apache.geronimo.mavenplugins.geronimo.module;
+package org.apache.geronimo.mavenplugins.geronimo.reporting;
+
+import java.io.File;
+import java.util.Date;
 
 /**
- * Start a module running on Geronimo server.
+ * Provides the details of the report to a {@link Reporter}.
  *
- * @goal start-module
- * 
  * @version $Rev$ $Date$
  */
-public class StartModuleMojo
-    extends StartStopUndeployMojoSupport
+public interface Reportable
 {
-    //
-    // TODO: Add forced restart if already started
-    //
+    /**
+     * Returns the date at which the goal was started.
+     *
+     * @return  The date when the goal was started.
+     */
+    Date getStartTime();
 
-    protected void doExecute() throws Exception {
-        startModule();
-    }
+    /**
+     * Returns the name of the goal.
+     *
+     * @return  Goal name.
+     */
+    String getName();
 
-    protected String getGoalName() {
-        //
-        // FIXME: There has to be way this can be computed instead of hardcoded absolutely.
-        //
-        return "start-module";
-    }
+    /**
+     * Returns the log file which the goal may or may not output logs to.
+     *
+     * @return  The log file; or null of the goal does not log to a file.
+     */
+    File getLogFile();
 }

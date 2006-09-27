@@ -36,8 +36,9 @@ import org.codehaus.plexus.util.FileUtils;
 
 import org.apache.tools.ant.taskdefs.Expand;
 import org.apache.tools.ant.taskdefs.Chmod;
-import org.apache.geronimo.mavenplugins.geronimo.GeronimoMojoSupport;
+
 import org.apache.geronimo.mavenplugins.geronimo.AssemblyConfig;
+import org.apache.geronimo.mavenplugins.geronimo.reporting.ReportingMojoSupport;
 
 /**
  * Common assembly install support.
@@ -45,7 +46,7 @@ import org.apache.geronimo.mavenplugins.geronimo.AssemblyConfig;
  * @version $Rev$ $Date$
  */
 public abstract class InstallerMojoSupport
-    extends GeronimoMojoSupport
+    extends ReportingMojoSupport
 {
     /**
      * Enable forced install refresh.

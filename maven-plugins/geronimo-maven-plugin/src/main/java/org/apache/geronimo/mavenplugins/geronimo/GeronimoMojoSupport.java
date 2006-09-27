@@ -32,7 +32,7 @@ import org.apache.geronimo.genesis.AntMojoSupport;
  * @version $Rev$ $Date$
  */
 public abstract class GeronimoMojoSupport
-        extends AntMojoSupport
+    extends AntMojoSupport
 {
     //
     // NOTE: Not all mojos need Ant support, but due to the inability of Maven to inject custom components
@@ -129,5 +129,4 @@ public abstract class GeronimoMojoSupport
     protected ArtifactRepository getArtifactRepository() {
         return artifactRepository;
     }
-
 }

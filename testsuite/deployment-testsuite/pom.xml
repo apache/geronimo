@@ -85,6 +85,16 @@
                         <groupId>org.apache.geronimo.plugins</groupId>
                         <artifactId>geronimo-maven-plugin</artifactId>
                         
+                        <configuration>
+                            <logOutput>true</logOutput>
+                            
+                            <reporters>
+                                <reporter implementation="org.apache.geronimo.mavenplugins.geronimo.reporting.SurefireReporter">
+                                    <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
+                                </reporter>
+                            </reporters>
+                        </configuration>
+                        
                         <executions>
                             <execution>
                                 <id>start-server</id>

@@ -32,4 +32,8 @@ public class InstallAssemblyMojo
     protected void doExecute() throws Exception {
         installAssembly();
     }
+
+    protected String getGoalName() {
+        return "install-assembly";
+    }
 }

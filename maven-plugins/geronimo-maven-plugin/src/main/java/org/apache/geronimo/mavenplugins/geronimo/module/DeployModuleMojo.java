@@ -85,7 +85,8 @@ public class DeployModuleMojo
         else if (modules == null || modules.length == 0) {
             throw new MojoExecutionException("At least one module configuration (or moduleArchive) must be specified");
         }
-        else {
+
+        if (modules != null && modules.length != 0) {
             log.info("Using artifact based module archive(s)...");
 
             for (int i=0; i<modules.length; i++) {
@@ -155,5 +156,12 @@ public class DeployModuleMojo
         }
 
         return progress.getResultTargetModuleIDs();
+    }
+
+    protected String getGoalName() {
+        //
+        // FIXME: There has to be way this can be computed instead of hardcoded absolutely.
+        //
+        return "deploy-module";
     }
 }

@@ -29,6 +29,7 @@ import org.apache.tools.ant.taskdefs.Java;
 
 import org.apache.geronimo.genesis.ObjectHolder;
 import org.apache.geronimo.mavenplugins.geronimo.ServerProxy;
+import org.codehaus.plexus.util.FileUtils;
 
 /**
  * Start the Geronimo server.
@@ -181,6 +182,16 @@ public class StartServerMojo
             }
         }
         
+        if (logOutput) {
+            File file = getLogFile();
+            FileUtils.forceMkdir(file.getParentFile());
+
+            log.info("Redirecting output to: " + file);
+            
+            java.setLogError(true);
+            java.setOutput(file);
+        }
+
         // Holds any exception that was thrown during startup
         final ObjectHolder errorHolder = new ObjectHolder();
 
@@ -207,8 +218,6 @@ public class StartServerMojo
         // Setup a callback to time out verification
         final ObjectHolder verifyTimedOut = new ObjectHolder();
 
-        log.debug("Starting verify timeout task; triggers in: " + verifyTimeout + "s");
-
         TimerTask timeoutTask = new TimerTask() {
             public void run() {
                 verifyTimedOut.set(Boolean.TRUE);
@@ -216,6 +225,7 @@ public class StartServerMojo
         };
 
         if (verifyTimeout > 0) {
+            log.debug("Starting verify timeout task; triggers in: " + verifyTimeout + "s");
             timer.schedule(timeoutTask, verifyTimeout * 1000);
         }
 
@@ -253,5 +263,12 @@ public class StartServerMojo
 
             t.join();
         }
+    }
+
+    protected String getGoalName() {
+        //
+        //FIXME: There has to be way this can be computed instead of hardcoded absolutely.
+        //
+        return "start-server";
     }
 }

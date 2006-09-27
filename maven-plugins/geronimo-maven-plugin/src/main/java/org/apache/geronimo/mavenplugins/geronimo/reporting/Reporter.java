@@ -17,30 +17,31 @@
  * under the License.
  */
 
-package org.apache.geronimo.mavenplugins.geronimo.module;
+package org.apache.geronimo.mavenplugins.geronimo.reporting;
 
 /**
- * Start a module running on Geronimo server.
+ * Provides an asbtraction to allow pluggable report handling.
  *
- * @goal start-module
- * 
  * @version $Rev$ $Date$
  */
-public class StartModuleMojo
-    extends StartStopUndeployMojoSupport
+public interface Reporter
 {
-    //
-    // TODO: Add forced restart if already started
-    //
+    /**
+     * Signals the start of a reporting run.  This method should collect the required information.
+     *
+     * @param source    The source of the report; must not be null.
+     */
+    void reportBegin(Reportable source);
 
-    protected void doExecute() throws Exception {
-        startModule();
-    }
+    /**
+     * Called when a failure has occured while executing a goal.
+     *
+     * @param cause     The cause of the error; must not be null.
+     */
+    void reportError(Throwable cause);
 
-    protected String getGoalName() {
-        //
-        // FIXME: There has to be way this can be computed instead of hardcoded absolutely.
-        //
-        return "start-module";
-    }
+    /**
+     * Called after the goal has run (with or with-out errors).
+     */
+    void reportEnd();
 }

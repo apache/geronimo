@@ -19,6 +19,9 @@
 
 package org.apache.geronimo.mavenplugins.geronimo.module;
 
+import java.util.Arrays;
+import java.util.ArrayList;
+
 import org.apache.geronimo.mavenplugins.geronimo.ModuleConfig;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -50,9 +53,16 @@ public abstract class StartStopUndeployMojoSupport
 
             // Add the single module to the list
             ModuleConfig moduleConfig = createModuleConfigFromId(moduleId);
-            modules = new ModuleConfig[] {
-                moduleConfig
-            };
+            if (modules == null) {
+                modules = new ModuleConfig[] {
+                    moduleConfig
+                };
+            }
+            else {
+                ArrayList list = (ArrayList) Arrays.asList(modules);
+                list.add(moduleConfig);
+                modules = (ModuleConfig[]) list.toArray(new ModuleConfig[list.size()]);
+            }
         }
         else if (modules == null || modules.length == 0) {
             throw new MojoExecutionException("At least one module configuration (or moduleId) must be specified");

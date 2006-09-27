@@ -49,4 +49,8 @@ public class ListModulesMojo
 
         logModules(manager.getNonRunningModules(null, targets));
     }
+
+    protected String getGoalName() {
+        return "list-modules";
+    }
 }

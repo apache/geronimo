@@ -21,8 +21,8 @@ package org.apache.geronimo.mavenplugins.geronimo.server;
 
 import org.apache.maven.plugin.MojoExecutionException;
 
-import org.apache.geronimo.mavenplugins.geronimo.GeronimoMojoSupport;
 import org.apache.geronimo.mavenplugins.geronimo.ServerProxy;
+import org.apache.geronimo.mavenplugins.geronimo.reporting.ReportingMojoSupport;
 
 /**
  * Stop the Geronimo server.
@@ -32,7 +32,7 @@ import org.apache.geronimo.mavenplugins.geronimo.ServerProxy;
  * @version $Rev$ $Date$
  */
 public class StopServerMojo
-    extends GeronimoMojoSupport
+    extends ReportingMojoSupport
 {
     protected void doExecute() throws Exception {
         ServerProxy server = new ServerProxy(hostname, port, username, password);
@@ -53,5 +53,9 @@ public class StopServerMojo
             // TODO: Verify its down?
             //
         }
+    }
+
+    protected String getGoalName() {
+        return "stop-server";
     }
 }
