@@ -561,19 +561,19 @@
             <dependency>
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-core</artifactId>
-                <version>2.2-SNAPSHOT</version>
+                <version>2.2-incubating-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-builder</artifactId>
-                <version>2.2-SNAPSHOT</version>
+                <version>2.2-incubating-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-pkgen-builder</artifactId>
-                <version>2.2-SNAPSHOT</version>
+                <version>2.2-incubating-SNAPSHOT</version>
             </dependency>
             
             <dependency>
