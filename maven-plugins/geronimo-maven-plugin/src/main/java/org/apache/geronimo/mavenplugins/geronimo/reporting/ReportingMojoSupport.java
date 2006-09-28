@@ -56,7 +56,7 @@ public abstract class ReportingMojoSupport
 
     /**
      * When logOutput is enabled, the output is logged to the file location specified here.  If this
-     * value is not present, then ${logOutputDirectory}/<goal-name>.log will be used.
+     * value is not present, then "${logOutputDirectory}/<em>goal-name</em>" log will be used.
      *
      * @parameter
      */
