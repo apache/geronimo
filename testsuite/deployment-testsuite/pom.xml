@@ -53,6 +53,11 @@
         </dependency>
     </dependencies>
     
+    <!--
+    TODO: Hook up m-m-p to allow child modules to be built early during this modules
+          compile (or something) phase.
+    -->
+    
     <profiles>
         <profile>
             <id>default</id>
@@ -104,61 +109,6 @@
                                 </goals>
                                 <configuration>
                                     <background>true</background>
-                                </configuration>
-                            </execution>
-
-
-                            <execution>
-                                <id>deploy-ears</id>
-                                <phase>pre-integration-test</phase>
-                                <goals>
-                                    <goal>deploy-module</goal>
-                                </goals>
-                                <configuration>
-                                    <modules>
-                                        <module>
-                                            <groupId>org.apache.geronimo.testsupport</groupId>
-                                            <artifactId>test-ear-j2ee_1.3</artifactId>
-                                            <version>${pom.version}</version>
-                                            <type>ear</type>
-                                        </module>
-                                        
-                                        <module>
-                                            <groupId>org.apache.geronimo.testsupport</groupId>
-                                            <artifactId>test-ear-j2ee_1.4</artifactId>
-                                            <version>${pom.version}</version>
-                                            <type>ear</type>
-                                        </module>
-                                    </modules>
-                                </configuration>
-                            </execution>
-                            
-                            <execution>
-                                <id>undeploy-ear-as-module</id>
-                                <phase>post-integration-test</phase>
-                                <goals>
-                                    <goal>undeploy-module</goal>
-                                </goals>
-                                <configuration>
-                                  <modules>
-                                        <module>
-                                            <groupId>org.apache.geronimo.testsupport</groupId>
-                                            <artifactId>test-ear-j2ee_1.3</artifactId>
-                                            <version>${pom.version}</version>
-                                            <type>ear</type>
-                                        </module>
-                                  </modules>
-                                </configuration>
-                            </execution>
-
-                            <execution>
-                                <id>undeploy-ear-as-moduleId</id>
-                                <phase>post-integration-test</phase>
-                                <goals>
-                                    <goal>undeploy-module</goal>
-                                </goals>
-                                <configuration>
-                                    <moduleId>org.apache.geronimo.testsupport/test-ear-j2ee_1.4/${pom.version}/ear</moduleId>
                                 </configuration>
                             </execution>
                             

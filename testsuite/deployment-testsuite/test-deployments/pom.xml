@@ -33,7 +33,7 @@
     
     <artifactId>test-deployments</artifactId>
     <name>Geronimo TestSuite, Deployment :: Test Deployments</name>
-    <packaging>jar</packaging>
+    <packaging>integration-test</packaging>
     
     <description>
         Tests for the test-deployables.
@@ -47,5 +47,87 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <testFailureIgnore>true</testFailureIgnore>
+                </configuration>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>geronimo-maven-plugin</artifactId>
+                
+                <configuration>
+                    <logOutput>true</logOutput>
+                    <reporters>
+                        <reporter implementation="org.apache.geronimo.mavenplugins.geronimo.reporting.SurefireReporter">
+                            <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
+                        </reporter>
+                    </reporters>
+                </configuration>
+                
+                <executions>
+                    <execution>
+                        <id>deploy-ears</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>deploy-module</goal>
+                        </goals>
+                        <configuration>
+                            <modules>
+                                <module>
+                                    <groupId>org.apache.geronimo.testsupport</groupId>
+                                    <artifactId>test-ear-j2ee_1.3</artifactId>
+                                    <version>${pom.version}</version>
+                                    <type>ear</type>
+                                </module>
+                                
+                                <module>
+                                    <groupId>org.apache.geronimo.testsupport</groupId>
+                                    <artifactId>test-ear-j2ee_1.4</artifactId>
+                                    <version>${pom.version}</version>
+                                    <type>ear</type>
+                                </module>
+                            </modules>
+                        </configuration>
+                    </execution>
+                    
+                    <execution>
+                        <id>undeploy-ear-as-module</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>undeploy-module</goal>
+                        </goals>
+                        <configuration>
+                          <modules>
+                                <module>
+                                    <groupId>org.apache.geronimo.testsupport</groupId>
+                                    <artifactId>test-ear-j2ee_1.3</artifactId>
+                                    <version>${pom.version}</version>
+                                    <type>ear</type>
+                                </module>
+                          </modules>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>undeploy-ear-as-moduleId</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>undeploy-module</goal>
+                        </goals>
+                        <configuration>
+                            <moduleId>org.apache.geronimo.testsupport/test-ear-j2ee_1.4/${pom.version}/ear</moduleId>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
    
 </project>
