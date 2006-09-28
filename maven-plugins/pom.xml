@@ -58,7 +58,6 @@
     
     <modules>
         <module>car-maven-plugin</module>
-        <module>geronimo-deployment-plugin</module>
         <module>geronimo-maven-plugin</module>
         <module>selenium-maven-plugin</module>
     </modules>
