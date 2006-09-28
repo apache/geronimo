@@ -1002,6 +1002,10 @@
             <plugin>
                 <groupId>org.apache.geronimo.genesis.plugins</groupId>
                 <artifactId>tools-maven-plugin</artifactId>
+                
+                <!-- Tools includes custom packagings, install as extention to pick them up -->
+                <extensions>true</extensions>
+                
                 <executions>
                     <execution>
                         <id>validate-java-version</id>
