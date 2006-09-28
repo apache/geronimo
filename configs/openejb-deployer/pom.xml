@@ -55,12 +55,12 @@
         </dependency>
 
         <dependency>
-            <groupId>org.openejb</groupId>
+            <groupId>org.apache.openejb</groupId>
             <artifactId>openejb-builder</artifactId>
         </dependency>
         
         <dependency>
-            <groupId>org.openejb</groupId>
+            <groupId>org.apache.openejb</groupId>
             <artifactId>openejb-pkgen-builder</artifactId>
         </dependency>
         

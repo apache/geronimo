@@ -196,7 +196,7 @@
         
         <!-- REMOVE WHEN G-2383 is applied -->
         <dependency>
-            <groupId>org.openejb</groupId>
+            <groupId>org.apache.openejb</groupId>
             <artifactId>openejb-core</artifactId>
         </dependency>
         

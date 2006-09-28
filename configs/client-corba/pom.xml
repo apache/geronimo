@@ -58,7 +58,7 @@
 
         <!-- needed by GBean, this was not a dep in M1-->
         <dependency>
-            <groupId>org.openejb</groupId>
+            <groupId>org.apache.openejb</groupId>
             <artifactId>openejb-core</artifactId>
         </dependency>
 

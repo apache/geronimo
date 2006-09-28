@@ -88,10 +88,10 @@
 
     <gbean name="SystemProperties" class="org.apache.geronimo.system.properties.SystemProperties">
         <attribute name="systemProperties">
-            javax.rmi.CORBA.UtilClass=org.openejb.corba.util.UtilDelegateImpl
-            org.openejb.corba.UtilDelegateClass=com.sun.corba.se.internal.POA.ShutdownUtilDelegate
+            javax.rmi.CORBA.UtilClass=org.apache.openejb.corba.util.UtilDelegateImpl
+            org.apache.openejb.corba.UtilDelegateClass=com.sun.corba.se.internal.POA.ShutdownUtilDelegate
             org.omg.CORBA.ORBSingletonClass=com.sun.corba.se.internal.corba.ORBSingleton
-            org.omg.CORBA.ORBClass=org.openejb.corba.sunorb.OpenEJBORB
+            org.omg.CORBA.ORBClass=org.apache.openejb.corba.sunorb.OpenEJBORB
             javax.rmi.CORBA.PortableRemoteObjectClass=com.sun.corba.se.internal.javax.rmi.PortableRemoteObject
             javax.net.ssl.keyStorePassword=secret
             javax.net.ssl.trustStorePassword=secret

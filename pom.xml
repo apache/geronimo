@@ -559,19 +559,19 @@
             </dependency>
 
             <dependency>
-                <groupId>org.openejb</groupId>
+                <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-core</artifactId>
                 <version>2.2-SNAPSHOT</version>
             </dependency>
 
             <dependency>
-                <groupId>org.openejb</groupId>
+                <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-builder</artifactId>
                 <version>2.2-SNAPSHOT</version>
             </dependency>
 
             <dependency>
-                <groupId>org.openejb</groupId>
+                <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-pkgen-builder</artifactId>
                 <version>2.2-SNAPSHOT</version>
             </dependency>

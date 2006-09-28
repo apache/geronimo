@@ -19,7 +19,7 @@
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
-    <gbean name="EJBBuilder" class="org.openejb.deployment.OpenEjbModuleBuilder">
+    <gbean name="EJBBuilder" class="org.apache.openejb.deployment.OpenEjbModuleBuilder">
         <attribute name="listener">?name=WebContainer</attribute>
         <attribute name="defaultStatelessEjbContainer">StatelessEjbContainer</attribute>
         <attribute name="defaultStatefulEjbContainer">StatefulEjbContainer</attribute>
@@ -71,16 +71,16 @@
     </gbean>
 
 
-    <gbean name="CSSAttributeBuilder" class="org.openejb.corba.security.config.css.CSSConfigEditor"/>
-    <gbean name="TSSAttributeBuilder" class="org.openejb.corba.security.config.tss.TSSConfigEditor"/>
+    <gbean name="CSSAttributeBuilder" class="org.apache.openejb.corba.security.config.css.CSSConfigEditor"/>
+    <gbean name="TSSAttributeBuilder" class="org.apache.openejb.corba.security.config.tss.TSSConfigEditor"/>
 
-    <gbean name="OpenEjbRemoteRefBuilder" class="org.openejb.deployment.OpenEjbRemoteRefBuilder">
+    <gbean name="OpenEjbRemoteRefBuilder" class="org.apache.openejb.deployment.OpenEjbRemoteRefBuilder">
         <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee</attribute>
         <xml-attribute name="defaultEnvironment">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <dependencies>
                     <dependency>
-                        <groupId>org.openejb</groupId>
+                        <groupId>org.apache.openejb</groupId>
                         <artifactId>openejb-core</artifactId>
                         <type>jar</type>
                     </dependency>
@@ -89,7 +89,7 @@
         </xml-attribute>
     </gbean>
 
-    <gbean name="OpenEjbClientRemoteRefBuilder" class="org.openejb.deployment.OpenEjbClientRemoteRefBuilder">
+    <gbean name="OpenEjbClientRemoteRefBuilder" class="org.apache.openejb.deployment.OpenEjbClientRemoteRefBuilder">
         <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee</attribute>
         <attribute name="host">${PlanServerHostname}</attribute>
         <attribute name="port">${PlanOpenEJBPort}</attribute>
@@ -97,7 +97,7 @@
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <dependencies>
                     <dependency>
-                        <groupId>org.openejb</groupId>
+                        <groupId>org.apache.openejb</groupId>
                         <artifactId>openejb-core</artifactId>
                         <type>jar</type>
                     </dependency>
@@ -106,7 +106,7 @@
         </xml-attribute>
     </gbean>
 
-    <gbean name="OpenEjbLocalRefBuilder" class="org.openejb.deployment.OpenEjbLocalRefBuilder">
+    <gbean name="OpenEjbLocalRefBuilder" class="org.apache.openejb.deployment.OpenEjbLocalRefBuilder">
         <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee</attribute>
     </gbean>
 
@@ -122,6 +122,6 @@
     </gbean>
 
 
-    <gbean name="WebServiceEJBLinkTemplate" class="org.openejb.server.axis.WSContainerGBean"/>
+    <gbean name="WebServiceEJBLinkTemplate" class="org.apache.openejb.server.axis.WSContainerGBean"/>
 
 </module>

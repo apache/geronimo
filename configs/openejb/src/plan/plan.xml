@@ -19,7 +19,7 @@
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
-    <gbean name="StatelessEjbContainer" class="org.openejb.slsb.DefaultStatelessEjbContainerGBean">
+    <gbean name="StatelessEjbContainer" class="org.apache.openejb.slsb.DefaultStatelessEjbContainerGBean">
         <reference name="TransactionManager">
             <name>TransactionManager</name>
         </reference>
@@ -37,7 +37,7 @@
         <attribute name="useContextHandler">true</attribute>
     </gbean>
 
-    <gbean name="StatefulEjbContainer" class="org.openejb.sfsb.DefaultStatefulEjbContainerGBean">
+    <gbean name="StatefulEjbContainer" class="org.apache.openejb.sfsb.DefaultStatefulEjbContainerGBean">
         <reference name="TransactionManager">
             <name>TransactionManager</name>
         </reference>
@@ -49,25 +49,7 @@
         <attribute name="useContextHandler">true</attribute>
     </gbean>
 
-    <gbean name="BmpEjbContainer" class="org.openejb.entity.bmp.DefaultBmpEjbContainerGBean">
-        <reference name="TransactionManager">
-            <name>TransactionManager</name>
-        </reference>
-        <reference name="TrackedConnectionAssociator">
-            <name>ConnectionTracker</name>
-        </reference>
-        <reference name="TransactedTimer">
-            <name>TransactionalThreadPooledTimer</name>
-        </reference>
-        <reference name="NontransactedTimer">
-            <name>NonTransactionalThreadPooledTimer</name>
-        </reference>
-        <attribute name="securityEnabled">true</attribute>
-        <attribute name="doAsCurrentCaller">true</attribute>
-        <attribute name="useContextHandler">true</attribute>
-    </gbean>
-
-    <gbean name="CmpEjbContainer" class="org.openejb.entity.cmp.DefaultCmpEjbContainerGBean">
+    <gbean name="BmpEjbContainer" class="org.apache.openejb.entity.bmp.DefaultBmpEjbContainerGBean">
         <reference name="TransactionManager">
             <name>TransactionManager</name>
         </reference>
@@ -85,7 +67,25 @@
         <attribute name="useContextHandler">true</attribute>
     </gbean>
 
-    <gbean name="MdbEjbContainer" class="org.openejb.mdb.DefaultMdbContainerGBean">
+    <gbean name="CmpEjbContainer" class="org.apache.openejb.entity.cmp.DefaultCmpEjbContainerGBean">
+        <reference name="TransactionManager">
+            <name>TransactionManager</name>
+        </reference>
+        <reference name="TrackedConnectionAssociator">
+            <name>ConnectionTracker</name>
+        </reference>
+        <reference name="TransactedTimer">
+            <name>TransactionalThreadPooledTimer</name>
+        </reference>
+        <reference name="NontransactedTimer">
+            <name>NonTransactionalThreadPooledTimer</name>
+        </reference>
+        <attribute name="securityEnabled">true</attribute>
+        <attribute name="doAsCurrentCaller">true</attribute>
+        <attribute name="useContextHandler">true</attribute>
+    </gbean>
+
+    <gbean name="MdbEjbContainer" class="org.apache.openejb.mdb.DefaultMdbContainerGBean">
         <reference name="TransactionManager">
             <name>TransactionManager</name>
         </reference>
@@ -101,7 +101,7 @@
         <attribute name="doAsCurrentCaller">true</attribute>
     </gbean>
     
-    <gbean name="DefaultThreadPoolExecutorAdapter" class="org.openejb.util.BackportExecutorAdapter">
+    <gbean name="DefaultThreadPoolExecutorAdapter" class="org.apache.openejb.util.BackportExecutorAdapter">
         <reference name="TargetExecutor">
             <name>DefaultThreadPool</name>
         </reference>
@@ -122,7 +122,7 @@
         </reference>
     </gbean>
 
-    <gbean name="EJBServer" class="org.openejb.server.ejbd.EjbServerGBean">
+    <gbean name="EJBServer" class="org.apache.openejb.server.ejbd.EjbServerGBean">
         <reference name="DeploymentIndex">
             <name>DeploymentIndex</name>
         </reference>
@@ -132,7 +132,7 @@
     </gbean>
 
     <!-- pattern domain name must match the domain of the j2eeServer attribute of the EAR builder in the deployer plan -->
-    <gbean name="DeploymentIndex" class="org.openejb.DeploymentIndexGBean">
+    <gbean name="DeploymentIndex" class="org.apache.openejb.DeploymentIndexGBean">
         <references name="EjbDeployments">
             <pattern>
                 <type>StatelessSessionBean</type>
@@ -146,7 +146,7 @@
         </references>
     </gbean>
 
-    <gbean name="ejb/mgmt/MEJB" class="org.openejb.mejb.MEJBGBean">
+    <gbean name="ejb/mgmt/MEJB" class="org.apache.openejb.mejb.MEJBGBean">
         <reference name="MBeanServerReference">
             <name>MBeanServerReference</name>
         </reference>

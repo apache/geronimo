@@ -21,10 +21,10 @@
 
     <gbean name="CORBASystemProperties" class="org.apache.geronimo.system.properties.SystemProperties">
         <attribute name="systemProperties">
-            javax.rmi.CORBA.UtilClass=org.openejb.corba.util.UtilDelegateImpl
-            org.openejb.corba.UtilDelegateClass=com.sun.corba.se.internal.POA.ShutdownUtilDelegate
+            javax.rmi.CORBA.UtilClass=org.apache.openejb.corba.util.UtilDelegateImpl
+            org.apache.openejb.corba.UtilDelegateClass=com.sun.corba.se.internal.POA.ShutdownUtilDelegate
             org.omg.CORBA.ORBSingletonClass=com.sun.corba.se.internal.corba.ORBSingleton
-            org.omg.CORBA.ORBClass=org.openejb.corba.sunorb.OpenEJBORB
+            org.omg.CORBA.ORBClass=org.apache.openejb.corba.sunorb.OpenEJBORB
             javax.rmi.CORBA.PortableRemoteObjectClass=com.sun.corba.se.internal.javax.rmi.PortableRemoteObject
             javax.net.ssl.keyStorePassword=secret
             javax.net.ssl.trustStorePassword=secret
@@ -39,9 +39,9 @@
         </reference>
     </gbean>
 
-    <gbean name="DyanmicStubClassLoader" class="org.openejb.corba.util.DynamicStubClassLoaderGBean"/>
+    <gbean name="DyanmicStubClassLoader" class="org.apache.openejb.corba.util.DynamicStubClassLoaderGBean"/>
 
-    <gbean name="Server" class="org.openejb.corba.CORBABeanGBean">
+    <gbean name="Server" class="org.apache.openejb.corba.CORBABeanGBean">
         <reference name="ThreadPool">
             <name>DefaultThreadPool</name>
         </reference>
@@ -60,7 +60,7 @@
     </gbean>
 <!-- a few sample css beans for the app client -->
     <!--
-    <gbean name="SSLClientCert" class="org.openejb.corba.CSSBeanGBean">
+    <gbean name="SSLClientCert" class="org.apache.openejb.corba.CSSBeanGBean">
         <reference name="ThreadPool">
             <module>geronimo/client/${pom.version}/car</module>
             <name>DefaultThreadPool</name>
@@ -69,7 +69,7 @@
             <module>geronimo/client/${pom.version}/car</module>
             <name>TransactionManager</name>
         </reference>
-        <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
+        <attribute name="configAdapter">org.apache.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
         <attribute name="description">SSLClientCert</attribute>
         <xml-attribute name="nssConfig">
             <css:css xmlns:css="http://www.openejb.org/xml/ns/corba-css-config-2.0">
@@ -102,7 +102,7 @@
         </xml-attribute>
     </gbean>
 
-    <gbean name="SSLClientPassword" class="org.openejb.corba.CSSBeanGBean">
+    <gbean name="SSLClientPassword" class="org.apache.openejb.corba.CSSBeanGBean">
         <reference name="ThreadPool">
             <module>geronimo/client/${pom.version}/car</module>
             <name>DefaultThreadPool</name>
@@ -111,7 +111,7 @@
             <module>geronimo/client/${pom.version}/car</module>
             <name>TransactionManager</name>
         </reference>
-        <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
+        <attribute name="configAdapter">org.apache.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
         <attribute name="description">SSLClientPassword</attribute>
         <xml-attribute name="nssConfig">
             <css:css xmlns:css="http://www.openejb.org/xml/ns/corba-css-config-2.0">
@@ -144,7 +144,7 @@
         </xml-attribute>
     </gbean>
 
-    <gbean name="NoSecurity" class="org.openejb.corba.CSSBeanGBean">
+    <gbean name="NoSecurity" class="org.apache.openejb.corba.CSSBeanGBean">
         <reference name="ThreadPool">
             <module>geronimo/client/${pom.version}/car</module>
             <name>DefaultThreadPool</name>
@@ -153,7 +153,7 @@
             <module>geronimo/client/${pom.version}/car</module>
             <name>TransactionManager</name>
         </reference>
-        <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
+        <attribute name="configAdapter">org.apache.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
         <attribute name="description">NoSecurity</attribute>
         <attribute name="cssArgs"></attribute>
         <xml-attribute name="cssConfig">
