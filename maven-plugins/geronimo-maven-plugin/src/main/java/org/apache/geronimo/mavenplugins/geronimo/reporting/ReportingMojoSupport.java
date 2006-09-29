@@ -77,7 +77,12 @@ public abstract class ReportingMojoSupport
         init();
 
         if (log.isDebugEnabled()) {
-            log.debug("Reporters: " + Arrays.asList(reporters));
+            if (reporters != null) {
+                log.debug("Reporters: " + Arrays.asList(reporters));
+            }
+            else {
+                log.debug("No reporters configured");
+            }
         }
         
         reportBegin();
