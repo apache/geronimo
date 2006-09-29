@@ -30,11 +30,7 @@
 
     <artifactId>geronimo-jetty-j2ee</artifactId>
     <name>Geronimo Assemblies :: J2EE + Jetty</name>
-    <!--
-    HACK: See build/resources below...
-    <packaging>pom</packaging>
-    -->
-    <packaging>jar</packaging>
+    <packaging>application-assembly</packaging>
     
     <description>
         An assembly of Geronimo into a J2EE Server using Jetty as the web container.
@@ -284,12 +280,6 @@
     
     <build>
         <resources>
-            <!--
-            HACK: Because this is a pom packaging and assembly files/file is broke
-                  we need to filter with the resources plugin... and must be a jar packaging
-                  because for some %^&#ing reason maven-resources-plugin can not
-                  be attached!!!!
-            -->
             <resource>
                 <directory>${pom.basedir}/src/main/var/config</directory>
                 <includes>
