@@ -75,6 +75,7 @@
                                     <goal>start</goal>
                                 </goals>
                                 <configuration>
+                                    <logOutput>true</logOutput>
                                     <background>true</background>
                                 </configuration>
                             </execution>

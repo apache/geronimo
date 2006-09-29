@@ -80,6 +80,7 @@
                                     <goal>start</goal>
                                 </goals>
                                 <configuration>
+                                    <logOutput>true</logOutput>
                                     <background>true</background>
                                 </configuration>
                             </execution>
@@ -91,8 +92,6 @@
                         <artifactId>geronimo-maven-plugin</artifactId>
                         
                         <configuration>
-                            <logOutput>true</logOutput>
-                            
                             <reporters>
                                 <reporter implementation="org.apache.geronimo.mavenplugins.geronimo.reporting.SurefireReporter">
                                     <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
@@ -108,6 +107,7 @@
                                     <goal>start-server</goal>
                                 </goals>
                                 <configuration>
+                                    <logOutput>true</logOutput>
                                     <background>true</background>
                                 </configuration>
                             </execution>
@@ -118,6 +118,9 @@
                                 <goals>
                                     <goal>stop-server</goal>
                                 </goals>
+                                <configuration>
+                                    <logOutput>true</logOutput>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
