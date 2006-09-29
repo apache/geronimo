@@ -42,10 +42,12 @@ import org.apache.tools.ant.taskdefs.Java;
 import org.apache.tools.ant.types.Environment;
 import org.apache.tools.ant.types.Path;
 
+import org.codehaus.plexus.util.FileUtils;
+
 /**
  * Start the Selenium server.
  *
- * @goal start
+ * @goal start-server
  *
  * @version $Rev$ $Date$
  */
@@ -55,21 +57,21 @@ public class StartServerMojo
     /**
      * The port number the server will use.
      *
-     * @parameter default-value="4444"
+     * @parameter expression="${port}" default-value="4444"
      */
     private int port = -1;
 
     /**
      * Timeout for the server in seconds.
      *
-     * @parameter default-value="-1"
+     * @parameter expression="${timeout}" default-value="-1"
      */
     private int timeout = -1;
 
     /**
      * Enable the server's debug mode..
      *
-     * @parameter default-value="false"
+     * @parameter expression="${debug}" default-value="false"
      */
     private boolean debug = false;
 
@@ -111,30 +113,21 @@ public class StartServerMojo
      * @required
      */
     private File workingDirectory = null;
-
+    
+    /**
+     * Enable logging mode.
+     *
+     * @parameter expression="${logOutput}" default-value="false"
+     */
+    protected boolean logOutput = false;
+    
     /**
      * The file that Selenium server logs will be written to.
      *
-     * @parameter expression="${project.build.directory}/selenium/server.log"
+     * @parameter expression="${logFile}" default-value="${project.build.directory}/selenium/server.log"
      * @required
      */
     private File logFile = null;
-
-    /**
-     * The file that Selenium server STDOUT will be written to.
-     *
-     * @parameter expression="${project.build.directory}/selenium/server.out"
-     * @required
-     */
-    private File outputFile = null;
-
-    /**
-     * The file that Selenium server STDERR will be written to.
-     *
-     * @parameter expression="${project.build.directory}/selenium/server.err"
-     * @required
-     */
-    private File errorFile = null;
 
     /**
      * Flag to control if we background the server or block Maven execution.
@@ -183,15 +176,22 @@ public class StartServerMojo
         log.info("Starting Selenium server...");
 
         final Java java = (Java)createTask("java");
-
+        
+        FileUtils.forceMkdir(workingDirectory);
+        
         java.setFork(true);
-        mkdir(workingDirectory);
         java.setDir(workingDirectory);
         java.setFailonerror(true);
-        java.setOutput(outputFile);
-        java.setError(errorFile);
-        java.setLogError(true);
+        
+        if (logOutput) {
+            FileUtils.forceMkdir(logFile.getParentFile());
 
+            log.info("Redirecting output to: " + logFile);
+            
+            java.setLogError(true);
+            java.setOutput(logFile);
+        }
+        
         java.setClassname("org.openqa.selenium.server.SeleniumServer");
 
         Path classpath = java.createClasspath();
@@ -204,6 +204,11 @@ public class StartServerMojo
         var = new Environment.Variable();
         var.setKey("selenium.log");
         var.setFile(logFile);
+        java.addSysproperty(var);
+
+        var = new Environment.Variable();
+        var.setKey("selenium.loglevel");
+        var.setValue(debug == true ? "DEBUG" : "INFO");
         java.addSysproperty(var);
 
         var = new Environment.Variable();
@@ -256,7 +261,7 @@ public class StartServerMojo
         };
         t.start();
 
-        log.info("Waiting for Selenium server...");
+        log.debug("Waiting for Selenium server...");
 
         // Verify server started
         URL url = new URL("http://localhost:" + port + "/selenium-server");
