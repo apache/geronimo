@@ -596,7 +596,7 @@ limitations under the License.
     <fragment name="JMXViewer" type="page">
         <navigation>
             <title>JMX Viewer</title>
-            <description>ico_filetree_16x16.gif Manage the internal LDAP server</description> 
+            <description>ico_filetree_16x16.gif JMX explorer</description> 
         </navigation>
     
         <fragment name="row1" type="row">
