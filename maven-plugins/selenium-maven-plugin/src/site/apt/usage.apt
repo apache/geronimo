@@ -35,7 +35,7 @@ Basic Usage
  
  This will by default create files under <<<$\{pom.basedir\}/target/selenium>>>, including:
  
-  * <<<server.log>>>
+  * <<<server.log>>> (if enabled)
   
   * <<<user-extensions.js>>> (if enabled)
 
@@ -48,7 +48,7 @@ Basic Usage
             <id>start-selenium</id>
             <phase>pre-integration-test</phase>
             <goals>
-                <goal>start</goal>
+                <goal>start-server</goal>
             </goals>
             <configuration>
                 <background>true</background>
@@ -71,6 +71,6 @@ Basic Usage
  <<<user-extensions.js>>>.
 
 +----------+
-mvn selenium:start
+mvn selenium:start-server
 +----------+
 
