@@ -35,10 +35,6 @@ Basic Usage
  
  This will by default create files under <<<$\{pom.basedir\}/target/selenium>>>, including:
  
-  * <<<server.out>>>
-  
-  * <<<server.err>>>
-  
   * <<<server.log>>>
   
   * <<<user-extensions.js>>> (if enabled)
