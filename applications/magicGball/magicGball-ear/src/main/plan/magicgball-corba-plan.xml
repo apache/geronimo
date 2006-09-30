@@ -40,7 +40,7 @@
                     <tss-link>SSLClientPassword</tss-link>
                 </session>
             </enterprise-beans>
-            <gbean name="SSLClientPassword" class="org.openejb.corba.TSSBean">
+            <gbean name="SSLClientPassword" class="org.apache.openejb.corba.TSSBean">
                 <attribute name="POAName">SSLClientPassword</attribute>
                 <reference name="Server">
                     <name>Server</name>
@@ -114,14 +114,14 @@
             </ejb-ref>
             <realm-name>client-properties-realm</realm-name>
             <callback-handler>org.acme.MagicGBallCallbackHandler</callback-handler>
-            <gbean name="SSLClientPassword" class="org.openejb.corba.CSSBean">
+            <gbean name="SSLClientPassword" class="org.apache.openejb.corba.CSSBean">
                 <reference name="ThreadPool">
                     <name>DefaultThreadPool</name>
                 </reference>
                 <reference name="TransactionContextManager">
                     <name>TransactionContextManager</name>
                 </reference>
-                <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
+                <attribute name="configAdapter">org.apache.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
                 <attribute name="description">SSLClientPassword</attribute>
                 <xml-attribute name="nssConfig">
                     <css:css xmlns:css="http://www.openejb.org/xml/ns/corba-css-config-2.0">

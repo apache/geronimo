@@ -43,8 +43,6 @@ import org.apache.geronimo.axis.server.ReadOnlyServiceDesc;
 import org.apache.geronimo.axis.testData.echosample.EchoBean;
 import org.apache.geronimo.webservices.WebServiceContainer;
 
-//import org.openejb.deployment.OpenEJBModuleBuilder;
-
 /**
  *
  * @version $Rev$ $Date$

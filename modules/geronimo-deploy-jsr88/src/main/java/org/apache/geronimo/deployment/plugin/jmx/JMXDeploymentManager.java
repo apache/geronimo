@@ -285,7 +285,7 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
             //todo: need an EAR configurer
         } else if(dObj.getType().equals(ModuleType.EJB)) {
             try {
-                Class cls = Class.forName("org.openejb.deployment.EJBConfigurer");
+                Class cls = Class.forName("org.apache.openejb.deployment.EJBConfigurer");
                 return (DeploymentConfiguration)cls.getMethod("createConfiguration", new Class[]{DeployableObject.class}).invoke(cls.newInstance(), new Object[]{dObj});
             } catch (Exception e) {
                 log.error("Unable to invoke EJB deployer", e);

@@ -39,7 +39,7 @@
                     <tss-link>IdentityTokenNoSecurity </tss-link>
                 </session>
             </enterprise-beans>
-            <gbean name="IdentityTokenNoSecurity" class="org.openejb.corba.TSSBean">
+            <gbean name="IdentityTokenNoSecurity" class="org.apache.openejb.corba.TSSBean">
                 <attribute name="POAName">IdentityTokenNoSecurity</attribute>
                 <reference name="Server">
                     <name>UnprotectedServer</name>
@@ -112,14 +112,14 @@
             </ejb-ref>
             <realm-name>client-properties-realm</realm-name>
             <callback-handler>org.acme.MagicGBallCallbackHandler</callback-handler>
-            <gbean name="NoSecurity" class="org.openejb.corba.CSSBean">
+            <gbean name="NoSecurity" class="org.apache.openejb.corba.CSSBean">
                 <reference name="ThreadPool">
                     <name>DefaultThreadPool</name>
                 </reference>
                 <reference name="TransactionContextManager">
                     <name>TransactionContextManager</name>
                 </reference>
-                <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
+                <attribute name="configAdapter">org.apache.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
                 <attribute name="description">NoSecurity</attribute>
                 <attribute name="cssArgs"></attribute>
                 <xml-attribute name="cssConfig">
