@@ -67,10 +67,10 @@ Merged,  r369917 , djencks , 2006-01-17 12:59:12 -0800 (Tue, 17 Jan 2006) , 1 li
 Not Merged,  r370034 , hogstrom , 2006-01-17 19:53:51 -0800 (Tue, 17 Jan 2006) , 1 line  Updated Daytrader to not have hardcoded dependencies
 Not Merged,  r370035 , hogstrom , 2006-01-17 19:55:21 -0800 (Tue, 17 Jan 2006) , 1 line  Updated configs to disassociate daytrader version from geronimo
 Merged,  r370077 , jsisson , 2006-01-18 00:18:15 -0800 (Wed, 18 Jan 2006) , 1 line  GERONIMO-1344 - Fix issue where you get Java usage help when a trailing slash '/' is in GERONIMO_HOME environment variable (merged from 1.0 branch)
-Not Merged,  r370204 , kevan , 2006-01-18 09:56:15 -0800 (Wed, 18 Jan 2006) , 1 line  More appropriate shutdown of ActiveMQ broker within the Geronimo server. Geronimo will control stopping of broker, not active mq's shutdown handler
+Unnecessary,  r370204 , kevan , 2006-01-18 09:56:15 -0800 (Wed, 18 Jan 2006) , 1 line  More appropriate shutdown of ActiveMQ broker within the Geronimo server. Geronimo will control stopping of broker, not active mq's shutdown handler
 Unnecessary,  r370662 , kevan , 2006-01-19 14:52:34 -0800 (Thu, 19 Jan 2006) , 1 line  Installer fixes to allow maven 1.0.2 builds to work
-Not Merged,  r370682 , kevan , 2006-01-19 16:23:41 -0800 (Thu, 19 Jan 2006) , 1 line  Inhiibit coyote info messages during startup. Fix is needed for Installer and for consistency for jetty
-Not Merged,  r370690 , kevan , 2006-01-19 17:32:01 -0800 (Thu, 19 Jan 2006) , 1 line  Inhibit catalina StandardContext info messages during shutdown.
+Unnecessary,  r370682 , kevan , 2006-01-19 16:23:41 -0800 (Thu, 19 Jan 2006) , 1 line  Inhiibit coyote info messages during startup. Fix is needed for Installer and for consistency for jetty
+Unnecessary,  r370690 , kevan , 2006-01-19 17:32:01 -0800 (Thu, 19 Jan 2006) , 1 line  Inhibit catalina StandardContext info messages during shutdown.
 Unnecessary,  r370778 , jsisson , 2006-01-20 02:38:45 -0800 (Fri, 20 Jan 2006) , 1 line  GERONIMO-1513 - change lib/extension to lib/ext to match the "Extension-Dirs: lib/ext" value in the manifest.mf file (merged from 1.0 branch)
 Unnecessary,  r370780 , jsisson , 2006-01-20 02:41:57 -0800 (Fri, 20 Jan 2006) , 1 line  GERONIMO-1513 - bump up assembly plugin version
 Not Merged,  r370912 , hogstrom , 2006-01-20 14:20:50 -0800 (Fri, 20 Jan 2006) , 1 line  GERONIMO-1506 Database portlet version issue
@@ -82,7 +82,7 @@ Merged,  r371127 , djencks , 2006-01-21 14:30:34 -0800 (Sat, 21 Jan 2006) , 1 li
 Merged,  r371145 , djencks , 2006-01-21 16:06:27 -0800 (Sat, 21 Jan 2006) , 1 line  GERONIMO-1523 Avoid serializing openejb class in all enc contexts
 Unnecessary,  r371180 , hogstrom , 2006-01-21 20:38:14 -0800 (Sat, 21 Jan 2006) , 1 line  Merged fixes to hardcoded updates from branches 1.0 rev 371179
 Merged,  r371341 , djencks , 2006-01-22 10:18:34 -0800 (Sun, 22 Jan 2006) , 1 line  GERONIMO-1440 Supply a 'Non'Authenticator if security realm name is supplied but no login method specified. This makes jetty install the defaultPrincipal/Subject for unsecured web apps
-Not Merged,  r371391 , kevan , 2006-01-22 13:20:06 -0800 (Sun, 22 Jan 2006) , 1 line  Use latest Jetty version to avoid security exposure on Windows
+Unnecessary,  r371391 , kevan , 2006-01-22 13:20:06 -0800 (Sun, 22 Jan 2006) , 1 line  Use latest Jetty version to avoid security exposure on Windows
 Not Merged,  r371461 , ammulder , 2006-01-22 20:53:26 -0800 (Sun, 22 Jan 2006) , 3 lines  Apply changes from branch (Fixes GERONIMO-1510, contributes to GERONIMO-1137,   other minor fixes)
 Unnecessary,  r371637 , ammulder , 2006-01-23 11:43:19 -0800 (Mon, 23 Jan 2006) , 2 lines  Merge change from branch
 Merged,  r371641 , djencks , 2006-01-23 11:50:05 -0800 (Mon, 23 Jan 2006) , 1 line  add test of context-param
@@ -106,7 +106,7 @@ Merged,  r372354 , djencks , 2006-01-25 15:03:46 -0800 (Wed, 25 Jan 2006) , 1 li
 Not Merged,  r372358 , ammulder , 2006-01-25 15:15:33 -0800 (Wed, 25 Jan 2006) , 2 lines  Merge fix for GERONIMO-1379 from branch
 Not Merged,  r372367 , ammulder , 2006-01-25 15:40:20 -0800 (Wed, 25 Jan 2006) , 2 lines  Merge fix for GERONIMO-1468 from branch
 Unnecessary,  r372731 , bsnyder , 2006-01-26 20:54:10 -0800 (Thu, 26 Jan 2006) , 1 line  Committing POP3 implementation work from GERONIMO-1341.
-Not Merged,  r373180 , kevan , 2006-01-28 08:58:56 -0800 (Sat, 28 Jan 2006) , 1 line  Fix cross-site scripting problems in samples
+Unnecessary,  r373180 , kevan , 2006-01-28 08:58:56 -0800 (Sat, 28 Jan 2006) , 1 line  Fix cross-site scripting problems in samples
 Unnecessary,  r373281 , adc , 2006-01-28 19:33:52 -0800 (Sat, 28 Jan 2006) , 3 lines  PR: GERONIMO-1550 Submitted by: Anders Hessellund Jensen Current IDL files break the OpenEJB build
 Merged,  r373571 , djencks , 2006-01-30 11:23:58 -0800 (Mon, 30 Jan 2006) , 1 line  GERONIMO-1541, fix glitches with what gets into lib.  Also remove some commented out dependencies
 Not Merged,  r373669 , jgenender , 2006-01-30 18:12:06 -0800 (Mon, 30 Jan 2006) , 1 line  Fix Unit Tests
@@ -134,7 +134,7 @@ Unnecessary,  r374415 , adc , 2006-02-02 08:02:34 -0800 (Thu, 02 Feb 2006) , 1 l
 Unnecessary,  r374472 , dain , 2006-02-02 11:34:57 -0800 (Thu, 02 Feb 2006) , 2 lines  Added missing transaction manager object name attribute to ear deployer Added better error handling to openejb tranql intergration
 Merged,  r374535 , djencks , 2006-02-02 14:50:45 -0800 (Thu, 02 Feb 2006) , 1 line  GERONIMO-1578 remove wadi dependencies from jetty module
 Unnecessary,  r374536 , chirino , 2006-02-02 14:51:02 -0800 (Thu, 02 Feb 2006) , 4 lines  Adding a new rar build for the activemq rar since geronimo really should be building a custom rar so that it's configuration  can be tailored for geronimo.
-Not Merged,  r374665 , kevan , 2006-02-03 05:22:56 -0800 (Fri, 03 Feb 2006) , 1 line  Fix for relative links in jmxdebug on Tomcat
+Unecessary,  r374665 , kevan , 2006-02-03 05:22:56 -0800 (Fri, 03 Feb 2006) , 1 line  Fix for relative links in jmxdebug on Tomcat
 Not Merged,  r374759 , jgenender , 2006-02-03 14:06:34 -0800 (Fri, 03 Feb 2006) , 1 line  Added BeforeAfters for cross context and a listener
 Unnecessary,  r374781 , kevan , 2006-02-03 15:21:12 -0800 (Fri, 03 Feb 2006) , 1 line  Update m:co to use svn to retrieve openejb
 Not Merged,  r374885 , jgenender , 2006-02-04 08:10:47 -0800 (Sat, 04 Feb 2006) , 1 line  Save the Request during x-context dispatch
@@ -187,7 +187,7 @@ Unnecessary,  r379128 , gdamour , 2006-02-20 05:47:05 -0800 (Mon, 20 Feb 2006) ,
 Unnecessary,  r379242 , jlaskowski , 2006-02-20 13:26:45 -0800 (Mon, 20 Feb 2006) , 1 line  svn:ignore set
 Unnecessary,  r379245 , jlaskowski , 2006-02-20 13:34:25 -0800 (Mon, 20 Feb 2006) , 11 lines  Introduce Maven2-based goals and a property to wire it into the build.   + The m2 property is to ignite the build of the kernel module using Maven2  + The goal: m2 is to create a template to execute Maven2 commands via goal property  + The execmvn goal is to execute Maven2 shell script either mvn.bat or mvn based on OS (it surely needs more appropriate OS names)  Run maven -Dm2=true new to build Geronimo with the new goal and execute mvn install on the kernel module Run maven m2 to execute mvn install on the kernel module only
 Unnecessary,  r379430 , gdamour , 2006-02-21 03:36:04 -0800 (Tue, 21 Feb 2006) , 1 line  Fix a regression that I have introduced during my last commit: the setting of org.apache.geronimo.base.dir was not working as expected.
-Not Merged,  r379525 , kevan , 2006-02-21 08:39:15 -0800 (Tue, 21 Feb 2006) , 1 line  Add simple protocolConnect implementation to NullTransport. See GERONIMO-1643
+Unnecessary,  r379525 , kevan , 2006-02-21 08:39:15 -0800 (Tue, 21 Feb 2006) , 1 line  Add simple protocolConnect implementation to NullTransport. See GERONIMO-1643
 Unnecessary,  r379797 , adc , 2006-02-22 07:37:09 -0800 (Wed, 22 Feb 2006) , 2 lines  GERONIMO-1639 Setup old version of CORBA specs for temporary use until the new CORBA specs can pass the TCK.
 Not Merged,  r379954 , jgenender , 2006-02-22 14:54:40 -0800 (Wed, 22 Feb 2006) , 1 line  Added emptySessionPath to ConnectorGBean
 Not Merged,  r380696 , jgenender , 2006-02-24 07:59:09 -0800 (Fri, 24 Feb 2006) , 1 line  Added empty attribute to the config.xml attribute and reference tags.  Updated to spit out the proper writeXml() too.
@@ -285,10 +285,10 @@ Unnecessary,  r389311 , chirino , 2006-03-27 14:19:34 -0800 (Mon, 27 Mar 2006) ,
 Unnecessary,  r389341 , chirino , 2006-03-27 17:08:39 -0800 (Mon, 27 Mar 2006) , 5 lines  - Upgrading ActiveMQ from 3.2.1 to 4.0-SNAPSHOT.   On the next versioned release (RC2), we should switch to using that. - One of DLQ console portlet will not work anymore :( - A 3.2.1 copy of activemq-core is being brought in because OpenEJB is using WADI which still depends on 3.2.1
 Not Merged,  r389577 , jgenender , 2006-03-28 11:01:53 -0800 (Tue, 28 Mar 2006) , 1 line  Add patch for IE browser
 Not Merged,  r389606 , jgenender , 2006-03-28 13:24:04 -0800 (Tue, 28 Mar 2006) , 2 lines  Change rounding to make download value zero based.
-Not Merged,  r389626 , kevan , 2006-03-28 15:22:33 -0800 (Tue, 28 Mar 2006) , 1 line  Initial import.
-Not Merged,  r389627 , kevan , 2006-03-28 15:22:37 -0800 (Tue, 28 Mar 2006) , 1 line  Initial import.
-Not Merged,  r389629 , kevan , 2006-03-28 15:42:06 -0800 (Tue, 28 Mar 2006) , 1 line  Remove geronimo-commonj -- was trying out the Eclipse svn plug-in and the plugin got a bit too ambitious...
-Not Merged,  r389653 , kevan , 2006-03-28 17:59:49 -0800 (Tue, 28 Mar 2006) , 1 line  Commit initial implementation of Commonj Timer API from GERONIMO-1553
+Unnecessary,  r389626 , kevan , 2006-03-28 15:22:33 -0800 (Tue, 28 Mar 2006) , 1 line  Initial import.
+Unnecessary,  r389627 , kevan , 2006-03-28 15:22:37 -0800 (Tue, 28 Mar 2006) , 1 line  Initial import.
+Unnecessary,  r389629 , kevan , 2006-03-28 15:42:06 -0800 (Tue, 28 Mar 2006) , 1 line  Remove geronimo-commonj -- was trying out the Eclipse svn plug-in and the plugin got a bit too ambitious...
+Merged,  r389653 , kevan , 2006-03-28 17:59:49 -0800 (Tue, 28 Mar 2006) , 1 line  Commit initial implementation of Commonj Timer API from GERONIMO-1553
 Unnecessary,  r389655 , kevan , 2006-03-28 18:12:06 -0800 (Tue, 28 Mar 2006) , 1 line  Add dependency version for commonj spec jar
 Not Merged,  r389664 , jgenender , 2006-03-28 19:49:33 -0800 (Tue, 28 Mar 2006) , 1 line  GERONIMO-1788 - allow to disable cookies in web application
 Unnecessary,  r390515 , jlaskowski , 2006-03-31 13:58:42 -0800 (Fri, 31 Mar 2006) , 3 lines  GERONIMO-1796 - Improve SMTP transport debug trace output Submitted by: Rick McGuire
