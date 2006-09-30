@@ -31,7 +31,7 @@ Basic Usage
  phase to start it up in the <background> to allow the <<<integration-test>>> phase to
  be executed with the server running.
  
- <<NOTE:>> Currently there is no <stop>, the forked JVM will exit when Maven does.
+ <<NOTE:>> Currently there is no <stop-server>, the forked JVM will exit when Maven does.
  
  This will by default create files under <<<$\{pom.basedir\}/target/selenium>>>, including:
  
@@ -61,7 +61,7 @@ Basic Usage
 * Start Selenium Server (Standalone)
 
  To start Selenium on the command line, which is very useful while developing tests,
- simply execute the <<<start>>> goal.
+ simply execute the <<<start-server>>> goal.
 
  This will start the server and block until the server has been stopped, either
  from the process being killed, or more normally, until CTRL-C is used to exit
@@ -72,5 +72,37 @@ Basic Usage
 
 +----------+
 mvn selenium:start-server
++----------+
+
+* Logging Output
+
+ To capture the logs from Selenium to a file, enable <<<logOutput>>>.  This will
+ create a <<<server.log>>> that captures all of the output.
+
++----------+
+<plugin>
+    <groupId>org.apache.geronimo.plugins</groupId>
+    <artifactId>selenium-maven-plugin</artifactId>
+    <executions>
+        <execution>
+            <id>start-selenium</id>
+            <phase>pre-integration-test</phase>
+            <goals>
+                <goal>start-server</goal>
+            </goals>
+            <configuration>
+                <logOutput>true</logOutput>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
++----------+
+
+* Debugging
+
+ Sometimes it is useful to startup Selenium with its debug output enabled.
+
++----------+
+mvn selenium:start-server -Ddebug=true
 +----------+
 
