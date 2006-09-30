@@ -36,6 +36,13 @@
     <dependencies>
         
         <dependency>
+            <groupId>org.apache.geronimo.testsupport</groupId> 
+            <artifactId>testsupport-common</artifactId>
+            <version>${pom.version}</version> 
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.geronimo.genesis.plugins</groupId>
             <artifactId>plugin-support</artifactId>
         </dependency>

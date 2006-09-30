@@ -43,6 +43,7 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlCursor.TokenType;
 
 //
 // TODO: Rename to PreparePlanMojo
@@ -66,25 +67,25 @@ public class PlanProcessorMojo
      * @parameter expression="${basedir}/src/plan"
      * @required
      */
-    private File sourceDir = null;
+    protected File sourceDir = null;
 
     /**
      * @parameter expression="${project.build.directory}/plan"
      * @required
      */
-    private File targetDir = null;
+    protected File targetDir = null;
 
     /**
      * @parameter default-value="plan.xml"
      * @required
      */
-    private String planFileName = null;
+    protected String planFileName = null;
 
     /**
      * @parameter expression="${project.build.directory}/plan/plan.xml"
      * @required
      */
-    private File targetFile = null;
+    protected File targetFile = null;
 
     private VelocityContext createContext() {
         VelocityContext context = new VelocityContext();
@@ -152,19 +153,23 @@ public class PlanProcessorMojo
     }
 
     void mergeEnvironment(final XmlCursor xmlCursor, final Artifact configId, final LinkedHashSet dependencies) {
-        xmlCursor.toFirstContentToken();
-        xmlCursor.toFirstChild();
+        moveToFirstStartElement(xmlCursor);
+
+        boolean atLeastOneChild = xmlCursor.toFirstChild();
+        if (!atLeastOneChild) {
+            // this is an empty element. Move to EndToken such XmlCursor.beginElement inserts an element inside it.
+            xmlCursor.toEndToken();
+        }
         QName childName = xmlCursor.getName();
         Environment oldEnvironment;
-
+        
         if (childName != null && childName.getLocalPart().equals(ENVIRONMENT_LOCAL_NAME)) {
             convertElement(xmlCursor, ENVIRONMENT_QNAME.getNamespaceURI());
             XmlObject xmlObject = xmlCursor.getObject();
             EnvironmentType environmentType = (EnvironmentType) xmlObject.copy().changeType(EnvironmentType.type);
             oldEnvironment = EnvironmentBuilder.buildEnvironment(environmentType);
             xmlCursor.removeXml();
-        }
-        else {
+        } else {
             oldEnvironment = new Environment();
         }
 
@@ -183,6 +188,19 @@ public class PlanProcessorMojo
         }
         finally {
             element.dispose();
+        }
+    }
+
+    private void moveToFirstStartElement(XmlCursor xmlCursor) throws AssertionError {
+        xmlCursor.toStartDoc();
+        xmlCursor.toFirstChild();
+        while (!xmlCursor.currentTokenType().isStart()) {            
+            if (!xmlCursor.toNextSibling()) {
+                break;
+            }
+        } 
+        if (!xmlCursor.currentTokenType().isStart()) {
+            throw new AssertionError("Cannot find first start element");
         }
     }
 
