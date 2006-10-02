@@ -5,45 +5,47 @@ The current version of this file can be found at:
 
   * http://svn.apache.org/repos/asf/geronimo/trunk/STATUS
 
+
 Upcoming Releases:
 
   Geronimo 1.2 -- geronimo/trunk/
-    Release Manager: not yet voted
-    Estimated Date: September ??
-    
-  Geronimo 1.1.1 -- geronimo/branches/1.1
-    Release Manager:  Matt Hogstrom
-    Estimated Date: August ??
+    Release Manager: Dain Sundstrom and Alan Cabrera
+    Estimated Date: Q4 2006
 
+
+    
 RELEASE SHOWSTOPPERS:
 
-Currently the 1.1.1 release is addressing security issues that are related to CTS failures as well
-as reworking our build and release process to address potential violations of Sun's License for the
-specification related XSDs.  Our work around includes using XML beans to download and generate the
-code necessary to manipulate the XSDs without including Sun's content in SVN or our released code.
+Certification - Historically certification has been the most time consuming portion of a release, and there is no reason to expect it to be any different for this release.  To make matters worse, the certification test suite has not been run in several months while major changes have been made to EJB, Transaction, Connector and Servlet Session.    
+
+Features - The scope for the 1.2 release is currently being finalized.  We have collected a list of 14 features to be included in the release and are working on prioritizing the list.  The prioritized list will help guide us in determining when to release based on the number of completed high priority features.
+
+Dead 1.2 -  There are still 37 unmerged commits the dead 1.2 branch.  These commits must be merged before the 1.2 release.  The current status of the dead-1.2 changes can be found at http://svn.apache.org/repos/asf/geronimo/server/trunk/all_changes.log
+
+Specs - There are two proposals for versioning specification jars in Geronimo.  The first uses a single version number for all specifications.  The makes releasing new versions of specifications easy for the Geronimo committers as only a single file must be updated.  Alternatively, each specification could have an independent version number.  With this approach several files may have to be updated to release a jar, but this approach reduces the number of jars that are released with no changes.  This issue is in active discussion and will hopefully be resolved quickly.
+
+
 
 Outstanding patches awaiting votes:
 
 On JIRA, the following patches are oustanding:
 
-XBEAN-45 Move classloaders to their own module - Patch Available - Alan Cabrera - Opened 19/Aug/06
-  Status: review needed. 1 +1 vote provided...need two more
-
-GERONIMO-2332 RTC Put the generated xmlbeans files for the j2ee 1.4 schemas in svn in a spec module
-so we don't need the schemas in svn at all - Patch Available - David Jencks - Opened: 18/Aug/06
-  Status: in progress
-
-GERONIMO-2248 Applications portlets: List Parent and Child components against each component
-Patch Available  Unassigned - Opened: 30/Jul/06
-  Status: Needs to complete voting and apply to 1.1.2 and trunk
-
-GERONIMO-2163 WADI Integration for Jetty - Patch Available - Gianny Damour - Opened: 02/Jul/06
-  Status: Not actually in a state for voting...this is in a discussion state.
+GERONIMO-1277 Change group-id to org.apache.geronimo
+  Status: New proposal by Jason Dillon to change base the groupId to org.apache.geronimo.server
 
 GERONIMO-2015 Let's replace JKS to PKCS12 key store type - Opened
-  Status: In discussion...although not totally active
+  Status: No active discussion
+
+GERONIMO-2409 Provide config/module aliasing ability
+  Status: 3 +1 votes
+
+GERONIMO-2413 Add a Certification Authority (CA) portlet to Geronimo console
+  Status: Not reviewed
+
+
 
 Release history:
+  2006-09-18  Geronimo 1.1
   2006-06-26  Geronimo 1.1
   2006-01-05  Geronimo 1.0
   2005-10-04  Geronimo 1.0 milestone 5
