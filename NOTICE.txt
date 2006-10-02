@@ -6,3 +6,9 @@ International Business Machines Corporation and are
 licensed to the Apache Software Foundation under the
 "Software Grant and Corporate Contribution License Agreement",
 informally known as the "IBM Console CLA".
+
+The following copyright notice(s) were affixed to portions of the code
+with which this file is now or was at one time distributed
+and are placed here unaltered.
+
+(C) Copyright 2004, 2005 International Business Machines Corporation.  All rights reserved.
