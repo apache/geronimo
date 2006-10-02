@@ -173,6 +173,11 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.modules</groupId>
+                                    <artifactId>geronimo-system</artifactId>
+                                    <version>${pom.version}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.modules</groupId>
                                     <artifactId>geronimo-axis-builder</artifactId>
                                     <version>${pom.version}</version>
                                 </artifactItem>
