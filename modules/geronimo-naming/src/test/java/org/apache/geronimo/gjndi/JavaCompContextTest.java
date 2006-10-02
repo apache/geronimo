@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2006 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,28 +14,42 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+package org.apache.geronimo.gjndi;
 
-package org.apache.geronimo.naming.java;
+import junit.framework.TestCase;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.NoSuchElementException;
-
-import javax.naming.Binding;
+import javax.naming.NamingException;
 import javax.naming.CompositeName;
 import javax.naming.CompoundName;
 import javax.naming.Context;
-import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
+import javax.naming.NameClassPair;
+import javax.naming.Binding;
+import javax.naming.LinkRef;
+import javax.naming.InitialContext;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.Properties;
+import java.util.Collections;
+
+import org.apache.geronimo.naming.java.RootContext;
+import org.apache.xbean.naming.context.ImmutableContext;
+import org.apache.xbean.naming.context.WritableContext;
+import org.apache.xbean.naming.context.ContextAccess;
+import org.apache.xbean.naming.global.GlobalContextManager;
 
 /**
-* Unit tests for basic ops on an {@link javax.naming.InitialContext}.
- *
  * @version $Rev$ $Date$
  */
-public class BasicContextTest extends AbstractContextTest {
+public class JavaCompContextTest extends TestCase {
+    protected Context readOnlyContext;
+    protected Properties syntax;
+    protected Map envBinding;
+    protected Context initialContext;
+    protected Context compContext;
+    protected Context envContext;
 
     public void testInitialContext() throws NamingException {
         assertEquals("Hello", initialContext.lookup("java:comp/env/hello"));
@@ -123,7 +137,7 @@ public class BasicContextTest extends AbstractContextTest {
             count ++;
             Binding pair = (Binding) ne.next();
             assertTrue(envBinding.containsKey(pair.getName()));
-            if (! (envBinding.get(pair.getName()) instanceof ReadOnlyContext)) {
+            if (! (envBinding.get(pair.getName()) instanceof Context)) {
                 assertEquals(pair.getObject(), envBinding.get(pair.getName()));
             }
         }
@@ -157,4 +171,37 @@ public class BasicContextTest extends AbstractContextTest {
         System.out.println("lookup(String) milliseconds: " + (end - start));
     }
 
+    protected void setUp() throws Exception {
+        super.setUp();
+        System.setProperty("java.naming.factory.initial", GlobalContextManager.class.getName());
+        System.setProperty("java.naming.factory.url.pkgs", "org.apache.geronimo.knaming");
+
+        LinkRef link = new LinkRef("java:comp/env/hello");
+
+        Map bindings = new HashMap();
+        bindings.put("env/hello", "Hello");
+        bindings.put("env/world", "Hello World");
+        bindings.put("env/here/there/anywhere", "long name");
+        bindings.put("env/link", link);
+
+        readOnlyContext = new WritableContext("", bindings, ContextAccess.UNMODIFIABLE);
+
+        envBinding = new HashMap();
+        envBinding.put("hello", "Hello");
+        envBinding.put("world", "Hello World");
+        envBinding.put("here", readOnlyContext.lookup("env/here"));
+        envBinding.put("link", link);
+
+        RootContext.setComponentContext(readOnlyContext);
+
+        Context javaCompContext = new JavaCompContextGBean();
+        Context globalContext = new ImmutableContext(Collections.singletonMap(javaCompContext.getNameInNamespace(), javaCompContext));
+        GlobalContextManager.setGlobalContext(globalContext);
+
+        initialContext = new InitialContext();
+        compContext = (Context) initialContext.lookup("java:comp");
+        envContext = (Context) initialContext.lookup("java:comp/env");
+
+        syntax = new Properties();
+    }
 }

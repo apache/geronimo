@@ -17,10 +17,13 @@
 
 package org.apache.geronimo.naming.java;
 
-import java.util.Hashtable;
+import java.util.Collections;
+
+import javax.naming.Context;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
-import javax.naming.Context;
+
+import org.apache.xbean.naming.context.ImmutableContext;
 
 /**
  * The root context for the java: namespace.
@@ -29,8 +32,12 @@ import javax.naming.Context;
  *
  * @version $Rev$ $Date$
  */
-public class RootContext extends ReadOnlyContext {
+public class RootContext extends ImmutableContext {
     private static InheritableThreadLocal compContext = new InheritableThreadLocal();
+
+    public RootContext() throws NamingException {
+        super(Collections.EMPTY_MAP);
+    }
 
     public Object lookup(String name) throws NamingException {
         if (name.startsWith("java:")) {

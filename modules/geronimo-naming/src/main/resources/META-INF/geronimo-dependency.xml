@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dep:service xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
+  <dep:dependency>
+    <dep:groupId>org.apache.xbean</dep:groupId>
+    <dep:artifactId>xbean-naming</dep:artifactId>
+  </dep:dependency>
+</dep:service>

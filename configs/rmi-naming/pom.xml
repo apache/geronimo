@@ -134,10 +134,16 @@
         
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-util</artifactId>
+            <artifactId>geronimo-naming</artifactId>
             <version>${pom.version}</version>
         </dependency>
         
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-util</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+
         <!-- remote login -->
         <dependency>
             <groupId>activeio</groupId>

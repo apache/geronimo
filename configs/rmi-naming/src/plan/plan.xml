@@ -24,10 +24,14 @@
     </gbean>
 
     <gbean name="NamingProperties" class="org.apache.geronimo.system.properties.NamingProperties">
-        <attribute name="namingFactoryInitial">com.sun.jndi.rmi.registry.RegistryContextFactory</attribute>
-        <attribute name="namingFactoryUrlPkgs">org.apache.geronimo.naming</attribute>
+        <attribute name="namingFactoryInitial">org.apache.xbean.naming.global.GlobalContextManager</attribute>
+        <attribute name="namingFactoryUrlPkgs">org.apache.xbean.naming</attribute>
         <attribute name="namingProviderUrl">rmi://${PlanServerHostname}:${PlanNamingPort}</attribute>
     </gbean>
+
+    <gbean name="GlobalContext" class="org.apache.geronimo.gjndi.GlobalContextGBean"/>
+
+    <gbean name="JavaCompContext" class="org.apache.geronimo.gjndi.JavaCompContextGBean"/>
 
     <gbean name="SystemProperties" class="org.apache.geronimo.system.properties.SystemProperties">
         <attribute name="systemProperties" />
