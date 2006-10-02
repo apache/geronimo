@@ -31,25 +31,11 @@
     <artifactId>geronimo-clustering-builder-wadi</artifactId>
     <name>Geronimo Clustering Builder WADI</name>
     
-    <!--
-    
-    HACK: Need to explicitly configure SCM for this module since its artifactId
-          does not match the directory it lives in.
-    
-    FIXME: Rename module directory or artifactId.
-    
-    -->
-    <scm>
-        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/trunk/modules/clustering-builder-wadi</connection>
-        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk/modules/clustering-builder-wadi</developerConnection>
-        <url>http://svn.apache.org/repos/asf/geronimo/trunk/modules/clustering-builder-wadi</url>
-    </scm>
-    
     <dependencies>
 
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-clustering-wadi</artifactId>
+            <artifactId>geronimo-jetty-clustering-wadi</artifactId>
             <version>${pom.version}</version>
         </dependency>
 

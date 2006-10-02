@@ -15,7 +15,12 @@
   limitations under the License.
 -->
 
-<!-- $Rev$ $Date$ -->
+<!-- $Rev: 446730 $ $Date: 2006-09-16 06:44:51 +1000 (Sat, 16 Sep 2006) $ -->
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+
+    <gbean name="Node" class="org.apache.geronimo.clustering.BasicNode">
+        <attribute name="nodeName">${PlanNodeName}</attribute>
+    </gbean>
+
 </module>

@@ -23,7 +23,7 @@ import java.util.Set;
 import javax.xml.namespace.QName;
 
 import org.apache.geronimo.clustering.wadi.BasicWADISessionManager;
-import org.apache.geronimo.clustering.wadi.WADIClusteredHandleInterceptor;
+import org.apache.geronimo.jetty.cluster.wadi.WADIClusteredHandleInterceptor;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;

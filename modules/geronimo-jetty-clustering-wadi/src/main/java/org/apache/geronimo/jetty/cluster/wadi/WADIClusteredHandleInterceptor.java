@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.clustering.wadi;
+package org.apache.geronimo.jetty.cluster.wadi;
 
 import java.io.IOException;
 
@@ -25,6 +25,7 @@ import javax.servlet.ServletResponse;
 
 import org.apache.geronimo.clustering.ClusteredInvocation;
 import org.apache.geronimo.clustering.ClusteredInvocationException;
+import org.apache.geronimo.clustering.wadi.WADISessionManager;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;

@@ -15,7 +15,7 @@
   limitations under the License.
 -->
 
-<!-- $Rev$ $Date$ -->
+<!-- $Rev: 446727 $ $Date: 2006-09-16 06:43:43 +1000 (Sat, 16 Sep 2006) $ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
@@ -28,44 +28,30 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>jetty-clustering-builder-wadi</artifactId>
-    <name>Geronimo Configs :: Jetty Clustering Builder WADI</name>
+    <artifactId>wadi-clustering</artifactId>
+    <name>Geronimo Configs :: Clustering over WADI</name>
     <packaging>car</packaging>
-
+    
     <properties>
         <PlanDefaultSweepInterval>36000</PlanDefaultSweepInterval>
         <PlanDefaultNumPartitions>24</PlanDefaultNumPartitions>
+        <PlanNbReplica>2</PlanNbReplica>
+        <PlanClusterName>DEFAULT_CLUSTER</PlanClusterName>
+        <PlanInactiveTime>3600</PlanInactiveTime>
+        <PlanClusterUri>tcp://localhost:61618</PlanClusterUri>
     </properties>
-    
+
     <dependencies>
-        <dependency>
+       <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>jetty-deployer</artifactId>
+            <artifactId>clustering</artifactId>
             <version>${pom.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-clustering</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-jetty-clustering-wadi</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-clustering-wadi</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-clustering-builder-wadi</artifactId>
             <version>${pom.version}</version>
         </dependency>
 

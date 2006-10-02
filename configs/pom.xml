@@ -121,6 +121,7 @@
         <module>client-system</module>
         <module>client-transaction</module>
         <module>connector-deployer</module>
+        <module>clustering</module>
         <module>webconsole-jetty</module>
         <module>webconsole-tomcat</module>
         <!-- <module>daytrader-jetty</module> -->
@@ -164,6 +165,7 @@
         <module>unavailable-webservices-deployer</module>
         <module>upgrade</module>
         <module>upgrade-cli</module>
+        <module>wadi-clustering</module>
         <module>welcome-jetty</module>
         <module>welcome-tomcat</module>
         <module>dojo-jetty</module>

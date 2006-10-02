@@ -31,20 +31,6 @@
     <artifactId>geronimo-clustering-wadi</artifactId>
     <name>Geronimo Clustering WADI</name>
     
-    <!--
-    
-    HACK: Need to explicitly configure SCM for this module since its artifactId
-          does not match the directory it lives in.
-    
-    FIXME: Rename module directory or artifactId.
-    
-    -->
-    <scm>
-        <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/trunk/modules/clustering-wadi</connection>
-        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/trunk/modules/clustering-wadi</developerConnection>
-        <url>http://svn.apache.org/repos/asf/geronimo/trunk/modules/clustering-wadi</url>
-    </scm>
-
     <repositories>
         <repository>
             <id>wadi-snapshots</id>

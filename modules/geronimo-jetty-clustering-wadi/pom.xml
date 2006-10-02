@@ -28,19 +28,19 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>geronimo-clustering</artifactId>
-    <name>Geronimo Clustering</name>
+    <artifactId>geronimo-jetty-clustering-wadi</artifactId>
+    <name>Geronimo Jetty Clustering over WADI</name>
     
     <dependencies>
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-system</artifactId>
+            <artifactId>geronimo-clustering-wadi</artifactId>
             <version>${pom.version}</version>
         </dependency>
 
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-j2ee</artifactId>
+            <artifactId>geronimo-jetty</artifactId>
             <version>${pom.version}</version>
         </dependency>
     </dependencies>

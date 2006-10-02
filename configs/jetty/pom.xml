@@ -55,16 +55,17 @@
             <type>car</type>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>clustering</artifactId>
+            <version>${pom.version}</version>
+            <type>car</type>
+        </dependency>
+
         <!-- This dependency should be retrieved by transitivity -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-jetty</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-clustering</artifactId>
             <version>${pom.version}</version>
         </dependency>
 
