@@ -1,13 +1,13 @@
 #!/bin/sh
 #
 #  Copyright 2005 The Apache Software Foundation
-# 
+#
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
 #   You may obtain a copy of the License at
-# 
+#
 #      http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 #   Unless required by applicable law or agreed to in writing, software
 #   distributed under the License is distributed on an "AS IS" BASIS,
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,18 +24,18 @@
 # This script is based upon Tomcat's catalina.sh file to enable
 # those familiar with Tomcat to quickly get started with Geronimo.
 #
-# This script file can be used directly instead of startup.sh and 
+# This script file can be used directly instead of startup.sh and
 # shutdown.sh as they call this script file anyway.
 #
 # You should not have to edit this file.  If you wish to have environment
 # variables set each time you run this script refer to the information
-# on the setenv.sh script that is called by this script below. 
+# on the setenv.sh script that is called by this script below.
 #
 # Invocation Syntax:
 #
-#   geronimo.sh command [geronimo_args] 
+#   geronimo.sh command [geronimo_args]
 #
-#   For detailed command usage information, just run geronimo.sh without any 
+#   For detailed command usage information, just run geronimo.sh without any
 #   arguments.
 #
 # Environment Variable Prequisites:
@@ -52,7 +52,7 @@
 #                   "stop", or "run" command is executed.
 #
 #   GERONIMO_OUT    (Optional) File that Geronimo's stdout and stderr streams
-#                   will be redirected to if Geronimo is started in the 
+#                   will be redirected to if Geronimo is started in the
 #                   background.
 #                   Defaults to $GERONIMO_BASE/var/log/geronimo.out
 #
@@ -69,7 +69,7 @@
 #                   It is mandatory either JAVA_HOME or JRE_HOME are set.
 #
 #   JRE_HOME        Points to your Java Runtime Environment installation.
-#                   Set this if you wish to run Geronimo using the JRE 
+#                   Set this if you wish to run Geronimo using the JRE
 #                   instead of the JDK (except for the "debug" command).
 #                   Defaults to JAVA_HOME if empty.
 #                   It is mandatory either JAVA_HOME or JRE_HOME are set.
@@ -77,7 +77,7 @@
 #   JAVA_OPTS       (Optional) Java runtime options used when the "start",
 #                   "stop", or "run" command is executed.
 #
-#   JDB_SRCPATH     (Optional) The Source Path to be used by jdb debugger 
+#   JDB_SRCPATH     (Optional) The Source Path to be used by jdb debugger
 #                   when the "debug" command is executed.
 #                   Defaults to %GERONIMO_HOME%\src
 #
@@ -88,11 +88,11 @@
 #                   command is executed. The default is "dt_socket".
 #
 #   JPDA_OPTS       (Optional) JPDA command line options.
-#                   Only set this if you need to use some unusual JPDA 
+#                   Only set this if you need to use some unusual JPDA
 #                   command line options.  This overrides the use of the
 #                   other JPDA_* environment variables.
-#                   Defaults to JPDA command line options contructed from 
-#                   the JPDA_ADDRESS, JPDA_SUSPEND and JPDA_TRANSPORT 
+#                   Defaults to JPDA command line options contructed from
+#                   the JPDA_ADDRESS, JPDA_SUSPEND and JPDA_TRANSPORT
 #                   environment variables.
 #
 #   JPDA_SUSPEND    (Optional) Suspend the JVM before the main class is loaded.
@@ -109,11 +109,11 @@
 #  GERONIMO_ENV_INFO (Optional) Environment variable that when set to "on"
 #                    (the default) outputs the values of the GERONIMO_HOME,
 #                    GERONIMO_BASE, GERONIMO_TMPDIR, JAVA_HOME and
-#                    JRE_HOME before the command is issued. Set to "off"    
+#                    JRE_HOME before the command is issued. Set to "off"
 #                    if you do not want this information displayed.
 #
 # Scripts called by this script:
-# 
+#
 #   $GERONIMO_HOME/bin/setenv.sh
 #                   (Optional) This script file is called if it is present.
 #                   Its contents may set one or more of the above environment
@@ -167,7 +167,7 @@ fi
 if $cygwin; then
   [ -n "$JAVA_HOME" ] && JAVA_HOME=`cygpath --unix "$JAVA_HOME"`
   [ -n "$JRE_HOME" ] && JRE_HOME=`cygpath --unix "$JRE_HOME"`
-  [ -n "$JDB_SRCPATH" ] && JDB_SRCPATH=`cygpath --unix "$JDB_SRCPATH"`  
+  [ -n "$JDB_SRCPATH" ] && JDB_SRCPATH=`cygpath --unix "$JDB_SRCPATH"`
   [ -n "$GERONIMO_HOME" ] && GERONIMO_HOME=`cygpath --unix "$GERONIMO_HOME"`
   [ -n "$GERONIMO_BASE" ] && GERONIMO_BASE=`cygpath --unix "$GERONIMO_BASE"`
 fi
@@ -185,7 +185,7 @@ if $os400; then
 fi
 
 # Get standard Java environment variables
-# (based upon Tomcat's setclasspath.sh but renamed since Geronimo's classpath 
+# (based upon Tomcat's setclasspath.sh but renamed since Geronimo's classpath
 # is set in the JAR manifest)
 if $os400; then
   # -r will Only work on the os400 if the files are:
@@ -193,7 +193,7 @@ if $os400; then
   # 2. owned by the PRIMARY group of the user
   # this will not work if the user belongs in secondary groups
   BASEDIR="$GERONIMO_HOME"
-  . "$GERONIMO_HOME"/bin/setjavaenv.sh 
+  . "$GERONIMO_HOME"/bin/setjavaenv.sh
 else
   if [ -r "$GERONIMO_HOME"/bin/setjavaenv.sh ]; then
     BASEDIR="$GERONIMO_HOME"
@@ -229,7 +229,7 @@ fi
 if $cygwin; then
   JAVA_HOME=`cygpath --absolute --windows "$JAVA_HOME"`
   JRE_HOME=`cygpath --absolute --windows "$JRE_HOME"`
-  JDB_SRCPATH=`cygpath --absolute --windows "$JDB_SRCPATH"`  
+  JDB_SRCPATH=`cygpath --absolute --windows "$JDB_SRCPATH"`
   GERONIMO_HOME=`cygpath --absolute --windows "$GERONIMO_HOME"`
   GERONIMO_BASE=`cygpath --absolute --windows "$GERONIMO_BASE"`
   GERONIMO_TMPDIR=`cygpath --absolute --windows "$GERONIMO_TMPDIR"`
@@ -271,7 +271,7 @@ if [ "$1" = "jpda" ] ; then
   fi
   if [ "$GERONIMO_ENV_INFO" != "off" ] ; then
     echo "Using JPDA_OPTS:       $JPDA_OPTS"
-  fi  
+  fi
   GERONIMO_OPTS="$GERONIMO_OPTS $JPDA_OPTS"
   shift
 fi
@@ -288,10 +288,12 @@ if [ "$1" = "debug" ] ; then
     shift
     exec "$_RUNJDB" $JAVA_OPTS $GERONIMO_OPTS \
       -sourcepath "$JDB_SRCPATH" \
+      -Djava.endorsed.dirs="$JRE_HOME/lib/endorsed:$GERONIMO_BASE/lib/endorsed" \
+      -Djava.ext.dirs="$JRE_HOME/lib/ext:$GERONIMO_BASE/lib/ext" \
       -Dorg.apache.geronimo.base.dir="$GERONIMO_BASE" \
       -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
       -classpath "$GERONIMO_HOME"/bin/server.jar \
-      org.apache.geronimo.system.main.Daemon $LONG_OPT "$@" 
+      org.apache.geronimo.system.main.Daemon $LONG_OPT "$@"
   fi
 
 elif [ "$1" = "run" ]; then
@@ -299,8 +301,10 @@ elif [ "$1" = "run" ]; then
   shift
   exec "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
     -Dorg.apache.geronimo.base.dir="$GERONIMO_BASE" \
+    -Djava.endorsed.dirs="$JRE_HOME/lib/endorsed:$GERONIMO_BASE/lib/endorsed" \
+    -Djava.ext.dirs="$JRE_HOME/lib/ext:$GERONIMO_BASE/lib/ext" \
     -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
-    -jar "$GERONIMO_HOME"/bin/server.jar $LONG_OPT "$@" 
+    -jar "$GERONIMO_HOME"/bin/server.jar $LONG_OPT "$@"
 
 elif [ "$1" = "start" ] ; then
 
@@ -308,6 +312,8 @@ elif [ "$1" = "start" ] ; then
   touch "$GERONIMO_OUT"
   $START_OS_CMD "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
     -Dorg.apache.geronimo.base.dir="$GERONIMO_BASE" \
+    -Djava.endorsed.dirs="$JRE_HOME/lib/endorsed:$GERONIMO_BASE/lib/endorsed" \
+    -Djava.ext.dirs="$JRE_HOME/lib/ext:$GERONIMO_BASE/lib/ext" \
     -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
     -jar "$GERONIMO_HOME"/bin/server.jar $LONG_OPT "$@" \
     >> $GERONIMO_OUT 2>&1 &
@@ -330,6 +336,8 @@ elif [ "$1" = "stop" ] ; then
 
   "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
     -Dorg.apache.geronimo.base.dir="$GERONIMO_BASE" \
+    -Djava.endorsed.dirs="$JRE_HOME/lib/endorsed:$GERONIMO_BASE/lib/endorsed" \
+    -Djava.ext.dirs="$JRE_HOME/lib/ext:$GERONIMO_BASE/lib/ext" \
     -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
     -jar "$GERONIMO_HOME"/bin/shutdown.jar "$@"
 

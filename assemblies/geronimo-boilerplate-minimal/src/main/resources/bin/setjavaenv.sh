@@ -1,13 +1,13 @@
 #!/bin/sh
 #
 #  Copyright 2005 The Apache Software Foundation
-# 
+#
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
 #   You may obtain a copy of the License at
-# 
+#
 #      http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 #   Unless required by applicable law or agreed to in writing, software
 #   distributed under the License is distributed on an "AS IS" BASIS,
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,7 +25,7 @@
 # by the startup.sh, shutdown.sh files).  This file is also invoked
 # by the deploy.sh file.
 #
-# It is preferable (to simplify migration to future Geronimo releases) 
+# It is preferable (to simplify migration to future Geronimo releases)
 # to set any environment variables you need in the setenv.sh file
 # rather than modifying Geronimo's script files.  See the documentation
 # in the geronimo.sh file for further information.
@@ -45,7 +45,7 @@ if [ -z "$JAVA_HOME" -a "$1" = "debug" ]; then
   exit 1
 fi
 if [ -z "$JRE_HOME" ]; then
-  JRE_HOME="$JAVA_HOME"
+  JRE_HOME="$JAVA_HOME/jre"
 fi
 
 # If we're running under jdb, we need a full jdk.

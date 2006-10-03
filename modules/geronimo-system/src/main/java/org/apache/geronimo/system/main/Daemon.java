@@ -176,7 +176,7 @@ public class Daemon {
                 monitor = new LongStartupMonitor();
             else
                 monitor = new ProgressBarStartupMonitor();
-        }                                                            
+        }
 
         // JVMCheck();   // Removed for 1.1
     }
@@ -212,17 +212,6 @@ public class Daemon {
                 System.exit(1);
                 throw new AssertionError();
             }
-
-            // setup the endorsed dir entry
-            CommandLineManifest manifestEntries = CommandLineManifest.getManifestEntries();
-
-            String endorsedDirs = "java.endorsed.dirs";
-            List endorsedDirsFromManifest = manifestEntries.getEndorsedDirs();
-            AddToSystemProperty(endorsedDirs, endorsedDirsFromManifest, geronimoInstallDirectory);
-
-            String extensionDirs = "java.ext.dirs";
-            List extensionDirsFromManifest = manifestEntries.getExtensionDirs();
-            AddToSystemProperty(extensionDirs, extensionDirsFromManifest, geronimoInstallDirectory);
 
             ClassLoader classLoader = Daemon.class.getClassLoader();
 
@@ -260,7 +249,7 @@ public class Daemon {
                     }
                 }
             }
-            
+
             monitor.systemStarted(kernel);
 
             AbstractNameQuery query = new AbstractNameQuery(PersistentConfigurationList.class.getName());

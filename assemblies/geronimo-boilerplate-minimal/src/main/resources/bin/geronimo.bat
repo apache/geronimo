@@ -19,26 +19,26 @@
 
 @REM ---------------------------------------------------------------------------
 @REM Start/Stop Batch file for Geronimo
-@REM 
+@REM
 @REM This batch file is based upon Tomcat's catalina.bat file to enable
 @REM those familiar with Tomcat to quickly get started with Geronimo.
 @REM
-@REM This batch file can be used directly instead of startup.bat and 
+@REM This batch file can be used directly instead of startup.bat and
 @REM shutdown.bat as they call this batch file anyway.
 @REM
 @REM You should not have to edit this file.  If you wish to have environment
 @REM variables set each time you run this batch file refer to the information
-@REM on the setenv.bat file below. 
+@REM on the setenv.bat file below.
 @REM
 @REM Invocation Syntax:
 @REM
-@REM   geronimo command [geronimo_args] 
+@REM   geronimo command [geronimo_args]
 @REM
-@REM   For detailed usage information, just run geronimo.bat without any 
+@REM   For detailed usage information, just run geronimo.bat without any
 @REM   arguments.
 @REM
 @REM Environment Variable Prequisites:
-@REM 
+@REM
 @REM   GERONIMO_HOME   May point at your Geronimo top-level directory.
 @REM                   If not specified, this batch file will attempt to
 @REM                   discover it relative to the location of this file.
@@ -57,7 +57,7 @@
 @REM
 @REM   GERONIMO_WIN_START_ARGS  (Optional) additional arguments to the Windows
 @REM                            START command when the "start" command
-@REM                            is executed. E.G, you could set this to /MIN 
+@REM                            is executed. E.G, you could set this to /MIN
 @REM                            to start Geronimo in a minimized window.
 @REM
 @REM   JAVA_HOME       Points to your Java Development Kit installation.
@@ -66,7 +66,7 @@
 @REM                   It is mandatory either JAVA_HOME or JRE_HOME are set.
 @REM
 @REM   JRE_HOME        (Optional) Points to your Java Runtime Environment
-@REM                   Set this if you wish to run Geronimo using the JRE 
+@REM                   Set this if you wish to run Geronimo using the JRE
 @REM                   instead of the JDK (except for the "debug" command).
 @REM                   Defaults to JAVA_HOME if empty.
 @REM                   It is mandatory either JAVA_HOME or JRE_HOME are set.
@@ -82,11 +82,11 @@
 @REM                   command is executed. The default is "8000".
 @REM
 @REM   JPDA_OPTS       (Optional) JPDA command line options.
-@REM                   Only set this if you need to use some unusual JPDA 
+@REM                   Only set this if you need to use some unusual JPDA
 @REM                   command line options.  This overrides the use of the
 @REM                   other JPDA_* environment variables.
 @REM                   Defaults to JPDA command line options contructed from
-@REM                   the JPDA_ADDRESS, JPDA_SUSPEND and JPDA_TRANSPORT 
+@REM                   the JPDA_ADDRESS, JPDA_SUSPEND and JPDA_TRANSPORT
 @REM                   environment variables.
 @REM
 @REM   JPDA_SUSPEND    (Optional) Suspend the JVM before the main class is loaded.
@@ -94,7 +94,7 @@
 @REM
 @REM   JPDA_TRANSPORT  (Optional) JPDA transport used when the "jpda start"
 @REM                   command is executed. The default is "dt_socket".
-@REM                   Note that "dt_socket" is the default instead of "dt_shmem" 
+@REM                   Note that "dt_socket" is the default instead of "dt_shmem"
 @REM                   because eclipse does not support "dt_shmem".
 @REM
 @REM Troubleshooting execution of this batch file:
@@ -107,14 +107,14 @@
 @REM                        end of execution
 @REM
 @REM   GERONIMO_ENV_INFO    (Optional) Environment variable that when set to
-@REM                        "on" (the default) outputs the values of  
+@REM                        "on" (the default) outputs the values of
 @REM                        GERONIMO_HOME, GERONIMO_BASE, GERONIMO_TMPDIR,
 @REM                        JAVA_HOME and JRE_HOME before the command is
 @REM                        issued. Set to "off" if you do not want this
 @REM                        information displayed.
 @REM
 @REM Batch files called by this batch file:
-@REM 
+@REM
 @REM   %GERONIMO_HOME%\bin\setenv.bat
 @REM                   (Optional) This batch file is called if it is present.
 @REM                   Its contents may set one or more of the above environment
@@ -202,7 +202,7 @@ if not "%JPDA_SUSPEND%" == "" goto gotJpdaSuspend
 set JPDA_SUSPEND=n
 :gotJpdaSuspend
 if not "%JPDA_TRANSPORT%" == "" goto gotJpdaTransport
-@REM Note that "dt_socket" is the default instead of "dt_shmem" 
+@REM Note that "dt_socket" is the default instead of "dt_shmem"
 @REM because eclipse does not support "dt_shmem".
 set JPDA_TRANSPORT=dt_socket
 :gotJpdaTransport
@@ -242,7 +242,7 @@ echo   jpda start        Start Geronimo in background under JPDA debugger
 echo   run               Start Geronimo in the current window
 echo   start             Start Geronimo in a separate window
 echo   stop              Stop Geronimo
-echo. 
+echo.
 echo args for debug, jpda run, jpda start, run and start commands:
 echo        --quiet       No startup progress
 echo        --long        Long startup progress
@@ -250,7 +250,7 @@ echo   -v   --verbose     INFO log level
 echo   -vv  --veryverbose DEBUG log level
 echo        --override    Override configurations. USE WITH CAUTION!
 echo        --help        Detailed help.
-echo. 
+echo.
 echo args for stop command:
 echo        --user        Admin user
 echo        --password    Admin password
@@ -268,7 +268,7 @@ set JDB_SRCPATH=%GERONIMO_HOME%\src
 echo Note: The jdb debugger will start Geronimo in another process and connect to it.
 echo       To terminate Geronimo when running under jdb, run the "geronimo stop" command
 echo       in another window.  Do not use Ctrl-C as that will terminate the jdb client
-echo       (the debugger itself) but will not stop the Geronimo process. 
+echo       (the debugger itself) but will not stop the Geronimo process.
 goto execCmd
 
 :doRun
@@ -279,7 +279,7 @@ goto execCmd
 echo.
 echo Starting Geronimo in a separate window...
 shift
-@REM use long format of startup progress to be consistent with 
+@REM use long format of startup progress to be consistent with
 @REM the unix version of the start processing
 set _LONG_OPT=--long
 
@@ -308,11 +308,11 @@ goto setArgs
 
 @REM Execute Java with the applicable properties
 if not "%JDB%" == "" goto doJDB
-%_EXECJAVA% %JAVA_OPTS% %GERONIMO_OPTS% -Dorg.apache.geronimo.base.dir="%GERONIMO_BASE%" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -jar %_JARFILE% %_LONG_OPT% %CMD_LINE_ARGS%
+%_EXECJAVA% %JAVA_OPTS% %GERONIMO_OPTS% -Djava.ext.dirs="%JRE_HOME%/lib/ext;%GERONIMO_BASE%/lib/ext" -Djava.endorsed.dirs="%JRE_HOME%\lib\endorsed;%GERONIMO_BASE%\lib\endorsed" -Dorg.apache.geronimo.base.dir="%GERONIMO_BASE%" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -jar %_JARFILE% %_LONG_OPT% %CMD_LINE_ARGS%
 goto end
 
 :doJDB
-%_EXECJAVA% %JAVA_OPTS% %GERONIMO_OPTS% -sourcepath "%JDB_SRCPATH%" -Dorg.apache.geronimo.base.dir="%GERONIMO_BASE%" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -classpath %_JARFILE% %MAINCLASS% %CMD_LINE_ARGS%
+%_EXECJAVA% %JAVA_OPTS% %GERONIMO_OPTS% -sourcepath "%JDB_SRCPATH%" -Djava.endorsed.dirs="%JRE_HOME%\lib\endorsed;%GERONIMO_BASE%\lib\endorsed" -Dorg.apache.geronimo.base.dir="%GERONIMO_BASE%" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -classpath %_JARFILE% %MAINCLASS% %CMD_LINE_ARGS%
 goto end
 
 :end

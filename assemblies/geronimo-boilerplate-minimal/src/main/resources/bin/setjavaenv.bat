@@ -20,11 +20,11 @@
 @REM --------------------------------------------------------------------
 @REM Set environment variables relating to the execution of java commands
 @REM
-@REM This batch file is called by the geronimo.bat file (which is 
+@REM This batch file is called by the geronimo.bat file (which is
 @REM invoked by the startup.bat, shutdown.bat files).  This file is
 @REM also invoked by the deploy.bat file.
 @REM
-@REM It is preferable (to simplify migration to future Geronimo releases) 
+@REM It is preferable (to simplify migration to future Geronimo releases)
 @REM to set any environment variables you need in the setenv.bat file
 @REM rather than modifying Geronimo's script files.  See the documentation
 @REM in the geronimo.bat file for further information.
@@ -71,7 +71,7 @@ goto end
 
 :okJdkFileCheck
 @REM default JRE_HOME to JAVA_HOME if not set.
-if "%JRE_HOME%" == "" set JRE_HOME=%JAVA_HOME%
+if "%JRE_HOME%" == "" set JRE_HOME=%JAVA_HOME%\jre
 
 if not "%BASEDIR%" == "" goto gotBasedir
 echo The BASEDIR environment variable is not defined
