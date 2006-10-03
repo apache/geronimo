@@ -21,7 +21,7 @@
           <attribute name="userRepositories">[]</attribute>
         </gbean>
     </module>
-    
+
     <module name="org.apache.geronimo.configs/j2ee-server/${pom.version}/car"/>
 
     <module name="org.apache.geronimo.configs/transaction/${pom.version}/car"/>
@@ -38,45 +38,46 @@
           <attribute name="urlPath">/jndi/rmi://${PlanServerHostname}:${PlanNamingPort}/JMXConnector</attribute>
         </gbean>
     </module>
-    
+
     <module name="org.apache.geronimo.configs/axis/${pom.version}/car"/>
-    
+
     <module name="org.apache.geronimo.configs/openejb/${pom.version}/car">
         <gbean name="EJBNetworkService">
             <attribute name="host">${PlanServerHostname}</attribute>
             <attribute name="port">${PlanOpenEJBPort}</attribute>
         </gbean>
     </module>
-    
-    <module name="org.apache.geronimo.configs/j2ee-corba/${pom.version}/car" load="false">
+
+    <module name="org.apache.geronimo.configs/j2ee-corba-yoko/${pom.version}/car" load="false">
         <gbean name="NameServer">
-            <attribute name="dbDir">var/cosnaming.db</attribute>
             <attribute name="port">${PlanCOSNamingPort}</attribute>
-        </gbean>
-        <gbean name="Server">
-            <attribute name="args">-ORBInitRef, NameService=corbaloc::${PlanCOSNamingHost}:${PlanCOSNamingPort}/NameService</attribute>
-        </gbean>
-        <gbean name="UnprotectedServer">
-            <attribute name="args">-ORBInitRef, NameService=corbaloc::${PlanCOSNamingHost}:${PlanCOSNamingPort}/NameService</attribute>
+            <attribute name="host">${PlanCOSNamingHostttribute>
         </gbean>
     </module>
-    
+
+    <module name="org.apache.geronimo.configs/j2ee-corba-sun/${pom.version}/car" load="false">
+        <gbean name="NameServer">
+            <attribute name="port">${PlanCOSSunNamingPort}</attribute>
+            <attribute name="host">${PlanCOSNamingHostttribute>
+        </gbean>
+    </module>
+
     <module name="org.apache.geronimo.configs/system-database/${pom.version}/car">
         <gbean name="DerbyNetwork">
             <attribute name="host">${PlanServerHostname}</attribute>
             <attribute name="port">${PlanDerbyPort}</attribute>
         </gbean>
     </module>
-    
+
     <module name="org.apache.geronimo.configs/activemq-broker/${pom.version}/car">
         <gbean name="ActiveMQ.tcp.default">
             <attribute name="host">${PlanServerHostname}</attribute>
             <attribute name="port">${PlanActiveMQPort}</attribute>
         </gbean>
     </module>
-    
+
     <module name="org.apache.geronimo.configs/activemq/${pom.version}/car"/>
-    
+
     <module name="org.apache.geronimo.configs/tomcat/${pom.version}/car">
         <gbean name="TomcatEngine">
             <reference name="TomcatValveChain" />
@@ -84,7 +85,7 @@
         <!-- To disable accesslogging uncomment the following line
         <gbean name="FirstValve" load="false"></gbean>
         -->
-        
+
         <gbean name="TomcatResources"/>
         <gbean name="TomcatWebConnector">
             <attribute name="host">${PlanServerHostname}</attribute>
@@ -101,19 +102,19 @@
             <attribute name="port">${PlanHTTPSPortPrimary}</attribute>
         </gbean>
     </module>
-    
+
     <!--
-    NOTE: n.b. be sure the gbean deployer is explicitly loaded before j2ee-deployer 
+    NOTE: n.b. be sure the gbean deployer is explicitly loaded before j2ee-deployer
           so that defaultEnvironment overrides work properly
     -->
     <module name="org.apache.geronimo.configs/geronimo-gbean-deployer/${pom.version}/car"/>
-    
+
     <module name="org.apache.geronimo.configs/j2ee-deployer/${pom.version}/car">
         <gbean name="WebBuilder">
             <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.2</attribute>
         </gbean>
     </module>
-    
+
     <module name="org.apache.geronimo.configs/connector-deployer/${pom.version}/car"/>
 
     <module name="org.apache.geronimo.configs/openejb-deployer/${pom.version}/car">
@@ -121,11 +122,11 @@
             <attribute name="listener">?name=TomcatWebContainer</attribute>
         </gbean>
     </module>
-    
+
     <module name="org.apache.geronimo.configs/client-deployer/${pom.version}/car"/>
-    
+
     <module name="org.apache.geronimo.configs/axis-deployer/${pom.version}/car"/>
-    
+
     <module name="org.apache.geronimo.configs/javamail/${pom.version}/car" load="false">
         <gbean name="SMTPTransport">
             <attribute name="host">localhost</attribute>
@@ -139,17 +140,17 @@
             <attribute name="libDirs">var/shared/lib</attribute>
         </gbean>
     </module>
-    
+
     <module name="org.apache.geronimo.configs/tomcat-deployer/${pom.version}/car"/>
-    
+
     <module name="org.apache.geronimo.configs/welcome-tomcat/${pom.version}/car"/>
-    
+
     <module name="org.apache.geronimo.configs/webconsole-tomcat/${pom.version}/car"/>
-    
+
     <module name="org.apache.geronimo.configs/uddi-tomcat/${pom.version}/car" load="false"/>
-    
+
     <module name="org.apache.geronimo.configs/remote-deploy-tomcat/${pom.version}/car" />
-    
+
     <module name="org.apache.geronimo.configs/hot-deployer/${pom.version}/car"/>
-    
+
 </attributes>

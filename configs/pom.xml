@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
     Copyright 2006 The Apache Software Foundation
-    
+
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
-    
+
        http://www.apache.org/licenses/LICENSE-2.0
-    
+
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,7 +18,7 @@
 <!-- $Rev$ $Date$ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    
+
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -32,14 +32,14 @@
     <artifactId>configs</artifactId>
     <name>Geronimo Configs</name>
     <packaging>pom</packaging>
-    
+
     <properties>
         <!-- This property is required by the car:package mojo -->
         <geronimoVersion>${pom.version}</geronimoVersion>
-        
+
         <!-- This property is required to process geronimo-plugin.xml (for m2 & m2) -->
         <pom.currentVersion>${pom.version}</pom.currentVersion>
-        
+
         <gbeanDeployer>org.apache.geronimo.configs/geronimo-gbean-deployer/${pom.version}/car</gbeanDeployer>
         <j2eeDeployer>org.apache.geronimo.configs/j2ee-deployer/${pom.version}/car</j2eeDeployer>
         <clientDeployer>org.apache.geronimo.configs/client-deployer/${pom.version}/car</clientDeployer>
@@ -48,7 +48,7 @@
         <axisDeployer>org.apache.geronimo.configs/axis-deployer/${pom.version}/car</axisDeployer>
         <tomcatDeployer>org.apache.geronimo.configs/tomcat-deployer/${pom.version}/car</tomcatDeployer>
         <jettyDeployer>org.apache.geronimo.configs/jetty-deployer/${pom.version}/car</jettyDeployer>
-        
+
         <!-- Common plan properties -->
         <PlanServerHostname>0.0.0.0</PlanServerHostname>
         <PlanClientAddresses>127.0.0.1</PlanClientAddresses>
@@ -61,16 +61,21 @@
         <PlanActiveMQPort>61616</PlanActiveMQPort>
         <PlanCOSNamingHost>localhost</PlanCOSNamingHost>
         <PlanCOSNamingPort>1050</PlanCOSNamingPort>
+        <PlanCOSSunNamingPort>1050</PlanCOSSunNamingPort>
+        <PlanORBHost>localhost</PlanORBHost>
+        <PlanORBPort>6882</PlanORBPort>
+        <PlanORBSunPort>6882</PlanORBSunPort>
         <PlanORBSSLHost>localhost</PlanORBSSLHost>
         <PlanORBSSLPort>2001</PlanORBSSLPort>
+        <PlanORBSunSSLPort>2001</PlanORBSunSSLPort>
         <PlanJMXPort>9999</PlanJMXPort>
     </properties>
-    
+
     <build>
         <!--
-        
+
         NOTE: Don't add to extentions here, or JCL will freak out about multipule versions.
-        
+
         <extensions>
             <extension>
                 <groupId>org.apache.geronimo.plugins</groupId>
@@ -79,7 +84,7 @@
             </extension>
         </extensions>
         -->
-        
+
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -90,15 +95,15 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-        
+
         <plugins>
             <plugin>
                 <groupId>org.apache.geronimo.plugins</groupId>
                 <artifactId>car-maven-plugin</artifactId>
-                
+
                 <!-- Install as extention to allow 'car' packaging to be used. -->
                 <extensions>true</extensions>
-                
+
                 <configuration>
                     <archive>
                         <!-- Do not include META-INF/maven to avoid long file problems on windows -->
@@ -115,7 +120,8 @@
         <module>axis</module>
         <module>axis-deployer</module>
         <module>client</module>
-        <module>client-corba</module>
+        <module>client-corba-yoko</module>
+        <module>client-corba-sun</module>
         <module>client-deployer</module>
         <module>client-security</module>
         <module>client-system</module>
@@ -124,12 +130,11 @@
         <module>clustering</module>
         <module>webconsole-jetty</module>
         <module>webconsole-tomcat</module>
-        <!-- <module>daytrader-jetty</module> -->
-        <!-- <module>daytrader-tomcat</module> -->
         <module>directory</module>
         <module>geronimo-gbean-deployer</module>
         <module>hot-deployer</module>
-        <module>j2ee-corba</module>
+        <module>j2ee-corba-sun</module>
+        <module>j2ee-corba-yoko</module>
         <module>j2ee-deployer</module>
         <module>j2ee-security</module>
         <module>j2ee-server</module>
@@ -171,5 +176,5 @@
         <module>dojo-jetty</module>
         <module>dojo-tomcat</module>
     </modules>
-    
+
 </project>

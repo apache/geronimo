@@ -173,7 +173,7 @@
                 <artifactId>geronimo-servlet_2.4_spec</artifactId>
                 <version>1.0.1</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.xbean</groupId>
                 <artifactId>xbean-naming</artifactId>
@@ -400,6 +400,24 @@
             </dependency>
 
             <dependency>
+                <groupId>org.apache.yoko</groupId>
+                <artifactId>yoko-core</artifactId>
+                <version>1.0-incubating-M1-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.yoko</groupId>
+                <artifactId>yoko-spec-corba</artifactId>
+                <version>1.0-incubating-M1-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.yoko</groupId>
+                <artifactId>yoko-rmi</artifactId>
+                <version>1.0-incubating-M1-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>3.8.1</version>
@@ -579,6 +597,18 @@
             <dependency>
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-pkgen-builder</artifactId>
+                <version>2.2-incubating-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.openejb</groupId>
+                <artifactId>openejb-yoko</artifactId>
+                <version>2.2-incubating-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.openejb</groupId>
+                <artifactId>openejb-sunorb</artifactId>
                 <version>2.2-incubating-SNAPSHOT</version>
             </dependency>
 
@@ -1116,7 +1146,7 @@
 
         <!--
         NOTE: This profile is used to enable plugin prefixes for easy command-line usage, as in:
-        
+
               mvn -Ptools geronimo:start
         -->
         <profile>
@@ -1138,7 +1168,7 @@
                         <groupId>org.apache.geronimo.genesis.plugins</groupId>
                         <artifactId>tools-maven-plugin</artifactId>
                     </plugin>
-                    
+
                     <plugin>
                         <groupId>org.apache.geronimo.genesis.plugins</groupId>
                         <artifactId>maven-maven-plugin</artifactId>
@@ -1146,7 +1176,7 @@
                 </plugins>
             </build>
         </profile>
-        
+
         <!--
         NOTE: The staged build is used to get around a problem with Maven
               and extension plugins.
@@ -1209,10 +1239,10 @@
                 <module>modules</module>
                 <module>maven-plugins</module>
                 <module>applications</module>
-                
+
                 <!--
                 NOTE: Probably do not want to publish these to the repo...  Or do we?
-                
+
                 <module>configs</module>
                 <module>assemblies</module>
                 -->
@@ -1236,13 +1266,13 @@
                 <module>applications</module>
             </modules>
         </profile>
-        
+
         <profile>
             <id>sign-artifacts</id>
-            
+
             <!--
             NOTE: To use you need to enable this profile and pass in the passphrase:
-                  
+
                   mvn -Psign-artifacts -Dpassphrase=thephrase
             -->
             <build>
@@ -1263,7 +1293,7 @@
                 </plugins>
             </build>
         </profile>
-        
+
     </profiles>
 
 </project>

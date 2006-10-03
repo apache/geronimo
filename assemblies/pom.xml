@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
     Copyright 2006 The Apache Software Foundation
-    
+
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
-    
+
        http://www.apache.org/licenses/LICENSE-2.0
-    
+
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,9 +18,9 @@
 <!-- $Rev$ $Date$ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    
+
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>org.apache.geronimo</groupId>
         <artifactId>geronimo</artifactId>
@@ -32,7 +32,7 @@
     <artifactId>assemblies</artifactId>
     <name>Geronimo Assemblies</name>
     <packaging>pom</packaging>
-    
+
     <properties>
         <!--
         TODO: Move this where it can be shared with the configs/pom.xml values
@@ -44,8 +44,13 @@
         <PlanIIOPPort>9000</PlanIIOPPort>
         <PlanCOSNamingHost>localhost</PlanCOSNamingHost>
         <PlanCOSNamingPort>1050</PlanCOSNamingPort>
+        <PlanCOSSunNamingPort>1050</PlanCOSSunNamingPort>
+        <PlanORBHost>localhost</PlanORBHost>
+        <PlanORBPort>6882</PlanORBPort>
+        <PlanORBSunPort>6882</PlanORBSunPort>
         <PlanORBSSLHost>localhost</PlanORBSSLHost>
         <PlanORBSSLPort>2001</PlanORBSSLPort>
+        <PlanORBSunSSLPort>2001</PlanORBSunSSLPort>
         <PlanActiveMQPort>61616</PlanActiveMQPort>
         <PlanDerbyPort>1527</PlanDerbyPort>
         <PlanRemoteLoginPort>4242</PlanRemoteLoginPort>
@@ -60,7 +65,7 @@
         <PlanJettyWebBuilderDefaultNamespace>http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0</PlanJettyWebBuilderDefaultNamespace>
         <PlanTomcatWebBuilderDefaultNamespace>http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0</PlanTomcatWebBuilderDefaultNamespace>
     </properties>
-    
+
     <modules>
         <module>geronimo-boilerplate-minimal</module>
         <module>geronimo-boilerplate-j2ee</module>
@@ -70,6 +75,6 @@
         <module>geronimo-tomcat-j2ee</module>
         <module>geronimo-tomcat-minimal</module>
     </modules>
-    
+
 </project>
 

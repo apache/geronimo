@@ -19,57 +19,56 @@
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
-    <gbean name="CORBASystemProperties" class="org.apache.geronimo.system.properties.SystemProperties">
-        <attribute name="systemProperties">
-            javax.rmi.CORBA.UtilClass=org.apache.openejb.corba.util.UtilDelegateImpl
-            org.apache.openejb.corba.UtilDelegateClass=com.sun.corba.se.internal.POA.ShutdownUtilDelegate
-            org.omg.CORBA.ORBSingletonClass=com.sun.corba.se.internal.corba.ORBSingleton
-            org.omg.CORBA.ORBClass=org.apache.openejb.corba.sunorb.OpenEJBORB
-            javax.rmi.CORBA.PortableRemoteObjectClass=com.sun.corba.se.internal.javax.rmi.PortableRemoteObject
-            javax.net.ssl.keyStorePassword=secret
-            javax.net.ssl.trustStorePassword=secret
-        </attribute>
-        <attribute name="systemPathProperties">
-            javax.net.ssl.keyStore=var/security/keystores/geronimo-default
-            javax.net.ssl.trustStore=var/security/keystores/geronimo-default
-        </attribute>
-
-        <reference name="ServerInfo">
-            <name>ServerInfo</name>
-        </reference>
-    </gbean>
-
     <!-- CORBA -->
     <gbean name="DynamicORBStubClassLoader" class="org.apache.openejb.corba.util.DynamicStubClassLoaderGBean">
         <dependency>
-            <name>SystemProperties</name>
+            <name>ORBConfigAdapter</name>
         </dependency>
     </gbean>
 
-    <gbean name="NameServer" class="org.apache.openejb.corba.SunNameServiceGBean">
+
+    <gbean name="ORBConfigAdapter" class="org.apache.openejb.sunorb.SunORBConfigAdapterGBean">
+        <attribute name="dbDir">var/cosnaming.db</attribute>
+    </gbean>
+
+    <gbean name="NameServer" class="org.apache.openejb.corba.NameServiceGBean">
         <reference name="ServerInfo">
             <name>ServerInfo</name>
         </reference>
-        <attribute name="dbDir">var/cosnaming.db</attribute>
-        <attribute name="port">${PlanCOSNamingPort}</attribute>
-        <dependency>
-            <name>SystemProperties</name>
-        </dependency>
+        <reference name="configAdapter">
+            <name>ORBConfigAdapter</name>
+        </reference>
+        <attribute name="port">${PlanCOSSunNamingPort}</attribute>
+        <attribute name="host">${PlanCOSNamingHost}</attribute>
+    </gbean>
+
+    <gbean name="CORBASSLConfig" class="org.apache.openejb.corba.security.config.ssl.SSLConfigGBean">
+        <attribute name="keyStore">geronimo-default</attribute>
+        <attribute name="keyAlias">geronimo</attribute>
+        <attribute name="trustStore">geronimo-default</attribute>
+        <attribute name="algorithm">Default</attribute>
+        <attribute name="protocol">SSL</attribute>
+        <reference name="KeystoreManager">
+            <name>KeystoreManager</name>
+        </reference>
     </gbean>
 
     <!-- connections require SSL, no client cert, client logs in with password, no identity token -->
     <gbean name="Server" class="org.apache.openejb.corba.CORBABeanGBean">
-        <reference name="ThreadPool">
-            <name>DefaultThreadPool</name>
+        <attribute name="host">${PlanORBSSLHost}</attribute>
+        <attribute name="port">${PlanORBSunSSLPort}</attribute>
+        <reference name="configAdapter">
+            <name>ORBConfigAdapter</name>
         </reference>
-        <attribute name="args">-ORBInitRef, NameService=corbaloc::${PlanCOSNamingHost}:${PlanCOSNamingPort}/NameService</attribute>
-        <attribute name="configAdapter">org.apache.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
+        <reference name="nameService">
+            <name>NameServer</name>
+        </reference>
         <xml-attribute name="tssConfig">
             <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1">
                 <tss:default-principal>
                     <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
                 </tss:default-principal>
-                <tss:SSL port="${PlanORBSSLPort}" hostname="${PlanORBSSLHost}">
+                <tss:SSL port="${PlanORBSunSSLPort}" hostname="${PlanORBSSLHost}">
                     <tss:supports>Integrity Confidentiality EstablishTrustInTarget</tss:supports>
                     <tss:requires>Integrity Confidentiality</tss:requires>
                 </tss:SSL>
@@ -85,24 +84,18 @@
                 </tss:compoundSecMechTypeList>
             </tss:tss>
         </xml-attribute>
-        <dependency>
-            <name>SystemProperties</name>
-        </dependency>
-        <dependency>
-            <name>NameServer</name>
-        </dependency>
-        <dependency>
-            <name>SecurityService</name>
-        </dependency>
     </gbean>
 
     <!-- orb with no security whatsoever -->
     <gbean name="UnprotectedServer" class="org.apache.openejb.corba.CORBABeanGBean">
-        <reference name="ThreadPool">
-            <name>DefaultThreadPool</name>
+        <attribute name="host">${PlanORBHost}</attribute>
+        <attribute name="port">${PlanORBSunPort}</attribute>
+        <reference name="configAdapter">
+            <name>ORBConfigAdapter</name>
         </reference>
-        <attribute name="args">-ORBInitRef, NameService=corbaloc::${PlanCOSNamingHost}:${PlanCOSNamingPort}/NameService</attribute>
-        <attribute name="configAdapter">org.apache.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
+        <reference name="nameService">
+            <name>NameServer</name>
+        </reference>
         <xml-attribute name="tssConfig">
             <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1">
                 <tss:default-principal>
@@ -120,19 +113,6 @@
                 </tss:compoundSecMechTypeList>
             </tss:tss>
         </xml-attribute>
-        <dependency>
-            <type>CORBABean</type>
-            <name>Server</name>
-        </dependency>
-        <dependency>
-            <name>SystemProperties</name>
-        </dependency>
-        <dependency>
-            <name>NameServer</name>
-        </dependency>
-        <dependency>
-            <name>SecurityService</name>
-        </dependency>
     </gbean>
 
 <!-- tss bean examples, specify requirements for connection to orb.  Provide a ref in an ejb -->
@@ -147,7 +127,7 @@
                 <tss:default-principal>
                     <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
                 </tss:default-principal>
-                <tss:SSL port="${PlanORBSSLPort}" hostname="${PlanORBSSLHost}">
+                <tss:SSL port="${PlanORBSunSSLPort}" hostname="${PlanORBSSLHost}">
                     <tss:supports>Integrity Confidentiality EstablishTrustInTarget EstablishTrustInClient</tss:supports>
                     <tss:requires>Integrity Confidentiality EstablishTrustInClient</tss:requires>
                 </tss:SSL>
@@ -174,7 +154,7 @@
                 <tss:default-principal>
                     <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
                 </tss:default-principal>
-                <tss:SSL port="${PlanORBSSLPort}" hostname="${PlanORBSSLHost}">
+                <tss:SSL port="${PlanORBSunSSLPort}" hostname="${PlanORBSSLHost}">
                     <tss:supports>Integrity Confidentiality EstablishTrustInTarget</tss:supports>
                     <tss:requires>Integrity Confidentiality</tss:requires>
                 </tss:SSL>
@@ -190,9 +170,6 @@
                 </tss:compoundSecMechTypeList>
             </tss:tss>
         </xml-attribute>
-        <dependency>
-            <name>SystemProperties</name>
-        </dependency>
     </gbean>
 
     <gbean name="SSLIdentityToken" class="org.apache.openejb.corba.TSSBeanGBean">
@@ -205,7 +182,7 @@
                 <tss:default-principal>
                     <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
                 </tss:default-principal>
-                <tss:SSL port="${PlanORBSSLPort}" hostname="${PlanORBSSLHost}">
+                <tss:SSL port="${PlanORBSunSSLPort}" hostname="${PlanORBSSLHost}">
                     <tss:supports>Integrity Confidentiality EstablishTrustInTarget</tss:supports>
                     <tss:requires>Integrity Confidentiality</tss:requires>
                 </tss:SSL>
@@ -223,9 +200,6 @@
                 </tss:compoundSecMechTypeList>
             </tss:tss>
         </xml-attribute>
-        <dependency>
-            <name>SystemProperties</name>
-        </dependency>
     </gbean>
 
     <gbean name="IdentityTokenNoSecurity" class="org.apache.openejb.corba.TSSBeanGBean">
@@ -252,9 +226,6 @@
                 </tss:compoundSecMechTypeList>
             </tss:tss>
         </xml-attribute>
-        <dependency>
-            <name>SystemProperties</name>
-        </dependency>
     </gbean>
 
     <gbean name="SSLClientCertIdentityToken" class="org.apache.openejb.corba.TSSBeanGBean">
@@ -267,7 +238,7 @@
                 <tss:default-principal>
                     <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
                 </tss:default-principal>
-                <tss:SSL port="${PlanORBSSLPort}" hostname="${PlanORBSSLHost}">
+                <tss:SSL port="${PlanORBSunSSLPort}" hostname="${PlanORBSSLHost}">
                     <tss:supports>Integrity Confidentiality EstablishTrustInTarget EstablishTrustInClient</tss:supports>
                     <tss:requires>Integrity Confidentiality EstablishTrustInClient</tss:requires>
                 </tss:SSL>
@@ -285,34 +256,21 @@
                 </tss:compoundSecMechTypeList>
             </tss:tss>
         </xml-attribute>
-        <dependency>
-            <name>SystemProperties</name>
-        </dependency>
     </gbean>
 -->
     <!--CSS beans for client security.  These specify what the client is willing to provide -->
     <!--
     <gbean name="SSLClientCert" class="org.apache.openejb.corba.CSSBeanGBean">
-        <reference name="ThreadPool">
-            <name>DefaultThreadPool</name>
-        </reference>
         <reference name="TransactionManager">
             <name>TransactionManager</name>
         </reference>
-        <attribute name="configAdapter">org.apache.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
+        <reference name="configAdapter">
+            <name>ORBConfigAdapter</name>
+        </reference>
+        <reference name="SSLConfig">
+            <name>CORBASSLConfig</name>
+        </reference>
         <attribute name="description">SSLClientCert</attribute>
-        <xml-attribute name="nssConfig">
-            <css:css xmlns:css="http://www.openejb.org/xml/ns/corba-css-config-2.0">
-                <css:compoundSecMechTypeList>
-                    <css:compoundSecMech>
-                        <css:SSL>
-                            <css:supports>Integrity Confidentiality EstablishTrustInTarget EstablishTrustInClient</css:supports>
-                            <css:requires></css:requires>
-                        </css:SSL>
-                    </css:compoundSecMech>
-                </css:compoundSecMechTypeList>
-            </css:css>
-        </xml-attribute>
         <xml-attribute name="cssConfig">
             <css:css xmlns:css="http://www.openejb.org/xml/ns/corba-css-config-2.0">
                 <css:compoundSecMechTypeList>
@@ -328,32 +286,19 @@
                 </css:compoundSecMechTypeList>
             </css:css>
         </xml-attribute>
-        <dependency>
-            <name>SystemProperties</name>
-        </dependency>
     </gbean>
 
     <gbean name="SSLClientPassword" class="org.apache.openejb.corba.CSSBeanGBean">
-        <reference name="ThreadPool">
-            <name>DefaultThreadPool</name>
-        </reference>
         <reference name="TransactionManager">
             <name>TransactionManager</name>
         </reference>
-        <attribute name="configAdapter">org.apache.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
+        <reference name="configAdapter">
+            <name>ORBConfigAdapter</name>
+        </reference>
+        <reference name="SSLConfig">
+            <name>CORBASSLConfig</name>
+        </reference>
         <attribute name="description">SSLClientPassword</attribute>
-        <xml-attribute name="nssConfig">
-            <css:css xmlns:css="http://www.openejb.org/xml/ns/corba-css-config-2.0">
-                <css:compoundSecMechTypeList>
-                    <css:compoundSecMech>
-                        <css:SSL>
-                            <css:supports>Integrity Confidentiality EstablishTrustInTarget EstablishTrustInClient</css:supports>
-                            <css:requires></css:requires>
-                        </css:SSL>
-                    </css:compoundSecMech>
-                </css:compoundSecMechTypeList>
-            </css:css>
-        </xml-attribute>
         <xml-attribute name="cssConfig">
             <css:css xmlns:css="http://www.openejb.org/xml/ns/corba-css-config-2.0">
                 <css:compoundSecMechTypeList>
@@ -370,32 +315,19 @@
                 </css:compoundSecMechTypeList>
             </css:css>
         </xml-attribute>
-        <dependency>
-            <name>SystemProperties</name>
-        </dependency>
     </gbean>
 
     <gbean name="SSLIdentityTokenPrincipal" class="org.apache.openejb.corba.CSSBeanGBean">
-        <reference name="ThreadPool">
-            <name>DefaultThreadPool</name>
-        </reference>
         <reference name="TransactionManager">
             <name>TransactionManager</name>
         </reference>
-        <attribute name="configAdapter">org.apache.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
+        <reference name="configAdapter">
+            <name>ORBConfigAdapter</name>
+        </reference>
+        <reference name="SSLConfig">
+            <name>CORBASSLConfig</name>
+        </reference>
         <attribute name="description">SSLIdentityTokenPrincipal</attribute>
-        <xml-attribute name="nssConfig">
-            <css:css xmlns:css="http://www.openejb.org/xml/ns/corba-css-config-2.0">
-                <css:compoundSecMechTypeList>
-                    <css:compoundSecMech>
-                        <css:SSL>
-                            <css:supports>Integrity Confidentiality EstablishTrustInTarget EstablishTrustInClient</css:supports>
-                            <css:requires></css:requires>
-                        </css:SSL>
-                    </css:compoundSecMech>
-                </css:compoundSecMechTypeList>
-            </css:css>
-        </xml-attribute>
         <xml-attribute name="cssConfig">
             <css:css xmlns:css="http://www.openejb.org/xml/ns/corba-css-config-2.0">
                 <css:compoundSecMechTypeList>
@@ -411,32 +343,19 @@
                 </css:compoundSecMechTypeList>
             </css:css>
         </xml-attribute>
-        <dependency>
-            <name>SystemProperties</name>
-        </dependency>
     </gbean>
 
     <gbean name="SSLIdentityTokenCert" class="org.apache.openejb.corba.CSSBeanGBean">
-        <reference name="ThreadPool">
-            <name>DefaultThreadPool</name>
-        </reference>
         <reference name="TransactionManager">
             <name>TransactionManager</name>
         </reference>
-        <attribute name="configAdapter">org.apache.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
+        <reference name="configAdapter">
+            <name>ORBConfigAdapter</name>
+        </reference>
+        <reference name="SSLConfig">
+            <name>CORBASSLConfig</name>
+        </reference>
         <attribute name="description">SSLIdentityTokenCert</attribute>
-        <xml-attribute name="nssConfig">
-            <css:css xmlns:css="http://www.openejb.org/xml/ns/corba-css-config-2.0">
-                <css:compoundSecMechTypeList>
-                    <css:compoundSecMech>
-                        <css:SSL>
-                            <css:supports>Integrity Confidentiality EstablishTrustInTarget EstablishTrustInClient</css:supports>
-                            <css:requires></css:requires>
-                        </css:SSL>
-                    </css:compoundSecMech>
-                </css:compoundSecMechTypeList>
-            </css:css>
-        </xml-attribute>
         <xml-attribute name="cssConfig">
             <css:css xmlns:css="http://www.openejb.org/xml/ns/corba-css-config-2.0">
                 <css:compoundSecMechTypeList>
@@ -452,32 +371,19 @@
                 </css:compoundSecMechTypeList>
             </css:css>
         </xml-attribute>
-        <dependency>
-            <name>SystemProperties</name>
-        </dependency>
     </gbean>
 
     <gbean name="NoSecurityIdentityTokenPrincipal" class="org.apache.openejb.corba.CSSBeanGBean">
-        <reference name="ThreadPool">
-            <name>DefaultThreadPool</name>
-        </reference>
         <reference name="TransactionManager">
             <name>TransactionManager</name>
         </reference>
-        <attribute name="configAdapter">org.apache.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
+        <reference name="configAdapter">
+            <name>ORBConfigAdapter</name>
+        </reference>
+        <reference name="SSLConfig">
+            <name>CORBASSLConfig</name>
+        </reference>
         <attribute name="description">NoSecurityIdentityTokenPrincipal</attribute>
-        <xml-attribute name="nssConfig">
-            <css:css xmlns:css="http://www.openejb.org/xml/ns/corba-css-config-2.0">
-                <css:compoundSecMechTypeList>
-                    <css:compoundSecMech>
-                        <css:SSL>
-                            <css:supports>Integrity Confidentiality EstablishTrustInTarget EstablishTrustInClient</css:supports>
-                            <css:requires></css:requires>
-                        </css:SSL>
-                    </css:compoundSecMech>
-                </css:compoundSecMechTypeList>
-            </css:css>
-        </xml-attribute>
         <xml-attribute name="cssConfig">
             <css:css xmlns:css="http://www.openejb.org/xml/ns/corba-css-config-2.0">
                 <css:compoundSecMechTypeList>
@@ -489,32 +395,19 @@
                 </css:compoundSecMechTypeList>
             </css:css>
         </xml-attribute>
-        <dependency>
-            <name>SystemProperties</name>
-        </dependency>
     </gbean>
 
     <gbean name="NoSecurityIdentityTokenCert" class="org.apache.openejb.corba.CSSBeanGBean">
-        <reference name="ThreadPool">
-            <name>DefaultThreadPool</name>
-        </reference>
         <reference name="TransactionManager">
             <name>TransactionManager</name>
         </reference>
-        <attribute name="configAdapter">org.apache.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
+        <reference name="configAdapter">
+            <name>ORBConfigAdapter</name>
+        </reference>
+        <reference name="SSLConfig">
+            <name>CORBASSLConfig</name>
+        </reference>
         <attribute name="description">NoSecurityIdentityTokenCert</attribute>
-        <xml-attribute name="nssConfig">
-            <css:css xmlns:css="http://www.openejb.org/xml/ns/corba-css-config-2.0">
-                <css:compoundSecMechTypeList>
-                    <css:compoundSecMech>
-                        <css:SSL>
-                            <css:supports>Integrity Confidentiality EstablishTrustInTarget EstablishTrustInClient</css:supports>
-                            <css:requires></css:requires>
-                        </css:SSL>
-                    </css:compoundSecMech>
-                </css:compoundSecMechTypeList>
-            </css:css>
-        </xml-attribute>
         <xml-attribute name="cssConfig">
             <css:css xmlns:css="http://www.openejb.org/xml/ns/corba-css-config-2.0">
                 <css:compoundSecMechTypeList>
@@ -526,19 +419,18 @@
                 </css:compoundSecMechTypeList>
             </css:css>
         </xml-attribute>
-        <dependency>
-            <name>SystemProperties</name>
-        </dependency>
     </gbean>
 
     <gbean name="NoSecurity" class="org.apache.openejb.corba.CSSBeanGBean">
-        <reference name="ThreadPool">
-            <name>DefaultThreadPool</name>
-        </reference>
         <reference name="TransactionManager">
             <name>TransactionManager</name>
         </reference>
-        <attribute name="configAdapter">org.apache.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
+        <reference name="configAdapter">
+            <name>ORBConfigAdapter</name>
+        </reference>
+        <reference name="SSLConfig">
+            <name>CORBASSLConfig</name>
+        </reference>
         <attribute name="description">NoSecurity</attribute>
         <attribute name="cssArgs"></attribute>
         <xml-attribute name="cssConfig">
@@ -553,9 +445,6 @@
                 </css:compoundSecMechTypeList>
             </css:css>
         </xml-attribute>
-        <dependency>
-            <name>SystemProperties</name>
-        </dependency>
     </gbean>
 -->
 </module>

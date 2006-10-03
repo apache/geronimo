@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
   Copyright 2006 The Apache Software Foundation
-  
+
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
-  
+
   http://www.apache.org/licenses/LICENSE-2.0
-  
+
   Unless required by applicable law or agreed to in writing, software
   distributed under the License is distributed on an "AS IS" BASIS,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,7 +33,7 @@
     <packaging>car</packaging>
 
     <dependencies>
-        
+
         <!-- parent config -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
@@ -54,10 +54,10 @@
             <artifactId>geronimo-activation</artifactId>
             <version>${pom.version}</version>
         </dependency>
-        
+
         <!--
-            for property editor support for some login modules/principals 
-        
+            for property editor support for some login modules/principals
+
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-common</artifactId>
@@ -86,6 +86,12 @@
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-security</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-util</artifactId>
             <version>${pom.version}</version>
         </dependency>
 
@@ -178,7 +184,7 @@
         <!--</dependency>-->
 
         <!-- geronimo-spec-corba, geronimo-j2ee_1.4_spec -->
-        <!-- openejb-core, tranql, asm, activemq, activeio, scout, juddi, 
+        <!-- openejb-core, tranql, asm, activemq, activeio, scout, juddi,
              concurrent, jdom -->
 
         <dependency>
@@ -193,13 +199,17 @@
             <groupId>concurrent</groupId>
             <artifactId>concurrent</artifactId>
         </dependency>
-        
+
         <!-- REMOVE WHEN G-2383 is applied -->
         <dependency>
             <groupId>org.apache.openejb</groupId>
             <artifactId>openejb-core</artifactId>
         </dependency>
-        
+
+        <dependency>
+            <groupId>org.apache.yoko</groupId>
+            <artifactId>yoko-spec-corba</artifactId>
+        </dependency>
     </dependencies>
-    
+
 </project>
