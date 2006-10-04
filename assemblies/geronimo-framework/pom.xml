@@ -179,6 +179,11 @@
                                     <artifactId>geronimo-tomcat-builder</artifactId>
                                     <version>${pom.version}</version>
                                 </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.modules</groupId>
+                                    <artifactId>geronimo-jetty-builder</artifactId>
+                                    <version>${pom.version}</version>
+                                </artifactItem>
                             </artifactItems>
                             <outputDirectory>${project.build.directory}/scratch/schema</outputDirectory>
                         </configuration>
