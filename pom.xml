@@ -46,6 +46,11 @@
 
     <properties>
         <!--
+        Having a single well named property makes automatic updating for the weekly build much easier.
+        -->
+        <openejbVersion>2.2-incubating-SNAPSHOT</openejbVersion>
+
+        <!--
         HACK: Used by uddi-db to execute the sql plugin with the Derby driver.
         -->
         <derbyVersion>10.1.3.1</derbyVersion>
@@ -585,31 +590,31 @@
             <dependency>
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-core</artifactId>
-                <version>2.2-incubating-SNAPSHOT</version>
+                <version>${openejbVersion}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-builder</artifactId>
-                <version>2.2-incubating-SNAPSHOT</version>
+                <version>${openejbVersion}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-pkgen-builder</artifactId>
-                <version>2.2-incubating-SNAPSHOT</version>
+                <version>${openejbVersion}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-yoko</artifactId>
-                <version>2.2-incubating-SNAPSHOT</version>
+                <version>${openejbVersion}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-sunorb</artifactId>
-                <version>2.2-incubating-SNAPSHOT</version>
+                <version>${openejbVersion}</version>
             </dependency>
 
             <dependency>
