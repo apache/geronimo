@@ -62,10 +62,6 @@ import org.codehaus.plexus.archiver.jar.JarArchiver;
 /**
  * Build a Geronimo Configuration using the local Maven infrastructure.
  *
- * <p>
- * <b>NOTE:</b> Calling pom.xml must have defined a ${geronimoVersion} property.
- * </p>
- *
  * @goal package
  * @requiresDependencyResolution runtime
  *
@@ -82,7 +78,16 @@ public class PackageMojo
      * @parameter
      */
     private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
-
+    
+    /**
+     * Require <tt>geronimoVersion</tt> property to be set.
+     *
+     * @parameter expression="${geronimoVersion}"
+     * @required
+     * @readonly
+     */
+    private String geronimoVersion = null;
+    
     /**
      * The Jar archiver.
      *

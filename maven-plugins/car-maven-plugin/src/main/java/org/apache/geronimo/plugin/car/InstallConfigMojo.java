@@ -232,12 +232,12 @@ public class InstallConfigMojo
             // Copy the artifact into the target repo
             if (!targetRepo.contains(configArtifact)) {
                 File sourceFile = sourceRepo.getLocation(configArtifact);
-                InputStream in = new BufferedInputStream(new FileInputStream(sourceFile));
+                InputStream input = new BufferedInputStream(new FileInputStream(sourceFile));
                 try {
-                    targetRepo.copyToRepository(in, (int)sourceFile.length(), configArtifact, monitor);
+                    targetRepo.copyToRepository(input, (int)sourceFile.length(), configArtifact, monitor);
                 }
                 finally {
-                    in.close();
+                    input.close();
                 }
             }
 
