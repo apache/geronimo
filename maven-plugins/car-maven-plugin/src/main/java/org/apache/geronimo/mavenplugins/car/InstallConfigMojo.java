@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.geronimo.plugin.car;
+package org.apache.geronimo.mavenplugins.car;
 
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;

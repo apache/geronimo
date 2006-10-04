@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.geronimo.plugin.car;
+package org.apache.geronimo.mavenplugins.car;
 
 import org.apache.geronimo.genesis.ArtifactItem;
 
@@ -29,4 +29,28 @@ import org.apache.geronimo.genesis.ArtifactItem;
 public class ImportConfig
     extends ArtifactItem
 {
+    /**
+     * The type of import this artifact is.  One of CLASSES, ALL or SERVICES.
+     *
+     * @parameter
+     */
+    private String importType;
+
+    /**
+     * Get the import type.
+     *
+     * @return  The import type; or null if not set.
+     */
+    public String getImportType() {
+        return importType;
+    }
+
+    /**
+     * Set the import type.
+     *
+     * @param importType    The import type; or null to unset.
+     */
+    public void setImportType(final String importType) {
+        this.importType = importType;
+    }
 }

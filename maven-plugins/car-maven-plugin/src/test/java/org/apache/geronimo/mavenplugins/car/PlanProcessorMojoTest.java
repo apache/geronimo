@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.geronimo.plugin.car;
+package org.apache.geronimo.mavenplugins.car;
 
 import java.io.File;
 import java.io.FileInputStream;

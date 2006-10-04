@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.geronimo.plugin.car;
+package org.apache.geronimo.mavenplugins.car;
 
 import org.apache.geronimo.kernel.repository.WriteableRepository;
 import org.apache.geronimo.system.repository.Maven2Repository;
