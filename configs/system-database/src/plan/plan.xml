@@ -36,7 +36,22 @@
                         <single-pool>
                             <max-size>100</max-size>
                             <blocking-timeout-milliseconds>5000</blocking-timeout-milliseconds>
-                            <match-one/>
+                            <select-one-assume-match/>
+                        </single-pool>
+                    </connectionmanager>
+                </connectiondefinition-instance>
+                <connectiondefinition-instance>
+                    <name>NoTxDatasource</name>
+                    <config-property-setting name="UserName"></config-property-setting>
+                    <config-property-setting name="Password"></config-property-setting>
+                    <config-property-setting name="DatabaseName">SystemDatabase</config-property-setting>
+                    <config-property-setting name="CreateDatabase">true</config-property-setting>
+                    <connectionmanager>
+                        <no-transaction/>
+                        <single-pool>
+                            <max-size>100</max-size>
+                            <blocking-timeout-milliseconds>5000</blocking-timeout-milliseconds>
+                            <select-one-assume-match/>
                         </single-pool>
                     </connectionmanager>
                 </connectiondefinition-instance>
