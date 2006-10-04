@@ -51,12 +51,19 @@ import javax.xml.transform.OutputKeys;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.dom.DOMSource;
+
 import java.beans.PropertyEditor;
+
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.BufferedInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.BufferedOutputStream;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -363,47 +370,69 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         if (!attributeFile.exists()) {
             return;
         }
-        FileInputStream fis = new FileInputStream(attributeFile);
-        InputSource in = new InputSource(fis);
-        in.setSystemId(attributeFile.toString());
+        
+        InputStream input = new BufferedInputStream(new FileInputStream(attributeFile));
+        InputSource source = new InputSource(input);
+        source.setSystemId(attributeFile.toString());
         DocumentBuilderFactory dFactory = XmlUtil.newDocumentBuilderFactory();
+        
         try {
             dFactory.setValidating(true);
             dFactory.setNamespaceAware(true);
             dFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaLanguage",
                                  "http://www.w3.org/2001/XMLSchema");
+            
+            //
+            // TODO: Change to latest attributes schema
+            //
+            
             dFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaSource",
                                  LocalAttributeManager.class.getResourceAsStream("/META-INF/schema/local-attributes-1.1.xsd"));
 
             DocumentBuilder builder = dFactory.newDocumentBuilder();
             builder.setErrorHandler(new ErrorHandler() {
-                public void error(SAXParseException exception) {
+                public void error(SAXParseException e) {
                     log.error("Unable to read saved manageable attributes. " +
-                        "SAX parse error: " + exception.getMessage() +
-                        " at line " + exception.getLineNumber() +
-                        ", column " + exception.getColumnNumber() +
-                        " in entity " + exception.getSystemId());
+                        "SAX parse error: " + e.getMessage() +
+                        " at line " + e.getLineNumber() +
+                        ", column " + e.getColumnNumber() +
+                        " in entity " + e.getSystemId());
+
+                    if (log.isTraceEnabled()) {
+                        log.trace("Exception deatils", e);
+                    }
+
                     // TODO throw an exception here?
                 }
 
-                public void fatalError(SAXParseException exception) {
+                public void fatalError(SAXParseException e) {
                     log.error("Unable to read saved manageable attributes. " +
-                            "Fatal SAX parse error: " + exception.getMessage() +
-                            " at line " + exception.getLineNumber() +
-                            ", column " + exception.getColumnNumber() +
-                            " in entity " + exception.getSystemId());
+                            "Fatal SAX parse error: " + e.getMessage() +
+                            " at line " + e.getLineNumber() +
+                            ", column " + e.getColumnNumber() +
+                            " in entity " + e.getSystemId());
+                    
+                    if (log.isTraceEnabled()) {
+                        log.trace("Exception deatils", e);
+                    }
+                    
                     // TODO throw an exception here?
                 }
 
-                public void warning(SAXParseException exception) {
+                public void warning(SAXParseException e) {
                     log.error("SAX parse warning whilst reading saved manageable attributes: " +
-                            exception.getMessage() +
-                            " at line " + exception.getLineNumber() +
-                            ", column " + exception.getColumnNumber() +
-                            " in entity " + exception.getSystemId());
+                            e.getMessage() +
+                            " at line " + e.getLineNumber() +
+                            ", column " + e.getColumnNumber() +
+                            " in entity " + e.getSystemId());
+                    
+                    if (log.isTraceEnabled()) {
+                        log.trace("Exception deatils", e);
+                    }
                 }
             });
-            Document doc = builder.parse(in);
+            
+            Document doc = builder.parse(source);
             Element root = doc.getDocumentElement();
             serverOverride = new ServerOverride(root);
         } catch (SAXException e) {
@@ -413,8 +442,8 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         } catch (InvalidGBeanException e) {
             log.error("Unable to read saved manageable attributes", e);
         } finally {
-            if (fis != null)
-                fis.close();
+            // input is always non-null
+            input.close();
         }
     }
 
@@ -461,7 +490,8 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
                              "http://www.w3.org/2001/XMLSchema");
         dFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaSource",
                              LocalAttributeManager.class.getResourceAsStream("/META-INF/schema/local-attributes-1.1.xsd"));
-        FileOutputStream fos = null;
+
+        OutputStream output = null;
         try {
             Document doc = dFactory.newDocumentBuilder().newDocument();
             serverOverride.writeXml(doc);
@@ -469,11 +499,14 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
             Transformer xform = xfactory.newTransformer();
             xform.setOutputProperty(OutputKeys.INDENT, "yes");
             xform.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-            fos = new FileOutputStream(file);
+            output = new BufferedOutputStream(new FileOutputStream(file));
+
             // use a FileOutputStream instead of a File on the StreamResult 
             // constructor as problems were encountered with the file not being closed.
-            StreamResult sr = new StreamResult(fos); 
+            StreamResult sr = new StreamResult(output);
             xform.transform(new DOMSource(doc), sr);
+
+            output.flush();
         } catch (FileNotFoundException e) {
             // file is directory or cannot be created/opened
             log.error("Unable to write config.xml", e);
@@ -481,10 +514,12 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
             log.error("Unable to write config.xml", e);
         } catch (TransformerException e) {
             log.error("Unable to write config.xml", e);
+        } catch (IOException e) {
+            log.error("Unable to write config.xml", e);
         } finally {
-            if (fos != null) {
+            if (output != null) {
                 try {
-                    fos.close();
+                    output.close();
                 } catch (IOException ignored) {
                     // ignored
                 }
@@ -623,7 +658,6 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
             throw new IOException("Unable to write manageable attribute files to directory " + parent.getAbsolutePath());
         }
     }
-
 
     private synchronized void attributeChanged() {
         if (currentTask != null) {
