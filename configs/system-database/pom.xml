@@ -33,14 +33,7 @@
     <packaging>car</packaging>
     
     <dependencies>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>j2ee-server</artifactId>
-            <version>${pom.version}</version>
-            <type>car</type>
-        </dependency>
-        
+                
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>connector-deployer</artifactId>

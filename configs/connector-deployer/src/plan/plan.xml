@@ -37,6 +37,11 @@
                         <artifactId>transaction</artifactId>
                         <type>car</type>
                     </dependency>
+                    <dependency>
+                        <groupId>${pom.groupId}</groupId>
+                        <artifactId>j2ee-server</artifactId>
+                        <type>car</type>
+                    </dependency>
                 </dependencies>
             </environment>
         </xml-attribute>
