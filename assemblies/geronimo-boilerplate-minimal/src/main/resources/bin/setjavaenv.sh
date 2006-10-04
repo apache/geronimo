@@ -45,7 +45,11 @@ if [ -z "$JAVA_HOME" -a "$1" = "debug" ]; then
   exit 1
 fi
 if [ -z "$JRE_HOME" ]; then
-  JRE_HOME="$JAVA_HOME/jre"
+   if [ -d "$JRE_HOME/jre" ]; then
+     JRE_HOME="$JAVA_HOME/jre"
+   else
+     JRE_HOME="$JAVA_HOME"
+   fi
 fi
 
 # If we're running under jdb, we need a full jdk.
