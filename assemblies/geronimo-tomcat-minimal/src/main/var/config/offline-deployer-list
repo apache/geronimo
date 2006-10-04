@@ -1,9 +1,11 @@
 ##
 ## List of deployers to be started for offline deployment
 ##
+## $Rev$ $Date$
+##
 org.apache.geronimo.configs/geronimo-gbean-deployer/${pom.version}/car
 org.apache.geronimo.configs/j2ee-deployer/${pom.version}/car
-org.apache.geronimo.configs/unavailable-ejb-deployer/${pom.version}/car
-org.apache.geronimo.configs/unavailable-webservices-deployer/${pom.version}/car
-org.apache.geronimo.configs/unavailable-client-deployer/${pom.version}/car
+org.apache.geronimo.configs/openejb-deployer/${pom.version}/car
+org.apache.geronimo.configs/client-deployer/${pom.version}/car
+org.apache.geronimo.configs/axis-deployer/${pom.version}/car
 org.apache.geronimo.configs/tomcat-deployer/${pom.version}/car
