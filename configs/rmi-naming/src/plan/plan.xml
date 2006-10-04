@@ -33,6 +33,10 @@
 
     <gbean name="JavaCompContext" class="org.apache.geronimo.gjndi.JavaCompContextGBean"/>
 
+    <gbean name="JavaContext" class="org.apache.geronimo.gjndi.WritableContextGBean">
+        <attribute name="nameInNamespace">java:</attribute>
+    </gbean>
+
     <gbean name="SystemProperties" class="org.apache.geronimo.system.properties.SystemProperties">
         <attribute name="systemProperties" />
         <attribute name="systemPathProperties" />
