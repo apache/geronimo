@@ -51,14 +51,14 @@
     <module name="org.apache.geronimo.configs/j2ee-corba-yoko/${pom.version}/car" load="false">
         <gbean name="NameServer">
             <attribute name="port">${PlanCOSNamingPort}</attribute>
-            <attribute name="host">${PlanCOSNamingHostttribute>
+            <attribute name="host">${PlanCOSNamingHost}</attribute>
         </gbean>
     </module>
 
     <module name="org.apache.geronimo.configs/j2ee-corba-sun/${pom.version}/car" load="false">
         <gbean name="NameServer">
             <attribute name="port">${PlanCOSSunNamingPort}</attribute>
-            <attribute name="host">${PlanCOSNamingHostttribute>
+            <attribute name="host">${PlanCOSNamingHost}</attribute>
         </gbean>
     </module>
 
