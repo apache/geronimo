@@ -557,6 +557,9 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     }
     
     public static final GBeanInfo GBEAN_INFO;
+    
+    public static final String GBEAN_ATTR_SESSION_TIMEOUT = "sessionTimeoutSeconds";
+    
     public static final String GBEAN_REF_WEB_APPLICATION_HANDLER_FACTORY = "WebApplicationHandlerFactory";
     public static final String GBEAN_REF_HANDLE_INTERCEPTOR = "HandleInterceptor";
 
@@ -577,7 +580,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         infoBuilder.addAttribute("authenticator", Authenticator.class, true);
         infoBuilder.addAttribute("realmName", String.class, true);
         infoBuilder.addAttribute("tagLibMap", Map.class, true);
-        infoBuilder.addAttribute("sessionTimeoutSeconds", int.class, true);
+        infoBuilder.addAttribute(GBEAN_ATTR_SESSION_TIMEOUT, int.class, true);
         infoBuilder.addReference(GBEAN_REF_WEB_APPLICATION_HANDLER_FACTORY, WebApplicationHandlerFactory.class,
                 NameFactory.GERONIMO_SERVICE);
         infoBuilder.addReference(GBEAN_REF_HANDLE_INTERCEPTOR, HandleInterceptor.class, NameFactory.GERONIMO_SERVICE);
@@ -636,7 +639,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
                 "authenticator",
                 "realmName",
                 "tagLibMap",
-                "sessionTimeoutSeconds",
+                GBEAN_ATTR_SESSION_TIMEOUT,
                 GBEAN_REF_WEB_APPLICATION_HANDLER_FACTORY,
                 GBEAN_REF_HANDLE_INTERCEPTOR,
 

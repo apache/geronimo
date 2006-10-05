@@ -389,6 +389,11 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             // configure listeners.
             configureListeners(webApp, webModuleData);
 
+            webModuleData.setAttribute(JettyWebAppContext.GBEAN_ATTR_SESSION_TIMEOUT,
+                    (webApp.getSessionConfigArray().length == 1 && webApp.getSessionConfigArray(0).getSessionTimeout() != null) ?
+                            new Integer(webApp.getSessionConfigArray(0).getSessionTimeout().getBigIntegerValue().intValue() * 60) :
+                                defaultSessionTimeoutSeconds);
+            
             Boolean distributable = webApp.getDistributableArray().length == 1 ? Boolean.TRUE : Boolean.FALSE;
             webModuleData.setAttribute("distributable", distributable);
             if (Boolean.TRUE == distributable) {
@@ -401,10 +406,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 configureNoClustering(moduleContext, webModuleData);
             }
             
-            webModuleData.setAttribute("sessionTimeoutSeconds",
-                    (webApp.getSessionConfigArray().length == 1 && webApp.getSessionConfigArray(0).getSessionTimeout() != null) ?
-                            new Integer(webApp.getSessionConfigArray(0).getSessionTimeout().getBigIntegerValue().intValue() * 60) :
-                            defaultSessionTimeoutSeconds);
 
             // configure mime mappings.
             configureMimeMappings(webApp, webModuleData);

@@ -23,32 +23,31 @@ import java.util.Set;
 import javax.xml.namespace.QName;
 
 import org.apache.geronimo.clustering.wadi.BasicWADISessionManager;
-import org.apache.geronimo.jetty.cluster.wadi.WADIClusteredHandleInterceptor;
+import org.apache.geronimo.clustering.wadi.WADISessionManagerConfigInfo;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.j2ee.deployment.EARContext;
-import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jetty.JettyWebAppContext;
 import org.apache.geronimo.jetty.cluster.ClusteredWebApplicationHandlerFactory;
+import org.apache.geronimo.jetty.cluster.wadi.WADIClusteredHandleInterceptor;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
+import org.apache.geronimo.schema.NamespaceElementConverter;
+import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.geronimo.GerClusteringWadiDocument;
 import org.apache.geronimo.xbeans.geronimo.GerClusteringWadiType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
-import org.apache.geronimo.schema.SchemaConversionUtils;
-import org.apache.geronimo.schema.NamespaceElementConverter;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
@@ -96,7 +95,7 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
         if (clusteringWadiType != null) {
             GBeanData webModuleData = extractWebModule(moduleContext);
             try {
-                AbstractName sessionManagerName = addSessionManager(clusteringWadiType, moduleContext);
+                AbstractName sessionManagerName = addSessionManager(clusteringWadiType, webModuleData, moduleContext);
                 addHandlerFactory(moduleContext, webModuleData, sessionManagerName);
                 addInterceptor(moduleContext, webModuleData, sessionManagerName);
             } catch (GBeanAlreadyExistsException e) {
@@ -131,42 +130,14 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
         return null;
     }
 
-    public boolean canConfigure(XmlObject clusteringXmlObject) {
-        return null == clusteringXmlObject || clusteringXmlObject instanceof GerClusteringWadiType;
-    }
-
-    public void configureEnvironment(XmlObject clusteringXmlObject, Environment environment) throws DeploymentException {
-        if (false == canConfigure(clusteringXmlObject)) {
-            throw new DeploymentException("Builder does not support [" + clusteringXmlObject + "]");
-        }
-
-        EnvironmentBuilder.mergeEnvironments(environment, defaultEnvironment);
-    }
-
-    public void configureJettyWebAppContext(XmlObject clusteringXmlObject, WebModule module, GBeanData webModuleData)
-        throws DeploymentException, GBeanAlreadyExistsException {
-        if (null == clusteringXmlObject) {
-            clusteringXmlObject = GerClusteringWadiType.Factory.newInstance();
-        }
-        if (!(clusteringXmlObject instanceof GerClusteringWadiType)) {
-            throw new DeploymentException("Builder does not support [" + clusteringXmlObject + "]");
-        }
-        GerClusteringWadiType clustering = (GerClusteringWadiType) clusteringXmlObject;
-
-        EARContext moduleContext = module.getEarContext();
-
-        AbstractName sessionManagerName = addSessionManager(clustering, moduleContext);
-        addHandlerFactory(moduleContext, webModuleData, sessionManagerName);
-        addInterceptor(moduleContext, webModuleData, sessionManagerName);
-    }
-
-    private AbstractName addSessionManager(GerClusteringWadiType clustering, DeploymentContext moduleContext) throws GBeanAlreadyExistsException {
+    private AbstractName addSessionManager(GerClusteringWadiType clustering, GBeanData webModuleData, 
+            DeploymentContext moduleContext) throws GBeanAlreadyExistsException {
         AbstractName name = moduleContext.getNaming().createChildName(moduleContext.getModuleName(),
                 "WADISessionManager", NameFactory.GERONIMO_SERVICE);
 
         GBeanData beanData = new GBeanData(name, BasicWADISessionManager.GBEAN_INFO);
-        setSweepInterval(clustering, beanData);
-        setNumPartitions(clustering, beanData);
+        
+        setConfigInfo(clustering, webModuleData, beanData);
         setReplicationManagerFactory(clustering, beanData);
         setReplicaStorageFactory(clustering, beanData);
         setBackingStrategyFactory(clustering, beanData);
@@ -175,6 +146,28 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
         moduleContext.addGBean(beanData);
 
         return name;
+    }
+
+    private void setConfigInfo(GerClusteringWadiType clustering, GBeanData webModuleData, GBeanData beanData) {
+        int sweepInterval = defaultSweepInterval;
+        if (clustering.isSetSweepInterval()) {
+            sweepInterval = clustering.getSweepInterval().intValue();
+        }
+        int numPartitions = defaultNumPartitions;
+        if (clustering.isSetNumPartitions()) {
+            numPartitions = clustering.getNumPartitions().intValue();
+        }
+        Integer sessionTimeout = (Integer) webModuleData.getAttribute(JettyWebAppContext.GBEAN_ATTR_SESSION_TIMEOUT);
+        if (null == sessionTimeout) {
+            throw new AssertionError();
+        }
+        
+        WADISessionManagerConfigInfo configInfo = new WADISessionManagerConfigInfo(
+                beanData.getAbstractName().toURI(),
+                sweepInterval,
+                numPartitions,
+                sessionTimeout.intValue());
+        beanData.setAttribute(BasicWADISessionManager.GBEAN_ATTR_WADI_CONFIG_INFO, configInfo);
     }
 
     private void setDispatcher(GerClusteringWadiType clustering, GBeanData beanData) {
@@ -215,22 +208,6 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
             patterns.add(defaultRepManagerFactoryName);
         }
         beanData.setReferencePatterns(BasicWADISessionManager.GBEAN_REF_REPLICATION_MANAGER_FACTORY, patterns);
-    }
-
-    private void setNumPartitions(GerClusteringWadiType clustering, GBeanData beanData) {
-        int numPartitions = defaultNumPartitions;
-        if (clustering.isSetNumPartitions()) {
-            numPartitions = clustering.getNumPartitions().intValue();
-        }
-        beanData.setAttribute(BasicWADISessionManager.GBEAN_ATTR_NUM_PARTITIONS, new Integer(numPartitions));
-    }
-
-    private void setSweepInterval(GerClusteringWadiType clustering, GBeanData beanData) {
-        int sweepInterval = defaultSweepInterval;
-        if (clustering.isSetSweepInterval()) {
-            sweepInterval = clustering.getSweepInterval().intValue();
-        }
-        beanData.setAttribute(BasicWADISessionManager.GBEAN_ATTR_SWEEP_INTERVAL, new Integer(sweepInterval));
     }
 
     private AbstractName addHandlerFactory(DeploymentContext moduleContext,

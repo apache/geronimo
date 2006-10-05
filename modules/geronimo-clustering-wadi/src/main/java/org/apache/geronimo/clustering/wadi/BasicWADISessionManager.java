@@ -69,6 +69,9 @@ import org.codehaus.wadi.impl.StatelessContextualiser;
 import org.codehaus.wadi.replication.manager.ReplicationManagerFactory;
 import org.codehaus.wadi.replication.storage.ReplicaStorageFactory;
 import org.codehaus.wadi.replication.strategy.BackingStrategyFactory;
+import org.codehaus.wadi.servicespace.ServiceName;
+import org.codehaus.wadi.servicespace.ServiceSpaceName;
+import org.codehaus.wadi.servicespace.basic.BasicServiceSpace;
 import org.codehaus.wadi.web.AttributesFactory;
 import org.codehaus.wadi.web.WebSession;
 import org.codehaus.wadi.web.WebSessionPool;
@@ -89,36 +92,35 @@ import EDU.oswego.cs.dl.util.concurrent.Sync;
  */
 public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, WADISessionManager {
     private static final Log log = LogFactory.getLog(BasicWADISessionManager.class);
-    
-    private final int sweepInterval;
-    private final int numPartitions;
+
+    private final WADISessionManagerConfigInfo configInfo;
     private final ReplicationManagerFactory replicationManagerFactory;
     private final ReplicaStorageFactory replicaStorageFactory;
     private final BackingStrategyFactory backingStrategyFactory;
     private final DispatcherHolder dispatcherHolder;
     private final Set listeners;
-    
-    private ClusteredManager manager;
 
-    public BasicWADISessionManager(int sweepInterval,
-            int numPartitions,
-            ReplicationManagerFactory replicationManagerFactory,
-            ReplicaStorageFactory replicaStorageFactory,
-            BackingStrategyFactory backingStrategyFactory,
-            DispatcherHolder dispatcherHolder) {
-        this.sweepInterval = sweepInterval;
-        this.numPartitions = numPartitions;
+    private ClusteredManager manager;
+    private BasicServiceSpace serviceSpace;
+
+    public BasicWADISessionManager(WADISessionManagerConfigInfo configInfo,
+            ReplicationManagerFactory replicationManagerFactory, ReplicaStorageFactory replicaStorageFactory,
+            BackingStrategyFactory backingStrategyFactory, DispatcherHolder dispatcherHolder) {
+        this.configInfo = configInfo;
         this.dispatcherHolder = dispatcherHolder;
         this.replicationManagerFactory = replicationManagerFactory;
         this.replicaStorageFactory = replicaStorageFactory;
         this.backingStrategyFactory = backingStrategyFactory;
-        
+
         listeners = new HashSet();
     }
 
     public void doStart() throws Exception {
-        Dispatcher dispatcher = dispatcherHolder.getDispatcher();
-        
+        Dispatcher underlyingDisp = dispatcherHolder.getDispatcher();
+
+        serviceSpace = new BasicServiceSpace(new ServiceSpaceName(configInfo.getServiceSpaceURI()), underlyingDisp);
+        Dispatcher dispatcher = serviceSpace.getDispatcher();
+
         boolean strictOrdering = true;
         Streamer streamer = new SimpleStreamer();
         Collapser collapser = new HashingCollapser(1024, 10000);
@@ -126,56 +128,47 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
 
         // end of contextualiser stack
         Contextualiser contextualiser = new DummyContextualiser();
-        
+
         // replica aware contextualiser
-//        ReplicationManager replicationManager = replicationManagerFactory.factory(dispatcher,
-//                replicaStorageFactory,
-//                backingStrategyFactory);
-//        DistributableManagerRehydrater sessionRehydrater = new DistributableManagerRehydrater();
-//        ReplicationManager sessionRepManager = new SessionReplicationManager(replicationManager, sessionRehydrater);
-//        contextualiser = new ReplicaAwareContextualiser(contextualiser, sessionRepManager);
+        // ReplicationManager replicationManager =
+        // replicationManagerFactory.factory(dispatcher,
+        // replicaStorageFactory,
+        // backingStrategyFactory);
+        // DistributableManagerRehydrater sessionRehydrater = new
+        // DistributableManagerRehydrater();
+        // ReplicationManager sessionRepManager = new
+        // SessionReplicationManager(replicationManager, sessionRehydrater);
+        // contextualiser = new ReplicaAwareContextualiser(contextualiser,
+        // sessionRepManager);
 
         // cluster aware contextualiser
         contextualiser = new ClusterContextualiser(contextualiser, collapser, new HybridRelocater(5000, 5000, true));
 
-        contextualiser = new StatelessContextualiser(contextualiser, Pattern.compile("GET|POST", 2), true, 
-                Pattern.compile(".*\\.(JPG|JPEG|GIF|PNG|ICO|HTML|HTM)", 2), false);
+        contextualiser = new StatelessContextualiser(contextualiser, Pattern.compile("GET|POST", 2), true, Pattern
+                .compile(".*\\.(JPG|JPEG|GIF|PNG|ICO|HTML|HTM)", 2), false);
 
         // serialize invocations bound to the same session id
         contextualiser = new SerialContextualiser(contextualiser, collapser, mmap);
 
-        // in-memory contextualiser 
+        // in-memory contextualiser
         WebSessionPool sessionPool = new SimpleSessionPool(new AtomicallyReplicableSessionFactory());
-        Evicter mevicter = new AbsoluteEvicter(sweepInterval, strictOrdering, 10);
+        Evicter mevicter = new AbsoluteEvicter(configInfo.getSweepInterval(), strictOrdering,
+                configInfo.getSessionTimeoutSeconds());
         SessionPool contextPool = new WebSessionToSessionPoolAdapter(sessionPool);
         PoolableInvocationWrapperPool requestPool = new DummyStatefulHttpServletRequestWrapperPool();
         contextualiser = new MotionTracker(contextualiser, mevicter, mmap, streamer, contextPool, requestPool);
 
         contextualiser = new SerialContextualiserFrontingMemory(contextualiser, new HashingCollapser(1024, 10000));
-        
+
         // Manager
         AttributesFactory attributesFactory = new DistributableAttributesFactory();
         ValuePool valuePool = new SimpleValuePool(new DistributableValueFactory());
         WebSessionWrapperFactory wrapperFactory = new StandardSessionWrapperFactory();
-        manager = new ClusteredManager(sessionPool, 
-                        attributesFactory,
-                        valuePool, 
-                        wrapperFactory, 
-                        null, 
-                        contextualiser, 
-                        mmap,
-                        new DummyRouter(), 
-                        true, 
-                        streamer, 
-                        true,
-                        new DummyReplicaterFactory(),
-//                        new ReplicaterAdapterFactory(replicationManager), 
-                        null, 
-                        null,
-                        dispatcher, 
-                        numPartitions, 
-                        collapser);
-//        sessionRehydrater.setManager(manager);
+        manager = new ClusteredManager(sessionPool, attributesFactory, valuePool, wrapperFactory, null, contextualiser,
+                mmap, new DummyRouter(), true, streamer, true, new DummyReplicaterFactory(),
+                // new ReplicaterAdapterFactory(replicationManager),
+                null, null, dispatcher, configInfo.getNumPartitions(), collapser);
+        // sessionRehydrater.setManager(manager);
 
         manager.init(new ManagerConfig() {
             public void callback(Manager manager) {
@@ -185,17 +178,19 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
                 return null;
             }
         });
-        
-        manager.start();
+
+        serviceSpace.getServiceRegistry().register(new ServiceName("ClusteredManager"), manager);
+
+        serviceSpace.start();
     }
 
     public void doStop() throws Exception {
-        manager.stop();
+        serviceSpace.stop();
     }
 
     public void doFail() {
         try {
-            manager.stop();
+            serviceSpace.stop();
         } catch (Exception e) {
             log.error(e);
         }
@@ -214,11 +209,11 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
     public ClusteredManager getManager() {
         return manager;
     }
-    
+
     public Node getNode() {
         return dispatcherHolder.getNode();
     }
-    
+
     public void registerListener(SessionListener listener) {
         synchronized (listeners) {
             listeners.add(listener);
@@ -252,12 +247,13 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
 
     private class MotionTracker extends MemoryContextualiser {
         private final Immoter immoter;
+
         private final Emoter emoter;
-        
+
         public MotionTracker(Contextualiser next, Evicter evicter, Map map, Streamer streamer, SessionPool pool,
                 PoolableInvocationWrapperPool requestPool) {
             super(next, evicter, map, streamer, pool, requestPool);
-            
+
             Immoter immoterDelegate = super.getImmoter();
             immoter = new InboundSessionTracker(immoterDelegate);
 
@@ -277,7 +273,7 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
         public Immoter getImmoter() {
             return immoter;
         }
-        
+
         public Emoter getEmoter() {
             return emoter;
         }
@@ -307,7 +303,7 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
             delegate.rollback(arg0, arg1);
         }
     }
-    
+
     private class InboundSessionTracker implements Immoter {
         private final Immoter delegate;
 
@@ -340,12 +336,10 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
             delegate.rollback(arg0, arg1);
         }
     }
-    
-    
+
     public static final GBeanInfo GBEAN_INFO;
-    
-    public static final String GBEAN_ATTR_SWEEP_INTERVAL = "sweepInterval";
-    public static final String GBEAN_ATTR_NUM_PARTITIONS = "numPartitions";
+
+    public static final String GBEAN_ATTR_WADI_CONFIG_INFO = "wadiConfigInfo";
 
     public static final String GBEAN_REF_REPLICATION_MANAGER_FACTORY = "ReplicationManagerFactory";
     public static final String GBEAN_REF_REPLICA_STORAGE_FACTORY = "ReplicaStorageFactory";
@@ -353,12 +347,10 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
     public static final String GBEAN_REF_DISPATCHER_HOLDER = "DispatcherHolder";
 
     static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("WADI Session Manager", 
-                BasicWADISessionManager.class, 
-                NameFactory.GERONIMO_SERVICE);
-        
-        infoBuilder.addAttribute(GBEAN_ATTR_SWEEP_INTERVAL, int.class, true);
-        infoBuilder.addAttribute(GBEAN_ATTR_NUM_PARTITIONS, int.class, true);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("WADI Session Manager",
+                BasicWADISessionManager.class, NameFactory.GERONIMO_SERVICE);
+
+        infoBuilder.addAttribute(GBEAN_ATTR_WADI_CONFIG_INFO, WADISessionManagerConfigInfo.class, true);
 
         infoBuilder.addReference(GBEAN_REF_REPLICATION_MANAGER_FACTORY, ReplicationManagerFactory.class,
                 NameFactory.GERONIMO_SERVICE);
@@ -367,20 +359,19 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
         infoBuilder.addReference(GBEAN_REF_BACKING_STRATEGY_FACTORY, BackingStrategyFactory.class,
                 NameFactory.GERONIMO_SERVICE);
         infoBuilder.addReference(GBEAN_REF_DISPATCHER_HOLDER, DispatcherHolder.class, NameFactory.GERONIMO_SERVICE);
-        
+
         infoBuilder.addInterface(SessionManager.class);
         infoBuilder.addInterface(WADISessionManager.class);
-        
-        infoBuilder.setConstructor(new String[]{GBEAN_ATTR_SWEEP_INTERVAL,
-                GBEAN_ATTR_NUM_PARTITIONS,
-                GBEAN_REF_REPLICATION_MANAGER_FACTORY,
+
+        infoBuilder.setConstructor(new String[] { GBEAN_ATTR_WADI_CONFIG_INFO,
+                GBEAN_REF_REPLICATION_MANAGER_FACTORY, 
                 GBEAN_REF_REPLICA_STORAGE_FACTORY,
-                GBEAN_REF_BACKING_STRATEGY_FACTORY,
-                GBEAN_REF_DISPATCHER_HOLDER});
+                GBEAN_REF_BACKING_STRATEGY_FACTORY, 
+                GBEAN_REF_DISPATCHER_HOLDER });
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
-    
+
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
