@@ -28,6 +28,11 @@ import junit.framework.TestCase;
 public class ServerInfoTest extends TestCase {
     private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
 
+    protected void setUp() throws Exception {
+        // Ensure we are in a known state before each test
+        System.getProperties().remove(BasicServerInfo.HOME_DIR_SYS_PROP);
+    }
+    
     public final void testResolvePath() {
         ServerInfo si = null;
 
@@ -85,7 +90,7 @@ public class ServerInfoTest extends TestCase {
 				fail(ioe.getMessage());
 			} catch (Exception expected) {
 			}
-
+            
 			String basedir = ".";
 			// a workaround - ServerInfo sets system-wide property
 			System.setProperty(BasicServerInfo.HOME_DIR_SYS_PROP, basedir);
