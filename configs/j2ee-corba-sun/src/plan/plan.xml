@@ -35,7 +35,7 @@
         <reference name="ServerInfo">
             <name>ServerInfo</name>
         </reference>
-        <reference name="configAdapter">
+        <reference name="ConfigAdapter">
             <name>ORBConfigAdapter</name>
         </reference>
         <attribute name="port">${PlanCOSSunNamingPort}</attribute>
@@ -57,10 +57,10 @@
     <gbean name="Server" class="org.apache.openejb.corba.CORBABeanGBean">
         <attribute name="host">${PlanORBSSLHost}</attribute>
         <attribute name="port">${PlanORBSunSSLPort}</attribute>
-        <reference name="configAdapter">
+        <reference name="ConfigAdapter">
             <name>ORBConfigAdapter</name>
         </reference>
-        <reference name="nameService">
+        <reference name="NameService">
             <name>NameServer</name>
         </reference>
         <xml-attribute name="tssConfig">
@@ -90,10 +90,10 @@
     <gbean name="UnprotectedServer" class="org.apache.openejb.corba.CORBABeanGBean">
         <attribute name="host">${PlanORBHost}</attribute>
         <attribute name="port">${PlanORBSunPort}</attribute>
-        <reference name="configAdapter">
+        <reference name="ConfigAdapter">
             <name>ORBConfigAdapter</name>
         </reference>
-        <reference name="nameService">
+        <reference name="NameService">
             <name>NameServer</name>
         </reference>
         <xml-attribute name="tssConfig">
@@ -264,7 +264,7 @@
         <reference name="TransactionManager">
             <name>TransactionManager</name>
         </reference>
-        <reference name="configAdapter">
+        <reference name="ConfigAdapter">
             <name>ORBConfigAdapter</name>
         </reference>
         <reference name="SSLConfig">
@@ -292,7 +292,7 @@
         <reference name="TransactionManager">
             <name>TransactionManager</name>
         </reference>
-        <reference name="configAdapter">
+        <reference name="ConfigAdapter">
             <name>ORBConfigAdapter</name>
         </reference>
         <reference name="SSLConfig">
@@ -321,7 +321,7 @@
         <reference name="TransactionManager">
             <name>TransactionManager</name>
         </reference>
-        <reference name="configAdapter">
+        <reference name="ConfigAdapter">
             <name>ORBConfigAdapter</name>
         </reference>
         <reference name="SSLConfig">
@@ -349,7 +349,7 @@
         <reference name="TransactionManager">
             <name>TransactionManager</name>
         </reference>
-        <reference name="configAdapter">
+        <reference name="ConfigAdapter">
             <name>ORBConfigAdapter</name>
         </reference>
         <reference name="SSLConfig">
@@ -377,7 +377,7 @@
         <reference name="TransactionManager">
             <name>TransactionManager</name>
         </reference>
-        <reference name="configAdapter">
+        <reference name="ConfigAdapter">
             <name>ORBConfigAdapter</name>
         </reference>
         <reference name="SSLConfig">
@@ -401,7 +401,7 @@
         <reference name="TransactionManager">
             <name>TransactionManager</name>
         </reference>
-        <reference name="configAdapter">
+        <reference name="ConfigAdapter">
             <name>ORBConfigAdapter</name>
         </reference>
         <reference name="SSLConfig">
@@ -425,7 +425,7 @@
         <reference name="TransactionManager">
             <name>TransactionManager</name>
         </reference>
-        <reference name="configAdapter">
+        <reference name="ConfigAdapter">
             <name>ORBConfigAdapter</name>
         </reference>
         <reference name="SSLConfig">

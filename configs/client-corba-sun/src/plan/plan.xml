@@ -25,7 +25,7 @@
     </gbean>
 
     <gbean name="NameServerRef" class="org.apache.openejb.corba.NameServiceGBean">
-        <reference name="configAdapter">
+        <reference name="ConfigAdapter">
             <name>ORBConfigAdapter</name>
         </reference>
         <reference name="ServerInfo">
@@ -52,10 +52,10 @@
     <gbean name="Server" class="org.apache.openejb.corba.CORBABeanGBean">
         <attribute name="host">${PlanORBSSLHost}</attribute>
         <attribute name="port">${PlanORBSunSSLPort}</attribute>
-        <reference name="configAdapter">
+        <reference name="ConfigAdapter">
             <name>ORBConfigAdapter</name>
         </reference>
-        <reference name="nameService">
+        <reference name="NameService">
             <name>NameServerRef</name>
         </reference>
     </gbean>
@@ -67,7 +67,7 @@
             <module>geronimo/client/${pom.version}/car</module>
             <name>TransactionManager</name>
         </reference>
-        <reference name="configAdapter">
+        <reference name="ConfigAdapter">
             <name>ORBConfigAdapter</name>
         </reference>
         <reference name="SSLConfig">
@@ -97,7 +97,7 @@
             <module>geronimo/client/${pom.version}/car</module>
             <name>TransactionManager</name>
         </reference>
-        <reference name="configAdapter">
+        <reference name="ConfigAdapter">
             <name>ORBConfigAdapter</name>
         </reference>
         <reference name="SSLConfig">
@@ -127,7 +127,7 @@
             <module>geronimo/client/${pom.version}/car</module>
             <name>TransactionManager</name>
         </reference>
-        <reference name="configAdapter">
+        <reference name="ConfigAdapter">
             <name>ORBConfigAdapter</name>
         </reference>
         <reference name="SSLConfig">
