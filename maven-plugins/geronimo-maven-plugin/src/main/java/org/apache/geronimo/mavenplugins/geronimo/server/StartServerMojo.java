@@ -26,6 +26,7 @@ import java.util.TimerTask;
 import org.apache.maven.plugin.MojoExecutionException;
 
 import org.apache.tools.ant.taskdefs.Java;
+import org.apache.tools.ant.types.Environment;
 
 import org.apache.geronimo.genesis.ObjectHolder;
 import org.apache.geronimo.mavenplugins.geronimo.ServerProxy;
@@ -113,6 +114,13 @@ public class StartServerMojo
 
     private Timer timer = new Timer(true);
 
+    private String appendSystemPath(final String name, final File file) {
+        assert name != null;
+        assert file != null;
+
+        return System.getProperty(name) + File.pathSeparator + file.getPath();
+    }
+
     protected void doExecute() throws Exception {
         installAssembly();
 
@@ -129,10 +137,6 @@ public class StartServerMojo
         if (timeout > 0) {
             java.setTimeout(new Long(timeout * 1000));
         }
-
-        //
-        // TODO: Capture output/error to files
-        //
 
         if (maximumMemory != null) {
             java.setMaxmemory(maximumMemory);
@@ -153,6 +157,30 @@ public class StartServerMojo
             }
         }
 
+        // Set the properties which we pass to the JVM from the startup script
+
+        Environment.Variable var;
+
+        var = new Environment.Variable();
+        var.setKey("org.apache.geronimo.base.dir");
+        var.setFile(geronimoHome);
+        java.addSysproperty(var);
+
+        var = new Environment.Variable();
+        var.setKey("java.io.tmpdir");
+        var.setFile(new File(geronimoHome, "var/temp"));
+        java.addSysproperty(var);
+
+        var = new Environment.Variable();
+        var.setKey("java.endorsed.dirs");
+        var.setValue(appendSystemPath("java.endorsed.dirs", new File(geronimoHome, "lib/endorsed")));
+        java.addSysproperty(var);
+
+        var = new Environment.Variable();
+        var.setKey("java.ext.dirs");
+        var.setValue(appendSystemPath("java.ext.dirs", new File(geronimoHome, "lib/ext")));
+        java.addSysproperty(var);
+        
         if (quiet) {
             java.createArg().setValue("--quiet");
         }
@@ -181,7 +209,11 @@ public class StartServerMojo
                 java.createArg().setValue(startModules[i]);
             }
         }
-        
+
+        //
+        // TODO: Check if this really does capture STDERR or not!
+        //
+
         if (logOutput) {
             File file = getLogFile();
             FileUtils.forceMkdir(file.getParentFile());
