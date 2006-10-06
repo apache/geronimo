@@ -154,6 +154,18 @@ mvn geronimo:start -Dverbose=true
 mvn geronimo:start -Ddebug=true
 +----------+
 
+ If you already have a server started and just need to wait until the server has started:
+
++----------+
+mvn geronimo:wait-for-server
++----------+
+
+ To only wait for a specific period you can sepcify a timeout in sections:
+
++----------+
+mvn geronimo:wait-for-server -Dtimeout=60
++----------+
+
 * Stopping Geronimo Server
 
  To stop a server using the defaults, which is probably fine in most cases, just invoke the {{stop}} goal.
