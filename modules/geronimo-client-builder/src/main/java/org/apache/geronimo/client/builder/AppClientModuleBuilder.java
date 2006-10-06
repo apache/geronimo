@@ -235,7 +235,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             idBuilder.resolve(clientEnvironment, name + "_" + name, "jar");
         } else {
             Artifact earConfigId = earEnvironment.getConfigId();
-            idBuilder.resolve(clientEnvironment, earConfigId.getArtifactId() + "_" + new File(moduleFile.getName()).getName(), "jar");
+            idBuilder.resolve(clientEnvironment, earConfigId.getArtifactId() + "_" + targetPath, "jar");
         }
         EnvironmentType serverEnvironmentType = gerAppClient.getServerEnvironment();
         Environment serverEnvironment = EnvironmentBuilder.buildEnvironment(serverEnvironmentType, defaultServerEnvironment);
