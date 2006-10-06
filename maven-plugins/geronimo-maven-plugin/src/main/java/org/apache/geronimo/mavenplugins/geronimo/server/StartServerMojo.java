@@ -20,8 +20,13 @@
 package org.apache.geronimo.mavenplugins.geronimo.server;
 
 import java.io.File;
+
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Properties;
+import java.util.Iterator;
 
 import org.apache.maven.plugin.MojoExecutionException;
 
@@ -30,6 +35,7 @@ import org.apache.tools.ant.types.Environment;
 
 import org.apache.geronimo.genesis.ObjectHolder;
 import org.apache.geronimo.mavenplugins.geronimo.ServerProxy;
+
 import org.codehaus.plexus.util.FileUtils;
 
 /**
@@ -91,6 +97,10 @@ public class StartServerMojo
      */
     private int verifyTimeout = -1;
 
+    //
+    // TODO: Remove this debug stuff... make it use optionSet, maybe -Ddebug=true will enable the "debug" optionSet?
+    //
+    
     /**
      * JVM arguments to be applied when debug is enabled.
      *
@@ -106,6 +116,20 @@ public class StartServerMojo
     private boolean debug = false;
 
     /**
+     * An array of option sets which can be enabled by setting optionSetId.
+     *
+     * @parameter
+     */
+    private OptionSet[] optionSets = null;
+
+    /**
+     * The optionSet to be enabled.
+     *
+     * @parameter expression="${optionSetId}"
+     */
+    private String optionSetId = null;
+
+    /**
      * A list of module names to be started using --override.
      *
      * @parameter
@@ -113,13 +137,6 @@ public class StartServerMojo
     private String[] startModules = null;
 
     private Timer timer = new Timer(true);
-
-    private String appendSystemPath(final String name, final File file) {
-        assert name != null;
-        assert file != null;
-
-        return System.getProperty(name) + File.pathSeparator + file.getPath();
-    }
 
     protected void doExecute() throws Exception {
         installAssembly();
@@ -132,8 +149,7 @@ public class StartServerMojo
         java.setDir(geronimoHome);
         java.setFailonerror(true);
         java.setFork(true);
-        java.setLogError(true);
-
+        
         if (timeout > 0) {
             java.setTimeout(new Long(timeout * 1000));
         }
@@ -157,29 +173,52 @@ public class StartServerMojo
             }
         }
 
+        // Apply option sets
+        if (optionSetId != null  && (optionSets == null || optionSets.length == 0)) {
+            throw new MojoExecutionException("At least one optionSet must be defined to select one using optionSetId");
+        }
+        else if (optionSetId == null) {
+            optionSetId = "default";
+        }
+        
+        if (optionSets != null && optionSets.length != 0) {
+            //
+            // TODO: Support selecting a comma seperated list of optionSet ids
+            //
+            
+            OptionSet set = selectOptionSet(optionSetId);
+
+            if (log.isDebugEnabled()) {
+                log.debug("Selected option set: " + set);
+            }
+            else {
+                log.info("Selected option set: " + optionSetId);    
+            }
+
+            String[] options = set.getOptions();
+            if (options != null) {
+                for (int i=0; i<options.length; i++) {
+                    java.createJvmarg().setValue(options[i]);
+                }
+            }
+
+            Properties props = set.getProperties();
+            if (props != null) {
+                Iterator iter = props.keySet().iterator();
+                while (iter.hasNext()) {
+                    String name = (String)iter.next();
+                    String value = props.getProperty(name);
+
+                    setSystemProperty(java, name, value);
+                }
+            }
+        }
+
         // Set the properties which we pass to the JVM from the startup script
-
-        Environment.Variable var;
-
-        var = new Environment.Variable();
-        var.setKey("org.apache.geronimo.base.dir");
-        var.setFile(geronimoHome);
-        java.addSysproperty(var);
-
-        var = new Environment.Variable();
-        var.setKey("java.io.tmpdir");
-        var.setFile(new File(geronimoHome, "var/temp"));
-        java.addSysproperty(var);
-
-        var = new Environment.Variable();
-        var.setKey("java.endorsed.dirs");
-        var.setValue(appendSystemPath("java.endorsed.dirs", new File(geronimoHome, "lib/endorsed")));
-        java.addSysproperty(var);
-
-        var = new Environment.Variable();
-        var.setKey("java.ext.dirs");
-        var.setValue(appendSystemPath("java.ext.dirs", new File(geronimoHome, "lib/ext")));
-        java.addSysproperty(var);
+        setSystemProperty(java, "org.apache.geronimo.base.dir", geronimoHome);
+        setSystemProperty(java, "java.io.tmpdir", new File(geronimoHome, "var/temp"));
+        setSystemProperty(java, "java.endorsed.dirs", appendSystemPath("java.endorsed.dirs", new File(geronimoHome, "lib/endorsed")));
+        setSystemProperty(java, "java.ext.dirs", appendSystemPath("java.ext.dirs", new File(geronimoHome, "lib/ext")));
         
         if (quiet) {
             java.createArg().setValue("--quiet");
@@ -295,6 +334,64 @@ public class StartServerMojo
 
             t.join();
         }
+    }
+
+    private String appendSystemPath(final String name, final File file) {
+        assert name != null;
+        assert file != null;
+
+        return System.getProperty(name) + File.pathSeparator + file.getPath();
+    }
+
+    private OptionSet selectOptionSet(final String targetId) throws MojoExecutionException {
+        // Make a map of the option sets and validate ids
+        Map map = new HashMap();
+        for (int i=0; i<optionSets.length; i++) {
+            if (log.isDebugEnabled()) {
+                log.debug("Checking option set: " + optionSets[i]);
+            }
+            
+            String id = optionSets[i].getId();
+
+            if (id == null && optionSets.length > 1) {
+                throw new MojoExecutionException("Must specify id for optionSet when more than one optionSet is configured");
+            }
+            else if (id == null && optionSets.length == 1) {
+                id = "default";
+                optionSets[i].setId(id);
+            }
+
+            if (map.containsKey(id)) {
+                throw new MojoExecutionException("Must specify unique id for optionSet: " + id);
+            }
+            map.put(id, optionSets[i]);
+        }
+
+        OptionSet set = (OptionSet)map.get(targetId);
+        if (set == null) {
+            if ("default".equals(targetId)) {
+                log.warn("Default optionSet selected, but no optionSet defined with that id; ignoring");
+            }
+            else {
+                throw new MojoExecutionException("Missing optionSet for id: " + targetId);
+            }
+        }
+
+        return set;
+    }
+
+    private void setSystemProperty(final Java java, final String name, final String value) {
+        Environment.Variable var = new Environment.Variable();
+        var.setKey(name);
+        var.setValue(value);
+        java.addSysproperty(var);
+    }
+
+    private void setSystemProperty(final Java java, final String name, final File value) {
+        Environment.Variable var = new Environment.Variable();
+        var.setKey(name);
+        var.setFile(value);
+        java.addSysproperty(var);
     }
 
     protected String getGoalName() {
