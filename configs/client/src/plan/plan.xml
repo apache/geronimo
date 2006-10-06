@@ -21,10 +21,19 @@
 
     <!-- Naming properties -->
     <gbean name="NamingProperties" class="org.apache.geronimo.system.properties.NamingProperties">
-        <attribute name="namingFactoryInitial">com.sun.jndi.rmi.registry.RegistryContextFactory</attribute>
-        <attribute name="namingFactoryUrlPkgs">org.apache.geronimo.naming</attribute>
-        <attribute name="namingProviderUrl">rmi://localhost:${PlanNamingPort}</attribute>
+        <attribute name="namingFactoryInitial">org.apache.xbean.naming.global.GlobalContextManager</attribute>
+        <attribute name="namingFactoryUrlPkgs">org.apache.xbean.naming</attribute>
+        <attribute name="namingProviderUrl">rmi://${PlanServerHostname}:${PlanNamingPort}</attribute>
     </gbean>
+
+    <gbean name="GlobalContext" class="org.apache.geronimo.gjndi.GlobalContextGBean"/>
+
+    <gbean name="JavaCompContext" class="org.apache.geronimo.gjndi.JavaCompContextGBean"/>
+
+    <gbean name="JavaContext" class="org.apache.geronimo.gjndi.WritableContextGBean">
+        <attribute name="nameInNamespace">java:</attribute>
+    </gbean>
+
 
     <gbean name="DefaultThreadPool" class="org.apache.geronimo.pool.ThreadPool">
         <attribute name="keepAliveTime">5000</attribute>

@@ -53,9 +53,6 @@ public class StaticJndiContextPlugin implements AppClientPlugin {
 
     public void startClient(AbstractName appClientModuleName, Kernel kernel, ClassLoader classLoader) throws Exception {
         RootContext.setComponentContext(context);
-        System.setProperty("java.naming.factory.initial", "com.sun.jndi.rmi.registry.RegistryContextFactory");
-        System.setProperty("java.naming.factory.url.pkgs", "org.apache.geronimo.naming");
-//        System.setProperty("java.naming.provider.url", "rmi://localhost:1099");
         new InitialContext().lookup("java:comp/env");
     }
 
