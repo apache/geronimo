@@ -132,7 +132,8 @@ mvn geronimo:start -DgeronimoHome=/path/to/assembly
 mvn geronimo:start -Dverbose=true
 +----------+
 
- Optional JVM debug arguments may be configured.
+ Optional JVM options and/or system properties can be set by configuring a set of options
+ and selecting the options to be enabled.
 
 +----------+
 <plugin>
@@ -140,19 +141,38 @@ mvn geronimo:start -Dverbose=true
     <artifactId>geronimo-maven-plugin</artifactId>
 
     <configuration>
-        <debugArguments>
-            <argument>-Xdebug</argument>
-            <argument>-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n</argument>
-        </debugArguments>
+        <optionSets>
+            <optionSet>
+                <id>debug</id>
+                <options>
+                    <option>-Xdebug</option>
+                    <option>-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n</option>
+                </options>
+            </optionSet>
+
+            <optionSet>
+                <id>other</id>
+                <properties>
+                    <property>
+                        <name>foo</name>
+                        <value>bar</value>
+                    </property>
+                </properties>
+            </optionSet>
+        </optionSets>
     </configuration>
 </plugin>
 +----------+
 
- By setting the <<<debug>>> parameter the JVM will be started in debug mode.
+ Option sets may be selected by configuring the <<<options>>> parameter with a comma seperated
+ list of <<<optionSet>>> ids.  To enable a set of options to be enabled by default, then
+ configure an <<<optionSet>>> with the id of <<<default>>> and omit the <<<options>>> parameter.
  
 +----------+
-mvn geronimo:start -Ddebug=true
+mvn geronimo:start -Doptions=debug,other
 +----------+
+
+* Waiting for a Geronimo Server
 
  If you already have a server started and just need to wait until the server has started:
 

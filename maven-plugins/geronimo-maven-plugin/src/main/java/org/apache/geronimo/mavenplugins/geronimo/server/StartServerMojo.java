@@ -27,6 +27,9 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.Iterator;
+import java.util.StringTokenizer;
+import java.util.List;
+import java.util.ArrayList;
 
 import org.apache.maven.plugin.MojoExecutionException;
 
@@ -97,24 +100,6 @@ public class StartServerMojo
      */
     private int verifyTimeout = -1;
 
-    //
-    // TODO: Remove this debug stuff... make it use optionSet, maybe -Ddebug=true will enable the "debug" optionSet?
-    //
-    
-    /**
-     * JVM arguments to be applied when debug is enabled.
-     *
-     * @parameter
-     */
-    private String[] debugArguments = null;
-
-    /**
-     * Enable debug mode.  When true, debugArguments are added to the JVM.
-     *
-     * @parameter expression="${debug}" default-value="false"
-     */
-    private boolean debug = false;
-
     /**
      * An array of option sets which can be enabled by setting optionSetId.
      *
@@ -123,11 +108,11 @@ public class StartServerMojo
     private OptionSet[] optionSets = null;
 
     /**
-     * The optionSet to be enabled.
+     * A comma seperated list of optionSets to enabled.
      *
-     * @parameter expression="${optionSetId}"
+     * @parameter expression="${options}"
      */
-    private String optionSetId = null;
+    private String options = null;
 
     /**
      * A list of module names to be started using --override.
@@ -158,58 +143,41 @@ public class StartServerMojo
             java.setMaxmemory(maximumMemory);
         }
 
-        if (debug) {
-            if (debugArguments == null) {
-                throw new MojoExecutionException("To enable debug mode a set of debugArguments needs to be configured");
-            }
-            else if (debugArguments.length == 0) {
-                throw new MojoExecutionException("At least one argument must be configured with debugArguments");
-            }
-
-            log.info("Enabling debug JVM arguments");
-
-            for (int i=0; i < debugArguments.length; i++) {
-                java.createJvmarg().setValue(debugArguments[i]);
-            }
-        }
-
         // Apply option sets
-        if (optionSetId != null  && (optionSets == null || optionSets.length == 0)) {
-            throw new MojoExecutionException("At least one optionSet must be defined to select one using optionSetId");
+        if (options != null  && (optionSets == null || optionSets.length == 0)) {
+            throw new MojoExecutionException("At least one optionSet must be defined to select one using options");
         }
-        else if (optionSetId == null) {
-            optionSetId = "default";
+        else if (options == null) {
+            options = "default";
         }
         
         if (optionSets != null && optionSets.length != 0) {
-            //
-            // TODO: Support selecting a comma seperated list of optionSet ids
-            //
-            
-            OptionSet set = selectOptionSet(optionSetId);
+            OptionSet[] sets = selectOptionSets();
 
-            if (log.isDebugEnabled()) {
-                log.debug("Selected option set: " + set);
-            }
-            else {
-                log.info("Selected option set: " + optionSetId);    
-            }
-
-            String[] options = set.getOptions();
-            if (options != null) {
-                for (int i=0; i<options.length; i++) {
-                    java.createJvmarg().setValue(options[i]);
+            for (int i=0; i < sets.length; i++) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Selected option set: " + sets[i]);
                 }
-            }
+                else {
+                    log.info("Selected option set: " + sets[i].getId());
+                }
 
-            Properties props = set.getProperties();
-            if (props != null) {
-                Iterator iter = props.keySet().iterator();
-                while (iter.hasNext()) {
-                    String name = (String)iter.next();
-                    String value = props.getProperty(name);
+                String[] options = sets[i].getOptions();
+                if (options != null) {
+                    for (int j=0; j < options.length; j++) {
+                        java.createJvmarg().setValue(options[j]);
+                    }
+                }
 
-                    setSystemProperty(java, name, value);
+                Properties props = sets[i].getProperties();
+                if (props != null) {
+                    Iterator iter = props.keySet().iterator();
+                    while (iter.hasNext()) {
+                        String name = (String)iter.next();
+                        String value = props.getProperty(name);
+
+                        setSystemProperty(java, name, value);
+                    }
                 }
             }
         }
@@ -343,7 +311,7 @@ public class StartServerMojo
         return System.getProperty(name) + File.pathSeparator + file.getPath();
     }
 
-    private OptionSet selectOptionSet(final String targetId) throws MojoExecutionException {
+    private OptionSet[] selectOptionSets() throws MojoExecutionException {
         // Make a map of the option sets and validate ids
         Map map = new HashMap();
         for (int i=0; i<optionSets.length; i++) {
@@ -361,23 +329,36 @@ public class StartServerMojo
                 optionSets[i].setId(id);
             }
 
+            assert id != null;
+            id = id.trim();
+
             if (map.containsKey(id)) {
                 throw new MojoExecutionException("Must specify unique id for optionSet: " + id);
             }
             map.put(id, optionSets[i]);
         }
 
-        OptionSet set = (OptionSet)map.get(targetId);
-        if (set == null) {
-            if ("default".equals(targetId)) {
-                log.warn("Default optionSet selected, but no optionSet defined with that id; ignoring");
+        StringTokenizer stok = new StringTokenizer(options, ",");
+
+        List selected = new ArrayList();
+        while (stok.hasMoreTokens()) {
+            String id = stok.nextToken();
+            OptionSet set = (OptionSet)map.get(options);
+            
+            if (set == null) {
+                if ("default".equals(options)) {
+                    log.debug("Default optionSet selected, but no optionSet defined with that id; ignoring");
+                }
+                else {
+                    throw new MojoExecutionException("Missing optionSet for id: " + id);
+                }
             }
             else {
-                throw new MojoExecutionException("Missing optionSet for id: " + targetId);
+                selected.add(set);
             }
         }
 
-        return set;
+        return (OptionSet[]) selected.toArray(new OptionSet[selected.size()]);
     }
 
     private void setSystemProperty(final Java java, final String name, final String value) {
