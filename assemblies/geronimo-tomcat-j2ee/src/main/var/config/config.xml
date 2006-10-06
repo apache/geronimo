@@ -17,7 +17,7 @@
             <attribute name="namingProviderUrl">rmi://${PlanServerHostname}:${PlanNamingPort}</attribute>
         </gbean>
         <gbean name="DownloadedPluginRepos">
-          <attribute name="repositoryList">http://people.apache.org/~ammulder/plugin-repository-list-1.2.txt</attribute>
+          <attribute name="repositoryList">http://geronimo.apache.org/plugins/plugin-repository-list-1.2.txt</attribute>
           <attribute name="userRepositories">[]</attribute>
         </gbean>
     </module>
