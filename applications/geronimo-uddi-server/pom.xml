@@ -68,23 +68,20 @@
     </build>
     
     <!--
-    HACK: Need to include the Apache m1 snapshot repo to pick up juddi:juddi:jar:0.9rc4
+    HACK: Include local repo to pick up juddi:juddi:jar:0.9rc4
     -->
     <repositories>
         <repository>
-            <id>apache-snapshots-m1</id>
-            <name>Apache Maven 1 Snapshots Repository</name>
-            <url>http://people.apache.org/repo/m1-snapshot-repository</url>
-            <layout>legacy</layout>
+            <id>module-local</id>
+            <url>file://${pom.basedir}/repository</url>
+            <layout>default</layout>
             <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
+                <enabled>false</enabled>
             </snapshots>
             <releases>
                 <enabled>true</enabled>
             </releases>
         </repository>
     </repositories>
-
+    
 </project>
