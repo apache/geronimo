@@ -207,8 +207,23 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.openejb</groupId>
+            <artifactId>openejb-yoko</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.yoko</groupId>
+            <artifactId>yoko-core</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.yoko</groupId>
             <artifactId>yoko-spec-corba</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.yoko</groupId>
+            <artifactId>yoko-rmi</artifactId>
         </dependency>
     </dependencies>
 

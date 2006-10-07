@@ -20,10 +20,11 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>org.apache.geronimo.assemblies</groupId>
         <artifactId>assemblies</artifactId>
@@ -34,11 +35,11 @@
     <artifactId>geronimo-boilerplate-j2ee</artifactId>
     <name>Geronimo Assemblies :: Boilerplate J2EE</name>
     <packaging>jar</packaging>
-    
+
     <description>
         Provides boilerplate files for all Geronimo J2EE server assemblies.
     </description>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -64,42 +65,42 @@
                                     <version>${pom.version}</version>
                                     <type>rar</type>
                                 </artifact>
-                                
+
                                 <artifact>
                                     <groupId>tranql</groupId>
                                     <artifactId>tranql-connector</artifactId>
                                     <type>rar</type>
                                 </artifact>
-                                
+
                                 <artifact>
                                     <groupId>tranql</groupId>
                                     <artifactId>tranql-connector-derby-embed-local</artifactId>
                                     <type>rar</type>
                                 </artifact>
-                                
+
                                 <artifact>
                                     <groupId>tranql</groupId>
                                     <artifactId>tranql-connector-derby-embed-xa</artifactId>
                                     <type>rar</type>
                                 </artifact>
-                                
+
                                 <artifact>
                                     <groupId>tranql</groupId>
                                     <artifactId>tranql-connector-derby-client-local</artifactId>
                                     <type>rar</type>
                                 </artifact>
-                                
+
                                 <artifact>
                                     <groupId>tranql</groupId>
                                     <artifactId>tranql-connector-derby-client-xa</artifactId>
                                     <type>rar</type>
                                 </artifact>
-                                
+
                                 <artifact>
                                     <groupId>org.apache.derby</groupId>
                                     <artifactId>derbyclient</artifactId>
                                 </artifact>
-                                
+
                                 <artifact>
                                     <groupId>org.apache.derby</groupId>
                                     <artifactId>derbytools</artifactId>
@@ -109,7 +110,7 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>dependency-maven-plugin</artifactId>
@@ -132,9 +133,25 @@
                             <outputDirectory>${project.build.directory}/boilerplate</outputDirectory>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>install-lib-endorsed</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.apache.yoko</groupId>
+                                    <artifactId>yoko-spec-corba</artifactId>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}/classes/lib/endorsed</outputDirectory>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -160,5 +177,5 @@
             </plugin>
         </plugins>
     </build>
-    
+
 </project>
