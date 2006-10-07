@@ -361,20 +361,6 @@ public class StartServerMojo
         return (OptionSet[]) selected.toArray(new OptionSet[selected.size()]);
     }
 
-    private void setSystemProperty(final Java java, final String name, final String value) {
-        Environment.Variable var = new Environment.Variable();
-        var.setKey(name);
-        var.setValue(value);
-        java.addSysproperty(var);
-    }
-
-    private void setSystemProperty(final Java java, final String name, final File value) {
-        Environment.Variable var = new Environment.Variable();
-        var.setKey(name);
-        var.setFile(value);
-        java.addSysproperty(var);
-    }
-
     protected String getGoalName() {
         //
         //FIXME: There has to be way this can be computed instead of hardcoded absolutely.
