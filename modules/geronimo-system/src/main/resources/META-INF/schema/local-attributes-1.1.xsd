@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-
     Copyright 2004-2005 The Apache Software Foundation
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,13 +15,14 @@
     limitations under the License.
 -->
 
+<!-- $Rev$ $Date$ -->
+
 <xsd:schema
     targetNamespace="http://geronimo.apache.org/xml/ns/attributes-1.1"
     xmlns:atts="http://geronimo.apache.org/xml/ns/attributes-1.1"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     elementFormDefault="qualified"
-    attributeFormDefault="unqualified"
-    >
+    attributeFormDefault="unqualified">
 
     <xsd:annotation>
         <xsd:documentation>
@@ -31,12 +31,12 @@
             Should look like this:
 
             <attributes>
-              <module name="mygroup/mycomponent/1.1/jar">
-                <gbean name="MyNetworkService">
-                  <attribute name="host">0.0.0.0</attribute>
-                  <attribute name="port">1234</attribute>
-                </gbean>
-              </module>
+                <module name="mygroup/mycomponent/1.1/jar">
+                    <gbean name="MyNetworkService">
+                        <attribute name="host">0.0.0.0</attribute>
+                        <attribute name="port">1234</attribute>
+                    </gbean>
+                </module>
             </attributes>
             ]]>
         </xsd:documentation>
@@ -46,35 +46,36 @@
     <xsd:element name="attributes" type="atts:attributesType"/>
 
     <!-- Element used by the plugin system to list individual GBeans -->
-    <xsd:element name="gbean" type="atts:gbeanType" />
+    <xsd:element name="gbean" type="atts:gbeanType"/>
 
     <xsd:complexType name="attributesType">
         <xsd:choice>
-            <xsd:element name="module" type="atts:configurationType" minOccurs="0" maxOccurs="unbounded" />
+            <xsd:element name="module" type="atts:moduleType" minOccurs="0" maxOccurs="unbounded"/>
 
             <!-- The config.xml file in 1.0 use configuration instead of module -->
-            <xsd:element name="configuration" type="atts:configurationType" minOccurs="0" maxOccurs="unbounded" />
+            <xsd:element name="configuration" type="atts:moduleType" minOccurs="0" maxOccurs="unbounded"/>
         </xsd:choice>
     </xsd:complexType>
 
-    <xsd:complexType name="configurationType">
+    <xsd:complexType name="moduleType">
         <xsd:sequence>
-            <xsd:element name="gbean" type="atts:gbeanType" minOccurs="0" maxOccurs="unbounded" />
+            <xsd:element name="gbean" type="atts:gbeanType" minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>
         <xsd:attribute name="name" type="xsd:string" use="required"/>
         <xsd:attribute name="load" type="xsd:boolean" use="optional" default="true"/>
+        <xsd:attribute name="condition" type="xsd:string" use="optional"/>
     </xsd:complexType>
 
     <xsd:complexType name="gbeanType">
         <xsd:annotation>
             <xsd:documentation>
                 <![CDATA[
-                  Note that the name attribute for a gbean element may hold
-                  either the full GBeanName, or only the value for the
-                  "name=" portion of the GBeanName.  If there are multiple
-                  GBeans in the module with manageable attributes and
-                  the same "name=" portion of the GBeanName, then all must be
-                  listed and all must be listed with a full GBeanName.
+                Note that the name attribute for a gbean element may hold
+                either the full GBeanName, or only the value for the
+                "name=" portion of the GBeanName.  If there are multiple
+                GBeans in the module with manageable attributes and
+                the same "name=" portion of the GBeanName, then all must be
+                listed and all must be listed with a full GBeanName.
                 ]]>
             </xsd:documentation>
         </xsd:annotation>
@@ -114,4 +115,5 @@
         </xsd:sequence>
         <xsd:attribute name="name" type="xsd:string"/>
     </xsd:complexType>
-  </xsd:schema>
+
+</xsd:schema>

@@ -56,6 +56,16 @@
             <artifactId>backport-util-concurrent</artifactId>
         </dependency>
         
+        <dependency>
+            <groupId>commons-jexl</groupId>
+            <artifactId>commons-jexl</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>ognl</groupId>
+            <artifactId>ognl</artifactId>
+        </dependency>
+        
         <!--
         NOTE: Need to include Xerces for tests in case Crimson (or another parser)
               gets picked up that does not support attributes

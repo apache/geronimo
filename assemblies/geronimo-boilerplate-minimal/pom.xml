@@ -94,6 +94,14 @@
                                     <artifactId>jline</artifactId>
                                 </artifactItem>
                                 <artifactItem>
+                                    <groupId>commons-jexl</groupId>
+                                    <artifactId>commons-jexl</artifactId>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>ognl</groupId>
+                                    <artifactId>ognl</artifactId>
+                                </artifactItem>
+                                <artifactItem>
                                     <groupId>org.apache.geronimo.specs</groupId>
                                     <artifactId>geronimo-qname_1.1_spec</artifactId>
                                 </artifactItem>

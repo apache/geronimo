@@ -131,6 +131,14 @@
                             <artifactId>xstream</artifactId>
                         </element>
                         <element>
+                            <groupId>commons-jexl</groupId>
+                            <artifactId>commons-jexl</artifactId>
+                        </element>
+                        <element>
+                            <groupId>ognl</groupId>
+                            <artifactId>ognl</artifactId>
+                        </element>
+                        <element>
                             <groupId>backport-util-concurrent</groupId>
                             <artifactId>backport-util-concurrent</artifactId>
                         </element>
