@@ -24,26 +24,18 @@ import java.io.IOException;
 import java.io.FileOutputStream;
 import java.io.BufferedOutputStream;
 
-import java.util.Set;
-import java.util.List;
 import java.util.Iterator;
-import java.util.HashSet;
-import java.util.ArrayList;
 import java.util.Properties;
 
 import org.apache.geronimo.genesis.MojoSupport;
 
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
-import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
-import org.apache.maven.artifact.resolver.filter.ExcludesArtifactFilter;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
-import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.factory.ArtifactFactory;
-import org.apache.maven.model.Dependency;
-import org.apache.maven.model.Exclusion;
 
 /**
  * Support for <em>packaging</em> Mojos.
@@ -121,64 +113,7 @@ public abstract class AbstractCarMojo
         return artifactRepository;
     }
 
-    //
-    // Access to Project artifacts
-    //
-
-    protected Set getProjectArtifacts(final MavenProject project) {
-        Set artifacts = new HashSet();
-
-        Iterator dependencies = project.getDependencies().iterator();
-        while (dependencies.hasNext()) {
-            Dependency dep = (Dependency) dependencies.next();
-
-            String groupId = dep.getGroupId();
-            String artifactId = dep.getArtifactId();
-            VersionRange versionRange = VersionRange.createFromVersion(dep.getVersion());
-            String type = dep.getType();
-            if (type == null) {
-                type = "jar";
-            }
-
-            String classifier = dep.getClassifier();
-            boolean optional = dep.isOptional();
-            String scope = dep.getScope();
-            if (scope == null) {
-                scope = Artifact.SCOPE_COMPILE;
-            }
-
-            Artifact artifact = getArtifactFactory().createDependencyArtifact(
-                groupId,
-                artifactId,
-                versionRange,
-                type,
-                classifier,
-                scope,
-                optional);
-
-            if (scope.equalsIgnoreCase(Artifact.SCOPE_SYSTEM)) {
-                artifact.setFile(new File(dep.getSystemPath()));
-            }
-
-            List exclusions = new ArrayList();
-            for (Iterator j = dep.getExclusions().iterator(); j.hasNext();) {
-                Exclusion e = (Exclusion) j.next();
-                exclusions.add(e.getGroupId() + ":" + e.getArtifactId());
-            }
-
-            ArtifactFilter newFilter = new ExcludesArtifactFilter(exclusions);
-            artifact.setDependencyFilter(newFilter);
-            artifacts.add(artifact);
-        }
-
-        return artifacts;
-    }
-
-    protected Set getProjectArtifacts() {
-        return getProjectArtifacts(project);
-    }
-    
-    protected void generateExplicitVersionProperties(final File outputFile) throws IOException {
+    protected void generateExplicitVersionProperties(final File outputFile) throws MojoExecutionException, IOException {
         log.debug("Generating explicit version properties: " + outputFile);
 
         // Generate explicit_versions for all our dependencies...
