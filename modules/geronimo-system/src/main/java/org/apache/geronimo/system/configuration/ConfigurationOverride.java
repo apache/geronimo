@@ -139,7 +139,7 @@ class ConfigurationOverride {
         if (!load) {
             module.setAttribute("load", "false");
         }
-        if (condition != null) {
+        if (condition != null && condition.trim().length() != 0) {
             module.setAttribute("condition", condition);
         }
 
