@@ -19,6 +19,9 @@
 
 package org.apache.geronimo.system.configuration.condition;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Provides access to Java version details for use in condition expressions.
  *
@@ -26,6 +29,8 @@ package org.apache.geronimo.system.configuration.condition;
  */
 public class JavaVariable
 {
+    private static final Log log = LogFactory.getLog(JavaVariable.class);
+    
     public String getVendor() {
         return SystemUtils.JAVA_VENDOR;
     }
@@ -66,11 +71,67 @@ public class JavaVariable
         return SystemUtils.IS_JAVA_1_6;
     }
 
-    public boolean isVersionAtLeast(final float requiredVersion) {
+    public boolean getIsVersionAtLeast(final float requiredVersion) {
         return SystemUtils.isJavaVersionAtLeast(requiredVersion);
     }
 
-    public boolean isVersionAtLeast(final int requiredVersion) {
+    public boolean getIsVersionAtLeast(final int requiredVersion) {
         return SystemUtils.isJavaVersionAtLeast(requiredVersion);
+    }
+    
+    public boolean getVersionMatches(String version) {
+        version = version.trim();
+        
+        boolean debug = log.isDebugEnabled();
+        boolean result = false;
+        
+        if (version.endsWith("*")) {
+            version = version.substring(0, version.length() - 1).trim();
+            
+            if (debug) {
+                log.debug("Checking Java version is in the same group as: " + version);
+            }
+            
+            String tmp = SystemUtils.JAVA_VERSION_TRIMMED;
+            
+            if (debug) {
+                log.debug("Requested version: " + tmp);
+                log.debug("JVM version: " + SystemUtils.JAVA_VERSION_FLOAT);
+            }
+            
+            result = tmp.startsWith(version);
+        }
+        else if (version.endsWith("+")) {
+            version = version.substring(0, version.length() - 1).trim();
+            
+            if (debug) {
+                log.debug("Checking Java version is greater than: " + version);
+            }
+            
+            float tmp = Float.parseFloat(version);
+            
+            if (debug) {
+                log.debug("Requested version: " + tmp);
+                log.debug("JVM version: " + SystemUtils.JAVA_VERSION_FLOAT);
+            }
+            
+            result = tmp <= SystemUtils.JAVA_VERSION_FLOAT;
+        }
+        else {
+            if (debug) {
+                log.debug("Checking Java version is equal to: " + version);
+            }
+            
+            float tmp = Float.parseFloat(version);
+            
+            if (debug) {
+                log.debug("Requested version: " + tmp);
+                log.debug("JVM version: " + SystemUtils.JAVA_VERSION_FLOAT);
+            }
+            
+            result = tmp == SystemUtils.JAVA_VERSION_FLOAT;
+        }
+        
+        return result;
     }
 }
