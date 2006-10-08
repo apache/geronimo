@@ -33,7 +33,7 @@
 
     <artifactId>geronimo-boilerplate-minimal</artifactId>
     <name>Geronimo Assemblies :: Boilerplate Minimal</name>
-    <packaging>jar</packaging>
+    <packaging>resource-bundle</packaging>
     
     <description>
         Provides boilerplate files for all Geronimo minimal server (Little-G) assemblies.

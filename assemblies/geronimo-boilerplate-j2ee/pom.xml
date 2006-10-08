@@ -34,7 +34,7 @@
 
     <artifactId>geronimo-boilerplate-j2ee</artifactId>
     <name>Geronimo Assemblies :: Boilerplate J2EE</name>
-    <packaging>jar</packaging>
+    <packaging>resource-bundle</packaging>
 
     <description>
         Provides boilerplate files for all Geronimo J2EE server assemblies.
