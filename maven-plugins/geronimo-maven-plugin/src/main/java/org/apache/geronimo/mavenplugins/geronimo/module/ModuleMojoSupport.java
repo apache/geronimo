@@ -37,7 +37,7 @@ import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
 import org.apache.geronimo.mavenplugins.geronimo.ModuleConfig;
 import org.apache.geronimo.mavenplugins.geronimo.reporting.ReportingMojoSupport;
 
-import org.apache.geronimo.genesis.ArtifactItem;
+import org.apache.geronimo.genesis.util.ArtifactItem;
 
 import org.apache.maven.plugin.MojoExecutionException;
 

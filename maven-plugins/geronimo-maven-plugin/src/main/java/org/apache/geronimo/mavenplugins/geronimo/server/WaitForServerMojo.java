@@ -20,7 +20,7 @@ package org.apache.geronimo.mavenplugins.geronimo.server;
 
 import org.apache.maven.plugin.MojoExecutionException;
 
-import org.apache.geronimo.genesis.ObjectHolder;
+import org.apache.geronimo.genesis.util.ObjectHolder;
 import org.apache.geronimo.mavenplugins.geronimo.ServerProxy;
 import org.apache.geronimo.mavenplugins.geronimo.reporting.ReportingMojoSupport;
 

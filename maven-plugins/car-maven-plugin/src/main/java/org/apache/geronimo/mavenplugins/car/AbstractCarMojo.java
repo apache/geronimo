@@ -81,28 +81,6 @@ public abstract class AbstractCarMojo
     }
 
     /**
-     * @component
-     * @required
-     * @readonly
-     */
-    private ArtifactFactory artifactFactory = null;
-
-    protected ArtifactFactory getArtifactFactory() {
-        return artifactFactory;
-    }
-
-    /**
-     * @component
-     * @required
-     * @readonly
-     */
-    private ArtifactResolver artifactResolver = null;
-
-    protected ArtifactResolver getArtifactResolver() {
-        return artifactResolver;
-    }
-
-    /**
      * @parameter expression="${localRepository}"
      * @readonly
      * @required

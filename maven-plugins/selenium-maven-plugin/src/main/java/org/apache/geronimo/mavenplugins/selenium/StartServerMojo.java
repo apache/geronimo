@@ -33,8 +33,8 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.MojoExecutionException;
 
-import org.apache.geronimo.genesis.AntMojoSupport;
-import org.apache.geronimo.genesis.ObjectHolder;
+import org.apache.geronimo.genesis.ant.AntMojoSupport;
+import org.apache.geronimo.genesis.util.ObjectHolder;
 
 import org.apache.commons.io.IOUtils;
 

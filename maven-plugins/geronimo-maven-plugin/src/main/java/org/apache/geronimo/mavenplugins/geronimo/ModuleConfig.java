@@ -20,7 +20,7 @@
 package org.apache.geronimo.mavenplugins.geronimo;
 
 import java.io.File;
-import org.apache.geronimo.genesis.ArtifactItem;
+import org.apache.geronimo.genesis.util.ArtifactItem;
 
 /**
  * Module artifact configuration.

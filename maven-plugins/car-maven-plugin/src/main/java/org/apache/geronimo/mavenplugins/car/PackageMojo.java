@@ -49,7 +49,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 
-import org.apache.geronimo.genesis.ArtifactItem;
+import org.apache.geronimo.genesis.util.ArtifactItem;
 
 import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;

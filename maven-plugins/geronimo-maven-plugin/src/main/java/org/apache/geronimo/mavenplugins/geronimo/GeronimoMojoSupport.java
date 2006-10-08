@@ -24,7 +24,7 @@ import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 
-import org.apache.geronimo.genesis.AntMojoSupport;
+import org.apache.geronimo.genesis.ant.AntMojoSupport;
 
 /**
  * Support for Geronimo mojos.
@@ -89,32 +89,6 @@ public abstract class GeronimoMojoSupport
 
     protected MavenProject getProject() {
         return project;
-    }
-
-    /**
-     * ???
-     *
-     * @component
-     * @required
-     * @readonly
-     */
-    protected ArtifactFactory artifactFactory = null;
-
-    protected ArtifactFactory getArtifactFactory() {
-        return artifactFactory;
-    }
-
-    /**
-     * ???
-     *
-     * @component
-     * @required
-     * @readonly
-     */
-    protected ArtifactResolver artifactResolver = null;
-
-    protected ArtifactResolver getArtifactResolver() {
-        return artifactResolver;
     }
 
     /**
