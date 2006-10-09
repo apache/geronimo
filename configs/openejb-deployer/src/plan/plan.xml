@@ -91,7 +91,7 @@
 
     <gbean name="OpenEjbClientRemoteRefBuilder" class="org.apache.openejb.deployment.OpenEjbClientRemoteRefBuilder">
         <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee</attribute>
-        <attribute name="host">${PlanServerHostname}</attribute>
+        <attribute name="host">${PlanClientAddresses}</attribute>
         <attribute name="port">${PlanOpenEJBPort}</attribute>
         <xml-attribute name="defaultEnvironment">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
