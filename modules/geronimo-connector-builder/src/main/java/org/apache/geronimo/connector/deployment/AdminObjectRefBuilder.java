@@ -67,6 +67,9 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
         messageDestinationRefQNameSet = buildQNameSet(eeNamespaces, "message-destination-ref");
     }
 
+    protected boolean willMergeEnvironment(XmlObject specDD, XmlObject plan) {
+        return specDD.selectChildren(adminOjbectRefQNameSet).length > 0 || specDD.selectChildren(messageDestinationRefQNameSet).length > 0;
+    }
 
     public void initContext(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module) throws DeploymentException {
         XmlObject[] specDestinations = convert(specDD.selectChildren(messageDestinationQNameSet), J2EE_CONVERTER, MessageDestinationType.type);

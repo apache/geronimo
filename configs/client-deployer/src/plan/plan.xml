@@ -38,10 +38,10 @@
                 <name>PersistenceContextRefBuilder</name>
             </pattern>
             <pattern>
-                <name>ResourceRefBuilder</name>
+                <name>ClientResourceRefBuilder</name>
             </pattern>
             <pattern>
-                <name>AdminObjectRefBuilder</name>
+                <name>ClientAdminObjectRefBuilder</name>
             </pattern>
             <pattern>
                 <name>EnvironmentEntryBuilder</name>
@@ -105,6 +105,13 @@
                 </dependencies>
             </environment>
         </xml-attribute>
+    </gbean>
+
+    <gbean name="ClientResourceRefBuilder" class="org.apache.geronimo.connector.deployment.ResourceRefBuilder">
+        <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee</attribute>
+    </gbean>
+    <gbean name="ClientAdminObjectRefBuilder" class="org.apache.geronimo.connector.deployment.AdminObjectRefBuilder">
+        <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee</attribute>
     </gbean>
 
 </module>

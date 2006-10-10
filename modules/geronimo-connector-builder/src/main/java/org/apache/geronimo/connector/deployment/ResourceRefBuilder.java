@@ -67,6 +67,10 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
         resourceRefQNameSet = buildQNameSet(eeNamespaces, "resource-ref");
     }
 
+    protected boolean willMergeEnvironment(XmlObject specDD, XmlObject plan) {
+        return specDD.selectChildren(resourceRefQNameSet).length > 0;
+    }
+
     public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
         XmlObject[] resourceRefsUntyped = convert(specDD.selectChildren(resourceRefQNameSet), J2EE_CONVERTER, ResourceRefType.type);
         XmlObject[] gerResourceRefsUntyped = plan == null? NO_REFS: plan.selectChildren(GER_RESOURCE_REF_QNAME_SET);
