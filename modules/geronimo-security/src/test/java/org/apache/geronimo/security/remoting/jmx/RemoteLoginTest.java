@@ -143,7 +143,7 @@ public class RemoteLoginTest extends TestSupport {
         gbean = buildGBeanData("target", "JaasLoginServiceRemotingServer", JaasLoginServiceRemotingServer.getGBeanInfo());
         serverStub = gbean.getAbstractName();
         gbean.setAttribute("protocol", "tcp");
-        gbean.setAttribute("host", "0.0.0.0");
+        gbean.setAttribute("host", "localhost");
         gbean.setAttribute("port", new Integer(4242));
         gbean.setReferencePattern("LoginService", loginService);
         kernel.loadGBean(gbean, JaasLoginServiceRemotingServer.class.getClassLoader());
