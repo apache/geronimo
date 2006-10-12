@@ -1060,9 +1060,9 @@
                 <groupId>org.apache.geronimo.genesis.plugins</groupId>
                 <artifactId>tools-maven-plugin</artifactId>
 
-                <!-- Tools includes custom packagings, install as extention to pick them up -->
+                <!-- Tools includes custom packagings, install as extension to pick them up -->
                 <extensions>true</extensions>
-
+                
                 <executions>
                     <execution>
                         <id>validate-java-version</id>
@@ -1170,7 +1170,7 @@
                 <module>assemblies</module>
             </modules>
         </profile>
-
+        
         <!--
         NOTE: This profile is used to enable plugin prefixes for easy command-line usage, as in:
 
@@ -1266,11 +1266,11 @@
                 <module>modules</module>
                 <module>maven-plugins</module>
                 <module>applications</module>
-
+                <module>configs</module>
+                
                 <!--
                 NOTE: Probably do not want to publish these to the repo...  Or do we?
 
-                <module>configs</module>
                 <module>assemblies</module>
                 -->
             </modules>

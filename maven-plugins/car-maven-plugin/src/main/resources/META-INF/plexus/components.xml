@@ -31,19 +31,30 @@
             <role-hint>car</role-hint>
             <implementation>org.apache.maven.lifecycle.mapping.DefaultLifecycleMapping</implementation>
             <configuration>
-                <phases>
-                    <process-resources>org.apache.maven.plugins:maven-resources-plugin:resources</process-resources>
-                    <compile>org.apache.geronimo.plugins:car-maven-plugin:prepare-plan</compile>
-                    <package>org.apache.geronimo.plugins:car-maven-plugin:package</package>
-                    <install>org.apache.maven.plugins:maven-install-plugin:install</install>
-                    <deploy>org.apache.maven.plugins:maven-deploy-plugin:deploy</deploy>
-                </phases>
+                <lifecycles>
+                    <lifecycle>
+                        <id>default</id>
+                        <phases>
+                            <process-resources>org.apache.maven.plugins:maven-resources-plugin:resources</process-resources>
+                            <compile>org.apache.geronimo.plugins:car-maven-plugin:prepare-plan</compile>
+                            <package>org.apache.geronimo.plugins:car-maven-plugin:package</package>
+                            <install>org.apache.maven.plugins:maven-install-plugin:install</install>
+                            <deploy>org.apache.maven.plugins:maven-deploy-plugin:deploy</deploy>
+                        </phases>
+                    </lifecycle>
+                </lifecycles>
             </configuration>
         </component>
         
         <!--
+        FIXME: For some crazy reason, when the following are enabled it causes other packagings
+               picked up from tools-maven-plugin to now configure their artifact handlers?!?!!
+        -->
+        
+        <!--
         Custom packaging for geronimo modules.
         -->
+        <!--
         <component>
             <role>org.apache.maven.lifecycle.mapping.LifecycleMapping</role>
             <role-hint>geronimo-module</role-hint>
@@ -63,10 +74,12 @@
                 </lifecycles>
             </configuration>
         </component>
+        -->
         
         <!--
         Install geronimo-module artifact files as .car files
         -->
+        <!--
         <component>
             <role>org.apache.maven.artifact.handler.ArtifactHandler</role>
             <role-hint>geronimo-module</role-hint>
@@ -79,6 +92,7 @@
                 <language>java</language>
             </configuration>
         </component>
+        -->
         
     </components>
 </component-set>
