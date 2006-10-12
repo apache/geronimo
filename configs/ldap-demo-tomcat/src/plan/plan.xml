@@ -17,7 +17,7 @@
 
 <!-- $Rev$ $Date$ -->
 
-<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.1" xmlns:sec="http://geronimo.apache.org/xml/ns/security">
+<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-${geronimoSchemaVersion}" xmlns:sec="http://geronimo.apache.org/xml/ns/security">
     
     <context-root>/ldap-demo</context-root>
     <security-realm-name>ldap-realm</security-realm-name>

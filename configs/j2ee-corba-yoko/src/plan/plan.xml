@@ -17,7 +17,7 @@
 
 <!-- $Rev$ $Date$ -->
 
-<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
     <!-- CORBA -->
     <gbean name="DynamicORBStubClassLoader" class="org.apache.openejb.corba.util.DynamicStubClassLoaderGBean">
@@ -61,7 +61,7 @@
             <name>NameServer</name>
         </reference>
         <xml-attribute name="tssConfig">
-            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1">
+            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-${geronimoSchemaVersion}">
                 <tss:default-principal>
                     <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
                 </tss:default-principal>
@@ -94,7 +94,7 @@
             <name>NameServer</name>
         </reference>
         <xml-attribute name="tssConfig">
-            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1">
+            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-${geronimoSchemaVersion}">
                 <tss:default-principal>
                     <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
                 </tss:default-principal>
@@ -120,7 +120,7 @@
             <name>Server</name>
         </reference>
         <xml-attribute name="tssConfig">
-            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1">
+            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-${geronimoSchemaVersion}">
                 <tss:default-principal>
                     <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
                 </tss:default-principal>
@@ -147,7 +147,7 @@
             <name>Server</name>
         </reference>
         <xml-attribute name="tssConfig">
-            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1">
+            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-${geronimoSchemaVersion}">
                 <tss:default-principal>
                     <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
                 </tss:default-principal>
@@ -175,7 +175,7 @@
             <name>Server</name>
         </reference>
         <xml-attribute name="tssConfig">
-            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1">
+            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-${geronimoSchemaVersion}">
                 <tss:default-principal>
                     <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
                 </tss:default-principal>
@@ -205,7 +205,7 @@
             <name>UnprotectedServer</name>
         </reference>
         <xml-attribute name="tssConfig">
-            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1">
+            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-${geronimoSchemaVersion}">
                 <tss:default-principal>
                     <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
                 </tss:default-principal>
@@ -231,7 +231,7 @@
             <name>Server</name>
         </reference>
         <xml-attribute name="tssConfig">
-            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1">
+            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-${geronimoSchemaVersion}">
                 <tss:default-principal>
                     <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
                 </tss:default-principal>

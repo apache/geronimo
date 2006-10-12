@@ -17,7 +17,7 @@
 
 <!-- $Rev$ $Date$ -->
 
-<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
     <gbean name="JettyClusteringBuilder" class="org.apache.geronimo.clustering.wadi.jetty.WADIJettyClusteringBuilder">
         <attribute name="defaultSweepInterval">${PlanDefaultSweepInterval}</attribute>
@@ -27,7 +27,7 @@
         <attribute name="defaultBackingStrategyFactoryName">?name=DefaultBackingStrategyFactory</attribute>
         <attribute name="defaultDispatcherHolderName">?name=DefaultDispatcherHolder</attribute>
         <xml-attribute name="defaultEnvironment">
-            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
                 <dependencies>
                     <dependency>
                         <groupId>${pom.groupId}</groupId>

@@ -17,7 +17,7 @@
 
 <!-- $Rev$ $Date$ -->
 
-<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
     <!-- required -->
     <gbean name="SecurityService" class="org.apache.geronimo.security.SecurityServiceImpl">
@@ -69,7 +69,7 @@
         class="org.apache.geronimo.security.realm.GenericSecurityRealm">
         <attribute name="realmName">client-properties-realm</attribute>
         <xml-reference name="LoginModuleConfiguration">
-            <lc:login-config xmlns:lc="http://geronimo.apache.org/xml/ns/loginconfig-1.1">
+            <lc:login-config xmlns:lc="http://geronimo.apache.org/xml/ns/loginconfig-${geronimoSchemaVersion}">
                 <lc:login-module control-flag="REQUIRED" server-side="true" wrap-principals="true">
                     <lc:login-domain-name>client-properties-realm</lc:login-domain-name>
                     <lc:login-module-class>org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule</lc:login-module-class>

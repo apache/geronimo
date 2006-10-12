@@ -17,7 +17,7 @@
 
 <!-- $Rev$ $Date$ -->
 
-<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
     <gbean name="DirectoryService" class="org.apache.geronimo.directory.DirectoryGBean">
         <attribute name="providerURL">ou=system</attribute>

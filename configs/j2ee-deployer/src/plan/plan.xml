@@ -17,7 +17,7 @@
 
 <!-- $Rev$ $Date$ -->
 
-<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
     <gbean name="EARBuilder" class="org.apache.geronimo.j2ee.deployment.EARConfigBuilder">
         <attribute name="transactionManagerAbstractName">?name=TransactionManager</attribute>
@@ -58,7 +58,7 @@
             </pattern>
         </references>
         <xml-attribute name="defaultEnvironment">
-            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
                 <dependencies>
                     <dependency>
                         <groupId>${pom.groupId}</groupId>
@@ -72,7 +72,7 @@
 
     <!-- web switching builder -->
     <gbean name="WebBuilder" class="org.apache.geronimo.j2ee.deployment.SwitchingModuleBuilder">
-        <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.2</attribute>
+        <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-${geronimoSchemaVersion}</attribute>
         <references name="ModuleBuilders">
             <pattern>
                 <name>JettyWebBuilder</name>
@@ -94,7 +94,7 @@
     </gbean>
 
     <gbean name="NamingBuilders" class="org.apache.geronimo.j2ee.deployment.NamingBuilderCollectionGBean">
-        <attribute name="baseElementQNameNamespaceURI">http://geronimo.apache.org/xml/ns/naming-1.2</attribute>
+        <attribute name="baseElementQNameNamespaceURI">http://geronimo.apache.org/xml/ns/naming-${geronimoSchemaVersion}</attribute>
         <attribute name="baseElementQNameLocalPart">abstract-naming-entry</attribute>
         <references name="NamingBuilders">
             <pattern>

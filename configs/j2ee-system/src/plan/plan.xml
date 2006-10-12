@@ -25,7 +25,7 @@ This module should *NOT* be used to provide server or application
 specific services - those should be provided by children.
 -->
 
-<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
     <!-- ServerInfo service -->
     <gbean name="ServerInfo" class="org.apache.geronimo.system.serverinfo.BasicServerInfo"/>

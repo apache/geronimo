@@ -17,11 +17,11 @@
 
 <!-- $Rev$ $Date$ -->
 
-<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.1">
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-${geronimoSchemaVersion}">
 
     <module>
         <web>web.war</web>
-        <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.1">
+        <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-${geronimoSchemaVersion}">
             <service-ref>
                 <service-ref-name>service/Trade</service-ref-name>
                 <port>
@@ -521,8 +521,8 @@
 
     <module>
         <java>streamer.jar</java>
-        <application-client  xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client-1.1">
-            <client-environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+        <application-client  xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client-${geronimoSchemaVersion}">
+            <client-environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
                 <moduleId>
                     <groupId>${pom.groupId}</groupId>
                     <artifactId>${pom.artifactId}-streamer-client</artifactId>
@@ -530,7 +530,7 @@
                     <type>car</type>
                 </moduleId>
             </client-environment>
-            <server-environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+            <server-environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
                 <moduleId>
                     <groupId>${pom.groupId}</groupId>
                     <artifactId>${pom.artifactId}-streamer-client-server</artifactId>
@@ -540,7 +540,7 @@
             </server-environment>
             <resource>
                 <external-rar>geronimo/ge-activemq-rar/${pom.version}/rar</external-rar>
-                <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1">
+                <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-${geronimoSchemaVersion}">
                     <resourceadapter>
                         <resourceadapter-instance>
                             <resourceadapter-name>ActiveMQ RA</resourceadapter-name>
@@ -591,7 +591,7 @@
     <ext-module>
         <connector>TradeDataSource</connector>
         <external-path>tranql/tranql-connector-derby-embed-xa/${tranql_vendors_version}/rar</external-path>
-        <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1">
+        <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-${geronimoSchemaVersion}">
 
 
 
@@ -628,7 +628,7 @@
     <ext-module>
         <connector>TradeJMS</connector>
         <external-path>geronimo/ge-activemq-rar/${pom.version}/rar</external-path>
-        <connector  xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1">
+        <connector  xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-${geronimoSchemaVersion}">
 
             <resourceadapter>
                 <!-- how to connect to the JMS Server -->

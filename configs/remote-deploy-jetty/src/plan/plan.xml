@@ -17,7 +17,7 @@
 
 <!-- $Rev$ $Date$ -->
 
-<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.1" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1" xmlns:cfg="http://geronimo.apache.org/xml/ns/deployment-1.1">
+<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-${geronimoSchemaVersion}" xmlns:sec="http://geronimo.apache.org/xml/ns/security-${geronimoSchemaVersion}" xmlns:cfg="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
     <context-root>/remote-deploy</context-root>
     <security-realm-name>geronimo-properties-realm</security-realm-name>

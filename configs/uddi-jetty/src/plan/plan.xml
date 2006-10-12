@@ -17,12 +17,12 @@
 
 <!-- $Rev$ $Date$ -->
 
-<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.1">
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-${geronimoSchemaVersion}">
 
     <ext-module>
         <web>uddi-jetty</web>
         <external-path>org.apache.geronimo.applications/geronimo-uddi-server/${pom.version}/war</external-path>
-        <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.1">
+        <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-${geronimoSchemaVersion}">
             <context-root>/juddi</context-root>
             <gbean name="UDDIResources" class="org.apache.geronimo.system.util.DirectoryInitializationGBean">
                 <!-- copies uddi derby db files into specified location -->
@@ -38,7 +38,7 @@
     <ext-module>
         <connector>uddi-db</connector>
         <external-path>tranql/tranql-connector-derby-embed-local/${tranqlVendorsVersion}/rar</external-path>
-        <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1">
+        <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-${geronimoSchemaVersion}">
             <resourceadapter>
                 <outbound-resourceadapter>
                     <connection-definition>
