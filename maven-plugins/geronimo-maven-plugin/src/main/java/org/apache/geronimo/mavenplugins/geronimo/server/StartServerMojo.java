@@ -227,7 +227,6 @@ public class StartServerMojo
 
             log.info("Redirecting output to: " + file);
             
-            java.setLogError(true);
             java.setOutput(file);
         }
 
