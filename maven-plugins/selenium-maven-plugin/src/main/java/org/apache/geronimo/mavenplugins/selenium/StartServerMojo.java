@@ -188,7 +188,6 @@ public class StartServerMojo
 
             log.info("Redirecting output to: " + logFile);
             
-            java.setLogError(true);
             java.setOutput(logFile);
         }
         
