@@ -27,12 +27,12 @@
     <prerequisite>
         <id>org.apache.geronimo.configs/jetty//car</id>
         <resource-type>Web Container</resource-type>
-        <description> This version of the Jetty Deployer requires that the Tomcat web container is present.  </description>
+        <description> This version of the Jetty Deployer requires that the Jetty web container is present.  </description>
     </prerequisite>
-    <dependency>org.apache.geronimo.configs/connector-deployer//car</dependency>
-    <dependency>org.apache.geronimo.modules/geronimo-jetty-builder//jar</dependency>
     <dependency>org.apache.geronimo.configs/j2ee-deployer//car</dependency>
+    <dependency>org.apache.geronimo.configs/connector-deployer//car</dependency>
     <dependency>org.apache.geronimo.configs/jetty//car</dependency>
+    <dependency>org.apache.geronimo.modules/geronimo-jetty-builder//jar</dependency>
     <obsoletes>org.apache.geronimo.configs/jetty-deployer//car</obsoletes>
     <source-repository>http://www.geronimoplugins.com/repository/geronimo-1.1/</source-repository>
     <source-repository>http://www.ibiblio.org/maven2/</source-repository>

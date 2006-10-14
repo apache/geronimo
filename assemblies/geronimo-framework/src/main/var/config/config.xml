@@ -22,8 +22,6 @@
         </gbean>
     </module>
     
-    <module name="org.apache.geronimo.configs/j2ee-server/${pom.version}/car"/>
-    
     <module name="org.apache.geronimo.configs/j2ee-security/${pom.version}/car">
         <gbean name="JaasLoginServiceRemotingServer">
             <attribute name="host">${PlanServerHostname}</attribute>
@@ -51,13 +49,4 @@
     
     <module name="org.apache.geronimo.configs/unavailable-client-deployer/${pom.version}/car"/>
 
-    <module name="org.apache.geronimo.configs/sharedlib/${pom.version}/car">
-        <gbean name="SharedLib">
-            <attribute name="classesDirs">var/shared/classes</attribute>
-            <attribute name="libDirs">var/shared/lib</attribute>
-        </gbean>
-    </module>
-
-    <module name="org.apache.geronimo.configs/hot-deployer/${pom.version}/car"/>
-    
 </attributes>

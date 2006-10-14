@@ -86,7 +86,6 @@
                 <configuration>
                     <deploymentConfigs>
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
-                        <deploymentConfig>${j2eeDeployer}</deploymentConfig>
                     </deploymentConfigs>
                 </configuration>
             </plugin>

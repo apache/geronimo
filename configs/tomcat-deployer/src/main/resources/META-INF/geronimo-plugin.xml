@@ -29,10 +29,10 @@
         <resource-type>Web Container</resource-type>
         <description> This version of the Tomcat Deployer requires that the Tomcat web container is present. </description>
     </prerequisite>
+    <dependency>org.apache.geronimo.configs/j2ee-deployer//car</dependency>
+    <dependency>org.apache.geronimo.configs/connector-deployer//car</dependency>
     <dependency>org.apache.geronimo.configs/tomcat//car</dependency>
     <dependency>org.apache.geronimo.modules/geronimo-tomcat-builder//jar</dependency>
-    <dependency>org.apache.geronimo.configs/connector-deployer//car</dependency>
-    <dependency>org.apache.geronimo.configs/j2ee-deployer//car</dependency>
     <obsoletes>org.apache.geronimo.configs/tomcat-deployer//car</obsoletes>
     <source-repository>http://www.geronimoplugins.com/repository/geronimo-1.1/</source-repository>
     <source-repository>http://www.ibiblio.org/maven2/</source-repository>
