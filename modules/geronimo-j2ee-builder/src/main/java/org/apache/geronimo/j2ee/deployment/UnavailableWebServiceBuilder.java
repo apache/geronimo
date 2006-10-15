@@ -25,17 +25,19 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.kernel.repository.Environment;
 
 /**
  * @version $Rev$ $Date$
  */
 public class UnavailableWebServiceBuilder implements WebServiceBuilder {
 
-    public Map findWebServices(JarFile moduleFile, boolean isEJB, Map correctedPortLocations) throws DeploymentException {
+    public Map findWebServices(JarFile moduleFile, boolean isEJB, Map correctedPortLocations, Environment environment) throws DeploymentException {
         return  Collections.EMPTY_MAP;
     }
 
-    public void configurePOJO(GBeanData targetGBean, JarFile moduleFile, Object portInfo, String seiClassName, ClassLoader classLoader) throws DeploymentException {
+    public void configurePOJO(GBeanData targetGBean, Module module, Object portInfo, String seiClassName, DeploymentContext context) throws DeploymentException {
         throw new DeploymentException("Web services are not available in this configuration");
     }
 

@@ -195,7 +195,8 @@ public class GBeanAttribute {
         if (gbeanInstance == null || attributeInfo == null) {
             throw new IllegalArgumentException("null param(s) supplied");
         }
-        if (!attributeInfo.isReadable() && !attributeInfo.isWritable() && !attributeInfo.isPersistent() && !isConstructorArg) {
+        if (!attributeInfo.isReadable() && !attributeInfo.isWritable() && !attributeInfo.isPersistent() && !isConstructorArg)
+        {
             throw new InvalidConfigurationException("An attribute must be readable, writable, persistent or a constructor arg: " +
                     " name=" + attributeInfo.getName() + " targetClass=" + gbeanInstance.getType().getName());
         }
@@ -236,7 +237,11 @@ public class GBeanAttribute {
                     Method getterMethod = gbeanInstance.getType().getMethod(getterName, null);
 
                     if (!getterMethod.getReturnType().equals(type)) {
-                        throw new InvalidConfigurationException("Getter method of wrong type: " + getterMethod.getReturnType() + " expected " +getDescription());
+                        if (getterMethod.getReturnType().getName().equals(type.getName())) {
+                            throw new InvalidConfigurationException("Getter return type in wrong classloader: type: " + type + " wanted in classloader: " + type.getClassLoader() + " actual: " + getterMethod.getReturnType().getClassLoader());
+                        } else {
+                            throw new InvalidConfigurationException("Getter method of wrong type: " + getterMethod.getReturnType() + " expected " + getDescription());
+                        }
                     }
                     if (AbstractGBeanReference.NO_PROXY) {
                         getInvoker = new ReflectionMethodInvoker(getterMethod);
@@ -244,7 +249,7 @@ public class GBeanAttribute {
                         getInvoker = new FastMethodInvoker(getterMethod);
                     }
                 } catch (NoSuchMethodException e) {
-                    throw new InvalidConfigurationException("Getter method not found " +getDescription());
+                    throw new InvalidConfigurationException("Getter method not found " + getDescription());
                 }
             } else {
                 getInvoker = null;
@@ -255,7 +260,7 @@ public class GBeanAttribute {
             if (attributeInfo.getSetterName() != null) {
                 try {
                     String setterName = attributeInfo.getSetterName();
-                    Method setterMethod = gbeanInstance.getType().getMethod(setterName, new Class[] {type});
+                    Method setterMethod = gbeanInstance.getType().getMethod(setterName, new Class[]{type});
                     if (AbstractGBeanReference.NO_PROXY) {
                         setInvoker = new ReflectionMethodInvoker(setterMethod);
                     } else {

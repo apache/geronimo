@@ -244,7 +244,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
         Map servletNameToPathMap = buildServletNameToPathMap(webApp, contextRoot);
 
-        Map portMap = getWebServiceBuilder().findWebServices(moduleFile, false, servletNameToPathMap);        AbstractName moduleName;
+        Map portMap = getWebServiceBuilder().findWebServices(moduleFile, false, servletNameToPathMap, environment);
+        AbstractName moduleName;
         if (earName == null) {
             earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
             moduleName = naming.createChildName(earName, environment.getConfigId().toString(), NameFactory.WEB_MODULE);
@@ -323,7 +324,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
     public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Collection repository) throws DeploymentException {
         EARContext moduleContext = module.getEarContext();
-        ClassLoader moduleClassLoader = moduleContext.getClassLoader();
         AbstractName moduleName = moduleContext.getModuleName();
         WebModule webModule = (WebModule) module;
 
@@ -479,7 +479,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             Map portMap = webModule.getPortMap();
 
             ServletType[] servletTypes = webApp.getServletArray();
-            addServlets(moduleName, webModule.getModuleFile(), servletTypes, servletMappings, securityRoles, rolePermissions, portMap, moduleClassLoader, moduleContext);
+            addServlets(moduleName, webModule, servletTypes, servletMappings, securityRoles, rolePermissions, portMap, moduleContext);
 
             if (jettyWebApp.isSetSecurityRealmName()) {
                 configureSecurityRealm(earContext, webApp, jettyWebApp, webModuleData, securityRoles, rolePermissions);
@@ -843,24 +843,23 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
      * Adds the provided servlets, taking into account the load-on-startup ordering.
      *
      * @param webModuleName   an <code>ObjectName</code> value
-     * @param moduleFile      a <code>JarFile</code> value
+     * @param module          a <code>WebModule</code> value
      * @param servletTypes    a <code>ServletType[]</code> value, contains the <code>servlet</code> entries from <code>web.xml</code>.
      * @param servletMappings a <code>Map</code> value
      * @param securityRoles   a <code>Set</code> value
      * @param rolePermissions a <code>Map</code> value
      * @param portMap         a <code>Map</code> value
-     * @param webClassLoader  a <code>ClassLoader</code> value
-     * @param earContext      an <code>EARContext</code> value
+     * @param moduleContext
      * @throws DeploymentException if an error occurs
      */
     private void addServlets(AbstractName webModuleName,
-            JarFile moduleFile,
+            WebModule module,
             ServletType[] servletTypes,
             Map servletMappings,
             Set securityRoles,
-            Map rolePermissions, Map portMap,
-            ClassLoader webClassLoader,
-            EARContext earContext) throws DeploymentException {
+            Map rolePermissions,
+            Map portMap,
+            EARContext moduleContext) throws DeploymentException {
 
         // this TreeSet will order the ServletTypes based on whether
         // they have a load-on-startup element and what its value is
@@ -883,7 +882,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         AbstractName previousServlet = null;
         for (Iterator servlets = loadOrder.iterator(); servlets.hasNext();) {
             ServletType servletType = (ServletType) servlets.next();
-            previousServlet = addServlet(webModuleName, moduleFile, previousServlet, servletType, servletMappings, securityRoles, rolePermissions, portMap, webClassLoader, earContext);
+            previousServlet = addServlet(webModuleName, module, previousServlet, servletType, servletMappings, securityRoles, rolePermissions, portMap, moduleContext);
         }
 
         // JACC v1.0 secion B.19
@@ -892,31 +891,37 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
     /**
      * @param webModuleName
-     * @param moduleFile
+     * @param module
      * @param previousServlet
      * @param servletType
      * @param servletMappings
      * @param securityRoles
      * @param rolePermissions
      * @param portMap
-     * @param webClassLoader
-     * @param earContext
+     * @param moduleContext
      * @return AbstractName of servlet gbean added
      * @throws DeploymentException
      */
     private AbstractName addServlet(AbstractName webModuleName,
-            JarFile moduleFile,
+            WebModule module,
             AbstractName previousServlet,
             ServletType servletType,
             Map servletMappings,
             Set securityRoles,
-            Map rolePermissions, Map portMap,
-            ClassLoader webClassLoader,
-            EARContext earContext) throws DeploymentException {
+            Map rolePermissions,
+            Map portMap,
+            EARContext moduleContext) throws DeploymentException {
+        ClassLoader webClassLoader = moduleContext.getClassLoader();
         String servletName = servletType.getServletName().getStringValue().trim();
-        AbstractName servletAbstractName = earContext.getNaming().createChildName(webModuleName, servletName, NameFactory.SERVLET);
+        AbstractName servletAbstractName = moduleContext.getNaming().createChildName(webModuleName, servletName, NameFactory.SERVLET);
         GBeanData servletData;
         Map initParams = new HashMap();
+        Class baseServletClass;
+        try {
+            baseServletClass = webClassLoader.loadClass(Servlet.class.getName());
+        } catch (ClassNotFoundException e) {
+            throw new DeploymentException("Could not load javax.servlet.Servlet in web classloader", e); // TODO identify web app in message
+        }
         if (servletType.isSetServletClass()) {
             String servletClassName = servletType.getServletClass().getStringValue().trim();
             Class servletClass;
@@ -924,12 +929,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 servletClass = webClassLoader.loadClass(servletClassName);
             } catch (ClassNotFoundException e) {
                 throw new DeploymentException("Could not load servlet class " + servletClassName, e); // TODO identify web app in message
-            }
-            Class baseServletClass;
-            try {
-                baseServletClass = webClassLoader.loadClass(Servlet.class.getName());
-            } catch (ClassNotFoundException e) {
-                throw new DeploymentException("Could not load javax.servlet.Servlet in web classloader", e); // TODO identify web app in message
             }
             if (baseServletClass.isAssignableFrom(servletClass)) {
                 servletData = new GBeanData(servletAbstractName, JettyServletHolder.GBEAN_INFO);
@@ -939,10 +938,10 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 servletData.setAbstractName(servletAbstractName);
                 //let the web service builder deal with configuring the gbean with the web service stack
                 Object portInfo = portMap.get(servletName);
-                if (portInfo == null) {
-                    throw new DeploymentException("No web service deployment info for servlet name " + servletName); // TODO identify web app in message
-                }
-                getWebServiceBuilder().configurePOJO(servletData, moduleFile, portInfo, servletClassName, webClassLoader);
+//                if (portInfo == null) {
+//                    throw new DeploymentException("No web service deployment info for servlet name " + servletName); // TODO identify web app in message
+//                }
+                getWebServiceBuilder().configurePOJO(servletData, module, portInfo, servletClassName, moduleContext);
             }
         } else if (servletType.isSetJspFile()) {
             servletData = new GBeanData(servletAbstractName, JettyServletHolder.GBEAN_INFO);
@@ -986,7 +985,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         processRoleRefPermissions(servletType, securityRoles, rolePermissions);
 
         try {
-            earContext.addGBean(servletData);
+            moduleContext.addGBean(servletData);
         } catch (GBeanAlreadyExistsException e) {
             throw new DeploymentException("Could not add servlet gbean to context", e); // TODO identify web app in message
         }

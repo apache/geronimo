@@ -17,6 +17,23 @@
 
 package org.apache.geronimo.tomcat;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.naming.directory.DirContext;
+import javax.transaction.TransactionManager;
+import javax.transaction.UserTransaction;
+
 import org.apache.catalina.Context;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Realm;
@@ -25,6 +42,8 @@ import org.apache.catalina.cluster.CatalinaCluster;
 import org.apache.catalina.core.StandardContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -34,31 +53,15 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
-import org.apache.geronimo.management.geronimo.WebModule;
-import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebConnector;
-import org.apache.geronimo.security.jacc.RoleDesignateSource;
+import org.apache.geronimo.management.geronimo.WebContainer;
+import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
-import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
+import org.apache.geronimo.webservices.WebServiceContainer;
+import org.apache.geronimo.webservices.WebServiceContainerFactory;
 import org.apache.naming.resources.DirContextURLStreamHandler;
-
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
-import javax.naming.directory.DirContext;
-import javax.transaction.TransactionManager;
-import javax.transaction.UserTransaction;
-
-import java.net.URI;
-import java.net.URL;
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.HashMap;
 
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
@@ -218,7 +221,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
         this.disableCookies = disableCookies;
 
-        this.webServices = webServices;
+        this.webServices = createWebServices(webServices, kernel);
 
         this.classLoader = classLoader;
 
@@ -228,6 +231,21 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             verifyObjectName(myObjectName);
         }
 
+    }
+
+    private Map createWebServices(Map webServiceFactoryMap, Kernel kernel) throws Exception {
+        Map webServices = new HashMap();
+        if (webServiceFactoryMap != null) {
+            for (Iterator iterator = webServiceFactoryMap.entrySet().iterator(); iterator.hasNext();) {
+                Map.Entry entry = (Map.Entry) iterator.next();
+                String servletName = (String) entry.getKey();
+                AbstractName factoryName = (AbstractName) entry.getValue();
+                WebServiceContainerFactory webServiceContainerFactory = (WebServiceContainerFactory) kernel.getGBean(factoryName);
+                WebServiceContainer webServiceContainer = webServiceContainerFactory.getWebServiceContainer();
+                webServices.put(servletName, webServiceContainer);
+            }
+        }
+        return webServices;
     }
 
     public String getObjectName() {
@@ -449,7 +467,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     public void doStop() throws Exception {
         container.removeContext(this);
         DirContextURLStreamHandler.unbind(classLoader);
- 
+
         // No more logging will occur for this ClassLoader. Inform the LogFactory to avoid a memory leak.
 //        LogFactory.release(classLoader);
 

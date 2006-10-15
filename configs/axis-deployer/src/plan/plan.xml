@@ -17,7 +17,19 @@
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
-    <gbean name="WebServiceBuilder" class="org.apache.geronimo.axis.builder.AxisBuilder"/>
+    <gbean name="WebServiceBuilder" class="org.apache.geronimo.axis.builder.AxisBuilder">
+        <xml-attribute name="defaultEnvironment">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.geronimo.modules</groupId>
+                        <artifactId>geronimo-axis</artifactId>
+                        <type>jar</type>
+                    </dependency>
+                </dependencies>
+            </environment>
+        </xml-attribute>
+    </gbean>
 
     <gbean name="AxisServiceRefBuilder" class="org.apache.geronimo.axis.builder.AxisServiceRefBuilder">
         <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee</attribute>

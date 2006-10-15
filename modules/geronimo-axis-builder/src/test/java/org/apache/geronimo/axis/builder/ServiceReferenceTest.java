@@ -118,7 +118,7 @@ public class ServiceReferenceTest
 
         File moduleLocation = new File(tmpbasedir, "ejb");
         moduleLocation.mkdirs();
-        module = new EJBModule(true, moduleName, environment, new UnpackedJarFile(moduleLocation), "ejb", null, null, null);
+        module = new EJBModule(true, moduleName, environment, new UnpackedJarFile(moduleLocation), "ejb", null, null, null, null);
 
         runExternalWSTest = System.getProperty("geronimo.run.external.webservicetest", "false").equals("true");
     }
@@ -165,7 +165,7 @@ public class ServiceReferenceTest
 */
 
     public void testBuildOperationInfo() throws Exception {
-        AxisBuilder builder = new AxisBuilder();
+        AxisBuilder builder = new AxisBuilder(null);
         OperationInfo operationInfo = buildOperationInfoForMockOperation(builder);
         assertNotNull(operationInfo);
     }
@@ -175,7 +175,7 @@ public class ServiceReferenceTest
         SchemaInfoBuilder schemaInfoBuilder = new SchemaInfoBuilder(null, definition);
         JavaWsdlMappingType mapping = buildLightweightMappingType();
         QName serviceQName = new QName(NAMESPACE, "MockService");
-        AxisBuilder builder = new AxisBuilder();
+        AxisBuilder builder = new AxisBuilder(null);
         Object reference = builder.createService(MockService.class, schemaInfoBuilder, mapping, serviceQName, SOAPConstants.SOAP11_CONSTANTS, handlerInfos, gerServiceRefType, module, isolatedCl);
         assertNotNull(reference);
         assertTrue(reference instanceof AxisServiceReference);
@@ -197,7 +197,7 @@ public class ServiceReferenceTest
         JavaWsdlMappingDocument mappingDocument = JavaWsdlMappingDocument.Factory.parse(jaxrpcMapping);
         JavaWsdlMappingType mapping = mappingDocument.getJavaWsdlMapping();
         QName serviceQName = new QName("http://www.Monson-Haefel.com/jwsbook/BookQuote", "BookQuoteService");
-        AxisBuilder builder = new AxisBuilder();
+        AxisBuilder builder = new AxisBuilder(null);
         Object reference = builder.createService(BookQuoteService.class, schemaInfoBuilder, mapping, serviceQName, SOAPConstants.SOAP11_CONSTANTS, handlerInfos, gerServiceRefType, module, isolatedCl);
         assertNotNull(reference);
         assertTrue(reference instanceof AxisServiceReference);
@@ -219,7 +219,7 @@ public class ServiceReferenceTest
         JavaWsdlMappingDocument mappingDocument = JavaWsdlMappingDocument.Factory.parse(jaxrpcMapping);
         JavaWsdlMappingType mapping = mappingDocument.getJavaWsdlMapping();
         QName serviceQName = new QName("http://tempuri.org/4s4c/1/3/wsdl/def/interopLab", "interopLab");
-        AxisBuilder builder = new AxisBuilder();
+        AxisBuilder builder = new AxisBuilder(null);
         Object proxy = builder.createService(InteropLab.class, schemaInfoBuilder, mapping, serviceQName, SOAPConstants.SOAP11_CONSTANTS, handlerInfos, gerServiceRefType, module, isolatedCl);
         assertNotNull(proxy);
         assertTrue(proxy instanceof InteropLab);

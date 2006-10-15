@@ -33,7 +33,7 @@ public class EARConfigBuilder14NakedTest
         super.setUp();
         
         earFile = DeploymentUtil.createJarFile(resolveFile("target/test-ear-j2ee_1.4-naked.ear"));
-        ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, "test-ejb-jar.jar", null, null, null);
+        ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, "test-ejb-jar.jar", null, null, null, portMap);
         webConfigBuilder.contextRoot = contextRoot;
         webConfigBuilder.webModule = new WebModule(false, webModuleName, null, null, "test-war.war", null, null, null, contextRoot, portMap, WEB_NAMESPACE);
         connectorConfigBuilder.connectorModule = new ConnectorModule(false, raModuleName, null, null, "test-rar.rar", null, null, null);

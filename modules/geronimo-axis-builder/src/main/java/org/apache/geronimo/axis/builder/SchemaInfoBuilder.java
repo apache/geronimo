@@ -179,7 +179,7 @@ public class SchemaInfoBuilder {
      * Find all the complex types in the previously constructed schema analysis.
      * Put them in a map from complex type QName to schema fragment.
      *
-     * @return
+     * @return map of complexType QName to schema fragment
      */
     public Map getComplexTypesInWsdl() {
         return complexTypeMap;
@@ -223,7 +223,7 @@ public class SchemaInfoBuilder {
      * <p/>
      * WSDL 1.1 spec: 2.6 "The name attribute provides a unique name among all ports defined within in the enclosing WSDL document."
      *
-     * @return
+     * @return Map of port QName to javax.wsdl.Port for that QName.
      */
 
     public Map getPortMap() {
@@ -385,7 +385,7 @@ public class SchemaInfoBuilder {
      * builds a map of SchemaTypeKey containing jaxrpc-style fake QName and context info to xmlbeans SchemaType object.
      *
      * @param schemaTypeSystem
-     * @return
+     * @return Map of SchemaTypeKey to xmlbeans SchemaType object.
      */
     private Map buildSchemaTypeKeyToSchemaTypeMap(SchemaTypeSystem schemaTypeSystem) {
         Map qnameMap = new HashMap();
@@ -412,7 +412,7 @@ public class SchemaInfoBuilder {
             elementNamespace = key.getqName().getNamespaceURI();
         }
         String elementQNameLocalName;
-        SchemaTypeKey elementKey = null;
+        SchemaTypeKey elementKey;
         if (key == null) {
             //top level. rule 2.a,
             elementQNameLocalName = elementName.getLocalPart();
@@ -515,7 +515,7 @@ public class SchemaInfoBuilder {
 
     public Definition readWsdl(JarFile moduleFile, URI wsdlURI) throws DeploymentException {
         Definition definition;
-        WSDLFactory wsdlFactory = null;
+        WSDLFactory wsdlFactory;
         try {
             wsdlFactory = WSDLFactory.newInstance();
         } catch (WSDLException e) {
@@ -617,7 +617,7 @@ public class SchemaInfoBuilder {
                 systemId = systemId.substring(PROJECT_URL_PREFIX.length());
             }
             URI location = ((URI) uris.peek()).resolve(systemId);
-            InputStream wsdlInputStream = null;
+            InputStream wsdlInputStream;
             try {
                 ZipEntry entry = moduleFile.getEntry(location.toString());
                 wsdlInputStream = moduleFile.getInputStream(entry);
@@ -634,6 +634,7 @@ public class SchemaInfoBuilder {
 
     class JarWSDLLocator implements WSDLLocator {
 
+        private final List streams = new ArrayList();
         private final URI wsdlURI;
         private URI latestImportURI;
 
@@ -642,7 +643,7 @@ public class SchemaInfoBuilder {
         }
 
         public InputSource getBaseInputSource() {
-            InputStream wsdlInputStream = null;
+            InputStream wsdlInputStream;
             try {
                 ZipEntry entry = moduleFile.getEntry(wsdlURI.toString());
                 wsdlInputStream = moduleFile.getInputStream(entry);
@@ -650,6 +651,7 @@ public class SchemaInfoBuilder {
                 wsdlMap.put(wsdlURI, definition);
                 wsdlInputStream.close();
                 wsdlInputStream = moduleFile.getInputStream(entry);
+                streams.add(wsdlInputStream);
             } catch (Exception e) {
                 throw new RuntimeException("Could not open stream to wsdl file", e);
             }
@@ -663,7 +665,7 @@ public class SchemaInfoBuilder {
         public InputSource getImportInputSource(String parentLocation, String relativeLocation) {
             URI parentURI = URI.create(parentLocation);
             latestImportURI = parentURI.resolve(relativeLocation);
-            InputStream importInputStream = null;
+            InputStream importInputStream;
             try {
                 ZipEntry entry = moduleFile.getEntry(latestImportURI.toString());
                 importInputStream = moduleFile.getInputStream(entry);
@@ -676,6 +678,7 @@ public class SchemaInfoBuilder {
                     //probably was a schema rather than wsdl.  If there are real problems they will show up later.
                 }
                 importInputStream = moduleFile.getInputStream(entry);
+                streams.add(importInputStream);
             } catch (Exception e) {
                 throw new RuntimeException("Could not open stream to import file", e);
             }
@@ -686,6 +689,18 @@ public class SchemaInfoBuilder {
 
         public String getLatestImportURI() {
             return latestImportURI.toString();
+        }
+
+        public void close() {
+            for (Iterator iterator = streams.iterator(); iterator.hasNext();) {
+                InputStream inputStream = (InputStream) iterator.next();
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    //ignore
+                }
+            }
+            streams.clear();
         }
     }
 }

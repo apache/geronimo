@@ -32,6 +32,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
 
+import javax.servlet.Servlet;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
@@ -47,6 +49,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.SingleElementCollection;
+import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
@@ -73,7 +76,6 @@ import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.web.deployment.AbstractWebModuleBuilder;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
-import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppType;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.config.GerTomcatDocument;
@@ -178,7 +180,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
         Map servletNameToPathMap = buildServletNameToPathMap(webApp, contextRoot);
 
-        Map portMap = getWebServiceBuilder().findWebServices(moduleFile, false, servletNameToPathMap);
+        Map portMap = getWebServiceBuilder().findWebServices(moduleFile, false, servletNameToPathMap, environment);
         AbstractName moduleName;
         if (earName == null) {
             earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
@@ -260,7 +262,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
     public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Collection repository) throws DeploymentException {
         EARContext moduleContext = module.getEarContext();
-        ClassLoader moduleClassLoader = moduleContext.getClassLoader();
+        ClassLoader webClassLoader = moduleContext.getClassLoader();
         AbstractName moduleName = moduleContext.getModuleName();
         WebModule webModule = (WebModule) module;
 
@@ -346,27 +348,41 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             //Handle the role permissions and webservices on the servlets.
             ServletType[] servletTypes = webApp.getServletArray();
             Map webServices = new HashMap();
+            Class baseServletClass;
+            try {
+                baseServletClass = webClassLoader.loadClass(Servlet.class.getName());
+            } catch (ClassNotFoundException e) {
+                throw new DeploymentException("Could not load javax.servlet.Servlet in web classloader", e); // TODO identify web app in message
+            }
             for (int i = 0; i < servletTypes.length; i++) {
                 ServletType servletType = servletTypes[i];
 
                 //Handle the Role Ref Permissions
                 processRoleRefPermissions(servletType, securityRoles, rolePermissions);
 
-                //Do we have webservices configured?
-                if (portMap != null) {
-                    //Check if the Servlet is a Webservice
+                if (servletType.isSetServletClass()) {
                     String servletName = servletType.getServletName().getStringValue().trim();
-                    if (portMap.containsKey(servletName)) {
-                        //Yes, this servlet is a web service so let the web service builder
-                        // deal with configuring the web service stack
-                        String servletClassName = servletType.getServletClass().getStringValue().trim();
+                    String servletClassName = servletType.getServletClass().getStringValue().trim();
+                    Class servletClass;
+                    try {
+                        servletClass = webClassLoader.loadClass(servletClassName);
+                    } catch (ClassNotFoundException e) {
+                        throw new DeploymentException("Could not load servlet class " + servletClassName, e); // TODO identify web app in message
+                    }
+                    if (!baseServletClass.isAssignableFrom(servletClass)) {
+                        //fake servletData
+                        AbstractName servletAbstractName = moduleContext.getNaming().createChildName(moduleName, servletName, NameFactory.SERVLET);
+                        GBeanData servletData = new GBeanData();
+                        servletData.setAbstractName(servletAbstractName);
+                        //let the web service builder deal with configuring the gbean with the web service stack
+                        //Here we just extract the factory reference
                         Object portInfo = portMap.get(servletName);
-                        if (portInfo == null) {
-                            throw new DeploymentException("No web service deployment info for servlet name " + servletName + " in web app " + module.getName());
-                        }
-
-                        WebServiceContainer wsContainer = configurePOJO(webModule.getModuleFile(), portInfo, servletClassName, moduleClassLoader);
-                        webServices.put(servletName, wsContainer);
+                        getWebServiceBuilder().configurePOJO(servletData, module, portInfo, servletClassName, moduleContext);
+                        ReferencePatterns patterns = servletData.getReferencePatterns("WebServiceContainerFactory");
+                        AbstractName wsContainerFactoryName = patterns.getAbstractName();
+                        webServices.put(servletName, wsContainerFactoryName);
+                        //force all the factories to start before the web app that needs them.
+                        webModuleData.addDependency(wsContainerFactoryName);
                     }
                 }
             }
@@ -426,16 +442,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
     public String getSchemaNamespace() {
         return TOMCAT_NAMESPACE;
-    }
-
-    public WebServiceContainer configurePOJO(JarFile moduleFile, Object portInfoObject, String seiClassName, ClassLoader classLoader) throws DeploymentException, IOException {
-        //the reason to configure a gbeandata rather than just fetch the WebServiceContainer is that fetching the WSContainer ties us to that
-        //ws implementation.  By configuring a servlet gbean, you can provide a different servlet for each combination of
-        //web container and ws implementation while assuming almost nothing about their relationship.
-
-        GBeanData fakeData = new GBeanData();
-        getWebServiceBuilder().configurePOJO(fakeData, moduleFile, portInfoObject, seiClassName, classLoader);
-        return (WebServiceContainer) fakeData.getAttribute("webServiceContainer");
     }
 
 

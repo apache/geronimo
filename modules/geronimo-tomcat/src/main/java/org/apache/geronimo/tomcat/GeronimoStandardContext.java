@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.naming.NamingException;
 import javax.security.auth.Subject;
 import javax.security.jacc.PolicyContext;
@@ -70,10 +71,10 @@ public class GeronimoStandardContext extends StandardContext {
     private Map webServiceMap = null;
 
     private boolean pipelineInitialized;
-    
+
     private BeforeAfter beforeAfter = null;
     private int contextCount = 0;
-    
+
     public void setContextProperties(TomcatContext ctx) throws DeploymentException {
         //try to make sure this mbean properties match those of the TomcatWebAppContext
         if (ctx instanceof TomcatWebAppContext) {
@@ -91,11 +92,11 @@ public class GeronimoStandardContext extends StandardContext {
         } catch (NamingException ne) {
             log.error(ne);
         }
-        
+
         int index = 0;
-        BeforeAfter interceptor = new InstanceContextBeforeAfter(null, index++, 
-                ctx.getUnshareableResources(), 
-                ctx.getApplicationManagedSecurityResources(), 
+        BeforeAfter interceptor = new InstanceContextBeforeAfter(null, index++,
+                ctx.getUnshareableResources(),
+                ctx.getApplicationManagedSecurityResources(),
                 ctx.getTrackedConnectionAssociator());
 
         // Set ComponentContext BeforeAfter
@@ -124,13 +125,13 @@ public class GeronimoStandardContext extends StandardContext {
                 interceptor = new PolicyContextBeforeAfter(interceptor, index++, index++, securityHolder.getPolicyContextID());
             }
         }
-        
+
         //Set the BeforeAfters as a valve
         GeronimoBeforeAfterValve geronimoBAValve = new GeronimoBeforeAfterValve(interceptor, index);
         addValve(geronimoBAValve);
         beforeAfter = interceptor;
         contextCount = index;
-        
+
         //Not clear if user defined valves should be involved in init processing.  Probably not since
         //request and response are null.
 
@@ -149,7 +150,7 @@ public class GeronimoStandardContext extends StandardContext {
         CatalinaCluster cluster = ctx.getCluster();
         if (cluster != null)
             this.setCluster(cluster);
-        
+
         Manager manager = ctx.getManager();
         if (manager != null)
             this.setManager(manager);
@@ -160,7 +161,7 @@ public class GeronimoStandardContext extends StandardContext {
         this.setCrossContext(ctx.isCrossContext());
 
         this.setCookies(!ctx.isDisableCookies());
-        
+
         //Set the Dispatch listener
         this.addInstanceListener("org.apache.geronimo.tomcat.listener.DispatchListener");
     }
@@ -172,7 +173,7 @@ public class GeronimoStandardContext extends StandardContext {
                 valve.invoke(null, null);
                 //Install the DefaultSubjectValve after the authentication valve so the default subject is supplied
                 //only if no real subject is authenticated.
-                
+
                 Valve defaultSubjectValve = new DefaultSubjectValve(defaultSubject);
                 addValve(defaultSubjectValve);
             } catch (IOException e) {
@@ -244,7 +245,7 @@ public class GeronimoStandardContext extends StandardContext {
 
     public synchronized void setLoader(final Loader delegate) {
         Loader loader = new Loader() {
-            
+
             public void backgroundProcess() {
                 delegate.backgroundProcess();
             }
@@ -305,7 +306,7 @@ public class GeronimoStandardContext extends StandardContext {
                 delegate.removePropertyChangeListener(listener);
             }
         };
-        
+
         super.setLoader(loader);
     }
 

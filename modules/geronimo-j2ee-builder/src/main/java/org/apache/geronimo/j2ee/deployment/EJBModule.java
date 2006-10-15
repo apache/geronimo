@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.jar.JarFile;
+import java.util.Map;
 
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.AbstractName;
@@ -32,9 +33,11 @@ import org.apache.xmlbeans.XmlObject;
  */
 public class EJBModule extends Module {
     private AbstractName moduleCmpEngineName;
+    private final Map portMap;
 
-    public EJBModule(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
+    public EJBModule(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, Map portMap) {
         super(standAlone, moduleName, environment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null);
+        this.portMap = portMap;
     }
 
     public ConfigurationModuleType getType() {
@@ -51,6 +54,10 @@ public class EJBModule extends Module {
 
     public void setModuleCmpEngineName(AbstractName moduleCmpEngineName) {
         this.moduleCmpEngineName = moduleCmpEngineName;
+    }
+
+    public Map getPortMap() {
+        return portMap;
     }
 }
 

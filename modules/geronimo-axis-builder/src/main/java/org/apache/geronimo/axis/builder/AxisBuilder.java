@@ -60,6 +60,7 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.deployment.HandlerInfoInfo;
@@ -73,6 +74,11 @@ import org.apache.geronimo.xbeans.j2ee.JavaXmlTypeMappingType;
 import org.apache.geronimo.xbeans.j2ee.ServiceEndpointInterfaceMappingType;
 import org.apache.geronimo.xbeans.j2ee.ServiceEndpointMethodMappingType;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.service.EnvironmentBuilder;
+import org.apache.geronimo.webservices.SerializableWebServiceContainerFactoryGBean;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.repository.Environment;
 
 /**
  * @version $Rev$ $Date$
@@ -81,13 +87,26 @@ public class AxisBuilder implements WebServiceBuilder {
 
     private static final SOAPConstants SOAP_VERSION = SOAPConstants.SOAP11_CONSTANTS;
 
+    private final Environment defaultEnvironment;
 
-    public Map findWebServices(JarFile moduleFile, boolean isEJB, Map servletLocations) throws DeploymentException {
+    public AxisBuilder() {
+        defaultEnvironment = null;
+    }
+
+    public AxisBuilder(Environment defaultEnvironment) {
+        this.defaultEnvironment = defaultEnvironment;
+    }
+
+
+    public Map findWebServices(JarFile moduleFile, boolean isEJB, Map servletLocations, Environment environment) throws DeploymentException {
         final String path = isEJB ? "META-INF/webservices.xml" : "WEB-INF/webservices.xml";
         try {
             URL wsDDUrl = DeploymentUtil.createJarURL(moduleFile, path);
             Map result = WSDescriptorParser.parseWebServiceDescriptor(wsDDUrl, moduleFile, isEJB, servletLocations);
             if (result != null) {
+                if (defaultEnvironment != null) {
+                    EnvironmentBuilder.mergeEnvironments(environment, defaultEnvironment);
+                }
                 return result;
             }
         } catch (MalformedURLException e) {
@@ -96,16 +115,11 @@ public class AxisBuilder implements WebServiceBuilder {
         return Collections.EMPTY_MAP;
     }
 
-    public void configurePOJO(GBeanData targetGBean, JarFile moduleFile, Object portInfoObject, String seiClassName, ClassLoader classLoader) throws DeploymentException {
+    public void configurePOJO(GBeanData targetGBean, Module module, Object portInfoObject, String seiClassName, DeploymentContext context) throws DeploymentException {
+        ClassLoader cl = context.getClassLoader();
         PortInfo portInfo = (PortInfo) portInfoObject;
-        ServiceInfo serviceInfo = AxisServiceBuilder.createServiceInfo(portInfo, classLoader);
+        ServiceInfo serviceInfo = AxisServiceBuilder.createServiceInfo(portInfo, cl);
         JavaServiceDesc serviceDesc = serviceInfo.getServiceDesc();
-
-        try {
-            classLoader.loadClass(seiClassName);
-        } catch (ClassNotFoundException e) {
-            throw new DeploymentException("Unable to load servlet class for pojo webservice: " + seiClassName, e);
-        }
 
         targetGBean.setAttribute("pojoClassName", seiClassName);
         RPCProvider provider = new POJOProvider();
@@ -131,8 +145,16 @@ public class AxisBuilder implements WebServiceBuilder {
 
         }
 
-        AxisWebServiceContainer axisWebServiceContainer = new AxisWebServiceContainer(location, wsdlURI, service, serviceInfo.getWsdlMap(), classLoader);
-        targetGBean.setAttribute("webServiceContainer", axisWebServiceContainer);
+        AxisWebServiceContainer axisWebServiceContainer = new AxisWebServiceContainer(location, wsdlURI, service, serviceInfo.getWsdlMap(), cl);
+        AbstractName webServiceContainerFactoryName = context.getNaming().createChildName(targetGBean.getAbstractName(), "webServiceContainer", NameFactory.GERONIMO_SERVICE);
+        GBeanData webServiceContainerFactoryGBean = new GBeanData(webServiceContainerFactoryName, SerializableWebServiceContainerFactoryGBean.GBEAN_INFO);
+        webServiceContainerFactoryGBean.setAttribute("webServiceContainer", axisWebServiceContainer);
+        try {
+            context.addGBean(webServiceContainerFactoryGBean);
+        } catch (GBeanAlreadyExistsException e) {
+            throw new DeploymentException("Could not add webServiceContainerFactoryGBean", e);
+        }
+        targetGBean.setReferencePattern("WebServiceContainerFactory", webServiceContainerFactoryName);
     }
 
     public void configureEJB(GBeanData targetGBean, JarFile moduleFile, Object portInfoObject, ClassLoader classLoader) throws DeploymentException {
@@ -175,41 +197,6 @@ public class AxisBuilder implements WebServiceBuilder {
         }
         return new AxisServiceReference(serviceInterface.getName(), seiPortNameToFactoryMap, seiClassNameToFactoryMap);
     }
-
-/*
-    public Object createServiceInterfaceProxy(Class serviceInterface, Map seiPortNameToFactoryMap, Map seiClassNameToFactoryMap, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
-
-        Callback callback = new ServiceMethodInterceptor(seiPortNameToFactoryMap);
-        Callback[] methodInterceptors = new Callback[]{SerializableNoOp.INSTANCE, callback};
-
-        Enhancer enhancer = new Enhancer();
-        enhancer.setClassLoader(classLoader);
-        enhancer.setSuperclass(ServiceImpl.class);
-        enhancer.setInterfaces(new Class[]{serviceInterface});
-        enhancer.setCallbackFilter(new NoOverrideCallbackFilter(Service.class));
-        enhancer.setCallbackTypes(new Class[]{NoOp.class, MethodInterceptor.class});
-        enhancer.setUseFactory(false);
-        ByteArrayRetrievingGeneratorStrategy strategy = new ByteArrayRetrievingGeneratorStrategy();
-        enhancer.setStrategy(strategy);
-        enhancer.setUseCache(false);
-        Class serviceClass = enhancer.createClass();
-
-        try {
-            module.addClass(serviceClass.getName(), strategy.getClassBytes(), deploymentContext);
-        } catch (IOException e) {
-            throw new DeploymentException("Could not write out class bytes", e);
-        } catch (URISyntaxException e) {
-            throw new DeploymentException("Could not constuct URI for location of enhanced class", e);
-        }
-        Enhancer.registerCallbacks(serviceClass, methodInterceptors);
-        FastConstructor constructor = FastClass.create(serviceClass).getConstructor(SERVICE_CONSTRUCTOR_TYPES);
-        try {
-            return constructor.newInstance(new Object[]{seiPortNameToFactoryMap, seiClassNameToFactoryMap});
-        } catch (InvocationTargetException e) {
-            throw new DeploymentException("Could not construct service instance", e.getTargetException());
-        }
-    }
-*/
 
     public void buildSEIFactoryMap(SchemaInfoBuilder schemaInfoBuilder, GerServiceRefType serviceRefType, JavaWsdlMappingType mapping, List handlerInfos, QName serviceQName, SOAPConstants soapVersion, Map seiPortNameToFactoryMap, Map seiClassNameToFactoryMap, ClassLoader classLoader) throws DeploymentException {
         Map exceptionMap = WSDescriptorParser.getExceptionMap(mapping);
@@ -477,51 +464,10 @@ public class AxisBuilder implements WebServiceBuilder {
         return handlerInfos;
     }
 
-/*
-    public Class enhanceServiceEndpointInterface(Class serviceEndpointInterface, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
-        Enhancer enhancer = new Enhancer();
-        enhancer.setClassLoader(classLoader);
-        enhancer.setSuperclass(GenericServiceEndpointWrapper.class);
-        enhancer.setInterfaces(new Class[]{serviceEndpointInterface});
-        enhancer.setCallbackFilter(new NoOverrideCallbackFilter(GenericServiceEndpointWrapper.class));
-        enhancer.setCallbackTypes(new Class[]{NoOp.class, MethodInterceptor.class});
-        enhancer.setUseFactory(false);
-        ByteArrayRetrievingGeneratorStrategy strategy = new ByteArrayRetrievingGeneratorStrategy();
-        enhancer.setStrategy(strategy);
-        enhancer.setUseCache(false);
-        Class serviceEndpointClass = enhancer.createClass();
-
-        try {
-            module.addClass(serviceEndpointClass.getName(), strategy.getClassBytes(), deploymentContext);
-        } catch (IOException e) {
-            throw new DeploymentException("Could not write out class bytes", e);
-        } catch (URISyntaxException e) {
-            throw new DeploymentException("Could not constuct URI for location of enhanced class", e);
-        }
-        return serviceEndpointClass;
-    }
-*/
-
     public OperationInfo buildOperationInfoLightweight(Method method, BindingOperation bindingOperation, Style defaultStyle, SOAPConstants soapVersion) throws DeploymentException {
         LightweightOperationDescBuilder operationDescBuilder = new LightweightOperationDescBuilder(bindingOperation, method);
         return operationDescBuilder.buildOperationInfo(soapVersion);
     }
-
-/*
-    private static class ByteArrayRetrievingGeneratorStrategy extends DefaultGeneratorStrategy {
-
-        private byte[] classBytes;
-
-        public byte[] transform(byte[] b) {
-            classBytes = b;
-            return b;
-        }
-
-        public byte[] getClassBytes() {
-            return classBytes;
-        }
-    }
-*/
 
 
     public static final GBeanInfo GBEAN_INFO;
@@ -529,6 +475,9 @@ public class AxisBuilder implements WebServiceBuilder {
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(AxisBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addInterface(WebServiceBuilder.class);
+        infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
+
+        infoBuilder.setConstructor(new String[] {"defaultEnvironment"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

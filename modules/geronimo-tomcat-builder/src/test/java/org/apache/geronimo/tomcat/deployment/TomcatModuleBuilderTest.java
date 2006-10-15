@@ -287,7 +287,7 @@ public class TomcatModuleBuilderTest extends TestSupport {
         engine.setReferencePattern("RealmGBean", realm.getAbstractName());
         engine.setReferencePattern("Hosts", host.getAbstractName());
 
-        WebServiceBuilder webServiceBuilder = new UnavailableWebServiceBuilder();
+        WebServiceBuilder webServiceBuilder = new MockWebServiceBuilder();
 
         GBeanData containerData = bootstrap.addGBean("TomcatContainer", TomcatContainer.GBEAN_INFO);
         containerData.setAttribute("catalinaHome", new File(BASEDIR, "target/var/catalina").toString());

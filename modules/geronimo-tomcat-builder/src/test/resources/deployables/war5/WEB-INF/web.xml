@@ -8,7 +8,7 @@
 
     <servlet>
         <servlet-name>HelloWorldServlet</servlet-name>
-        <servlet-class>org.apache.geronimo.ws.HelloWorldWS</servlet-class>
+        <servlet-class>org.apache.geronimo.tomcat.app.HelloWorldWS</servlet-class>
     </servlet>
 
     <servlet-mapping>

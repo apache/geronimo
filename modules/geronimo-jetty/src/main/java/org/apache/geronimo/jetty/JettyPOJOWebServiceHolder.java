@@ -34,6 +34,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.webservices.POJOWebServiceServlet;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerInvoker;
+import org.apache.geronimo.webservices.WebServiceContainerFactory;
 import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.jetty.servlet.ServletHttpRequest;
 
@@ -60,7 +61,7 @@ public class JettyPOJOWebServiceHolder extends ServletHolder implements GBeanLif
                                      Map initParams,
                                      Integer loadOnStartup,
                                      Set servletMappings,
-                                     WebServiceContainer webServiceContainer,
+                                     WebServiceContainerFactory webServiceContainerFactory,
                                      ServletHolder previous,    //dependency for startup ordering
                                      JettyServletRegistration context) throws Exception {
         super(context == null ? null : context.getServletHandler(), servletName, POJOWebServiceServlet.class.getName(), null);
@@ -68,7 +69,7 @@ public class JettyPOJOWebServiceHolder extends ServletHolder implements GBeanLif
 
         this.pojoClassName = pojoClassName;
         this.context = context;
-        this.webServiceContainer = webServiceContainer;
+        this.webServiceContainer = webServiceContainerFactory == null? null: webServiceContainerFactory.getWebServiceContainer();
         if (context != null) {
             putAll(initParams);
             if (loadOnStartup != null) {
@@ -147,7 +148,7 @@ public class JettyPOJOWebServiceHolder extends ServletHolder implements GBeanLif
         infoBuilder.addAttribute("initParams", Map.class, true);
         infoBuilder.addAttribute("loadOnStartup", Integer.class, true);
         infoBuilder.addAttribute("servletMappings", Set.class, true);
-        infoBuilder.addAttribute("webServiceContainer", WebServiceContainer.class, true);
+        infoBuilder.addReference("WebServiceContainerFactory", WebServiceContainerFactory.class);
         infoBuilder.addReference("Previous", ServletHolder.class, NameFactory.SERVLET);
         infoBuilder.addReference("JettyServletRegistration", JettyServletRegistration.class);
 
@@ -156,7 +157,7 @@ public class JettyPOJOWebServiceHolder extends ServletHolder implements GBeanLif
                                                 "initParams",
                                                 "loadOnStartup",
                                                 "servletMappings",
-                                                "webServiceContainer",
+                                                "WebServiceContainerFactory",
                                                 "Previous",
                                                 "JettyServletRegistration"});
 

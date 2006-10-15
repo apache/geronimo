@@ -31,7 +31,7 @@ public class EARConfigBuilder14AltDDUnpackedTest
 {
     protected void setUp() throws Exception {
         earFile = DeploymentUtil.createJarFile(resolveFile("target/test-ear-j2ee_1.4-unpacked.ear"));
-        ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, "ejb.jar/", null, null, null);
+        ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, "ejb.jar/", null, null, null, portMap);
         webConfigBuilder.contextRoot = contextRoot;
         webConfigBuilder.webModule = new WebModule(false, webModuleName, null, null, "war.war/", null, null, null, contextRoot, portMap, WEB_NAMESPACE);
         connectorConfigBuilder.connectorModule = new ConnectorModule(false, raModuleName, null, null, "rar.rar/", null, null, null);

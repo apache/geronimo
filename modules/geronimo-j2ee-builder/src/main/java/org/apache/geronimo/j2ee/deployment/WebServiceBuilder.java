@@ -18,9 +18,12 @@ package org.apache.geronimo.j2ee.deployment;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.xmlbeans.XmlObject;
+
 import java.util.jar.JarFile;
 import java.util.Map;
-import java.net.URL;
 
 /**
  * @version $Rev$ $Date$
@@ -33,25 +36,27 @@ public interface WebServiceBuilder {
     * @param moduleFile J2EE module
     * @param isEJB is this an EJB archive?
     * @param correctedPortLocations mapping between port locations and paths.
+    * @param environment
     * @return Mapping of servlet names to port information, or an
     * empty map if no web services found.  Port information is opaque
     * to all except the WebServiceBuilder itself.
     * @throws DeploymentException if error encountered while introspecting the module.
     */
-   Map findWebServices(JarFile moduleFile, boolean isEJB, Map correctedPortLocations) throws DeploymentException;
-    
+   Map findWebServices(JarFile moduleFile, boolean isEJB, Map correctedPortLocations, Environment environment) throws DeploymentException;
+
     //obviously these need the deployment descriptors, but I'm not sure in what form yet.
     /**
      * configure the supplied GBeanData to implement the POJO web service described in the deployment descriptor.
      * The GBeanData will be for a ServletHolder like gbean that is adapted to holding a ws stack that talks to a
      * POJO web service.  The web deployer is responsible for filling in the standard servlet info such as init params.
      * @param targetGBean
-     * @param moduleFile
+     * @param module
      * @param portInfo
      * @param seiClassName
+     * @param context
      * @throws DeploymentException
      */
-    void configurePOJO(GBeanData targetGBean, JarFile moduleFile, Object portInfo, String seiClassName, ClassLoader classLoader) throws DeploymentException;
+    void configurePOJO(GBeanData targetGBean, Module module, Object portInfo, String seiClassName, DeploymentContext context) throws DeploymentException;
 
     /**
      * configure the supplied EJBContainer gbeandata to implement the ejb web service described in the deployment descriptor
