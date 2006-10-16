@@ -1,5 +1,5 @@
 <%--
-  Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable.
+  Copyright 2006 The Apache Software Foundation or its licensors, as applicable.
  
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -361,26 +361,33 @@ function <portlet:namespace/>updateAttributesTable(attributes) {
         attributes,
         [ 
             function(attribute) { /* AttribName Column */
+                // TODO color code the Name for magical and nogetters atttribute 
+                // var hasGetter = attribute['getterName'];
+                // var hasValue = attribute['value'];
+                // !hasGetter && hasValue implies magical attribute 
                 return attribute['name']; 
             },
-            function(attribute) { /* AttribType Column */
-                return attribute['type']; 
-            },
             function(attribute) { /* AttribValue  Column */
+                var attribName = attribute['name'];
                 var attribValue = attribute['value'];
                 var attribType = attribute['type'];
+                var hasGetter = attribute['getterName'];
                 var isWritable = attribute['writable'];
                 var attribSetterName = attribute['setterName'];
                 var attribValueID = attribSetterName + '_value';
+                // Special case for deployment descriptor
+                if (attribName == 'deploymentDescriptor') {
+                    return '<textarea cols="60" rows="15" wrap="OFF" readonly>' + attribValue + '</textarea>';
+                }
                 if (isWritable == 'true') {
-                    // OK: attribValue = "<input type='text' id='" + attribValueID + "' value='" + attribValue + "' style='width: 300px;' disabled/>";
+                    // OPTION: attribValue = "<input type='text' id='" + attribValueID + "' value='" + attribValue + "' style='width: 300px;' disabled/>";
                     attribValue = "<div id='" + attribValueID + "'>" + attribValue + "</div>";       
                     return attribValue;
                 }
                 return attribValue;
             },
-            function(attribute) { /* AttribGetterName Column */
-                return attribute['getterName']; 
+            function(attribute) { /* AttribType Column */
+                return attribute['type'];
             },
             function(attribute) { /* AttribSetterName Column */
                 var attribSetterName = attribute['setterName']; 
@@ -401,16 +408,28 @@ function <portlet:namespace/>updateAttributesTable(attributes) {
                 return attribSetterName; 
             },
             function(attribute) { /* AttribManageable Column */
-                return attribute['manageable']; 
+                var isManageable = attribute['manageable'];
+                if (isManageable == 'true') {
+                    return attribute['manageable'];   
+                }
+                return null;
+                 
             },
             function(attribute) { /* AttribPersistent Column */
-                return attribute['persistent']; 
-            },
-            function(attribute) { /* AttribReadable Column */
+                var isPersistent = attribute['persistent']; 
+                if (isPersistent == 'true') {
+                    return attribute['persistent']; 
+                }
+                return null;
+            /* },
+            function(attribute) { AttribReadable Column
                 return attribute['readable']; 
             },
-            function(attribute) { /* AttribWritable Column */
-                return attribute['writable']; 
+            function(attribute) { AttribWritable Column
+                return attribute['writable']; */
+            },
+            function(attribute) { /* AttribGetterName Column */
+                return attribute['getterName'];
             }
         ],
         tableOption
@@ -692,7 +711,7 @@ callOnLoad(init);
             </div>
 
             <!-- J2EE MBeans -->
-         	<div dojoType="TreeNode" title="J2EE MBeans" widgetId="j2eeMBeans" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view">
+         	<div dojoType="TreeNode" title="J2EE Managed Objects" widgetId="j2eeMBeans" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view">
          	    <div dojoType="TreeNode" title="AppClientModule" widgetId="AppClientModule" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
          	    <div dojoType="TreeNode" title="EJBModule" widgetId="EJBModule" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
          	    <div dojoType="TreeNode" title="EntityBean" widgetId="EntityBean" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
@@ -808,14 +827,16 @@ callOnLoad(init);
                     <thead>
                         <tr>
                             <th field="Name" dataType="String" width="10%">&nbsp;Name&nbsp;</th>
-                            <th field="Type" dataType="String" width="10%">&nbsp;Type&nbsp;</th>
                             <th dataType="html" width="20%">&nbsp;Value&nbsp;</th>
-                            <th field="Getter" dataType="String" width="10%">&nbsp;Getter&nbsp;</th>
-                            <th dataType="html" width="10%">&nbsp;Setter&nbsp;</th>
+                            <th field="Type" dataType="String" width="10%">&nbsp;Type&nbsp;</th>
+                            <th dataType="html" width="10%">&nbsp;Writable&nbsp;</th>
                             <th field="Manageable" dataType="String" width="10%">&nbsp;Manageable&nbsp;</th>
                             <th field="Persistent" dataType="String" width="10%">&nbsp;Persistent&nbsp;</th>
+                            <!--
                             <th field="Readable" dataType="String" width="10%">&nbsp;Readable&nbsp;</th>
                             <th field="Writable" dataType="String" width="10%">&nbsp;Writable&nbsp;</th>
+                            -->
+                            <th field="Getter" dataType="String" width="10%">&nbsp;Getter&nbsp;</th>
                         </tr>
                     </thead>
                     <tbody id="attributesTableBody">

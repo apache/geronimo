@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable.
+ * Copyright 2006 The Apache Software Foundation or its licensors, as applicable.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
 
@@ -46,6 +47,7 @@ import org.apache.geronimo.kernel.KernelRegistry;
 public class JMXManagerHelper {
     /** Used to return all MBeans */
     private static final String ALL_MBEANS = "AllMBeans";
+    private static final String GBEANINFO_NAME = "GBeanInfo";
 
     private final Kernel kernel;
 
@@ -149,14 +151,15 @@ public class JMXManagerHelper {
             Set attribs = info.getAttributes();
             for (Iterator i = attribs.iterator(); i.hasNext();) {
                 GAttributeInfo attribInfo = (GAttributeInfo) i.next();
-                Map attribInfoMap = getAttribInfoAsMap(attribInfo);
-                String attribName = (String) attribInfoMap.get("name");
-                Object value = kernel.getAttribute(aname, attribName);
-                attribInfoMap.put("value", value.toString());
-                attributes.put(attribName, attribInfoMap);
+                // Don't include 'GBeanInfo' attributes
+                String attribName = attribInfo.getName();
+                if (!GBEANINFO_NAME.equals(attribName)) {
+                    Map attribInfoMap = getAttribInfoAsMap(aname, attribInfo);
+                    attributes.put(attribName, attribInfoMap);
+                }
             }
-        } catch (Exception e) {
-            // GBean or attribute not found, just ignore
+        } catch (GBeanNotFoundException e) {
+            // GBean not found, just ignore
         }
 
         return attributes.values();
@@ -165,9 +168,11 @@ public class JMXManagerHelper {
     /**
      * Return attribute info as map
      */
-    private Map getAttribInfoAsMap(GAttributeInfo attribInfo) {
+    private Map getAttribInfoAsMap(AbstractName abstractName,
+            GAttributeInfo attribInfo) {
         Map map = new TreeMap();
-        map.put("name", attribInfo.getName());
+        String attribName = attribInfo.getName();
+        map.put("name", attribName);
         map.put("getterName", attribInfo.getGetterName());
         map.put("setterName", attribInfo.getSetterName());
         map.put("type", attribInfo.getType());
@@ -175,6 +180,19 @@ public class JMXManagerHelper {
         map.put("persistent", String.valueOf(attribInfo.isPersistent()));
         map.put("readable", String.valueOf(attribInfo.isReadable()));
         map.put("writable", String.valueOf(attribInfo.isWritable()));
+        if (attribInfo.isReadable()) {
+            String attribValue = "";
+            try {
+                Object value = kernel.getAttribute(abstractName, attribName);
+                if (value != null) {
+                    attribValue = value.toString();
+                }
+            } catch (Exception e) {
+                // GBean or attribute not found, just ignore
+                attribValue = "** EXCEPTION: " + e;
+            }
+            map.put("value", attribValue);
+        }
         return map;
     }
 
