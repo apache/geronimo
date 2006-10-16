@@ -41,7 +41,7 @@ public interface TomcatWebConnector extends WebConnector {
     public void setProxyPort(int port);
     public int getProxyPort();
     public void setScheme(String scheme);
-    public String getSceme();
+    public String getScheme();
     public void setUriEncoding(String scheme);
     public String getUriEncoding();
     public void setUseIPVHosts(boolean useIPVHosts);
