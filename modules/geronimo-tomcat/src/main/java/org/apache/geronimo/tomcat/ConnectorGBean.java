@@ -484,7 +484,7 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
         connector.setScheme(scheme);
     }
 
-    public String getSceme() {
+    public String getScheme() {
         return connector.getScheme();
     }
 
