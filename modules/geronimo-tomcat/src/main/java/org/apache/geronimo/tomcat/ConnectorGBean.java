@@ -550,7 +550,7 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
 
     public int getThreadPriority() {
         Object value = connector.getAttribute("threadPriority");
-        return Integer.parseInt(value.toString());
+        return value == null ? 5 :Integer.parseInt(value.toString());
     }
 
     public void setServer(String server) {
