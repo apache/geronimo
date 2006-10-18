@@ -355,7 +355,7 @@
             <dependency>
                 <groupId>wsdl4j</groupId>
                 <artifactId>wsdl4j</artifactId>
-                <version>1.5.2</version>
+                <version>1.6.1</version>
             </dependency>
 
             <dependency>
@@ -608,8 +608,20 @@
             </dependency>
 
             <dependency>
+                <groupId>org.apache.openejb</groupId>       
+                <artifactId>openejb-corba</artifactId>
+                <version>${openejbVersion}</version>
+            </dependency>
+
+             <dependency>
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-builder</artifactId>
+                <version>${openejbVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.openejb</groupId> 
+                <artifactId>openejb-corba-builder</artifactId>
                 <version>${openejbVersion}</version>
             </dependency>
 
