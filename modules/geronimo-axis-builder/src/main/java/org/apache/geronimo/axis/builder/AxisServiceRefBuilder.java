@@ -129,7 +129,7 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder {
 
 //we could get a Reference or the actual serializable Service back.
             Object ref = axisBuilder.createService(serviceInterface, wsdlURI, jaxrpcMappingURI, serviceQName, portComponentRefMap, handlerInfos, serviceRefType, module, cl);
-            componentContext.put(ENV + name, ref);
+            getJndiContextMap(componentContext).put(ENV + name, ref);
         }
 
     }

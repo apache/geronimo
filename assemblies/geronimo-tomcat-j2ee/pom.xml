@@ -201,6 +201,13 @@
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>openejb-corba-deployer</artifactId>
+            <version>${pom.version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>axis-deployer</artifactId>
             <version>${pom.version}</version>
             <type>car</type>

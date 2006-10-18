@@ -330,12 +330,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         WebAppType webApp = (WebAppType) webModule.getSpecDD();
         JettyWebAppType jettyWebApp = (JettyWebAppType) webModule.getVendorDD();
 
-//        GbeanType[] gbeans = jettyWebApp.getGbeanArray();
-//        ServiceConfigBuilder.addGBeans(gbeans, moduleClassLoader, moduleName, moduleContext);
-
-        //this may add to the web classpath with enhanced classes.
-        //N.B. we use the ear context which has all the gbeans we could possibly be looking up from this ear.
-        Map compContext = buildComponentContext(earContext, webModule, webApp, jettyWebApp);
 
         GBeanData webModuleData = new GBeanData(moduleName, JettyWebAppContext.GBEAN_INFO);
         try {
@@ -359,6 +353,14 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             //and sidesteps the problem of circular references between ejbs.
             Set dependencies = findGBeanDependencies(earContext);
             webModuleData.addDependencies(dependencies);
+
+            //N.B. we use the ear context which has all the gbeans we could possibly be looking up from this ear.
+            Map buildingContext = new HashMap();
+            buildingContext.put(NamingBuilder.JNDI_KEY, new HashMap());
+            buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, moduleName);
+            Configuration earConfiguration = earContext.getConfiguration();
+            getNamingBuilders().buildNaming(webApp, jettyWebApp, earConfiguration, earConfiguration, (Module)webModule, buildingContext);
+            Map compContext = (Map) buildingContext.get(NamingBuilder.JNDI_KEY);
 
             webModuleData.setAttribute("componentContext", compContext);
             //classpath may have been augmented with enhanced classes
@@ -990,13 +992,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             throw new DeploymentException("Could not add servlet gbean to context", e); // TODO identify web app in message
         }
         return servletAbstractName;
-    }
-
-    private Map buildComponentContext(EARContext earContext, Module webModule, WebAppType webApp, JettyWebAppType jettyWebApp) throws DeploymentException {
-        Map componentContext = new HashMap();
-        Configuration earConfiguration = earContext.getConfiguration();
-        getNamingBuilders().buildNaming(webApp, jettyWebApp, earConfiguration, earConfiguration, webModule, componentContext);
-        return componentContext;
     }
 
     public static final GBeanInfo GBEAN_INFO;

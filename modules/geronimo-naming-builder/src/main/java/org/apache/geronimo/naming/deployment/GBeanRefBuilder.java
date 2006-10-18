@@ -44,7 +44,7 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class GBeanRefBuilder implements NamingBuilder {
     private static final QName GBEAN_REF_QNAME = GerGbeanRefDocument.type.getDocumentElementName();
@@ -98,7 +98,7 @@ public class GBeanRefBuilder implements NamingBuilder {
 
             String refName = gbeanRef.getRefName();
 
-            componentContext.put(ENV + refName, new GBeanReference(localConfiguration.getId(), queries, gBeanType));
+            ((Map)componentContext.get(JNDI_KEY)).put(ENV + refName, new GBeanReference(localConfiguration.getId(), queries, gBeanType));
 
         }
     }

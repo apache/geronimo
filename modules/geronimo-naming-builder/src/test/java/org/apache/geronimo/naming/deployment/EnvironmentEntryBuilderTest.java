@@ -98,6 +98,8 @@ public class EnvironmentEntryBuilderTest extends TestCase {
             "</tmp>";
 
     public void testEnvEntries() throws Exception {
+        componentContext.put(NamingBuilder.JNDI_KEY, new HashMap());
+
         String stringVal = "Hello World";
         Character charVal = new Character('H');
         Byte byteVal = new Byte((byte) 12);
@@ -117,7 +119,7 @@ public class EnvironmentEntryBuilderTest extends TestCase {
             cursor.dispose();
         }
         environmentEntryBuilder.buildNaming(doc, null, null, null, null, componentContext);
-        Context context = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext);
+        Context context = EnterpriseNamingContext.createEnterpriseNamingContext((Map) componentContext.get(NamingBuilder.JNDI_KEY));
         Set actual = new HashSet();
         for (NamingEnumeration e = context.listBindings("env"); e.hasMore();) {
             NameClassPair pair = (NameClassPair) e.next();

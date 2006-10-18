@@ -74,15 +74,15 @@
             <artifactId>openejb-core</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.yoko</groupId>
-            <artifactId>yoko-spec-corba</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.yoko</groupId>-->
+            <!--<artifactId>yoko-spec-corba</artifactId>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>concurrent</groupId>
-            <artifactId>concurrent</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>concurrent</groupId>-->
+            <!--<artifactId>concurrent</artifactId>-->
+        <!--</dependency>-->
 
     </dependencies>
 

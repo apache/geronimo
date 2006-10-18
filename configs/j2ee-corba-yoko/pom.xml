@@ -29,7 +29,7 @@
     </parent>
 
     <artifactId>j2ee-corba-yoko</artifactId>
-    <name>Geronimo Configs :: J2EE Corba</name>
+    <name>Geronimo Configs :: J2EE Corba Yoko ORB</name>
     <packaging>car</packaging>
 
     <dependencies>
@@ -46,6 +46,20 @@
             <artifactId>openejb</artifactId>
             <version>${pom.version}</version>
             <type>car</type>
+        </dependency>
+
+        <!-- to enforce build order -->
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>openejb-corba-deployer</artifactId>
+            <version>${pom.version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.openejb</groupId>
+            <artifactId>openejb-corba</artifactId>
         </dependency>
 
         <dependency>
@@ -79,6 +93,7 @@
                     <deploymentConfigs>
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
                         <deploymentConfig>${openejbDeployer}</deploymentConfig>
+                        <deploymentConfig>${openejbcorbaDeployer}</deploymentConfig>
                     </deploymentConfigs>
                 </configuration>
             </plugin>

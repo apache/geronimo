@@ -50,7 +50,7 @@ import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class PersistenceContextRefBuilder implements NamingBuilder {
     private static final QName PERSISTENCE_CONTEXT_REF_QNAME = GerPersistenceContextRefDocument.type.getDocumentElementName();
@@ -110,7 +110,7 @@ public class PersistenceContextRefBuilder implements NamingBuilder {
 
             PersistenceContextReference reference = new PersistenceContextReference(localConfiguration.getId(), persistenceUnitNameQuery, transactionScoped, properties);
 
-            componentContext.put(ENV + persistenceContextRefName, reference);
+            ((Map)componentContext.get(JNDI_KEY)).put(ENV + persistenceContextRefName, reference);
 
         }
     }

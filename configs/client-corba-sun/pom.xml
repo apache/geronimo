@@ -49,18 +49,28 @@
             <type>car</type>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-ejb_2.1_spec</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-ejb_2.1_spec</artifactId>-->
+        <!--</dependency>-->
 
         <!-- to enforce build order -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>openejb-deployer</artifactId>
+            <artifactId>openejb-corba-deployer</artifactId>
             <version>${pom.version}</version>
             <type>car</type>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.openejb</groupId>
+            <artifactId>openejb-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.openejb</groupId>
+            <artifactId>openejb-corba</artifactId>
         </dependency>
 
         <dependency>
@@ -85,6 +95,7 @@
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
                         <deploymentConfig>${j2eeDeployer}</deploymentConfig>
                         <deploymentConfig>${openejbDeployer}</deploymentConfig>
+                        <deploymentConfig>${openejbcorbaDeployer}</deploymentConfig>
                         <deploymentConfig>${axisDeployer}</deploymentConfig>
                     </deploymentConfigs>
                 </configuration>

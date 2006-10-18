@@ -114,7 +114,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             try {
                 AbstractNameQuery containerId = getAdminObjectContainerId(name, gerResourceEnvRef);
                 Reference ref = buildAdminObjectReference(localConfiguration, containerId, iface);
-                componentContext.put(ENV + name, ref);
+                getJndiContextMap(componentContext).put(ENV + name, ref);
             } catch (UnresolvedReferenceException e) {
                 throw new DeploymentException("Unable to resolve resource env reference '" + name + "' (" + (e.isMultiple() ? "found multiple matching resources" : "no matching resources found") + ")");
             }
@@ -158,7 +158,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             //throws exception if it can't locate ref.
             AbstractNameQuery containerId = buildAbstractNameQuery(null, moduleURI, linkName, NameFactory.JCA_ADMIN_OBJECT, NameFactory.RESOURCE_ADAPTER_MODULE);
             Reference ref = buildAdminObjectReference(localConfiguration, containerId, iface);
-            componentContext.put(ENV + name, ref);
+            getJndiContextMap(componentContext).put(ENV + name, ref);
 
         }
 

@@ -49,18 +49,28 @@
             <type>car</type>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-ejb_2.1_spec</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-ejb_2.1_spec</artifactId>-->
+        <!--</dependency>-->
 
         <!-- to enforce build order -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>openejb-deployer</artifactId>
+            <artifactId>openejb-corba-deployer</artifactId>
             <version>${pom.version}</version>
             <type>car</type>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.openejb</groupId>
+            <artifactId>openejb-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.openejb</groupId>
+            <artifactId>openejb-corba</artifactId>
         </dependency>
 
         <dependency>
@@ -95,109 +105,9 @@
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
                         <deploymentConfig>${j2eeDeployer}</deploymentConfig>
                         <deploymentConfig>${openejbDeployer}</deploymentConfig>
+                        <deploymentConfig>${openejbcorbaDeployer}</deploymentConfig>
                         <deploymentConfig>${axisDeployer}</deploymentConfig>
                     </deploymentConfigs>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.geronimo.plugins</groupId>
-                <artifactId>car-maven-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <manifestEntries>
-                            <Endorsed-Dirs>lib/endorsed</Endorsed-Dirs>
-                            <Extension-Dirs>lib/ext</Extension-Dirs>
-                        </manifestEntries>
-                        <manifest>
-                            <mainClass>org.apache.geronimo.system.main.ClientCommandLine</mainClass>
-                        </manifest>
-                    </archive>
-
-                    <!--
-                    NOTE: This list of dependencies is non-transitive.
-                    -->
-                    <classpath>
-                        <element>
-                            <groupId>org.apache.geronimo.modules</groupId>
-                            <artifactId>geronimo-common</artifactId>
-                            <version>${pom.version}</version>
-                        </element>
-                        <element>
-                            <groupId>org.apache.geronimo.modules</groupId>
-                            <artifactId>geronimo-kernel</artifactId>
-                            <version>${pom.version}</version>
-                        </element>
-                        <element>
-                            <groupId>org.apache.geronimo.modules</groupId>
-                            <artifactId>geronimo-system</artifactId>
-                            <version>${pom.version}</version>
-                        </element>
-                        <element>
-                            <groupId>org.apache.geronimo.modules</groupId>
-                            <artifactId>geronimo-util</artifactId>
-                            <version>${pom.version}</version>
-                        </element>
-                        <element>
-                            <groupId>org.apache.geronimo.specs</groupId>
-                            <artifactId>geronimo-qname_1.1_spec</artifactId>
-                        </element>
-                        <element>
-                            <groupId>backport-util-concurrent</groupId>
-                            <artifactId>backport-util-concurrent</artifactId>
-                        </element>
-                        <element>
-                            <groupId>mx4j</groupId>
-                            <artifactId>mx4j</artifactId>
-                        </element>
-                        <element>
-                            <groupId>mx4j</groupId>
-                            <artifactId>mx4j-remote</artifactId>
-                        </element>
-                        <element>
-                            <groupId>commons-cli</groupId>
-                            <artifactId>commons-cli</artifactId>
-                        </element>
-                        <element>
-                            <groupId>commons-logging</groupId>
-                            <artifactId>commons-logging</artifactId>
-                        </element>
-                        <element>
-                            <groupId>cglib</groupId>
-                            <artifactId>cglib-nodep</artifactId>
-                        </element>
-                        <element>
-                            <groupId>log4j</groupId>
-                            <artifactId>log4j</artifactId>
-                        </element>
-                        <element>
-                            <groupId>jline</groupId>
-                            <artifactId>jline</artifactId>
-                        </element>
-                        <element>
-                            <groupId>xpp3</groupId>
-                            <artifactId>xpp3</artifactId>
-                        </element>
-                        <element>
-                            <groupId>xstream</groupId>
-                            <artifactId>xstream</artifactId>
-                        </element>
-                        <element>
-                            <groupId>xerces</groupId>
-                            <artifactId>xercesImpl</artifactId>
-                            <classpathPrefix>../lib/endorsed</classpathPrefix>
-                        </element>
-                        <element>
-                            <groupId>xerces</groupId>
-                            <artifactId>xmlParserAPIs</artifactId>
-                            <classpathPrefix>../lib/endorsed</classpathPrefix>
-                        </element>
-                        <element>
-                            <groupId>org.apache.yoko</groupId>
-                            <artifactId>yoko-spec-corba</artifactId>
-                            <classpathPrefix>../lib/endorsed</classpathPrefix>
-                        </element>
-                    </classpath>
-                    <classpathPrefix>../lib</classpathPrefix>
                 </configuration>
             </plugin>
         </plugins>

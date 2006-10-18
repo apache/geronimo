@@ -45,6 +45,7 @@
         <clientDeployer>org.apache.geronimo.configs/client-deployer/${pom.version}/car</clientDeployer>
         <connectorDeployer>org.apache.geronimo.configs/connector-deployer/${pom.version}/car</connectorDeployer>
         <openejbDeployer>org.apache.geronimo.configs/openejb-deployer/${pom.version}/car</openejbDeployer>
+        <openejbcorbaDeployer>org.apache.geronimo.configs/openejb-corba-deployer/${pom.version}/car</openejbcorbaDeployer>
         <axisDeployer>org.apache.geronimo.configs/axis-deployer/${pom.version}/car</axisDeployer>
         <tomcatDeployer>org.apache.geronimo.configs/tomcat-deployer/${pom.version}/car</tomcatDeployer>
         <jettyDeployer>org.apache.geronimo.configs/jetty-deployer/${pom.version}/car</jettyDeployer>
@@ -152,6 +153,7 @@
         <module>online-deployer</module>
         <module>openejb</module>
         <module>openejb-deployer</module>
+        <module>openejb-corba-deployer</module>
         <module>remote-deploy-jetty</module>
         <module>remote-deploy-tomcat</module>
         <module>rmi-naming</module>

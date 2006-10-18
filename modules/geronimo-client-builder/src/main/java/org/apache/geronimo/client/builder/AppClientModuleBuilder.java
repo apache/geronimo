@@ -493,7 +493,6 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         AbstractName appClientModuleName = appClientModule.getModuleName();
 
         // create a gbean for the app client module and add it to the ear
-        Map componentContext;
         GBeanData appClientModuleGBeanData = new GBeanData(appClientModuleName, J2EEAppClientModuleImpl.GBEAN_INFO);
         try {
             appClientModuleGBeanData.setReferencePattern("J2EEServer", earContext.getServerName());
@@ -552,8 +551,13 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 AbstractName jndiContextName = earContext.getNaming().createChildName(appClientDeploymentContext.getModuleName(), "StaticJndiContext", "StaticJndiContext");
                 GBeanData jndiContextGBeanData = new GBeanData(jndiContextName, StaticJndiContextPlugin.GBEAN_INFO);
                 try {
-                    componentContext = buildComponentContext(appClientDeploymentContext, earContext, appClientModule, appClient, geronimoAppClient);
-                    jndiContextGBeanData.setAttribute("context", componentContext);
+                    Map buildingContext = new HashMap();
+                    buildingContext.put(NamingBuilder.JNDI_KEY, new HashMap());
+                    buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, jndiContextName);
+                    Configuration localConfiguration = appClientDeploymentContext.getConfiguration();
+                    Configuration remoteConfiguration = earContext.getConfiguration();
+                    namingBuilders.buildNaming(appClient, geronimoAppClient, localConfiguration, remoteConfiguration, appClientModule, buildingContext);
+                    jndiContextGBeanData.setAttribute("context", buildingContext.get(NamingBuilder.JNDI_KEY));
                 } catch (DeploymentException e) {
                     throw e;
                 } catch (Exception e) {
@@ -688,14 +692,6 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 addManifestClassPath(deploymentContext, earFile, classPathJarFile, classPathJarLocation);
             }
         }
-    }
-
-    private Map buildComponentContext(EARContext appClientContext, EARContext ejbContext, AppClientModule appClientModule, ApplicationClientType appClient, GerApplicationClientType geronimoAppClient) throws DeploymentException {
-        Map componentContext = new HashMap();
-        Configuration localConfiguration = appClientContext.getConfiguration();
-        Configuration remoteConfiguration = ejbContext.getConfiguration();
-        namingBuilders.buildNaming(appClient, geronimoAppClient, localConfiguration, remoteConfiguration, appClientModule, componentContext);
-        return componentContext;
     }
 
     private boolean cleanupAppClientDir(File configurationDir) {

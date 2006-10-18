@@ -94,7 +94,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
                 }
                 try {
                     //TODO expose jsr-77 objects for these guys
-                    componentContext.put(ENV + name, new URL(gerResourceRef.getUrl()));
+                    getJndiContextMap(componentContext).put(ENV + name, new URL(gerResourceRef.getUrl()));
                 } catch (MalformedURLException e) {
                     throw new DeploymentException("Could not convert " + gerResourceRef.getUrl() + " to URL", e);
                 }
@@ -120,7 +120,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
                     }
 
                     Reference ref = new ResourceReference(localConfiguration.getId(), containerId, iface);
-                    componentContext.put(ENV + name, ref);
+                    getJndiContextMap(componentContext).put(ENV + name, ref);
                 } catch (UnresolvedReferenceException e) {
 
                     StringBuffer errorMessage = new StringBuffer("Unable to resolve resource reference '");

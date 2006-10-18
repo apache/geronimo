@@ -269,13 +269,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         WebAppType webApp = (WebAppType) webModule.getSpecDD();
         TomcatWebAppType tomcatWebApp = (TomcatWebAppType) webModule.getVendorDD();
 
-//        GbeanType[] gbeans = tomcatWebApp.getGbeanArray();
-//        ServiceConfigBuilder.addGBeans(gbeans, moduleClassLoader, moduleName, moduleContext);
-
-        //this may add to the web classpath with enhanced classes.
-        //N.B. we use the ear context which has all the gbeans we could possibly be looking up from this ear.
-        Map compContext = buildComponentContext(earContext, webModule, webApp, tomcatWebApp);
-
         GBeanData webModuleData = new GBeanData(moduleName, TomcatWebAppContext.GBEAN_INFO);
         try {
             webModuleData.setReferencePattern("J2EEServer", moduleContext.getServerName());
@@ -294,6 +287,14 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             //and sidesteps the problem of circular references between ejbs.
             Set dependencies = findGBeanDependencies(earContext);
             webModuleData.addDependencies(dependencies);
+
+            //N.B. we use the ear context which has all the gbeans we could possibly be looking up from this ear.
+            Map buildingContext = new HashMap();
+            buildingContext.put(NamingBuilder.JNDI_KEY, new HashMap());
+            buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, moduleName);
+            Configuration earConfiguration = earContext.getConfiguration();
+            getNamingBuilders().buildNaming(webApp, tomcatWebApp, earConfiguration, earConfiguration, webModule, buildingContext);
+            Map compContext = (Map) buildingContext.get(NamingBuilder.JNDI_KEY);
 
             webModuleData.setAttribute("componentContext", compContext);
             // unsharableResources, applicationManagedSecurityResources
@@ -444,13 +445,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         return TOMCAT_NAMESPACE;
     }
 
-
-    private Map buildComponentContext(EARContext earContext, Module webModule, WebAppType webApp, TomcatWebAppType tomcatWebApp) throws DeploymentException {
-        Map componentContext = new HashMap();
-        Configuration earConfiguration = earContext.getConfiguration();
-        getNamingBuilders().buildNaming(webApp, tomcatWebApp, earConfiguration, earConfiguration, webModule, componentContext);
-        return componentContext;
-    }
 
     public static final GBeanInfo GBEAN_INFO;
 

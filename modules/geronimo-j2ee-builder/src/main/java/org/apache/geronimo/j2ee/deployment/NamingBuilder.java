@@ -26,12 +26,15 @@ import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public interface NamingBuilder {
 
     XmlObject[] NO_REFS = new XmlObject[] {};
     String ENV = "env/";
+
+    String JNDI_KEY = "JNDI_COMPONENT_CONTEXT";
+    String GBEAN_NAME_KEY = "GBEAN_NAME";
 
     void buildEnvironment(XmlObject specDD, XmlObject plan, Environment environment) throws DeploymentException;
 

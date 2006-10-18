@@ -17,29 +17,30 @@
 
 package org.apache.geronimo.naming.deployment;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.Collections;
 
 import javax.xml.namespace.QName;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.geronimo.schema.NamespaceElementConverter;
-import org.apache.xmlbeans.XmlObject;
+import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
+import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.QNameSet;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$
@@ -70,6 +71,14 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
     }
 
     public void initContext(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module) throws DeploymentException {
+    }
+
+    protected Map getJndiContextMap(Map sharedContext) {
+        return (Map)sharedContext.get(JNDI_KEY);
+    }
+
+    protected AbstractName getGBeanName(Map sharedContext) {
+        return (AbstractName)sharedContext.get(GBEAN_NAME_KEY);
     }
 
     protected static QNameSet buildQNameSet(String[] eeNamespaces, String localPart) {

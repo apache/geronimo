@@ -114,6 +114,8 @@
         </gbean>
     </module>
 
+    <module name="org.apache.geronimo.configs/openejb-corba-deployer/${pom.version}/car" load="false"/>
+
     <module name="org.apache.geronimo.configs/client-deployer/${pom.version}/car"/>
 
     <module name="org.apache.geronimo.configs/axis-deployer/${pom.version}/car"/>

@@ -86,7 +86,7 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder {
                 } else {
                     throw new DeploymentException("unrecognized type: " + type);
                 }
-                componentContext.put(ENV + name, value);
+                getJndiContextMap(componentContext).put(ENV + name, value);
             } catch (NumberFormatException e) {
                 throw new DeploymentException("Invalid env-entry value for name: " + name, e);
             }

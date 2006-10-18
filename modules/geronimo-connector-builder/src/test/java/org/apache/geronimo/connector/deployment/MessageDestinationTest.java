@@ -31,6 +31,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.ConnectorModule;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Naming;
@@ -70,6 +71,7 @@ public class MessageDestinationTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
+        componentContext.put(NamingBuilder.JNDI_KEY, new HashMap());
         Artifact id = new Artifact("test", "test", "", "car");
         configuration = new Configuration(Collections.EMPTY_LIST,
                 new ConfigurationData(id, naming),
@@ -258,7 +260,7 @@ public class MessageDestinationTest extends TestCase {
         configuration.addGBean(new GBeanData(n1, AdminObjectWrapperGBean.GBEAN_INFO));
         configuration.addGBean(new GBeanData(n2, AdminObjectWrapperGBean.GBEAN_INFO));
         adminObjectRefBuilder.buildNaming(specDD, plan, configuration, configuration, module, componentContext);
-        assertEquals(2, componentContext.size());
+        assertEquals(2, ((Map)componentContext.get(NamingBuilder.JNDI_KEY)).size());
     }
 
     private static final String PLAN2 = "<tmp xmlns=\"http://geronimo.apache.org/xml/ns/naming-1.2\">" +
@@ -282,7 +284,7 @@ public class MessageDestinationTest extends TestCase {
         configuration.addGBean(new GBeanData(n1, AdminObjectWrapperGBean.GBEAN_INFO));
         configuration.addGBean(new GBeanData(n2, AdminObjectWrapperGBean.GBEAN_INFO));
         adminObjectRefBuilder.buildNaming(specDD, plan, configuration, configuration, module, componentContext);
-        assertEquals(2, componentContext.size());
+        assertEquals(2, ((Map)componentContext.get(NamingBuilder.JNDI_KEY)).size());
     }
 
     private static final String SPECDD2 = "<tmp xmlns=\"http://java.sun.com/xml/ns/j2ee\">" +
