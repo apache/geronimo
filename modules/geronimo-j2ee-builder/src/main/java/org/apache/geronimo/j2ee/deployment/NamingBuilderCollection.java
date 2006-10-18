@@ -45,10 +45,10 @@ public class NamingBuilderCollection implements NamingBuilder {
     private QNameSet planQNames = QNameSet.EMPTY;
 
     public NamingBuilderCollection(Collection builders, final QName basePlanElementName) {
-        this.builders = builders == null? Collections.EMPTY_SET: builders;
+        this.builders = builders == null ? Collections.EMPTY_SET : builders;
         this.basePlanElementName = basePlanElementName;
         if (builders instanceof ReferenceCollection) {
-            ((ReferenceCollection)builders).addReferenceCollectionListener(new ReferenceCollectionListener() {
+            ((ReferenceCollection) builders).addReferenceCollectionListener(new ReferenceCollectionListener() {
 
                 public void memberAdded(ReferenceCollectionEvent event) {
                     addBuilder(event.getMember());
@@ -56,9 +56,9 @@ public class NamingBuilderCollection implements NamingBuilder {
 
                 public void memberRemoved(ReferenceCollectionEvent event) {
                     Object builder = event.getMember();
-                    QNameSet builderSpecQNames = ((NamingBuilder)builder).getSpecQNameSet();
+                    QNameSet builderSpecQNames = ((NamingBuilder) builder).getSpecQNameSet();
                     specQNames = specQNames.intersect(builderSpecQNames.inverse());
-                    QNameSet builderPlanQNames = ((NamingBuilder)builder).getPlanQNameSet();
+                    QNameSet builderPlanQNames = ((NamingBuilder) builder).getPlanQNameSet();
                     planQNames = planQNames.intersect(builderPlanQNames.inverse());
                     XmlBeansUtil.unregisterSubstitutionGroupElements(basePlanElementName, builderPlanQNames);
                 }
@@ -71,25 +71,22 @@ public class NamingBuilderCollection implements NamingBuilder {
     }
 
     private void addBuilder(Object builder) {
-        QNameSet builderSpecQNames = ((NamingBuilder)builder).getSpecQNameSet();
-        QNameSet builderPlanQNames = ((NamingBuilder)builder).getPlanQNameSet();
+        QNameSet builderSpecQNames = ((NamingBuilder) builder).getSpecQNameSet();
+        QNameSet builderPlanQNames = ((NamingBuilder) builder).getPlanQNameSet();
         if (builderSpecQNames == null) {
             throw new IllegalStateException("Builder " + builder + " is missing spec qnames");
         }
         if (builderPlanQNames == null) {
             throw new IllegalStateException("Builder " + builder + " is missing plan qnames");
         }
-        if (!specQNames.isDisjoint(builderSpecQNames)) {
-            throw new IllegalArgumentException("Duplicate builderSpecQNames in builder set: " + builderSpecQNames);
-        }
-        if (!planQNames.isDisjoint(builderPlanQNames)) {
-            throw new IllegalArgumentException("Duplicate builderPlanQNames in builder set: " + builderPlanQNames);
+        if (!specQNames.isDisjoint(builderSpecQNames) && !planQNames.isDisjoint(builderPlanQNames)) {
+            throw new IllegalArgumentException("Duplicate builderSpecQNames in builder set: " + builderSpecQNames + " and duplicate builderPlanQNames in builder set: " + builderPlanQNames);
         }
         try {
             specQNames = specQNames.union(builderSpecQNames);
             planQNames = planQNames.union(builderPlanQNames);
         } catch (NullPointerException e) {
-            throw (IllegalArgumentException)new IllegalArgumentException("could not merge qnamesets for builder " + builder).initCause(e);
+            throw (IllegalArgumentException) new IllegalArgumentException("could not merge qnamesets for builder " + builder).initCause(e);
 
         }
         //really?

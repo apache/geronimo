@@ -54,4 +54,34 @@
         <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee</attribute>
     </gbean>
 
+    <gbean name="ClientConnectorBuilder" class="org.apache.geronimo.connector.deployment.ConnectorModuleBuilder">
+        <attribute name="defaultMaxSize">10</attribute>
+        <attribute name="defaultMinSize">0</attribute>
+        <attribute name="defaultBlockingTimeoutMilliseconds">5000</attribute>
+        <attribute name="defaultIdleTimeoutMinutes">15</attribute>
+        <attribute name="defaultXATransactionCaching">true</attribute>
+        <attribute name="defaultXAThreadCaching">false</attribute>
+        <reference name="ServiceBuilders">
+            <name>GBeanBuilder</name>
+        </reference>
+        <xml-attribute name="defaultEnvironment">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
+                <dependencies>
+                    <dependency>
+                        <groupId>${pom.groupId}</groupId>
+                        <artifactId>client-transaction</artifactId>
+                        <type>car</type>
+                    </dependency>
+                </dependencies>
+            </environment>
+        </xml-attribute>
+    </gbean>
+
+    <gbean name="ClientResourceRefBuilder" class="org.apache.geronimo.connector.deployment.ResourceRefBuilder">
+        <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee</attribute>
+    </gbean>
+    <gbean name="ClientAdminObjectRefBuilder" class="org.apache.geronimo.connector.deployment.AdminObjectRefBuilder">
+        <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee</attribute>
+    </gbean>
+
 </module>

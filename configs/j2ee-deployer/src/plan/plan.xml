@@ -122,6 +122,9 @@
                 <name>OpenEjbLocalRefBuilder</name>
             </pattern>
             <pattern>
+                <name>OpenEjbCorbaRefBuilder</name>
+            </pattern>
+            <pattern>
                 <name>CorbaRefBuilder</name>
             </pattern>
         </references>
