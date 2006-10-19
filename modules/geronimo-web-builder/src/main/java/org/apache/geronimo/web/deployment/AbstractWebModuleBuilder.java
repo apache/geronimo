@@ -242,6 +242,12 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         module.setRootEarContext(earContext);
 
         try {
+
+            // always add WEB-INF/classes to the classpath regardless of whether
+            // any classes exist.  This must be searched BEFORE the WEB-INF/lib jar files,
+            // per the servlet specifications.
+            moduleContext.getConfiguration().addToClassPath("WEB-INF/classes/");
+
             // add the warfile's content to the configuration
             JarFile warFile = module.getModuleFile();
             Enumeration entries = warFile.entries();
@@ -256,10 +262,6 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
                     moduleContext.addFile(targetPath, warFile, entry);
                 }
             }
-
-            //always add WEB-INF/classes to the classpath regardless of whether
-            //any classes exist
-            moduleContext.getConfiguration().addToClassPath("WEB-INF/classes/");
 
             // add the manifest classpath entries declared in the war to the class loader
             // we have to explicitly add these since we are unpacking the web module
