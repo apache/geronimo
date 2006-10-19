@@ -20,6 +20,7 @@ package org.apache.geronimo.naming.enc;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Collections;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -41,14 +42,26 @@ public final class EnterpriseNamingContext {
             map.putAll(componentContext);
         }
 
-        for (Iterator iterator = map.values().iterator(); iterator.hasNext();) {
-            Object value = iterator.next();
+        boolean containsEnv = false;
+        for (Iterator iterator = map.entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            String name = (String) entry.getKey();
+            Object value = entry.getValue();
+
+            if (name.startsWith("env/")) {
+                containsEnv = true;
+            }
             if (value instanceof KernelAwareReference) {
                 ((KernelAwareReference) value).setKernel(kernel);
             }
             if (value instanceof ClassLoaderAwareReference) {
                 ((ClassLoaderAwareReference) value).setClassLoader(classLoader);
             }
+        }
+
+        if (!containsEnv) {
+            Context env = new ImmutableContext("java:comp/env", Collections.EMPTY_MAP, false);
+            map.put("env", env);
         }
 
         if (userTransaction != null) {

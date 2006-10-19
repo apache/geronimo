@@ -18,6 +18,7 @@ package org.apache.geronimo.client;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Collections;
 import javax.naming.InitialContext;
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -30,6 +31,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.xbean.naming.context.ImmutableContext;
 
 /**
  * @version $Rev$ $Date$
@@ -38,17 +40,7 @@ public class StaticJndiContextPlugin implements AppClientPlugin {
     private final Context context;
 
     public StaticJndiContextPlugin(Map context, Kernel kernel, ClassLoader classLoader) throws NamingException {
-        // create ReadOnlyContext
-        for (Iterator iterator = context.values().iterator(); iterator.hasNext();) {
-            Object value = iterator.next();
-            if (value instanceof KernelAwareReference) {
-                ((KernelAwareReference) value).setKernel(kernel);
-            }
-            if (value instanceof ClassLoaderAwareReference) {
-                ((ClassLoaderAwareReference) value).setClassLoader(classLoader);
-            }
-        }
-        this.context = EnterpriseNamingContext.createEnterpriseNamingContext(context);
+        this.context = EnterpriseNamingContext.createEnterpriseNamingContext(context, null, kernel, classLoader);
     }
 
     public void startClient(AbstractName appClientModuleName, Kernel kernel, ClassLoader classLoader) throws Exception {
