@@ -17,6 +17,7 @@
 package org.apache.geronimo.console.keystores;
 
 import org.apache.geronimo.console.MultiPageModel;
+import org.apache.geronimo.management.geronimo.KeystoreException;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -59,9 +60,11 @@ public class EditKeystoreHandler extends BaseKeystoreHandler {
         }
         KeystoreData data = ((KeystoreData) request.getPortletSession(true).getAttribute(KEYSTORE_DATA_PREFIX + keystore));
         char[] storePass = password.toCharArray();
-        data.setPassword(storePass);
-        data.setCertificates(data.getInstance().listTrustCertificates(storePass));
-        data.setKeys(data.getInstance().listPrivateKeys(storePass));
+        try {
+            data.unlockEdit(storePass);
+        } catch (KeystoreException e) {
+            throw new PortletException(e);
+        }
         return LIST_MODE+BEFORE_ACTION;
     }
 }

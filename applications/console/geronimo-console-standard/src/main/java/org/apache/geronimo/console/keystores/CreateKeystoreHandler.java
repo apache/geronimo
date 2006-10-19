@@ -17,8 +17,6 @@
 package org.apache.geronimo.console.keystores;
 
 import java.io.IOException;
-import java.util.Map;
-import java.util.HashMap;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
@@ -27,8 +25,7 @@ import javax.portlet.RenderResponse;
 import javax.portlet.PortletSession;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.management.geronimo.KeystoreException;
 import org.apache.geronimo.management.geronimo.KeystoreInstance;
 
 /**
@@ -60,16 +57,17 @@ public class CreateKeystoreHandler extends BaseKeystoreHandler {
             response.setRenderParameter("filename", filename);
             return getMode();
         }
-        KeystoreInstance instance = PortletManager.getCurrentServer(request).getKeystoreManager().createKeystore(filename, password.toCharArray());
-        PortletSession session = request.getPortletSession(true);
-        KeystoreData data = new KeystoreData();
-        data.setInstance(instance);
-        session.setAttribute(KEYSTORE_DATA_PREFIX+filename, data);
-        char[] cpw = password.toCharArray();
-        data.setPassword(cpw);
-        data.setCertificates(data.getInstance().listTrustCertificates(cpw));
-        data.setKeys(data.getInstance().listPrivateKeys(cpw));
-
+        try {
+            KeystoreInstance instance = PortletManager.getCurrentServer(request).getKeystoreManager().createKeystore(filename, password.toCharArray());
+            PortletSession session = request.getPortletSession(true);
+            KeystoreData data = new KeystoreData();
+            data.setInstance(instance);
+            session.setAttribute(KEYSTORE_DATA_PREFIX+filename, data);
+            char[] cpw = password.toCharArray();
+            data.unlockEdit(cpw);
+        } catch (KeystoreException e) {
+            throw new PortletException(e);
+        }
         return LIST_MODE+BEFORE_ACTION;
     }
 }

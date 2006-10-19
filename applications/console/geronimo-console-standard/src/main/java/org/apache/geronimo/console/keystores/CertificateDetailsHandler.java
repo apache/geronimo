@@ -17,6 +17,8 @@
 package org.apache.geronimo.console.keystores;
 
 import org.apache.geronimo.console.MultiPageModel;
+import org.apache.geronimo.management.geronimo.KeystoreException;
+
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
@@ -51,7 +53,12 @@ public class CertificateDetailsHandler extends BaseKeystoreHandler {
             alias = "";
         }
         KeystoreData data = ((KeystoreData) request.getPortletSession(true).getAttribute(KEYSTORE_DATA_PREFIX + id));
-        Certificate cert = data.getCertificate(alias);
+        Certificate cert;
+        try {
+            cert = data.getCertificate(alias);
+        } catch (KeystoreException e) {
+            throw new PortletException(e);
+        }
         String type = "Trusted Certificate";
         boolean keyLocked = true;
         String[] keys = data.getKeys();

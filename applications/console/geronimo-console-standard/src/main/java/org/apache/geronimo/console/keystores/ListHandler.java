@@ -29,6 +29,7 @@ import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.management.geronimo.KeystoreException;
 import org.apache.geronimo.management.geronimo.KeystoreInstance;
 import org.apache.geronimo.management.geronimo.KeystoreIsLocked;
 import org.apache.geronimo.management.geronimo.KeystoreManager;
@@ -65,13 +66,13 @@ public class ListHandler extends BaseKeystoreHandler {
             datas[i] = data;
             if(!data.getInstance().isKeystoreLocked()) {
                 try {
-                    String[] all = data.getInstance().getUnlockedKeys();
+                    String[] all = data.getInstance().getUnlockedKeys(null);
                     if(all.length > 0) {
                         keys.put(data.getInstance().getKeystoreName(), all.length+" key"+(all.length > 1 ? "s" : "")+" ready");
                     } else {
                         keys.put(data.getInstance().getKeystoreName(), "trust store only");
                     }
-                } catch (KeystoreIsLocked locked) {}
+                } catch (KeystoreException locked) {}
             }
         }
         request.setAttribute("keystores", datas);

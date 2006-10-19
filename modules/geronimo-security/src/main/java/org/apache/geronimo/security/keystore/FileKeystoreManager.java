@@ -56,6 +56,7 @@ import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.EditableConfigurationManager;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.management.geronimo.KeyIsLocked;
+import org.apache.geronimo.management.geronimo.KeystoreException;
 import org.apache.geronimo.management.geronimo.KeystoreInstance;
 import org.apache.geronimo.management.geronimo.KeystoreIsLocked;
 import org.apache.geronimo.management.geronimo.KeystoreManager;
@@ -200,7 +201,7 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
      * @throws KeyManagementException
      * @throws NoSuchProviderException
      */
-    public SSLSocketFactory createSSLFactory(String provider, String protocol, String algorithm, String trustStore, ClassLoader loader) throws KeystoreIsLocked, KeyIsLocked, NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException, KeyManagementException, NoSuchProviderException {
+    public SSLSocketFactory createSSLFactory(String provider, String protocol, String algorithm, String trustStore, ClassLoader loader) throws KeystoreException {
         // typically, the keyStore and the keyAlias are not required if authentication is also not required.
         return createSSLFactory(provider, protocol, algorithm, null, null, trustStore, loader);
     }
@@ -230,13 +231,9 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
      *                Occurs when the requested private key in the key
      *                keystore cannot be used because it has not been
      *                unlocked.
-     * @throws NoSuchAlgorithmException
-     * @throws UnrecoverableKeyException
-     * @throws KeyStoreException
-     * @throws KeyManagementException
-     * @throws NoSuchProviderException
+     * @throws KeystoreException
      */
-    public SSLSocketFactory createSSLFactory(String provider, String protocol, String algorithm, String keyStore, String keyAlias, String trustStore, ClassLoader loader) throws KeystoreIsLocked, KeyIsLocked, NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException, KeyManagementException, NoSuchProviderException {
+    public SSLSocketFactory createSSLFactory(String provider, String protocol, String algorithm, String keyStore, String keyAlias, String trustStore, ClassLoader loader) throws KeystoreException {
         // the keyStore is optional.
         KeystoreInstance keyInstance = null;
         if (keyStore != null) {
@@ -261,14 +258,13 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
             Class tmc = loader.loadClass("[Ljavax.net.ssl.TrustManager;");
             Class src = loader.loadClass("java.security.SecureRandom");
             cls.getMethod("init", new Class[]{kmc, tmc, src}).invoke(ctx, new Object[]{
-                                                                            keyInstance == null ? null : keyInstance.getKeyManager(algorithm, keyAlias),
-                                                                            trustInstance == null ? null : trustInstance.getTrustManager(algorithm),
+                                                                            keyInstance == null ? null : keyInstance.getKeyManager(algorithm, keyAlias, null),
+                                                                            trustInstance == null ? null : trustInstance.getTrustManager(algorithm, null),
                                                                             new java.security.SecureRandom()});
             Object result = cls.getMethod("getSocketFactory", new Class[0]).invoke(ctx, new Object[0]);
             return (SSLSocketFactory) result;
         } catch (Exception e) {
-            log.error("Unable to dynamically load", e);
-            return null;
+            throw new KeystoreException("Unable to create SSL Factory", e);
         }
     }
 
@@ -294,7 +290,7 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
      *                     keystore cannot be used because it has not been
      *                     unlocked.
      */
-    public SSLServerSocketFactory createSSLServerFactory(String provider, String protocol, String algorithm, String keyStore, String keyAlias, String trustStore, ClassLoader loader) throws KeystoreIsLocked, KeyIsLocked, NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException, KeyManagementException, NoSuchProviderException {
+    public SSLServerSocketFactory createSSLServerFactory(String provider, String protocol, String algorithm, String keyStore, String keyAlias, String trustStore, ClassLoader loader) throws KeystoreException {
         KeystoreInstance keyInstance = getKeystore(keyStore);
         if(keyInstance.isKeystoreLocked()) {
             throw new KeystoreIsLocked("Keystore '"+keyStore+"' is locked; please use the keystore page in the admin console to unlock it");
@@ -314,18 +310,17 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
             Class kmc = loader.loadClass("[Ljavax.net.ssl.KeyManager;");
             Class tmc = loader.loadClass("[Ljavax.net.ssl.TrustManager;");
             Class src = loader.loadClass("java.security.SecureRandom");
-            cls.getMethod("init", new Class[]{kmc, tmc, src}).invoke(ctx, new Object[]{keyInstance.getKeyManager(algorithm, keyAlias),
-                                                                            trustInstance == null ? null : trustInstance.getTrustManager(algorithm),
+            cls.getMethod("init", new Class[]{kmc, tmc, src}).invoke(ctx, new Object[]{keyInstance.getKeyManager(algorithm, keyAlias, null),
+                                                                            trustInstance == null ? null : trustInstance.getTrustManager(algorithm, null),
                                                                             new java.security.SecureRandom()});
             Object result = cls.getMethod("getServerSocketFactory", new Class[0]).invoke(ctx, new Object[0]);
             return (SSLServerSocketFactory) result;
         } catch (Exception e) {
-            log.error("Unable to dynamically load", e);
-            return null;
+            throw new KeystoreException("Unable to create SSL Server Factory", e);
         }
     }
 
-    public KeystoreInstance createKeystore(String name, char[] password) {
+    public KeystoreInstance createKeystore(String name, char[] password) throws KeystoreException {
         File test = new File(directory, name);
         if(test.exists()) {
             throw new IllegalArgumentException("Keystore already exists "+test.getAbsolutePath()+"!");
@@ -339,15 +334,14 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
             out.close();
             return getKeystore(name);
         } catch (KeyStoreException e) {
-            log.error("Unable to create keystore", e);
+            throw new KeystoreException("Unable to create keystore", e);
         } catch (IOException e) {
-            log.error("Unable to create keystore", e);
+            throw new KeystoreException("Unable to create keystore", e);
         } catch (NoSuchAlgorithmException e) {
-            log.error("Unable to create keystore", e);
+            throw new KeystoreException("Unable to create keystore", e);
         } catch (CertificateException e) {
-            log.error("Unable to create keystore", e);
+            throw new KeystoreException("Unable to create keystore", e);
         }
-        return null;
     }
 
     public KeystoreInstance[] getUnlockedKeyStores() {
@@ -355,10 +349,10 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
         for (Iterator it = keystores.iterator(); it.hasNext();) {
             KeystoreInstance instance = (KeystoreInstance) it.next();
             try {
-                if(!instance.isKeystoreLocked() && instance.getUnlockedKeys().length > 0) {
+                if(!instance.isKeystoreLocked() && instance.getUnlockedKeys(null).length > 0) {
                     results.add(instance);
                 }
-            } catch (KeystoreIsLocked locked) {}
+            } catch (KeystoreException e) {}
         }
         return (KeystoreInstance[]) results.toArray(new KeystoreInstance[results.size()]);
     }
@@ -368,10 +362,10 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
         for (Iterator it = keystores.iterator(); it.hasNext();) {
             KeystoreInstance instance = (KeystoreInstance) it.next();
             try {
-                if(!instance.isKeystoreLocked() && instance.isTrustStore()) {
+                if(!instance.isKeystoreLocked() && instance.isTrustStore(null)) {
                     results.add(instance);
                 }
-            } catch (KeystoreIsLocked locked) {}
+            } catch (KeystoreException e) {}
         }
         return (KeystoreInstance[]) results.toArray(new KeystoreInstance[results.size()]);
     }

@@ -25,6 +25,7 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
 import org.apache.geronimo.console.MultiPageModel;
+import org.apache.geronimo.management.geronimo.KeystoreException;
 
 /**
  * Handler for importing a certficate issued by a CA
@@ -59,7 +60,11 @@ public class ImportCAReplyHandler extends BaseKeystoreHandler {
     		return CERTIFICATE_DETAILS+BEFORE_ACTION;
         String pkcs7cert = request.getParameter("pkcs7cert");
         KeystoreData data = ((KeystoreData) request.getPortletSession(true).getAttribute(KEYSTORE_DATA_PREFIX + id));
-        data.importPKCS7Certificate(alias, pkcs7cert);
+        try {
+            data.importPKCS7Certificate(alias, pkcs7cert);
+        } catch (KeystoreException e) {
+            throw new PortletException(e);
+        }
         return CERTIFICATE_DETAILS+BEFORE_ACTION;
     }
 }

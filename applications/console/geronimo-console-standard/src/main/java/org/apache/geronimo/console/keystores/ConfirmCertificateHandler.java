@@ -19,6 +19,7 @@ package org.apache.geronimo.console.keystores;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.MultiPageModel;
+import org.apache.geronimo.management.geronimo.KeystoreException;
 import org.apache.geronimo.util.CertificateUtil;
 
 import javax.portlet.ActionRequest;
@@ -28,7 +29,6 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
@@ -92,11 +92,9 @@ public class ConfirmCertificateHandler extends BaseKeystoreHandler {
         }
         KeystoreData data = ((KeystoreData) request.getPortletSession(true).getAttribute(KEYSTORE_DATA_PREFIX + id));
         try {
-            if(!data.importTrustCert(certificate, alias)) {
-                log.error("Unable to import certificate");
-            }
-        } catch (CertificateException e) {
-            log.error("Unable to import certificate", e);
+            data.importTrustCert(certificate, alias);
+        } catch (KeystoreException e) {
+            throw new PortletException(e);
         }
         response.setRenderParameter("id", id);
         return VIEW_KEYSTORE+BEFORE_ACTION;

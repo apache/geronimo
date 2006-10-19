@@ -19,6 +19,7 @@ package org.apache.geronimo.console.keystores;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.MultiPageModel;
+import org.apache.geronimo.management.geronimo.KeystoreException;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -94,9 +95,13 @@ public class ConfirmKeyHandler extends BaseKeystoreHandler {
         String certC = request.getParameter("certC");
 
         KeystoreData data = ((KeystoreData) request.getPortletSession(true).getAttribute(KEYSTORE_DATA_PREFIX + keystore));
-        if(!data.createKeyPair(alias, password, "RSA", Integer.parseInt(keySize), algorithm, Integer.parseInt(valid),
-                certCN, certOU, certO, certL, certST, certC)) {
-            ConfirmKeyHandler.log.error("Unable to import certificate");
+        try {
+            data.createKeyPair(alias, password, "RSA", Integer.parseInt(keySize), algorithm, Integer.parseInt(valid),
+                    certCN, certOU, certO, certL, certST, certC);
+        } catch (NumberFormatException e) {
+            throw new PortletException(e);
+        } catch (KeystoreException e) {
+            throw new PortletException(e);
         }
         response.setRenderParameter("id", keystore);
         return VIEW_KEYSTORE+BEFORE_ACTION;

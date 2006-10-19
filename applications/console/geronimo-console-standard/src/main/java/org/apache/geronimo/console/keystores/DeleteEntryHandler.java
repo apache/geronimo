@@ -17,6 +17,7 @@
 package org.apache.geronimo.console.keystores;
 
 import org.apache.geronimo.console.MultiPageModel;
+import org.apache.geronimo.management.geronimo.KeystoreException;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -42,7 +43,11 @@ public class DeleteEntryHandler extends BaseKeystoreHandler {
             response.setRenderParameter("id", id);
             if(alias != null) {
             	KeystoreData data = (KeystoreData) request.getPortletSession(true).getAttribute(KEYSTORE_DATA_PREFIX + id);
-            	data.deleteEntry(alias);
+            	try {
+                    data.deleteEntry(alias);
+                } catch (KeystoreException e) {
+                    throw new PortletException(e);
+                }
             }
         } // else we hope this is after a failure and the actionAfterView took care of it below!
         return getMode();

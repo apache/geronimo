@@ -22,6 +22,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -64,6 +65,8 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.management.geronimo.KeyNotFoundException;
+import org.apache.geronimo.management.geronimo.KeystoreException;
 import org.apache.geronimo.management.geronimo.KeystoreInstance;
 import org.apache.geronimo.management.geronimo.KeystoreIsLocked;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -130,31 +133,61 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
     public void doFail() {
     }
 
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(FileKeystoreInstance.class, NameFactory.KEYSTORE_INSTANCE);
+        infoFactory.addAttribute("keystorePath", URI.class, true, false);
+        infoFactory.addAttribute("keystoreName", String.class, true, false);
+        infoFactory.addAttribute("keystorePassword", String.class, true, true);
+        infoFactory.addAttribute("keyPasswords", String.class, true, true);
+        infoFactory.addAttribute("kernel", Kernel.class, false);
+        infoFactory.addAttribute("abstractName", AbstractName.class, false);
+        infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addInterface(KeystoreInstance.class);
+        infoFactory.setConstructor(new String[]{"ServerInfo","keystorePath", "keystoreName", "keystorePassword", "keyPasswords", "kernel", "abstractName"});
+
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
+
+
+    // KeystoreInstnace interface
+    
     public String getKeystoreName() {
         return keystoreName;
     }
 
-    public boolean unlockKeystore(char[] password) {
-        //todo: test whether password is correct and if not return false
-        try {
-            kernel.setAttribute(abstractName, "keystorePassword", password == null ? null : new String(password));
-        } catch (Exception e) {
-            throw (IllegalStateException)new IllegalStateException("Unable to set attribute keystorePassword on myself!").initCause(e);
+    public void unlockKeystore(char[] password) throws KeystoreException {
+        if (password == null) {
+            throw new NullPointerException("password is null");
         }
-        return true;
+        ensureLoaded(password);
+        try {
+            kernel.setAttribute(abstractName, "keystorePassword", new String(password));
+        } catch (Exception e) {
+            throw new KeystoreException("Unable to set attribute keystorePassword on myself!", e);
+        }
     }
 
     public void setKeystorePassword(String password) {
         keystorePassword = password == null ? null : password.toCharArray();
     }
 
-    public void lockKeystore() {
+    public void lockKeystore(char[] password) throws KeystoreException {
+        if (password == null) {
+            throw new NullPointerException("password is null");
+        }
+        ensureLoaded(password);
         try {
             kernel.setAttribute(abstractName, "keystorePassword", null);
             keyPasswords.clear();
             storePasswords();
         } catch (Exception e) {
-            throw (IllegalStateException)new IllegalStateException("Unable to set attribute keystorePassword on myself!").initCause(e);
+            throw new KeystoreException("Unable to set attribute keystorePassword on myself!", e);
         }
     }
 
@@ -162,51 +195,40 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
         return keystorePassword == null;
     }
 
-    public String[] listPrivateKeys(char[] storePassword) {
-        if(!isLoaded(storePassword)) {
-            if(!loadKeystoreData(storePassword)) {
-                return null;
-            }
-        }
+    public String[] listPrivateKeys(char[] storePassword) throws KeystoreException {
+        ensureLoaded(storePassword);
         return (String[]) privateKeys.toArray(new String[privateKeys.size()]);
     }
 
-    public boolean unlockPrivateKey(String alias, char[] password) throws KeystoreIsLocked {
-        if(isKeystoreLocked()) {
-            throw new KeystoreIsLocked("Keystore '"+keystoreName+"' is locked!");
+    public void unlockPrivateKey(String alias, char[] storePassword, char[] password) throws KeystoreException {
+        if (storePassword == null) {
+            throw new NullPointerException("storePassword is null");
         }
-        //todo: test whether password is correct and if not return false
+        getPrivateKey(alias, storePassword, password);
         keyPasswords.put(alias, password);
         storePasswords();
-        return true;
     }
 
-    public String[] getUnlockedKeys() throws KeystoreIsLocked {
-        if(isKeystoreLocked()) {
-            throw new KeystoreIsLocked("Keystore '"+keystoreName+"' is locked; please unlock it in the console.");
-        }
-        if(keystore == null || keystoreReadDate < keystoreFile.lastModified()) {
-            loadKeystoreData(keystorePassword);
-        }
+    public String[] getUnlockedKeys(char[] storePassword) throws KeystoreException {
+        ensureLoaded(storePassword);
         return (String[]) keyPasswords.keySet().toArray(new String[keyPasswords.size()]);
     }
 
-    public boolean isTrustStore() throws KeystoreIsLocked {
-        if(isKeystoreLocked()) {
-            throw new KeystoreIsLocked("Keystore '"+keystoreName+"' is locked; please unlock it in the console.");
-        }
-        if(keystore == null || keystoreReadDate < keystoreFile.lastModified()) {
-            loadKeystoreData(keystorePassword);
-        }
+    public boolean isTrustStore(char[] storePassword) throws KeystoreException {
+        ensureLoaded(storePassword);
         return trustCerts.size() > 0;
     }
 
-    public void lockPrivateKey(String alias) {
+    public void lockPrivateKey(String alias, char[] storePassword) throws KeystoreException {
+        if (storePassword == null) {
+            throw new NullPointerException("storePassword is null");
+        }
+        ensureLoaded(storePassword);
         keyPasswords.remove(alias);
         storePasswords();
     }
 
-    private void storePasswords() {
+    private void storePasswords() throws KeystoreException {
         StringBuffer buf = new StringBuffer();
         for (Iterator it = keyPasswords.entrySet().iterator(); it.hasNext();) {
             if(buf.length() > 0) {
@@ -218,7 +240,7 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
         try {
             kernel.setAttribute(abstractName, "keyPasswords", buf.length() == 0 ? null : buf.toString());
         } catch (Exception e) {
-            log.error("Unable to save key passwords in keystore '"+keystoreName+"'", e);
+            throw new KeystoreException("Unable to save key passwords in keystore '"+keystoreName+"'", e);
         }
     }
 
@@ -233,98 +255,77 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
         return keyPasswords.get(alias) == null;
     }
 
-    public String[] listTrustCertificates(char[] storePassword) {
-        if(!isLoaded(storePassword)) {
-            if(!loadKeystoreData(storePassword)) {
-                return null;
-            }
-        }
+    public String[] listTrustCertificates(char[] storePassword) throws KeystoreException {
+        ensureLoaded(storePassword);
         return (String[]) trustCerts.toArray(new String[trustCerts.size()]);
     }
 
-    public Certificate getCertificate(String alias, char[] storePassword) {
-        if(!isLoaded(storePassword)) {
-            if(!loadKeystoreData(storePassword)) {
-                return null;
-            }
+    public void importTrustCertificate(Certificate cert, String alias, char[] storePassword) throws KeystoreException {
+        if (storePassword == null) {
+            throw new NullPointerException("storePassword is null");
         }
-        try {
-            return keystore.getCertificate(alias);
-        } catch (KeyStoreException e) {
-            log.error("Unable to read certificate from keystore", e);
-        }
-        return null;
-    }
-
-    public boolean importTrustCertificate(Certificate cert, String alias, char[] storePassword) {
-        if(!isLoaded(storePassword)) {
-            if(!loadKeystoreData(storePassword)) {
-                return false;
-            }
-        }
+        ensureLoaded(storePassword);
         try {
             keystore.setCertificateEntry(alias, cert);
-            trustCerts.add(alias);
-            return saveKeystore(storePassword);
         } catch (KeyStoreException e) {
-            log.error("Unable to import certificate", e);
+            throw new KeystoreException("Unable to set certificate entry in keystore '" + keystoreName + "' for alias '" + alias + "'", e);
         }
-        return false;
+        trustCerts.add(alias);
+        saveKeystore(storePassword);
     }
 
-    public boolean generateKeyPair(String alias, char[] storePassword, char[] keyPassword, String keyAlgorithm, int keySize, String signatureAlgorithm, int validity, String commonName, String orgUnit, String organization, String locality, String state, String country) {
+    public void generateKeyPair(String alias, char[] storePassword, char[] keyPassword, String keyAlgorithm, int keySize, String signatureAlgorithm, int validity, String commonName, String orgUnit, String organization, String locality, String state, String country) throws KeystoreException {
+        if (storePassword == null) {
+            throw new NullPointerException("storePassword is null");
+        }
+        ensureLoaded(storePassword);
         try {
             KeyPairGenerator kpgen = KeyPairGenerator.getInstance(keyAlgorithm);
             kpgen.initialize(keySize);
             KeyPair keyPair = kpgen.generateKeyPair();
             X509Certificate cert = generateCertificate(keyPair.getPublic(), keyPair.getPrivate(), signatureAlgorithm,
                     validity, commonName, orgUnit, organization, locality, state, country);
-
+    
             keystore.setKeyEntry(alias, keyPair.getPrivate(), keyPassword, new Certificate[] { cert });
             privateKeys.add(alias);
-            return saveKeystore(storePassword);
-        } catch (SignatureException e) {
-            log.error("Unable to generate key pair", e);
-        } catch (InvalidKeyException e) {
-            log.error("Unable to generate key pair", e);
         } catch (KeyStoreException e) {
-            log.error("Unable to generate key pair", e);
+            throw new KeystoreException("Unable to generate key pair in keystore '" + keystoreName + "'");
+        } catch (InvalidKeyException e) {
+            throw new KeystoreException("Unable to generate key pair in keystore '" + keystoreName + "'");
+        } catch (SignatureException e) {
+            throw new KeystoreException("Unable to generate key pair in keystore '" + keystoreName + "'");
         } catch (NoSuchAlgorithmException e) {
-            log.error("Unable to generate key pair", e);
+            throw new KeystoreException("Unable to generate key pair in keystore '" + keystoreName + "'");
         }
-        return false;
+        saveKeystore(storePassword);
     }
 
 
-    public String generateCSR(String alias) {
-        // find certificate by alias
-        X509Certificate cert = null;
+    public String generateCSR(String alias, char[] storePassword) throws KeystoreException {
+        ensureLoaded(storePassword);
         try {
-            cert = (X509Certificate) keystore.getCertificate(alias);
+            // find certificate by alias
+            X509Certificate cert = (X509Certificate) keystore.getCertificate(alias);
+            // find private key by alias
+            PrivateKey key = (PrivateKey) keystore.getKey(alias, (char[])keyPasswords.get(alias));
+            // generate csr
+            String csr = generateCSR(cert, key);
+            return csr;
         } catch (KeyStoreException e) {
-            log.error("Unable to generate CSR", e);
-        }
-
-        // find private key by alias
-        PrivateKey key = null;
-        try {
-            key = (PrivateKey) keystore.getKey(alias, (char[])keyPasswords.get(alias));
-        } catch (KeyStoreException e) {
-            log.error("Unable to generate CSR", e);
+            throw new KeystoreException("Unable to generate CSR in keystore '" + keystoreName + "' for alias '" + alias + "'", e);
         } catch (NoSuchAlgorithmException e) {
-            log.error("Unable to generate CSR", e);
+            throw new KeystoreException("Unable to generate CSR in keystore '" + keystoreName + "' for alias '" + alias + "'", e);
         } catch (UnrecoverableKeyException e) {
-            log.error("Unable to generate CSR", e);
+            throw new KeystoreException("Unable to generate CSR in keystore '" + keystoreName + "' for alias '" + alias + "'", e);
+        } catch (InvalidKeyException e) {
+            throw new KeystoreException("Unable to generate CSR in keystore '" + keystoreName + "' for alias '" + alias + "'", e);
+        } catch (NoSuchProviderException e) {
+            throw new KeystoreException("Unable to generate CSR in keystore '" + keystoreName + "' for alias '" + alias + "'", e);
+        } catch (SignatureException e) {
+            throw new KeystoreException("Unable to generate CSR in keystore '" + keystoreName + "' for alias '" + alias + "'", e);
+        } catch (IOException e) {
+            throw new KeystoreException("Unable to generate CSR in keystore '" + keystoreName + "' for alias '" + alias + "'", e);
         }
-
-        // generate csr
-        String csr = null;
-        try {
-            csr = generateCSR(cert, key);
-        } catch (Exception e) {
-            log.error("Unable to generate CSR", e);
-        }
-        return csr;
     }
 
     private String generateCSR(X509Certificate cert, PrivateKey signingKey) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchProviderException, SignatureException, KeyStoreException, IOException {
@@ -368,17 +369,32 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
         return sbuf.toString();
     }
 
-    public void importPKCS7Certificate(String alias, String certbuf)
-    throws java.security.cert.CertificateException,
-    java.security.NoSuchProviderException,
-    java.security.KeyStoreException,
-    java.security.NoSuchAlgorithmException,
-    java.security.UnrecoverableKeyException, java.io.IOException {
+    public void importPKCS7Certificate(String alias, String certbuf, char[] storePassword) throws KeystoreException {
+        if (storePassword == null) {
+            throw new NullPointerException("storePassword is null");
+        }
+        ensureLoaded(storePassword);
         InputStream is = null;
-
         try {
             is = new ByteArrayInputStream(certbuf.getBytes());
-            importPKCS7Certificate(alias, is);
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            Collection certcoll = cf.generateCertificates(is);
+            Certificate[] chain = new Certificate[certcoll.size()];
+            Iterator iter = certcoll.iterator();
+            for (int i = 0; iter.hasNext(); i++) {
+                chain[i] = (Certificate) iter.next();
+            }
+            char[] keyPassword = (char[]) keyPasswords.get(alias);
+            keystore.setKeyEntry(alias, keystore.getKey(alias, keyPassword), keyPassword, chain);
+            saveKeystore(storePassword);
+        } catch (CertificateException e) {
+            throw new KeystoreException("Unable to import PKCS7 certificat in keystore '" + keystoreName + "' for alias '" + alias + "'", e);
+        } catch (KeyStoreException e) {
+            throw new KeystoreException("Unable to import PKCS7 certificat in keystore '" + keystoreName + "' for alias '" + alias + "'", e);
+        } catch (NoSuchAlgorithmException e) {
+            throw new KeystoreException("Unable to import PKCS7 certificat in keystore '" + keystoreName + "' for alias '" + alias + "'", e);
+        } catch (UnrecoverableKeyException e) {
+            throw new KeystoreException("Unable to import PKCS7 certificat in keystore '" + keystoreName + "' for alias '" + alias + "'", e);
         } finally {
             if (is != null) {
                 try {
@@ -389,112 +405,128 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
         }
     }
 
-    private void importPKCS7Certificate(String alias, InputStream is)
-        throws java.security.cert.CertificateException,
-        java.security.NoSuchProviderException,
-        java.security.KeyStoreException,
-        java.security.NoSuchAlgorithmException,
-        java.security.UnrecoverableKeyException, java.io.IOException {
-        CertificateFactory cf = CertificateFactory.getInstance("X.509");
-        Collection certcoll = cf.generateCertificates(is);
-
-        Certificate[] chain = new Certificate[certcoll.size()];
-
-        Iterator iter = certcoll.iterator();
-        for (int i = 0; iter.hasNext(); i++) {
-            chain[i] = (Certificate) iter.next();
+    public void deleteEntry(String alias, char[] storePassword) throws KeystoreException {
+        if (storePassword == null) {
+            throw new NullPointerException("storePassword is null");
         }
-
-        char[] keyPassword = (char[])keyPasswords.get(alias);
-        keystore.setKeyEntry(alias, keystore.getKey(alias, keyPassword), keyPassword,
-                chain);
-
-        saveKeystore(keystorePassword);
-    }
-
-    public void deleteEntry(String alias) {
+        ensureLoaded(storePassword);
         try {
             keystore.deleteEntry(alias);
-            privateKeys.remove(alias);
-            trustCerts.remove(alias);
-            if (keyPasswords.containsKey(alias)) {
-                keyPasswords.remove(alias);
-                storePasswords();
-            }
         } catch (KeyStoreException e) {
-            log.error("Unable to delete entry:" + alias, e);
+            throw new KeystoreException("Unable to delete key in keystore '" + keystoreName + "' for alias '" + alias + "'", e);
         }
-        saveKeystore(keystorePassword);
+        privateKeys.remove(alias);
+        trustCerts.remove(alias);
+        if (keyPasswords.containsKey(alias)) {
+            keyPasswords.remove(alias);
+            storePasswords();
+        }
+        saveKeystore(storePassword);
     }
 
-    public KeyManager[] getKeyManager(String algorithm, String alias) throws NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException, KeystoreIsLocked {
-        if(isKeystoreLocked()) {
-            throw new KeystoreIsLocked("Keystore '"+keystoreName+"' is locked; please unlock it in the console.");
-        }
-        if(keystore == null || keystoreReadDate < keystoreFile.lastModified()) {
-            loadKeystoreData(keystorePassword);
-        }
-        KeyManagerFactory keyFactory = KeyManagerFactory.getInstance(algorithm);
-        keyFactory.init(keystore, (char[]) keyPasswords.get(alias));
-        return keyFactory.getKeyManagers();
-    }
-
-    public TrustManager[] getTrustManager(String algorithm) throws KeyStoreException, NoSuchAlgorithmException, KeystoreIsLocked {
-        if(isKeystoreLocked()) {
-            throw new KeystoreIsLocked("Keystore '"+keystoreName+"' is locked; please unlock it in the console.");
-        }
-        if(keystore == null || keystoreReadDate < keystoreFile.lastModified()) {
-            loadKeystoreData(keystorePassword);
-        }
-        TrustManagerFactory trustFactory = TrustManagerFactory.getInstance(algorithm);
-        trustFactory.init(keystore);
-        return trustFactory.getTrustManagers();
-    }
-
-    private boolean saveKeystore(char[] password) {
+    public KeyManager[] getKeyManager(String algorithm, String alias, char[] storePassword) throws KeystoreException {
+        ensureLoaded(storePassword);
         try {
-            BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(keystoreFile));
-            keystore.store(out, password);
-            out.flush();
-            out.close();
-            keystoreReadDate = System.currentTimeMillis();
-            return true;
+            KeyManagerFactory keyFactory = KeyManagerFactory.getInstance(algorithm);
+            keyFactory.init(keystore, (char[]) keyPasswords.get(alias));
+            return keyFactory.getKeyManagers();
         } catch (KeyStoreException e) {
-            log.error("Unable to save keystore", e);
-        } catch (IOException e) {
-            log.error("Unable to save keystore", e);
+            throw new KeystoreException("Unable to retrieve key manager in keystore '" + keystoreName + "' for alias '" + alias + "'");
         } catch (NoSuchAlgorithmException e) {
-            log.error("Unable to save keystore", e);
-        } catch (CertificateException e) {
-            log.error("Unable to save keystore", e);
+            throw new KeystoreException("Unable to retrieve key manager in keystore '" + keystoreName + "' for alias '" + alias + "'");
+        } catch (UnrecoverableKeyException e) {
+            throw new KeystoreException("Unable to retrieve key manager in keystore '" + keystoreName + "' for alias '" + alias + "'");
         }
-        return false;
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(FileKeystoreInstance.class, NameFactory.KEYSTORE_INSTANCE);
-        infoFactory.addAttribute("keystorePath", URI.class, true, false);
-        infoFactory.addAttribute("keystoreName", String.class, true, false);
-        infoFactory.addAttribute("keystorePassword", String.class, true, true);
-        infoFactory.addAttribute("keyPasswords", String.class, true, true);
-        infoFactory.addAttribute("kernel", Kernel.class, false);
-        infoFactory.addAttribute("abstractName", AbstractName.class, false);
-        infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.addInterface(KeystoreInstance.class);
-        infoFactory.setConstructor(new String[]{"ServerInfo","keystorePath", "keystoreName", "keystorePassword", "keyPasswords", "kernel", "abstractName"});
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
+    public TrustManager[] getTrustManager(String algorithm, char[] storePassword) throws KeystoreException {
+        ensureLoaded(storePassword);
+        try {
+            TrustManagerFactory trustFactory = TrustManagerFactory.getInstance(algorithm);
+            trustFactory.init(keystore);
+            return trustFactory.getTrustManagers();
+        } catch (KeyStoreException e) {
+            throw new KeystoreException("Unable to retrieve trust manager in keystore '" + keystoreName + "'");
+        } catch (NoSuchAlgorithmException e) {
+            throw new KeystoreException("Unable to retrieve trust manager in keystore '" + keystoreName + "'");
+        }
     }
 
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
+    /**
+     * Gets the private key with the specified alias.
+     * @param alias The alias of the private key to be retrieved
+     * @param storePassword The password used to access the keystore
+     * @param keyPassword The password to use to protect the new key
+     * @return PrivateKey with the alias specified
+     */
+    public PrivateKey getPrivateKey(String alias, char[] storePassword, char[] keyPassword)  throws KeyNotFoundException, KeystoreException, KeystoreIsLocked {
+        ensureLoaded(storePassword);
+        try {
+            PrivateKey key = (PrivateKey) keystore.getKey(alias, keyPassword);
+            if (key == null) {
+                throw new KeyNotFoundException("Keystore '"+keystoreName+"' does not contain a private key with alias'"+alias+"'.");
+            }
+            return key;
+        } catch (KeyStoreException e) {
+            throw new KeystoreException("Unable to retrieve private key from keystore", e);
+        } catch (NoSuchAlgorithmException e) {
+            throw new KeystoreException("Unable to retrieve private key from keystore", e);
+        } catch (UnrecoverableKeyException e) {
+            throw new KeystoreException("Unable to retrieve private key from keystore", e);
+        }
     }
 
+    /**
+     * Gets a particular certificate from the keystore.  This may be a trust
+     * certificate or the certificate corresponding to a particular private
+     * key.
+     * This only works if the keystore is unlocked.
+     * @param alias The certificate to look at
+     * @throws KeyNotFoundException 
+     * @throws KeyStoreException 
+     */
+    public Certificate getCertificate(String alias, char[] storePassword) throws KeystoreIsLocked, KeyNotFoundException, KeystoreException {
+        ensureLoaded(storePassword);
+        try {
+            Certificate cert = keystore.getCertificate(alias);
+            if (cert == null) {
+                throw new KeyNotFoundException("Keystore '"+keystoreName+"' does not contain a certificate with alias'"+alias+"'.");
+            }
+            return cert;
+        } catch (KeyStoreException e) {
+            throw new KeystoreException("Unable to retrieve certificate from keystore", e);
+        }
+    }
+
+    public String getCertificateAlias(Certificate cert, char[] storePassword) throws KeystoreException {
+        ensureLoaded(storePassword);
+        try {
+            String alias = keystore.getCertificateAlias(cert);
+            if (alias == null) {
+                throw new KeyNotFoundException("Keystore '"+keystoreName+"' does not contain an alias corresponding to the given certificate.");
+            }
+            return alias;
+        } catch (KeyStoreException e) {
+            throw new KeystoreException("Unable to read certificate alias from keystore", e);
+        }
+    }
+
+    public Certificate[] getCertificateChain(String alias, char[] storePassword) throws KeystoreException {
+        ensureLoaded(storePassword);
+        try {
+            Certificate[] certs = keystore.getCertificateChain(alias);
+            if (certs == null) {
+                throw new KeyNotFoundException("Keystore '"+keystoreName+"' does not contain a certificate chain with alias'"+alias+"'.");
+            }
+            return certs;
+        } catch (KeyStoreException e) {
+            throw new KeystoreException("Unable to read certificate chain from keystore", e);
+        }
+    }
+    
     // ==================== Internals =====================
 
-    private boolean loadKeystoreData(char[] password) {
+    private void loadKeystoreData(char[] password) throws KeystoreException {
         try {
             keystoreReadDate = System.currentTimeMillis();
             privateKeys.clear();
@@ -515,17 +547,15 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
                     trustCerts.add(alias);
                 }
             }
-            return true;
         } catch (KeyStoreException e) {
-            log.error("Unable to open keystore with provided password", e);
+            throw new KeystoreException("Unable to open keystore with provided password", e);
         } catch (IOException e) {
-            log.error("Unable to open keystore with provided password", e);
+            throw new KeystoreException("Unable to open keystore with provided password", e);
         } catch (NoSuchAlgorithmException e) {
-            log.error("Unable to open keystore with provided password", e);
+            throw new KeystoreException("Unable to open keystore with provided password", e);
         } catch (CertificateException e) {
-            log.error("Unable to open keystore with provided password", e);
+            throw new KeystoreException("Unable to open keystore with provided password", e);
         }
-        return false;
     }
 
     private boolean isLoaded(char[] password) {
@@ -543,6 +573,21 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
         return true;
     }
 
+    private void ensureLoaded(char[] storePassword) throws KeystoreException {
+        char[] password;
+        if (storePassword == null) {
+            if (isKeystoreLocked()) {
+                throw new KeystoreIsLocked("Keystore '"+keystoreName+"' is locked; please unlock it in the console.");
+            }
+            password = keystorePassword;
+        } else {
+            password = storePassword;
+        }
+        if (!isLoaded(password)) {
+            loadKeystoreData(password);
+        }
+    }
+    
     private X509Certificate generateCertificate(PublicKey publicKey, PrivateKey privateKey, String algorithm, int validity, String commonName, String orgUnit, String organization, String locality, String state, String country) throws SignatureException, InvalidKeyException {
         X509V1CertificateGenerator certgen = new X509V1CertificateGenerator();
         Vector order = new Vector();
@@ -595,4 +640,25 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
         // make certificate
         return certgen.generateX509Certificate(privateKey);
     }
+
+    private void saveKeystore(char[] password) throws KeystoreException {
+        try {
+            BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(keystoreFile));
+            keystore.store(out, password);
+            out.flush();
+            out.close();
+            keystoreReadDate = System.currentTimeMillis();
+        } catch (KeyStoreException e) {
+            throw new KeystoreException("Unable to save keystore '" + keystoreName + "'", e);
+        } catch (FileNotFoundException e) {
+            throw new KeystoreException("Unable to save keystore '" + keystoreName + "'", e);
+        } catch (IOException e) {
+            throw new KeystoreException("Unable to save keystore '" + keystoreName + "'", e);
+        } catch (NoSuchAlgorithmException e) {
+            throw new KeystoreException("Unable to save keystore '" + keystoreName + "'", e);
+        } catch (CertificateException e) {
+            throw new KeystoreException("Unable to save keystore '" + keystoreName + "'", e);
+        }
+    }
+
 }

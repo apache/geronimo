@@ -17,7 +17,7 @@
 package org.apache.geronimo.console.keystores;
 
 import org.apache.geronimo.console.MultiPageModel;
-import org.apache.geronimo.management.geronimo.KeystoreInstance;
+import org.apache.geronimo.management.geronimo.KeystoreException;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -49,9 +49,12 @@ public class GenerateCSRHandler extends BaseKeystoreHandler {
         request.setAttribute("id", id);
         request.setAttribute("alias", alias);
         KeystoreData data = ((KeystoreData) request.getPortletSession(true).getAttribute(KEYSTORE_DATA_PREFIX + id));
-        KeystoreInstance keystoreInstance = data.getInstance();
-        String csr = keystoreInstance.generateCSR(alias);
-        request.setAttribute("csr", csr);
+        try {
+            String csr = data.generateCSR(alias);
+            request.setAttribute("csr", csr);
+        } catch (KeystoreException e) {
+            throw new PortletException(e);
+        }
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {

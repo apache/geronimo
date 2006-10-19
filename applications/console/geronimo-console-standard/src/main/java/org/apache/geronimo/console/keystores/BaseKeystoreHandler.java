@@ -17,11 +17,9 @@
 package org.apache.geronimo.console.keystores;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
@@ -36,8 +34,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.MultiPageAbstractHandler;
 import org.apache.geronimo.console.MultiPageModel;
+import org.apache.geronimo.management.geronimo.KeystoreException;
 import org.apache.geronimo.management.geronimo.KeystoreInstance;
-import org.apache.geronimo.management.geronimo.KeystoreIsLocked;
 import org.apache.geronimo.util.CertificateUtil;
 
 /**
@@ -86,6 +84,10 @@ public abstract class BaseKeystoreHandler extends MultiPageAbstractHandler {
         private Map fingerprints;
         private Map keyPasswords;
 
+        public String getName() {
+            return instance.getKeystoreName();
+        }
+        
         public KeystoreInstance getInstance() {
             return instance;
         }
@@ -94,37 +96,23 @@ public abstract class BaseKeystoreHandler extends MultiPageAbstractHandler {
             this.instance = instance;
         }
 
-        public void setPassword(char[] password) {
-            this.password = password;
-            if(password == null) { // If locking, clear all saved data
-                certificates = null;
-                keys = null;
-                fingerprints = null;
-                keyPasswords = null;
-            }
-        }
-
-        public boolean isLocked() {
+        public boolean isLockedEdit() {
             return password == null;
+        }
+        
+        public boolean isLockedUse() {
+            return instance.isKeystoreLocked();
         }
 
         public String[] getCertificates() {
             return certificates;
         }
 
-        public void setCertificates(String[] certificates) {
-            this.certificates = certificates;
-        }
-
         public String[] getKeys() {
             return keys;
         }
 
-        public void setKeys(String[] keys) {
-            this.keys = keys;
-        }
-
-        public Map getFingerprints() {
+        public Map getFingerprints() throws KeystoreException {
             if(fingerprints == null) {
                 fingerprints = new HashMap();
                 for (int i = 0; i < certificates.length; i++) {
@@ -146,69 +134,63 @@ public abstract class BaseKeystoreHandler extends MultiPageAbstractHandler {
             }
             return fingerprints;
         }
-
-        public boolean importTrustCert(String fileName, String alias) throws FileNotFoundException, CertificateException {
-            // Uploading certificate using a disk file fails on Windows.  Certificate text is used instead.
-            //InputStream is = new FileInputStream(fileName);
-            InputStream is = new ByteArrayInputStream(fileName.getBytes());
-            CertificateFactory cf = CertificateFactory.getInstance("X.509");
-            Collection certs = cf.generateCertificates(is);
-            X509Certificate cert = (X509Certificate) certs.iterator().next();
-            boolean result = instance.importTrustCertificate(cert, alias, password);
-            if(result) {
+        
+        public void importTrustCert(String fileName, String alias) throws KeystoreException {
+            try {
+                // Uploading certificate using a disk file fails on Windows.  Certificate text is used instead.
+                //InputStream is = new FileInputStream(fileName);
+                InputStream is = new ByteArrayInputStream(fileName.getBytes());
+                CertificateFactory cf = CertificateFactory.getInstance("X.509");
+                Collection certs = cf.generateCertificates(is);
+                X509Certificate cert = (X509Certificate) certs.iterator().next();
+                instance.importTrustCertificate(cert, alias, password);
                 String[] update = new String[certificates.length+1];
                 System.arraycopy(certificates, 0, update, 0, certificates.length);
                 update[certificates.length] = alias;
                 certificates = update;
-                if(fingerprints == null) {
-                    getFingerprints();
-                }
-                try {
+                if (fingerprints != null) {
                     fingerprints.put(alias, CertificateUtil.generateFingerprint(instance.getCertificate(alias, password), "MD5"));
-                } catch (Exception e) {
-                    log.error("Unable to generate certificate fingerprint", e);
                 }
+            } catch (KeystoreException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new KeystoreException("Unable to import trust certificate", e);
             }
-            return result;
         }
 
-        public boolean createKeyPair(String alias, String keyPassword, String keyAlgorithm, int keySize,
+        public void createKeyPair(String alias, String keyPassword, String keyAlgorithm, int keySize,
                                      String signatureAlgorithm, int validity, String commonName, String orgUnit,
-                                     String organization, String locality, String state, String country) {
-            boolean result = instance.generateKeyPair(alias, password, keyPassword.toCharArray(), keyAlgorithm, keySize,
-                                     signatureAlgorithm, validity, commonName, orgUnit, organization, locality, state, country);
-            if(result) {
+                                     String organization, String locality, String state, String country) throws KeystoreException {
+            try {
+                instance.generateKeyPair(alias, password, keyPassword.toCharArray(), keyAlgorithm, keySize,
+                                         signatureAlgorithm, validity, commonName, orgUnit, organization, locality, state, country);
                 String[] update = new String[keys.length+1];
                 System.arraycopy(keys, 0, update, 0, keys.length);
                 update[keys.length] = alias;
                 keys = update;
-                if(fingerprints == null) {
-                    getFingerprints();
-                }
-                try {
+                if (fingerprints != null) {
                     fingerprints.put(alias, CertificateUtil.generateFingerprint(instance.getCertificate(alias, password), "MD5"));
-                } catch (Exception e) {
-                    log.error("Unable to generate certificate fingerprint", e);
                 }
+            } catch (KeystoreException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new KeystoreException("Unable to create key pair", e);
             }
-            return result;
         }
 
-        public Certificate getCertificate(String alias) {
+        public Certificate getCertificate(String alias) throws KeystoreException {
             return instance.getCertificate(alias, password);
         }
 
-        public void unlockPrivateKey(String alias, char[] keyPassword) throws KeystoreIsLocked {
+        public void unlockPrivateKey(String alias, char[] keyPassword) throws KeystoreException {
             if(keyPasswords == null) {
                 keyPasswords = new HashMap();
             }
-            
-            if(instance.unlockPrivateKey(alias, keyPassword)) {
-                keyPasswords.put(alias, keyPassword);
-            }
+            instance.unlockPrivateKey(alias, password, keyPassword);
+            keyPasswords.put(alias, keyPassword);
         }
 
-        public void deleteEntry(String alias) {
+        public void deleteEntry(String alias) throws KeystoreException {
             for(int i = 0; i < keys.length; ++i) {
                 if(keys[i].equals(alias)) {
                     String[] temp = new String[keys.length-1];
@@ -236,20 +218,52 @@ public abstract class BaseKeystoreHandler extends MultiPageAbstractHandler {
                     break;
                 }
             }
-            instance.deleteEntry(alias);
+            instance.deleteEntry(alias, password);
             if(keyPasswords != null)
                 keyPasswords.remove(alias);
             if(fingerprints != null)
                 fingerprints.remove(alias);
         }
 
-		public void importPKCS7Certificate(String alias, String pkcs7cert) {
+		public void importPKCS7Certificate(String alias, String pkcs7cert) throws KeystoreException {
 			try {
-				instance.importPKCS7Certificate(alias, pkcs7cert);
+				instance.importPKCS7Certificate(alias, pkcs7cert, password);
 				fingerprints.put(alias, CertificateUtil.generateFingerprint(instance.getCertificate(alias, password), "MD5"));
-			} catch (Exception e) {
-				log.error("Error importing CA reply", e);
+            } catch (KeystoreException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new KeystoreException("Unable to import PKCS7 certificate", e);
 			}
 		}
+        
+        public String generateCSR(String alias) throws KeystoreException {
+            return instance.generateCSR(alias, password);
+        }
+
+        public void unlockEdit(char[] password) throws KeystoreException {
+            this.certificates = instance.listTrustCertificates(password);
+            this.keys = instance.listPrivateKeys(password);
+            // Set password last, so that if an error occurs, the keystore
+            // still appears locked (lockedEdit == false)
+            this.password = password;
+            this.fingerprints = null;
+        }
+        
+        public void lockEdit() {
+            this.password = null;
+            this.certificates = null;
+            this.keyPasswords = null;
+            this.keys = null;
+            this.fingerprints = null;
+        }
+        
+        public void lockUse() throws KeystoreException {
+            instance.lockKeystore(password);
+        }
+        
+        public void unlockUse(char[] password) throws KeystoreException {
+            instance.unlockKeystore(password);
+        }
+        
     }
 }

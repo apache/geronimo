@@ -15,14 +15,14 @@
   <tr>
     <td><a href="<portlet:actionURL portletMode="view">
                  <portlet:param name="mode" value="certificateDetails-before" />
-                 <portlet:param name="id" value="${keystore.instance.keystoreName}" />
+                 <portlet:param name="id" value="${keystore.name}" />
                  <portlet:param name="alias" value="${alias}" /></portlet:actionURL>">
         view
         </a>    
     </td>
     <td><a href="<portlet:actionURL portletMode="view">
                  <portlet:param name="mode" value="certificateDetails-before" />
-                 <portlet:param name="id" value="${keystore.instance.keystoreName}" />
+                 <portlet:param name="id" value="${keystore.name}" />
                  <portlet:param name="alias" value="${alias}" /></portlet:actionURL>">
         ${alias}
         </a>    
@@ -35,14 +35,14 @@
   <tr>
     <td><a href="<portlet:actionURL portletMode="view">
                  <portlet:param name="mode" value="certificateDetails-before" />
-                 <portlet:param name="id" value="${keystore.instance.keystoreName}" />
+                 <portlet:param name="id" value="${keystore.name}" />
                  <portlet:param name="alias" value="${alias}" /></portlet:actionURL>">
         view
         </a>    
     </td>
     <td><a href="<portlet:actionURL portletMode="view">
                  <portlet:param name="mode" value="certificateDetails-before" />
-                 <portlet:param name="id" value="${keystore.instance.keystoreName}" />
+                 <portlet:param name="id" value="${keystore.name}" />
                  <portlet:param name="alias" value="${alias}" /></portlet:actionURL>">
         ${alias}
         </a>    
@@ -54,7 +54,7 @@
 </table>
 
 <p>
-    <a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="uploadCertificate-before" /><portlet:param name="id" value="${keystore.instance.keystoreName}" /></portlet:actionURL>">Add Trust Certificate</a>
-    <a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="configureKey-before" /><portlet:param name="keystore" value="${keystore.instance.keystoreName}" /></portlet:actionURL>">Create Private Key</a>
+    <a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="uploadCertificate-before" /><portlet:param name="id" value="${keystore.name}" /></portlet:actionURL>">Add Trust Certificate</a>
+    <a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="configureKey-before" /><portlet:param name="keystore" value="${keystore.name}" /></portlet:actionURL>">Create Private Key</a>
     <a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="list-before" /></portlet:actionURL>">Return to keystore list</a>
 </p>

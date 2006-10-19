@@ -22,7 +22,7 @@ package org.apache.geronimo.management.geronimo;
  *
  * @version $Rev$ $Date$
  */
-public class KeyIsLocked extends Exception {
+public class KeyIsLocked extends KeystoreException {
     public KeyIsLocked(String message) {
         super(message);
     }

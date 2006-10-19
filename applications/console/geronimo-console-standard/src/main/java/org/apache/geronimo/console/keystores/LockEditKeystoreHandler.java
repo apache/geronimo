@@ -38,7 +38,7 @@ public class LockEditKeystoreHandler extends BaseKeystoreHandler {
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
         String keystore = request.getParameter("keystore");
         KeystoreData data = ((KeystoreData) request.getPortletSession(true).getAttribute(KEYSTORE_DATA_PREFIX + keystore));
-        data.setPassword(null);
+        data.lockEdit();
         return LIST_MODE+BEFORE_ACTION;
     }
 

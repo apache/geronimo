@@ -16,13 +16,6 @@
  */
 package org.apache.geronimo.management.geronimo;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.KeyStoreException;
-import java.security.KeyManagementException;
-import java.security.NoSuchProviderException;
-import javax.net.ServerSocketFactory;
-import javax.net.SocketFactory;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocketFactory;
 
@@ -64,7 +57,7 @@ public interface KeystoreManager {
      */
     public SSLServerSocketFactory createSSLServerFactory(String provider, String protocol, String algorithm,
                                                    String keyStore, String keyAlias, String trustStore, ClassLoader loader)
-            throws KeystoreIsLocked, KeyIsLocked, NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException, KeyManagementException, NoSuchProviderException;
+            throws KeystoreException;
 
 
     /**
@@ -91,7 +84,7 @@ public interface KeystoreManager {
      */
     public SSLSocketFactory createSSLFactory(String provider, String protocol, String algorithm,
                                                    String keyStore, String keyAlias, String trustStore, ClassLoader loader)
-            throws KeystoreIsLocked, KeyIsLocked, NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException, KeyManagementException, NoSuchProviderException;
+            throws KeystoreException;
 
 
     /**
@@ -113,7 +106,7 @@ public interface KeystoreManager {
      */
     public SSLSocketFactory createSSLFactory(String provider, String protocol, String algorithm,
                                                    String trustStore, ClassLoader loader)
-            throws KeystoreIsLocked, KeyIsLocked, NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException, KeyManagementException, NoSuchProviderException;
+            throws KeystoreException;
 
     /**
      * Creates a new, empty keystore.  The name should be a valid file name
@@ -122,7 +115,7 @@ public interface KeystoreManager {
      * @param name The name of the keystore to create
      * @param password The password to use to protect the new keystore
      */
-    public KeystoreInstance createKeystore(String name, char[] password);
+    public KeystoreInstance createKeystore(String name, char[] password) throws KeystoreException;
 
     /**
      * Gets the aliases for any keystores that are available to be used as

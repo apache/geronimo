@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletConfig;
@@ -41,8 +39,8 @@ import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
+import org.apache.geronimo.management.geronimo.KeystoreException;
 import org.apache.geronimo.management.geronimo.KeystoreInstance;
-import org.apache.geronimo.management.geronimo.KeystoreIsLocked;
 import org.apache.geronimo.management.geronimo.KeystoreManager;
 import org.apache.geronimo.management.geronimo.SecureConnector;
 import org.apache.geronimo.management.geronimo.WebConnector;
@@ -147,7 +145,7 @@ public class ConnectorPortlet extends BasePortlet {
                         for (int i = 0; i < keystores.length; i++) {
                             KeystoreInstance keystore = keystores[i];
                             if(keystore.getKeystoreName().equals(keyStore)) {
-                                keys = keystore.getUnlockedKeys();
+                                keys = keystore.getUnlockedKeys(null);
                             }
                         }
                         if(keys != null && keys.length == 1) {
@@ -155,8 +153,8 @@ public class ConnectorPortlet extends BasePortlet {
                         } else {
                             throw new PortletException("Cannot handle keystores with anything but 1 unlocked private key");
                         }
-                    } catch (KeystoreIsLocked locked) {
-                        throw new PortletException(locked.getMessage());
+                    } catch (KeystoreException e) {
+                        throw new PortletException(e);
                     }
                     String trustStore = actionRequest.getParameter("unlockTrustStore");
                     if(isValid(trustStore)) {setProperty(secure, "trustStore", trustStore);}
@@ -329,8 +327,8 @@ public class ConnectorPortlet extends BasePortlet {
                     Map aliases = new HashMap();
                     for (int i = 0; i < stores.length; i++) {
                         try {
-                            aliases.put(stores[i].getKeystoreName(), stores[i].getUnlockedKeys());
-                        } catch (KeystoreIsLocked locked) {}
+                            aliases.put(stores[i].getKeystoreName(), stores[i].getUnlockedKeys(null));
+                        } catch (KeystoreException e) {}
                     }
                     renderRequest.setAttribute("unlockedKeys", aliases);
                 }
@@ -381,8 +379,8 @@ public class ConnectorPortlet extends BasePortlet {
                         Map aliases = new HashMap();
                         for (int i = 0; i < stores.length; i++) {
                             try {
-                                aliases.put(stores[i].getKeystoreName(), stores[i].getUnlockedKeys());
-                            } catch (KeystoreIsLocked locked) {}
+                                aliases.put(stores[i].getKeystoreName(), stores[i].getUnlockedKeys(null));
+                            } catch (KeystoreException e) {}
                         }
                         renderRequest.setAttribute("unlockedKeys", aliases);
                     }

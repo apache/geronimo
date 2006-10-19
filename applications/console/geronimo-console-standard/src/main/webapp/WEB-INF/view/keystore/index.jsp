@@ -28,8 +28,8 @@ been saved in order to make the keystore available to other components in the se
   <tr>
     <td>
       <c:choose>
-        <c:when test="${keystore.locked}">
-          ${keystore.instance.keystoreName}
+        <c:when test="${keystore.lockedEdit}">
+          ${keystore.name}
         </c:when>
         <c:otherwise>
           <a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="viewKeystore-before" /><portlet:param name="id" value="${keystore.instance.keystoreName}" /></portlet:actionURL>">${keystore.instance.keystoreName}</a>
@@ -38,7 +38,7 @@ been saved in order to make the keystore available to other components in the se
     </td>
     <td>
         <c:choose>
-          <c:when test="${keystore.locked}">
+          <c:when test="${keystore.lockedEdit}">
               <i>Keystore locked</i>
           </c:when>
           <c:otherwise>
@@ -50,34 +50,34 @@ been saved in order to make the keystore available to other components in the se
     </td>
     <td>
       <c:choose>
-        <c:when test="${keystore.locked}">
+        <c:when test="${keystore.lockedEdit}">
           <a href="<portlet:actionURL portletMode="view">
             <portlet:param name="mode" value="unlockEdit-before" />
-            <portlet:param name="keystore" value="${keystore.instance.keystoreName}" />
+            <portlet:param name="keystore" value="${keystore.name}" />
             </portlet:actionURL>"><img src="<%=consoleServletPath%>/../images/ico_lock_16x16.gif" alt="Locked" /></a>
         </c:when>
         <c:otherwise>
           <a href="<portlet:actionURL portletMode="view">
             <portlet:param name="mode" value="lockEdit-before" />
-            <portlet:param name="keystore" value="${keystore.instance.keystoreName}" />
+            <portlet:param name="keystore" value="${keystore.name}" />
             </portlet:actionURL>"><img src="<%=consoleServletPath%>/../images/ico_unlock3_16x16.gif" alt="Unlocked" /></a>
         </c:otherwise>
       </c:choose>
     </td>
     <td>
       <c:choose>
-        <c:when test="${keystore.instance.keystoreLocked}">
+        <c:when test="${keystore.lockedUse}">
           <a href="<portlet:actionURL portletMode="view">
             <portlet:param name="mode" value="unlockKeystore-before" />
-            <portlet:param name="keystore" value="${keystore.instance.keystoreName}" />
+            <portlet:param name="keystore" value="${keystore.name}" />
             </portlet:actionURL>"><img src="<%=consoleServletPath%>/../images/ico_lock_16x16.gif" alt="Locked" /></a>
         </c:when>
         <c:otherwise>
           <a href="<portlet:actionURL portletMode="view">
             <portlet:param name="mode" value="lockKeystore-before" />
-            <portlet:param name="keystore" value="${keystore.instance.keystoreName}" />
+            <portlet:param name="keystore" value="${keystore.name}" />
             </portlet:actionURL> "onClick="return confirm('This keystore is currently in use.  Locking it may prevent the server from starting.  Continue?');" ><img src="<%=consoleServletPath%>/../images/ico_unlock3_16x16.gif" alt="Unlocked" /></a>
-            ${keys[keystore.instance.keystoreName]}
+            ${keys[keystore.name]}
         </c:otherwise>
       </c:choose>
     </td>

@@ -16,10 +16,9 @@
  */
 package org.apache.geronimo.management.geronimo;
 
+import java.security.PrivateKey;
 import java.security.cert.Certificate;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.KeyStoreException;
+
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.TrustManager;
 
@@ -41,14 +40,14 @@ public interface KeystoreInstance {
      *
      * @return True if the keystore was unlocked successfully
      */
-    public boolean unlockKeystore(char[] password);
+    public void unlockKeystore(char[] password) throws KeystoreException;
 
     /**
      * Clears any saved password, meaning this keystore cannot be used by other
      * server components.  You can still query and update it by passing the
      * password to other functions,
      */
-    public void lockKeystore();
+    public void lockKeystore(char[] password) throws KeystoreException;
 
     /**
      * Checks whether this keystore is unlocked, which is to say, available for
@@ -60,9 +59,12 @@ public interface KeystoreInstance {
     /**
      * Gets the aliases of all private key entries in the keystore
      *
-     * @param storePassword Used to open the keystore.
+     * @param storePassword Used to open the keystore. If null, the 
+     *    internal password will be used and may
+     * @throws KeystoreIsLocked if a null password was provided and the keystore
+     *     is locked, or if a bad password was provided
      */
-    public String[] listPrivateKeys(char[] storePassword);
+    public String[] listPrivateKeys(char[] storePassword) throws KeystoreException;
 
     /**
      * Saves a password to access a private key.  This means that if the
@@ -72,29 +74,32 @@ public interface KeystoreInstance {
      *
      * @param password The password to save.
      * @return True if the key was unlocked successfully
+     * @throws KeystoreException 
      */
-    public boolean unlockPrivateKey(String alias, char[] password) throws KeystoreIsLocked;
+    public void unlockPrivateKey(String alias, char[] storePassword, char[] keyPassword) throws KeystoreException;
 
     /**
      * Gets the aliases for all the private keys that are currently unlocked.
      * This only works if the keystore is unlocked.
      */
-    public String[] getUnlockedKeys() throws KeystoreIsLocked;
+    public String[] getUnlockedKeys(char[] storePassword) throws KeystoreException;
 
     /**
      * Checks whether this keystore can be used as a trust store (e.g. has at
      * least one trust certificate).  This only works if the keystore is
      * unlocked.
      */
-    public boolean isTrustStore() throws KeystoreIsLocked;
+    public boolean isTrustStore(char[] storePassword) throws KeystoreException;
 
     /**
      * Clears any saved password for the specified private key, meaning this
      * key cannot be used for a socket factory by other server components.
      * You can still query and update it by passing the password to other
      * functions,
+     * @param storePassword The password used to access the keystore. Must be non-null.
+     * @throws KeystoreIsLocked 
      */
-    public void lockPrivateKey(String alias);
+    public void lockPrivateKey(String alias, char[] storePassword) throws KeystoreException;
 
     /**
      * Checks whether the specified private key is locked, which is to say,
@@ -106,27 +111,46 @@ public interface KeystoreInstance {
     /**
      * Gets the aliases of all trusted certificate entries in the keystore.
      *
-     * @param storePassword Used to open the keystore.
+     * @param storePassword Used to open the keystore or null to use the internal password.
+     * @throws KeystoreIsLocked if the keystore coul not be unlocked
      */
-    public String[] listTrustCertificates(char[] storePassword);
+    public String[] listTrustCertificates(char[] storePassword) throws KeystoreException;
 
     /**
      * Gets a particular certificate from the keystore.  This may be a trust
      * certificate or the certificate corresponding to a particular private
      * key.
      * @param alias The certificate to look at
-     * @param storePassword The password to use to access the keystore
+     * @param storePassword Used to open the keystore or null to use the internal password.
+     * @throws KeystoreException 
      */
-    public Certificate getCertificate(String alias, char[] storePassword);
+    public Certificate getCertificate(String alias, char[] storePassword) throws KeystoreException;
+    
+    /**
+     * Gets a particular certificate chain from the keystore.
+     * @param alias The certificate chain to look at
+     * @param storePassword Used to open the keystore or null to use the internal password.
+     * @throws KeystoreIsLocked if the keystore coul not be unlocked
+     */
+    public Certificate[] getCertificateChain(String alias, char[] storePassword) throws KeystoreException;
+    
+    /**
+     * Gets the alias corresponding to the given certificate.    
+     * @param alias The certificate used to retrieve the alias
+     * @param storePassword Used to open the keystore or null to use the internal password.
+     * @throws KeystoreIsLocked if the keystore coul not be unlocked
+     */    
+    public String getCertificateAlias(Certificate cert, char[] storePassword) throws KeystoreException;
 
     /**
      * Adds a certificate to this keystore as a trusted certificate.
      * @param cert The certificate to add
      * @param alias The alias to list the certificate under
-     * @param storePassword The password for the keystore
+     * @param storePassword Used to open the keystore. Must be non null
      * @return True if the certificate was imported successfully
+     * @throws KeystoreException 
      */
-    public boolean importTrustCertificate(Certificate cert, String alias, char[] storePassword);
+    public void importTrustCertificate(Certificate cert, String alias, char[] storePassword) throws KeystoreException;
 
     /**
      * Generates a new private key and certificate pair in this keystore.
@@ -144,10 +168,11 @@ public interface KeystoreInstance {
      * @param state The ST portion of the identity on the certificate
      * @param country The C portion of the identity on the certificate
      * @return True if the key was generated successfully
+     * @throws KeystoreException 
      */
-    public boolean generateKeyPair(String alias, char[] storePassword, char[] keyPassword, String keyAlgorithm, int keySize,
+    public void generateKeyPair(String alias, char[] storePassword, char[] keyPassword, String keyAlgorithm, int keySize,
                                    String signatureAlgorithm, int validity, String commonName, String orgUnit,
-                                   String organization, String locality, String state, String country);
+                                   String organization, String locality, String state, String country) throws KeystoreException;
 
 
     /**
@@ -156,25 +181,38 @@ public interface KeystoreInstance {
      * allowing other components in the server to access them.
      * @param algorithm The SSL algorithm to use for this key manager
      * @param alias     The alias of the key to use in the keystore
+     * @param storePassword The password used to access the keystore
      */
-    public KeyManager[] getKeyManager(String algorithm, String alias) throws NoSuchAlgorithmException,
-            UnrecoverableKeyException, KeyStoreException, KeystoreIsLocked;
+    public KeyManager[] getKeyManager(String algorithm, String alias, char[] storePassword) throws KeystoreException;
 
     /**
      * Gets a TrustManager for this keystore.  This only works if the keystore
      * has been unlocked, allowing other components in the server to access it.
      * @param algorithm The SSL algorithm to use for this trust manager
+     * @param storePassword The password used to access the keystore
      */
-    public TrustManager[] getTrustManager(String algorithm) throws KeyStoreException, NoSuchAlgorithmException, KeystoreIsLocked;
+    public TrustManager[] getTrustManager(String algorithm, char[] storePassword) throws KeystoreException;
     
-    public String generateCSR(String alias);
+    public String generateCSR(String alias, char[] storePassword) throws KeystoreException;
     
-    public void importPKCS7Certificate(String alias, String certbuf)
-    throws java.security.cert.CertificateException,
-    java.security.NoSuchProviderException,
-    java.security.KeyStoreException,
-    java.security.NoSuchAlgorithmException,
-    java.security.UnrecoverableKeyException, java.io.IOException;
-    
-    public void deleteEntry(String alias);
+    public void importPKCS7Certificate(String alias, String certbuf, char[] storePassword) throws KeystoreException;
+
+    /**
+     * Deletes a key from this Keystore.
+     * @param alias the alias to delete
+     * @param storePassword The password used to access the keystore
+     * @return True if the key was deleted successfully
+     * @throws KeystoreException 
+     */
+    public void deleteEntry(String alias, char[] storePassword) throws KeystoreException;
+
+
+    /**
+     * Gets the private key with the specified alias.
+     * @param alias The alias of the private key to be retrieved
+     * @param storePassword The password used to access the keystore
+     * @param keyPassword The password to use to protect the new key
+     * @return PrivateKey with the alias specified
+     */
+    public PrivateKey getPrivateKey(String alias, char[] storePassword, char[] keyPassword)  throws KeystoreException;
 }
