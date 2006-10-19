@@ -78,7 +78,7 @@ import org.apache.geronimo.xbeans.j2ee.WebResourceCollectionType;
 public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     private static final Log log = LogFactory.getLog(AbstractWebModuleBuilder.class);
     private static final String LINE_SEP = System.getProperty("line.separator");
-    
+
     protected static final AbstractNameQuery MANAGED_CONNECTION_FACTORY_PATTERN;
     private static final AbstractNameQuery ADMIN_OBJECT_PATTERN;
     protected static final AbstractNameQuery STATELESS_SESSION_BEAN_PATTERN;
@@ -211,6 +211,11 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         module.setEarContext(moduleContext);
 
         try {
+            // always add WEB-INF/classes to the classpath regardless of whether
+            // any classes exist.  This must be searched BEFORE the WEB-INF/lib jar files,
+            // per the servlet specifications.
+            moduleContext.getConfiguration().addToClassPath("WEB-INF/classes/");
+
             // add the warfile's content to the configuration
             JarFile warFile = module.getModuleFile();
             Enumeration entries = warFile.entries();
@@ -225,10 +230,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
                     moduleContext.addFile(targetPath, warFile, entry);
                 }
             }
-            
-            //always add WEB-INF/classes to the classpath regardless of whether
-            //any classes exist
-            moduleContext.getConfiguration().addToClassPath("WEB-INF/classes/");
+
 
             // add the manifest classpath entries declared in the war to the class loader
             // we have to explicitly add these since we are unpacking the web module
@@ -519,19 +521,19 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     private boolean cleanupConfigurationDir(File configurationDir)
     {
         LinkedList cannotBeDeletedList = new LinkedList();
-               
+
         if (!DeploymentUtil.recursiveDelete(configurationDir,cannotBeDeletedList)) {
             // Output a message to help user track down file problem
-            log.warn("Unable to delete " + cannotBeDeletedList.size() + 
-                    " files while recursively deleting directory " 
+            log.warn("Unable to delete " + cannotBeDeletedList.size() +
+                    " files while recursively deleting directory "
                     + configurationDir + LINE_SEP +
                     "The first file that could not be deleted was:" + LINE_SEP + "  "+
                     ( !cannotBeDeletedList.isEmpty() ? cannotBeDeletedList.getFirst() : "") );
             return false;
         }
         return true;
-    }    
-    
+    }
+
     protected void processRoleRefPermissions(ServletType servletType, Set securityRoles, Map rolePermissions) {
         String servletName = servletType.getServletName().getStringValue().trim();
         //WebRoleRefPermissions
