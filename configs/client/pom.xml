@@ -66,6 +66,12 @@
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-interceptor</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-naming</artifactId>
             <version>${pom.version}</version>
         </dependency>
@@ -186,6 +192,11 @@
         <!-- geronimo-spec-corba, geronimo-j2ee_1.4_spec -->
         <!-- openejb-core, tranql, asm, activemq, activeio, scout, juddi,
              concurrent, jdom -->
+
+        <dependency>
+            <groupId>activeio</groupId>
+            <artifactId>activeio</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>backport-util-concurrent</groupId>
