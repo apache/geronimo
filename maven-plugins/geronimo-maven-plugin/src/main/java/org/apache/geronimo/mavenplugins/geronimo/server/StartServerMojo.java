@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import org.apache.maven.plugin.MojoExecutionException;
 
 import org.apache.tools.ant.taskdefs.Java;
-import org.apache.tools.ant.types.Environment;
 
 import org.apache.geronimo.genesis.util.ObjectHolder;
 import org.apache.geronimo.mavenplugins.geronimo.ServerProxy;
@@ -349,7 +348,7 @@ public class StartServerMojo
                     log.debug("Default optionSet selected, but no optionSet defined with that id; ignoring");
                 }
                 else {
-                    throw new MojoExecutionException("Missing optionSet for id: " + id);
+                    log.warn("Missing optionSet for id: " + id);
                 }
             }
             else {
@@ -362,8 +361,9 @@ public class StartServerMojo
 
     protected String getGoalName() {
         //
-        //FIXME: There has to be way this can be computed instead of hardcoded absolutely.
+        // FIXME: There has to be way this can be computed instead of hardcoded absolutely.
         //
+        
         return "start-server";
     }
 }
