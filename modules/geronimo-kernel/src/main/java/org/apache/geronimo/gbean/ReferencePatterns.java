@@ -87,4 +87,22 @@ public class ReferencePatterns implements Serializable {
             return patterns.toString();
         }
     }
+
+    public boolean equals(Object other) {
+        if (other instanceof ReferencePatterns) {
+            ReferencePatterns otherRefPat = (ReferencePatterns) other;
+            if (abstractName != null) {
+                return abstractName.equals(otherRefPat.abstractName);
+            }
+            return patterns.equals(otherRefPat.patterns);
+        }
+        return false;
+    }
+
+    public int hashCode() {
+        if (abstractName != null) {
+            return abstractName.hashCode();
+        }
+        return patterns.hashCode();
+    }
 }

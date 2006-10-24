@@ -134,7 +134,7 @@ public class GBeanOverride implements Serializable {
             // Check to see if there is a null attribute
             if (attribute.hasAttribute("null")) {
                 String nullString = attribute.getAttribute("null");
-                if (nullString.equals("true")){
+                if (nullString.equals("true")) {
                     setNullAttribute(attributeName);
                     continue;
                 }
@@ -221,7 +221,7 @@ public class GBeanOverride implements Serializable {
             } else {
                 StringWriter sw = new StringWriter();
                 PrintWriter pw = new PrintWriter(sw);
-                OutputFormat of = new OutputFormat( Method.XML, null, false );
+                OutputFormat of = new OutputFormat(Method.XML, null, false);
                 of.setOmitXMLDeclaration(true);
                 XMLSerializer serializer = new XMLSerializer(pw, of);
                 try {
@@ -348,14 +348,13 @@ public class GBeanOverride implements Serializable {
             Map.Entry entry = (Map.Entry) iterator.next();
             String name = (String) entry.getKey();
             String value = (String) entry.getValue();
-            if (value==null) {
-            	setNullAttribute(name);
-            }
-            else {
+            if (value == null) {
+                setNullAttribute(name);
+            } else {
                 if (getNullAttribute(name)) {
                     nullAttributes.remove(name);
                 }
-                if(name.toLowerCase().indexOf("password") > -1) {
+                if (name.toLowerCase().indexOf("password") > -1) {
                     value = EncryptionManager.encrypt(value);
                 }
                 Element attribute = doc.createElement("attribute");
@@ -395,7 +394,7 @@ public class GBeanOverride implements Serializable {
             reference.setAttribute("name", name);
             gbean.appendChild(reference);
             Set patternSet;
-            if(patterns.isResolved()) {
+            if (patterns.isResolved()) {
                 patternSet = Collections.singleton(new AbstractNameQuery(patterns.getAbstractName()));
             } else {
                 patternSet = patterns.getPatterns();
@@ -411,7 +410,7 @@ public class GBeanOverride implements Serializable {
                         group.appendChild(doc.createTextNode(artifact.getGroupId()));
                         pat.appendChild(group);
                     }
-                    if(artifact.getArtifactId() != null) {
+                    if (artifact.getArtifactId() != null) {
                         Element art = doc.createElement("artifactId");
                         art.appendChild(doc.createTextNode(artifact.getArtifactId()));
                         pat.appendChild(art);
@@ -426,17 +425,17 @@ public class GBeanOverride implements Serializable {
                         type.appendChild(doc.createTextNode(artifact.getType()));
                         pat.appendChild(type);
                     }
-                    Map nameMap = pattern.getName();
-                    if (nameMap.get("module") != null) {
-                        Element module = doc.createElement("module");
-                        module.appendChild(doc.createTextNode(nameMap.get("module").toString()));
-                        pat.appendChild(module);
-                    }
-                    if (nameMap.get("name") != null) {
-                        Element patName = doc.createElement("name");
-                        patName.appendChild(doc.createTextNode(nameMap.get("name").toString()));
-                        pat.appendChild(patName);
-                    }
+                }
+                Map nameMap = pattern.getName();
+                if (nameMap.get("module") != null) {
+                    Element module = doc.createElement("module");
+                    module.appendChild(doc.createTextNode(nameMap.get("module").toString()));
+                    pat.appendChild(module);
+                }
+                if (nameMap.get("name") != null) {
+                    Element patName = doc.createElement("name");
+                    patName.appendChild(doc.createTextNode(nameMap.get("name").toString()));
+                    pat.appendChild(patName);
                 }
 //                out.print(pattern.toString());
             }

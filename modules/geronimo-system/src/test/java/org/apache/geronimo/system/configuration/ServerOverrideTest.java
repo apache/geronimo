@@ -63,12 +63,12 @@ public class ServerOverrideTest extends TestCase {
         pizza.setAttribute("cheese", "mozzarella");
         assertEquals("mozzarella", pizza.getAttribute("cheese"));
 
-        AbstractNameQuery pizzaOvenQuery = getAbstractNameQuery(":name=PizzaOven,j2eeType=oven");
+        AbstractNameQuery pizzaOvenQuery = getAbstractNameQuery(":name=PizzaOven");
         ReferencePatterns pizzaOvenPatterns = new ReferencePatterns(Collections.singleton(pizzaOvenQuery));
         pizza.setReferencePatterns("oven", pizzaOvenPatterns);
         assertEquals(pizzaOvenPatterns, pizza.getReferencePatterns("oven"));
 
-        AbstractNameQuery toasterOvenQuery = getAbstractNameQuery(":name=ToasterOven,j2eeType=oven,*");
+        AbstractNameQuery toasterOvenQuery = getAbstractNameQuery(":name=ToasterOven,*");
         AbstractNameQuery[] queries = new AbstractNameQuery[]{pizzaOvenQuery, toasterOvenQuery};
         ReferencePatterns ovenPatterns = getReferencePatterns(queries);
         pizza.setReferencePatterns("oven", ovenPatterns);
@@ -111,12 +111,12 @@ public class ServerOverrideTest extends TestCase {
         pizza.setAttribute("size", "x-large");
         assertCopyIdentical(pizza);
 
-        AbstractNameQuery pizzaOvenQuery = getAbstractNameQuery(":name=PizzaOven,j2eeType=oven");
+        AbstractNameQuery pizzaOvenQuery = getAbstractNameQuery(":name=PizzaOven");
         ReferencePatterns pizzaOvenPatterns = new ReferencePatterns(Collections.singleton(pizzaOvenQuery));
         pizza.setReferencePatterns("oven", pizzaOvenPatterns);
         assertCopyIdentical(pizza);
 
-        AbstractNameQuery toasterOvenQuery = getAbstractNameQuery(":name=ToasterOven,j2eeType=oven,*");
+        AbstractNameQuery toasterOvenQuery = getAbstractNameQuery(":name=ToasterOven,*");
         AbstractNameQuery[] queries = new AbstractNameQuery[]{pizzaOvenQuery, toasterOvenQuery};
         ReferencePatterns ovenPatterns = getReferencePatterns(queries);
         pizza.setReferencePatterns("oven", ovenPatterns);
@@ -137,8 +137,8 @@ public class ServerOverrideTest extends TestCase {
         pizza.setClearAttribute("greenPeppers");
         pizza.setNullAttribute("pineapple");
 
-        AbstractNameQuery pizzaOvenQuery = getAbstractNameQuery(":name=PizzaOven,j2eeType=oven");
-        AbstractNameQuery toasterOvenQuery = getAbstractNameQuery(":name=ToasterOven,j2eeType=oven,*");
+        AbstractNameQuery pizzaOvenQuery = getAbstractNameQuery(":name=PizzaOven");
+        AbstractNameQuery toasterOvenQuery = getAbstractNameQuery(":name=ToasterOven,*");
         AbstractNameQuery[] queries = new AbstractNameQuery[]{pizzaOvenQuery, toasterOvenQuery};
         ReferencePatterns ovenPatterns = getReferencePatterns(queries);
         pizza.setReferencePatterns("oven", ovenPatterns);
@@ -168,8 +168,8 @@ public class ServerOverrideTest extends TestCase {
         pizza.setAttribute("emptyString", "");
         pizza.setClearAttribute("greenPeppers");
         pizza.setNullAttribute("pineapple");
-        AbstractNameQuery pizzaOvenQuery = getAbstractNameQuery(":name=PizzaOven,j2eeType=oven");
-        AbstractNameQuery toasterOvenQuery = getAbstractNameQuery(":name=ToasterOven,j2eeType=oven,*");
+        AbstractNameQuery pizzaOvenQuery = getAbstractNameQuery(":name=PizzaOven");
+        AbstractNameQuery toasterOvenQuery = getAbstractNameQuery(":name=ToasterOven,*");
         AbstractNameQuery[] queries = new AbstractNameQuery[]{pizzaOvenQuery, toasterOvenQuery};
         ReferencePatterns ovenPatterns = getReferencePatterns(queries);
         pizza.setReferencePatterns("oven", ovenPatterns);
@@ -199,6 +199,31 @@ public class ServerOverrideTest extends TestCase {
         }));
         drinkMenu.addGBean(wine);
         assertCopyIdentical(restaurant);
+    }
+
+    private static final String REFERENCE_XML =
+            "        <gbean name=\"EJBBuilder\">\n" +
+                    "            <attribute name=\"listener\">?name=JettyWebContainer</attribute>\n" +
+                    "            <reference name=\"ServiceBuilders\">\n" +
+                    "                <pattern>\n" +
+                    "                    <name>GBeanBuilder</name>\n" +
+                    "                </pattern>\n" +
+                    "                <pattern>\n" +
+                    "                    <name>PersistenceUnitBuilder</name>\n" +
+                    "                </pattern>\n" +
+                    "            </reference>\n" +
+                    "            <reference name=\"WebServiceBuilder\">\n" +
+                    "                <pattern>\n" +
+                    "                    <name>CXFBuilder</name>\n" +
+                    "                </pattern>\n" +
+                    "            </reference>\n" +
+                    "        </gbean>";
+
+    public void testReferenceXml() throws Exception {
+        InputStream in = new ByteArrayInputStream(REFERENCE_XML.getBytes());
+        Element gbeanElement = parseXml(in, "gbean");
+        GBeanOverride gbean = new GBeanOverride(gbeanElement);
+        assertCopyIdentical(gbean);
     }
 
     private void assertCopyIdentical(ServerOverride server) throws Exception {
@@ -263,6 +288,7 @@ public class ServerOverrideTest extends TestCase {
         assertEquals(expected.getAttributes(), actual.getAttributes());
         assertEquals(expected.getClearAttributes(), actual.getClearAttributes());
         assertEquals(expected.getNullAttributes(), actual.getNullAttributes());
+        assertEquals(expected.getReferences(), actual.getReferences());
         assertEquals(expected.getClearReferences(), actual.getClearReferences());
     }
 
