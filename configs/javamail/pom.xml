@@ -42,9 +42,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.javamail</groupId>
-            <artifactId>geronimo-javamail_1.3_mail</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-javamail_1.3.1_spec</artifactId>
         </dependency>
         
         <dependency>
