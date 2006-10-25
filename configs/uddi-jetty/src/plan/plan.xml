@@ -37,7 +37,7 @@
 
     <ext-module>
         <connector>uddi-db</connector>
-        <external-path>tranql/tranql-connector-derby-embed-local/${tranqlVendorsVersion}/rar</external-path>
+        <external-path>org.tranql/tranql-connector-derby-embed-local/${tranqlVendorsVersion}/rar</external-path>
         <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-${geronimoSchemaVersion}">
             <resourceadapter>
                 <outbound-resourceadapter>

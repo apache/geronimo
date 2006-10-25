@@ -65,7 +65,7 @@
         </dependency>
 
         <dependency>
-            <groupId>tranql</groupId>
+            <groupId>org.tranql</groupId>
             <artifactId>tranql-connector-derby-embed-xa</artifactId>
             <type>rar</type>
         </dependency>
@@ -84,7 +84,7 @@
                         <deploymentConfig>${connectorDeployer}</deploymentConfig>
                     </deploymentConfigs>
                     <module>
-                        <groupId>tranql</groupId>
+                        <groupId>org.tranql</groupId>
                         <artifactId>tranql-connector-derby-embed-xa</artifactId>
                         <type>rar</type>
                     </module>

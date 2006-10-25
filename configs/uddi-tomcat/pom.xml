@@ -54,7 +54,7 @@
         </dependency>
 
         <dependency>
-            <groupId>tranql</groupId>
+            <groupId>org.tranql</groupId>
             <artifactId>tranql-connector-derby-embed-local</artifactId>
             <type>rar</type>
         </dependency>

@@ -100,7 +100,7 @@
         </dependency>
 
         <dependency>
-            <groupId>tranql</groupId>
+            <groupId>org.tranql</groupId>
             <artifactId>tranql</artifactId>
             <scope>test</scope>
             <exclusions>
@@ -118,26 +118,5 @@
         </dependency>
 
     </dependencies>
-    
-    <!--
-    HACK: Currently need to pickup the Codehaus m1 repo for tranql-*:*
-    -->
-    <repositories>
-        <repository>
-            <id>codehaus-m1</id>
-            <name>Codehaus Maven 1 Repository</name>
-            <url>http://dist.codehaus.org</url>
-            <layout>legacy</layout>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-    </repositories>
-    
 </project>
 
