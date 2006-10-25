@@ -30,49 +30,49 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.FileWriteMonitor;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.system.repository.Maven2Repository;
 import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
 import org.apache.geronimo.system.resolver.ExplicitDefaultArtifactResolver;
 
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.plugin.logging.Log;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.InputStreamReader;
 
 import java.util.Iterator;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.Collections;
+import java.util.zip.ZipEntry;
+import java.util.jar.JarFile;
+
+import org.codehaus.plexus.util.FileUtils;
 
 /**
- * Installs CAR files into a target repository to support assembly.
+ * Installs Geronimo module CAR files into a target repository to support assembly.
  *
- * @goal installConfig
+ * @goal install-modules
  * 
  * @version $Rev$ $Date$
  */
-public class InstallConfigMojo
+public class InstallModulesMojo
     extends AbstractCarMojo
 {
     /**
-     * Root file of the TargetRepository.
-     *
-     * @parameter expression="${project.build.directory}"
-     */
-    private String targetRoot = null;
-
-    /**
-     * The location of the target repository relative to targetRoot.
+     * The location of the target repository.
      * 
-     * @parameter default-value="archive-tmp/repository"
+     * @parameter expression="${project.build.directory}/repository"
      * @required
      */
-    private String targetRepository = null;
+    private File targetRepositoryDirectory = null;
 
     /**
      * Configuration to be installed specified as groupId/artifactId/version/type
@@ -105,6 +105,7 @@ public class InstallConfigMojo
      * <p>
      * Using a custom name here to prevent problems that happen when Plexus
      * injects the Maven resolver into the base-class.
+     * </p>
      */
     private ArtifactResolver geronimoArtifactResolver;
 
@@ -122,15 +123,11 @@ public class InstallConfigMojo
         sourceRepo = new Maven2Repository(new File(sourceRepository.getBasedir()));
         sourceStore = new RepositoryConfigurationStore(sourceRepo);
 
-        File targetRepoFile = new File(targetRoot, targetRepository);
-        if (!targetRepoFile.exists()) {
-            targetRepoFile.mkdirs();
-        }
+        FileUtils.forceMkdir(targetRepositoryDirectory);
         
-        targetRepo = new Maven2Repository(targetRepoFile);
+        targetRepo = new Maven2Repository(targetRepositoryDirectory);
         targetStore = new RepositoryConfigurationStore(targetRepo);
 
-        Artifact configId;
         ArtifactManager artifactManager = new DefaultArtifactManager();
         geronimoArtifactResolver = new ExplicitDefaultArtifactResolver(
             explicitResolutionProperties.getPath(),
@@ -138,17 +135,15 @@ public class InstallConfigMojo
             Collections.singleton(sourceRepo),
             null);
 
-        if ( artifact != null ) {
-            configId = Artifact.create(artifact);
-            execute(configId);
+        if (artifact != null) {
+            install(Artifact.create(artifact));
         }
         else {
             Iterator itr = getDependencies().iterator();
             while (itr.hasNext()) {
                 org.apache.maven.artifact.Artifact mavenArtifact = (org.apache.maven.artifact.Artifact) itr.next();
                 if ("car".equals(mavenArtifact.getType())) {
-                    configId = new Artifact(mavenArtifact.getGroupId(), mavenArtifact.getArtifactId(), mavenArtifact.getVersion(), "car");
-                    execute(configId);
+                    install(new Artifact(mavenArtifact.getGroupId(), mavenArtifact.getArtifactId(), mavenArtifact.getVersion(), "car"));
                 }
             }
         }
@@ -174,31 +169,100 @@ public class InstallConfigMojo
         return dependenciesSet;
     }
 
-    private void execute(final Artifact configArtifact) throws Exception {
-        assert configArtifact != null;
+    /**
+     * Check if a module has changed by comparing the checksum in the source and target repos.
+     *
+     * @param module    The module to inspect
+     * @return          Returns true if the module has changed
+     *
+     * @throws IOException      Failed to load checksum
+     */
+    private boolean hasModuleChanged(final Artifact module) throws IOException {
+        assert module != null;
 
+        String sourceChecksum = loadChecksum(sourceRepo, module);
+        String targetChecksum = loadChecksum(targetRepo, module);
+
+        return !sourceChecksum.equals(targetChecksum);
+    }
+
+    /**
+     * Load the <tt>config.ser</tt> checksum for the given artifact.
+     * 
+     * @param repo      The repository to resolve the artifacts location.
+     * @param artifact  The artifact to retrieve a checksum for
+     * @return          Thr artifacts checksum
+     *
+     * @throws IOException  Failed to load checksums
+     */
+    private String loadChecksum(final Repository repo, final Artifact artifact) throws IOException {
+        assert repo != null;
+        assert artifact != null;
+
+        File file = repo.getLocation(artifact);
+        BufferedReader reader;
+
+        if (file.isDirectory()) {
+            File serFile = new File(file, "META-INF/config.ser.sha1");
+            reader = new BufferedReader(new FileReader(serFile));
+        }
+        else {
+            JarFile jarFile = new JarFile(file);
+            ZipEntry entry = jarFile.getEntry("META-INF/config.ser.sha1");
+            reader = new BufferedReader(new InputStreamReader(jarFile.getInputStream(entry)));
+        }
+
+        String checksum = reader.readLine();
+        reader.close();
+
+        return checksum;
+    }
+
+    private void install(final Artifact module) throws Exception {
+        assert module != null;
+
+        log.debug("Installing: " + module);
+        
         LinkedHashSet dependencies;
 
-        StartFileWriteMonitor monitor = new StartFileWriteMonitor(log);
+        FileWriteMonitor monitor = new FileWriteMonitor() {
+            public void writeStarted(String fileDescription, int fileSize) {
+                log.debug("Copying: " + fileDescription);
+            }
+
+            public void writeProgress(int bytes) {
+                // empty
+            }
+
+            public void writeComplete(int bytes) {
+                // empty
+            }
+        };
 
         // does this configuration exist?
-        if (!sourceRepo.contains(configArtifact)) {
-            throw new NoSuchConfigException(configArtifact);
+        if (!sourceRepo.contains(module)) {
+            throw new NoSuchConfigException(module);
         }
-
+        
         // is this config already installed?
-        if (targetStore.containsConfiguration(configArtifact)) {
-            log.info("Configuration already present in configuration store: " + configArtifact);
-            return;
+        if (targetStore.containsConfiguration(module)) {
+            if (hasModuleChanged(module)) {
+                log.debug("Old module exists in target store; uninstalling: " + module);
+                targetStore.uninstall(module);
+            }
+            else {
+                log.debug("Same module exists in target store; skipping: " + module);
+                return;
+            }
         }
-
-        if (sourceStore.containsConfiguration(configArtifact)) {
+        
+        if (sourceStore.containsConfiguration(module)) {
             // Copy the configuration into the target configuration store
-            if (!targetStore.containsConfiguration(configArtifact)) {
-                File sourceFile = sourceRepo.getLocation(configArtifact);
+            if (!targetStore.containsConfiguration(module)) {
+                File sourceFile = sourceRepo.getLocation(module);
                 InputStream in = new BufferedInputStream(new FileInputStream(sourceFile));
                 try {
-                    targetStore.install(in, (int)sourceFile.length(), configArtifact, monitor);
+                    targetStore.install(in, (int)sourceFile.length(), module, monitor);
                 }
                 finally {
                     in.close();
@@ -207,7 +271,7 @@ public class InstallConfigMojo
 
             // Determine the dependencies of this configuration
             try {
-                ConfigurationData configurationData = targetStore.loadConfiguration(configArtifact);
+                ConfigurationData configurationData = targetStore.loadConfiguration(module);
                 Environment environment = configurationData.getEnvironment();
                 dependencies = new LinkedHashSet();
                 for (Iterator iterator = environment.getDependencies().iterator(); iterator.hasNext();) {
@@ -215,26 +279,26 @@ public class InstallConfigMojo
                     dependencies.add(dependency.getArtifact());
                 }
 
-                log.info("Installed configuration: " + configArtifact);
+                log.info("Installed module: " + module);
             }
             catch (IOException e) {
-                throw new InvalidConfigException("Unable to load configuration: " + configArtifact, e);
+                throw new InvalidConfigException("Unable to load module: " + module, e);
             }
             catch (NoSuchConfigException e) {
-                throw new InvalidConfigException("Unable to load configuration: " + configArtifact, e);
+                throw new InvalidConfigException("Unable to load module: " + module, e);
             }
         }
         else {
-            if (!sourceRepo.contains(configArtifact)) {
-                throw new RuntimeException("Dependency: " + configArtifact + " not found in local maven repo: for configuration: " + this.artifact);
+            if (!sourceRepo.contains(module)) {
+                throw new RuntimeException("Dependency not found in local maven repo: " + module + "; for module: " + artifact);
             }
 
             // Copy the artifact into the target repo
-            if (!targetRepo.contains(configArtifact)) {
-                File sourceFile = sourceRepo.getLocation(configArtifact);
+            if (!targetRepo.contains(module)) {
+                File sourceFile = sourceRepo.getLocation(module);
                 InputStream input = new BufferedInputStream(new FileInputStream(sourceFile));
                 try {
-                    targetRepo.copyToRepository(input, (int)sourceFile.length(), configArtifact, monitor);
+                    targetRepo.copyToRepository(input, (int)sourceFile.length(), module, monitor);
                 }
                 finally {
                     input.close();
@@ -242,35 +306,13 @@ public class InstallConfigMojo
             }
 
             // Determine the dependencies of this artifact
-            dependencies = sourceRepo.getDependencies(configArtifact);
+            dependencies = sourceRepo.getDependencies(module);
         }
         
         dependencies = geronimoArtifactResolver.resolveInClassLoader(dependencies);
         for (Iterator iterator = dependencies.iterator(); iterator.hasNext();) {
             Artifact a = (Artifact)iterator.next();
-            execute(a);
-        }
-    }
-
-    private static class StartFileWriteMonitor
-        implements FileWriteMonitor
-    {
-        private Log log;
-
-        public StartFileWriteMonitor(final Log log) {
-            this.log = log;
-        }
-
-        public void writeStarted(String fileDescription, int fileSize) {
-            log.info("Copying: " + fileDescription);
-        }
-
-        public void writeProgress(int bytes) {
-            // ???
-        }
-
-        public void writeComplete(int bytes) {
-            // ???
+            install(a);
         }
     }
 }

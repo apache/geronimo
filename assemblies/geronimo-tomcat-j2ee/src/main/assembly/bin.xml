@@ -94,7 +94,7 @@
         </fileSet>
         
         <fileSet>
-            <directory>target/archive-tmp/repository</directory>
+            <directory>target/repository</directory>
             <outputDirectory>repository</outputDirectory>
         </fileSet>
         

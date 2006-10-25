@@ -382,7 +382,7 @@
                     <execution>
                         <phase>package</phase>
                         <goals>
-                            <goal>installConfig</goal>
+                            <goal>install-modules</goal>
                         </goals>
                     </execution>
                 </executions>
