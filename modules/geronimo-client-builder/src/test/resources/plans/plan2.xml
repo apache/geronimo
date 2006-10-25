@@ -24,7 +24,7 @@
         <nam:resource-link>DefaultDatabase</nam:resource-link>
     </nam:resource-ref>
     <resource>
-        <external-rar>tranql/rars/tranql-connector-1.0-SNAPSHOT</external-rar>
+        <external-rar>org.tranql/tranql-connector-ra//rar</external-rar>
         <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1">
             <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <dep:moduleId>

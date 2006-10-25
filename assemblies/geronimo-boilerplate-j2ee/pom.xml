@@ -68,7 +68,7 @@
 
                                 <artifact>
                                     <groupId>org.tranql</groupId>
-                                    <artifactId>tranql-connector</artifactId>
+                                    <artifactId>tranql-connector-ra</artifactId>
                                     <type>rar</type>
                                 </artifact>
 

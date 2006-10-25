@@ -645,7 +645,7 @@
 
             <dependency>
                 <groupId>org.tranql</groupId>
-                <artifactId>tranql-connector</artifactId>
+                <artifactId>tranql-connector-ra</artifactId>
                 <version>1.3-SNAPSHOT</version>
                 <type>rar</type>
             </dependency>
