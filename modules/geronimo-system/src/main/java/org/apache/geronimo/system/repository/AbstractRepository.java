@@ -234,7 +234,7 @@ public abstract class AbstractRepository implements WriteableRepository {
         typeHandler.install(source, size, destination, monitor, location);
         
         if (destination.getType().equalsIgnoreCase("car")) {
-            log.info("Installed module configuration; id=" + destination + "; location=" + location);
+            log.debug("Installed module configuration; id=" + destination + "; location=" + location);
         }
     }
 }
