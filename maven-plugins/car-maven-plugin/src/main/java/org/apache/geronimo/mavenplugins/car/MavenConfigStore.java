@@ -74,8 +74,9 @@ public class MavenConfigStore
     public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
         File source = configurationData.getConfigurationDir();
         if (!source.isDirectory()) {
-            throw new InvalidConfigException("Source must be a directory: source=" + source);
+            throw new InvalidConfigException("Source must be a directory: " + source);
         }
+        
         Artifact configId = configurationData.getId();
         File targetFile = repository.getLocation(configId);
         ExecutableConfigurationUtil.createExecutableConfiguration(configurationData, null, targetFile);
