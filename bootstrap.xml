@@ -83,7 +83,7 @@
     <!-- Steps -->
     <!-- ===== -->
     
-    <target name="bootstrap" depends="clean, specs, modules, openejb2, assemble"/>
+    <target name="bootstrap" depends="clean, modules, openejb2, assemble"/>
     
     <target name="modules" depends="init">
         <build-stage name="bootstrap"/>
@@ -138,11 +138,6 @@
     <!-- ========= -->
     <!-- Externals -->
     <!-- ========= -->
-    
-    <target name="specs" depends="init">
-        <echo>Building Specs...</echo>
-        <build-external url="http://svn.apache.org/repos/asf/geronimo/specs/trunk" name="specs"/>
-    </target>
     
     <target name="openejb2" depends="init">
         <echo>Building OpenEJB2...</echo>
