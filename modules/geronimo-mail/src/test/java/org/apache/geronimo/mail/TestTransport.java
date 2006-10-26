@@ -39,4 +39,8 @@ public class TestTransport extends Transport {
     public boolean isEHLO() {
         return "true".equals(session.getProperties().getProperty("mail.smtp.ehlo"));
     }
+
+    public boolean isQuitWait() {
+        return "true".equals(session.getProperties().getProperty("mail.smtp.quitwait"));
+    }
 }

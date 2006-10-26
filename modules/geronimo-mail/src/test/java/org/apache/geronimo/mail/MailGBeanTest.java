@@ -76,10 +76,16 @@ public class MailGBeanTest extends TestCase {
     }
 
     public void testSMTPOverrides() throws Exception {
+        // these are defaults, all to be overridden
         Properties properties = new Properties();
         properties.put("mail.store.protocol", "POOKIE");
         properties.put("mail.transport.protocol", "BEAR");
-        properties.put("mail.smtp.ehlo", "true");
+        properties.put("mail.smtp.ehlo", "false");
+
+        // this is done in the property bundle for the transport.
+        Properties bundle = new Properties();
+        bundle.put("mail.smtp.ehlo", "true");
+        bundle.put("mail.smtp.quitwait", "true");
 
         SMTPTransportGBean protocol = new SMTPTransportGBean("test:name=smtp", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
         protocol.doStart();

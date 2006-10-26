@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.mail;
 
+import java.util.Enumeration;
 import java.util.Properties;
 
 import org.apache.commons.logging.Log;
@@ -169,6 +170,15 @@ public class ProtocolGBean implements GBeanLifecycle {
      * Add the overrides from the member variables to the properties file.
      */
     public void addOverrides(Properties props) {
+        Enumeration keys = properties.propertyNames();
+
+        // copy the properties attribute into the over rides as well.  These are copied
+        // with the key names unchanged, so they must be specified fully qualified.
+        while (keys.hasMoreElements()) {
+            String key = (String)keys.nextElement();
+            props.put(key, properties.getProperty(key));
+        }
+
         if (host != null) props.put("mail." + protocol + ".host", host);
         if (user != null) props.put("mail." + protocol + ".user", user);
     }
