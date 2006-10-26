@@ -767,28 +767,28 @@ public class SMTPSTransportGBean extends ProtocolGBean {
     public void addOverrides(Properties props) {
         super.addOverrides(props);
 
-        if (port != null) props.put(SMTPS_PORT, port);
-        if (connectionTimeout != null) props.put(SMTPS_CONNECTION_TIMEOUT, connectionTimeout);
-        if (timeout != null) props.put(SMTPS_TIMEOUT, timeout);
-        if (from != null) props.put(SMTPS_FROM, from);
-        if (localhost != null) props.put(SMTPS_LOCALHOST, localhost);
-        if (localaddress != null) props.put(SMTPS_LOCALADDRESS, localaddress);
-        if (localport != null) props.put(SMTPS_LOCALPORT, localport);
-        if (ehlo != null) props.put(SMTPS_EHLO, ehlo);
-        if (auth != null) props.put(SMTPS_AUTH, auth);
-        if (startTLSEnable != null) props.put(SMTPS_STARTTLS_ENABLE, startTLSEnable);
-        if (submitter != null) props.put(SMTPS_SUBMITTER, submitter);
-        if (dsnNotify != null) props.put(SMTPS_DSN_NOTIFY, dsnNotify);
-        if (dsnRet != null) props.put(SMTPS_DSN_RET, dsnRet);
-        if (allow8bitmime != null) props.put(SMTPS_8BITMIME, allow8bitmime);
-        if (sendPartial != null) props.put(SMTPS_SEND_PARTIAL, sendPartial);
-        if (saslRealm != null) props.put(SMTPS_REALM, saslRealm);
-        if (quitWait != null) props.put(SMTPS_QUITWAIT, quitWait);
-        if (reportSuccess != null) props.put(SMTPS_REPORT_SUCCESS, reportSuccess);
-        if (socketFactoryClass != null) props.put(SMTPS_FACTORY_CLASS, socketFactoryClass);
-        if (socketFactoryFallback != null) props.put(SMTPS_FACTORY_FALLBACK, socketFactoryFallback);
-        if (socketFactoryPort != null) props.put(SMTPS_FACTORY_PORT, socketFactoryPort);
-        if (mailExtension != null) props.put(SMTPS_MAIL_EXTENSION, mailExtension);
+        if (port != null) props.setProperty(SMTPS_PORT, port.toString());
+        if (connectionTimeout != null) props.setProperty(SMTPS_CONNECTION_TIMEOUT, connectionTimeout.toString());
+        if (timeout != null) props.setProperty(SMTPS_TIMEOUT, timeout.toString());
+        if (from != null) props.setProperty(SMTPS_FROM, from);
+        if (localhost != null) props.setProperty(SMTPS_LOCALHOST, localhost);
+        if (localaddress != null) props.setProperty(SMTPS_LOCALADDRESS, localaddress);
+        if (localport != null) props.setProperty(SMTPS_LOCALPORT, localport.toString());
+        if (ehlo != null) props.setProperty(SMTPS_EHLO, ehlo.toString());
+        if (auth != null) props.setProperty(SMTPS_AUTH, auth.toString());
+        if (startTLSEnable != null) props.setProperty(SMTPS_STARTTLS_ENABLE, startTLSEnable.toString());
+        if (submitter != null) props.setProperty(SMTPS_SUBMITTER, submitter);
+        if (dsnNotify != null) props.setProperty(SMTPS_DSN_NOTIFY, dsnNotify.toString());
+        if (dsnRet != null) props.setProperty(SMTPS_DSN_RET, dsnRet.toString());
+        if (allow8bitmime != null) props.setProperty(SMTPS_8BITMIME, allow8bitmime.toString());
+        if (sendPartial != null) props.setProperty(SMTPS_SEND_PARTIAL, sendPartial.toString());
+        if (saslRealm != null) props.setProperty(SMTPS_REALM, saslRealm);
+        if (quitWait != null) props.setProperty(SMTPS_QUITWAIT, quitWait.toString());
+        if (reportSuccess != null) props.setProperty(SMTPS_REPORT_SUCCESS, reportSuccess.toString());
+        if (socketFactoryClass != null) props.setProperty(SMTPS_FACTORY_CLASS, socketFactoryClass);
+        if (socketFactoryFallback != null) props.setProperty(SMTPS_FACTORY_FALLBACK, socketFactoryFallback.toString());
+        if (socketFactoryPort != null) props.setProperty(SMTPS_FACTORY_PORT, socketFactoryPort.toString());
+        if (mailExtension != null) props.setProperty(SMTPS_MAIL_EXTENSION, mailExtension);
     }
 
     public void doStart() throws Exception {

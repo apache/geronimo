@@ -768,28 +768,28 @@ static public final String GBEAN_STARTTLS_ENABLE = "startTLSEnable";
     public void addOverrides(Properties props) {
         super.addOverrides(props);
 
-        if (port != null) props.put(SMTP_PORT, port);
-        if (connectionTimeout != null) props.put(SMTP_CONNECTION_TIMEOUT, connectionTimeout);
-        if (timeout != null) props.put(SMTP_TIMEOUT, timeout);
-        if (from != null) props.put(SMTP_FROM, from);
-        if (localhost != null) props.put(SMTP_LOCALHOST, localhost);
-        if (localaddress != null) props.put(SMTP_LOCALADDRESS, localaddress);
-        if (localport != null) props.put(SMTP_LOCALPORT, localport);
-        if (ehlo != null) props.put(SMTP_EHLO, ehlo);
-        if (auth != null) props.put(SMTP_AUTH, auth);
-        if (startTLSEnable != null) props.put(SMTP_STARTTLS_ENABLE, startTLSEnable);
-        if (submitter != null) props.put(SMTP_SUBMITTER, submitter);
-        if (dsnNotify != null) props.put(SMTP_DSN_NOTIFY, dsnNotify);
-        if (dsnRet != null) props.put(SMTP_DSN_RET, dsnRet);
-        if (allow8bitmime != null) props.put(SMTP_8BITMIME, allow8bitmime);
-        if (sendPartial != null) props.put(SMTP_SEND_PARTIAL, sendPartial);
-        if (saslRealm != null) props.put(SMTP_REALM, saslRealm);
-        if (quitWait != null) props.put(SMTP_QUITWAIT, quitWait);
-        if (reportSuccess != null) props.put(SMTP_REPORT_SUCCESS, reportSuccess);
-        if (socketFactoryClass != null) props.put(SMTP_FACTORY_CLASS, socketFactoryClass);
-        if (socketFactoryFallback != null) props.put(SMTP_FACTORY_FALLBACK, socketFactoryFallback);
-        if (socketFactoryPort != null) props.put(SMTP_FACTORY_PORT, socketFactoryPort);
-        if (mailExtension != null) props.put(SMTP_MAIL_EXTENSION, mailExtension);
+        if (port != null) props.setProperty(SMTP_PORT, port.toString());
+        if (connectionTimeout != null) props.setProperty(SMTP_CONNECTION_TIMEOUT, connectionTimeout.toString());
+        if (timeout != null) props.setProperty(SMTP_TIMEOUT, timeout.toString());
+        if (from != null) props.setProperty(SMTP_FROM, from);
+        if (localhost != null) props.setProperty(SMTP_LOCALHOST, localhost);
+        if (localaddress != null) props.setProperty(SMTP_LOCALADDRESS, localaddress);
+        if (localport != null) props.setProperty(SMTP_LOCALPORT, localport.toString());
+        if (ehlo != null) props.setProperty(SMTP_EHLO, ehlo.toString());
+        if (auth != null) props.setProperty(SMTP_AUTH, auth.toString());
+        if (startTLSEnable != null) props.setProperty(SMTP_STARTTLS_ENABLE, startTLSEnable.toString());
+        if (submitter != null) props.setProperty(SMTP_SUBMITTER, submitter);
+        if (dsnNotify != null) props.setProperty(SMTP_DSN_NOTIFY, dsnNotify);
+        if (dsnRet != null) props.setProperty(SMTP_DSN_RET, dsnRet);
+        if (allow8bitmime != null) props.setProperty(SMTP_8BITMIME, allow8bitmime.toString());
+        if (sendPartial != null) props.setProperty(SMTP_SEND_PARTIAL, sendPartial.toString());
+        if (saslRealm != null) props.setProperty(SMTP_REALM, saslRealm);
+        if (quitWait != null) props.setProperty(SMTP_QUITWAIT, quitWait.toString());
+        if (reportSuccess != null) props.setProperty(SMTP_REPORT_SUCCESS, reportSuccess.toString());
+        if (socketFactoryClass != null) props.setProperty(SMTP_FACTORY_CLASS, socketFactoryClass);
+        if (socketFactoryFallback != null) props.setProperty(SMTP_FACTORY_FALLBACK, socketFactoryFallback.toString());
+        if (socketFactoryPort != null) props.setProperty(SMTP_FACTORY_PORT, socketFactoryPort.toString());
+        if (mailExtension != null) props.setProperty(SMTP_MAIL_EXTENSION, mailExtension);
     }
 
     public void doStart() throws Exception {

@@ -416,17 +416,17 @@ public class POP3StoreGBean extends ProtocolGBean {
     public void addOverrides(Properties props) {
         super.addOverrides(props);
 
-        if (port != null) props.put(POP3_PORT, port);
-        if (connectionTimeout != null) props.put(POP3_CONNECTION_TIMEOUT, connectionTimeout);
-        if (timeout != null) props.put(POP3_TIMEOUT, timeout);
-        if (rsetBeforeQuit != null) props.put(POP3_RESET, rsetBeforeQuit);
-        if (messageClass != null) props.put(POP3_MESSAGE_CLASS, messageClass);
-        if (localaddress != null) props.put(POP3_LOCALADDRESS, localaddress);
-        if (localport != null) props.put(POP3_LOCALPORT, localport);
-        if (apopEnable != null) props.put(POP3_APOP, apopEnable);
-        if (socketFactoryClass != null) props.put(POP3_FACTORY_CLASS, socketFactoryClass);
-        if (socketFactoryFallback != null) props.put(POP3_FACTORY_FALLBACK, socketFactoryFallback);
-        if (socketFactoryPort != null) props.put(POP3_FACTORY_PORT, socketFactoryPort);
+        if (port != null) props.setProperty(POP3_PORT, port.toString());
+        if (connectionTimeout != null) props.setProperty(POP3_CONNECTION_TIMEOUT, connectionTimeout.toString());
+        if (timeout != null) props.setProperty(POP3_TIMEOUT, timeout.toString());
+        if (rsetBeforeQuit != null) props.setProperty(POP3_RESET, rsetBeforeQuit.toString());
+        if (messageClass != null) props.setProperty(POP3_MESSAGE_CLASS, messageClass);
+        if (localaddress != null) props.setProperty(POP3_LOCALADDRESS, localaddress);
+        if (localport != null) props.setProperty(POP3_LOCALPORT, localport.toString());
+        if (apopEnable != null) props.setProperty(POP3_APOP, apopEnable.toString());
+        if (socketFactoryClass != null) props.setProperty(POP3_FACTORY_CLASS, socketFactoryClass);
+        if (socketFactoryFallback != null) props.setProperty(POP3_FACTORY_FALLBACK, socketFactoryFallback.toString());
+        if (socketFactoryPort != null) props.setProperty(POP3_FACTORY_PORT, socketFactoryPort.toString());
     }
 
     public void doStart() throws Exception {

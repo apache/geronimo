@@ -766,28 +766,28 @@ public class IMAPStoreGBean extends ProtocolGBean {
     public void addOverrides(Properties props) {
         super.addOverrides(props);
 
-        if (port != null) props.put(IMAP_PORT, port);
-        if (partialFetch != null) props.put(IMAP_PARTIAL_FETCH, partialFetch);
-        if (fetchSize != null) props.put(IMAP_FETCH_SIZE, fetchSize);
-        if (connectionTimeout != null) props.put(IMAP_CONNECTION_TIMEOUT, connectionTimeout);
-        if (timeout != null) props.put(IMAP_TIMEOUT, timeout);
-        if (statusCacheTimeout != null) props.put(IMAP_STATUS_TIMEOUT, statusCacheTimeout);
-        if (appendBufferSize != null) props.put(IMAP_APPEND_SIZE, appendBufferSize);
-        if (connectionPoolSize != null) props.put(IMAP_POOL_SIZE, connectionPoolSize);
-        if (connectionPoolTimeout != null) props.put(IMAP_POOL_TIMEOUT, connectionPoolTimeout);
-        if (separateStoreConnection != null) props.put(IMAP_SEPARATE_STORE_CONNECTION, separateStoreConnection);
-        if (allowReadOnlySelect != null) props.put(IMAP_READONLY_SELECT, allowReadOnlySelect);
-        if (authLoginDisable != null) props.put(IMAP_LOGIN_DISABLE, authLoginDisable);
-        if (authPlainDisable != null) props.put(IMAP_PLAIN_DISABLE, authPlainDisable);
-        if (startTLSEnable != null) props.put(IMAP_STARTTLS_ENABLE, startTLSEnable);
-        if (localaddress != null) props.put(IMAP_LOCALADDRESS, localaddress);
-        if (localport != null) props.put(IMAP_LOCALPORT, localport);
-        if (saslEnable != null) props.put(IMAP_SASL_ENABLE, saslEnable);
-        if (saslMechanisms != null) props.put(IMAP_SASL_MECHANISMS, saslMechanisms);
-        if (saslAuthorizationId != null) props.put(IMAP_SASL_AUTHORIZATIONID, saslAuthorizationId);
-        if (socketFactoryClass != null) props.put(IMAP_FACTORY_CLASS, socketFactoryClass);
-        if (socketFactoryFallback != null) props.put(IMAP_FACTORY_FALLBACK, socketFactoryFallback);
-        if (socketFactoryPort != null) props.put(IMAP_FACTORY_PORT, socketFactoryPort);
+        if (port != null) props.setProperty(IMAP_PORT, port.toString());
+        if (partialFetch != null) props.setProperty(IMAP_PARTIAL_FETCH, partialFetch.toString());
+        if (fetchSize != null) props.setProperty(IMAP_FETCH_SIZE, fetchSize.toString());
+        if (connectionTimeout != null) props.setProperty(IMAP_CONNECTION_TIMEOUT, connectionTimeout.toString());
+        if (timeout != null) props.setProperty(IMAP_TIMEOUT, timeout.toString());
+        if (statusCacheTimeout != null) props.setProperty(IMAP_STATUS_TIMEOUT, statusCacheTimeout.toString());
+        if (appendBufferSize != null) props.setProperty(IMAP_APPEND_SIZE, appendBufferSize.toString());
+        if (connectionPoolSize != null) props.setProperty(IMAP_POOL_SIZE, connectionPoolSize.toString());
+        if (connectionPoolTimeout != null) props.setProperty(IMAP_POOL_TIMEOUT, connectionPoolTimeout.toString());
+        if (separateStoreConnection != null) props.setProperty(IMAP_SEPARATE_STORE_CONNECTION, separateStoreConnection.toString());
+        if (allowReadOnlySelect != null) props.setProperty(IMAP_READONLY_SELECT, allowReadOnlySelect.toString());
+        if (authLoginDisable != null) props.setProperty(IMAP_LOGIN_DISABLE, authLoginDisable.toString());
+        if (authPlainDisable != null) props.setProperty(IMAP_PLAIN_DISABLE, authPlainDisable.toString());
+        if (startTLSEnable != null) props.setProperty(IMAP_STARTTLS_ENABLE, startTLSEnable.toString());
+        if (localaddress != null) props.setProperty(IMAP_LOCALADDRESS, localaddress);
+        if (localport != null) props.setProperty(IMAP_LOCALPORT, localport.toString());
+        if (saslEnable != null) props.setProperty(IMAP_SASL_ENABLE, saslEnable.toString());
+        if (saslMechanisms != null) props.setProperty(IMAP_SASL_MECHANISMS, saslMechanisms);
+        if (saslAuthorizationId != null) props.setProperty(IMAP_SASL_AUTHORIZATIONID, saslAuthorizationId);
+        if (socketFactoryClass != null) props.setProperty(IMAP_FACTORY_CLASS, socketFactoryClass);
+        if (socketFactoryFallback != null) props.setProperty(IMAP_FACTORY_FALLBACK, socketFactoryFallback.toString());
+        if (socketFactoryPort != null) props.setProperty(IMAP_FACTORY_PORT, socketFactoryPort.toString());
     }
 
     public void doStart() throws Exception {

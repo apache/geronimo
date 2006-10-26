@@ -344,16 +344,16 @@ public class NNTPTransportGBean extends ProtocolGBean implements NNTPGBeanConsta
     public void addOverrides(Properties props) {
         super.addOverrides(props);
 
-        if (port != null) props.put(NNTP_PORT, port);
-        if (connectionTimeout != null) props.put(NNTP_CONNECTION_TIMEOUT, connectionTimeout);
-        if (timeout != null) props.put(NNTP_TIMEOUT, timeout);
-        if (from != null) props.put(NNTP_FROM, from);
-        if (auth != null) props.put(NNTP_AUTH, auth);
-        if (saslRealm != null) props.put(NNTP_REALM, saslRealm);
-        if (quitWait != null) props.put(NNTP_QUITWAIT, quitWait);
-        if (socketFactoryClass != null) props.put(NNTP_FACTORY_CLASS, socketFactoryClass);
-        if (socketFactoryFallback != null) props.put(NNTP_FACTORY_FALLBACK, socketFactoryFallback);
-        if (socketFactoryPort != null) props.put(NNTP_FACTORY_PORT, socketFactoryPort);
+        if (port != null) props.setProperty(NNTP_PORT, port.toString());
+        if (connectionTimeout != null) props.setProperty(NNTP_CONNECTION_TIMEOUT, connectionTimeout.toString());
+        if (timeout != null) props.setProperty(NNTP_TIMEOUT, timeout.toString());
+        if (from != null) props.setProperty(NNTP_FROM, from);
+        if (auth != null) props.setProperty(NNTP_AUTH, auth.toString());
+        if (saslRealm != null) props.setProperty(NNTP_REALM, saslRealm);
+        if (quitWait != null) props.setProperty(NNTP_QUITWAIT, quitWait.toString());
+        if (socketFactoryClass != null) props.setProperty(NNTP_FACTORY_CLASS, socketFactoryClass);
+        if (socketFactoryFallback != null) props.setProperty(NNTP_FACTORY_FALLBACK, socketFactoryFallback.toString());
+        if (socketFactoryPort != null) props.setProperty(NNTP_FACTORY_PORT, socketFactoryPort.toString());
     }
 
     public void doStart() throws Exception {
