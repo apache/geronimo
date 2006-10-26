@@ -252,8 +252,6 @@
                 <groupId>org.objectweb.howl</groupId>
                 <artifactId>howl</artifactId>
                 <version>1.0.1-1</version>
-                <type>jar</type>
-                <scope>compile</scope>
             </dependency>
 
             <dependency>
@@ -608,7 +606,7 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.openejb</groupId>       
+                <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-corba</artifactId>
                 <version>${openejbVersion}</version>
             </dependency>
