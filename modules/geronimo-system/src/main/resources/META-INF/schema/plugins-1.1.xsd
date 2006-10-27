@@ -26,7 +26,7 @@
         >
 
     <xs:import namespace="http://geronimo.apache.org/xml/ns/attributes-1.1"
-               schemaLocation="local-attributes-1.1.xsd"/>
+               schemaLocation="attributes-1.1.xsd"/>
 
     <xs:annotation>
         <xs:documentation>

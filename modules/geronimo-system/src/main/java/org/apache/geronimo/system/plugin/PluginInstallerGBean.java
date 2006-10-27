@@ -1251,7 +1251,7 @@ public class PluginInstallerGBean implements PluginInstaller {
                              "http://www.w3.org/2001/XMLSchema");
         factory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaSource",
                              new InputStream[]{
-                                     PluginInstallerGBean.class.getResourceAsStream("/META-INF/schema/local-attributes-1.1.xsd"),
+                                     PluginInstallerGBean.class.getResourceAsStream("/META-INF/schema/attributes-1.1.xsd"),
                                      PluginInstallerGBean.class.getResourceAsStream("/META-INF/schema/plugins-1.1.xsd"),
                              }
         );

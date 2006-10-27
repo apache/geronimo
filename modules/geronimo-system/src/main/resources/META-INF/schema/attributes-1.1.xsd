@@ -26,10 +26,9 @@
 
     <xsd:annotation>
         <xsd:documentation>
-            <![CDATA[
             The definition of the XML format for storing manageable attribute values.
             Should look like this:
-
+            <![CDATA[
             <attributes>
                 <module name="mygroup/mycomponent/1.1/jar">
                     <gbean name="MyNetworkService">
@@ -69,14 +68,12 @@
     <xsd:complexType name="gbeanType">
         <xsd:annotation>
             <xsd:documentation>
-                <![CDATA[
                 Note that the name attribute for a gbean element may hold
                 either the full GBeanName, or only the value for the
                 "name=" portion of the GBeanName.  If there are multiple
                 GBeans in the module with manageable attributes and
                 the same "name=" portion of the GBeanName, then all must be
                 listed and all must be listed with a full GBeanName.
-                ]]>
             </xsd:documentation>
         </xsd:annotation>
         <xsd:choice minOccurs="0" maxOccurs="unbounded">
@@ -89,15 +86,24 @@
     </xsd:complexType>
 
     <xsd:complexType name="attributeType">
-        <xsd:simpleContent>
-            <xsd:extension base="xsd:string">
+        <xsd:annotation>
+            <xsd:documentation>
+                Provides the definition of a single named attribute.  Attributes are mixed type
+                and can include simple text and elements.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent mixed="true">
+            <xsd:restriction base="xsd:anyType">
+                <xsd:sequence>
+                    <xsd:any minOccurs="0" maxOccurs="unbounded" processContents="lax"/>
+                </xsd:sequence>
                 <xsd:attribute name="name" use="required"/>
                 <xsd:attribute name="null" use="optional"/>
                 <xsd:attribute name="value" use="optional"/>
-            </xsd:extension>
-        </xsd:simpleContent>
+            </xsd:restriction>
+        </xsd:complexContent>
     </xsd:complexType>
-
+    
     <xsd:complexType name="referenceType">
         <xsd:sequence>
             <xsd:element name="pattern" minOccurs="0" maxOccurs="unbounded">

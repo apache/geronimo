@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Serializable;
+import java.io.StringReader;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,6 +32,9 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.DocumentBuilder;
+
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -39,12 +43,14 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.InvalidGBeanException;
+import org.apache.geronimo.kernel.util.XmlUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.util.EncryptionManager;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
 /**
  * @version $Rev$ $Date$
@@ -126,8 +132,7 @@ public class GBeanOverride implements Serializable {
 
             // Check to see if there is a value attribute
             if (attribute.hasAttribute("value")) {
-                setAttribute(attributeName, (String) EncryptionManager
-                        .decrypt(attribute.getAttribute("value")));
+                setAttribute(attributeName, (String) EncryptionManager.decrypt(attribute.getAttribute("value")));
                 continue;
             }
 
@@ -146,8 +151,7 @@ public class GBeanOverride implements Serializable {
                 setClearAttribute(attributeName);
                 continue;
             }
-            String attributeValue = (String) EncryptionManager
-                    .decrypt(rawAttribute);
+            String attributeValue = (String) EncryptionManager.decrypt(rawAttribute);
 
             setAttribute(attributeName, attributeValue);
         }
@@ -350,7 +354,8 @@ public class GBeanOverride implements Serializable {
             String value = (String) entry.getValue();
             if (value == null) {
                 setNullAttribute(name);
-            } else {
+            }
+            else {
                 if (getNullAttribute(name)) {
                     nullAttributes.remove(name);
                 }
@@ -360,10 +365,39 @@ public class GBeanOverride implements Serializable {
                 Element attribute = doc.createElement("attribute");
                 attribute.setAttribute("name", name);
                 gbean.appendChild(attribute);
-                if (value.length() == 0)
+                if (value.length() == 0) {
                     attribute.setAttribute("value", "");
-                else
-                    attribute.appendChild(doc.createTextNode(value));
+                }
+                else {
+                    try {
+                        //
+                        // NOTE: Construct a new document to handle mixed content attribute values
+                        //       then add nodes which are children of the first node.  This allows
+                        //       value to be XML or text.
+                        //
+                        
+                        DocumentBuilderFactory factory = XmlUtil.newDocumentBuilderFactory();
+                        DocumentBuilder builder = factory.newDocumentBuilder();
+
+                        // Wrap value in an element to be sure we can handle xml or text values
+                        String xml = "<fragment>" + value + "</fragment>";
+                        InputSource input = new InputSource(new StringReader(xml));
+                        Document fragment = builder.parse(input);
+
+                        Node root = fragment.getFirstChild();
+                        NodeList children = root.getChildNodes();
+                        for (int i=0; i<children.getLength(); i++) {
+                            Node child = children.item(i);
+
+                            // Import the child (and its children) into the new document
+                            child = doc.importNode(child, true);
+                            attribute.appendChild(child);
+                        }
+                    }
+                    catch (Exception e) {
+                        throw new RuntimeException("Failed to write attribute value fragment: " + e.getMessage(), e);
+                    }
+                }
             }
         }
 
@@ -393,17 +427,20 @@ public class GBeanOverride implements Serializable {
             Element reference = doc.createElement("reference");
             reference.setAttribute("name", name);
             gbean.appendChild(reference);
+
             Set patternSet;
             if (patterns.isResolved()) {
                 patternSet = Collections.singleton(new AbstractNameQuery(patterns.getAbstractName()));
             } else {
                 patternSet = patterns.getPatterns();
             }
+
             for (Iterator patternIterator = patternSet.iterator(); patternIterator.hasNext();) {
                 AbstractNameQuery pattern = (AbstractNameQuery) patternIterator.next();
                 Element pat = doc.createElement("pattern");
                 reference.appendChild(pat);
                 Artifact artifact = pattern.getArtifact();
+
                 if (artifact != null) {
                     if (artifact.getGroupId() != null) {
                         Element group = doc.createElement("groupId");
@@ -426,18 +463,19 @@ public class GBeanOverride implements Serializable {
                         pat.appendChild(type);
                     }
                 }
+
                 Map nameMap = pattern.getName();
                 if (nameMap.get("module") != null) {
                     Element module = doc.createElement("module");
                     module.appendChild(doc.createTextNode(nameMap.get("module").toString()));
                     pat.appendChild(module);
                 }
+
                 if (nameMap.get("name") != null) {
                     Element patName = doc.createElement("name");
                     patName.appendChild(doc.createTextNode(nameMap.get("name").toString()));
                     pat.appendChild(patName);
                 }
-//                out.print(pattern.toString());
             }
         }
 
@@ -448,6 +486,7 @@ public class GBeanOverride implements Serializable {
             reference.setAttribute("name", name);
             gbean.appendChild(reference);
         }
+
         return gbean;
     }
 

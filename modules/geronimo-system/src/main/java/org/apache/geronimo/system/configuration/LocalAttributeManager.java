@@ -79,13 +79,13 @@ import java.util.TimerTask;
  * @version $Rev$ $Date$
  */
 public class LocalAttributeManager implements PluginAttributeStore, PersistentConfigurationList, GBeanLifecycle {
-    private final static Log log = LogFactory.getLog(LocalAttributeManager.class);
+    private static final Log log = LogFactory.getLog(LocalAttributeManager.class);
 
-    private final static String CONFIG_FILE_PROPERTY = "org.apache.geronimo.config.file";
+    private static final String CONFIG_FILE_PROPERTY = "org.apache.geronimo.config.file";
 
-    private final static String BACKUP_EXTENSION = ".bak";
-    private final static String TEMP_EXTENSION = ".working";
-    private final static int SAVE_BUFFER_MS = 5000;
+    private static final String BACKUP_EXTENSION = ".bak";
+    private static final String TEMP_EXTENSION = ".working";
+    private static final int SAVE_BUFFER_MS = 5000;
 
     private final ServerInfo serverInfo;
     private final String configFile;
@@ -382,12 +382,8 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
             dFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaLanguage",
                                  "http://www.w3.org/2001/XMLSchema");
             
-            //
-            // TODO: Change to latest attributes schema
-            //
-            
             dFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaSource",
-                                 LocalAttributeManager.class.getResourceAsStream("/META-INF/schema/local-attributes-1.1.xsd"));
+                                 LocalAttributeManager.class.getResourceAsStream("/META-INF/schema/attributes-1.1.xsd"));
 
             DocumentBuilder builder = dFactory.newDocumentBuilder();
             builder.setErrorHandler(new ErrorHandler() {
@@ -489,7 +485,7 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         dFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaLanguage",
                              "http://www.w3.org/2001/XMLSchema");
         dFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaSource",
-                             LocalAttributeManager.class.getResourceAsStream("/META-INF/schema/local-attributes-1.1.xsd"));
+                             LocalAttributeManager.class.getResourceAsStream("/META-INF/schema/attributes-1.1.xsd"));
 
         OutputStream output = null;
         try {
@@ -498,7 +494,7 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
             TransformerFactory xfactory = XmlUtil.newTransformerFactory();
             Transformer xform = xfactory.newTransformer();
             xform.setOutputProperty(OutputKeys.INDENT, "yes");
-            xform.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+            xform.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
             output = new BufferedOutputStream(new FileOutputStream(file));
 
             // use a FileOutputStream instead of a File on the StreamResult 
