@@ -37,42 +37,42 @@
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-upgrade</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-converter</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-derby</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-connector-builder</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-security-builder</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-deploy-jsr88</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -85,7 +85,7 @@
         <dependency>
             <groupId>org.apache.geronimo.applications.console</groupId>
             <artifactId>geronimo-console-core</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
             <scope>provided</scope>
         </dependency>
         

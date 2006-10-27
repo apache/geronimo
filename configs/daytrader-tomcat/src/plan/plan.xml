@@ -526,7 +526,7 @@
                 <moduleId>
                     <groupId>${pom.groupId}</groupId>
                     <artifactId>${pom.artifactId}-streamer-client</artifactId>
-                    <version>${pom.version}</version>
+                    <version>${version}</version>
                     <type>car</type>
                 </moduleId>
             </client-environment>
@@ -534,12 +534,12 @@
                 <moduleId>
                     <groupId>${pom.groupId}</groupId>
                     <artifactId>${pom.artifactId}-streamer-client-server</artifactId>
-                    <version>${pom.version}</version>
+                    <version>${version}</version>
                     <type>car</type>
                 </moduleId>
             </server-environment>
             <resource>
-                <external-rar>geronimo/ge-activemq-rar/${pom.version}/rar</external-rar>
+                <external-rar>geronimo/ge-activemq-rar/${version}/rar</external-rar>
                 <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-${geronimoSchemaVersion}">
                     <resourceadapter>
                         <resourceadapter-instance>
@@ -627,7 +627,7 @@
 
     <ext-module>
         <connector>TradeJMS</connector>
-        <external-path>geronimo/ge-activemq-rar/${pom.version}/rar</external-path>
+        <external-path>geronimo/ge-activemq-rar/${version}/rar</external-path>
         <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-${geronimoSchemaVersion}">
 
             <resourceadapter>

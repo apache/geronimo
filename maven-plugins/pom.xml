@@ -41,7 +41,7 @@
         <dependency>
             <groupId>org.apache.geronimo.testsupport</groupId>
             <artifactId>testsupport-common</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
             <scope>test</scope>
         </dependency>
 

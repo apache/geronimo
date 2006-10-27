@@ -62,7 +62,7 @@
                                 <artifact>
                                     <groupId>org.apache.geronimo.modules</groupId>
                                     <artifactId>ge-activemq-rar</artifactId>
-                                    <version>${pom.version}</version>
+                                    <version>${version}</version>
                                     <type>rar</type>
                                 </artifact>
 
@@ -126,7 +126,7 @@
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.assemblies</groupId>
                                     <artifactId>geronimo-boilerplate-minimal</artifactId>
-                                    <version>${pom.version}</version>
+                                    <version>${version}</version>
                                     <type>jar</type>
                                 </artifactItem>
                             </artifactItems>

@@ -35,20 +35,20 @@
 
     <properties>
         <!-- This property is required by the car:package mojo -->
-        <geronimoVersion>${pom.version}</geronimoVersion>
+        <geronimoVersion>${version}</geronimoVersion>
 
         <!-- This property is required to process geronimo-plugin.xml (for m2 & m2) -->
-        <pom.currentVersion>${pom.version}</pom.currentVersion>
+        <pom.currentVersion>${version}</pom.currentVersion>
 
-        <gbeanDeployer>org.apache.geronimo.configs/geronimo-gbean-deployer/${pom.version}/car</gbeanDeployer>
-        <j2eeDeployer>org.apache.geronimo.configs/j2ee-deployer/${pom.version}/car</j2eeDeployer>
-        <clientDeployer>org.apache.geronimo.configs/client-deployer/${pom.version}/car</clientDeployer>
-        <connectorDeployer>org.apache.geronimo.configs/connector-deployer/${pom.version}/car</connectorDeployer>
-        <openejbDeployer>org.apache.geronimo.configs/openejb-deployer/${pom.version}/car</openejbDeployer>
-        <openejbcorbaDeployer>org.apache.geronimo.configs/openejb-corba-deployer/${pom.version}/car</openejbcorbaDeployer>
-        <axisDeployer>org.apache.geronimo.configs/axis-deployer/${pom.version}/car</axisDeployer>
-        <tomcatDeployer>org.apache.geronimo.configs/tomcat-deployer/${pom.version}/car</tomcatDeployer>
-        <jettyDeployer>org.apache.geronimo.configs/jetty-deployer/${pom.version}/car</jettyDeployer>
+        <gbeanDeployer>org.apache.geronimo.configs/geronimo-gbean-deployer/${version}/car</gbeanDeployer>
+        <j2eeDeployer>org.apache.geronimo.configs/j2ee-deployer/${version}/car</j2eeDeployer>
+        <clientDeployer>org.apache.geronimo.configs/client-deployer/${version}/car</clientDeployer>
+        <connectorDeployer>org.apache.geronimo.configs/connector-deployer/${version}/car</connectorDeployer>
+        <openejbDeployer>org.apache.geronimo.configs/openejb-deployer/${version}/car</openejbDeployer>
+        <openejbcorbaDeployer>org.apache.geronimo.configs/openejb-corba-deployer/${version}/car</openejbcorbaDeployer>
+        <axisDeployer>org.apache.geronimo.configs/axis-deployer/${version}/car</axisDeployer>
+        <tomcatDeployer>org.apache.geronimo.configs/tomcat-deployer/${version}/car</tomcatDeployer>
+        <jettyDeployer>org.apache.geronimo.configs/jetty-deployer/${version}/car</jettyDeployer>
 
         <!-- Common plan properties -->
         <PlanServerHostname>0.0.0.0</PlanServerHostname>
@@ -81,7 +81,7 @@
             <extension>
                 <groupId>org.apache.geronimo.plugins</groupId>
                 <artifactId>car-maven-plugin</artifactId>
-                <version>${pom.version}</version>
+                <version>${version}</version>
             </extension>
         </extensions>
         -->
@@ -91,7 +91,7 @@
                 <plugin>
                     <groupId>org.apache.geronimo.plugins</groupId>
                     <artifactId>car-maven-plugin</artifactId>
-                    <version>${pom.version}</version>
+                    <version>${version}</version>
                     <extensions>true</extensions>
                 </plugin>
             </plugins>

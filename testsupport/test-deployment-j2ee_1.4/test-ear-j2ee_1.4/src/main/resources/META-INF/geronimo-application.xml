@@ -26,7 +26,7 @@
         <moduleId>
             <groupId>${pom.groupId}</groupId>
             <artifactId>${pom.artifactId}</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
             <type>ear</type>
         </moduleId>
     </environment>

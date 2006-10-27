@@ -45,6 +45,16 @@
     </scm>
 
     <properties>
+        <!--
+        NOTE: Project version, to be used instead of ${pom.version} since that
+              value magically changes when using SNAPSHOT versions.
+              
+              This value *must* be kept in sync with the value of the <version>
+              element, and it will need to be changed manually before a release,
+              as the maven-release-plugin will not update this value.
+        -->
+        <version>1.2-SNAPSHOT</version>
+        
         <geronimoSchemaVersion>1.2</geronimoSchemaVersion>
 
         <!--
@@ -90,7 +100,13 @@
                 <artifactId>geronimo-spec-corba</artifactId>
                 <version>1.0</version>
             </dependency>
-
+            
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-corba_2.3_spec</artifactId>
+                <version>1.1</version>
+            </dependency>
+            
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-ejb_2.1_spec</artifactId>
@@ -1026,7 +1042,7 @@
                 <plugin>
                     <groupId>org.apache.geronimo.plugins</groupId>
                     <artifactId>geronimo-maven-plugin</artifactId>
-                    <version>${pom.version}</version>
+                    <version>${version}</version>
 
                     <configuration>
                         <assemblies>
@@ -1034,7 +1050,7 @@
                                 <id>jetty</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
                                 <artifactId>geronimo-jetty-j2ee</artifactId>
-                                <version>${pom.version}</version>
+                                <version>${version}</version>
                                 <classifier>bin</classifier>
                                 <type>zip</type>
                             </assembly>
@@ -1043,7 +1059,7 @@
                                 <id>jetty-minimal</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
                                 <artifactId>geronimo-jetty-minimal</artifactId>
-                                <version>${pom.version}</version>
+                                <version>${version}</version>
                                 <classifier>bin</classifier>
                                 <type>zip</type>
                             </assembly>
@@ -1052,7 +1068,7 @@
                                 <id>tomcat</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
                                 <artifactId>geronimo-tomcat-j2ee</artifactId>
-                                <version>${pom.version}</version>
+                                <version>${version}</version>
                                 <classifier>bin</classifier>
                                 <type>zip</type>
                             </assembly>
@@ -1061,7 +1077,7 @@
                                 <id>tomcat-minimal</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
                                 <artifactId>geronimo-tomcat-minimal</artifactId>
-                                <version>${pom.version}</version>
+                                <version>${version}</version>
                                 <classifier>bin</classifier>
                                 <type>zip</type>
                             </assembly>

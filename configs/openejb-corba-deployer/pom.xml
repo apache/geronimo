@@ -37,14 +37,14 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>openejb-deployer</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
             <type>car</type>
         </dependency>
         <!-- we might need to add this by hand -->
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.configs</groupId>-->
             <!--<artifactId>j2ee-corba-yoko</artifactId>-->
-            <!--<version>${pom.version}</version>-->
+            <!--<version>${version}</version>-->
             <!--<type>car</type>-->
             <!--<scope>compile</scope>-->
         <!--</dependency>-->

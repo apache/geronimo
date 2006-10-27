@@ -36,19 +36,19 @@
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-client</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
         </dependency>
 
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-connector-builder</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
         </dependency>
 
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-security-builder</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
         </dependency>
         
     </dependencies>

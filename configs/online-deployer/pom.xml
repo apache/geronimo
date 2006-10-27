@@ -55,37 +55,37 @@
                         <element>
                             <groupId>org.apache.geronimo.modules</groupId>
                             <artifactId>geronimo-common</artifactId>
-                            <version>${pom.version}</version>
+                            <version>${version}</version>
                         </element>
                         <element>
                             <groupId>org.apache.geronimo.modules</groupId>
                             <artifactId>geronimo-kernel</artifactId>
-                            <version>${pom.version}</version>
+                            <version>${version}</version>
                         </element>
                         <element>
                             <groupId>org.apache.geronimo.modules</groupId>
                             <artifactId>geronimo-system</artifactId>
-                            <version>${pom.version}</version>
+                            <version>${version}</version>
                         </element>
                         <element>
                             <groupId>org.apache.geronimo.modules</groupId>
                             <artifactId>geronimo-util</artifactId>
-                            <version>${pom.version}</version>
+                            <version>${version}</version>
                         </element>
                         <element>
                             <groupId>org.apache.geronimo.modules</groupId>
                             <artifactId>geronimo-deployment</artifactId>
-                            <version>${pom.version}</version>
+                            <version>${version}</version>
                         </element>
                         <element>
                             <groupId>org.apache.geronimo.modules</groupId>
                             <artifactId>geronimo-deploy-jsr88</artifactId>
-                            <version>${pom.version}</version>
+                            <version>${version}</version>
                         </element>
                         <element>
                             <groupId>org.apache.geronimo.modules</groupId>
                             <artifactId>geronimo-deploy-tool</artifactId>
-                            <version>${pom.version}</version>
+                            <version>${version}</version>
                         </element>
                         <element>
                             <groupId>org.apache.geronimo.specs</groupId>

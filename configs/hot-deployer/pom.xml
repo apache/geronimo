@@ -37,27 +37,27 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>rmi-naming</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
             <type>car</type>
         </dependency>
         
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-deployer</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-hot-deploy</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
         </dependency>
         
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-deploy-jsr88</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
         </dependency>
         
     </dependencies>

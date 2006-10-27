@@ -50,13 +50,13 @@
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-clustering</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
         </dependency>
 
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-jetty</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
         </dependency>
         
         <dependency>

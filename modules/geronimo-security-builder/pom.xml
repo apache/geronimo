@@ -36,19 +36,19 @@
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-security</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
         </dependency>
 
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-j2ee-builder</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
         </dependency>
 
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-service-builder</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
         </dependency>
         
     </dependencies>

@@ -8,7 +8,7 @@
 
 <attributes xmlns="http://geronimo.apache.org/xml/ns/attributes-1.1">
     
-    <module name="org.apache.geronimo.configs/rmi-naming/${pom.version}/car">
+    <module name="org.apache.geronimo.configs/rmi-naming/${version}/car">
         <gbean name="RMIRegistry">
             <attribute name="port">${PlanNamingPort}</attribute>
         </gbean>
@@ -22,11 +22,11 @@
         </gbean>
     </module>
     
-    <module name="org.apache.geronimo.configs/j2ee-server/${pom.version}/car"/>
+    <module name="org.apache.geronimo.configs/j2ee-server/${version}/car"/>
 
-    <module name="org.apache.geronimo.configs/transaction/${pom.version}/car"/>
+    <module name="org.apache.geronimo.configs/transaction/${version}/car"/>
 
-    <module name="org.apache.geronimo.configs/j2ee-security/${pom.version}/car">
+    <module name="org.apache.geronimo.configs/j2ee-security/${version}/car">
         <gbean name="JaasLoginServiceRemotingServer">
             <attribute name="host">${PlanServerHostname}</attribute>
             <attribute name="port">${PlanRemoteLoginPort}</attribute>
@@ -39,7 +39,7 @@
         </gbean>
     </module>
 
-    <module name="org.apache.geronimo.configs/tomcat/${pom.version}/car">
+    <module name="org.apache.geronimo.configs/tomcat/${version}/car">
         <gbean name="TomcatResources"/>
         <gbean name="TomcatWebConnector">
             <attribute name="host">${PlanServerHostname}</attribute>
@@ -57,33 +57,33 @@
         </gbean>
     </module>
     
-    <module name="org.apache.geronimo.configs/geronimo-gbean-deployer/${pom.version}/car"/>
+    <module name="org.apache.geronimo.configs/geronimo-gbean-deployer/${version}/car"/>
     
-    <module name="org.apache.geronimo.configs/j2ee-deployer/${pom.version}/car">
+    <module name="org.apache.geronimo.configs/j2ee-deployer/${version}/car">
         <gbean name="WebBuilder">
             <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.2</attribute>
         </gbean>
     </module>
 
-    <module name="org.apache.geronimo.configs/connector-deployer/${pom.version}/car"/>
+    <module name="org.apache.geronimo.configs/connector-deployer/${version}/car"/>
 
-    <module name="org.apache.geronimo.configs/tomcat-deployer/${pom.version}/car"/>
+    <module name="org.apache.geronimo.configs/tomcat-deployer/${version}/car"/>
 
-    <module name="org.apache.geronimo.configs/unavailable-ejb-deployer/${pom.version}/car"/>
+    <module name="org.apache.geronimo.configs/unavailable-ejb-deployer/${version}/car"/>
 
-    <module name="org.apache.geronimo.configs/unavailable-webservices-deployer/${pom.version}/car"/>
+    <module name="org.apache.geronimo.configs/unavailable-webservices-deployer/${version}/car"/>
     
-    <module name="org.apache.geronimo.configs/unavailable-client-deployer/${pom.version}/car"/>
+    <module name="org.apache.geronimo.configs/unavailable-client-deployer/${version}/car"/>
 
-    <module name="org.apache.geronimo.configs/sharedlib/${pom.version}/car">
+    <module name="org.apache.geronimo.configs/sharedlib/${version}/car">
         <gbean name="SharedLib">
             <attribute name="classesDirs">var/shared/classes</attribute>
             <attribute name="libDirs">var/shared/lib</attribute>
         </gbean>
     </module>
 
-    <module name="org.apache.geronimo.configs/remote-deploy-tomcat/${pom.version}/car"/>
+    <module name="org.apache.geronimo.configs/remote-deploy-tomcat/${version}/car"/>
     
-    <module name="org.apache.geronimo.configs/hot-deployer/${pom.version}/car"/>
+    <module name="org.apache.geronimo.configs/hot-deployer/${version}/car"/>
     
 </attributes>

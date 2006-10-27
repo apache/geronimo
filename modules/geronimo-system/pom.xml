@@ -36,19 +36,19 @@
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-common</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-util</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-kernel</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
         </dependency>
         
         <dependency>
@@ -107,7 +107,7 @@
                                     file="${pom.basedir}/target/classes/org/apache/geronimo/system/serverinfo/geronimo-version.properties"
                                     comment="Geronimo version information (generated, do not modify)">
                                     
-                                    <entry key="version" value="${pom.version}"/>
+                                    <entry key="version" value="${version}"/>
                                     <entry key="build.date" type="date" value="now" pattern="yyyy.MM.dd"/>
                                     <entry key="build.time" type="date" value="now" pattern="HH:mm:ss.SSSZ"/>
                                     <entry key="copyright" value="Copyright (C) 2003-${build.year}, The Apache Software Foundation"/>

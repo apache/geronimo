@@ -62,7 +62,7 @@
     <!--
     <gbean name="SSLClientCert" class="org.apache.openejb.corba.CSSBeanGBean">
         <reference name="TransactionManager">
-            <module>geronimo/client/${pom.version}/car</module>
+            <module>geronimo/client/${version}/car</module>
             <name>TransactionManager</name>
         </reference>
         <reference name="ConfigAdapter">
@@ -92,7 +92,7 @@
 
     <gbean name="SSLClientPassword" class="org.apache.openejb.corba.CSSBeanGBean">
         <reference name="TransactionManager">
-            <module>geronimo/client/${pom.version}/car</module>
+            <module>geronimo/client/${version}/car</module>
             <name>TransactionManager</name>
         </reference>
         <reference name="ConfigAdapter">
@@ -122,7 +122,7 @@
 
     <gbean name="NoSecurity" class="org.apache.openejb.corba.CSSBeanGBean">
         <reference name="TransactionManager">
-            <module>geronimo/client/${pom.version}/car</module>
+            <module>geronimo/client/${version}/car</module>
             <name>TransactionManager</name>
         </reference>
         <reference name="ConfigAdapter">

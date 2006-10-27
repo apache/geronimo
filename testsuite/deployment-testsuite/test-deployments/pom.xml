@@ -83,14 +83,14 @@
                                 <module>
                                     <groupId>org.apache.geronimo.testsupport</groupId>
                                     <artifactId>test-ear-j2ee_1.3</artifactId>
-                                    <version>${pom.version}</version>
+                                    <version>${version}</version>
                                     <type>ear</type>
                                 </module>
                                 
                                 <module>
                                     <groupId>org.apache.geronimo.testsupport</groupId>
                                     <artifactId>test-ear-j2ee_1.4</artifactId>
-                                    <version>${pom.version}</version>
+                                    <version>${version}</version>
                                     <type>ear</type>
                                 </module>
                             </modules>
@@ -108,7 +108,7 @@
                                 <module>
                                     <groupId>org.apache.geronimo.testsupport</groupId>
                                     <artifactId>test-ear-j2ee_1.3</artifactId>
-                                    <version>${pom.version}</version>
+                                    <version>${version}</version>
                                     <type>ear</type>
                                 </module>
                           </modules>
@@ -122,7 +122,7 @@
                             <goal>undeploy-module</goal>
                         </goals>
                         <configuration>
-                            <moduleId>org.apache.geronimo.testsupport/test-ear-j2ee_1.4/${pom.version}/ear</moduleId>
+                            <moduleId>org.apache.geronimo.testsupport/test-ear-j2ee_1.4/${version}/ear</moduleId>
                         </configuration>
                     </execution>
                 </executions>

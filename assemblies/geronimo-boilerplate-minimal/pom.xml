@@ -112,37 +112,37 @@
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.modules</groupId>
                                     <artifactId>geronimo-common</artifactId>
-                                    <version>${pom.version}</version>
+                                    <version>${version}</version>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.modules</groupId>
                                     <artifactId>geronimo-deploy-jsr88</artifactId>
-                                    <version>${pom.version}</version>
+                                    <version>${version}</version>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.modules</groupId>
                                     <artifactId>geronimo-deploy-tool</artifactId>
-                                    <version>${pom.version}</version>
+                                    <version>${version}</version>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.modules</groupId>
                                     <artifactId>geronimo-deployment</artifactId>
-                                    <version>${pom.version}</version>
+                                    <version>${version}</version>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.modules</groupId>
                                     <artifactId>geronimo-kernel</artifactId>
-                                    <version>${pom.version}</version>
+                                    <version>${version}</version>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.modules</groupId>
                                     <artifactId>geronimo-util</artifactId>
-                                    <version>${pom.version}</version>
+                                    <version>${version}</version>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.modules</groupId>
                                     <artifactId>geronimo-system</artifactId>
-                                    <version>${pom.version}</version>
+                                    <version>${version}</version>
                                 </artifactItem>
                             </artifactItems>
                             <outputDirectory>${project.build.directory}/classes/lib</outputDirectory>
@@ -182,52 +182,52 @@
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.modules</groupId>
                                     <artifactId>geronimo-system</artifactId>
-                                    <version>${pom.version}</version>
+                                    <version>${version}</version>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.modules</groupId>
                                     <artifactId>geronimo-axis-builder</artifactId>
-                                    <version>${pom.version}</version>
+                                    <version>${version}</version>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.modules</groupId>
                                     <artifactId>geronimo-client-builder</artifactId>
-                                    <version>${pom.version}</version>
+                                    <version>${version}</version>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.modules</groupId>
                                     <artifactId>geronimo-connector-builder</artifactId>
-                                    <version>${pom.version}</version>
+                                    <version>${version}</version>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.modules</groupId>
                                     <artifactId>geronimo-j2ee-builder</artifactId>
-                                    <version>${pom.version}</version>
+                                    <version>${version}</version>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.modules</groupId>
                                     <artifactId>geronimo-naming-builder</artifactId>
-                                    <version>${pom.version}</version>
+                                    <version>${version}</version>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.modules</groupId>
                                     <artifactId>geronimo-security-builder</artifactId>
-                                    <version>${pom.version}</version>
+                                    <version>${version}</version>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.modules</groupId>
                                     <artifactId>geronimo-service-builder</artifactId>
-                                    <version>${pom.version}</version>
+                                    <version>${version}</version>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.modules</groupId>
                                     <artifactId>geronimo-web-builder</artifactId>
-                                    <version>${pom.version}</version>
+                                    <version>${version}</version>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.modules</groupId>
                                     <artifactId>geronimo-j2ee-builder</artifactId>
-                                    <version>${pom.version}</version>
+                                    <version>${version}</version>
                                 </artifactItem>
                             </artifactItems>
                             <outputDirectory>${project.build.directory}/scratch/schema</outputDirectory>

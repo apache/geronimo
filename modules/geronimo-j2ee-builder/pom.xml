@@ -36,19 +36,19 @@
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-security</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
         </dependency>
 
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-service-builder</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
         </dependency>
 
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-j2ee-schema</artifactId>
-            <version>${pom.version}</version>
+            <version>${version}</version>
         </dependency>
         
     </dependencies>
@@ -72,7 +72,7 @@
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.testsupport</groupId>
                                     <artifactId>test-ear-j2ee_1.3</artifactId>
-                                    <version>${pom.version}</version>
+                                    <version>${version}</version>
                                     <type>ear</type>
                                     <destFileName>test-ear-j2ee_1.3.ear</destFileName>
                                 </artifactItem>
@@ -80,7 +80,7 @@
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.testsupport</groupId>
                                     <artifactId>test-ear-j2ee_1.3</artifactId>
-                                    <version>${pom.version}</version>
+                                    <version>${version}</version>
                                     <type>ear</type>
                                     <!--
                                     FIXME: need to remove the geronimo-application.xml file from this ear.
@@ -91,7 +91,7 @@
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.testsupport</groupId>
                                     <artifactId>test-ear-j2ee_1.4</artifactId>
-                                    <version>${pom.version}</version>
+                                    <version>${version}</version>
                                     <type>ear</type>
                                     <destFileName>test-ear-j2ee_1.4.ear</destFileName>
                                 </artifactItem>
@@ -99,7 +99,7 @@
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.testsupport</groupId>
                                     <artifactId>test-ear-j2ee_1.4</artifactId>
-                                    <version>${pom.version}</version>
+                                    <version>${version}</version>
                                     <type>ear</type>
                                     <!--
                                     FIXME: need to remove the geronimo-application.xml file from this ear.
