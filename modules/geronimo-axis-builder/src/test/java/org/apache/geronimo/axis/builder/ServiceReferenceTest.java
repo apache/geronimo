@@ -80,6 +80,7 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingDocument;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
 import org.apache.geronimo.xbeans.j2ee.PackageMappingType;
+import org.apache.geronimo.webservices.builder.SchemaInfoBuilder;
 
 /**
  * @version $Rev:385232 $ $Date$
@@ -112,7 +113,7 @@ public class ServiceReferenceTest
         Jsr77Naming naming = new Jsr77Naming();
         ArtifactManager artifactManager = new DefaultArtifactManager();
         ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.EMPTY_SET, null);
-        ConfigurationManager configurationManager = new SimpleConfigurationManager(Collections.EMPTY_SET, artifactResolver, Collections.EMPTY_SET);        
+        ConfigurationManager configurationManager = new SimpleConfigurationManager(Collections.EMPTY_SET, artifactResolver, Collections.EMPTY_SET);
         AbstractName moduleName = naming.createRootName(configID, "testejb", NameFactory.EJB_MODULE);
         context = new DeploymentContext(tmpbasedir, null, environment, moduleName, ConfigurationModuleType.CAR, naming, configurationManager, Collections.EMPTY_SET);
 

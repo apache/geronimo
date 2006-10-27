@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.axis.builder;
+package org.apache.geronimo.webservices.builder;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,7 +47,7 @@ import com.ibm.wsdl.extensions.PopulatedExtensionRegistry;
 import com.ibm.wsdl.extensions.schema.SchemaConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.axis.server.AxisWebServiceContainer;
+import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.xbeans.wsdl.DefinitionsDocument;
 import org.apache.geronimo.xbeans.wsdl.TDefinitions;
@@ -593,7 +593,7 @@ public class SchemaInfoBuilder {
                                 URI originalURI = new URI(original);
                                 servletLocation = originalURI.getPath();
                             }
-                            portCursor.setAttributeText(LOCATION_QNAME, AxisWebServiceContainer.LOCATION_REPLACEMENT_TOKEN + servletLocation);
+                            portCursor.setAttributeText(LOCATION_QNAME, WebServiceContainer.LOCATION_REPLACEMENT_TOKEN + servletLocation);
                             return servletLocation;
                         }
                     } catch (URISyntaxException e) {

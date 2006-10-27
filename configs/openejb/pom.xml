@@ -79,6 +79,11 @@
             <artifactId>geronimo-corba_2.3_spec</artifactId>
         </dependency>
         
+        <dependency>
+            <groupId>org.apache.openejb</groupId>
+            <artifactId>openejb-axis</artifactId>
+        </dependency>
+
         <!--<dependency>-->
             <!--<groupId>org.apache.yoko</groupId>-->
             <!--<artifactId>yoko-spec-corba</artifactId>-->

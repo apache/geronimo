@@ -77,6 +77,9 @@ import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.webservices.SerializableWebServiceContainerFactoryGBean;
+import org.apache.geronimo.webservices.builder.PortInfo;
+import org.apache.geronimo.webservices.builder.SchemaInfoBuilder;
+import org.apache.geronimo.webservices.builder.WSDescriptorParser;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.repository.Environment;
 

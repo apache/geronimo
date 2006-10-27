@@ -42,6 +42,11 @@ public interface WebServiceContainer extends Serializable {
      */
     public static final String MESSAGE_CONTEXT = WebServiceContainer.class.getName()+"@MessageContext";
 
+    /**
+     * Token inserted into wsdl where location should be replaced with the real location
+     */
+    public String LOCATION_REPLACEMENT_TOKEN = "LOCATIONREPLACEMENTTOKEN";
+
     void invoke(Request request, Response response) throws Exception;
 
     void getWsdl(Request req, Response res) throws Exception;

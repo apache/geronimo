@@ -29,6 +29,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.geronimo.axis.client.OperationInfo;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.webservices.builder.SchemaInfoBuilder;
 import org.apache.axis.soap.SOAPConstants;
 import org.apache.axis.description.OperationDesc;
 

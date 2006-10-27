@@ -58,6 +58,7 @@ import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
 import org.apache.geronimo.xbeans.j2ee.JavaXmlTypeMappingType;
 import org.apache.geronimo.xbeans.j2ee.VariableMappingType;
+import org.apache.geronimo.webservices.builder.SchemaTypeKey;
 import org.apache.xmlbeans.SchemaLocalAttribute;
 import org.apache.xmlbeans.SchemaParticle;
 import org.apache.xmlbeans.SchemaProperty;

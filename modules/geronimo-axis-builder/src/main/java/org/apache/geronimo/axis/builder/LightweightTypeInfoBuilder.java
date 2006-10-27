@@ -38,6 +38,8 @@ import org.apache.geronimo.axis.client.TypeInfo;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
+import org.apache.geronimo.webservices.builder.SchemaTypeKey;
+import org.apache.geronimo.webservices.builder.WSDescriptorParser;
 import org.apache.xmlbeans.SchemaParticle;
 import org.apache.xmlbeans.SchemaType;
 

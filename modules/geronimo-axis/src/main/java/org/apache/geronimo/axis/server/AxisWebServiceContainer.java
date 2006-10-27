@@ -48,7 +48,6 @@ import org.w3c.dom.Element;
 public class AxisWebServiceContainer implements WebServiceContainer {
     public static final String REQUEST = AxisWebServiceContainer.class.getName() + "@Request";
     public static final String RESPONSE = AxisWebServiceContainer.class.getName() + "@Response";
-    public static final String LOCATION_REPLACEMENT_TOKEN = "LOCATIONREPLACEMENTTOKEN";
 
     private static Log log = LogFactory.getLog(AxisWebServiceContainer.class);
 

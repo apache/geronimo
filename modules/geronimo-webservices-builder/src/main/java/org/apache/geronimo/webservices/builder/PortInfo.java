@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.axis.builder;
+package org.apache.geronimo.webservices.builder;
 
 import java.net.URI;
 import javax.wsdl.Definition;

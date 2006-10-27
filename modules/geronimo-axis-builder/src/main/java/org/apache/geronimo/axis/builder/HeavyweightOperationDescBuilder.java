@@ -61,6 +61,8 @@ import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.SchemaType;
 import org.objectweb.asm.Type;
 import org.apache.geronimo.xbeans.j2ee.JavaXmlTypeMappingType;
+import org.apache.geronimo.webservices.builder.SchemaInfoBuilder;
+import org.apache.geronimo.webservices.builder.WSDescriptorParser;
 
 /**
  * @version $Rev$ $Date$

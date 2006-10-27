@@ -55,6 +55,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-webservices-builder</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+        
+        <dependency>
             <groupId>org.apache.openejb</groupId>
             <artifactId>openejb-builder</artifactId>
         </dependency>

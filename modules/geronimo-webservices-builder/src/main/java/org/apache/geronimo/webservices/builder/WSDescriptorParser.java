@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.axis.builder;
+package org.apache.geronimo.webservices.builder;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -76,6 +76,8 @@ import org.apache.geronimo.xbeans.j2ee.WebservicesDocument;
 import org.apache.geronimo.xbeans.j2ee.WebservicesType;
 import org.apache.geronimo.xbeans.j2ee.XsdQNameType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.webservices.builder.PortInfo;
+import org.apache.geronimo.webservices.builder.SchemaInfoBuilder;
 import org.apache.xmlbeans.XmlException;
 
 /**

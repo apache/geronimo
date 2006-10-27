@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.axis.builder;
+package org.apache.geronimo.webservices.builder;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,6 +35,7 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.webservices.builder.SchemaInfoBuilder;
 
 /**
  * @version $Rev$ $Date$

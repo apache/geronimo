@@ -633,6 +633,12 @@
 
             <dependency>
                 <groupId>org.apache.openejb</groupId>
+                <artifactId>openejb-axis</artifactId>
+                <version>${openejbVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-core</artifactId>
                 <version>${openejbVersion}</version>
             </dependency>
