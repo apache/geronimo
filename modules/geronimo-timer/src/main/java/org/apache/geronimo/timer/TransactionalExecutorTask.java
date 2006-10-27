@@ -18,6 +18,7 @@
 package org.apache.geronimo.timer;
 
 import javax.transaction.TransactionManager;
+import javax.transaction.Status;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -44,41 +45,81 @@ public class TransactionalExecutorTask implements ExecutorTask {
     }
 
     public void run() {
-        for (int tries = 0; tries < repeatCount; tries++) {
-            try {
-                transactionManager.begin();
-            } catch (Exception e) {
-                log.warn("Exception occured while starting container transaction", e);
-                break;
-            }
-            try {
+        try {
+            // try to do the work until it succeeded or we reach the repeat count
+            boolean succeeded = false;
+            for (int tries = 0; !succeeded && tries < repeatCount; tries++) {
                 try {
-                    userTask.run();
-                } catch (Exception e) {
-                    log.warn("Exception occured while running user task", e);
+                    if (!beginWork()) {
+                        break;
+                    }
+
+                    work();
+                } finally {
+                    succeeded = completeWork();
                 }
+            }
+
+            // if this was a one time thing, remove the job
+            if (workInfo.isOneTime()) {
+                threadPooledTimer.removeWorkInfo(workInfo);
+            }
+
+            // if we didn't succeed, log it
+            if (!succeeded) {
+                log.warn("Failed to execute work successfully");
+            }
+        } catch (RuntimeException e) {
+            log.warn("RuntimeException occured while running user task", e);
+            throw e;
+        } catch (Error e) {
+            log.warn("Error occured while running user task", e);
+            throw e;
+        }
+    }
+
+    private boolean beginWork() {
+        try {
+            transactionManager.begin();
+        } catch (Exception e) {
+            log.warn("Exception occured while starting container transaction", e);
+            return false;
+        }
+        return true;
+    }
+
+    private void work() {
+        try {
+            userTask.run();
+        } catch (Exception e) {
+            log.warn("Exception occured while running user task", e);
+        }
+    }
+
+    private boolean completeWork() {
+        try {
+            if (transactionManager.getStatus() == Status.STATUS_ACTIVE) {
+                // clean up the work persistent data
                 try {
                     threadPooledTimer.workPerformed(workInfo);
                 } catch (PersistenceException e) {
                     log.warn("Exception occured while updating timer persistent state", e);
                 }
-            } finally {
-                try {
-                    transactionManager.commit();
-                    if (workInfo.isOneTime()) {
-                        threadPooledTimer.removeWorkInfo(workInfo);
-                    }
-                    // todo this is a very weird code structure.... returning from a finally is very confusing
-                    return;
-                } catch (Exception e) {
-                    log.warn("Exception occured while completing container transaction", e);
-                }
+
+                // commit the tx
+                transactionManager.commit();
+
+                // all is cool
+                return true;
+            } else {
+                // tx was marked rollback, so roll it back
+                transactionManager.rollback();
             }
+        } catch (Exception e) {
+            log.warn("Exception occured while completing container transaction", e);
         }
-        if (workInfo.isOneTime()) {
-            threadPooledTimer.removeWorkInfo(workInfo);
-        }
-        log.warn("Failed to execute work successfully");
+        // something bad happened
+        return false;
     }
 
 }
