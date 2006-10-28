@@ -17,9 +17,6 @@
 
 package org.apache.geronimo.kernel.repository;
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
 import java.io.File;
 import java.util.LinkedHashSet;
 
