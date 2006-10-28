@@ -110,8 +110,7 @@ public class TransactionCachingInterceptorTest extends ConnectionInterceptorTest
 
     private ManagedConnectionInfo getSharedManagedConnectionInfo(Transaction transaction) {
         if (transaction == null) return null;
-        ConnectorTransactionContext connectorTransactionContext = ConnectorTransactionContext.get(transaction);
-        return ((TransactionCachingInterceptor.ManagedConnectionInfos)connectorTransactionContext.getManagedConnectionInfo(transactionCachingInterceptor)).getShared();
+        return ConnectorTransactionContext.get(transaction, transactionCachingInterceptor).getShared();
     }
 
     public void testGetConnectionOutsideTransaction() throws Exception {

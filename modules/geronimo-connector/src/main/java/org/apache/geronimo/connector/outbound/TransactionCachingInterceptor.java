@@ -24,6 +24,7 @@ import java.util.Set;
 import javax.resource.ResourceException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
+import javax.transaction.SystemException;
 
 import org.apache.geronimo.connector.ConnectorTransactionContext;
 import org.apache.geronimo.connector.ConnectionReleaser;
@@ -65,12 +66,7 @@ public class TransactionCachingInterceptor implements ConnectionInterceptor, Con
         // get the current transation and status... if there is a problem just assume there is no transaction present
         Transaction transaction = TxUtil.getTransactionIfActive(transactionManager);
         if (transaction != null) {
-            ConnectorTransactionContext connectorTransactionContext = ConnectorTransactionContext.get(transaction);
-            ManagedConnectionInfos managedConnectionInfos = (ManagedConnectionInfos) connectorTransactionContext.getManagedConnectionInfo(this);
-            if (managedConnectionInfos == null) {
-                managedConnectionInfos = new ManagedConnectionInfos();
-                connectorTransactionContext.setManagedConnectionInfo(this, managedConnectionInfos);
-            }
+            ManagedConnectionInfos managedConnectionInfos = ConnectorTransactionContext.get(transaction, this);
             if (connectionInfo.isUnshareable()) {
                 if (!managedConnectionInfos.containsUnshared(connectionInfo.getManagedConnectionInfo())) {
                     next.getConnection(connectionInfo);
@@ -80,7 +76,7 @@ public class TransactionCachingInterceptor implements ConnectionInterceptor, Con
                 ManagedConnectionInfo managedConnectionInfo = managedConnectionInfos.getShared();
                 if (managedConnectionInfo != null) {
                     connectionInfo.setManagedConnectionInfo(managedConnectionInfo);
-                    return;
+                    //return;
                 } else {
                     next.getConnection(connectionInfo);
                     managedConnectionInfos.setShared(connectionInfo.getManagedConnectionInfo());
@@ -97,9 +93,20 @@ public class TransactionCachingInterceptor implements ConnectionInterceptor, Con
             next.returnConnection(connectionInfo, connectionReturnAction);
             return;
         }
-
-        if (TxUtil.isTransactionActive(transactionManager)) {
-            return;
+        Transaction transaction;
+        try {
+            transaction = transactionManager.getTransaction();
+            if (transaction != null) {
+                if (TxUtil.isActive(transaction)) {
+                    return;
+                }
+                //We are called from an afterCompletion synchronization.  Remove the MCI from the ManagedConnectionInfos
+                //so we don't close it twice
+                ManagedConnectionInfos managedConnectionInfos = ConnectorTransactionContext.get(transaction, this);
+                managedConnectionInfos.remove(connectionInfo.getManagedConnectionInfo());
+            }
+        } catch (SystemException e) {
+            //ignore
         }
         internalReturn(connectionInfo, connectionReturnAction);
     }
@@ -134,7 +141,7 @@ public class TransactionCachingInterceptor implements ConnectionInterceptor, Con
         internalReturn(connectionInfo, ConnectionReturnAction.RETURN_HANDLE);
     }
 
-    static class ManagedConnectionInfos {
+    public static class ManagedConnectionInfos {
         private ManagedConnectionInfo shared;
         private Set unshared = Collections.EMPTY_SET;
 
@@ -159,6 +166,14 @@ public class TransactionCachingInterceptor implements ConnectionInterceptor, Con
 
         public boolean containsUnshared(ManagedConnectionInfo unsharedMCI) {
             return this.unshared.contains(unsharedMCI);
+        }
+
+        public void remove(ManagedConnectionInfo managedConnectionInfo) {
+            if (shared == managedConnectionInfo) {
+                shared = null;
+            } else {
+                unshared.remove(managedConnectionInfo);
+            }
         }
     }
 

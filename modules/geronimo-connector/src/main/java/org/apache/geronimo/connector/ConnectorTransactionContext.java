@@ -26,6 +26,7 @@ import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 
 import edu.emory.mathcs.backport.java.util.concurrent.ConcurrentHashMap;
+import org.apache.geronimo.connector.outbound.TransactionCachingInterceptor;
 
 /**
  * @version $Rev$ $Date$
@@ -59,20 +60,30 @@ public class ConnectorTransactionContext {
         return ctx;
     }
 
+    public static TransactionCachingInterceptor.ManagedConnectionInfos get(Transaction transaction, ConnectionReleaser key) {
+        ConnectorTransactionContext ctx = get(transaction);
+        TransactionCachingInterceptor.ManagedConnectionInfos infos = ctx.getManagedConnectionInfo(key);
+        if (infos == null) {
+            infos = new TransactionCachingInterceptor.ManagedConnectionInfos();
+            ctx.setManagedConnectionInfo(key, infos);
+        }
+        return infos;
+    }
+
     private static void remove(Transaction transaction) {
         DATA_INDEX.remove(transaction);
     }
 
     private Map managedConnections;
 
-    public synchronized Object getManagedConnectionInfo(ConnectionReleaser key) {
+    private synchronized TransactionCachingInterceptor.ManagedConnectionInfos getManagedConnectionInfo(ConnectionReleaser key) {
         if (managedConnections == null) {
             return null;
         }
-        return managedConnections.get(key);
+        return (TransactionCachingInterceptor.ManagedConnectionInfos) managedConnections.get(key);
     }
 
-    public synchronized void setManagedConnectionInfo(ConnectionReleaser key, Object info) {
+    private synchronized void setManagedConnectionInfo(ConnectionReleaser key, TransactionCachingInterceptor.ManagedConnectionInfos info) {
         if (managedConnections == null) {
             managedConnections = new HashMap();
         }
