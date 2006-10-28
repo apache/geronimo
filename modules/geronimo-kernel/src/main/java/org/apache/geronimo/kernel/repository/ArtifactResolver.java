@@ -47,6 +47,7 @@ public interface ArtifactResolver {
      * because something depends on this.
      */
     Artifact resolveInClassLoader(Artifact source) throws MissingDependencyException;
+
     /**
      * Used to search for existing artifacts that match the supplied artifact (which
      * may be partially-populated).  Preference is given to artifacts that are already
@@ -56,6 +57,7 @@ public interface ArtifactResolver {
      * @param parentConfigurations A Collection with entries of type Configuration
      */
     Artifact resolveInClassLoader(Artifact source, Collection parentConfigurations) throws MissingDependencyException;
+
     /**
      * Used to search for existing artifacts that match the supplied artifact (which
      * may be partially-populated).  Preference is given to artifacts that are already
@@ -66,6 +68,7 @@ public interface ArtifactResolver {
      *         entries of type Artifact
      */
     LinkedHashSet resolveInClassLoader(Collection artifacts) throws MissingDependencyException;
+
     /**
      * Used to search for existing artifacts that match the supplied artifact (which
      * may be partially-populated).  Preference is given to artifacts that are already
