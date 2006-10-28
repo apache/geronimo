@@ -27,6 +27,8 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.geronimo.deployment.PluginBootstrap2;
 import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
@@ -55,6 +57,7 @@ import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.project.MavenProject;
 
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
@@ -221,6 +224,12 @@ public class PackageMojo
      */
     private boolean bootstrap = false;
 
+    /**
+     * Holds a local repo lookup instance so that we can use the current project to resolve.
+     * This is required since the Kernel used to deploy is cached.
+     */
+    private static ThreadLocal lookupHolder = new ThreadLocal();
+
     //
     // Mojo
     //
@@ -264,6 +273,12 @@ public class PackageMojo
         }
 
         generateExplicitVersionProperties(explicitResolutionProperties);
+
+        //
+        // NOTE: Install a local lookup, so that the cached kernel can resolve based on the current project
+        //       and not the project where the kernel was first initialized.
+        //
+        lookupHolder.set(new ArtifactLookupImpl());
 
         if (bootstrap) {
             executeBootShell();
@@ -490,44 +505,16 @@ public class PackageMojo
         //
         GBeanData repoGBean = bootstrap.addGBean("SourceRepository", GBeanInfo.getGBeanInfo(Maven2RepositoryAdapter.class.getName(), cl));
         Maven2RepositoryAdapter.ArtifactLookup lookup = new Maven2RepositoryAdapter.ArtifactLookup() {
+            private Maven2RepositoryAdapter.ArtifactLookup getDelegate() {
+                return (Maven2RepositoryAdapter.ArtifactLookup) lookupHolder.get();
+            }
+            
             public File getBasedir() {
-                String path = getArtifactRepository().getBasedir();
-                return new File(path);
+                return getDelegate().getBasedir();
             }
 
             public File getLocation(final org.apache.geronimo.kernel.repository.Artifact artifact) {
-                // System.err.println("Checking location of: " + artifact);
-
-                Artifact mavenArtifact = getArtifactFactory().createArtifact(
-                        artifact.getGroupId(),
-                        artifact.getArtifactId(),
-                        artifact.getVersion().toString(),
-                        null,
-                        artifact.getType()
-                );
-
-                File file;
-                try {
-                    if (!mavenArtifact.isResolved()) {
-                        mavenArtifact = resolveArtifact(mavenArtifact);
-                    }
-
-                    //
-                    // HACK: Construct the real local filename from the path and resolved artifact file.
-                    //       Probably a better way to do this with the Maven API directly, but this is the
-                    //       best I can do for now.
-                    //
-                    String path = getArtifactRepository().pathOf(mavenArtifact);
-                    file = new File(getBasedir(), path);
-                    file = new File(mavenArtifact.getFile().getParentFile(), file.getName());
-                }
-                catch (MojoExecutionException e) {
-                    throw new RuntimeException("Failed to resolve: " + mavenArtifact, e);
-                }
-
-                // System.err.println("Using location: " + file);
-
-                return file;
+                return getDelegate().getLocation(artifact);
             }
         };
         repoGBean.setAttribute("lookup", lookup);
@@ -637,5 +624,90 @@ public class PackageMojo
         };
 
         return (List) kernel.invoke(deployer, "deploy", args, DEPLOY_SIGNATURE);
+    }
+
+    //
+    // ArtifactLookupImpl
+    //
+
+    /**
+     * Map of G artifact to M artifact which have already been resolved.
+     */
+    private static Map presolvedArtifacts = new HashMap();
+
+    private class ArtifactLookupImpl
+        implements Maven2RepositoryAdapter.ArtifactLookup
+    {
+        public File getBasedir() {
+            String path = getArtifactRepository().getBasedir();
+            return new File(path);
+        }
+
+        private boolean isProjectArtifact(final org.apache.geronimo.kernel.repository.Artifact artifact) {
+            MavenProject project = getProject();
+
+            return artifact.getGroupId().equals(project.getGroupId()) &&
+                   artifact.getArtifactId().equals(project.getArtifactId());
+        }
+
+        public File getLocation(final org.apache.geronimo.kernel.repository.Artifact artifact) {
+            assert artifact != null;
+
+            boolean debug = log.isDebugEnabled();
+
+            Artifact mavenArtifact = (Artifact)presolvedArtifacts.get(artifact);
+
+            // If not cached, then make a new artifact
+            if (mavenArtifact == null) {
+                mavenArtifact = getArtifactFactory().createArtifact(
+                        artifact.getGroupId(),
+                        artifact.getArtifactId(),
+                        artifact.getVersion().toString(),
+                        null,
+                        artifact.getType()
+                );
+            }
+
+            // Do not attempt to resolve an artifact that is the same as the project
+            if (isProjectArtifact(artifact)) {
+                if (debug) {
+                    log.debug("Skipping resolution of project artifact: " + artifact);
+                }
+
+                //
+                // HACK: Still have to return something, otherwise some CAR packaging will fail...
+                //       no idea what is using this file, or if the files does exist if that will be
+                //       used instead of any details we are currently building
+                //
+                return new File(getBasedir(), getArtifactRepository().pathOf(mavenArtifact));
+            }
+
+            File file;
+            try {
+                if (!mavenArtifact.isResolved()) {
+                    if (debug) {
+                        log.debug("Resolving artifact: " + mavenArtifact);
+                    }
+                    mavenArtifact = resolveArtifact(mavenArtifact);
+
+                    // Cache the resolved artifact
+                    presolvedArtifacts.put(artifact, mavenArtifact);
+                }
+
+                //
+                // HACK: Construct the real local filename from the path and resolved artifact file.
+                //       Probably a better way to do this with the Maven API directly, but this is the
+                //       best I can do for now.
+                //
+                String path = getArtifactRepository().pathOf(mavenArtifact);
+                file = new File(getBasedir(), path);
+                file = new File(mavenArtifact.getFile().getParentFile(), file.getName());
+            }
+            catch (MojoExecutionException e) {
+                throw new RuntimeException("Failed to resolve: " + mavenArtifact, e);
+            }
+
+            return file;
+        }
     }
 }
