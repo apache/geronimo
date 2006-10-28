@@ -22,11 +22,11 @@ package org.apache.geronimo.mavenplugins.car;
 import java.io.File;
 import java.net.URI;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Arrays;
 
 import org.apache.geronimo.deployment.PluginBootstrap2;
 import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
@@ -122,7 +122,7 @@ public class PackageMojo
     private String finalName = null;
 
     /**
-     * ???
+     * The local Maven repository which will be used to pull artifacts into the Geronimo repository when packaging.
      *
      * @parameter expression="${settings.localRepository}"
      * @required
@@ -131,7 +131,7 @@ public class PackageMojo
     private File repository = null;
 
     /**
-     * ???
+     * The Geronimo repository where modules will be packaged up from.
      *
      * @parameter expression="${project.build.directory}/repository"
      * @required
@@ -139,20 +139,20 @@ public class PackageMojo
     private File targetRepository = null;
 
     /**
-     * ???
+     * The default deployer module to be used when no other deployer modules are configured.
      *
      * @parameter expression="org.apache.geronimo.configs/geronimo-gbean-deployer/${geronimoVersion}/car"
      * @required
      * @readonly
      */
-    private String deafultDeploymentConfig = null;
+    private String defaultDeploymentConfig = null;
 
     /**
-     * ???
+     * Ther deployer modules to be used when packaging.
      *
      * @parameter
      */
-    private List deploymentConfigs;
+    private String[] deploymentConfigs;
 
     /**
      * The name of the deployer which will be used to deploy the CAR.
@@ -188,7 +188,8 @@ public class PackageMojo
      * The location where the properties mapping will be generated.
      *
      * <p>
-     * Probably don't wanto to change this.
+     * Probably don't want to change this.
+     * </p>
      *
      * @parameter expression="${project.build.directory}/explicit-versions.properties"
      */
@@ -231,10 +232,29 @@ public class PackageMojo
 
         // Use the default configs if none specified
         if (deploymentConfigs == null) {
-            deploymentConfigs = new ArrayList();
-            deploymentConfigs.add(deafultDeploymentConfig);
+            deploymentConfigs = new String[] {
+                    defaultDeploymentConfig
+            };
         }
-        log.debug("Deployment configs: " + deploymentConfigs);
+        log.debug("Deployment configs: " + Arrays.asList(deploymentConfigs));
+
+        //
+        // NOTE: Resolve deployment modules, this is needed to ensure that the proper artifacts are in the
+        //       local repository to perform deployment.  If the deployer modules (or their dependencies)
+        //       are missing from the source respository, then strange packaging failures will occur.
+        //
+        for (int i=0; i<deploymentConfigs.length; i++) {
+            String[] parts = deploymentConfigs[i].split("/");
+            ArtifactItem item = new ArtifactItem();
+            item.setGroupId(parts[0]);
+            item.setArtifactId(parts[1]);
+            item.setVersion(parts[2]);
+            item.setType(parts[3]);
+
+            log.debug("Resolving deployer module: " + item);
+            Artifact artifact = createArtifact(item);
+            resolveArtifact(artifact, true);
+        }
 
         // If module is set, then resolve the artifact and set moduleFile
         if (module != null) {
@@ -377,7 +397,6 @@ public class PackageMojo
     public void buildPackage() throws Exception {
         log.info("Packaging module configuration: " + planFile);
 
-
         Kernel kernel = createKernel();
         if (!targetSet) {
             kernel.stopGBean(targetRepositoryAName);
@@ -396,8 +415,8 @@ public class PackageMojo
         // start the Configuration we're going to use for this deployment
         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
         try {
-            for (Iterator iterator = deploymentConfigs.iterator(); iterator.hasNext();) {
-                String artifactName = (String) iterator.next();
+            for (int i=0; i<deploymentConfigs.length; i++) {
+                String artifactName = deploymentConfigs[i];
                 org.apache.geronimo.kernel.repository.Artifact configName =
                         org.apache.geronimo.kernel.repository.Artifact.create(artifactName);
                 if (!configurationManager.isLoaded(configName)) {
@@ -453,6 +472,7 @@ public class PackageMojo
      * <p>
      * This contains Repository and ConfigurationStore GBeans that map to
      * the local maven installation.
+     * </p>
      */
     private void bootDeployerSystem() throws Exception {
         log.debug("Booting deployer system...");
@@ -464,10 +484,53 @@ public class PackageMojo
         ClassLoader cl = getClass().getClassLoader();
         Set repoNames = new HashSet();
 
-        // Source repo
-        GBeanData repoGBean = bootstrap.addGBean("SourceRepository", GBeanInfo.getGBeanInfo(Maven2Repository.class.getName(), cl));
-        URI repositoryURI = repository.toURI();
-        repoGBean.setAttribute("root", repositoryURI);
+        //
+        // NOTE: Install an adapter for the source repository that will leverage the Maven2 repository subsystem
+        //       to allow for better handling of SNAPSHOT values.
+        //
+        GBeanData repoGBean = bootstrap.addGBean("SourceRepository", GBeanInfo.getGBeanInfo(Maven2RepositoryAdapter.class.getName(), cl));
+        Maven2RepositoryAdapter.ArtifactLookup lookup = new Maven2RepositoryAdapter.ArtifactLookup() {
+            public File getBasedir() {
+                String path = getArtifactRepository().getBasedir();
+                return new File(path);
+            }
+
+            public File getLocation(final org.apache.geronimo.kernel.repository.Artifact artifact) {
+                // System.err.println("Checking location of: " + artifact);
+
+                Artifact mavenArtifact = getArtifactFactory().createArtifact(
+                        artifact.getGroupId(),
+                        artifact.getArtifactId(),
+                        artifact.getVersion().toString(),
+                        null,
+                        artifact.getType()
+                );
+
+                File file;
+                try {
+                    if (!mavenArtifact.isResolved()) {
+                        mavenArtifact = resolveArtifact(mavenArtifact);
+                    }
+
+                    //
+                    // HACK: Construct the real local filename from the path and resolved artifact file.
+                    //       Probably a better way to do this with the Maven API directly, but this is the
+                    //       best I can do for now.
+                    //
+                    String path = getArtifactRepository().pathOf(mavenArtifact);
+                    file = new File(getBasedir(), path);
+                    file = new File(mavenArtifact.getFile().getParentFile(), file.getName());
+                }
+                catch (MojoExecutionException e) {
+                    throw new RuntimeException("Failed to resolve: " + mavenArtifact, e);
+                }
+
+                // System.err.println("Using location: " + file);
+
+                return file;
+            }
+        };
+        repoGBean.setAttribute("lookup", lookup);
         repoNames.add(repoGBean.getAbstractName());
 
         // Target repo
