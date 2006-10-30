@@ -889,11 +889,28 @@ public class PluginInstallerGBean implements PluginInstaller {
      * Constructs a URL to a particular artifact in a particular repository
      */
     private static URL getURL(Artifact configId, URL repository) throws MalformedURLException {
-        if(repository.toString().endsWith("/")) {
-            return new URL(repository, configId.getGroupId().replace('.','/')+"/"+configId.getArtifactId()+"/"+configId.getVersion()+"/"+configId.getArtifactId()+"-"+configId.getVersion()+"."+configId.getType());
-        } else {
-            return new URL(new URL(repository.toString()+"/"), configId.getGroupId().replace('.','/')+"/"+configId.getArtifactId()+"/"+configId.getVersion()+"/"+configId.getArtifactId()+"-"+configId.getVersion()+"."+configId.getType());
-        }
+	URL context;
+	if(repository.toString().endsWith("/")) {
+	    context = repository;
+	} else {
+	    context = new URL(repository.toString()+"/");
+	}
+
+	String qualifiedVersion = configId.getVersion().toString();
+	if (configId.getVersion() instanceof SnapshotVersion) {
+	    SnapshotVersion ssVersion = (SnapshotVersion)configId.getVersion();
+	    qualifiedVersion = ssVersion.getMajorVersion() + "." + ssVersion.getMinorVersion();
+	    if (ssVersion.getTimestamp()!=null) {
+		qualifiedVersion += "-" + ssVersion.getTimestamp();
+	    }
+	    if (ssVersion.getBuildNumber()!=0) {
+		qualifiedVersion += "-" + ssVersion.getBuildNumber();
+	    }
+	}
+        return new URL(context, configId.getGroupId().replace('.','/') + "/"
+                     + configId.getArtifactId() + "/" + configId.getVersion()
+                     + "/" +configId.getArtifactId() + "-"
+                     + qualifiedVersion + "." +configId.getType());
     }
 
     /**
@@ -920,8 +937,10 @@ public class PluginInstallerGBean implements PluginInstaller {
             monitor.getResults().setCurrentMessage("Downloading "+artifact+"...");
             monitor.setTotalBytes(-1); // In case the server doesn't say
         }
-        if(artifact != null && !artifact.isResolved()) {
-            artifact = findArtifact(artifact, repos, username, password, monitor);
+        if(artifact != null) {
+            if (!artifact.isResolved() || artifact.getVersion().toString().indexOf("SNAPSHOT") >= 0) {
+                artifact = findArtifact(artifact, repos, username, password, monitor);
+            }
         }
         InputStream in;
         LinkedList list = new LinkedList();
@@ -1071,14 +1090,42 @@ public class PluginInstallerGBean implements PluginInstaller {
         Arrays.sort(available);
         for(int i=available.length-1; i>=0; i--) {
             Version version = available[i];
-            URL test = new URL(url.toString()+base+"/"+version+"/"+query.getArtifactId()+"-"+version+"."+query.getType());
+            URL metadataURL = new URL(url.toString()+base+"/"+version+"/maven-metadata.xml");
+            InputStream metadataStream = connect(metadataURL, username, password, monitor);
+            
+            // check for a snapshot qualifier
+            if (metadataStream != null) {
+                DocumentBuilder metadatabuilder = XmlUtil.newDocumentBuilderFactory().newDocumentBuilder();
+                Document metadatadoc = metadatabuilder.parse(metadataStream);
+                NodeList snapshots = metadatadoc.getDocumentElement().getElementsByTagName("snapshot");
+                if (snapshots.getLength() >= 1) {
+                    Element snapshot = (Element)snapshots.item(0);
+                    String[] timestamp = getChildrenText(snapshot, "timestamp");
+                    String[] buildNumber = getChildrenText(snapshot, "buildNumber");
+                    if (timestamp.length>=1 && buildNumber.length>=1) {
+                        try {
+                            SnapshotVersion snapshotVersion = new SnapshotVersion(version);
+                            snapshotVersion.setBuildNumber(Integer.parseInt(buildNumber[0]));
+                            snapshotVersion.setTimestamp(timestamp[0]);
+                            version = snapshotVersion;
+                        } catch (NumberFormatException nfe) {
+                            log.warn("Could not create snapshot version for " + query);
+                        }
+                    }
+                }
+                metadataStream.close();
+            }
+            
+            // look for the artifact in the maven repo
+            Artifact verifiedArtifact = new Artifact(query.getGroupId(), query.getArtifactId(), version, query.getType()); 
+            URL test = getURL(verifiedArtifact, url);
             InputStream testStream = connect(test, username, password, monitor, "HEAD");
             if(testStream == null) {
                 log.warn("Maven repository "+url+" listed artifact "+query+" version "+version+" but I couldn't find it at "+test);
                 continue;
             }
             testStream.close();
-            return new Artifact(query.getGroupId(), query.getArtifactId(), version, query.getType());
+            return verifiedArtifact; 
         }
         return null;
     }
