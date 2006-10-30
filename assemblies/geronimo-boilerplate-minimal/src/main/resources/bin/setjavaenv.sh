@@ -45,7 +45,7 @@ if [ -z "$JAVA_HOME" -a "$1" = "debug" ]; then
   exit 1
 fi
 if [ -z "$JRE_HOME" ]; then
-   if [ -d "$JRE_HOME/jre" ]; then
+   if [ -d "$JAVA_HOME/jre" ]; then
      JRE_HOME="$JAVA_HOME/jre"
    else
      JRE_HOME="$JAVA_HOME"
