@@ -48,13 +48,13 @@
         <!--
         NOTE: Project version, to be used instead of ${pom.version} since that
               value magically changes when using SNAPSHOT versions.
-              
+
               This value *must* be kept in sync with the value of the <version>
               element, and it will need to be changed manually before a release,
               as the maven-release-plugin will not update this value.
         -->
         <version>1.2-SNAPSHOT</version>
-        
+
         <geronimoSchemaVersion>1.2</geronimoSchemaVersion>
 
         <!--
@@ -100,13 +100,7 @@
                 <artifactId>geronimo-spec-corba</artifactId>
                 <version>1.0</version>
             </dependency>
-            
-            <dependency>
-                <groupId>org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-corba_2.3_spec</artifactId>
-                <version>1.1</version>
-            </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-ejb_2.1_spec</artifactId>
@@ -196,15 +190,15 @@
                 <artifactId>geronimo-servlet_2.4_spec</artifactId>
                 <version>1.0.1</version>
             </dependency>
-            
+
             <!--
             NOTE: The full source for this artifact is private due to Sun licensing issues.
                   To view the generated XmlBeans source please see the -src artifact in the repository:
-                  
+
                   http://people.apache.org/repo/m2-snapshot-repository/org/apache/geronimo/schema/
-                  
+
                   The full source is here with restricted access:
-                  
+
                   https://svn.apache.org/repos/tck/geronimo-tck/schema/geronimo-schema-j2ee_1.4/trunk
             -->
             <dependency>
@@ -212,7 +206,7 @@
                 <artifactId>geronimo-schema-j2ee_1.4</artifactId>
                 <version>1.1-SNAPSHOT</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.xbean</groupId>
                 <artifactId>xbean-naming</artifactId>
@@ -588,19 +582,19 @@
                 <artifactId>commons-fileupload</artifactId>
                 <version>1.1.1</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>commons-jexl</groupId>
                 <artifactId>commons-jexl</artifactId>
                 <version>1.1</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>ognl</groupId>
                 <artifactId>ognl</artifactId>
                 <version>2.6.9</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>xml-apis</groupId>
                 <artifactId>xml-apis</artifactId>
@@ -656,7 +650,7 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.openejb</groupId> 
+                <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-corba-builder</artifactId>
                 <version>${openejbVersion}</version>
             </dependency>
@@ -1090,7 +1084,7 @@
                         </assemblies>
 
                         <defaultAssemblyId>jetty</defaultAssemblyId>
-                        
+
                         <optionSets>
                             <optionSet>
                                 <id>debug</id>
@@ -1112,7 +1106,7 @@
 
                 <!-- Tools includes custom packagings, install as extension to pick them up -->
                 <extensions>true</extensions>
-                
+
                 <executions>
                     <execution>
                         <id>validate-java-version</id>
@@ -1220,7 +1214,7 @@
                 <module>assemblies</module>
             </modules>
         </profile>
-        
+
         <!--
         NOTE: This profile is used to enable plugin prefixes for easy command-line usage, as in:
 
@@ -1317,7 +1311,7 @@
                 <module>maven-plugins</module>
                 <module>applications</module>
                 <module>configs</module>
-                
+
                 <!--
                 NOTE: Probably do not want to publish these to the repo...  Or do we?
 

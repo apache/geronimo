@@ -73,21 +73,16 @@
             <groupId>org.apache.openejb</groupId>
             <artifactId>openejb-core</artifactId>
         </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-corba_2.3_spec</artifactId>
-        </dependency>
-        
+
         <dependency>
             <groupId>org.apache.openejb</groupId>
             <artifactId>openejb-axis</artifactId>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.apache.yoko</groupId>-->
-            <!--<artifactId>yoko-spec-corba</artifactId>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.apache.yoko</groupId>
+            <artifactId>yoko-spec-corba</artifactId>
+        </dependency>
 
         <!--<dependency>-->
             <!--<groupId>concurrent</groupId>-->
