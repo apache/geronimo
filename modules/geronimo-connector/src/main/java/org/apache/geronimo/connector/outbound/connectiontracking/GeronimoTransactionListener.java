@@ -43,10 +43,5 @@ public class GeronimoTransactionListener implements TransactionManagerMonitor {
     }
 
     public void threadUnassociated(Transaction transaction) {
-        try {
-            trackedConnectionAssociator.newTransaction();
-        } catch (ResourceException e) {
-            log.warn("Error notifying connection tranker of transaction dissociation", e);
-        }
     }
 }
