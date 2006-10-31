@@ -898,14 +898,12 @@ public class PluginInstallerGBean implements PluginInstaller {
 
 	String qualifiedVersion = configId.getVersion().toString();
 	if (configId.getVersion() instanceof SnapshotVersion) {
-	    SnapshotVersion ssVersion = (SnapshotVersion)configId.getVersion();
-	    qualifiedVersion = ssVersion.getMajorVersion() + "." + ssVersion.getMinorVersion();
-	    if (ssVersion.getTimestamp()!=null) {
-		qualifiedVersion += "-" + ssVersion.getTimestamp();
-	    }
-	    if (ssVersion.getBuildNumber()!=0) {
-		qualifiedVersion += "-" + ssVersion.getBuildNumber();
-	    }
+            SnapshotVersion ssVersion = (SnapshotVersion)configId.getVersion();
+            String timestamp = ssVersion.getTimestamp();
+            int buildNumber = ssVersion.getBuildNumber();
+            if (timestamp!=null && buildNumber!=0) {
+                qualifiedVersion = qualifiedVersion.replaceAll("SNAPSHOT", timestamp + "-" + buildNumber);
+            }
 	}
         return new URL(context, configId.getGroupId().replace('.','/') + "/"
                      + configId.getArtifactId() + "/" + configId.getVersion()
@@ -932,15 +930,15 @@ public class PluginInstallerGBean implements PluginInstaller {
      *                                    in question
      */
     private static OpenResult openStream(Artifact artifact, URL[] repos, String username, String password, ResultsFileWriteMonitor monitor) throws IOException, FailedLoginException, MissingDependencyException {
-        if(monitor != null) {
-            monitor.getResults().setCurrentFilePercent(-1);
-            monitor.getResults().setCurrentMessage("Downloading "+artifact+"...");
-            monitor.setTotalBytes(-1); // In case the server doesn't say
-        }
         if(artifact != null) {
             if (!artifact.isResolved() || artifact.getVersion().toString().indexOf("SNAPSHOT") >= 0) {
                 artifact = findArtifact(artifact, repos, username, password, monitor);
             }
+        }
+        if(monitor != null) {
+            monitor.getResults().setCurrentFilePercent(-1);
+            monitor.getResults().setCurrentMessage("Downloading "+artifact+"...");
+            monitor.setTotalBytes(-1); // In case the server doesn't say
         }
         InputStream in;
         LinkedList list = new LinkedList();
