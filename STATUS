@@ -18,35 +18,37 @@ RELEASE SHOWSTOPPERS:
 
 Certification - Historically certification has been the most time consuming 
 portion of a release, and there is no reason to expect it to be any different 
-for this release.  To make matters worse, the certification test suite has not 
-been run in several months while major changes have been made to EJB, 
+for this release.  To make matters worse, the certification test suite was not 
+run for several months while major changes were made to the build, EJB, 
 Transaction, Connector and Servlet Session.    
 
-Features - The scope for the 1.2 release is currently being finalized.  We 
-have collected a list of 14 features to be included in the release and are 
-working on prioritizing the list.  The prioritized list will help guide us in 
-determining when to release based on the number of completed high priority 
-features.
+In the last two weeks we have gotten the TCK running and using Maven 2, and
+have made good progress on the test suite.  Additionally, the GBuild servers
+are back online and processing some tests.  There are stability issues with
+GBuild but we are hopeful it will be fully running soon.
+ 
+Currently, the biggest concerns for the TCK are ActiveMQ 4 and Yoko.  Both
+of these are new libraries and may take a considerable amount of effort to 
+certify.  Also, there are few people that understand these new libraries,
+the geronimo integrations, and the TCK.  In the case of ActiveMQ, the one 
+person that understands that can certify the code, is unavailable for the 
+next two weeks.
 
-Dead 1.2 -  There are still 37 unmerged commits the dead 1.2 branch.  These 
+Fit and Finish - This is another item that has historically taken a 
+significant amount of time to complete.  A process has been started to 
+tie up the loose ends in the software so it can be released.
+
+
+Dead 1.2 - There are still 30 unmerged commits the dead 1.2 branch.  These 
 commits must be merged before the 1.2 release.  The current status of the 
 dead-1.2 changes can be found at 
 http://svn.apache.org/repos/asf/geronimo/server/trunk/all_changes.log
 
-Specs - There are two proposals for versioning specification jars in Geronimo.  
-The first uses a single version number for all specifications.  The makes 
-releasing new versions of specifications easy for the Geronimo committers as 
-only a single file must be updated.  Alternatively, each specification could 
-have an independent version number.  With this approach several files may have 
-to be updated to release a jar, but this approach reduces the number of jars 
-that are released with no changes.  This issue is in active discussion and will 
-hopefully be resolved quickly.
 
 
+PENDING PATCHES:
 
-Outstanding patches awaiting votes:
-
-On JIRA, the following patches are oustanding:
+GERONIMO-2485 PersistenceUnitGBean needs a NamespaceDrivenDeployer
 
 GERONIMO-1277 Change group-id to org.apache.geronimo
   Status: New proposal by Jason Dillon to change base the groupId to 
@@ -63,7 +65,7 @@ GERONIMO-2413 Add a Certification Authority (CA) portlet to Geronimo console
 
 
 
-Release history:
+RELEASE HISTORY:
   2006-09-18  Geronimo 1.1.1
   2006-06-26  Geronimo 1.1
   2006-01-05  Geronimo 1.0
