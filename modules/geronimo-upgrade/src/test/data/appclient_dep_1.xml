@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application" xmlns:j2ee="http://java.sun.com/xml/ns/j2ee"
     configId="appclient_dep"
-    parentId="${pom.groupId}/server-security/${pom.currentVersion}/car">
+    parentId="${pom.groupId}/server-security/${version}/car">
     <import>
         <uri>geronimo/j2ee-server/${geronimo_version}/car</uri>
     </import>
@@ -17,7 +17,7 @@
         <application-client xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client"
             configId="bar"
             clientConfigId="appclient_dep/appclient_dep_client"
-            clientParentId="${pom.groupId}/client-database/${pom.currentVersion}/car">
+            clientParentId="${pom.groupId}/client-database/${version}/car">
 
             <dependency>
                 <uri>geronimo/geronimo-common/${geronimo_version}/jar</uri>

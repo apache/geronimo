@@ -2,7 +2,7 @@
 <application
     xmlns="http://geronimo.apache.org/xml/ns/j2ee/application"
     configId="appclient_ejb_1"
-    parentId="${pom.groupId}/server-security/${pom.currentVersion}/car">
+    parentId="${pom.groupId}/server-security/${version}/car">
     <module>
         <ejb>appclient_ejb_1_ejb.jar</ejb>
         <openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar" configId="ejb">
@@ -34,7 +34,7 @@
         <application-client xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client"
             configId="bar"
             clientConfigId="appclient_ejb_1/appclient_ejb_1_client"
-            clientParentId="${pom.groupId}/client-database/${pom.currentVersion}/car">
+            clientParentId="${pom.groupId}/client-database/${version}/car">
 
         </application-client>
     </module>

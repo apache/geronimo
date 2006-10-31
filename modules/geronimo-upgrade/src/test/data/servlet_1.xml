@@ -2,7 +2,7 @@
 <application
     xmlns="http://geronimo.apache.org/xml/ns/j2ee/application"
     configId="servlet_1"
-    parentId="${pom.groupId}/server-security/${pom.currentVersion}/car">
+    parentId="${pom.groupId}/server-security/${version}/car">
 
     <module>
         <web>servlet_deploy_ejblink_single_web.war</web>

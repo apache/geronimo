@@ -11,7 +11,7 @@
       <moduleId>
         <groupId>geronimo</groupId>
         <artifactId>magicGBall-corba-nosec</artifactId>
-        <version>${pom.currentVersion}</version>
+        <version>${version}</version>
         <type>car</type>
       </moduleId>
       <dependencies>
@@ -88,7 +88,7 @@
               <moduleId>
                 <groupId>geronimo</groupId>
                 <artifactId>magicGBall-corba-nosec-client</artifactId>
-                <version>${pom.currentVersion}</version>
+                <version>${version}</version>
                 <type>car</type>
               </moduleId>
               <dependencies>

@@ -10,7 +10,7 @@
       <dep:dependency>
         <dep:groupId>${pom.groupId}</dep:groupId>
         <dep:artifactId>server-security</dep:artifactId>
-        <dep:version>${pom.currentVersion}</dep:version>
+        <dep:version>${version}</dep:version>
         <dep:type>car</dep:type>
       </dep:dependency>
       <dep:dependency>
@@ -43,7 +43,7 @@
           <dep:dependency>
             <dep:groupId>${pom.groupId}</dep:groupId>
             <dep:artifactId>client-database</dep:artifactId>
-            <dep:version>${pom.currentVersion}</dep:version>
+            <dep:version>${version}</dep:version>
             <dep:type>car</dep:type>
           </dep:dependency>
           <dep:dependency>

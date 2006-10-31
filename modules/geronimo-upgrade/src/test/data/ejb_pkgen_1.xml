@@ -3,7 +3,7 @@
              xmlns:j2ee="http://java.sun.com/xml/ns/j2ee"
              xmlns:pk="http://tranql.codehaus.org/xml/ns/pkgen"
              configId="ejb_unknownpk"
-             parentId="${pom.groupId}/jms/${pom.currentVersion}/car">
+             parentId="${pom.groupId}/jms/${version}/car">
   <module>
     <ejb>ejb_unknownpk_ejb.jar</ejb>
     <openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar" configId="ejb">
@@ -32,7 +32,7 @@
         <reference name="TransactionManager">
             <gbean-name>*:name=TransactionManager,*</gbean-name>
         </reference>
-        <reference name="ManagedConnectionFactoryWrapper"><gbean-name>geronimo.server:J2EEApplication=null,J2EEServer=geronimo,JCAResource=geronimo-cts/database/${pom.currentVersion}/car,j2eeType=JCAManagedConnectionFactory,name=jdbc/DB1</gbean-name></reference>
+        <reference name="ManagedConnectionFactoryWrapper"><gbean-name>geronimo.server:J2EEApplication=null,J2EEServer=geronimo,JCAResource=geronimo-cts/database/${version}/car,j2eeType=JCAManagedConnectionFactory,name=jdbc/DB1</gbean-name></reference>
         <attribute name="tableName">CUSTOM_UNKNOWNPK_TABLE1</attribute>
         <attribute name="sequenceName">ABC_SEQ</attribute>
         <attribute name="batchSize">10</attribute>

@@ -5,14 +5,14 @@
     >
 
     <import>
-        <uri>${pom.groupId}/server-resources/${pom.currentVersion}/car</uri>
+        <uri>${pom.groupId}/server-resources/${version}/car</uri>
     </import>
 
     <module>
         <java>transport_1_client.jar</java>
         <application-client xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client"
             configId="bar"
-            clientParentId="${pom.groupId}/client-security/${pom.currentVersion}/car" clientConfigId="transport_ejb_vehicle/transport_ejb_vehicle_client">
+            clientParentId="${pom.groupId}/client-security/${version}/car" clientConfigId="transport_ejb_vehicle/transport_ejb_vehicle_client">
             <ejb-ref>
                 <ref-name>ejb/EJBVehicle</ref-name>
                 <ejb-link>common_ejb_EJBVehicle</ejb-link>

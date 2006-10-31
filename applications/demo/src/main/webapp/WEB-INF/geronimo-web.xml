@@ -23,8 +23,8 @@
     parentId="geronimo/security/1.0/car">
 
 <!--
-    configId="geronimo/security-demo/${pom.currentVersion}/car"
-    parentId="geronimo/security/${pom.currentVersion}/car">
+    configId="geronimo/security-demo/${version}/car"
+    parentId="geronimo/security/${version}/car">
 -->
 
     <context-root>/demo</context-root>
@@ -61,10 +61,10 @@
             <name>demo-properties-login</name>
         </reference>
         <reference name="ServerInfo">
-            <module>geronimo/system/${pom.currentVersion}/car</module>
+            <module>geronimo/system/${version}/car</module>
             <name>ServerInfo</name>
         </reference>
-        <reference name="LoginService"><module>geronimo/security/${pom.currentVersion}/car</module><name>JaasLoginService</name></reference>
+        <reference name="LoginService"><module>geronimo/security/${version}/car</module><name>JaasLoginService</name></reference>
     </gbean>
 
     <gbean name="demo-properties-login" class="org.apache.geronimo.security.jaas.JaasLoginModuleUse">

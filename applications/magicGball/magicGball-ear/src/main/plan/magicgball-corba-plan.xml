@@ -12,7 +12,7 @@
       <moduleId>
         <groupId>geronimo</groupId>
         <artifactId>magicGBall-corba-ssl</artifactId>
-        <version>${pom.currentVersion}</version>
+        <version>${version}</version>
         <type>car</type>
       </moduleId>
       <dependencies>
@@ -91,7 +91,7 @@
               <moduleId>
                 <groupId>geronimo</groupId>
                 <artifactId>magicGBall-corba-ssl-client</artifactId>
-                <version>${pom.currentVersion}</version>
+                <version>${version}</version>
                 <type>car</type>
               </moduleId>
               <dependencies>

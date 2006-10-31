@@ -5,7 +5,7 @@
     >
 
     <import>
-        <uri>${pom.groupId}/server-resources/${pom.currentVersion}/car</uri>
+        <uri>${pom.groupId}/server-resources/${version}/car</uri>
     </import>
 </application>
         

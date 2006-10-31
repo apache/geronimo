@@ -37,9 +37,6 @@
         <!-- This property is required by the car:package mojo -->
         <geronimoVersion>${version}</geronimoVersion>
 
-        <!-- This property is required to process geronimo-plugin.xml (for m2 & m2) -->
-        <pom.currentVersion>${version}</pom.currentVersion>
-
         <gbeanDeployer>org.apache.geronimo.configs/geronimo-gbean-deployer/${version}/car</gbeanDeployer>
         <j2eeDeployer>org.apache.geronimo.configs/j2ee-deployer/${version}/car</j2eeDeployer>
         <clientDeployer>org.apache.geronimo.configs/client-deployer/${version}/car</clientDeployer>
