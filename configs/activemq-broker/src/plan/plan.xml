@@ -29,7 +29,7 @@
         -->
         <attribute name="brokerName">possibly-unique-broker</attribute>
         <attribute name="useShutdownHook">false</attribute>
-        <attribute name="dataDirectory">activemq-data</attribute>
+        <attribute name="dataDirectory">var/activemq</attribute>
         <reference name="dataSource">
             <name>SystemDatasource</name>
         </reference>
