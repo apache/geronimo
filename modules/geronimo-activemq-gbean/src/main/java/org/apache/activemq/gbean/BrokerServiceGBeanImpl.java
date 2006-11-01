@@ -20,10 +20,12 @@ package org.apache.activemq.gbean;
 import java.net.URI;
 
 import javax.sql.DataSource;
+import javax.jms.JMSException;
 
 import org.apache.activemq.broker.BrokerFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.store.DefaultPersistenceAdapterFactory;
+import org.apache.activemq.transport.TransportDisposedIOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.connector.outbound.ConnectionFactorySource;
@@ -56,7 +58,7 @@ public class BrokerServiceGBeanImpl implements GBeanLifecycle, BrokerServiceGBea
 
     public BrokerServiceGBeanImpl() {
     }
-    
+
     public synchronized BrokerService getBrokerContainer() {
         return brokerService;
     }
@@ -94,7 +96,14 @@ public class BrokerServiceGBeanImpl implements GBeanLifecycle, BrokerServiceGBea
         if (brokerService != null) {
             BrokerService temp = brokerService;
             brokerService = null;
-            temp.stop();
+            try {
+                temp.stop();
+            } catch (JMSException ignored) {
+                // just a lame exception ActiveMQ likes to throw on shutdown
+                if (!(ignored.getCause() instanceof TransportDisposedIOException)) {
+                    throw ignored;
+                }
+            }
         }
     }
 
@@ -104,6 +113,11 @@ public class BrokerServiceGBeanImpl implements GBeanLifecycle, BrokerServiceGBea
             brokerService = null;
             try {
                 temp.stop();
+            } catch (JMSException ignored) {
+                // just a lame exception ActiveMQ likes to throw on shutdown
+                if (!(ignored.getCause() instanceof TransportDisposedIOException)) {
+                    log.warn("Caught while closing due to failure: " + ignored, ignored);
+                }
             } catch (Exception e) {
                 log.warn("Caught while closing due to failure: " + e, e);
             }
