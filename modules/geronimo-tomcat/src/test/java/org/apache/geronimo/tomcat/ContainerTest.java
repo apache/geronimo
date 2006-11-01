@@ -23,7 +23,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import org.apache.geronimo.tomcat.app.MockWebServiceContainer;
-import sun.misc.BASE64Encoder;
+import org.apache.geronimo.util.encoders.Base64;
 
 
 /**
@@ -78,7 +78,7 @@ public class ContainerTest extends AbstractWebModuleTest {
 
         //Authenticate
         connection = (HttpURLConnection) new URL("http://localhost:8181" + contextPath).openConnection();
-        String authentication = (new BASE64Encoder()).encode(("alan:starcraft").getBytes());
+        String authentication = new String(Base64.encode("alan:starcraft".getBytes()));
         connection.setRequestProperty("Authorization", "Basic " + authentication);
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
