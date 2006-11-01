@@ -112,8 +112,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
     private final J2EEServer server;
 
-    private final J2EEApplication application;
-
     private final Map webServices;
 
     private final String objectName;
@@ -121,6 +119,12 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private final String originalSpecDD;
 
     private final URL configurationBaseURL;
+    
+    // JSR 77 
+    
+    private final String j2EEServer;
+    
+    private final String j2EEApplication;
 
     public TomcatWebAppContext(
             ClassLoader classLoader,
@@ -177,7 +181,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         this.trackedConnectionAssociator = trackedConnectionAssociator;
 
         this.server = server;
-        this.application = application;
 
         this.configurationBaseURL = configurationBaseUrl;
 
@@ -226,11 +229,17 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         this.classLoader = classLoader;
 
         this.kernel = kernel;
+        
         if (objectName != null) {
             ObjectName myObjectName = ObjectNameUtil.getObjectName(objectName);
             verifyObjectName(myObjectName);
-        }
-
+            j2EEServer = myObjectName.getKeyProperty(NameFactory.J2EE_SERVER);
+            j2EEApplication = myObjectName.getKeyProperty(NameFactory.J2EE_APPLICATION);
+        } else {
+            // StandardContext uses default value of these as "none"
+            j2EEServer = null;
+            j2EEApplication = null;
+        }       
     }
 
     private Map createWebServices(Map webServiceFactoryMap, Kernel kernel) throws Exception {
@@ -250,6 +259,14 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
     public String getObjectName() {
         return objectName;
+    }
+
+    public String getJ2EEApplication() {
+        return j2EEApplication;
+    }
+
+    public String getJ2EEServer() {
+        return j2EEServer;
     }
 
     public boolean isStateManageable() {

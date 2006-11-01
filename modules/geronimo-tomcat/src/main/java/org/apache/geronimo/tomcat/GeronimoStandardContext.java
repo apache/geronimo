@@ -81,6 +81,8 @@ public class GeronimoStandardContext extends StandardContext {
             TomcatWebAppContext tctx = (TomcatWebAppContext) ctx;
             setJavaVMs(tctx.getJavaVMs());
             setServer(tctx.getServer());
+            setJ2EEApplication(tctx.getJ2EEApplication());
+            setJ2EEServer(tctx.getJ2EEServer());
         }
         // Create ReadOnlyContext
         javax.naming.Context enc = null;

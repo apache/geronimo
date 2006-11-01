@@ -22,6 +22,8 @@ import java.util.Map;
 import java.net.URLStreamHandlerFactory;
 import java.net.URL;
 
+import javax.management.ObjectName;
+
 import org.apache.catalina.Container;
 import org.apache.catalina.Context;
 import org.apache.catalina.Engine;
@@ -34,6 +36,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.management.geronimo.NetworkConnector;
 import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -202,6 +205,14 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         Context defaultContext;
         for (int i = 0; i < hosts.length; i++) {
             defaultContext = embedded.createContext("", docBase, classLoader);
+            if (defaultContext instanceof GeronimoStandardContext) {
+                GeronimoStandardContext ctx = (GeronimoStandardContext) defaultContext;
+                // Without this the Tomcat FallBack Application is left behind,
+                // MBean - ...J2EEApplication=none,J2EEServer=none,..........
+                ctx.setJ2EEApplication(null);
+                // TODO if objectName != null extract J2EEServer from objectName/host
+                ctx.setJ2EEServer("geronimo");
+            }
             hosts[i].addChild(defaultContext);
         }
 
