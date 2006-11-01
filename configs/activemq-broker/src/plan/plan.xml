@@ -59,13 +59,4 @@
         </reference>
     </gbean>
 
-    <gbean name="ActiveMQ.vm.default" class="org.apache.activemq.gbean.TransportConnectorGBeanImpl">
-        <attribute name="protocol">vm</attribute>
-        <attribute name="host">localhost</attribute>
-        <attribute name="port">-1</attribute>
-        <reference name="brokerService">
-            <name>ActiveMQ</name>
-        </reference>
-    </gbean>
-
 </module>
