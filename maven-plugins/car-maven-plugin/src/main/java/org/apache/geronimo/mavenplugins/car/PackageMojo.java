@@ -253,15 +253,8 @@ public class PackageMojo
         //       are missing from the source respository, then strange packaging failures will occur.
         //
         for (int i=0; i<deploymentConfigs.length; i++) {
-            String[] parts = deploymentConfigs[i].split("/");
-            ArtifactItem item = new ArtifactItem();
-            item.setGroupId(parts[0]);
-            item.setArtifactId(parts[1]);
-            item.setVersion(parts[2]);
-            item.setType(parts[3]);
-
-            log.debug("Resolving deployer module: " + item);
-            Artifact artifact = createArtifact(item);
+            Artifact artifact = geronimoToMavenArtifact(org.apache.geronimo.kernel.repository.Artifact.create(deploymentConfigs[i]));
+            log.debug("Resolving deployer module: " + artifact);
             resolveArtifact(artifact, true);
         }
 
