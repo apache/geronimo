@@ -117,9 +117,18 @@ public class InstallModulesMojo
 
     private RepositoryConfigurationStore sourceStore;
 
+    /**
+     * Set of artifacts which have already been installed, so we can skip any processing.
+     */
+    private Set installedArtifacts = new HashSet();
+
     protected void doExecute() throws Exception {
         generateExplicitVersionProperties(explicitResolutionProperties);
-        
+
+        //
+        // TODO: Check if we need to use the Maven2RepositoryAdapter here or not...
+        //
+
         sourceRepo = new Maven2Repository(new File(sourceRepository.getBasedir()));
         sourceStore = new RepositoryConfigurationStore(sourceRepo);
 
@@ -139,11 +148,12 @@ public class InstallModulesMojo
             install(Artifact.create(artifact));
         }
         else {
-            Iterator itr = getDependencies().iterator();
-            while (itr.hasNext()) {
-                org.apache.maven.artifact.Artifact mavenArtifact = (org.apache.maven.artifact.Artifact) itr.next();
-                if ("car".equals(mavenArtifact.getType())) {
-                    install(new Artifact(mavenArtifact.getGroupId(), mavenArtifact.getArtifactId(), mavenArtifact.getVersion(), "car"));
+            Iterator iter = getDependencies().iterator();
+            while (iter.hasNext()) {
+
+                Artifact artifact = mavenToGeronimoArtifact((org.apache.maven.artifact.Artifact) iter.next());
+                if (isModuleArtifact(artifact)) {
+                    install(artifact);
                 }
             }
         }
@@ -157,8 +167,9 @@ public class InstallModulesMojo
     protected Set getDependencies() {
         Set dependenciesSet = new HashSet();
 
-        if (project.getArtifact() != null && project.getArtifact().getFile() != null) {
-            dependenciesSet.add(project.getArtifact());
+        org.apache.maven.artifact.Artifact artifact = project.getArtifact();
+        if (artifact != null && artifact.getFile() != null) {
+            dependenciesSet.add(artifact);
         }
 
         Set projectArtifacts = project.getArtifacts();
@@ -170,9 +181,215 @@ public class InstallModulesMojo
     }
 
     /**
+     * Install the given artifact into the target Geronimo repository.
+     *
+     * @param artifact      The artifact to be installed; must not be null
+     *
+     * @throws Exception    Failed to install artifact
+     */
+    private void install(final Artifact artifact) throws Exception {
+        assert artifact != null;
+
+        if (installedArtifacts.contains(artifact)) {
+            log.debug("Skipping artifact; already installed: " + artifact);
+        }
+        else {
+            // The artifact must exist in the source repository
+            if (!sourceRepo.contains(artifact)) {
+                throw new Exception("Missing artifact in source repository: " + artifact);
+            }
+
+            if (isModuleArtifact(artifact)) {
+                installModule(artifact);
+            }
+            else {
+                installDependency(artifact);
+            }
+        }
+    }
+
+    /**
+     * Install a Geornimo module artifact.
+     *
+     * @param artifact      The Geronimo module artifact to be installed; must not be null, must be a module
+     *
+     * @throws Exception    Failed to insall Geronimo module artifact
+     */
+    private void installModule(final Artifact artifact) throws Exception {
+        assert artifact != null;
+        assert isModuleArtifact(artifact);
+
+        boolean install = true;
+
+        // The source store must contain the module artifact
+        if (!sourceStore.containsConfiguration(artifact)) {
+            throw new Exception("Missing module artifact in source repository: " + artifact);
+        }
+
+        // If the target store already contains the module, check if we need to reinstall it
+        if (targetStore.containsConfiguration(artifact)) {
+            if (hasModuleChanged(artifact)) {
+                log.debug("Old module exists in target store; uninstalling: " + artifact);
+                targetStore.uninstall(artifact);
+            }
+            else {
+                log.debug("Same module exists in target store; skipping: " + artifact);
+                install = false;
+            }
+        }
+
+        // Copy the configuration into the target configuration store
+        if (install) {
+            log.info("Installing module: " + artifact);
+
+            File file = sourceRepo.getLocation(artifact);
+            InputStream input = new BufferedInputStream(new FileInputStream(file));
+
+            try {
+                FileWriteMonitor monitor = new FileWriteMonitor() {
+                    public void writeStarted(final String file, final int bytes) {
+                        log.debug("Installing module: " + file + " (" + bytes + " bytes)");
+                    }
+
+                    public void writeProgress(int bytes) {
+                        // empty
+                    }
+
+                    public void writeComplete(int bytes) {
+                        // empty
+                    }
+                };
+
+                targetStore.install(input, (int)file.length(), artifact, monitor);
+
+                installedArtifacts.add(artifact);
+            }
+            finally {
+                input.close();
+            }
+        }
+
+        // Install all dependencies of this module
+        installModuleDependencies(artifact);
+    }
+
+    /**
+     * Install all of the dependencies of the given Geronimo module artifact.
+     *
+     * @param artifact      The Geronimo module artifact to be installed; must not be null, must be a module
+     *
+     * @throws Exception    Failed to install Geronimo module dependencies
+     */
+    private void installModuleDependencies(final Artifact artifact) throws Exception {
+        assert artifact != null;
+        assert isModuleArtifact(artifact);
+
+        log.debug("Installing module dependencies for artifact: " + artifact);
+
+        try {
+            ConfigurationData config = targetStore.loadConfiguration(artifact);
+            Environment env = config.getEnvironment();
+            LinkedHashSet deps = new LinkedHashSet();
+
+            Iterator iter = env.getDependencies().iterator();
+            while (iter.hasNext()) {
+                Dependency dep = (Dependency) iter.next();
+                deps.add(dep.getArtifact());
+            }
+
+            installDependencies(deps);
+        }
+        catch (IOException e) {
+            throw new InvalidConfigException("Unable to load module: " + artifact, e);
+        }
+        catch (NoSuchConfigException e) {
+            throw new InvalidConfigException("Unable to load module: " + artifact, e);
+        }
+    }
+
+    /**
+     * Install a dependency artifact into the Geronimo repository.
+     *
+     * @param artifact      The artifact to be installed; must not be null, or a module artifact
+     *
+     * @throws Exception    Failed to install artifact dependencies
+     */
+    private void installDependency(final Artifact artifact) throws Exception {
+        assert artifact != null;
+        assert !isModuleArtifact(artifact);
+
+        boolean install = true;
+
+        // If the dep already exists, then check if we need to reinstall it
+        if (targetRepo.contains(artifact)) {
+            if (hasDependencyChanged(artifact)) {
+                File file = targetRepo.getLocation(artifact);
+                log.debug("Old dependency exists in target repo; deleting: " + file);
+                FileUtils.forceDelete(file);
+            }
+            else {
+                log.debug("Same dependency exists in target repo; skipping: " + artifact);
+                install = false;
+            }
+        }
+
+        if (install) {
+            log.info("Installing dependency: " + artifact);
+
+            // Copy the artifact into the target repo
+            File file = sourceRepo.getLocation(artifact);
+            InputStream input = new BufferedInputStream(new FileInputStream(file));
+            try {
+                FileWriteMonitor monitor = new FileWriteMonitor() {
+                    public void writeStarted(final String file, final int bytes) {
+                        log.debug("Copying dependency: " + file + " (" + bytes + " bytes)");
+                    }
+
+                    public void writeProgress(int bytes) {
+                        // empty
+                    }
+
+                    public void writeComplete(int bytes) {
+                        // empty
+                    }
+                };
+                
+                targetRepo.copyToRepository(input, (int)file.length(), artifact, monitor);
+
+                installedArtifacts.add(artifact);
+            }
+            finally {
+                input.close();
+            }
+        }
+
+        // Install all dependencies of this artifact
+        installDependencies(sourceRepo.getDependencies(artifact));
+    }
+
+    /**
+     * Install a set of dependency artifacts into the Geronimo repository.
+     *
+     * @param dependencies  The set of artifacts to be installed; must not be null.
+     *
+     * @throws Exception    Failed to install artifacts
+     */
+    private void installDependencies(final Set/*<Artifact>*/ dependencies) throws Exception {
+        assert dependencies != null;
+
+        Set resolved = geronimoArtifactResolver.resolveInClassLoader(dependencies);
+        Iterator iter = resolved.iterator();
+
+        while (iter.hasNext()) {
+            Artifact a = (Artifact)iter.next();
+            install(a);
+        }
+    }
+
+    /**
      * Check if a module has changed by comparing the checksum in the source and target repos.
      *
-     * @param module    The module to inspect
+     * @param module    The module to inspect; must not be null.
      * @return          Returns true if the module has changed
      *
      * @throws IOException      Failed to load checksum
@@ -188,9 +405,9 @@ public class InstallModulesMojo
 
     /**
      * Load the <tt>config.ser</tt> checksum for the given artifact.
-     * 
-     * @param repo      The repository to resolve the artifacts location.
-     * @param artifact  The artifact to retrieve a checksum for
+     *
+     * @param repo      The repository to resolve the artifacts location; must not be null.
+     * @param artifact  The artifact to retrieve a checksum for; must not be null.
      * @return          Thr artifacts checksum
      *
      * @throws IOException  Failed to load checksums
@@ -218,101 +435,19 @@ public class InstallModulesMojo
         return checksum;
     }
 
-    private void install(final Artifact module) throws Exception {
-        assert module != null;
+    /**
+     * Check if a dependency has changed by checking the file size and last modified for source and target.
+     *
+     * @param artifact  The artifact to check; must not be null
+     * @return          True if the dependency has changed
+     */
+    private boolean hasDependencyChanged(final Artifact artifact) {
+        assert artifact != null;
 
-        log.debug("Installing: " + module);
-        
-        LinkedHashSet dependencies;
+        File source = sourceRepo.getLocation(artifact);
+        File target = targetRepo.getLocation(artifact);
 
-        FileWriteMonitor monitor = new FileWriteMonitor() {
-            public void writeStarted(String fileDescription, int fileSize) {
-                log.debug("Copying: " + fileDescription);
-            }
-
-            public void writeProgress(int bytes) {
-                // empty
-            }
-
-            public void writeComplete(int bytes) {
-                // empty
-            }
-        };
-
-        // does this configuration exist?
-        if (!sourceRepo.contains(module)) {
-            throw new NoSuchConfigException(module);
-        }
-        
-        // is this config already installed?
-        if (targetStore.containsConfiguration(module)) {
-            if (hasModuleChanged(module)) {
-                log.debug("Old module exists in target store; uninstalling: " + module);
-                targetStore.uninstall(module);
-            }
-            else {
-                log.debug("Same module exists in target store; skipping: " + module);
-                return;
-            }
-        }
-        
-        if (sourceStore.containsConfiguration(module)) {
-            // Copy the configuration into the target configuration store
-            if (!targetStore.containsConfiguration(module)) {
-                File sourceFile = sourceRepo.getLocation(module);
-                InputStream in = new BufferedInputStream(new FileInputStream(sourceFile));
-                try {
-                    targetStore.install(in, (int)sourceFile.length(), module, monitor);
-                }
-                finally {
-                    in.close();
-                }
-            }
-
-            // Determine the dependencies of this configuration
-            try {
-                ConfigurationData configurationData = targetStore.loadConfiguration(module);
-                Environment environment = configurationData.getEnvironment();
-                dependencies = new LinkedHashSet();
-                for (Iterator iterator = environment.getDependencies().iterator(); iterator.hasNext();) {
-                    Dependency dependency = (Dependency) iterator.next();
-                    dependencies.add(dependency.getArtifact());
-                }
-
-                log.info("Installed module: " + module);
-            }
-            catch (IOException e) {
-                throw new InvalidConfigException("Unable to load module: " + module, e);
-            }
-            catch (NoSuchConfigException e) {
-                throw new InvalidConfigException("Unable to load module: " + module, e);
-            }
-        }
-        else {
-            if (!sourceRepo.contains(module)) {
-                throw new RuntimeException("Dependency not found in local maven repo: " + module + "; for module: " + artifact);
-            }
-
-            // Copy the artifact into the target repo
-            if (!targetRepo.contains(module)) {
-                File sourceFile = sourceRepo.getLocation(module);
-                InputStream input = new BufferedInputStream(new FileInputStream(sourceFile));
-                try {
-                    targetRepo.copyToRepository(input, (int)sourceFile.length(), module, monitor);
-                }
-                finally {
-                    input.close();
-                }
-            }
-
-            // Determine the dependencies of this artifact
-            dependencies = sourceRepo.getDependencies(module);
-        }
-        
-        dependencies = geronimoArtifactResolver.resolveInClassLoader(dependencies);
-        for (Iterator iterator = dependencies.iterator(); iterator.hasNext();) {
-            Artifact a = (Artifact)iterator.next();
-            install(a);
-        }
+        return (source.length() != target.length()) ||
+               (source.lastModified() > target.lastModified());
     }
 }
