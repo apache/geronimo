@@ -35,7 +35,13 @@ public class NamingPropertiesTest extends TestCase {
         assertEquals(namingProperties.getNamingFactoryUrlPkgs(), FACTORY_URL_PKGS);
         assertEquals(namingProperties.getNamingProviderUrl(), PROVIDER_URL);
 
-        new InitialContext();
-
+        try {
+            // the above assumes we're running on a Sun JVM.  If we can't load the class first,
+            // we'll skip the attempt at creating the InitialContext.  We've already verified that the
+            // system properties have been set to the correct values, so this last bit is largely a formality.
+            Class.forName("NAME_FACTORY_INITIAL");
+            new InitialContext();
+        } catch (ClassNotFoundException e) {
+        }
     }
 }
