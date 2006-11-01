@@ -45,7 +45,6 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.XmlCursor.TokenType;
 
 //
 // TODO: Rename to PreparePlanMojo
