@@ -196,7 +196,7 @@ public class ServerConnection {
         if (offline) {
             LocalServer localServer;
             try {
-                localServer = new LocalServer("geronimo/j2ee-system//car", "var/config/offline-deployer-list");
+                localServer = new LocalServer("org.apache.geronimo.configs/j2ee-system//car", "var/config/offline-deployer-list");
             } catch (Exception e) {
                 throw new DeploymentException("Could not start local server", e);
             }
