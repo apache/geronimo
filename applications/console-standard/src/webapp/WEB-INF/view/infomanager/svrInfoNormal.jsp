@@ -138,6 +138,6 @@ function <portlet:namespace/>onError() {
 </script>
 
 <%-- todo: calculate the /console prefix somehow --%>
-<embed src="/console/graphs/memoryGraphSVG.jsp"
+<embed src="/console/forwards/graphs/memoryGraphSVG.jsp"
        width="600" height="450" type="image/svg+xml"
        pluginspage="http://www.adobe.com/svg/viewer/install/" />

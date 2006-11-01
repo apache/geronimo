@@ -26,6 +26,21 @@
             <context-root>/console</context-root>
             <cross-context/>
             <security-realm-name>geronimo-properties-realm</security-realm-name>
+            <gbean name="CARExportForward" class="org.apache.geronimo.console.gbean.ContextForwardGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+                <attribute name="portalPathPrefix">/car-export</attribute>
+                <attribute name="portletContextPath">/console-standard</attribute>
+                <attribute name="portletServletPath">/car-export</attribute>
+            </gbean>
+            <gbean name="SVGForward" class="org.apache.geronimo.console.gbean.ContextForwardGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+                <attribute name="portalPathPrefix">/graphs</attribute>
+                <attribute name="portletContextPath">/console-standard</attribute>
+                <attribute name="portletServletPath">/graphs</attribute>
+            </gbean>
+            <gbean name="PlanExportForward" class="org.apache.geronimo.console.gbean.ContextForwardGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+                <attribute name="portalPathPrefix">/plan-export</attribute>
+                <attribute name="portletContextPath">/console-standard</attribute>
+                <attribute name="portletServletPath">/plan-export</attribute>
+            </gbean>
         </web-app>
     </module>
 
@@ -35,7 +50,7 @@
             <context-root>/console-standard</context-root>
             <cross-context/>
             <security-realm-name>geronimo-properties-realm</security-realm-name>
-            <gbean name="Database0" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+            <gbean name="Database0" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <attribute name="name">DaffodilDB Embedded</attribute>
                 <attribute name="URLPrototype">jdbc:daffodilDB_embedded:{Database}</attribute>
                 <attribute name="driverClassName">in.co.daffodil.db.jdbc.DaffodilDBDriver</attribute>
@@ -43,7 +58,7 @@
                 <attribute name="XA">false</attribute>
                 <attribute name="RARName">tranql/tranql-connector/${tranql_connector_version}/rar</attribute>
             </gbean>
-            <gbean name="Database1" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+            <gbean name="Database1" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <attribute name="name">DaffodilDB Server</attribute>
                 <attribute name="URLPrototype">jdbc:daffodilDB://{Host}:{Port}/{Database}</attribute>
                 <attribute name="driverClassName">in.co.daffodil.db.rmi.RmiDaffodilDBDriver</attribute>
@@ -51,7 +66,7 @@
                 <attribute name="XA">false</attribute>
                 <attribute name="RARName">tranql/tranql-connector/${tranql_connector_version}/rar</attribute>
             </gbean>
-            <gbean name="Database2" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+            <gbean name="Database2" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <attribute name="name">DB2</attribute>
                 <attribute name="URLPrototype">jdbc:db2://{Host}:{Port}/{Database}</attribute>
                 <attribute name="driverClassName">com.ibm.db2.jcc.DB2Driver</attribute>
@@ -59,7 +74,7 @@
                 <attribute name="XA">false</attribute>
                 <attribute name="RARName">tranql/tranql-connector/${tranql_connector_version}/rar</attribute>
             </gbean>
-            <gbean name="Database3" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+            <gbean name="Database3" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <attribute name="name">DB2 (DataDirect)</attribute>
                 <attribute name="URLPrototype">jdbc:datadirect:db2://{Host}:{Port};DatabaseName={Database}</attribute>
                 <attribute name="driverClassName">com.ddtek.jdbc.db2.DB2Driver</attribute>
@@ -67,7 +82,7 @@
                 <attribute name="XA">false</attribute>
                 <attribute name="RARName">tranql/tranql-connector/${tranql_connector_version}/rar</attribute>
             </gbean>
-            <gbean name="Database4" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+            <gbean name="Database4" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <attribute name="name">Derby embedded</attribute>
                 <attribute name="URLPrototype">jdbc:derby:{Database}</attribute>
                 <attribute name="driverClassName">org.apache.derby.jdbc.EmbeddedDriver</attribute>
@@ -75,7 +90,7 @@
                 <attribute name="XA">false</attribute>
                 <attribute name="RARName">tranql/tranql-connector/${tranql_connector_version}/rar</attribute>
             </gbean>
-            <gbean name="Database5" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+            <gbean name="Database5" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <attribute name="name">Derby network</attribute>
                 <attribute name="URLPrototype">jdbc:derby://{Host}:{Port}/{Database}</attribute>
                 <attribute name="driverClassName">org.apache.derby.jdbc.ClientDriver</attribute>
@@ -83,7 +98,7 @@
                 <attribute name="XA">false</attribute>
                 <attribute name="RARName">tranql/tranql-connector/${tranql_connector_version}/rar</attribute>
             </gbean>
-            <gbean name="Database6" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+            <gbean name="Database6" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <attribute name="name">Derby embedded XA</attribute>
                 <attribute name="URLPrototype">null</attribute>
                 <attribute name="driverClassName">null</attribute>
@@ -91,7 +106,7 @@
                 <attribute name="XA">true</attribute>
                 <attribute name="RARName">tranql/tranql-connector-derby-embed-xa/${tranql_vendors_version}/rar</attribute>
             </gbean>
-            <gbean name="Database7" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+            <gbean name="Database7" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <attribute name="name">Derby network XA</attribute>
                 <attribute name="URLPrototype">null</attribute>
                 <attribute name="driverClassName">null</attribute>
@@ -99,7 +114,7 @@
                 <attribute name="XA">true</attribute>
                 <attribute name="RARName">tranql/tranql-connector-derby-client-xa/${tranql_vendors_version}/rar</attribute>
             </gbean>
-            <gbean name="Database8" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+            <gbean name="Database8" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <attribute name="name">FrontBase</attribute>
                 <attribute name="URLPrototype">jdbc:FrontBase://{Host}:{Port}/{Database}</attribute>
                 <attribute name="driverClassName">com.frontbase.jdbc.FBJDriver</attribute>
@@ -107,7 +122,7 @@
                 <attribute name="XA">false</attribute>
                 <attribute name="RARName">tranql/tranql-connector/${tranql_connector_version}/rar</attribute>
             </gbean>
-            <gbean name="Database9" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+            <gbean name="Database9" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <attribute name="name">HSQLDB embedded</attribute>
                 <attribute name="URLPrototype">jdbc:hsqldb:{Database}</attribute>
                 <attribute name="driverClassName">org.hsqldb.jdbcDriver</attribute>
@@ -115,7 +130,7 @@
                 <attribute name="XA">false</attribute>
                 <attribute name="RARName">tranql/tranql-connector/${tranql_connector_version}/rar</attribute>
             </gbean>
-            <gbean name="Database10" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+            <gbean name="Database10" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <attribute name="name">HSQLDB server</attribute>
                 <attribute name="URLPrototype">jdbc:hsqldb:hsql://{Host}:{Port}/{Database}</attribute>
                 <attribute name="driverClassName">org.hsqldb.jdbcDriver</attribute>
@@ -123,7 +138,7 @@
                 <attribute name="XA">false</attribute>
                 <attribute name="RARName">tranql/tranql-connector/${tranql_connector_version}/rar</attribute>
             </gbean>
-            <gbean name="Database11" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+            <gbean name="Database11" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <attribute name="name">Informix</attribute>
                 <attribute name="URLPrototype">jdbc:informix-sqli://{Host}:{Port}/{Database}:informixserver={dbservername}</attribute>
                 <attribute name="driverClassName">com.informix.jdbc.IfxDriver</attribute>
@@ -131,7 +146,7 @@
                 <attribute name="XA">false</attribute>
                 <attribute name="RARName">tranql/tranql-connector/${tranql_connector_version}/rar</attribute>
             </gbean>
-            <gbean name="Database12" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+            <gbean name="Database12" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <attribute name="name">Informix (DataDirect)</attribute>
                 <attribute name="URLPrototype">jdbc:datadirect:informix://{Host}:{Port};informixServer={dbservername};DatabaseName={Database}</attribute>
                 <attribute name="driverClassName">com.ddtek.jdbc.informix.InformixDriver</attribute>
@@ -139,7 +154,7 @@
                 <attribute name="XA">false</attribute>
                 <attribute name="RARName">tranql/tranql-connector/${tranql_connector_version}/rar</attribute>
             </gbean>
-            <gbean name="Database13" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+            <gbean name="Database13" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <attribute name="name">InterSystems Cache</attribute>
                 <attribute name="URLPrototype">jdbc:Cache://{Host}:{Port}/{namespace}</attribute>
                 <attribute name="driverClassName">com.intersys.jdbc.CacheDriver</attribute>
@@ -147,7 +162,7 @@
                 <attribute name="XA">false</attribute>
                 <attribute name="RARName">tranql/tranql-connector/${tranql_connector_version}/rar</attribute>
             </gbean>
-            <gbean name="Database14" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+            <gbean name="Database14" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <attribute name="name">JDataStore</attribute>
                 <attribute name="URLPrototype">jdbc:borland:dslocal:{file}</attribute>
                 <attribute name="driverClassName">com.borland.datastore.jdbc.DataStoreDriver</attribute>
@@ -155,7 +170,7 @@
                 <attribute name="XA">false</attribute>
                 <attribute name="RARName">tranql/tranql-connector/${tranql_connector_version}/rar</attribute>
             </gbean>
-            <gbean name="Database15" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+            <gbean name="Database15" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <attribute name="name">JDBC/ODBC Bridge</attribute>
                 <attribute name="URLPrototype">jdbc:odbc:{datasource}</attribute>
                 <attribute name="driverClassName">sun.jdbc.odbc.JdbcOdbcDriver</attribute>
@@ -163,7 +178,7 @@
                 <attribute name="XA">false</attribute>
                 <attribute name="RARName">tranql/tranql-connector/${tranql_connector_version}/rar</attribute>
             </gbean>
-            <gbean name="Database16" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+            <gbean name="Database16" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <attribute name="name">McKoi embedded</attribute>
                 <attribute name="URLPrototype">jdbc:mckoi:local://{ConfigPath}/{Schema}/</attribute>
                 <attribute name="driverClassName">com.mckoi.JDBCDriver</attribute>
@@ -171,7 +186,7 @@
                 <attribute name="XA">false</attribute>
                 <attribute name="RARName">tranql/tranql-connector/${tranql_connector_version}/rar</attribute>
             </gbean>
-            <gbean name="Database17" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+            <gbean name="Database17" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <attribute name="name">McKoi server</attribute>
                 <attribute name="URLPrototype">jdbc:mckoi://{Host}:{Port}/{Schema}/</attribute>
                 <attribute name="driverClassName">com.mckoi.JDBCDriver</attribute>
@@ -179,7 +194,7 @@
                 <attribute name="XA">false</attribute>
                 <attribute name="RARName">tranql/tranql-connector/${tranql_connector_version}/rar</attribute>
             </gbean>
-            <gbean name="Database18" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+            <gbean name="Database18" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <attribute name="name">Mimer</attribute>
                 <attribute name="URLPrototype">jdbc:mimer://{Host}:{Port}/{Database}</attribute>
                 <attribute name="driverClassName">com.mimer.jdbc.Driver</attribute>
@@ -187,7 +202,7 @@
                 <attribute name="XA">false</attribute>
                 <attribute name="RARName">tranql/tranql-connector/${tranql_connector_version}/rar</attribute>
             </gbean>
-            <gbean name="Database19" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+            <gbean name="Database19" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <attribute name="name">MySQL</attribute>
                 <attribute name="URLPrototype">jdbc:mysql://{Host}:{Port}/{Database}</attribute>
                 <attribute name="driverClassName">com.mysql.jdbc.Driver</attribute>
@@ -195,7 +210,7 @@
                 <attribute name="XA">false</attribute>
                 <attribute name="RARName">tranql/tranql-connector/${tranql_connector_version}/rar</attribute>
             </gbean>
-            <gbean name="Database20" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+            <gbean name="Database20" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <attribute name="name">Oracle Thin</attribute>
                 <attribute name="URLPrototype">jdbc:oracle:thin:@{Host}:{Port}:{SID}</attribute>
                 <attribute name="driverClassName">oracle.jdbc.OracleDriver</attribute>
@@ -203,7 +218,7 @@
                 <attribute name="XA">false</attribute>
                 <attribute name="RARName">tranql/tranql-connector/${tranql_connector_version}/rar</attribute>
             </gbean>
-            <gbean name="Database21" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+            <gbean name="Database21" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <attribute name="name">Oracle OCI</attribute>
                 <attribute name="URLPrototype">jdbc:oracle:oci:@{Host}:{Port}:{SID}</attribute>
                 <attribute name="driverClassName">oracle.jdbc.OracleDriver</attribute>
@@ -211,7 +226,7 @@
                 <attribute name="XA">false</attribute>
                 <attribute name="RARName">tranql/tranql-connector/${tranql_connector_version}/rar</attribute>
             </gbean>
-            <gbean name="Database22" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+            <gbean name="Database22" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <attribute name="name">Oracle (DataDirect)</attribute>
                 <attribute name="URLPrototype">jdbc:datadirect:oracle://{Host}:{Port};ServiceName={SID}</attribute>
                 <attribute name="driverClassName">com.ddtek.jdbc.oracle.OracleDriver</attribute>
@@ -219,7 +234,7 @@
                 <attribute name="XA">false</attribute>
                 <attribute name="RARName">tranql/tranql-connector/${tranql_connector_version}/rar</attribute>
             </gbean>
-            <gbean name="Database23" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+            <gbean name="Database23" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <attribute name="name">Pervasive</attribute>
                 <attribute name="URLPrototype">jdbc:pervasive://{Host}:{Port}/{Database}</attribute>
                 <attribute name="driverClassName">com.pervasive.jdbc.v2.Driver</attribute>
@@ -227,7 +242,7 @@
                 <attribute name="XA">false</attribute>
                 <attribute name="RARName">tranql/tranql-connector/${tranql_connector_version}/rar</attribute>
             </gbean>
-            <gbean name="Database24" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+            <gbean name="Database24" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <attribute name="name">Pointbase server</attribute>
                 <attribute name="URLPrototype">jdbc:pointbase:server://{Host}:{Port}/{Database}</attribute>
                 <attribute name="driverClassName">com.pointbase.jdbc.jdbcUniversalDriver</attribute>
@@ -235,7 +250,7 @@
                 <attribute name="XA">false</attribute>
                 <attribute name="RARName">tranql/tranql-connector/${tranql_connector_version}/rar</attribute>
             </gbean>
-            <gbean name="Database25" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+            <gbean name="Database25" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <attribute name="name">PostgreSQL</attribute>
                 <attribute name="URLPrototype">jdbc:postgresql://{Host}:{Port}/{Database}</attribute>
                 <attribute name="driverClassName">org.postgresql.Driver</attribute>
@@ -243,7 +258,7 @@
                 <attribute name="XA">false</attribute>
                 <attribute name="RARName">tranql/tranql-connector/${tranql_connector_version}/rar</attribute>
             </gbean>
-            <gbean name="Database26" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+            <gbean name="Database26" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <attribute name="name">Progress</attribute>
                 <attribute name="URLPrototype">jdbc:jdbcProgress:T:{Host}:{Port}:{Database}</attribute>
                 <attribute name="driverClassName">com.progress.sql.jdbc.JdbcProgressDriver</attribute>
@@ -251,7 +266,7 @@
                 <attribute name="XA">false</attribute>
                 <attribute name="RARName">tranql/tranql-connector/${tranql_connector_version}/rar</attribute>
             </gbean>
-            <gbean name="Database27" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+            <gbean name="Database27" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <attribute name="name">MaxDB</attribute>
                 <attribute name="URLPrototype">jdbc:sapdb://{Host}:{Port}/{Database}</attribute>
                 <attribute name="driverClassName">com.sap.dbtech.jdbc.DriverSapDB</attribute>
@@ -259,7 +274,7 @@
                 <attribute name="XA">false</attribute>
                 <attribute name="RARName">tranql/tranql-connector/${tranql_connector_version}/rar</attribute>
             </gbean>
-            <gbean name="Database28" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+            <gbean name="Database28" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <attribute name="name">SQL Server</attribute>
                 <attribute name="URLPrototype">jdbc:microsoft:sqlserver://{Host}:{Port};DatabaseName={Database}</attribute>
                 <attribute name="driverClassName">com.microsoft.jdbc.sqlserver.SQLServerDriver</attribute>
@@ -267,7 +282,7 @@
                 <attribute name="XA">false</attribute>
                 <attribute name="RARName">tranql/tranql-connector/${tranql_connector_version}/rar</attribute>
             </gbean>
-            <gbean name="Database29" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+            <gbean name="Database29" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <attribute name="name">SQL Server (jTDS)</attribute>
                 <attribute name="URLPrototype">jdbc:jtds:sqlserver://{Host}:{Port};DatabaseName={Database}</attribute>
                 <attribute name="driverClassName">net.sourceforge.jtds.jdbc.Driver</attribute>
@@ -275,7 +290,7 @@
                 <attribute name="XA">false</attribute>
                 <attribute name="RARName">tranql/tranql-connector/${tranql_connector_version}/rar</attribute>
             </gbean>
-            <gbean name="Database30" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+            <gbean name="Database30" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <attribute name="name">SQL Server (DataDirect)</attribute>
                 <attribute name="URLPrototype">jdbc:datadirect:sqlserver://{Host}:{Port};DatabaseName={Database}</attribute>
                 <attribute name="driverClassName">com.ddtek.jdbc.sqlserver.SQLServerDriver</attribute>
@@ -283,7 +298,7 @@
                 <attribute name="XA">false</attribute>
                 <attribute name="RARName">tranql/tranql-connector/${tranql_connector_version}/rar</attribute>
             </gbean>
-            <gbean name="Database31" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+            <gbean name="Database31" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <attribute name="name">Sybase ASE</attribute>
                 <attribute name="URLPrototype">jdbc:sybase:Tds:{Host}:{Port}/{Database}</attribute>
                 <attribute name="driverClassName">com.sybase.jdbc3.jdbc.SybDriver</attribute>
@@ -291,7 +306,7 @@
                 <attribute name="XA">false</attribute>
                 <attribute name="RARName">tranql/tranql-connector/${tranql_connector_version}/rar</attribute>
             </gbean>
-            <gbean name="Database32" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+            <gbean name="Database32" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <attribute name="name">Sybase ASA</attribute>
                 <attribute name="URLPrototype">jdbc:sybase:Tds:{Host}:{Port}/{Database}</attribute>
                 <attribute name="driverClassName">com.sybase.jdbc3.jdbc.SybDriver</attribute>
@@ -299,7 +314,7 @@
                 <attribute name="XA">false</attribute>
                 <attribute name="RARName">tranql/tranql-connector/${tranql_connector_version}/rar</attribute>
             </gbean>
-            <gbean name="Database33" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+            <gbean name="Database33" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <attribute name="name">Sybase (DataDirect)</attribute>
                 <attribute name="URLPrototype">jdbc:datadirect:sybase://{Host}:{Port};DatabaseName={Database}</attribute>
                 <attribute name="driverClassName">com.ddtek.jdbc.sybase.SybaseDriver</attribute>
@@ -307,7 +322,7 @@
                 <attribute name="XA">false</attribute>
                 <attribute name="RARName">tranql/tranql-connector/${tranql_connector_version}/rar</attribute>
             </gbean>
-            <gbean name="Database34" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+            <gbean name="Database34" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <attribute name="name">Other</attribute>
                 <attribute name="URLPrototype"></attribute>
                 <attribute name="driverClassName"></attribute>
@@ -318,25 +333,23 @@
         </web-app>
     </module>
 
-    <security>
-    	<default-principal realm-name="geronimo-properties-realm">
+    <security xmlns="http://geronimo.apache.org/xml/ns/security-1.1">
+    	<default-principal>
     		<principal
     			class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal"
     			name="system" />
     	</default-principal>
     	<role-mappings>
     		<role role-name="admin">
-    			<realm realm-name="geronimo-properties-realm">
     				<principal
     					class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal"
     					name="admin" designated-run-as="true" />
-    			</realm>
     		</role>
     	</role-mappings>
     </security>
 
     <!-- Console specific server info -->
-    <gbean name="PropertiesLoginManager" class="org.apache.geronimo.console.core.security.PropertiesLoginModuleManager">
+    <gbean name="PropertiesLoginManager" class="org.apache.geronimo.console.core.security.PropertiesLoginModuleManager" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
         <reference name="ServerInfo">
             <name>ServerInfo</name>
         </reference>
@@ -346,7 +359,7 @@
     </gbean>
 
     <!-- Keystore configuration -->
-    <gbean name="KeyStore" class="org.apache.geronimo.console.core.keystore.KeyStoreGBean">
+    <gbean name="KeyStore" class="org.apache.geronimo.console.core.keystore.KeyStoreGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
         <attribute name="keyStoreLocation">var/security/ssl-keystore-1</attribute>
         <attribute name="keyStoreType">jks</attribute>
         <attribute name="keyStoreProvider">SUN</attribute>

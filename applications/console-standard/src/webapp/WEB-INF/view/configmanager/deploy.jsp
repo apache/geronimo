@@ -45,7 +45,7 @@ before the migrated plan can be deployed.
 <p/>
 <div id="<portlet:namespace/>migratedPlan" style="display:inline">
 Migrated plan:
-<form method="POST" action="/console/plan-export">
+<form method="POST" action="/console/forwards/plan-export">
     <textarea name="migratedPlan" rows=10 cols=80><c:out escapeXml="true" value="${migratedPlan}"/></textarea>
     <br/>
     <button onclick="<portlet:namespace/>toggleDisplay('originalPlan');<portlet:namespace/>toggleDisplay('migratedPlan');return false;">Show original plan</button>

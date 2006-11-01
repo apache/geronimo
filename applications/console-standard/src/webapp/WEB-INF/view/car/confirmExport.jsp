@@ -9,7 +9,7 @@
 <p>Use the button below to save the plugin "${name}" to disk.</p>
 
 <%-- todo: calculate the /console prefix somehow --%>
-<form action="/console/car-export" method="GET">
+<form action="/console/forwards/car-export" method="GET">
     <input type="hidden" name="configId" value="${configId}" />
     <input type="submit" value="Export Plugin" />
 </form>

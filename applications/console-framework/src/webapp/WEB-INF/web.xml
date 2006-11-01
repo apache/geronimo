@@ -31,6 +31,12 @@ limitations under the License.
     </servlet>
 
     <servlet>
+        <display-name>Generic Context Forward Servlet</display-name>
+        <servlet-name>context-forward</servlet-name>
+        <servlet-class>org.apache.geronimo.console.servlet.GenericForwardServlet</servlet-class>
+    </servlet>
+
+    <servlet>
         <display-name>DWR Forward Servlet</display-name>
         <servlet-name>dwr-forward</servlet-name>
         <servlet-class>org.apache.geronimo.console.servlet.ContextForwardServlet</servlet-class>
@@ -44,6 +50,7 @@ limitations under the License.
         </init-param>
     </servlet>
 
+    <!--
     <servlet>
         <display-name>CAR Export Forward Servlet</display-name>
         <servlet-name>car-export-forward</servlet-name>
@@ -85,7 +92,7 @@ limitations under the License.
            <param-value>/plan-export</param-value>
         </init-param>
     </servlet>
-
+-->
     <servlet-mapping>
         <servlet-name>se-console</servlet-name>
         <url-pattern>/portal/*</url-pattern>
@@ -95,9 +102,14 @@ limitations under the License.
         <url-pattern>/secure/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
+        <servlet-name>context-forward</servlet-name>
+        <url-pattern>/forwards/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
         <servlet-name>dwr-forward</servlet-name>
         <url-pattern>/dwr/*</url-pattern>
     </servlet-mapping>
+    <!--
     <servlet-mapping>
         <servlet-name>car-export-forward</servlet-name>
         <url-pattern>/car-export</url-pattern>
@@ -110,13 +122,13 @@ limitations under the License.
         <servlet-name>plan-export-forward</servlet-name>
         <url-pattern>/plan-export</url-pattern>
     </servlet-mapping>
+    -->
 
     <security-constraint>
         <web-resource-collection>
-            <web-resource-name></web-resource-name>
+            <web-resource-name>Login Required</web-resource-name>
             <url-pattern>/dwr/*</url-pattern>
-            <url-pattern>/car-export</url-pattern>
-            <url-pattern>/graphs/*</url-pattern>
+            <url-pattern>/forwards/*</url-pattern>
             <url-pattern>/portal/*</url-pattern>
             <http-method>GET</http-method>
             <http-method>POST</http-method>
@@ -128,7 +140,7 @@ limitations under the License.
     </security-constraint>
     <security-constraint>
         <web-resource-collection>
-            <web-resource-name></web-resource-name>
+            <web-resource-name>Login and HTTPS Required</web-resource-name>
             <url-pattern>/secure/*</url-pattern>
             <http-method>GET</http-method>
             <http-method>POST</http-method>

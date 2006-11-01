@@ -5,7 +5,7 @@
      onload="initialize(evt, 480, 300, 'callServer()', 'Server Memory Usage')">
     <script type="text/ecmascript" xlink:href="updatingGraphJS.jsp"/>
     <script type="text/ecmascript" xlink:href="memoryGraphJS.jsp"/>
-    <script type='text/ecmascript' xlink:href='../dwr/interface/Jsr77Stats.js' />
-    <script type='text/ecmascript' xlink:href='../dwr/engine.js' />
-    <script type='text/ecmascript' xlink:href='../dwr/util.js' />
+    <script type='text/ecmascript' xlink:href='../../dwr/interface/Jsr77Stats.js' />
+    <script type='text/ecmascript' xlink:href='../../dwr/engine.js' />
+    <script type='text/ecmascript' xlink:href='../../dwr/util.js' />
 </svg>
