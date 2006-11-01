@@ -306,13 +306,6 @@
             <xsd:choice>
                 <xsd:element name="css" type="gernaming:patternType"/>
                 <xsd:element name="css-link" type="xsd:string"/>
-                <xsd:element name="css-name" type="xsd:string">
-                    <xsd:annotation>
-                        <xsd:documentation>
-                            The GBean name of the client security server used to make interop calls.
-                        </xsd:documentation>
-                    </xsd:annotation>
-                </xsd:element>
             </xsd:choice>
         </xsd:sequence>
     </xsd:group>
