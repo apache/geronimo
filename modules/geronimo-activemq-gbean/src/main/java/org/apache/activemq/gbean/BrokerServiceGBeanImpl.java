@@ -68,27 +68,33 @@ public class BrokerServiceGBeanImpl implements GBeanLifecycle, BrokerServiceGBea
         Thread.currentThread().setContextClassLoader(getClassLoader());
         try {
             if (brokerService == null) {
-                brokerService = createContainer();
+                if (brokerUri != null) {
+                    brokerService = BrokerFactory.createBroker(new URI(brokerUri));
+                    brokerName = brokerService.getBrokerName();
+                }
+                else {
+                    brokerService = new BrokerService();
+                    if (brokerName != null) {
+                        brokerService.setBrokerName(brokerName);
+                    }
+                    else {
+                        brokerName = brokerService.getBrokerName();
+                    }
+                }
             }
-            brokerService.setUseShutdownHook(isUseShutdownHook());
-            DefaultPersistenceAdapterFactory persistenceFactory = (DefaultPersistenceAdapterFactory) brokerService.getPersistenceFactory();
-            persistenceFactory.setDataDirectory(serverInfo.resolvePath(dataDirectory));
-            persistenceFactory.setDataSource((DataSource) dataSource.$getResource());
-            brokerService.start();
-        } finally {
-            Thread.currentThread().setContextClassLoader(old);
-        }
-    }
 
-    protected BrokerService createContainer() throws Exception {
-        if (brokerUri != null) {
-            BrokerService answer = BrokerFactory.createBroker(new URI(brokerUri));
-            brokerName = answer.getBrokerName();
-            return answer;
-        } else {
-            BrokerService answer = new BrokerService();
-            answer.setBrokerName(brokerName);
-            return answer;
+            // Do not allow the broker to use a shutown hook, the kernel will stop it
+            brokerService.setUseShutdownHook(isUseShutdownHook());
+
+            // Setup the persistence adapter to use the right datasource and directory
+            DefaultPersistenceAdapterFactory persistenceFactory = (DefaultPersistenceAdapterFactory) brokerService.getPersistenceFactory();
+            persistenceFactory.setDataDirectoryFile(serverInfo.resolve(dataDirectory));
+            persistenceFactory.setDataSource((DataSource) dataSource.$getResource());
+
+            brokerService.start();
+        }
+        finally {
+            Thread.currentThread().setContextClassLoader(old);
         }
     }
 
