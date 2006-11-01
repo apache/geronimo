@@ -64,6 +64,10 @@
         </repository>
     </repositories>
 
+    <properties>
+        <dojoVersion>0.4.0</dojoVersion>
+    </properties>
+
     <!-- this build process extracts certain files from dojo.zip
          into a webapp. -->
     <build>
@@ -82,7 +86,7 @@
                                 <artifactItem>
                                     <groupId>org.dojotoolkit</groupId>
                                     <artifactId>dojo</artifactId>
-                                    <version>0.4.0</version>
+                                    <version>${dojoVersion}</version>
                                     <type>zip</type>
                                     <outputDirectory>${project.build.directory}/</outputDirectory>
                                 </artifactItem>
@@ -98,7 +102,7 @@
                 <configuration>
                     <webResources>
                         <resource>
-                            <directory>${project.build.directory}/dojo-0.4.0-ajax/</directory>
+                            <directory>${project.build.directory}/dojo-${dojoVersion}-ajax/</directory>
                             <includes>
                                 <include>src/**</include>
                                 <include>*.js</include>
