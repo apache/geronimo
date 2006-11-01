@@ -51,6 +51,13 @@ public class UndeployCommand extends CommandSupport {
 
                     Artifact moduleID = Artifact.create(module.getModuleID());
                     try {
+                    	if(!configurationManager.isOnline()) {
+                    		//If an offline undeploy, need to load the configuration first, so that stopConfiguration()
+                    		//can resolve the configuration and successfully set load=false in attribute manager, otherwise
+                    		//starting the server will fail attempting to start an config that does not exist.
+                    		configurationManager.loadConfiguration(moduleID);
+                    	}
+                    	
                         configurationManager.stopConfiguration(moduleID);
 
 
