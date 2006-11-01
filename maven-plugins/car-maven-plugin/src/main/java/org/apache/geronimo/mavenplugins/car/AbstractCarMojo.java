@@ -28,14 +28,13 @@ import java.util.Iterator;
 import java.util.Properties;
 
 import org.apache.geronimo.genesis.MojoSupport;
+import org.apache.geronimo.genesis.util.ArtifactItem;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
-import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.factory.ArtifactFactory;
 
 /**
  * Support for <em>packaging</em> Mojos.
@@ -121,5 +120,39 @@ public abstract class AbstractCarMojo
         }
 
         return new File(basedir, finalName + classifier + ".car");
+    }
+
+    //
+    // Geronimo/Maven Artifact Interop
+    //
+
+    protected org.apache.geronimo.kernel.repository.Artifact mavenToGeronimoArtifact(final org.apache.maven.artifact.Artifact artifact) {
+        assert artifact != null;
+
+        return new org.apache.geronimo.kernel.repository.Artifact(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(), artifact.getType());
+    }
+
+    protected org.apache.maven.artifact.Artifact geronimoToMavenArtifact(final org.apache.geronimo.kernel.repository.Artifact artifact) throws MojoExecutionException {
+        assert artifact != null;
+
+        ArtifactItem item = new ArtifactItem();
+        item.setGroupId(artifact.getGroupId());
+        item.setArtifactId(artifact.getArtifactId());
+        item.setVersion(artifact.getVersion().toString());
+        item.setType(artifact.getType());
+
+        return createArtifact(item);
+    }
+
+    /**
+     * Determine if the given artifact is a Geronimo module.
+     *
+     * @param artifact  The artifact to check; must not be null.
+     * @return          True if the artifact is a Geronimo module.
+     */
+    protected boolean isModuleArtifact(final org.apache.geronimo.kernel.repository.Artifact artifact) {
+        assert artifact != null;
+
+        return "car".equals(artifact.getType());
     }
 }
