@@ -27,7 +27,9 @@
              the broker.
         <attribute name="brokerURI">xbean:file:/path/to/activemq.xml</attribute>
         -->
+        <!--
         <attribute name="brokerName">possibly-unique-broker</attribute>
+        -->
         <attribute name="useShutdownHook">false</attribute>
         <attribute name="dataDirectory">var/activemq</attribute>
         <reference name="dataSource">
