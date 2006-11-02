@@ -137,6 +137,9 @@
                             <artifactId>xmlParserAPIs</artifactId>
                             <classpathPrefix>../lib/endorsed</classpathPrefix>
                         </element>
+                        <element>
+                            <entry>server.jar</entry>
+                        </element>
                     </classpath>
                     <classpathPrefix>../lib</classpathPrefix>
                 </configuration>

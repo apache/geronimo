@@ -22,7 +22,7 @@ package org.apache.geronimo.mavenplugins.car;
 import org.apache.geronimo.genesis.util.ArtifactItem;
 
 /**
- * Represents a Maven-artifact with additional classparh prefix details to build a
+ * Represents a Maven-artifact with additional classpath prefix details to build a
  * jar's Manifest Class-Path.
  *
  * @version $Rev:385659 $ $Date$
@@ -36,6 +36,13 @@ public class ClasspathElement
      * @parameter
      */
     private String classpathPrefix;
+    
+    /**
+     * @parameter
+     * 
+     * Entry name used in replacement for ArtifactItem that is not resolved
+     */
+    private String entry;
 
     /**
      * @return Returns the classpath prefix.
@@ -50,4 +57,12 @@ public class ClasspathElement
     public void setClasspathPrefix(final String classpathPrefix) {
         this.classpathPrefix = classpathPrefix;
     }
+
+	public String getEntry() {
+		return entry;
+	}
+
+	public void setEntry(String entry) {
+		this.entry = entry;
+	}
 }

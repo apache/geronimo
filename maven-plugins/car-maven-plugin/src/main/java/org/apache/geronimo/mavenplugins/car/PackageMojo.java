@@ -21,46 +21,42 @@ package org.apache.geronimo.mavenplugins.car;
 
 import java.io.File;
 import java.net.URI;
-
-import java.util.List;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.geronimo.deployment.PluginBootstrap2;
-import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
-import org.apache.geronimo.system.repository.Maven2Repository;
-import org.apache.geronimo.system.resolver.ExplicitDefaultArtifactResolver;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelRegistry;
-import org.apache.geronimo.kernel.KernelFactory;
-import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
-import org.apache.geronimo.kernel.log.GeronimoLogging;
-import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.KernelConfigurationManager;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.ReferencePatterns;
-import org.apache.geronimo.gbean.AbstractNameQuery;
-
 import org.apache.geronimo.genesis.util.ArtifactItem;
-
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.KernelConfigurationManager;
+import org.apache.geronimo.kernel.log.GeronimoLogging;
+import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
+import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
+import org.apache.geronimo.system.repository.Maven2Repository;
+import org.apache.geronimo.system.resolver.ExplicitDefaultArtifactResolver;
 import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-
-import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
+import org.codehaus.plexus.util.FileUtils;
 
 /**
  * Build a Geronimo Configuration using the local Maven infrastructure.
@@ -352,27 +348,33 @@ public class PackageMojo
         StringBuffer buff = new StringBuffer();
 
         for (int i=0; i < classpath.length; i++) {
-            Artifact artifact = getArtifact(classpath[i]);
+        	
+        	String entry = classpath[i].getEntry();
+        	if(entry != null) {
+        		buff.append(entry);
+        	} else {
+        		Artifact artifact = getArtifact(classpath[i]);
 
-            //
-            // TODO: Need to optionally get all transitive dependencies... but dunno how to get that intel from m2
-            //
+        		//
+        		// TODO: Need to optionally get all transitive dependencies... but dunno how to get that intel from m2
+        		//
 
-            String prefix = classpath[i].getClasspathPrefix();
-            if (prefix == null) {
-                prefix = classpathPrefix;
-            }
+        		String prefix = classpath[i].getClasspathPrefix();
+        		if (prefix == null) {
+        			prefix = classpathPrefix;
+        		}
 
-            if (prefix != null) {
-                buff.append(prefix);
+        		if (prefix != null) {
+        			buff.append(prefix);
 
-                if (!prefix.endsWith("/")) {
-                    buff.append("/");
-                }
-            }
+        			if (!prefix.endsWith("/")) {
+        				buff.append("/");
+        			}
+        		}
 
-            File file = artifact.getFile();
-            buff.append(file.getName());
+        		File file = artifact.getFile();
+        		buff.append(file.getName());
+        	}
 
             if (i + 1< classpath.length) {
                 buff.append(" ");
