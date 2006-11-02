@@ -273,6 +273,11 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
     }
 
     public boolean generateKeyPair(String alias, char[] storePassword, char[] keyPassword, String keyAlgorithm, int keySize, String signatureAlgorithm, int validity, String commonName, String orgUnit, String organization, String locality, String state, String country) {
+        if(!isLoaded(storePassword)) {
+            if(!loadKeystoreData(storePassword)) {
+                return false;
+            }
+        }
         try {
             KeyPairGenerator kpgen = KeyPairGenerator.getInstance(keyAlgorithm);
             kpgen.initialize(keySize);
