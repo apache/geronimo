@@ -340,8 +340,7 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
      * configured for SSL.
      */
     public int getRedirectPort() {
-        Object value = connector.getAttribute("redirectPort");
-        return value == null ? 0 : Integer.parseInt(value.toString());
+        return connector.getRedirectPort();
     }
 
     /**
@@ -352,7 +351,7 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
      * be used as they all fail equally well.  :)
      */
     public void setRedirectPort(int port) {
-        connector.setAttribute("redirectPort", new Integer(port));
+        connector.setRedirectPort(port);
     }
 
     public int getMinSpareThreads() {
@@ -383,12 +382,11 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
     }
 
     public boolean isHostLookupEnabled() {
-        Object value = connector.getAttribute("enableLookups");
-        return value == null ? true : new Boolean(value.toString()).booleanValue();
+        return connector.getEnableLookups();
     }
 
     public void setHostLookupEnabled(boolean enabled) {
-        connector.setAttribute("enableLookups", new Boolean(enabled));
+        connector.setEnableLookups(enabled);
     }
 
     public int getConnectionTimeoutMillis() {
@@ -419,12 +417,12 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
     }
 
     public int getMaxSavePostSize() {
-        Object value = connector.getAttribute("maxSavePostSize");
-        return value == null ? 4096 : Integer.parseInt(value.toString());
+        int value = connector.getMaxSavePostSize();
+        return value == 0 ? 4096 : value;
     }
 
     public void setMaxSavePostSize(int kbytes) {
-        connector.setAttribute("maxSavePostSize", new Integer(kbytes));
+        connector.setMaxSavePostSize(kbytes);
     }
 
     public int getMaxKeepAliveRequests() {
@@ -446,12 +444,11 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
     }
 
     public boolean getUseBodyEncodingForURI() {
-        Object value = connector.getAttribute("useBodyEncodingForURI");
-        return value == null ? false : Boolean.getBoolean(value.toString());
+        return connector.getUseBodyEncodingForURI();
     }
 
     public void setUseBodyEncodingForURI(boolean enabled) {
-        connector.setAttribute("useBodyEncodingForURI", new Boolean(enabled));
+        connector.setUseBodyEncodingForURI(enabled);
     }
 
     public void setAllowTrace(boolean allow) {
