@@ -82,6 +82,11 @@
             <artifactId>yoko-rmi</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.bcel</groupId>
+            <artifactId>bcel</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
