@@ -38,9 +38,9 @@ public class ClasspathElement
     private String classpathPrefix;
     
     /**
-     * @parameter
-     * 
      * Entry name used in replacement for ArtifactItem that is not resolved
+     *
+     * @parameter
      */
     private String entry;
 
