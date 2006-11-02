@@ -405,11 +405,13 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
             chain[i] = (Certificate) iter.next();
         }
         
-        char[] keyPassword = (char[])keyPasswords.get(alias);
-        keystore.setKeyEntry(alias, keystore.getKey(alias, keyPassword), keyPassword,
-                chain);
-        
-        saveKeystore(keystorePassword);
+        if(keystore.getCertificate(alias).getPublicKey().equals(chain[0].getPublicKey())) {
+            char[] keyPassword = (char[])keyPasswords.get(alias);
+            keystore.setKeyEntry(alias, keystore.getKey(alias, keyPassword), keyPassword, chain);
+            saveKeystore(keystorePassword);
+        } else {
+            log.error("Error in importPKCS7Certificate.  PublicKey in the certificate received is not related to the PrivateKey in the keystore. keystore = "+keystoreName+", alias = "+alias);
+        }
     }
 
     public void deleteEntry(String alias) {
