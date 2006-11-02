@@ -145,8 +145,6 @@ public class EditableKernelConfigurationManager extends KernelConfigurationManag
             // Bean is no longer loaded
         }
 
-        configuration.removeGBean(gbeanName);
-
         // Make sure it's not loaded next time the configuration is loaded
         if (attributeStore != null) {
             attributeStore.setShouldLoad(configurationId, gbeanName, false);
