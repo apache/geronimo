@@ -20,7 +20,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>configs</artifactId>
@@ -31,7 +31,7 @@
     <artifactId>online-deployer</artifactId>
     <name>Geronimo Configs :: Online Deployer</name>
     <packaging>car</packaging>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -47,7 +47,7 @@
                             <mainClass>org.apache.geronimo.deployment.cli.DeployTool</mainClass>
                         </manifest>
                     </archive>
-                    
+
                     <!--
                     NOTE: This list of dependencies is non-transitive.
                     -->
@@ -138,6 +138,7 @@
                             <classpathPrefix>../lib/endorsed</classpathPrefix>
                         </element>
                         <element>
+                            <!-- IMPORTANT: server.jar is required for offline deployer to work -->
                             <entry>server.jar</entry>
                         </element>
                     </classpath>
