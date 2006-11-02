@@ -410,14 +410,12 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
     }
 
     public int getMaxPostSize() {
-        Object value = connector.getAttribute("maxPostSize");
-        return value == null ? 2097152 : Integer.parseInt(value.toString());
+        int value = connector.getMaxPostSize();
+        return value == 0 ? 2097152 : value;
     }
 
     public void setMaxPostSize(int bytes) {
-        // TODO Auto-generated method stub
-        connector.setAttribute("maxPostSize", new Integer(bytes));
-        
+        connector.setMaxPostSize(bytes);
     }
 
     public int getMaxSavePostSize() {
