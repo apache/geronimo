@@ -72,7 +72,7 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder {
         XmlObject[] serviceRefsUntyped = getServiceRefs(specDD);
         XmlObject[] gerServiceRefsUntyped = plan == null? NO_REFS: plan.selectChildren(GER_SERVICE_REF_QNAME_SET);
         Map serviceRefMap = mapServiceRefs(gerServiceRefsUntyped);
-        ClassLoader cl = localConfiguration.getConfigurationClassLoader();
+        ClassLoader cl = module.getEarContext().getClassLoader();
 
         for (int i = 0; i < serviceRefsUntyped.length; i++) {
             ServiceRefType serviceRef = (ServiceRefType) serviceRefsUntyped[i];

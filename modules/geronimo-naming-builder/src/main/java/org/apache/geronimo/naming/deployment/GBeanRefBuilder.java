@@ -88,7 +88,7 @@ public class GBeanRefBuilder implements NamingBuilder {
             if (interfaceTypes.isEmpty()) {
                 interfaceTypes.add(gBeanData.getGBeanInfo().getClassName());
             }
-            ClassLoader cl = localConfiguration.getConfigurationClassLoader();
+            ClassLoader cl = module.getEarContext().getClassLoader();
             Class gBeanType;
             try {
                 gBeanType = ClassLoading.loadClass(gBeanData.getGBeanInfo().getClassName(), cl);

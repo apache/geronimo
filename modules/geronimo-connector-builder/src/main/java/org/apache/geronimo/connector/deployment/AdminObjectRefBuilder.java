@@ -97,7 +97,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
 
     public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
         XmlObject[] resourceEnvRefsUntyped = convert(specDD.selectChildren(adminOjbectRefQNameSet), J2EE_CONVERTER, ResourceEnvRefType.type);
-        ClassLoader cl = localConfiguration.getConfigurationClassLoader();
+        ClassLoader cl = module.getEarContext().getClassLoader();
         XmlObject[] gerResourceEnvRefsUntyped = plan == null? NO_REFS: plan.selectChildren(GER_ADMIN_OBJECT_REF_QNAME_SET);
         Map refMap = mapResourceEnvRefs(gerResourceEnvRefsUntyped);
         for (int i = 0; i < resourceEnvRefsUntyped.length; i++) {

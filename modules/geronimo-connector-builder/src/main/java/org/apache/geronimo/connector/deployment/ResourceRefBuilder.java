@@ -75,7 +75,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
         XmlObject[] resourceRefsUntyped = convert(specDD.selectChildren(resourceRefQNameSet), J2EE_CONVERTER, ResourceRefType.type);
         XmlObject[] gerResourceRefsUntyped = plan == null? NO_REFS: plan.selectChildren(GER_RESOURCE_REF_QNAME_SET);
         Map refMap = mapResourceRefs(gerResourceRefsUntyped);
-        ClassLoader cl = localConfiguration.getConfigurationClassLoader();
+        ClassLoader cl = module.getEarContext().getClassLoader();
 
         for (int i = 0; i < resourceRefsUntyped.length; i++) {
             ResourceRefType resourceRef = (ResourceRefType) resourceRefsUntyped[i];
