@@ -37,7 +37,7 @@ function <portlet:namespace/>validateForm(){
     <tr><th colspan="2" align="left">Add new ${protocol} listener for ${containerDisplayName}</th></tr>
   </c:when>
   <c:otherwise>
-    <tr><th colspan="2" align="left">Edit connector ${name}</th></tr>
+    <tr><th colspan="2" align="left">Edit connector ${displayName}</th></tr>
   </c:otherwise>
 </c:choose>
 
