@@ -31,6 +31,12 @@ import org.apache.geronimo.deployment.xbeans.ReferenceType;
 import org.apache.geronimo.deployment.xbeans.XmlAttributeType;
 import org.apache.geronimo.deployment.xbeans.AbstractServiceType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -127,6 +133,8 @@ public class SecurityRealmPortlet extends BasePortlet {
     private static final String SAVE_MODE = "save";
     private static final String MODE_KEY = "mode";
 
+    private static Kernel kernel;
+
     private PortletRequestDispatcher listView;
     private PortletRequestDispatcher editView;
     private PortletRequestDispatcher selectTypeView;
@@ -139,6 +147,7 @@ public class SecurityRealmPortlet extends BasePortlet {
 
     public void init(PortletConfig portletConfig) throws PortletException {
         super.init(portletConfig);
+        kernel = KernelRegistry.getSingleKernel();
         listView = portletConfig.getPortletContext().getRequestDispatcher(LIST_VIEW);
         editView = portletConfig.getPortletContext().getRequestDispatcher(EDIT_VIEW);
         selectTypeView = portletConfig.getPortletContext().getRequestDispatcher(SELECT_TYPE_VIEW);
@@ -517,10 +526,29 @@ public class SecurityRealmPortlet extends BasePortlet {
         // The array entry types are security.realm.SecurityRealm (the subclass)
         org.apache.geronimo.management.geronimo.SecurityRealm[] realms = PortletManager.getCurrentServer(request).getSecurityRealms();
         ExistingRealm[] results = new ExistingRealm[realms.length];
+
+        // ConfigurationManager is used to determine if the SecurityRealm is deployed as a "SERVICE", i.e., "Server-wide"
+        ConfigurationManager configMgr = null;
+        if(results.length > 0) {
+            // Needed only when there are any SecurityRealms
+            configMgr = ConfigurationUtil.getConfigurationManager(kernel);
+        }
         for (int i = 0; i < results.length; i++) {
             final GeronimoManagedBean managedBean = (GeronimoManagedBean) realms[i];
-            results[i] = new ExistingRealm(realms[i].getRealmName(), PortletManager.getNameFor(request, realms[i]),
-                    managedBean.getState());
+            AbstractName abstractName = PortletManager.getNameFor(request, realms[i]);
+            String parent;
+            Configuration parentConfig = configMgr.getConfiguration(abstractName.getArtifact());
+            ConfigurationModuleType parentType = parentConfig.getModuleType();
+            if(ConfigurationModuleType.SERVICE.equals(parentType)) {
+                parent = null; // Server-wide
+            } else {
+                parent = abstractName.getArtifact().toString();
+            }
+            results[i] = new ExistingRealm(realms[i].getRealmName(), abstractName, managedBean.getState(), parent);
+        }
+        // Once done, release the ConfigurationManager
+        if(configMgr != null) {
+            ConfigurationUtil.releaseConfigurationManager(kernel, configMgr);
         }
         request.setAttribute("realms", results);
         listView.include(request, response);
@@ -1011,13 +1039,9 @@ public class SecurityRealmPortlet extends BasePortlet {
         private final String parentName;
         private final int state;
 
-        public ExistingRealm(String name, AbstractName abstractName, int state) {
+        public ExistingRealm(String name, AbstractName abstractName, int state, String parent) {
             this.name = name;
             this.abstractName = abstractName.toString();
-            String parent = (String) abstractName.getName().get(NameFactory.J2EE_APPLICATION);
-            if (parent != null && parent.equals("null")) {
-                parent = null;
-            }
             parentName = parent;
             this.state = state;
 
