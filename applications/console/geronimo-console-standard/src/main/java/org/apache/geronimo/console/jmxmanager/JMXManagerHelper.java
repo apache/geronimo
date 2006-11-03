@@ -48,6 +48,7 @@ public class JMXManagerHelper {
     /** Used to return all MBeans */
     private static final String ALL_MBEANS = "AllMBeans";
     private static final String GBEANINFO_NAME = "GBeanInfo";
+    private static final String SERVICEMODULE_KEY = "ServiceModule";
 
     private final Kernel kernel;
 
@@ -64,12 +65,32 @@ public class JMXManagerHelper {
     public Collection listByDomain(String domain) {
         Collection result = new ArrayList();
         if ((domain == null) || (domain.trim().length() == 0)) {
-            return listByPattern(domain + ":*");
+            return result;
         }
 
-        return result;
+        return listByPattern(domain + ":*");
     }
 
+    /**
+     * List MBeans containing a substring in its object name
+     */
+    public Collection listBySubstring(String substring) {
+        Collection result = new ArrayList();
+        if ((substring == null) || (substring.trim().length() == 0)) {
+            return result;
+        }
+        
+        Collection abstractNames = getAbstractNames(substring);
+        for (Iterator it = abstractNames.iterator(); it.hasNext();) {
+            AbstractName aname = (AbstractName) it.next();
+            ObjectName oname = aname.getObjectName();
+            String[] pair = { aname.toString(), oname.toString() };
+            result.add(pair);
+        }
+        
+        return result;
+    }
+    
     /**
      * List MBeans using a pattern (ObjectName)
      */
@@ -79,22 +100,12 @@ public class JMXManagerHelper {
             return result;
         }
 
-        // Create Map (Key = ObjectName, Value = AbstractName)
-        AbstractNameQuery query = new AbstractNameQuery(null,
-                Collections.EMPTY_MAP, Collections.EMPTY_SET);
-        Set allBeans = kernel.listGBeans(query);
-        Map abstractNames = new HashMap();
-        for (Iterator it = allBeans.iterator(); it.hasNext();) {
-            AbstractName abstractName = (AbstractName) it.next();
-            ObjectName objectName = abstractName.getObjectName();
-            abstractNames.put(objectName, abstractName);
-        }
-
         try {
             // TODO: Use AbstractNameQuery
             // Uses Object names for query pattern to support
             // domain searches. Can't find a way to do it using
             // AbstractNameQuery.
+            Map abstractNames = getAbstractNames();
             ObjectName onamePattern = new ObjectName(pattern);
             Set beans = kernel.listGBeans(onamePattern);
             for (Iterator it = beans.iterator(); it.hasNext();) {
@@ -138,6 +149,62 @@ public class JMXManagerHelper {
         }
 
         return result;
+    }
+
+    /**
+     * Return all service modules
+     */
+    public Collection getServiceModules() {
+        Map svcModules = new TreeMap();
+        Collection svcModuleMBeans = getAbstractNames(SERVICEMODULE_KEY + '=');
+        for (Iterator it = svcModuleMBeans.iterator(); it.hasNext();) {
+            AbstractName aname = (AbstractName) it.next();
+            String svcModule = aname.getNameProperty(SERVICEMODULE_KEY);
+            if (!svcModules.containsKey(svcModule)) {
+                svcModules.put(svcModule, null);
+            }
+        }
+
+        return svcModules.keySet();
+    }
+
+    /**
+     * Return abstract names containing a substring
+     */
+    private Collection getAbstractNames(String substring) {
+        Collection result = new ArrayList();
+        if ((substring == null) || (substring.trim().length() == 0)) {
+            return result;
+        }
+
+        Map abstractNames = getAbstractNames();
+        for (Iterator it = abstractNames.keySet().iterator(); it.hasNext();) {
+            ObjectName oname = (ObjectName) it.next();
+            if (oname.toString().indexOf(substring) > 0) {
+                AbstractName aname = (AbstractName) abstractNames.get(oname);
+                result.add(aname);
+            }
+        }
+        
+        return result;
+    }
+
+    /**
+     * Return all abstract names as a map
+     */
+    private Map getAbstractNames() {
+        Map abstractNames = new HashMap();
+        // Create Map (Key = ObjectName, Value = AbstractName)
+        AbstractNameQuery query = new AbstractNameQuery(null,
+                Collections.EMPTY_MAP, Collections.EMPTY_SET);
+        Set allBeans = kernel.listGBeans(query);
+        for (Iterator it = allBeans.iterator(); it.hasNext();) {
+            AbstractName abstractName = (AbstractName) it.next();
+            ObjectName objectName = abstractName.getObjectName();
+            abstractNames.put(objectName, abstractName);
+        }
+
+        return abstractNames;
     }
 
     /**
@@ -382,14 +449,4 @@ public class JMXManagerHelper {
         return result;
     }
 
-    /**
-     * For testing use...
-     */
-    public static void main(String[] args) throws Exception {
-        JMXManagerHelper helper = new JMXManagerHelper();
-        Collection c = helper.listByJ2EEType("WebModule");
-        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-        System.out.println(c);
-        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-    }
 }

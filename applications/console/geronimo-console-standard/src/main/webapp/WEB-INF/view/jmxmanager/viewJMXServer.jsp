@@ -14,9 +14,11 @@
   limitations under the License.
 --%>
 
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/portlet" prefix="portlet" %>
-<%@ page import="org.apache.geronimo.console.util.PortletManager" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="portlet" uri="http://java.sun.com/portlet" %>
+<%@ page import="org.apache.geronimo.console.util.PortletManager,
+                 org.apache.geronimo.console.jmxmanager.JMXManagerHelper" %>
 <portlet:defineObjects/>
 
 <!------------------------>
@@ -163,12 +165,21 @@ dojo.addOnLoad(
                             selectedNode.state = 'LOADED';
                             return;
                         } else {
-                            if (selectedNode.widgetId.indexOf(':') != -1) {
-                                // Do search by pattern
-                                JMXHelper.listByPattern(<portlet:namespace/>updateJMXTree, _selectedNode.widgetId);
+                            var id = selectedNode.widgetId;
+                            if (id.indexOf('<PATTERN>') != -1) {
+                                // Remove pattern marker
+                			    var pattern = id.substring(id.indexOf('<PATTERN>') + '<PATTERN>'.length);  
+                			    JMXHelper.listByPattern(<portlet:namespace/>updateJMXTree, pattern);
+                            } else if (selectedNode.widgetId.indexOf('<J2EETYPE>') != -1) {
+                                // Remove j2ee type marker
+                			    var j2eeType = id.substring(id.indexOf('<J2EETYPE>') + '<J2EETYPE>'.length);  
+                			    JMXHelper.listByJ2EEType(<portlet:namespace/>updateJMXTree, j2eeType);
+                            } else if (selectedNode.widgetId.indexOf('<SVCMODULE>') != -1) {
+                                // Remove service module marker
+                			    var svcModule = id.substring(id.indexOf('<SVCMODULE>') + '<SVCMODULE>'.length);  
+                			    JMXHelper.listBySubstring(<portlet:namespace/>updateJMXTree, svcModule);
                             } else {
-                                // Do search by type
-                                JMXHelper.listByJ2EEType(<portlet:namespace/>updateJMXTree, _selectedNode.widgetId);
+                                // Marker not recognized
                             }
                         }
                     }
@@ -706,99 +717,107 @@ callOnLoad(init);
 
             <!-- All MBeans -->
             <div dojoType="TreeNode" title="All MBeans" widgetId="allMBeans" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view">
-         	    <div dojoType="TreeNode" title="geronimo" widgetId="geronimo:*" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="geronimo.config" widgetId="geronimo.config:*" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="geronimo" widgetId="<PATTERN>geronimo:*" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="geronimo.config" widgetId="<PATTERN>geronimo.config:*" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
             </div>
 
             <!-- J2EE MBeans -->
          	<div dojoType="TreeNode" title="J2EE Managed Objects" widgetId="j2eeMBeans" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view">
-         	    <div dojoType="TreeNode" title="AppClientModule" widgetId="AppClientModule" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="EJBModule" widgetId="EJBModule" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="EntityBean" widgetId="EntityBean" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="J2EEApplication" widgetId="J2EEApplication" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="J2EEDomain" widgetId="J2EEDomain" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="J2EEServer" widgetId="J2EEServer" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="JavaMailResource" widgetId="JavaMailResource" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="JCAConnectionFactory" widgetId="JCAConnectionFactory" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="JCAManagedConnectionFactory" widgetId="JCAManagedConnectionFactory" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="JCAResource" widgetId="JCAResource" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="JDBCDataSource" widgetId="JDBCDataSource" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="JDBCDriver" widgetId="JDBCDriver" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="JDBCResource" widgetId="JDBCResource" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="JMSResource" widgetId="JMSResource" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="JNDIResource" widgetId="JNDIResource" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="JTAResource" widgetId="JTAResource" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="JVM" widgetId="JVM" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="MessageDrivenBean" widgetId="MessageDrivenBean" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="ResourceAdapter" widgetId="ResourceAdapter" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="ResourceAdapterModule" widgetId="ResourceAdapterModule" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="RMI_IIOPResource" widgetId="RMI_IIOPResource" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="Servlet" widgetId="Servlet" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="StatefulSessionBean" widgetId="StatefulSessionBean" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="StatelessSessionBean" widgetId="StatelessSessionBean" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="URLResource" widgetId="URLResource" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="WebModule" widgetId="WebModule" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="AppClientModule" widgetId="<J2EETYPE>AppClientModule" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="EJBModule" widgetId="<J2EETYPE>EJBModule" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="EntityBean" widgetId="<J2EETYPE>EntityBean" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="J2EEApplication" widgetId="<J2EETYPE>J2EEApplication" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="J2EEDomain" widgetId="<J2EETYPE>J2EEDomain" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="J2EEServer" widgetId="<J2EETYPE>J2EEServer" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="JavaMailResource" widgetId="<J2EETYPE>JavaMailResource" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="JCAConnectionFactory" widgetId="<J2EETYPE>JCAConnectionFactory" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="JCAManagedConnectionFactory" widgetId="<J2EETYPE>JCAManagedConnectionFactory" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="JCAResource" widgetId="<J2EETYPE>JCAResource" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="JDBCDataSource" widgetId="<J2EETYPE>JDBCDataSource" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="JDBCDriver" widgetId="<J2EETYPE>JDBCDriver" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="JDBCResource" widgetId="<J2EETYPE>JDBCResource" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="JMSResource" widgetId="<J2EETYPE>JMSResource" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="JNDIResource" widgetId="<J2EETYPE>JNDIResource" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="JTAResource" widgetId="<J2EETYPE>JTAResource" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="JVM" widgetId="<J2EETYPE>JVM" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="MessageDrivenBean" widgetId="<J2EETYPE>MessageDrivenBean" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="ResourceAdapter" widgetId="<J2EETYPE>ResourceAdapter" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="ResourceAdapterModule" widgetId="<J2EETYPE>ResourceAdapterModule" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="RMI_IIOPResource" widgetId="<J2EETYPE>RMI_IIOPResource" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="Servlet" widgetId="<J2EETYPE>Servlet" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="StatefulSessionBean" widgetId="<J2EETYPE>StatefulSessionBean" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="StatelessSessionBean" widgetId="<J2EETYPE>StatelessSessionBean" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="URLResource" widgetId="<J2EETYPE>URLResource" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="WebModule" widgetId="<J2EETYPE>WebModule" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
          	</div>
          	
          	<!-- Geronimo MBeans -->
          	<div dojoType="TreeNode" title="Geronimo MBeans" widgetId="geronimoMBeans" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view">
-         	    <div dojoType="TreeNode" title="AppClient" widgetId="AppClient" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="ArtifactManager" widgetId="ArtifactManager" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="ArtifactResolver" widgetId="ArtifactResolver" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="AttributeStore" widgetId="AttributeStore" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="ConfigBuilder" widgetId="ConfigBuilder" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="ConfigurationEntry" widgetId="ConfigurationEntry" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="ConfigurationManager" widgetId="ConfigurationManager" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="ConfigurationStore" widgetId="ConfigurationStore" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="CORBABean" widgetId="CORBABean" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="CORBACSS" widgetId="CORBACSS" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="CORBATSS" widgetId="CORBATSS" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="Deployer" widgetId="Deployer" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="DeploymentConfigurer" widgetId="DeploymentConfigurer" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="GBean" widgetId="GBean" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="Host" widgetId="Host" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="JaasLoginService" widgetId="JaasLoginService" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="JACCManager" widgetId="JACCManager" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="JAXRConnectionFactory" widgetId="JAXRConnectionFactory" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="JCAActivationSpec" widgetId="JCAActivationSpec" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="JCAAdminObject" widgetId="JCAAdminObject" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="JCAConnectionManager" widgetId="JCAConnectionManager" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="JCAConnectionTracker" widgetId="JCAConnectionTracker" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="JCAResourceAdapter" widgetId="JCAResourceAdapter" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="JCAWorkManager" widgetId="JCAWorkManager" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="JMSConnector" widgetId="JMSConnector" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="JMSPersistence" widgetId="JMSPersistence" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="JMSServer" widgetId="JMSServer" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="KeyGenerator" widgetId="KeyGenerator" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="Keystore" widgetId="Keystore" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="LoginModule" widgetId="LoginModule" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="LoginModuleUse" widgetId="LoginModuleUse" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="MEJB" widgetId="MEJB" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="ModuleBuilder" widgetId="ModuleBuilder" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="PersistentConfigurationList" widgetId="PersistentConfigurationList" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="RealmBridge" widgetId="RealmBridge" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="Repository" widgetId="Repository" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="RoleMapper" widgetId="RoleMapper" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="SecurityRealm" widgetId="SecurityRealm" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="ServiceModule" widgetId="ServiceModule" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="ServletTemplate" widgetId="ServletTemplate" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="ServletWebFilterMapping" widgetId="ServletWebFilterMapping" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="ServletWebServiceTemplate" widgetId="ServletWebServiceTemplate" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="SystemLog" widgetId="SystemLog" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="TomcatValve" widgetId="TomcatValve" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="TransactionContextManager" widgetId="TransactionContextManager" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="TransactionLog" widgetId="TransactionLog" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="TransactionManager" widgetId="TransactionManager" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="URLPattern" widgetId="URLPattern" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="URLWebFilterMapping" widgetId="URLWebFilterMapping" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="WebFilter" widgetId="WebFilter" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="WSLink" widgetId="WSLink" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="XIDFactory" widgetId="XIDFactory" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="XIDImporter" widgetId="XIDImporter" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="XmlAttributeBuilder" widgetId="XmlAttributeBuilder" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
-         	    <div dojoType="TreeNode" title="XmlReferenceBuilder" widgetId="XmlReferenceBuilder" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="AppClient" widgetId="<J2EETYPE>AppClient" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="ArtifactManager" widgetId="<J2EETYPE>ArtifactManager" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="ArtifactResolver" widgetId="<J2EETYPE>ArtifactResolver" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="AttributeStore" widgetId="<J2EETYPE>AttributeStore" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="ConfigBuilder" widgetId="<J2EETYPE>ConfigBuilder" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="ConfigurationEntry" widgetId="<J2EETYPE>ConfigurationEntry" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="ConfigurationManager" widgetId="<J2EETYPE>ConfigurationManager" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="ConfigurationStore" widgetId="<J2EETYPE>ConfigurationStore" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="CORBABean" widgetId="<J2EETYPE>CORBABean" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="CORBACSS" widgetId="<J2EETYPE>CORBACSS" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="CORBATSS" widgetId="<J2EETYPE>CORBATSS" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="Deployer" widgetId="<J2EETYPE>Deployer" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="DeploymentConfigurer" widgetId="<J2EETYPE>DeploymentConfigurer" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="GBean" widgetId="<J2EETYPE>GBean" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="Host" widgetId="<J2EETYPE>Host" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="JaasLoginService" widgetId="<J2EETYPE>JaasLoginService" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="JACCManager" widgetId="<J2EETYPE>JACCManager" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="JAXRConnectionFactory" widgetId="<J2EETYPE>JAXRConnectionFactory" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="JCAActivationSpec" widgetId="<J2EETYPE>JCAActivationSpec" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="JCAAdminObject" widgetId="<J2EETYPE>JCAAdminObject" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="JCAConnectionManager" widgetId="<J2EETYPE>JCAConnectionManager" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="JCAConnectionTracker" widgetId="<J2EETYPE>JCAConnectionTracker" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="JCAResourceAdapter" widgetId="<J2EETYPE>JCAResourceAdapter" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="JCAWorkManager" widgetId="<J2EETYPE>JCAWorkManager" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="JMSConnector" widgetId="<J2EETYPE>JMSConnector" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="JMSPersistence" widgetId="<J2EETYPE>JMSPersistence" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="JMSServer" widgetId="<J2EETYPE>JMSServer" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="KeyGenerator" widgetId="<J2EETYPE>KeyGenerator" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="Keystore" widgetId="<J2EETYPE>Keystore" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="LoginModule" widgetId="<J2EETYPE>LoginModule" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="LoginModuleUse" widgetId="<J2EETYPE>LoginModuleUse" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="MEJB" widgetId="<J2EETYPE>MEJB" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="ModuleBuilder" widgetId="<J2EETYPE>ModuleBuilder" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="PersistentConfigurationList" widgetId="<J2EETYPE>PersistentConfigurationList" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="RealmBridge" widgetId="<J2EETYPE>RealmBridge" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="Repository" widgetId="<J2EETYPE>Repository" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="RoleMapper" widgetId="<J2EETYPE>RoleMapper" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="SecurityRealm" widgetId="<J2EETYPE>SecurityRealm" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="ServiceModule" widgetId="<J2EETYPE>ServiceModule" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="ServletTemplate" widgetId="<J2EETYPE>ServletTemplate" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="ServletWebFilterMapping" widgetId="<J2EETYPE>ServletWebFilterMapping" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="ServletWebServiceTemplate" widgetId="<J2EETYPE>ServletWebServiceTemplate" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="SystemLog" widgetId="<J2EETYPE>SystemLog" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="TomcatValve" widgetId="<J2EETYPE>TomcatValve" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="TransactionContextManager" widgetId="<J2EETYPE>TransactionContextManager" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="TransactionLog" widgetId="<J2EETYPE>TransactionLog" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="TransactionManager" widgetId="<J2EETYPE>TransactionManager" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="URLPattern" widgetId="<J2EETYPE>URLPattern" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="URLWebFilterMapping" widgetId="<J2EETYPE>URLWebFilterMapping" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="WebFilter" widgetId="<J2EETYPE>WebFilter" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="WSLink" widgetId="<J2EETYPE>WSLink" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="XIDFactory" widgetId="<J2EETYPE>XIDFactory" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="XIDImporter" widgetId="<J2EETYPE>XIDImporter" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="XmlAttributeBuilder" widgetId="<J2EETYPE>XmlAttributeBuilder" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    <div dojoType="TreeNode" title="XmlReferenceBuilder" widgetId="<J2EETYPE>XmlReferenceBuilder" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
             </div>
-            
+
+         	<!-- ServiceModule MBeans -->
+         	<div dojoType="TreeNode" title="ServiceModule MBeans" widgetId="serviceModuleMBeans" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view">
+                <% pageContext.setAttribute("serviceModules", new JMXManagerHelper().getServiceModules()); %>
+                <c:forEach var="serviceModule" items="${serviceModules}">
+         	    <div dojoType="TreeNode" title="${serviceModule}" widgetId="<SVCMODULE>ServiceModule=${serviceModule}" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view"></div>
+         	    </c:forEach>
+            </div>
+
             <!-- Search MBeans -->
          	<div dojoType="TreeNode" title="Search MBeans" widgetId="searchMBeans" isFolder="true" childIconSrc="<%= jmxIconURI %>" actionsDisabled="view">
          	</div>
