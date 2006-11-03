@@ -48,7 +48,7 @@ public class RealmPrincipalInfo extends LoginDomainPrincipalInfo {
             if (text != null) {
                 String[] parts = text.split(",");
                 if (parts.length != 5) {
-                    throw new PropertyEditorException("Principal should have the form 'domain,realm,class,name,run-as'");
+                    throw new PropertyEditorException("Principal should have the form 'realm,domain,class,name,run-as'");
                 }
                 RealmPrincipalInfo principal = new RealmPrincipalInfo(parts[0], parts[1], parts[2], parts[3], Boolean.valueOf(parts[4]).booleanValue());
                 setValue(principal);
@@ -62,7 +62,8 @@ public class RealmPrincipalInfo extends LoginDomainPrincipalInfo {
             if (principal == null) {
                 return null;
             }
-            return principal.getPrincipalName() + "," + principal.getClassName() + "," + principal.isDesignatedRunAs() + "," + principal.getDomain() + "," + principal.getRealm();
+            // output from getAsText() should match with the input expected by setAsText()
+            return principal.getRealm() + "," + principal.getDomain() + "," + principal.getClassName() + "," + principal.getPrincipalName() + "," + principal.isDesignatedRunAs();
         }
     }
 }

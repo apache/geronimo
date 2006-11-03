@@ -226,7 +226,7 @@ public class SecurityBuilder {
 
     //used from TSSConfigEditor
     public static RealmPrincipalInfo buildRealmPrincipal(GerRealmPrincipalType realmPrincipalType) {
-        return new RealmPrincipalInfo(realmPrincipalType.getDomainName().trim(), realmPrincipalType.getRealmName().trim(), realmPrincipalType.getClass1().trim(), realmPrincipalType.getName().trim(), realmPrincipalType.isSetDesignatedRunAs());
+        return new RealmPrincipalInfo(realmPrincipalType.getRealmName().trim(), realmPrincipalType.getDomainName().trim(), realmPrincipalType.getClass1().trim(), realmPrincipalType.getName().trim(), realmPrincipalType.isSetDesignatedRunAs());
     }
 
     public static LoginDomainPrincipalInfo buildDomainPrincipal(GerLoginDomainPrincipalType domainPrincipalType) {
