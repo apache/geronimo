@@ -6,7 +6,6 @@ To build you will need:
 
  * J2SE SDK 1.4.2+ (http://java.sun.com/j2se/1.4.2)
  * Maven 2.0.4+ (http://maven.apache.org)
- * Ant 1.6.5+ (http://ant.apache.org) - Used only to bootstrap
 
 NOTE: If you use JDK 1.5 you may run into unexpected errors, so stick to 1.4.
 
@@ -15,38 +14,8 @@ For detail instructions please see:
     http://cwiki.apache.org/GMOxDEV/building-apache-geronimo-with-maven-2.html
 
 
-Building for the first time
-===========================
-
-Currently to ensure that your build works you should bootstrap, which will
-clean your local Maven 2 repository, download some sources and build them
-and kick off the Geronimo build.
-
-You will need Ant installed and available in the search path of your shell.
-
-To start the bootstrap build simply:
-
-    ./bootstrap
-
-The end result will be a set of functional distributions in assemblies/*/target
-which you can unpack and startup, as in:
-
-    gunzip -c assemblies/geronimo-jetty-j2ee/target/geronimo-jetty-j2ee*-bin.tar.gz | tar xf -
-    ./geronimo-jetty-j2ee*/bin/startup.sh && tail -f ./geronimo-jetty-j2ee*/var/log/geronimo.out
-    ...
-    ./geronimo-jetty-j2ee*/bin/shutdown.sh
-
-Or, use the geronimo-maven-plugin to start the server:
-
-    mvn -Ptools geronimo:start
-    ...
-    CTRL-C or from another terminal: mvn -Ptools geronimo:stop
-
-
-Subsequent builds
-=================
-
-After the initial bootstrap build, the `mvn` command can be used.
+Building Geroniomo
+==================
 
 To build all changes incrementally:
 
@@ -56,6 +25,17 @@ To perform clean builds, which are sometimes needed after some changes to the
 source tree:
 
     mvn clean install
+
+
+Testing the Build
+=================
+
+The end result of a successful build will be a set of functional distributions.
+To test the build, simply start the server:
+
+    mvn -Ptools geronimo:start
+    ...
+    CTRL-C or from another terminal: mvn -Ptools geronimo:stop
 
 
 Generating a Site
