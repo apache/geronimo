@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.File;
 import java.net.URL;
 import java.net.URI;
+import java.net.URLClassLoader;
 import java.security.AccessControlContext;
 import java.security.AccessController;
 import java.security.CodeSource;
@@ -105,6 +106,28 @@ public class JarFileClassLoader extends MultiParentClassLoader {
         super(id, EMPTY_URLS, parents, inverseClassLoading, hiddenClasses, nonOverridableClasses);
         this.acc = AccessController.getContext();
         addURLs(urls);
+    }
+
+    public JarFileClassLoader(JarFileClassLoader source) {
+        super(source);
+        this.acc = AccessController.getContext();
+        addURLs(source.getURLs());
+    }
+
+    public static ClassLoader copy(ClassLoader source) {
+        if (source instanceof JarFileClassLoader) {
+            return new JarFileClassLoader((JarFileClassLoader) source);
+        } else if (source instanceof MultiParentClassLoader) {
+            return new MultiParentClassLoader((MultiParentClassLoader) source);
+        } else if (source instanceof URLClassLoader) {
+            return new URLClassLoader(((URLClassLoader)source).getURLs(), source.getParent());
+        } else {
+            return new URLClassLoader(new URL[0], source);
+        }
+    }
+
+    ClassLoader copy() {
+        return JarFileClassLoader.copy(this);
     }
 
     /**
