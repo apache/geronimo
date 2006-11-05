@@ -39,7 +39,7 @@ significant amount of time to complete.  A process has been started to
 tie up the loose ends in the software so it can be released.
 
 
-Dead 1.2 - There are still 30 unmerged commits the dead 1.2 branch.  These 
+Dead 1.2 - There are still 26 unmerged commits the dead 1.2 branch.  These 
 commits must be merged before the 1.2 release.  The current status of the 
 dead-1.2 changes can be found at 
 http://svn.apache.org/repos/asf/geronimo/server/trunk/all_changes.log
