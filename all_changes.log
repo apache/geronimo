@@ -124,9 +124,9 @@ Merged,  r374193 , djencks , 2006-02-01 14:08:48 -0800 (Wed, 01 Feb 2006) , 1 li
 Merged,  r374211 , djencks , 2006-02-01 16:19:53 -0800 (Wed, 01 Feb 2006) , 1 line  GERONIMO-1563 step one missed file
 Merged,  r374212 , djencks , 2006-02-01 16:26:18 -0800 (Wed, 01 Feb 2006) , 1 line  GERONIMO-1570, GERONIMO-1460 Provide jetty gbean for specifying bouth hosts and virtual hosts: actually use virtual hosts to set virtual hosts, not hosts.  This has a provisional schema change, and the schema version needs to be updated
 Unnecessary,  r374246 , dain , 2006-02-01 20:19:06 -0800 (Wed, 01 Feb 2006) , 2 lines  References need <module>*</module> since the beans are in the parent plan
-Not Merged,  r374253 , hogstrom , 2006-02-01 21:04:07 -0800 (Wed, 01 Feb 2006) , 1 line  Geronimo-1336 Corrected issue when specifying database pool sizes
+Merged,  r374253 , hogstrom , 2006-02-01 21:04:07 -0800 (Wed, 01 Feb 2006) , 1 line  Geronimo-1336 Corrected issue when specifying database pool sizes
 Unnecessary,  r374273 , hogstrom , 2006-02-01 21:51:22 -0800 (Wed, 01 Feb 2006) , 1 line  Geronimo 1571-Added text to explicitly call out the Sun 1.4 VM for builds
-Not Merged,  r374281 , hogstrom , 2006-02-01 22:17:34 -0800 (Wed, 01 Feb 2006) , 1 line  Geronimo-1489 Minor fixes to JUDDI JSP application
+Merged,  r374281 , hogstrom , 2006-02-01 22:17:34 -0800 (Wed, 01 Feb 2006) , 1 line  Geronimo-1489 Minor fixes to JUDDI JSP application
 Unnecessary,  r374335 , djencks , 2006-02-02 02:01:47 -0800 (Thu, 02 Feb 2006) , 1 line  GERONIMO-1574 untested spring transaction manager wrapper around our TransactionContextManager
 Unnecessary,  r374338 , djencks , 2006-02-02 02:05:36 -0800 (Thu, 02 Feb 2006) , 1 line  up spring version
 Unnecessary,  r374366 , jsisson , 2006-02-02 03:37:23 -0800 (Thu, 02 Feb 2006) , 1 line  GERONIMO-1278 - fix problem on windows where rename fails during fixcrlf processing in installer (merged from 1.0 branch).
@@ -275,7 +275,7 @@ Not Merged,  r388236 , ammulder , 2006-03-23 11:20:22 -0800 (Thu, 23 Mar 2006) ,
 Not Merged,  r388257 , ammulder , 2006-03-23 12:12:17 -0800 (Thu, 23 Mar 2006) , 2 lines  Move the default keystore into the new keystores/ directory
 Unnecessary,  r388258 , ammulder , 2006-03-23 12:14:36 -0800 (Thu, 23 Mar 2006) , 2 lines  Add keystores/ directory to non-J2EE assemblies
 Unnecessary,  r388259 , ammulder , 2006-03-23 12:16:18 -0800 (Thu, 23 Mar 2006) , 2 lines  Move the default keystores in to the new directory for non-J2EE assemblies
-Not Merged,  r388275 , hogstrom , 2006-03-23 13:27:42 -0800 (Thu, 23 Mar 2006) , 1 line  Updated derby.txt to point to correct ddl
+Unnecessary,  r388275 , hogstrom , 2006-03-23 13:27:42 -0800 (Thu, 23 Mar 2006) , 1 line  Updated derby.txt to point to correct ddl
 Not Merged,  r388671 , ammulder , 2006-03-24 15:01:45 -0800 (Fri, 24 Mar 2006) , 2 lines  Console can export and download configuration CARs
 Not Merged,  r388832 , ammulder , 2006-03-25 13:11:55 -0800 (Sat, 25 Mar 2006) , 3 lines  Move the configuration download and install logic from the console   into a GBean
 Not Merged,  r388868 , ammulder , 2006-03-25 17:09:54 -0800 (Sat, 25 Mar 2006) , 4 lines  Configuration installer works from the command line  - use deploy tool argument install-configs and pass the Maven repo URL    as an argument
@@ -312,7 +312,7 @@ Unnecessary,  r393628 , jlaskowski , 2006-04-12 15:15:04 -0700 (Wed, 12 Apr 2006
 Unnecessary,  r393629 , jlaskowski , 2006-04-12 15:18:47 -0700 (Wed, 12 Apr 2006) , 4 lines  GERONIMO-1730 - Module migration to Maven 2: interop  Work in progress: there's Ant's build.xml file to migrate yet
 Unnecessary,  r393787 , jlaskowski , 2006-04-13 04:34:08 -0700 (Thu, 13 Apr 2006) , 5 lines  GERONIMO-1660 - Application migration to Maven 2: Console Submitted by: Prasad Kashyap  Now, we need to ensure the changes for the previous console dirs are applied to the directory, too. We will also have to ask the console developers to start using the directory rather than the previous ones (applications/console-*)
 Unnecessary,  r394032 , jdillon , 2006-04-13 23:37:41 -0700 (Thu, 13 Apr 2006) , 4 lines   Use pluginManagement to specify the surefire plugin version  Don't use the -SNAPSHOT the format of params to the jvm keeps changing too much
-Not Merged,  r395886 , hogstrom , 2006-04-21 06:54:11 -0700 (Fri, 21 Apr 2006) , 1 line  GERONIMO-1844 Precompile jsp pages in console - Added the MergeXML.java from the patch
+Already Merged,  r395886 , hogstrom , 2006-04-21 06:54:11 -0700 (Fri, 21 Apr 2006) , 1 line  GERONIMO-1844 Precompile jsp pages in console - Added the MergeXML.java from the patch
 Unnecessary,  r395903 , rickmcguire , 2006-04-21 07:42:25 -0700 (Fri, 21 Apr 2006) , 1 line  Jira GERONIMO-1881 removing obsolete interop module
 Merged,  r396194 , gdamour , 2006-04-22 18:56:21 -0700 (Sat, 22 Apr 2006) , 3 lines  GERONIMO-1871 Unable to deploy Tapestry app due to classloading issue  The CL to be used is the Geronimo one and not the WebappClassLoader created by Tomcat.
 Merged,  r398879 , rickmcguire , 2006-05-02 02:33:47 -0700 (Tue, 02 May 2006) , 4 lines  GERONIMO-1965 Fix GBean to configure proper protocol mail properties.
