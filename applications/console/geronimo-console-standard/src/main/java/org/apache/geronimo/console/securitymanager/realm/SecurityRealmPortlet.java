@@ -361,7 +361,6 @@ public class SecurityRealmPortlet extends BasePortlet {
         }
         // Build the realm GBean
         GbeanType realm = GbeanType.Factory.newInstance();
-        root.setServiceArray(new AbstractServiceType[]{realm});
         realm.setName(data.getName());
         realm.setClass1("org.apache.geronimo.security.realm.GenericSecurityRealm");
         AttributeType realmName = realm.addNewAttribute();
@@ -439,6 +438,7 @@ public class SecurityRealmPortlet extends BasePortlet {
         loginCursor.dispose();
         destination.dispose();
         config.setName("LoginModuleConfiguration");
+        root.setServiceArray(new AbstractServiceType[]{realm});
 
         return doc;
     }
