@@ -23,24 +23,24 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.Reader;
 import java.io.RandomAccessFile;
+import java.io.Reader;
 import java.net.MalformedURLException;
+import java.nio.CharBuffer;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.Set;
-import java.util.Iterator;
-import java.util.Enumeration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.LinkedList;
-import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import java.nio.channels.FileChannel;
-import java.nio.MappedByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.Charset;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogConfigurationException;
@@ -50,12 +50,14 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.log.GeronimoLogFactory;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.system.logging.SystemLog;
+import org.apache.geronimo.system.serverinfo.DirectoryUtils;
+import org.apache.geronimo.system.serverinfo.ServerConstants;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.log4j.FileAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.apache.log4j.FileAppender;
 
 /**
  * A Log4j logging service.
@@ -511,7 +513,7 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
         if (file == null || !file.exists()) {
             return;
         }
-        
+
         // Record the default console log level
         System.setProperty("org.apache.geronimo.log.ConsoleLogLevel", GeronimoLogging.getConsoleLogLevel().toString());
 
@@ -557,7 +559,7 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
                 schedule();
 
                 // Make sure the root Logger has loaded
-                LogManager.getRootLogger();
+                Logger logger = LogManager.getRootLogger();
 
                 reconfigure();
 
@@ -565,6 +567,7 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
                 if (file != null) {
                     lastChanged = file.lastModified();
                 }
+                logEnvInfo(logger);
             }
 
             // Change all of the loggers over to use log4j
@@ -604,6 +607,45 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
             return null;
         }
     }
+
+    private void logEnvInfo(Logger log) {
+       try {
+          log.info("----------------------------------------------");
+          log.info("Started Logging Service");
+          log.debug("Log4jService created with configFileName=" + this.configurationFile +
+                    ", refreshPeriodSeconds=" + this.refreshPeriod);
+          log.info("Runtime Information:");
+          log.info("  Install Directory = " + DirectoryUtils.getGeronimoInstallDirectory().toString());
+          log.info("  JVM in use = " + System.getProperty("java.vendor") + " Java " + System.getProperty("java.version"));
+          log.info("Java Information:");
+          log.info("  System property [java.runtime.name]  = " + System.getProperty("java.runtime.name"));
+          log.info("  System property [java.runtime.version]  = " + System.getProperty("java.runtime.version"));
+          log.info("  System property [os.name]             = " + System.getProperty("os.name"));
+          log.info("  System property [os.version]          = " + System.getProperty("os.version"));
+          log.info("  System property [sun.os.patch.level]  = " + System.getProperty("sun.os.patch.level"));
+          log.info("  System property [os.arch]             = " + System.getProperty("os.arch"));
+          log.info("  System property [java.class.version]  = " + System.getProperty("java.class.version"));
+          log.info("  System property [locale]              = " + System.getProperty("user.language") + "_" + System.getProperty("user.country"));
+          log.info("  System property [unicode.encoding]    = " + System.getProperty("sun.io.unicode.encoding"));
+          log.info("  System property [file.encoding]       = " + System.getProperty("file.encoding"));
+          log.info("  System property [java.vm.name]        = " + System.getProperty("java.vm.name"));
+          log.info("  System property [java.vm.vendor]      = " + System.getProperty("java.vm.vendor"));
+          log.info("  System property [java.vm.version]     = " + System.getProperty("java.vm.version"));
+          log.info("  System property [java.vm.info]        = " + System.getProperty("java.vm.info"));
+          log.info("  System property [java.home]           = " + System.getProperty("java.home"));
+          log.info("  System property [java.classpath]      = " + System.getProperty("java.classpath"));
+          log.info("  System property [java.library.path]   = " + System.getProperty("java.library.path"));
+          log.info("  System property [java.endorsed.dirs]  = " + System.getProperty("java.endorsed.dirs"));
+          log.info("  System property [java.ext.dirs]       = " + System.getProperty("java.ext.dirs"));
+          log.info("  System property [sun.boot.class.path] = " + System.getProperty("sun.boot.class.path"));
+          log.info("----------------------------------------------");
+       } catch (Exception e) {
+          String msg = "Exception caught during logging of Runtime Information.  Exception=" + e.toString();
+          log.error(msg);
+          System.err.println(msg);
+       }
+    }
+
 
     private class URLMonitorTask extends TimerTask {
         public void run() {
