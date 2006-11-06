@@ -989,7 +989,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>jspc-maven-plugin</artifactId>
-                    <version>1.4.6-SNAPSHOT</version>
+                    <version>1.4.6</version>
                     <executions>
                         <execution>
                             <id>jspc</id>
