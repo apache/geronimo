@@ -105,6 +105,9 @@
                 <name>PersistenceContextRefBuilder</name>
             </pattern>
             <pattern>
+                <name>EntityManagerFactoryRefBuilder</name>
+            </pattern>
+            <pattern>
                 <name>ResourceRefBuilder</name>
             </pattern>
             <pattern>
@@ -133,6 +136,7 @@
 
     <gbean name="GBeanRefBuilder" class="org.apache.geronimo.naming.deployment.GBeanRefBuilder"/>
     <gbean name="PersistenceContextRefBuilder" class="org.apache.geronimo.naming.deployment.PersistenceContextRefBuilder"/>
+    <gbean name="EntityManagerFactoryRefBuilder" class="org.apache.geronimo.naming.deployment.EntityManagerFactoryRefBuilder"/>
     <gbean name="EnvironmentEntryBuilder" class="org.apache.geronimo.naming.deployment.EnvironmentEntryBuilder">
         <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee</attribute>
     </gbean>
