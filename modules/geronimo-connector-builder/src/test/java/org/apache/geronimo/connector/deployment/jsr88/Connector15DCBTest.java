@@ -93,7 +93,7 @@ public class Connector15DCBTest extends TestCase {
         assertNull(dependency.getGroupId());
         assertNull(dependency.getType());
         assertNull(dependency.getVersion());
-        parent.setGroupId("geronimo");
+        parent.setGroupId("org.apache.geronimo.configs");
         parent.setArtifactId("j2ee-server");
         parent.setType("car");
         assertNull(parent.getVersion());

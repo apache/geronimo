@@ -347,7 +347,7 @@ public class SecurityRealmPortlet extends BasePortlet {
 
         DependenciesType dependenciesType = environment.addNewDependencies();
         ArtifactType parent = dependenciesType.addNewDependency();
-        parent.setGroupId("geronimo");
+        parent.setGroupId("org.apache.geronimo.configs");
         parent.setArtifactId("j2ee-security");
         parent.setType("car");
         // Dependencies
