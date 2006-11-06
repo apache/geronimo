@@ -53,10 +53,11 @@ public abstract class ModuleMojoSupport
 
     /**
      * List of module artifact configurations.  Artifacts need to point to jar | war | ear | rar archive.
+     * Module artifact's configurations should match the moduleId specified in the plan, if plan exists.
      *
      * @parameter
      */
-    protected ModuleConfig[] modules = null;
+    protected ModuleConfig[] modules;
 
     /**
      * Cached deployment manager.

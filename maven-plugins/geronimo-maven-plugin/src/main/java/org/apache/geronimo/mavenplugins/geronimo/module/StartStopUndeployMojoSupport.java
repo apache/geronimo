@@ -20,6 +20,7 @@
 package org.apache.geronimo.mavenplugins.geronimo.module;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.ArrayList;
 
 import org.apache.geronimo.mavenplugins.geronimo.ModuleConfig;
@@ -52,6 +53,9 @@ public abstract class StartStopUndeployMojoSupport
             log.info("Using non-artifact based module id: " + moduleId);
 
             // Add the single module to the list
+            //
+            // FIXME Should be able to handle multiple moduleIds
+            //
             ModuleConfig moduleConfig = createModuleConfigFromId(moduleId);
             if (modules == null) {
                 modules = new ModuleConfig[] {
@@ -59,9 +63,10 @@ public abstract class StartStopUndeployMojoSupport
                 };
             }
             else {
-                ArrayList list = (ArrayList) Arrays.asList(modules);
-                list.add(moduleConfig);
-                modules = (ModuleConfig[]) list.toArray(new ModuleConfig[list.size()]);
+                List list = Arrays.asList(modules);
+                ArrayList aList = new ArrayList(list);
+                aList.add(moduleConfig);
+                modules = (ModuleConfig[]) aList.toArray(new ModuleConfig[list.size()]);
             }
         }
         else if (modules == null || modules.length == 0) {
