@@ -79,10 +79,10 @@
     <module name="org.apache.geronimo.configs/activemq/${version}/car"/>
 
     <module name="org.apache.geronimo.configs/tomcat/${version}/car">
+        <!-- To disable accesslogging uncomment the following lines
         <gbean name="TomcatEngine">
             <reference name="TomcatValveChain" />
         </gbean>
-        <!-- To disable accesslogging uncomment the following line
         <gbean name="FirstValve" load="false"></gbean>
         -->
 
