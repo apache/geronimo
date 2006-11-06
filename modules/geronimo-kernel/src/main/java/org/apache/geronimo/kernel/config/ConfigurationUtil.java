@@ -342,7 +342,8 @@ public final class ConfigurationUtil {
     }
 
     static void startConfigurationGBeans(AbstractName configurationName, Configuration configuration, Kernel kernel) throws InvalidConfigException {
-        Collection gbeans = configuration.getGBeans().values();
+        List gbeans = new ArrayList(configuration.getGBeans().values());
+        Collections.sort(gbeans, new GBeanData.PriorityComparator());
 
         List loaded = new ArrayList(gbeans.size());
         List started = new ArrayList(gbeans.size());

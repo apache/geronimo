@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -31,11 +32,19 @@ import java.util.Set;
  * @version $Rev$ $Date$
  */
 public class GBeanData implements Externalizable {
+    private static final long serialVersionUID = -1012491431781444074L;
+
+    private Externalizable backwardExternalizables[] = new Externalizable[] {
+            new V0Externalizable(),
+            new V1Externalizable()
+    };
+
     private GBeanInfo gbeanInfo;
     private final Map attributes;
     private final Map references;
     private final Set dependencies;
     private AbstractName abstractName;
+    private int priority;
 
     public GBeanData() {
         attributes = new HashMap();
@@ -45,17 +54,17 @@ public class GBeanData implements Externalizable {
 
     public GBeanData(GBeanInfo gbeanInfo) {
         this();
-        this.gbeanInfo = gbeanInfo;
+        setGBeanInfo(gbeanInfo);
     }
 
     public GBeanData(AbstractName abstractName, GBeanInfo gbeanInfo) {
         this();
         this.abstractName = abstractName;
-        this.gbeanInfo = gbeanInfo;
+        setGBeanInfo(gbeanInfo);
     }
 
     public GBeanData(GBeanData gbeanData) {
-        gbeanInfo = gbeanData.gbeanInfo;
+        setGBeanInfo(gbeanData.gbeanInfo);
         attributes = new HashMap(gbeanData.attributes);
         references = new HashMap(gbeanData.references);
         dependencies = new HashSet(gbeanData.dependencies);
@@ -84,6 +93,11 @@ public class GBeanData implements Externalizable {
 
     public void setGBeanInfo(GBeanInfo gbeanInfo) {
         this.gbeanInfo = gbeanInfo;
+        if (gbeanInfo == null) {
+            priority = GBeanInfo.PRIORITY_NORMAL;
+        } else {
+            priority = gbeanInfo.getPriority();
+        }
     }
 
     public Map getAttributes() {
@@ -169,12 +183,26 @@ public class GBeanData implements Externalizable {
         this.dependencies.add(new ReferencePatterns(dependency));
     }
 
+    public int getPriority() {
+        return priority;
+    }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
+
     public void writeExternal(ObjectOutput out) throws IOException {
+        // write version index
+        out.writeObject(new Integer(backwardExternalizables.length -1));
+
         // write the gbean info
         out.writeObject(gbeanInfo);
 
         // write the abstract name
         out.writeObject(abstractName);
+
+        // write the priority
+        out.writeInt(priority);
 
         // write the attributes
         out.writeInt(attributes.size());
@@ -215,64 +243,119 @@ public class GBeanData implements Externalizable {
                 throw (IOException) new IOException("Unable to write dependency pattern in gbean: " + abstractName).initCause(e);
             }
         }
-
     }
 
 
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        // read the gbean info
-        gbeanInfo = (GBeanInfo) in.readObject();
+        Object opaque = in.readObject();
+        if (opaque instanceof Integer) {
+            backwardExternalizables[((Integer) opaque).intValue()].readExternal(in);
+        } else {
+            gbeanInfo = (GBeanInfo) opaque;
+            backwardExternalizables[0].readExternal(in);
+        }
+    }
 
-        // read the abstract name
-        try {
-            abstractName = (AbstractName) in.readObject();
-        } catch (IOException e) {
-            throw (IOException) new IOException("Unable to deserialize AbstractName for GBeanData of type " + gbeanInfo.getClassName()).initCause(e);
+    /**
+     * Note: this comparator
+     * imposes orderings that are inconsistent with equals.
+     */
+    public static class PriorityComparator implements Comparator {
+
+        public int compare(Object o1, Object o2) {
+            if (o1 instanceof GBeanData && o2 instanceof GBeanData) {
+                return ((GBeanData)o1).priority - ((GBeanData)o2).priority;
+            }
+            return 0;
+        }
+    }
+
+    private class V0Externalizable implements Externalizable {
+
+        public void writeExternal(ObjectOutput out) throws IOException {
+            throw new UnsupportedOperationException();
         }
 
+        public final void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+            // read the gbean info
+            readGBeanInfo(in);
 
-        try {
-            // read the attributes
-            int attributeCount = in.readInt();
-            for (int i = 0; i < attributeCount; i++) {
-                String attributeName = (String) in.readObject();
-                Object attributeValue;
-                try {
-                    attributeValue = in.readObject();
-                } catch (ClassNotFoundException e) {
-                    throw new ClassNotFoundException("Unable to find class used in GBeanData " + abstractName + ", attribute: " + attributeName, e);
-                } catch (IOException e) {
-                    throw (IOException) new IOException("Unable to deserialize GBeanData " + abstractName + ", attribute: " + attributeName).initCause(e);
+            // read the abstract name
+            try {
+                abstractName = (AbstractName) in.readObject();
+            } catch (IOException e) {
+                throw (IOException) new IOException("Unable to deserialize AbstractName for GBeanData of type " + gbeanInfo.getClassName()).initCause(e);
+            }
+
+            readPriority(in);
+
+            try {
+                // read the attributes
+                int attributeCount = in.readInt();
+                for (int i = 0; i < attributeCount; i++) {
+                    String attributeName = (String) in.readObject();
+                    Object attributeValue;
+                    try {
+                        attributeValue = in.readObject();
+                    } catch (ClassNotFoundException e) {
+                        throw new ClassNotFoundException("Unable to find class used in GBeanData " + abstractName + ", attribute: " + attributeName, e);
+                    } catch (IOException e) {
+                        throw (IOException) new IOException("Unable to deserialize GBeanData " + abstractName + ", attribute: " + attributeName).initCause(e);
+                    }
+                    setAttribute(attributeName, attributeValue);
                 }
-                setAttribute(attributeName, attributeValue);
-            }
 
-            // read the references
-            int endpointCount = in.readInt();
-            for (int i = 0; i < endpointCount; i++) {
-                String referenceName = (String) in.readObject();
-                ReferencePatterns referencePattern;
-                try {
-                    referencePattern = (ReferencePatterns) in.readObject();
-                } catch (ClassNotFoundException e) {
-                    throw new ClassNotFoundException("Unable to find class used in GBeanData " + abstractName + ", reference: " + referenceName, e);
-                } catch (IOException e) {
-                    throw (IOException) new IOException("Unable to deserialize GBeanData " + abstractName + ", reference: " + referenceName).initCause(e);
+                // read the references
+                int endpointCount = in.readInt();
+                for (int i = 0; i < endpointCount; i++) {
+                    String referenceName = (String) in.readObject();
+                    ReferencePatterns referencePattern;
+                    try {
+                        referencePattern = (ReferencePatterns) in.readObject();
+                    } catch (ClassNotFoundException e) {
+                        throw new ClassNotFoundException("Unable to find class used in GBeanData " + abstractName + ", reference: " + referenceName, e);
+                    } catch (IOException e) {
+                        throw (IOException) new IOException("Unable to deserialize GBeanData " + abstractName + ", reference: " + referenceName).initCause(e);
+                    }
+                    setReferencePatterns(referenceName, referencePattern);
                 }
-                setReferencePatterns(referenceName, referencePattern);
-            }
 
-            //read the dependencies
-            int dependencyCount = in.readInt();
-            for (int i = 0; i < dependencyCount; i++) {
-                ReferencePatterns depdendencyPattern = (ReferencePatterns) in.readObject();
-                dependencies.add(depdendencyPattern);
+                //read the dependencies
+                int dependencyCount = in.readInt();
+                for (int i = 0; i < dependencyCount; i++) {
+                    ReferencePatterns depdendencyPattern = (ReferencePatterns) in.readObject();
+                    dependencies.add(depdendencyPattern);
+                }
+            } catch (IOException e) {
+                throw (IOException) new IOException("Unable to deserialize GBeanData " + abstractName).initCause(e);
+            } catch (ClassNotFoundException e) {
+                throw new ClassNotFoundException("Unable to find class used in GBeanData " + abstractName, e);
             }
-        } catch (IOException e) {
-            throw (IOException) new IOException("Unable to deserialize GBeanData " + abstractName).initCause(e);
-        } catch (ClassNotFoundException e) {
-            throw new ClassNotFoundException("Unable to find class used in GBeanData " + abstractName, e);
         }
+
+        protected void readGBeanInfo(ObjectInput in) throws IOException, ClassNotFoundException {
+        }
+
+        protected void readPriority(ObjectInput in) throws IOException, ClassNotFoundException {
+            priority = GBeanInfo.PRIORITY_NORMAL;
+        }
+
+    }
+
+    private class V1Externalizable extends V0Externalizable {
+
+        public void writeExternal(ObjectOutput out) throws IOException {
+            throw new UnsupportedOperationException();
+        }
+
+        protected void readGBeanInfo(ObjectInput in)  throws IOException, ClassNotFoundException {
+            gbeanInfo = (GBeanInfo) in.readObject();
+        }
+
+        protected void readPriority(ObjectInput in) throws IOException, ClassNotFoundException {
+            priority = in.readInt();
+        }
+
     }
 
 }

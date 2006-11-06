@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.Collections;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -384,9 +385,11 @@ public class DeploymentContext {
             throw new DeploymentException(message.toString());
         }
 
+        ArrayList gbeans = new ArrayList(configuration.getGBeans().values());
+        Collections.sort(gbeans, new GBeanData.PriorityComparator());
         ConfigurationData configurationData = new ConfigurationData(configuration.getModuleType(),
                 new LinkedHashSet(configuration.getClassPath()),
-                new ArrayList(configuration.getGBeans().values()),
+                gbeans,
                 childConfigurationDatas,
                 configuration.getEnvironment(),
                 baseDir,

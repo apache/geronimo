@@ -130,6 +130,8 @@ public class GBeanInfoBuilder {
 
     private final Set interfaces = new HashSet();
 
+    private int priority = GBeanInfo.PRIORITY_NORMAL;
+
     public GBeanInfoBuilder(Class gbeanType) {
         this(checkNotNull(gbeanType).getName(), gbeanType, null, null);
     }
@@ -201,6 +203,8 @@ public class GBeanInfoBuilder {
 
             //in case subclass constructor has same parameters as superclass.
             constructor = source.getConstructor();
+
+            priority = source.getPriority();
         }
         if (j2eeType != null) {
             this.j2eeType = j2eeType;
@@ -423,6 +427,10 @@ public class GBeanInfoBuilder {
         references.put(name, new RefInfo(type.getName(), null));
     }
 
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
+
     public GBeanInfo getBeanInfo() {
         // get the types of the constructor args
         // this also verifies that we have a valid constructor
@@ -459,7 +467,7 @@ public class GBeanInfoBuilder {
             referenceInfos.add(new GReferenceInfo(referenceName, referenceType, proxyType, setterName, namingType));
         }
 
-        return new GBeanInfo(sourceClass, name, gbeanType.getName(), j2eeType, attributes.values(), constructor, operations.values(), referenceInfos, interfaces);
+        return new GBeanInfo(sourceClass, name, gbeanType.getName(), j2eeType, attributes.values(), constructor, operations.values(), referenceInfos, interfaces, priority);
     }
 
     private Map getConstructorTypes() throws InvalidConfigurationException {

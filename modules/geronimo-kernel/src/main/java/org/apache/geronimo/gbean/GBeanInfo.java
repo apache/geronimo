@@ -38,6 +38,10 @@ import org.apache.geronimo.kernel.management.NotificationType;
  * @version $Rev$ $Date$
  */
 public final class GBeanInfo implements Serializable {
+
+    public static final int PRIORITY_CLASSLOADER = 1;
+    public static final int PRIORITY_NORMAL = 5;
+
     private static final Set DEFAULT_NOTIFICATIONS = Collections.unmodifiableSet(new HashSet(Arrays.asList(NotificationType.TYPES)));
 
     /**
@@ -91,40 +95,41 @@ public final class GBeanInfo implements Serializable {
     private final Set references;
     private final Map referencesByName;
     private final Set interfaces;
+    private final int priority;
 
     /**
      * @deprecated use GBeanInfoBuilder
      */
     public GBeanInfo(String name, String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set interfaces) {
-        this(null, name, className, j2eeType, attributes, constructor, operations, references, interfaces, DEFAULT_NOTIFICATIONS);
+        this(null, name, className, j2eeType, attributes, constructor, operations, references, interfaces, DEFAULT_NOTIFICATIONS, PRIORITY_NORMAL);
     }
 
     /**
      * @deprecated use GBeanInfoBuilder
      */
     public GBeanInfo(String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set interfaces) {
-        this(null, className, className, j2eeType, attributes, constructor, operations, references, interfaces, DEFAULT_NOTIFICATIONS);
+        this(null, className, className, j2eeType, attributes, constructor, operations, references, interfaces, DEFAULT_NOTIFICATIONS, PRIORITY_NORMAL);
     }
 
     /**
      * @deprecated use GBeanInfoBuilder
      */
     public GBeanInfo(String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set interfaces, Set notifications) {
-        this(null, className, className, j2eeType, attributes, constructor, operations, references, interfaces, notifications);
+        this(null, className, className, j2eeType, attributes, constructor, operations, references, interfaces, notifications, PRIORITY_NORMAL);
     }
 
     /**
      * @deprecated use GBeanInfoBuilder
      */
     public GBeanInfo(String name, String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set interfaces, Set notifications) {
-        this(null, name, className, j2eeType, attributes, constructor, operations, references, interfaces, notifications);
+        this(null, name, className, j2eeType, attributes, constructor, operations, references, interfaces, notifications, PRIORITY_NORMAL);
     }
 
-    GBeanInfo(String sourceClass, String name, String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set interfaces) {
-        this(sourceClass, name, className, j2eeType, attributes, constructor, operations, references, interfaces, DEFAULT_NOTIFICATIONS);
+    GBeanInfo(String sourceClass, String name, String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set interfaces, int priority) {
+        this(sourceClass, name, className, j2eeType, attributes, constructor, operations, references, interfaces, DEFAULT_NOTIFICATIONS, priority);
     }
 
-    GBeanInfo(String sourceClass, String name, String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set interfaces, Set notifications) {
+    GBeanInfo(String sourceClass, String name, String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set interfaces, Set notifications, int priority) {
         this.sourceClass = sourceClass;
         this.name = name;
         this.className = className;
@@ -173,6 +178,7 @@ public final class GBeanInfo implements Serializable {
         } else {
             this.notifications = Collections.unmodifiableSet(new HashSet(notifications));
         }
+        this.priority = priority;
     }
 
     /**
@@ -263,6 +269,10 @@ public final class GBeanInfo implements Serializable {
 
     public Set getInterfaces() {
         return interfaces;
+    }
+
+    public int getPriority() {
+        return priority;
     }
 
     public String toString() {
