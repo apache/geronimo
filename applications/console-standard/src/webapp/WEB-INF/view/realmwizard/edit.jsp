@@ -29,6 +29,7 @@ just leave the extra ones blank.</p>
     <input type="hidden" name="lockoutWindow" value="${realm.lockoutWindow}" />
     <input type="hidden" name="lockoutDuration" value="${realm.lockoutDuration}" />
     <input type="hidden" name="storePassword" value="${realm.storePassword}" />
+    <input type="hidden" name="credentialName" value="${realm.credentialName}" />
     <input type="hidden" name="abstractName" value="${realm.abstractName}" />
 
     <table border="0">
