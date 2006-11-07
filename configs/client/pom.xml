@@ -185,15 +185,28 @@
             <artifactId>geronimo-saaj_1.1_spec</artifactId>
         </dependency>
 
+        <!-- required for the jaxrpc apis -->
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-servlet_2.4_spec</artifactId>
         </dependency>
 
         <!-- geronimo-spec-corba, geronimo-j2ee_1.4_spec -->
-        <!-- openejb-core, tranql, asm, activemq, activeio, scout, juddi,
+        <!-- openejb-core, tranql, asm, activemq,
              concurrent, jdom -->
 
+        <!-- jaxr must be available from a client -->
+        <dependency>
+            <groupId>scout</groupId>
+            <artifactId>scout</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>juddi</groupId>
+            <artifactId>juddi</artifactId>
+        </dependency>
+
+        <!-- used by openejb -->
         <dependency>
             <groupId>activeio</groupId>
             <artifactId>activeio</artifactId>
