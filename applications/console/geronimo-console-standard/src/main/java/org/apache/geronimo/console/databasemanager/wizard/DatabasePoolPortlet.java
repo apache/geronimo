@@ -1064,6 +1064,10 @@ public class DatabasePoolPortlet extends BasePortlet {
         List list = new ArrayList();
         try {
             String[] jars = data.getJars();
+            if(jars == null) {
+                log.error("Driver load failed since no jar files were selected.");
+                return null;
+            }
             ListableRepository[] repos = PortletManager.getCurrentServer(request).getRepositories();
 
             for (int i = 0; i < jars.length; i++) {
@@ -1109,6 +1113,18 @@ public class DatabasePoolPortlet extends BasePortlet {
                 }
                 url = url.substring(0, begin)+url.substring(end);
             } else {
+                if(value.indexOf('\\') != -1 || value.indexOf('$') != -1) {
+                    // value contains backslash or dollar sign and needs preprocessing for replaceAll to work properly
+                    StringBuffer temp = new StringBuffer();
+                    char[] valueChars = value.toCharArray();
+                    for(int j = 0; j < valueChars.length; ++j) {
+                        if(valueChars[j] == '\\' || valueChars[j] == '$') {
+                            temp.append('\\');
+                        }
+                        temp.append(valueChars[j]);
+                    }
+                    value = temp.toString();
+                }
                 url = url.replaceAll("\\{"+key+"\\}", value);
             }
         }
