@@ -249,6 +249,16 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
     }
 
     /**
+     * Indicates that the overall login failed.  This method needs to be called
+     * once for each client-side login module.
+     */
+    public boolean performAbort(JaasSessionId sessionHandle, int loginModuleIndex) throws LoginException {
+        JaasSecuritySession session = (JaasSecuritySession) activeLogins.get(sessionHandle);
+        checkContext(session, loginModuleIndex);
+        return session.getLoginModule(loginModuleIndex).abort();
+    }
+
+    /**
      * Indicates that the overall login succeeded.  All login modules that were
      * touched should have been logged in and committed before calling this.
      */
