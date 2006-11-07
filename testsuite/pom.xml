@@ -37,45 +37,81 @@
     <packaging>pom</packaging>
     
     <description>
-        Geronimo integration testsuite.
+        Geronimo integration testsuite. This contains 2 profiles, default and child. 
+        The default profile is used by the top level suites directly under this. The child profile is used by the test poms under the suites.
+
+        This pom defines the basic dependencies needed by most suites.
+
+        The start-selenium, start-server, invoke, and stop-server goals are globally configured here in the pluginManagement sections.
+        They just need to be bound in the suites where needed and appropriate.
+
+        The test poms under the suites should have this pom as their parent and set their relativePath appropriately
+        The test poms under the suites inherit an empty 'child' profile from here. But any other build executions within the test poms should all be inside a 'child' profile.
+
     </description>
     
-    <modules>
-        <module>deployment-testsuite</module>
-        <module>console-testsuite</module>
-    </modules>
+    
     
     <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.testng</groupId>
-                <artifactId>testng</artifactId>
-                <classifier>jdk14</classifier>
-                <version>5.1</version>
-            </dependency>
-            
-            <dependency>
-                <groupId>org.openqa.selenium.client-drivers</groupId>
-                <artifactId>selenium-java-client-driver</artifactId>
-                <version>0.8.1</version>
-            </dependency>
-            
-            <dependency>
-                <groupId>org.openqa.selenium.server</groupId>
-                <artifactId>selenium-server</artifactId>
-                <version>0.8.1</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-    
-    <dependencies>
+      <dependencies>
         <dependency>
-            <groupId>org.apache.geronimo.testsupport</groupId>
-            <artifactId>testsupport-common</artifactId>
-            <version>${version}</version>
-            <scope>test</scope>
+          <groupId>org.apache.geronimo.testsupport</groupId>
+          <artifactId>testsupport-common</artifactId>
+          <scope>test</scope>
+          <version>${version}</version>
         </dependency>
+
+        <dependency>
+              <groupId>junit</groupId>
+              <artifactId>junit</artifactId>
+              <version>3.8.1</version>
+          </dependency>
+
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <classifier>jdk14</classifier>
+            <version>5.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openqa.selenium.client-drivers</groupId>
+            <artifactId>selenium-java-client-driver</artifactId>
+            <version>0.8.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openqa.selenium.server</groupId>
+              <artifactId>selenium-server</artifactId>
+              <version>0.8.1</version>
+          </dependency>
+
+      </dependencies>
+    </dependencyManagement>
+
+      <dependencies>
+      <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+
+      <dependency>
+          <groupId>org.testng</groupId>
+          <artifactId>testng</artifactId>
+          <classifier>jdk14</classifier>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.geronimo.testsupport</groupId>
+        <artifactId>testsupport-common</artifactId>
+        <scope>test</scope>
+      </dependency>
     </dependencies>
+
+    <modules>
+        <module>console-testsuite</module>
+        <module>deployment-testsuite</module>
+    </modules>
     
     <build>
         <pluginManagement>
@@ -94,17 +130,190 @@
                 
                 <!--
                 NOTE: Using custom maven-surefire-plugin that supports TestNG:
-                      
                       http://testng.org/doc/maven.html
                 -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.8-SNAPSHOT</version>
+                     <configuration>
+                          <skip>true</skip>
+                      </configuration>
+                      <executions>
+                        <execution>
+                            <id>test</id>
+                            <phase>test</phase>
+                            <goals>
+                                <goal>test</goal>
+                            </goals>
+                            <configuration>
+                                <skip>true</skip>
+                            </configuration>
+                        </execution>
+
+                        <execution>
+                            <id>integration</id>
+                            <phase>integration-test</phase>
+                            <goals>
+                                <goal>test</goal>
+                            </goals>
+                            <configuration>
+                              <testFailureIgnore>true</testFailureIgnore>
+                                <skip>false</skip>
+                            </configuration>
+                        </execution>
+                      </executions>
                 </plugin>
+
+                <plugin>
+                        <groupId>org.apache.geronimo.genesis.plugins</groupId>
+                        <artifactId>maven-maven-plugin</artifactId>
+                        
+                        <executions>
+                            <execution>
+                                <phase>integration-test</phase>
+                                <goals>
+                                    <goal>invoke</goal>
+                                </goals>
+                                
+                                <configuration>
+                                    <fileset>
+                                        <basedir>${pom.basedir}</basedir>
+                                        <includes>
+                                            <include>*/pom.xml</include>
+                                        </includes>
+                                    </fileset>
+                                    <profiles>
+                                        <profile>child</profile>
+                                    </profiles>
+                                </configuration>
+                            </execution>
+
+                              <execution>
+                              <id>site</id>
+                                <phase>site</phase>
+                                <goals>
+                                    <goal>invoke</goal>
+                                </goals>
+                                <configuration>
+                                  <goals>
+                                    <goal>site</goal>
+                                  </goals>
+                                  <fileset>
+                                        <basedir>${pom.basedir}</basedir>
+                                        <includes>
+                                            <include>*/pom.xml</include>
+                                        </includes>
+                                    </fileset>
+                                    <profiles>
+                                        <profile>child</profile>
+                                    </profiles>
+                                </configuration>
+                            </execution>
+
+                            <execution>
+                              <id>clean</id>
+                              <phase>clean</phase>
+                                <goals>
+                                    <goal>invoke</goal>
+                                </goals>
+                                <configuration>
+                                  <goals>
+                                    <goal>clean</goal>
+                                  </goals>
+                                  <fileset>
+                                        <basedir>${pom.basedir}</basedir>
+                                        <includes>
+                                            <include>*/pom.xml</include>
+                                        </includes>
+                                    </fileset>
+                                    <profiles>
+                                        <profile>child</profile>
+                                    </profiles>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
             </plugins>
         </pluginManagement>
     </build>
+
+    <profiles>
+      <profile>
+        <id>default</id>
+        <activation>
+          <activeByDefault>true</activeByDefault>
+        </activation>
+
+        <build>
+          <pluginManagement>
+            <plugins>
+
+                    <plugin>
+                        <groupId>org.apache.geronimo.plugins</groupId>
+                        <artifactId>selenium-maven-plugin</artifactId>
+                        
+                        <executions>
+                            <execution>
+                                <id>start-server</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>start</goal>
+                                </goals>
+                                <configuration>
+                                    <logOutput>true</logOutput>
+                                    <background>true</background>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    
+                    <plugin>
+                        <groupId>org.apache.geronimo.plugins</groupId>
+                        <artifactId>geronimo-maven-plugin</artifactId>
+
+                        <configuration>
+                            <reporters>
+                                <reporter implementation="org.apache.geronimo.mavenplugins.geronimo.reporting.SurefireReporter">
+                                    <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
+                                </reporter>
+                            </reporters>
+                        </configuration>
+                        
+                        <executions>
+                            <execution>
+                                <id>start-server</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>start-server</goal>
+                                </goals>
+                                <configuration>
+                                    <logOutput>true</logOutput>
+                                    <background>true</background>
+                                    <installDirectory>c:\apache</installDirectory>
+                                </configuration>
+                            </execution>
+
+                            <execution>
+                              <id>stop-server</id>
+                              <phase>install</phase>
+                              <goals>
+                                  <goal>stop-server</goal>
+                              </goals>
+                          </execution>
+                        </executions>
+                    </plugin>
+
+            </plugins>
+          </pluginManagement>
+        </build>
+      </profile>
+
+      <profile>
+        <id>child</id>
+      </profile>
+
+    </profiles>
     
     <repositories>
         <repository>

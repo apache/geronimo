@@ -33,7 +33,7 @@
     
     <artifactId>deployment-testsuite</artifactId>
     <name>Geronimo TestSuite, Deployment</name>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
     
     <description>
         Geronimo deployment testsuite.
@@ -57,107 +57,26 @@
     TODO: Hook up m-m-p to allow child modules to be built early during this modules
           compile (or something) phase.
     -->
-    
-    <profiles>
-        <profile>
-            <id>default</id>
-            
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.geronimo.plugins</groupId>
-                        <artifactId>selenium-maven-plugin</artifactId>
-                        
-                        <executions>
-                            <execution>
-                                <id>start-server</id>
-                                <phase>pre-integration-test</phase>
-                                <goals>
-                                    <goal>start</goal>
-                                </goals>
-                                <configuration>
-                                    <logOutput>true</logOutput>
-                                    <background>true</background>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    
-                    <plugin>
-                        <groupId>org.apache.geronimo.plugins</groupId>
-                        <artifactId>geronimo-maven-plugin</artifactId>
-                        
-                        <configuration>
-                            <reporters>
-                                <reporter implementation="org.apache.geronimo.mavenplugins.geronimo.reporting.SurefireReporter">
-                                    <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
-                                </reporter>
-                            </reporters>
-                        </configuration>
-                        
-                        <executions>
-                            <execution>
-                                <id>start-server</id>
-                                <phase>pre-integration-test</phase>
-                                <goals>
-                                    <goal>start-server</goal>
-                                </goals>
-                                <configuration>
-                                    <logOutput>true</logOutput>
-                                    <background>true</background>
-                                </configuration>
-                            </execution>
-                            
-                            <execution>
-                                <id>stop-server</id>
-                                <phase>post-integration-test</phase>
-                                <goals>
-                                    <goal>stop-server</goal>
-                                </goals>
-                                <configuration>
-                                    <logOutput>true</logOutput>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    
-                    <plugin>
-                        <groupId>org.apache.geronimo.genesis.plugins</groupId>
-                        <artifactId>maven-maven-plugin</artifactId>
-                        
-                        <executions>
-                            <execution>
-                                <phase>integration-test</phase>
-                                <goals>
-                                    <goal>invoke</goal>
-                                </goals>
-                                
-                                <configuration>
-                                    <fileset>
-                                        <basedir>${pom.basedir}</basedir>
-                                        <includes>
-                                            <include>*/pom.xml</include>
-                                        </includes>
-                                    </fileset>
-                                    <profiles>
-                                        <profile>child</profile>
-                                    </profiles>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        
-        <profile>
-            <id>child</id>
-        </profile>
-        
-    </profiles>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>selenium-maven-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>geronimo-maven-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.geronimo.genesis.plugins</groupId>
+                <artifactId>maven-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+
 
 </project>
+    

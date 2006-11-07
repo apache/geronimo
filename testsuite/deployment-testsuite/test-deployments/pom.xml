@@ -26,28 +26,41 @@
     
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
-        <artifactId>deployment-testsuite</artifactId>
+        <artifactId>testsuite</artifactId>
         <version>1.2-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
     
     <artifactId>test-deployments</artifactId>
     <name>Geronimo TestSuite, Deployment :: Test Deployments</name>
-    <packaging>integration-test</packaging>
+    <packaging>jar</packaging>
     
     <description>
         Tests for the test-deployables.
+
+        Note the parent artifactId and the relativePath.
+
+        maven-maven-plugin:invoke executes the 'child' profile.
+        Since build executions are done here, a 'child' profile is explicitly defined here to prevent inheriting other configurations and executions from parent.
     </description>
     
-    <dependencies>
+     <dependencies>
         <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <classifier>jdk14</classifier>
+            <groupId>org.openqa.selenium.client-drivers</groupId>
+            <artifactId>selenium-java-client-driver</artifactId>
+            <scope>test</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.openqa.selenium.server</groupId>
+            <artifactId>selenium-server</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
     
+     <profiles>
+       <profile>
+         <id>child</id>
     <build>
         <plugins>
             <plugin>
@@ -61,15 +74,6 @@
             <plugin>
                 <groupId>org.apache.geronimo.plugins</groupId>
                 <artifactId>geronimo-maven-plugin</artifactId>
-                
-                <configuration>
-                    <logOutput>true</logOutput>
-                    <reporters>
-                        <reporter implementation="org.apache.geronimo.mavenplugins.geronimo.reporting.SurefireReporter">
-                            <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
-                        </reporter>
-                    </reporters>
-                </configuration>
                 
                 <executions>
                     <execution>
@@ -129,5 +133,7 @@
             </plugin>
         </plugins>
     </build>
+       </profile>
+     </profiles>
    
 </project>
