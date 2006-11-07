@@ -265,7 +265,15 @@ public class GeronimoSecurityBuilderImpl implements SecurityBuilder {
         GerDefaultPrincipalType defaultPrincipalType = (GerDefaultPrincipalType) xmlObject;
         DefaultPrincipal defaultPrincipal = new DefaultPrincipal();
 
-        defaultPrincipal.setPrincipal(buildPrincipal(defaultPrincipalType.getPrincipal()));
+        if(defaultPrincipalType.isSetPrincipal()) {
+            defaultPrincipal.setPrincipal(buildPrincipal(defaultPrincipalType.getPrincipal()));
+        } else if(defaultPrincipalType.isSetLoginDomainPrincipal()) {
+            defaultPrincipal.setPrincipal(buildDomainPrincipal(defaultPrincipalType.getLoginDomainPrincipal()));
+        } else if(defaultPrincipalType.isSetRealmPrincipal()) {
+            defaultPrincipal.setPrincipal(buildRealmPrincipal(defaultPrincipalType.getRealmPrincipal()));
+        } else {
+            throw new IllegalStateException("default-principal does not contain a principal, login-domain-principal, or realm-principal");
+        }
         GerNamedUsernamePasswordCredentialType[] namedCredentials = defaultPrincipalType.getNamedUsernamePasswordCredentialArray();
         if (namedCredentials.length > 0) {
             Set defaultCredentialSet = new HashSet();
