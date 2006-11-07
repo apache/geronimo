@@ -38,9 +38,6 @@ public class StopModuleMojo
     }
 
     protected String getGoalName() {
-        //
-        // FIXME: There has to be way this can be computed instead of hardcoded absolutely.
-        //
-        return "stop-module";
+        return this.getClass().getName();
     } 
 }

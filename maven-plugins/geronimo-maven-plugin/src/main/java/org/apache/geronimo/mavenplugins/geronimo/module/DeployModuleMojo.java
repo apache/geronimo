@@ -158,9 +158,6 @@ public class DeployModuleMojo
     }
 
     protected String getGoalName() {
-        //
-        // FIXME: There has to be way this can be computed instead of hardcoded absolutely.
-        //
-        return "deploy-module";
-    }
+        return this.getClass().getName();
+    } 
 }

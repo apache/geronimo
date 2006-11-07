@@ -38,9 +38,6 @@ public class UndeployModuleMojo
     }
 
     protected String getGoalName() {
-        //
-        // FIXME: There has to be way this can be computed instead of hardcoded absolutely.
-        //
-        return "undeploy-module";
-    }
+        return this.getClass().getName();
+    } 
 }

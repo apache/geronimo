@@ -360,10 +360,6 @@ public class StartServerMojo
     }
 
     protected String getGoalName() {
-        //
-        // FIXME: There has to be way this can be computed instead of hardcoded absolutely.
-        //
-        
-        return "start-server";
-    }
+        return this.getClass().getName();
+    } 
 }

@@ -94,9 +94,6 @@ public class WaitForServerMojo
     }
 
     protected String getGoalName() {
-        //
-        //FIXME: There has to be way this can be computed instead of hardcoded absolutely.
-        //
-        return "wait-for-server";
-    }
+        return this.getClass().getName();
+    } 
 }

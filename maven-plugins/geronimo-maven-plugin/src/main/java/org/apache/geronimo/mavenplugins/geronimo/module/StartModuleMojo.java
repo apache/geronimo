@@ -38,9 +38,6 @@ public class StartModuleMojo
     }
 
     protected String getGoalName() {
-        //
-        // FIXME: There has to be way this can be computed instead of hardcoded absolutely.
-        //
-        return "start-module";
-    }
+        return this.getClass().getName();
+    } 
 }

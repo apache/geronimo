@@ -34,6 +34,6 @@ public class InstallAssemblyMojo
     }
 
     protected String getGoalName() {
-        return "install-assembly";
-    }
+        return this.getClass().getName();
+    } 
 }

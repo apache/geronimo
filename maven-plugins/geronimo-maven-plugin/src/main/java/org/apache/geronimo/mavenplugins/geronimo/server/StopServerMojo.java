@@ -56,6 +56,6 @@ public class StopServerMojo
     }
 
     protected String getGoalName() {
-        return "stop-server";
-    }
+        return this.getClass().getName();
+    } 
 }

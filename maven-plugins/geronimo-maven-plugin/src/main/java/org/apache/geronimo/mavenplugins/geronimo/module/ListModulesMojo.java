@@ -51,6 +51,6 @@ public class ListModulesMojo
     }
 
     protected String getGoalName() {
-        return "list-modules";
+        return this.getClass().getName();
     }
 }
