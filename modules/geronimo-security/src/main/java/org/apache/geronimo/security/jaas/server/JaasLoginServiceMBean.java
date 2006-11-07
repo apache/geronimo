@@ -118,4 +118,10 @@ public interface JaasLoginServiceMBean extends LoginService {
      * @return the sync'd set of principals that are on the server
      */
     public Set syncPrincipals(JaasSessionId sessionHandle, Set principals) throws LoginException;
+
+    /**
+     * Indicates that the overall login failed.  This method needs to be called
+     * once for each client-side login module.
+     */
+    public boolean performAbort(JaasSessionId sessionHandle, int lmIndex) throws LoginException;
 }

@@ -23,6 +23,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
@@ -117,7 +118,13 @@ public class JaasLoginCoordinator implements LoginModule {
             proxies[i].initialize(subject, handler, sharedState, config[i].getOptions());
             syncSharedState();
         }
-        return performLogin();
+        boolean result = performLogin();
+        if(result) {
+            return true;
+        } else {
+            // login() method should throw LoginException incase of failure
+            throw new FailedLoginException();
+        }
     }
 
     public boolean commit() throws LoginException {
@@ -196,7 +203,12 @@ public class JaasLoginCoordinator implements LoginModule {
 
         for (int i = 0; i < proxies.length; i++) {
             LoginModuleProxy proxy = proxies[i];
-            boolean result = proxy.login();
+            boolean result;
+            try {
+                result = proxy.login();
+            } catch(LoginException e) {
+                result = false;  // login() method throws LoginException incase of failure
+            }
             syncSharedState();
 
             if (proxy.getControlFlag() == LoginModuleControlFlag.REQUIRED) {

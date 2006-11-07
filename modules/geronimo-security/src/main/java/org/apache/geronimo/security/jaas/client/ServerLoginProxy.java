@@ -86,7 +86,7 @@ public class ServerLoginProxy extends LoginModuleProxy {
     }
 
     public boolean abort() throws LoginException {
-        return false; // taken care of with a single call to the server
+        return service.performAbort(sessionHandle, lmIndex);
     }
 
     public boolean logout() throws LoginException {
