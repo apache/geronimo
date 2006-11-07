@@ -24,6 +24,7 @@ function <portlet:namespace/>validateForm(){
     <input type="hidden" name="lockoutWindow" value="${realm.lockoutWindow}" />
     <input type="hidden" name="lockoutDuration" value="${realm.lockoutDuration}" />
     <input type="hidden" name="storePassword" value="${realm.storePassword}" />
+    <input type="hidden" name="credentialName" value="${realm.credentialName}" />
     <input type="hidden" name="abstractName" value="${realm.abstractName}" />
     <input type="hidden" name="module-domain-0" value="${realm.modules[0].loginDomainName}" />
     <input type="hidden" name="module-class-0" value="${realm.modules[0].className}" />

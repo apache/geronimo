@@ -46,6 +46,7 @@ import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.security.jaas.JaasLoginModuleChain;
 import org.apache.geronimo.security.jaas.LoginModuleSettings;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
+import org.apache.geronimo.security.jaas.NamedUPCredentialLoginModule;
 import org.apache.geronimo.security.realm.providers.FileAuditLoginModule;
 import org.apache.geronimo.security.realm.providers.GeronimoPasswordCredentialLoginModule;
 import org.apache.geronimo.security.realm.providers.RepeatedFailureLockoutLoginModule;
@@ -753,6 +754,16 @@ public class SecurityRealmPortlet extends BasePortlet {
                 props.setProperty("lockoutDurationSecs", data.getLockoutDuration());
                 list.add(module);
             }
+            if (data.getCredentialName() != null) {
+                module = new LoginModuleDetails();
+                module.setClassName(NamedUPCredentialLoginModule.class.getName());
+                module.setControlFlag("OPTIONAL");
+                module.setLoginDomainName(data.getName() + "-NamedUPC");
+                module.setServerSide(true);
+                props = module.getOptions();
+                props.setProperty(NamedUPCredentialLoginModule.CREDENTIAL_NAME, data.getCredentialName());
+                list.add(module);
+            }
         } else {
             list.addAll(Arrays.asList(data.modules));
         }
@@ -777,6 +788,7 @@ public class SecurityRealmPortlet extends BasePortlet {
         private boolean storePassword;
         private String abstractName; // used when editing existing realms
         private LoginModuleDetails[] modules;
+        private String credentialName;
 
         public void load(PortletRequest request) {
             name = request.getParameter("name");
@@ -797,6 +809,8 @@ public class SecurityRealmPortlet extends BasePortlet {
             if (abstractName != null && abstractName.equals("")) abstractName = null;
             String test = request.getParameter("storePassword");
             storePassword = test != null && !test.equals("") && !test.equals("false");
+            credentialName = request.getParameter("credentialName");
+            if (credentialName != null && credentialName.equals("")) credentialName = null;
             Map map = request.getParameterMap();
             for (Iterator it = map.keySet().iterator(); it.hasNext();) {
                 String key = (String) it.next();
@@ -887,6 +901,7 @@ public class SecurityRealmPortlet extends BasePortlet {
             if (lockoutDuration != null) response.setRenderParameter("lockoutDuration", lockoutDuration);
             if (abstractName != null) response.setRenderParameter("abstractName", abstractName);
             if (storePassword) response.setRenderParameter("storePassword", "true");
+            if (credentialName != null) response.setRenderParameter("credentialName", credentialName);
             for (Iterator it = options.keySet().iterator(); it.hasNext();) {
                 String name = (String) it.next();
                 String value = (String) options.get(name);
@@ -953,6 +968,10 @@ public class SecurityRealmPortlet extends BasePortlet {
 
         public boolean isLockoutEnabled() {
             return lockoutCount != null || lockoutWindow != null || lockoutDuration != null;
+        }
+
+        public String getCredentialName() {
+            return credentialName;
         }
 
         public String getAbstractName() {

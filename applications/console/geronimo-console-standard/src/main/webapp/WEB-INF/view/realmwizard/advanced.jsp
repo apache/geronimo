@@ -18,6 +18,11 @@ function <portlet:namespace/>validateForm(){
             if(!valid) return false;
         }
     }
+
+    if(realmForm.elements['namedUPC'].checked)
+        valid = textElementsNotEmpty(<portlet:namespace/>formName, new Array('credentialName'));
+    if(!valid) return false;
+
     return true;
 }
 </script>
@@ -116,6 +121,22 @@ function <portlet:namespace/>validateForm(){
         <td>If enabled, the realm will store each user's password in a private credential in the
           Subject.  This will allow access to the password later after the login process has
           completed.  This is not normally required.</td>
+      </tr>
+    <!-- ENTRY FIELD: Named UPC -->
+      <tr>
+        <th valign="top"><div align="right">Named Credential:</div></th>
+        <td valign="top">
+          <input type="checkbox" id="<portlet:namespace/>namedUPCCheckbox" name="namedUPC"<c:if test="${!(empty realm.credentialName)}"> checked="checked"</c:if>
+          onclick="document.getElementById('<portlet:namespace/>namedUPCDiv').style.display=this.checked ? 'block' : 'none';document.getElementById('<portlet:namespace/>credentialName').value='';"/>
+          <div id="<portlet:namespace/>namedUPCDiv" style="display: <c:choose><c:when test="${empty realm.credentialName}">none</c:when><c:otherwise>block</c:otherwise></c:choose>;">
+          Credential Name: <input type="text" id="<portlet:namespace/>credentialName" name="credentialName" size="30" value="${realm.credentialName}" />
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>If enabled, the realm will store each username and password in a private credential in the
+          Subject under a specified credential name.</td>
       </tr>
     <!-- SUBMIT BUTTON -->
       <tr>
