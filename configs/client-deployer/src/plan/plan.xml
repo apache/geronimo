@@ -48,7 +48,7 @@
                 <name>EnvironmentEntryBuilder</name>
             </pattern>
             <pattern>
-                <name>AxisServiceRefBuilder</name>
+                <name>AxisClientServiceRefBuilder</name>
             </pattern>
             <pattern>
                 <name>OpenEjbClientRemoteRefBuilder</name>

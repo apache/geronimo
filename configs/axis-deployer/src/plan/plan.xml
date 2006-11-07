@@ -38,9 +38,31 @@
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
                 <dependencies>
                     <dependency>
+                        <groupId>org.apache.geronimo.configs</groupId>
+                        <artifactId>axis</artifactId>
+                        <type>car</type>
+                    </dependency>
+                </dependencies>
+            </environment>
+        </xml-attribute>
+        <reference name="AxisBuilder">
+            <name>WebServiceBuilder</name>
+        </reference>
+    </gbean>
+    <gbean name="AxisClientServiceRefBuilder" class="org.apache.geronimo.axis.builder.AxisServiceRefBuilder">
+        <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee</attribute>
+        <xml-attribute name="defaultEnvironment">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
+                <dependencies>
+                    <dependency>
                         <groupId>org.apache.geronimo.modules</groupId>
                         <artifactId>geronimo-axis</artifactId>
                         <type>jar</type>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.geronimo.configs</groupId>
+                        <artifactId>client-security</artifactId>
+                        <type>car</type>
                     </dependency>
                 </dependencies>
             </environment>
