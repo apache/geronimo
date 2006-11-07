@@ -143,8 +143,6 @@ public class DeployModuleMojo
     }
 
     private TargetModuleID[] distribute(final File file, final File plan) throws Exception {
-        //assert file != null;
-        
         log.info("Distributing module artifact: " + file + " with plan " + plan);
 
         DeploymentManager manager = getDeploymentManager();
