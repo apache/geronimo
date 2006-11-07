@@ -382,6 +382,11 @@ public class PortletManager {
         ManagementHelper helper = getManagementHelper(request);
         return helper.getConfigurations(type, includeChildModules);
     }
+    
+    public static Object[] getGBeansImplementing(PortletRequest request, Class iface) {
+        ManagementHelper helper = getManagementHelper(request);
+        return helper.getGBeansImplementing(iface);
+    }    
 
     /**
      * Looks up the context prefix used by the portal, even if the thing running

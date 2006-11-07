@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.console.util;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,6 +47,7 @@ import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.management.AppClientModule;
 import org.apache.geronimo.management.EJB;
@@ -534,6 +536,18 @@ public class KernelManagementHelper implements ManagementHelper {
         }
     }
 
+    public Object[] getGBeansImplementing(Class iface) {
+        Set set = kernel.listGBeans(new AbstractNameQuery(iface.getName()));
+        Object[] result = (Object[]) Array.newInstance(iface, set.size());
+        int index = 0;
+        ProxyManager mgr = kernel.getProxyManager();
+        for (Iterator it = set.iterator(); it.hasNext();) {
+            AbstractName name = (AbstractName) it.next();
+            result[index++] = mgr.createProxy(name, iface);
+        }
+        return result;
+    }    
+    
     /**
      * Helper method to connect to a remote kernel.
      */

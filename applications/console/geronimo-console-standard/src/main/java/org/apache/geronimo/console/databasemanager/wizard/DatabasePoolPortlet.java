@@ -38,7 +38,9 @@ import java.sql.DatabaseMetaData;
 import java.sql.Driver;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -94,7 +96,6 @@ import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.FileWriteMonitor;
 import org.apache.geronimo.kernel.repository.ListableRepository;
-import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.WriteableRepository;
 import org.apache.geronimo.kernel.util.XmlUtil;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
@@ -250,10 +251,10 @@ public class DatabasePoolPortlet extends BasePortlet {
         PoolData data = new PoolData();
         data.load(actionRequest);
         if(mode.equals("process-"+SELECT_RDBMS_MODE)) {
-            DatabaseInfo info = null;
-            info = getDatabaseInfo(data);
+            DatabaseDriver info = null;
+            info = getDatabaseInfo(actionRequest, data);
             if(info != null) {
-                data.rarPath = info.getRarPath();
+                data.rarPath = info.getRAR().toString();
                 if(info.isXA()) {
                     data.adapterDisplayName="Unknown"; // will pick these up when we process the RA type in the render request
                     data.adapterDescription="Unknown";
@@ -262,8 +263,8 @@ public class DatabasePoolPortlet extends BasePortlet {
                     if(data.getDbtype().equals("Other")) {
                         actionResponse.setRenderParameter(MODE_KEY, EDIT_MODE);
                     } else {
-                        data.driverClass = info.getDriverClass();
-                        data.urlPrototype = info.getUrl();
+                        data.driverClass = info.getDriverClassName();
+                        data.urlPrototype = info.getURLPrototype();
                         actionResponse.setRenderParameter(MODE_KEY, BASIC_PARAMS_MODE);
                     }
                 }
@@ -301,10 +302,10 @@ public class DatabasePoolPortlet extends BasePortlet {
                 actionResponse.setRenderParameter(MODE_KEY, BASIC_PARAMS_MODE);
             }
         } else if(mode.equals("process-"+BASIC_PARAMS_MODE)) {
-            DatabaseInfo info = null;
-            info = getDatabaseInfo(data);
+            DatabaseDriver info = null;
+            info = getDatabaseInfo(actionRequest, data);
             if(info != null) {
-                data.url = populateURL(info.getUrl(), info.getUrlParameters(), data.getUrlProperties());
+                data.url = populateURL(info.getURLPrototype(), info.getURLParameters(), data.getUrlProperties());
             }
             if(attemptDriverLoad(actionRequest, data) != null) {
                 actionResponse.setRenderParameter(MODE_KEY, CONFIRM_URL_MODE);
@@ -368,7 +369,7 @@ public class DatabasePoolPortlet extends BasePortlet {
             ImportStatus status = getImportStatus(actionRequest);
             int index = Integer.parseInt(actionRequest.getParameter("importIndex"));
             status.setCurrentPoolIndex(index);
-            loadImportedData(data, status.getCurrentPool());
+            loadImportedData(actionRequest, data, status.getCurrentPool());
             actionResponse.setRenderParameter(MODE_KEY, EDIT_MODE);
         } else if(mode.equals(IMPORT_COMPLETE_MODE)) {
             ImportStatus status = getImportStatus(actionRequest);
@@ -429,8 +430,7 @@ public class DatabasePoolPortlet extends BasePortlet {
         }
     }
 
-    private void loadImportedData(PoolData data, ImportStatus.PoolProgress progress) {
-        if(!progress.getType().equals(ImportStatus.PoolProgress.TYPE_XA)) {
+    private void loadImportedData(PortletRequest request, PoolData data, ImportStatus.PoolProgress progress) throws PortletException {        if(!progress.getType().equals(ImportStatus.PoolProgress.TYPE_XA)) {
             JDBCPool pool = (JDBCPool) progress.getPool();
             data.dbtype = "Other";
             data.adapterDisplayName = "TranQL Generic JDBC Resource Adapter";
@@ -444,13 +444,12 @@ public class DatabasePoolPortlet extends BasePortlet {
             data.url = pool.getJdbcURL();
             data.user = pool.getUsername();
             if(pool.getDriverClass() != null) {
-                DatabaseInfo info = getDatabaseInfoFromDriver(data);
+                DatabaseDriver info = getDatabaseInfoFromDriver(request, data);
                 if(info != null) {
-                    data.rarPath = info.getRarPath();
-                    data.urlPrototype = info.getUrl();
+                    data.rarPath = info.getRAR().toString();
+                    data.urlPrototype = info.getURLPrototype();
                 } else {
-                    log.warn("Don't recognize database driver "+data.driverClass+"; Using default RAR file");
-                    data.rarPath = DatabaseInfo.getDefaultRARPath();
+                    throw new PortletException("Don't recognize database driver "+data.driverClass+"!");
                 }
             }
         } else {
@@ -755,7 +754,7 @@ public class DatabasePoolPortlet extends BasePortlet {
     }
 
     private void renderSelectRDBMS(RenderRequest renderRequest, RenderResponse renderResponse) throws IOException, PortletException {
-        renderRequest.setAttribute("databases", DatabaseInfo.ALL_DATABASES);
+        renderRequest.setAttribute("databases", getAllDrivers(renderRequest));
         selectRDBMSView.include(renderRequest, renderResponse);
     }
 
@@ -771,9 +770,9 @@ public class DatabasePoolPortlet extends BasePortlet {
     private void renderBasicParams(RenderRequest renderRequest, RenderResponse renderResponse, PoolData data) throws IOException, PortletException {
         loadDriverJARList(renderRequest);
         // Make sure all properties available for the DB are listed
-        DatabaseInfo info = getDatabaseInfo(data);
+        DatabaseDriver info = getDatabaseInfo(renderRequest, data);
         if(info != null) {
-            String[] params = info.getUrlParameters();
+            String[] params = info.getURLParameters();
             for (int i = 0; i < params.length; i++) {
                 String param = params[i];
                 final String key = "urlproperty-"+param;
@@ -809,7 +808,7 @@ public class DatabasePoolPortlet extends BasePortlet {
                 }
                 list.add(test);
             }
-    }
+        }
         Collections.sort(list);
         renderRequest.setAttribute("availableJars", list);
     }
@@ -1037,9 +1036,16 @@ public class DatabasePoolPortlet extends BasePortlet {
 
     private static File getRAR(PortletRequest request, String rarPath) {
         org.apache.geronimo.kernel.repository.Artifact artifact = org.apache.geronimo.kernel.repository.Artifact.create(rarPath);
-        Repository[] repos = PortletManager.getCurrentServer(request).getRepositories();
+        ListableRepository[] repos = PortletManager.getCurrentServer(request).getRepositories();
         for (int i = 0; i < repos.length; i++) {
-            Repository repo = repos[i];
+            ListableRepository repo = repos[i];
+            // if the artifact is not fully resolved then try to resolve it
+            if (!artifact.isResolved()) {
+                SortedSet results = repo.list(artifact);
+                if (!results.isEmpty()) {
+                    artifact = (org.apache.geronimo.kernel.repository.Artifact) results.first();
+                }
+            }
             File url = repo.getLocation(artifact);
             if (url != null) {
                 if (url.exists() && url.canRead() && !url.isDirectory()) {
@@ -1057,19 +1063,19 @@ public class DatabasePoolPortlet extends BasePortlet {
     private static Class attemptDriverLoad(PortletRequest request, PoolData data) {
         List list = new ArrayList();
         try {
-        	String[] jars = data.getJars();
+            String[] jars = data.getJars();
             ListableRepository[] repos = PortletManager.getCurrentServer(request).getRepositories();
-        	
-        	for (int i=0; i<jars.length; i++) {
-        		org.apache.geronimo.kernel.repository.Artifact artifact = org.apache.geronimo.kernel.repository.Artifact.create(jars[i]);
-        		for (int j=0; j<repos.length; j++) {
+
+            for (int i = 0; i < jars.length; i++) {
+                org.apache.geronimo.kernel.repository.Artifact artifact = org.apache.geronimo.kernel.repository.Artifact.create(jars[i]);
+                for (int j = 0; j < repos.length; j++) {
                     ListableRepository repo = repos[j];
                     File url = repo.getLocation(artifact);
                     if (url != null) {
-                    	list.add(url.toURL());
+                        list.add(url.toURL());
                     }
-        		}
-        	}
+                }
+            }
             URLClassLoader loader = new URLClassLoader((URL[]) list.toArray(new URL[list.size()]), DatabasePoolPortlet.class.getClassLoader());
             try {
                 return loader.loadClass(data.driverClass);
@@ -1087,7 +1093,7 @@ public class DatabasePoolPortlet extends BasePortlet {
             String key = keys[i];
             String value = (String) properties.get("urlproperty-"+key);
             if(value == null || value.equals("")) {
-                int begin = url.indexOf("<"+key+">");
+                int begin = url.indexOf("{"+key+"}");
                 int end = begin + key.length() + 2;
                 for(int j=begin-1; j>=0; j--) {
                     char c = url.charAt(j);
@@ -1103,17 +1109,33 @@ public class DatabasePoolPortlet extends BasePortlet {
                 }
                 url = url.substring(0, begin)+url.substring(end);
             } else {
-                url = url.replaceAll("<"+key+">", value);
+                url = url.replaceAll("\\{"+key+"\\}", value);
             }
         }
         return url;
     }
 
-    private static DatabaseInfo getDatabaseInfo(PoolData data) {
-        DatabaseInfo info = null;
-        for (int i = 0; i < DatabaseInfo.ALL_DATABASES.length; i++) {
-            DatabaseInfo next = DatabaseInfo.ALL_DATABASES[i];
-            if(next.getName().equals(data.getDbtype())) {
+    
+    private static DatabaseDriver[] getAllDrivers(PortletRequest request) {
+        DatabaseDriver[] result = (DatabaseDriver[]) PortletManager.getGBeansImplementing(request, DatabaseDriver.class);
+        Arrays.sort(result, new Comparator() {
+            public int compare(Object o1, Object o2) {
+                String name1 = ((DatabaseDriver) o1).getName();
+                String name2 = ((DatabaseDriver) o2).getName();
+                if (name1.equals("Other")) name1 = "zzzOther";
+                if (name2.equals("Other")) name2 = "zzzOther";
+                return name1.compareTo(name2);
+            }
+        });
+        return result;
+    }
+        
+    private static DatabaseDriver getDatabaseInfo(PortletRequest request, PoolData data) {
+        DatabaseDriver info = null;
+        DatabaseDriver[] all = getAllDrivers(request);
+        for (int i = 0; i < all.length; i++) {
+            DatabaseDriver next = all[i];
+            if (next.getName().equals(data.getDbtype())) {
                 info = next;
                 break;
             }
@@ -1121,11 +1143,12 @@ public class DatabasePoolPortlet extends BasePortlet {
         return info;
     }
 
-    private static DatabaseInfo getDatabaseInfoFromDriver(PoolData data) {
-        DatabaseInfo info = null;
-        for (int i = 0; i < DatabaseInfo.ALL_DATABASES.length; i++) {
-            DatabaseInfo next = DatabaseInfo.ALL_DATABASES[i];
-            if(next.getDriverClass() != null && next.getDriverClass().equals(data.getDriverClass())) {
+    private static DatabaseDriver getDatabaseInfoFromDriver(PortletRequest request, PoolData data) {
+        DatabaseDriver info = null;
+        DatabaseDriver[] all = getAllDrivers(request);
+        for (int i = 0; i < all.length; i++) {
+            DatabaseDriver next = all[i];
+            if (next.getDriverClassName()!=null && next.getDriverClassName().equals(data.getDriverClass())) {
                 info = next;
                 break;
             }
