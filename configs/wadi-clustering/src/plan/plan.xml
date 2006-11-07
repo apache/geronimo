@@ -29,17 +29,6 @@
         <attribute name="nbReplica">${PlanNbReplica}</attribute>
     </gbean>
 
-    <!--
-    <gbean name="DefaultDispatcherHolder" class="org.apache.geronimo.clustering.wadi.ActiveClusterDispatcherHolder">
-        <attribute name="clusterName">${PlanClusterName}</attribute>
-        <attribute name="clusterUri">${PlanClusterUri}</attribute>
-        <attribute name="inactiveTime">${PlanInactiveTime}</attribute>
-        <reference name="Node">
-            <name>Node</name>
-        </reference>
-    </gbean>
-    -->
-
     <gbean name="DefaultDispatcherHolder" class="org.apache.geronimo.clustering.wadi.TribesDispatcherHolder">
         <attribute name="clusterName">${PlanClusterName}</attribute>
         <attribute name="inactiveTime">${PlanInactiveTime}</attribute>

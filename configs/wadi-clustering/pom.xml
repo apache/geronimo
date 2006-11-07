@@ -39,7 +39,6 @@
         <PlanNbReplica>2</PlanNbReplica>
         <PlanClusterName>DEFAULT_CLUSTER</PlanClusterName>
         <PlanInactiveTime>3600</PlanInactiveTime>
-        <PlanClusterUri>tcp://localhost:61618</PlanClusterUri>
     </properties>
 
     <dependencies>
@@ -64,21 +63,6 @@
         <dependency>
             <groupId>org.codehaus.wadi</groupId>
             <artifactId>wadi-group</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.codehaus.wadi</groupId>
-            <artifactId>wadi-activecluster</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>incubator-activemq</groupId>
-            <artifactId>activecluster</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>incubator-activemq</groupId>
-             <artifactId>activemq</artifactId>
         </dependency>
 
         <dependency>

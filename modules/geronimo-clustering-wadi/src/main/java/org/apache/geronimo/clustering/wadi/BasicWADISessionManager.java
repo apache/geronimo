@@ -51,7 +51,6 @@ import org.codehaus.wadi.Motable;
 import org.codehaus.wadi.PoolableInvocationWrapperPool;
 import org.codehaus.wadi.SessionPool;
 import org.codehaus.wadi.Streamer;
-import org.codehaus.wadi.ValuePool;
 import org.codehaus.wadi.group.Dispatcher;
 import org.codehaus.wadi.impl.AbsoluteEvicter;
 import org.codehaus.wadi.impl.ClusterContextualiser;
@@ -67,16 +66,19 @@ import org.codehaus.wadi.impl.SimpleSessionPool;
 import org.codehaus.wadi.impl.SimpleStreamer;
 import org.codehaus.wadi.impl.SimpleValuePool;
 import org.codehaus.wadi.impl.StatelessContextualiser;
+import org.codehaus.wadi.replication.contextualizer.ReplicaAwareContextualiser;
+import org.codehaus.wadi.replication.manager.ReplicaterAdapterFactory;
+import org.codehaus.wadi.replication.manager.ReplicationManager;
 import org.codehaus.wadi.replication.manager.ReplicationManagerFactory;
+import org.codehaus.wadi.replication.manager.basic.SessionReplicationManager;
+import org.codehaus.wadi.replication.storage.ReplicaStorage;
 import org.codehaus.wadi.replication.storage.ReplicaStorageFactory;
 import org.codehaus.wadi.replication.strategy.BackingStrategyFactory;
-import org.codehaus.wadi.servicespace.ServiceName;
+import org.codehaus.wadi.servicespace.ServiceRegistry;
 import org.codehaus.wadi.servicespace.ServiceSpaceName;
 import org.codehaus.wadi.servicespace.basic.BasicServiceSpace;
-import org.codehaus.wadi.web.AttributesFactory;
 import org.codehaus.wadi.web.WebSession;
 import org.codehaus.wadi.web.WebSessionPool;
-import org.codehaus.wadi.web.WebSessionWrapperFactory;
 import org.codehaus.wadi.web.impl.AtomicallyReplicableSessionFactory;
 import org.codehaus.wadi.web.impl.DistributableAttributesFactory;
 import org.codehaus.wadi.web.impl.DistributableValueFactory;
@@ -95,8 +97,8 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
     private static final Log log = LogFactory.getLog(BasicWADISessionManager.class);
 
     private final WADISessionManagerConfigInfo configInfo;
-    private final ReplicationManagerFactory replicationManagerFactory;
-    private final ReplicaStorageFactory replicaStorageFactory;
+    private final ReplicationManagerFactory repManagerFactory;
+    private final ReplicaStorageFactory repStorageFactory;
     private final BackingStrategyFactory backingStrategyFactory;
     private final DispatcherHolder dispatcherHolder;
     private final Set listeners;
@@ -105,12 +107,12 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
     private BasicServiceSpace serviceSpace;
 
     public BasicWADISessionManager(WADISessionManagerConfigInfo configInfo,
-            ReplicationManagerFactory replicationManagerFactory, ReplicaStorageFactory replicaStorageFactory,
+            ReplicationManagerFactory repManagerFactory, ReplicaStorageFactory repStorageFactory,
             BackingStrategyFactory backingStrategyFactory, DispatcherHolder dispatcherHolder) {
         this.configInfo = configInfo;
         this.dispatcherHolder = dispatcherHolder;
-        this.replicationManagerFactory = replicationManagerFactory;
-        this.replicaStorageFactory = replicaStorageFactory;
+        this.repManagerFactory = repManagerFactory;
+        this.repStorageFactory = repStorageFactory;
         this.backingStrategyFactory = backingStrategyFactory;
 
         listeners = new HashSet();
@@ -126,21 +128,15 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
         Streamer streamer = new SimpleStreamer();
         Collapser collapser = new HashingCollapser(1024, 10000);
         Map mmap = Collections.synchronizedMap(new HashMap());
+        WebSessionPool sessionPool = new SimpleSessionPool(new AtomicallyReplicableSessionFactory());
 
         // end of contextualiser stack
         Contextualiser contextualiser = new DummyContextualiser();
 
         // replica aware contextualiser
-        // ReplicationManager replicationManager =
-        // replicationManagerFactory.factory(dispatcher,
-        // replicaStorageFactory,
-        // backingStrategyFactory);
-        // DistributableManagerRehydrater sessionRehydrater = new
-        // DistributableManagerRehydrater();
-        // ReplicationManager sessionRepManager = new
-        // SessionReplicationManager(replicationManager, sessionRehydrater);
-        // contextualiser = new ReplicaAwareContextualiser(contextualiser,
-        // sessionRepManager);
+//         ReplicationManager replicationManager = repManagerFactory.factory(serviceSpace, backingStrategyFactory);
+//         ReplicationManager sessionRepManager = new SessionReplicationManager(replicationManager, sessionPool);
+//         contextualiser = new ReplicaAwareContextualiser(contextualiser, sessionRepManager);
 
         // cluster aware contextualiser
         contextualiser = new ClusterContextualiser(contextualiser, collapser, new HybridRelocater(5000, 5000, true));
@@ -152,7 +148,6 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
         contextualiser = new SerialContextualiser(contextualiser, collapser, mmap);
 
         // in-memory contextualiser
-        WebSessionPool sessionPool = new SimpleSessionPool(new AtomicallyReplicableSessionFactory());
         Evicter mevicter = new AbsoluteEvicter(configInfo.getSweepInterval(), strictOrdering,
                 configInfo.getSessionTimeoutSeconds());
         SessionPool contextPool = new WebSessionToSessionPoolAdapter(sessionPool);
@@ -162,14 +157,24 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
         contextualiser = new SerialContextualiserFrontingMemory(contextualiser, new HashingCollapser(1024, 10000));
 
         // Manager
-        AttributesFactory attributesFactory = new DistributableAttributesFactory();
-        ValuePool valuePool = new SimpleValuePool(new DistributableValueFactory());
-        WebSessionWrapperFactory wrapperFactory = new StandardSessionWrapperFactory();
-        manager = new ClusteredManager(sessionPool, attributesFactory, valuePool, wrapperFactory, null, contextualiser,
-                mmap, new DummyRouter(), true, streamer, true, new DummyReplicaterFactory(),
-                // new ReplicaterAdapterFactory(replicationManager),
-                null, null, dispatcher, configInfo.getNumPartitions(), collapser);
-        // sessionRehydrater.setManager(manager);
+        manager = new ClusteredManager(sessionPool, 
+                new DistributableAttributesFactory(), 
+                new SimpleValuePool(new DistributableValueFactory()), 
+                new StandardSessionWrapperFactory(), 
+                null, 
+                contextualiser,
+                mmap, 
+                new DummyRouter(), 
+                false, 
+                streamer, 
+                true,
+                new DummyReplicaterFactory(),
+//                new ReplicaterAdapterFactory(replicationManager, sessionPool),
+                null, 
+                null, 
+                dispatcher, 
+                configInfo.getNumPartitions(), 
+                collapser);
 
         manager.init(new ManagerConfig() {
             public void callback(Manager manager) {
@@ -180,7 +185,10 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
             }
         });
 
-        serviceSpace.getServiceRegistry().register(new ServiceName("ClusteredManager"), manager);
+        ServiceRegistry serviceRegistry = serviceSpace.getServiceRegistry();
+//        serviceRegistry.register(ReplicaStorage.NAME, repStorageFactory.factory(serviceSpace));
+//        serviceRegistry.register(ReplicationManager.NAME, replicationManager);
+        serviceRegistry.register(ClusteredManager.NAME, manager);
 
         serviceSpace.start();
     }
