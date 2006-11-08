@@ -439,7 +439,25 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
             loadKeystoreData(keystorePassword);
         }
         KeyManagerFactory keyFactory = KeyManagerFactory.getInstance(algorithm);
-        keyFactory.init(keystore, (char[]) keyPasswords.get(alias));
+        if(privateKeys.size() == 1) {
+            keyFactory.init(keystore, (char[]) keyPasswords.get(alias));
+        } else {
+            // When there is more than one private key in the keystore, we create a temporary "sub keystore"
+            // with only one entry of our interest and use it
+            KeyStore subKeystore = KeyStore.getInstance(keystore.getType(), keystore.getProvider());
+            try {
+                subKeystore.load(null, null);
+            } catch (NoSuchAlgorithmException e) {
+                // should not occur
+            } catch (CertificateException e) {
+                // should not occur
+            } catch (IOException e) {
+                // should not occur
+            }
+            subKeystore.setKeyEntry(alias, keystore.getKey(alias, (char[]) keyPasswords.get(alias)),
+                                    (char[]) keyPasswords.get(alias), keystore.getCertificateChain(alias));
+            keyFactory.init(subKeystore, (char[]) keyPasswords.get(alias));
+        }
         return keyFactory.getKeyManagers();
     }
 
