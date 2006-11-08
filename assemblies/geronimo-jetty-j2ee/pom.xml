@@ -90,13 +90,6 @@
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>j2ee-corba-sun</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jetty</artifactId>
             <version>${version}</version>
             <type>car</type>
@@ -154,13 +147,6 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>client-security</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>client-corba-sun</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>

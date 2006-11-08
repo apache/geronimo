@@ -675,12 +675,6 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.openejb</groupId>
-                <artifactId>openejb-sunorb</artifactId>
-                <version>${openejbVersion}</version>
-            </dependency>
-
-            <dependency>
                 <groupId>org.tranql</groupId>
                 <artifactId>tranql-connector-ra</artifactId>
                 <version>1.3-SNAPSHOT</version>
@@ -1187,7 +1181,6 @@
     </distributionManagement>
 
     <profiles>
- 
         <profile>
             <id>default</id>
 

@@ -120,7 +120,6 @@
         <module>axis-deployer</module>
         <module>client</module>
         <module>client-corba-yoko</module>
-        <module>client-corba-sun</module>
         <module>client-deployer</module>
         <module>client-security</module>
         <module>client-system</module>
@@ -132,7 +131,6 @@
         <module>directory</module>
         <module>geronimo-gbean-deployer</module>
         <module>hot-deployer</module>
-        <module>j2ee-corba-sun</module>
         <module>j2ee-corba-yoko</module>
         <module>j2ee-deployer</module>
         <module>j2ee-security</module>
