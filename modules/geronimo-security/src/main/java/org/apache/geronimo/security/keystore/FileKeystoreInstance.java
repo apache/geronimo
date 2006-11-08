@@ -41,6 +41,7 @@ import java.security.PublicKey;
 import java.security.SignatureException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -71,8 +72,11 @@ import org.apache.geronimo.management.geronimo.KeystoreException;
 import org.apache.geronimo.management.geronimo.KeystoreInstance;
 import org.apache.geronimo.management.geronimo.KeystoreIsLocked;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.util.asn1.ASN1InputStream;
+import org.apache.geronimo.util.asn1.ASN1Sequence;
 import org.apache.geronimo.util.asn1.ASN1Set;
 import org.apache.geronimo.util.asn1.DEROutputStream;
+import org.apache.geronimo.util.asn1.x509.X509CertificateStructure;
 import org.apache.geronimo.util.asn1.x509.X509Name;
 import org.apache.geronimo.util.encoders.Base64;
 import org.apache.geronimo.util.jce.PKCS10CertificationRequest;
@@ -331,7 +335,16 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
 
     private String generateCSR(X509Certificate cert, PrivateKey signingKey) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchProviderException, SignatureException, KeyStoreException, IOException {
         String sigalg = cert.getSigAlgName();
-        X509Name subject = new X509Name(cert.getSubjectDN().toString());
+        X509Name subject;
+        try{
+            ASN1InputStream ais = new ASN1InputStream(cert.getEncoded());
+            X509CertificateStructure x509Struct = new X509CertificateStructure((ASN1Sequence)ais.readObject());
+            ais.close();
+            subject = x509Struct.getSubject();
+        } catch(CertificateEncodingException e) {
+            log.warn(e.toString()+" while retrieving subject from certificate to create CSR.  Using subjectDN instead.");
+            subject = new X509Name(cert.getSubjectDN().toString());
+        }
         PublicKey publicKey = cert.getPublicKey();
         ASN1Set attributes = null;
 
