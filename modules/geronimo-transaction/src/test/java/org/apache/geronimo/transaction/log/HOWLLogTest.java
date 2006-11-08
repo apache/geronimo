@@ -52,6 +52,7 @@ public class HOWLLogTest extends AbstractLogTest {
                 "org.objectweb.howl.log.BlockLogBuffer", //                "bufferClassName",
                 4, //                "bufferSizeKBytes",
                 true, //                "checksumEnabled",
+                true, //                "adler32Checksum",
                 20, //                "flushSleepTime",
                 "txlog", //                "logFileDir",
                 "log", //                "logFileExt",

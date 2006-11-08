@@ -61,6 +61,7 @@ public class HOWLLogRecoveryTest extends AbstractRecoveryTest {
                 "org.objectweb.howl.log.BlockLogBuffer", //                "bufferClassName",
                 4, //                "bufferSizeKBytes",
                 true, //                "checksumEnabled",
+                true, //                "adler32Checksum",
                 20, //                "flushSleepTime",
                 logFileDir, //                "logFileDir",
                 "log", //                "logFileExt",

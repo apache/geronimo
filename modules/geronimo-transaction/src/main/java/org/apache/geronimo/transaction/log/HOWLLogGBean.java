@@ -31,8 +31,8 @@ import org.objectweb.howl.log.LogConfigurationException;
  * @version $Rev$ $Date$
  */
 public class HOWLLogGBean extends HOWLLog implements GBeanLifecycle {
-    public HOWLLogGBean(String bufferClassName, int bufferSize, boolean checksumEnabled, int flushSleepTimeMilliseconds, String logFileDir, String logFileExt, String logFileName, int maxBlocksPerFile, int maxBuffers, int maxLogFiles, int minBuffers, int threadsWaitingForceThreshold, XidFactory xidFactory, ServerInfo serverInfo) throws IOException, LogConfigurationException {
-        super(bufferClassName, bufferSize, checksumEnabled, flushSleepTimeMilliseconds, logFileDir, logFileExt, logFileName, maxBlocksPerFile, maxBuffers, maxLogFiles, minBuffers, threadsWaitingForceThreshold, xidFactory, serverInfo.resolveServer("."));
+    public HOWLLogGBean(String bufferClassName, int bufferSize, boolean checksumEnabled, boolean adler32Checksum, int flushSleepTimeMilliseconds, String logFileDir, String logFileExt, String logFileName, int maxBlocksPerFile, int maxBuffers, int maxLogFiles, int minBuffers, int threadsWaitingForceThreshold, XidFactory xidFactory, ServerInfo serverInfo) throws IOException, LogConfigurationException {
+        super(bufferClassName, bufferSize, checksumEnabled, adler32Checksum, flushSleepTimeMilliseconds, logFileDir, logFileExt, logFileName, maxBlocksPerFile, maxBuffers, maxLogFiles, minBuffers, threadsWaitingForceThreshold, xidFactory, serverInfo.resolveServer("."));
     }
 
     public static final GBeanInfo GBEAN_INFO;
@@ -42,6 +42,7 @@ public class HOWLLogGBean extends HOWLLog implements GBeanLifecycle {
         infoFactory.addAttribute("bufferClassName", String.class, true);
         infoFactory.addAttribute("bufferSizeKBytes", Integer.TYPE, true);
         infoFactory.addAttribute("checksumEnabled", Boolean.TYPE, true);
+        infoFactory.addAttribute("adler32Checksum", Boolean.TYPE, true);
         infoFactory.addAttribute("flushSleepTimeMilliseconds", Integer.TYPE, true);
         infoFactory.addAttribute("logFileDir", String.class, true);
         infoFactory.addAttribute("logFileExt", String.class, true);
@@ -58,20 +59,21 @@ public class HOWLLogGBean extends HOWLLog implements GBeanLifecycle {
         infoFactory.addInterface(TransactionLog.class);
 
         infoFactory.setConstructor(new String[]{
-            "bufferClassName",
-            "bufferSizeKBytes",
-            "checksumEnabled",
-            "flushSleepTimeMilliseconds",
-            "logFileDir",
-            "logFileExt",
-            "logFileName",
-            "maxBlocksPerFile",
-            "maxBuffers",
-            "maxLogFiles",
-            "minBuffers",
-            "threadsWaitingForceThreshold",
-            "XidFactory",
-            "ServerInfo"});
+                "bufferClassName",
+                "bufferSizeKBytes",
+                "checksumEnabled",
+                "adler32ChecksumEnabled",
+                "flushSleepTimeMilliseconds",
+                "logFileDir",
+                "logFileExt",
+                "logFileName",
+                "maxBlocksPerFile",
+                "maxBuffers",
+                "maxLogFiles",
+                "minBuffers",
+                "threadsWaitingForceThreshold",
+                "XidFactory",
+                "ServerInfo"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

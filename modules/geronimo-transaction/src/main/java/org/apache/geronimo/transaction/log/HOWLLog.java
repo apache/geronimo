@@ -72,6 +72,7 @@ public class HOWLLog implements TransactionLog {
     public HOWLLog(String bufferClassName,
                    int bufferSize,
                    boolean checksumEnabled,
+                   boolean adler32Checksum,
                    int flushSleepTimeMilliseconds,
                    String logFileDir,
                    String logFileExt,
@@ -87,6 +88,7 @@ public class HOWLLog implements TransactionLog {
         setBufferClassName(bufferClassName);
         setBufferSizeKBytes(bufferSize);
         setChecksumEnabled(checksumEnabled);
+        setAdler32Checksum(adler32Checksum);
         setFlushSleepTimeMilliseconds(flushSleepTimeMilliseconds);
         //setLogFileDir(logFileDir);
         this.logFileDir = logFileDir;
@@ -139,6 +141,14 @@ public class HOWLLog implements TransactionLog {
 
     public void setChecksumEnabled(boolean checksumOption) {
         configuration.setChecksumEnabled(checksumOption);
+    }
+
+    public boolean isAdler32ChecksumEnabled() {
+        return configuration.isAdler32ChecksumEnabled();
+    }
+
+    public void setAdler32Checksum(boolean checksumOption) {
+        configuration.setAdler32Checksum(checksumOption);
     }
 
     public int getBufferSizeKBytes() {
