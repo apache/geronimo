@@ -165,9 +165,21 @@
                       </executions>
                 </plugin>
 
-                <plugin>
+               <plugin>
                         <groupId>org.apache.geronimo.genesis.plugins</groupId>
                         <artifactId>maven-maven-plugin</artifactId>
+
+                        <configuration>
+                          <fileset>
+                                <basedir>${pom.basedir}</basedir>
+                                <includes>
+                                    <include>*/pom.xml</include>
+                                </includes>
+                            </fileset>
+                            <profiles>
+                                <profile>child</profile>
+                            </profiles>
+                        </configuration>
                         
                         <executions>
                             <execution>
@@ -175,20 +187,9 @@
                                 <goals>
                                     <goal>invoke</goal>
                                 </goals>
-                                
-                                <configuration>
-                                    <fileset>
-                                        <basedir>${pom.basedir}</basedir>
-                                        <includes>
-                                            <include>*/pom.xml</include>
-                                        </includes>
-                                    </fileset>
-                                    <profiles>
-                                        <profile>child</profile>
-                                    </profiles>
-                                </configuration>
                             </execution>
 
+                            <!--
                               <execution>
                               <id>site</id>
                                 <phase>site</phase>
@@ -199,15 +200,20 @@
                                   <goals>
                                     <goal>site</goal>
                                   </goals>
-                                  <fileset>
-                                        <basedir>${pom.basedir}</basedir>
-                                        <includes>
-                                            <include>*/pom.xml</include>
-                                        </includes>
-                                    </fileset>
-                                    <profiles>
-                                        <profile>child</profile>
-                                    </profiles>
+                                </configuration>
+                            </execution>
+                            -->
+
+                              <execution>
+                              <id>site-deploy</id>
+                                <phase>site-deploy</phase>
+                                <goals>
+                                    <goal>invoke</goal>
+                                </goals>
+                                <configuration>
+                                  <goals>
+                                    <goal>site-deploy</goal>
+                                  </goals>
                                 </configuration>
                             </execution>
 
@@ -221,15 +227,6 @@
                                   <goals>
                                     <goal>clean</goal>
                                   </goals>
-                                  <fileset>
-                                        <basedir>${pom.basedir}</basedir>
-                                        <includes>
-                                            <include>*/pom.xml</include>
-                                        </includes>
-                                    </fileset>
-                                    <profiles>
-                                        <profile>child</profile>
-                                    </profiles>
                                 </configuration>
                             </execution>
                         </executions>
@@ -290,7 +287,10 @@
                                 <configuration>
                                     <logOutput>true</logOutput>
                                     <background>true</background>
+                                    <!--  Example: -->
+                                    <!--
                                     <installDirectory>c:\apache</installDirectory>
+                                    -->
                                 </configuration>
                             </execution>
 
