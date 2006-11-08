@@ -886,7 +886,12 @@ public class DatabasePoolPortlet extends BasePortlet {
                 org.apache.geronimo.deployment.service.jsr88.Artifact configId = new org.apache.geronimo.deployment.service.jsr88.Artifact();
                 environment.setConfigId(configId);
                 configId.setGroupId("console.dbpool");
-                configId.setArtifactId(data.getName());
+                String artifactId = data.name;
+                if(artifactId.indexOf('/') != -1) {
+                    // slash in artifact-id results in invalid configuration-id and leads to deployment errors
+                    artifactId = artifactId.replaceAll("/", "%2F");
+                }
+                configId.setArtifactId(artifactId);
                 configId.setVersion("1.0");
                 configId.setType("rar");
 
