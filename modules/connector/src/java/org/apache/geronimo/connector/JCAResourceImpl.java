@@ -107,7 +107,7 @@ public class JCAResourceImpl implements JCAResource  {
     }
 
     public JCAAdminObject[] getAdminObjectInstances() {
-        return (JCAAdminObject[]) adminObjects.toArray(new JCAAdminObject[connectionFactories.size()]);
+        return (JCAAdminObject[]) adminObjects.toArray(new JCAAdminObject[adminObjects.size()]);
     }
 
     public JCAAdminObject[] getAdminObjectInstances(String adminObjectInterface) {
