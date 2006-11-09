@@ -822,6 +822,19 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
 
         // ManagedConnectionFactory
         setDynamicGBeanDataAttributes(managedConnectionFactoryInstanceGBeanData, connectiondefinitionInstance.getConfigPropertySettingArray(), cl);
+
+        //Check if Driver class is available here. This should be available in cl. If not throw a deployment error as
+        //the plan gets deployed and while starting GBean an error is thrown
+
+        String driver = (String)managedConnectionFactoryInstanceGBeanData.getAttribute("Driver");
+        if (driver != null) {
+            try {
+                cl.loadClass(driver);
+            } catch (ClassNotFoundException e1) {
+                throw new DeploymentException(e1);
+            }
+        }
+
         try {
             if (resourceAdapterAbstractName != null) {
                 managedConnectionFactoryInstanceGBeanData.setReferencePattern("ResourceAdapterWrapper", resourceAdapterAbstractName);
