@@ -46,6 +46,14 @@
         
         <dependencySet>
             <outputDirectory>bin</outputDirectory>
+            <outputFileNameMapping>jpa.jar</outputFileNameMapping>
+            <includes>
+                <include>org.apache.geronimo.configs:transformer-agent</include>
+            </includes>
+        </dependencySet>
+
+        <dependencySet>
+            <outputDirectory>bin</outputDirectory>
             <outputFileNameMapping>server.jar</outputFileNameMapping>
             <includes>
                 <include>org.apache.geronimo.configs:j2ee-system</include>

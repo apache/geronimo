@@ -117,10 +117,20 @@
 
     <module name="org.apache.geronimo.configs/connector-deployer/${version}/car"/>
 
+     <module name="org.apache.geronimo.configs/persistence-jpa10-deployer/${version}/car" condition="java.is1_5"/>
+
     <module name="org.apache.geronimo.configs/openejb-deployer/${version}/car">
         <gbean name="EJBBuilder">
             <attribute name="listener">?name=TomcatWebContainer</attribute>
-        </gbean>
+            <reference name="ServiceBuilders">
+                <pattern>
+                    <name>GBeanBuilder</name>
+                </pattern>
+                <pattern>
+                    <name>PersistenceUnitBuilder</name>
+                </pattern>
+            </reference>
+       </gbean>
     </module>
 
     <module name="org.apache.geronimo.configs/openejb-corba-deployer/${version}/car" load="false"/>

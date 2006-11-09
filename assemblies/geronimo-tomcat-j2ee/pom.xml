@@ -41,6 +41,13 @@
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>transformer-agent</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-system</artifactId>
             <version>${version}</version>
             <type>car</type>
@@ -195,6 +202,13 @@
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>persistence-jpa10-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>axis-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
@@ -202,14 +216,14 @@
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>client-deployer</artifactId>
+            <artifactId>hot-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>hot-deployer</artifactId>
+            <artifactId>client-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
@@ -259,6 +273,13 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>sharedlib</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+       <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>openjpa</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
