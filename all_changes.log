@@ -21,8 +21,8 @@ Merged,  r366676 , djencks , 2006-01-06 21:37:04 -0800 (Fri, 06 Jan 2006) , 1 li
 Unnecessary,  r366693 , janb , 2006-01-07 00:19:14 -0800 (Sat, 07 Jan 2006) , 2 lines  removing axion and special activemq wadi versions and therefore jgenenders' codehaus repository from repo list
 Merged,  r367046 , adc , 2006-01-08 08:31:23 -0800 (Sun, 08 Jan 2006) , 3 lines  PR: GERONIMO-1432 Removed wrapPrincipals attribute.
 Unnecessary,  r367122 , jsisson , 2006-01-08 15:15:17 -0800 (Sun, 08 Jan 2006) , 1 line  GERONIMO-1395 - Fix accidental duplication of fixcrlf call in jelly code used whilst building the zip distribution.  assembly plugin version bumped up to 1.1.3.
-Not Merged,  r367144 , ammulder , 2006-01-08 16:33:58 -0800 (Sun, 08 Jan 2006) , 2 lines  Merge JavaDoc URL change from branch
-Not Merged,  r367145 , ammulder , 2006-01-08 16:34:55 -0800 (Sun, 08 Jan 2006) , 2 lines  Merge fix to GERONIMO-1435 from branch.
+Merged,  r367144 , ammulder , 2006-01-08 16:33:58 -0800 (Sun, 08 Jan 2006) , 2 lines  Merge JavaDoc URL change from branch
+Merged,  r367145 , ammulder , 2006-01-08 16:34:55 -0800 (Sun, 08 Jan 2006) , 2 lines  Merge fix to GERONIMO-1435 from branch.
 Unnecessary,  r367154 , jsisson , 2006-01-08 17:35:50 -0800 (Sun, 08 Jan 2006) , 1 line  fix svn properties
 Merged,  r367166 , jsisson , 2006-01-08 18:40:52 -0800 (Sun, 08 Jan 2006) , 1 line  GERONIMO-1416 - fix broken links and typo.
 Merged,  r367213 , jsisson , 2006-01-08 21:50:48 -0800 (Sun, 08 Jan 2006) , 1 line  GERONIMO-1437 : prevent INFO [Http11Protocol] messages (from tomcat) being logged during startup that show ports being used, as there is no need for them since we summarise the ports in use by Geronimo when startup has completed.
@@ -83,28 +83,28 @@ Merged,  r371145 , djencks , 2006-01-21 16:06:27 -0800 (Sat, 21 Jan 2006) , 1 li
 Unnecessary,  r371180 , hogstrom , 2006-01-21 20:38:14 -0800 (Sat, 21 Jan 2006) , 1 line  Merged fixes to hardcoded updates from branches 1.0 rev 371179
 Merged,  r371341 , djencks , 2006-01-22 10:18:34 -0800 (Sun, 22 Jan 2006) , 1 line  GERONIMO-1440 Supply a 'Non'Authenticator if security realm name is supplied but no login method specified. This makes jetty install the defaultPrincipal/Subject for unsecured web apps
 Unnecessary,  r371391 , kevan , 2006-01-22 13:20:06 -0800 (Sun, 22 Jan 2006) , 1 line  Use latest Jetty version to avoid security exposure on Windows
-Not Merged,  r371461 , ammulder , 2006-01-22 20:53:26 -0800 (Sun, 22 Jan 2006) , 3 lines  Apply changes from branch (Fixes GERONIMO-1510, contributes to GERONIMO-1137,   other minor fixes)
+Merged,  r371461 , ammulder , 2006-01-22 20:53:26 -0800 (Sun, 22 Jan 2006) , 3 lines  Apply changes from branch (Fixes GERONIMO-1510, contributes to GERONIMO-1137,   other minor fixes)
 Unnecessary,  r371637 , ammulder , 2006-01-23 11:43:19 -0800 (Mon, 23 Jan 2006) , 2 lines  Merge change from branch
 Merged,  r371641 , djencks , 2006-01-23 11:50:05 -0800 (Mon, 23 Jan 2006) , 1 line  add test of context-param
-Not Merged,  r371779 , ammulder , 2006-01-23 18:38:42 -0800 (Mon, 23 Jan 2006) , 2 lines  Merge JCAResourceAdapter change from branch
-Not Merged,  r371787 , ammulder , 2006-01-23 19:10:32 -0800 (Mon, 23 Jan 2006) , 2 lines  Merge new JMS portlet change from branch
+Merged,  r371779 , ammulder , 2006-01-23 18:38:42 -0800 (Mon, 23 Jan 2006) , 2 lines  Merge JCAResourceAdapter change from branch
+Merged,  r371787 , ammulder , 2006-01-23 19:10:32 -0800 (Mon, 23 Jan 2006) , 2 lines  Merge new JMS portlet change from branch
 Merged into DT branch,  r371835 , hogstrom , 2006-01-23 22:12:21 -0800 (Mon, 23 Jan 2006) , 1 line  GERONIMO-1534 - Updated Daytrader plan to correct incorrect classname for DB2SyntaxFactory
 Merged,  r371874 , djencks , 2006-01-24 01:40:34 -0800 (Tue, 24 Jan 2006) , 1 line  GERONIMO-1427 Port lightweight geronimo work to trunk
-Not Merged,  r371964 , ammulder , 2006-01-24 09:47:26 -0800 (Tue, 24 Jan 2006) , 2 lines  Merge JMS portlet improvements from branch
+Merged,  r371964 , ammulder , 2006-01-24 09:47:26 -0800 (Tue, 24 Jan 2006) , 2 lines  Merge JMS portlet improvements from branch
 Merged,  r371997 , djencks , 2006-01-24 11:47:02 -0800 (Tue, 24 Jan 2006) , 1 line  GERONIMO-1427 add missing config, not sure why it didn't merge
 Merged,  r372025 , djencks , 2006-01-24 13:31:25 -0800 (Tue, 24 Jan 2006) , 1 line  remove some unneeded jetty dependencies, thanks to anita kulshreshtha
 Unnecessary,  r372108 , jsisson , 2006-01-24 21:21:24 -0800 (Tue, 24 Jan 2006) , 1 line  GERONIMO-1287 - Erik's installer patch that does fixcrlf processing for text files at install time when using the izpack installer.
 Unnecessary,  r372114 , jsisson , 2006-01-24 21:26:29 -0800 (Tue, 24 Jan 2006) , 1 line  be more specific regarding version of JDK required.
 Merged,  r372115 , jsisson , 2006-01-24 21:33:42 -0800 (Tue, 24 Jan 2006) , 1 line  GERONIMO-615 - improve code where RMIClassLoaderSpiImpl.normalizeCodebase(..) unnecessarily caused MalformedURLExceptions to be generated and caught.
-Not Merged,  r372286 , ammulder , 2006-01-25 10:47:53 -0800 (Wed, 25 Jan 2006) , 2 lines  Merge fix for GERONIMO-1387 from branch
-Not Merged,  r372306 , ammulder , 2006-01-25 12:16:54 -0800 (Wed, 25 Jan 2006) , 2 lines  Mwerge fix for GERONIMO-1450 from branch
-Not Merged,  r372312 , ammulder , 2006-01-25 12:52:46 -0800 (Wed, 25 Jan 2006) , 2 lines  Merge GERONIMO-1467 change from branch
-Not Merged,  r372324 , ammulder , 2006-01-25 13:35:35 -0800 (Wed, 25 Jan 2006) , 2 lines  Merge fix for GERONIMO-1474 from branch
-Not Merged,  r372334 , ammulder , 2006-01-25 14:08:47 -0800 (Wed, 25 Jan 2006) , 2 lines  Merge potential fix for GERONIMO-1426 from branch
-Not Merged,  r372352 , ammulder , 2006-01-25 14:54:07 -0800 (Wed, 25 Jan 2006) , 2 lines  Merge workaround for GERONIMO-1421 from branch
+Merged,  r372286 , ammulder , 2006-01-25 10:47:53 -0800 (Wed, 25 Jan 2006) , 2 lines  Merge fix for GERONIMO-1387 from branch
+Merged,  r372306 , ammulder , 2006-01-25 12:16:54 -0800 (Wed, 25 Jan 2006) , 2 lines  Mwerge fix for GERONIMO-1450 from branch
+Unnecessary,  r372312 , ammulder , 2006-01-25 12:52:46 -0800 (Wed, 25 Jan 2006) , 2 lines  Merge GERONIMO-1467 change from branch
+Merged,  r372324 , ammulder , 2006-01-25 13:35:35 -0800 (Wed, 25 Jan 2006) , 2 lines  Merge fix for GERONIMO-1474 from branch
+Unnecessary,  r372334 , ammulder , 2006-01-25 14:08:47 -0800 (Wed, 25 Jan 2006) , 2 lines  Merge potential fix for GERONIMO-1426 from branch
+Unnecessary,  r372352 , ammulder , 2006-01-25 14:54:07 -0800 (Wed, 25 Jan 2006) , 2 lines  Merge workaround for GERONIMO-1421 from branch
 Merged,  r372354 , djencks , 2006-01-25 15:03:46 -0800 (Wed, 25 Jan 2006) , 1 line  GERONIMO-1436, 1437 fix a couple small installer problems.  Bump assembly plugin version
-Not Merged,  r372358 , ammulder , 2006-01-25 15:15:33 -0800 (Wed, 25 Jan 2006) , 2 lines  Merge fix for GERONIMO-1379 from branch
-Not Merged,  r372367 , ammulder , 2006-01-25 15:40:20 -0800 (Wed, 25 Jan 2006) , 2 lines  Merge fix for GERONIMO-1468 from branch
+Merged,  r372358 , ammulder , 2006-01-25 15:15:33 -0800 (Wed, 25 Jan 2006) , 2 lines  Merge fix for GERONIMO-1379 from branch
+Unnecessary,  r372367 , ammulder , 2006-01-25 15:40:20 -0800 (Wed, 25 Jan 2006) , 2 lines  Merge fix for GERONIMO-1468 from branch
 Unnecessary,  r372731 , bsnyder , 2006-01-26 20:54:10 -0800 (Thu, 26 Jan 2006) , 1 line  Committing POP3 implementation work from GERONIMO-1341.
 Unnecessary,  r373180 , kevan , 2006-01-28 08:58:56 -0800 (Sat, 28 Jan 2006) , 1 line  Fix cross-site scripting problems in samples
 Unnecessary,  r373281 , adc , 2006-01-28 19:33:52 -0800 (Sat, 28 Jan 2006) , 3 lines  PR: GERONIMO-1550 Submitted by: Anders Hessellund Jensen Current IDL files break the OpenEJB build
@@ -160,7 +160,7 @@ Merged,  r376123 , jsisson , 2006-02-08 15:45:45 -0800 (Wed, 08 Feb 2006) , 1 li
 Merged,  r376223 , jgenender , 2006-02-09 00:43:29 -0800 (Thu, 09 Feb 2006) , 1 line  Fix array issue
 Merged,  r376284 , gdamour , 2006-02-09 05:21:02 -0800 (Thu, 09 Feb 2006) , 6 lines  GERONIMO-1599 HOWLLog throws NPE because XidFactory is missing  Extract XidFactory from TransactionManagerImpl.  Define an XidFactory GBean shared by HOWLTransactionLog and TransactionManager ~
 Merged,  r376288 , gdamour , 2006-02-09 05:31:51 -0800 (Thu, 09 Feb 2006) , 3 lines  GERONIMO-1599 HOWLLog throws NPE because XidFactory is missing  Wrongly rolled-back the implementation of recover.
-Not Merged,  r376866 , ammulder , 2006-02-10 13:40:09 -0800 (Fri, 10 Feb 2006) , 2 lines  Merge GERONIMO-1349 fix from branch
+Merged,  r376866 , ammulder , 2006-02-10 13:40:09 -0800 (Fri, 10 Feb 2006) , 2 lines  Merge GERONIMO-1349 fix from branch
 Unnecessary,  r377239 , jdillon , 2006-02-12 12:43:22 -0800 (Sun, 12 Feb 2006) , 3 lines   Replace j2ee dependency with servlet and jsp dependency
 Unnecessary,  r377255 , jdillon , 2006-02-12 14:28:02 -0800 (Sun, 12 Feb 2006) , 3 lines   Unrolled j2ee spec dependencies
 Unnecessary,  r377269 , jdillon , 2006-02-12 15:22:25 -0800 (Sun, 12 Feb 2006) , 3 lines   Set the defaultGoal to default
@@ -219,7 +219,7 @@ Unnecessary,  r383123 , jlaskowski , 2006-03-04 06:47:45 -0800 (Sat, 04 Mar 2006
 Unnecessary,  r383128 , jlaskowski , 2006-03-04 07:03:33 -0800 (Sat, 04 Mar 2006) , 1 line  GERONIMO-1679 Typo in j2ee-builder's project.xml
 Unnecessary,  r383147 , jlaskowski , 2006-03-04 07:56:03 -0800 (Sat, 04 Mar 2006) , 1 line  GERONIMO-1681 directory module migration to Maven2 - not yet finished
 Unnecessary,  r383166 , jlaskowski , 2006-03-04 10:31:41 -0800 (Sat, 04 Mar 2006) , 1 line  Set svn:keywords and correct the Copyright in the License header
-Not Merged,  r383230 , ammulder , 2006-03-04 16:19:08 -0800 (Sat, 04 Mar 2006) , 5 lines  I like the way the JMS portlet is structured much more than the way the   JDBC and Security Realm portlets are.  Extracting the framework for   that so it can be used by future portlets. Will use this for GERONIMO-1691
+Merged,  r383230 , ammulder , 2006-03-04 16:19:08 -0800 (Sat, 04 Mar 2006) , 5 lines  I like the way the JMS portlet is structured much more than the way the   JDBC and Security Realm portlets are.  Extracting the framework for   that so it can be used by future portlets. Will use this for GERONIMO-1691
 Unnecessary,  r383234 , jlaskowski , 2006-03-04 16:52:31 -0800 (Sat, 04 Mar 2006) , 6 lines  More updates to pom.xml's  'mvn clean install' doesn't finish successfully yet, but it's very close.  Use M2 from http://maven.zones.apache.org/~maven/builds/trunk/m2-20060304.190000.tar.gz
 Unnecessary,  r383614 , jlaskowski , 2006-03-06 10:50:14 -0800 (Mon, 06 Mar 2006) , 2 lines  Add Maven1 (legacy) repository. Thanks Ian!
 Unnecessary,  r383631 , jlaskowski , 2006-03-06 11:30:41 -0800 (Mon, 06 Mar 2006) , 4 lines  GERONIMO-1645 tomcat module migration to Maven2  Thanks Anita!
@@ -271,15 +271,15 @@ Unnecessary,  r387216 , jlaskowski , 2006-03-20 07:00:28 -0800 (Mon, 20 Mar 2006
 Merged,  r387218 , jlaskowski , 2006-03-20 07:12:37 -0800 (Mon, 20 Mar 2006) , 3 lines  GERONIMO-1754 - Add GBeans for configuring NNTPTransport and NNTPStore access Submitted by: Rick McGuire
 Unnecessary,  r387275 , jlaskowski , 2006-03-20 10:56:44 -0800 (Mon, 20 Mar 2006) , 3 lines  GERONIMO-1732 - Module migration to Maven 2: jetty-builder Submitted by: Prasad Kashyap
 Merged,  r387533 , jlaskowski , 2006-03-21 06:14:15 -0800 (Tue, 21 Mar 2006) , 3 lines  GERONIMO-1754 - Add GBeans for configuring NNTPTransport and NNTPStore access Submitted by: Rick McGuire
-Not Merged,  r388236 , ammulder , 2006-03-23 11:20:22 -0800 (Thu, 23 Mar 2006) , 8 lines  Console enhancements  - a new portlet to help configure Apache HTTP via mod_jk  - start of a new keystore management portlet that can handle multiple    keystores Geronimo improvements as necesary to support those  - new Keystore GBeans  - more logic around parent/child module relationships
-Not Merged,  r388257 , ammulder , 2006-03-23 12:12:17 -0800 (Thu, 23 Mar 2006) , 2 lines  Move the default keystore into the new keystores/ directory
+Merged,  r388236 , ammulder , 2006-03-23 11:20:22 -0800 (Thu, 23 Mar 2006) , 8 lines  Console enhancements  - a new portlet to help configure Apache HTTP via mod_jk  - start of a new keystore management portlet that can handle multiple    keystores Geronimo improvements as necesary to support those  - new Keystore GBeans  - more logic around parent/child module relationships
+Merged,  r388257 , ammulder , 2006-03-23 12:12:17 -0800 (Thu, 23 Mar 2006) , 2 lines  Move the default keystore into the new keystores/ directory
 Unnecessary,  r388258 , ammulder , 2006-03-23 12:14:36 -0800 (Thu, 23 Mar 2006) , 2 lines  Add keystores/ directory to non-J2EE assemblies
 Unnecessary,  r388259 , ammulder , 2006-03-23 12:16:18 -0800 (Thu, 23 Mar 2006) , 2 lines  Move the default keystores in to the new directory for non-J2EE assemblies
 Unnecessary,  r388275 , hogstrom , 2006-03-23 13:27:42 -0800 (Thu, 23 Mar 2006) , 1 line  Updated derby.txt to point to correct ddl
-Not Merged,  r388671 , ammulder , 2006-03-24 15:01:45 -0800 (Fri, 24 Mar 2006) , 2 lines  Console can export and download configuration CARs
-Not Merged,  r388832 , ammulder , 2006-03-25 13:11:55 -0800 (Sat, 25 Mar 2006) , 3 lines  Move the configuration download and install logic from the console   into a GBean
-Not Merged,  r388868 , ammulder , 2006-03-25 17:09:54 -0800 (Sat, 25 Mar 2006) , 4 lines  Configuration installer works from the command line  - use deploy tool argument install-configs and pass the Maven repo URL    as an argument
-Not Merged,  r389206 , ammulder , 2006-03-27 09:43:21 -0800 (Mon, 27 Mar 2006) , 8 lines  Use the new keystore manager to manage the default keystore distributed   with Geronimo. Update the Jetty HTTPS connector to be configured by the keystore manager   instead of by hardcoding files, passwords, etc. Update the console to allow unlocking a keystore and private key for use,   and to make the create Jetty HTTPS connector configuration select from   the available keystores (still need edit support)
+Merged,  r388671 , ammulder , 2006-03-24 15:01:45 -0800 (Fri, 24 Mar 2006) , 2 lines  Console can export and download configuration CARs
+Merged,  r388832 , ammulder , 2006-03-25 13:11:55 -0800 (Sat, 25 Mar 2006) , 3 lines  Move the configuration download and install logic from the console   into a GBean
+Merged,  r388868 , ammulder , 2006-03-25 17:09:54 -0800 (Sat, 25 Mar 2006) , 4 lines  Configuration installer works from the command line  - use deploy tool argument install-configs and pass the Maven repo URL    as an argument
+Merged,  r389206 , ammulder , 2006-03-27 09:43:21 -0800 (Mon, 27 Mar 2006) , 8 lines  Use the new keystore manager to manage the default keystore distributed   with Geronimo. Update the Jetty HTTPS connector to be configured by the keystore manager   instead of by hardcoding files, passwords, etc. Update the console to allow unlocking a keystore and private key for use,   and to make the create Jetty HTTPS connector configuration select from   the available keystores (still need edit support)
 Merged,  r389296 , jgenender , 2006-03-27 13:50:11 -0800 (Mon, 27 Mar 2006) , 1 line  GERONIMO-1705 and GERONIMO-973
 Unnecessary,  r389311 , chirino , 2006-03-27 14:19:34 -0800 (Mon, 27 Mar 2006) , 2 lines  The build was not working without the corba dependency.
 Unnecessary,  r389341 , chirino , 2006-03-27 17:08:39 -0800 (Mon, 27 Mar 2006) , 5 lines  - Upgrading ActiveMQ from 3.2.1 to 4.0-SNAPSHOT.   On the next versioned release (RC2), we should switch to using that. - One of DLQ console portlet will not work anymore :( - A 3.2.1 copy of activemq-core is being brought in because OpenEJB is using WADI which still depends on 3.2.1
@@ -302,10 +302,10 @@ Unnecessary,  r390634 , jlaskowski , 2006-04-01 01:59:07 -0800 (Sat, 01 Apr 2006
 Unnecessary,  r390636 , jlaskowski , 2006-04-01 02:03:32 -0800 (Sat, 01 Apr 2006) , 3 lines  GERONIMO-1780 - Application migration to Maven 2: ldap-realm, remote-deploy, uddi, welcome Submitted by: Prasad Kashyap
 Unnecessary,  r390638 , jlaskowski , 2006-04-01 02:07:59 -0800 (Sat, 01 Apr 2006) , 3 lines  GERONIMO-1785 - Application migration to Maven 2: magicGball Submitted by: Prasad Kashyap
 Unnecessary,  r390662 , jlaskowski , 2006-04-01 04:46:02 -0800 (Sat, 01 Apr 2006) , 2 lines  Enable M2 to be able to run in applications. Previously, there were some bizzare changes that duplicated content of several files.
-Not Merged,  r390687 , ammulder , 2006-04-01 07:54:02 -0800 (Sat, 01 Apr 2006) , 6 lines  Now one Geronimo server can pull configurations from another  - Expose the contents of the Geronimo config-store & repository as a Maven    repository.  - Add an authentication option to the import configuration process.  - Switch the configuration descriptor file to XML and add more detail
-Not Merged,  r390688 , ammulder , 2006-04-01 08:08:34 -0800 (Sat, 01 Apr 2006) , 3 lines  Don't show configurations where the current server doesn't meet the   prerequisites
-Not Merged,  r390690 , ammulder , 2006-04-01 08:11:22 -0800 (Sat, 01 Apr 2006) , 2 lines  Only prompt for eligible configurations at the command line
-Not Merged,  r390692 , ammulder , 2006-04-01 08:23:13 -0800 (Sat, 01 Apr 2006) , 3 lines  Only count configurations as eligible for installation if there's a match   on the Geronimo version
+Merged,  r390687 , ammulder , 2006-04-01 07:54:02 -0800 (Sat, 01 Apr 2006) , 6 lines  Now one Geronimo server can pull configurations from another  - Expose the contents of the Geronimo config-store & repository as a Maven    repository.  - Add an authentication option to the import configuration process.  - Switch the configuration descriptor file to XML and add more detail
+Merged,  r390688 , ammulder , 2006-04-01 08:08:34 -0800 (Sat, 01 Apr 2006) , 3 lines  Don't show configurations where the current server doesn't meet the   prerequisites
+Merged,  r390690 , ammulder , 2006-04-01 08:11:22 -0800 (Sat, 01 Apr 2006) , 2 lines  Only prompt for eligible configurations at the command line
+Merged,  r390692 , ammulder , 2006-04-01 08:23:13 -0800 (Sat, 01 Apr 2006) , 3 lines  Only count configurations as eligible for installation if there's a match   on the Geronimo version
 Unnecessary,  r391214 , chirino , 2006-04-03 19:42:50 -0700 (Mon, 03 Apr 2006) , 2 lines  added missing dependencies (would only notice if you were doing a build with a clean repo)
 Merged,  r391699 , jgenender , 2006-04-05 11:39:33 -0700 (Wed, 05 Apr 2006) , 1 line  Reset the current caller in the before afters
 Unnecessary,  r393628 , jlaskowski , 2006-04-12 15:15:04 -0700 (Wed, 12 Apr 2006) , 2 lines  Ignore .settings
