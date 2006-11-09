@@ -37,6 +37,9 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import javax.naming.Reference;
 import javax.xml.namespace.QName;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.UnresolvedReferenceException;
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
@@ -120,6 +123,7 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Rev:385659 $ $Date$
  */
 public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceBuilder {
+    private final static Log log = LogFactory.getLog(ConnectorModuleBuilder.class);
 
     private final int defaultMaxSize;
     private final int defaultMinSize;
@@ -742,15 +746,15 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         // ManagedConnectionFactory
         setDynamicGBeanDataAttributes(managedConnectionFactoryInstanceGBeanData, connectiondefinitionInstance.getConfigPropertySettingArray(), cl);
 
-        //Check if Driver class is available here. This should be available in cl. If not throw a deployment error as
+        //Check if Driver class is available here. This should be available in cl. If not log a warning as
         //the plan gets deployed and while starting GBean an error is thrown 
 
-        String driver = (String)managedConnectionFactoryInstanceGBeanData.getAttribute("Driver");
-        if (driver != null) {
+        Object driver = managedConnectionFactoryInstanceGBeanData.getAttribute("Driver");
+        if (driver != null && driver instanceof String) {
             try {
-                cl.loadClass(driver);
+                cl.loadClass((String)driver);
             } catch (ClassNotFoundException e1) {
-                throw new DeploymentException(e1);
+                log.warn("Problem loading driver class '"+driver+"', possibly due to a missing dependency on the driver jar!!", e1);
             }
         }
 
