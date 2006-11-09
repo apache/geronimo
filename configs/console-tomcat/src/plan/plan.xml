@@ -23,6 +23,35 @@
     <module>
         <web>framework.war</web>
         <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.1">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+              <dependencies>
+                <dependency>
+                    <groupId>castor</groupId>
+                    <artifactId>castor</artifactId>
+                    <version>${castor_version}</version>
+                    <type>jar</type>
+                </dependency>
+                <dependency>
+                    <groupId>commons-el</groupId>
+                    <artifactId>commons-el</artifactId>
+                    <version>${commons_el_version}</version>
+                    <type>jar</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.pluto</groupId>
+                    <artifactId>pluto-descriptors</artifactId>
+                    <version>${pluto_version}</version>
+                    <type>jar</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.pluto</groupId>
+                    <artifactId>pluto-portal</artifactId>
+                    <version>${pluto_version}</version>
+                    <type>jar</type>
+                </dependency>
+              </dependencies>
+            </environment>
+
             <context-root>/console</context-root>
             <cross-context/>
             <security-realm-name>geronimo-properties-realm</security-realm-name>
@@ -47,6 +76,47 @@
     <module>
         <web>standard.war</web>
         <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.1">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+              <dependencies>
+                <dependency>
+                    <groupId>commons-digester</groupId>
+                    <artifactId>commons-digester</artifactId>
+                    <version>${commons_digester_version}</version>
+                    <type>jar</type>
+                </dependency>
+                <dependency>
+                    <groupId>commons-fileupload</groupId>
+                    <artifactId>commons-fileupload</artifactId>
+                    <version>${commons_fileupload_version}</version>
+                    <type>jar</type>
+                </dependency>
+                <dependency>
+                    <groupId>commons-io</groupId>
+                    <artifactId>commons-io</artifactId>
+                    <version>${commons_io_version}</version>
+                    <type>jar</type>
+                </dependency>
+                <dependency>
+                    <groupId>dwr</groupId>
+                    <artifactId>dwr</artifactId>
+                    <version>${dwr_version}</version>
+                    <type>jar</type>
+                </dependency>
+                <dependency>
+                    <groupId>jstl</groupId>
+                    <artifactId>jstl</artifactId>
+                    <version>${jstl_version}</version>
+                    <type>jar</type>
+                </dependency>        
+                <dependency>
+                    <groupId>taglibs</groupId>
+                    <artifactId>standard</artifactId>
+                    <version>${standard_taglibs_version}</version>
+                    <type>jar</type>
+                </dependency>        
+              </dependencies>
+            </environment>
+
             <context-root>/console-standard</context-root>
             <cross-context/>
             <security-realm-name>geronimo-properties-realm</security-realm-name>

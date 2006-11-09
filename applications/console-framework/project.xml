@@ -33,9 +33,6 @@
             <artifactId>commons-el</artifactId>
             <version>${commons_el_version}</version>
             <url>http://jakarta.apache.org/commons/el/</url>
-            <properties>
-                <war.bundle>true</war.bundle>
-            </properties>
         </dependency>       
         <dependency>
             <groupId>commons-logging</groupId>
@@ -61,25 +58,16 @@
             <groupId>org.apache.pluto</groupId>
             <artifactId>pluto-portal</artifactId>
             <version>${pluto_version}</version>
-            <properties>
-                <war.bundle>true</war.bundle>
-            </properties>
          </dependency>
         <dependency>
             <groupId>org.apache.pluto</groupId>
             <artifactId>pluto-descriptors</artifactId>
             <version>${pluto_version}</version>
-            <properties>
-                <war.bundle>true</war.bundle>
-            </properties>
          </dependency>
         <dependency>
             <groupId>castor</groupId>
             <artifactId>castor</artifactId>
             <version>${castor_version}</version>
-            <properties>
-                <war.bundle>true</war.bundle>
-            </properties>
         </dependency>
                 
         <dependency>

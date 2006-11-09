@@ -152,25 +152,16 @@
             <groupId>commons-digester</groupId>
             <artifactId>commons-digester</artifactId>
             <version>${commons_digester_version}</version>
-            <properties>
-                <war.bundle>true</war.bundle>
-            </properties>
         </dependency>
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
             <version>${commons_fileupload_version}</version>
-            <properties>
-                <war.bundle>true</war.bundle>
-            </properties>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>${commons_io_version}</version>
-            <properties>
-                <war.bundle>true</war.bundle>
-            </properties>
         </dependency>
         <!-- Portlet services manager dependencies -->
         <dependency>
@@ -237,17 +228,11 @@
             <groupId>taglibs</groupId>
             <artifactId>standard</artifactId>
             <version>${standard_taglibs_version}</version>
-            <properties>
-                <war.bundle>true</war.bundle>
-            </properties>
         </dependency>        
         <dependency>
             <groupId>jstl</groupId>
             <artifactId>jstl</artifactId>
             <version>${jstl_version}</version>
-            <properties>
-                <war.bundle>true</war.bundle>
-            </properties>
         </dependency>        
         <dependency>
             <groupId>tomcat</groupId>
@@ -263,9 +248,6 @@
             <groupId>dwr</groupId>
             <artifactId>dwr</artifactId>
             <version>${dwr_version}</version>
-            <properties>
-                <war.bundle>true</war.bundle>
-            </properties>
         </dependency>
         <dependency>
             <groupId>xmlbeans</groupId>
