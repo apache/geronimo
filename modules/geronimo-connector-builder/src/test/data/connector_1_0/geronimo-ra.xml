@@ -17,8 +17,8 @@
     limitations under the License.
 -->
 
-<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1">
-    <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.2">
+    <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
         <moduleId>
             <groupId>geronimo</groupId>
             <artifactId>test-ear</artifactId>

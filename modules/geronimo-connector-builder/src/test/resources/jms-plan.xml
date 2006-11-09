@@ -14,13 +14,22 @@
     See the License for the specific language governing permissions and
     limitations under the License.-->
 <!--$Rev$ $Date$-->
-<connector configId="TestJMSConfig" xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1">
-    <dep:import xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
-        <dep:groupId>geronimo</dep:groupId>
-        <dep:artifactId>activemq-broker</dep:artifactId>
-        <dep:version>1.0</dep:version>
-        <dep:type>car</dep:type>
-    </dep:import>
+<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.2">
+    <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
+        <moduleId>
+            <groupId>user</groupId>
+            <artifactId>TestJMSConfig</artifactId>
+            <version>1.0</version>
+            <type>car</type>
+        </moduleId>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>activemq-broker</artifactId>
+                <type>car</type>
+            </dependency>
+        </dependencies>
+    </environment>
     <resourceadapter>
         <resourceadapter-instance>
             <resourceadapter-name>Test ActiveMQ RA</resourceadapter-name>

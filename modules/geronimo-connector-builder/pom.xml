@@ -71,7 +71,7 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>xmlbeans-maven-plugin</artifactId>
                 <configuration>
-                    <sourceSchemas>geronimo-connector-1.2.xsd</sourceSchemas>
+                    <sourceSchemas>geronimo-connector-${geronimoSchemaVersion}.xsd</sourceSchemas>
                 </configuration>
             </plugin>
             

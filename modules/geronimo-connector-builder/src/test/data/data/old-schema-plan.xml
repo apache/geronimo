@@ -17,7 +17,7 @@
     limitations under the License.
 -->
 
-<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1"
+<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.2"
     version="1.5">
     <!--configId="org/apache/geronimo/j2ee/deployment/test"
     parentId="org/apache/geronimo/Server"-->
