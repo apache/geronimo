@@ -39,7 +39,7 @@ To test the build, simply start the server:
 Generating a Site
 =================
 
-There are several really annonying bugs in the site builds, mostly due to the
+There are several really annoying bugs in the site builds, mostly due to the
 maven-clover-plugin.
 
 To build the site you need to first, build as in:
@@ -55,5 +55,5 @@ which will drive you crazy and you may start pulling your hairout... so its not
 recommended.
 
 It is important to specify `-Denv=site` to limit the modules which are processed,
-as many of the configs modules will freakout.
+as many of the configs modules will freak-out.
 
