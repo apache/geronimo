@@ -1098,7 +1098,7 @@
                             <goal>require-java-version</goal>
                         </goals>
                         <configuration>
-                            <version>1.4*</version>
+                            <version>1.5*</version>
                         </configuration>
                     </execution>
 
