@@ -228,6 +228,18 @@
             </dependency>
             
             <dependency>
+                <groupId>org.apache.openjpa</groupId>
+                <artifactId>openjpa-all</artifactId>
+                <version>0.9.6-incubating-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.sourceforge.serp</groupId>
+                <artifactId>serp</artifactId>
+                <version>1.11.0</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.apache.xbean</groupId>
                 <artifactId>xbean-naming</artifactId>
                 <version>2.7-SNAPSHOT</version>

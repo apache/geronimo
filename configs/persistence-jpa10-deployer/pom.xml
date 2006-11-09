@@ -24,7 +24,7 @@
 
     <parent>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>configs-jee5</artifactId>
+        <artifactId>configs</artifactId>
         <version>1.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
