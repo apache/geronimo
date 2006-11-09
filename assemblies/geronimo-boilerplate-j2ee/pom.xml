@@ -105,6 +105,7 @@
                                     <groupId>org.apache.derby</groupId>
                                     <artifactId>derbytools</artifactId>
                                 </artifact>
+
                             </artifacts>
                         </configuration>
                     </execution>

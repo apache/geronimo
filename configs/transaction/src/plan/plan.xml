@@ -91,4 +91,12 @@
         </references>
     </gbean>
 
+    <gbean name="TransactionManagerBinding" class="org.apache.geronimo.gjndi.binding.GBeanBinding">
+        <attribute name="name">TransactionManager</attribute>
+        <attribute name="abstractNameQuery">?name=TransactionManager#</attribute>
+        <reference name="Context">
+            <name>JavaContext</name>
+        </reference>
+    </gbean>
+    
 </module>
