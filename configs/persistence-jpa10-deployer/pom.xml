@@ -49,7 +49,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>transaction-jta11</artifactId>
+            <artifactId>transaction</artifactId>
             <type>car</type>
             <version>${pom.version}</version>
             <scope>compile</scope>
