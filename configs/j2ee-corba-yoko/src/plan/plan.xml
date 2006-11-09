@@ -61,6 +61,9 @@
         <reference name="NameService">
             <name>NameServer</name>
         </reference>
+        <reference name="SSLConfig">
+            <name>CORBASSLConfig</name>
+        </reference>
         <xml-attribute name="tssConfig">
             <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-${geronimoSchemaVersion}">
                 <tss:default-principal>
@@ -93,6 +96,9 @@
         </reference>
         <reference name="NameService">
             <name>NameServer</name>
+        </reference>
+        <reference name="SSLConfig">
+            <name>CORBASSLConfig</name>
         </reference>
         <xml-attribute name="tssConfig">
             <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-${geronimoSchemaVersion}">
