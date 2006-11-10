@@ -37,7 +37,7 @@ public class UndeployModuleMojo
         undeployModule();
     }
 
-    protected String getGoalName() {
+    protected String getFullClassName() {
         return this.getClass().getName();
     } 
 }

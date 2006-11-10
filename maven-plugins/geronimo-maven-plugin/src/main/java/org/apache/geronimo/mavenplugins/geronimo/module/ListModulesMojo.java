@@ -50,7 +50,7 @@ public class ListModulesMojo
         logModules(manager.getNonRunningModules(null, targets));
     }
 
-    protected String getGoalName() {
+    protected String getFullClassName() {
         return this.getClass().getName();
     }
 }

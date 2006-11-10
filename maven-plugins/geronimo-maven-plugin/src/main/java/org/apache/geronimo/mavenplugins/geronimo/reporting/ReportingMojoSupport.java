@@ -112,7 +112,7 @@ public abstract class ReportingMojoSupport
 
     protected File getLogFile() {
         if (logFile == null) {
-            return new File(logOutputDirectory, getGoalName() + ".log");
+            return new File(logOutputDirectory, getFullClassName() + ".log");
         }
 
         return logFile;
@@ -123,7 +123,7 @@ public abstract class ReportingMojoSupport
      *
      * @return  The name of the goal.
      */
-    protected abstract String getGoalName();
+    protected abstract String getFullClassName();
 
     //
     // Reporter
@@ -142,7 +142,7 @@ public abstract class ReportingMojoSupport
             }
 
             public String getName() {
-                return getGoalName();
+                return getFullClassName();
             }
 
             public File getLogFile() {

@@ -33,7 +33,7 @@ public class InstallAssemblyMojo
         installAssembly();
     }
 
-    protected String getGoalName() {
+    protected String getFullClassName() {
         return this.getClass().getName();
     } 
 }

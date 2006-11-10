@@ -37,7 +37,7 @@ public class StopModuleMojo
         stopModule();
     }
 
-    protected String getGoalName() {
+    protected String getFullClassName() {
         return this.getClass().getName();
     } 
 }

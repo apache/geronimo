@@ -359,7 +359,7 @@ public class StartServerMojo
         return (OptionSet[]) selected.toArray(new OptionSet[selected.size()]);
     }
 
-    protected String getGoalName() {
+    protected String getFullClassName() {
         return this.getClass().getName();
     } 
 }

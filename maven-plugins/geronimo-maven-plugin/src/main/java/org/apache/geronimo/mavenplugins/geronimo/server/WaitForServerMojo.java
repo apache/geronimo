@@ -93,7 +93,7 @@ public class WaitForServerMojo
         log.info("Geronimo server started");
     }
 
-    protected String getGoalName() {
+    protected String getFullClassName() {
         return this.getClass().getName();
     } 
 }
