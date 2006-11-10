@@ -116,7 +116,7 @@ public class DatabasePoolPortlet extends BasePortlet {
     private final static String[] SKIP_ENTRIES_WITH = new String[]{"geronimo", "tomcat", "tranql", "commons", "directory", "activemq"};
     private final static String DRIVER_SESSION_KEY = "org.apache.geronimo.console.dbpool.Drivers";
     private final static String CONFIG_SESSION_KEY = "org.apache.geronimo.console.dbpool.ConfigParam";
-    private final static String DRIVER_INFO_URL    = "http://people.apache.org/~ammulder/driver-downloads.properties";
+    private final static String DRIVER_INFO_URL    = "http://geronimo.apache.org/driver-downloads.properties";
     private static final String LIST_VIEW            = "/WEB-INF/view/dbwizard/list.jsp";
     private static final String EDIT_VIEW            = "/WEB-INF/view/dbwizard/edit.jsp";
     private static final String SELECT_RDBMS_VIEW    = "/WEB-INF/view/dbwizard/selectDatabase.jsp";
