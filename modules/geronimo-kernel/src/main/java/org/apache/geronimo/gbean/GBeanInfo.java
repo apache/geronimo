@@ -17,18 +17,20 @@
 
 package org.apache.geronimo.gbean;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.Map;
-import java.util.HashMap;
-import java.util.Arrays;
+import java.util.Set;
 
 import org.apache.geronimo.kernel.management.NotificationType;
 
@@ -38,7 +40,8 @@ import org.apache.geronimo.kernel.management.NotificationType;
  * @version $Rev$ $Date$
  */
 public final class GBeanInfo implements Serializable {
-
+    private static final long serialVersionUID = -6198804067155550221L;
+    
     public static final int PRIORITY_CLASSLOADER = 1;
     public static final int PRIORITY_NORMAL = 5;
 
@@ -95,7 +98,7 @@ public final class GBeanInfo implements Serializable {
     private final Set references;
     private final Map referencesByName;
     private final Set interfaces;
-    private final int priority;
+    private int priority;
 
     /**
      * @deprecated use GBeanInfoBuilder
@@ -275,6 +278,11 @@ public final class GBeanInfo implements Serializable {
         return priority;
     }
 
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        priority = GBeanInfo.PRIORITY_NORMAL;
+        in.defaultReadObject();
+    }
+    
     public String toString() {
         StringBuffer result = new StringBuffer("[GBeanInfo:");
         result.append(" id=").append(super.toString());

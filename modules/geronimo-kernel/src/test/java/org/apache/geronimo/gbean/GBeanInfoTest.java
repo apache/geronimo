@@ -17,15 +17,20 @@
 
 package org.apache.geronimo.gbean;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.TestCase;
+import org.apache.geronimo.testsupport.TestSupport;
 
 /**
  * @version $Rev$ $Date$
  */
-public class GBeanInfoTest extends TestCase {
+public class GBeanInfoTest extends TestSupport {
     private static final String CONSTRUCTOR_ARG_0 = "ConstructorArg_0";
     private static final String CONSTRUCTOR_ARG_1 = "ConstructorArg_1";
 
@@ -96,6 +101,26 @@ public class GBeanInfoTest extends TestCase {
         assertEquals(gbeanInfo.toString(), MockGBean.getGBeanInfo().toString());
     }
 
+    public void testBackwardCompatibility() throws Exception {
+        FileInputStream fis = new FileInputStream(resolveFile("src/test/data/gbeaninfo/SERIALIZATION_-6198804067155550221.ser"));
+        ObjectInputStream is = new ObjectInputStream(fis);
+        GBeanInfo beanInfo = (GBeanInfo) is.readObject();
+        assertEquals(GBeanInfo.PRIORITY_NORMAL, beanInfo.getPriority());
+    }
+
+    public void testCurrentSerialization() throws Exception {
+        GBeanInfo beanInfo = MockGBean.GBEAN_INFO;
+
+        ByteArrayOutputStream memOut = new ByteArrayOutputStream();
+        ObjectOutputStream os = new ObjectOutputStream(memOut);
+        os.writeObject(beanInfo);
+
+        ByteArrayInputStream memIn = new ByteArrayInputStream(memOut.toByteArray());
+        ObjectInputStream is = new ObjectInputStream(memIn);
+        beanInfo = (GBeanInfo) is.readObject();
+        assertEquals(GBeanInfo.PRIORITY_CLASSLOADER, beanInfo.getPriority());
+    }
+    
     GBeanInfo gbeanInfo;
 
     final static String nonPersistentAttrName = "nonPersistentAttribute";
@@ -135,6 +160,7 @@ public class GBeanInfoTest extends TestCase {
 
             infoFactory.addAttribute(CONSTRUCTOR_ARG_0, String.class, true);
             infoFactory.addAttribute(CONSTRUCTOR_ARG_1, String.class, true);
+            infoFactory.setPriority(GBeanInfo.PRIORITY_CLASSLOADER);
             infoFactory.setConstructor(new String[]{CONSTRUCTOR_ARG_0, CONSTRUCTOR_ARG_1});
 
 
