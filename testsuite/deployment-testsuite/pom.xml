@@ -33,7 +33,7 @@
     
     <artifactId>deployment-testsuite</artifactId>
     <name>Geronimo TestSuite, Deployment</name>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
     
     <description>
         Geronimo deployment testsuite.
@@ -52,7 +52,33 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+      <plugins>
+
+          <plugin>
+            <!--  This plugin is needed for all suite poms. -->
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>testsuite-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>generate-surefire-xml</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>generate-surefire-xml</goal>
+                </goals>
+                </execution>
+              </executions>
+          </plugin>
+      </plugins>
+    </build>
     
+    <profiles>
+      <profile>
+        <id>default</id>
+        <activation>
+          <activeByDefault>true</activeByDefault>
+        </activation>
     <!--
     TODO: Hook up m-m-p to allow child modules to be built early during this modules
           compile (or something) phase.
@@ -75,6 +101,13 @@
             </plugin>
         </plugins>
     </build>
+    </profile>
+
+      <profile>
+        <id>child</id>
+      </profile>
+
+    </profiles>
 
 
 

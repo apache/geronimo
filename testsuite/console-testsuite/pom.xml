@@ -33,7 +33,7 @@
     
     <artifactId>console-testsuite</artifactId>
     <name>Geronimo TestSuite, Console</name>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
     
     <description>
         Geronimo console testsuite.
@@ -50,6 +50,31 @@
             <artifactId>selenium-server</artifactId>
         </dependency>
     </dependencies>
+
+    <build>
+      <plugins>
+          <plugin>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>testsuite-maven-plugin</artifactId>
+            <executions>
+               <execution>
+                <id>generate-surefire-xml</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>generate-surefire-xml</goal>
+                </goals>
+                </execution>
+              </executions>
+          </plugin>
+      </plugins>
+    </build>
+
+    <profiles>
+      <profile>
+        <id>default</id>
+        <activation>
+          <activeByDefault>true</activeByDefault>
+        </activation>
 
     <build>
         <plugins>
@@ -96,6 +121,13 @@
 
         </plugins>
     </build>
+     </profile>
+
+      <profile>
+        <id>child</id>
+      </profile>
+
+    </profiles>
 
 </project>
     

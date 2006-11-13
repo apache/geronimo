@@ -50,8 +50,6 @@
 
     </description>
     
-    
-    
     <dependencyManagement>
       <dependencies>
         <dependency>
@@ -116,6 +114,7 @@
     <build>
         <pluginManagement>
             <plugins>
+
                 <plugin>
                     <groupId>org.apache.geronimo.plugins</groupId>
                     <artifactId>selenium-maven-plugin</artifactId>
@@ -189,7 +188,6 @@
                                 </goals>
                             </execution>
 
-                            <!--
                               <execution>
                               <id>site</id>
                                 <phase>site</phase>
@@ -199,20 +197,6 @@
                                 <configuration>
                                   <goals>
                                     <goal>site</goal>
-                                  </goals>
-                                </configuration>
-                            </execution>
-                            -->
-
-                              <execution>
-                              <id>site-deploy</id>
-                                <phase>site-deploy</phase>
-                                <goals>
-                                    <goal>invoke</goal>
-                                </goals>
-                                <configuration>
-                                  <goals>
-                                    <goal>site-deploy</goal>
                                   </goals>
                                 </configuration>
                             </execution>
@@ -287,7 +271,7 @@
                                 <configuration>
                                     <logOutput>true</logOutput>
                                     <background>true</background>
-                                    <!--  Example: -->
+                                    <!-- EXAMPLE: Use the following option to re-use a single installation of the server for all tests -->
                                     <!--
                                     <installDirectory>c:\apache</installDirectory>
                                     -->
@@ -301,11 +285,34 @@
                                   <goal>stop-server</goal>
                               </goals>
                           </execution>
+
                         </executions>
                     </plugin>
 
             </plugins>
           </pluginManagement>
+
+
+          <plugins>
+          <plugin>
+            <!--
+                FIXME: This plugin executes twice in each of the child.
+             -->
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>testsuite-maven-plugin</artifactId>
+            <version>${version}</version>
+            <executions>
+              <execution>
+                <id>generate-surefire-report</id>
+                <phase>site</phase>
+                <goals>
+                  <goal>generate-surefire-report</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+
         </build>
       </profile>
 
