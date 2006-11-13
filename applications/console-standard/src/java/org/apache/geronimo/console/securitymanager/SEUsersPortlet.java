@@ -18,6 +18,7 @@
 package org.apache.geronimo.console.securitymanager;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Hashtable;
 
 import javax.portlet.ActionRequest;
@@ -29,6 +30,7 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 
+import org.apache.geronimo.console.util.SERealmGroupHelper;
 import org.apache.geronimo.console.util.SERealmUserHelper;
 
 public class SEUsersPortlet extends AbstractSecurityManagerPortlet {
@@ -116,6 +118,16 @@ public class SEUsersPortlet extends AbstractSecurityManagerPortlet {
         try {
             if ("delete".equals(action)) {
                 SERealmUserHelper.deleteUser(user);
+                String[] groups = SERealmGroupHelper.getGroups();
+                for (int i = 0; i < groups.length; i++) {
+                    String currentGroup = groups[i];
+                    if (SERealmGroupHelper.isGroupMember(currentGroup, user)) {
+                        Collection list = SERealmGroupHelper.getUsers(currentGroup);
+                        list.remove(user);
+                        String[] groupUsers = (String[]) list.toArray(new String[0]);
+                        SERealmGroupHelper.updateGroup(currentGroup, groupUsers);
+                    }
+                }
             } else if ("update".equals(action)) {
                 SERealmUserHelper.updateUser(user, password);
             } else if ("add".equals(action)) {
