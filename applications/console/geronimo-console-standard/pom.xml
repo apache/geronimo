@@ -93,21 +93,25 @@
         <dependency>
             <groupId>commons-digester</groupId>
             <artifactId>commons-digester</artifactId>
+            <scope>provided</scope>
         </dependency>
         
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
+            <scope>provided</scope>
         </dependency>
         
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
+            <scope>provided</scope>
         </dependency>
         
         <dependency>
             <groupId>org.apache.pluto</groupId>
             <artifactId>pluto</artifactId>
+            <scope>provided</scope>
         </dependency>
         
         <!-- JMS dependencies -->
@@ -123,22 +127,26 @@
         <dependency>
             <groupId>taglibs</groupId>
             <artifactId>standard</artifactId>
+            <scope>provided</scope>
         </dependency>
         
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>jstl</artifactId>
+            <scope>provided</scope>
         </dependency>
         
         <dependency>
             <groupId>dwr</groupId>
             <artifactId>dwr</artifactId>
+            <scope>provided</scope>
         </dependency>
         
         <!-- Required for JSPC compilation -->
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>jasper-runtime</artifactId>
+            <scope>provided</scope>
         </dependency>
         
     </dependencies>

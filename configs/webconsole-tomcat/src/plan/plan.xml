@@ -23,6 +23,32 @@
     <module>
         <web>framework.war</web>
         <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-${geronimoSchemaVersion}">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
+              <dependencies>
+                <dependency>
+                    <groupId>castor</groupId>
+                    <artifactId>castor</artifactId>
+                    <type>jar</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.pluto</groupId>
+                    <artifactId>pluto-descriptors</artifactId>
+                    <type>jar</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.pluto</groupId>
+                    <artifactId>pluto-portal</artifactId>
+                    <type>jar</type>
+                </dependency>
+                <dependency>
+                    <groupId>tomcat</groupId>
+                    <artifactId>jasper-runtime</artifactId>
+                    <type>jar</type>
+                </dependency>
+              </dependencies>
+              <inverse-classloading/>
+            </environment>
+
             <context-root>/console</context-root>
             <cross-context/>
             <security-realm-name>geronimo-properties-realm</security-realm-name>
@@ -32,6 +58,47 @@
     <module>
         <web>standard.war</web>
         <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-${geronimoSchemaVersion}">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
+              <dependencies>
+                <dependency>
+                    <groupId>commons-digester</groupId>
+                    <artifactId>commons-digester</artifactId>
+                    <type>jar</type>
+                </dependency>
+                <dependency>
+                    <groupId>commons-fileupload</groupId>
+                    <artifactId>commons-fileupload</artifactId>
+                    <type>jar</type>
+                </dependency>
+                <dependency>
+                    <groupId>commons-io</groupId>
+                    <artifactId>commons-io</artifactId>
+                    <type>jar</type>
+                </dependency>
+                <dependency>
+                    <groupId>dwr</groupId>
+                    <artifactId>dwr</artifactId>
+                    <type>jar</type>
+                </dependency>
+                <dependency>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>jstl</artifactId>
+                    <type>jar</type>
+                </dependency>
+                <dependency>
+                    <groupId>taglibs</groupId>
+                    <artifactId>standard</artifactId>
+                    <type>jar</type>
+                </dependency>
+                <dependency>
+                    <groupId>tomcat</groupId>
+                    <artifactId>jasper-runtime</artifactId>
+                    <type>jar</type>
+                </dependency>
+              </dependencies>
+              <inverse-classloading/>
+            </environment>
+
             <context-root>/console-standard</context-root>
             <cross-context/>
             <security-realm-name>geronimo-properties-realm</security-realm-name>

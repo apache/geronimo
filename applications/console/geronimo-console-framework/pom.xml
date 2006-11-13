@@ -49,22 +49,26 @@
         <dependency>
             <groupId>org.apache.pluto</groupId>
             <artifactId>pluto-portal</artifactId>
+            <scope>provided</scope>
         </dependency>
         
         <dependency>
             <groupId>org.apache.pluto</groupId>
             <artifactId>pluto-descriptors</artifactId>
+            <scope>provided</scope>
         </dependency>
         
         <dependency>
             <groupId>castor</groupId>
             <artifactId>castor</artifactId>
+            <scope>provided</scope>
         </dependency>
         
         <!-- Required for JSPC compilation -->
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>jasper-runtime</artifactId>
+            <scope>provided</scope>
         </dependency>
         
     </dependencies>
