@@ -40,7 +40,6 @@ import org.apache.geronimo.schema.NamespaceElementConverter;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 
 /**
@@ -75,11 +74,11 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
     }
 
     protected Map getJndiContextMap(Map sharedContext) {
-        return (Map)sharedContext.get(JNDI_KEY);
+        return (Map) sharedContext.get(JNDI_KEY);
     }
 
     protected AbstractName getGBeanName(Map sharedContext) {
-        return (AbstractName)sharedContext.get(GBEAN_NAME_KEY);
+        return (AbstractName) sharedContext.get(GBEAN_NAME_KEY);
     }
 
     protected static QNameSet buildQNameSet(String[] eeNamespaces, String localPart) {
@@ -100,15 +99,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
             XmlObject xmlObject = xmlObjects[i];
             if (xmlObject.schemaType() != type) {
                 xmlObject = xmlObject.copy();
-                XmlCursor start =xmlObject.newCursor();
-                XmlCursor end = xmlObject.newCursor();
-
-                try {
-                    converter.convertElement(start, end);
-                } finally {
-                    start.dispose();
-                    end.dispose();
-                }
+                converter.convertElement(xmlObject);
                 converted[i] = xmlObject.changeType(type);
             } else {
                 converted[i] = xmlObject;
@@ -116,6 +107,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         }
         return converted;
     }
+
     protected static String getStringValue(org.apache.geronimo.xbeans.j2ee.String string) {
         if (string == null) {
             return null;
@@ -140,7 +132,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         if (module != null && moduleType != null) {
             nameMap.put(moduleType, module);
         }
-        if(interfaceTypes != null) {
+        if (interfaceTypes != null) {
             Set trimmed = new HashSet();
             for (Iterator it = interfaceTypes.iterator(); it.hasNext();) {
                 String intf = (String) it.next();

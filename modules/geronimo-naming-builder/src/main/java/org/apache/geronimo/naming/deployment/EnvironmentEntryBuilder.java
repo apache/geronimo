@@ -32,6 +32,7 @@ import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.reference.KernelReference;
 import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
+import org.apache.geronimo.schema.NamespaceElementConverter;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
@@ -52,9 +53,9 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder {
     }
 
     public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
-        XmlObject[] envEntriesUntyped = specDD.selectChildren(envEntryQNameSet);
+        XmlObject[] envEntriesUntyped = convert(specDD.selectChildren(envEntryQNameSet), J2EE_CONVERTER, EnvEntryType.type);
         for (int i = 0; i < envEntriesUntyped.length; i++) {
-            EnvEntryType envEntry = (EnvEntryType) envEntriesUntyped[i].copy().changeType(EnvEntryType.type);
+            EnvEntryType envEntry = (EnvEntryType) envEntriesUntyped[i];
             String name = envEntry.getEnvEntryName().getStringValue().trim();
             String type = envEntry.getEnvEntryType().getStringValue().trim();
             String text = envEntry.getEnvEntryValue().getStringValue().trim();

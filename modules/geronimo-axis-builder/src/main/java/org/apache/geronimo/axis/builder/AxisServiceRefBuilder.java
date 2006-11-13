@@ -66,11 +66,11 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder {
     }
 
     protected boolean willMergeEnvironment(XmlObject specDD, XmlObject plan) {
-         return getServiceRefs(specDD).length > 0;
+        return specDD.selectChildren(serviceRefQNameSet).length > 0;
     }
     
     public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
-        XmlObject[] serviceRefsUntyped = getServiceRefs(specDD);
+        XmlObject[] serviceRefsUntyped = convert(specDD.selectChildren(serviceRefQNameSet), J2EE_CONVERTER, ServiceRefType.type);
         XmlObject[] gerServiceRefsUntyped = plan == null? NO_REFS: plan.selectChildren(GER_SERVICE_REF_QNAME_SET);
         Map serviceRefMap = mapServiceRefs(gerServiceRefsUntyped);
         ClassLoader cl = module.getEarContext().getClassLoader();
@@ -133,10 +133,6 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder {
             getJndiContextMap(componentContext).put(ENV + name, ref);
         }
 
-    }
-
-    private XmlObject[] getServiceRefs(XmlObject specDD) {
-        return convert(specDD.selectChildren(serviceRefQNameSet), J2EE_CONVERTER, ServiceRefType.type);
     }
 
     public QNameSet getSpecQNameSet() {

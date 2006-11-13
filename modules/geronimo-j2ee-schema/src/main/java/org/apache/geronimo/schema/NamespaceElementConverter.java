@@ -19,6 +19,7 @@ package org.apache.geronimo.schema;
 import javax.xml.namespace.QName;
 
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$
@@ -29,6 +30,21 @@ public class NamespaceElementConverter implements ElementConverter {
 
     public NamespaceElementConverter(String namespace) {
         this.namespace = namespace;
+    }
+
+    public XmlObject convertElement(XmlObject element) {
+        XmlCursor cursor = element.newCursor();
+        try {
+            XmlCursor end = cursor.newCursor();
+            try {
+                convertElement(cursor, end);
+            } finally {
+                end.dispose();
+            }
+        } finally {
+            cursor.dispose();
+        }
+        return element;
     }
 
     public void convertElement(XmlCursor cursor, XmlCursor end) {
