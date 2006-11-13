@@ -50,6 +50,7 @@
                     <type>jar</type>
                 </dependency>
               </dependencies>
+              <inverse-classloading/>
             </environment>
 
             <context-root>/console</context-root>
@@ -114,6 +115,7 @@
                     <type>jar</type>
                 </dependency>        
               </dependencies>
+              <inverse-classloading/>
             </environment>
 
             <context-root>/console-standard</context-root>
