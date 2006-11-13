@@ -430,7 +430,8 @@ public class ConnectorPortlet extends BasePortlet {
                             String trustStore = (String)getProperty(secure, "trustStore");
                             renderRequest.setAttribute("unlockKeyStore", keyStore);
                             renderRequest.setAttribute("unlockTrustStore", trustStore);
-                        } else if(server.equals(WEB_SERVER_TOMCAT)) {                            String truststoreFile = (String)getProperty(secure, "truststoreFileName");
+                        } else if(server.equals(WEB_SERVER_TOMCAT)) {
+                            String truststoreFile = (String)getProperty(secure, "truststoreFileName");
                             String truststoreType = (String)getProperty(secure, "truststoreType");
                             renderRequest.setAttribute("truststoreFile", truststoreFile);
                             renderRequest.setAttribute("truststoreType", truststoreType);
