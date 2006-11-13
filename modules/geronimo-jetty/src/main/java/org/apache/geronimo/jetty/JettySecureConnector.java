@@ -27,4 +27,10 @@ public interface JettySecureConnector extends SecureConnector {
     public void setTrustStore(String trustStore);
 
     public void setKeyAlias(String keyAlias);
+
+    public String getKeyStore();
+
+    public String getTrustStore();
+
+    public String getKeyAlias();
 }
