@@ -96,7 +96,7 @@
         <td>
           <select name="unlockKeyStore">
               <c:forEach var="store" items="${keyStores}">
-                  <option>${store}</option>
+                  <option<c:if test="${unlockKeyStore eq store}"> selected</c:if>>${store}</option>
               </c:forEach>
           </select>
         </td>
@@ -113,7 +113,7 @@
           <select name="unlockTrustStore">
               <option />
               <c:forEach var="store" items="${trustStores}">
-                  <option>${store}</option>
+                  <option<c:if test="${unlockTrustStore eq store}"> selected</c:if>>${store}</option>
               </c:forEach>
           </select>
         </td>
@@ -222,7 +222,7 @@
     <td>
       <select name="algorithm">
         <option value="Default"<c:if test="${algorithm eq 'Default' || algorithm eq ''}"> selected</c:if>>JVM Default</option>
-        <option value="SunX509"<c:if test="${algorithm eq 'SunX509' eq ''}"> selected</c:if>>Sun</option>
+        <option value="SunX509"<c:if test="${algorithm eq 'SunX509'}"> selected</c:if>>Sun</option>
         <option value="IbmX509"<c:if test="${algorithm eq 'IbmX509'}"> selected</c:if>>IBM</option>
       </select>
 	</td>

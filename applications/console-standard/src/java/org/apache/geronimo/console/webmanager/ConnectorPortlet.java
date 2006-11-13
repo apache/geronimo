@@ -159,7 +159,8 @@ public class ConnectorPortlet extends BasePortlet {
                         throw new PortletException(locked.getMessage());
                     }
                     String trustStore = actionRequest.getParameter("unlockTrustStore");
-                    if(isValid(trustStore)) {setProperty(secure, "trustStore", trustStore);}
+                    // "" is a valid trustStore value, which means the parameter should be cleared
+                    setProperty(secure, "trustStore", isValid(trustStore) ? trustStore : null);
                 } else if (server.equals(WEB_SERVER_TOMCAT)) {
                     if(isValid(truststoreType)) {setProperty(secure, "truststoreType", truststoreType);}
                     if(isValid(truststoreFile)) {setProperty(secure, "truststoreFileName", truststoreFile);}
@@ -220,6 +221,29 @@ public class ConnectorPortlet extends BasePortlet {
                     secure.setClientAuthRequired(clientAuth);
                     if(server.equals(WEB_SERVER_JETTY)) {
                         if(isValid(privateKeyPass)) {setProperty(secure, "keyPassword", privateKeyPass);}
+                        String keyStore = actionRequest.getParameter("unlockKeyStore");
+                        String trustStore = actionRequest.getParameter("unlockTrustStore");
+                        setProperty(secure, "keyStore", keyStore);
+                        try {
+                            KeystoreInstance[] keystores = PortletManager.getCurrentServer(actionRequest).getKeystoreManager().getKeystores();
+
+                            String[] keys = null;
+                            for (int i = 0; i < keystores.length; i++) {
+                                KeystoreInstance keystore = keystores[i];
+                                if(keystore.getKeystoreName().equals(keyStore)) {
+                                    keys = keystore.getUnlockedKeys();
+                                }
+                            }
+                            if(keys != null && keys.length == 1) {
+                                setProperty(secure, "keyAlias", keys[0]);
+                            } else {
+                                throw new PortletException("Cannot handle keystores with anything but 1 unlocked private key");
+                            }
+                        } catch (KeystoreIsLocked locked) {
+                            throw new PortletException(locked.getMessage());
+                        }
+                        // "" is a valid trustStore value, which means the parameter should be cleared
+                        setProperty(secure, "trustStore", isValid(trustStore) ? trustStore : null);
                     }
                     else if (server.equals(WEB_SERVER_TOMCAT)) {
                         if(isValid(truststoreType)) {setProperty(secure, "truststoreType", truststoreType);}
@@ -403,7 +427,12 @@ public class ConnectorPortlet extends BasePortlet {
                         if(secure.isClientAuthRequired()) {
                             renderRequest.setAttribute("clientAuth", Boolean.TRUE);
                         }
-                        if(server.equals(WEB_SERVER_TOMCAT)) {
+                        if(server.equals(WEB_SERVER_JETTY)) {
+                            String keyStore = (String)getProperty(secure, "keyStore");
+                            String trustStore = (String)getProperty(secure, "trustStore");
+                            renderRequest.setAttribute("unlockKeyStore", keyStore);
+                            renderRequest.setAttribute("unlockTrustStore", trustStore);
+                        } else if(server.equals(WEB_SERVER_TOMCAT)) {
                             String truststoreFile = (String)getProperty(secure, "truststoreFileName");
                             String truststoreType = (String)getProperty(secure, "truststoreType");
                             renderRequest.setAttribute("truststoreFile", truststoreFile);
