@@ -17,6 +17,13 @@
 
 package org.apache.geronimo.timer.jdbc;
 
+import com.thoughtworks.xstream.XStream;
+import org.apache.geronimo.timer.PersistenceException;
+import org.apache.geronimo.timer.Playback;
+import org.apache.geronimo.timer.WorkInfo;
+import org.apache.geronimo.timer.WorkerPersistence;
+
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -25,13 +32,6 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import javax.sql.DataSource;
-
-import com.thoughtworks.xstream.XStream;
-import org.apache.geronimo.timer.PersistenceException;
-import org.apache.geronimo.timer.Playback;
-import org.apache.geronimo.timer.WorkInfo;
-import org.apache.geronimo.timer.WorkerPersistence;
 
 /**
  * TODO use an insert returning or stored procedure to insert.
@@ -71,231 +71,233 @@ public class JDBCWorkerPersistence implements WorkerPersistence {
 
 
     public void save(WorkInfo workInfo) throws PersistenceException {
+        boolean threwException = false;
+        Connection c = getConnection();
         try {
-            Connection c = dataSource.getConnection();
-            try {
-                if (useSequence) {
-                    long id;
-                    PreparedStatement seqStatement = c.prepareStatement(sequenceSQL);
+            if (useSequence) {
+                long id;
+                PreparedStatement seqStatement = c.prepareStatement(sequenceSQL);
+                try {
+                    ResultSet seqRS = seqStatement.executeQuery();
                     try {
-                        ResultSet seqRS = seqStatement.executeQuery();
-                        try {
-                            seqRS.next();
-                            id = seqRS.getLong(1);
-                        } finally {
-                            seqRS.close();
-                        }
+                        seqRS.next();
+                        id = seqRS.getLong(1);
                     } finally {
-                        seqStatement.close();
+                        seqRS.close();
                     }
-                    workInfo.setId(id);
-                    PreparedStatement insertStatement = c.prepareStatement(insertSQLWithSequence);
-                    try {
-                        String serializedUserId = serialize(workInfo.getUserId());
-                        String serializedUserKey = serialize(workInfo.getUserInfo());
-                        insertStatement.setLong(1, id);
-                        insertStatement.setString(2, serverUniqueId);
-                        insertStatement.setString(3, workInfo.getKey());
-                        insertStatement.setString(4, serializedUserId);
-                        insertStatement.setString(5, serializedUserKey);
-                        insertStatement.setLong(6, workInfo.getTime().getTime());
-                        if (workInfo.getPeriod() == null) {
-                            insertStatement.setNull(7, Types.NUMERIC);
-                        } else {
-                            insertStatement.setLong(7, workInfo.getPeriod().longValue());
-                        }
-                        insertStatement.setBoolean(8, workInfo.getAtFixedRate());
-                        int result = insertStatement.executeUpdate();
-                        if (result != 1) {
-                            throw new PersistenceException("Could not insert!");
-                        }
-                    } finally {
-                        insertStatement.close();
-                    }
-                } else {
-                    PreparedStatement insertStatement = c.prepareStatement(insertSQLWithIdentity);
-                    try {
-                        String serializedUserId = serialize(workInfo.getUserId());
-                        String serializedUserKey = serialize(workInfo.getUserInfo());
-                        insertStatement.setString(1, serverUniqueId);
-                        insertStatement.setString(2, workInfo.getKey());
-                        insertStatement.setString(3, serializedUserId);
-                        insertStatement.setString(4, serializedUserKey);
-                        insertStatement.setLong(5, workInfo.getTime().getTime());
-                        if (workInfo.getPeriod() == null) {
-                            insertStatement.setNull(6, Types.NUMERIC);
-                        } else {
-                            insertStatement.setLong(6, workInfo.getPeriod().longValue());
-                        }
-                        insertStatement.setBoolean(7, workInfo.getAtFixedRate());
-                        int result = insertStatement.executeUpdate();
-                        if (result != 1) {
-                            throw new PersistenceException("Could not insert!");
-                        }
-                    } finally {
-                        insertStatement.close();
-                    }
-                    long id;
-                    PreparedStatement identityStatement = c.prepareStatement(identitySQL);
-                    try {
-                        ResultSet seqRS = identityStatement.executeQuery();
-                        try {
-                            seqRS.next();
-                            id = seqRS.getLong(1);
-                        } finally {
-                            seqRS.close();
-                        }
-                    } finally {
-                        identityStatement.close();
-                    }
-                    workInfo.setId(id);
+                } finally {
+                    seqStatement.close();
                 }
-            } finally {
-                c.close();
+                workInfo.setId(id);
+                PreparedStatement insertStatement = c.prepareStatement(insertSQLWithSequence);
+                try {
+                    String serializedUserId = serialize(workInfo.getUserId());
+                    String serializedUserKey = serialize(workInfo.getUserInfo());
+                    insertStatement.setLong(1, id);
+                    insertStatement.setString(2, serverUniqueId);
+                    insertStatement.setString(3, workInfo.getKey());
+                    insertStatement.setString(4, serializedUserId);
+                    insertStatement.setString(5, serializedUserKey);
+                    insertStatement.setLong(6, workInfo.getTime().getTime());
+                    if (workInfo.getPeriod() == null) {
+                        insertStatement.setNull(7, Types.NUMERIC);
+                    } else {
+                        insertStatement.setLong(7, workInfo.getPeriod().longValue());
+                    }
+                    insertStatement.setBoolean(8, workInfo.getAtFixedRate());
+                    int result = insertStatement.executeUpdate();
+                    if (result != 1) {
+                        throw new PersistenceException("Could not insert!");
+                    }
+                } finally {
+                    insertStatement.close();
+                }
+            } else {
+                PreparedStatement insertStatement = c.prepareStatement(insertSQLWithIdentity);
+                try {
+                    String serializedUserId = serialize(workInfo.getUserId());
+                    String serializedUserKey = serialize(workInfo.getUserInfo());
+                    insertStatement.setString(1, serverUniqueId);
+                    insertStatement.setString(2, workInfo.getKey());
+                    insertStatement.setString(3, serializedUserId);
+                    insertStatement.setString(4, serializedUserKey);
+                    insertStatement.setLong(5, workInfo.getTime().getTime());
+                    if (workInfo.getPeriod() == null) {
+                        insertStatement.setNull(6, Types.NUMERIC);
+                    } else {
+                        insertStatement.setLong(6, workInfo.getPeriod().longValue());
+                    }
+                    insertStatement.setBoolean(7, workInfo.getAtFixedRate());
+                    int result = insertStatement.executeUpdate();
+                    if (result != 1) {
+                        throw new PersistenceException("Could not insert!");
+                    }
+                } finally {
+                    insertStatement.close();
+                }
+                long id;
+                PreparedStatement identityStatement = c.prepareStatement(identitySQL);
+                try {
+                    ResultSet seqRS = identityStatement.executeQuery();
+                    try {
+                        seqRS.next();
+                        id = seqRS.getLong(1);
+                    } finally {
+                        seqRS.close();
+                    }
+                } finally {
+                    identityStatement.close();
+                }
+                workInfo.setId(id);
             }
         } catch (SQLException e) {
+            threwException = true;
             throw new PersistenceException(e);
+        } finally {
+            close(c, !threwException);
         }
     }
 
     public void cancel(long id) throws PersistenceException {
+        boolean threwException = false;
+
+        Connection c = getConnection();
         try {
-            Connection c = dataSource.getConnection();
+            PreparedStatement deleteStatement = c.prepareStatement(deleteSQL);
             try {
-                PreparedStatement deleteStatement = c.prepareStatement(deleteSQL);
-                try {
-                    deleteStatement.setLong(1, id);
-                    deleteStatement.execute();
-                } finally {
-                    deleteStatement.close();
-                }
+                deleteStatement.setLong(1, id);
+                deleteStatement.execute();
             } finally {
-                c.close();
+                deleteStatement.close();
             }
         } catch (SQLException e) {
+            threwException = true;
             throw new PersistenceException(e);
+        } finally {
+            close(c, !threwException);
         }
-
     }
 
     public void playback(String key, Playback playback) throws PersistenceException {
+        boolean threwException = false;
+        Connection c = getConnection();
         try {
-            Connection c = dataSource.getConnection();
+            PreparedStatement selectStatement = c.prepareStatement(selectSQL);
+            selectStatement.setString(1, serverUniqueId);
+            selectStatement.setString(2, key);
             try {
-                PreparedStatement selectStatement = c.prepareStatement(selectSQL);
-                selectStatement.setString(1, serverUniqueId);
-                selectStatement.setString(2, key);
+                ResultSet taskRS = selectStatement.executeQuery();
                 try {
-                    ResultSet taskRS = selectStatement.executeQuery();
-                    try {
-                        while (taskRS.next()) {
-                            long id = taskRS.getLong(1);
-                            String serizalizedUserId = taskRS.getString(2);
-                            Object userId = deserialize(serizalizedUserId);
-                            String serializedUserInfo = taskRS.getString(3);
-                            Object userInfo = deserialize(serializedUserInfo);
-                            long timeMillis = taskRS.getLong(4);
-                            Date time = new Date(timeMillis);
-                            Long period = null;
-                            period = new Long(taskRS.getLong(5));
-                            if (!taskRS.wasNull()) {
-                                period = null;
-                            }
-                            boolean atFixedRate = taskRS.getBoolean(6);
-                            //TODO make sure the reference to this is ok, meaning we can't use a handle to this WorkerPersistence.
-                            WorkInfo workInfo = new WorkInfo(key, userId, userInfo, time, period, atFixedRate);
-                            workInfo.setId(id);
-                            playback.schedule(workInfo);
+                    while (taskRS.next()) {
+                        long id = taskRS.getLong(1);
+                        String serizalizedUserId = taskRS.getString(2);
+                        Object userId = deserialize(serizalizedUserId);
+                        String serializedUserInfo = taskRS.getString(3);
+                        Object userInfo = deserialize(serializedUserInfo);
+                        long timeMillis = taskRS.getLong(4);
+                        Date time = new Date(timeMillis);
+                        Long period = null;
+                        period = new Long(taskRS.getLong(5));
+                        if (!taskRS.wasNull()) {
+                            period = null;
                         }
-                    } finally {
-                        taskRS.close();
+                        boolean atFixedRate = taskRS.getBoolean(6);
+                        //TODO make sure the reference to this is ok, meaning we can't use a handle to this WorkerPersistence.
+                        WorkInfo workInfo = new WorkInfo(key, userId, userInfo, time, period, atFixedRate);
+                        workInfo.setId(id);
+                        playback.schedule(workInfo);
                     }
                 } finally {
-                    selectStatement.close();
+                    taskRS.close();
                 }
             } finally {
-                c.close();
+                selectStatement.close();
             }
         } catch (SQLException e) {
+            threwException = true;
             throw new PersistenceException(e);
+        } finally {
+            close(c, !threwException);
         }
     }
 
     public void fixedRateWorkPerformed(long id) throws PersistenceException {
+        boolean threwException = false;
+        Connection c = getConnection();
         try {
-            Connection c = dataSource.getConnection();
+            PreparedStatement updateStatement = c.prepareStatement(fixedRateUpdateSQL);
             try {
-                PreparedStatement updateStatement = c.prepareStatement(fixedRateUpdateSQL);
-                try {
-                    updateStatement.setLong(1, id);
-                    updateStatement.execute();
-                } finally {
-                    updateStatement.close();
-                }
+                updateStatement.setLong(1, id);
+                updateStatement.execute();
             } finally {
-                c.close();
+                updateStatement.close();
             }
         } catch (SQLException e) {
+            threwException = true;
             throw new PersistenceException(e);
+        } finally {
+            close(c, !threwException);
         }
     }
 
     public void intervalWorkPerformed(long id, long period) throws PersistenceException {
+        boolean threwException = false;
         long next = System.currentTimeMillis() + period;
+        Connection c = getConnection();
         try {
-            Connection c = dataSource.getConnection();
+            PreparedStatement updateStatement = c.prepareStatement(intervalUpdateSQL);
             try {
-                PreparedStatement updateStatement = c.prepareStatement(intervalUpdateSQL);
-                try {
-                    updateStatement.setLong(1, next);
-                    updateStatement.setLong(2, id);
-                    updateStatement.execute();
-                } finally {
-                    updateStatement.close();
-                }
+                updateStatement.setLong(1, next);
+                updateStatement.setLong(2, id);
+                updateStatement.execute();
             } finally {
-                c.close();
+                updateStatement.close();
             }
         } catch (SQLException e) {
+            threwException = true;
             throw new PersistenceException(e);
+        } finally {
+            close(c, !threwException);
         }
     }
 
     public Collection getIdsByKey(String key, Object userId) throws PersistenceException {
+        boolean threwException = false;
+
         Collection ids = new ArrayList();
+        Connection c = getConnection();
         try {
-            Connection c = dataSource.getConnection();
+            PreparedStatement selectStatement = c.prepareStatement(selectByKeySQL);
+            selectStatement.setString(1, serverUniqueId);
+            selectStatement.setString(2, key);
+            if (userId == null) {
+                selectStatement.setNull(3, Types.VARCHAR);
+                selectStatement.setNull(4, Types.VARCHAR);
+            } else {
+                String userIdString = serialize(userId);
+                selectStatement.setString(3, userIdString);
+                selectStatement.setString(4, userIdString);
+            }
             try {
-                PreparedStatement selectStatement = c.prepareStatement(selectByKeySQL);
-                selectStatement.setString(1, serverUniqueId);
-                selectStatement.setString(2, key);
-                if (userId == null) {
-                    selectStatement.setNull(3, Types.VARCHAR);
-                    selectStatement.setNull(4, Types.VARCHAR);
-                } else {
-                    String userIdString = serialize(userId);
-                    selectStatement.setString(3, userIdString);
-                    selectStatement.setString(4, userIdString);
-                }
+                ResultSet taskRS = selectStatement.executeQuery();
                 try {
-                    ResultSet taskRS = selectStatement.executeQuery();
-                    try {
-                        while (taskRS.next()) {
-                            long id = taskRS.getLong(1);
-                            ids.add(new Long(id));
-                        }
-                    } finally {
-                        taskRS.close();
+                    while (taskRS.next()) {
+                        long id = taskRS.getLong(1);
+                        ids.add(new Long(id));
                     }
                 } finally {
-                    selectStatement.close();
+                    taskRS.close();
                 }
             } finally {
-                c.close();
+                selectStatement.close();
             }
         } catch (SQLException e) {
+            threwException = true;
             throw new PersistenceException(e);
+        } finally {
+            close(c, !threwException);
         }
+
         return ids;
     }
 
@@ -325,4 +327,21 @@ public class JDBCWorkerPersistence implements WorkerPersistence {
         }
     }
 
+    private Connection getConnection() throws PersistenceException {
+        try {
+            return dataSource.getConnection();
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
+        }
+    }
+
+    private void close(Connection c, boolean reportSqlException) throws PersistenceException {
+        try {
+            c.close();
+        } catch (SQLException e) {
+            if (!reportSqlException) {
+                throw new PersistenceException(e);
+            }
+        }
+    }
 }
