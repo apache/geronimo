@@ -35,7 +35,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.apache.geronimo.deployment.util.DeploymentUtil;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.Target;
@@ -272,7 +272,24 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBe
                     }
                 }
             } else {
-                log.error("Unable to deploy: " + po.getDeploymentStatus().getMessage());
+            	 //Try to delete the module , that failed to successfully hot-deploy  
+            	log.error("Unable to deploy: " + po.getDeploymentStatus().getMessage());
+            	String delfile=file.getAbsolutePath();
+                File fd = new File(delfile);
+                if(fd.isDirectory()){
+               	    log.info("Deleting the Directory: "+delfile);
+               	    if(DeploymentUtil.recursiveDelete(fd))
+               		    log.debug("Successfully deleted the Directory: "+delfile);
+               	    else
+               		    log.error("Couldn't delete the hot deployed directory"+delfile);
+                }else if(fd.isFile()){
+               	    log.info("Deleting the File: "+delfile);
+               	    if(fd.delete()){
+               		log.debug("Successfully deleted the File: "+delfile); 
+               	}else
+               		log.error("Couldn't delete the hot deployed directory"+delfile); 
+                }
+                            
                 return null;
             }
         } catch (DeploymentManagerCreationException e) {
@@ -295,7 +312,7 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBe
             return null;
         }
     }
-
+    
     private DeploymentManager getDeploymentManager() throws DeploymentManagerCreationException {
         DeploymentManager manager = factory.getDeploymentManager(deploymentURI, deploymentUser, deploymentPassword);
         if (manager instanceof JMXDeploymentManager) {
