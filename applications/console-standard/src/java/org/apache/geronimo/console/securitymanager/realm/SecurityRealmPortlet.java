@@ -132,6 +132,7 @@ public class SecurityRealmPortlet extends BasePortlet {
     private static final String USAGE_MODE = "usage";
     private static final String SAVE_MODE = "save";
     private static final String MODE_KEY = "mode";
+    private static final String CUSTOM_MODE = "custom";
 
     private static Kernel kernel;
 
@@ -183,7 +184,7 @@ public class SecurityRealmPortlet extends BasePortlet {
             if (data.getName() != null && !data.getName().trim().equals("")) {
                 // Config properties have to be set in render since they have values of null
                 if (data.getRealmType().equals("Other")) {
-                    actionResponse.setRenderParameter(MODE_KEY, EDIT_MODE);
+                    actionResponse.setRenderParameter(MODE_KEY, CUSTOM_MODE);
                 } else {
                     actionResponse.setRenderParameter(MODE_KEY, CONFIGURE_MODE);
                 }
@@ -217,9 +218,10 @@ public class SecurityRealmPortlet extends BasePortlet {
             actionLoadExistingRealm(actionRequest, data);
             actionResponse.setRenderParameter(MODE_KEY, EDIT_MODE);
         } else if (mode.equals(CONFIGURE_MODE)) {
-            if (data.getAbstractName() != null || (data.getRealmType() != null && data.getRealmType().equals("Other")))
-            {
+            if (data.getAbstractName() != null) {
                 actionResponse.setRenderParameter(MODE_KEY, EDIT_MODE);
+            } else if((data.getRealmType() != null && data.getRealmType().equals("Other"))) {
+                actionResponse.setRenderParameter(MODE_KEY, CUSTOM_MODE);
             } else {
                 actionResponse.setRenderParameter(MODE_KEY, CONFIGURE_MODE);
             }
@@ -246,7 +248,9 @@ public class SecurityRealmPortlet extends BasePortlet {
             }
             if (mode.equals(LIST_MODE)) {
                 renderList(renderRequest, renderResponse);
-            } else if (mode.equals(EDIT_MODE)) {
+            } else if (mode.equals(EDIT_MODE) || mode.equals(CUSTOM_MODE)) {
+                renderRequest.setAttribute("mode", mode);
+                if(mode.equals(CUSTOM_MODE)) loadDriverJARList(renderRequest);
                 renderEdit(renderRequest, renderResponse, data);
             } else if (mode.equals(SELECT_TYPE_MODE)) {
                 renderSelectType(renderRequest, renderResponse);

@@ -18,7 +18,6 @@ just leave the extra ones blank.</p>
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>RealmForm" action="<portlet:actionURL/>">
     <input type="hidden" name="mode" value="save" />
-    <input type="hidden" name="jar" value="${realm.jar}" />
     <input type="hidden" name="name" value="${realm.name}" />
     <input type="hidden" name="realmType" value="${realm.realmType}" />
   <c:forEach var="option" items="${realm.options}">
@@ -53,6 +52,31 @@ just leave the extra ones blank.</p>
         <td>A name that is different than the name for any other security realms in the server (no spaces in the name please).
           Other components will use this name to refer to the security realm.</td>
       </tr>
+    <!-- ENTRY FIELD: LoginModule JAR -->
+    <c:choose>
+      <c:when test="${mode eq 'custom'}">
+      <tr>
+        <th><div align="right">Login Module JAR:</div></th>
+        <td>
+          <select name="jar">
+                  <option />
+              <c:forEach var="availableJar" items="${jars}">
+                  <option <c:if test="${availableJar == realm.jar}">selected</c:if>>
+                      ${availableJar}
+                  </option>
+              </c:forEach>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>The jar containing Login Module and Principal classes.</td>
+      </tr>
+      </c:when>
+      <c:otherwise>
+        <input type="hidden" name="jar" value="${realm.jar}" />
+      </c:otherwise>
+    </c:choose>
     <!-- HEADER -->
     <c:forEach var="module" items="${realm.modules}" varStatus="status" >
       <tr>
