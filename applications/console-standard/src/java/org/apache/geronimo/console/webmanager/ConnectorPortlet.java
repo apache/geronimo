@@ -494,6 +494,7 @@ public class ConnectorPortlet extends BasePortlet {
             }
         }
         renderRequest.setAttribute("containers", all);
+        renderRequest.setAttribute("serverPort", new Integer(renderRequest.getServerPort()));
 
         if (WindowState.NORMAL.equals(renderRequest.getWindowState())) {
             normalView.include(renderRequest, renderResponse);

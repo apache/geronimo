@@ -35,7 +35,9 @@
                  <portlet:param name="connectorURI" value="${info.connectorURI}" />
                  <portlet:param name="managerURI" value="${container.managerURI}" />
                  <portlet:param name="containerURI" value="${container.containerURI}" />
-               </portlet:actionURL>">stop</a>
+               </portlet:actionURL>"
+                 <c:if test="${info.port eq serverPort}"> onClick="return confirm('Console application will not be available if ${info.displayName} is stopped.  Stop ${info.displayName}?');"</c:if>>
+                 stop</a>
                </c:when>
                <c:otherwise>
                <a href="<portlet:actionURL portletMode="view">
