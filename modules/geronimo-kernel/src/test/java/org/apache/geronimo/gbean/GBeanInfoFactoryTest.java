@@ -68,8 +68,8 @@ public class GBeanInfoFactoryTest extends TestCase {
         GBeanInfoBuilder gbeanInfoFactory = new GBeanInfoBuilder(MockGBean.class, MockGBean.getGBeanInfo());
         assertEquals(MockGBean.class.getName(), gbeanInfoFactory.getBeanInfo().getName());
         assertEquals(MockGBean.class.getName(), gbeanInfoFactory.getBeanInfo().getClassName());
-        assertEquals(6, gbeanInfoFactory.getBeanInfo().getAttributes().size());
-        assertEquals(11, gbeanInfoFactory.getBeanInfo().getOperations().size());
+        assertEquals(5, gbeanInfoFactory.getBeanInfo().getAttributes().size());
+        assertEquals(3, gbeanInfoFactory.getBeanInfo().getOperations().size());
     }
 
     /*
@@ -80,26 +80,26 @@ public class GBeanInfoFactoryTest extends TestCase {
 
         gbeanInfoFactory = new GBeanInfoBuilder(MockGBean.class);
         gbeanInfoFactory.addInterface(Serializable.class);
-        assertEquals(4, gbeanInfoFactory.getBeanInfo().getAttributes().size());
-        assertEquals(11, gbeanInfoFactory.getBeanInfo().getOperations().size());
+        assertEquals(3, gbeanInfoFactory.getBeanInfo().getAttributes().size());
+        assertEquals(3, gbeanInfoFactory.getBeanInfo().getOperations().size());
 
         gbeanInfoFactory = new GBeanInfoBuilder(MockGBean.class);
         gbeanInfoFactory.addInterface(GBeanLifecycle.class);
         GBeanInfo gbeanInfo = gbeanInfoFactory.getBeanInfo();
-        assertEquals(4, gbeanInfoFactory.getBeanInfo().getAttributes().size());
-        assertEquals(11, gbeanInfoFactory.getBeanInfo().getOperations().size());
+        assertEquals(3, gbeanInfoFactory.getBeanInfo().getAttributes().size());
+        assertEquals(3, gbeanInfoFactory.getBeanInfo().getOperations().size());
 
         gbeanInfoFactory = new GBeanInfoBuilder(MockGBean.class);
         gbeanInfoFactory.addInterface(SetterOnlyInterface.class);
         gbeanInfo = gbeanInfoFactory.getBeanInfo();
-        assertEquals(4, gbeanInfo.getAttributes().size());
+        assertEquals(3, gbeanInfo.getAttributes().size());
         GAttributeInfo gattrInfo = gbeanInfo.getAttribute("int");
         assertEquals("int", gattrInfo.getName());
         assertEquals("setInt", gattrInfo.getSetterName());
         assertEquals("getInt", gattrInfo.getGetterName());
 
         Set opsSet = gbeanInfo.getOperations();
-        assertEquals(11, opsSet.size());
+        assertEquals(3, opsSet.size());
     }
 
     private static interface SetterOnlyInterface {

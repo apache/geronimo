@@ -296,6 +296,7 @@ public class GBeanInfoBuilder {
         Method[] methods = intf.getMethods();
         for (int i = 0; i < methods.length; i++) {
             Method method = methods[i];
+            if ("java.lang.Object".equals(method.getDeclaringClass().getName())) continue;
             if (isGetter(method)) {
                 String attributeName = getAttributeName(method);
                 GAttributeInfo attribute = (GAttributeInfo) attributes.get(attributeName);

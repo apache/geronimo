@@ -65,7 +65,7 @@ public class GBeanInfoTest extends TestSupport {
 
     public void testGetAttributeSet() {
         Set attrSet = gbeanInfo.getAttributes();
-        assertEquals(7, attrSet.size());
+        assertEquals(6, attrSet.size());
         assertTrue(attrSet.contains(persistentAttrInfo));
         assertTrue(attrSet.contains(nonPersistentAttrInfo));
     }
@@ -85,7 +85,7 @@ public class GBeanInfoTest extends TestSupport {
 
     public void testGetOperationsSet() {
         Set gbeanOpSet = gbeanInfo.getOperations();
-        assertEquals(9, gbeanOpSet.size());
+        assertEquals(1, gbeanOpSet.size());
         assertTrue(gbeanOpSet.contains(opInfo));
     }
 
