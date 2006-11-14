@@ -339,8 +339,14 @@ public class SecurityRealmPortlet extends BasePortlet {
         ModuleType root = doc.addNewModule();
         EnvironmentType environment = root.addNewEnvironment();
         ArtifactType configId = environment.addNewModuleId();
-        configId.setGroupId("console");
-        configId.setArtifactId("realm-" + data.getName());
+        configId.setGroupId("console.realm");
+        String artifactId = data.getName();
+        if(artifactId.indexOf('/') != -1) {
+            // slash in artifact-id results in invalid configuration-id and leads to deployment errors.
+            // Note: 0x002F = '/'
+            artifactId = artifactId.replaceAll("/", "%2F");
+        }
+        configId.setArtifactId(artifactId);
         configId.setVersion("1.0");
         configId.setType("car");
 
