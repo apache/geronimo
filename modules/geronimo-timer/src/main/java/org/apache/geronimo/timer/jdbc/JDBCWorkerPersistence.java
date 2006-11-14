@@ -330,7 +330,7 @@ public class JDBCWorkerPersistence implements WorkerPersistence {
     private Connection getConnection() throws PersistenceException {
         try {
             return dataSource.getConnection();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new PersistenceException(e);
         }
     }
@@ -338,7 +338,7 @@ public class JDBCWorkerPersistence implements WorkerPersistence {
     private void close(Connection c, boolean reportSqlException) throws PersistenceException {
         try {
             c.close();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             if (!reportSqlException) {
                 throw new PersistenceException(e);
             }
