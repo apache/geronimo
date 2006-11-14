@@ -70,7 +70,21 @@
             <artifactId>jasper-runtime</artifactId>
             <scope>provided</scope>
         </dependency>
-        
+
+        <dependency>
+            <groupId>org.apache.geronimo.applications.console</groupId>
+            <artifactId>geronimo-console-core</artifactId>
+            <version>${version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-kernel</artifactId>
+            <version>${version}</version>
+            <scope>provided</scope>
+        </dependency>
+
     </dependencies>
     
     <build>
