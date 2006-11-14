@@ -250,7 +250,6 @@ public class SecurityRealmPortlet extends BasePortlet {
             }
             if (mode.equals(LIST_MODE)) {
                 renderList(renderRequest, renderResponse);
-            } else if (mode.equals(EDIT_MODE)) {
             } else if (mode.equals(EDIT_MODE) || mode.equals(CUSTOM_MODE)) {
                 renderRequest.setAttribute("mode", mode);
                 if(mode.equals(CUSTOM_MODE)) loadDriverJARList(renderRequest);
