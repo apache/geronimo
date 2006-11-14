@@ -558,6 +558,8 @@ public class SchemaInfoBuilder {
                 definition = wsdlReader.readWSDL(wsdlLocator);
             } catch (WSDLException e) {
                 throw new DeploymentException("Failed to read wsdl document", e);
+            } catch (RuntimeException e) {
+                throw new DeploymentException(e.getMessage(), e);
             }
         } finally {
             thread.setContextClassLoader(oldCl);
@@ -645,8 +647,11 @@ public class SchemaInfoBuilder {
 
         public InputSource getBaseInputSource() {
             InputStream wsdlInputStream;
+            ZipEntry entry = moduleFile.getEntry(wsdlURI.toString());
+            if(entry == null){
+                throw new RuntimeException("The webservices.xml file for the EJB JAR points to a non-existant WSDL file "+wsdlURI.toString());
+            }
             try {
-                ZipEntry entry = moduleFile.getEntry(wsdlURI.toString());
                 wsdlInputStream = moduleFile.getInputStream(entry);
                 DefinitionsDocument definition = DefinitionsDocument.Factory.parse(wsdlInputStream);
                 wsdlMap.put(wsdlURI, definition);
