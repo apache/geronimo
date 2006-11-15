@@ -49,8 +49,6 @@
 
 
     <gbean name="Server" class="org.apache.openejb.corba.CORBABeanGBean">
-        <attribute name="host">${PlanORBSSLHost}</attribute>
-        <attribute name="port">${PlanORBSSLPort}</attribute>
         <reference name="ConfigAdapter">
             <name>ORBConfigAdapter</name>
         </reference>
