@@ -44,6 +44,7 @@ limitations under the License.
         dojo.require("dojo.widget.SortableTable");
         dojo.require("dojo.widget.ComboBox");
         dojo.require("dojo.widget.Tooltip");
+        dojo.require("dojo.widget.validate");
     	// Includes Dojo source for debugging
     	// dojo.hostenv.writeIncludes();
     </script>

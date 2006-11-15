@@ -1137,5 +1137,29 @@ limitations under the License.
         </portlet-info>
     </portlet>
 
+    <portlet>
+        <description>Portlet for viewing LDAP server contents</description>
+        <portlet-name>LDAPViewer</portlet-name>
+        <display-name>LDAP Viewer Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.ldapmanager.LDAPManagerPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+            <portlet-mode>HELP</portlet-mode>
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>LDAP Viewer</title>
+            <short-title>LDAP Viewer</short-title>
+            <keywords>LDAP Viewer</keywords>
+        </portlet-info>
+    </portlet>
+
     <!-- End of console portlets -->
 </portlet-app>

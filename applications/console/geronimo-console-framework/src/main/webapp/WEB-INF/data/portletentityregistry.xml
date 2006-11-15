@@ -148,6 +148,9 @@ limitations under the License.
         <portlet id="70">
             <definition-id>console-standard.ImportExport</definition-id>
         </portlet>
+        <portlet id="71">
+            <definition-id>console-standard.LDAPViewer</definition-id>
+        </portlet>
         <portlet id="72">
             <definition-id>console-standard.JMXViewer</definition-id>
         </portlet>

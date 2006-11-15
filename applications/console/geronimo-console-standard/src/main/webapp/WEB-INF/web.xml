@@ -780,9 +780,27 @@ limitations under the License.
             <param-value>console-standard.JMXViewer</param-value>
         </init-param>
     </servlet>
+    <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for LDAP Viewer Portlet</display-name>
+        <servlet-name>LDAPViewer</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.ldapmanager.LDAPManagerPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.LDAPViewer</param-value>
+        </init-param>
+    </servlet>
 
 <!-- [INSERT FRAGMENT HERE] -->
 
+    <servlet-mapping>
+        <servlet-name>LDAPViewer</servlet-name>
+        <url-pattern>/LDAPViewer/*</url-pattern>
+    </servlet-mapping>
     <servlet-mapping>
         <servlet-name>JMXViewer</servlet-name>
         <url-pattern>/JMXViewer/*</url-pattern>

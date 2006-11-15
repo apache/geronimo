@@ -608,4 +608,19 @@ limitations under the License.
         </fragment>
     </fragment>
 
+    <fragment name="LDAPViewer" type="page">
+        <navigation>
+            <title>LDAP Viewer</title>
+            <description>ico_filetree_16x16.gif View contents of an LDAP server</description> 
+        </navigation>
+    
+        <fragment name="row1" type="row">
+            <fragment name="col1" type="column">
+                <fragment name="p1" type="portlet">
+                    <property name="portlet" value="5.71"/>
+                </fragment>
+            </fragment>
+        </fragment>
+    </fragment>
+
 </portal>

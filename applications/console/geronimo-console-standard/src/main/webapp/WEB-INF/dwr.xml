@@ -15,5 +15,8 @@
     <create creator="new" javascript="JMXHelper">
       <param name="class" value="org.apache.geronimo.console.jmxmanager.JMXManagerHelper"/>
     </create>
+    <create creator="new" javascript="LDAPHelper">
+      <param name="class" value="org.apache.geronimo.console.ldapmanager.LDAPManagerHelper"/>
+    </create>
   </allow>
 </dwr>
