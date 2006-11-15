@@ -33,6 +33,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
@@ -211,26 +213,36 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         module.setEarContext(moduleContext);
 
         try {
-            // always add WEB-INF/classes to the classpath regardless of whether
-            // any classes exist.  This must be searched BEFORE the WEB-INF/lib jar files,
-            // per the servlet specifications.
-            moduleContext.getConfiguration().addToClassPath("WEB-INF/classes/");
 
             // add the warfile's content to the configuration
             JarFile warFile = module.getModuleFile();
             Enumeration entries = warFile.entries();
+            List libs = new ArrayList();
             while (entries.hasMoreElements()) {
                 ZipEntry entry = (ZipEntry) entries.nextElement();
                 URI targetPath = new URI(null, entry.getName(), null);
                 if (entry.getName().equals("WEB-INF/web.xml")) {
                     moduleContext.addFile(targetPath, module.getOriginalSpecDD());
                 } else if (entry.getName().startsWith("WEB-INF/lib") && entry.getName().endsWith(".jar")) {
-                    moduleContext.addInclude(targetPath, warFile, entry);
+                    // keep a collection of all libs in the war
+                    // libs must be installed after WEB-INF/classes which must be installed after this copy phase
+                    libs.add(entry);
                 } else {
                     moduleContext.addFile(targetPath, warFile, entry);
                 }
             }
 
+            // always add WEB-INF/classes to the classpath regardless of whether
+            // any classes exist.  This must be searched BEFORE the WEB-INF/lib jar files,
+            // per the servlet specifications.
+            moduleContext.getConfiguration().addToClassPath("WEB-INF/classes/");
+
+            // install the libs
+            for (Iterator iterator = libs.iterator(); iterator.hasNext();) {
+                ZipEntry entry = (ZipEntry) iterator.next();
+                URI targetPath = new URI(null, entry.getName(), null);
+                moduleContext.addInclude(targetPath, warFile, entry);
+            }
 
             // add the manifest classpath entries declared in the war to the class loader
             // we have to explicitly add these since we are unpacking the web module
