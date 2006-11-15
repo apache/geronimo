@@ -171,7 +171,7 @@ public class MultiParentClassLoader extends URLClassLoader {
      */
     public MultiParentClassLoader(Artifact id, URL[] urls, ClassLoader[] parents, URLStreamHandlerFactory factory) {
         super(urls, null, factory);
-        this.id = id;
+        this.id = id;        
         this.parents = copyParents(parents);
         inverseClassLoading = false;
         hiddenClasses = new String[0];
@@ -238,7 +238,23 @@ public class MultiParentClassLoader extends URLClassLoader {
         if (cachedClass != null) {
             return resolveClass(cachedClass, resolve);
         }
-
+        
+        // This is a reasonable hack.  We can add some classes to the list below.
+        // Since we know these classes are in the system class loader let's not waste our
+        // time going through the hierarchy.
+        //
+        // The order is based on profiling the server.  It may not be optimal for all
+        // workloads.
+        
+        if ( name.startsWith("java.") ||
+          	 name.equals("boolean")   ||
+        	 name.equals("int")       ||
+        	 name.equals("double")    ||
+        	 name.equals("long")) {
+            Class clazz = ClassLoader.getSystemClassLoader().loadClass(name);
+            return resolveClass(clazz, resolve);
+        }
+        
         //
         // if we are using inverse class loading, check local urls first
         //
