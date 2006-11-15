@@ -77,11 +77,12 @@ public class GBeanSingleReference extends AbstractGBeanReference {
             } catch (GBeanNotFoundException e) {
                 // gbean disappeard on us
                 log.debug("Waiting to start " + abstractName + " because no targets are running for reference " + getName() +" matching the patterns " + targetName);
+                return false;
             }
         } else {
             setProxy(getKernel().getProxyManager().createProxy(targetName, getReferenceType()));
         }
-
+        log.debug("Started " + abstractName);
         return true;
     }
 
