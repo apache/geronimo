@@ -148,7 +148,7 @@
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.apache.yoko</groupId>
-                                    <artifactId>yoko-rmi</artifactId>
+                                    <artifactId>yoko-rmi-spec</artifactId>
                                 </artifactItem>
                             </artifactItems>
                             <outputDirectory>${project.build.directory}/classes/lib/endorsed</outputDirectory>

@@ -80,7 +80,7 @@
 
         <dependency>
             <groupId>org.apache.yoko</groupId>
-            <artifactId>yoko-rmi</artifactId>
+            <artifactId>yoko-rmi-impl</artifactId>
         </dependency>
 
         <dependency>
