@@ -35,6 +35,7 @@
     <geronimo-version>${version}</geronimo-version>
     <dependency>org.apache.geronimo.configs/j2ee-server//car</dependency>
     <dependency>org.apache.geronimo.configs/directory//car</dependency>
+    <source-repository>http://geronimo.apache.org/plugins/geronimo-1.2/repository/</source-repository>
     <source-repository>http://www.geronimoplugins.com/repository/geronimo-1.1/</source-repository>
     <source-repository>http://www.ibiblio.org/maven2/</source-repository>
 </geronimo-plugin>

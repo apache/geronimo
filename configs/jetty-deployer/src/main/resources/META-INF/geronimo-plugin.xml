@@ -35,6 +35,7 @@
     <dependency>org.apache.geronimo.configs/jetty//car</dependency>
     <dependency>org.apache.geronimo.modules/geronimo-jetty-builder//jar</dependency>
     <obsoletes>org.apache.geronimo.configs/jetty-deployer//car</obsoletes>
+    <source-repository>http://geronimo.apache.org/plugins/geronimo-1.2/repository/</source-repository>
     <source-repository>http://www.geronimoplugins.com/repository/geronimo-1.1/</source-repository>
     <source-repository>http://www.ibiblio.org/maven2/</source-repository>
 </geronimo-plugin>

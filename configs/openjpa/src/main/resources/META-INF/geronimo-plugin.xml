@@ -28,5 +28,6 @@
     <author>Apache Software Foundation</author>
     <license osi-approved="true">ASL 2</license>
     <geronimo-version>${pom.currentVersion}</geronimo-version>
+    <source-repository>http://geronimo.apache.org/plugins/geronimo-1.2/repository/</source-repository>
     <source-repository>http://www.ibiblio.org/maven2/</source-repository>
 </geronimo-plugin>

@@ -65,6 +65,7 @@
     <dependency>activemq/activemq-core/3.2.4-SNAPSHOT/jar</dependency>
     <dependency>org.apache.geronimo.modules/geronimo-converter//jar</dependency>
     <dependency>org.apache.geronimo.modules/geronimo-util//jar</dependency>
+    <source-repository>http://geronimo.apache.org/plugins/geronimo-1.2/repository/</source-repository>
     <source-repository>http://www.geronimoplugins.com/repository/geronimo-1.1/</source-repository>
     <source-repository>http://www.ibiblio.org/maven2/</source-repository>
 </geronimo-plugin>

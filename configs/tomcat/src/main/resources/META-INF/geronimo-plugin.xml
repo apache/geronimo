@@ -30,6 +30,7 @@
     <dependency>org.apache.geronimo.configs/transaction//car</dependency>
     <dependency>org.apache.geronimo.modules/geronimo-tomcat//jar</dependency>
     <obsoletes>org.apache.geronimo.configs/tomcat//car</obsoletes>
+    <source-repository>http://geronimo.apache.org/plugins/geronimo-1.2/repository/</source-repository>
     <source-repository>http://www.geronimoplugins.com/repository/geronimo-1.1/</source-repository>
     <source-repository>http://www.ibiblio.org/maven2/</source-repository>
 </geronimo-plugin>

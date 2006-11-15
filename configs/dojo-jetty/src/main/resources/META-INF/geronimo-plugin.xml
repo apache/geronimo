@@ -42,5 +42,6 @@
         </description>
     </prerequisite>
     <dependency>org.apache.geronimo.configs/j2ee-server//car</dependency>
+    <source-repository>http://geronimo.apache.org/plugins/geronimo-1.2/repository/</source-repository>
     <source-repository>http://www.ibiblio.org/maven2/</source-repository>
 </geronimo-plugin>
