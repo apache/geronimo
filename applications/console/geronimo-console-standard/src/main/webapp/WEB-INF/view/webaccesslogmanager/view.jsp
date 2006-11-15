@@ -174,9 +174,8 @@ function <portlet:namespace/>refresh(){
             </td>
             <td>Requested URI:</td>
             <td><input type="text" name="requestedURI" value="${requestedURI}"/></td>
-            </td>
         <tr>
-            <td colspan="4" align="center">
+            <td colspan="4" align="left">
                 <input type="submit" value="Go"/>
             </td>
         </tr>
