@@ -17,7 +17,7 @@
     to <input type="text" name="endPos" value="${endPos}" size="3"/>
     Max Results <input type="text" name="maxRows" value="${maxRows}" size="3"/>
     Containing text <input type="text" name="searchString" value="${searchString}"/>
-    <input type="submit" value="Go"/>
+    <br/><input type="submit" value="Go"/>
     </form>
     </td>
 </tr>

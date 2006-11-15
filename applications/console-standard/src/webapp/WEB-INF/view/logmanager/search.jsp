@@ -78,7 +78,7 @@ function <portlet:namespace/>validateForm(){
     </select>
     Containing text <input type="text" name="searchString" value="${searchString}"/>
     With Exceptions <input type="checkbox" name="stackTraces" <c:if test="${!empty stackTraces}">CHECKED </c:if>/>
-    <input type="submit" value="Go"/>
+    <br/><input type="submit" value="Go"/>
     </form>
     </td>
 </tr>
