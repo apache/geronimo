@@ -173,9 +173,22 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         getNamingBuilders().buildEnvironment(webApp, tomcatWebApp, environment);
 
         // Note: logic elsewhere depends on the default artifact ID being the file name less extension (ConfigIDExtractor)
-        String warName = new File(moduleFile.getName()).getName();
-        if (warName.lastIndexOf('.') > -1) {
-            warName = warName.substring(0, warName.lastIndexOf('.'));
+        String warName = "";
+        File temp = new File(moduleFile.getName());
+        if(temp.isFile()) {
+            warName = temp.getName();
+            if(warName.lastIndexOf('.') > -1) {
+                warName = warName.substring(0, warName.lastIndexOf('.'));
+            }
+        } else {
+            try {
+                warName = temp.getCanonicalFile().getName();
+                if(warName.equals("")) {
+                    // Root directory
+                    warName = "$root-dir$";
+                }
+            } catch (IOException e) {
+            }
         }
         idBuilder.resolve(environment, warName, "war");
 
