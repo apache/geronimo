@@ -37,6 +37,7 @@
         <PlanDefaultSweepInterval>36000</PlanDefaultSweepInterval>
         <PlanDefaultNumPartitions>24</PlanDefaultNumPartitions>
         <PlanNbReplica>2</PlanNbReplica>
+        <EndPointURI>http://localhost:8080</EndPointURI>
         <PlanClusterName>DEFAULT_CLUSTER</PlanClusterName>
         <PlanInactiveTime>3600</PlanInactiveTime>
     </properties>

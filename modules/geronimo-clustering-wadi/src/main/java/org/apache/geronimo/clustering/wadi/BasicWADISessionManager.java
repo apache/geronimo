@@ -19,10 +19,8 @@ package org.apache.geronimo.clustering.wadi;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import javax.servlet.ServletContext;
@@ -56,11 +54,9 @@ import org.codehaus.wadi.impl.AbsoluteEvicter;
 import org.codehaus.wadi.impl.ClusterContextualiser;
 import org.codehaus.wadi.impl.ClusteredManager;
 import org.codehaus.wadi.impl.DummyContextualiser;
-import org.codehaus.wadi.impl.DummyReplicaterFactory;
 import org.codehaus.wadi.impl.HashingCollapser;
 import org.codehaus.wadi.impl.HybridRelocater;
 import org.codehaus.wadi.impl.MemoryContextualiser;
-import org.codehaus.wadi.impl.SerialContextualiser;
 import org.codehaus.wadi.impl.SerialContextualiserFrontingMemory;
 import org.codehaus.wadi.impl.SimpleSessionPool;
 import org.codehaus.wadi.impl.SimpleStreamer;
@@ -84,10 +80,12 @@ import org.codehaus.wadi.web.impl.DistributableAttributesFactory;
 import org.codehaus.wadi.web.impl.DistributableValueFactory;
 import org.codehaus.wadi.web.impl.DummyRouter;
 import org.codehaus.wadi.web.impl.DummyStatefulHttpServletRequestWrapperPool;
+import org.codehaus.wadi.web.impl.StandardHttpProxy;
 import org.codehaus.wadi.web.impl.StandardSessionWrapperFactory;
 import org.codehaus.wadi.web.impl.WebSessionToSessionPoolAdapter;
 
 import EDU.oswego.cs.dl.util.concurrent.Sync;
+import edu.emory.mathcs.backport.java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * 
@@ -101,28 +99,29 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
     private final ReplicaStorageFactory repStorageFactory;
     private final BackingStrategyFactory backingStrategyFactory;
     private final DispatcherHolder dispatcherHolder;
-    private final Set listeners;
+    private final CopyOnWriteArrayList listeners;
 
     private ClusteredManager manager;
     private BasicServiceSpace serviceSpace;
 
     public BasicWADISessionManager(WADISessionManagerConfigInfo configInfo,
-            ReplicationManagerFactory repManagerFactory, ReplicaStorageFactory repStorageFactory,
-            BackingStrategyFactory backingStrategyFactory, DispatcherHolder dispatcherHolder) {
+            ReplicationManagerFactory repManagerFactory, 
+            ReplicaStorageFactory repStorageFactory,
+            BackingStrategyFactory backingStrategyFactory, 
+            DispatcherHolder dispatcherHolder) {
         this.configInfo = configInfo;
         this.dispatcherHolder = dispatcherHolder;
         this.repManagerFactory = repManagerFactory;
         this.repStorageFactory = repStorageFactory;
         this.backingStrategyFactory = backingStrategyFactory;
 
-        listeners = new HashSet();
+        listeners = new CopyOnWriteArrayList();
     }
 
     public void doStart() throws Exception {
         Dispatcher underlyingDisp = dispatcherHolder.getDispatcher();
 
         serviceSpace = new BasicServiceSpace(new ServiceSpaceName(configInfo.getServiceSpaceURI()), underlyingDisp);
-        Dispatcher dispatcher = serviceSpace.getDispatcher();
 
         boolean strictOrdering = true;
         Streamer streamer = new SimpleStreamer();
@@ -134,18 +133,15 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
         Contextualiser contextualiser = new DummyContextualiser();
 
         // replica aware contextualiser
-//         ReplicationManager replicationManager = repManagerFactory.factory(serviceSpace, backingStrategyFactory);
-//         ReplicationManager sessionRepManager = new SessionReplicationManager(replicationManager, sessionPool);
-//         contextualiser = new ReplicaAwareContextualiser(contextualiser, sessionRepManager);
+         ReplicationManager replicationManager = repManagerFactory.factory(serviceSpace, backingStrategyFactory);
+         ReplicationManager sessionRepManager = new SessionReplicationManager(replicationManager, sessionPool);
+         contextualiser = new ReplicaAwareContextualiser(contextualiser, sessionRepManager);
 
         // cluster aware contextualiser
         contextualiser = new ClusterContextualiser(contextualiser, collapser, new HybridRelocater(5000, 5000, true));
 
-        contextualiser = new StatelessContextualiser(contextualiser, Pattern.compile("GET|POST", 2), true, Pattern
-                .compile(".*\\.(JPG|JPEG|GIF|PNG|ICO|HTML|HTM)", 2), false);
-
-        // serialize invocations bound to the same session id
-        contextualiser = new SerialContextualiser(contextualiser, collapser, mmap);
+        contextualiser = new StatelessContextualiser(contextualiser, Pattern.compile("GET|POST", 2), true, 
+                Pattern.compile(".*\\.(JPG|JPEG|GIF|PNG|ICO|HTML|HTM)", 2), false);
 
         // in-memory contextualiser
         Evicter mevicter = new AbsoluteEvicter(configInfo.getSweepInterval(), strictOrdering,
@@ -154,7 +150,7 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
         PoolableInvocationWrapperPool requestPool = new DummyStatefulHttpServletRequestWrapperPool();
         contextualiser = new MotionTracker(contextualiser, mevicter, mmap, streamer, contextPool, requestPool);
 
-        contextualiser = new SerialContextualiserFrontingMemory(contextualiser, new HashingCollapser(1024, 10000));
+        contextualiser = new SerialContextualiserFrontingMemory(contextualiser, collapser);
 
         // Manager
         manager = new ClusteredManager(sessionPool, 
@@ -168,11 +164,9 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
                 false, 
                 streamer, 
                 true,
-                new DummyReplicaterFactory(),
-//                new ReplicaterAdapterFactory(replicationManager, sessionPool),
-                null, 
-                null, 
-                dispatcher, 
+                new ReplicaterAdapterFactory(replicationManager, sessionPool),
+                new StandardHttpProxy("jsessionid"), 
+                serviceSpace, 
                 configInfo.getNumPartitions(), 
                 collapser);
 
@@ -186,8 +180,8 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
         });
 
         ServiceRegistry serviceRegistry = serviceSpace.getServiceRegistry();
-//        serviceRegistry.register(ReplicaStorage.NAME, repStorageFactory.factory(serviceSpace));
-//        serviceRegistry.register(ReplicationManager.NAME, replicationManager);
+        serviceRegistry.register(ReplicaStorage.NAME, repStorageFactory.factory(serviceSpace));
+        serviceRegistry.register(ReplicationManager.NAME, replicationManager);
         serviceRegistry.register(ClusteredManager.NAME, manager);
 
         serviceSpace.start();
@@ -224,32 +218,24 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
     }
 
     public void registerListener(SessionListener listener) {
-        synchronized (listeners) {
-            listeners.add(listener);
-        }
+        listeners.add(listener);
     }
 
     public void unregisterListener(SessionListener listener) {
-        synchronized (listeners) {
-            listeners.remove(listener);
-        }
+        listeners.remove(listener);
     }
 
     private void notifyInboundSessionMigration(WebSession webSession) {
-        synchronized (listeners) {
-            for (Iterator iter = listeners.iterator(); iter.hasNext();) {
-                SessionListener listener = (SessionListener) iter.next();
-                listener.notifyInboundSessionMigration(new WADISessionAdaptor(webSession));
-            }
+        for (Iterator iter = listeners.iterator(); iter.hasNext();) {
+            SessionListener listener = (SessionListener) iter.next();
+            listener.notifyInboundSessionMigration(new WADISessionAdaptor(webSession));
         }
     }
 
     private WebSession notifyOutboundSessionMigration(WebSession webSession) {
-        synchronized (listeners) {
-            for (Iterator iter = listeners.iterator(); iter.hasNext();) {
-                SessionListener listener = (SessionListener) iter.next();
-                listener.notifyOutboundSessionMigration(new WADISessionAdaptor(webSession));
-            }
+        for (Iterator iter = listeners.iterator(); iter.hasNext();) {
+            SessionListener listener = (SessionListener) iter.next();
+            listener.notifyOutboundSessionMigration(new WADISessionAdaptor(webSession));
         }
         return webSession;
     }

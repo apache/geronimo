@@ -30,6 +30,7 @@
     </gbean>
 
     <gbean name="DefaultDispatcherHolder" class="org.apache.geronimo.clustering.wadi.TribesDispatcherHolder">
+        <attribute name="endPointURI">${EndPointURI}</attribute>
         <attribute name="clusterName">${PlanClusterName}</attribute>
         <attribute name="inactiveTime">${PlanInactiveTime}</attribute>
         <reference name="Node">

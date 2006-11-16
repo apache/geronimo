@@ -34,6 +34,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jetty.HandleInterceptor;
 import org.apache.geronimo.jetty.cluster.AbstractClusteredHandleInterceptor;
 import org.codehaus.wadi.InvocationException;
+import org.codehaus.wadi.InvocationProxy;
 import org.codehaus.wadi.impl.ClusteredManager;
 import org.codehaus.wadi.web.impl.WebInvocation;
 import org.mortbay.http.HttpRequest;
@@ -83,7 +84,7 @@ public class WADIClusteredHandleInterceptor extends AbstractClusteredHandleInter
             ServletHttpRequest servletHttpRequest = (ServletHttpRequest) request.getWrapper();
             ServletHttpResponse servletHttpResponse = (ServletHttpResponse) response.getWrapper();
 
-            WebInvocation invocation = WebInvocation.getThreadLocalInstance();
+            WebInvocation invocation = new WebInvocation();
             FilterChain chainAdapter = new FilterChain() {
                 public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
                     try {
@@ -93,7 +94,8 @@ public class WADIClusteredHandleInterceptor extends AbstractClusteredHandleInter
                     }
                 }
             };
-            invocation.init(servletHttpRequest, servletHttpResponse, chainAdapter);
+            InvocationProxy invocationProxy = wadiManager.getInvocationProxy();
+            invocation.init(servletHttpRequest, servletHttpResponse, chainAdapter, invocationProxy);
             try {
                 wadiManager.contextualise(invocation);
             } catch (InvocationException e) {

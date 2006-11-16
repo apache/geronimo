@@ -17,6 +17,8 @@
  */
 package org.apache.geronimo.clustering.wadi;
 
+import java.net.URI;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.clustering.Node;
@@ -27,6 +29,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.codehaus.wadi.group.Dispatcher;
 import org.codehaus.wadi.group.MessageExchangeException;
 import org.codehaus.wadi.tribes.TribesDispatcher;
+import org.codehaus.wadi.web.impl.URIEndPoint;
 
 /**
  *
@@ -35,20 +38,32 @@ import org.codehaus.wadi.tribes.TribesDispatcher;
 public class TribesDispatcherHolder implements GBeanLifecycle, DispatcherHolder {
     private static final Log log = LogFactory.getLog(TribesDispatcherHolder.class); 
     
+    private final URI endPointURI;
     private final String clusterName;
     private final long inactiveTime;
     private final Node node;
 
     private TribesDispatcher dispatcher;
 
-    public TribesDispatcherHolder(String clusterName, long inactiveTime, Node node) {
+
+    public TribesDispatcherHolder(URI endPointURI, String clusterName, long inactiveTime, Node node) {
+        if (null == endPointURI) {
+            throw new IllegalArgumentException("endPointURI is required");
+        } else if (null == clusterName) {
+            throw new IllegalArgumentException("clusterName is required");
+        } else if (0 > inactiveTime) {
+            throw new IllegalArgumentException("inactiveTime must be > 0");
+        } else if (null == node) {
+            throw new IllegalArgumentException("node is required");
+        }
+        this.endPointURI = endPointURI;
         this.clusterName = clusterName;
         this.inactiveTime = inactiveTime;
         this.node = node;
     }
 
     public void doStart() throws Exception {
-        dispatcher = new TribesDispatcher(clusterName, node.getName(), inactiveTime, null);
+        dispatcher = new TribesDispatcher(clusterName, node.getName(), new URIEndPoint(endPointURI), inactiveTime, null);
         dispatcher.start();
     }
 
@@ -75,6 +90,7 @@ public class TribesDispatcherHolder implements GBeanLifecycle, DispatcherHolder 
     
     public static final GBeanInfo GBEAN_INFO;
     
+    public static final String GBEAN_ATTR_END_POINT_URI = "endPointURI";
     public static final String GBEAN_ATTR_CLUSTER_NAME = "clusterName";
     public static final String GBEAN_ATTR_CLUSTER_URI = "clusterUri";
     public static final String GBEAN_ATTR_INACTIVE_TIME = "inactiveTime";
@@ -85,6 +101,7 @@ public class TribesDispatcherHolder implements GBeanLifecycle, DispatcherHolder 
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(TribesDispatcherHolder.class, 
                 NameFactory.GERONIMO_SERVICE);
         
+        infoBuilder.addAttribute(GBEAN_ATTR_END_POINT_URI, URI.class, true);
         infoBuilder.addAttribute(GBEAN_ATTR_CLUSTER_NAME, String.class, true);
         infoBuilder.addAttribute(GBEAN_ATTR_INACTIVE_TIME, long.class, true);
         
@@ -92,7 +109,9 @@ public class TribesDispatcherHolder implements GBeanLifecycle, DispatcherHolder 
 
         infoBuilder.addInterface(DispatcherHolder.class);
         
-        infoBuilder.setConstructor(new String[] { GBEAN_ATTR_CLUSTER_NAME, 
+        infoBuilder.setConstructor(new String[] {
+                GBEAN_ATTR_END_POINT_URI,
+                GBEAN_ATTR_CLUSTER_NAME, 
                 GBEAN_ATTR_INACTIVE_TIME, 
                 GBEAN_REF_NODE });
         
