@@ -17,17 +17,26 @@
             <td colspan="5" style="padding-top: 10px"><b><c:out value="${resource.name}"/> (<c:out value="${resource.configurationName}"/>)</b></td>
         </tr>
         <tr>
-          <td class="DarkBackground">Type</td>
-          <td class="DarkBackground">Name</td>
-          <td class="DarkBackground" align="center">Deployed As</td>
-          <td class="DarkBackground" align="center">State</td>
-          <td class="DarkBackground" align="center">Actions</td>
+          <th class="DarkBackground">Type</th>
+          <th class="DarkBackground">Name</th>
+          <th class="DarkBackground" align="center">Deployed As</th>
+          <th class="DarkBackground" align="center">State</th>
+          <th class="DarkBackground" align="center">Actions</th>
         </tr>
+        <c:set var="backgroundClass" value='MediumBackground'/>
         <c:forEach var="factory" items="${resource.connectionFactories}">
+            <c:choose>
+                <c:when test="${backgroundClass == 'MediumBackground'}" >
+                    <c:set var="backgroundClass" value='LightBackground'/>
+                </c:when>
+                <c:otherwise>
+                    <c:set var="backgroundClass" value='MediumBackground'/>
+                </c:otherwise>
+            </c:choose>
             <tr>
-              <td>Connection Factory</td>
-              <td>${factory.name}</td>
-              <td>
+              <td class="${backgroundClass}">Connection Factory</td>
+              <td class="${backgroundClass}">${factory.name}</td>
+              <td class="${backgroundClass}">
                 <c:choose>
                   <c:when test="${empty resource.parentName}">
                     Server-wide
@@ -37,8 +46,8 @@
                   </c:otherwise>
                 </c:choose>
               </td>
-              <td>${factory.stateName}</td>
-              <td>
+              <td class="${backgroundClass}">${factory.stateName}</td>
+              <td class="${backgroundClass}">
                 <%--
                 <a href="<portlet:actionURL portletMode="view">
                   <portlet:param name="mode" value="editExisting" />
@@ -57,10 +66,18 @@
             </tr>
         </c:forEach>
         <c:forEach var="admin" items="${resource.adminObjects}">
+            <c:choose>
+                <c:when test="${backgroundClass == 'MediumBackground'}" >
+                    <c:set var="backgroundClass" value='LightBackground'/>
+                </c:when>
+                <c:otherwise>
+                    <c:set var="backgroundClass" value='MediumBackground'/>
+                </c:otherwise>
+            </c:choose>
             <tr>
-              <td>${admin.type}</td>
-              <td>${admin.name}</td>
-              <td>
+              <td class="${backgroundClass}">${admin.type}</td>
+              <td class="${backgroundClass}">${admin.name}</td>
+              <td class="${backgroundClass}">
                 <c:choose>
                   <c:when test="${empty resource.parentName}">
                     Server-wide
@@ -70,8 +87,8 @@
                   </c:otherwise>
                 </c:choose>
               </td>
-              <td>${admin.stateName}</td>
-              <td>
+              <td class="${backgroundClass}">${admin.stateName}</td>
+              <td class="${backgroundClass}">
                 <%--
                 <a href="<portlet:actionURL portletMode="view">
                   <portlet:param name="mode" value="editExisting" />

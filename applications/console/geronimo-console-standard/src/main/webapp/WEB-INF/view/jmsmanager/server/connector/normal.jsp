@@ -11,21 +11,30 @@
   <tr>
     <td style="padding: 0 20px">
           <tr>
-            <td class="DarkBackground">Name</td>
-            <td class="DarkBackground" align="center">Broker</td>
-            <td class="DarkBackground" align="center">Protocol</td>
-            <td class="DarkBackground" align="center">Port</td>
-            <td class="DarkBackground" align="center">State</td>
-            <td class="DarkBackground" align="center">Actions</td>
+            <th class="DarkBackground">Name</th>
+            <th class="DarkBackground" align="center">Broker</th>
+            <th class="DarkBackground" align="center">Protocol</th>
+            <th class="DarkBackground" align="center">Port</th>
+            <th class="DarkBackground" align="center">State</th>
+            <th class="DarkBackground" align="center">Actions</th>
           </tr>
+<c:set var="backgroundClass" value='MediumBackground'/>
 <c:forEach var="info" items="${connectors}">
+          <c:choose>
+              <c:when test="${backgroundClass == 'MediumBackground'}" >
+                  <c:set var="backgroundClass" value='LightBackground'/>
+              </c:when>
+              <c:otherwise>
+                  <c:set var="backgroundClass" value='MediumBackground'/>
+              </c:otherwise>
+          </c:choose>
           <tr>
-            <td>${info.connectorName}</td>
-            <td>${info.brokerName}</td>
-            <td>${info.connector.protocol}</td>
-            <td>${info.connector.port}</td>
-            <td>${info.connector.stateInstance}</td>
-            <td>
+            <td class="${backgroundClass}">${info.connectorName}</td>
+            <td class="${backgroundClass}">${info.brokerName}</td>
+            <td class="${backgroundClass}">${info.connector.protocol}</td>
+            <td class="${backgroundClass}">${info.connector.port}</td>
+            <td class="${backgroundClass}">${info.connector.stateInstance}</td>
+            <td class="${backgroundClass}">
              <c:choose>
                <c:when test="${info.connector.stateInstance.name eq 'running'}">
                <a href="<portlet:actionURL portletMode="view">

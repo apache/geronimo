@@ -8,15 +8,24 @@ on migrating the different components of Geronimo toward these thread pools.</i>
 
 <table width="100%">
   <tr>
-    <td class="DarkBackground">Name</td>
-    <td class="DarkBackground" align="center">Size</td>
-    <td class="DarkBackground" align="center">Actions</td>
+    <th class="DarkBackground">Name</th>
+    <th class="DarkBackground" align="center">Size</th>
+    <th class="DarkBackground" align="center">Actions</th>
   </tr>
+<c:set var="backgroundClass" value='MediumBackground'/>
 <c:forEach var="pool" items="${pools}">
+  <c:choose>
+      <c:when test="${backgroundClass == 'MediumBackground'}" >
+          <c:set var="backgroundClass" value='LightBackground'/>
+      </c:when>
+      <c:otherwise>
+          <c:set var="backgroundClass" value='MediumBackground'/>
+      </c:otherwise>
+  </c:choose>
   <tr>
-    <td>${pool.name}</td>
-    <td>${pool.poolSize}</td>
-    <td>
+    <td class="${backgroundClass}">${pool.name}</td>
+    <td class="${backgroundClass}">${pool.poolSize}</td>
+    <td class="${backgroundClass}">
       <a href="<portlet:actionURL portletMode="view">
         <portlet:param name="mode" value="monitor-before" />
         <portlet:param name="abstractName" value="${pool.abstractName}" />

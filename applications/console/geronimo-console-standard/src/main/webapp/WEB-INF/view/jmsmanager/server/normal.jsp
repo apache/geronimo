@@ -10,18 +10,27 @@
 <table width="50%">
   <tr><td style="padding: 0 20px"></td></tr>
           <tr>
-            <td class="DarkBackground">Name</td>
-            <td class="DarkBackground" align="center">State</td>
+            <th class="DarkBackground">Name</th>
+            <th class="DarkBackground" align="center">State</th>
 <!--
-            <td class="DarkBackground" align="center">Actions</td>
+            <th class="DarkBackground" align="center">Actions</th>
 -->
           </tr>
+<c:set var="backgroundClass" value='MediumBackground'/>
 <c:forEach var="entry" items="${brokers}">
+          <c:choose>
+              <c:when test="${backgroundClass == 'MediumBackground'}" >
+                  <c:set var="backgroundClass" value='LightBackground'/>
+              </c:when>
+              <c:otherwise>
+                  <c:set var="backgroundClass" value='MediumBackground'/>
+              </c:otherwise>
+          </c:choose>
           <tr>
-            <td>${entry.brokerName}</td>
-            <td>${entry.broker.stateInstance}</td>
+            <td class="${backgroundClass}">${entry.brokerName}</td>
+            <td class="${backgroundClass}">${entry.broker.stateInstance}</td>
 <!--
-            <td>
+            <td class="${backgroundClass}">
              <c:choose>
                <c:when test="${entry.broker.stateInstance.name eq 'running'}">
                <a href="<portlet:actionURL portletMode="view">

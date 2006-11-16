@@ -1,23 +1,33 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <portlet:defineObjects/>
-<table width="100%">
+<table width="50%" cellspacing="5">
     ${message}
 	<tr>
-		<td><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="new"/></portlet:actionURL>">Create New Group</a> </td>
-		<td >&nbsp;</td>
+        <td><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="new"/></portlet:actionURL>">Create New Group</a></td>
+        <td></td>
 	</tr>
-        <tr>
-            <td width="100">Group Name</td>
-            <td>&nbsp;</td>
-        </tr>
+    <tr class="DarkBackground">
+        <th>Group Name</th>
+        <th>Actions</th>
+    </tr>
+    <c:set var="backgroundClass" value='MediumBackground'/>
     <c:forEach var="group" items="${groupsInfo}">
-        <form action="<portlet:actionURL></portlet:actionURL>">
-        <input type="hidden" name="action" value="update">
-        <input type="hidden" name="group" value="${group.key}">
+        <c:choose>
+            <c:when test="${backgroundClass == 'MediumBackground'}" >
+                <c:set var="backgroundClass" value='LightBackground'/>
+            </c:when>
+            <c:otherwise>
+                <c:set var="backgroundClass" value='MediumBackground'/>
+            </c:otherwise>
+        </c:choose>
         <tr>
-            <td width="100"><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="edit"/><portlet:param name="group" value="${group.key}"/></portlet:actionURL>">${group.key}</a></td>
-            <td><a href="<portlet:actionURL><portlet:param name="group" value="${group.key}"/><portlet:param name="action" value="delete"/></portlet:actionURL>" onclick="return confirm('Confirm Delete group ${group.key}?');">Delete</a></td>
+            <td class="${backgroundClass}"> ${group.key} </td>
+            <td class="${backgroundClass}">
+            <a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="edit"/><portlet:param name="group" value="${group.key}"/></portlet:actionURL>">Details</a>
+            &nbsp;
+            <a href="<portlet:actionURL><portlet:param name="group" value="${group.key}"/><portlet:param name="action" value="delete"/></portlet:actionURL>" onclick="return confirm('Confirm Delete group ${group.key}?');">Delete</a>
+            </td>
         </tr>
         </form>
     </c:forEach>

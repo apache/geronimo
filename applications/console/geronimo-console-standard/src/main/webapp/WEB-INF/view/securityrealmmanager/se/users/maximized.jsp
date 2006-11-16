@@ -27,25 +27,33 @@ function isEmptyString(value){
     return value.length < 1;
 }
 </script>
-<table width="100%" cellspacing="5">
+<table width="50%" cellspacing="5">
     ${message}
 	<tr>
 		<td><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="new"/></portlet:actionURL>">Create New User</a> </td>
 		<td></td>
 	</tr>
-        <tr>
-            <td>Username</td>
-            <td>&nbsp;</td>
-        </tr>
-     <c:set var="count" value="1"/>
+    <tr class="DarkBackground">
+        <th>Username</th>
+        <th>Actions</th>
+    </tr>
+    <c:set var="backgroundClass" value='MediumBackground'/>
     <c:forEach var="user" items="${userInfo}">
+        <c:choose>
+            <c:when test="${backgroundClass == 'MediumBackground'}" >
+                <c:set var="backgroundClass" value='LightBackground'/>
+            </c:when>
+            <c:otherwise>
+                <c:set var="backgroundClass" value='MediumBackground'/>
+            </c:otherwise>
+        </c:choose>
         <tr>
-            <td width="100">
-            <a href = "<portlet:actionURL portletMode="view"><portlet:param name="action" value="edit"/><portlet:param name="userId" value="${user.key}"/></portlet:actionURL>">
-            ${user.key}
-            </a>
+            <td class="${backgroundClass}"> ${user.key} </td>
+            <td class="${backgroundClass}">
+            <a href = "<portlet:actionURL portletMode="view"><portlet:param name="action" value="edit"/><portlet:param name="userId" value="${user.key}"/></portlet:actionURL>">Details</a>
+            &nbsp;
+            <a href="<portlet:actionURL><portlet:param name="userId" value="${user.key}"/><portlet:param name="action" value="delete"/></portlet:actionURL>" onclick="return confirm('Confirm Delete user ${user.key}?');">Delete</a>
             </td>
-            <td><a href="<portlet:actionURL><portlet:param name="userId" value="${user.key}"/><portlet:param name="action" value="delete"/></portlet:actionURL>" onclick="return confirm('Confirm Delete user ${user.key}?');">Delete</a></td>
         </tr>
     </c:forEach>
     

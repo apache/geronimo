@@ -12,15 +12,24 @@
 
 <table width="100%">
   <tr>
-    <td class="DarkBackground">Name</td>
-    <td class="DarkBackground" align="center">Deployed As</td>
-    <td class="DarkBackground" align="center">State</td>
-    <td class="DarkBackground" align="center">Actions</td>
+    <th class="DarkBackground" align="left">Name</th>
+    <th class="DarkBackground" align="center">Deployed As</th>
+    <th class="DarkBackground" align="center">State</th>
+    <th class="DarkBackground" align="center">Actions</th>
   </tr>
+<c:set var="backgroundClass" value='MediumBackground'/>
 <c:forEach var="pool" items="${pools}">
+  <c:choose>
+      <c:when test="${backgroundClass == 'MediumBackground'}" >
+          <c:set var="backgroundClass" value='LightBackground'/>
+      </c:when>
+      <c:otherwise>
+          <c:set var="backgroundClass" value='MediumBackground'/>
+      </c:otherwise>
+  </c:choose>
   <tr>
-    <td>${pool.name}</td>
-    <td>
+    <td class="${backgroundClass}">${pool.name}</td>
+    <td class="${backgroundClass}">
       <c:choose>
         <c:when test="${empty pool.parentName}">
           Server-wide
@@ -30,8 +39,8 @@
         </c:otherwise>
       </c:choose>
     </td>
-    <td>${pool.stateName}</td>
-    <td>
+    <td class="${backgroundClass}">${pool.stateName}</td>
+    <td class="${backgroundClass}">
          <%--<c:choose>
                <c:when test="${info.stateName eq 'running'}">
                <a href="<portlet:actionURL portletMode="view">

@@ -14,20 +14,29 @@
           <c:otherwise>
 <table width="100%">
           <tr>
-            <td class="DarkBackground">Name</td>
-            <td class="DarkBackground" align="center">Protocol</td>
-            <td class="DarkBackground" align="center">Port</td>
-            <td class="DarkBackground" align="center">State</td>
-            <td class="DarkBackground" align="center">Actions</td>
-            <td class="DarkBackground" align="center">Type</td>
+            <th class="DarkBackground" align="left">Name</th>
+            <th class="DarkBackground" align="center">Protocol</th>
+            <th class="DarkBackground" align="center">Port</th>
+            <th class="DarkBackground" align="center">State</th>
+            <th class="DarkBackground" align="center">Actions</th>
+            <th class="DarkBackground" align="center">Type</th>
           </tr>
+<c:set var="backgroundClass" value='MediumBackground'/>
 <c:forEach var="info" items="${container.connectors}">
+      <c:choose>
+          <c:when test="${backgroundClass == 'MediumBackground'}" >
+              <c:set var="backgroundClass" value='LightBackground'/>
+          </c:when>
+          <c:otherwise>
+              <c:set var="backgroundClass" value='MediumBackground'/>
+          </c:otherwise>
+      </c:choose>
           <tr>
-            <td>${info.displayName}</td>
-            <td>${info.protocol}</td>
-            <td>${info.port}</td>
-            <td>${info.stateName}</td>
-            <td>
+            <td class="${backgroundClass}">${info.displayName}</td>
+            <td class="${backgroundClass}">${info.protocol}</td>
+            <td class="${backgroundClass}">${info.port}</td>
+            <td class="${backgroundClass}">${info.stateName}</td>
+            <td class="${backgroundClass}">
              <c:choose>
                <c:when test="${info.stateName eq 'running'}">
                <a href="<portlet:actionURL portletMode="view">
@@ -61,7 +70,7 @@
                  <portlet:param name="containerURI" value="${container.containerURI}" />
                </portlet:actionURL>" onClick="return confirm('Are you sure you want to delete ${info.displayName}?');">delete</a>
             </td>
-            <td>${info.description}</td>
+            <td class="${backgroundClass}">${info.description}</td>
           </tr>
 </c:forEach>
 </table>

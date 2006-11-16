@@ -16,7 +16,7 @@
    </tr>
 
 </c:if>
-<tr>
+<tr class="DarkBackground">
   <th>
      Message Destination Name
   </th>
@@ -36,25 +36,34 @@
      Actions
   </th>
 </tr>
+  <c:set var="backgroundClass" value='MediumBackground'/>
   <c:forEach var="destination" items="${destinations}">
+  <c:choose>
+      <c:when test="${backgroundClass == 'MediumBackground'}" >
+          <c:set var="backgroundClass" value='LightBackground'/>
+      </c:when>
+      <c:otherwise>
+          <c:set var="backgroundClass" value='MediumBackground'/>
+      </c:otherwise>
+  </c:choose>
   <tr>
-      <td  align=CENTER>
+      <td class="${backgroundClass}" align=CENTER>
             <c:out value="${destination.name}"/>
       </td>
-      <td  align=CENTER>
+      <td class="${backgroundClass}" align=CENTER>
             <c:out value="${destination.physicalName}"/>
       </td>
-      <td  align=CENTER>
+      <td class="${backgroundClass}" align=CENTER>
             <c:out value="${destination.type}"/>
             &nbsp;
       </td>
-      <td  align=CENTER>
+      <td class="${backgroundClass}" align=CENTER>
             <c:out value="${destination.applicationName}"/>
       </td>
-      <td  align=CENTER>
+      <td class="${backgroundClass}" align=CENTER>
             <c:out value="${destination.moduleName}"/>
       </td>
-      <td  align=CENTER>
+      <td class="${backgroundClass}" align=CENTER>
 		<table border="0">
 		<tr>
          <td>
