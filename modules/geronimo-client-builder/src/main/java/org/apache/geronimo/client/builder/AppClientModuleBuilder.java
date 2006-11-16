@@ -45,6 +45,7 @@ import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
+import org.apache.geronimo.deployment.service.GBeanBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.util.NestedJarFile;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
@@ -169,7 +170,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         this.repositories = repositories;
         this.connectorModuleBuilder = connectorModuleBuilder;
         this.securityBuilder = securityBuilder;
-        this.serviceBuilder = new NamespaceDrivenBuilderCollection(serviceBuilder);
+        this.serviceBuilder = new NamespaceDrivenBuilderCollection(serviceBuilder, GBeanBuilder.SERVICE_QNAME);
         this.namingBuilders = new NamingBuilderCollection(namingBuilders, GerAbstractNamingEntryDocument.type.getDocumentElementName());
     }
 

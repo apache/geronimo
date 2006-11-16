@@ -165,9 +165,12 @@ public class PersistenceUnitBuilder implements NamespaceDrivenBuilder {
         }
     }
 
-    public String getNamespace() {
-        XmlBeansUtil.registerSubstitutionGroupElements(ServiceDocument.type.getDocumentElementName(), QNameSet.singleton(PERSISTENCE_QNAME));
-        return PERSISTENCE_QNAME.getNamespaceURI();
+    public QNameSet getSpecQNameSet() {
+        return QNameSet.EMPTY;
+    }
+
+    public QNameSet getPlanQNameSet() {
+        return QNameSet.singleton(PERSISTENCE_QNAME);
     }
 
     public static final GBeanInfo GBEAN_INFO;

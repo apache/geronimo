@@ -30,6 +30,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.QNameSet;
+import org.apache.xmlbeans.XmlException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.common.DeploymentException;
@@ -83,13 +84,18 @@ public class GeronimoSecurityBuilderImpl implements SecurityBuilder {
             throw new DeploymentException("Unexpected count of security elements in geronimo plan " + items.length + " qnameset: " + SECURITY_QNAME_SET);
         }
         if (items.length == 1) {
-            GerSecurityType securityType = (GerSecurityType) items[0].copy().changeType(GerSecurityType.type);
+            GerSecurityType securityType;
+            try {
+                securityType = (GerSecurityType) XmlBeansUtil.typedCopy(items[0], GerSecurityType.type);
+            } catch (XmlException e) {
+                throw new DeploymentException("Could not validate security element", e);
+            }
             Security security = buildSecurityConfig(securityType);
             ClassLoader classLoader = applicationContext.getClassLoader();
             SecurityConfiguration securityConfiguration = buildSecurityConfiguration(security, classLoader);
             earContext.setSecurityConfiguration(securityConfiguration);
         }
-        //add the JACC gbean if there is a principal-role mapping and we are on the corect module
+        //add the JACC gbean if there is a principal-role mapping and we are on the correct module
         if (earContext.getSecurityConfiguration() != null && applicationContext == moduleContext) {
             Naming naming = earContext.getNaming();
             GBeanData roleMapperData = configureRoleMapper(naming, earContext.getModuleName(), earContext.getSecurityConfiguration());
@@ -107,12 +113,6 @@ public class GeronimoSecurityBuilderImpl implements SecurityBuilder {
             }
             earContext.setJaccManagerName(jaccBeanData.getAbstractName());
         }
-    }
-
-    public String getNamespace() {
-        XmlBeansUtil.registerSubstitutionGroupElements(org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument.type.getDocumentElementName(), SECURITY_QNAME_SET);
-
-        return GerSecurityDocument.type.getDocumentElementName().getLocalPart();
     }
 
     private static SecurityConfiguration buildSecurityConfiguration(Security security, ClassLoader classLoader) {
@@ -317,6 +317,14 @@ public class GeronimoSecurityBuilderImpl implements SecurityBuilder {
 
     }
 
+    public QNameSet getSpecQNameSet() {
+        return QNameSet.EMPTY;
+    }
+
+    public QNameSet getPlanQNameSet() {
+        return SECURITY_QNAME_SET;
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -331,6 +339,5 @@ public class GeronimoSecurityBuilderImpl implements SecurityBuilder {
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
-
 
 }

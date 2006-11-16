@@ -50,6 +50,7 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
+import org.apache.geronimo.deployment.service.GBeanBuilder;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.deployment.xbeans.ServiceDocument;
 import org.apache.geronimo.gbean.AbstractName;
@@ -120,8 +121,8 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
 
     protected AbstractWebModuleBuilder(Kernel kernel, Collection securityBuilders, Collection serviceBuilders, NamingBuilder namingBuilders, ResourceEnvironmentSetter resourceEnvironmentSetter) {
         this.kernel = kernel;
-        this.securityBuilders = new NamespaceDrivenBuilderCollection(securityBuilders);
-        this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders);
+        this.securityBuilders = new NamespaceDrivenBuilderCollection(securityBuilders, GerSecurityDocument.type.getDocumentElementName());
+        this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders, GBeanBuilder.SERVICE_QNAME);
         this.namingBuilders = namingBuilders;
         this.resourceEnvironmentSetter = resourceEnvironmentSetter;
     }

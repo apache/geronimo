@@ -68,6 +68,7 @@ import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
+import org.apache.geronimo.deployment.service.GBeanBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
@@ -157,7 +158,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         this.defaultIdleTimeoutMinutes = defaultIdleTimeoutMinutes;
         this.defaultXATransactionCaching = defaultXATransactionCaching;
         this.defaultXAThreadCaching = defaultXAThreadCaching;
-        this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders);
+        this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders, GBeanBuilder.SERVICE_QNAME);
     }
 
     public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {

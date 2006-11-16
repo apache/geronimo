@@ -18,16 +18,11 @@
 
 package org.apache.geronimo.deployment;
 
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Collection;
-import java.util.List;
-import java.util.Collections;
+import java.util.Iterator;
 
-import org.apache.geronimo.gbean.ReferenceCollection;
-import org.apache.geronimo.gbean.ReferenceCollectionListener;
-import org.apache.geronimo.gbean.ReferenceCollectionEvent;
+import javax.xml.namespace.QName;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.xmlbeans.XmlObject;
@@ -35,39 +30,10 @@ import org.apache.xmlbeans.XmlObject;
 /**
  * @version $Rev$ $Date$
  */
-public class NamespaceDrivenBuilderCollection {
+public class NamespaceDrivenBuilderCollection extends AbstractBuilderCollection {
 
-    private final Collection builders;
-    private final Set namespaces = new HashSet();
-
-    public NamespaceDrivenBuilderCollection(Collection builders) {
-        this.builders = builders == null? Collections.EMPTY_SET: builders;
-        if (builders instanceof ReferenceCollection) {
-            ((ReferenceCollection)builders).addReferenceCollectionListener(new ReferenceCollectionListener() {
-
-                public void memberAdded(ReferenceCollectionEvent event) {
-                    addBuilder(event.getMember());
-                }
-
-                public void memberRemoved(ReferenceCollectionEvent event) {
-                    Object builder = event.getMember();
-                    String namespace = ((NamespaceDrivenBuilder)builder).getNamespace();
-                    namespaces.remove(namespace);
-                }
-            });
-        }
-        for (Iterator iterator = this.builders.iterator(); iterator.hasNext();) {
-            Object builder = iterator.next();
-            addBuilder(builder);
-        }
-    }
-
-    private void addBuilder(Object builder) {
-        String namespace = ((NamespaceDrivenBuilder)builder).getNamespace();
-        if (namespaces.contains(namespace)) {
-            throw new IllegalArgumentException("Duplicate namespace in builder set: " + namespace);
-        }
-        namespaces.add(namespace);                                                                   
+    public NamespaceDrivenBuilderCollection(Collection builders, final QName basePlanElementName) {
+        super(builders, basePlanElementName);
     }
 
     public void buildEnvironment(XmlObject container, Environment environment) throws DeploymentException {
@@ -84,6 +50,4 @@ public class NamespaceDrivenBuilderCollection {
         }
     }
 
-    public void addLoaders(List loaderList) {
-    }
 }

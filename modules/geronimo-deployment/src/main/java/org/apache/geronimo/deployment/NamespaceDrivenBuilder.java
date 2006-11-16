@@ -28,12 +28,10 @@ import org.apache.geronimo.kernel.repository.Environment;
 /**
  * @version $Rev$ $Date$
  */
-public interface NamespaceDrivenBuilder {
+public interface NamespaceDrivenBuilder extends AbstractNamespaceBuilder {
 
     void buildEnvironment(XmlObject container, Environment environment) throws DeploymentException;
  
     void build(XmlObject container, DeploymentContext applicationContext, DeploymentContext moduleContext) throws DeploymentException;
-
-    String getNamespace();
 
 }

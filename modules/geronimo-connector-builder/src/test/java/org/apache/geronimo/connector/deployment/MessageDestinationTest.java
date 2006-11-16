@@ -232,11 +232,13 @@ public class MessageDestinationTest extends TestCase {
             "<message-destination-ref>" +
             "  <message-destination-ref-name>n1</message-destination-ref-name>" +
             "  <message-destination-type>java.lang.Object</message-destination-type>" +
+            "  <message-destination-usage>Consumes</message-destination-usage>" +
             "  <message-destination-link>d1</message-destination-link>" +
             "</message-destination-ref>" +
             "<message-destination-ref>" +
             "  <message-destination-ref-name>n2</message-destination-ref-name>" +
             "  <message-destination-type>java.lang.Object</message-destination-type>" +
+            "  <message-destination-usage>Consumes</message-destination-usage>" +
             "  <message-destination-link>d2</message-destination-link>" +
             "</message-destination-ref>" +
             "</tmp>";

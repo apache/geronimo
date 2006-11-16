@@ -18,17 +18,15 @@
  */
 
 
-package org.apache.geronimo.naming.deployment;
+package org.apache.geronimo.deployment;
 
-import org.apache.xmlbeans.XmlObject;
-import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
-import org.apache.geronimo.common.DeploymentException;
+import org.apache.xmlbeans.QNameSet;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev:$ $Date:$
  */
-public interface ResourceEnvironmentSetter {
+public interface AbstractNamespaceBuilder {
+    QNameSet getSpecQNameSet();
 
-    void setResourceEnvironment(ResourceEnvironmentBuilder builder, XmlObject[] resourceRefs, GerResourceRefType[] gerResourceRefs) throws DeploymentException;
-
+    QNameSet getPlanQNameSet();
 }

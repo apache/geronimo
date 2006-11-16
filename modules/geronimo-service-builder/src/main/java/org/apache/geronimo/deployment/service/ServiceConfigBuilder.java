@@ -94,7 +94,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         this.defaultEnvironment = defaultEnvironment;
 
         this.repositories = repositories;
-        this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders);
+        this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders, GBeanBuilder.SERVICE_QNAME);
     }
 
     public Object getDeploymentPlan(File planFile, JarFile jarFile, ModuleIDBuilder idBuilder) throws DeploymentException {

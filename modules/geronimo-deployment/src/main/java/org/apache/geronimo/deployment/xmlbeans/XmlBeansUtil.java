@@ -177,6 +177,12 @@ public class XmlBeansUtil {
         return container.selectChildren(substitutionGroupMembers);
     }
 
+    public static XmlObject typedCopy(XmlObject in, SchemaType type) throws XmlException {
+        XmlObject out = in.copy().changeType(type);
+        validateDD(out);
+        return out;
+    }
+
     public static void validateDD(XmlObject dd) throws XmlException {
         XmlOptions xmlOptions = new XmlOptions();
         xmlOptions.setLoadLineNumbers();

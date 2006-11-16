@@ -29,6 +29,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.deployment.Module;
@@ -41,6 +42,7 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlException;
 
 /**
  * @version $Rev$ $Date$
@@ -92,7 +94,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         return QNameSet.forSets(null, Collections.EMPTY_SET, Collections.EMPTY_SET, qnames);
     }
 
-    protected XmlObject[] convert(XmlObject[] xmlObjects, NamespaceElementConverter converter, SchemaType type) {
+    protected XmlObject[] convert(XmlObject[] xmlObjects, NamespaceElementConverter converter, SchemaType type) throws DeploymentException {
         //bizarre ArrayStoreException if xmlObjects is loaded by the wrong classloader
         XmlObject[] converted = new XmlObject[xmlObjects.length];
         for (int i = 0; i < xmlObjects.length; i++) {
@@ -103,6 +105,11 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
                 converted[i] = xmlObject.changeType(type);
             } else {
                 converted[i] = xmlObject;
+            }
+            try {
+                XmlBeansUtil.validateDD(converted[i]);
+            } catch (XmlException e) {
+                throw new DeploymentException("Could not validate xmlObject of type " + type, e);
             }
         }
         return converted;

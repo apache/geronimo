@@ -18,37 +18,35 @@
 
 package org.apache.geronimo.deployment.service;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Collection;
 import java.beans.PropertyEditorManager;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 
-import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
+import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.deployment.ConfigurationBuilder;
-import org.apache.geronimo.deployment.xbeans.GbeanType;
+import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.xbeans.AttributeType;
-import org.apache.geronimo.deployment.xbeans.XmlAttributeType;
+import org.apache.geronimo.deployment.xbeans.GbeanDocument;
+import org.apache.geronimo.deployment.xbeans.GbeanType;
+import org.apache.geronimo.deployment.xbeans.PatternType;
 import org.apache.geronimo.deployment.xbeans.ReferenceType;
 import org.apache.geronimo.deployment.xbeans.ReferencesType;
-import org.apache.geronimo.deployment.xbeans.PatternType;
 import org.apache.geronimo.deployment.xbeans.ServiceDocument;
-import org.apache.geronimo.deployment.xbeans.GbeanDocument;
+import org.apache.geronimo.deployment.xbeans.XmlAttributeType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
-import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.ReferenceMap;
+import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.ReferenceMap;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.QNameSet;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$
@@ -56,7 +54,7 @@ import org.apache.xmlbeans.QNameSet;
 public class GBeanBuilder implements NamespaceDrivenBuilder {
     protected Map attrRefMap;
     protected Map refRefMap;
-    private static final QName SERVICE_QNAME = ServiceDocument.type.getDocumentElementName();
+    public static final QName SERVICE_QNAME = ServiceDocument.type.getDocumentElementName();
     private static final QName GBEAN_QNAME = GbeanDocument.type.getDocumentElementName();
     private static final QNameSet GBEAN_QNAME_SET = QNameSet.singleton(GBEAN_QNAME);
 
@@ -91,19 +89,15 @@ public class GBeanBuilder implements NamespaceDrivenBuilder {
 
     public void build(XmlObject container, DeploymentContext applicationContext, DeploymentContext moduleContext) throws DeploymentException {
         XmlObject[] items = container.selectChildren(GBEAN_QNAME_SET);
-        GbeanType[] gbeans = new GbeanType[items.length];
         for (int i = 0; i < items.length; i++) {
-            XmlObject any = items[i];
-            gbeans[i] = (GbeanType) any.copy().changeType(GbeanType.type);
+            GbeanType gbean;
+            try {
+                gbean = (GbeanType) XmlBeansUtil.typedCopy(items[i], GbeanType.type);
+            } catch (XmlException e) {
+                throw new DeploymentException("Could not validate gbean xml", e);
+            }
+            addGBeanData(gbean, moduleContext.getModuleName(), moduleContext.getClassLoader(), moduleContext);
         }
-        for (int i1 = 0; i1 < gbeans.length; i1++) {
-            addGBeanData(gbeans[i1], moduleContext.getModuleName(), moduleContext.getClassLoader(), moduleContext);
-        }
-    }
-
-    public String getNamespace() {
-        XmlBeansUtil.registerSubstitutionGroupElements(SERVICE_QNAME, QNameSet.singleton(GBEAN_QNAME));
-        return GBEAN_QNAME.getLocalPart();
     }
 
     private AbstractName addGBeanData(GbeanType gbean, AbstractName moduleName, ClassLoader cl, DeploymentContext context) throws DeploymentException {
@@ -178,6 +172,14 @@ public class GBeanBuilder implements NamespaceDrivenBuilder {
             throw new DeploymentException(e);
         }
         return abstractName;
+    }
+
+    public QNameSet getSpecQNameSet() {
+        return QNameSet.EMPTY;
+    }
+
+    public QNameSet getPlanQNameSet() {
+        return GBEAN_QNAME_SET;
     }
 
     public static final GBeanInfo GBEAN_INFO;

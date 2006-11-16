@@ -23,13 +23,14 @@ import java.util.Map;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.deployment.AbstractNamespaceBuilder;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$
  */
-public interface NamingBuilder {
+public interface NamingBuilder extends AbstractNamespaceBuilder {
 
     XmlObject[] NO_REFS = new XmlObject[] {};
     String ENV = "env/";
@@ -43,7 +44,4 @@ public interface NamingBuilder {
     
     void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException;
 
-    QNameSet getSpecQNameSet();
-
-    QNameSet getPlanQNameSet();
 }

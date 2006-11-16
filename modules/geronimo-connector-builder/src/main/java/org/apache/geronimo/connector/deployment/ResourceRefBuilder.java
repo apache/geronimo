@@ -148,7 +148,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
 
     }
 
-    public void setResourceEnvironment(ResourceEnvironmentBuilder builder, XmlObject[] resourceRefs, GerResourceRefType[] gerResourceRefs) {
+    public void setResourceEnvironment(ResourceEnvironmentBuilder builder, XmlObject[] resourceRefs, GerResourceRefType[] gerResourceRefs) throws DeploymentException {
         resourceRefs = convert(resourceRefs, J2EE_CONVERTER, ResourceRefType.type);
         Map refMap = mapResourceRefs(gerResourceRefs);
         Set unshareableResources = new HashSet();

@@ -49,6 +49,7 @@ import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
+import org.apache.geronimo.deployment.service.GBeanBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.util.NestedJarFile;
 import org.apache.geronimo.deployment.xbeans.ArtifactType;
@@ -85,6 +86,7 @@ import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationDocument;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerExtModuleType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerModuleType;
+import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
 import org.apache.geronimo.xbeans.j2ee.ApplicationType;
 import org.apache.geronimo.xbeans.j2ee.ModuleType;
 import org.apache.geronimo.xbeans.j2ee.ApplicationDocument;
@@ -216,8 +218,8 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         this.webConfigBuilder = webConfigBuilder;
         this.connectorConfigBuilder = connectorConfigBuilder;
         this.appClientConfigBuilder = appClientConfigBuilder;
-        this.securityBuilders = new NamespaceDrivenBuilderCollection(securityBuilders);
-        this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders);
+        this.securityBuilders = new NamespaceDrivenBuilderCollection(securityBuilders, GerSecurityDocument.type.getDocumentElementName());
+        this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders, GBeanBuilder.SERVICE_QNAME);
 
         this.transactionManagerObjectName = transactionManagerAbstractName;
         this.connectionTrackerObjectName = connectionTrackerAbstractName;

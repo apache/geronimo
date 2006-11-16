@@ -91,6 +91,7 @@ import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyWebAppType;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.config.GerJettyDocument;
+import org.apache.geronimo.xbeans.geronimo.j2ee.GerClusteringDocument;
 import org.apache.geronimo.xbeans.j2ee.DispatcherType;
 import org.apache.geronimo.xbeans.j2ee.ErrorPageType;
 import org.apache.geronimo.xbeans.j2ee.FilterMappingType;
@@ -161,7 +162,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         this.defaultFilterMappings = defaultFilterMappings;
         this.pojoWebServiceTemplate = getGBeanData(kernel, pojoWebServiceTemplate);
         this.webServiceBuilder = new SingleElementCollection(webServiceBuilder);
-        this.clusteringBuilders = new NamespaceDrivenBuilderCollection(clusteringBuilders);
+        this.clusteringBuilders = new NamespaceDrivenBuilderCollection(clusteringBuilders, GerClusteringDocument.type.getDocumentElementName());
 
         //todo locale mappings
 
@@ -198,6 +199,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             specDD = DeploymentUtil.readAll(specDDUrl);
         } catch (Exception e) {
             //no web.xml, not for us
+            e.printStackTrace();
             return null;
         }
         //we found web.xml, if it won't parse that's an error.
