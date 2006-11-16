@@ -214,7 +214,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         Context enc = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext, userTransaction, kernel, webClassLoader);
 
         int index = 0;
-        BeforeAfter interceptor = new InstanceContextBeforeAfter(null, index++, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator);
+        BeforeAfter interceptor = new InstanceContextBeforeAfter(null, index++, index++, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator);
         interceptor = new ComponentContextBeforeAfter(interceptor, index++, enc);
         interceptor = new ThreadClassloaderBeforeAfter(interceptor, index++, index++, this.webClassLoader);
         interceptor = new WebApplicationContextBeforeAfter(interceptor, index++, this);

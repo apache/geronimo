@@ -21,9 +21,8 @@ import java.util.Set;
 
 import javax.resource.ResourceException;
 
-import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContext;
-import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContextImpl;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
+import org.apache.geronimo.connector.outbound.connectiontracking.SharedConnectorInstanceContext;
 import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;
 
@@ -33,14 +32,16 @@ import org.mortbay.http.HttpResponse;
 public class InstanceContextBeforeAfter implements BeforeAfter {
     
     private final BeforeAfter next;
-    private final int index;
+    private final int oldIndex;
+    private final int newIndex;
     private final Set unshareableResources;
     private final Set applicationManagedSecurityResources;
     private final TrackedConnectionAssociator trackedConnectionAssociator;
 
-    public InstanceContextBeforeAfter(BeforeAfter next, int index, Set unshareableResources, Set applicationManagedSecurityResources, TrackedConnectionAssociator trackedConnectionAssociator) {
+    public InstanceContextBeforeAfter(BeforeAfter next, int oldIndex, int newIndex, Set unshareableResources, Set applicationManagedSecurityResources, TrackedConnectionAssociator trackedConnectionAssociator) {
         this.next = next;
-        this.index = index;
+        this.oldIndex = oldIndex;
+        this.newIndex = newIndex;
         this.unshareableResources = unshareableResources;
         this.applicationManagedSecurityResources = applicationManagedSecurityResources;
         this.trackedConnectionAssociator = trackedConnectionAssociator;
@@ -48,7 +49,13 @@ public class InstanceContextBeforeAfter implements BeforeAfter {
 
     public void before(Object[] context, HttpRequest httpRequest, HttpResponse httpResponse) {
         try {
-            context[index] = trackedConnectionAssociator.enter(new ConnectorInstanceContextImpl(unshareableResources, applicationManagedSecurityResources));
+            SharedConnectorInstanceContext newConnectorInstanceContext = new SharedConnectorInstanceContext(unshareableResources, applicationManagedSecurityResources, false);
+            SharedConnectorInstanceContext oldContext = (SharedConnectorInstanceContext) trackedConnectionAssociator.enter(newConnectorInstanceContext);
+            if (oldContext != null) {
+                newConnectorInstanceContext.share(oldContext);
+            }
+            context[oldIndex] = oldContext;
+            context[newIndex] = newConnectorInstanceContext;
         } catch (ResourceException e) {
             throw new RuntimeException(e);
         }
@@ -62,7 +69,12 @@ public class InstanceContextBeforeAfter implements BeforeAfter {
             next.after(context, httpRequest, httpResponse);
         }
         try {
-            trackedConnectionAssociator.exit((ConnectorInstanceContext) context[index]);
+            SharedConnectorInstanceContext oldConnectorInstanceContext = (SharedConnectorInstanceContext) context[oldIndex];
+            SharedConnectorInstanceContext newConnectorInstanceContext = (SharedConnectorInstanceContext) context[newIndex];
+            if (oldConnectorInstanceContext != null) {
+                newConnectorInstanceContext.hide();
+            }
+            trackedConnectionAssociator.exit(oldConnectorInstanceContext);
         } catch (ResourceException e) {
             throw new RuntimeException(e);
         }

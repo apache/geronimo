@@ -97,8 +97,9 @@ public class GeronimoStandardContext extends StandardContext {
         }
 
         int index = 0;
-        BeforeAfter interceptor = new InstanceContextBeforeAfter(null, index++,
-                ctx.getUnshareableResources(),
+        BeforeAfter interceptor = new InstanceContextBeforeAfter(null,
+                index++,
+                index++, ctx.getUnshareableResources(),
                 ctx.getApplicationManagedSecurityResources(),
                 ctx.getTrackedConnectionAssociator());
 
