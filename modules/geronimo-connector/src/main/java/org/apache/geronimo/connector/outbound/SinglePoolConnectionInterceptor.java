@@ -23,6 +23,9 @@ import java.util.Arrays;
 import javax.resource.ResourceException;
 import javax.resource.spi.ManagedConnection;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * SinglePoolConnectionInterceptor chooses a single connection from the pool.  If selectOneAssumeMatch
  * is true, it simply returns the selected connection.
@@ -35,7 +38,7 @@ import javax.resource.spi.ManagedConnection;
  * @version $Rev$ $Date$
  */
 public class SinglePoolConnectionInterceptor extends AbstractSinglePoolConnectionInterceptor {
-
+    private static final Log log = LogFactory.getLog(SinglePoolConnectionInterceptor.class.getName());
 
     private boolean selectOneAssumeMatch;
 
@@ -57,13 +60,13 @@ public class SinglePoolConnectionInterceptor extends AbstractSinglePoolConnectio
             if (destroyed) {
                 throw new ResourceException("ManagedConnection pool has been destroyed");
             }
-                
+
             ManagedConnectionInfo newMCI = null;
             if (pool.isEmpty()) {
                 next.getConnection(connectionInfo);
                 connectionCount++;
                 if (log.isTraceEnabled()) {
-                    log.trace("Returning new connection " + connectionInfo.getManagedConnectionInfo());
+                    log.trace("Supplying new connection MCI: " + connectionInfo.getManagedConnectionInfo() + " MC: " + connectionInfo.getManagedConnectionInfo().getManagedConnection() + " from pool: " + this);
                 }
                 return;
             } else {
@@ -75,7 +78,7 @@ public class SinglePoolConnectionInterceptor extends AbstractSinglePoolConnectio
             if (selectOneAssumeMatch) {
                 connectionInfo.setManagedConnectionInfo(newMCI);
                 if (log.isTraceEnabled()) {
-                    log.trace("Returning pooled connection without checking matching " + connectionInfo.getManagedConnectionInfo());
+                    log.trace("Supplying pooled connection without checking matching MCI: " + connectionInfo.getManagedConnectionInfo() + " MC: " + connectionInfo.getManagedConnectionInfo().getManagedConnection() + " from pool: " + this);
                 }
                 return;
             }
@@ -90,7 +93,7 @@ public class SinglePoolConnectionInterceptor extends AbstractSinglePoolConnectio
                 if (matchedMC != null) {
                     connectionInfo.setManagedConnectionInfo(newMCI);
                     if (log.isTraceEnabled()) {
-                        log.trace("Returning pooled connection " + connectionInfo.getManagedConnectionInfo());
+                        log.trace("Supplying pooled connection  MCI: " + connectionInfo.getManagedConnectionInfo() + " MC: " + connectionInfo.getManagedConnectionInfo().getManagedConnection() + " from pool: " + this);
                     }
                     return;
                 } else {
@@ -145,7 +148,7 @@ public class SinglePoolConnectionInterceptor extends AbstractSinglePoolConnectio
                 catch (ResourceException re) { } // ignore
                 return pool.remove(mci);
             }
-                
+
             if (shrinkLater > 0) {
                 //nothing can get in the pool while shrinkLater > 0, so wasInPool is false here.
                 connectionReturnAction = ConnectionReturnAction.DESTROY;

@@ -27,6 +27,8 @@ import javax.resource.ResourceException;
 import org.apache.geronimo.connector.outbound.ConnectionInfo;
 import org.apache.geronimo.connector.outbound.ConnectionTrackingInterceptor;
 import org.apache.geronimo.connector.outbound.ManagedConnectionInfo;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * ConnectionTrackingCoordinator tracks connections that are in use by
@@ -45,6 +47,7 @@ import org.apache.geronimo.connector.outbound.ManagedConnectionInfo;
  * @version $Rev$ $Date$
  */
 public class ConnectionTrackingCoordinator implements TrackedConnectionAssociator, ConnectionTracker {
+    private static final Log log = LogFactory.getLog(ConnectionTrackingCoordinator.class.getName());
 
     private final ThreadLocal currentInstanceContexts = new ThreadLocal();
 
@@ -118,6 +121,11 @@ public class ConnectionTrackingCoordinator implements TrackedConnectionAssociato
         }
         Map resources = connectorInstanceContext.getConnectionManagerMap();
         Set infos = (Set) resources.get(connectionTrackingInterceptor);
+        if (infos == null) {
+            if (log.isTraceEnabled()) {
+                log.trace("No infos found for handle " + connectionInfo.getConnectionHandle() + " for MCI: " + connectionInfo.getManagedConnectionInfo() + " for MC: " + connectionInfo.getManagedConnectionInfo().getManagedConnection() + " for CTI: " + connectionTrackingInterceptor, new Exception("Stack Trace"));
+            }
+        }
         if (connectionInfo.getConnectionHandle() == null) {
             //destroy was called as a result of an error
             ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();

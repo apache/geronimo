@@ -23,6 +23,8 @@ import org.apache.geronimo.connector.outbound.connectionmanagerconfig.Partitione
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PoolingSupport;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * GenericConnectionManager sets up a connection manager stack according to the
@@ -31,6 +33,7 @@ import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrack
  * @version $Rev$ $Date$
  */
 public class GenericConnectionManager extends AbstractConnectionManager {
+    protected static final Log log = LogFactory.getLog(AbstractSinglePoolConnectionInterceptor.class.getName());
 
     //default constructor for use as endpoint
     public GenericConnectionManager() {
@@ -84,6 +87,10 @@ public class GenericConnectionManager extends AbstractConnectionManager {
 
             stack = transactionSupport.addXAResourceInsertionInterceptor(stack, objectName);
             stack = pooling.addPoolingInterceptors(stack);
+            if (log.isTraceEnabled()) {
+                log.trace("Connection Manager " + objectName + " installed pool " + stack);
+            }
+
             this.poolingSupport = pooling;
             stack = transactionSupport.addTransactionInterceptors(stack, transactionManager);
 

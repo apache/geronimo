@@ -38,7 +38,7 @@ import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
  * @version $Rev$ $Date$
  */
 public abstract class AbstractSinglePoolConnectionInterceptor implements ConnectionInterceptor, PoolingAttributes {
-    protected static Log log = LogFactory.getLog(SinglePoolConnectionInterceptor.class.getName());
+    protected static Log log = LogFactory.getLog(AbstractSinglePoolConnectionInterceptor.class.getName());
     protected final ConnectionInterceptor next;
     private final ReadWriteLock resizeLock = new ReentrantReadWriteLock();
     protected Semaphore permits;
@@ -67,6 +67,9 @@ public abstract class AbstractSinglePoolConnectionInterceptor implements Connect
 
     public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
         if (connectionInfo.getManagedConnectionInfo().getManagedConnection() != null) {
+            if (log.isTraceEnabled()) {
+                log.trace("using already assigned connection " + connectionInfo.getConnectionHandle() + " for managed connection " + connectionInfo.getManagedConnectionInfo().getManagedConnection() + " to pool " + this);
+            }
             return;
         }
         try {
@@ -78,7 +81,7 @@ public abstract class AbstractSinglePoolConnectionInterceptor implements Connect
                     throw new ResourceException("No ManagedConnections available "
                             + "within configured blocking timeout ( "
                             + blockingTimeoutMilliseconds
-                            + " [ms] )");
+                            + " [ms] ) for pool " + this);
 
                 }
             } finally {
@@ -95,7 +98,7 @@ public abstract class AbstractSinglePoolConnectionInterceptor implements Connect
     public void returnConnection(ConnectionInfo connectionInfo,
                                  ConnectionReturnAction connectionReturnAction) {
         if (log.isTraceEnabled()) {
-            log.trace("returning connection" + connectionInfo.getConnectionHandle());
+            log.trace("returning connection " + connectionInfo.getConnectionHandle() + " for MCI " + connectionInfo.getManagedConnectionInfo() + " and MC " + connectionInfo.getManagedConnectionInfo().getManagedConnection() + " to pool " + this);
         }
 
         // not strictly synchronized with destroy(), but pooled operations in internalReturn() are...
@@ -112,6 +115,9 @@ public abstract class AbstractSinglePoolConnectionInterceptor implements Connect
         try {
             ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
             if (connectionReturnAction == ConnectionReturnAction.RETURN_HANDLE && mci.hasConnectionHandles()) {
+                if (log.isTraceEnabled()) {
+                    log.trace("Return request at pool with connection handles! " + connectionInfo.getConnectionHandle() + " for MCI " + connectionInfo.getManagedConnectionInfo() + " and MC " + connectionInfo.getManagedConnectionInfo().getManagedConnection() + " to pool " + this, new Exception("Stack trace"));
+                }
                 return;
             }
 

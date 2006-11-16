@@ -60,11 +60,20 @@ public class GeronimoConnectionEventListener implements ConnectionEventListener 
                     + connectionEvent.getSource());
         }
         if (log.isTraceEnabled()) {
-            log.trace("connectionClosed called with " + connectionEvent.getConnectionHandle());
+            log.trace("connectionClosed called with " + connectionEvent.getConnectionHandle() + " for MCI: " + managedConnectionInfo + " and MC: " + managedConnectionInfo.getManagedConnection());
         }
         ConnectionInfo ci = new ConnectionInfo(managedConnectionInfo);
         ci.setConnectionHandle(connectionEvent.getConnectionHandle());
-        stack.returnConnection(ci, ConnectionReturnAction.RETURN_HANDLE);
+        try {
+            stack.returnConnection(ci, ConnectionReturnAction.RETURN_HANDLE);
+        } catch (Throwable e) {
+            if (log.isTraceEnabled()) {
+                log.trace("connectionClosed failed with " + connectionEvent.getConnectionHandle() + " for MCI: " + managedConnectionInfo + " and MC: " + managedConnectionInfo.getManagedConnection(), e);
+            }
+            if (e instanceof Error) {
+                throw (Error)e;
+            }
+        }
     }
 
     public void connectionErrorOccurred(ConnectionEvent connectionEvent) {

@@ -25,6 +25,7 @@ import javax.transaction.Transaction;
 import javax.transaction.Synchronization;
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
+import javax.transaction.Status;
 
 import edu.emory.mathcs.backport.java.util.concurrent.ConcurrentHashMap;
 import org.apache.geronimo.connector.outbound.TransactionCachingInterceptor;
@@ -45,18 +46,20 @@ public class ConnectorTransactionContext {
             ctx = new ConnectorTransactionContext();
 
             try {
-                transaction.registerSynchronization(new ConnectorSynchronization(ctx, transaction));
+                if (transaction.getStatus() == Status.STATUS_ACTIVE) {
+                    transaction.registerSynchronization(new ConnectorSynchronization(ctx, transaction));
+                    // Note: no synchronization is necessary here.  Since a transaction can only be associated with a single
+                    // thread at a time, it should not be possible for someone else to have snuck in and created a
+                    // ConnectorTransactionContext for this transaction.  We still protect against that with the putIfAbsent
+                    // call below, and we simply have an extra transaction synchronization registered that won't do anything
+                    DATA_INDEX.putIfAbsent(transaction, ctx);
+                }
             } catch (RollbackException e) {
                 throw (IllegalStateException) new IllegalStateException("Transaction is already rolled back").initCause(e);
             } catch (SystemException e) {
                 throw new RuntimeException("Unable to register ejb transaction synchronization callback", e);
             }
 
-            // Note: no synchronization is necessary here.  Since a transaction can only be associated with a single
-            // thread at a time, it should not be possible for someone else to have snuck in and created a
-            // ConnectorTransactionContext for this transaction.  We still protect against that with the putIfAbsent
-            // call below, and we simply have an extra transaction synchronization registered that won't do anything
-            DATA_INDEX.putIfAbsent(transaction, ctx);
         }
         return ctx;
     }
