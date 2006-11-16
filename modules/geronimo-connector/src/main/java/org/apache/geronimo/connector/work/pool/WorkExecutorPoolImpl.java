@@ -22,6 +22,9 @@ import edu.emory.mathcs.backport.java.util.concurrent.ThreadPoolExecutor;
 import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 import edu.emory.mathcs.backport.java.util.concurrent.LinkedBlockingQueue;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Based class for WorkExecutorPool. Sub-classes define the synchronization
  * policy (should the call block until the end of the work; or when it starts
@@ -35,6 +38,7 @@ public class WorkExecutorPoolImpl implements WorkExecutorPool {
      * A timed out pooled executor.
      */
     private ThreadPoolExecutor pooledExecutor;
+    private static Log log = LogFactory.getLog(WorkExecutorPoolImpl.class);
 
     /**
      * Creates a pool with the specified minimum and maximum sizes. The Channel
@@ -58,6 +62,10 @@ public class WorkExecutorPoolImpl implements WorkExecutorPool {
      * @param work Work to be executed.
      */
     public void execute(Runnable work) {
+        if(pooledExecutor.getPoolSize() == pooledExecutor.getMaximumPoolSize()) {
+            log.warn("Maximum Pool size has been exceeded.  Current Pool Size = "+pooledExecutor.getMaximumPoolSize());
+        }
+
         pooledExecutor.execute(work);
     }
 
