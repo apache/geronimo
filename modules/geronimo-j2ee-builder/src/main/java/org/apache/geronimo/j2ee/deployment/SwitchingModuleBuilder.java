@@ -132,6 +132,9 @@ public class SwitchingModuleBuilder implements ModuleBuilder {
         if (builder == null) {
             builder = (ModuleBuilder) namespaceToBuilderMap.get(defaultNamespace);
         }
+        if (builder == null && namespaceToBuilderMap.size() == 1) {
+            builder = (ModuleBuilder) namespaceToBuilderMap.values().iterator().next();
+        }
         return builder;
     }
 
