@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app id="ca-helper-app" xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+    version="2.4">
+    <display-name>CAHelper</display-name>
+    <description>
+        CA Helper
+    </description>
+    <servlet>
+        <display-name>CertificateRequestServlet</display-name>
+        <servlet-name>CertificateRequestServlet</servlet-name>
+        <servlet-class>
+            org.apache.geronimo.ca.helper.CertificateRequestServlet
+        </servlet-class>
+    </servlet>
+    <servlet>
+        <display-name>DownloadCertificateServlet</display-name>
+        <servlet-name>DownloadCertificateServlet</servlet-name>
+        <servlet-class>
+            org.apache.geronimo.ca.helper.DownloadCertificateServlet
+        </servlet-class>
+    </servlet>
+    <!-- [INSERT FRAGMENT HERE] --> 
+    <servlet-mapping>
+        <servlet-name>CertificateRequestServlet</servlet-name>
+        <url-pattern>/CertificateRequestServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DownloadCertificateServlet</servlet-name>
+        <url-pattern>/DownloadCertificateServlet</url-pattern>
+    </servlet-mapping>
+</web-app>

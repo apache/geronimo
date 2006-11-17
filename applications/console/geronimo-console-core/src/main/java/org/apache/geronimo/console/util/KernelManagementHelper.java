@@ -36,14 +36,17 @@ import javax.security.auth.spi.LoginModule;
 
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.EditableConfigurationManager;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.management.State;
@@ -548,6 +551,30 @@ public class KernelManagementHelper implements ManagementHelper {
         return result;
     }    
     
+    /**
+     * Adds a new GBean to an existing Configuration.
+     * @param configID  The configuration to add the GBean to.
+     * @param gbean     The data representing the GBean to add.
+     * @param start     If true, the GBean should be started as part of this call.
+     */
+    public void addGBeanToConfiguration(Artifact configID, GBeanData gbean, boolean start) {
+        EditableConfigurationManager mgr = ConfigurationUtil.getEditableConfigurationManager(kernel);
+        try {
+            mgr.addGBeanToConfiguration(configID, gbean, start);
+        } catch (InvalidConfigException e) {
+            throw new RuntimeException("Bad configID. configID = "+configID, e);
+        } finally {
+            ConfigurationUtil.releaseConfigurationManager(kernel, mgr);
+        }
+    }
+
+    /**
+     * This method returns the Naming object of the kernel.
+     */
+    public Naming getNaming() {
+        return kernel.getNaming();
+    }
+
     /**
      * Helper method to connect to a remote kernel.
      */

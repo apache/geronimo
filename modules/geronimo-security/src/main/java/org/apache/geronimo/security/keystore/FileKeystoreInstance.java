@@ -559,6 +559,25 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
         }
     }
     
+    /**
+     * Gets a particular certificate from the keystore.  This may be a trust
+     * certificate or the certificate corresponding to a particular private
+     * key.
+     * This only works if the keystore is unlocked.
+     * @param alias The certificate to look at
+     */
+    public Certificate getCertificate(String alias) {
+        if(isKeystoreLocked()) {
+            return null;
+        }
+        try {
+            return keystore.getCertificate(alias);
+        } catch (KeyStoreException e) {
+            log.error("Unable to read certificate from keystore", e);
+        }
+        return null;
+    }
+
     // ==================== Internals =====================
 
     private void loadKeystoreData(char[] password) throws KeystoreException {

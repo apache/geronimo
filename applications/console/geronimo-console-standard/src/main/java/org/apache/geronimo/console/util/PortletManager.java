@@ -37,6 +37,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
@@ -387,6 +388,18 @@ public class PortletManager {
         ManagementHelper helper = getManagementHelper(request);
         return helper.getGBeansImplementing(iface);
     }    
+
+    /**
+     * This methods adds a GBean to an existing configuration.
+     * @param request PortletRequest object to get hold of ManagementHelper
+     * @param configID  The configuration to add the GBean to.
+     * @param gbean     The data representing the GBean to add.
+     * @param start     If true, the GBean should be started as part of this call.
+     */
+    public static void addGBeanToConfiguration(PortletRequest request, Artifact configID, GBeanData gbean, boolean start) {
+        ManagementHelper helper = getManagementHelper(request);
+        helper.addGBeanToConfiguration(configID, gbean, start);
+    }
 
     /**
      * Looks up the context prefix used by the portal, even if the thing running

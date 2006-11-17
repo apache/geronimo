@@ -32,4 +32,42 @@ function isIntegral(value){
     }
     return true;
 }
+
+function checkDateMMDDYYYY(formName, elementName) {
+    var obj = eval("document.forms['" + formName + "'].elements['"+ elementName +"']");
+    if(validDateMMDDYYYY(obj.value)) return true;
+    else{
+        alert(elementName + " must be a date in MM/DD/YYYY format.");
+        obj.focus();
+        return false;
+    }
+}
+
+function checkDateMMDDYY(formName, elementName) {
+    var obj = eval("document.forms['" + formName + "'].elements['"+ elementName +"']");
+    if(validDateMMDDYY(obj.value)) return true;
+    else{
+        alert(elementName + " must be a date in MM/DD/YY format.");
+        obj.focus();
+        return false;
+    }
+}
+
+function validDateMMDDYYYY(inpDate) {
+    var d0 = new Date(inpDate);
+    var mm = (d0.getMonth() < 9 ? '0' : '') + (d0.getMonth()+1);
+    var dd = (d0.getDate() < 10 ? '0' : '') + d0.getDate();
+    var yyyy = d0.getFullYear();
+    var d1 = mm+'/'+dd+'/'+yyyy;
+    return inpDate == d1;
+}
+
+function validDateMMDDYY(inpDate) {
+    var d0 = new Date(inpDate);
+    var mm = (d0.getMonth() < 9 ? '0' : '') + (d0.getMonth()+1);
+    var dd = (d0.getDate() < 10 ? '0' : '') + d0.getDate();
+    var yy = (d0.getYear() < 10 ? '0' : '') + d0.getYear();
+    var d1 = mm+'/'+dd+'/'+yy;
+    return inpDate == d1;
+}
     

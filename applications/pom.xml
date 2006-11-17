@@ -45,6 +45,7 @@
         <module>geronimo-ldap-demo</module>
         <module>magicGball</module>
         <module>demo</module>
+        <module>geronimo-ca-helper</module>
     </modules>
     
 </project>

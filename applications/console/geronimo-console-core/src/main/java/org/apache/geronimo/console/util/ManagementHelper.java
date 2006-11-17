@@ -22,6 +22,8 @@ import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.management.AppClientModule;
@@ -122,5 +124,19 @@ public interface ManagementHelper {
      * @return The Module, or null if the configuration is not running.
      */
     J2EEDeployedObject getModuleForConfiguration(Artifact configuration);
+
+    /**
+     * Adds a new GBean to an existing Configuration.
+     * @param configID  The configuration to add the GBean to.
+     * @param gbean     The data representing the GBean to add.
+     * @param start     If true, the GBean should be started as part of this call.
+     */
+    public void addGBeanToConfiguration(Artifact configID, GBeanData gbean, boolean start);
+
+    /**
+     * This method returns the Naming object of the kernel.
+     */
+    public Naming getNaming();
+
     Object[] getGBeansImplementing(Class iface);
 }

@@ -158,5 +158,8 @@ limitations under the License.
         <portlet id="80">
             <definition-id>console-standard.ThreadPool</definition-id>
         </portlet>
+        <portlet id="81">
+            <definition-id>console-standard.CertificationAuthority</definition-id>
+        </portlet>
     </application>
 </portlet-entity-registry>

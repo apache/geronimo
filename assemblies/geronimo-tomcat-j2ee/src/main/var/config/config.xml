@@ -165,4 +165,6 @@
 
     <module name="org.apache.geronimo.configs/hot-deployer/${version}/car"/>
 
+    <module name="org.apache.geronimo.configs/ca-helper-tomcat/${version}/car" load="false"/>
+
 </attributes>

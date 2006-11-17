@@ -533,6 +533,20 @@ limitations under the License.
             </fragment>
         </fragment>
 
+        <fragment name="ca" type="page">
+            <navigation>
+                <title>Certificate Authority</title>
+                <description>ico_doc_16x16.gif Certification Authority</description>
+            </navigation>
+
+            <fragment name="row1" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p1" type="portlet">
+                        <property name="portlet" value="5.81"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+        </fragment>
         <fragment name="keystore" type="page">
             <navigation>
                 <title>Old Keystore</title>

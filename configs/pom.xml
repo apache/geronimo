@@ -173,7 +173,8 @@
         <module>welcome-tomcat</module>
         <module>dojo-jetty</module>
         <module>dojo-tomcat</module>
-
+        <module>ca-helper-jetty</module>
+        <module>ca-helper-tomcat</module>
         <!-- jee5 configs -->
         <module>transformer-agent</module>
         <module>persistence-jpa10-deployer</module>

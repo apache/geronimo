@@ -265,6 +265,13 @@
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>ca-helper-tomcat</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>shutdown</artifactId>
             <version>${version}</version>
             <type>car</type>

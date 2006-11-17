@@ -114,4 +114,9 @@ public class NameFactory {
     public static final String WEB_SERVICE_LINK = "WSLink";
     public static final String KEY_GENERATOR = "KeyGenerator";
     public static final String KEYSTORE_INSTANCE = "Keystore";
+
+    // Added for CertificationAuthority
+    public static final String CERTIFICATION_AUTHORITY = "CertificationAuthority";
+    public static final String CERTIFICATE_STORE = "CertificateStore";
+    public static final String CERTIFICATE_REQUEST_STORE = "CertificateRequestStore";
 }

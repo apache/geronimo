@@ -215,4 +215,13 @@ public interface KeystoreInstance {
      * @return PrivateKey with the alias specified
      */
     public PrivateKey getPrivateKey(String alias, char[] storePassword, char[] keyPassword)  throws KeystoreException;
+
+    /**
+     * Gets a particular certificate from the keystore.  This may be a trust
+     * certificate or the certificate corresponding to a particular private
+     * key.
+     * This only works if the keystore is unlocked.
+     * @param alias Alias of the certificate
+     */
+    public Certificate getCertificate(String alias);
 }
