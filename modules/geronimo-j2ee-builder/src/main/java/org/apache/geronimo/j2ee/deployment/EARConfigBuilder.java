@@ -943,8 +943,6 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
 
         infoBuilder.addAttribute("kernel", Kernel.class, false);
 
-        infoBuilder.addInterface(ConfigurationBuilder.class);
-
         infoBuilder.setConstructor(new String[]{
                 "defaultEnvironment",
                 "transactionManagerAbstractName",
