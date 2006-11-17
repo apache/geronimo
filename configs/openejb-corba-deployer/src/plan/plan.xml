@@ -56,7 +56,7 @@
 
     <gbean name="CorbaRefBuilder" class="org.apache.geronimo.naming.deployment.CorbaRefBuilder">
         <reference name="CorbaGBeanNameSource">
-            <name>EarBuilder</name>
+            <name>EARBuilder</name>
         </reference>
     </gbean>
     <gbean name="ClientCorbaRefBuilder" class="org.apache.geronimo.naming.deployment.CorbaRefBuilder">
