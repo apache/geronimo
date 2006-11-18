@@ -16,7 +16,6 @@
  */
 package org.apache.geronimo.kernel.repository;
 
-import java.net.URI;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;

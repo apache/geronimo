@@ -19,8 +19,6 @@ package org.apache.geronimo.kernel.proxy;
 
 import org.apache.geronimo.gbean.AbstractName;
 
-import javax.management.ObjectName;
-
 
 /**
  * @version $Rev$ $Date$

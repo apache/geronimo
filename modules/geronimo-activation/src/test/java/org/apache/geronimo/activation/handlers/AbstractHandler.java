@@ -20,7 +20,6 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.Arrays;
 import javax.activation.DataContentHandler;
 import javax.activation.DataSource;
 

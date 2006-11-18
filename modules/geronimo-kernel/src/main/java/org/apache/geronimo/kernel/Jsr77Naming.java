@@ -19,7 +19,6 @@ package org.apache.geronimo.kernel;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
-import java.util.HashSet;
 import java.util.Arrays;
 
 import javax.management.MalformedObjectNameException;

@@ -17,10 +17,8 @@
 
 package org.apache.geronimo.common.propertyeditor;
 
-import java.beans.PropertyEditorSupport;
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.StringTokenizer;
 
 /**
  * A property editor for {@link Collection}.

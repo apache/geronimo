@@ -17,7 +17,6 @@
 
 package org.apache.geronimo.common.propertyeditor;
 
-import java.util.List;
 import java.util.Stack;
 import java.util.Collection;
 

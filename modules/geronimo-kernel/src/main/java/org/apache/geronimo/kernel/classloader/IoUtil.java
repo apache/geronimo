@@ -16,35 +16,13 @@
  */
 package org.apache.geronimo.kernel.classloader;
 
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
-import java.io.FileNotFoundException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLStreamHandler;
-import java.net.URLConnection;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.LinkedList;
 import java.util.jar.JarFile;
-import java.util.jar.JarOutputStream;
-import java.util.jar.Manifest;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-
-import org.apache.geronimo.kernel.classloader.ResourceLocation;
-import org.apache.geronimo.kernel.classloader.JarResourceLocation;
-import org.apache.geronimo.kernel.classloader.DirectoryResourceLocation;
 
 /**
  * @version $Rev$ $Date$

@@ -25,7 +25,6 @@ import org.apache.geronimo.kernel.repository.Artifact;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Set;
 
 /**
  * Able to retrieve the values of certain "manageable" attributes from a

@@ -16,8 +16,6 @@
  */
 package org.apache.geronimo.gbean.runtime;
 
-import org.apache.geronimo.gbean.AbstractName;
-
 /**
  * @version $Rev$ $Date$
  */

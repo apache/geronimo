@@ -18,9 +18,6 @@ package org.apache.geronimo.kernel.proxy;
 
 import org.apache.geronimo.gbean.AbstractName;
 
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
-
 /**
  * Manages kernel proxies.  Note that all proxies will include an
  * implementation of GeronimoManagedBean.

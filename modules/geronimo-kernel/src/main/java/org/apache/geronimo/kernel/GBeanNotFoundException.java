@@ -19,8 +19,6 @@ package org.apache.geronimo.kernel;
 import java.util.Set;
 
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
-
 import javax.management.ObjectName;
 
 

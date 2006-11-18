@@ -18,7 +18,6 @@
 package org.apache.geronimo.common.propertyeditor;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Collection;
 
 /**

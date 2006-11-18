@@ -17,9 +17,6 @@
 package examples;
 
 import javax.servlet.jsp.*;
-import javax.servlet.jsp.tagext.*;
-import java.util.Hashtable;
-import java.io.Writer;
 import java.io.IOException;
 
 /**

@@ -17,7 +17,6 @@
 package examples;
 
 
-import javax.servlet.*;
 import javax.servlet.jsp.*;
 import javax.servlet.jsp.tagext.*;
 

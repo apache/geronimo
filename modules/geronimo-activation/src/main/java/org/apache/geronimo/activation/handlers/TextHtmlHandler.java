@@ -16,7 +16,6 @@
  */
 package org.apache.geronimo.activation.handlers;
 
-import java.awt.datatransfer.DataFlavor;
 import javax.activation.ActivationDataFlavor;
 
 

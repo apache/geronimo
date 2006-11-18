@@ -19,7 +19,6 @@ package org.apache.geronimo.kernel.config.xstream;
 import java.net.URI;
 
 import com.thoughtworks.xstream.converters.basic.AbstractBasicConverter;
-import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 
 /**
