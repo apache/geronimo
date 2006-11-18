@@ -21,7 +21,6 @@
 <!-- $Rev$ $Date$ -->
 
 <project name="${project.name}">
-    
 
     <body>
 
@@ -41,7 +40,6 @@
         ${modules}
         
         ${reports}
-        
 
     </body>
 
