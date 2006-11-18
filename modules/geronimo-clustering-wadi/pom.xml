@@ -32,21 +32,6 @@
     <artifactId>geronimo-clustering-wadi</artifactId>
     <name>Geronimo Clustering WADI</name>
     
-    <repositories>
-        <repository>
-            <id>wadi-snapshots</id>
-            <name>Wadi Snapshots Repository</name>
-            <url>http://snapshots.repository.codehaus.org/org/codehaus/wadi/</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-        </repository>
-    </repositories>
-    
     <dependencies>
         <dependency>
             <groupId>${pom.groupId}</groupId>
