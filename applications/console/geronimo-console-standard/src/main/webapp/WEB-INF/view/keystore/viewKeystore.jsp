@@ -27,44 +27,61 @@
     <td class="DarkBackground" align="center">Type</td>
     <td class="DarkBackground" align="center">Certificate Fingerprint</td>
   </tr>
+<c:set var="backgroundClass" value='MediumBackground'/>
 <c:forEach var="alias" items="${keystore.certificates}">
+  <c:choose>
+      <c:when test="${backgroundClass == 'MediumBackground'}" >
+          <c:set var="backgroundClass" value='LightBackground'/>
+      </c:when>
+      <c:otherwise>
+          <c:set var="backgroundClass" value='MediumBackground'/>
+      </c:otherwise>
+  </c:choose>
   <tr>
-    <td><a href="<portlet:actionURL portletMode="view">
+    <td class="${backgroundClass}"><a href="<portlet:actionURL portletMode="view">
                  <portlet:param name="mode" value="certificateDetails-before" />
                  <portlet:param name="id" value="${keystore.name}" />
                  <portlet:param name="alias" value="${alias}" /></portlet:actionURL>">
         view
         </a>    
     </td>
-    <td><a href="<portlet:actionURL portletMode="view">
+    <td class="${backgroundClass}"><a href="<portlet:actionURL portletMode="view">
                  <portlet:param name="mode" value="certificateDetails-before" />
                  <portlet:param name="id" value="${keystore.name}" />
                  <portlet:param name="alias" value="${alias}" /></portlet:actionURL>">
         ${alias}
         </a>    
     </td>
-    <td>Trusted Certificate</td>
-    <td>${keystore.fingerprints[alias]}</td>
+    <td class="${backgroundClass}">Trusted Certificate</td>
+    <td class="${backgroundClass}">${keystore.fingerprints[alias]}</td>
   </tr>
 </c:forEach>
 <c:forEach var="alias" items="${keystore.keys}">
+  <c:choose>
+      <c:when test="${backgroundClass == 'MediumBackground'}" >
+          <c:set var="backgroundClass" value='LightBackground'/>
+      </c:when>
+      <c:otherwise>
+          <c:set var="backgroundClass" value='MediumBackground'/>
+      </c:otherwise>
+  </c:choose>
   <tr>
-    <td><a href="<portlet:actionURL portletMode="view">
+    <td class="${backgroundClass}"><a href="<portlet:actionURL portletMode="view">
                  <portlet:param name="mode" value="certificateDetails-before" />
                  <portlet:param name="id" value="${keystore.name}" />
                  <portlet:param name="alias" value="${alias}" /></portlet:actionURL>">
         view
         </a>    
     </td>
-    <td><a href="<portlet:actionURL portletMode="view">
+    <td class="${backgroundClass}"><a href="<portlet:actionURL portletMode="view">
                  <portlet:param name="mode" value="certificateDetails-before" />
                  <portlet:param name="id" value="${keystore.name}" />
                  <portlet:param name="alias" value="${alias}" /></portlet:actionURL>">
         ${alias}
         </a>    
     </td>
-    <td>Private Key</td>
-    <td>${keystore.fingerprints[alias]}</td>
+    <td class="${backgroundClass}">Private Key</td>
+    <td class="${backgroundClass}">${keystore.fingerprints[alias]}</td>
   </tr>
 </c:forEach>
 </table>
