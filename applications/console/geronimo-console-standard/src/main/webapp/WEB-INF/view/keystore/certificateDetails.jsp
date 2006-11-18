@@ -18,13 +18,13 @@
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <portlet:defineObjects/>
 <table>
-<th>keystore</th>
-<th>alias</th>
-<th>type</th>
+<th class="DarkBackground">keystore</th>
+<th class="DarkBackground">alias</th>
+<th class="DarkBackground">type</th>
 <tr>
-<td>${id}</td>
-<td>${alias}</td>
-<td>${type}</td>
+<td class="LightBackground">${id}</td>
+<td class="LightBackground">${alias}</td>
+<td class="LightBackground">${type}</td>
 </tr>
 </table>
 <br/>
@@ -61,52 +61,69 @@ Back to keystore</a></td>
 </table>
 <br/>
 
+<c:set var="backgroundClass" value='LightBackground'/>
 <c:forEach items="${certs}" var="cert">
 <table>
-<th>Certificate Info</th>
+<th class="DarkBackground" colspan="2" align="left">Certificate Info</th>
 <tr>
-<td>Version:</td>
-<td><c:out value="${cert.version}"/></td>
+<td class="LightBackground">Version:</td>
+<td class="LightBackground"><c:out value="${cert.version}"/></td>
 </tr>
 <tr>
-<td>Subject:</td>
-<td><c:out value="${cert.subjectDN.name}"/></td>
+<td class="MediumBackground">Subject:</td>
+<td class="MediumBackground"><c:out value="${cert.subjectDN.name}"/></td>
 </tr>
 <tr>
-<td>Issuer:</td>
-<td><c:out value="${cert.issuerDN.name}"/></td>
+<td class="LightBackground">Issuer:</td>
+<td class="LightBackground"><c:out value="${cert.issuerDN.name}"/></td>
 </tr>
 <tr>
-<td>Serial Number:</td>
-<td><c:out value="${cert.serialNumber}"/></td>
+<td class="MediumBackground">Serial Number:</td>
+<td class="MediumBackground"><c:out value="${cert.serialNumber}"/></td>
 </tr>
 <tr>
-<td>Valid From:</td>
-<td><c:out value="${cert.notBefore}"/></td>
+<td class="LightBackground">Valid From:</td>
+<td class="LightBackground"><c:out value="${cert.notBefore}"/></td>
 </tr>
 <tr>
-<td>Valid To:</td>
-<td><c:out value="${cert.notAfter}"/></td>
+<td class="MediumBackground">Valid To:</td>
+<td class="MediumBackground"><c:out value="${cert.notAfter}"/></td>
 </tr>
 <tr>
-<td>Signature Alg:</td>
-<td><c:out value="${cert.sigAlgName}"/></td>
+<td class="LightBackground">Signature Alg:</td>
+<td class="LightBackground"><c:out value="${cert.sigAlgName}"/></td>
 </tr>
 <tr>
-<td>Public Key Alg:</td>
-<td><c:out value="${cert.publicKey.algorithm}"/></td>
+<td class="MediumBackground">Public Key Alg:</td>
+<td class="MediumBackground"><c:out value="${cert.publicKey.algorithm}"/></td>
 </tr>
-<tr>
+<c:set var="backgroundClass" value='MediumBackground'/> <!-- This should be set from the row above. -->
 <c:forEach items="${cert.criticalExtensionOIDs}" var="extoid">
+<c:choose>
+    <c:when test="${backgroundClass == 'MediumBackground'}" >
+        <c:set var="backgroundClass" value='LightBackground'/>
+    </c:when>
+    <c:otherwise>
+        <c:set var="backgroundClass" value='MediumBackground'/>
+    </c:otherwise>
+</c:choose>
 <tr>
-<td>critical ext: </td>
-<td><c:out value="${extoid}"/></td>
+<td class="${backgroundClass}">critical ext: </td>
+<td class="${backgroundClass}"><c:out value="${extoid}"/></td>
 </tr>
 </c:forEach>
 <c:forEach items="${cert.nonCriticalExtensionOIDs}" var="extoid">
+<c:choose>
+    <c:when test="${backgroundClass == 'MediumBackground'}" >
+        <c:set var="backgroundClass" value='LightBackground'/>
+    </c:when>
+    <c:otherwise>
+        <c:set var="backgroundClass" value='MediumBackground'/>
+    </c:otherwise>
+</c:choose>
 <tr>
-<td>non-critical ext: </td>
-<td><c:out value="${extoid}"/></td>
+<td class="${backgroundClass}">non-critical ext: </td>
+<td class="${backgroundClass}"><c:out value="${extoid}"/></td>
 </tr>
 </c:forEach>
 </table>

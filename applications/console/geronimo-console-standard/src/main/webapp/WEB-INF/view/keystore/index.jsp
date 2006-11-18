@@ -40,9 +40,18 @@ been saved in order to make the keystore available to other components in the se
     <td class="DarkBackground" align="center">Editable</td>
     <td class="DarkBackground" align="center">Available</td>
   </tr>
+<c:set var="backgroundClass" value='MediumBackground'/>
 <c:forEach var="keystore" items="${keystores}">
+  <c:choose>
+      <c:when test="${backgroundClass == 'MediumBackground'}" >
+          <c:set var="backgroundClass" value='LightBackground'/>
+      </c:when>
+      <c:otherwise>
+          <c:set var="backgroundClass" value='MediumBackground'/>
+      </c:otherwise>
+  </c:choose>
   <tr>
-    <td>
+    <td class="${backgroundClass}">
       <c:choose>
         <c:when test="${keystore.lockedEdit}">
           ${keystore.name}
@@ -52,7 +61,7 @@ been saved in order to make the keystore available to other components in the se
         </c:otherwise>
       </c:choose>
     </td>
-    <td>
+    <td class="${backgroundClass}">
         <c:choose>
           <c:when test="${keystore.lockedEdit}">
               <i>Keystore locked</i>
@@ -64,7 +73,7 @@ been saved in order to make the keystore available to other components in the se
           </c:otherwise>
         </c:choose>
     </td>
-    <td>
+    <td class="${backgroundClass}">
       <c:choose>
         <c:when test="${keystore.lockedEdit}">
           <a href="<portlet:actionURL portletMode="view">
@@ -80,7 +89,7 @@ been saved in order to make the keystore available to other components in the se
         </c:otherwise>
       </c:choose>
     </td>
-    <td>
+    <td class="${backgroundClass}">
       <c:choose>
         <c:when test="${keystore.lockedUse}">
           <a href="<portlet:actionURL portletMode="view">

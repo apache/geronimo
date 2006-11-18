@@ -29,24 +29,27 @@
 
     <table border="0">
         <tr>
-            <th align="right">Fingerprint:</th>
-            <td>${fingerprint}</td>
+            <th class="DarkBackground" colspan="2" align="left">Certificate Details</th>
         </tr>
         <tr>
-            <th align="right">Subject:</th>
-            <td>${subject}</td>
+            <th class="LightBackground" align="right">Fingerprint:</th>
+            <td class="LightBackground">${fingerprint}</td>
         </tr>
         <tr>
-            <th align="right">Issuer:</th>
-            <td>${issuer}</td>
+            <th class="MediumBackground" align="right">Subject:</th>
+            <td class="MediumBackground">${subject}</td>
         </tr>
         <tr>
-            <th align="right">Validity:</th>
-            <td>${validStart} to ${validEnd}</td>
+            <th class="LightBackground" align="right">Issuer:</th>
+            <td class="LightBackground">${issuer}</td>
         </tr>
         <tr>
-            <th align="right">Serial Number:</th>
-            <td>${serial}</td>
+            <th class="MediumBackground" align="right">Validity:</th>
+            <td class="MediumBackground">${validStart} to ${validEnd}</td>
+        </tr>
+        <tr>
+            <th class="LightBackground" align="right">Serial Number:</th>
+            <td class="LightBackground">${serial}</td>
         </tr>
     </table>
 

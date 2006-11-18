@@ -35,12 +35,12 @@
     <td class="LightBackground" width="80%">${svrProps['Geronimo Version']}</td>
   </tr>
   <tr>
-    <td class="LightBackground" width="20%" nowrap>Geronimo Start Time</td>
-    <td class="LightBackground" width="80%">${svrProps['Kernel Boot Time']}</td>
+    <td class="MediumBackground" width="20%" nowrap>Geronimo Start Time</td>
+    <td class="MediumBackground" width="80%">${svrProps['Kernel Boot Time']}</td>
   </tr>
   <tr>
-    <td class="MediumBackground">Geronimo Up Time</td>
-    <td class="MediumBackground"><div id="<portlet:namespace/>UpTime">Not Yet Available</div></td>
+    <td class="LightBackground">Geronimo Up Time</td>
+    <td class="LightBackground"><div id="<portlet:namespace/>UpTime">Not Yet Available</div></td>
   </tr>
 </table>
 <br>
