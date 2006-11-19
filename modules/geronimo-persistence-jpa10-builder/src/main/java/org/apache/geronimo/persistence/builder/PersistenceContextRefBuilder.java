@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.naming.deployment;
+package org.apache.geronimo.persistence.builder;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -28,56 +28,44 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.ImportType;
+import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.naming.reference.PersistenceContextReference;
+import org.apache.geronimo.schema.NamespaceElementConverter;
+import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPersistenceContextRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPersistenceContextRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPersistenceContextTypeType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPropertyType;
-import org.apache.geronimo.schema.SchemaConversionUtils;
-import org.apache.geronimo.schema.NamespaceElementConverter;
-import org.apache.geronimo.deployment.service.EnvironmentBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$
  */
-public class PersistenceContextRefBuilder implements NamingBuilder {
+public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
     private static final QName PERSISTENCE_CONTEXT_REF_QNAME = GerPersistenceContextRefDocument.type.getDocumentElementName();
     private static final QNameSet PERSISTENCE_CONTEXT_REF_QNAME_SET = QNameSet.singleton(PERSISTENCE_CONTEXT_REF_QNAME);
 
-    private final Environment defaultEnvironment = new Environment();
-
-    public PersistenceContextRefBuilder() {
-        defaultEnvironment.addDependency(new Dependency(new Artifact("org.apache.geronimo.modules", "geronimo-persistence-jpa10", (String)null, "jar"), ImportType.CLASSES));
+    public PersistenceContextRefBuilder(Environment defaultEnvironment) {
+        super(defaultEnvironment);
     }
 
-    public void buildEnvironment(XmlObject specDD, XmlObject plan, Environment environment) {
-        if (getPersistenceContextRefs(plan).length > 0) {
-            EnvironmentBuilder.mergeEnvironments(environment, defaultEnvironment);
-        }
-    }
-
-    public void initContext(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module) throws DeploymentException {
+    protected boolean willMergeEnvironment(XmlObject specDD, XmlObject plan) throws DeploymentException {
+        return getPersistenceContextRefs(plan).length > 0;
     }
 
     public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
         XmlObject[] persistenceContextRefsUntyped = getPersistenceContextRefs(plan);
         for (int i = 0; i < persistenceContextRefsUntyped.length; i++) {
-            XmlObject persistenceContextRefUntyped = persistenceContextRefsUntyped[i];
-            GerPersistenceContextRefType persistenceContextRef = (GerPersistenceContextRefType) persistenceContextRefUntyped.copy().changeType(GerPersistenceContextRefType.type);
+            GerPersistenceContextRefType persistenceContextRef = (GerPersistenceContextRefType) persistenceContextRefsUntyped[i];
             if (persistenceContextRef == null) {
-                throw new DeploymentException("Could not read persistenceContextRef " + persistenceContextRefUntyped + " as the correct xml type");
+                throw new DeploymentException("Could not read persistenceContextRef number " + i + " as the correct xml type");
             }
             String persistenceContextRefName = persistenceContextRef.getPersistenceContextRefName();
             boolean transactionScoped = !persistenceContextRef.getPersistenceContextType().equals(GerPersistenceContextTypeType.EXTENDED);
@@ -99,7 +87,7 @@ public class PersistenceContextRefBuilder implements NamingBuilder {
             } else {
                 GerPatternType gbeanLocator = persistenceContextRef.getPattern();
 
-                persistenceUnitNameQuery = ENCConfigBuilder.buildAbstractNameQuery(gbeanLocator, null, null, interfaceTypes);
+                persistenceUnitNameQuery = buildAbstractNameQuery(gbeanLocator, null, null, interfaceTypes);
             }
 
             try {
@@ -110,7 +98,7 @@ public class PersistenceContextRefBuilder implements NamingBuilder {
 
             PersistenceContextReference reference = new PersistenceContextReference(localConfiguration.getId(), persistenceUnitNameQuery, transactionScoped, properties);
 
-            ((Map)componentContext.get(JNDI_KEY)).put(ENV + persistenceContextRefName, reference);
+            getJndiContextMap(componentContext).put(ENV + persistenceContextRefName, reference);
 
         }
     }
@@ -124,15 +112,17 @@ public class PersistenceContextRefBuilder implements NamingBuilder {
         return PERSISTENCE_CONTEXT_REF_QNAME_SET;
     }
 
-    private XmlObject[] getPersistenceContextRefs(XmlObject plan) {
-        return plan == null? NO_REFS: plan.selectChildren(PersistenceContextRefBuilder.PERSISTENCE_CONTEXT_REF_QNAME_SET);
+    private XmlObject[] getPersistenceContextRefs(XmlObject plan) throws DeploymentException {
+        return plan == null? NO_REFS: convert(plan.selectChildren(PersistenceContextRefBuilder.PERSISTENCE_CONTEXT_REF_QNAME_SET), NAMING_CONVERTER, GerPersistenceContextRefType.type);
     }
 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(PersistenceContextRefBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
 
+        infoBuilder.setConstructor(new String[] {"defaultEnvironment"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

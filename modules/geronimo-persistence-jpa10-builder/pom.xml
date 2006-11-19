@@ -21,7 +21,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>modules</artifactId>
@@ -31,12 +31,17 @@
 
     <artifactId>geronimo-persistence-jpa10-builder</artifactId>
     <name>Geronimo :: Persistence JPA1.0 :: Builder</name>
-    
+
     <dependencies>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-j2ee-builder</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-naming-builder</artifactId>
             <version>${pom.version}</version>
         </dependency>
         <dependency>
