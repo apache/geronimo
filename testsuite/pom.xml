@@ -23,8 +23,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     
 
+
     <modelVersion>4.0.0</modelVersion>
     
+
 
     <parent>
         <groupId>org.apache.geronimo</groupId>
@@ -34,11 +36,13 @@
     </parent>
     
 
+
     <groupId>org.apache.geronimo.testsuite</groupId>
     <artifactId>testsuite</artifactId>
     <name>Geronimo TestSuite</name>
     <packaging>pom</packaging>
     
+
 
     <description>
         Geronimo integration testsuite. This contains 2 profiles, default and child.
@@ -54,6 +58,7 @@
 
     </description>
     
+
 
     <dependencyManagement>
         <dependencies>
@@ -117,6 +122,7 @@
     </modules>
     
 
+
     <build>
         <pluginManagement>
             <plugins>
@@ -127,6 +133,7 @@
                     <version>${version}</version>
                 </plugin>
                 
+
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -188,6 +195,7 @@
                     </configuration>
                         
 
+
                     <executions>
                         <execution>
                             <phase>integration-test</phase>
@@ -207,7 +215,7 @@
                                     <goal>site-deploy</goal>
                                 </goals>
                                 <parameters>
-                                  <deployDirectory>${deployDirectory}</deployDirectory>
+                                    <deployDirectory>${deployDirectory}</deployDirectory>
                                 </parameters>
                             </configuration>
                         </execution>
@@ -253,6 +261,7 @@
                             <artifactId>selenium-maven-plugin</artifactId>
                         
 
+
                             <executions>
                                 <execution>
                                     <id>start-server</id>
@@ -269,6 +278,7 @@
                         </plugin>
                     
 
+
                         <plugin>
                             <groupId>org.apache.geronimo.plugins</groupId>
                             <artifactId>geronimo-maven-plugin</artifactId>
@@ -282,6 +292,7 @@
                             </configuration>
                         
 
+
                             <executions>
                                 <execution>
                                     <id>start-server</id>
@@ -293,17 +304,19 @@
                                         <logOutput>true</logOutput>
                                         <background>true</background>
                                         <!-- EXAMPLE: Use the following option to re-use a single installation of the server for all tests -->
+                                        <!--
                                         <installDirectory>c:\apache</installDirectory>
+                                        -->
                                     </configuration>
                                 </execution>
 
                                 <execution>
-                                  <id>stop-server</id>
-                                  <phase>install</phase>
-                                  <goals>
-                                      <goal>stop-server</goal>
-                                  </goals>
-                              </execution>
+                                    <id>stop-server</id>
+                                    <phase>install</phase>
+                                    <goals>
+                                        <goal>stop-server</goal>
+                                    </goals>
+                                </execution>
 
                             </executions>
                         </plugin>
@@ -315,7 +328,7 @@
                 <plugins>
                     <plugin>
                         <!--
-                            FIXME: The [site:site] plugin executes twice in each of the child.
+                            FIXME: This plugin executes twice in each of the child.
                          -->
                         <groupId>org.apache.geronimo.plugins</groupId>
                         <artifactId>testsuite-maven-plugin</artifactId>
@@ -348,6 +361,7 @@
 
     </profiles>
     
+
 
     <repositories>
         <repository>
