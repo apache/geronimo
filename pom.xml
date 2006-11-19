@@ -1385,6 +1385,21 @@
             </build>
         </profile>
 
+         <profile>
+            <id>itests-environment</id>
+
+            <activation>
+                <property>
+                    <name>env</name>
+                    <value>itests</value>
+                </property>
+            </activation>
+
+            <modules>
+                <module>testsuite</module>
+            </modules>
+        </profile>
+
     </profiles>
 
 </project>
