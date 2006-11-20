@@ -14,6 +14,9 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
+
+<%-- $Rev$ $Date$ --%>
+
 <%@ page import="org.apache.geronimo.console.util.PortletManager"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
@@ -21,6 +24,8 @@
 <portlet:defineObjects/>
 <p>This tool walks you through the process of configuring keystores to use with
   SSL connectors (for the web container, etc.).</p>
+
+<jsp:include page="_header.jsp" />
 
 <c:choose>
   <c:when test="${empty(keystores)}"><p><i>There are no keystores defined</i></p></c:when>

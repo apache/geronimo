@@ -62,6 +62,11 @@ public abstract class BaseKeystoreHandler extends MultiPageAbstractHandler {
     protected static final String GENERATE_CSR = "generateCSR";
     protected static final String IMPORT_CA_REPLY = "importCAReply";
     protected static final String DELETE_ENTRY = "deleteEntry";
+
+    // Name of the attribute for error message to be displayed in a page
+    protected static final String ERROR_MSG = "errorMsg";
+    // Name of the attribute for information message to be displayed in a page
+    protected static final String INFO_MSG = "infoMsg";
     
 
     protected BaseKeystoreHandler(String mode, String viewName) {
