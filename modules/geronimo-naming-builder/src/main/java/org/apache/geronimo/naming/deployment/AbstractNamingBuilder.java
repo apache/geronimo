@@ -36,8 +36,11 @@ import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.Dependency;
+import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.schema.NamespaceElementConverter;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerAbstractNamingEntryDocument;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlObject;
@@ -50,6 +53,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
     protected static final String J2EE_NAMESPACE = "http://java.sun.com/xml/ns/j2ee";
     protected static final String JEE_NAMESPACE = "http://java.sun.com/xml/ns/javaee";
     protected static final NamespaceElementConverter J2EE_CONVERTER = new NamespaceElementConverter(J2EE_NAMESPACE);
+    protected static final NamespaceElementConverter NAMING_CONVERTER = new NamespaceElementConverter(GerAbstractNamingEntryDocument.type.getDocumentElementName().getNamespaceURI());
 
     private final Environment defaultEnvironment;
 
@@ -61,13 +65,38 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         this.defaultEnvironment = defaultEnvironment;
     }
 
-    public void buildEnvironment(XmlObject specDD, XmlObject plan, Environment environment) {
+    public void buildEnvironment(XmlObject specDD, XmlObject plan, Environment environment) throws DeploymentException {
         if (willMergeEnvironment(specDD, plan)) {
             EnvironmentBuilder.mergeEnvironments(environment, defaultEnvironment);
         }
     }
 
-    protected boolean willMergeEnvironment(XmlObject specDD, XmlObject plan) {
+    protected boolean willMergeEnvironment(XmlObject specDD, XmlObject plan) throws DeploymentException {
+        return false;
+    }
+
+    protected boolean matchesDefaultEnvironment(Environment environment) {
+        for (Iterator iterator = defaultEnvironment.getDependencies().iterator(); iterator.hasNext();) {
+            Dependency defaultDependency = (Dependency) iterator.next();
+            boolean matches = false;
+            for (Iterator iterator1 = environment.getDependencies().iterator(); iterator1.hasNext();) {
+                Dependency actualDependency = (Dependency) iterator1.next();
+                if (matches(defaultDependency, actualDependency)) {
+                    matches = true;
+                    break;
+                }
+                if (!matches) {
+        return false;
+    }
+            }
+        }
+        return true;
+    }
+
+    private boolean matches(Dependency defaultDependency, Dependency actualDependency) {
+        if (defaultDependency.getArtifact().matches(actualDependency.getArtifact()) || actualDependency.getArtifact().matches(defaultDependency.getArtifact())) {
+            return defaultDependency.getImportType() == actualDependency.getImportType() || actualDependency.getImportType() == ImportType.ALL;
+        }
         return false;
     }
 
@@ -93,7 +122,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         return QNameSet.forSets(null, Collections.EMPTY_SET, Collections.EMPTY_SET, qnames);
     }
 
-    protected XmlObject[] convert(XmlObject[] xmlObjects, NamespaceElementConverter converter, SchemaType type) throws DeploymentException {
+    protected static XmlObject[] convert(XmlObject[] xmlObjects, NamespaceElementConverter converter, SchemaType type) throws DeploymentException {
         //bizarre ArrayStoreException if xmlObjects is loaded by the wrong classloader
         XmlObject[] converted = new XmlObject[xmlObjects.length];
         for (int i = 0; i < xmlObjects.length; i++) {

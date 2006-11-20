@@ -111,18 +111,6 @@
         <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee</attribute>
     </gbean>
 
-    <!--<gbean name="CorbaRefBuilder" class="org.apache.geronimo.naming.deployment.CorbaRefBuilder">-->
-        <!--<reference name="CorbaGBeanNameSource">-->
-            <!--<name>EarBuilder</name>-->
-        <!--</reference>-->
-    <!--</gbean>-->
-    <!--<gbean name="ClientCorbaRefBuilder" class="org.apache.geronimo.naming.deployment.CorbaRefBuilder">-->
-        <!--<reference name="CorbaGBeanNameSource">-->
-            <!--<name>AppClientBuilder</name>-->
-        <!--</reference>-->
-    <!--</gbean>-->
-
-
     <gbean name="WebServiceEJBLinkTemplate" class="org.apache.openejb.server.axis.WSContainerGBean"/>
 
 </module>
