@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.console.keystores;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.management.geronimo.KeystoreException;
 
@@ -32,6 +34,7 @@ import java.io.IOException;
  * @version $Rev$ $Date$
  */
 public class EditKeystoreHandler extends BaseKeystoreHandler {
+    private final static Log log = LogFactory.getLog(EditKeystoreHandler.class);
     public EditKeystoreHandler() {
         super(UNLOCK_KEYSTORE_FOR_EDITING, "/WEB-INF/view/keystore/unlockKeystore.jsp");
     }
@@ -45,6 +48,11 @@ public class EditKeystoreHandler extends BaseKeystoreHandler {
     }
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
+        String[] params = {ERROR_MSG, INFO_MSG};
+        for(int i = 0; i < params.length; ++i) {
+            String value = request.getParameter(params[i]);
+            if(value != null) request.setAttribute(params[i], value);
+        }
         request.setAttribute("keystore", request.getParameter("keystore"));
         request.setAttribute("mode", "unlockEdit");
     }
@@ -63,8 +71,11 @@ public class EditKeystoreHandler extends BaseKeystoreHandler {
         try {
             data.unlockEdit(storePass);
         } catch (KeystoreException e) {
-            throw new PortletException(e);
+            response.setRenderParameter(ERROR_MSG, "Unable to unlock keystore "+keystore+" for editing. "+e.toString());
+            log.error("Unable to unlock keystore "+keystore+" for editing.", e);
+            return getMode()+BEFORE_ACTION;
         }
+        response.setRenderParameter(INFO_MSG, "Keystore "+keystore+" successfully unlocked for editing.");
         return LIST_MODE+BEFORE_ACTION;
     }
 }

@@ -14,10 +14,15 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
+
+<%-- $Rev$ $Date$ --%>
+
 <%@ page import="org.apache.geronimo.console.util.PortletManager"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <portlet:defineObjects/>
+
+<jsp:include page="_header.jsp" />
 
 <form name="<portlet:namespace/>KeystoreForm" action="<portlet:actionURL/>">
     <input type="hidden" name="keystore" value="${keystore}" />
