@@ -33,5 +33,31 @@
             </environment>
         </xml-attribute>
     </gbean>
+    <gbean name="PersistenceContextRefBuilder" class="org.apache.geronimo.persistence.builder.PersistenceContextRefBuilder">
+        <xml-attribute name="defaultEnvironment">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.geronimo.configs</groupId>
+                        <artifactId>transaction-jta11</artifactId>
+                        <type>car</type>
+                    </dependency>
+                </dependencies>
+            </environment>
+        </xml-attribute>
+    </gbean>
+    <gbean name="EntityManagerFactoryRefBuilder" class="org.apache.geronimo.persistence.builder.EntityManagerFactoryRefBuilder">
+        <xml-attribute name="defaultEnvironment">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.geronimo.configs</groupId>
+                        <artifactId>transaction-jta11</artifactId>
+                        <type>car</type>
+                    </dependency>
+                </dependencies>
+            </environment>
+        </xml-attribute>
+    </gbean>
 
 </module>

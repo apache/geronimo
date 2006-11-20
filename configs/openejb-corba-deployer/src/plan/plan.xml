@@ -54,12 +54,35 @@
         </xml-attribute>
     </gbean>
 
-    <gbean name="CorbaRefBuilder" class="org.apache.geronimo.naming.deployment.CorbaRefBuilder">
+    <gbean name="CorbaRefBuilder" class="org.apache.openejb.deployment.CorbaRefBuilder">
+        <xml-attribute name="defaultEnvironment">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.geronimo.configs</groupId>
+                        <artifactId>j2ee-corba-yoko</artifactId>
+                        <type>car</type>
+                    </dependency>
+                </dependencies>
+            </environment>
+        </xml-attribute>
         <reference name="CorbaGBeanNameSource">
             <name>EARBuilder</name>
         </reference>
     </gbean>
-    <gbean name="ClientCorbaRefBuilder" class="org.apache.geronimo.naming.deployment.CorbaRefBuilder">
+
+    <gbean name="ClientCorbaRefBuilder" class="org.apache.openejb.deployment.CorbaRefBuilder">
+        <xml-attribute name="defaultEnvironment">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.geronimo.configs</groupId>
+                        <artifactId>client-corba-yoko</artifactId>
+                        <type>car</type>
+                    </dependency>
+                </dependencies>
+            </environment>
+        </xml-attribute>
         <reference name="CorbaGBeanNameSource">
             <name>AppClientBuilder</name>
         </reference>
