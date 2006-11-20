@@ -580,16 +580,18 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
     // ==================== Internals =====================
 
     private void loadKeystoreData(char[] password) throws KeystoreException {
+        InputStream in = null;
         try {
-            keystoreReadDate = System.currentTimeMillis();
+            // Make sure the keystore is loadable using the provided password before resetting the instance variables.
+            KeyStore tempKeystore = KeyStore.getInstance(JKS);
+            in = new BufferedInputStream(new FileInputStream(keystoreFile));
+            long readDate = System.currentTimeMillis();
+            tempKeystore.load(in, password);
+            // Keystore could be loaded successfully.  Initialize the instance variables to reflect the new keystore.
+            keystore = tempKeystore;
+            keystoreReadDate = readDate;
             privateKeys.clear();
             trustCerts.clear();
-            if(keystore == null) {
-                keystore = KeyStore.getInstance(JKS);
-            }
-            InputStream in = new BufferedInputStream(new FileInputStream(keystoreFile));
-            keystore.load(in, password);
-            in.close();
             openPassword = password;
             Enumeration aliases = keystore.aliases();
             while (aliases.hasMoreElements()) {
@@ -608,6 +610,14 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
             throw new KeystoreException("Unable to open keystore with provided password", e);
         } catch (CertificateException e) {
             throw new KeystoreException("Unable to open keystore with provided password", e);
+        } finally {
+            if(in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    log.error("Error while closing keystore file "+keystoreFile.getAbsolutePath(), e);
+                }
+            }
         }
     }
 
