@@ -14,6 +14,9 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
+
+<%-- $Rev$ $Date$ --%>
+
 <%@ page import="org.apache.geronimo.console.util.PortletManager"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
@@ -23,8 +26,11 @@
 also needs to be unlocked in order for SSL to work properly.  Please specify
 the password for the private key within the keystore.</p>
 
+<jsp:include page="_header.jsp" />
+
 <form name="<portlet:namespace/>KeystoreForm" action="<portlet:actionURL/>">
     <input type="hidden" name="keystore" value="${keystore}" />
+    <input type="hidden" name="password" value="${password}" />
     <input type="hidden" name="mode" value="unlockKey-after" />
     <b>Unlock Private Key:</b>
     <select name="keyAlias">

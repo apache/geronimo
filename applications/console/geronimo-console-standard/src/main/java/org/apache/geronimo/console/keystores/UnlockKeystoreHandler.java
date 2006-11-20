@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.console.keystores;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.MultiPageModel;
 
 import javax.portlet.ActionRequest;
@@ -31,6 +33,7 @@ import java.io.IOException;
  * @version $Rev$ $Date$
  */
 public class UnlockKeystoreHandler extends BaseKeystoreHandler {
+    private final static Log log = LogFactory.getLog(UnlockKeystoreHandler.class);
     public UnlockKeystoreHandler() {
         super(UNLOCK_KEYSTORE_FOR_USAGE, "/WEB-INF/view/keystore/unlockKeystore.jsp");
     }
@@ -44,6 +47,11 @@ public class UnlockKeystoreHandler extends BaseKeystoreHandler {
     }
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
+        String[] params = {ERROR_MSG, INFO_MSG};
+        for(int i = 0; i < params.length; ++i) {
+            String value = request.getParameter(params[i]);
+            if(value != null) request.setAttribute(params[i], value);
+        }
         String keystore = request.getParameter("keystore");
         request.setAttribute("keystore", keystore);
         request.setAttribute("mode", "unlockKeystore");
@@ -76,8 +84,11 @@ public class UnlockKeystoreHandler extends BaseKeystoreHandler {
                 return UNLOCK_KEY+BEFORE_ACTION;
             } // otherwise it has no keys
         } catch (Exception e) {
-            throw new PortletException(e);
+            response.setRenderParameter(ERROR_MSG, "Unable to unlock keystore '"+keystore+"' for availability. "+e.toString());
+            log.error("Unable to unlock keystore '"+keystore+"' for availability.", e);
+            return getMode()+BEFORE_ACTION;
         }
+        response.setRenderParameter(INFO_MSG, "Successfully unlocked keystore '"+keystore+"' for availability.");
         return LIST_MODE+BEFORE_ACTION;
     }
 }
