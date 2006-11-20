@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.console.keystores;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.management.geronimo.KeystoreException;
 
@@ -27,11 +29,12 @@ import javax.portlet.RenderResponse;
 import java.io.IOException;
 
 /**
- * Handler for entering a password to unlock a keystore
+ * Handler for entering a password to unlock a key
  *
  * @version $Rev$ $Date$
  */
 public class UnlockKeyHandler extends BaseKeystoreHandler {
+    private final static Log log = LogFactory.getLog(UnlockKeyHandler.class);
     public UnlockKeyHandler() {
         super(UNLOCK_KEY, "/WEB-INF/view/keystore/unlockKey.jsp");
     }
@@ -41,9 +44,15 @@ public class UnlockKeyHandler extends BaseKeystoreHandler {
     }
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
+        String[] params = {ERROR_MSG, INFO_MSG};
+        for(int i = 0; i < params.length; ++i) {
+            String value = request.getParameter(params[i]);
+            if(value != null) request.setAttribute(params[i], value);
+        }
         String keystore = request.getParameter("keystore");
         String password = request.getParameter("password");
         request.setAttribute("keystore", keystore);
+        request.setAttribute("password", password);
         KeystoreData data = ((KeystoreData) request.getPortletSession(true).getAttribute(KEYSTORE_DATA_PREFIX + keystore));
         try {
             request.setAttribute("keys", data.getInstance().listPrivateKeys(password.toCharArray()));
@@ -54,6 +63,7 @@ public class UnlockKeyHandler extends BaseKeystoreHandler {
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
         String keystore = request.getParameter("keystore");
+        String password = request.getParameter("password");
         String alias = request.getParameter("keyAlias");
         String keyPassword = request.getParameter("keyPassword");
         if(keystore == null || keystore.equals("")) {
@@ -63,8 +73,13 @@ public class UnlockKeyHandler extends BaseKeystoreHandler {
         try {
             data.unlockPrivateKey(alias, keyPassword.toCharArray());
         } catch (KeystoreException e) {
-            throw new PortletException(e);
+            response.setRenderParameter("keystore", keystore);
+            response.setRenderParameter("password", password);
+            response.setRenderParameter(ERROR_MSG, "Unable to unlock key '"+alias+"'." + e);
+            log.error("Unable to unlock key '"+alias+"'.", e);
+            return getMode()+BEFORE_ACTION;
         }
+        response.setRenderParameter(INFO_MSG, "Successfully unlocked key '"+alias+"' in keystore '"+keystore+"'.");
         return LIST_MODE+BEFORE_ACTION;
     }
 }

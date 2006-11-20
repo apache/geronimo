@@ -27,7 +27,7 @@ import javax.portlet.RenderResponse;
 import java.io.IOException;
 
 /**
- * Handler for locking and unlocked keystore
+ * Handler for locking an unlocked keystore
  *
  * @version $Rev$ $Date$
  */
@@ -41,6 +41,7 @@ public class LockKeystoreHandler extends BaseKeystoreHandler {
         KeystoreData data = ((KeystoreData) request.getPortletSession(true).getAttribute(KEYSTORE_DATA_PREFIX + keystore));
         try {
             data.lockUse();
+            response.setRenderParameter(INFO_MSG, "Availability of keystore '"+keystore+"' is locked.");
         } catch (KeystoreException e) {
             throw new PortletException(e);
         }
