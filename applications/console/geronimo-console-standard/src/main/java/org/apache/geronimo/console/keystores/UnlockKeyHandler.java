@@ -42,9 +42,14 @@ public class UnlockKeyHandler extends BaseKeystoreHandler {
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
         String keystore = request.getParameter("keystore");
+        String password = request.getParameter("password");
         request.setAttribute("keystore", keystore);
         KeystoreData data = ((KeystoreData) request.getPortletSession(true).getAttribute(KEYSTORE_DATA_PREFIX + keystore));
-        request.setAttribute("keys", data.getKeys());
+        try {
+            request.setAttribute("keys", data.getInstance().listPrivateKeys(password.toCharArray()));
+        } catch (KeystoreException e) {
+            throw new PortletException(e);
+        }
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
