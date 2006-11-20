@@ -182,10 +182,6 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
     }
 
     public void lockKeystore(char[] password) throws KeystoreException {
-        if (password == null) {
-            throw new NullPointerException("password is null");
-        }
-        ensureLoaded(password);
         try {
             kernel.setAttribute(abstractName, "keystorePassword", null);
             keyPasswords.clear();
