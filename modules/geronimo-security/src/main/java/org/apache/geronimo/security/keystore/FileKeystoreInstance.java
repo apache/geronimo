@@ -201,10 +201,13 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
     }
 
     public void unlockPrivateKey(String alias, char[] storePassword, char[] password) throws KeystoreException {
-        if (storePassword == null) {
-            throw new NullPointerException("storePassword is null");
+        if (storePassword == null && keystorePassword == null) {
+            throw new KeystoreException("storePassword is null and keystore is locked for availability.");
         }
-        getPrivateKey(alias, storePassword, password);
+        if(storePassword != null)
+            getPrivateKey(alias, storePassword, password);
+        else
+            getPrivateKey(alias, keystorePassword, password);
         keyPasswords.put(alias, password);
         storePasswords();
     }
