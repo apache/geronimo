@@ -19,28 +19,37 @@
 -->
 <!-- $Rev$ $Date$ -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>console-testsuite</artifactId>
         <version>2.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-
     <artifactId>basic</artifactId>
     <name>Geronimo TestSuite, Console :: Basic</name>
     <packaging>jar</packaging>
-
     <description>Basic test for the Geronimo console.
-
         Note the parent artifactId and the relativePath.
-
         Since no other build executions are done here, the profile is not explicitly
         defined. It inherits the 'child' profile from parent. maven-maven-plugin:invoke
         executes the 'child' profile.i
     </description>
-
+    <profiles>
+        <profile>
+            <id>child</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <suiteXmlFiles>
+                                <suiteXmlFile>${project.build.directory}/test-classes/testng.xml</suiteXmlFile>
+                            </suiteXmlFiles>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
-

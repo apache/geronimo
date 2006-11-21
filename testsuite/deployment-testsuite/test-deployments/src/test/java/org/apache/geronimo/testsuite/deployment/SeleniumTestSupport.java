@@ -25,6 +25,9 @@ import com.thoughtworks.selenium.Selenium;
 
 import org.openqa.selenium.server.SeleniumServer;
 
+import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.AfterSuite;
+
 /**
  * ???
  *
@@ -53,6 +56,7 @@ public class SeleniumTestSupport
     /**
      * @testng.before-suite
      */
+    @BeforeSuite
     protected void startSeleniumClient() throws Exception {
         log.info("Starting Selenium client");
         
@@ -63,6 +67,7 @@ public class SeleniumTestSupport
     /**
      * @testng.after-suite
      */
+    @AfterSuite
     protected void stopSeleniumClient() throws Exception {
         log.info("Stopping Selenium client");
         
@@ -71,21 +76,23 @@ public class SeleniumTestSupport
 
     /**
      * junit's per class setup.
-     */
+     * 
     protected void setUp() throws Exception {
         log.info("Starting Selenium client");
         
         selenium = createSeleniumClient("http://localhost:8080/");
         selenium.start();
     }
+     */
     
     /**
      * junit's per class teardown.
-     */
+     * 
     protected void tearDown() throws Exception {
         log.info("Stopping Selenium client");
         
         selenium.stop();
     }
+     */
 }
 

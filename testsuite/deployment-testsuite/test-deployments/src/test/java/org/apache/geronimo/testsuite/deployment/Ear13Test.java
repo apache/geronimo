@@ -18,6 +18,7 @@
  */
 
 package org.apache.geronimo.testsuite.deployment;
+import org.testng.annotations.Test;
 
 /**
  * ???
@@ -30,6 +31,7 @@ public class Ear13Test
     /**
      * @testng.test
      */
+    @Test
     public void testIndexContent() throws Exception {
         selenium.open("/test-1_3/");
         selenium.waitForPageToLoad("30000");

@@ -19,6 +19,8 @@
 
 package org.apache.geronimo.testsuite.console;
 
+import org.testng.annotations.Test;
+
 /**
  * ???
  *
@@ -30,6 +32,7 @@ public class SimpleLoginTest
     /**
      * @testng.test
      */
+    @Test
     public void testLogin() throws Exception {
         login();
         
@@ -39,6 +42,7 @@ public class SimpleLoginTest
     /**
      * @testng.test
      */
+    @Test
     public void testLoginAndLogout() throws Exception {
         login();
         logout();
@@ -47,6 +51,7 @@ public class SimpleLoginTest
     /**
      * @testng.test
      */
+    @Test
     public void testClickSomeLinks() throws Exception {
         login();
         

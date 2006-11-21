@@ -19,6 +19,8 @@
 
 package org.apache.geronimo.testsuite.console;
 
+import org.testng.annotations.Test;
+
 /**
  * ???
  *
@@ -30,6 +32,7 @@ public class LinkCheckTest
     /**
      * @testng.test
      */
+    @Test
     public void testServerInfoLink() throws Exception {
         login();
         
