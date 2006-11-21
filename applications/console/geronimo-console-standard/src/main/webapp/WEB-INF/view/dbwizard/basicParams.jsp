@@ -14,10 +14,27 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
+
+<%-- $Rev$ $Date$ --%>
+
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <portlet:defineObjects/>
+
+<script language="JavaScript">
+var <portlet:namespace/>formName = "<portlet:namespace/>DatabaseForm";
+var <portlet:namespace/>requiredFields = new Array("driverClass", "jars");
+var <portlet:namespace/>passwordFields = new Array("password");
+function <portlet:namespace/>validateForm(){
+    if(!textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields))
+        return false;
+    if(!passwordElementsConfirm(<portlet:namespace/>formName, <portlet:namespace/>passwordFields)) {
+        return false;
+    }
+    return true;
+}
+</script>
 
 <p><b>Create Database Pool</b> -- Step 2: Select Driver, JAR, Parameters</p>
 
@@ -86,6 +103,10 @@
         <td><input name="password" type="password" size="20" value="${pool.password}"></td>
       </tr>
       <tr>
+        <th><div align="right">Confirm Password:</div></th>
+        <td><input name="confirm-password" type="password" size="20" value="${pool.password}"></td>
+      </tr>
+      <tr>
         <td></td>
         <td>The password used to connect to the database</td>
       </tr>
@@ -110,7 +131,7 @@
     <!-- SUBMIT BUTTON -->
       <tr>
         <td></td>
-        <td><input type="submit" value="Next" /></td>
+        <td><input type="submit" value="Next"  onClick="return <portlet:namespace/>validateForm();"/></td>
       </tr>
     </table>
 </form>
