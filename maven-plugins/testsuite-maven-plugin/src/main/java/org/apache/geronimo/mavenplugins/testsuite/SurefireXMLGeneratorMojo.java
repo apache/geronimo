@@ -45,7 +45,7 @@ import org.apache.tools.ant.taskdefs.XmlProperty;
  * @version $Rev$ $Date$
  */
 public class SurefireXMLGeneratorMojo
-    extends MojoSupport
+extends MojoSupport
 {
     /**
      * @component
@@ -53,22 +53,26 @@ public class SurefireXMLGeneratorMojo
     protected AntHelper ant;
 
     /**
-     * @parameter default-value="${project.build.directory}/surefire-reports"
+     * @parameter default-value="${project.build.directory}"
      * @read-only
      */
-     private File currentReportsDirectory;
+    private File currentBuildDirectory;
 
-     /**
-     * @parameter default-value="${project.basedir}"
-     * @read-only
-     */
-     private File currentBaseDirectory;
+    private File currentReportsDirectory;
 
-     /**
-     * @parameter default-value="${project.parent.basedir}/target/surefire-reports"
-     * @read-only
-     */
-     private File parentReportsDirectory;
+    /**
+    * @parameter default-value="${project.basedir}"
+    * @read-only
+    */
+    private File currentBaseDirectory;
+
+    /**
+    * @parameter default-value="${project.parent.basedir}/target"
+    * @read-only
+    */
+    private File parentBuildDirectory;
+
+    private File parentReportsDirectory;
 
     //
     // MojoSupport Hooks
@@ -83,7 +87,8 @@ public class SurefireXMLGeneratorMojo
      */
     protected MavenProject project = null;
 
-    protected MavenProject getProject() {
+    protected MavenProject getProject()
+    {
         return project;
     }
 
@@ -91,11 +96,15 @@ public class SurefireXMLGeneratorMojo
         super.init();
 
         ant.setProject(getProject());
+
+        currentReportsDirectory = new File(currentBuildDirectory, "surefire-reports");
+        parentReportsDirectory = new File(parentBuildDirectory, "surefire-reports");
     }
 
     protected void doExecute() throws Exception {
 
-        if (currentReportsDirectory == null) {
+        if ( !currentReportsDirectory.exists() )
+        {
             log.info("No surefire-reports directory here");
             return;
         }
@@ -107,11 +116,15 @@ public class SurefireXMLGeneratorMojo
         String parent_time = "0";
 
         String artifactName = FileUtils.filename(currentBaseDirectory.getAbsolutePath());
-        parentReportsDirectory.mkdirs();
+        if ( !parentReportsDirectory.exists() )
+        {
+            parentReportsDirectory.mkdirs();
+        }
         File parentSurefireXMLFile = new File(parentReportsDirectory, "TEST-" + artifactName + ".xml");
 
         ArrayList xmlFiles = (ArrayList) FileUtils.getFiles(currentReportsDirectory, "TEST*.xml", null);
-        for (int i=0; i < xmlFiles.size(); i++) {
+        for ( int i=0; i < xmlFiles.size(); i++ )
+        {
             File xmlFile = (File) xmlFiles.get(i);
             log.info("Loading surefire xml for xmlproperty: " + xmlFile.getAbsolutePath());
 
@@ -125,7 +138,8 @@ public class SurefireXMLGeneratorMojo
             String time = ant.getAnt().getProperty(prefix + ".testsuite.time");
             log.debug("tests=" + tests + "; skipped=" + skipped + ", errors=" + errors + ", failures=" + failures + ", time=" + time);
 
-            if (parentSurefireXMLFile.exists()) {
+            if ( parentSurefireXMLFile.exists() )
+            {
                 log.info("Loading parent surefire xml for xmlproperty");
                 String parentPrefix = "parent" + prefix;
                 loadXMLProperty(parentSurefireXMLFile, parentPrefix);
@@ -153,10 +167,12 @@ public class SurefireXMLGeneratorMojo
     /**
      * http://ant.apache.org/manual/CoreTasks/xmlproperty.html
      */
-    private void loadXMLProperty(File src, String prefix) {
+    private void loadXMLProperty(File src, String prefix)
+    {
         XmlProperty xmlProperty = (XmlProperty)ant.createTask("xmlproperty");
         xmlProperty.setFile(src);
-        if (prefix != null) {
+        if ( prefix != null )
+        {
             xmlProperty.setPrefix(prefix);
         }
         xmlProperty.setCollapseAttributes(true);
