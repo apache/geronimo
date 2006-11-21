@@ -29,8 +29,12 @@ import java.util.Properties;
 
 import org.apache.geronimo.genesis.MojoSupport;
 import org.apache.geronimo.genesis.util.ArtifactItem;
+import org.apache.geronimo.genesis.dependency.DependencyHelper;
+import org.apache.geronimo.genesis.dependency.DependencyTree;
+import org.apache.geronimo.genesis.dependency.DependencyTree.Node;
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.apache.maven.artifact.Artifact;
@@ -70,7 +74,12 @@ public abstract class AbstractCarMojo
      * @readonly
      */
     protected MavenProjectHelper projectHelper;
-
+    
+    /**
+     * @component
+     */
+    private DependencyHelper dependencyHelper = null;
+    
     //
     // MojoSupport Hooks
     //
@@ -89,26 +98,72 @@ public abstract class AbstractCarMojo
     protected ArtifactRepository getArtifactRepository() {
         return artifactRepository;
     }
-
+    
+    protected void init() throws MojoExecutionException, MojoFailureException {
+        super.init();
+        
+        dependencyHelper.setArtifactRepository(artifactRepository);
+    }
+    
+    /**
+     * Generates a properties file with explicit versions of artifacts of the current project transitivly.
+     */
     protected void generateExplicitVersionProperties(final File outputFile) throws MojoExecutionException, IOException {
         log.debug("Generating explicit version properties: " + outputFile);
 
         // Generate explicit_versions for all our dependencies...
         Properties props = new Properties();
-        Iterator iter = getProjectArtifacts().iterator();
-        while (iter.hasNext()) {
-            Artifact artifact = (Artifact)iter.next();
-            String name = artifact.getGroupId() + "/" + artifact.getArtifactId() + "//" + artifact.getType();
-            String value = artifact.getGroupId() + "/" + artifact.getArtifactId() + "/" + artifact.getVersion() + "/" + artifact.getType();
-
-            log.debug("Setting " + name + "=" + value);
-            props.setProperty(name, value);
+        
+        try {
+            DependencyTree dependencies = dependencyHelper.getDependencies(project);
+            
+            Node root = dependencies.getRootNode();
+            
+            // Skip the root node
+            Iterator children = root.getChildren().iterator();
+            while (children.hasNext()) {
+                Node child = (Node) children.next();
+                appendExplicitVersionProperties(child, props);
+            }
         }
-
+        catch (Exception e) {
+            throw new MojoExecutionException("Failed to determine project dependencies", e);
+        }
+        
         BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(outputFile));
         props.store(output, null);
         output.flush();
         output.close();
+    }
+    
+    private void appendExplicitVersionProperties(final Node node, final Properties props) {
+        assert node != null;
+        assert props != null;
+        
+        Artifact artifact = node.getArtifact();
+        if ("test".equals(artifact.getScope())) {
+            if (log.isDebugEnabled()) {
+                log.debug("Skipping artifact with scope test: " + artifact);
+            }
+            return;
+        }
+        
+        String name = artifact.getGroupId() + "/" + artifact.getArtifactId() + "//" + artifact.getType();
+        String value = artifact.getGroupId() + "/" + artifact.getArtifactId() + "/" + artifact.getVersion() + "/" + artifact.getType();
+        
+        if (log.isDebugEnabled()) {
+            log.debug("Setting " + name + "=" + value);
+        }
+        props.setProperty(name, value);
+        
+        if (!node.getChildren().isEmpty()) {
+            Iterator children = node.getChildren().iterator();
+            
+            while (children.hasNext()) {
+                Node child = (Node) children.next();
+                appendExplicitVersionProperties(child, props);
+            }
+        }
     }
 
     protected static File getArchiveFile(final File basedir, final String finalName, String classifier) {
