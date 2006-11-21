@@ -261,10 +261,7 @@
                                     <configuration>
                                         <logOutput>true</logOutput>
                                         <background>true</background>
-                                        <!-- EXAMPLE: Use the following option to re-use a single installation of the server for all tests -->
-                                        <!--
-                                        <installDirectory>c:\apache</installDirectory>
-                                         -->
+                                        <installDirectory>${installDirectory}</installDirectory>
                                     </configuration>
                                 </execution>
                                 <execution>
