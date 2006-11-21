@@ -17,6 +17,8 @@
     limitations under the License.
 -->
 
+<!-- $Rev$ $Date$ -->
+
 <xs:schema
     xmlns:web="http://geronimo.apache.org/xml/ns/j2ee/web-1.2"
     targetNamespace="http://geronimo.apache.org/xml/ns/j2ee/web-1.2"
@@ -34,16 +36,48 @@
     <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment-1.2" schemaLocation="geronimo-module-1.2.xsd"/>
 
     <xs:element name="web-app" type="web:web-appType"/>
+    <xsd:annotation>
+	    <xsd:documentation>
+		    The web-app element is the root of the deployment descriptor for a Geronimo web  
+		    application. Note that the sub-elements of this element should be as in the given order because it is 
+		    defined as a sequence.
+	    </xsd:documentation>
+    </xsd:annotation>
+    <xsd:annotation>
+	    <xsd:documentation>
+		    
+		    This group keeps the usage of the contained JNDI environment
+		    reference elements consistent across J2EE deployment descriptors.
+		    
+	    </xsd:documentation>
+        </xsd:annotation>
 
 
     <xs:complexType name="web-appType">
         <xs:sequence>
             <xs:element ref="sys:environment" minOccurs="0"/>
+	    <xsd:annotation>
+		    <xsd:documentation>                         
+			    This is the first part of the URL used to access the web application.
+			    For example context-root of "Sample-App" will have URL of 
+			    http://host:port/Sample-App" and a context-root of "/" would be make this the default web application to the server.
+			    
+			    If the web application is packaged as an EAR that can use application context
+			    in the "application.xml". This element is necessary unless you want context root to default to the WAR 
+			    name.
+		    </xsd:documentation>
+                </xsd:annotation>
 
             <xs:element name="context-root" type="xs:string" minOccurs="0"/>
             <!--<xs:element name="context-priority-classloader" type="xs:boolean" minOccurs="0"/>-->
             <xs:element ref="naming:web-container" minOccurs="0"/>
             <xs:element name="container-config" type="web:container-configType" minOccurs="0"/>
+	    <xsd:annotation>
+		    <xsd:documentation>
+			    Geronimo supports both Jetty and Tomcat web containers. This element is
+			    for a web application needs to take container specific settings. It can hold either a Tomcat element or a Jetty element or both.
+		    </xsd:documentation>
+                  </xsd:annotation>
 
             <xs:group ref="naming:jndiEnvironmentRefsGroup"/>
             <xs:element ref="naming:message-destination" minOccurs="0" maxOccurs="unbounded"/>
