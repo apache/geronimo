@@ -14,6 +14,9 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
+
+<%-- $Rev$ $Date$ --%>
+
 <%@ page import="org.apache.geronimo.console.util.PortletManager"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
@@ -23,12 +26,16 @@
 var <portlet:namespace/>formName = "<portlet:namespace/>KeystoreForm";
 var <portlet:namespace/>requiredFields = new Array("alias", "password", "certCN", "certO", "certOU", "certL", "certST", "certC");
 var <portlet:namespace/>numericFields = new Array("valid");
+var <portlet:namespace/>passwordFields = new Array("password");
 function <portlet:namespace/>validateForm(){
     if(!textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields))
         return false;
     for(i in <portlet:namespace/>numericFields) {
         if(!checkIntegral(<portlet:namespace/>formName, <portlet:namespace/>numericFields[i]))
             return false;
+    }
+    if(!passwordElementsConfirm(<portlet:namespace/>formName, <portlet:namespace/>passwordFields)) {
+        return false;
     }
     return true;
 }
@@ -52,6 +59,12 @@ private key and accompanying certificate.</p>
             <th align="right">Password for new key:</th>
             <td>
                 <input type="password" name="password" size="20" maxlength="200" />
+            </td>
+        </tr>
+        <tr>
+            <th align="right">Confirm password:</th>
+            <td>
+                <input type="password" name="confirm-password" size="20" maxlength="200" />
             </td>
         </tr>
         <tr>

@@ -14,6 +14,9 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
+
+<%-- $Rev$ $Date$ --%>
+
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="portlet" uri="http://java.sun.com/portlet" %>
 <portlet:defineObjects/>
@@ -22,6 +25,7 @@
 var <portlet:namespace/>formName = "<portlet:namespace/>HttpsForm";
 var <portlet:namespace/>requiredFields = new Array("host");
 var <portlet:namespace/>numericFields = new Array("port", "maxThreads");
+var <portlet:namespace/>passwordFields = new Array();
 function <portlet:namespace/>validateForm(){
     if(!textElementsNotEmpty(<portlet:namespace/>formName, <portlet:namespace/>requiredFields)) {
         return false;
@@ -30,6 +34,9 @@ function <portlet:namespace/>validateForm(){
         if(!checkIntegral(<portlet:namespace/>formName, <portlet:namespace/>numericFields[i])) {
             return false;
         }
+    }
+    if(!passwordElementsConfirm(<portlet:namespace/>formName, <portlet:namespace/>passwordFields)) {
+        return false;
     }
     return true;
 }
@@ -191,6 +198,12 @@ function <portlet:namespace/>validateForm(){
 	</td>
   </tr>
   <tr>
+    <td><div align="right">Confirm Password: </div></td>
+    <td>
+      <input name="confirm-keystorePassword" type="password" size="10">
+    </td>
+  </tr>
+  <tr>
     <td><div align="right"></div></td>
     <td><c:choose><c:when test="${mode eq 'save'}">Change</c:when><c:otherwise>Set</c:otherwise></c:choose>
       the password used to access the keystore file.<c:if test="${server ne 'jetty'}">  This is also the
@@ -203,6 +216,9 @@ function <portlet:namespace/>validateForm(){
       <portlet:namespace/>requiredFields = <portlet:namespace/>requiredFields.concat(new Array("keystorePassword"));
     </script>
   </c:if>
+    <script language="JavaScript">
+      <portlet:namespace/>passwordFields = <portlet:namespace/>passwordFields.concat(new Array("keystorePassword"));
+    </script>
 
     <!-- Keystore Type Field -->
       <tr>
@@ -240,11 +256,20 @@ function <portlet:namespace/>validateForm(){
     </td>
   </tr>
   <tr>
+    <td><div align="right">Confirm Password: </div></td>
+    <td>
+      <input name="confirm-truststorePassword" type="password" size="10">
+    </td>
+  </tr>
+  <tr>
     <td><div align="right"></div></td>
     <td><c:choose><c:when test="${mode eq 'save'}">Change</c:when><c:otherwise>Set</c:otherwise></c:choose>
       the password used to verify the truststore file.<c:if test="${mode eq 'save'}">  Leave
       this empty if you don't want to change the current password.</c:if></td>
   </tr>
+    <script language="JavaScript">
+      <portlet:namespace/>passwordFields = <portlet:namespace/>passwordFields.concat(new Array("truststorePassword"));
+    </script>
 
 <!-- Truststore Type Field -->
   <tr>

@@ -14,6 +14,9 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 //======================================================================
+
+// $Rev$ $Date$
+
 function textElementsNotEmpty(formName, elementNameArray){
     var obj;
     for(i in elementNameArray){
@@ -85,5 +88,20 @@ function validDateMMDDYY(inpDate) {
     var yy = (d0.getYear() < 10 ? '0' : '') + d0.getYear();
     var d1 = mm+'/'+dd+'/'+yy;
     return inpDate == d1;
+}
+
+function passwordElementsConfirm(formName, elementNameArray) {
+    var pwd, cnf;
+    for(i in elementNameArray){
+        var elem = elementNameArray[i];
+        pwd = eval("document.forms['" + formName + "'].elements['"+ elem +"']");
+        cnf = eval("document.forms['" + formName + "'].elements['confirm-"+ elem +"']");
+        if(pwd.value != cnf.value){
+            alert(elem + " and confirm password do not match.");
+            pwd.focus(); 
+            return false;             
+        }
+    }
+    return true;
 }
     
