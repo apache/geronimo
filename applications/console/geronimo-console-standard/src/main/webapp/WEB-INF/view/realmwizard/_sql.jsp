@@ -14,6 +14,9 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
+
+<%-- $Rev$ $Date$ --%>
+
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
@@ -21,7 +24,9 @@
       <script language="JavaScript">
         var <portlet:namespace/>requiredFieldsCommon = new Array('option-userSelect', 'option-groupSelect');
         var <portlet:namespace/>requiredFieldsJDBC = new Array('option-jdbcDriver', 'jar', 'option-jdbcURL', 'option-jdbcUser', 'option-jdbcPassword');
+        var <portlet:namespace/>passwordFieldsJDBC = new Array('option-jdbcPassword');
         function <portlet:namespace/>changeRequiredFields(par) {
+          <portlet:namespace/>passwordFields = <portlet:namespace/>passwordFieldsJDBC;
           if(par.value != '') // Database pool is selected
             <portlet:namespace/>requiredFields = <portlet:namespace/>requiredFieldsCommon;
           else
@@ -135,6 +140,11 @@
       <tr>
         <th><div align="right">JDBC Password</div></th>
         <td><input name="option-jdbcPassword" type="password"
+                   size="20" value="${realm.options['jdbcPassword']}"></td>
+      </tr>
+      <tr>
+        <th><div align="right">Confirm Password</div></th>
+        <td><input name="confirm-option-jdbcPassword" type="password"
                    size="20" value="${realm.options['jdbcPassword']}"></td>
       </tr>
       <tr>

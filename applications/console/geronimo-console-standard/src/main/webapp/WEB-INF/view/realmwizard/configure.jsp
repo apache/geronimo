@@ -14,6 +14,9 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
+
+<%-- $Rev$ $Date$ --%>
+
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
@@ -22,8 +25,15 @@
 <script language="JavaScript">
 var <portlet:namespace/>formName = "<portlet:namespace/>RealmForm";
 var <portlet:namespace/>requiredFields;
+var <portlet:namespace/>passwordFields;
 function <portlet:namespace/>validateForm(){
-    return textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields);
+    if(!textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields)) {
+        return false;
+    }
+    if(!passwordElementsConfirm(<portlet:namespace/>formName, <portlet:namespace/>passwordFields)) {
+        return false;
+    }
+    return true;
 }
 </script>
 
@@ -84,6 +94,7 @@ function <portlet:namespace/>validateForm(){
   <c:otherwise>
     <script language="JavaScript">
       <portlet:namespace/>requiredFields = new Array();
+      <portlet:namespace/>passwordFields = new Array();
     </script>
     <c:forEach var="option" items="${realm.optionNames}">
       <tr>
@@ -92,6 +103,16 @@ function <portlet:namespace/>validateForm(){
                    type="<c:choose><c:when test="${optionMap[option].password}">password</c:when><c:otherwise>text</c:otherwise></c:choose>"
                    size="${optionMap[option].length}" value="${realm.options[option]}"></td>
       </tr>
+    <c:if test="${optionMap[option].password}">
+      <tr>
+        <th style="min-width: 140px"><div align="right">Confirm password:</div></th>
+        <td><input name="confirm-option-${option}" type="password"
+                   size="${optionMap[option].length}" value="${realm.options[option]}"></td>
+      </tr>
+      <script language="JavaScript">
+          <portlet:namespace/>passwordFields = <portlet:namespace/>passwordFields.concat(new Array('option-${option}'))
+      </script>
+    </c:if>
       <tr>
         <td></td>
         <td>${optionMap[option].description}</td>

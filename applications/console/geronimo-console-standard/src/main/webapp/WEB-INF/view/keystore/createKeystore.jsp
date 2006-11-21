@@ -14,10 +14,28 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
+
+<%-- $Rev$ $Date$ --%>
+
 <%@ page import="org.apache.geronimo.console.util.PortletManager"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <portlet:defineObjects/>
+
+<script language="JavaScript">
+var <portlet:namespace/>formName = "<portlet:namespace/>KeystoreForm";
+var <portlet:namespace/>requiredFields = new Array("filename", "password");
+var <portlet:namespace/>passwordFields = new Array("password");
+function <portlet:namespace/>validateForm(){
+    if(!textElementsNotEmpty(<portlet:namespace/>formName, <portlet:namespace/>requiredFields)) {
+        return false;
+    }
+    if(!passwordElementsConfirm(<portlet:namespace/>formName, <portlet:namespace/>passwordFields)) {
+        return false;
+    }
+    return true;
+}
+</script>
 
 <form name="<portlet:namespace/>KeystoreForm" action="<portlet:actionURL/>">
     <input type="hidden" name="mode" value="createKeystore-after" />
@@ -34,8 +52,14 @@
                 <input type="password" name="password" size="20" maxlength="200" />
             </td>
         </tr>
+        <tr>
+            <th align="right">Confirm password:</th>
+            <td>
+                <input type="password" name="confirm-password" size="20" maxlength="200" />
+            </td>
+        </tr>
     </table>
-    <input type="submit" value="Create Keystore" />
+    <input type="submit" value="Create Keystore" onClick="return <portlet:namespace/>validateForm();"/>
 </form>
 
 
