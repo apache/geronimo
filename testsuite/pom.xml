@@ -94,7 +94,6 @@
     <modules>
         <module>console-testsuite</module>
         <module>deployment-testsuite</module>
-        <module>ejbcontainer-testsuite</module>
     </modules>
     
     <build>
