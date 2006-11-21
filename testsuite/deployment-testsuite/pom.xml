@@ -17,15 +17,11 @@
     specific language governing permissions and limitations
     under the License.
 -->
-
 <!-- $Rev$ $Date$ -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     
-
     <modelVersion>4.0.0</modelVersion>
     
-
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>testsuite</artifactId>
@@ -33,17 +29,14 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     
-
     <artifactId>deployment-testsuite</artifactId>
     <name>Geronimo TestSuite, Deployment</name>
     <packaging>pom</packaging>
     
-
     <description>
         Geronimo deployment testsuite.
     </description>
     
-
     <dependencies>
         <dependency>
             <groupId>org.openqa.selenium.client-drivers</groupId>
@@ -51,17 +44,14 @@
             <scope>test</scope>
         </dependency>
         
-
         <dependency>
             <groupId>org.openqa.selenium.server</groupId>
             <artifactId>selenium-server</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
-
             <plugin>
                 <!--  This plugin is needed for all suite poms. -->
                 <groupId>org.apache.geronimo.plugins</groupId>
@@ -69,7 +59,7 @@
                 <executions>
                     <execution>
                         <id>generate-surefire-xml</id>
-                        <phase>post-integration-test</phase>
+                        <phase>install</phase>
                         <goals>
                             <goal>generate-surefire-xml</goal>
                         </goals>
@@ -79,7 +69,6 @@
         </plugins>
     </build>
     
-
     <profiles>
         <profile>
             <id>default</id>
@@ -96,12 +85,10 @@
                         <groupId>org.apache.geronimo.plugins</groupId>
                         <artifactId>selenium-maven-plugin</artifactId>
                     </plugin>
-
                     <plugin>
                         <groupId>org.apache.geronimo.plugins</groupId>
                         <artifactId>geronimo-maven-plugin</artifactId>
                     </plugin>
-
                     <plugin>
                         <groupId>org.apache.geronimo.genesis.plugins</groupId>
                         <artifactId>maven-maven-plugin</artifactId>
@@ -109,14 +96,9 @@
                 </plugins>
             </build>
         </profile>
-
         <profile>
             <id>child</id>
         </profile>
-
     </profiles>
-
-
-
+    
 </project>
-

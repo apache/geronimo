@@ -66,7 +66,7 @@
                 <executions>
                     <execution>
                         <id>generate-surefire-xml</id>
-                        <phase>post-integration-test</phase>
+                        <phase>install</phase>
                         <goals>
                             <goal>generate-surefire-xml</goal>
                         </goals>

@@ -16,18 +16,11 @@
     KIND, either express or implied.  See the License for the
     specific language governing permissions and limitations
     under the License.
--->
-
-<!-- $Rev$ $Date$ -->
-
+--><!-- $Rev$ $Date$ -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     
-
-
     <modelVersion>4.0.0</modelVersion>
     
-
-
     <parent>
         <groupId>org.apache.geronimo</groupId>
         <artifactId>geronimo</artifactId>
@@ -35,31 +28,22 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     
-
-
     <groupId>org.apache.geronimo.testsuite</groupId>
     <artifactId>testsuite</artifactId>
     <name>Geronimo TestSuite</name>
     <packaging>pom</packaging>
     
-
-
     <description>
         Geronimo integration testsuite. This contains 2 profiles, default and child.
         The default profile is used by the top level suites directly under this. The child profile is used by the test poms under the suites.
-
         This pom defines the basic dependencies needed by most suites.
-
         The start-selenium, start-server, invoke, and stop-server goals are globally configured here in the pluginManagement sections.
         They just need to be bound in the suites where needed and appropriate.
-
         The test poms under the suites should have this pom as their parent and set their relativePath appropriately
         The test poms under the suites inherit an empty 'child' profile from here. But any other build executions within the test poms should all be inside a 'child' profile.
 
     </description>
     
-
-
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -68,73 +52,60 @@
                 <scope>test</scope>
                 <version>${version}</version>
             </dependency>
-
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>3.8.1</version>
             </dependency>
-
             <dependency>
                 <groupId>org.testng</groupId>
                 <artifactId>testng</artifactId>
                 <classifier>jdk14</classifier>
                 <version>5.1</version>
             </dependency>
-
             <dependency>
                 <groupId>org.openqa.selenium.client-drivers</groupId>
                 <artifactId>selenium-java-client-driver</artifactId>
                 <version>0.8.1</version>
             </dependency>
-
             <dependency>
                 <groupId>org.openqa.selenium.server</groupId>
                 <artifactId>selenium-server</artifactId>
                 <version>0.8.1</version>
             </dependency>
-
         </dependencies>
     </dependencyManagement>
-
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
             <classifier>jdk14</classifier>
         </dependency>
-
         <dependency>
             <groupId>org.apache.geronimo.testsupport</groupId>
             <artifactId>testsupport-common</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
-
     <modules>
         <module>console-testsuite</module>
         <module>deployment-testsuite</module>
+        <module>ejbcontainer-testsuite</module>
     </modules>
     
-
-
     <build>
         <pluginManagement>
             <plugins>
-
                 <plugin>
                     <groupId>org.apache.geronimo.plugins</groupId>
                     <artifactId>selenium-maven-plugin</artifactId>
                     <version>${version}</version>
                 </plugin>
                 
-
-
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-invoker-plugin</artifactId>
@@ -163,7 +134,6 @@
                                 <skip>true</skip>
                             </configuration>
                         </execution>
-
                         <execution>
                             <id>integration</id>
                             <phase>integration-test</phase>
@@ -177,11 +147,9 @@
                         </execution>
                     </executions>
                 </plugin>
-
                 <plugin>
                     <groupId>org.apache.geronimo.genesis.plugins</groupId>
                     <artifactId>maven-maven-plugin</artifactId>
-
                     <configuration>
                         <fileset>
                             <basedir>${pom.basedir}</basedir>
@@ -193,9 +161,6 @@
                             <profile>child</profile>
                         </profiles>
                     </configuration>
-                        
-
-
                     <executions>
                         <execution>
                             <phase>integration-test</phase>
@@ -203,7 +168,6 @@
                                 <goal>invoke</goal>
                             </goals>
                         </execution>
-
                         <execution>
                             <id>site-deploy</id>
                             <phase>site-deploy</phase>
@@ -219,7 +183,6 @@
                                 </parameters>
                             </configuration>
                         </execution>
-
                         <execution>
                             <id>clean</id>
                             <phase>clean</phase>
@@ -234,34 +197,39 @@
                         </execution>
                     </executions>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.geronimo.plugins</groupId>
+                    <artifactId>geronimo-maven-plugin</artifactId>
+                    <configuration>
+                        <reporters>
+                            <reporter implementation="org.apache.geronimo.mavenplugins.geronimo.reporting.SurefireReporter">
+                                <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
+                            </reporter>
+                        </reporters>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
-
     <distributionManagement>
         <site>
             <id>website</id>
             <url>file://${deployDirectory}/website</url>
         </site>
     </distributionManagement>
-
     <profiles>
         <profile>
             <id>default</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-
             <build>
                 <pluginManagement>
                     <plugins>
-
                         <plugin>
                             <groupId>org.apache.geronimo.plugins</groupId>
                             <artifactId>selenium-maven-plugin</artifactId>
                         
-
-
                             <executions>
                                 <execution>
                                     <id>start-server</id>
@@ -277,22 +245,9 @@
                             </executions>
                         </plugin>
                     
-
-
                         <plugin>
                             <groupId>org.apache.geronimo.plugins</groupId>
                             <artifactId>geronimo-maven-plugin</artifactId>
-
-                            <configuration>
-                                <reporters>
-                                    <reporter implementation="org.apache.geronimo.mavenplugins.geronimo.reporting.SurefireReporter">
-                                        <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
-                                    </reporter>
-                                </reporters>
-                            </configuration>
-                        
-
-
                             <executions>
                                 <execution>
                                     <id>start-server</id>
@@ -309,7 +264,6 @@
                                         -->
                                     </configuration>
                                 </execution>
-
                                 <execution>
                                     <id>stop-server</id>
                                     <phase>install</phase>
@@ -317,52 +271,45 @@
                                         <goal>stop-server</goal>
                                     </goals>
                                 </execution>
-
                             </executions>
                         </plugin>
-
+                        <plugin>
+                            <groupId>org.apache.geronimo.plugins</groupId>
+                            <artifactId>testsuite-maven-plugin</artifactId>
+                            <version>${version}</version>
+                            <executions>
+                                <execution>
+                                    <id>generate-surefire-report</id>
+                                    <phase>site</phase>
+                                    <goals>
+                                        <goal>generate-surefire-report</goal>
+                                    </goals>
+                                </execution>
+                                <execution>
+                                    <id>fix-menu</id>
+                                    <phase>post-site</phase>
+                                    <goals>
+                                        <goal>fix-menu</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                        </plugin>
                     </plugins>
                 </pluginManagement>
-
-
                 <plugins>
                     <plugin>
-                        <!--
-                            FIXME: This plugin executes twice in each of the child.
-                         -->
                         <groupId>org.apache.geronimo.plugins</groupId>
                         <artifactId>testsuite-maven-plugin</artifactId>
-                        <version>${version}</version>
-                        <executions>
-                            <execution>
-                                <id>generate-surefire-report</id>
-                                <phase>site</phase>
-                                <goals>
-                                    <goal>generate-surefire-report</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>fix-menu</id>
-                                <phase>post-site</phase>
-                                <goals>
-                                    <goal>fix-menu</goal>
-                                </goals>
-                            </execution>
-                        </executions>
+                        <inherited>false</inherited>
                     </plugin>
                 </plugins>
-
             </build>
         </profile>
-
         <profile>
             <id>child</id>
         </profile>
-
     </profiles>
     
-
-
     <repositories>
         <repository>
             <id>openqa</id>
@@ -389,5 +336,4 @@
             <url>http://howardlewisship.com/repository</url>
         </pluginRepository>
     </pluginRepositories>
-
 </project>
