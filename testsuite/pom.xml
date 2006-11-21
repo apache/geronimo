@@ -53,11 +53,6 @@
                 <version>${version}</version>
             </dependency>
             <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>3.8.1</version>
-            </dependency>
-            <dependency>
                 <groupId>org.testng</groupId>
                 <artifactId>testng</artifactId>
                 <classifier>jdk15</classifier>
@@ -334,7 +329,9 @@
         </repository>
     </repositories>
     
+    <!--
     NOTE: This is the repository where maven-surefire-plugin:2.8-SNAPSHOT comes from.
+    -->
     <pluginRepositories>
         <pluginRepository>
             <id>tapestry.javaforge</id>
