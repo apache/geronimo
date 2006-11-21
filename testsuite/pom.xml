@@ -62,6 +62,7 @@
                 <artifactId>testng</artifactId>
                 <classifier>jdk15</classifier>
                 <version>5.1</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.openqa.selenium.client-drivers</groupId>
@@ -76,15 +77,6 @@
         </dependencies>
     </dependencyManagement>
     <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <classifier>jdk15</classifier>
-        </dependency>
         <dependency>
             <groupId>org.apache.geronimo.testsupport</groupId>
             <artifactId>testsupport-common</artifactId>
@@ -274,7 +266,7 @@
                                         <!-- EXAMPLE: Use the following option to re-use a single installation of the server for all tests -->
                                         <!--
                                         <installDirectory>c:\apache</installDirectory>
-                                        -->
+                                         -->
                                     </configuration>
                                 </execution>
                                 <execution>
