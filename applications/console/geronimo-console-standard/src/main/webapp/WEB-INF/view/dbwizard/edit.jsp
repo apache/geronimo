@@ -14,6 +14,9 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
+
+<%-- $Rev$ $Date$ --%>
+
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
@@ -75,9 +78,7 @@ function <portlet:namespace/>validate() {
 
     <input type="hidden" name="dbtype" value="${pool.dbtype}" />
     <input type="hidden" name="urlPrototype" value="${pool.urlPrototype}" />
-    <c:forEach var="jar" items="${pool.jars}">
-     <input type="hidden" name="jars" value="${jar}" />
-    </c:forEach>    <input type="hidden" name="adapterDisplayName" value="${pool.adapterDisplayName}" />
+    <input type="hidden" name="adapterDisplayName" value="${pool.adapterDisplayName}" />
   <c:forEach var="prop" items="${pool.urlProperties}">
     <input type="hidden" name="${prop.key}" value="${prop.value}" />
   </c:forEach>
@@ -167,7 +168,9 @@ function <portlet:namespace/>validate() {
       </tr>
     </c:when>
     <c:otherwise>
-      <input type="hidden" name="jars" value="${pool.jars}" />
+      <c:forEach var="jar" items="${pool.jars}">
+        <input type="hidden" name="jars" value="${jar}" />
+      </c:forEach>
     </c:otherwise>
   </c:choose>
     <!-- ENTRY FIELD: URL -->
@@ -229,7 +232,9 @@ function <portlet:namespace/>validate() {
       </tr>
     </c:when>
     <c:otherwise>
-      <input type="hidden" name="jars" value="${pool.jars}" />
+      <c:forEach var="jar" items="${pool.jars}">
+        <input type="hidden" name="jars" value="${jar}" />
+      </c:forEach>
     </c:otherwise>
   </c:choose>
     <c:forEach var="prop" items="${pool.properties}">
@@ -248,7 +253,10 @@ function <portlet:namespace/>validate() {
         <input type="hidden" name="password" value="${pool.password}" />
         <input type="hidden" name="driverClass" value="${pool.driverClass}" />
         <input type="hidden" name="url" value="${pool.url}" />
-        <input type="hidden" name="jars" value="${pool.jars}" />
+        <!-- There is already a form element "jars" defined in this form either as a "select" or as "hidden" field
+             depending upon whether the pool is being created or edited.  Commented out the following.  Need to
+             investigate the other four hidden elements above too. -->
+        <!-- <input type="hidden" name="jars" value="${pool.jars}" /> -->
       </td></tr>
   </c:otherwise>
 </c:choose>
