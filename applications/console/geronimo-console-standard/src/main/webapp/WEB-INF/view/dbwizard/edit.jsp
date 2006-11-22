@@ -22,6 +22,23 @@
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <portlet:defineObjects/>
 
+<script language="JavaScript">
+var <portlet:namespace/>formName = "<portlet:namespace/>DatabaseForm";
+var <portlet:namespace/>requiredFields = new Array();
+var <portlet:namespace/>passwordFields = new Array();
+function <portlet:namespace/>validateForm(){
+    if(!textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields))
+        return false;
+    if(!passwordElementsConfirm(<portlet:namespace/>formName, <portlet:namespace/>passwordFields)) {
+        return false;
+    }
+    if(!<portlet:namespace/>validate()) {
+        return false;
+    }
+    return true;
+}
+</script>
+
 <p>This page edits a new or existing database pool.</p>
 
 <script language="JavaScript">
@@ -95,6 +112,9 @@ function <portlet:namespace/>validate() {
       <c:choose> <%-- Can't change the pool name after deployment because it's wired into all the ObjectNames --%>
         <c:when test="${empty pool.abstractName}">
           <input name="name" type="text" size="30" value="${pool.name}">
+          <script language="JavaScript">
+            <portlet:namespace/>requiredFields = <portlet:namespace/>requiredFields.concat(new Array("name"));
+          </script>
         </c:when>
         <c:otherwise>
           <input name="name" type="hidden" value="${pool.name}" />
@@ -129,6 +149,9 @@ function <portlet:namespace/>validate() {
       <c:choose>
         <c:when test="${empty pool.abstractName}">
           <input name="driverClass" type="text" size="30" value="${pool.driverClass}">
+          <script language="JavaScript">
+            <portlet:namespace/>requiredFields = <portlet:namespace/>requiredFields.concat(new Array("driverClass"));
+          </script>
         </c:when>
         <c:otherwise>
           <input type="hidden" name="driverClass" value="${pool.driverClass}" />
@@ -157,6 +180,9 @@ function <portlet:namespace/>validate() {
                   </option>
               </c:forEach>
           </select>
+          <script language="JavaScript">
+            <portlet:namespace/>requiredFields = <portlet:namespace/>requiredFields.concat(new Array("jars"));
+          </script>
         </td>
       </tr>
       <tr>
@@ -178,6 +204,9 @@ function <portlet:namespace/>validate() {
         <th><div align="right">JDBC Connect URL:</div></th>
         <td><input name="url" type="text" size="50" value="${pool.url}"></td>
       </tr>
+      <script language="JavaScript">
+        <portlet:namespace/>requiredFields = <portlet:namespace/>requiredFields.concat(new Array("url"));
+      </script>
       <tr>
         <td></td>
         <td>Make sure the generated URL fits the syntax for your JDBC driver.</td>
@@ -196,6 +225,13 @@ function <portlet:namespace/>validate() {
         <th><div align="right">DB Password:</div></th>
         <td><input name="password" type="password" size="20" value="${pool.password}"></td>
       </tr>
+      <tr>
+        <th><div align="right">Confirm Password:</div></th>
+        <td><input name="confirm-password" type="password" size="20" value="${pool.password}"></td>
+      </tr>
+      <script language="JavaScript">
+        <portlet:namespace/>passwordFields = <portlet:namespace/>passwordFields.concat(new Array("password"));
+      </script>
       <tr>
         <td></td>
         <td>The password used to connect to the database
@@ -221,6 +257,9 @@ function <portlet:namespace/>validate() {
                   </option>
               </c:forEach>
           </select>
+          <script language="JavaScript">
+            <portlet:namespace/>requiredFields = <portlet:namespace/>requiredFields.concat(new Array("jars"));
+          </script>
         </td>
       </tr>
       <tr>
@@ -242,6 +281,15 @@ function <portlet:namespace/>validate() {
         <th><div align="right">${pool.propertyNames[prop.key]}:</div></th>
         <td><input name="${prop.key}" type="<c:choose><c:when test="${fn:containsIgnoreCase(prop.key, 'password')}">password</c:when><c:otherwise>text</c:otherwise></c:choose>" size="20" value="${prop.value}"></td>
       </tr>
+    <c:if test="${fn:containsIgnoreCase(prop.key, 'password')}">
+      <tr>
+        <th><div align="right">Confirm password:</div></th>
+        <td><input name="confirm-${prop.key}" type="password" size="20" value="${prop.value}"></td>
+      </tr>
+      <script language="JavaScript">
+        <portlet:namespace/>passwordFields = <portlet:namespace/>passwordFields.concat(new Array("${prop.key}"));
+      </script>
+    </c:if>   
       <tr>
         <td></td>
         <td>${ConfigParams[prop.key].description}</td>
@@ -309,23 +357,23 @@ function <portlet:namespace/>validate() {
   <c:when test="${pool.generic}">
     <c:choose> <%-- Can't test after deployment because we don't know what JAR to put on the ClassPath, can't show plan becasue we can't update a plan --%>
       <c:when test="${empty pool.abstractName}">
-          <input type="button" value="Test Connection" onclick="if (<portlet:namespace/>validate()){document.<portlet:namespace/>DatabaseForm.test.value='true';document.<portlet:namespace/>DatabaseForm.submit();}" />
-          <input type="button" value="Skip Test and Deploy" onclick="if (<portlet:namespace/>validate()){document.<portlet:namespace/>DatabaseForm.test.value='false';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
-          <input type="button" value="Skip Test and Show Plan" onclick="if (<portlet:namespace/>validate()){document.<portlet:namespace/>DatabaseForm.mode.value='plan';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
+          <input type="button" value="Test Connection" onclick="if (<portlet:namespace/>validateForm()){document.<portlet:namespace/>DatabaseForm.test.value='true';document.<portlet:namespace/>DatabaseForm.submit();}" />
+          <input type="button" value="Skip Test and Deploy" onclick="if (<portlet:namespace/>validateForm()){document.<portlet:namespace/>DatabaseForm.test.value='false';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
+          <input type="button" value="Skip Test and Show Plan" onclick="if (<portlet:namespace/>validateForm()){document.<portlet:namespace/>DatabaseForm.mode.value='plan';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
       </c:when>
       <c:otherwise>
-          <input type="button" value="Save" onclick="if (<portlet:namespace/>validate()){document.<portlet:namespace/>DatabaseForm.mode.value='save';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
+          <input type="button" value="Save" onclick="if (<portlet:namespace/>validateForm()){document.<portlet:namespace/>DatabaseForm.mode.value='save';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
       </c:otherwise>
     </c:choose>
   </c:when>
   <c:otherwise> <%-- Not a generic JDBC pool --%>
     <c:choose>
       <c:when test="${empty pool.abstractName}"> <%-- If it's new we can preview the plan or save/deploy --%>
-          <input type="button" value="Deploy" onclick="if (<portlet:namespace/>validate()){document.<portlet:namespace/>DatabaseForm.mode.value='save';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
-          <input type="button" value="Show Plan" onclick="if (<portlet:namespace/>validate()){document.<portlet:namespace/>DatabaseForm.mode.value='plan';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
+          <input type="button" value="Deploy" onclick="if (<portlet:namespace/>validateForm()){document.<portlet:namespace/>DatabaseForm.mode.value='save';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
+          <input type="button" value="Show Plan" onclick="if (<portlet:namespace/>validateForm()){document.<portlet:namespace/>DatabaseForm.mode.value='plan';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
       </c:when>
       <c:otherwise> <%-- If it's existing we can only save --%>
-          <input type="button" value="Save" onclick="if (<portlet:namespace/>validate()){document.<portlet:namespace/>DatabaseForm.mode.value='save';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
+          <input type="button" value="Save" onclick="if (<portlet:namespace/>validateForm()){document.<portlet:namespace/>DatabaseForm.mode.value='save';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
       </c:otherwise>
     </c:choose>
   </c:otherwise>
