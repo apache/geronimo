@@ -14,14 +14,27 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
+
+<%-- $Rev$ $Date$ --%>
+
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <portlet:defineObjects/>
 
+<script language="JavaScript">
+var <portlet:namespace/>formName = "<portlet:namespace/>DatabaseForm";
+var <portlet:namespace/>requiredFields = new Array("name", "dbtype");
+function <portlet:namespace/>validateForm(){
+    if(!textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields))
+        return false;
+    return true;
+}
+</script>
+
 <p><b>Create Database Pool</b> -- Step 1: Select Name and Database</p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
-<form name="<portlet:namespace/>" action="<portlet:actionURL/>" method="POST">
+<form name="<portlet:namespace/>DatabaseForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="process-rdbms" />
     <input type="hidden" name="user" value="${pool.user}" />
     <input type="hidden" name="password" value="${pool.password}" />
@@ -71,7 +84,7 @@
       </tr>
       <tr>
         <td></td>
-        <td><input type="submit" value="Next" /></td>
+        <td><input type="submit" value="Next" onClick="return <portlet:namespace/>validateForm();"/></td>
       </tr>
     </table>
 </form>
