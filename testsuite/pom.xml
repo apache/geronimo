@@ -261,7 +261,6 @@
                                     <configuration>
                                         <logOutput>true</logOutput>
                                         <background>true</background>
-                                        <installDirectory>${installDirectory}</installDirectory>
                                     </configuration>
                                 </execution>
                                 <execution>
