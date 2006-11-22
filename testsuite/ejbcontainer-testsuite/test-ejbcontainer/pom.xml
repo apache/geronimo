@@ -33,9 +33,6 @@
     <description>
         Tests for the ejb modules
     </description>
-    <properties>
-        <junitVersion>3.8.1</junitVersion>
-    </properties>
     
     <dependencies>
         <dependency>
@@ -56,12 +53,6 @@
         <profile>
             <id>child</id>
             <build>
-                <testResources>
-                    <testResource>
-                        <directory>src/test/resources</directory>
-                        <filtering>true</filtering>
-                    </testResource>
-                </testResources>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.geronimo.plugins</groupId>
@@ -78,7 +69,6 @@
                                         <module>
                                             <groupId>junit</groupId>
                                             <artifactId>junit</artifactId>
-                                            <version>${junitVersion}</version>
                                             <type>jar</type>
                                             <plan>${project.build.directory}/test-classes/META-INF/junit-plan.xml</plan>
                                         </module>
@@ -109,7 +99,6 @@
                                         <module>
                                             <groupId>junit</groupId>
                                             <artifactId>junit</artifactId>
-                                            <version>${junitVersion}</version>
                                             <type>jar</type>
                                         </module>
                                     </modules>
