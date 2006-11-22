@@ -139,7 +139,47 @@ public abstract class ModuleMojoSupport
     }
 
     /**
-     * Check of the given module is started.
+     * Given a list of modules, return a list of non-running ones.
+     *
+     * @param moduleIds  The list of modules to check
+     * @return          The list of modules that are not running
+     *
+     * @throws Exception
+     */
+    protected TargetModuleID[] getNonRunningModules(final TargetModuleID[] moduleIds) throws Exception {
+        assert moduleIds != null;
+
+        List modulesList = new ArrayList();
+
+        DeploymentManager manager = getDeploymentManager();
+
+        Target[] targets = manager.getTargets();
+        TargetModuleID runningModuleIds[] = manager.getRunningModules(null, targets);
+
+        for (int j = 0; j < moduleIds.length; j++) {
+            String moduleId = moduleIds[j].getModuleID();
+            log.debug("Checking if module is running: " + moduleId);
+
+            boolean found = false;
+            for (int i = 0; i < runningModuleIds.length; i++) {
+            String runningModuleId = runningModuleIds[i].getModuleID();
+                if (moduleId.equals(runningModuleId)) {
+                    log.debug("Module is running: " + moduleId);
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                log.debug("Module is not running: " + moduleId);
+                modulesList.add(moduleIds[j]);
+            }
+        }
+        return (TargetModuleID[]) modulesList.toArray(new TargetModuleID[modulesList.size()]);
+    }
+
+    /**
+     * Check if the given module is started.
      *
      * @param moduleId  The module ID to check
      * @return          True if the module for this ID is started.
@@ -190,10 +230,6 @@ public abstract class ModuleMojoSupport
     protected void startModule() throws Exception {
         assert modules != null;
 
-        DeploymentManager manager = getDeploymentManager();
-        Target[] targets = manager.getTargets();
-        TargetModuleID[] targetIds = manager.getNonRunningModules(null, targets);
-
         for (int i=0; i<modules.length; i++) {
            String moduleId = getModuleId(modules[i]);
         
@@ -202,6 +238,10 @@ public abstract class ModuleMojoSupport
                continue;
                //throw new MojoExecutionException("Module is already started: " + moduleId);
            }
+
+           DeploymentManager manager = getDeploymentManager();
+           Target[] targets = manager.getTargets();
+           TargetModuleID[] targetIds = manager.getNonRunningModules(null, targets);
 
            TargetModuleID[] found = findModules(moduleId, targetIds);
 
@@ -232,7 +272,7 @@ public abstract class ModuleMojoSupport
          for (int i=0; i<modules.length; i++) {
            String moduleId = getModuleId(modules[i]);
            if (!isModuleStarted(moduleId)) {
-               log.warn("Module is already stopped: " + moduleId);
+               log.info("Module is already stopped: " + moduleId);
                continue;
                //throw new MojoExecutionException("Module is not started: " + moduleId);
            }
@@ -271,7 +311,9 @@ public abstract class ModuleMojoSupport
           TargetModuleID[] found = findModules(moduleId, targetIds);
 
           if (found.length == 0) {
-              throw new Exception("Module is not deployed: " + moduleId);
+              log.info("Module is not deployed: " + moduleId);
+              continue;
+              //throw new Exception("Module is not deployed: " + moduleId);
           }
 
           log.info("Undeploying module: " + moduleId);
