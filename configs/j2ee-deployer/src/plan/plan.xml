@@ -131,6 +131,9 @@
             <pattern>
                 <name>CorbaRefBuilder</name>
             </pattern>
+            <pattern>
+                <name>OpenEjbTSSLinkBuilder</name>
+            </pattern>
         </references>
     </gbean>
 
