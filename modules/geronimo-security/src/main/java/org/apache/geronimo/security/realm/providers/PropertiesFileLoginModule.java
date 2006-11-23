@@ -22,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.util.encoders.HexTranslator;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -35,6 +36,8 @@ import javax.security.auth.spi.LoginModule;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -54,9 +57,11 @@ import java.util.Set;
 public class PropertiesFileLoginModule implements LoginModule {
     public final static String USERS_URI = "usersURI";
     public final static String GROUPS_URI = "groupsURI";
+    public final static String DIGEST = "digest";
     private static Log log = LogFactory.getLog(PropertiesFileLoginModule.class);
     final Properties users = new Properties();
     final Map groups = new HashMap();
+    private String digest;
 
     Subject subject;
     CallbackHandler handler;
@@ -70,6 +75,16 @@ public class PropertiesFileLoginModule implements LoginModule {
             ServerInfo serverInfo = (ServerInfo) options.get(JaasLoginModuleUse.SERVERINFO_LM_OPTION);
             final String users = (String)options.get(USERS_URI);
             final String groups = (String)options.get(GROUPS_URI);
+            digest = (String) options.get(DIGEST);
+            if(digest != null && !digest.equals("")) {
+                // Check if the digest algorithm is available
+                try {
+                    MessageDigest.getInstance(digest);
+                } catch(NoSuchAlgorithmException e) {
+                    log.error("Initialization failed. Digest algorithm "+digest+" is not available.", e);
+                    throw new IllegalArgumentException("Unable to configure properties file login module: "+e.getMessage());
+                }
+            }
             if(users == null || groups == null) {
                 throw new IllegalArgumentException("Both "+USERS_URI+" and "+GROUPS_URI+" must be provided!");
             }
@@ -139,7 +154,7 @@ public class PropertiesFileLoginModule implements LoginModule {
         char[] entered = ((PasswordCallback) callbacks[1]).getPassword();
         password = entered == null ? null : new String(entered);
         boolean result = (realPassword == null && password == null) ||
-                (realPassword != null && password != null && realPassword.equals(password));
+                (realPassword != null && password != null && checkPassword(realPassword, password));
         if(!result) {
             throw new FailedLoginException();
         }
@@ -204,5 +219,33 @@ public class PropertiesFileLoginModule implements LoginModule {
             throw new IllegalArgumentException("No such principal class "+className);
         }
         return (String[]) s.toArray(new String[s.size()]);
+    }
+
+    /**
+     * This method checks if the provided password is correct.  The original password may have been digested.
+     * @param real      Original password in digested form if applicable
+     * @param provided  User provided password in clear text
+     * @return true     If the password is correct
+     */
+    private boolean checkPassword(String real, String provided){
+        if(digest == null || digest.equals("")) {
+            // No digest algorithm is used
+            return real.equals(provided);
+        }
+        try {
+            // Digest the user provided password
+            MessageDigest md = MessageDigest.getInstance(digest);
+            byte[] data = md.digest(provided.getBytes());
+            // Convert bytes to hex digits
+            byte[] hexData = new byte[data.length * 2];
+            HexTranslator ht = new HexTranslator();
+            ht.encode(data, 0, data.length, hexData, 0);
+            // Compare the digested provided password with the actual one
+            return real.equalsIgnoreCase(new String(hexData));
+        } catch (NoSuchAlgorithmException e) {
+            // Should not occur.  Availability of algorithm has been checked at initialization
+            log.error("Should not occur.  Availability of algorithm has been checked at initialization.", e);
+        }
+        return false;
     }
 }

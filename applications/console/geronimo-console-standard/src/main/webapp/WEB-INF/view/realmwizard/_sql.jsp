@@ -62,6 +62,17 @@
       </tr>
 
       <tr>
+        <th><div align="right">Digest Algorithm:</div></th>
+        <td><input name="option-digest" type="text"
+                   size="10" value="${realm.options['digest']}"></td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>Message Digest algorithm (e.g. MD5, SHA1, etc.) used on the passwords.  Leave this field empty if no digest
+          algorithm is used.</td>
+      </tr>
+
+      <tr>
         <td></td>
         <td><i>A SQL security realm must either have a database pool or JDBC connectivity settings to
           connect to the database.  Please select EITHER the database pool, OR the rest of the JDBC

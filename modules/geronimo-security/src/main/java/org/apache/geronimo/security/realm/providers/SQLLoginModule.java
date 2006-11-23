@@ -18,6 +18,8 @@
 package org.apache.geronimo.security.realm.providers;
 
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.PreparedStatement;
@@ -39,6 +41,8 @@ import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 import javax.sql.DataSource;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -47,6 +51,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
+import org.apache.geronimo.util.encoders.HexTranslator;
 
 
 /**
@@ -71,6 +76,7 @@ import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
  * @version $Rev$ $Date$
  */
 public class SQLLoginModule implements LoginModule {
+    private static Log log = LogFactory.getLog(SQLLoginModule.class);
     public final static String USER_SELECT = "userSelect";
     public final static String GROUP_SELECT = "groupSelect";
     public final static String CONNECTION_URL = "jdbcURL";
@@ -79,12 +85,14 @@ public class SQLLoginModule implements LoginModule {
     public final static String DRIVER = "jdbcDriver";
     public final static String DATABASE_POOL_NAME = "dataSourceName";
     public final static String DATABASE_POOL_APP_NAME = "dataSourceApplication";
+    public final static String DIGEST = "digest";
     private String connectionURL;
     private Properties properties;
     private Driver driver;
     private JCAManagedConnectionFactory factory;
     private String userSelect;
     private String groupSelect;
+    private String digest;
 
     private Subject subject;
     private CallbackHandler handler;
@@ -97,6 +105,17 @@ public class SQLLoginModule implements LoginModule {
         this.handler = callbackHandler;
         userSelect = (String) options.get(USER_SELECT);
         groupSelect = (String) options.get(GROUP_SELECT);
+
+        digest = (String) options.get(DIGEST);
+        if(digest != null && !digest.equals("")) {
+            // Check if the digest algorithm is available
+            try {
+                MessageDigest.getInstance(digest);
+            } catch(NoSuchAlgorithmException e) {
+                log.error("Initialization failed. Digest algorithm "+digest+" is not available.", e);
+                throw new IllegalArgumentException("Unable to configure SQL login module: "+e.getMessage());
+            }
+        }
 
         String dataSourceName = (String) options.get(DATABASE_POOL_NAME);
         if(dataSourceName != null) {
@@ -193,7 +212,7 @@ public class SQLLoginModule implements LoginModule {
 
                             if (cbUsername.equals(userName)) {
                                 found = (cbPassword == null && userPassword == null) ||
-                                        (cbPassword != null && userPassword != null && cbPassword.equals(userPassword));
+                                        (cbPassword != null && userPassword != null && checkPassword(userPassword, cbPassword));
                                 break;
                             }
                         }
@@ -273,5 +292,33 @@ public class SQLLoginModule implements LoginModule {
             ++count;
         }
         return count;
+    }
+
+    /**
+     * This method checks if the provided password is correct.  The original password may have been digested.
+     * @param real      Original password in digested form if applicable
+     * @param provided  User provided password in clear text
+     * @return true     If the password is correct
+     */
+    private boolean checkPassword(String real, String provided){
+        if(digest == null || digest.equals("")) {
+            // No digest algorithm is used
+            return real.equals(provided);
+        }
+        try {
+            // Digest the user provided password
+            MessageDigest md = MessageDigest.getInstance(digest);
+            byte[] data = md.digest(provided.getBytes());
+            // Convert bytes to hex digits
+            byte[] hexData = new byte[data.length * 2];
+            HexTranslator ht = new HexTranslator();
+            ht.encode(data, 0, data.length, hexData, 0);
+            // Compare the digested provided password with the actual one
+            return real.equalsIgnoreCase(new String(hexData));
+        } catch (NoSuchAlgorithmException e) {
+            // Should not occur.  Availability of algorithm has been checked at initialization
+            log.error("Should not occur.  Availability of algorithm has been checked at initialization.", e);
+        }
+        return false;
     }
 }
