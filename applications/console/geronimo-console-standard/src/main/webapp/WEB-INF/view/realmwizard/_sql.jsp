@@ -106,7 +106,7 @@
           <select name="jar">
             <option />
         <c:forEach var="jar" items="${jars}">
-            <option <c:if test="${jar == realm.jar}">selected</c:if>>${jar}</option>
+            <option value="${jar}" <c:if test="${jar == realm.jar}">selected</c:if>>${jar}</option>
         </c:forEach>
           </select>
         </td>

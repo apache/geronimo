@@ -175,7 +175,7 @@ function <portlet:namespace/>validate() {
         <td>
           <select multiple name="jars" size="10">
               <c:forEach var="availableJar" items="${availableJars}">
-                  <option <c:forEach var="jar" items="${pool.jars}"><c:if test="${availableJar == jar}">selected</c:if></c:forEach>>
+                  <option value="${availableJar}" <c:forEach var="jar" items="${pool.jars}"><c:if test="${availableJar == jar}">selected</c:if></c:forEach>>
                       ${availableJar}
                   </option>
               </c:forEach>
@@ -252,7 +252,7 @@ function <portlet:namespace/>validate() {
         <td>
           <select multiple name="jars" size="10">
               <c:forEach var="availableJar" items="${availableJars}">
-                  <option <c:forEach var="jar" items="${pool.jars}"><c:if test="${availableJar == jar}">selected</c:if></c:forEach>>
+                  <option value="${availableJar}" <c:forEach var="jar" items="${pool.jars}"><c:if test="${availableJar == jar}">selected</c:if></c:forEach>>
                       ${availableJar}
                   </option>
               </c:forEach>

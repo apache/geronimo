@@ -23,7 +23,7 @@
 
 <script language="JavaScript">
 var <portlet:namespace/>formName = "<portlet:namespace/>DatabaseForm";
-var <portlet:namespace/>requiredFields = new Array("name", "dbtype");
+var <portlet:namespace/>requiredFields = new Array("name");
 function <portlet:namespace/>validateForm(){
     if(!textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields))
         return false;
