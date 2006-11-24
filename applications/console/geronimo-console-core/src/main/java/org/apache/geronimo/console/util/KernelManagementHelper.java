@@ -368,7 +368,13 @@ public class KernelManagementHelper implements ManagementHelper {
     }
 
     public Object getObject(AbstractName objectName) {
-        return kernel.getProxyManager().createProxy(objectName, KernelManagementHelper.class.getClassLoader());
+        ClassLoader cl = null;
+        try {
+            cl = kernel.getClassLoaderFor(objectName);
+        } catch(GBeanNotFoundException e) {
+            cl = KernelManagementHelper.class.getClassLoader();
+        }
+        return kernel.getProxyManager().createProxy(objectName, cl);
     }
 
     public Artifact getConfigurationNameFor(AbstractName abstractName) {

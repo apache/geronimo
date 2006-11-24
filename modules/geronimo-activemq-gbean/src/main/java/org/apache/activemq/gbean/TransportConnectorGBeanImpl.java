@@ -32,7 +32,7 @@ import org.apache.geronimo.gbean.GConstructorInfo;
 /**
  * Default implementation of the ActiveMQ connector
  *
- * @version $Revision$
+ * @version $Revision$ $Date$
  */
 public class TransportConnectorGBeanImpl implements GBeanLifecycle, ActiveMQConnector {
     private Log log = LogFactory.getLog(getClass().getName());
@@ -165,7 +165,7 @@ public class TransportConnectorGBeanImpl implements GBeanLifecycle, ActiveMQConn
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder("ActiveMQ Transport Connector", TransportConnectorGBeanImpl.class, CONNECTOR_J2EE_TYPE);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("ActiveMQ Transport Connector", TransportConnectorGBeanImpl.class, CONNECTOR_J2EE_TYPE);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
         infoBuilder.addAttribute("url", String.class.getName(), false);
         infoBuilder.addReference("brokerService", BrokerServiceGBean.class);
