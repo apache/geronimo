@@ -48,7 +48,7 @@ import org.apache.geronimo.management.geronimo.NetworkConnector;
  * Implementation of the ActiveMQ management interface.  These are the ActiveMQ
  * management features available at runtime.
  *
- * @version $Revision: 1.0$
+ * @version $Revision$Date$
  */
 public class ActiveMQManagerGBean implements ActiveMQManager {
     private static final Log log = LogFactory.getLog(ActiveMQManagerGBean.class.getName());
@@ -198,7 +198,7 @@ public class ActiveMQManagerGBean implements ActiveMQManager {
         connector.setAttribute("protocol", protocol);
         connector.setAttribute("host", host);
         connector.setAttribute("port", new Integer(port));
-        connector.setReferencePattern("activeMQContainer", brokerAbstractName);
+        connector.setReferencePattern("brokerService", brokerAbstractName);
         EditableConfigurationManager mgr = ConfigurationUtil.getEditableConfigurationManager(kernel);
         if(mgr != null) {
             try {
