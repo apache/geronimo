@@ -193,7 +193,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             specDD = DeploymentUtil.readAll(specDDUrl);
         } catch (Exception e) {
             //no web.xml, not for us
-            e.printStackTrace();
             return null;
         }
         //we found web.xml, if it won't parse that's an error.
