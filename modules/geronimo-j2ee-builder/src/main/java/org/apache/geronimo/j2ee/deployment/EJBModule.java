@@ -33,11 +33,11 @@ import org.apache.xmlbeans.XmlObject;
  */
 public class EJBModule extends Module {
     private AbstractName moduleCmpEngineName;
-    private final Map portMap;
+    private final Map sharedContext;
 
-    public EJBModule(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, Map portMap) {
+    public EJBModule(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, Map sharedContext) {
         super(standAlone, moduleName, environment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null);
-        this.portMap = portMap;
+        this.sharedContext = sharedContext;
     }
 
     public ConfigurationModuleType getType() {
@@ -56,8 +56,8 @@ public class EJBModule extends Module {
         this.moduleCmpEngineName = moduleCmpEngineName;
     }
 
-    public Map getPortMap() {
-        return portMap;
+    public Map getSharedContext() {
+        return sharedContext;
     }
 }
 

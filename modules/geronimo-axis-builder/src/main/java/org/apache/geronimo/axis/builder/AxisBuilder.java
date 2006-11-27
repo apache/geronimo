@@ -64,6 +64,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.deployment.HandlerInfoInfo;
+import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPortCompletionType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPortType;
@@ -91,6 +92,7 @@ public class AxisBuilder implements WebServiceBuilder {
     private static final SOAPConstants SOAP_VERSION = SOAPConstants.SOAP11_CONSTANTS;
 
     private final Environment defaultEnvironment;
+    private static final String KEY = AxisBuilder.class.getName();
 
     public AxisBuilder() {
         defaultEnvironment = null;
@@ -101,26 +103,31 @@ public class AxisBuilder implements WebServiceBuilder {
     }
 
 
-    public Map findWebServices(JarFile moduleFile, boolean isEJB, Map servletLocations, Environment environment) throws DeploymentException {
+    public void findWebServices(JarFile moduleFile, boolean isEJB, Map servletLocations, Environment environment, Map sharedContext) throws DeploymentException {
         final String path = isEJB ? "META-INF/webservices.xml" : "WEB-INF/webservices.xml";
         try {
             URL wsDDUrl = DeploymentUtil.createJarURL(moduleFile, path);
-            Map result = WSDescriptorParser.parseWebServiceDescriptor(wsDDUrl, moduleFile, isEJB, servletLocations);
-            if (result != null) {
+            Map portMap = WSDescriptorParser.parseWebServiceDescriptor(wsDDUrl, moduleFile, isEJB, servletLocations);
+            if (portMap != null) {
                 if (defaultEnvironment != null) {
                     EnvironmentBuilder.mergeEnvironments(environment, defaultEnvironment);
                 }
-                return result;
+                sharedContext.put(KEY, portMap);
             }
         } catch (MalformedURLException e) {
             // The webservices.xml file doesn't exist.
         }
-        return Collections.EMPTY_MAP;
     }
 
-    public void configurePOJO(GBeanData targetGBean, Module module, Object portInfoObject, String seiClassName, DeploymentContext context) throws DeploymentException {
+    public boolean configurePOJO(GBeanData targetGBean, String servletName, Module module, String seiClassName, DeploymentContext context) throws DeploymentException {
         ClassLoader cl = context.getClassLoader();
-        PortInfo portInfo = (PortInfo) portInfoObject;
+        Map sharedContext = ((WebModule) module).getSharedContext();
+        Map portInfoMap = (Map) sharedContext.get(KEY);
+        PortInfo portInfo = (PortInfo) portInfoMap.get(servletName);
+        if (portInfo == null) {
+            //not ours
+            return false;
+        }
         ServiceInfo serviceInfo = AxisServiceBuilder.createServiceInfo(portInfo, cl);
         JavaServiceDesc serviceDesc = serviceInfo.getServiceDesc();
 
@@ -158,14 +165,20 @@ public class AxisBuilder implements WebServiceBuilder {
             throw new DeploymentException("Could not add webServiceContainerFactoryGBean", e);
         }
         targetGBean.setReferencePattern("WebServiceContainerFactory", webServiceContainerFactoryName);
+        return true;
     }
 
-    public void configureEJB(GBeanData targetGBean, JarFile moduleFile, Object portInfoObject, ClassLoader classLoader) throws DeploymentException {
-        PortInfo portInfo = (PortInfo) portInfoObject;
+    public boolean configureEJB(GBeanData targetGBean, String ejbName, JarFile moduleFile, Map sharedContext, ClassLoader classLoader) throws DeploymentException {
+        Map portInfoMap = (Map) sharedContext.get(KEY);
+        PortInfo portInfo = (PortInfo) portInfoMap.get(ejbName);
+        if (portInfo == null) {
+            //not ours
+            return false;
+        }
         ServiceInfo serviceInfo = AxisServiceBuilder.createServiceInfo(portInfo, classLoader);
         targetGBean.setAttribute("serviceInfo", serviceInfo);
         JavaServiceDesc serviceDesc = serviceInfo.getServiceDesc();
-       URI location = portInfo.getContextURI();
+        URI location = portInfo.getContextURI();
         targetGBean.setAttribute("location", location);
         URI wsdlURI;
         try {
@@ -174,6 +187,7 @@ public class AxisBuilder implements WebServiceBuilder {
             throw new DeploymentException("Invalid wsdl URI", e);
         }
         targetGBean.setAttribute("wsdlURI", wsdlURI);
+        return true;
     }
 
 
@@ -283,7 +297,6 @@ public class AxisBuilder implements WebServiceBuilder {
         PortType portType = binding.getPortType();
 
         ServiceEndpointInterfaceMappingType[] endpointMappings = mapping.getServiceEndpointInterfaceMappingArray();
-
 
         //port type corresponds to SEI
         List operations = portType.getOperations();
@@ -480,7 +493,7 @@ public class AxisBuilder implements WebServiceBuilder {
         infoBuilder.addInterface(WebServiceBuilder.class);
         infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
 
-        infoBuilder.setConstructor(new String[] {"defaultEnvironment"});
+        infoBuilder.setConstructor(new String[]{"defaultEnvironment"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
